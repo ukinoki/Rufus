@@ -1,0 +1,1967 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dlg_refraction</class>
+ <widget class="QDialog" name="dlg_refraction">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>865</width>
+    <height>602</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>865</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>865</width>
+    <height>16777215</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="Images/images.qrc">
+    <normaloff>:/lunettes2.png</normaloff>:/lunettes2.png</iconset>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item row="1" column="0">
+    <widget class="QFrame" name="frame_Detail">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>125</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>125</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QGroupBox" name="PrismeGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>5</y>
+        <width>381</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Prisme</string>
+      </property>
+      <widget class="UpDoubleSpinBox" name="PrismeOD">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>45</y>
+         <width>67</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="prefix">
+        <string>+</string>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>8.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelBasePrisme">
+       <property name="geometry">
+        <rect>
+         <x>155</x>
+         <y>25</y>
+         <width>95</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Base du prisme</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="BasePrismeTextOGComboBox">
+       <property name="geometry">
+        <rect>
+         <x>148</x>
+         <y>73</y>
+         <width>110</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>nasale</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>supérieure</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>temporale</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>inférieure</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="UpDoubleSpinBox" name="PrismeOG">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>75</y>
+         <width>67</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="prefix">
+        <string>+</string>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>8.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.500000000000000</double>
+       </property>
+      </widget>
+      <widget class="UpSpinBox" name="BasePrismeOD">
+       <property name="geometry">
+        <rect>
+         <x>260</x>
+         <y>45</y>
+         <width>54</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="wrapping">
+        <bool>true</bool>
+       </property>
+       <property name="suffix">
+        <string>°</string>
+       </property>
+       <property name="maximum">
+        <number>355</number>
+       </property>
+       <property name="singleStep">
+        <number>5</number>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="BasePrismeTextODComboBox">
+       <property name="geometry">
+        <rect>
+         <x>148</x>
+         <y>43</y>
+         <width>110</width>
+         <height>29</height>
+        </rect>
+       </property>
+       <property name="editable">
+        <bool>true</bool>
+       </property>
+       <property name="currentIndex">
+        <number>0</number>
+       </property>
+       <item>
+        <property name="text">
+         <string>nasale</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>supérieure</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>temporale</string>
+        </property>
+       </item>
+       <item>
+        <property name="text">
+         <string>inférieure</string>
+        </property>
+       </item>
+      </widget>
+      <widget class="UpSpinBox" name="BasePrismeOG">
+       <property name="geometry">
+        <rect>
+         <x>260</x>
+         <y>75</y>
+         <width>54</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="wrapping">
+        <bool>true</bool>
+       </property>
+       <property name="suffix">
+        <string>°</string>
+       </property>
+       <property name="maximum">
+        <number>355</number>
+       </property>
+       <property name="singleStep">
+        <number>5</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>320</x>
+         <y>25</y>
+         <width>55</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Press-on</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="PressonODCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>335</x>
+         <y>47</y>
+         <width>21</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="PressonOGCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>335</x>
+         <y>77</y>
+         <width>21</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+      <widget class="QLabel" name="ODQLabel_2">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>50</y>
+         <width>70</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.Lucida Grande UI'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:italic; color:#ff0080;&quot;&gt;Œil droit&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="OGQLabel_2">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>80</y>
+         <width>70</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.Lucida Grande UI'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:italic; color:#ff0080;&quot;&gt;Œil gauche&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="VerresSpeciauxGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>395</x>
+        <y>5</y>
+        <width>140</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Verres spéciaux</string>
+      </property>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>15</x>
+         <y>25</y>
+         <width>41</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Dépoli</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_2">
+       <property name="geometry">
+        <rect>
+         <x>85</x>
+         <y>25</y>
+         <width>31</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Plan</string>
+       </property>
+      </widget>
+      <widget class="Line" name="line_3">
+       <property name="geometry">
+        <rect>
+         <x>65</x>
+         <y>40</y>
+         <width>3</width>
+         <height>60</height>
+        </rect>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="DepoliODCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>45</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>OD</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="DepoliOGCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>80</y>
+         <width>45</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>OG</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="PlanODCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>50</y>
+         <width>45</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>OD</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="PlanOGCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>80</y>
+         <width>45</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>OG</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="RyserGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>540</x>
+        <y>5</y>
+        <width>120</width>
+        <height>111</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Ryser</string>
+      </property>
+      <widget class="UpSpinBox" name="RyserSpinBox">
+       <property name="geometry">
+        <rect>
+         <x>60</x>
+         <y>60</y>
+         <width>55</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::ImhDigitsOnly</set>
+       </property>
+       <property name="suffix">
+        <string>/10</string>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>9</number>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="RyserODCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>48</y>
+         <width>45</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>OD</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="RyserOGCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>78</y>
+         <width>45</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>OG</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="Line" name="line_7">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>0</y>
+        <width>815</width>
+        <height>5</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QFrame" name="frame_Mesures">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>190</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>190</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QGroupBox" name="MesureGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>591</width>
+        <height>95</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="UpSpinBox" name="AxeCylindreOD">
+       <property name="geometry">
+        <rect>
+         <x>240</x>
+         <y>27</y>
+         <width>54</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="wrapping">
+        <bool>true</bool>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::PlusMinus</enum>
+       </property>
+       <property name="suffix">
+        <string>°</string>
+       </property>
+       <property name="maximum">
+        <number>175</number>
+       </property>
+       <property name="singleStep">
+        <number>5</number>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelAddVP">
+       <property name="geometry">
+        <rect>
+         <x>470</x>
+         <y>8</y>
+         <width>60</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>AddVP</string>
+       </property>
+      </widget>
+      <widget class="UpDoubleSpinBox" name="CylindreOD">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>27</y>
+         <width>67</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="minimum">
+        <double>-8.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>8.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.250000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelCylindre">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>8</y>
+         <width>60</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Cylindre</string>
+       </property>
+      </widget>
+      <widget class="UpPushButton" name="ConvOGPushButton">
+       <property name="geometry">
+        <rect>
+         <x>535</x>
+         <y>52</y>
+         <width>57</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>Conv.</string>
+       </property>
+      </widget>
+      <widget class="UpDoubleSpinBox" name="SphereOD">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>27</y>
+         <width>77</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="wrapping">
+        <bool>false</bool>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::PlusMinus</enum>
+       </property>
+       <property name="accelerated">
+        <bool>false</bool>
+       </property>
+       <property name="correctionMode">
+        <enum>QAbstractSpinBox::CorrectToPreviousValue</enum>
+       </property>
+       <property name="keyboardTracking">
+        <bool>true</bool>
+       </property>
+       <property name="suffix">
+        <string/>
+       </property>
+       <property name="minimum">
+        <double>-30.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>20.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.250000000000000</double>
+       </property>
+      </widget>
+      <widget class="UpDoubleSpinBox" name="CylindreOG">
+       <property name="geometry">
+        <rect>
+         <x>170</x>
+         <y>57</y>
+         <width>67</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::PlusMinus</enum>
+       </property>
+       <property name="minimum">
+        <double>-8.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>8.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.250000000000000</double>
+       </property>
+      </widget>
+      <widget class="UpSpinBox" name="AxeCylindreOG">
+       <property name="geometry">
+        <rect>
+         <x>240</x>
+         <y>57</y>
+         <width>55</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="wrapping">
+        <bool>true</bool>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::PlusMinus</enum>
+       </property>
+       <property name="suffix">
+        <string>°</string>
+       </property>
+       <property name="maximum">
+        <number>175</number>
+       </property>
+       <property name="singleStep">
+        <number>5</number>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="OGCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>61</y>
+         <width>41</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="UpDoubleSpinBox" name="AddVPOG">
+       <property name="geometry">
+        <rect>
+         <x>470</x>
+         <y>57</y>
+         <width>67</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::PlusMinus</enum>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>4.500000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.250000000000000</double>
+       </property>
+      </widget>
+      <widget class="UpPushButton" name="ConvODPushButton">
+       <property name="geometry">
+        <rect>
+         <x>535</x>
+         <y>24</y>
+         <width>57</width>
+         <height>32</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>Conv.</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelAVL">
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>8</y>
+         <width>60</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>AVL</string>
+       </property>
+      </widget>
+      <widget class="UpDoubleSpinBox" name="SphereOG">
+       <property name="geometry">
+        <rect>
+         <x>90</x>
+         <y>57</y>
+         <width>77</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::PlusMinus</enum>
+       </property>
+       <property name="minimum">
+        <double>-30.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>20.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.250000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelAVP">
+       <property name="geometry">
+        <rect>
+         <x>395</x>
+         <y>8</y>
+         <width>40</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>AVP</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelSphere">
+       <property name="geometry">
+        <rect>
+         <x>92</x>
+         <y>8</y>
+         <width>60</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <italic>false</italic>
+        </font>
+       </property>
+       <property name="text">
+        <string>Sphère</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="OGQLabel">
+       <property name="geometry">
+        <rect>
+         <x>22</x>
+         <y>60</y>
+         <width>65</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.Lucida Grande UI'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:italic; color:#ff0080;&quot;&gt;Œil gauche&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelAxe">
+       <property name="geometry">
+        <rect>
+         <x>240</x>
+         <y>8</y>
+         <width>40</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Axe</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="ODCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>31</y>
+         <width>51</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="UpDoubleSpinBox" name="AddVPOD">
+       <property name="geometry">
+        <rect>
+         <x>470</x>
+         <y>27</y>
+         <width>67</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="buttonSymbols">
+        <enum>QAbstractSpinBox::PlusMinus</enum>
+       </property>
+       <property name="minimum">
+        <double>0.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>4.500000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.250000000000000</double>
+       </property>
+      </widget>
+      <widget class="QLabel" name="ODQLabel">
+       <property name="geometry">
+        <rect>
+         <x>22</x>
+         <y>30</y>
+         <width>65</width>
+         <height>20</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.Lucida Grande UI'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p align=&quot;center&quot; style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;span style=&quot; font-size:12pt; font-style:italic; color:#ff0080;&quot;&gt;Œil droit&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_POD">
+       <property name="geometry">
+        <rect>
+         <x>396</x>
+         <y>27</y>
+         <width>17</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>P</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label_POG">
+       <property name="geometry">
+        <rect>
+         <x>396</x>
+         <y>57</y>
+         <width>17</width>
+         <height>25</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>P</string>
+       </property>
+      </widget>
+      <widget class="UpComboBox" name="AVPODupComboBox">
+       <property name="geometry">
+        <rect>
+         <x>410</x>
+         <y>23</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="UpComboBox" name="AVPOGupComboBox">
+       <property name="geometry">
+        <rect>
+         <x>410</x>
+         <y>53</y>
+         <width>55</width>
+         <height>32</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="UpComboBox" name="AVLODupComboBox">
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>23</y>
+         <width>93</width>
+         <height>32</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="UpComboBox" name="AVLOGupComboBox">
+       <property name="geometry">
+        <rect>
+         <x>300</x>
+         <y>53</y>
+         <width>93</width>
+         <height>32</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="UpPushButton" name="DetailsPushButton">
+      <property name="geometry">
+       <rect>
+        <x>430</x>
+        <y>137</y>
+        <width>132</width>
+        <height>45</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string>+ de détails</string>
+      </property>
+      <property name="icon">
+       <iconset resource="Images/images.qrc">
+        <normaloff>:/search.png</normaloff>:/search.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>25</width>
+        <height>25</height>
+       </size>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="UpPushButton" name="ResumePushButton">
+      <property name="geometry">
+       <rect>
+        <x>5</x>
+        <y>137</y>
+        <width>132</width>
+        <height>45</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string notr="true">Résumé</string>
+      </property>
+      <property name="icon">
+       <iconset resource="Images/images.qrc">
+        <normaloff>:/iconResume.png</normaloff>:/iconResume.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>35</width>
+        <height>35</height>
+       </size>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="UpPushButton" name="ReprendrePushButton">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>137</y>
+        <width>132</width>
+        <height>45</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string notr="true">Reprendre</string>
+      </property>
+      <property name="icon">
+       <iconset resource="Images/images.qrc">
+        <normaloff>:/Archives.png</normaloff>:/Archives.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="default">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="QuelleDistanceGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>735</x>
+        <y>10</y>
+        <width>120</width>
+        <height>95</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+      <widget class="QRadioButton" name="VPRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>69</y>
+         <width>110</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="text">
+        <string>Vision de Près</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="V2RadioButton">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>6</y>
+         <width>110</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="text">
+        <string>Les 2</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="VLRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>37</y>
+         <width>110</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="text">
+        <string>Vision de Loin</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QCheckBox" name="CycloplegieCheckBox">
+      <property name="geometry">
+       <rect>
+        <x>550</x>
+        <y>113</y>
+        <width>90</width>
+        <height>15</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Cycloplégie</string>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="QuelleMesureGroupBox">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
+      <property name="geometry">
+       <rect>
+        <x>610</x>
+        <y>10</y>
+        <width>120</width>
+        <height>95</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::DefaultContextMenu</enum>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="QRadioButton" name="PorteRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>6</y>
+         <width>95</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="text">
+        <string>Porte</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="AutorefRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>27</y>
+         <width>95</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="text">
+        <string>Autoref</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="PrescriptionRadioButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>69</y>
+         <width>95</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="text">
+        <string>Prescription</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="RefractionRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>48</y>
+         <width>95</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::WheelFocus</enum>
+       </property>
+       <property name="text">
+        <string>Réfraction</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="UpPushButton" name="OKPushButton">
+      <property name="geometry">
+       <rect>
+        <x>730</x>
+        <y>137</y>
+        <width>132</width>
+        <height>45</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="toolTip">
+       <string extracomment="tool tip ici"/>
+      </property>
+      <property name="statusTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
+       <string/>
+      </property>
+      <property name="text">
+       <string>Enregistrer
+et fermer</string>
+      </property>
+      <property name="icon">
+       <iconset resource="Images/images.qrc">
+        <normaloff>:/start.png</normaloff>:/start.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="UpPushButton" name="AnnulPushButton">
+      <property name="geometry">
+       <rect>
+        <x>605</x>
+        <y>137</y>
+        <width>132</width>
+        <height>45</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string>Annuler</string>
+      </property>
+      <property name="icon">
+       <iconset resource="Images/images.qrc">
+        <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>30</width>
+        <height>30</height>
+       </size>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="KeratometrieGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>735</x>
+        <y>10</y>
+        <width>120</width>
+        <height>95</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <widget class="UpLineEdit" name="AxeKOD">
+       <property name="geometry">
+        <rect>
+         <x>42</x>
+         <y>27</y>
+         <width>35</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::ImhFormattedNumbersOnly</set>
+       </property>
+      </widget>
+      <widget class="UpLineEdit" name="K2OD">
+       <property name="geometry">
+        <rect>
+         <x>82</x>
+         <y>27</y>
+         <width>32</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="UpLineEdit" name="K1OG">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>57</y>
+         <width>32</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelAxeK1">
+       <property name="geometry">
+        <rect>
+         <x>42</x>
+         <y>8</y>
+         <width>35</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;Axe&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelK1">
+       <property name="geometry">
+        <rect>
+         <x>3</x>
+         <y>8</y>
+         <width>32</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>K1</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+      <widget class="UpLineEdit" name="K1OD">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>27</y>
+         <width>32</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::ImhNone</set>
+       </property>
+      </widget>
+      <widget class="UpLineEdit" name="AxeKOG">
+       <property name="geometry">
+        <rect>
+         <x>42</x>
+         <y>57</y>
+         <width>35</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::ImhFormattedNumbersOnly</set>
+       </property>
+      </widget>
+      <widget class="QLabel" name="labelK2">
+       <property name="geometry">
+        <rect>
+         <x>82</x>
+         <y>8</y>
+         <width>32</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;K2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+      </widget>
+      <widget class="UpLineEdit" name="K2OG">
+       <property name="geometry">
+        <rect>
+         <x>82</x>
+         <y>57</y>
+         <width>32</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="inputMethodHints">
+        <set>Qt::ImhFormattedNumbersOnly</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="Line" name="line_4">
+      <property name="geometry">
+       <rect>
+        <x>286</x>
+        <y>145</y>
+        <width>3</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+     <widget class="Line" name="line_5">
+      <property name="geometry">
+       <rect>
+        <x>585</x>
+        <y>145</y>
+        <width>3</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+     </widget>
+     <widget class="UpPushButton" name="OupsPushButton">
+      <property name="geometry">
+       <rect>
+        <x>305</x>
+        <y>137</y>
+        <width>132</width>
+        <height>45</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="toolTip">
+       <string extracomment="tool tip ici"/>
+      </property>
+      <property name="statusTip">
+       <string/>
+      </property>
+      <property name="whatsThis">
+       <string/>
+      </property>
+      <property name="text">
+       <string>Oups!</string>
+      </property>
+      <property name="icon">
+       <iconset resource="Images/images.qrc">
+        <normaloff>:/damn-icon.png</normaloff>:/damn-icon.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>45</width>
+        <height>45</height>
+       </size>
+      </property>
+      <property name="autoDefault">
+       <bool>false</bool>
+      </property>
+      <property name="flat">
+       <bool>false</bool>
+      </property>
+     </widget>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QFrame" name="frame_Prescription">
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>255</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>255</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <widget class="QGroupBox" name="PrescriptionGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>345</x>
+        <y>10</y>
+        <width>381</width>
+        <height>225</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Aperçu de la prescription</string>
+      </property>
+      <widget class="QTextEdit" name="ResumePrescriptionTextEdit">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>25</y>
+         <width>371</width>
+         <height>190</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));</string>
+       </property>
+       <property name="textInteractionFlags">
+        <set>Qt::NoTextInteraction</set>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="CommentaireGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>10</y>
+        <width>330</width>
+        <height>122</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Insérer un commentaire</string>
+      </property>
+      <widget class="UpPushButton" name="AppelCommentPushButton">
+       <property name="geometry">
+        <rect>
+         <x>245</x>
+         <y>22</y>
+         <width>85</width>
+         <height>96</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="text">
+        <string>Comm.
+prédéfini</string>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QTextEdit" name="CommentairePrescriptionTextEdit">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>25</y>
+         <width>240</width>
+         <height>90</height>
+        </rect>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::ClickFocus</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));</string>
+       </property>
+       <property name="tabChangesFocus">
+        <bool>false</bool>
+       </property>
+       <property name="documentTitle">
+        <string/>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QCheckBox" name="VerresTeintesCheckBox">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>210</y>
+        <width>141</width>
+        <height>25</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="text">
+       <string>Verres teintés</string>
+      </property>
+     </widget>
+     <widget class="QDateEdit" name="DateDateEdit">
+      <property name="geometry">
+       <rect>
+        <x>730</x>
+        <y>30</y>
+        <width>125</width>
+        <height>30</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::ClickFocus</enum>
+      </property>
+      <property name="dateTime">
+       <datetime>
+        <hour>0</hour>
+        <minute>0</minute>
+        <second>0</second>
+        <year>2014</year>
+        <month>1</month>
+        <day>1</day>
+       </datetime>
+      </property>
+      <property name="calendarPopup">
+       <bool>true</bool>
+      </property>
+      <property name="date">
+       <date>
+        <year>2014</year>
+        <month>1</month>
+        <day>1</day>
+       </date>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="QuelleMontureGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>235</x>
+        <y>130</y>
+        <width>105</width>
+        <height>75</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Monture?</string>
+      </property>
+      <widget class="QRadioButton" name="UneMonturePrescritRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>25</y>
+         <width>80</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Monture</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="DeuxMonturesPrescritRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>50</y>
+         <width>90</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>2 montures</string>
+       </property>
+       <property name="autoExclusive">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="QuelOeilGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>130</x>
+        <y>130</y>
+        <width>100</width>
+        <height>75</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Quel œil?</string>
+      </property>
+      <widget class="QCheckBox" name="ODPrescritCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>8</x>
+         <y>25</y>
+         <width>90</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Œil droit</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="OGPrescritCheckBox">
+       <property name="geometry">
+        <rect>
+         <x>8</x>
+         <y>50</y>
+         <width>90</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Œil gauche</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="QuelsVerresGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>130</y>
+        <width>115</width>
+        <height>105</height>
+       </rect>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="title">
+       <string>Quels verres?</string>
+      </property>
+      <widget class="QRadioButton" name="VLPrescritRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>50</y>
+         <width>108</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Vision de loin</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="V2PrescritRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>25</y>
+         <width>108</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Les 2</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="VPPrescritRadioButton">
+       <property name="geometry">
+        <rect>
+         <x>5</x>
+         <y>75</y>
+         <width>108</width>
+         <height>18</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Vision de près</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="Line" name="line">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>0</y>
+        <width>815</width>
+        <height>5</height>
+       </rect>
+      </property>
+      <property name="orientation">
+       <enum>Qt::Horizontal</enum>
+      </property>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpComboBox</class>
+   <extends>QComboBox</extends>
+   <header>upcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpDoubleSpinBox</class>
+   <extends>QDoubleSpinBox</extends>
+   <header>updoublespinbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpSpinBox</class>
+   <extends>QSpinBox</extends>
+   <header>upspinbox.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>SphereOD</tabstop>
+  <tabstop>CylindreOD</tabstop>
+  <tabstop>AxeCylindreOD</tabstop>
+  <tabstop>AVLODupComboBox</tabstop>
+  <tabstop>AVPODupComboBox</tabstop>
+  <tabstop>AddVPOD</tabstop>
+  <tabstop>SphereOG</tabstop>
+  <tabstop>CylindreOG</tabstop>
+  <tabstop>AxeCylindreOG</tabstop>
+  <tabstop>AVLOGupComboBox</tabstop>
+  <tabstop>AVPOGupComboBox</tabstop>
+  <tabstop>AddVPOG</tabstop>
+  <tabstop>PorteRadioButton</tabstop>
+  <tabstop>AutorefRadioButton</tabstop>
+  <tabstop>RefractionRadioButton</tabstop>
+  <tabstop>PrescriptionRadioButton</tabstop>
+  <tabstop>V2RadioButton</tabstop>
+  <tabstop>VLRadioButton</tabstop>
+  <tabstop>VPRadioButton</tabstop>
+  <tabstop>K1OD</tabstop>
+  <tabstop>AxeKOD</tabstop>
+  <tabstop>K2OD</tabstop>
+  <tabstop>K1OG</tabstop>
+  <tabstop>AxeKOG</tabstop>
+  <tabstop>K2OG</tabstop>
+  <tabstop>CycloplegieCheckBox</tabstop>
+  <tabstop>PrismeOD</tabstop>
+  <tabstop>BasePrismeTextODComboBox</tabstop>
+  <tabstop>BasePrismeOD</tabstop>
+  <tabstop>PrismeOG</tabstop>
+  <tabstop>BasePrismeTextOGComboBox</tabstop>
+  <tabstop>BasePrismeOG</tabstop>
+  <tabstop>V2PrescritRadioButton</tabstop>
+  <tabstop>VLPrescritRadioButton</tabstop>
+  <tabstop>VPPrescritRadioButton</tabstop>
+  <tabstop>ODPrescritCheckBox</tabstop>
+  <tabstop>OGPrescritCheckBox</tabstop>
+  <tabstop>UneMonturePrescritRadioButton</tabstop>
+  <tabstop>DeuxMonturesPrescritRadioButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="Images/images.qrc"/>
+ </resources>
+ <connections/>
+</ui>

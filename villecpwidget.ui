@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VilleCPWidget</class>
+ <widget class="QWidget" name="VilleCPWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>401</width>
+    <height>53</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QLineEdit" name="VillelineEdit">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>30</y>
+     <width>240</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="maxLength">
+    <number>40</number>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Villelabel">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>34</y>
+     <width>141</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Ville</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="CPlineEdit">
+   <property name="geometry">
+    <rect>
+     <x>160</x>
+     <y>0</y>
+     <width>80</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="maxLength">
+    <number>5</number>
+   </property>
+   <property name="frame">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <widget class="QLabel" name="CPlabel">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>4</y>
+     <width>151</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Code postal</string>
+   </property>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

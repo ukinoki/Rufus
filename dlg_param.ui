@@ -1,0 +1,3261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dlg_param</class>
+ <widget class="QDialog" name="dlg_param">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1015</width>
+    <height>940</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>1015</width>
+    <height>940</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1015</width>
+    <height>940</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Paramètres</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>5</number>
+   </property>
+   <property name="leftMargin">
+    <number>10</number>
+   </property>
+   <property name="topMargin">
+    <number>10</number>
+   </property>
+   <property name="rightMargin">
+    <number>10</number>
+   </property>
+   <property name="bottomMargin">
+    <number>10</number>
+   </property>
+   <item>
+    <widget class="QTabWidget" name="ParamtabWidget">
+     <property name="minimumSize">
+      <size>
+       <width>990</width>
+       <height>804</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>1200</width>
+       <height>900</height>
+      </size>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::NoContextMenu</enum>
+     </property>
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <widget class="QWidget" name="UserParamtab">
+      <property name="minimumSize">
+       <size>
+        <width>910</width>
+        <height>800</height>
+       </size>
+      </property>
+      <attribute name="title">
+       <string>Utilisateur</string>
+      </attribute>
+      <widget class="QWidget" name="UserWidget" native="true">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>984</width>
+         <height>846</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="UserLayout">
+        <property name="spacing">
+         <number>5</number>
+        </property>
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
+        <item>
+         <layout class="QHBoxLayout" name="UserDataLayout">
+          <property name="spacing">
+           <number>5</number>
+          </property>
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QFrame" name="Principalframe">
+            <property name="minimumSize">
+             <size>
+              <width>580</width>
+              <height>755</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>580</width>
+              <height>755</height>
+             </size>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="Line" name="line_3">
+             <property name="geometry">
+              <rect>
+               <x>60</x>
+               <y>290</y>
+               <width>480</width>
+               <height>3</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="lineWidth">
+              <number>3</number>
+             </property>
+             <property name="midLineWidth">
+              <number>1</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="NomuplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>410</x>
+               <y>63</y>
+               <width>160</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="maxLength">
+              <number>45</number>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="MailuplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>270</x>
+               <y>90</y>
+               <width>301</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="maxLength">
+              <number>45</number>
+             </property>
+            </widget>
+            <widget class="QLabel" name="Prenomlabel">
+             <property name="geometry">
+              <rect>
+               <x>137</x>
+               <y>65</y>
+               <width>63</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Prénom</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="Maillabel">
+             <property name="geometry">
+              <rect>
+               <x>240</x>
+               <y>94</y>
+               <width>35</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Mail</string>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="PrenomuplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>200</x>
+               <y>63</y>
+               <width>160</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="maxLength">
+              <number>45</number>
+             </property>
+            </widget>
+            <widget class="QLabel" name="Portlabel">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>94</y>
+               <width>76</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Portable</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="Nomlabel">
+             <property name="geometry">
+              <rect>
+               <x>370</x>
+               <y>65</y>
+               <width>45</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Nom</string>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="PortableuplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>70</x>
+               <y>90</y>
+               <width>150</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="maxLength">
+              <number>17</number>
+             </property>
+            </widget>
+            <widget class="QLabel" name="Titrelabel">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>65</y>
+               <width>51</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Titre</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="idUserlabel">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="geometry">
+              <rect>
+               <x>480</x>
+               <y>14</y>
+               <width>51</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>idUser</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="Loginlabel">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>14</y>
+               <width>41</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Login</string>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="LoginuplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>100</x>
+               <y>12</y>
+               <width>121</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="QLabel" name="MDPlabel">
+             <property name="geometry">
+              <rect>
+               <x>260</x>
+               <y>14</y>
+               <width>89</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Mot de passe</string>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="MDPuplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>350</x>
+               <y>10</y>
+               <width>121</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="echoMode">
+              <enum>QLineEdit::Password</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="idUseruplineEdit">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="geometry">
+              <rect>
+               <x>530</x>
+               <y>10</y>
+               <width>41</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+            <widget class="Line" name="line_4">
+             <property name="geometry">
+              <rect>
+               <x>40</x>
+               <y>47</y>
+               <width>475</width>
+               <height>3</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="frameShadow">
+              <enum>QFrame::Sunken</enum>
+             </property>
+             <property name="lineWidth">
+              <number>3</number>
+             </property>
+             <property name="midLineWidth">
+              <number>1</number>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="TitreuplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>47</x>
+               <y>63</y>
+               <width>84</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="font">
+              <font>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="maxLength">
+              <number>45</number>
+             </property>
+            </widget>
+            <widget class="QGroupBox" name="AdressgroupBox">
+             <property name="geometry">
+              <rect>
+               <x>70</x>
+               <y>130</y>
+               <width>461</width>
+               <height>141</height>
+              </rect>
+             </property>
+             <property name="title">
+              <string/>
+             </property>
+            </widget>
+            <widget class="QTextEdit" name="StatutComptaupTextEdit">
+             <property name="geometry">
+              <rect>
+               <x>50</x>
+               <y>310</y>
+               <width>507</width>
+               <height>421</height>
+              </rect>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="html">
+              <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'.SF NS Text'; font-size:13pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;StatutCompta&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_3">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>0</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QWidget" name="Cotationswidget" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>350</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>755</height>
+             </size>
+            </property>
+            <widget class="UpTableWidget" name="HorsNomenclatureupTableWidget">
+             <property name="geometry">
+              <rect>
+               <x>34</x>
+               <y>660</y>
+               <width>272</width>
+               <height>89</height>
+              </rect>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>272</width>
+               <height>89</height>
+              </size>
+             </property>
+             <property name="mouseTracking">
+              <bool>true</bool>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+            <widget class="Line" name="line_5">
+             <property name="geometry">
+              <rect>
+               <x>70</x>
+               <y>620</y>
+               <width>211</width>
+               <height>3</height>
+              </rect>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+            <widget class="QLabel" name="HorsNomenclaturelabel">
+             <property name="geometry">
+              <rect>
+               <x>27</x>
+               <y>628</y>
+               <width>161</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Actes hors nomenclature</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="AssocCCAMlabel">
+             <property name="geometry">
+              <rect>
+               <x>30</x>
+               <y>397</y>
+               <width>261</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Associations CCAM et actes hors CCAM</string>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="ChercheCCAMupLineEdit">
+             <property name="geometry">
+              <rect>
+               <x>27</x>
+               <y>550</y>
+               <width>91</width>
+               <height>25</height>
+              </rect>
+             </property>
+            </widget>
+            <widget class="UpTableWidget" name="AssocCCAMupTableWidget">
+             <property name="geometry">
+              <rect>
+               <x>27</x>
+               <y>422</y>
+               <width>308</width>
+               <height>121</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>278</width>
+               <height>121</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>121</height>
+              </size>
+             </property>
+             <property name="mouseTracking">
+              <bool>true</bool>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+            <widget class="UpTableWidget" name="ActesCCAMupTableWidget">
+             <property name="geometry">
+              <rect>
+               <x>51</x>
+               <y>141</y>
+               <width>256</width>
+               <height>192</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>256</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="mouseTracking">
+              <bool>true</bool>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="verticalScrollMode">
+              <enum>QAbstractItemView::ScrollPerItem</enum>
+             </property>
+             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+            <widget class="QLabel" name="ShowCCAMlabel">
+             <property name="geometry">
+              <rect>
+               <x>31</x>
+               <y>227</y>
+               <width>10</width>
+               <height>10</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>10</width>
+               <height>10</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>10</width>
+               <height>10</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>TextLabel</string>
+             </property>
+            </widget>
+            <widget class="QCheckBox" name="OphtaSeulcheckBox">
+             <property name="geometry">
+              <rect>
+               <x>124</x>
+               <y>51</y>
+               <width>193</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>uniquement l'ophtalmologie</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="ActesCCAMlabel">
+             <property name="geometry">
+              <rect>
+               <x>41</x>
+               <y>53</y>
+               <width>77</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Actes CCAM</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="ChercheCCAMlabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>170</y>
+               <width>21</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="scaledContents">
+              <bool>true</bool>
+             </property>
+            </widget>
+            <widget class="QWidget" name="MargeWidget" native="true">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>340</y>
+               <width>10</width>
+               <height>170</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>10</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>10</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QWidget" name="Marge2Widget" native="true">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>550</y>
+               <width>10</width>
+               <height>170</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>10</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>10</width>
+               <height>16777215</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="Line" name="line_6">
+             <property name="geometry">
+              <rect>
+               <x>40</x>
+               <y>390</y>
+               <width>211</width>
+               <height>3</height>
+              </rect>
+             </property>
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="UserButtonLayout">
+          <property name="spacing">
+           <number>5</number>
+          </property>
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <widget class="UpPushButton" name="ModifDataUserpushButton">
+            <property name="minimumSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Modifier mes données</string>
+            </property>
+            <property name="icon">
+             <iconset resource="Images/images.qrc">
+              <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>32</width>
+              <height>32</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="UpPushButton" name="ChoixFontupPushButton">
+            <property name="minimumSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Changer la police d'écran</string>
+            </property>
+            <property name="icon">
+             <iconset resource="Images/images.qrc">
+              <normaloff>:/font.png</normaloff>:/font.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>35</width>
+              <height>35</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="UpLabel" name="LockParamUserupLabel">
+            <property name="minimumSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>T</string>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="PosteParamtab">
+      <property name="minimumSize">
+       <size>
+        <width>910</width>
+        <height>800</height>
+       </size>
+      </property>
+      <attribute name="title">
+       <string>Ce poste</string>
+      </attribute>
+      <widget class="QWidget" name="ParamWidget" native="true">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>984</width>
+         <height>846</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="PosteLayout">
+        <property name="spacing">
+         <number>5</number>
+        </property>
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
+        <item>
+         <widget class="QTabWidget" name="ParamConnexiontabWidget">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>350</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>350</height>
+           </size>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="tabPosition">
+           <enum>QTabWidget::North</enum>
+          </property>
+          <property name="currentIndex">
+           <number>1</number>
+          </property>
+          <property name="tabBarAutoHide">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="tabMono">
+           <attribute name="title">
+            <string>Monoposte</string>
+           </attribute>
+           <widget class="UpTableWidget" name="MonoDocupTableWidget">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>100</y>
+              <width>550</width>
+              <height>200</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QFrame" name="Posteframe">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>100</y>
+              <width>281</width>
+              <height>51</height>
+             </rect>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="QLabel" name="SQLPortlabel_2">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>15</y>
+               <width>41</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Port</string>
+             </property>
+            </widget>
+            <widget class="QComboBox" name="SQLPortPostecomboBox">
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>12</y>
+               <width>104</width>
+               <height>26</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+           <widget class="QCheckBox" name="PosteServcheckBox">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>15</y>
+              <width>281</width>
+              <height>20</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Cet appareil héberge un serveur</string>
+            </property>
+           </widget>
+           <widget class="UpLabel" name="MonoConnexionupLabel">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>70</y>
+              <width>251</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Paramètres de la connexion au serveur</string>
+            </property>
+           </widget>
+           <widget class="UpLabel" name="MonoDocsExtupLabel">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>70</y>
+              <width>251</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Emplacement des documents externes</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="PosteStockageupLabel">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>15</y>
+              <width>311</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Emplacement de stockage des documents archivés</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="PosteStockageupPushButton">
+            <property name="geometry">
+             <rect>
+              <x>855</x>
+              <y>36</y>
+              <width>54</width>
+              <height>32</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+           <widget class="UpLineEdit" name="PosteStockageupLineEdit">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>40</y>
+              <width>491</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="maxLength">
+             <number>150</number>
+            </property>
+            <property name="frame">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="tabLocal">
+           <attribute name="title">
+            <string>Réseau local</string>
+           </attribute>
+           <widget class="QFrame" name="Localframe">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>100</y>
+              <width>281</width>
+              <height>81</height>
+             </rect>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="QLabel" name="SQLPortlabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>43</y>
+               <width>41</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Port</string>
+             </property>
+            </widget>
+            <widget class="QComboBox" name="SQLPortLocalcomboBox">
+             <property name="geometry">
+              <rect>
+               <x>119</x>
+               <y>40</y>
+               <width>104</width>
+               <height>26</height>
+              </rect>
+             </property>
+            </widget>
+            <widget class="QLabel" name="EmplacementLocallabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>20</y>
+               <width>91</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Emplacement</string>
+             </property>
+            </widget>
+            <widget class="QLineEdit" name="EmplacementLocaluplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>16</y>
+               <width>150</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="maxLength">
+              <number>70</number>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </widget>
+           <widget class="QCheckBox" name="LocalServcheckBox">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>10</y>
+              <width>281</width>
+              <height>41</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Cet appareil peut se connecter à
+un serveur hébergé sur le réseau local</string>
+            </property>
+           </widget>
+           <widget class="UpLabel" name="LocalDocsExtupLabel">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>70</y>
+              <width>251</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Emplacement des documents externes</string>
+            </property>
+           </widget>
+           <widget class="UpTableWidget" name="LocalDocupTableWidget">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>100</y>
+              <width>550</width>
+              <height>200</height>
+             </rect>
+            </property>
+            <property name="selectionMode">
+             <enum>QAbstractItemView::SingleSelection</enum>
+            </property>
+           </widget>
+           <widget class="UpLabel" name="LocalConnexionupLabel">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>70</y>
+              <width>251</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Paramètres de la connexion au serveur</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="LocalStockageupPushButton">
+            <property name="geometry">
+             <rect>
+              <x>855</x>
+              <y>36</y>
+              <width>54</width>
+              <height>32</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+           <widget class="UpLineEdit" name="LocalStockageupLineEdit">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>40</y>
+              <width>491</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="maxLength">
+             <number>150</number>
+            </property>
+            <property name="frame">
+             <bool>true</bool>
+            </property>
+           </widget>
+           <widget class="QLabel" name="LocalStockageupLabel">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>15</y>
+              <width>311</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Emplacement de stockage des documents archivés</string>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QWidget" name="tabDistant">
+           <attribute name="title">
+            <string>Accès distant</string>
+           </attribute>
+           <widget class="QFrame" name="Distantframe">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>100</y>
+              <width>281</width>
+              <height>81</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="QLabel" name="SQLPortlabel_3">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>45</y>
+               <width>41</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Port</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="Emplacementlabel_3">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>20</y>
+               <width>91</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Emplacement</string>
+             </property>
+            </widget>
+            <widget class="QLineEdit" name="EmplacementDistantuplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>16</y>
+               <width>150</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="maxLength">
+              <number>70</number>
+             </property>
+             <property name="frame">
+              <bool>true</bool>
+             </property>
+            </widget>
+            <widget class="QComboBox" name="SQLPortDistantcomboBox">
+             <property name="geometry">
+              <rect>
+               <x>119</x>
+               <y>42</y>
+               <width>104</width>
+               <height>26</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+            </widget>
+           </widget>
+           <widget class="QCheckBox" name="DistantServcheckBox">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>15</y>
+              <width>341</width>
+              <height>20</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Cet appareil peut se connecter à un serveur distant</string>
+            </property>
+           </widget>
+           <widget class="UpLabel" name="DistantDocsExtupLabel">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>70</y>
+              <width>251</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Emplacement des documents externes</string>
+            </property>
+           </widget>
+           <widget class="UpTableWidget" name="DistantDocupTableWidget">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>100</y>
+              <width>550</width>
+              <height>200</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+           </widget>
+           <widget class="UpLabel" name="DistantConnexionupLabel">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>70</y>
+              <width>251</width>
+              <height>16</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Paramètres de la connexion au serveur</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="DistantStockageupLabel">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>15</y>
+              <width>311</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>Emplacement de stockage des documents archivés</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="DistantStockageupPushButton">
+            <property name="geometry">
+             <rect>
+              <x>855</x>
+              <y>36</y>
+              <width>54</width>
+              <height>32</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>...</string>
+            </property>
+           </widget>
+           <widget class="UpLineEdit" name="DistantStockageupLineEdit">
+            <property name="geometry">
+             <rect>
+              <x>360</x>
+              <y>40</y>
+              <width>491</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="maxLength">
+             <number>150</number>
+            </property>
+            <property name="frame">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <widget class="QFrame" name="Instrmtsframe">
+          <property name="minimumSize">
+           <size>
+            <width>950</width>
+            <height>180</height>
+           </size>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <widget class="UpLabel" name="AppareilsupLabel">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>10</y>
+             <width>161</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Instruments connectés</string>
+           </property>
+          </widget>
+          <widget class="UpLabel" name="FrontoupLabel">
+           <property name="geometry">
+            <rect>
+             <x>100</x>
+             <y>70</y>
+             <width>111</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Frontofocomètre</string>
+           </property>
+          </widget>
+          <widget class="UpLabel" name="AutorefupLabel">
+           <property name="geometry">
+            <rect>
+             <x>320</x>
+             <y>70</y>
+             <width>131</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Autorefractomètre</string>
+           </property>
+          </widget>
+          <widget class="UpLabel" name="RefracteurupLabel">
+           <property name="geometry">
+            <rect>
+             <x>585</x>
+             <y>70</y>
+             <width>81</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Refracteur</string>
+           </property>
+          </widget>
+          <widget class="UpComboBox" name="FrontoupComboBox">
+           <property name="geometry">
+            <rect>
+             <x>25</x>
+             <y>110</y>
+             <width>185</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
+          <widget class="UpComboBox" name="AutorefupComboBox">
+           <property name="geometry">
+            <rect>
+             <x>260</x>
+             <y>110</y>
+             <width>185</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
+          <widget class="UpComboBox" name="RefracteurupComboBox">
+           <property name="geometry">
+            <rect>
+             <x>505</x>
+             <y>110</y>
+             <width>185</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
+          <widget class="QLabel" name="Frontolabel">
+           <property name="geometry">
+            <rect>
+             <x>20</x>
+             <y>40</y>
+             <width>65</width>
+             <height>65</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+          </widget>
+          <widget class="QLabel" name="Autoreflabel">
+           <property name="geometry">
+            <rect>
+             <x>240</x>
+             <y>40</y>
+             <width>65</width>
+             <height>65</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+          </widget>
+          <widget class="QLabel" name="Refracteurlabel">
+           <property name="geometry">
+            <rect>
+             <x>500</x>
+             <y>40</y>
+             <width>65</width>
+             <height>65</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+          </widget>
+          <widget class="UpComboBox" name="PortFrontoupComboBox">
+           <property name="geometry">
+            <rect>
+             <x>120</x>
+             <y>140</y>
+             <width>90</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
+          <widget class="UpComboBox" name="PortAutorefupComboBox">
+           <property name="geometry">
+            <rect>
+             <x>355</x>
+             <y>140</y>
+             <width>90</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
+          <widget class="UpComboBox" name="PortRefracteurupComboBox">
+           <property name="geometry">
+            <rect>
+             <x>600</x>
+             <y>140</y>
+             <width>90</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
+          <widget class="UpComboBox" name="TonometreupComboBox">
+           <property name="geometry">
+            <rect>
+             <x>745</x>
+             <y>110</y>
+             <width>185</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
+          <widget class="UpLabel" name="RefracteurupLabel_2">
+           <property name="geometry">
+            <rect>
+             <x>825</x>
+             <y>70</y>
+             <width>81</width>
+             <height>16</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string>Tonomètre</string>
+           </property>
+          </widget>
+          <widget class="UpComboBox" name="PortTonometreupComboBox">
+           <property name="geometry">
+            <rect>
+             <x>840</x>
+             <y>140</y>
+             <width>90</width>
+             <height>26</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+          </widget>
+          <widget class="QLabel" name="Tonometrelabel">
+           <property name="geometry">
+            <rect>
+             <x>740</x>
+             <y>40</y>
+             <width>65</width>
+             <height>65</height>
+            </rect>
+           </property>
+           <property name="contextMenuPolicy">
+            <enum>Qt::NoContextMenu</enum>
+           </property>
+           <property name="text">
+            <string notr="true"/>
+           </property>
+          </widget>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QFrame" name="Imprimanteframe">
+            <property name="minimumSize">
+             <size>
+              <width>421</width>
+              <height>185</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>421</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="QLabel" name="Imprimantelabel">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>10</y>
+               <width>71</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Imprimante</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="Entetelabel">
+             <property name="geometry">
+              <rect>
+               <x>130</x>
+               <y>10</y>
+               <width>210</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Entête standard</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="EnteteALDlabel">
+             <property name="geometry">
+              <rect>
+               <x>130</x>
+               <y>34</y>
+               <width>210</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Entête Ordonnance ALD</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="PiedDePagelabel">
+             <property name="geometry">
+              <rect>
+               <x>130</x>
+               <y>58</y>
+               <width>210</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Pied de page standard</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="TopMargelabel">
+             <property name="geometry">
+              <rect>
+               <x>130</x>
+               <y>106</y>
+               <width>210</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Marge haute</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="PiedDePageOrdoLunetteslabel">
+             <property name="geometry">
+              <rect>
+               <x>130</x>
+               <y>82</y>
+               <width>210</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Pied de page ordonnance lunettes</string>
+             </property>
+            </widget>
+            <widget class="QSpinBox" name="EntetespinBox">
+             <property name="geometry">
+              <rect>
+               <x>350</x>
+               <y>6</y>
+               <width>59</width>
+               <height>24</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+            <widget class="QSpinBox" name="EnteteALDspinBox">
+             <property name="geometry">
+              <rect>
+               <x>350</x>
+               <y>31</y>
+               <width>59</width>
+               <height>24</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+            <widget class="QSpinBox" name="PiedDePagespinBox">
+             <property name="geometry">
+              <rect>
+               <x>350</x>
+               <y>55</y>
+               <width>59</width>
+               <height>24</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+            <widget class="QSpinBox" name="PiedDePageOrdoLunettesspinBox">
+             <property name="geometry">
+              <rect>
+               <x>350</x>
+               <y>79</y>
+               <width>59</width>
+               <height>24</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+            <widget class="QSpinBox" name="TopMargespinBox">
+             <property name="geometry">
+              <rect>
+               <x>350</x>
+               <y>103</y>
+               <width>59</width>
+               <height>24</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="OupspushButton">
+             <property name="geometry">
+              <rect>
+               <x>0</x>
+               <y>99</y>
+               <width>111</width>
+               <height>32</height>
+              </rect>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::NoFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Oups!</string>
+             </property>
+             <property name="icon">
+              <iconset resource="Images/images.qrc">
+               <normaloff>:/damn-icon.png</normaloff>:/damn-icon.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>45</width>
+               <height>45</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QCheckBox" name="ApercuImpressioncheckBox">
+             <property name="geometry">
+              <rect>
+               <x>130</x>
+               <y>130</y>
+               <width>271</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Afficher un aperçu avant impression</string>
+             </property>
+            </widget>
+            <widget class="QCheckBox" name="OrdoAvecDuplicheckBox">
+             <property name="geometry">
+              <rect>
+               <x>130</x>
+               <y>155</y>
+               <width>271</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Ordonnances avec duplicata</string>
+             </property>
+             <property name="autoExclusive">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QGroupBox" name="ImportDocsgroupBox">
+              <property name="minimumSize">
+               <size>
+                <width>520</width>
+                <height>95</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>520</width>
+                <height>95</height>
+               </size>
+              </property>
+              <property name="title">
+               <string/>
+              </property>
+              <widget class="QCheckBox" name="PrioritaireImportDocscheckBox">
+               <property name="geometry">
+                <rect>
+                 <x>5</x>
+                 <y>15</y>
+                 <width>511</width>
+                 <height>21</height>
+                </rect>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::NoContextMenu</enum>
+               </property>
+               <property name="text">
+                <string>Cet appareil est prioritaire pour importer les documents d'imagerie dans la base</string>
+               </property>
+               <property name="autoExclusive">
+                <bool>true</bool>
+               </property>
+              </widget>
+              <widget class="QCheckBox" name="NonPrioritaireImportDocscheckBox">
+               <property name="geometry">
+                <rect>
+                 <x>5</x>
+                 <y>40</y>
+                 <width>511</width>
+                 <height>21</height>
+                </rect>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::NoContextMenu</enum>
+               </property>
+               <property name="text">
+                <string>Cet appareil importe les documents d'imagerie dans la base sans être prioritaire</string>
+               </property>
+               <property name="autoExclusive">
+                <bool>true</bool>
+               </property>
+              </widget>
+              <widget class="QCheckBox" name="NonImportDocscheckBox">
+               <property name="geometry">
+                <rect>
+                 <x>5</x>
+                 <y>65</y>
+                 <width>511</width>
+                 <height>21</height>
+                </rect>
+               </property>
+               <property name="contextMenuPolicy">
+                <enum>Qt::NoContextMenu</enum>
+               </property>
+               <property name="text">
+                <string>Cet appareil ne participe pas à l'importation des documents d'imagerie</string>
+               </property>
+               <property name="autoExclusive">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </widget>
+            </item>
+            <item>
+             <widget class="QFrame" name="VilleDefautframe">
+              <property name="minimumSize">
+               <size>
+                <width>441</width>
+                <height>71</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>441</width>
+                <height>71</height>
+               </size>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::NoContextMenu</enum>
+              </property>
+              <property name="frameShape">
+               <enum>QFrame::NoFrame</enum>
+              </property>
+              <property name="frameShadow">
+               <enum>QFrame::Raised</enum>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>958</width>
+            <height>43</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_8">
+          <property name="spacing">
+           <number>5</number>
+          </property>
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="UpLabel" name="LockParamPosteupLabel">
+            <property name="minimumSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+     <widget class="QWidget" name="GeneralParamtab">
+      <property name="minimumSize">
+       <size>
+        <width>910</width>
+        <height>800</height>
+       </size>
+      </property>
+      <attribute name="title">
+       <string>Général</string>
+      </attribute>
+      <widget class="QWidget" name="GeneralWidget" native="true">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>984</width>
+         <height>846</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="GeneralLayout">
+        <property name="spacing">
+         <number>5</number>
+        </property>
+        <property name="leftMargin">
+         <number>5</number>
+        </property>
+        <property name="topMargin">
+         <number>5</number>
+        </property>
+        <property name="rightMargin">
+         <number>5</number>
+        </property>
+        <property name="bottomMargin">
+         <number>5</number>
+        </property>
+        <item>
+         <widget class="QFrame" name="Sauvegardeframe">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>240</height>
+           </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="contextMenuPolicy">
+           <enum>Qt::NoContextMenu</enum>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Raised</enum>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_3">
+           <property name="leftMargin">
+            <number>5</number>
+           </property>
+           <property name="topMargin">
+            <number>5</number>
+           </property>
+           <property name="rightMargin">
+            <number>5</number>
+           </property>
+           <property name="bottomMargin">
+            <number>5</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_2">
+               <item>
+                <widget class="UpLabel" name="SauvegardeupLabel">
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::NoContextMenu</enum>
+                 </property>
+                 <property name="text">
+                  <string>Paramétrage des sauvegardes</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer">
+                 <property name="orientation">
+                  <enum>Qt::Vertical</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>40</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QGridLayout" name="gridLayout_2">
+               <item row="1" column="0">
+                <spacer name="horizontalSpacer_6">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Fixed</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>80</width>
+                   <height>20</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item row="1" column="2">
+                <widget class="QTimeEdit" name="HeureBackuptimeEdit">
+                 <property name="maximumSize">
+                  <size>
+                   <width>70</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::NoContextMenu</enum>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="2">
+                <widget class="UpLineEdit" name="DirBackupuplineEdit">
+                 <property name="focusPolicy">
+                  <enum>Qt::NoFocus</enum>
+                 </property>
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::NoContextMenu</enum>
+                 </property>
+                 <property name="maxLength">
+                  <number>150</number>
+                 </property>
+                 <property name="frame">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLabel" name="HoraireBackuplabel">
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::NoContextMenu</enum>
+                 </property>
+                 <property name="text">
+                  <string>Heure</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="3">
+                <widget class="QPushButton" name="DirBackuppushButton">
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::NoContextMenu</enum>
+                 </property>
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1" colspan="3">
+                <widget class="QGroupBox" name="JourSauvegardegroupBox">
+                 <property name="minimumSize">
+                  <size>
+                   <width>0</width>
+                   <height>45</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>16777215</width>
+                   <height>45</height>
+                  </size>
+                 </property>
+                 <property name="focusPolicy">
+                  <enum>Qt::WheelFocus</enum>
+                 </property>
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::NoContextMenu</enum>
+                 </property>
+                 <property name="title">
+                  <string/>
+                 </property>
+                 <layout class="QHBoxLayout" name="horizontalLayout_7">
+                  <item>
+                   <widget class="UpRadioButton" name="LundiradioButton">
+                    <property name="focusPolicy">
+                     <enum>Qt::StrongFocus</enum>
+                    </property>
+                    <property name="contextMenuPolicy">
+                     <enum>Qt::NoContextMenu</enum>
+                    </property>
+                    <property name="text">
+                     <string>Lundi</string>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="UpRadioButton" name="MardiradioButton">
+                    <property name="focusPolicy">
+                     <enum>Qt::StrongFocus</enum>
+                    </property>
+                    <property name="contextMenuPolicy">
+                     <enum>Qt::NoContextMenu</enum>
+                    </property>
+                    <property name="text">
+                     <string>Mardi</string>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="UpRadioButton" name="MercrediradioButton">
+                    <property name="focusPolicy">
+                     <enum>Qt::StrongFocus</enum>
+                    </property>
+                    <property name="contextMenuPolicy">
+                     <enum>Qt::NoContextMenu</enum>
+                    </property>
+                    <property name="text">
+                     <string>Mercredi</string>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="UpRadioButton" name="JeudiradioButton">
+                    <property name="focusPolicy">
+                     <enum>Qt::StrongFocus</enum>
+                    </property>
+                    <property name="contextMenuPolicy">
+                     <enum>Qt::NoContextMenu</enum>
+                    </property>
+                    <property name="text">
+                     <string>Jeudi</string>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="UpRadioButton" name="VendrediradioButton">
+                    <property name="focusPolicy">
+                     <enum>Qt::StrongFocus</enum>
+                    </property>
+                    <property name="contextMenuPolicy">
+                     <enum>Qt::NoContextMenu</enum>
+                    </property>
+                    <property name="text">
+                     <string>Vendredi</string>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="UpRadioButton" name="SamediradioButton">
+                    <property name="focusPolicy">
+                     <enum>Qt::StrongFocus</enum>
+                    </property>
+                    <property name="contextMenuPolicy">
+                     <enum>Qt::NoContextMenu</enum>
+                    </property>
+                    <property name="text">
+                     <string>Samedi</string>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="UpRadioButton" name="DimancheradioButton">
+                    <property name="focusPolicy">
+                     <enum>Qt::StrongFocus</enum>
+                    </property>
+                    <property name="contextMenuPolicy">
+                     <enum>Qt::NoContextMenu</enum>
+                    </property>
+                    <property name="text">
+                     <string>Dimanche</string>
+                    </property>
+                    <property name="autoExclusive">
+                     <bool>false</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLabel" name="DirBackuplabel">
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::NoContextMenu</enum>
+                 </property>
+                 <property name="text">
+                  <string>Emplacement</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="QLabel" name="ModifBaselabel">
+             <property name="text">
+              <string>Les  interventions sur la base de données ne sont possibles qu'à partir du poste serveur</string>
+             </property>
+             <property name="alignment">
+              <set>Qt::AlignCenter</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_6">
+             <item>
+              <spacer name="horizontalSpacer_7">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="UpPushButton" name="ImmediatBackupupPushButton">
+               <property name="text">
+                <string>Effectuer une sauvegarde
+immédiatement</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="UpPushButton" name="EffacePrgSauvupPushButton">
+               <property name="contextMenuPolicy">
+                <enum>Qt::NoContextMenu</enum>
+               </property>
+               <property name="text">
+                <string>Effacer la programmation
+des sauvegardes</string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="UpPushButton" name="RestaurBaseupPushButton">
+               <property name="contextMenuPolicy">
+                <enum>Qt::NoContextMenu</enum>
+               </property>
+               <property name="text">
+                <string>Restaurer
+la base</string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="UpPushButton" name="ReinitBaseupPushButton">
+               <property name="contextMenuPolicy">
+                <enum>Qt::NoContextMenu</enum>
+               </property>
+               <property name="text">
+                <string>Réinitialiser
+les données</string>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="6,4">
+          <property name="spacing">
+           <number>5</number>
+          </property>
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <widget class="QFrame" name="Appareilsconnectesframe">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>500</height>
+             </size>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <widget class="UpTableWidget" name="AppareilsConnectesupTableWidget">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>40</y>
+               <width>541</width>
+               <height>371</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>541</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>541</width>
+               <height>16277715</height>
+              </size>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+            </widget>
+            <widget class="UpLabel" name="AppareilsconnectesupLabel">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>10</y>
+               <width>251</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>16</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16</height>
+              </size>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Appareils connectés au réseau</string>
+             </property>
+            </widget>
+           </widget>
+          </item>
+          <item>
+           <widget class="QWidget" name="AdminWidget" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>500</height>
+             </size>
+            </property>
+            <widget class="UpPushButton" name="GestUserpushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>5</y>
+               <width>241</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Gestion des utilisateurs</string>
+             </property>
+             <property name="icon">
+              <iconset resource="Images/images.qrc">
+               <normaloff>:/chgtuser.png</normaloff>:/chgtuser.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QLabel" name="PosteImportDocsPrioritairelabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>420</y>
+               <width>221</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="PosteImportDocslabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>400</y>
+               <width>221</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+            <widget class="UpPushButton" name="ParamMotifspushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>115</y>
+               <width>241</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Paramétrer
+les motifs de consultation</string>
+             </property>
+             <property name="icon">
+              <iconset resource="Images/images.qrc">
+               <normaloff>:/list_all_participants.png</normaloff>:/list_all_participants.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QLabel" name="VersionBaselabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>470</y>
+               <width>221</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Version de la base</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="VerifPosteImportDocslabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>380</y>
+               <width>221</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Poste importateur des documents</string>
+             </property>
+            </widget>
+            <widget class="UpPushButton" name="InitMDPAdminpushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>60</y>
+               <width>241</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Changer le mot
+de passe administrateur</string>
+             </property>
+             <property name="icon">
+              <iconset resource="Images/images.qrc">
+               <normaloff>:/password.ico</normaloff>:/password.ico</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QLabel" name="VersionRufuslabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>450</y>
+               <width>221</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Version de Rufus</string>
+             </property>
+            </widget>
+            <widget class="UpPushButton" name="GestionBanquespushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>170</y>
+               <width>241</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Gestion
+des organismes bancaires</string>
+             </property>
+             <property name="icon">
+              <iconset resource="Images/images.qrc">
+               <normaloff>:/euro.ico</normaloff>:/euro.ico</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>30</width>
+               <height>30</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="UpPushButton" name="GestLieuxpushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>230</y>
+               <width>241</width>
+               <height>55</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Gestion des lieux d'activité</string>
+             </property>
+             <property name="icon">
+              <iconset resource="Images/images.qrc">
+               <normaloff>:/address-book.png</normaloff>:/address-book.png</iconset>
+             </property>
+             <property name="iconSize">
+              <size>
+               <width>35</width>
+               <height>35</height>
+              </size>
+             </property>
+            </widget>
+            <widget class="QLabel" name="EmplacementServeurlabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>290</y>
+               <width>161</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Emplacement du serveur</string>
+             </property>
+            </widget>
+            <widget class="UpComboBox" name="EmplacementServeurupComboBox">
+             <property name="geometry">
+              <rect>
+               <x>17</x>
+               <y>310</y>
+               <width>311</width>
+               <height>26</height>
+              </rect>
+             </property>
+            </widget>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <property name="spacing">
+           <number>5</number>
+          </property>
+          <property name="leftMargin">
+           <number>5</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>5</number>
+          </property>
+          <property name="bottomMargin">
+           <number>5</number>
+          </property>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="UpLabel" name="LockParamGeneralupLabel">
+            <property name="minimumSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>48</width>
+              <height>48</height>
+             </size>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="styleSheet">
+             <string notr="true"/>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="scaledContents">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="UpSmallButton" name="FermepushButton">
+       <property name="minimumSize">
+        <size>
+         <width>35</width>
+         <height>35</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>35</width>
+         <height>35</height>
+        </size>
+       </property>
+       <property name="mouseTracking">
+        <bool>true</bool>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="contextMenuPolicy">
+        <enum>Qt::NoContextMenu</enum>
+       </property>
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="Images/images.qrc">
+         <normaloff>:/shutdown.png</normaloff>:/shutdown.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>35</width>
+         <height>35</height>
+        </size>
+       </property>
+       <property name="flat">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uptablewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpSmallButton</class>
+   <extends>QPushButton</extends>
+   <header>upsmallbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpComboBox</class>
+   <extends>QComboBox</extends>
+   <header>upcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLabel</class>
+   <extends>QLabel</extends>
+   <header>uplabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpRadioButton</class>
+   <extends>QRadioButton</extends>
+   <header>upradiobutton.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>ParamtabWidget</tabstop>
+  <tabstop>LoginuplineEdit</tabstop>
+  <tabstop>MDPuplineEdit</tabstop>
+  <tabstop>NomuplineEdit</tabstop>
+  <tabstop>PrenomuplineEdit</tabstop>
+  <tabstop>PortableuplineEdit</tabstop>
+  <tabstop>MailuplineEdit</tabstop>
+  <tabstop>ChoixFontupPushButton</tabstop>
+  <tabstop>PosteServcheckBox</tabstop>
+  <tabstop>LocalServcheckBox</tabstop>
+  <tabstop>DistantServcheckBox</tabstop>
+  <tabstop>EmplacementDistantuplineEdit</tabstop>
+  <tabstop>FrontoupComboBox</tabstop>
+  <tabstop>AutorefupComboBox</tabstop>
+  <tabstop>RefracteurupComboBox</tabstop>
+  <tabstop>JourSauvegardegroupBox</tabstop>
+  <tabstop>LundiradioButton</tabstop>
+  <tabstop>MardiradioButton</tabstop>
+  <tabstop>MercrediradioButton</tabstop>
+  <tabstop>JeudiradioButton</tabstop>
+  <tabstop>VendrediradioButton</tabstop>
+  <tabstop>SamediradioButton</tabstop>
+  <tabstop>DimancheradioButton</tabstop>
+  <tabstop>DirBackupuplineEdit</tabstop>
+  <tabstop>HeureBackuptimeEdit</tabstop>
+  <tabstop>DirBackuppushButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="Images/images.qrc"/>
+ </resources>
+ <connections/>
+</ui>
