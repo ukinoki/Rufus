@@ -31,7 +31,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsView>
 #include <QMediaPlayer>
 #include "playercontrols.h"
-#include <QSqlQueryModel>
 
 class dlg_docsexternes : public UpDialog
 {

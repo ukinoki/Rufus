@@ -220,12 +220,6 @@
       <height>21</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
     <property name="focusPolicy">
      <enum>Qt::StrongFocus</enum>
     </property>
@@ -335,12 +329,6 @@
       <width>170</width>
       <height>21</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
     </property>
     <property name="focusPolicy">
      <enum>Qt::StrongFocus</enum>
@@ -601,12 +589,6 @@
       <width>111</width>
       <height>24</height>
      </rect>
-    </property>
-    <property name="font">
-     <font>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
     </property>
     <property name="focusPolicy">
      <enum>Qt::StrongFocus</enum>

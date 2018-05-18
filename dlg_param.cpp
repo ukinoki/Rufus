@@ -144,6 +144,12 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui->StatutComptaupTextEdit      ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->StatutComptaupTextEdit      ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
+    QFont font = qApp->font();
+    font.setBold(true);
+    ui->PrenomuplineEdit->setFont(font);
+    ui->NomuplineEdit->setFont(font);
+    ui->TitreuplineEdit->setFont(font);
+
 
     ui->LockParamUserupLabel                ->setPixmap(QPixmap("://Lock.png"));
     ui->LockParamPosteupLabel               ->setPixmap(QPixmap("://Lock.png"));

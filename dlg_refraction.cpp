@@ -1864,6 +1864,19 @@ void dlg_refraction::InitDivers()
 {
     ui->OKPushButton->setShortcut(QKeySequence("Meta+Return"));
 
+    QFont font = qApp->font();
+    font.setItalic(true);
+    font.setBold(true);
+    font.setPointSize(font.pointSize()-1);
+    ui->ODQLabel->setFont(font);
+    ui->OGQLabel->setFont(font);
+    ui->ODQLabel_2->setFont(font);
+    ui->OGQLabel_2->setFont(font);
+    ui->ODQLabel->setText("<font color='magenta'>" + tr("Œil droit") + "</font>");
+    ui->ODQLabel_2->setText("<font color='magenta'>" + tr("Œil droit") + "</font>");
+    ui->OGQLabel->setText("<font color='magenta'>" + tr("Œil gauche") + "</font>");
+    ui->OGQLabel_2->setText("<font color='magenta'>" + tr("Œil gauche") + "</font>");
+
     // Initialisation des objets du formulaire
     AVPOD = new UpLineEdit(ui->AVPODupComboBox);
     AVPOG = new UpLineEdit(ui->AVPOGupComboBox);

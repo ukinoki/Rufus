@@ -128,6 +128,7 @@ public:
     void                    Pause(int msec = 1000);
     void                    Init_Icones();
     bool                    TraiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
+    void                    ModifTailleFont(QObject *obj, int siz, QFont font=qApp->font());
     int                     Nombre_Mesure_Selected(QTreeWidget *Tree);
     int                     Nombre_Mesure_Selected(QTableWidget *Table, int col);
     QString                 RecupPartie(QString ficModele, QString partie);

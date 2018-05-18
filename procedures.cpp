@@ -460,6 +460,23 @@ QString Procedures::MajusculePremiereLettre(QString MajLettre, bool fin, bool Ma
 }
 
 // ----------------------------------------------------------------------------------
+// Modidife la taille de la police utilisée pour les widget d'une liste
+// ----------------------------------------------------------------------------------
+void Procedures::ModifTailleFont(QObject *obj, int siz, QFont font)
+{
+    font.setPointSize(font.pointSize() + siz);
+    QWidget *widg = dynamic_cast<QWidget*>(obj);
+    if (widg != Q_NULLPTR)
+        widg->setFont(font);
+    for (int i=0; i<obj->findChildren<QWidget*>().size(); i++)
+    {
+        //qDebug() << obj->findChildren<QWidget*>().at(i)->objectName();
+        obj->findChildren<QWidget*>().at(i)->setFont(font);
+    }
+}
+
+
+// ----------------------------------------------------------------------------------
 // Retourne le nombre de lignes comm selectionnees
 // ----------------------------------------------------------------------------------
 int Procedures::Nombre_Mesure_Selected(QTreeWidget *Tree)

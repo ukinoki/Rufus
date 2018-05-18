@@ -144,12 +144,6 @@
            <height>21</height>
           </rect>
          </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
-         </property>
          <property name="focusPolicy">
           <enum>Qt::StrongFocus</enum>
          </property>
@@ -295,12 +289,6 @@
            <width>170</width>
            <height>21</height>
           </rect>
-         </property>
-         <property name="font">
-          <font>
-           <weight>75</weight>
-           <bold>true</bold>
-          </font>
          </property>
          <property name="focusPolicy">
           <enum>Qt::StrongFocus</enum>
@@ -1393,9 +1381,9 @@ pour l'enregistrement des actes</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpPushButton</class>
-   <extends>QPushButton</extends>
-   <header>uppushbutton.h</header>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpSmallButton</class>
@@ -1403,9 +1391,9 @@ pour l'enregistrement des actes</string>
    <header>upsmallbutton.h</header>
   </customwidget>
   <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>UpComboBox</class>

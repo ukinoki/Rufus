@@ -37,6 +37,14 @@ dlg_paiement::dlg_paiement(QList<int> *ListidActeAPasser, int Mode, Procedures *
     gidUser         = gPersoDataUser.value("idUser").toInt();
     gidUserACrediter = -1;
     //ui->UserscomboBox->setEnabled(proc->getDataUser()["Droits"].toString() == SECRETAIRE);
+    QFont font = qApp->font();
+    font.setBold(true);
+    font.setItalic(true);
+    font.setPointSize(font.pointSize()+5);
+    ui->Utilisateurlabel->setFont(font);
+    font.setItalic(false);
+    font.setPointSize(font.pointSize()+12);
+    ui->PasdePaiementlabel->setFont(font);
 
     ophtalmo       = gPersoDataUser["Soignant"].toInt() == 1;
     orthoptist     = gPersoDataUser["Soignant"].toInt() == 2;

@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("15-05-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("18-05-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8372,6 +8372,27 @@ void Rufus::InitDivers()
     "UpLineEdit:focus {border-style:none;}");
     MGlineEdit->setMaxLength(90);
     ui->MGupComboBox->setLineEdit(MGlineEdit);
+
+    int a = -3;
+    proc->ModifTailleFont(ui->Cotationframe,a);
+    proc->ModifTailleFont(ui->Comptaframe,a);
+    proc->ModifTailleFont(ui->CreeParlineEdit,a);
+    proc->ModifTailleFont(ui->NoActelabel,a);
+    proc->ModifTailleFont(ui->InfoPatientframe,a);
+    a = -1;
+    proc->ModifTailleFont(ui->RefractionpushButton,a);
+    proc->ModifTailleFont(ui->TonometriepushButton,a);
+    proc->ModifTailleFont(ui->OuvrirDocumentpushButton,a);
+    proc->ModifTailleFont(ui->OuvreActesPrecspushButton,a);
+    proc->ModifTailleFont(ui->OuvreDocsExternespushButton,a);
+    proc->ModifTailleFont(ui->CreerActepushButton,a);
+    proc->ModifTailleFont(ui->CreerBOpushButton,a);
+    proc->ModifTailleFont(ui->MotsClesLabel,a);
+    proc->ModifTailleFont(ui->ModifierCotationActepushButton,a);
+
+    QFont font = qApp->font();
+    font.setBold(true);
+    ui->ActeDatedateEdit->setFont(font);
 
     AutresCorresp1LineEdit = new UpLineEdit();
     AutresCorresp1LineEdit->setStyleSheet(

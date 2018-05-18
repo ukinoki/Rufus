@@ -42,6 +42,10 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);;
     AjouteWidgetLayButtons(ui->idDossierlabel, false);
     globallay               ->setSizeConstraint(QLayout::SetFixedSize);
+    QFont font = qApp->font();
+    font.setBold(true);
+    ui->PrenomlineEdit->setFont(font);
+    ui->NomlineEdit->setFont(font);
 
     setWindowIcon(proc->giconDoctor);
     ReconstruitListeSpecialites();

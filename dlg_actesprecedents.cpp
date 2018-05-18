@@ -47,6 +47,7 @@ ui(new Ui::dlg_actesprecedents)
     connect (ui->PremierActepushButton,                 SIGNAL(clicked()),                                  this,       SLOT (Slot_NavigationPremierActepushButtonClicked()));
 
     ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
+    proc->ModifTailleFont(ui->RenseignementsWidget, -3);
     ActesPrecsAfficheActe(ChercheActeAAfficher());
 }
 

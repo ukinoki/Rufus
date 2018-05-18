@@ -168,11 +168,6 @@
       <height>211</height>
      </rect>
     </property>
-    <property name="font">
-     <font>
-      <kerning>false</kerning>
-     </font>
-    </property>
     <property name="focusPolicy">
      <enum>Qt::NoFocus</enum>
     </property>
@@ -1101,14 +1096,6 @@ effectués par</string>
      <height>20</height>
     </rect>
    </property>
-   <property name="font">
-    <font>
-     <pointsize>15</pointsize>
-     <weight>75</weight>
-     <italic>true</italic>
-     <bold>true</bold>
-    </font>
-   </property>
    <property name="text">
     <string>Gestion des paiements directs - liste des paiements directs</string>
    </property>
@@ -1152,14 +1139,6 @@ effectués par</string>
      <width>531</width>
      <height>281</height>
     </rect>
-   </property>
-   <property name="font">
-    <font>
-     <family>Arial</family>
-     <pointsize>30</pointsize>
-     <weight>75</weight>
-     <bold>true</bold>
-    </font>
    </property>
    <property name="text">
     <string>Pas de

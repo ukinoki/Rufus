@@ -50,6 +50,11 @@ dlg_identificationpatient::dlg_identificationpatient(QString *CreationModificati
     globallay               ->setSizeConstraint(QLayout::SetFixedSize);
 
     ui->DDNdateEdit     ->setDateRange(QDate::currentDate().addYears(-105),QDate::currentDate());
+    QFont font = qApp->font();
+    font.setBold(true);
+    ui->PrenomlineEdit->setFont(font);
+    ui->NomlineEdit->setFont(font);
+    ui->DDNdateEdit->setFont(font);
 
     UpLineEdit *MGLineEdit = new UpLineEdit(this);
     MGLineEdit          ->setStyleSheet(

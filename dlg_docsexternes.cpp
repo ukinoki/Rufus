@@ -348,11 +348,53 @@ void dlg_docsexternes::Slot_AfficheDoc(QModelIndex idx)
 
 void dlg_docsexternes::Slot_BasculeTriListe(int a)
 {
+    QString             idimpraretrouver = "";
+    gmodele = dynamic_cast<QStandardItemModel*>(ListDocsTreeView->model());
+    if (gmodele)
+    {
+        if (ListDocsTreeView->selectionModel()->selectedIndexes().size()>0)
+        {
+            QModelIndex         actifidx;
+            actifidx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
+            if (!gmodele->itemFromIndex(actifidx)->hasChildren())
+                idimpraretrouver = gmodele->itemFromIndex(actifidx)->accessibleDescription();
+        }
+    }
     if (a == 0)
+    {
         gModeTri = parDate;
+        gmodele  = gmodeleTriParDate;
+    }
     else if (a == 1)
+    {
         gModeTri = parType;
-    RemplirTreeView(false);
+        gmodele = gmodeleTriParType;
+    }
+    ListDocsTreeView->setModel(gmodele);
+
+    int nrows = gmodele->item(gmodele->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item date
+    QStandardItem *item =  gmodele->item(gmodele->rowCount()-1)->child(nrows,0);    // le tout dernier item
+    QModelIndex idx = item->index();                                                // l'index de ce dernier item
+    if (idimpraretrouver != "")
+    {
+        bool nouvelidx = false;
+        for (int m = 0; m<gmodele->rowCount(); m++)
+        {
+            for (int n=0; n<gmodele->item(m)->rowCount(); n++)
+                if (gmodele->item(m)->child(n)->accessibleDescription() == idimpraretrouver)
+                {
+                    idx = gmodele->item(m)->child(n)->index();
+                    nouvelidx = true;
+                    break;
+                }
+            if (nouvelidx) break;
+        }
+    }
+    ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
+    ListDocsTreeView->setCurrentIndex(idx);
+    ListDocsTreeView->expandAll();
+    connect(gmodele,    SIGNAL(itemChanged(QStandardItem*)), this , SLOT(Slot_EditSousTitre(QStandardItem*)));
+    connect(ListDocsTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(Slot_AfficheDoc(QModelIndex)));
 }
 
 void dlg_docsexternes::Slot_CompteNbreDocs()
@@ -1114,13 +1156,15 @@ void dlg_docsexternes::RemplirTreeView(bool recalcul)
             QModelIndex         actifidx;
             actifidx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
             if (!gmodele->itemFromIndex(actifidx)->hasChildren())
-               idimpraretrouver = gmodele->itemFromIndex(actifidx)->accessibleDescription();
+                idimpraretrouver = gmodele->itemFromIndex(actifidx)->accessibleDescription();
         }
         gmodele->clear();
     }
     else
     {
-        gmodele = new QStandardItemModel(this);
+        gmodele             = new QStandardItemModel(this);
+        gmodeleTriParDate   = new QStandardItemModel(this);
+        gmodeleTriParType   = new QStandardItemModel(this);
     }
     if (recalcul)
         TreeQuery.exec("Select idImpression, TypeDoc, Titre, Dateimpression, SousTypeDoc from " NOM_TABLE_IMPRESSIONS
@@ -1144,116 +1188,108 @@ void dlg_docsexternes::RemplirTreeView(bool recalcul)
         pitemlist << tit0 << tit1 << tit2 << tit3 << tit4;
         treemodel.appendRow(pitemlist);
     }
-    if (gModeTri == parDate)
-        treemodel.sort(3);
-    else if (gModeTri == parType)
-        treemodel.sort(2);
 
     //1 Liste des documents (ordonnances, certificats, courriers, imagerie...etc...) imprimés par le poste ou reçus
-    if (gModeTri == parDate)
+    if (treemodel.rowCount()>0)
     {
-        if (treemodel.rowCount()>0)
+        ndocs = treemodel.rowCount();
+        // Tri par date
+        treemodel.sort(3);
+        QString datestring ="";
+        for (int i=0;i<treemodel.rowCount();i++)
         {
-            ndocs = treemodel.rowCount();
-            QString datestring ="";
-            for (int i=0;i<treemodel.rowCount();i++)
+            QString textdate = treemodel.item(i,3)->text();
+            QString date = QDateTime::fromString(textdate, "yyyy-MM-ddThh:mm:ss").toString(tr("dd-MM-yyyy"));
+            if (date != datestring)
             {
-                QString textdate = treemodel.item(i,3)->text();
-                QString date = QDateTime::fromString(textdate, "yyyy-MM-ddThh:mm:ss").toString(tr("dd-MM-yyyy"));
-                if (date != datestring)
-                {
-                    dateitem   = new QStandardItem();
-                    datestring = date;
-                    dateitem->setText(datestring);
-                    dateitem->setForeground(QBrush(QColor(Qt::red)));
-                    dateitem->setEditable(false);
-                    dateitem->setEnabled(false);
-                    gmodele->appendRow(dateitem);
-                }
-            }
-            for (int i=0;i<treemodel.rowCount();i++)
-            {
-                QString date = QDateTime::fromString(treemodel.item(i,3)->text(), "yyyy-MM-ddThh:mm:ss").toString(tr("dd-MM-yyyy"));
-                QString a = treemodel.item(i,1)->text();                       //Type de document
-                if (treemodel.item(i,4)->text() != "")
-                {
-                    if (a!="") a += " - ";
-                    a += treemodel.item(i,4)->text();                       //Sous-type du document
-                }
-                else if (treemodel.item(i,2)->text() != "")                // Titre du document
-                {
-                    if (a!="") a += " - ";
-                    QTextEdit text;
-                    text.setHtml(treemodel.item(i,2)->text());
-                    a += text.toPlainText();
-                }
-                pitem   = new QStandardItem(a);
-                pitem1  = new QStandardItem(QDateTime::fromString(treemodel.item(i,3)->text(), "yyyy-MM-ddThh:mm:ss").toString("yyyyMMddHHmmss") +"000");
-                pitem->setAccessibleDescription(treemodel.item(i,0)->text());
-                pitem->setEditable(true);
-                QList<QStandardItem *> pitemlist;
-                pitemlist << pitem << pitem1;
-                QList<QStandardItem *> listitems = gmodele->findItems(date);
-                if (listitems.size()>0)
-                {
-                    listitems.at(0)->appendRow(pitemlist);
-                    listitems.at(0)->sortChildren(1);
-                }
+                dateitem   = new QStandardItem();
+                datestring = date;
+                dateitem->setText(datestring);
+                dateitem->setForeground(QBrush(QColor(Qt::red)));
+                dateitem->setEditable(false);
+                dateitem->setEnabled(false);
+                gmodeleTriParDate->appendRow(dateitem);
             }
         }
-        nbredocs = ndocs;
-    }    else if (gModeTri == parType)
-    {
-        if (treemodel.rowCount() > 0)
+        for (int i=0;i<treemodel.rowCount();i++)
         {
-            ndocs = treemodel.rowCount();
-            QString typedoc ="";
-            for (int i=0;i<treemodel.rowCount();i++)
+            QString date = QDateTime::fromString(treemodel.item(i,3)->text(), "yyyy-MM-ddThh:mm:ss").toString(tr("dd-MM-yyyy"));
+            QString a = treemodel.item(i,1)->text();                       //Type de document
+            if (treemodel.item(i,4)->text() != "")
             {
-                if (treemodel.item(i,1)->text() != typedoc)
-                {
-                    typitem     = new QStandardItem();
-                    typedoc     = treemodel.item(i,1)->text();
-                    typitem     ->setText(typedoc);
-                    typitem     ->setForeground(QBrush(QColor(Qt::red)));
-                    typitem     ->setEditable(false);
-                    typitem     ->setEnabled(false);
-                    gmodele     ->appendRow(typitem);
-                }
+                if (a!="") a += " - ";
+                a += treemodel.item(i,4)->text();                       //Sous-type du document
             }
-            for (int i=0;i<treemodel.rowCount();i++)
+            else if (treemodel.item(i,2)->text() != "")                // Titre du document
             {
-                QString textdate = treemodel.item(i,3)->text();
-                QString date = QDateTime::fromString(textdate, "yyyy-MM-ddThh:mm:ss").toString(tr("dd-MM-yyyy"));
-                QString a = date + " - ";
-                if (treemodel.item(i,4)->text() != "")
-                    a += treemodel.item(i,4)->text();                       //Sous-type du document
-                else if (treemodel.item(i,2)->text() != "")                // Titre du document
-                {
-                    QTextEdit text;
-                    text.setHtml(treemodel.item(i,2)->text());
-                    a += text.toPlainText();
-                }
-                else
-                    a += treemodel.item(i,1)->text();                       //Type de document
+                if (a!="") a += " - ";
+                QTextEdit text;
+                text.setHtml(treemodel.item(i,2)->text());
+                a += text.toPlainText();
+            }
+            pitem   = new QStandardItem(a);
+            pitem1  = new QStandardItem(QDateTime::fromString(treemodel.item(i,3)->text(), "yyyy-MM-ddThh:mm:ss").toString("yyyyMMddHHmmss") +"000");
+            pitem->setAccessibleDescription(treemodel.item(i,0)->text());
+            pitem->setEditable(true);
+            QList<QStandardItem *> pitemlist;
+            pitemlist << pitem << pitem1;
+            QList<QStandardItem *> listitems = gmodeleTriParDate->findItems(date);
+            if (listitems.size()>0)
+            {
+                listitems.at(0)->appendRow(pitemlist);
+                listitems.at(0)->sortChildren(1);
+            }
+        }
+        // Tri par type
+        treemodel.sort(2);
+        QString typedoc ="";
+        for (int i=0;i<treemodel.rowCount();i++)
+        {
+            if (treemodel.item(i,1)->text() != typedoc)
+            {
+                typitem     = new QStandardItem();
+                typedoc     = treemodel.item(i,1)->text();
+                typitem     ->setText(typedoc);
+                typitem     ->setForeground(QBrush(QColor(Qt::red)));
+                typitem     ->setEditable(false);
+                typitem     ->setEnabled(false);
+                gmodeleTriParType     ->appendRow(typitem);
+            }
+        }
+        for (int i=0;i<treemodel.rowCount();i++)
+        {
+            QString textdate = treemodel.item(i,3)->text();
+            QString date = QDateTime::fromString(textdate, "yyyy-MM-ddThh:mm:ss").toString(tr("dd-MM-yyyy"));
+            QString a = date + " - ";
+            if (treemodel.item(i,4)->text() != "")
+                a += treemodel.item(i,4)->text();                       //Sous-type du document
+            else if (treemodel.item(i,2)->text() != "")                // Titre du document
+            {
+                QTextEdit text;
+                text.setHtml(treemodel.item(i,2)->text());
+                a += text.toPlainText();
+            }
+            else
+                a += treemodel.item(i,1)->text();                       //Type de document
 
-                pitem   = new QStandardItem(a);
-                pitem1  = new QStandardItem(QDateTime::fromString(treemodel.item(i,3)->text(), "yyyy-MM-ddThh:mm:ss").toString("yyyyMMddHHmmss") +"000");
-                pitem   ->setAccessibleDescription(treemodel.item(i,0)->text());
-                pitem   ->setEditable(true);
-                QList<QStandardItem *> pitemlist;
-                pitemlist << pitem << pitem1;
-                QList<QStandardItem *> listitems = gmodele->findItems(treemodel.item(i,1)->text());
-                if (listitems.size()>0)
-                {
-                    listitems.at(0)->appendRow(pitemlist);
-                    listitems.at(0)->sortChildren(1);
-                 }
+            pitem   = new QStandardItem(a);
+            pitem1  = new QStandardItem(QDateTime::fromString(treemodel.item(i,3)->text(), "yyyy-MM-ddThh:mm:ss").toString("yyyyMMddHHmmss") +"000");
+            pitem   ->setAccessibleDescription(treemodel.item(i,0)->text());
+            pitem   ->setEditable(true);
+            QList<QStandardItem *> pitemlist;
+            pitemlist << pitem << pitem1;
+            QList<QStandardItem *> listitems = gmodeleTriParType->findItems(treemodel.item(i,1)->text());
+            if (listitems.size()>0)
+            {
+                listitems.at(0)->appendRow(pitemlist);
+                listitems.at(0)->sortChildren(1);
             }
         }
-        nbredocs = ndocs;
     }
-
+    nbredocs = ndocs;
+    if (gModeTri == parDate)
+        gmodele  = gmodeleTriParDate;
+    else gmodele = gmodeleTriParType;
     if (gmodele->rowCount()>0)
     {
         int nrows = gmodele->item(gmodele->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item date
