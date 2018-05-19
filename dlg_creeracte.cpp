@@ -63,7 +63,10 @@ void dlg_creeracte::Initialise(Procedures *procAPasser)
     gidUser                 = proc->getidUser();
     gSecteurUser            = proc->getDataUser()["Secteur"].toInt();
     if (gTypeActe != HorsNomenclature)
+    {
         ui->CodeActeupLineEdit    ->setValidator(new QRegExpValidator(proc->getrxCot(),this));
+        ui->CodeActelabel->setText(tr("Code (Majuscules)"));
+    }
 
     QString req = "select distinct typeacte from " NOM_TABLE_COTATIONS " where CCAM = ";
     ui->CodeActeupLineEdit->setEnabled(gMode==Creation);
@@ -126,17 +129,14 @@ void dlg_creeracte::Initialise(Procedures *procAPasser)
     else
     {
         ui->CodeActeupLineEdit->setText(gCodeActe);
-        req = " select montantconv, montantpratique from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
+        req = " select montantoptam, montantnonoptam, montantpratique from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
         QSqlQuery actequer(req,proc->getDataBase());
-        QString montantconv = "";
-        QString montantprat = "";
         if (actequer.size()>0)
         {
             actequer.first();
-            montantconv = QLocale().toString(actequer.value(0).toDouble(),'f',2);
-            montantprat = QLocale().toString(actequer.value(1).toDouble(),'f',2);
-            ui->TarifOPTAMupLineEdit->setText(montantconv);
-            ui->TarifPratiqueupLineEdit->setText(montantprat);
+            ui->TarifOPTAMupLineEdit    ->setText(QLocale().toString(actequer.value(0).toDouble(),'f',2));
+            ui->TarifNonOPTAMupLineEdit ->setText(QLocale().toString(actequer.value(1).toDouble(),'f',2));
+            ui->TarifPratiqueupLineEdit ->setText(QLocale().toString(actequer.value(2).toDouble(),'f',2));
         }
     }
 }

@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("18-05-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("19-05-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -74,6 +74,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
         exit(0);
     if (!proc->VerifVersion())
         UpMessageBox::Watch(this, tr("La version du programme ne semble pas conforme"), "");
+
     //0. Connexion à la base et récupération des données utilisateur
     if (!proc->gdbOK)
     {
@@ -8379,6 +8380,7 @@ void Rufus::InitDivers()
     proc->ModifTailleFont(ui->CreeParlineEdit,a);
     proc->ModifTailleFont(ui->NoActelabel,a);
     proc->ModifTailleFont(ui->InfoPatientframe,a);
+    proc->ModifTailleFont(ui->EnregistrePaiementpushButton,a);
     a = -1;
     proc->ModifTailleFont(ui->RefractionpushButton,a);
     proc->ModifTailleFont(ui->TonometriepushButton,a);

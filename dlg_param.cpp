@@ -1071,7 +1071,7 @@ void dlg_param::ReconstruitListeLieuxExercice()
         delete ui->AdressgroupBox->findChildren<QObject*>().at(0);
     ui->EmplacementServeurupComboBox->clear();
     ui->AdressgroupBox->setTitle(tr("Lieux de travail utilisés"));
-    QButtonGroup *butgrp = new QButtonGroup();
+    //QButtonGroup *butgrp = new QButtonGroup();
     QVBoxLayout  *adresslay = new QVBoxLayout();
     UpRadioButton *box;
     adresslay           ->addSpacerItem(new QSpacerItem(25,15,QSizePolicy::Fixed,QSizePolicy::Fixed));
@@ -1111,11 +1111,11 @@ void dlg_param::ReconstruitListeLieuxExercice()
         box->setiD(adrquer.value(0).toInt());
         box->setToggleable(false);
         box->setAutoExclusive(false);
-        butgrp->addButton(box); //Bug? Si on n'utilise pas de ButtonGroup, il y a interférence avec ui-CotationupRadioButton s'il n'y a qu'une seule ligne dans ui->AdressGroupBox(???)
+        //butgrp->addButton(box);
         adresslay->addWidget(box);
         ui->EmplacementServeurupComboBox->addItem(adrquer.value(1).toString(),adrquer.value(0));
     }
-    butgrp              ->setExclusive(false);
+    //butgrp              ->setExclusive(false);
     adresslay           ->setSpacing(10);
     adresslay           ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
     ui->AdressgroupBox  ->setLayout(adresslay);
@@ -1631,6 +1631,9 @@ void dlg_param::NouvAssocCCAM()
                     lbl->setEnabled(true);
             }
         }
+        ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+        widgAssocCCAM          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
     delete Dlg_CrrAct;
 }
@@ -1672,6 +1675,9 @@ void dlg_param::ModifAssocCCAM()
                     lbl->setEnabled(true);
             }
         }
+        ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+        widgAssocCCAM          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
     delete Dlg_CrrAct;
 }
@@ -1695,6 +1701,23 @@ void dlg_param::SupprAssocCCAM()
     {
         QSqlQuery ("delete from " NOM_TABLE_COTATIONS " where typeacte = '" + CodeActe + "'", db);
         Remplir_TableAssocCCAM();
+        for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
+        {
+            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
+            if (check) check->setEnabled(true);
+            UpLineEdit *lbl1 = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
+            if (lbl1)
+                lbl1->setEnabled(true);
+            if (ui->AssocCCAMupTableWidget->columnCount()==5)
+            {
+                UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
+                if (lbl)
+                    lbl->setEnabled(true);
+            }
+        }
+        ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+        widgAssocCCAM          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
 }
 
@@ -1707,6 +1730,7 @@ void dlg_param::NouvHorsNomenclature()
     if (Dlg_CrrAct->exec()>0)
     {
         Remplir_TableHorsNomenclature();
+        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
         for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
@@ -1715,6 +1739,9 @@ void dlg_param::NouvHorsNomenclature()
             if (lbl)
                 lbl->setEnabled(true);
         }
+        ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+        widgHN          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
     delete Dlg_CrrAct;
 }
@@ -1730,6 +1757,7 @@ void dlg_param::ModifHorsNomenclature()
     if (Dlg_CrrAct->exec()>0)
     {
         Remplir_TableHorsNomenclature();
+        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
         for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
@@ -1738,6 +1766,9 @@ void dlg_param::ModifHorsNomenclature()
             if (lbl)
                 lbl->setEnabled(true);
         }
+        ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+        widgHN          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
     delete Dlg_CrrAct;
 }
@@ -1750,6 +1781,18 @@ void dlg_param::SupprHorsNomenclature()
     {
         QSqlQuery ("delete from " NOM_TABLE_COTATIONS " where typeacte = '" + CodeActe + "'", db);
         Remplir_TableHorsNomenclature();
+        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
+        {
+            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
+            if (check) check->setEnabled(true);
+            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
+            if (lbl)
+                lbl->setEnabled(true);
+        }
+        ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
+        ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
+        widgHN          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
 }
 
@@ -2861,6 +2904,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         Assoc2Query.next();
         row ++;
     }
+    int a = 0;
 }
 
 // ----------------------------------------------------------------------------------
