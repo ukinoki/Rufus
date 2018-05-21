@@ -41,7 +41,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QSettings>
-#include <QSignalMapper>
 #include <QSound>
 #include <QSplashScreen>
 #include <QSqlDatabase>

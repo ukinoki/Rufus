@@ -554,30 +554,22 @@ void dlg_depenses::Slot_MenuContextuel()
     int idDepAOuvrir = labelClicked->getId();
 
     QMenu *menu;
-    QSignalMapper *mapper;
-
     menu = new QMenu(this);
-    mapper =  new QSignalMapper(this);
 
     if (ui->Rubriques2035comboBox->currentIndex() == 0)
     {
         QAction *pAction_RecopieDep = menu->addAction(tr("Effectuer une copie de cette dépense à la date d'aujourd'hui"));
-        connect (pAction_RecopieDep, SIGNAL(triggered()), mapper, SLOT (map()));
-        mapper->setMapping(pAction_RecopieDep,QString::number(idDepAOuvrir));
+        connect (pAction_RecopieDep, &QAction::triggered,    [=] {ChoixMenu(QString::number(idDepAOuvrir));});
     }
     QAction *pAction_ChercheVal = menu->addAction(tr("Rechercher une valeur"));
-    connect (pAction_ChercheVal, SIGNAL(triggered()), mapper, SLOT (map()));
-    mapper->setMapping(pAction_ChercheVal,"ChercheVal");
-
-    connect(mapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ChoixMenu(QString)));
+    connect (pAction_ChercheVal, &QAction::triggered,    [=] {ChoixMenu("ChercheVal");});
 
     // ouvrir le menu
     menu->deleteLater();
-    mapper->deleteLater();
     menu->exec(QCursor::pos());
 }
 
-void dlg_depenses::Slot_ChoixMenu(QString choix)
+void dlg_depenses::ChoixMenu(QString choix)
 {
     if (choix == "ChercheVal")
     {
@@ -1216,7 +1208,7 @@ void dlg_depenses::RemplitBigTable()
     if (ui->Rubriques2035comboBox->currentText() != ui->Rubriques2035comboBox->itemText(0))
         Deprequete += " AND RefFiscale = '" + proc->CorrigeApostrophe(ui->Rubriques2035comboBox->currentText()) + "'";
     Deprequete += " ORDER BY DateDep, Objet";
-    //qDebug() << Deprequete;
+    //proc->Edit(Deprequete);
     QSqlQuery EnumDepensesQuery (Deprequete,db);
     if (proc->TraiteErreurRequete(EnumDepensesQuery,Deprequete,"Impossible de retrouver la table des depenses"))
         return;

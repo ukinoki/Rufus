@@ -40,11 +40,11 @@ ui(new Ui::dlg_actesprecedents)
 
     db = proc->getDataBase();
 
-    connect (ui->FermepushButton,                       SIGNAL(clicked()),                                  this,       SLOT (close()));
-    connect (ui->ActePrecedentpushButton,               SIGNAL(clicked()),                                  this,       SLOT (Slot_NavigationActePrecpushButtonClicked()));
-    connect (ui->ActeSuivantpushButton,                 SIGNAL(clicked()),                                  this,       SLOT (Slot_NavigationActeSuivpushButtonClicked()));
-    connect (ui->DernierActepushButton,                 SIGNAL(clicked()),                                  this,       SLOT (Slot_NavigationDernierActepushButtonClicked()));
-    connect (ui->PremierActepushButton,                 SIGNAL(clicked()),                                  this,       SLOT (Slot_NavigationPremierActepushButtonClicked()));
+    connect (ui->FermepushButton,                       &QPushButton::clicked,                                  [=] {close();});
+    connect (ui->ActePrecedentpushButton,               &QPushButton::clicked,                                  [=] {NavigationConsult(Prec);});
+    connect (ui->ActeSuivantpushButton,                 &QPushButton::clicked,                                  [=] {NavigationConsult(Suiv);});
+    connect (ui->DernierActepushButton,                 &QPushButton::clicked,                                  [=] {NavigationConsult(Fin);});
+    connect (ui->PremierActepushButton,                 &QPushButton::clicked,                                  [=] {NavigationConsult(Debut);});
 
     ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
     proc->ModifTailleFont(ui->RenseignementsWidget, -3);
@@ -91,25 +91,6 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
         return false;
     }
     return dlg_actesprecedents::eventFilter(obj, event);
-}
-
-void dlg_actesprecedents::Slot_NavigationActePrecpushButtonClicked()
-{
-    NavigationConsult(Prec);
-}
-
-void dlg_actesprecedents::Slot_NavigationActeSuivpushButtonClicked()
-{
-    NavigationConsult(Suiv);
-}
-void dlg_actesprecedents::Slot_NavigationPremierActepushButtonClicked()
-{
-    NavigationConsult(Debut);
-}
-
-void dlg_actesprecedents::Slot_NavigationDernierActepushButtonClicked()
-{
-    NavigationConsult(Fin);
 }
 
 void dlg_actesprecedents::Actualise()

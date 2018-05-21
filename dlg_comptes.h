@@ -52,6 +52,8 @@ private:
     void            DefinitArchitetureTable();
     void            RemplitLaTable(int idCompteAVoir);
 
+    void            SupprimerEcriture(QString);
+
 private slots:
     void            Slot_AnnulArchive();
     void            Slot_Archiver();
@@ -60,7 +62,6 @@ private slots:
     void            Slot_ChangeCompte(int idCompteAVoir);
     void            Slot_ContextMenuTableWidget();
     void            Slot_RenvoieRangee(bool Coche = true);
-    void            Slot_SupprimerEcriture(QString);
 };
 
 #endif // DLG_COMPTES_H

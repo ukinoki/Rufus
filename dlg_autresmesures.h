@@ -37,9 +37,6 @@ public:
     explicit dlg_autresmesures(int *idPatAPasser, Procedures *procAPasser, enum mode mod = TONO, QWidget *parent = Q_NULLPTR);
     WidgTono            *widgto;
 
-private slots:
-    void                Slot_OKButtonClicked();
-
 private:
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                EnregistreTono();
@@ -47,6 +44,7 @@ private:
     Procedures          *proc;
     int                 gidPatient;
     QSqlDatabase        db;
+    void                OKButtonClicked();
 };
 
 #endif // DLG_AUTRESMESURES_H

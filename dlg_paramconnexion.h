@@ -25,6 +25,10 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include "upmessagebox.h"
 
+/* Cette classe sert à paramétrer la connexion au serveur
+ * DIFFERENTE POUR RUFUS ET RUFUSADMIN
+*/
+
 namespace Ui {
 class dlg_paramconnexion;
 }

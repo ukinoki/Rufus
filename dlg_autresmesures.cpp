@@ -28,7 +28,7 @@ dlg_autresmesures::dlg_autresmesures(int *idPatAPasser, Procedures *procAPasser,
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dynamic_cast<QVBoxLayout*>(layout())->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect (OKButton,   SIGNAL(clicked()),   this,  SLOT (Slot_OKButtonClicked()));
+    connect (OKButton,   &QPushButton::clicked,   [=] {OKButtonClicked();});
     if (mode == TONO)
     {
         widgto      = new WidgTono(this);
@@ -51,7 +51,7 @@ dlg_autresmesures::~dlg_autresmesures()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Traitement des SLOTS / actions associees a chaque objet du formulaire et aux menus -----------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    dlg_autresmesures::Slot_OKButtonClicked()
+void    dlg_autresmesures::OKButtonClicked()
 {
     switch (mode) {
     case TONO:

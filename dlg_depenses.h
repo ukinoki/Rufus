@@ -67,13 +67,13 @@ private:
     void                        RegleAffichageFiche(enum gMode);
     void                        RegleComptesComboBox(bool ActiveSeult = true);
     void                        RemplitBigTable();
+    void                        ChoixMenu(QString);
 
 private slots:
     void                        Slot_AnnulEnreg();
     void                        Slot_ChangeUser(int idx);
     void                        Slot_CalculTotalDepenses();
     void                        Slot_ChercheFamilleFiscale(QString RefFiscale);
-    void                        Slot_ChoixMenu(QString);
     void                        Slot_ChoixPaiement(QString choix);
     void                        Slot_ConvertitDoubleMontant();
     void                        Slot_EnableModifiepushButton();

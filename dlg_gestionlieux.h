@@ -33,12 +33,15 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmessagebox.h"
 #include "widgetbuttonframe.h"
 
+/* sert à gérer les lieux d'exercice
+ * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
+
 class dlg_GestionLieux : public UpDialog
 {
     Q_OBJECT
 
 public:
-    explicit dlg_GestionLieux(QSqlDatabase db,  QWidget *parent = Q_NULLPTR);
+    explicit dlg_GestionLieux(QSqlDatabase db, QWidget *parent = Q_NULLPTR);
     ~dlg_GestionLieux();
 private slots:
     void                    Slot_EnregLieux();

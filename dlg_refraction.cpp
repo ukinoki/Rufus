@@ -33,6 +33,7 @@ dlg_refraction::dlg_refraction(int *idPatAPasser, QString *NomPatient, QString *
     gAgePatient     = *AgeAPasser;
 
     db = proc->getDataBase();
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     InitDivers();
     //  Connection des actions associees a chaque objet du formulaire et aux menus

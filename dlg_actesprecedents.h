@@ -54,12 +54,6 @@ public:
     void                    ActesPrecsAfficheActe(int idActeAAfficher); // Affiche l'acte défini par idActeAAfficher
     int                     getActeAffiche();
 
-private slots:
-    void                    Slot_NavigationActePrecpushButtonClicked();
-    void                    Slot_NavigationActeSuivpushButtonClicked();
-    void                    Slot_NavigationPremierActepushButtonClicked();
-    void                    Slot_NavigationDernierActepushButtonClicked();
-
 private:
     Ui::dlg_actesprecedents *ui;
     Procedures              *proc;

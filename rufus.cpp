@@ -25,10 +25,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("19-05-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("22-05-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
     QString border = "border-image: url(://wallpaper.jpg)";
     qApp->setStyleSheet(
@@ -305,10 +306,10 @@ void Rufus::Connect_Slots()
     connect (ui->AutresCorresp1upComboBox,                          SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_MenuContextuelCorrespondant()));
     connect (ui->AutresCorresp2upComboBox,                          SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_MenuContextuelCorrespondant()));
     connect (ui->ModifDatepushButton,                               SIGNAL(clicked()),                                  this,       SLOT (Slot_ModifActeDate()));
-    connect (ui->ModifIdentificationSmallButton,                    SIGNAL(clicked()),                                  this,       SLOT (Slot_ChoixMenuContextuelIdentPatient()));
+    connect (ui->ModifIdentificationSmallButton,                    &QPushButton::clicked,                              [=] {ChoixMenuContextuelIdentPatient();});
     connect (ModifTerrainupSmallButton,                             SIGNAL(clicked()),                                  this,       SLOT (Slot_ModifierTerrain()));
     connect (ui->MotsClesLabel,                                     SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_MenuContextuelMotsCles()));
-    connect (ui->MotsClesupSmallButton,                             SIGNAL(clicked(bool)),                              this,       SLOT (Slot_ChoixMenuContextuelMotsCles()));
+    connect (ui->MotsClesupSmallButton,                             &QPushButton::clicked,                              [=] {ChoixMenuContextuelMotsCles();});
     connect (ui->OKModifTerrainupSmallButton,                       SIGNAL(clicked()),                                  this,       SLOT (Slot_OKModifierTerrain()));
     connect (ui->NouvDossierpushButton,                             SIGNAL(clicked()),                                  this,       SLOT (Slot_OuvrirNouveauDossierpushButtonClicked()));
     connect (ui->OuvreActesPrecspushButton,                         SIGNAL(clicked()),                                  this,       SLOT (Slot_OuvrirActesPrecspushButtonClicked()));
@@ -2800,21 +2801,16 @@ void Rufus::Slot_MajusculeCreerPrenom()
 void Rufus::Slot_MenuContextuelIdentPatient()
 {
     gmenuContextuel = new QMenu(this);
-    gsignalMapper = new QSignalMapper(this);
 
     QAction *pAction_IdentPatient = gmenuContextuel->addAction("Modifier les données patients") ;
-    connect (pAction_IdentPatient, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_IdentPatient,"Modifier");
-
-    connect(gsignalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ChoixMenuContextuelIdentPatient()));
+    connect (pAction_IdentPatient, &QAction::triggered, [=] {ChoixMenuContextuelIdentPatient();});
 
     // ouvrir le menu
     gmenuContextuel->exec(QCursor::pos());
     delete gmenuContextuel;
-    delete gsignalMapper;
 }
 
-void Rufus::Slot_ChoixMenuContextuelIdentPatient()
+void Rufus::ChoixMenuContextuelIdentPatient()
 {
     IdentificationPatient("Modification",gidPatient);  // aussi appelé depuis le bouton ui->ModifIdentificationSmallButton
 }
@@ -2822,21 +2818,16 @@ void Rufus::Slot_ChoixMenuContextuelIdentPatient()
 void Rufus::Slot_MenuContextuelMotsCles()
 {
     gmenuContextuel = new QMenu(this);
-    gsignalMapper = new QSignalMapper(this);
 
     QAction *pAction_ModifMotCle = gmenuContextuel->addAction(tr("Modifier les mots clés"));
-    connect (pAction_ModifMotCle, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_ModifMotCle,"Modifier");
-
-    connect(gsignalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ChoixMenuContextuelMotsCles()));
+    connect (pAction_ModifMotCle, &QAction::triggered, [=] {ChoixMenuContextuelMotsCles();});
 
     // ouvrir le menu
     gmenuContextuel->exec(QCursor::pos());
     delete gmenuContextuel;
-    delete gsignalMapper;
 }
 
-void Rufus::Slot_ChoixMenuContextuelMotsCles()
+void Rufus::ChoixMenuContextuelMotsCles()
 {
     dlg_listemotscles *ListMCDialog = new dlg_listemotscles(proc, gidPatient, this);
     if (ListMCDialog->exec()==0)
@@ -3119,21 +3110,16 @@ void Rufus::Slot_MenuContextuelBureaux()
         {
             gdossierAOuvrir = UpText->getId();
             gmenuContextuel = new QMenu(this);
-            gsignalMapper = new QSignalMapper(this);
 
             if (gUserDroits != SECRETAIRE)
             {
                 QAction *pAction_ReprendreDossier = gmenuContextuel->addAction(tr("Visualiser le dossier"));
-                connect (pAction_ReprendreDossier, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-                gsignalMapper->setMapping(pAction_ReprendreDossier,"Autre Dossier");
+                connect (pAction_ReprendreDossier, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("Autre Dossier");});
             }
-
-            connect(gsignalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ChoixMenuContextuelListePatients(QString)));
 
             // ouvrir le menu
             gmenuContextuel->exec(QCursor::pos());
             delete gmenuContextuel;
-            delete gsignalMapper;
         }
     }
 }
@@ -3146,49 +3132,42 @@ void Rufus::Slot_MenuContextuelListePatients(QPoint point)
     gdossierAOuvrir = gListePatientsModel->item(row)->text().toInt();
 
     gmenuContextuel = new QMenu(this);
-    gsignalMapper = new QSignalMapper(this);
 
     QAction *pAction_MettreEnSalDat = gmenuContextuel->addAction(tr("Inscrire ce patient en salle d'attente"));
-    connect (pAction_MettreEnSalDat, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_MettreEnSalDat,"SalDat");
+    connect (pAction_MettreEnSalDat, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("SalDat");});
+
     QAction *pAction_ModifierDossier = gmenuContextuel->addAction(tr("Modifier les données de ce patient"));
-    connect (pAction_ModifierDossier, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_ModifierDossier,"Modifier");
+    connect (pAction_ModifierDossier, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("Modifier");});
+
     QAction *pAction_Copier = gmenuContextuel->addAction(tr("Créer un dossier de la même famille"));
-    connect (pAction_Copier, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_Copier,"Copie");
+    connect (pAction_Copier, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("Copie");});
+
     if (gUserDroits != SECRETAIRE)
     {
         QAction *pAction_ReprendreDossier = gmenuContextuel->addAction(tr("Visualiser le dossier"));
-        connect (pAction_ReprendreDossier, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-        gsignalMapper->setMapping(pAction_ReprendreDossier,"Autre Dossier");
+        connect (pAction_ReprendreDossier, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("Autre Dossier");});
     }
     QAction *pAction_EmettreDoc = gmenuContextuel->addAction(tr("Emettre un document"));
-    connect (pAction_EmettreDoc, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_EmettreDoc,"Document");
+    connect (pAction_EmettreDoc, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("Document");});
+
     QString req = "Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gdossierAOuvrir);
     QSqlQuery quer(req,db);
     if (quer.size() > 0){
         QAction *pAction_ImprimeDoc = gmenuContextuel->addAction(tr("Réimprimer un document"));
-        connect (pAction_ImprimeDoc, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-        gsignalMapper->setMapping(pAction_ImprimeDoc,"ImprimeAncienDoc");
+        connect (pAction_ImprimeDoc, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("ImprimeAncienDoc");});
     }
     QAction *pAction_EnregDoc = gmenuContextuel->addAction(tr("Enregistrer un document scanné"));
-    connect (pAction_EnregDoc, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_EnregDoc,"EnregDocScan");
-    QAction *pAction_EnregVideo = gmenuContextuel->addAction(tr("Enregistrer une video"));
-    connect (pAction_EnregVideo, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_EnregVideo,"EnregVideo");
-    QAction *pAction_SendMess = gmenuContextuel->addAction(tr("Envoyer un message"));
-    connect (pAction_SendMess, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_SendMess,"SendMess");
+    connect (pAction_EnregDoc, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("EnregDocScan");});
 
-    connect(gsignalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ChoixMenuContextuelListePatients(QString)));
+    QAction *pAction_EnregVideo = gmenuContextuel->addAction(tr("Enregistrer une video"));
+    connect (pAction_EnregVideo, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("EnregVideo");});
+
+    QAction *pAction_SendMess = gmenuContextuel->addAction(tr("Envoyer un message"));
+    connect (pAction_SendMess, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelListePatients("SendMess");});
 
     // ouvrir le menu
     gmenuContextuel->exec(QCursor::pos());
     delete gmenuContextuel;
-    delete gsignalMapper;
 }
 
 void Rufus::Slot_ChoixMenuContextuelListePatients(QString choix)
@@ -3256,17 +3235,12 @@ void Rufus::Slot_MenuContextuelMedecin()
     if (ui->MGupComboBox->findText(ui->MGupComboBox->currentText()))
     {
         gmenuContextuel = new QMenu(this);
-        gsignalMapper = new QSignalMapper(this);
         QAction *pAction_IdentPatient = gmenuContextuel->addAction(tr("Modifier les coordonnées de ce médecin"));
-        connect (pAction_IdentPatient, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-        gsignalMapper->setMapping(pAction_IdentPatient,"Modifier");
-
-        connect(gsignalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ChoixMenuContextuelMedecin()));
+        connect (pAction_IdentPatient, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelMedecin();});
 
         // ouvrir le menu
         gmenuContextuel->exec(QCursor::pos());
         delete gmenuContextuel;
-        delete gsignalMapper;
     }
 }
 
@@ -3296,17 +3270,12 @@ void Rufus::Slot_MenuContextuelCorrespondant()
     if (box->findText(box->currentText()))
     {
         gmenuContextuel = new QMenu(this);
-        gsignalMapper = new QSignalMapper(this);
         QAction *pAction_IdentPatient = gmenuContextuel->addAction(tr("Modifier les coordonnées de ce correspondant"));
-        connect (pAction_IdentPatient, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-        gsignalMapper->setMapping(pAction_IdentPatient,choix);
-
-        connect(gsignalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ChoixMenuContextuelCorrespondant(QString)));
+        connect (pAction_IdentPatient, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelCorrespondant(choix);});
 
         // ouvrir le menu
         gmenuContextuel->exec(QCursor::pos());
         delete gmenuContextuel;
-        delete gsignalMapper;
     }
 }
 
@@ -3346,7 +3315,6 @@ void Rufus::Slot_MenuContextuelSalDat()
     int row = labelClicked->getRow();
 
     gmenuContextuel = new QMenu(this);
-    gsignalMapper = new QSignalMapper(this);
 
     if (sender()->parent()->parent() == ui->SalleDAttenteupTableWidget)
     {
@@ -3356,35 +3324,29 @@ void Rufus::Slot_MenuContextuelSalDat()
             if (StatutClicked->text() == ARRIVE)
             {
                 QAction *pAction_RetirerDossier = gmenuContextuel->addAction(tr("Retirer ce dossier de la salle d'attente"));
-                connect (pAction_RetirerDossier, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-                gsignalMapper->setMapping(pAction_RetirerDossier,"Retirer");
+                connect (pAction_RetirerDossier, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelSalDat("Retirer");});
             }
         }
     }
     QAction *pAction_ModifierDossier = gmenuContextuel->addAction(tr("Modifier les données de ce patient"));
-    connect (pAction_ModifierDossier, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_ModifierDossier,"Modifier");
+    connect (pAction_ModifierDossier, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelSalDat("Modifier");});
+
     QAction *pAction_ModifierMotif = gmenuContextuel->addAction(tr("Modifier le motif de l'acte"));
-    connect (pAction_ModifierMotif, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_ModifierMotif,"Motif");
+    connect (pAction_ModifierMotif, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelSalDat("Motif");});
+
     QAction *pAction_Copier = gmenuContextuel->addAction(tr("Créer un dossier de la même famille"));
-    connect (pAction_Copier, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_Copier,"Copie");
+    connect (pAction_Copier, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelSalDat("Copie");});
     if (gUserDroits != SECRETAIRE)
     {
         QAction *pAction_OuvrirDossier = gmenuContextuel->addAction(tr("Ouvrir le dossier"));
-        connect (pAction_OuvrirDossier, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-        gsignalMapper->setMapping(pAction_OuvrirDossier,"Ouvrir");
+        connect (pAction_OuvrirDossier, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelSalDat("Ouvrir");});
     }
     QAction *pAction_EmettreDoc = gmenuContextuel->addAction(tr("Emettre un document"));
-    connect (pAction_EmettreDoc, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_EmettreDoc,"Document");
+    connect (pAction_EmettreDoc, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelSalDat("Document");});
 
-    connect(gsignalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ChoixMenuContextuelSalDat(QString)));
     // ouvrir le menu
     gmenuContextuel->exec(QCursor::pos());
     delete gmenuContextuel;
-    delete gsignalMapper;
 }
 
 void Rufus::Slot_MenuContextuelSalDatPaiemt()
@@ -3401,30 +3363,23 @@ void Rufus::Slot_MenuContextuelSalDatPaiemt()
 
     gdossierAOuvrir = labelClicked->getId();
     gmenuContextuel = new QMenu(this);
-    gsignalMapper = new QSignalMapper(this);
 
     if (listRange.size() == 1 && listRange.at(0).rowCount()== 1)
     {
         if (gUserDroits != SECRETAIRE)
         {
             QAction *pAction_ReprendreDossier = gmenuContextuel->addAction(tr("Reprendre le dossier"));
-            connect (pAction_ReprendreDossier, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-            gsignalMapper->setMapping(pAction_ReprendreDossier,"Reprendre");
+            connect (pAction_ReprendreDossier, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelSalDat("Reprendre");});
         }
         QAction *pAction_EmettreDoc = gmenuContextuel->addAction(tr("Emettre un document"));
-        connect (pAction_EmettreDoc, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-        gsignalMapper->setMapping(pAction_EmettreDoc,"Document");
+        connect (pAction_EmettreDoc, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelSalDat("Document");});
     }
     QAction *pAction_EnregistrePaiement = gmenuContextuel->addAction(tr("Enregistrer le paiement"));
-    connect (pAction_EnregistrePaiement, SIGNAL(triggered()), gsignalMapper, SLOT (map()));
-    gsignalMapper->setMapping(pAction_EnregistrePaiement,"Payer");
-
-    connect(gsignalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ChoixMenuContextuelSalDat(QString)));
+    connect (pAction_EnregistrePaiement, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelSalDat("Payer");});
 
     // ouvrir le menu
     gmenuContextuel->exec(QCursor::pos());
     delete gmenuContextuel;
-    delete gsignalMapper;
 }
 
 void Rufus::Slot_ChoixMenuContextuelSalDat(QString choix)
@@ -3617,10 +3572,9 @@ QStringList Rufus::MotifMessage(QString Motif, QString Message, QTime heurerdv)
 
 void Rufus::Slot_MenuContextuelUptextEdit()
 {
-    UpTextEdit *TextWidget = dynamic_cast<UpTextEdit*>(sender());
-    if (!TextWidget) return;
-    gmenuContextuel = new QMenu(this);
-    gsignalMapper = new QSignalMapper(this);
+    UpTextEdit *TxtEdit = dynamic_cast<UpTextEdit*>(sender());
+    if (!TxtEdit) return;
+    gmenuContextuel          = new QMenu();
     QAction *pAction_ModifPolice    = new QAction(this);
     QAction *pAction_Fontbold       = new QAction(this);
     QAction *pAction_Fontitalic     = new QAction(this);
@@ -3634,7 +3588,7 @@ void Rufus::Slot_MenuContextuelUptextEdit()
     QAction *pAction_Blockright     = new QAction(this);
     QAction *pAction_Blockleft      = new QAction(this);
 
-    if (TextWidget->textCursor().selectedText().size() > 0)   {
+    if (TxtEdit->textCursor().selectedText().size() > 0)   {
         pAction_ModifPolice    = gmenuContextuel->addAction(proc->giconFont,           tr("Modifier la police"));
         pAction_Fontbold       = gmenuContextuel->addAction(proc->giconFontbold,       tr("Gras"));
         pAction_Fontitalic     = gmenuContextuel->addAction(proc->giconFontitalic,     tr("Italique"));
@@ -3647,47 +3601,31 @@ void Rufus::Slot_MenuContextuelUptextEdit()
     pAction_Blockcentr          = gmenuContextuel->addAction(proc->giconBlockCenter,    tr("Centré"));
     pAction_Blockjust           = gmenuContextuel->addAction(proc->giconBlockJustify,   tr("Justifié"));
     gmenuContextuel->addSeparator();
-    if (TextWidget->textCursor().selectedText().size() > 0)   {
+    if (TxtEdit->textCursor().selectedText().size() > 0)   {
         pAction_Copier         = gmenuContextuel->addAction(proc->giconCopy,            tr("Copier"));
         pAction_Cut            = gmenuContextuel->addAction(proc->giconCut,             tr("Couper"));
     }
     const QClipboard *clipboard = qApp->clipboard();
     const QMimeData *mimeData = clipboard->mimeData();
     if (mimeData->hasText() || mimeData->hasUrls() || mimeData->hasImage() || mimeData->hasHtml())
-        pAction_Coller         = gmenuContextuel->addAction(proc->giconPaste,  "Coller");
+        pAction_Coller         = gmenuContextuel->addAction(proc->giconPaste,  tr("Coller"));
 
-    gsignalMapper->setMapping (pAction_Fontbold,     "Gras");
-    gsignalMapper->setMapping (pAction_Fontitalic,   "Italique");
-    gsignalMapper->setMapping (pAction_Fontunderline,"Souligne");
-    gsignalMapper->setMapping (pAction_Fontnormal,   "Normal");
-    gsignalMapper->setMapping (pAction_ModifPolice,  "Police");
-    gsignalMapper->setMapping (pAction_Blockleft,    "Gauche");
-    gsignalMapper->setMapping (pAction_Blockright,   "Droite");
-    gsignalMapper->setMapping (pAction_Blockcentr,   "Centre");
-    gsignalMapper->setMapping (pAction_Blockjust,    "Justifie");
-    gsignalMapper->setMapping (pAction_Copier,       "Copier");
-    gsignalMapper->setMapping (pAction_Coller,       "Coller");
-    gsignalMapper->setMapping (pAction_Cut,          "Couper");
-
-    connect (pAction_Fontbold,      SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Fontitalic,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Fontunderline, SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Fontnormal,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_ModifPolice,   SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Blockcentr,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Blockright,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Blockleft,     SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Blockjust,     SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Copier,        SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Coller,        SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Cut,           SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-
-    connect(gsignalMapper,          SIGNAL(mapped(QString)),    this,           SLOT (Slot_ChoixMenuContextuelUptextEdit(QString)));
+    connect (pAction_Fontbold,      &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Gras");});
+    connect (pAction_Fontitalic,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Italique");});
+    connect (pAction_Fontunderline, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Souligne");});
+    connect (pAction_Fontnormal,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Normal");});
+    connect (pAction_ModifPolice,   &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Police");});
+    connect (pAction_Blockcentr,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Centre");});
+    connect (pAction_Blockright,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Droite");});
+    connect (pAction_Blockleft,     &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Gauche");});
+    connect (pAction_Blockjust,     &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Justifie");});
+    connect (pAction_Copier,        &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Copier");});
+    connect (pAction_Coller,        &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Coller");});
+    connect (pAction_Cut,           &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Couper");});
 
     // ouvrir le menu
     gmenuContextuel->exec(QCursor::pos());
     delete gmenuContextuel;
-    delete gsignalMapper;
 }
 
 void Rufus::Slot_ChoixMenuContextuelUptextEdit(QString choix)
@@ -7555,21 +7493,21 @@ void Rufus::CreerMenu()
     menuDocuments->addAction(actionCorrespondants);
 
     // Les menus --------------------------------------------------------------------------------------------------
-    connect (actionCreerDossier,                SIGNAL(triggered()),                                this,       SLOT (Slot_OuvrirNouveauDossierpushButtonClicked()));
-    connect (actionOuvrirDossier,               SIGNAL(triggered()),                                this,       SLOT (Slot_OuvrirListepushButtonClicked()));
-    connect (actionSupprimerDossier,            SIGNAL(triggered()),                                this,       SLOT (Slot_SupprimerDossier()));
-    connect (actionRechercheParMotCle,          SIGNAL(triggered()),                                this,       SLOT (Slot_RechercheParMotCle()));
-    connect (actionRechercheParID,              SIGNAL(triggered()),                                this,       SLOT (Slot_RechercheParID()));
-    connect (actionCreerActe,                   SIGNAL(triggered()),                                this,       SLOT (Slot_CreerActe()));
+    connect (actionCreerDossier,                &QAction::triggered,                                [=] {Slot_OuvrirNouveauDossierpushButtonClicked();});
+    connect (actionOuvrirDossier,               &QAction::triggered,                                [=] {Slot_OuvrirListepushButtonClicked();});
+    connect (actionSupprimerDossier,            &QAction::triggered,                                [=] {Slot_SupprimerDossier();});
+    connect (actionRechercheParMotCle,          &QAction::triggered,                                [=] {Slot_RechercheParMotCle();});
+    connect (actionRechercheParID,              &QAction::triggered,                                [=] {Slot_RechercheParID();});
+    connect (actionCreerActe,                   &QAction::triggered,                                [=] {Slot_CreerActe();});
 
-    connect (actionParametres,                  SIGNAL(triggered()),                                this,       SLOT (Slot_OuvrirParametres()));
-    connect (actionSupprimerActe,               SIGNAL(triggered()),                                this,       SLOT (Slot_SupprimerActepushButtonClicked()));
+    connect (actionParametres,                  &QAction::triggered,                                [=] {Slot_OuvrirParametres();});
+    connect (actionSupprimerActe,               &QAction::triggered,                                [=] {Slot_SupprimerActepushButtonClicked();});
     // Documents
-    connect (actionEmettreDocument,             SIGNAL(triggered()),                                this,       SLOT (Slot_OuvrirDocuments()));
-    connect (actionDossierPatient,              SIGNAL(triggered()),                                this,       SLOT (Slot_ImprimeDossier()));
-    connect (actionCorrespondants,              SIGNAL(triggered()),                                this,       SLOT (Slot_ListeCorrespondants()));
-    connect (actionEnregistrerDocScanner,       SIGNAL(triggered()),                                this,       SLOT (Slot_EnregistreDocScanner()));
-    connect (actionEnregistrerVideo,            SIGNAL(triggered()),                                this,       SLOT (Slot_EnregistreVideo()));
+    connect (actionEmettreDocument,             &QAction::triggered,                                [=] {Slot_OuvrirDocuments();});
+    connect (actionDossierPatient,              &QAction::triggered,                                [=] {Slot_ImprimeDossier();});
+    connect (actionCorrespondants,              &QAction::triggered,                                [=] {Slot_ListeCorrespondants();});
+    connect (actionEnregistrerDocScanner,       &QAction::triggered,                                [=] {Slot_EnregistreDocScanner();});
+    connect (actionEnregistrerVideo,            &QAction::triggered,                                [=] {Slot_EnregistreVideo();});
     // Comptabilité
 
     connect (menuActe,                          SIGNAL(aboutToShow()),                              this,       SLOT (Slot_AfficheMenu()));
@@ -7599,13 +7537,13 @@ void Rufus::CreerMenu()
     menuComptabilite->addAction(actionRemiseCheques);
     menuComptabilite->addAction(actionImpayes);
 
-    connect (actionGestionComptesBancaires,     SIGNAL(triggered()),                                this,       SLOT (Slot_GestionComptes()));
-    connect (actionPaiementDirect,              SIGNAL(triggered()),                                this,       SLOT (Slot_AppelPaiementDirect()));
-    connect (actionPaiementTiers,               SIGNAL(triggered()),                                this,       SLOT (Slot_AppelPaiementTiers()));
-    connect (actionRecettesSpeciales,           SIGNAL(triggered()),                                this,       SLOT (Slot_RecettesSpeciales()));
-    connect (actionBilanRecettes,               SIGNAL(triggered()),                                this,       SLOT (Slot_BilanRecettes()));
-    connect (actionJournalDepenses,             SIGNAL(triggered()),                                this,       SLOT (Slot_OuvrirJournalDepenses()));
-    connect (actionRemiseCheques,               SIGNAL(triggered()),                                this,       SLOT (Slot_RemiseCheques()));
+    connect (actionGestionComptesBancaires,     &QAction::triggered,                                [=] {Slot_GestionComptes();});
+    connect (actionPaiementDirect,              &QAction::triggered,                                [=] {Slot_AppelPaiementDirect();});
+    connect (actionPaiementTiers,               &QAction::triggered,                                [=] {Slot_AppelPaiementTiers();});
+    connect (actionRecettesSpeciales,           &QAction::triggered,                                [=] {Slot_RecettesSpeciales();});
+    connect (actionBilanRecettes,               &QAction::triggered,                                [=] {Slot_BilanRecettes();});
+    connect (actionJournalDepenses,             &QAction::triggered,                                [=] {Slot_OuvrirJournalDepenses();});
+    connect (actionRemiseCheques,               &QAction::triggered,                                [=] {Slot_RemiseCheques();});
 
     connect (menuComptabilite,                  SIGNAL(aboutToShow()),                              this,       SLOT (Slot_AfficheMenu()));
 }
@@ -8476,17 +8414,14 @@ void Rufus::InitDivers()
 
     QMenu *trayIconMenu;
     trayIconMenu = new QMenu();
-    QSignalMapper *signalMapper = new QSignalMapper();
 
     QAction *pAction_VoirMessages = trayIconMenu->addAction(tr("Voir les messages"));
-    connect (pAction_VoirMessages, SIGNAL(triggered()), signalMapper, SLOT (map()));
-    signalMapper->setMapping(pAction_VoirMessages,0);
-    connect(signalMapper, SIGNAL(mapped(int)), this ,SLOT(Slot_AfficheMessages()));
+    connect (pAction_VoirMessages, &QAction::triggered,    [=] {Slot_AfficheMessages();});
 
     gMessageIcon = new QSystemTrayIcon();
     gMessageIcon->setContextMenu(trayIconMenu);
     gMessageIcon->setIcon(proc->giconPostit);
-    connect(gMessageIcon,   SIGNAL(messageClicked()), this, SLOT(Slot_AfficheMessages()));
+    connect(gMessageIcon,   &QSystemTrayIcon::messageClicked,   [=] {Slot_AfficheMessages();});
 
     gMsgRepons = new QDialog();
     gMsgDialog = new QDialog();

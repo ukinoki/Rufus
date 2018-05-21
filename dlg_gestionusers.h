@@ -33,6 +33,9 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "functormajpremierelettre.h"
 #include "macros.h"
 
+/* sert à gérer les comptes utilisateurs
+ * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
+
 namespace Ui {
 class dlg_gestionusers;
 }

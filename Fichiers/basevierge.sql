@@ -270,15 +270,18 @@ CREATE TABLE `archivesbanques` (
 
 DROP TABLE IF EXISTS `autresrecettes`;
 CREATE TABLE `autresrecettes` (
-  `Date` date NOT NULL,
-  `Libelle` varchar(100) NOT NULL,
-  `Typerecette` varchar(30) NOT NULL,
-  `Montant` double NOT NULL,
-  `Paiement` varchar(19) DEFAULT NULL,
+  `idRecette` int(11) NOT NULL AUTO_INCREMENT,
+  `idUser` int(11) DEFAULT NULL,
+  `DateRecette` date DEFAULT NULL,
+  `Libelle` varchar(100) DEFAULT NULL,
+  `Typerecette` varchar(30) DEFAULT NULL,
+  `Montant` double DEFAULT NULL,
+  `Paiement` varchar(19) CHARACTER SET latin1 DEFAULT NULL,
   `Nooperation` int(11) DEFAULT NULL,
-  `Monnaie` varchar(1) DEFAULT NULL,
-  PRIMARY KEY (`Date`,`Libelle`,`Typerecette`,`Montant`)
-) ENGINE=InnoDB;
+  `Monnaie` varchar(1) CHARACTER SET latin1 DEFAULT NULL,
+  `idCompte` int(11) DEFAULT NULL,
+  PRIMARY KEY (`idRecette`)
+) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8;
 
 DROP TABLE IF EXISTS `banques`;
 CREATE TABLE `banques` (
@@ -578,7 +581,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,40,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,41,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);
 UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `actes`;

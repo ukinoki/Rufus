@@ -25,6 +25,10 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include "functormajpremierelettre.h"
 
+/* sert à gérer les comptes bancaires des utilisateurs
+ * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
+
+
 namespace Ui {
 class dlg_gestioncomptes;
 }

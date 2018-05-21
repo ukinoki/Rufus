@@ -1,18 +1,18 @@
-/* (C) 2016 LAINE SERGE
+/* (C) 2018 LAINE SERGE
 This file is part of Rufus.
 
 Rufus is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
 Rufus is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Rufus. If not, see <http://www.gnu.org/licenses/>.
+along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "widgetbuttonframe.h"
@@ -42,14 +42,14 @@ void WidgetButtonFrame::AddButtons(Buttons Butt)
     int szicon  = 20;
     int geo     = szicon + 4;
     int larg    = geo + 7;
-    for (int i=0; i<this->findChildren<UpSmallButton*>().size(); i++)
+    for (int i=0; i<findChildren<UpSmallButton*>().size(); i++)
     {
-        this->findChildren<UpSmallButton*>().at(i)->setFlat(true);
-        this->findChildren<UpSmallButton*>().at(i)->setVisible(false);
-        this->findChildren<UpSmallButton*>().at(i)->setIconSize(QSize(szicon, szicon));
-        this->findChildren<UpSmallButton*>().at(i)->setFixedSize(geo,geo);
-        const UpSmallButton *butt = this->findChildren<UpSmallButton*>().at(i);
-        connect(butt, SIGNAL(clicked(int)), this, SLOT(Slot_Reponse(int)));
+        UpSmallButton *butt = findChildren<UpSmallButton*>().at(i);
+        butt->setFlat(true);
+        butt->setVisible(false);
+        butt->setIconSize(QSize(szicon, szicon));
+        butt->setFixedSize(geo,geo);
+        connect(butt, &QPushButton::clicked, [=] {Reponse(butt->getId());});
     }
     QHBoxLayout *ilay = new QHBoxLayout();
     ilay->setContentsMargins(0,0,0,0);
@@ -98,9 +98,15 @@ void WidgetButtonFrame::replace()
     move(gProprio->x()+gProprio->width()-width(), gProprio->y()+gProprio->height()-1);
 }
 
-void WidgetButtonFrame::Slot_Reponse(int id)
+void WidgetButtonFrame::Reponse(int id)
 {
-    emit choix(id);
+    gReponse = id;
+    emit choix(gReponse);
+}
+
+int WidgetButtonFrame::Reponse()
+{
+    return gReponse;
 }
 
 QWidget* WidgetButtonFrame::widgButtonParent()

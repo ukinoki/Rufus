@@ -717,19 +717,13 @@ void dlg_paiement::Slot_ModifGratuit(QPoint pos)
         if (ui->ListeupTableWidget->item(ro,5)->text() == tr("Gratuit"))
         {
             QMenu           *menuContextuel = new QMenu(this);
-            QSignalMapper   *signalMapper   = new QSignalMapper(this);
 
             QAction         *pAction_ModifGratuit = menuContextuel->addAction(tr("Ne plus considérer comme gratuit")) ;
-            connect (pAction_ModifGratuit, SIGNAL(triggered()), signalMapper, SLOT (map()));
-
-            signalMapper->setMapping(pAction_ModifGratuit,"Modifier");
-
-            connect(signalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_ModifGratuitChoixMenu(QString)));
+            connect (pAction_ModifGratuit, &QAction::triggered,    [=] {ModifGratuitChoixMenu("Modifier");});
 
             // ouvrir le menu
             menuContextuel->exec(QCursor::pos());
             delete menuContextuel;
-            delete signalMapper;
         }
         titem = 0;
         delete titem;
@@ -739,7 +733,7 @@ void dlg_paiement::Slot_ModifGratuit(QPoint pos)
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Transfomer un acte gratuit en acte payant (modifier le montant et supprimer la ligne correspondante de typespaiementActes) -------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiement::Slot_ModifGratuitChoixMenu(QString Choix)
+void dlg_paiement::ModifGratuitChoixMenu(QString Choix)
 {
     if (Choix == "Modifier")
     {

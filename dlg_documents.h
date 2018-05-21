@@ -58,7 +58,6 @@ private slots:
     void                        Slot_FiltreListe(QString);
     void                        Slot_ListidCor();
     void                        Slot_MenuContextuel(QPoint);
-    void                        Slot_ChoixMenuContextuel(QString);
     void                        Slot_OrdoAvecDupli(bool);
     void                        Slot_Validation();
     void                        Slot_VerifCoherencegAsk();
@@ -87,12 +86,13 @@ private:
     UpDialog                    *gAskDialog;
     UpDialog                    *gAskCorresp;
     QMenu                       *gmenuContextuel;
-    QSignalMapper               *gsignalMapper;
     QSqlDatabase                db;
     QString                     gNomPat, gPrenomPat;
     QTime                       gDebutTimer;
     QTimer                      *gTimerEfface;
     QWidget                     *gWidg;
+
+    void                        ChoixMenuContextuel(QString);
 
     int                         AskDialog(QString titre);
     bool                        ChercheDoublon(QString, int row);

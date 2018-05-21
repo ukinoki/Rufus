@@ -1,10 +1,10 @@
-/* (C) 2016 LAINE SERGE
+/* (C) 2018 LAINE SERGE
 This file is part of Rufus.
 
 Rufus is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
 Rufus is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -12,7 +12,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Rufus. If not, see <http://www.gnu.org/licenses/>.
+along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_banque.h"
@@ -98,16 +98,16 @@ dlg_banque::dlg_banque(QSqlDatabase gdb, QMap<QString, QIcon> Icons, QWidget *pa
                haut + widgButtons->height() + ui->Banqueframe->height() + CloseButton->height() + t + b + (globallay->spacing()*2));
         RemplirTableView();
         uptablebanq->setCurrentCell(0,1);
-        Slot_AfficheBanque();
-        connect(uptablebanq,        SIGNAL(itemSelectionChanged()),     this,   SLOT(Slot_AfficheBanque()));
-        connect(widgButtons,        SIGNAL(choix(int)),                 this,   SLOT(Slot_ChoixButtonFrame(int)));
-        connect(CloseButton,        SIGNAL(clicked(bool)),              this,   SLOT(accept()));
+        AfficheBanque();
+        connect(uptablebanq,        &UpTableWidget::itemSelectionChanged,   [=] {AfficheBanque();});
+        connect(widgButtons,        &WidgetButtonFrame::choix,              [=] {ChoixButtonFrame(widgButtons->Reponse());});
+        connect(CloseButton,        &QPushButton::clicked,                  [=] {accept();});
         ui->AnnulModifupSmallButton ->setVisible(false);
         ui->OKModifupSmallButton    ->setVisible(false);
     }
 
-    connect(ui->AnnulModifupSmallButton,    SIGNAL(clicked(bool)),              this,   SLOT(Slot_AnnuleModifBanque()));
-    connect(ui->OKModifupSmallButton,       SIGNAL(clicked(bool)),              this,   SLOT(Slot_ValideModifBanque()));
+    connect(ui->AnnulModifupSmallButton,    &QPushButton::clicked,    [=] {AnnuleModifBanque();});
+    connect(ui->OKModifupSmallButton,       &QPushButton::clicked,    [=] {ValideModifBanque();});
 
     QRegExp rx              = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ -]*");
     ui->NomBanqueupLineEdit ->setValidator(new QRegExpValidator(rx));
@@ -120,7 +120,7 @@ dlg_banque::~dlg_banque()
     delete ui;
 }
 
-void dlg_banque::Slot_AfficheBanque()
+void dlg_banque::AfficheBanque()
 {
     UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
     int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
@@ -143,18 +143,18 @@ void dlg_banque::Slot_AfficheBanque()
     delete lbl;
 }
 
-void dlg_banque::Slot_AnnuleModifBanque()
+void dlg_banque::AnnuleModifBanque()
 {
     if (gFermeApresValidation)
         reject();
     else
     {
         RemetEnNorm();
-        Slot_AfficheBanque();
+        AfficheBanque();
     }
 }
 
-void dlg_banque::Slot_ChoixButtonFrame(int i)
+void dlg_banque::ChoixButtonFrame(int i)
 {
     switch (i) {
     case 1:
@@ -223,10 +223,10 @@ void dlg_banque::SupprBanque()
     QSqlQuery quer(rq,db);
     TraiteErreurRequete(quer,rq,"");
     RemplirTableView();
-    Slot_AfficheBanque();
+    AfficheBanque();
 }
 
-void dlg_banque::Slot_ValideModifBanque()
+void dlg_banque::ValideModifBanque()
 {
     QString msg = "";
     QString nombanque = fMAJPremiereLettre(ui->NomBanqueupLineEdit->text());
@@ -346,7 +346,7 @@ void dlg_banque::Slot_ValideModifBanque()
     }
     lbl = 0;
     delete lbl;
-    Slot_AfficheBanque();
+    AfficheBanque();
     RemetEnNorm();
 }
 

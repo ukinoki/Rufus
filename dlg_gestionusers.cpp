@@ -94,10 +94,8 @@ dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, QSqlDatabase gdb, QMa
         box->setiD(adrquer.value(0).toInt());
         box->setAutoExclusive(false);
         connect(box, SIGNAL(clicked(bool)), this, SLOT(Slot_EnableOKpushButton()));
-        //butgrp->addButton(box); //Bug? Si on n'utilise pas de ButtonGroup, il y a interférence avec ui-CotationupRadioButton s'il n'y a qu'une seule ligne dans ui->AdressGroupBox(???)
         adresslay           ->addWidget(box);
     }
-    //butgrp              ->setExclusive(false);
     adresslay           ->setSpacing(10);
     adresslay           ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
     ui->AdressgroupBox  ->setLayout(adresslay);

@@ -21,7 +21,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QItemDelegate>
 #include <QStyleOptionViewItem>
 #include <QEvent>
-#include <QSignalMapper>
 #include <uplineedit.h>
 #include "upmessagebox.h"
 

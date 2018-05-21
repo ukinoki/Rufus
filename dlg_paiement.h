@@ -56,7 +56,6 @@ private slots:
     void                Slot_EnregistrePaiementTiers();
     void                Slot_MajusculeCreerNom();
     void                Slot_ModifGratuit(QPoint pos);
-    void                Slot_ModifGratuitChoixMenu(QString Choix);
     void                Slot_RecopieNomTiers(QString);
     void                Slot_SupprimerPaiement();
     void                Slot_VoirListeActes();
@@ -67,6 +66,7 @@ private slots:
     void                Slot_ValidePaiement();
 
 private:
+    void                    ModifGratuitChoixMenu(QString Choix);
     bool                    ophtalmo;
     bool                    orthoptist;
     bool                    autresoignant;

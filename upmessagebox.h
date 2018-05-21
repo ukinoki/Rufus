@@ -1,10 +1,10 @@
-/* (C) 2016 LAINE SERGE
+/* (C) 2018 LAINE SERGE
 This file is part of Rufus.
 
 Rufus is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
 Rufus is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -37,8 +37,8 @@ public:
     static void     Information (QWidget*, QString Text = "", QString InfoText = "");
     int             Icon;
     enum            Icon   {Quest, Info, Warning, Critical, Print};
-    void            addButton(UpSmallButton *butt, enum UpSmallButton::StyleBouton);
-    void            addButton(UpPushButton *butt);
+    void            addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton);
+    void            addButton(UpPushButton *button);
     void            removeButton(UpSmallButton *);
     UpSmallButton*  clickedButton();
     UpPushButton*   clickedpushbutton();
@@ -55,9 +55,7 @@ private:
     QVBoxLayout     *textlayout, *globallayout;
     UpSmallButton   *ReponsSmallButton;
     UpPushButton    *ReponsPushButton;
-
-private slots:
-    void            Slot_Repons();
+    void            Repons(QPushButton *butt);
 };
 
 #endif // UPMESSAGEBOX_H

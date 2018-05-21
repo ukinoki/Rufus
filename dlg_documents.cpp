@@ -662,7 +662,6 @@ void dlg_documents::Slot_FiltreListe(QString)
 void dlg_documents::Slot_MenuContextuel(QPoint)
 {
     gmenuContextuel = new QMenu(this);
-    gsignalMapper = new QSignalMapper(this);
     QAction *pAction_ModifDossier       = 0;
     QAction *pAction_SupprDossier       = 0;
     QAction *pAction_CreerDossier       = 0;
@@ -705,23 +704,17 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
             pAction_CreerDossier            = gmenuContextuel->addAction(proc->giconCreer, tr("Créer un dossier")) ;
             pAction_ModifDossier            = gmenuContextuel->addAction(proc->giconModify, tr("Modifier ce dossier")) ;
             pAction_SupprDossier            = gmenuContextuel->addAction(proc->giconPoubelle, tr("Supprimer ce dossier")) ;
+            gmenuContextuel->addSeparator();
             lbl                             = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->getRowTable(),4));
             if (lbl->pixmap())
                 pAction_PublicDossier       = gmenuContextuel->addAction(proc->giconBlackCheck, tr("Public")) ;
             else
                 pAction_PublicDossier       = gmenuContextuel->addAction(tr("Public")) ;
 
-            gsignalMapper->setMapping (pAction_ModifDossier,  "ModifierDossier");
-            gsignalMapper->setMapping (pAction_SupprDossier,  "SupprimerDossier");
-            gmenuContextuel->addSeparator();
-            gsignalMapper->setMapping (pAction_CreerDossier,  "CreerDossier");
-            gmenuContextuel->addSeparator();
-            gsignalMapper->setMapping (pAction_PublicDossier, "PublicDossier");
-
-            connect (pAction_ModifDossier,  SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
-            connect (pAction_SupprDossier,  SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
-            connect (pAction_CreerDossier,  SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
-            connect (pAction_PublicDossier, SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
+            connect (pAction_ModifDossier,  &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierDossier");});
+            connect (pAction_SupprDossier,  &QAction::triggered,    [=] {ChoixMenuContextuel("SupprimerDossier");});
+            connect (pAction_CreerDossier,  &QAction::triggered,    [=] {ChoixMenuContextuel("CreerDossier");});
+            connect (pAction_PublicDossier, &QAction::triggered,    [=] {ChoixMenuContextuel("PublicDossier");});
         }
         else if (ui->DocupTableWidget->isAncestorOf(line))
         {
@@ -743,25 +736,16 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
             else
                 pAction_EditableDoc         = gmenuContextuel->addAction(tr("Editable"));
 
-            gsignalMapper->setMapping (pAction_ModifDoc,    "ModifierDoc");
-            gsignalMapper->setMapping (pAction_SupprDoc,    "SupprimerDoc");
-            gmenuContextuel->addSeparator();
-            gsignalMapper->setMapping (pAction_CreerDoc,    "CreerDoc");
-            gmenuContextuel->addSeparator();
-            gsignalMapper->setMapping (pAction_PublicDoc,   "PublicDoc");
-            gsignalMapper->setMapping (pAction_PrescripDoc, "PrescripDoc");
-            gsignalMapper->setMapping (pAction_EditableDoc, "EditDoc");
-
             pAction_PublicDoc->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
             pAction_PrescripDoc->setToolTip(tr("si cette option est cochée\nce document sera considéré comme une prescription"));
             pAction_EditableDoc->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
 
-            connect (pAction_ModifDoc,      SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
-            connect (pAction_SupprDoc,      SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
-            connect (pAction_CreerDoc,      SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
-            connect (pAction_PublicDoc,     SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
-            connect (pAction_PrescripDoc,   SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
-            connect (pAction_EditableDoc,   SIGNAL(triggered()),    gsignalMapper,  SLOT (map()));
+            connect (pAction_ModifDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierDoc");});
+            connect (pAction_SupprDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("SupprimerDoc");});
+            connect (pAction_CreerDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("CreerDoc");});
+            connect (pAction_PublicDoc,     &QAction::triggered,    [=] {ChoixMenuContextuel("PublicDoc");});
+            connect (pAction_PrescripDoc,   &QAction::triggered,    [=] {ChoixMenuContextuel("PrescripDoc");});
+            connect (pAction_EditableDoc,   &QAction::triggered,    [=] {ChoixMenuContextuel("EditDoc");});
         }
     }
 
@@ -778,8 +762,7 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
         if (a)
         {
             pAction_ModifDoc       = gmenuContextuel->addAction(proc->giconModify, tr("Modifier ce document"));
-            gsignalMapper->setMapping (pAction_ModifDoc,  "ModifierDoc");
-            connect (pAction_ModifDoc,      SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
+            connect (pAction_ModifDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierDoc");});
         }
     }
     else if (sender() == ui->upTextEdit)
@@ -799,16 +782,12 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
             pAction_Fontitalic      = gmenuContextuel->addAction(proc->giconFontitalic,     tr("Italique"));
             pAction_Fontunderline   = gmenuContextuel->addAction(proc->giconFontunderline,  tr("Souligné"));
             pAction_Fontnormal      = gmenuContextuel->addAction(proc->giconFontnormal,     tr("Normal"));
-            gsignalMapper->setMapping (pAction_ModifPolice,         "Police");
-            gsignalMapper->setMapping (pAction_Fontbold,            "Gras");
-            gsignalMapper->setMapping (pAction_Fontitalic,          "Italique");
-            gsignalMapper->setMapping (pAction_Fontunderline,       "Souligne");
-            gsignalMapper->setMapping (pAction_Fontnormal,          "Normal");
-            connect (pAction_ModifPolice,       SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-            connect (pAction_Fontbold,          SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-            connect (pAction_Fontitalic,        SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-            connect (pAction_Fontunderline,     SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-            connect (pAction_Fontnormal,        SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
+
+            connect (pAction_ModifPolice,       &QAction::triggered,    [=] {ChoixMenuContextuel("Police");});
+            connect (pAction_Fontbold,          &QAction::triggered,    [=] {ChoixMenuContextuel("Gras");});
+            connect (pAction_Fontitalic,        &QAction::triggered,    [=] {ChoixMenuContextuel("Italique");});
+            connect (pAction_Fontunderline,     &QAction::triggered,    [=] {ChoixMenuContextuel("Souligne");});
+            connect (pAction_Fontnormal,        &QAction::triggered,    [=] {ChoixMenuContextuel("Normal");});
             gmenuContextuel->addSeparator();
         }
         pAction_Blockleft       = gmenuContextuel->addAction(proc->giconBlockLeft,          tr("Aligné à gauche"));
@@ -819,10 +798,8 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
         if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
             pAction_Copier          = gmenuContextuel->addAction(proc->giconCopy,   tr("Copier"));
             pAction_Cut             = gmenuContextuel->addAction(proc->giconCut,    tr("Couper"));
-            gsignalMapper->setMapping (pAction_Copier,              "Copier");
-            gsignalMapper->setMapping (pAction_Cut,                 "Couper");
-            connect (pAction_Copier,            SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-            connect (pAction_Cut,               SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
+            connect (pAction_Copier,            &QAction::triggered,    [=] {ChoixMenuContextuel("Copier");});
+            connect (pAction_Cut,               &QAction::triggered,    [=] {ChoixMenuContextuel("Couper");});
         }
         if (qApp->clipboard()->mimeData()->hasText()
                 || qApp->clipboard()->mimeData()->hasUrls()
@@ -830,37 +807,22 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
                 || qApp->clipboard()->mimeData()->hasHtml())
         pAction_Coller              = gmenuContextuel->addAction(proc->giconPaste,  tr("Coller"));
 
-        gsignalMapper->setMapping (pAction_InsertChamp,         "Inserer");
-        gsignalMapper->setMapping (pAction_InsInterroDate,      "Date");
-        gsignalMapper->setMapping (pAction_InsInterroHeure,     "Heure");
-        gsignalMapper->setMapping (pAction_InsInterroCote,      "Cote");
-        gsignalMapper->setMapping (pAction_InsInterroMontant,   "Montant");
-        gsignalMapper->setMapping (pAction_InsInterroText,      "Texte");
-        gsignalMapper->setMapping (pAction_Blockleft,           "Gauche");
-        gsignalMapper->setMapping (pAction_Blockright,          "Droite");
-        gsignalMapper->setMapping (pAction_Blockcentr,          "Centre");
-        gsignalMapper->setMapping (pAction_Blockjust,           "Justifie");
-        gsignalMapper->setMapping (pAction_Coller,              "Coller");
-
-        connect (pAction_InsertChamp,       SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_InsInterroDate,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_InsInterroCote,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_InsInterroHeure,   SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_InsInterroMontant, SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_InsInterroText,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_Blockcentr,        SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_Blockright,        SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_Blockleft,         SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_Blockjust,         SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-        connect (pAction_Coller,            SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
+        connect (pAction_InsertChamp,       &QAction::triggered,    [=] {ChoixMenuContextuel("Inserer");});
+        connect (pAction_InsInterroDate,    &QAction::triggered,    [=] {ChoixMenuContextuel("Date");});
+        connect (pAction_InsInterroCote,    &QAction::triggered,    [=] {ChoixMenuContextuel("Cote");});
+        connect (pAction_InsInterroHeure,   &QAction::triggered,    [=] {ChoixMenuContextuel("Heure");});
+        connect (pAction_InsInterroMontant, &QAction::triggered,    [=] {ChoixMenuContextuel("Montant");});
+        connect (pAction_InsInterroText,    &QAction::triggered,    [=] {ChoixMenuContextuel("Texte");});
+        connect (pAction_Blockcentr,        &QAction::triggered,    [=] {ChoixMenuContextuel("Centre");});
+        connect (pAction_Blockright,        &QAction::triggered,    [=] {ChoixMenuContextuel("Droite");});
+        connect (pAction_Blockleft,         &QAction::triggered,    [=] {ChoixMenuContextuel("Gauche");});
+        connect (pAction_Blockjust,         &QAction::triggered,    [=] {ChoixMenuContextuel("Justifie");});
+        connect (pAction_Coller,            &QAction::triggered,    [=] {ChoixMenuContextuel("Coller");});
     }
-
-    connect(gsignalMapper,                  SIGNAL(mapped(QString)),    this,           SLOT (Slot_ChoixMenuContextuel(QString)));
 
     // ouvrir le menu
     gmenuContextuel->exec(cursor().pos());
     delete gmenuContextuel;
-    delete gsignalMapper;
     pAction_ModifDossier        = 0;
     pAction_SupprDossier        = 0;
     pAction_CreerDossier        = 0;
@@ -925,7 +887,7 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
     delete line0;
 }
 
-void dlg_documents::Slot_ChoixMenuContextuel(QString choix)
+void dlg_documents::ChoixMenuContextuel(QString choix)
 {
     bool a = false;
     QPoint pos = ui->DocupTableWidget->viewport()->mapFromGlobal(gmenuContextuel->pos());

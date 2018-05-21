@@ -1,10 +1,10 @@
-/* (C) 2016 LAINE SERGE
+/* (C) 2018 LAINE SERGE
 This file is part of Rufus.
 
 Rufus is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
 Rufus is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -53,6 +53,7 @@ private:
     bool        CanDepart, PeutEtreVide;
     int         RowTable, ColumnTable, id;
     QString     ValeurAvant, ValeurApres, Champ, Table;
+    void        ReemitTextEdited(QString texte);
 
 signals:
     void        upTextEdited(QString texte, int row, int col);
@@ -65,9 +66,6 @@ protected:
     void        enterEvent(QEvent *e);
     void        mouseReleaseEvent(QMouseEvent *e);
     void        mouseDoubleClickEvent(QMouseEvent *e);
-
-private slots:
-    void        Slot_ReemitTextEdited(QString texte);
 
 };
 

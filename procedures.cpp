@@ -1157,7 +1157,6 @@ void Procedures::Slot_MenuContextuelUptextEdit()
     UpTextEdit *TxtEdit = dynamic_cast<UpTextEdit*>(sender());
     if (!TxtEdit) return;
     QMenu *gmenuContextuel          = new QMenu();
-    QSignalMapper *gsignalMapper    = new QSignalMapper(this);
     QAction *pAction_ModifPolice    = new QAction(this);
     QAction *pAction_Fontbold       = new QAction(this);
     QAction *pAction_Fontitalic     = new QAction(this);
@@ -1193,38 +1192,22 @@ void Procedures::Slot_MenuContextuelUptextEdit()
     if (mimeData->hasText() || mimeData->hasUrls() || mimeData->hasImage() || mimeData->hasHtml())
         pAction_Coller         = gmenuContextuel->addAction(giconPaste,  tr("Coller"));
 
-    gsignalMapper->setMapping (pAction_Fontbold,     "Gras");
-    gsignalMapper->setMapping (pAction_Fontitalic,   "Italique");
-    gsignalMapper->setMapping (pAction_Fontunderline,"Souligne");
-    gsignalMapper->setMapping (pAction_Fontnormal,   "Normal");
-    gsignalMapper->setMapping (pAction_ModifPolice,  "Police");
-    gsignalMapper->setMapping (pAction_Blockleft,    "Gauche");
-    gsignalMapper->setMapping (pAction_Blockright,   "Droite");
-    gsignalMapper->setMapping (pAction_Blockcentr,   "Centre");
-    gsignalMapper->setMapping (pAction_Blockjust,    "Justifie");
-    gsignalMapper->setMapping (pAction_Copier,       "Copier");
-    gsignalMapper->setMapping (pAction_Coller,       "Coller");
-    gsignalMapper->setMapping (pAction_Cut,          "Couper");
-
-    connect (pAction_Fontbold,      SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Fontitalic,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Fontunderline, SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Fontnormal,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_ModifPolice,   SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Blockcentr,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Blockright,    SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Blockleft,     SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Blockjust,     SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Copier,        SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Coller,        SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-    connect (pAction_Cut,           SIGNAL(triggered()),        gsignalMapper,  SLOT (map()));
-
-    connect(gsignalMapper,          SIGNAL(mapped(QString)),    this,           SLOT (Slot_ChoixMenuContextuelUptextEdit(QString)));
+    connect (pAction_Fontbold,      &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Gras");});
+    connect (pAction_Fontitalic,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Italique");});
+    connect (pAction_Fontunderline, &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Souligne");});
+    connect (pAction_Fontnormal,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Normal");});
+    connect (pAction_ModifPolice,   &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Police");});
+    connect (pAction_Blockcentr,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Centre");});
+    connect (pAction_Blockright,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Droite");});
+    connect (pAction_Blockleft,     &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Gauche");});
+    connect (pAction_Blockjust,     &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Justifie");});
+    connect (pAction_Copier,        &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Copier");});
+    connect (pAction_Coller,        &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Coller");});
+    connect (pAction_Cut,           &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Couper");});
 
     // ouvrir le menu
     gmenuContextuel->exec(QCursor::pos());
     delete gmenuContextuel;
-    delete gsignalMapper;
 }
 
 void Procedures::Slot_ChoixMenuContextuelUptextEdit(QString choix)
@@ -2826,7 +2809,7 @@ bool Procedures::VerifBaseEtRessources()
                 UpMessageBox msgbox;
                 msgbox.setText(tr("Mise à jour de la base nécessaire"));
                 msgbox.setInformativeText(tr("Pour éxécuter cette version de Rufus, la base de données doit être mise à jour vers la version") +
-                                          " <b>" + QString::number(Version) + "</b>\n" +
+                                          " <b>" + QString::number(Version) + "</b><br />" +
                                           tr("et une sauvegarde de la base actuelle est fortement conseillée"));
                 msgbox.setIcon(UpMessageBox::Warning);
                 UpSmallButton *OKBouton = new UpSmallButton();
@@ -3603,7 +3586,6 @@ QString Procedures::CreerUserFactice(int iduser)
 bool Procedures::IdentificationUser(QString Serveur, int Port, bool SSL, QString Base, bool ChgUsr)
 {
     Dlg_IdentUser   = new dlg_identificationuser(NOM_TABLE_UTILISATEURS, Serveur, Port, SSL, Base, ChgUsr);
-    Dlg_IdentUser   ->setWindowTitle(tr("Identification de l'utilisateur"));
     Dlg_IdentUser   ->setFont(QFont(POLICEPARDEFAUT,POINTPARDEFAUT));
     bool a = false;
 
@@ -4687,6 +4669,7 @@ bool Procedures::VerifMDP(QString MDP, QString Msg)
     QList<QLabel*> listlab = quest->findChildren<QLabel*>();
     for (int i=0;i<listlab.size();i++)
         listlab.at(0)->setAlignment(Qt::AlignCenter);
+    quest->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     if (quest->exec() > 0)
     {
         if (quest->textValue() == MDP)

@@ -106,6 +106,8 @@ private:
 
     pyxinterf                       *pyxi;     // CZ001
 
+    void        ChoixMenuContextuelIdentPatient();
+    void        ChoixMenuContextuelMotsCles();
 signals:
     void        EnregistrePaiement(QString);
 
@@ -157,10 +159,8 @@ private slots:
     void        Slot_MajusculeCreerPrenom();
     void        Slot_MAJ_SalleDAttente();
     void        Slot_MenuContextuelIdentPatient();
-    void        Slot_ChoixMenuContextuelIdentPatient();
     void        Slot_MenuContextuelListePatients(QPoint point);
     void        Slot_MenuContextuelMotsCles();
-        void        Slot_ChoixMenuContextuelMotsCles();
         void        Slot_RechercheParMotCle();
     void        Slot_RechercheParID();
     void        Slot_AfficheDossiersRechercheParMotCle();
@@ -257,7 +257,6 @@ private:
     QDateTime               gUserdateDerniereConnexion, gUserDateDernierMessage;
     UpDialog                *gAsk;
     QMenu                   *gmenuContextuel;
-    QSignalMapper           *gsignalMapper;
     QString                 gNomPatient, gPrenomPatient;
     QString                 gActeMontant;
     QString                 gActeDate;

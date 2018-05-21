@@ -41,5 +41,6 @@
         <file>majbase38.sql</file>
         <file>majbase39.sql</file>
         <file>majbase40.sql</file>
+        <file>majbase41.sql</file>
     </qresource>
 </RCC>

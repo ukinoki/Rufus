@@ -23,6 +23,8 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     ui(new Ui::dlg_paramconnexion)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
     QStringList ports;
     ports << "3306" << "3307";
     ui->PortcomboBox        ->addItems(ports);

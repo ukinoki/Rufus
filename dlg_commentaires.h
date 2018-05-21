@@ -53,13 +53,14 @@ private slots:
     void                    Slot_ComCellEnter(int row);
     void                    Slot_EnableOKPushbutton();
     void                    Slot_MenuContextuel(QPoint);
-    void                    Slot_ChoixMenuContextuel(QString);
     void                    Slot_Validation();
     void                    Slot_ChoixButtonFrame(int);
 protected:
     void                    changeEvent(QEvent *e);
 
 private:
+    void                        ChoixMenuContextuel(QString);
+
     void                        New_Com();
     void                        Del_Com();
     void                        Modif_Com();

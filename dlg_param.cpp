@@ -2904,7 +2904,6 @@ void dlg_param::Remplir_TableAssocCCAM()
         Assoc2Query.next();
         row ++;
     }
-    int a = 0;
 }
 
 // ----------------------------------------------------------------------------------

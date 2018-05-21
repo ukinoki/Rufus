@@ -23,6 +23,8 @@ dlg_identificationuser::dlg_identificationuser(QString tblUser, QString Serveur,
     ui(new Ui::dlg_identificationuser)
 {
     ui->setupUi(this);
+    setWindowTitle(tr("Rufus - Identification de l'utilisateur"));
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     QRegExp rx          = QRegExp("[A-Za-z0-9]*");
     ui->LoginlineEdit   ->setValidator(new QRegExpValidator(rx,this));

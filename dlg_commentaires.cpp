@@ -354,7 +354,6 @@ void dlg_commentaires::Slot_EnableOKPushbutton()
 void dlg_commentaires::Slot_MenuContextuel(QPoint)
 {
     QMenu *menuContextuel               = new QMenu(this);
-    QSignalMapper *signalMapper         = new QSignalMapper(this);
     QAction *pAction_ModifCommentaire   = new QAction();
     QAction *pAction_SupprCommentaire   = new QAction();
     QAction *pAction_CreerCommentaire   = new QAction();
@@ -370,10 +369,8 @@ void dlg_commentaires::Slot_MenuContextuel(QPoint)
     if (line)
     {
         LineSelect(line->getRowTable());
-
         pAction_CreerCommentaire                = menuContextuel->addAction(proc->giconCreer, tr("Créer un commentaire"));
-        signalMapper->setMapping (pAction_CreerCommentaire,  "CreerCom");
-        connect (pAction_CreerCommentaire,      SIGNAL(triggered()),     signalMapper,  SLOT (map()));
+        connect (pAction_CreerCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("CreerCom");});
         bool a = false;
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
@@ -388,6 +385,7 @@ void dlg_commentaires::Slot_MenuContextuel(QPoint)
         {
             pAction_ModifCommentaire                = menuContextuel->addAction(proc->giconModify, tr("Modifier ce commentaire"));
             pAction_SupprCommentaire                = menuContextuel->addAction(proc->giconPoubelle, tr("Supprimer ce commentaire"));
+            menuContextuel->addSeparator();
             lbldef                                  = static_cast<UpLabel*>(ui->ComupTableWidget->cellWidget(line->getRowTable(),5));
             if (lbldef->pixmap()!=NULL)
                 pAction_ParDefautCom                = menuContextuel->addAction(proc->giconBlackCheck, tr("Par défaut"));
@@ -395,17 +393,10 @@ void dlg_commentaires::Slot_MenuContextuel(QPoint)
                 pAction_ParDefautCom                = menuContextuel->addAction("Par défaut") ;
             pAction_ParDefautCom->setToolTip(tr("si cette option est cochée\nle commentaire sera systématiquement imprimé"));
 
-            signalMapper->setMapping (pAction_ModifCommentaire,  "ModifierCom");
-            signalMapper->setMapping (pAction_SupprCommentaire,  "SupprimerCom");
-            menuContextuel->addSeparator();
-            signalMapper->setMapping (pAction_CreerCommentaire,  "CreerCom");
-            menuContextuel->addSeparator();
-            signalMapper->setMapping (pAction_ParDefautCom,      "ParDefautCom");
-
-            connect (pAction_ModifCommentaire,      SIGNAL(triggered()),     signalMapper,  SLOT (map()));
-            connect (pAction_SupprCommentaire,      SIGNAL(triggered()),     signalMapper,  SLOT (map()));
-            connect (pAction_CreerCommentaire,      SIGNAL(triggered()),     signalMapper,  SLOT (map()));
-            connect (pAction_ParDefautCom,          SIGNAL(triggered()),     signalMapper,  SLOT (map()));
+            connect (pAction_ModifCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierCom");});
+            connect (pAction_SupprCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("SupprimerCom");});
+            connect (pAction_CreerCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("CreerCom");});
+            connect (pAction_ParDefautCom,          &QAction::triggered,    [=] {ChoixMenuContextuel("ParDefautCom");});
         }
     }
     else if (sender() == ui->upTextEdit)
@@ -424,16 +415,10 @@ void dlg_commentaires::Slot_MenuContextuel(QPoint)
         if (mimeData->hasText() || mimeData->hasUrls() || mimeData->hasImage() || mimeData->hasHtml())
         pAction_Coller                      = menuContextuel->addAction(proc->giconPaste,  tr("Coller"));
 
-        signalMapper->setMapping (pAction_Copier,              "Copier");
-        signalMapper->setMapping (pAction_Coller,              "Coller");
-        signalMapper->setMapping (pAction_Cut,                 "Couper");
-
-        connect (pAction_Copier,            SIGNAL(triggered()),         signalMapper,  SLOT (map()));
-        connect (pAction_Coller,            SIGNAL(triggered()),         signalMapper,  SLOT (map()));
-        connect (pAction_Cut,               SIGNAL(triggered()),         signalMapper,  SLOT (map()));
+        connect (pAction_Copier,            &QAction::triggered,    [=] {ChoixMenuContextuel("Copier");});
+        connect (pAction_Coller,            &QAction::triggered,    [=] {ChoixMenuContextuel("Coller");});
+        connect (pAction_Cut,               &QAction::triggered,    [=] {ChoixMenuContextuel("Couper");});
     }
-
-    connect(signalMapper,                   SIGNAL(mapped(QString)),    this,           SLOT (Slot_ChoixMenuContextuel(QString)));
 
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
@@ -453,10 +438,9 @@ void dlg_commentaires::Slot_MenuContextuel(QPoint)
     delete line;
     delete line0;
     delete menuContextuel;
-    delete  signalMapper;
 }
 
-void dlg_commentaires::Slot_ChoixMenuContextuel(QString choix)
+void dlg_commentaires::ChoixMenuContextuel(QString choix)
 {
     QPoint pos = ui->ComupTableWidget->viewport()->mapFromGlobal(findChildren<QMenu*>().at(0)->pos());
     if (choix       == "Coller")    ui->upTextEdit->paste();

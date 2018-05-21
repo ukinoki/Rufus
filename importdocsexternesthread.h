@@ -25,6 +25,10 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "functormajpremierelettre.h"
 
 
+/* Cette classe tourne en tache de fond et importe les documents d'imagerie dans la base de données
+ * DIFFERENTE POUR RUFUS ET RUFUSADMIN
+*/
+
 class ImportDocsExternesThread : public QObject
 {
     Q_OBJECT

@@ -283,19 +283,12 @@ void dlg_comptes::Slot_ContextMenuTableWidget()
     QString ecriture = tr("Supprimer l'écriture") + " -" + msg + "?";
 
     QMenu *menuContextuel       = new QMenu(this);
-    QSignalMapper *signalMapper = new QSignalMapper(this);
-
     QAction *pAction_SupprEcriture = menuContextuel->addAction(ecriture) ;
-    connect (pAction_SupprEcriture, SIGNAL(triggered()), signalMapper, SLOT (map()));
-    signalMapper->setMapping(pAction_SupprEcriture, msg);
-
-    connect(signalMapper, SIGNAL(mapped(QString)), this ,SLOT(Slot_SupprimerEcriture(QString)));
+    connect (pAction_SupprEcriture, &QAction::triggered,    [=] {SupprimerEcriture(msg);});
 
     // ouvrir le menu
     menuContextuel->exec(QCursor::pos());
     delete menuContextuel;
-    delete signalMapper;
-
 }
 
 void dlg_comptes::Slot_RenvoieRangee(bool Coche)
@@ -317,7 +310,7 @@ void dlg_comptes::Slot_RenvoieRangee(bool Coche)
     }
 }
 
-void dlg_comptes::Slot_SupprimerEcriture(QString msg)
+void dlg_comptes::SupprimerEcriture(QString msg)
 {
     UpMessageBox *msgbox = new UpMessageBox(this);
     msgbox->setText(tr("Suppression d'une écriture!"));

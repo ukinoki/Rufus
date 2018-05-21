@@ -1,18 +1,18 @@
-/* (C) 2016 LAINE SERGE
+/* (C) 2018 LAINE SERGE
 This file is part of Rufus.
 
 Rufus is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
 Rufus is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Rufus. If not, see <http://www.gnu.org/licenses/>.
+along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "upmessagebox.h"
@@ -47,26 +47,26 @@ UpMessageBox::~UpMessageBox()
 {
 }
 
-void UpMessageBox::addButton(UpSmallButton *butt, enum UpSmallButton::StyleBouton Style)
+void UpMessageBox::addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton Style)
 {
-    butt->setUpButtonStyle(Style);
-    AjouteWidgetLayButtons(butt);
-    connect(butt, SIGNAL(clicked(bool)), this, SLOT(Slot_Repons()));
+    button->setUpButtonStyle(Style);
+    AjouteWidgetLayButtons(button);
+    connect(button, &QPushButton::clicked, [=] {Repons(button);});
 }
 
-void UpMessageBox::addButton(UpPushButton *butt)
+void UpMessageBox::addButton(UpPushButton *button)
 {
-    AjouteWidgetLayButtons(butt);
-    connect(butt, SIGNAL(clicked(bool)), this, SLOT(Slot_Repons()));
+    AjouteWidgetLayButtons(button);
+    connect(button, &QPushButton::clicked, [=] {Repons(button);});
 }
 
-void UpMessageBox::removeButton(UpSmallButton *butt)
+void UpMessageBox::removeButton(UpSmallButton *button)
 {
     for (int i=0; i<laybuttons->count();i++)
     {
         UpSmallButton *buttonARetirer =  dynamic_cast<UpSmallButton*>(laybuttons->itemAt(i)->widget());
         if (buttonARetirer!=NULL)
-            if (buttonARetirer == butt)
+            if (buttonARetirer == button)
             {
                 delete buttonARetirer;
                 return;
@@ -74,13 +74,13 @@ void UpMessageBox::removeButton(UpSmallButton *butt)
     }
 }
 
-void UpMessageBox::Slot_Repons()
+void UpMessageBox::Repons(QPushButton *button)
 {
-    UpSmallButton *but = dynamic_cast<UpSmallButton*>(sender());
+    UpSmallButton *but = dynamic_cast<UpSmallButton*>(button);
     if (but != NULL)
         ReponsSmallButton = but;
     else
-        ReponsPushButton = static_cast<UpPushButton*>(sender());
+        ReponsPushButton = static_cast<UpPushButton*>(button);
     accept();
 }
 
@@ -195,8 +195,8 @@ int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons
         if (butt!=NULL)
         {
             if (butt->ButtonStyle() == UpSmallButton::CANCELBUTTON)
-                disconnect (butt, SIGNAL(clicked(bool)), msgbox, SLOT(reject()));
-            connect (butt, SIGNAL(clicked(bool)), msgbox, SLOT(Slot_Repons()));
+                msgbox->disconnect(butt);
+            connect(butt, &QPushButton::clicked, [=] {msgbox->Repons(butt);});
             if (butt->ButtonStyle() == UpSmallButton::STARTBUTTON)
                 butt->setText("OK");
         }
@@ -227,8 +227,8 @@ int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Butt
                 butt->setText(textlist.at(k));
             k++;
             if (butt->ButtonStyle() == UpSmallButton::CANCELBUTTON)
-                disconnect (butt, SIGNAL(clicked(bool)), msgbox, SLOT(reject()));
-            connect (butt, SIGNAL(clicked(bool)), msgbox, SLOT(Slot_Repons()));
+                msgbox->disconnect(butt);
+            connect(butt, &QPushButton::clicked, [=] {msgbox->Repons(butt);});
         }
     }
     msgbox  ->Textedt       ->setFixedSize(msgbox->CalcSize(Text));
@@ -248,7 +248,7 @@ void UpMessageBox::Information(QWidget *parent, QString Text, QString InfoText)
     msgbox->setIcon(UpMessageBox::Info);
 
     msgbox      ->AjouteLayButtons(UpDialog::ButtonOK);
-    connect (msgbox->OKButton, SIGNAL(clicked(bool)), msgbox, SLOT(accept()));
+    connect (msgbox->OKButton, &QPushButton::clicked, [=] {msgbox->accept();});
     msgbox  ->Textedt       ->setFixedSize(msgbox->CalcSize(Text));
     msgbox  ->InfoTextedt   ->setFixedSize(msgbox->CalcSize(InfoText));
     dynamic_cast<QVBoxLayout*>(msgbox->layout())->setSizeConstraint(QLayout::SetFixedSize);

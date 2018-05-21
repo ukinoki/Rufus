@@ -37,6 +37,7 @@ Les paramètres sont :
 QString mess    = le contenu du message - on peut mettre du html
 int pause       = la durée d'affichage du message en ms (1000 par défaut)
 bool bottom     = si true le message est affiché en bas à droite de l'écran, sinon, en plein centre (en bas à droite par défaut)
+ * IDENTIQUE POUR RUFUS ET RUFUSADMIN
 */
 class dlg_message : public QObject
 {
