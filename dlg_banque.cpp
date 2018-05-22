@@ -23,6 +23,7 @@ dlg_banque::dlg_banque(QSqlDatabase gdb, QMap<QString, QIcon> Icons, QWidget *pa
     ui(new Ui::dlg_banque)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     db                      = gdb;
 

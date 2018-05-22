@@ -27,6 +27,7 @@ dlg_autresmesures::dlg_autresmesures(int *idPatAPasser, Procedures *procAPasser,
     mode        = mod;
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dynamic_cast<QVBoxLayout*>(layout())->setSizeConstraint(QLayout::SetFixedSize);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     connect (OKButton,   &QPushButton::clicked,   [=] {OKButtonClicked();});
     if (mode == TONO)

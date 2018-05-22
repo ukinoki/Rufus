@@ -20,6 +20,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
 {
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     lblIcon             = new UpLabel();
     Textedt             = new UpLabel();
     InfoTextedt         = new UpLabel();

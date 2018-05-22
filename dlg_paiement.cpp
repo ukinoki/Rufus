@@ -30,6 +30,7 @@ dlg_paiement::dlg_paiement(QList<int> *ListidActeAPasser, int Mode, Procedures *
     ui(new Ui::dlg_paiement)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc            = procAPasser;
     db              = proc->getDataBase();
     gListidActe     = *ListidActeAPasser;

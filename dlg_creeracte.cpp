@@ -23,6 +23,7 @@ dlg_creeracte::dlg_creeracte(QString TypeActe, QString Mode , QString CodeActe, 
     ui(new Ui::dlg_creeracte)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(layout());
     globallay->insertWidget(0,ui->widget);
     globallay->insertWidget(0,ui->TypeActegroupBox);

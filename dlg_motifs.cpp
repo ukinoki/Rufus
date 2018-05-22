@@ -23,6 +23,7 @@ dlg_motifs::dlg_motifs(Procedures *prc, QWidget *parent) :
     ui(new Ui::dlg_motifs)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc = prc;
 
     QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());

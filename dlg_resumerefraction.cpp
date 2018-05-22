@@ -20,6 +20,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 dlg_resumerefraction::dlg_resumerefraction(Procedures *procAPasser, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionResumeRef", parent)
 {
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc = procAPasser;
     txtedit = new UpTextEdit;
     txtedit->setFixedWidth(820);

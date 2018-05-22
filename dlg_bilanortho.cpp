@@ -23,6 +23,7 @@ dlg_bilanortho::dlg_bilanortho(Procedures *procAPasser, int idActeAPAsser, int i
     ui(new Ui::dlg_bilanortho)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     idBilan     = idBilanOrtho;
     idActe      = idActeAPAsser;

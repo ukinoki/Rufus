@@ -23,6 +23,7 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
     ui(new Ui::dlg_choixdate)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     ui->JourradioButton             ->setChecked(true);
     ui->DepuisdateEdit              ->setDate(QDate::currentDate());
@@ -35,19 +36,19 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
     ui->PlusDebutPeriodepushButton  ->setVisible(false);
     ui->MoinsFinPeriodepushButton   ->setVisible(false);
 
-    connect(ui->OKupPushButton,                 SIGNAL(clicked()),      this,       SLOT(accept()));
-    connect(ui->AnnulupPushButton,              SIGNAL(clicked()),      this,       SLOT(reject()));
-    connect(ui->JourradioButton,                SIGNAL(clicked()),      this,       SLOT(Slot_AfficheDates()));
-    connect(ui->SemaineradioButton,             SIGNAL(clicked()),      this,       SLOT(Slot_AfficheDates()));
-    connect(ui->MoisradioButton,                SIGNAL(clicked()),      this,       SLOT(Slot_AfficheDates()));
-    connect(ui->AnneeradioButton,               SIGNAL(clicked()),      this,       SLOT(Slot_AfficheDates()));
+    connect(ui->OKupPushButton,                 &QPushButton::clicked, [=] {accept();});
+    connect(ui->AnnulupPushButton,              &QPushButton::clicked, [=] {reject();});
+    connect(ui->JourradioButton,                &QPushButton::clicked, [=] {AfficheDates(ui->JourradioButton);});
+    connect(ui->SemaineradioButton,             &QPushButton::clicked, [=] {AfficheDates(ui->SemaineradioButton);});
+    connect(ui->MoisradioButton,                &QPushButton::clicked, [=] {AfficheDates(ui->MoisradioButton);});
+    connect(ui->AnneeradioButton,               &QPushButton::clicked, [=] {AfficheDates(ui->AnneeradioButton);});
 
-    connect(ui->PlusDateDebutpushButton,        SIGNAL(clicked()),      this,       SLOT(Slot_ModifDate()));
-    connect(ui->MoinsDateDebutpushButton,       SIGNAL(clicked()),      this,       SLOT(Slot_ModifDate()));
-    connect(ui->PlusDateFinpushButton,          SIGNAL(clicked()),      this,       SLOT(Slot_ModifDate()));
-    connect(ui->MoinsDateFinpushButton,         SIGNAL(clicked()),      this,       SLOT(Slot_ModifDate()));
-    connect(ui->PlusDebutPeriodepushButton,     SIGNAL(clicked()),      this,       SLOT(Slot_ModifDate()));
-    connect(ui->MoinsFinPeriodepushButton,      SIGNAL(clicked()),      this,       SLOT(Slot_ModifDate()));
+    connect(ui->PlusDateDebutpushButton,        &QPushButton::clicked, [=] {ModifDate(ui->PlusDateDebutpushButton);});
+    connect(ui->MoinsDateDebutpushButton,       &QPushButton::clicked, [=] {ModifDate(ui->MoinsDateDebutpushButton);});
+    connect(ui->PlusDateFinpushButton,          &QPushButton::clicked, [=] {ModifDate(ui->PlusDateFinpushButton);});
+    connect(ui->MoinsDateFinpushButton,         &QPushButton::clicked, [=] {ModifDate(ui->MoinsDateFinpushButton);});
+    connect(ui->PlusDebutPeriodepushButton,     &QPushButton::clicked, [=] {ModifDate(ui->PlusDebutPeriodepushButton);});
+    connect(ui->MoinsFinPeriodepushButton,      &QPushButton::clicked, [=] {ModifDate(ui->MoinsFinPeriodepushButton);});
 
     ui->AnnulupPushButton           ->setFixedSize(100,46);
     ui->OKupPushButton              ->setFixedSize(105,46);
@@ -59,9 +60,9 @@ dlg_choixdate::~dlg_choixdate()
     delete ui;
 }
 
-void    dlg_choixdate::Slot_AfficheDates()
+void    dlg_choixdate::AfficheDates(QWidget *widg)
 {
-    bool a = (sender() != ui->JourradioButton);
+    bool a = (widg != ui->JourradioButton);
     ui->JusquAulabel                ->setVisible(a);
     ui->JusquAdateEdit              ->setVisible(a);
     ui->PlusDateFinpushButton       ->setVisible(a);
@@ -69,42 +70,42 @@ void    dlg_choixdate::Slot_AfficheDates()
     ui->PlusDebutPeriodepushButton  ->setVisible(a);
     ui->MoinsFinPeriodepushButton   ->setVisible(a);
 
-    if (sender() == ui->JourradioButton)
+    if (widg == ui->JourradioButton)
     {
         ui->DepuisdateEdit->setDate(QDate::currentDate());
         ui->JusquAdateEdit->setDate(QDate::currentDate());
     }
 
-    if (sender() == ui->SemaineradioButton)
+    else if (widg == ui->SemaineradioButton)
     {
         ui->DepuisdateEdit->setDate(QDate::currentDate().addDays(1-QDate::currentDate().dayOfWeek()));
         ui->JusquAdateEdit->setDate(QDate::currentDate());
     }
 
-    if (sender() == ui->MoisradioButton)
+    else if (widg == ui->MoisradioButton)
     {
         ui->DepuisdateEdit->setDate(QDate(QDate::currentDate().year(), QDate::currentDate().month(),1));
         ui->JusquAdateEdit->setDate(QDate::currentDate());
     }
 
-    if (sender() == ui->AnneeradioButton)
+    else if (widg == ui->AnneeradioButton)
     {
         ui->DepuisdateEdit->setDate(QDate(QDate::currentDate().year(),1,1));
         ui->JusquAdateEdit->setDate(QDate::currentDate());
     }
 
 }
-void dlg_choixdate::Slot_ModifDate()
+void dlg_choixdate::ModifDate(QWidget *widg)
 {
-    if (sender() == ui->PlusDateDebutpushButton && ui->DepuisdateEdit->date() < ui->JusquAdateEdit->date() && ui->DepuisdateEdit->date() < QDate::currentDate())
+    if (widg == ui->PlusDateDebutpushButton && ui->DepuisdateEdit->date() < ui->JusquAdateEdit->date() && ui->DepuisdateEdit->date() < QDate::currentDate())
         ui->DepuisdateEdit->setDate(ui->DepuisdateEdit->date().addDays(1));
-    if (sender() == ui->MoinsDateDebutpushButton)
+    if (widg == ui->MoinsDateDebutpushButton)
         ui->DepuisdateEdit->setDate(ui->DepuisdateEdit->date().addDays(-1));
-    if (sender() == ui->PlusDateFinpushButton && ui->JusquAdateEdit->date() < QDate::currentDate())
+    if (widg == ui->PlusDateFinpushButton && ui->JusquAdateEdit->date() < QDate::currentDate())
         ui->JusquAdateEdit->setDate(ui->JusquAdateEdit->date().addDays(1));
-    if (sender() == ui->MoinsDateFinpushButton && ui->DepuisdateEdit->date() < ui->JusquAdateEdit->date())
+    if (widg == ui->MoinsDateFinpushButton && ui->DepuisdateEdit->date() < ui->JusquAdateEdit->date())
         ui->JusquAdateEdit->setDate(ui->JusquAdateEdit->date().addDays(-1));
-    if (sender() == ui->PlusDebutPeriodepushButton)
+    if (widg == ui->PlusDebutPeriodepushButton)
     {
         if (ui->SemaineradioButton->isChecked())
         {
@@ -138,7 +139,7 @@ void dlg_choixdate::Slot_ModifDate()
             ui->JusquAdateEdit->setDate(QDate(Annee,12,31));
         }
     }
-    if (sender() == ui->MoinsFinPeriodepushButton)
+    else if (widg == ui->MoinsFinPeriodepushButton)
     {
         if (ui->SemaineradioButton->isChecked())
         {

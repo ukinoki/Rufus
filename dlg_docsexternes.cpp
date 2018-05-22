@@ -35,6 +35,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     inflabel            ->setFont(font);
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     QHBoxLayout *lay   = new QHBoxLayout();
     QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());

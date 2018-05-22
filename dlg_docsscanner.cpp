@@ -25,6 +25,7 @@ dlg_docsscanner::dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *pa
     idLieuExercice  = proc->getDataUser()["idLieu"].toInt();
     db              = proc->getDataBase();
     setAttribute(Qt::WA_DeleteOnClose);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     QString Base;
     switch (proc->getModeConnexion()) {
     case Procedures::Poste:

@@ -29,7 +29,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
     QString border = "border-image: url(://wallpaper.jpg)";
     qApp->setStyleSheet(
@@ -9634,8 +9634,17 @@ void Rufus::Remplir_SalDat()
                        " OR saldat.Statut = '" ENCOURS "'"
                        " OR (LOCATE('" ENATTENTENOUVELEXAMEN "', saldat.Statut,1) > 0) "
                        " ORDER BY HeureRDV";
-    //proc->Edit( SalDatrequete);
-
+    //proc->Edit(SalDatrequete);
+    /*
+      SELECT saldat.IdPat, PatNom, PatPrenom, HeureArrivee, Statut, Motif, HeureRDV, Message, saldat.idUser, UserLogin
+      FROM rufus.salledattente AS saldat
+      INNER JOIN rufus.Patients ON rufus.Patients.idPat = saldat.idPat
+      INNER JOIN rufus.utilisateurs ON rufus.utilisateurs.idUser = saldat.idUser
+      WHERE saldat.Statut = 'Arrivé'
+      OR saldat.Statut = 'En cours'
+      OR (LOCATE('En attente de nouvel examen par ', saldat.Statut,1) > 0)
+      ORDER BY HeureRDV
+    */
 
     TableAMettreAJour = ui->SalleDAttenteupTableWidget;
 

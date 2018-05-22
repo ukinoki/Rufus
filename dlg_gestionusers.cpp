@@ -23,6 +23,7 @@ dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, QSqlDatabase gdb, QMa
     ui(new Ui::dlg_gestionusers)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     gmapIcons               = Icons;
 
     db                      = gdb;

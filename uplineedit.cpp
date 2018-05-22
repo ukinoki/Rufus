@@ -41,6 +41,11 @@ UpLineEdit::~UpLineEdit()
 // ------------------------------------------------------------------------------------------
 bool UpLineEdit::eventFilter(QObject *obj, QEvent *event)
 {
+    if (event->type() == QEvent::Enter)
+    {
+        AfficheToolTip();
+        return true;
+    }
     if (event->type() == QEvent::FocusIn)
         setValeurAvant(text());
     if (event->type() == QEvent::FocusOut)
@@ -70,6 +75,17 @@ void UpLineEdit::mouseDoubleClickEvent(QMouseEvent *)
 {
     if (RowTable > -1)
         emit mouseDoubleClick(RowTable);
+}
+
+void UpLineEdit::AfficheToolTip()
+{
+    if (gToolTipMsg != "" && isEnabled())
+        QToolTip::showText(cursor().pos(),gToolTipMsg);
+}
+
+void UpLineEdit::setImmediateToolTip(QString Msg)
+{
+    gToolTipMsg = Msg;
 }
 
 void UpLineEdit::setCanDepart(bool OK)

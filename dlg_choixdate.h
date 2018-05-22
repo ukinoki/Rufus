@@ -28,20 +28,14 @@ class dlg_choixdate;
 class dlg_choixdate : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit            dlg_choixdate(QWidget *parent = Q_NULLPTR);
     ~dlg_choixdate();
     Ui::dlg_choixdate   *ui;
-
-private slots:
-    void                Slot_AfficheDates();
-    void                Slot_ModifDate();
-
 private:
     bool                eventFilter(QObject *obj, QEvent *event)  ;
-
-
+    void                AfficheDates(QWidget *widg);
+    void                ModifDate(QWidget *widg);
 };
 
 #endif // DLG_CHOIXDATE_H

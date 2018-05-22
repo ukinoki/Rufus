@@ -23,6 +23,7 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
     ui(new Ui::dlg_comptes)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     proc = procAPasser;
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionComptes").toByteArray());

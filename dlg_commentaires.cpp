@@ -24,6 +24,7 @@ dlg_commentaires::dlg_commentaires(Procedures *procAPasser, QWidget *parent) :
     ui(new Ui::dlg_commentaires)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc        = procAPasser;
     gidUser     = proc->getDataUser()["idUser"].toInt();
 

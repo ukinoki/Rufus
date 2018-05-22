@@ -23,6 +23,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui(new Ui::dlg_param)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc            = procAPasser;
     db              = proc->getDataBase();
     gidUser         = idUser;
@@ -181,6 +182,16 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui->PortAutorefupComboBox->addItem("Box");
     ui->PortRefracteurupComboBox->insertItems(0,ListPortsCOM);
     ui->PortTonometreupComboBox->insertItems(0,ListPortsCOM);
+
+    QString tip = tr("Indiquez ici l'emplacement du répertoire de stockage des documents d'imagerie<br /><font color=\"green\"><b>SUR CE POSTE SERVEUR</b></font>");
+    ui->PosteStockageupLabel        ->setImmediateToolTip(tip);
+    ui->PosteStockageupLineEdit     ->setImmediateToolTip(tip);
+    tip = tr("Indiquez ici<br /><font color=\"green\"><b>LE LIEN</b></font><br />vers l'emplacement du répertoire de stockage des documents d'imagerie<br /><font color=\"green\"><b>SUR LE SERVEUR</b></font>");
+    ui->LocalStockageupLabel        ->setImmediateToolTip(tip);
+    ui->LocalStockageupLineEdit     ->setImmediateToolTip(tip);
+    tip = tr("Indiquez ici l'emplacement du répertoire de stockage des documents d'imagerie<br /><font color=\"green\"><b>SUR CE POSTE</b></font>");
+    ui->DistantStockageupLabel      ->setImmediateToolTip(tip);
+    ui->DistantStockageupLineEdit   ->setImmediateToolTip(tip);
 
     QStringList Listapp;
     Listapp << "-";

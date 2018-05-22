@@ -23,6 +23,7 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
     ui(new Ui::dlg_depenses)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     proc        = procAPasser;
     db          = proc->getDataBase();

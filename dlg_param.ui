@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -1032,7 +1032,7 @@
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>true</bool>
@@ -1129,7 +1129,7 @@
              <string>Emplacement des documents externes</string>
             </property>
            </widget>
-           <widget class="QLabel" name="PosteStockageupLabel">
+           <widget class="UpLabel" name="PosteStockageupLabel">
             <property name="geometry">
              <rect>
               <x>360</x>
@@ -1347,7 +1347,7 @@ un serveur hébergé sur le réseau local</string>
              <bool>true</bool>
             </property>
            </widget>
-           <widget class="QLabel" name="LocalStockageupLabel">
+           <widget class="UpLabel" name="LocalStockageupLabel">
             <property name="geometry">
              <rect>
               <x>360</x>
@@ -1512,7 +1512,7 @@ un serveur hébergé sur le réseau local</string>
              <string>Paramètres de la connexion au serveur</string>
             </property>
            </widget>
-           <widget class="QLabel" name="DistantStockageupLabel">
+           <widget class="UpLabel" name="DistantStockageupLabel">
             <property name="geometry">
              <rect>
               <x>360</x>

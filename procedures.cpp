@@ -1110,6 +1110,7 @@ QString Procedures::Edit(QString txt, QString titre)
     int y = qApp->desktop()->availableGeometry().height();
 
     gAsk->setModal(true);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     gTxtEdit->setText(txt);
 
     gAsk->setMaximumWidth(x);
@@ -1138,6 +1139,7 @@ void Procedures::EditHtml(QString txt)
     QLabel *lbl                     = new QLabel(gAsk);
 
     gAsk->setModal(true);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     gAsk->setSizeGripEnabled(false);
     lbl->setStyleSheet("border: 1px solid gray;");
     lbl->setTextFormat(Qt::PlainText);
@@ -4984,10 +4986,10 @@ bool Procedures::Ouverture_Ports_Series()
             {
                 //qDebug() << QSerialPortInfo::availablePorts().at(i).serialNumber();
                 //UpMessageBox::Watch(this,QSerialPortInfo::availablePorts().at(i).portName());
-                if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial")
-                    || QSerialPortInfo::availablePorts().at(i).portName().contains("KeySerial"))
+                if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
                 {
-                    if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort)
+                    QString letter = QSerialPortInfo::availablePorts().at(i).portName().split("-").at(1);
+                    if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort || letter.left(1) == NomPort)
                     {
                         lPortFronto->setPort(QSerialPortInfo::availablePorts().at(i));
                         lPortFronto->setBaudRate(ParamPortSerieFronto.baudRate);
@@ -5028,12 +5030,12 @@ bool Procedures::Ouverture_Ports_Series()
             lPortRefracteur     = new QSerialPort();
             for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
             {
-                //UpMessageBox::Watch(this,QSerialPortInfo::availablePorts().at(i).portName());
-                if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial")
-                    || QSerialPortInfo::availablePorts().at(i).portName().contains("KeySerial"))
+                if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
                 {
-                    if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort)
+                    QString letter = QSerialPortInfo::availablePorts().at(i).portName().split("-").at(1);
+                    if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort || letter.left(1) == NomPort)
                     {
+                        Message("OK pour refracteur\nPort = \n" + QSerialPortInfo::availablePorts().at(i).portName(), 1000, true);
                         lPortRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
                         lPortRefracteur->setBaudRate(ParamPortSerieRefracteur.baudRate);
                         lPortRefracteur->setFlowControl(ParamPortSerieRefracteur.flowControl);
@@ -5051,7 +5053,10 @@ bool Procedures::Ouverture_Ports_Series()
                 connect(ThreadRefracteur,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Refracteur(QString)));
             }
             else
+            {
+                UpMessageBox::Watch(0,tr("Connexion impossible"),tr("Impossible de connecter le refracteur"));
                 lPortRefracteur = 0;
+            }
         }
     }
 
@@ -5073,11 +5078,10 @@ bool Procedures::Ouverture_Ports_Series()
             lPortAutoref     = new QSerialPort();
             for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
             {
-                //UpMessageBox::Watch(this,QSerialPortInfo::availablePorts().at(i).portName());
-                if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial")
-                    || QSerialPortInfo::availablePorts().at(i).portName().contains("KeySerial"))
+                if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
                 {
-                    if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort)
+                    QString letter = QSerialPortInfo::availablePorts().at(i).portName().split("-").at(1);
+                    if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort || letter.left(1) == NomPort)
                     {
                         lPortAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
                         lPortAutoref->setBaudRate(ParamPortSerieAutoref.baudRate);

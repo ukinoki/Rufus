@@ -23,6 +23,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString *CreationModificati
     ui(new Ui::dlg_identificationpatient)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     proc                = procAPasser;
     gidPatient          = *idPatAPasser;

@@ -23,6 +23,7 @@ dlg_salledattente::dlg_salledattente(int *idPatAPasser, int *idActeAPasser, QStr
     ui(new Ui::dlg_salledattente)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc                = procAPAsser;
     gidPatient          = *idPatAPasser;
     gidUser             = proc->getDataUser()["idUser"].toInt();

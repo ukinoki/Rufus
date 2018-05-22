@@ -44,7 +44,6 @@ public:
 private:
     Procedures              *proc;
     QAction                 *fin, *debut, *prec, *suiv;
-    QDialog                 *gAsk;
     QFont                   gFont;
     QImage                  image;
     QList<QPixmap>          glistPix;

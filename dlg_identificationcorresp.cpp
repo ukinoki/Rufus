@@ -23,6 +23,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     ui(new Ui::dlg_identificationcorresp)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc                = procAPasser;
     db                  = proc->getDataBase();
     gidCor              = idCorresp;

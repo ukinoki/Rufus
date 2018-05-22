@@ -22,6 +22,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleValidator>
 #include <QEvent>
 #include <QSound>
+#include <QToolTip>
 
 class UpLineEdit : public QLineEdit
 {
@@ -47,13 +48,16 @@ public:
     QString     getChampCorrespondant() const;
     void        setTableCorrespondant(QString tablecorrespondant);
     QString     getTableCorrespondant() const;
+    void        setImmediateToolTip(QString Msg);
 
 private:
+    QString     gToolTipMsg;
     bool        eventFilter(QObject *obj, QEvent *event)  ;
     bool        CanDepart, PeutEtreVide;
     int         RowTable, ColumnTable, id;
     QString     ValeurAvant, ValeurApres, Champ, Table;
     void        ReemitTextEdited(QString texte);
+    void        AfficheToolTip();
 
 signals:
     void        upTextEdited(QString texte, int row, int col);

@@ -23,6 +23,7 @@ dlg_remisecheques::dlg_remisecheques(Procedures *procAPasser, QWidget *parent) :
     ui(new Ui::dlg_remisecheques)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     gidCompteACrediter  = -1;
     gidUserACrediter    = -1;
 

@@ -20,6 +20,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 dlg_GestionLieux::dlg_GestionLieux(QSqlDatabase gdb, QWidget *parent)
     : UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionLieux", parent)
 {
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     db              = gdb;
     AjouteLayButtons(UpDialog::ButtonClose);
     connect(CloseButton, SIGNAL(clicked(bool)), this, SLOT(Slot_EnregLieux()));

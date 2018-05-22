@@ -25,6 +25,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlData
     ui(new Ui::dlg_gestioncomptes)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     db                      = gdb;
     gDataUser               = DataUser;
 

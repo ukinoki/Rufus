@@ -20,6 +20,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 dlg_listecorrespondants::dlg_listecorrespondants(Procedures *Proc, QSqlQuery Quer, QWidget *parent) :
     UpDialog(parent)
 {
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     quer            = Quer;
     proc            = Proc;
 

@@ -24,6 +24,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui(new Ui::dlg_documents)
 {
     ui->setupUi(this);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     gidPatient          = idPatAPasser;
     gNomPat             = NomPatient;
@@ -35,6 +36,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     db                  = proc->getDataBase();
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     setWindowTitle(tr("Liste des documents prédéfinis"));
 
@@ -1158,6 +1160,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         tabChamps->setFixedWidth(tabChamps->columnWidth(0)+2);
 
         ListChamps->AjouteLayButtons(UpDialog::ButtonOK);
+        ListChamps->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
         globallayout->insertWidget(0,tabChamps);
 
         ListChamps->setModal(true);
@@ -1321,6 +1324,7 @@ void dlg_documents::Slot_Validation()
         if (listQuestions.size()>0 || gidUser != gidUserSuperviseur)
         {
             gAsk = new UpDialog(this);
+            gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
             gAsk->setModal(true);
             gAsk->setSizeGripEnabled(false);
             gAsk->move(QPoint(x()+width()/2,y()+height()/2));
@@ -1760,6 +1764,7 @@ void dlg_documents::keyPressEvent(QKeyEvent * event )
 int dlg_documents::AskDialog(QString titre)
 {
     gAskDialog                  = new UpDialog(this);
+    gAskDialog                  ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
     QVBoxLayout *globallay      = dynamic_cast<QVBoxLayout*>(gAskDialog->layout());
     UpLineEdit  *Line           = new UpLineEdit(gAskDialog);
     UpLabel     *label          = new UpLabel(gAskDialog);
@@ -2844,6 +2849,7 @@ void dlg_documents::ChoixCorrespondant(QSqlQuery quer)
 {
     glistidCor.clear();
     gAskCorresp                 = new UpDialog(this);
+    gAskCorresp                 ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
     gAskCorresp                 ->AjouteLayButtons();
     QVBoxLayout *globallay      = dynamic_cast<QVBoxLayout*>(gAskCorresp->layout());
     QTableView  *tblCorresp     = new QTableView(gAskCorresp);

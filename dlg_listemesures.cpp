@@ -20,6 +20,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, Procedures *procAPasser, QWidget *parent) :
     UpDialog (QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionListeMes", parent)
 {
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     gidPatient  = *IdPatient;
     proc        = procAPasser;
     if (mode == "SUPPR")

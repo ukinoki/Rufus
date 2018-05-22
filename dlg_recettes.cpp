@@ -20,6 +20,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 dlg_recettes::dlg_recettes(QDate *DateDebut, QDate *Datefin, Procedures *ProcAPasser, QSqlQuery BilanRec, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionRecettes", parent)
 {
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc        = ProcAPasser;
     Debut       = *DateDebut;
     Fin         = *Datefin;
