@@ -236,8 +236,6 @@ public:
     void                    ModifParamBackup();
     double                  CalcBaseSize();
 
-    bool                    VerifVersion();
-
     // Les accesseurs
     bool                    Init();
     bool                    ApercuAvantImpression();

@@ -1,18 +1,18 @@
-/* (C) 2016 LAINE SERGE
+/* (C) 2018 LAINE SERGE
 This file is part of Rufus.
 
 Rufus is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
 Rufus is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Rufus. If not, see <http://www.gnu.org/licenses/>.
+along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_gestioncomptes.h"
@@ -25,7 +25,6 @@ dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlData
     ui(new Ui::dlg_gestioncomptes)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     db                      = gdb;
     gDataUser               = DataUser;
 
@@ -43,7 +42,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlData
     gVisible                = true;
     gTimer                  = new QTimer(this);
     gTimer                  ->start(500);
-    connect(gTimer, SIGNAL(timeout()),  this,   SLOT(Slot_Clign()));
+    connect(gTimer, &QTimer::timeout, [=] {Clign();});
     ui->CompteFacticePushButton->setVisible(false);
 
     setAttribute(Qt::WA_DeleteOnClose);
@@ -59,13 +58,13 @@ dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlData
     AjouteLayButtons(UpDialog::ButtonClose);
     CloseButton             ->setText(tr("Fermer"));
 
-    connect(CloseButton,                    SIGNAL(clicked(bool)),              this,   SLOT(Slot_Fermer()));
-    connect(ui->OKModifupSmallButton,       SIGNAL(clicked(bool)),              this,   SLOT(Slot_ValidCompte()));
-    connect(ui->AnnulModifupSmallButton,    SIGNAL(clicked(bool)),              this,   SLOT(Slot_AnnulModif()));
-    connect(NouvBanqupPushButton,           SIGNAL(clicked(bool)),              this,   SLOT(Slot_Banques()));
-    connect(widgButtons,                    SIGNAL(choix(int)),                 this,   SLOT(Slot_ChoixButtonFrame(int)));
-    connect(ui->CompteFacticePushButton,    SIGNAL(clicked(bool)),              this,   SLOT(Slot_CompteFactice()));
-    connect(ui->DesactiveComptecheckBox,    SIGNAL(clicked(bool)),              this,   SLOT(Slot_DesactiveCompte()));
+    connect(CloseButton,                    &QPushButton::clicked,      [=] {Fermer();});
+    connect(ui->OKModifupSmallButton,       &QPushButton::clicked,      [=] {ValidCompte();});
+    connect(ui->AnnulModifupSmallButton,    &QPushButton::clicked,      [=] {AnnulModif();});
+    connect(NouvBanqupPushButton,           &QPushButton::clicked,      [=] {Banques();});
+    connect(widgButtons,                    &WidgetButtonFrame::choix,  [=] {ChoixButtonFrame(widgButtons->Reponse());});
+    connect(ui->CompteFacticePushButton,    &QPushButton::clicked,      [=] {CompteFactice();});
+    connect(ui->DesactiveComptecheckBox,    &QPushButton::clicked,      [=] {DesactiveCompte();});
 
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
@@ -141,7 +140,7 @@ void dlg_gestioncomptes::closeEvent(QCloseEvent *event)
     }
 }
 
-void dlg_gestioncomptes::Slot_AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem *)
+void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem *)
 {
     int idCompte = ui->ComptesuptableWidget->item(pitem->row(),0)->text().toInt();
     QString req = "select idcompte, nombanque, IBAN, IntituleCompte, NomCompteAbrege, SoldeSurDernierReleve, Partage, desactive, cpt.idUser  from "  NOM_TABLE_COMPTES " as cpt"
@@ -174,13 +173,13 @@ void dlg_gestioncomptes::Slot_AfficheCompte(QTableWidgetItem *pitem, QTableWidge
     widgButtons->moinsBouton->setEnabled(autorsupprimer);
 }
 
-void dlg_gestioncomptes::Slot_AnnulModif()
+void dlg_gestioncomptes::AnnulModif()
 {
     ui->Compteframe->setEnabled(false);
     gMode = Norm;
     ui->DesactiveComptecheckBox->setVisible(true);
     if (ui->ComptesuptableWidget->rowCount() > 0)
-        Slot_AfficheCompte(ui->ComptesuptableWidget->item(ui->ComptesuptableWidget->currentRow(),0),ui->ComptesuptableWidget->item(ui->ComptesuptableWidget->currentRow(),0));
+        AfficheCompte(ui->ComptesuptableWidget->item(ui->ComptesuptableWidget->currentRow(),0),ui->ComptesuptableWidget->item(ui->ComptesuptableWidget->currentRow(),0));
     else
         ui->Compteframe->setVisible(false);
     ui->OKModifupSmallButton->setVisible(false);
@@ -191,14 +190,14 @@ void dlg_gestioncomptes::Slot_AnnulModif()
     ui->ComptesuptableWidget->setFocus();
 }
 
-void dlg_gestioncomptes::Slot_Banques()
+void dlg_gestioncomptes::Banques()
 {
     Dlg_Banq = new dlg_banque(db, gmapIcons, this);
     if (Dlg_Banq->exec()>0)
         MetAJourListeBanques();
 }
 
-void dlg_gestioncomptes::Slot_DesactiveCompte()
+void dlg_gestioncomptes::DesactiveCompte()
 {
     ui->BanqueupcomboBox            ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     ui->IBANuplineEdit              ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
@@ -219,7 +218,7 @@ void dlg_gestioncomptes::Slot_DesactiveCompte()
     }
 }
 
-void dlg_gestioncomptes::Slot_ChoixButtonFrame(int i)
+void dlg_gestioncomptes::ChoixButtonFrame(int i)
 {
     switch (i) {
     case 1:
@@ -236,7 +235,7 @@ void dlg_gestioncomptes::Slot_ChoixButtonFrame(int i)
     }
 }
 
-void dlg_gestioncomptes::Slot_Clign()
+void dlg_gestioncomptes::Clign()
 {
     gVisible = !gVisible;
     if (gVisible)
@@ -245,7 +244,7 @@ void dlg_gestioncomptes::Slot_Clign()
         ui->CompteFacticePushButton->setIcon(giconHelp);
 }
 
-void dlg_gestioncomptes::Slot_CompteFactice()
+void dlg_gestioncomptes::CompteFactice()
 {
     UpMessageBox msgbox;
     UpSmallButton *OKBouton = new UpSmallButton;
@@ -396,7 +395,7 @@ void dlg_gestioncomptes::SupprCompte()
     RemplirTableView();
 }
 
-void dlg_gestioncomptes::Slot_Fermer()
+void dlg_gestioncomptes::Fermer()
 {
     if (ui->OKModifupSmallButton->isVisible() && ui->OKModifupSmallButton->isEnabled())
     {
@@ -404,13 +403,13 @@ void dlg_gestioncomptes::Slot_Fermer()
        {
            if (!VerifCompte())
                return;
-           Slot_ValidCompte();
+           ValidCompte();
        }
     }
     close();
 }
 
-void dlg_gestioncomptes::Slot_ValidCompte()
+void dlg_gestioncomptes::ValidCompte()
 {
     int idcompte=0;
     QString req;
@@ -470,44 +469,6 @@ void dlg_gestioncomptes::Slot_ValidCompte()
     ui->DesactiveComptecheckBox->setVisible(true);
 }
 
-void    dlg_gestioncomptes::Slot_VerifCoherencegAsk()
-{
-    UpLineEdit *line;
-    QList<QVBoxLayout*> listlay = gAsk->findChildren<QVBoxLayout*>();
-    for (int n=0;n<listlay.size();n++)
-    {
-        for (int r=0; r<listlay.at(n)->count(); r++)
-        {
-            QWidget *w = listlay.at(n)->itemAt(r)->widget();
-            line = dynamic_cast<UpLineEdit*>(w);
-            if (line) break;
-            w=0;
-            delete w;
-        }
-        if (line) break;
-    }
-    QString req;
-    req = "select from " NOM_TABLE_BANQUES " where idbanqueabrege = " + line->text().toUpper();
-    QSqlQuery quer(req,db);
-    if (quer.size()>0)
-    {
-        UpMessageBox::Watch(this,tr("Ce nom abrégé est déjà utilisé"));
-        line->setFocus();
-    }
-    else
-    {
-        req = "insert into " NOM_TABLE_BANQUES " (idbanqueabrege, nombanque) values ("
-                "'" + CorrigeApostrophe(line->text().toUpper()) + "', "
-                "'" + CorrigeApostrophe(fMAJPremiereLettre(ui->BanqueupcomboBox->currentText())) + "')";
-        QSqlQuery quer0(req,db);
-        if (!TraiteErreurRequete(quer0,req))
-        {
-            ui->NomCompteAbregeuplineEdit->setText(line->text().toUpper());
-            gAsk->accept();
-        }
-    }
-}
-
 QString dlg_gestioncomptes::CorrigeApostrophe(QString RechAp)
 {
     return RechAp.replace("'","\\'");
@@ -529,7 +490,7 @@ void dlg_gestioncomptes::MetAJourListeBanques()
 
 void dlg_gestioncomptes::RemplirTableView(int idcompte)
 {
-    disconnect(ui->ComptesuptableWidget, SIGNAL(currentItemChanged(QTableWidgetItem*,QTableWidgetItem*)), this, SLOT(Slot_AfficheCompte(QTableWidgetItem*,QTableWidgetItem*)));
+    disconnect(ui->ComptesuptableWidget,0,0,0);
     QTableWidgetItem    *pitem0, *pitem1;
     ui->ComptesuptableWidget->setColumnCount(2);
     ui->ComptesuptableWidget->setColumnHidden(0,true);
@@ -563,7 +524,7 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
             ui->ComptesuptableWidget->setRowHeight(i,QFontMetrics(qApp->font()).height()*1.3);
             quer.next();
         }
-        connect(ui->ComptesuptableWidget, SIGNAL(currentItemChanged(QTableWidgetItem*,QTableWidgetItem*)), this, SLOT(Slot_AfficheCompte(QTableWidgetItem*,QTableWidgetItem*)));
+        connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, [=] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),0);});
         if (idcompte<1)
             ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->item(0,1));
         else

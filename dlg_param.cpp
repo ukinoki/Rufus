@@ -1848,8 +1848,8 @@ void dlg_param::Slot_ModifMDPAdmin()
     ListTab << AncMDP << NouvMDP << ConfirmMDP << gAskMDP->OKButton;
     for (int i = 0; i<ListTab.size()-1 ; i++ )
         gAskMDP->setTabOrder(ListTab.at(i), ListTab.at(i+1));
-        gAskMDP    ->setWindowTitle(tr("Mot de passe administrateur"));
-        connect(gAskMDP->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreNouvMDPAdmin()));
+    gAskMDP    ->setWindowTitle(tr("Mot de passe administrateur"));
+    connect(gAskMDP->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreNouvMDPAdmin()));
     globallay->setSizeConstraint(QLayout::SetFixedSize);
 
     gAskMDP->exec();

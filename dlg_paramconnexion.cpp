@@ -247,12 +247,14 @@ bool dlg_paramconnexion::TestConnexion()
 
         if (!db.open())
         {
-            UpMessageBox::Watch(this,tr("Paramètres non reconnus!\n"
-                                         "\n") + tr("Serveur") + "\n\t-> " + gServeur +
-                                         "\n" + tr("Login") + "\n\t-> " + Login +
-                                         "\n" + tr("MDP") + "\n\t-> " + ui->MDPlineEdit->text() +
-                                         "\n" + tr("Port") + "\n\t-> " + ui->PortcomboBox->currentText() +
-                                         "\n\n" + tr("Connexion impossible."));
+            UpMessageBox::Watch(this,tr("Paramètres non reconnus!") + "<br />"
+                                    + tr("Serveur") + "\n\t-> " + gServeur + "<br />"
+                                    + tr("Login") + "\n\t-> " NOM_ADMINISTRATEURDOCS "<br />"
+                                    + tr("MDP") + "\n\t-> " + ui->MDPlineEdit->text() + "<br />"
+                                    + tr("Port") + "\n\t-> " + ui->PortcomboBox->currentText() + "<br />"
+                                    + tr("Connexion impossible.") + "<br />"
+                                    + db.lastError().text());
+
             return false;
         }
 

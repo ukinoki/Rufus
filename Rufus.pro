@@ -199,8 +199,8 @@ INCLUDEPATH += /usr/local/include/poppler/qt5
 LIBS += -L/usr/local/lib/ -lpoppler-qt5
 }
 LINUX {
-INCLUDEPATH += chemin
-LIBS += target
+INCLUDEPATH += /usr/include/poppler/qt5
+LIBS += -L/usr/local/lib/ -lpoppler-qt5
 }
 
 DISTFILES += \

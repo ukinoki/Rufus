@@ -274,7 +274,7 @@ void dlg_refraction::Slot_DeuxMonturesPrescritradioButton_Clicked()
 {
     if (ui->UneMonturePrescritRadioButton->isChecked() && ui->DeuxMonturesPrescritRadioButton->isChecked())
         ui->UneMonturePrescritRadioButton->setChecked(false);
-        ResumePrescription();
+    ResumePrescription();
 }
 void dlg_refraction::Slot_ODGCheckBox_Changed(int etat)
 {
@@ -408,7 +408,7 @@ void dlg_refraction::Slot_UneMonturePrescritRadioButton_Clicked()
 {
     if (ui->UneMonturePrescritRadioButton->isChecked() && ui->DeuxMonturesPrescritRadioButton->isChecked())
         ui->DeuxMonturesPrescritRadioButton->setChecked(false);
-        ResumePrescription();
+    ResumePrescription();
 }
 
 void dlg_refraction::Slot_VerresTeintesCheckBox_Changed(int )
@@ -893,10 +893,18 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             if (obj == ui->K2OD)            {if (ui->K2OG->isVisible())     ui->K2OG->setFocus();           return true;}
             if (obj == ui->AxeKOD)          {if (ui->AxeKOG->isVisible())   ui->AxeKOG->setFocus();         return true;}
             if (obj == ui->ODPrescritCheckBox)                  {ui->OGPrescritCheckBox->setFocus();        return true;}
-            if (obj == ui->UneMonturePrescritRadioButton){
-                if (ui->DeuxMonturesPrescritRadioButton->isVisible())   ui->DeuxMonturesPrescritRadioButton->setFocus(); return true;}
-            if (obj == ui->PressonODCheckBox){
-                if (ui->PressonOGCheckBox->isVisible())                 ui->PressonOGCheckBox->setFocus();  return true;}
+            if (obj == ui->UneMonturePrescritRadioButton)
+            {
+                if (ui->DeuxMonturesPrescritRadioButton->isVisible())
+                    ui->DeuxMonturesPrescritRadioButton->setFocus();
+                return true;
+            }
+            if (obj == ui->PressonODCheckBox)
+            {
+                if (ui->PressonOGCheckBox->isVisible())
+                    ui->PressonOGCheckBox->setFocus();
+                return true;
+            }
         }
     }
     return QWidget::eventFilter(obj, event);
@@ -2774,7 +2782,7 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
     QString requete =  requeteBase;
     if (TypLun > "")
         requete +=  " AND QuelleDistance = '" + TypLun + "'";
-        requete += " ORDER BY DateRefraction ASC ";
+    requete += " ORDER BY DateRefraction ASC ";
 
     QSqlQuery RechercheResultatQuery(requete,db);
     proc->TraiteErreurRequete(RechercheResultatQuery,requete,"");

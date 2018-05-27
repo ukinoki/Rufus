@@ -49,19 +49,19 @@ private:
     QDate           Debut, Fin;
     QTableWidget    *gBigTable;
     bool            InitOK;
+    void            CalculeTotal();
     void            DefinitArchitetureTable();
     void            RemplitLaTable(int idCompteAVoir);
 
     void            SupprimerEcriture(QString);
 
+    void            AnnulArchive();
+    void            Archiver();
+    void            AnnulConsolidations();
+    void            ChangeCompte(int idCompteAVoir);
+    void            RenvoieRangee(bool Coche, UpCheckBox *Check);
 private slots:
-    void            Slot_AnnulArchive();
-    void            Slot_Archiver();
-    void            Slot_AnnulConsolidations();
-    void            Slot_CalculeTotal();
-    void            Slot_ChangeCompte(int idCompteAVoir);
     void            Slot_ContextMenuTableWidget();
-    void            Slot_RenvoieRangee(bool Coche = true);
 };
 
 #endif // DLG_COMPTES_H

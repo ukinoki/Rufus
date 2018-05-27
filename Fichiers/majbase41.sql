@@ -25,7 +25,7 @@ DELIMITER |
 		update `autresrecettes` set Paiement = 'C' where Paiement = 'Chèque';
 		update `autresrecettes` set idCompte = 1 where Paiement = 'V' or Paiement = 'C';
 		update `autresrecettes` set idUser = 1;
-		UPDATE `Rufus`.`ParametresSysteme` SET VersionBase = 41;
+                UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 41;
 	END|
 CALL MAJ41();
 DROP PROCEDURE MAJ41;

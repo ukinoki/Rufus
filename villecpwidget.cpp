@@ -242,8 +242,6 @@ void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une 
             gAskVille                           ->setModal(true);
             QVBoxLayout         *globallay      = dynamic_cast<QVBoxLayout*>(gAskVille->layout());
             QListView           *listVille      = new QListView(gAskVille);
-            QItemSelectionModel *villeselect    = new QItemSelectionModel;
-            villeselect = listVille->selectionModel();
             QStandardItemModel  *listVillemodel = new QStandardItemModel;
 
             QLabelDelegate      *deleglabl      = new QLabelDelegate;

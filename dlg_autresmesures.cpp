@@ -35,9 +35,7 @@ dlg_autresmesures::dlg_autresmesures(int *idPatAPasser, Procedures *procAPasser,
         widgto      = new WidgTono(this);
         widgto      ->setFixedSize(275,95);
         dynamic_cast<QVBoxLayout*>(layout())->insertWidget(0,widgto);
-        if (MODE_MESURE_TONOMETRIE_PAR_DEFAUT == "Air")          widgto->ui->AirRadioButton->setChecked(true);
-        if (MODE_MESURE_TONOMETRIE_PAR_DEFAUT == "Aplanation")   widgto->ui->AplanationRadioButton->setChecked(true);
-        if (MODE_MESURE_TONOMETRIE_PAR_DEFAUT == "Autre")        widgto->ui->AutreRadioButton->setChecked(true);
+        widgto->ui->AirRadioButton->setChecked(true);
         widgto->ui->TOODSpinBox->installEventFilter(this);
         widgto->ui->TOOGSpinBox->installEventFilter(this);
     }

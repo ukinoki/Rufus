@@ -68,11 +68,11 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
 
             DefinitArchitetureTable();
             RemplitLaTable(idCompte);
-            connect(ui->AnnulArchivepushButton,             SIGNAL(clicked()),                          this,       SLOT(Slot_AnnulArchive()));
-            connect(ui->ArchiverpushButton,                 SIGNAL(clicked()),                          this,       SLOT(Slot_Archiver()));
-            connect(ui->AnnulerConsolidationspushButton,    SIGNAL(clicked()),                          this,       SLOT(Slot_AnnulConsolidations()));
-            connect(ui->OKpushButton,                       SIGNAL(clicked()),                          this,       SLOT(accept()));
-            connect(ui->BanquecomboBox,                     SIGNAL(currentIndexChanged(int)),           this,       SLOT(Slot_ChangeCompte(int)));
+            connect(ui->AnnulArchivepushButton,             &QPushButton::clicked,                                  [=] {AnnulArchive();});
+            connect(ui->ArchiverpushButton,                 &QPushButton::clicked,                                  [=] {Archiver();});
+            connect(ui->AnnulerConsolidationspushButton,    &QPushButton::clicked,                                  [=] {AnnulConsolidations();});
+            connect(ui->OKpushButton,                       &QPushButton::clicked,                                  [=] {accept();});
+            connect(ui->BanquecomboBox,                     QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int){ChangeCompte(ui->BanquecomboBox->currentIndex());});
 
             setWindowTitle(tr("Gestion des comptes bancaires"));
             QList<UpPushButton *> allUpButtons = this->findChildren<UpPushButton *>();
@@ -95,7 +95,7 @@ dlg_comptes::~dlg_comptes()
     delete ui;
 }
 
-void dlg_comptes::Slot_AnnulArchive()
+void dlg_comptes::AnnulArchive()
 {
     QSqlQuery ("SET AUTOCOMMIT = 0;", proc->getDataBase());
     QString lockrequete = "LOCK TABLES " NOM_TABLE_ARCHIVESBANQUE " WRITE, " NOM_TABLE_LIGNESCOMPTES " WRITE, " NOM_TABLE_COMPTES " WRITE;";
@@ -171,7 +171,7 @@ void dlg_comptes::Slot_AnnulArchive()
     RemplitLaTable(idCompte);
 }
 
-void dlg_comptes::Slot_Archiver()
+void dlg_comptes::Archiver()
 {
     QList<int> ListeActesAArchiver;
     for (int i = 0; i < gBigTable->rowCount();i++)
@@ -255,7 +255,7 @@ void dlg_comptes::Slot_Archiver()
     RemplitLaTable(idCompte);
 }
 
-void dlg_comptes::Slot_AnnulConsolidations()
+void dlg_comptes::AnnulConsolidations()
 {
     for (int i = 0; i < gBigTable->rowCount(); i++)
     {
@@ -269,7 +269,7 @@ void dlg_comptes::Slot_AnnulConsolidations()
     }
     QString MetAJourConsoliderequete = "update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = null";
     QSqlQuery (MetAJourConsoliderequete,proc->getDataBase());
-    Slot_CalculeTotal();
+    CalculeTotal();
 }
 
 void dlg_comptes::Slot_ContextMenuTableWidget()
@@ -288,27 +288,23 @@ void dlg_comptes::Slot_ContextMenuTableWidget()
     connect (pAction_SupprEcriture, &QAction::triggered,    [=] {SupprimerEcriture(msg);});
 
     // ouvrir le menu
-    menuContextuel->exec(QCursor::pos());
+    menuContextuel->exec(cursor().pos());
     delete menuContextuel;
 }
 
-void dlg_comptes::Slot_RenvoieRangee(bool Coche)
+void dlg_comptes::RenvoieRangee(bool Coche, UpCheckBox* Check)
 {
-    UpCheckBox *Check = dynamic_cast<UpCheckBox*>(sender());
-    if(Check)
-    {
-        int R = Check->getRowTable();
-        QLabel* lbl = dynamic_cast<QLabel*>(gBigTable->cellWidget(R,0));
-        QString idLigne = lbl->text();
-        QString MetAJourConsoliderequete = "update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = ";
-        if (Coche)
-            MetAJourConsoliderequete += "1";
-        else
-            MetAJourConsoliderequete += "null";
-        MetAJourConsoliderequete += " where idligne = " + idLigne;
-        QSqlQuery (MetAJourConsoliderequete,proc->getDataBase());
-        Slot_CalculeTotal();
-    }
+    int R = Check->getRowTable();
+    QLabel* lbl = dynamic_cast<QLabel*>(gBigTable->cellWidget(R,0));
+    QString idLigne = lbl->text();
+    QString MetAJourConsoliderequete = "update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = ";
+    if (Coche)
+        MetAJourConsoliderequete += "1";
+    else
+        MetAJourConsoliderequete += "null";
+    MetAJourConsoliderequete += " where idligne = " + idLigne;
+    QSqlQuery (MetAJourConsoliderequete,proc->getDataBase());
+    CalculeTotal();
 }
 
 void dlg_comptes::SupprimerEcriture(QString msg)
@@ -338,7 +334,7 @@ void dlg_comptes::SupprimerEcriture(QString msg)
     delete NoBouton;
 }
 
-void dlg_comptes::Slot_CalculeTotal()
+void dlg_comptes::CalculeTotal()
 {
     double Total = SoldeSurReleve;
     double TotalConsolide = SoldeSurReleve;
@@ -378,7 +374,7 @@ void dlg_comptes::Slot_CalculeTotal()
     }
 }
 
-void dlg_comptes::Slot_ChangeCompte(int idx)
+void dlg_comptes::ChangeCompte(int idx)
 {
     idCompte = ui->BanquecomboBox->itemData(idx).toInt();
     QString SoldeComptereq = " select SoldeSurDernierReleve from " NOM_TABLE_COMPTES " where idcompte = " + QString::number(idCompte);
@@ -428,7 +424,7 @@ bool dlg_comptes::eventFilter(QObject *obj, QEvent *event)
                         for (int n = 0; n <  allCheck.size(); n++)
                         {
                             allCheck.at(n)->toggle();
-                            Slot_CalculeTotal();
+                            CalculeTotal();
                         }
                     }
                 }
@@ -519,7 +515,7 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
     UpLabel *      lbl8;
 
     QPointer<QWidget>     wdg;
-    QPointer<UpCheckBox>  Check;
+    QPointer<UpCheckBox>  Checkbx;
     QPointer<QHBoxLayout> l;
     QString     A;
 
@@ -574,6 +570,7 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
         lbl5->setRow(i);
         lbl7->setRow(i);
         lbl8->setRow(i);
+
         connect (lbl0,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
         connect (lbl1,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
         connect (lbl2,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
@@ -582,7 +579,17 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
         connect (lbl5,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
         connect (lbl7,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
         connect (lbl8,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
-
+        /*
+        connect (lbl0,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
+        connect (lbl1,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
+        connect (lbl2,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
+        connect (lbl3,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
+        connect (lbl4,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
+        connect (lbl5,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
+        connect (lbl7,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
+        connect (lbl8,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
+        NE MARCHE PAS ET JE NE SAIS PAS POURQUOI........
+        */
         int col = 0;
 
         A = LignesComptesQuery.value(0).toString();                                                             // idLigne - col = 0
@@ -639,18 +646,19 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
 
         int b = LignesComptesQuery.value(9).toInt();                                                            // Consolidé - col = 6
         wdg = new QWidget(this);
-        Check = new UpCheckBox(wdg);
+        Checkbx = new UpCheckBox(wdg);
         if (b == 1)
-            Check->setCheckState(Qt::Checked);
+            Checkbx->setCheckState(Qt::Checked);
         else
-            Check->setCheckState(Qt::Unchecked);
-        Check->setRowTable(i);
-        Check->setFocusPolicy(Qt::NoFocus);
-        connect(Check,      SIGNAL (clicked(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
+            Checkbx->setCheckState(Qt::Unchecked);
+        Checkbx->setRowTable(i);
+        Checkbx->setFocusPolicy(Qt::NoFocus);
+
+        connect(Checkbx,      &QCheckBox::clicked,  [=] {RenvoieRangee(Checkbx->isChecked(), Checkbx);});
         l = new QHBoxLayout(wdg);
         l->setContentsMargins(0,0,0,0);
         l->setAlignment( Qt::AlignCenter );
-        l->addWidget(Check);
+        l->addWidget(Checkbx);
         wdg->setLayout(l);
         gBigTable->setCellWidget(i,col,wdg);
         col++;
@@ -668,5 +676,5 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
 
         LignesComptesQuery.next();
     }
-    Slot_CalculeTotal();
+    CalculeTotal();
  }

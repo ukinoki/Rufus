@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("22-05-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("26-05-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -73,8 +73,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
 
     if (!proc->Init())
         exit(0);
-    if (!proc->VerifVersion())
-        UpMessageBox::Watch(this, tr("La version du programme ne semble pas conforme"), "");
 
     //0. Connexion à la base et récupération des données utilisateur
     if (!proc->gdbOK)
@@ -1079,7 +1077,6 @@ void Rufus::Slot_AppelPaiementDirect(QString Origin)
     QList<int> ListidActeAPasser;
     int Mode = 1;
     ListidActeAPasser << 0;
-    int idparent = 0;
 
     if (Origin == "AttentePaiement")                                        // l'appel est fait par un clic dans le menu contextuel de la salle d'attente des paiements en attente
     {
@@ -1107,8 +1104,6 @@ void Rufus::Slot_AppelPaiementDirect(QString Origin)
                 return;
             }
             int r = ui->AccueilupTableWidget->selectedRanges().at(0).topRow();
-            UpLabel *lbl = dynamic_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(r,6));
-            idparent = lbl->text().toInt();
         }
     }
     if (Origin == "Bouton")                                                 // l'appel est fait par un clic sur le bouton enregistrepaiement
@@ -1195,13 +1190,6 @@ void Rufus::Slot_AppelPaiementDirect(QString Origin)
         proc->UpdVerrouSalDat();
         QSqlQuery ModifSalDatQuery(requete,db);
         proc->TraiteErreurRequete(ModifSalDatQuery,requete,Msg);
-        QSqlQuery chprtquer("select userparent from " NOM_TABLE_ACTES " where idacte = " + QString::number(gidActe),db);
-        if (chprtquer.size()>0)
-        {
-            chprtquer.first();
-            idparent = chprtquer.value(0).toInt();
-        }
-
         ListidActeAPasser.clear();
         ListidActeAPasser << gidActe;
     }
@@ -1962,7 +1950,7 @@ void Rufus::Slot_EnableCreerDossierButton()
         ui->CreerDossierpushButton->setEnabled(ui->CreerNomlineEdit->text() != "" && ui->CreerPrenomlineEdit->text() != "");
 }
 
-void Rufus::Slot_EnregistreDocScanner()
+void Rufus::EnregistreDocScanner()
 {
     int idpat = 0;
     QString nomprenompat;
@@ -1989,7 +1977,7 @@ void Rufus::Slot_EnregistreDocScanner()
     Dlg_DocsScan->Slot_NavigueVers("Fin");
 }
 
-void Rufus::Slot_EnregistreVideo()
+void Rufus::EnregistreVideo()
 {
     int idpat = 0;
     QString nomprenompat;
@@ -3219,9 +3207,9 @@ void Rufus::Slot_ChoixMenuContextuelListePatients(QString choix)
     else if (choix == "ImprimeAncienDoc")
         OuvrirDocsExternes(gdossierAOuvrir, true);              //depuis menu contextuel ListePatients
     else if (choix == "EnregDocScan")
-        Slot_EnregistreDocScanner();                            //depuis menu contextuel ListePatients
+        EnregistreDocScanner();                            //depuis menu contextuel ListePatients
     else if (choix == "EnregVideo")
-        Slot_EnregistreVideo();                                 //depuis menu contextuel ListePatients
+        EnregistreVideo();                                 //depuis menu contextuel ListePatients
     else if (choix == "SendMess")
     {
         QMap<QString, QVariant> map;
@@ -7506,8 +7494,8 @@ void Rufus::CreerMenu()
     connect (actionEmettreDocument,             &QAction::triggered,                                [=] {Slot_OuvrirDocuments();});
     connect (actionDossierPatient,              &QAction::triggered,                                [=] {Slot_ImprimeDossier();});
     connect (actionCorrespondants,              &QAction::triggered,                                [=] {Slot_ListeCorrespondants();});
-    connect (actionEnregistrerDocScanner,       &QAction::triggered,                                [=] {Slot_EnregistreDocScanner();});
-    connect (actionEnregistrerVideo,            &QAction::triggered,                                [=] {Slot_EnregistreVideo();});
+    connect (actionEnregistrerDocScanner,       &QAction::triggered,                                [=] {EnregistreDocScanner();});
+    connect (actionEnregistrerVideo,            &QAction::triggered,                                [=] {EnregistreVideo();});
     // Comptabilité
 
     connect (menuActe,                          SIGNAL(aboutToShow()),                              this,       SLOT (Slot_AfficheMenu()));

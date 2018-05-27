@@ -1,10 +1,10 @@
-/* (C) 2016 LAINE SERGE
+/* (C) 2018 LAINE SERGE
 This file is part of Rufus.
 
 Rufus is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
 Rufus is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -28,7 +28,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 /* sert à gérer les comptes bancaires des utilisateurs
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
 
-
 namespace Ui {
 class dlg_gestioncomptes;
 }
@@ -45,7 +44,6 @@ public:
 private:
     FunctorMAJPremiereLettre fMAJPremiereLettre;
     Ui::dlg_gestioncomptes  *ui;
-    QDialog                 *gAsk;
     QIcon                   giconEuro;
     QSqlDatabase            db;
     QMap<QString,QVariant>  gDataUser;
@@ -74,17 +72,15 @@ private:
     void                    NouvCompte();
     void                    SupprCompte();
 
-private slots:
-    void                    Slot_AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem *);
-    void                    Slot_AnnulModif();
-    void                    Slot_Fermer();
-    void                    Slot_Banques();
-    void                    Slot_Clign();
-    void                    Slot_CompteFactice();
-    void                    Slot_ValidCompte();
-    void                    Slot_VerifCoherencegAsk();
-    void                    Slot_ChoixButtonFrame(int);
-    void                    Slot_DesactiveCompte();
+    void                    AfficheCompte(QTableWidgetItem *, QTableWidgetItem *);
+    void                    AnnulModif();
+    void                    Banques();
+    void                    ChoixButtonFrame(int);
+    void                    Clign();
+    void                    CompteFactice();
+    void                    DesactiveCompte();
+    void                    Fermer();
+    void                    ValidCompte();
 };
 
 #endif // DLG_GSETIONCOMPTES_H

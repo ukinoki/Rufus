@@ -85,7 +85,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_TABLE_VILLES                            "rufus.Villes"
 
 // Divers
-#define MODE_MESURE_TONOMETRIE_PAR_DEFAUT           "Air"
 #define PDF                                         "pdf"
 #define JPG                                         "jpg"
 
@@ -149,11 +148,13 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define POLICEPARDEFAUT         "Comic Sans MS"
 #define POINTPARDEFAUT          13
 #define PATH_SPEC_MAC "/../../.."
-#elif Q_OS_LINUX
+#endif
+#ifdef Q_OS_LINUX
 #define POLICEPARDEFAUT         "Noto Sans MS"
 #define POINTPARDEFAUT          9
 #define LINUX "/../../.."
-#elif Q_OS_WIN
+#endif
+#ifdef Q_OS_WIN
 #define POLICEPARDEFAUT         "Comic Sans MS"
 #define POINTPARDEFAUT          13
 #endif

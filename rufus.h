@@ -77,9 +77,8 @@ class Rufus : public QMainWindow
 public:
     explicit Rufus(QWidget *parent = Q_NULLPTR);
     ~Rufus();
-//    int ww(qApp->desktop()->availableGeometry().height());
     Ui::Rufus                       *ui;
-//    Ui::Rufuslow                    *ui;
+
 private:
     dlg_actesprecedents             *Dlg_ActesPrecs;
     dlg_bilanortho                  *Dlg_BlOrtho;
@@ -106,14 +105,20 @@ private:
 
     pyxinterf                       *pyxi;     // CZ001
 
+    // anciens slots
     void        ChoixMenuContextuelIdentPatient();
     void        ChoixMenuContextuelMotsCles();
+    void        EnregistreDocScanner();
+    void        EnregistreVideo();
+
+
+
 signals:
     void        EnregistrePaiement(QString);
 
 
 private slots:
-    void        Slot_ActiveActeAccueil(int);
+    void        Slot_ActiveActeAccueil(int);                        // dans l'accueil secrétaire, quand on sélectionne un acte effectué pour un parent, ceux effectués pour d'autres parents sont déselectionnés
     void        Slot_AfficheMessages(int idx = -1);
     void        Slot_ActeMontantModifie();
     void        Slot_AfficheMotif(int);
@@ -139,8 +144,6 @@ private slots:
     void        Slot_ChercherDepuisListepushButtonClicked();
     void        Slot_CreerDossierpushButtonClicked();
     void        Slot_EnableCreerDossierButton();
-    void        Slot_EnregistreDocScanner();
-    void        Slot_EnregistreVideo();
     void        Slot_ExporteDocs();
     void        Slot_FiltrecheckBoxClicked();
     void        Slot_FiltreSalleDAttente(int);

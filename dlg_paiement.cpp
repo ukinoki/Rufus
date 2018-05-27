@@ -4814,7 +4814,6 @@ bool dlg_paiement::VerifVerrouCompta(QTableWidget *TableAVerifier, int Rangee)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiement::VideDetailsTable(int Rangee)
 {
-    int                     idActeAVirer;
     bool                    idActeTrouve = false;
     QTableWidget            *TableDetails = ui->DetailupTableWidget;
     QTableWidget            *TableListe = ui->ListeupTableWidget;
@@ -4822,7 +4821,6 @@ void dlg_paiement::VideDetailsTable(int Rangee)
 
     // on récupère l'idActe de l'item concerné
     QString ActeAVirer = TableDetails->item(Rangee,0)->text();
-    idActeAVirer = ActeAVirer.toInt();
     //UpMessageBox::Watch(this,TableDetails->item(Rangee,3)->text()+"\n"+ActeAVirer);
     //on décoche les items correspondants dans Tableliste et TableSalDat
     if (gMode == EnregistrePaiementDirect)

@@ -507,7 +507,7 @@ char scde[100];
 void pyxinterf::Attendre_fin_FSE()
 {
     bool SaisieEnCours  = true;
-    bool YaUneErreur    = false;
+//    bool YaUneErreur    = false;
     QString NomFicFSE;
 
     while (SaisieEnCours)
@@ -526,7 +526,7 @@ void pyxinterf::Attendre_fin_FSE()
                             (messerr.indexOf("Titre=Recherche") >= 0)  ||
                             (messerr.indexOf("Titre=Facture non inscrite") >= 0)))      // voir d'autre erreurs éventuellement ???
                         {
-                        YaUneErreur = true;
+//                        YaUneErreur = true;
                         SaisieEnCours = false;
                         break;
                         } // fin c'est une vraie erreur

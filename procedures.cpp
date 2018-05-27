@@ -2822,7 +2822,7 @@ bool Procedures::VerifBaseEtRessources()
                 msgbox.addButton(AnnulBouton, UpSmallButton::STARTBUTTON);
                 msgbox.exec();
                 if (msgbox.clickedButton() != AnnulBouton)
-                    //if (!SauvegardeBase())
+                    if (!ImmediateBackup())
                         return false;
                 BupDone = true;
             }
@@ -2941,22 +2941,6 @@ bool Procedures::VerifBaseEtRessources()
     return true;
 }
 
-
-/*--------------------------------------------------------------------------------------------------------------
--- Verification de la version du programme --------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifVersion()
-{
-    QString dwnldlink = "https://www.dropbox.com/sh/ihxjhevsqldtmtf/AACMKSDCGRJYghkRo-dFyCAda?dl=0";
-    QString VersionPrg =  qApp->applicationVersion();
-    int SubVersion = 0;
-    //QDate DatePrg = QDate::fromString(VersionPrg.split("/").at(0),tr("dd-MM-yyyy"));
-    QString Sub = VersionPrg.split("/").at(1);
-    if (Sub != "")
-        SubVersion = Sub.toInt();
-    //qDebug() << "Date publication = " + DatePrg.toString(tr("dd-MM-yyyy")) + " - Version " + QString::number(SubVersion);
-    return true;
-}
 
 /*--------------------------------------------------------------------------------------------------------------
     -- Choix du mode de connexion ----------------------------------------------------------------------------------
@@ -3347,8 +3331,8 @@ QStringList Procedures::ChoisirUnLogin()
         list << "" << "";
     else
         list << Line->text() << Line2->text();
-    return list;
     delete gAskLogin;
+    return list;
 }
 
 void Procedures::Slot_VerifLogin()
