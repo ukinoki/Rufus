@@ -327,7 +327,7 @@ void dlg_commentaires::Slot_EnableOKPushbutton()
 {
     if (gMode != Selection)
     {
-        UpLineEdit *line;
+        UpLineEdit *line = new UpLineEdit();
         bool a = false;
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
@@ -452,7 +452,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
 
     else if (choix  == "ModifierCom")
     {
-        UpLineEdit *line;
+        UpLineEdit *line = new UpLineEdit();
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
             line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
@@ -465,7 +465,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
     }
     else if (choix  == "SupprimerCom")
     {
-        UpLineEdit *line;
+        UpLineEdit *line = new UpLineEdit();
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
             line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
@@ -478,7 +478,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
     }
     else if (choix  == "ParDefautCom")
     {
-        UpLineEdit *line;
+        UpLineEdit *line = new UpLineEdit();
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
             line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
@@ -513,7 +513,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
 // ----------------------------------------------------------------------------------
 void dlg_commentaires::Modif_Com()
 {
-    UpLineEdit *line;
+    UpLineEdit *line = new UpLineEdit();
     bool a = false;
     for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
     {
@@ -1171,6 +1171,8 @@ void dlg_commentaires::Remplir_TableView()
 // ----------------------------------------------------------------------------------
 void dlg_commentaires::SupprimmCommentaire(int row)
 {
+    if (row == -1)
+        return;
     DisableLines();
 
     QString Msg;

@@ -1103,7 +1103,6 @@ void Rufus::Slot_AppelPaiementDirect(QString Origin)
                 UpMessageBox::Watch(this,tr("Le ou les actes que vous avez sélectionnés\nsont déjà en cours d'enregistrement!"));
                 return;
             }
-            int r = ui->AccueilupTableWidget->selectedRanges().at(0).topRow();
         }
     }
     if (Origin == "Bouton")                                                 // l'appel est fait par un clic sur le bouton enregistrepaiement

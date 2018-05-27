@@ -244,7 +244,7 @@ void dlg_documents::Slot_Annulation()
 void dlg_documents::Slot_ChoixButtonFrame(int j)
 {
     WidgetButtonFrame *widgbutt = dynamic_cast<WidgetButtonFrame*>(sender());
-    UpLineEdit *line;
+    UpLineEdit *line = new UpLineEdit();
     int row = 0;
     if (widgbutt== widgButtonsDocs)
     {
@@ -321,7 +321,7 @@ void dlg_documents::Slot_CheckPublicEditable()
     }
     if (!a) return;
     UpCheckBox *check = static_cast<UpCheckBox*>(sender());
-    int b, c;
+    int b(-1), c(-1);
     if (check == ui->DocPubliccheckBox) {
         b = 4;
         c = 7;
@@ -1220,7 +1220,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
 // ----------------------------------------------------------------------------------
 void dlg_documents::Slot_Validation()
 {
-    UpLineEdit *line;
+    UpLineEdit *line = new UpLineEdit();
     int         c = 0;
     QStringList listQuestions, listtypeQuestions;
     QStringList ExpARemplacer, Rempla;

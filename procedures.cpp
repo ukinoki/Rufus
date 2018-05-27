@@ -693,7 +693,9 @@ bool Procedures::ImmediateBackup(bool full)
         }
         else return false;
     }
-    bool OKbase, OKImages, OKVideos;
+    bool OKbase     = false;
+    bool OKImages   = false;
+    bool OKVideos   = false;
     if (full)
     {
         OKbase = true;

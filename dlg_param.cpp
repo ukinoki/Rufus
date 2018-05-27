@@ -3022,7 +3022,6 @@ void dlg_param::Remplir_Tables()
     QTableWidgetItem    *pItem0;
     QTableWidgetItem    *pItem0a, *pItem0b, *pItem0c;
     QTableWidgetItem    *pItem1;
-    QTableWidgetItem    *pItem2;
     QTableWidgetItem    *pItem3;
     QTableWidgetItem    *pItem4a, *pItem4b, *pItem4c;
     UpLineEdit          *line5a, *line5b, *line5c;
@@ -3064,7 +3063,6 @@ void dlg_param::Remplir_Tables()
         pItem0b     = new QTableWidgetItem() ;
         pItem0c     = new QTableWidgetItem() ;
         pItem1      = new QTableWidgetItem() ;
-        pItem2      = new QTableWidgetItem() ;
         pItem3      = new QTableWidgetItem() ;
         pItem4a     = new QTableWidgetItem() ;
         pItem4b     = new QTableWidgetItem() ;

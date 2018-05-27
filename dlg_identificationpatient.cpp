@@ -128,7 +128,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString *CreationModificati
     connect (ui->FradioButton,                  SIGNAL(clicked()),                              this,           SLOT (Slot_EnableOKpushButton()));
     connect (ui->ALDcheckBox,                   SIGNAL(clicked()),                              this,           SLOT (Slot_EnableOKpushButton()));
     connect (ui->CMUcheckBox,                   SIGNAL(clicked()),                              this,           SLOT (Slot_EnableOKpushButton()));
-    connect (ui->MGupComboBox,                  SIGNAL(activated(int)),                         this,           SLOT (Slot_ChoixMG(int)));
+    connect (ui->MGupComboBox,                  QOverload<int>::of(&QComboBox::activated),      [=](int) {ChoixMG();});
     connect (ui->MGupComboBox,                  SIGNAL(currentTextChanged(QString)) ,           this,           SLOT (Slot_EnableOKpushButton()));
 
     OKButton  ->setEnabled(false);
@@ -150,9 +150,8 @@ dlg_identificationpatient::~dlg_identificationpatient()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Traitement des SLOTS / actions associees a chaque objet du formulaire  -----------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void dlg_identificationpatient::Slot_ChoixMG(int id)
+void dlg_identificationpatient::ChoixMG()
 {
-    id = 0;
     OKButton->setEnabled(true);
     QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + ui->MGupComboBox->currentData().toString() + " where idpat = " + QString::number(gidPatient);
     QSqlQuery (req,db);
