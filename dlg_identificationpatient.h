@@ -62,8 +62,10 @@ private:
     void                            MAJMG();
     void                            ReconstruitListeMG();
 
+    // anciens slots
+    void                            ChoixMG();
+
 private slots:
-    void                            Slot_ChoixMG(int id);
     void                            Slot_EnableOKpushButton();
     void                            Slot_OKpushButtonClicked();
     void                            Slot_AnnulpushButtonClicked();

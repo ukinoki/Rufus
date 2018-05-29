@@ -1,20 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- (C) 2016 LAINE SERGE
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License along
-with this program; if not, write to the Free Software Foundation, Inc.,
-51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
--->
 <ui version="4.0">
  <class>dlg_bilanortho</class>
  <widget class="QDialog" name="dlg_bilanortho">
@@ -216,7 +200,7 @@ alternée</string>
     <string>Horizontal</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="EcranVLSCcomboBox">
+  <widget class="UpComboBox" name="EcranVLSCcomboBox">
    <property name="geometry">
     <rect>
      <x>115</x>
@@ -245,7 +229,7 @@ alternée</string>
     <enum>Qt::StrongFocus</enum>
    </property>
   </widget>
-  <widget class="QComboBox" name="EcranVPSCcomboBox">
+  <widget class="UpComboBox" name="EcranVPSCcomboBox">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -274,7 +258,7 @@ alternée</string>
     <enum>Qt::StrongFocus</enum>
    </property>
   </widget>
-  <widget class="QComboBox" name="EcranVLASCcomboBox">
+  <widget class="UpComboBox" name="EcranVLASCcomboBox">
    <property name="geometry">
     <rect>
      <x>115</x>
@@ -306,7 +290,7 @@ alternée</string>
     <enum>Qt::StrongFocus</enum>
    </property>
   </widget>
-  <widget class="QComboBox" name="EcranVPASCcomboBox">
+  <widget class="UpComboBox" name="EcranVPASCcomboBox">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -351,7 +335,7 @@ alternée</string>
     <string>SC</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="MaddoxVLSCcomboBox">
+  <widget class="UpComboBox" name="MaddoxVLSCcomboBox">
    <property name="geometry">
     <rect>
      <x>115</x>
@@ -367,7 +351,7 @@ alternée</string>
     <number>-1</number>
    </property>
   </widget>
-  <widget class="QComboBox" name="MaddoxVPASCcomboBox">
+  <widget class="UpComboBox" name="MaddoxVPASCcomboBox">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -451,7 +435,7 @@ alternée</string>
     <enum>Qt::StrongFocus</enum>
    </property>
   </widget>
-  <widget class="QComboBox" name="MaddoxVPSCcomboBox">
+  <widget class="UpComboBox" name="MaddoxVPSCcomboBox">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -467,7 +451,7 @@ alternée</string>
     <number>-1</number>
    </property>
   </widget>
-  <widget class="QComboBox" name="MaddoxVLASCcomboBox">
+  <widget class="UpComboBox" name="MaddoxVLASCcomboBox">
    <property name="geometry">
     <rect>
      <x>115</x>
@@ -1344,7 +1328,7 @@ alternée</string>
     </rect>
    </property>
   </widget>
-  <widget class="QComboBox" name="HEcranVPASCcomboBox">
+  <widget class="UpComboBox" name="HEcranVPASCcomboBox">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -1386,7 +1370,7 @@ alternée</string>
     </rect>
    </property>
   </widget>
-  <widget class="QComboBox" name="HEcranVLSCcomboBox">
+  <widget class="UpComboBox" name="HEcranVLSCcomboBox">
    <property name="geometry">
     <rect>
      <x>115</x>
@@ -1474,7 +1458,7 @@ alternée</string>
     <enum>Qt::StrongFocus</enum>
    </property>
   </widget>
-  <widget class="QComboBox" name="HEcranVLASCcomboBox">
+  <widget class="UpComboBox" name="HEcranVLASCcomboBox">
    <property name="geometry">
     <rect>
      <x>115</x>
@@ -1506,7 +1490,7 @@ alternée</string>
     <string>SC</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="HEcranVPSCcomboBox">
+  <widget class="UpComboBox" name="HEcranVPSCcomboBox">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -1675,7 +1659,7 @@ alternée</string>
     <string>Vertical</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="HMaddoxVLASCcomboBox">
+  <widget class="UpComboBox" name="HMaddoxVLASCcomboBox">
    <property name="geometry">
     <rect>
      <x>115</x>
@@ -1707,7 +1691,7 @@ alternée</string>
     <string>ASC</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="HMaddoxVLSCcomboBox">
+  <widget class="UpComboBox" name="HMaddoxVLSCcomboBox">
    <property name="geometry">
     <rect>
      <x>115</x>
@@ -1762,7 +1746,7 @@ alternée</string>
     <string>SC</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="HMaddoxVPASCcomboBox">
+  <widget class="UpComboBox" name="HMaddoxVPASCcomboBox">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -1794,7 +1778,7 @@ alternée</string>
     <enum>Qt::StrongFocus</enum>
    </property>
   </widget>
-  <widget class="QComboBox" name="HMaddoxVPSCcomboBox">
+  <widget class="UpComboBox" name="HMaddoxVPSCcomboBox">
    <property name="geometry">
     <rect>
      <x>350</x>
@@ -1829,6 +1813,11 @@ alternée</string>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpComboBox</class>
+   <extends>QComboBox</extends>
+   <header>upcombobox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

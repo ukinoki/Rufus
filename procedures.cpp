@@ -693,7 +693,9 @@ bool Procedures::ImmediateBackup(bool full)
         }
         else return false;
     }
-    bool OKbase, OKImages, OKVideos;
+    bool OKbase     = false;
+    bool OKImages   = false;
+    bool OKVideos   = false;
     if (full)
     {
         OKbase = true;
@@ -2513,6 +2515,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QDir dirtorestore = dialog.directory();
         if (dirtorestore.dirName()=="")
             return false;
+        if (dirtorestore.absolutePath().contains(" "))
+        {
+            UpMessageBox::Watch(0, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + dirtorestore.absolutePath() + tr(" contient des espaces!"));
+            return false;
+        }
         if (!VerifMDP(getMDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
             return false;
 
@@ -2564,6 +2571,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             if (NomDirStockageImagerie=="")
                 return false;
             NomDirStockageImagerie = dirstock.absolutePath();
+            if (NomDirStockageImagerie.contains(" "))
+            {
+                UpMessageBox::Watch(0, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirStockageImagerie + tr(" contient des espaces!"));
+                return false;
+            }
             gsettingsIni->setValue("BDD_POSTE/DossierImagerie", NomDirStockageImagerie);
             QString reqimg = "update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirStockageImagerie + "'";
             QSqlQuery (reqimg, db);

@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("26-05-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("29-05-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1103,7 +1103,6 @@ void Rufus::Slot_AppelPaiementDirect(QString Origin)
                 UpMessageBox::Watch(this,tr("Le ou les actes que vous avez sélectionnés\nsont déjà en cours d'enregistrement!"));
                 return;
             }
-            int r = ui->AccueilupTableWidget->selectedRanges().at(0).topRow();
         }
     }
     if (Origin == "Bouton")                                                 // l'appel est fait par un clic sur le bouton enregistrepaiement

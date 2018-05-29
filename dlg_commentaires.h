@@ -44,17 +44,6 @@ public:
 
     QString                 gReponseResumePrescription, gReponseResumeDossier;
 
-private slots:
-    void                    Slot_Annulation();
-    void                    Slot_EffaceWidget();
-    void                    Slot_dblClicktextEdit();
-    void                    Slot_ComCellClick(int row);
-    void                    Slot_ComCellDblClick(int row);
-    void                    Slot_ComCellEnter(int row);
-    void                    Slot_EnableOKPushbutton();
-    void                    Slot_MenuContextuel(QPoint);
-    void                    Slot_Validation();
-    void                    Slot_ChoixButtonFrame(int);
 protected:
     void                    changeEvent(QEvent *e);
 
@@ -93,6 +82,16 @@ private:
     void                        UpdateCommentaire(int row);
     void                        SupprimmCommentaire(int row);
     void                        Remplir_TableView();
+
+    //anciens slots
+    void                        Annulation();
+    void                        ChoixButtonFrame(int);
+    void                        ComCellEnter(int row);
+    void                        MenuContextuel(QPoint pt, QWidget *widg);
+    void                        dblClicktextEdit();
+    void                        EffaceWidget();
+    void                        EnableOKPushbutton();
+    void                        Validation();
 };
 
 #endif // DLG_COMMENTAIRES_H

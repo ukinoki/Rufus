@@ -42,12 +42,12 @@ dlg_commentaires::dlg_commentaires(Procedures *procAPasser, QWidget *parent) :
     setWindowTitle(tr("Liste des commentaires prédéfinis de ") + proc->getDataUser()["UserLogin"].toString());
 
     // Initialisation des slots.
-    connect (OKButton,                  SIGNAL(clicked()),                          this,   SLOT (Slot_Validation()));
-    connect (CancelButton,              SIGNAL(clicked()),                          this,   SLOT (Slot_Annulation()));
-    connect (ui->upTextEdit,            SIGNAL(textChanged()),                      this,   SLOT (Slot_EnableOKPushbutton()));
-    connect (ui->upTextEdit,            SIGNAL(customContextMenuRequested(QPoint)), this,   SLOT (Slot_MenuContextuel(QPoint)));
-    connect (ui->upTextEdit,            SIGNAL(dblclick(int)),                      this,   SLOT (Slot_dblClicktextEdit()));
-    connect(widgButtons,                SIGNAL(choix(int)),                         this,   SLOT(Slot_ChoixButtonFrame(int)));
+    connect (OKButton,                  &QPushButton::clicked,                  [=] {Validation();});
+    connect (CancelButton,              &QPushButton::clicked,                  [=] {Annulation();});
+    connect (ui->upTextEdit,            &QTextEdit::textChanged,                [=] {EnableOKPushbutton();});
+    connect (ui->upTextEdit,            &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), ui->upTextEdit);});
+    connect (ui->upTextEdit,            &UpTextEdit::dblclick,                  [=] {dblClicktextEdit();});
+    connect(widgButtons,                &WidgetButtonFrame::choix,              [=] {ChoixButtonFrame(widgButtons->Reponse());});
 
 
     // Mise en forme du formulaire
@@ -106,7 +106,7 @@ void dlg_commentaires::changeEvent(QEvent *e)
     }
 }
 
-void dlg_commentaires::Slot_ChoixButtonFrame(int i)
+void dlg_commentaires::ChoixButtonFrame(int i)
 {
     switch (i) {
     case 1:
@@ -127,7 +127,7 @@ void dlg_commentaires::Slot_ChoixButtonFrame(int i)
 // Clic sur le bouton ANNULER.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::Slot_Annulation()
+void dlg_commentaires::Annulation()
 {
     if (gMode == Creation || gMode == Modification)
     {
@@ -158,32 +158,10 @@ void dlg_commentaires::Slot_Annulation()
 }
 
 // ----------------------------------------------------------------------------------
-// On a cliqué une ligne. On affiche le détail
-// ----------------------------------------------------------------------------------
-void dlg_commentaires::Slot_ComCellClick(int row)
-{
-    if (!dynamic_cast<UpLineEdit*>(sender()))
-        return;
-    LineSelect(row);
-}
-
-// ----------------------------------------------------------------------------------
-// On a double-cliqué une ligne. On passe en mode modification
-// ----------------------------------------------------------------------------------
-void dlg_commentaires::Slot_ComCellDblClick(int row)
-{
-    if (gMode != Selection) return;
-    if (!dynamic_cast<UpLineEdit*>(sender()))
-        return;
-    ConfigMode(Modification, row);
-}
-
-// ----------------------------------------------------------------------------------
 // On a survole une ligne de comm. On affice le détail
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::Slot_ComCellEnter(int row)
+void dlg_commentaires::ComCellEnter(int row)
 {
-    if (!dynamic_cast<UpLineEdit*>(sender())) return;
     //    QRect rect = QRect(itemselect->tableWidget()->pos(),itemselect->tableWidget()->size());
     QTextEdit *text = new QTextEdit;
     text->setText(ui->ComupTableWidget->item(row,2)->text());
@@ -269,7 +247,7 @@ void dlg_commentaires::Del_Com()
     delete line;
 }
 
-void dlg_commentaires::Slot_dblClicktextEdit()
+void dlg_commentaires::dblClicktextEdit()
 {
     if (gMode == Selection)
     {
@@ -294,7 +272,7 @@ void dlg_commentaires::Slot_dblClicktextEdit()
 // ----------------------------------------------------------------------------------
 // Efface Widget progressivement
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::Slot_EffaceWidget()
+void dlg_commentaires::EffaceWidget()
 {
     QRect rect = QRect(gWidg->pos(),gWidg->size());
     QPoint pos = mapFromParent(cursor().pos());
@@ -307,7 +285,7 @@ void dlg_commentaires::Slot_EffaceWidget()
         gWidg->setGraphicsEffect(gOp);
         if (gOpacity < 0.10)
         {
-            disconnect(gTimerEfface, SIGNAL(timeout()), this, SLOT(Slot_EffaceWidget()));
+            disconnect(gTimerEfface, 0,0,0);
             gTimerEfface->stop();
             gWidg = 0;
         }
@@ -323,11 +301,11 @@ void dlg_commentaires::Slot_EffaceWidget()
 // ----------------------------------------------------------------------------------
 // On a clique sur une ligne de comm. On active ou desactive les icones Modif, Annul, ...
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::Slot_EnableOKPushbutton()
+void dlg_commentaires::EnableOKPushbutton()
 {
     if (gMode != Selection)
     {
-        UpLineEdit *line;
+        UpLineEdit *line = new UpLineEdit();
         bool a = false;
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
@@ -352,7 +330,7 @@ void dlg_commentaires::Slot_EnableOKPushbutton()
         OKButton->setEnabled(true);
 }
 
-void dlg_commentaires::Slot_MenuContextuel(QPoint)
+void dlg_commentaires::MenuContextuel(QPoint pt, QWidget *widg)
 {
     QMenu *menuContextuel               = new QMenu(this);
     QAction *pAction_ModifCommentaire   = new QAction();
@@ -366,7 +344,7 @@ void dlg_commentaires::Slot_MenuContextuel(QPoint)
     UpLabel *lbldef                     = new UpLabel();
     UpLineEdit *line0                   = new UpLineEdit();
 
-    UpLineEdit *line                    = dynamic_cast<UpLineEdit*>(sender());
+    UpLineEdit *line                    = dynamic_cast<UpLineEdit*>(widg);
     if (line)
     {
         LineSelect(line->getRowTable());
@@ -400,7 +378,7 @@ void dlg_commentaires::Slot_MenuContextuel(QPoint)
             connect (pAction_ParDefautCom,          &QAction::triggered,    [=] {ChoixMenuContextuel("ParDefautCom");});
         }
     }
-    else if (sender() == ui->upTextEdit)
+    else if (widg == ui->upTextEdit)
     {
         pAction_Copier                              = new QAction(this);
         pAction_Cut                                 = new QAction(this);
@@ -422,7 +400,7 @@ void dlg_commentaires::Slot_MenuContextuel(QPoint)
     }
 
     // ouvrir le menu
-    menuContextuel->exec(cursor().pos());
+    menuContextuel->exec(pt);
 
     delete pAction_ModifCommentaire;
     delete pAction_SupprCommentaire;
@@ -452,7 +430,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
 
     else if (choix  == "ModifierCom")
     {
-        UpLineEdit *line;
+        UpLineEdit *line = new UpLineEdit();
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
             line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
@@ -465,7 +443,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
     }
     else if (choix  == "SupprimerCom")
     {
-        UpLineEdit *line;
+        UpLineEdit *line = new UpLineEdit();
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
             line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
@@ -478,7 +456,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
     }
     else if (choix  == "ParDefautCom")
     {
-        UpLineEdit *line;
+        UpLineEdit *line = new UpLineEdit();
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
             line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
@@ -513,7 +491,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
 // ----------------------------------------------------------------------------------
 void dlg_commentaires::Modif_Com()
 {
-    UpLineEdit *line;
+    UpLineEdit *line = new UpLineEdit();
     bool a = false;
     for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
     {
@@ -539,7 +517,7 @@ void dlg_commentaires::New_Com()
 // Clic sur le bouton OK.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::Slot_Validation()
+void dlg_commentaires::Validation()
 {
     bool a              = false;
     UpLineEdit *line    = 0;
@@ -683,7 +661,7 @@ void dlg_commentaires::keyPressEvent(QKeyEvent * event )
     switch (event->key()) {
     case Qt::Key_Escape:
     {
-        Slot_Annulation();
+        Annulation();
         break;
     }
     default:
@@ -731,7 +709,7 @@ void dlg_commentaires::ConfigMode(int mode, int row)
 
     gOpacity = 0.1;
     if (gMode != Selection) {
-        disconnect(gTimerEfface, SIGNAL(timeout()), this, SLOT(Slot_EffaceWidget()));
+        disconnect(gTimerEfface, 0,0,0);
         gTimerEfface->stop();
         gOpacity = 1;
     }
@@ -785,7 +763,7 @@ void dlg_commentaires::ConfigMode(int mode, int row)
         line->setFocusPolicy(Qt::WheelFocus);
         line->setFocus();
         line->selectAll();
-        connect(line,            SIGNAL(textEdited(QString)),                this,   SLOT(Slot_EnableOKPushbutton()));
+        connect(line,   &QLineEdit::textEdited, [=] {EnableOKPushbutton();});
 
         ui->upTextEdit->setText(ui->ComupTableWidget->item(row,2)->text());
         ui->ComupTableWidget->setEnabled(true);
@@ -841,7 +819,7 @@ void dlg_commentaires::ConfigMode(int mode, int row)
         UpLabel*lbl = new UpLabel(ui->ComupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         ui->ComupTableWidget->setCellWidget(row,col,lbl);
-        connect(upLine0,            SIGNAL(textEdited(QString)),                this,   SLOT(Slot_EnableOKPushbutton()));
+        connect(upLine0,   &QLineEdit::textEdited, [=] {EnableOKPushbutton();});
         ui->ComupTableWidget->setRowHeight(row,QFontMetrics(qApp->font()).height()*1.3);
 
         ui->Expliclabel->setText(tr("COMMENTAIRES - CREATION - Remplissez les champs définissant le commentaire que vous voulez créer"));
@@ -933,12 +911,12 @@ void dlg_commentaires::EnableLines()
             line->deselect();
             line->setEnabled(true);
             line->setFocusPolicy(Qt::NoFocus);
-            connect(line,               SIGNAL(customContextMenuRequested(QPoint)), this,   SLOT(Slot_MenuContextuel(QPoint)));
-            connect(line,               SIGNAL(textEdited(QString)),                this,   SLOT(Slot_EnableOKPushbutton()));
+            connect(line,       &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), line);});
+            connect(line,       &QLineEdit::textEdited,                 [=] {EnableOKPushbutton();});
             if (ui->ComupTableWidget->item(i,4)->text().toInt() == gidUser)
-                connect(line,           SIGNAL(mouseDoubleClick(int)),              this,   SLOT(Slot_ComCellDblClick(int)));
-            connect(line,               SIGNAL(mouseEnter(int)),                    this,   SLOT(Slot_ComCellEnter(int)));
-            connect(line,               SIGNAL(mouseRelease(int)),                  this,   SLOT(Slot_ComCellClick(int)));
+                connect(line,   &UpLineEdit::mouseDoubleClick,          [=] {if (gMode == Selection) ConfigMode(Modification, line->getRowTable());});
+            connect(line,       &UpLineEdit::mouseEnter,                [=] {ComCellEnter(line->getRowTable());});
+            connect(line,       &UpLineEdit::mouseRelease,              [=] {LineSelect(line->getRowTable());});
         }
     }
     Widg    = 0; delete Widg;
@@ -957,9 +935,9 @@ void dlg_commentaires::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
     gWidg->setVisible(true);
     gWidg->setAutoFillBackground(true);
     gTimerEfface->stop();
-    disconnect(gTimerEfface, SIGNAL(timeout()), this, SLOT(Slot_EffaceWidget()));
+    disconnect(gTimerEfface, 0,0,0);
     gTimerEfface->start(70);
-    connect(gTimerEfface, SIGNAL(timeout()), this, SLOT(Slot_EffaceWidget()));
+    connect(gTimerEfface, &QTimer::timeout, [=] {EffaceWidget();});
 }
 
 // ----------------------------------------------------------------------------------
@@ -1108,7 +1086,7 @@ void dlg_commentaires::Remplir_TableView()
         Check->setChecked(RemplirTableViewQuery.value(1).toInt() == 1);
         Check->setRowTable(i);
         Check->setFocusPolicy(Qt::NoFocus);
-        connect(Check,              SIGNAL (clicked(bool)),                 this, SLOT (Slot_EnableOKPushbutton()));
+        connect(Check,   &QCheckBox::clicked,   [=] {EnableOKPushbutton();});
         l = new QHBoxLayout();
         l->setAlignment( Qt::AlignCenter );
         l->addWidget(Check);
@@ -1171,6 +1149,8 @@ void dlg_commentaires::Remplir_TableView()
 // ----------------------------------------------------------------------------------
 void dlg_commentaires::SupprimmCommentaire(int row)
 {
+    if (row == -1)
+        return;
     DisableLines();
 
     QString Msg;

@@ -69,8 +69,10 @@ private:
     void                        RemplitBigTable();
     void                        ChoixMenu(QString);
 
+    //anciens slots
+    void                        AnnulEnreg();
+
 private slots:
-    void                        Slot_AnnulEnreg();
     void                        Slot_ChangeUser(int idx);
     void                        Slot_CalculTotalDepenses();
     void                        Slot_ChercheFamilleFiscale(QString RefFiscale);

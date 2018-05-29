@@ -505,9 +505,11 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
                     filesufx        = lst.at(lst.size()-1);
                 }
                 QString sfx = (filesufx == PDF? PDF : JPG);
-                if (QSqlQuery ("select idimpression from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr,
-                               proc->getDataBase()).size()==0)
+                QString imgs = "select idimpression from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr + " and (pdf is not null or jpg is not null)";
+                //qDebug() << imgs;
+                if (QSqlQuery (imgs, proc->getDataBase()).size()==0)
                 {
+                    QSqlQuery ("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr, proc->getDataBase());
                     QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
                                 "VALUES (" +
                                 idimpr + ", " +

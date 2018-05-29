@@ -141,7 +141,7 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
     connect (ui->UserscomboBox,                 SIGNAL(currentIndexChanged(int)),               this,   SLOT (Slot_ChangeUser(int)));
 
     connect (EnregupPushButton, SIGNAL(clicked()),this,SLOT (Slot_ModifierDepense()));
-    connect (AnnulupPushButton, SIGNAL(clicked()),this,SLOT (Slot_AnnulEnreg()));
+    connect (AnnulupPushButton, &QPushButton::clicked,  [=] {AnnulEnreg();});
 
     QString year = QDate::currentDate().toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
@@ -287,7 +287,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Clic sur AnnulupPushButton ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_AnnulEnreg()
+void dlg_depenses::AnnulEnreg()
 {
     RegleAffichageFiche(Lire);
     Slot_MetAJourFiche();
@@ -1071,7 +1071,7 @@ void dlg_depenses::keyPressEvent ( QKeyEvent * event )
         if (gMode == Lire)
             reject();
         else
-            Slot_AnnulEnreg();
+            AnnulEnreg();
        break;}
     default: break;
     }

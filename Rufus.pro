@@ -19,7 +19,13 @@ QT       += sql core gui network printsupport multimedia xml serialport multimed
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+OSX {
 TARGET = /Applications/Rufus
+}
+LINUX {
+TARGET = /home/serge/Rufus
+}
+
 TEMPLATE = app
 
 SOURCES += main.cpp\

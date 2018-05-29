@@ -272,11 +272,8 @@ void dlg_comptes::AnnulConsolidations()
     CalculeTotal();
 }
 
-void dlg_comptes::Slot_ContextMenuTableWidget()
+void dlg_comptes::ContextMenuTableWidget(QPoint pt, UpLabel *lbl)
 {
-    UpLabel *lbl = dynamic_cast<UpLabel*>(sender());
-    if (!lbl)
-            return;
     int row = lbl->getRow();
     gidLigneASupprimer = lbl->getId();
     QString msg = static_cast<UpLabel*>(ui->upTableWidget->cellWidget(row,3))->text()
@@ -288,7 +285,7 @@ void dlg_comptes::Slot_ContextMenuTableWidget()
     connect (pAction_SupprEcriture, &QAction::triggered,    [=] {SupprimerEcriture(msg);});
 
     // ouvrir le menu
-    menuContextuel->exec(cursor().pos());
+    menuContextuel->exec(pt);
     delete menuContextuel;
 }
 
@@ -571,25 +568,15 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
         lbl7->setRow(i);
         lbl8->setRow(i);
 
-        connect (lbl0,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
-        connect (lbl1,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
-        connect (lbl2,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
-        connect (lbl3,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
-        connect (lbl4,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
-        connect (lbl5,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
-        connect (lbl7,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
-        connect (lbl8,        SIGNAL(customContextMenuRequested(QPoint)),         this,       SLOT (Slot_ContextMenuTableWidget()));
-        /*
-        connect (lbl0,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
-        connect (lbl1,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
-        connect (lbl2,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
-        connect (lbl3,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
-        connect (lbl4,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
-        connect (lbl5,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
-        connect (lbl7,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
-        connect (lbl8,        &QWidget::customContextMenuRequested, [=] {Slot_ContextMenuTableWidget(cursor().pos());});
-        NE MARCHE PAS ET JE NE SAIS PAS POURQUOI........
-        */
+        connect (lbl0,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl0);});
+        connect (lbl1,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl1);});
+        connect (lbl2,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl2);});
+        connect (lbl3,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl3);});
+        connect (lbl4,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl4);});
+        connect (lbl5,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl5);});
+        connect (lbl7,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl7);});
+        connect (lbl8,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl8);});
+
         int col = 0;
 
         A = LignesComptesQuery.value(0).toString();                                                             // idLigne - col = 0

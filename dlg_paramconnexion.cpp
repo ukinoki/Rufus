@@ -254,7 +254,6 @@ bool dlg_paramconnexion::TestConnexion()
                                     + tr("Port") + "\n\t-> " + ui->PortcomboBox->currentText() + "<br />"
                                     + tr("Connexion impossible.") + "<br />"
                                     + db.lastError().text());
-
             return false;
         }
 

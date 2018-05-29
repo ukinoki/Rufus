@@ -54,14 +54,13 @@ private:
     void            RemplitLaTable(int idCompteAVoir);
 
     void            SupprimerEcriture(QString);
-
+    // anciens slots
     void            AnnulArchive();
     void            Archiver();
     void            AnnulConsolidations();
     void            ChangeCompte(int idCompteAVoir);
+    void            ContextMenuTableWidget(QPoint pt, UpLabel *lbl);
     void            RenvoieRangee(bool Coche, UpCheckBox *Check);
-private slots:
-    void            Slot_ContextMenuTableWidget();
 };
 
 #endif // DLG_COMPTES_H

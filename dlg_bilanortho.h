@@ -47,12 +47,10 @@ private:
     QDate                   DateBO;
     QMap<QString,QVariant>  gDataUser;
 
-private slots:
-    void                    Slot_AfficheDcombobox(int i);
-    void                    Slot_AnnulpushButtonClicked();
-    void                    Slot_ImprimeBOClicked();
-    void                    Slot_OKpushButtonClicked();
-    void                    Slot_EnableAnimauxWirtcomboBox(QString PionWirt);
+    // anciens slots
+    void                    AfficheCombobox(int i, QWidget *widg);
+    void                    ImprimeBOClicked();
+    void                    EnableAnimauxWirtcomboBox(QString PionWirt);
 
 };
 

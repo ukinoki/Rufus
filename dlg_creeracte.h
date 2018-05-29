@@ -43,9 +43,6 @@ private:
     QString     gCodeActe;
     QStringList glistActes;
     bool        VerifFiche();
-
-private slots:
-    void        Slot_OKpushButton();
 };
 
 #endif // DLG_CREERACTE_H

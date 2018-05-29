@@ -198,26 +198,13 @@ dlg_bilanortho::dlg_bilanortho(Procedures *procAPasser, int idActeAPAsser, int i
 
     CouleurTitres = proc->CouleurTitres;
 
-    connect(ui->OKupPushButton,             SIGNAL(clicked()),                      this,       SLOT(Slot_OKpushButtonClicked()));
-    connect(ui->AnnulupPushButton,          SIGNAL(clicked()),                      this,       SLOT(Slot_AnnulpushButtonClicked()));
-    connect(ui->ImprimeupPushButton,        SIGNAL(clicked()),                      this,       SLOT(Slot_ImprimeBOClicked()));
-    connect(ui->EcranVLSCcomboBox,          SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->EcranVLASCcomboBox,         SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->EcranVPSCcomboBox,          SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->EcranVPASCcomboBox,         SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->HEcranVLSCcomboBox,         SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->HEcranVLASCcomboBox,        SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->HEcranVPSCcomboBox,         SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->HEcranVPASCcomboBox,        SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->MaddoxVLSCcomboBox,         SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->MaddoxVLASCcomboBox,        SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->MaddoxVPSCcomboBox,         SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->MaddoxVPASCcomboBox,        SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->HMaddoxVLSCcomboBox,        SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->HMaddoxVLASCcomboBox,       SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->HMaddoxVPSCcomboBox,        SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->HMaddoxVPASCcomboBox,       SIGNAL(currentIndexChanged(int)),       this,       SLOT(Slot_AfficheDcombobox(int)));
-    connect(ui->WirtcomboBox,               SIGNAL(currentTextChanged(QString)),    this,       SLOT(Slot_EnableAnimauxWirtcomboBox(QString)));
+    connect(ui->OKupPushButton,         &QPushButton::clicked,                                  [=] {accept();});
+    connect(ui->AnnulupPushButton,      &QPushButton::clicked,                                  [=] {reject();});
+    connect(ui->ImprimeupPushButton,    &QPushButton::clicked,                                  [=] {ImprimeBOClicked();});
+    QList<UpComboBox*> listcombo = findChildren<UpComboBox*>();
+    foreach(UpComboBox *cbox, listcombo)
+        connect(cbox,                   QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {AfficheCombobox(cbox->currentIndex(), cbox);});
+    connect(ui->WirtcomboBox,           &QComboBox::currentTextChanged,                         [=] {EnableAnimauxWirtcomboBox(ui->WirtcomboBox->currentText());});
 
     ui->AnnulupPushButton->setUpButtonStyle(UpPushButton::ANNULBUTTON, UpPushButton::Small);
     ui->OKupPushButton->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Small);
@@ -234,12 +221,7 @@ dlg_bilanortho::~dlg_bilanortho()
     delete ui;
 }
 
-void dlg_bilanortho::Slot_AnnulpushButtonClicked()
-{
-    reject();
-}
-
-void dlg_bilanortho::Slot_EnableAnimauxWirtcomboBox(QString PionWirt)
+void dlg_bilanortho::EnableAnimauxWirtcomboBox(QString PionWirt)
 {
     bool *b = new bool;
     int a = PionWirt.toInt(b);
@@ -258,7 +240,7 @@ void dlg_bilanortho::Slot_EnableAnimauxWirtcomboBox(QString PionWirt)
     delete b;
 }
 
-void dlg_bilanortho::Slot_ImprimeBOClicked()
+void dlg_bilanortho::ImprimeBOClicked()
 {
     bool AvecDupli   = false;
     bool AvecPrevisu = true;
@@ -344,15 +326,9 @@ void dlg_bilanortho::Slot_ImprimeBOClicked()
     delete textHtml;
  }
 
-void dlg_bilanortho::Slot_OKpushButtonClicked()
+void    dlg_bilanortho::AfficheCombobox(int i, QWidget *widg)
 {
-    accept();
-}
-
-void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
-{
-    QComboBox* Combo = static_cast<QComboBox*>(sender());
-    if (Combo == ui->EcranVLSCcomboBox)
+    if (widg == ui->EcranVLSCcomboBox)
     {
         ui->EcranVLSCDcomboBox->setVisible(i!=4 && i!=0);
         QString a = ui->EcranVLSCcomboBox->currentText();
@@ -378,7 +354,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
         }
         ui->fixSCVLcomboBox->setCurrentIndex(0);
     }
-    if (Combo == ui->EcranVLASCcomboBox)
+    if (widg == ui->EcranVLASCcomboBox)
     {
         ui->EcranVLASCDcomboBox->setVisible(i!=4 && i!=0);
         QString a = ui->EcranVLASCcomboBox->currentText();
@@ -404,7 +380,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
         }
         ui->fixASCVLcomboBox->setCurrentIndex(0);
     }
-    if (Combo == ui->EcranVPSCcomboBox)
+    if (widg == ui->EcranVPSCcomboBox)
     {
         ui->EcranVPSCDcomboBox->setVisible(i!=4 && i!=0);
         QString a = ui->EcranVPSCcomboBox->currentText();
@@ -430,7 +406,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
         }
         ui->fixSCVPcomboBox->setCurrentIndex(0);
     }
-    if (Combo == ui->EcranVPASCcomboBox)
+    if (widg == ui->EcranVPASCcomboBox)
     {
         ui->EcranVPASCDcomboBox->setVisible(i!=4 && i!=0);
         QString a = ui->EcranVPASCcomboBox->currentText();
@@ -456,7 +432,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
         }
         ui->fixASCVPcomboBox->setCurrentIndex(0);
     }
-    if (Combo == ui->HEcranVLSCcomboBox)
+    if (widg == ui->HEcranVLSCcomboBox)
     {
         ui->HEcranVLSCDcomboBox->setVisible(i!=4 && i!=0);
         QString a = ui->HEcranVLSCcomboBox->currentText();
@@ -482,7 +458,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
         }
         ui->HfixSCVLcomboBox->setCurrentIndex(0);
     }
-    if (Combo == ui->HEcranVLASCcomboBox)
+    if (widg == ui->HEcranVLASCcomboBox)
     {
         ui->HEcranVLASCDcomboBox->setVisible(i!=4 && i!=0);
         QString a = ui->HEcranVLASCcomboBox->currentText();
@@ -508,7 +484,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
         }
         ui->HfixASCVLcomboBox->setCurrentIndex(0);
     }
-    if (Combo == ui->HEcranVPSCcomboBox)
+    if (widg == ui->HEcranVPSCcomboBox)
     {
         ui->HEcranVPSCDcomboBox->setVisible(i!=4 && i!=0);
         QString a = ui->HEcranVPSCcomboBox->currentText();
@@ -534,7 +510,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
         }
         ui->HfixSCVPcomboBox->setCurrentIndex(0);
     }
-    if (Combo == ui->HEcranVPASCcomboBox)
+    if (widg == ui->HEcranVPASCcomboBox)
     {
         ui->HEcranVPASCDcomboBox->setVisible(i!=4 && i!=0);
         QString a = ui->HEcranVPASCcomboBox->currentText();
@@ -560,7 +536,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
         }
         ui->HfixASCVPcomboBox->setCurrentIndex(0);
     }
-    if (Combo == ui->MaddoxVLSCcomboBox)
+    if (widg == ui->MaddoxVLSCcomboBox)
     {
         ui->MaddoxVLSCDcomboBox->setVisible(i!=4 && i!=0);
         ui->MaddoxVLSCDcomboBox->clear();
@@ -576,7 +552,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
             ui->MaddoxVLSCDcomboBox->insertItems(0,HDioptrieslist);
         ui->MaddoxVLSCDcomboBox->resize(w,22);
     }
-    if (Combo == ui->MaddoxVLASCcomboBox)
+    if (widg == ui->MaddoxVLASCcomboBox)
     {
         ui->MaddoxVLASCDcomboBox->setVisible(i!=4 && i!=0);
         ui->MaddoxVLASCDcomboBox->clear();
@@ -592,7 +568,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
             ui->MaddoxVLASCDcomboBox->insertItems(0,HDioptrieslist);
         ui->MaddoxVLASCDcomboBox->resize(w,22);
     }
-    if (Combo == ui->MaddoxVPSCcomboBox)
+    if (widg == ui->MaddoxVPSCcomboBox)
     {
         ui->MaddoxVPSCDcomboBox->setVisible(i!=4 && i!=0);
         ui->MaddoxVPSCDcomboBox->clear();
@@ -608,7 +584,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
             ui->MaddoxVPSCDcomboBox->insertItems(0,HDioptrieslist);
         ui->MaddoxVPSCDcomboBox->resize(w,22);
     }
-    if (Combo == ui->MaddoxVPASCcomboBox)
+    if (widg == ui->MaddoxVPASCcomboBox)
     {
         ui->MaddoxVPASCDcomboBox->setVisible(i!=4 && i!=0);
         ui->MaddoxVPASCDcomboBox->clear();
@@ -624,7 +600,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
             ui->MaddoxVPASCDcomboBox->insertItems(0,HDioptrieslist);
         ui->MaddoxVPASCDcomboBox->resize(w,22);
     }
-    if (Combo == ui->HMaddoxVLSCcomboBox)
+    if (widg == ui->HMaddoxVLSCcomboBox)
     {
         ui->HMaddoxVLSCDcomboBox->setVisible(i!=4 && i!=0);
         ui->HMaddoxVLSCDcomboBox->clear();
@@ -640,7 +616,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
             ui->HMaddoxVLSCDcomboBox->insertItems(0,HDioptrieslist);
         ui->HMaddoxVLSCDcomboBox->resize(w,22);
     }
-    if (Combo == ui->HMaddoxVLASCcomboBox)
+    if (widg == ui->HMaddoxVLASCcomboBox)
     {
         ui->HMaddoxVLASCDcomboBox->setVisible(i!=4 && i!=0);
         ui->HMaddoxVLASCDcomboBox->clear();
@@ -656,7 +632,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
             ui->HMaddoxVLASCDcomboBox->insertItems(0,HDioptrieslist);
         ui->HMaddoxVLASCDcomboBox->resize(w,22);
     }
-    if (Combo == ui->HMaddoxVPSCcomboBox)
+    if (widg == ui->HMaddoxVPSCcomboBox)
     {
         ui->HMaddoxVPSCDcomboBox->setVisible(i!=4 && i!=0);
         ui->HMaddoxVPSCDcomboBox->clear();
@@ -672,7 +648,7 @@ void    dlg_bilanortho::Slot_AfficheDcombobox(int i)
             ui->HMaddoxVPSCDcomboBox->insertItems(0,HDioptrieslist);
         ui->HMaddoxVPSCDcomboBox->resize(w,22);
     }
-    if (Combo == ui->HMaddoxVPASCcomboBox)
+    if (widg == ui->HMaddoxVPASCcomboBox)
     {
         ui->HMaddoxVPASCDcomboBox->setVisible(i!=4 && i!=0);
         ui->HMaddoxVPASCDcomboBox->clear();

@@ -229,10 +229,10 @@ int dlg_identificationuser::ControleDonnees()
         }
         ui->IconServerOKupLabel->setPixmap(QPixmap("://check.png"));
         Pause(300);
-        req = "SHOW TABLES FROM Rufus LIKE 'utilisateurs'";
+        req = "SHOW TABLES FROM Rufus LIKE 'utilisateurs%'";
         QSqlQuery VerifBaseQuery(req,db);
         //UpMessageBox::Watch(this,req + "\n" + QString::number(VerifBaseQuery.size()));
-        if (VerifBaseQuery.size()==0)
+        if (VerifBaseQuery.size()<2)
         {
             ui->IconBaseOKupLabel->setPixmap(QPixmap("://error.png"));
             Pause(600);

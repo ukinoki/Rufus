@@ -44,18 +44,12 @@ dlg_creeracte::dlg_creeracte(QString TypeActe, QString Mode , QString CodeActe, 
     ui->TarifPratiqueupLineEdit                 ->setValidator(val);
     ui->CodeActeupLineEdit                      ->setText(CodeActe);
 
-    connect(OKButton,             SIGNAL(clicked(bool)),      this,   SLOT(Slot_OKpushButton()));
+    connect(OKButton,   &QPushButton::clicked,  [=] {if (VerifFiche()) accept();});
 }
 
 dlg_creeracte::~dlg_creeracte()
 {
     delete ui;
-}
-
-void dlg_creeracte::Slot_OKpushButton()
-{
-    if (VerifFiche())
-        accept();
 }
 
 void dlg_creeracte::Initialise(Procedures *procAPasser)
