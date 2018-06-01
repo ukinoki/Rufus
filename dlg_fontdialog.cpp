@@ -57,8 +57,10 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
             {
                 QTreeWidgetItem *styleItem = new QTreeWidgetItem(familyItem);
                 styleItem->setText(0, style);
+                qDebug() << family + " - " + style;
             }
         }
+        qDebug() << family;
     }
     AjouteLayButtons();
 
@@ -66,12 +68,12 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
     connect (TreeWidget,            SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),  this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
     connect (OKButton,              SIGNAL(clicked(bool)),                                          this,   SLOT(Slot_FermeFiche()));
 
-    QTreeWidgetItem *item = new QTreeWidgetItem;
-    item = TreeWidget->findItems(qApp->font().family(),Qt::MatchExactly,0).at(0);
-    if (item->childCount() == 0)
-        TreeWidget->setCurrentItem(item);
-    else
+    QList<QTreeWidgetItem*> listitems = TreeWidget->findItems(qApp->font().family(),Qt::MatchExactly,0);
+    if (listitems.size()>0)
     {
+        QTreeWidgetItem *item = listitems.at(0);
+        if (item->childCount() == 0)
+            TreeWidget->setCurrentItem(item);
         QString FontAttribut = database.styleString(qApp->font());
         bool itemtrouve = false;
         for (int i=0;i<item->childCount();i++)
