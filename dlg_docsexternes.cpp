@@ -43,6 +43,10 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     ScrollTable->verticalHeader()   ->setVisible(false);
 
     gFont = QApplication::font();
+    int d = -2;
+#ifdef QT_OSX_PLATFORM_SDK_EQUAL_OR_ABOVE
+    d=2;
+#endif
     gFont.setPointSize(gFont.pointSize()-2);
     ScrollTable         ->installEventFilter(this);
     GraphicView         ->installEventFilter(this);
@@ -76,7 +80,10 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
 
     gModeTri            = parDate;
     TreeQuery           = QSqlQuery(proc->getDataBase());
+    initOK = true;
     RemplirTreeView();
+    if(!initOK)
+        return;
     ListDocsTreeView    ->setFont(gFont);
     ListDocsTreeView    ->setEditTriggers(QAbstractItemView::DoubleClicked);
     ListDocsTreeView    ->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -124,6 +131,11 @@ dlg_docsexternes::~dlg_docsexternes()
 {
     proc = 0;
     delete proc;
+}
+
+bool dlg_docsexternes::InitOK()
+{
+    return initOK;
 }
 
 void dlg_docsexternes::Slot_AfficheDoc(QModelIndex idx)
@@ -1329,6 +1341,9 @@ void dlg_docsexternes::RemplirTreeView(bool recalcul)
         //Slot_AfficheDoc(idx);
     }
     else
+    {
+        initOK =false;
         close();
+    }
 }
 

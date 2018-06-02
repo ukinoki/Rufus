@@ -78,6 +78,7 @@ private:
     enum gModeTri           {parDate, parType};
     bool                    eventFilter(QObject *, QEvent *);
     bool                    AvecPrevisu;
+    bool                    initOK;
     int                     CompteNbreDocs();
     bool                    EcritDansUnFichier(QString NomFichier, QByteArray TexteFichier);
     void                    ImprimeDoc(QString idimpr);
@@ -85,6 +86,7 @@ private:
 
 public slots:
     void                    Slot_AfficheDoc(QModelIndex idx);
+    bool                    InitOK();
 private slots:
     void                    Slot_BasculeTriListe(int);
     void                    Slot_CompteNbreDocs();

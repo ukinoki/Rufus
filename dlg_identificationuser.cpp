@@ -229,7 +229,8 @@ int dlg_identificationuser::ControleDonnees()
         }
         ui->IconServerOKupLabel->setPixmap(QPixmap("://check.png"));
         Pause(300);
-        req = "SHOW TABLES FROM Rufus LIKE 'utilisateurs%'";
+        req = "SHOW TABLES FROM " NOM_BASE_CONSULTS " LIKE '%tilisateurs%'";
+        //qDebug() << req;
         QSqlQuery VerifBaseQuery(req,db);
         //UpMessageBox::Watch(this,req + "\n" + QString::number(VerifBaseQuery.size()));
         if (VerifBaseQuery.size()<2)
