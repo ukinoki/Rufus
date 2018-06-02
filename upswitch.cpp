@@ -54,6 +54,11 @@ bool UpSwitch::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
+int UpSwitch::PosSwitch()
+{
+    return pos;
+}
+
 void UpSwitch::BasculeSwitch()
 {
     if (Activelbl==datelbl)
@@ -61,14 +66,16 @@ void UpSwitch::BasculeSwitch()
         Activelbl   = typelbl;
         cursorlbl   ->setPixmap(QPixmap("://switch-right.png").scaled(55,40));
         datelbl     ->setStyleSheet("");
-        emit Bascule(1);
+        pos = 1;
+        emit Bascule();
     }
     else if (Activelbl==typelbl)
     {
         Activelbl   = datelbl;
         cursorlbl   ->setPixmap(QPixmap("://switch-left.png").scaled(55,40));
         typelbl     ->setStyleSheet("");
-        emit Bascule(0);
+        pos = 0;
+        emit Bascule();
     }
     Activelbl           ->setStyleSheet(Style);
 }

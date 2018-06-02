@@ -84,11 +84,11 @@ private:
     void                    ImprimeDoc(QString idimpr);
     QMap<QString,QVariant>  CalcImage(int idimpression, bool imagerie, bool afficher = true);
 
+    void                    BasculeTriListe(int);
 public slots:
     void                    Slot_AfficheDoc(QModelIndex idx);
     bool                    InitOK();
 private slots:
-    void                    Slot_BasculeTriListe(int);
     void                    Slot_CompteNbreDocs();
     void                    Slot_EditSousTitre(QStandardItem *item);
     void                    Slot_EnregistreVideo();

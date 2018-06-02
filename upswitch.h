@@ -28,16 +28,18 @@ class UpSwitch : public QFrame
     Q_OBJECT
 public:
     explicit UpSwitch(QWidget *parent = Q_NULLPTR);
+    int     PosSwitch();
 
 private:
-    QLabel *Activelbl;
+    int     pos;
+    QLabel  *Activelbl;
     bool    eventFilter(QObject *watched, QEvent *event);
     void    BasculeSwitch();
     QLabel  *datelbl, *cursorlbl, *typelbl;
     QString Style;
 
 signals:
-    void    Bascule(int a);
+    void    Bascule();
 
 public slots:
 };

@@ -73,7 +73,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     AjouteWidgetLayButtons(playctrl, false);
     sw                  = new UpSwitch(this);
     AjouteWidgetLayButtons(sw, false);
-    connect(sw,     SIGNAL(Bascule(int)), this, SLOT(Slot_BasculeTriListe(int)));
+    connect(sw, &UpSwitch::Bascule, [=] {BasculeTriListe(sw->PosSwitch());});
     AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
 
     installEventFilter(this);
@@ -359,7 +359,7 @@ void dlg_docsexternes::Slot_AfficheDoc(QModelIndex idx)
         inflabel    ->setGeometry(10,GraphicView->height() -40, 500, 25);
 }
 
-void dlg_docsexternes::Slot_BasculeTriListe(int a)
+void dlg_docsexternes::BasculeTriListe(int a)
 {
     QString             idimpraretrouver = "";
     gmodele = dynamic_cast<QStandardItemModel*>(ListDocsTreeView->model());
