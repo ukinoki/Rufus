@@ -68,12 +68,12 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     globallay           ->insertLayout(0,lay);
 
     playctrl            = new PlayerControls(player, this);
-    connect (playctrl, SIGNAL(ctrl(int)),   this,   SLOT(Slot_PlayerCtrl(int)));
-    connect (playctrl,  SIGNAL(recfile()),  this,   SLOT(Slot_EnregistreVideo()));
+    connect (playctrl,  &PlayerControls::ctrl,      [=] {PlayerCtrl(playctrl->State());});
+    connect (playctrl,  &PlayerControls::recfile,   [=] {EnregistreVideo();});
     AjouteWidgetLayButtons(playctrl, false);
     sw                  = new UpSwitch(this);
     AjouteWidgetLayButtons(sw, false);
-    connect(sw, &UpSwitch::Bascule, [=] {BasculeTriListe(sw->PosSwitch());});
+    connect(sw,         &UpSwitch::Bascule,         [=] {BasculeTriListe(sw->PosSwitch());});
     AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
 
     installEventFilter(this);
@@ -104,7 +104,14 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
 
     MAJTreeViewTimer    = new QTimer;
     MAJTreeViewTimer    ->setInterval(10000);
-    connect(MAJTreeViewTimer,  SIGNAL(timeout()),   this,   SLOT(Slot_CompteNbreDocs()));
+    connect(MAJTreeViewTimer,  &QTimer::timeout, [=] {
+        int ndocs =  CompteNbreDocs();
+        if (ndocs == 0) reject();
+        if (nbredocs != ndocs){
+            nbredocs = ndocs;
+            RemplirTreeView();
+        }
+    });
     MAJTreeViewTimer    ->start();
     int margemm         = proc->TailleTopMarge(); // exprimé en mm
     printer             = new QPrinter(QPrinter::HighResolution);
@@ -116,7 +123,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
                 -mmToInches(margemm) * printer->logicalDpiX(),
                 -mmToInches(margemm) * printer->logicalDpiY());
     gMode               = Normal;
-    connect(PrintButton,        SIGNAL(clicked(bool)),          this,           SLOT(Slot_ImprimeDoc()));
+    connect(PrintButton,        &QPushButton::clicked, [=] {ImprimeDoc();});
     connect(SupprButton,        SIGNAL(clicked(bool)),          this,           SLOT(Slot_SupprimeDoc()));
 
     ScrollTable     ->setCursor(QCursor(QPixmap("://Zoom-In.png").scaled(30,30)));
@@ -138,7 +145,7 @@ bool dlg_docsexternes::InitOK()
     return initOK;
 }
 
-void dlg_docsexternes::Slot_AfficheDoc(QModelIndex idx)
+void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 {
     if (gmodele->itemFromIndex(idx)->hasChildren())
     {
@@ -406,23 +413,11 @@ void dlg_docsexternes::BasculeTriListe(int a)
     ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
     ListDocsTreeView->setCurrentIndex(idx);
     ListDocsTreeView->expandAll();
-    connect(gmodele,    SIGNAL(itemChanged(QStandardItem*)), this , SLOT(Slot_EditSousTitre(QStandardItem*)));
-    connect(ListDocsTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(Slot_AfficheDoc(QModelIndex)));
+    connect(gmodele,    &QStandardItemModel::itemChanged, [=] {EditSousTitre(gmodele->itemFromIndex(ListDocsTreeView->selectionModel()->currentIndex()));});
+    connect(ListDocsTreeView->selectionModel(), &QItemSelectionModel::currentChanged, [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
 }
 
-void dlg_docsexternes::Slot_CompteNbreDocs()
-{
-    int ndocs = CompteNbreDocs();
-    if (ndocs == 0)
-        reject();
-    if (nbredocs != ndocs)
-    {
-        nbredocs = ndocs;
-        RemplirTreeView();
-    }
-}
-
-void dlg_docsexternes::Slot_EditSousTitre(QStandardItem *item)
+void dlg_docsexternes::EditSousTitre(QStandardItem *item)
 {
     QString txt = (item->text().contains(" - ")? item->text().split(" - ").at(1) : item->text());
     QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + txt + "' where idimpression = " + item->accessibleDescription(), proc->getDataBase());
@@ -434,10 +429,10 @@ void dlg_docsexternes::Slot_EditSousTitre(QStandardItem *item)
         item->setText(quer.value(1).toDate().toString(tr("d-M-yyyy")) + " - " + txt);
     QString sstitre = "<font color='magenta'>" + quer.value(1).toDate().toString(tr("d-M-yyyy")) + " - " + quer.value(0).toString() + " - " + txt + "</font>";
     inflabel    ->setText(sstitre);
-    qDebug() << "Sous-titre = " + sstitre;
+    //qDebug() << "Sous-titre = " + sstitre;
 }
 
-void dlg_docsexternes::Slot_EnregistreVideo()
+void dlg_docsexternes::EnregistreVideo()
 {
     QString filename = player->media().canonicalUrl().path();
     QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
@@ -450,17 +445,17 @@ void dlg_docsexternes::Slot_EnregistreVideo()
     }
 }
 
-void dlg_docsexternes::Slot_ImprimeDoc()
+void dlg_docsexternes::ImprimeDoc()
 {
 #ifndef QT_NO_PRINTER
-    disconnect(PrintButton,     SIGNAL(clicked(bool)),          this,           SLOT(Slot_ImprimeDoc()));
+    disconnect(PrintButton, 0,0,0);
     QModelIndex idx             = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
     QStandardItemModel *modele  = static_cast<QStandardItemModel*>(ListDocsTreeView->model());
     QString idimpr              = modele->itemFromIndex(idx)->accessibleDescription();
     AvecPrevisu                 = proc->ApercuAvantImpression();
     if (idimpr != "")
         ImprimeDoc(idimpr);
-    connect(PrintButton,        SIGNAL(clicked(bool)),          this,           SLOT(Slot_ImprimeDoc()));
+    connect(PrintButton,        &QPushButton::clicked, [=] {ImprimeDoc();});
 #endif
 }
 
@@ -839,7 +834,7 @@ void dlg_docsexternes::ImprimeDoc(QString idimpr)
     msgbox.close();
 }
 
-void dlg_docsexternes::Slot_PlayerCtrl(int ctrl)
+void dlg_docsexternes::PlayerCtrl(int ctrl)
 {
     switch (ctrl){
     case 0: player->stop();     break;
@@ -1328,7 +1323,7 @@ void dlg_docsexternes::RemplirTreeView(bool recalcul)
         else
         {
             ListDocsTreeView->setModel(gmodele);
-            connect(gmodele,    SIGNAL(itemChanged(QStandardItem*)), this , SLOT(Slot_EditSousTitre(QStandardItem*)));
+            connect(gmodele,    &QStandardItemModel::itemChanged, [=] {EditSousTitre(gmodele->itemFromIndex(ListDocsTreeView->selectionModel()->currentIndex()));});
             ListDocsTreeView->setAnimated(true);
             ListDocsTreeView->setIndentation(3);
             ListDocsTreeView->header()->setVisible(false);
@@ -1336,7 +1331,7 @@ void dlg_docsexternes::RemplirTreeView(bool recalcul)
         ListDocsTreeView->expandAll();
         ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
         ListDocsTreeView->setCurrentIndex(idx);
-        connect(ListDocsTreeView->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)), this, SLOT(Slot_AfficheDoc(QModelIndex)));
+        connect(ListDocsTreeView->selectionModel(), &QItemSelectionModel::currentChanged, [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
         //if (recalcul)
         //Slot_AfficheDoc(idx);
     }

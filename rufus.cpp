@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("02-06-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("03-06-2018/2");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -403,7 +403,7 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
         {
             Dlg_DocsExt->setWindowTitle(tr("Documents de ") + patPrenom + " " + patNom);
             Dlg_DocsExt->show();
-            Dlg_DocsExt->Slot_AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
+            Dlg_DocsExt->AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
             if (depuismenu)
                 Dlg_DocsExt->setModal(true); //quand la fiche est ouverte depuis le menu contectuel de la liste des patients
         }
@@ -445,7 +445,7 @@ void Rufus::MAJDocsExternes()
             ui->OuvreDocsExternespushButton->setEnabled(true);
             Dlg_DocsExt->setWindowTitle(tr("Documents de ") + gPrenomPatient + " " + gNomPatient);
             Dlg_DocsExt->show();
-            Dlg_DocsExt->Slot_AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
+            Dlg_DocsExt->AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
         }
         else
             ui->OuvreDocsExternespushButton->setEnabled(false);
