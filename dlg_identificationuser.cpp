@@ -200,7 +200,8 @@ int dlg_identificationuser::ControleDonnees()
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("Impossible de se connecter au serveur avec le login ") + ui->LoginlineEdit->text()
                             + tr(" et ce mot de passe") + "\n"
-                            + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n");
+                            + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
+                            + db.lastError().text());
             return -1;
         }
         req = "show grants for '" + Login + "'@'" + Client + "'";

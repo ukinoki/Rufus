@@ -32,7 +32,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
     QString border = "border-image: url(://wallpaper.jpg)";
-    qApp->setStyleSheet(
+    QString style =
         "QDialog{" + border + "}"
         "QGroupBox{font:bold;}"
         "QLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 5px;}"
@@ -67,7 +67,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
                  "border: 1px solid #5c5c5c;"
                  "width: 18px;"
                  "margin: -2px 0;" /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
-                 "border-radius: 3px;}");
+                 "border-radius: 3px;}";
+    qApp->setStyleSheet(style);
 
     proc = new Procedures(this);
 
@@ -125,6 +126,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
     }
 
     qApp->setFont(proc->AppFont());
+    qApp->setStyleSheet(style);
     proc->Message(gDataUser["Statut"].toString(), 6000);
 
     //dlg_GestionLieux(db, NOM_TABLE_LIEUXEXERCICE, NOM_TABLE_JOINTURESLIEUX, QDir::homePath() + NOMFIC_INI).exec();
@@ -197,7 +199,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
     proc->UpdVerrouSalDat();
     setFixedWidth(LARGEURLISTE);
     ui->tabWidget->setGeometry(5,10,-10,920);
-    ToolBarListe();
 
     //Nettoyage des erreurs éventuelles de la salle d'attente
     QString blabla              = ENCOURSEXAMEN;
@@ -1356,7 +1357,6 @@ void Rufus::Slot_ChangeTabBureau()
     if(ui->tabWidget->currentWidget() == ui->tabList)
     {
         setFixedWidth(LARGEURLISTE);
-        ToolBarListe();
         ui->CreerNomlineEdit->setFocus();
         CalcNbDossiers();
         //ui->ChgUserpushButton->setEnabled(ui->tabWidget->indexOf(ui->tabDossier) < 0);
@@ -1364,7 +1364,6 @@ void Rufus::Slot_ChangeTabBureau()
     else
     {
         setFixedWidth(LARGEURNORMALE);
-        ToolBarDossier();
     }
 }
 
@@ -10656,37 +10655,6 @@ void Rufus::Tonometrie()
     }
     Dlg_AutresMes->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_AutresMes;
-}
-
-/*------------------------------------------------------------------------------------------------------------------------------------
--- Créer le ToolBar en vue liste -----------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------*/
-void Rufus::ToolBarDossier()
-{
-    ToolBarListe();
-    ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addAction(proc->giconAvant, tr("Dossier précédent du fichier patients"),this,SLOT (Slot_NavigationDossierPrecedentListe()));
-    ui->mainToolBar->addAction(proc->giconApres,tr("Dossier suivant du fichier patients"),this,SLOT (Slot_NavigationDossierSuivantListe()));
-}
-
-/*------------------------------------------------------------------------------------------------------------------------------------
--- Créer le ToolBar en vue liste -----------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------*/
-void Rufus::ToolBarListe()
-{
-
-    ui->mainToolBar->clear();
-    ui->mainToolBar->setIconSize(QSize(25,25));
-    ui->mainToolBar->setFixedHeight(40);
-    ui->mainToolBar->addAction(proc->giconCreer, tr("créer un nouveau dossier"),this,SLOT (Slot_OuvrirNouveauDossierpushButtonClicked()));
-    if (gListePatientsModel->rowCount() > 0)
-        ui->mainToolBar->addAction(proc->giconRecopier, tr("créer un dossier à partir d'un parent\nl'adresse et les antécédents familiaux\nseront recopiés automatiquement"),this,SLOT (Slot_RecopierDossierpushButtonClicked()));
-    ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addAction(proc->giconListe, tr("ouvrir un dossier"),this,SLOT (Slot_OuvrirListepushButtonClicked()));
-    ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addAction(proc->giconCPS,"Lire la CPS",this,SLOT (Slot_LireLaCPSpushButtonClicked()));                                                 // CZ001
-    ui->mainToolBar->addAction(proc->giconVitale,"ouvrir ou créer un dossier à partir de la carte vitale",this,SLOT (Slot_LireLaCVpushButtonClicked()));    // CZ001
-    //ui->mainToolBar->addAction(proc->giconVitale,"ouvrir ou créer un dossier à partir de la carte vitale",this,SLOT (Slot_OuvrirRecopierDossierpushButtonClicked()));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

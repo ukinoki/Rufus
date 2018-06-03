@@ -164,9 +164,9 @@ signals:
             supprime le script de sauvegarde RufusBackupScript.sh
             et le script de programmation rufus.bup.plist
             et, sur Mac, décharge ce fichier du launchd
-      A la fermeture de la fiche, la fonction VerifParametrageSauvegardes() va , s'il y a eu modification des paramètre date heure et lieu de sauvegarde
+      En cas de modification des parametres de sauvegarde, si ces paramètres sont complets, la fonction ModifParamBackup():
             * vérifie que la paramètrage de la sauvegarde est complet
-            * va créer le fichier RufusScriptBackup.sh et enregistrer l'emplacement de sauvegarde dans rufus.ini
+            * va créer le fichier RufusScriptBackup.sh (fonction proc->DefinitScriptBackup(NomDirStockageImagerie)) et enregistrer l'emplacement de sauvegarde dans rufus.ini
             * va  modifier le fichier xml rufus.bup.plist, recharger ce fichier dans le launchd et enregistrer les données de programmation dans le rufus.ini.
      */
 private slots:

@@ -2152,6 +2152,10 @@ void Procedures::RestoreFontAppliAndGeometry()
             i=30;
         }
     }
+#ifdef Q_OS_LINUX
+    gAppFont.setPointSize(gAppFont.pointSize()+1);
+#endif
+
 }
 
 QFont Procedures::AppFont()

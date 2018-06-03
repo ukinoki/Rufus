@@ -150,8 +150,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PATH_SPEC_MAC "/../../.."
 #endif
 #ifdef Q_OS_LINUX
-#define POLICEPARDEFAUT         "Ubuntu Mono"
-#define POINTPARDEFAUT          9
+#define POLICEPARDEFAUT         "Comic Sans MS"
+#define POINTPARDEFAUT          10
 #define LINUX "/../../.."
 #endif
 #ifdef Q_OS_WIN

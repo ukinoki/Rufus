@@ -1942,6 +1942,7 @@ void dlg_param::Slot_DirPosteStockage()
         QString req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + dockdir.path() + "'";
         QSqlQuery quer(req, db);
         proc->TraiteErreurRequete(quer,req);
+        proc->setDirImagerie();
     }
 }
 

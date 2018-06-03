@@ -43,11 +43,11 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     ScrollTable->verticalHeader()   ->setVisible(false);
 
     gFont = QApplication::font();
-    int d = -2;
+    int d=0;
 #ifdef QT_OSX_PLATFORM_SDK_EQUAL_OR_ABOVE
     d=2;
 #endif
-    gFont.setPointSize(gFont.pointSize()-2);
+    gFont.setPointSize(gFont.pointSize()-d);
     ScrollTable         ->installEventFilter(this);
     GraphicView         ->installEventFilter(this);
     GraphicView         ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
