@@ -73,7 +73,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     AjouteWidgetLayButtons(playctrl, false);
     sw                  = new UpSwitch(this);
     AjouteWidgetLayButtons(sw, false);
-    connect(sw,         &UpSwitch::Bascule,         [=] {BasculeTriListe(sw->PosSwitch());});
+    connect(sw, &UpSwitch::Bascule, [=] {BasculeTriListe(sw->PosSwitch());});
     AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
 
     installEventFilter(this);
@@ -103,16 +103,9 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     }*/
 
     MAJTreeViewTimer    = new QTimer;
-    MAJTreeViewTimer    ->setInterval(10000);
-    connect(MAJTreeViewTimer,  &QTimer::timeout, [=] {
-        int ndocs =  CompteNbreDocs();
-        if (ndocs == 0) reject();
-        if (nbredocs != ndocs){
-            nbredocs = ndocs;
-            RemplirTreeView();
-        }
-    });
-    MAJTreeViewTimer    ->start();
+    MAJTreeViewTimer    ->start(10000);
+    connect(MAJTreeViewTimer,   SIGNAL(timeout()),   this,   SLOT(Slot_CompteNbreDocs()));
+    // connect(MAJTreeViewTimer,   &QTimer::timeout, [=] {Slot_CompteNbreDocs();}); provoque un plantage aléatoire...
     int margemm         = proc->TailleTopMarge(); // exprimé en mm
     printer             = new QPrinter(QPrinter::HighResolution);
     printer             ->setFullPage(true);
@@ -124,7 +117,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
                 -mmToInches(margemm) * printer->logicalDpiY());
     gMode               = Normal;
     connect(PrintButton,        &QPushButton::clicked, [=] {ImprimeDoc();});
-    connect(SupprButton,        SIGNAL(clicked(bool)),          this,           SLOT(Slot_SupprimeDoc()));
+    connect(SupprButton,        &QPushButton::clicked, [=] {SupprimeDoc();});
 
     ScrollTable     ->setCursor(QCursor(QPixmap("://Zoom-In.png").scaled(30,30)));
     GraphicView     ->setCursor(QCursor(QPixmap("://Zoom-In.png").scaled(30,30)));
@@ -302,7 +295,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 UpLabel *lab = new UpLabel(ScrollTable);
                 lab->resize(pix.width(),pix.height());
                 lab->setPixmap(pix);
-                connect(lab,             SIGNAL(clicked(int)),   this,           SLOT(Slot_ZoomDoc()));
+                connect(lab,    &UpLabel::clicked, [=] {ZoomDoc();});
                 delete pdfPage;
                 ScrollTable->setCellWidget(i,0,lab);
             }
@@ -417,6 +410,18 @@ void dlg_docsexternes::BasculeTriListe(int a)
     connect(ListDocsTreeView->selectionModel(), &QItemSelectionModel::currentChanged, [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
 }
 
+void dlg_docsexternes::Slot_CompteNbreDocs()
+{
+    int ndocs = CompteNbreDocs();
+    if (ndocs == 0)
+        reject();
+    if (nbredocs != ndocs)
+    {
+        nbredocs = ndocs;
+        RemplirTreeView();
+    }
+}
+
 void dlg_docsexternes::EditSousTitre(QStandardItem *item)
 {
     QString txt = (item->text().contains(" - ")? item->text().split(" - ").at(1) : item->text());
@@ -429,7 +434,7 @@ void dlg_docsexternes::EditSousTitre(QStandardItem *item)
         item->setText(quer.value(1).toDate().toString(tr("d-M-yyyy")) + " - " + txt);
     QString sstitre = "<font color='magenta'>" + quer.value(1).toDate().toString(tr("d-M-yyyy")) + " - " + quer.value(0).toString() + " - " + txt + "</font>";
     inflabel    ->setText(sstitre);
-    //qDebug() << "Sous-titre = " + sstitre;
+    qDebug() << "Sous-titre = " + sstitre;
 }
 
 void dlg_docsexternes::EnregistreVideo()
@@ -443,20 +448,6 @@ void dlg_docsexternes::EnregistreVideo()
         QDir dockdir = dialog.directory();
         QFile(filename).copy(dockdir.path() + "/" + player->media().canonicalUrl().fileName());
     }
-}
-
-void dlg_docsexternes::ImprimeDoc()
-{
-#ifndef QT_NO_PRINTER
-    disconnect(PrintButton, 0,0,0);
-    QModelIndex idx             = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
-    QStandardItemModel *modele  = static_cast<QStandardItemModel*>(ListDocsTreeView->model());
-    QString idimpr              = modele->itemFromIndex(idx)->accessibleDescription();
-    AvecPrevisu                 = proc->ApercuAvantImpression();
-    if (idimpr != "")
-        ImprimeDoc(idimpr);
-    connect(PrintButton,        &QPushButton::clicked, [=] {ImprimeDoc();});
-#endif
 }
 
 bool dlg_docsexternes::EcritDansUnFichier(QString NomFichier, QByteArray TexteFichier)
@@ -600,238 +591,249 @@ int dlg_docsexternes::CompteNbreDocs()
     return QSqlQuery("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient),proc->getDataBase()).size();
 }
 
-void dlg_docsexternes::ImprimeDoc(QString idimpr)
+void dlg_docsexternes::ImprimeDoc()
 {
-    bool detruirealafin = false;
-    QSqlQuery quer1("select Typedoc, DateImpression, TextOrigine, formatdoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, proc->getDataBase());
-    quer1.first();
-
-    UpMessageBox msgbox;
-    UpSmallButton *OKBouton = new UpSmallButton();
-    UpSmallButton *NoBouton = new UpSmallButton();
-    UpSmallButton *ImpBouton = new UpSmallButton();
-    UpSmallButton *AnnulBouton = new UpSmallButton();
-    msgbox.setText(tr("Réimprimer un document"));
-    msgbox.setIcon(UpMessageBox::Print);
-
-    AnnulBouton->setText(tr("Annuler"));
-    msgbox.addButton(AnnulBouton,UpSmallButton::CANCELBUTTON);
-    if (QDate::currentDate() > quer1.value(1).toDate())
+#ifndef QT_NO_PRINTER
+    disconnect(PrintButton,  0,0,0);
+    QModelIndex idx             = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
+    QStandardItemModel *modele  = static_cast<QStandardItemModel*>(ListDocsTreeView->model());
+    QString idimpr              = modele->itemFromIndex(idx)->accessibleDescription();
+    AvecPrevisu                 = proc->ApercuAvantImpression();
+    if (idimpr != "")
     {
-        if (proc->getDataUser()["Medecin"].toInt() == 1)
+        bool detruirealafin = false;
+        QSqlQuery quer1("select Typedoc, DateImpression, TextOrigine, formatdoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, proc->getDataBase());
+        quer1.first();
+
+        UpMessageBox msgbox;
+        UpSmallButton *OKBouton = new UpSmallButton();
+        UpSmallButton *NoBouton = new UpSmallButton();
+        UpSmallButton *ImpBouton = new UpSmallButton();
+        UpSmallButton *AnnulBouton = new UpSmallButton();
+        msgbox.setText(tr("Réimprimer un document"));
+        msgbox.setIcon(UpMessageBox::Print);
+
+        AnnulBouton->setText(tr("Annuler"));
+        msgbox.addButton(AnnulBouton,UpSmallButton::CANCELBUTTON);
+        if (QDate::currentDate() > quer1.value(1).toDate())
         {
-            if (quer1.value(3).toString() != IMAGERIE && quer1.value(3).toString() != DOCUMENTRECU)
+            if (proc->getDataUser()["Medecin"].toInt() == 1)
             {
-                if (quer1.value(2).toString() != "")    // si on a un texte d'origine, on peut modifier le document
+                if (quer1.value(3).toString() != IMAGERIE && quer1.value(3).toString() != DOCUMENTRECU)
                 {
-                    NoBouton->setText(tr("Modifier et imprimer\nà la date d'aujourd'hui"));
-                    msgbox.addButton(NoBouton,UpSmallButton::EDITBUTTON);
+                    if (quer1.value(2).toString() != "")    // si on a un texte d'origine, on peut modifier le document
+                    {
+                        NoBouton->setText(tr("Modifier et imprimer\nà la date d'aujourd'hui"));
+                        msgbox.addButton(NoBouton,UpSmallButton::EDITBUTTON);
+                    }
+                    ImpBouton->setText(tr("Réimprimer à\nla date d'aujourd'hui"));
+                    msgbox.addButton(ImpBouton,UpSmallButton::COPYBUTTON);
                 }
-                ImpBouton->setText(tr("Réimprimer à\nla date d'aujourd'hui"));
-                msgbox.addButton(ImpBouton,UpSmallButton::COPYBUTTON);
             }
         }
-    }
-    else if (QDate::currentDate() == quer1.value(1).toDate())
-    {
-        if (proc->getDataUser()["Medecin"].toInt() == 1)
-            if (quer1.value(3).toString() != IMAGERIE && quer1.value(3).toString() != DOCUMENTRECU)
-            {
-                {
-                    NoBouton->setText(tr("Modifier\net imprimer"));
-                    msgbox.addButton(NoBouton,UpSmallButton::EDITBUTTON);
-                    detruirealafin = true;
-                }
-            }
-    }
-    OKBouton->setText(tr("Réimprimer\nle document"));
-    msgbox.addButton(OKBouton, UpSmallButton::PRINTBUTTON);
-    msgbox.exec();
-
-    //Reimpression simple du document, sans réédition => pas d'action sur la BDD
-    if (msgbox.clickedButton() == OKBouton)
-    {
-        bool pict = (quer1.value(3).toString() == IMAGERIE || quer1.value(3).toString() == DOCUMENTRECU);
-        QMap<QString,QVariant> doc = CalcImage(idimpr.toInt(), pict, false);
-        QByteArray bapdf = doc.value("ba").toByteArray();
-        if (doc.value("Type").toString() == PDF)     // le document est un pdf ou un document texte
+        else if (QDate::currentDate() == quer1.value(1).toDate())
         {
-            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-            if (!document || document->isLocked()) {
-                UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                delete document;
-                return;
-            }
-            if (document == 0) {
-                UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                delete document;
-                return;
-            }
-
-            document->setRenderHint(Poppler::Document::TextAntialiasing);
-            int numpages = document->numPages();
-            for (int i=0; i<numpages ;i++)
-            {
-                Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
-                if (pdfPage == 0) {
-                    UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                    delete document;
-                    return;
-                }
-                image = pdfPage->renderToImage(600,600);
-                if (image.isNull()) {
-                    UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                    delete document;
-                    return;
-                }
-                // ... use image ...
-                if (i == 0)
+            if (proc->getDataUser()["Medecin"].toInt() == 1)
+                if (quer1.value(3).toString() != IMAGERIE && quer1.value(3).toString() != DOCUMENTRECU)
                 {
-                    if (AvecPrevisu)
                     {
-                        QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
-                        connect(dialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(Slot_Print(QPrinter*)));
-                        dialog->exec();
-                        delete dialog;
+                        NoBouton->setText(tr("Modifier\net imprimer"));
+                        msgbox.addButton(NoBouton,UpSmallButton::EDITBUTTON);
+                        detruirealafin = true;
+                    }
+                }
+        }
+        OKBouton->setText(tr("Réimprimer\nle document"));
+        msgbox.addButton(OKBouton, UpSmallButton::PRINTBUTTON);
+        msgbox.exec();
+
+        //Reimpression simple du document, sans réédition => pas d'action sur la BDD
+        if (msgbox.clickedButton() == OKBouton)
+        {
+            bool pict = (quer1.value(3).toString() == IMAGERIE || quer1.value(3).toString() == DOCUMENTRECU);
+            QMap<QString,QVariant> doc = CalcImage(idimpr.toInt(), pict, false);
+            QByteArray bapdf = doc.value("ba").toByteArray();
+            if (doc.value("Type").toString() == PDF)     // le document est un pdf ou un document texte
+            {
+                Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
+                if (!document || document->isLocked()) {
+                    UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+                    delete document;
+                    return;
+                }
+                if (document == 0) {
+                    UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+                    delete document;
+                    return;
+                }
+
+                document->setRenderHint(Poppler::Document::TextAntialiasing);
+                int numpages = document->numPages();
+                for (int i=0; i<numpages ;i++)
+                {
+                    Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
+                    if (pdfPage == 0) {
+                        UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
+                        delete document;
+                        return;
+                    }
+                    image = pdfPage->renderToImage(600,600);
+                    if (image.isNull()) {
+                        UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
+                        delete document;
+                        return;
+                    }
+                    // ... use image ...
+                    if (i == 0)
+                    {
+                        if (AvecPrevisu)
+                        {
+                            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
+                            connect(dialog, &QPrintPreviewDialog::paintRequested, [=] {Print(printer);});
+                            dialog->exec();
+                            delete dialog;
+                        }
+                        else
+                        {
+                            QPrintDialog *dialog = new QPrintDialog(printer, this);
+                            if (dialog->exec() != QDialog::Rejected)
+                                Print(printer);
+                            delete dialog;
+                            AvecPrevisu = proc->ApercuAvantImpression();
+                        }
                     }
                     else
-                    {
-                        QPrintDialog *dialog = new QPrintDialog(printer, this);
-                        if (dialog->exec() != QDialog::Rejected)
-                            Slot_Print(printer);
-                        delete dialog;
-                        AvecPrevisu = proc->ApercuAvantImpression();
-                    }
+                        Print(printer);
+                    delete pdfPage;
+                }
+                delete document;
+            }
+            if (doc.value("Type").toString() == JPG)     // le document est un jpg
+            {
+                QPixmap pix;
+                pix.loadFromData(bapdf);
+                image= pix.toImage();
+                if (AvecPrevisu)
+                {
+                    QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
+                    connect(dialog, &QPrintPreviewDialog::paintRequested, [=] {Print(printer);});
+                    dialog->exec();
+                    delete dialog;
                 }
                 else
-                    Slot_Print(printer);
-                delete pdfPage;
+                {
+                    QPrintDialog *dialog = new QPrintDialog(printer, this);
+                    if (dialog->exec() != QDialog::Rejected)
+                        Print(printer);
+                    delete dialog;
+                    AvecPrevisu = proc->ApercuAvantImpression();
+                }
             }
-            delete document;
         }
-        if (doc.value("Type").toString() == JPG)     // le document est un jpg
+
+        //Réédition d'un document - ne concerne que les courriers et ordonnances émis => on enregistre le nouveau document dans la BDD
+        else if (msgbox.clickedButton() == NoBouton
+                 || msgbox.clickedButton() == ImpBouton)
         {
-            QPixmap pix;
-            pix.loadFromData(bapdf);
-            image= pix.toImage();
-            if (AvecPrevisu)
+            // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
+            QString req = "select idUser, Titre, TypeDoc, TextEntete, TextCorps, TextOrigine, TextPied, ALD, FormatDoc, SousTypeDoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
+            QSqlQuery quer(req,proc->getDataBase());
+            if (quer.size() == 0) {
+                UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+                return;
+            }
+            quer.first();
+            QString     Corps, Entete, Pied, txt;
+            QTextEdit   *Etat_textEdit = new QTextEdit;
+            bool        AvecNumPage = false;
+            bool        aa;
+
+            gDataUser = proc->setDataOtherUser(quer.value(0).toInt());
+            if (!gDataUser.value("Success").toBool())
             {
-                QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
-                connect(dialog, SIGNAL(paintRequested(QPrinter*)), this, SLOT(Slot_Print(QPrinter*)));
-                dialog->exec();
-                delete dialog;
+                UpMessageBox::Watch(this,tr("Impossible de retrouver l'utilisateur"));
+                return;
             }
-            else
+
+            //création de l'entête
+            Entete = quer.value(3).toString();
+            if (Entete == "")
             {
-                QPrintDialog *dialog = new QPrintDialog(printer, this);
-                if (dialog->exec() != QDialog::Rejected)
-                    Slot_Print(printer);
-                delete dialog;
-                AvecPrevisu = proc->ApercuAvantImpression();
+                UpMessageBox::Watch(this,tr("Impossible de retrouver l'entête"));
+                return;
             }
-        }
-    }
+            Entete.replace(QRegExp("<!--date-->[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùüûÙçÇ'a-zA-ZŒœ0-9°, -]*<!--date-->"), "<!--date-->" + gDataUser["Ville"].toString() + tr(" le, ") + QDate::currentDate().toString(tr("d MMMM yyyy")) + "<!--date-->");
+            //création du pied
+            Pied = quer.value(6).toString();
+            if (Pied == "")
+            {
+                UpMessageBox::Watch(this,tr("Impossible de retrouver le pied"));
+                return;
+            }
 
-    //Réédition d'un document - ne concerne que les courriers et ordonnances émis => on enregistre le nouveau document dans la BDD
-    else if (msgbox.clickedButton() == NoBouton
-          || msgbox.clickedButton() == ImpBouton)
-    {
-       // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
-        QString req = "select idUser, Titre, TypeDoc, TextEntete, TextCorps, TextOrigine, TextPied, ALD, FormatDoc, SousTypeDoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
-        QSqlQuery quer(req,proc->getDataBase());
-        if (quer.size() == 0) {
-            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-            return;
-        }
-        quer.first();
-        QString     Corps, Entete, Pied, txt;
-        QTextEdit   *Etat_textEdit = new QTextEdit;
-        bool        AvecNumPage = false;
-        bool        aa;
-
-        gDataUser = proc->setDataOtherUser(quer.value(0).toInt());
-        if (!gDataUser.value("Success").toBool())
-        {
-            UpMessageBox::Watch(this,tr("Impossible de retrouver l'utilisateur"));
-            return;
-        }
-
-        //création de l'entête
-        Entete = quer.value(3).toString();
-        if (Entete == "")
-        {
-            UpMessageBox::Watch(this,tr("Impossible de retrouver l'entête"));
-            return;
-        }
-        Entete.replace(QRegExp("<!--date-->[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùüûÙçÇ'a-zA-ZŒœ0-9°, -]*<!--date-->"), "<!--date-->" + gDataUser["Ville"].toString() + tr(" le, ") + QDate::currentDate().toString(tr("d MMMM yyyy")) + "<!--date-->");
-        //création du pied
-        Pied = quer.value(6).toString();
-        if (Pied == "")
-        {
-            UpMessageBox::Watch(this,tr("Impossible de retrouver le pied"));
-            return;
-        }
-
-        // creation du corps de l'ordonnance
-        QString txtautiliser    = (quer.value(5).toString() == QString()?           quer.value(4).toString()        : quer.value(5).toString());
-        bool ALD                = (quer.value(7).toInt()==1);
-        txt                     = (msgbox.clickedButton() == NoBouton?              proc->Edit(txtautiliser)        : txtautiliser);
-        Corps                   = (quer.value(2).toString()==tr("Prescription")?    proc->ImpressionCorps(txt,ALD)  : proc->ImpressionCorps(txt));
-        Etat_textEdit           ->setHtml(Corps);
-        if (Etat_textEdit->toPlainText() == "")
+            // creation du corps de l'ordonnance
+            QString txtautiliser    = (quer.value(5).toString() == QString()?           quer.value(4).toString()        : quer.value(5).toString());
+            bool ALD                = (quer.value(7).toInt()==1);
+            txt                     = (msgbox.clickedButton() == NoBouton?              proc->Edit(txtautiliser)        : txtautiliser);
+            Corps                   = (quer.value(2).toString()==tr("Prescription")?    proc->ImpressionCorps(txt,ALD)  : proc->ImpressionCorps(txt));
+            Etat_textEdit           ->setHtml(Corps);
+            if (Etat_textEdit->toPlainText() == "")
             {   UpMessageBox::Watch(this,tr("Rien à imprimer"));    return; }
-        int TailleEnTete        = (ALD?                                             proc->TailleEnTeteALD()      : proc->TailleEnTete());
+            int TailleEnTete        = (ALD?                                             proc->TailleEnTeteALD()      : proc->TailleEnTete());
 
-        bool AvecDupli          = (proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES" && quer.value(2).toString() == tr("Prescription"));
-        bool AvecChoixImprimante = true;
-        aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
-                           proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
-                           AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
+            bool AvecDupli          = (proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES" && quer.value(2).toString() == tr("Prescription"));
+            bool AvecChoixImprimante = true;
+            aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
+                                    proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
+                                    AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
 
-        // stockage du document dans la base de donnees - table impressions
-        if (aa)
-        {
-            bool a = true;
-            while (a) {
-                     // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-                int debut = Corps.lastIndexOf("<p");
-                int fin   = Corps.lastIndexOf("</p>");
-                int longARetirer = fin - debut + 4;
-                if (Corps.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                    Corps.remove(debut,longARetirer);
-                else a = false;
+            // stockage du document dans la base de donnees - table impressions
+            if (aa)
+            {
+                bool a = true;
+                while (a) {
+                    // il faut retirer la dernière ligne du html qui contient le retour à la ligne
+                    int debut = Corps.lastIndexOf("<p");
+                    int fin   = Corps.lastIndexOf("</p>");
+                    int longARetirer = fin - debut + 4;
+                    if (Corps.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
+                        Corps.remove(debut,longARetirer);
+                    else a = false;
+                }
+                Corps.replace("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
+                Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
+
+                QSqlQuery query = QSqlQuery(proc->getDataBase());
+                // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
+                query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idUser, idpat, TypeDoc, SousTypeDoc, Titre, TextEntete, TextCorps, TextOrigine, TextPied, Dateimpression, FormatDoc, idLieu)"
+                                                                   " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre, :textEntete, :textCorps, :textOrigine, :textPied, :dateimpression, :formatdoc, :idlieu)");
+                query.bindValue(":iduser", quer.value(0).toString());
+                query.bindValue(":idpat", QString::number(gidPatient));
+                query.bindValue(":typeDoc", quer.value(2).toString());
+                query.bindValue(":soustypedoc", quer.value(9).toString());
+                query.bindValue(":titre", quer.value(1).toString());
+                query.bindValue(":textEntete", Entete);
+                query.bindValue(":textCorps", Corps);
+                query.bindValue(":textOrigine", txt);
+                query.bindValue(":textPied", Pied);
+                query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
+                query.bindValue(":formatdoc", quer.value(8).toString());
+                query.bindValue(":idlieu", proc->getDataUser()["idLieu"].toString());
+                if(!query.exec())
+                    UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
+                RemplirTreeView();
+                if (detruirealafin)
+                    QSqlQuery("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, proc->getDataBase());
             }
-            Corps.replace("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-            Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-
-            QSqlQuery query = QSqlQuery(proc->getDataBase());
-            // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-            query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idUser, idpat, TypeDoc, SousTypeDoc, Titre, TextEntete, TextCorps, TextOrigine, TextPied, Dateimpression, FormatDoc, idLieu)"
-                                                               " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre, :textEntete, :textCorps, :textOrigine, :textPied, :dateimpression, :formatdoc, :idlieu)");
-            query.bindValue(":iduser", quer.value(0).toString());
-            query.bindValue(":idpat", QString::number(gidPatient));
-            query.bindValue(":typeDoc", quer.value(2).toString());
-            query.bindValue(":soustypedoc", quer.value(9).toString());
-            query.bindValue(":titre", quer.value(1).toString());
-            query.bindValue(":textEntete", Entete);
-            query.bindValue(":textCorps", Corps);
-            query.bindValue(":textOrigine", txt);
-            query.bindValue(":textPied", Pied);
-            query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
-            query.bindValue(":formatdoc", quer.value(8).toString());
-            query.bindValue(":idlieu", proc->getDataUser()["idLieu"].toString());
-            if(!query.exec())
-                UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
-            RemplirTreeView();
-            if (detruirealafin)
-                QSqlQuery("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, proc->getDataBase());
+            delete Etat_textEdit;
         }
-        delete Etat_textEdit;
+        delete OKBouton;
+        delete NoBouton;
+        delete AnnulBouton;
+        msgbox.close();
     }
-    delete OKBouton;
-    delete NoBouton;
-    delete AnnulBouton;
-    msgbox.close();
+    connect(PrintButton,        &QPushButton::clicked, [=] {ImprimeDoc();});
+#endif
 }
 
 void dlg_docsexternes::PlayerCtrl(int ctrl)
@@ -851,14 +853,14 @@ void dlg_docsexternes::PlayerCtrl(int ctrl)
     }
 }
 
-void dlg_docsexternes::Slot_Print(QPrinter *Imprimante)
+void dlg_docsexternes::Print(QPrinter *Imprimante)
 {
     QPainter PrintingPreView(Imprimante);
     QPixmap pix         = QPixmap::fromImage(image).scaledToWidth(rect.width(),Qt::SmoothTransformation);
     PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
 }
 
-void dlg_docsexternes::Slot_SupprimeDoc()
+void dlg_docsexternes::SupprimeDoc()
 {
     int ndocs = CompteNbreDocs();
     QModelIndex idx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
@@ -957,7 +959,7 @@ void dlg_docsexternes::Slot_SupprimeDoc()
      }
 }
 
-void dlg_docsexternes::Slot_ZoomDoc()
+void dlg_docsexternes::ZoomDoc()
 {
     if (gMode == Normal)
     {
@@ -1132,7 +1134,7 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
         {
             //static int eventEnumIndex = QEvent::staticMetaObject.indexOfEnumerator("Type");
             //qDebug() << QEvent::staticMetaObject.enumerator(eventEnumIndex).valueToKey(event->type());
-            Slot_ZoomDoc();;
+            ZoomDoc();;
         }
 
      }

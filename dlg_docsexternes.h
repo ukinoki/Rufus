@@ -84,7 +84,6 @@ private:
     bool                    initOK;
     int                     CompteNbreDocs();
     bool                    EcritDansUnFichier(QString NomFichier, QByteArray TexteFichier);
-    void                    ImprimeDoc(QString idimpr);
     QMap<QString,QVariant>  CalcImage(int idimpression, bool imagerie, bool afficher = true);
 
     void                    BasculeTriListe(int);
@@ -92,11 +91,12 @@ private:
     void                    EnregistreVideo();
     void                    ImprimeDoc();
     void                    PlayerCtrl(int);
+    void                    SupprimeDoc();
+    void                    ZoomDoc();
+    void                    Print(QPrinter*);
 
 private slots:
-    void                    Slot_Print(QPrinter*);
-    void                    Slot_SupprimeDoc();
-    void                    Slot_ZoomDoc();
+    void                    Slot_CompteNbreDocs();
 };
 
 #endif // DLG_DOCSEXTERNES_H
