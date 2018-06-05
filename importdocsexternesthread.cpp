@@ -108,6 +108,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread()
                 }
                 else if (Appareil == "TOPCON ALADDIN II")
                 {
+                    //1051_MIGUEL_JEAN-ROBERT_01-06-1948_Aladdin_06_06_2018_13_16.pdf
                     QStringList listn   = nomdoc.split("_");
                     int n               = listn.size();
                     QString jour        = listn.at(n-5);

@@ -33,6 +33,7 @@ class dlg_docsscanner : public UpDialog
 public:
     explicit dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *parent = Q_NULLPTR);
     ~dlg_docsscanner();
+    void                NavigueVers(QString);
 
 private:
     Procedures          *proc;
@@ -51,12 +52,8 @@ private:
     QString             docpath;
     bool                eventFilter(QObject *, QEvent *);
     void                AfficheDoc(QString filebut);
-
-public slots:
-    void                Slot_NavigueVers(QString);
-private slots:
-    void                Slot_ValideFiche();
-    void                Slot_ChangeFile();
+    void                ValideFiche();
+    void                ChangeFile();
 };
 
 #endif // DLG_DOCSSCANNER_H

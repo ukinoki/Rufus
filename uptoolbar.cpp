@@ -50,7 +50,8 @@ UpToolBar::~UpToolBar()
 void UpToolBar::Slot_TBChoix()
 {
     QAction *Choix = static_cast<QAction*>(sender());
-    emit TBSignal(Choix->text());
+    action = Choix->text();
+    emit TBSignal();
 }
 
 QAction* UpToolBar::First()

@@ -46,8 +46,6 @@ public:
     int                         gidUserEntete;
 
 private slots:
-    void                        Slot_Annulation();
-    void                        Slot_ChoixButtonFrame(int);
     void                        Slot_CheckPublicEditable();
     void                        Slot_dblClicktextEdit();
     void                        Slot_DocCellClick(int row);
@@ -92,8 +90,10 @@ private:
     QTimer                      *gTimerEfface;
     QWidget                     *gWidg;
 
-    void                        ChoixMenuContextuel(QString);
 
+    void                        Annulation();
+    void                        ChoixButtonFrame(int, WidgetButtonFrame *);
+    void                        ChoixMenuContextuel(QString);
     int                         AskDialog(QString titre);
     bool                        ChercheDoublon(QString, int row);
     void                        ChoixCorrespondant(QSqlQuery);

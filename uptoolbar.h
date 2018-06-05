@@ -32,6 +32,7 @@ public:
     QAction*            Last();
     QAction*            Next();
     QAction*            Prec();
+    QString             action;
 private:
     QIcon               giconPageAvant, giconAvant,giconApres, giconPageApres;
     void                EmetReponse();
@@ -39,7 +40,7 @@ private:
 private slots:
     void                Slot_TBChoix();
 signals:
-    void                TBSignal(QString);
+    void                TBSignal();
 };
 
 #endif // UPTOOLBAR_H

@@ -21,6 +21,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextEdit>
 #include <QMouseEvent>
 #include <QKeyEvent>
+#include <QApplication>
 
 class UpTextEdit : public QTextEdit
 {
@@ -41,7 +42,7 @@ public:
     QString     getChampCorrespondant() const;
     void        setTableCorrespondant(QString tablecorrespondant);
     QString     getTableCorrespondant() const;
-
+    void        setText(const QString &text);
 private:
     void        mouseDoubleClickEvent( QMouseEvent * event ) Q_DECL_OVERRIDE;
     bool        eventFilter(QObject *obj, QEvent *event) Q_DECL_OVERRIDE;

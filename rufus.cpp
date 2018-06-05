@@ -1975,7 +1975,7 @@ void Rufus::EnregistreDocScanner()
     Dlg_DocsScan = new dlg_docsscanner(proc,idpat, this);
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + nomprenompat);
     Dlg_DocsScan->show();
-    Dlg_DocsScan->Slot_NavigueVers("Fin");
+    Dlg_DocsScan->NavigueVers("Fin");
 }
 
 void Rufus::EnregistreVideo()
@@ -2001,7 +2001,7 @@ void Rufus::EnregistreVideo()
     Dlg_DocsVideo = new dlg_docsvideo(proc,idpat, this);
     Dlg_DocsVideo->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + nomprenompat);
     Dlg_DocsVideo->show();
-    Dlg_DocsVideo->Slot_NavigueVers("Fin");
+    Dlg_DocsVideo->NavigueVers("Fin");
 }
 
 void Rufus::Slot_FiltrecheckBoxClicked()
@@ -5832,23 +5832,25 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             objUpText->textCursor().clearSelection();
             if (objUpText->getValeurAvant() != objUpText->toHtml())
             {
-                if (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES)
+                if (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES || objUpText->getTableCorrespondant() == NOM_TABLE_MESSAGES)
                 {
                     QString Corps = objUpText->toHtml();
                     Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
                     Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
+#ifdef Q_OS_LINUX
+                    if (Corps.contains("<!MAC>"))
+                        Corps.replace("<!MAC>","<!LINUX>");
+                    else if (!Corps.contains("<!LINUX>"))
+                        Corps.append("<!LINUX>");
+#endif
+#ifdef Q_OS_MAC
+                    if (Corps.contains("<!LINUX>"))
+                        Corps.replace("<!LINUX>","<!MAC>");
+                    else if (!Corps.contains("<!MAC>"))
+                        Corps.append("<!MAC>");
+#endif
                     requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
-                            + proc->CorrigeApostrophe(Corps) + "' WHERE idActe = " + QString::number(gidActe);
-                    QSqlQuery UpdateUpTextEditQuery (requetemodif,db);
-                    proc->TraiteErreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
-                }
-                else if (objUpText->getTableCorrespondant() == NOM_TABLE_MESSAGES)
-                {
-                    QString Corps = objUpText->toHtml();
-                    Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-                    Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
-                    requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
-                            + proc->CorrigeApostrophe(Corps) + "' WHERE idMessage = " + QString::number(objUpText->getId());
+                            + proc->CorrigeApostrophe(Corps) + "' WHERE " + (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES? "idActe" : "idMessage") + "= " + QString::number(gidActe);
                     QSqlQuery UpdateUpTextEditQuery (requetemodif,db);
                     proc->TraiteErreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                 }
@@ -6130,7 +6132,6 @@ void Rufus::AfficheActe(int idActe)
 
         ui->ActeDatedateEdit->setDate(AfficheActeQuery.value(3).toDate());
         ui->ActeDatedateEdit->setEnabled(false);
-
         ui->ActeMotiftextEdit->setText(AfficheActeQuery.value(4).toString());
         ui->ActeTextetextEdit->setText(AfficheActeQuery.value(5).toString());
         ui->ActeConclusiontextEdit->setText(AfficheActeQuery.value(6).toString());
