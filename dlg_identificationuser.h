@@ -25,6 +25,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtSql>
 
 #include "upmessagebox.h"
+#include "utils.h"
 
 namespace Ui {
 class dlg_identificationuser;
@@ -42,14 +43,14 @@ public:
     QMap<QString,QString>   getParamConnexion();
     int                     getidUser();
 
+
 private slots:
     void                    Slot_RetourOK();
     void                    Slot_RetourAnnul();
-    void                    Slot_EnableControleDonnees();
 
 private:
     int                     ControleDonnees();
-    void                    Pause(int msec);
+    //void                    Pause(int msec);
     int                     gidUser, gPort;
     QMap<QString,QString>   gmap;
     QRegExp                 rxIP;

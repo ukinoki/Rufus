@@ -44,17 +44,6 @@ public:
 
 private:
     bool        eventFilter(QObject *obj, QEvent *event)  ;
-    QIcon       giconBack,
-                giconCancel,    giconCancelpushed,
-                giconClose,     giconClosepushed,
-                giconCopy,
-                giconDoNotRecord,
-                giconEdit,
-                giconOK,        giconOKpushed,
-                giconOups,
-                giconPrint,
-                giconReception, giconRecord,
-                giconSuppr;
     int         id;
     QVariant    gLuggage;
     void        AfficheToolTip();

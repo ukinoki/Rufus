@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_depenses.h"
+#include "icons.h"
 #include "ui_dlg_depenses.h"
 
 dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
@@ -76,14 +77,14 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
     EnregupPushButton = new UpPushButton(ui->frame);
     EnregupPushButton->setGeometry(155,285,150,50);
     EnregupPushButton->setText("Valider");
-    EnregupPushButton->setIcon(proc->giconOK);
+    EnregupPushButton->setIcon(Icons::icOK());
     EnregupPushButton->setIconSize(QSize(30,30));
     EnregupPushButton->setVisible(true);
 
     AnnulupPushButton = new UpPushButton(ui->frame);
     AnnulupPushButton->setGeometry(5,285,150,50);
     AnnulupPushButton->setText("Annuler");
-    AnnulupPushButton->setIcon(proc->giconAnnul);
+    AnnulupPushButton->setIcon(Icons::icAnnuler());
     AnnulupPushButton->setIconSize(QSize(30,30));
     AnnulupPushButton->setVisible(true);
 

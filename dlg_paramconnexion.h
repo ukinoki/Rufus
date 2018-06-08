@@ -47,7 +47,6 @@ private:
     bool            VerifFiche();
     QTimer          *gTimer;
     QRegExp         rxIP;
-    QIcon           giconHelp, giconNull;
     bool            gVisible;
     QSqlDatabase    db;
     bool            TestConnexion();

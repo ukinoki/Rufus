@@ -41,7 +41,6 @@ public:
 
 private:
     bool        eventFilter(QObject *obj, QEvent *event)  ;
-    QIcon       giconOK, giconAnnul, giconImprime;
     int         id;
     QString     gToolTipMsg;
 };

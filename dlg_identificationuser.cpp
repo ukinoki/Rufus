@@ -16,7 +16,14 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_identificationuser.h"
+#include "icons.h"
 #include "ui_dlg_identificationuser.h"
+
+/*!
+*
+* Ecran de connexion de l'utilisateur
+*
+*/
 
 dlg_identificationuser::dlg_identificationuser(QString tblUser, QString Serveur, int Port, bool SSL, QString Base, bool ChgUser, QWidget *parent) :
     QDialog(parent),
@@ -31,13 +38,14 @@ dlg_identificationuser::dlg_identificationuser(QString tblUser, QString Serveur,
     ui->MDPlineEdit     ->setValidator(new QRegExpValidator(rx,this));
     ui->MDPlineEdit     ->setEchoMode(QLineEdit::Password);
 
-    connect (ui->OKpushButton,      SIGNAL(clicked()),  this,   SLOT (Slot_RetourOK()));
+    connect (ui->OKpushButton,      &QPushButton::clicked,  this,   &dlg_identificationuser::Slot_RetourOK);
     connect (ui->AnnulpushButton,   SIGNAL(clicked()),  this,   SLOT (Slot_RetourAnnul()));
 
     ui->OKpushButton    ->setShortcut(QKeySequence("Meta+Return"));
     ui->AnnulpushButton ->setShortcut(QKeySequence("F12"));
-    ui->AnnulpushButton ->installEventFilter(this);
+
     ui->OKpushButton    ->installEventFilter(this);
+    ui->AnnulpushButton ->installEventFilter(this);
     ui->LoginlineEdit   ->installEventFilter(this);
     ui->MDPlineEdit     ->installEventFilter(this);
 
@@ -80,13 +88,9 @@ void dlg_identificationuser::Slot_RetourAnnul()
 
 void dlg_identificationuser::Slot_RetourOK()
 {
-    // les 5 lignes qui suivent sont un bricolage infâme pour éviter des signaux d'erreur en cas de double frappe rapprochée sur Enter sur le bouton Connecter ou le MDPlineEdit
-    disconnect (ui->OKpushButton,   SIGNAL(clicked()),  this,   SLOT (Slot_RetourOK()));
-    ui->MDPlineEdit ->removeEventFilter(this);
-    gTimerControl   ->start(1500);
-    gTimerControl   ->setSingleShot(true);
-    connect (gTimerControl,         SIGNAL(timeout()),  this,   SLOT (Slot_EnableControleDonnees()));
-    //
+    //On desactive le button OK pour eviter de recliquer dessus.
+    ui->OKpushButton->setEnabled(false);
+
 
     QString AdminDocs = NOM_ADMINISTRATEURDOCS;
     if (ui->LoginlineEdit->text().toUpper() == AdminDocs.toUpper())
@@ -107,12 +111,9 @@ void dlg_identificationuser::Slot_RetourOK()
         return;
     }
     db.close();
-}
 
-void dlg_identificationuser::Slot_EnableControleDonnees()
-{
-    connect (ui->OKpushButton,  SIGNAL(clicked()),  this,   SLOT (Slot_RetourOK()));
-    ui->MDPlineEdit->installEventFilter(this);
+    //on le reactive
+    ui->OKpushButton->setEnabled(true);
 }
 
 //-------------------------------------------------------------------------------------
@@ -148,6 +149,7 @@ bool dlg_identificationuser::eventFilter(QObject *obj, QEvent *event)
 --------------------------------------------------------------------------------------------------------------*/
 int dlg_identificationuser::ControleDonnees()
 {
+    //TODO : SQL
     QString req;
     if (ui->LoginlineEdit->text() == "")    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}
     if (ui->MDPlineEdit->text() == "")      {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return 0;}
@@ -195,8 +197,8 @@ int dlg_identificationuser::ControleDonnees()
 
         if (!db.open())
         {
-            ui->IconServerOKupLabel->setPixmap(QPixmap("://error.png"));
-            Pause(200);
+            ui->IconServerOKupLabel->setPixmap(Icons::pxError());
+            Utils::Pause(200);
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("Impossible de se connecter au serveur avec le login ") + ui->LoginlineEdit->text()
                             + tr(" et ce mot de passe") + "\n"
@@ -208,8 +210,8 @@ int dlg_identificationuser::ControleDonnees()
         QSqlQuery grantsquery(req,db);
         if (grantsquery.size()==0)
         {
-            ui->IconServerOKupLabel->setPixmap(QPixmap("://error.png"));
-            Pause(600);
+            ui->IconServerOKupLabel->setPixmap(Icons::pxError());
+            Utils::Pause(600);
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("Impossible de retrouver les droits de l'utilisateur ") + ui->LoginlineEdit->text() + "\n" +
                             tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
@@ -219,24 +221,24 @@ int dlg_identificationuser::ControleDonnees()
         QString reponse = grantsquery.value(0).toString();
         if (reponse.left(9) != "GRANT ALL")
         {
-            ui->IconServerOKupLabel->setPixmap(QPixmap("://error.png"));
-            Pause(600);
+            ui->IconServerOKupLabel->setPixmap(Icons::pxError());
+            Utils::Pause(600);
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("L'utilisateur ") + ui->LoginlineEdit->text()
                             + tr(" existe mais ne dispose pas de toutes les autorisations pour modifier/créer des données sur le serveur.")
                             + "\n" + tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
             return -2;
         }
-        ui->IconServerOKupLabel->setPixmap(QPixmap("://check.png"));
-        Pause(300);
+        ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
+        Utils::Pause(300);
         req = "SHOW TABLES FROM " NOM_BASE_CONSULTS " LIKE '%tilisateurs%'";
         //qDebug() << req;
         QSqlQuery VerifBaseQuery(req,db);
         //UpMessageBox::Watch(this,req + "\n" + QString::number(VerifBaseQuery.size()));
         if (VerifBaseQuery.size()<2)
         {
-            ui->IconBaseOKupLabel->setPixmap(QPixmap("://error.png"));
-            Pause(600);
+            ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
+            Utils::Pause(600);
             return -3;
         }
         req =   "SELECT idUser FROM " + gTblUser + " WHERE UserLogin = '" +
@@ -258,14 +260,14 @@ int dlg_identificationuser::ControleDonnees()
             QSqlQuery listusrquery (req,db);
             if (listusrquery.size() == 0)
             {
-                ui->IconBaseOKupLabel->setPixmap(QPixmap("://error.png"));
-                Pause(600);
+                ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
+                Utils::Pause(600);
                 return -4;
             }
-            ui->IconBaseOKupLabel->setPixmap(QPixmap("://check.png"));
-            Pause(300);
-            ui->IconUserOKupLabel->setPixmap(QPixmap("://error.png"));
-            Pause(600);
+            ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
+            Utils::Pause(300);
+            ui->IconUserOKupLabel->setPixmap(Icons::pxError());
+            Utils::Pause(600);
             listusrquery.first();
             QString listusr;
             bool ExistLogin = false;
@@ -294,8 +296,8 @@ int dlg_identificationuser::ControleDonnees()
         }
         else
         {
-            ui->IconBaseOKupLabel->setPixmap(QPixmap("://check.png"));
-            Pause(300);
+            ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
+            Utils::Pause(300);
             UserQuery.first();
             gidUser = UserQuery.value(0).toInt();
             req = "select NomPosteconnecte from Rufus.utilisateurs where iduser = " + QString::number(gidUser);
@@ -305,8 +307,8 @@ int dlg_identificationuser::ControleDonnees()
                 Userquer.first();
                 if (Userquer.value(0).toString() != QHostInfo::localHostName().left(60))
                 {
-                    ui->IconUserOKupLabel->setPixmap(QPixmap("://error.png"));
-                    Pause(600);
+                    ui->IconUserOKupLabel->setPixmap(Icons::pxError());
+                    Utils::Pause(600);
                     UpMessageBox::Watch(this, tr("Utilisateur déjà connecté"),
                                     tr("Impossible de vous connecter sur ce poste!") + "\n"
                                     + tr("Vous semblez être déjà connecté sur le poste") + "\n" + Userquer.value(0).toString() + "\n"
@@ -318,24 +320,24 @@ int dlg_identificationuser::ControleDonnees()
                 }
             }
         }
-        ui->IconUserOKupLabel->setPixmap(QPixmap("://check.png"));
-        Pause(600);
+        ui->IconUserOKupLabel->setPixmap(Icons::pxCheck());
+        Utils::Pause(600);
         return gidUser;
     }
     else if (gChgUsr)
     {
-        ui->IconServerOKupLabel->setPixmap(QPixmap("://check.png"));
-        Pause(300);
-        ui->IconBaseOKupLabel->setPixmap(QPixmap("://check.png"));
-        Pause(300);
+        ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
+        Utils::Pause(300);
+        ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
+        Utils::Pause(300);
         req =   "SELECT idUser FROM " + gTblUser + " WHERE UserLogin = '" +
                 ui->LoginlineEdit->text() +
                 "' AND UserMDP = '" + ui->MDPlineEdit->text() + "'" ;
         QSqlQuery UserQuery (req,db);
         if (UserQuery.size() == 0)
         {
-            ui->IconUserOKupLabel->setPixmap(QPixmap("://error.png"));
-            Pause(600);
+            ui->IconUserOKupLabel->setPixmap(Icons::pxError());
+            Utils::Pause(600);
             UpMessageBox::Watch(this, tr("Utilisateur inconnu"),
                             tr("L'utilisateur ") + ui->LoginlineEdit->text()
                             + tr(" n'existe pas dans la base avec ce mot de passe") + "\n");
@@ -352,8 +354,8 @@ int dlg_identificationuser::ControleDonnees()
                 Userquer.first();
                 if (Userquer.value(0).toString() != QHostInfo::localHostName().left(60))
                 {
-                    ui->IconUserOKupLabel->setPixmap(QPixmap("://error.png"));
-                    Pause(600);
+                    ui->IconUserOKupLabel->setPixmap(Icons::pxError());
+                    Utils::Pause(600);
                     UpMessageBox::Watch(this, tr("Utilisateur déjà connecté"),
                                     tr("Impossible de vous connecter sur ce poste!") + "\n"
                                     + tr("Vous semblez être déjà connecté sur le poste\n") + Userquer.value(0).toString() + "\n"
@@ -364,17 +366,10 @@ int dlg_identificationuser::ControleDonnees()
                 }
             }
         }
-        ui->IconUserOKupLabel->setPixmap(QPixmap("://check.png"));
-        Pause(600);
+        ui->IconUserOKupLabel->setPixmap(Icons::pxCheck());
+        Utils::Pause(600);
         return gidUser;
     }
     return -7;
-}
-
-void dlg_identificationuser::Pause(int msec)
-{
-        QTime dieTime= QTime::currentTime().addMSecs(msec);
-         while (QTime::currentTime() < dieTime)
-             QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
 }
 

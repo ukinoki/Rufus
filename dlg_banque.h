@@ -41,7 +41,7 @@ class dlg_banque : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_banque(QSqlDatabase gdb, QMap<QString,QIcon> Icons, QWidget *parent = Q_NULLPTR, QString nouvbanqueabrege = "");
+    explicit dlg_banque(QSqlDatabase gdb, QWidget *parent = Q_NULLPTR, QString nouvbanqueabrege = "");
     ~dlg_banque();
     Ui::dlg_banque  *ui;
     UpTableWidget   *uptablebanq;
@@ -50,7 +50,6 @@ private:
     int                                     gMode;
     bool                                    gFermeApresValidation;
     enum gMode                              {Norm, Modif, Nouv, Suppr};
-    QIcon                                   giconEuro;
     QStringList                             gListBanques;
     QSqlDatabase                            db;
     WidgetButtonFrame                       *widgButtons;

@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_docsexternes.h"
+#include "icons.h"
 
 static inline double mmToInches(double mm) { return mm * 0.039370147; }
 
@@ -119,8 +120,8 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     connect(PrintButton,        SIGNAL(clicked(bool)),          this,           SLOT(Slot_ImprimeDoc()));
     connect(SupprButton,        SIGNAL(clicked(bool)),          this,           SLOT(Slot_SupprimeDoc()));
 
-    ScrollTable     ->setCursor(QCursor(QPixmap("://Zoom-In.png").scaled(30,30)));
-    GraphicView     ->setCursor(QCursor(QPixmap("://Zoom-In.png").scaled(30,30)));
+    ScrollTable     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //TODO : icon scaled : pxZoomIn 30,30
+    GraphicView     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //TODO : icon scaled : pxZoomIn 30,30
     hdelta          = 0;
     wdelta          = 0;
     hdeltaframe     = 0;
@@ -969,8 +970,8 @@ void dlg_docsexternes::Slot_ZoomDoc()
         PosOrigine      = pos();
         SizeOrigine     = size();
         gMode           = Zoom;
-        ScrollTable     ->setCursor(QCursor(QPixmap("://Zoom-Out.png").scaled(30,30)));
-        GraphicView     ->setCursor(QCursor(QPixmap("://Zoom-Out.png").scaled(30,30)));
+        ScrollTable     ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //TODO : icon scaled : pxZoomOut 30,30
+        GraphicView     ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //TODO : icon scaled : pxZoomOut 30,30
 
         if (hdeltaframe == 0)   hdeltaframe = frameGeometry().height() - height();
         if (wdeltaframe == 0)   wdeltaframe = frameGeometry().width()  - width();
@@ -1038,8 +1039,8 @@ void dlg_docsexternes::Slot_ZoomDoc()
     }
     else if (gMode == Zoom)
     {
-        ScrollTable     ->setCursor(QCursor(QPixmap("://Zoom-In.png").scaled(30,30)));
-        GraphicView     ->setCursor(QCursor(QPixmap("://Zoom-In.png").scaled(30,30)));
+        ScrollTable     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //TODO : icon scaled : pxZoomIn 30,30
+        GraphicView     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //TODO : icon scaled : pxZoomIn 30,30
         move(PosOrigine);
         resize(SizeOrigine);
         if (gTypeDoc == PDF)

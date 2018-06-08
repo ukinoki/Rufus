@@ -17,6 +17,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uppushbutton.h"
 #include <QApplication>
+#include "icons.h"
 
 UpPushButton::UpPushButton(QWidget *parent) : QPushButton(parent)
 {
@@ -32,9 +33,6 @@ UpPushButton::UpPushButton(QWidget *parent) : QPushButton(parent)
                   " UpPushButton:focus {color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;}"
                   " UpPushButton:pressed {color : gray; background-color: rgb(175, 175, 175);}"
                   " UpPushButton:!enabled {color : gray;}");
-    giconAnnul  .addFile(QStringLiteral("://Supprime.png"), QSize(30,30), QIcon::Normal, QIcon::Off);
-    giconOK     .addFile(QStringLiteral("://start.png"), QSize(), QIcon::Normal, QIcon::Off);
-    giconImprime.addFile(QStringLiteral("://Imprimer.png"), QSize(25,25), QIcon::Normal, QIcon::Off);
     setContextMenuPolicy(Qt::NoContextMenu);
 }
 
@@ -86,18 +84,18 @@ void UpPushButton::setUpButtonStyle(enum StyleBouton Style, enum TailleBouton Ta
     switch (Style) {
     case OKBUTTON:
         setShortcut(QKeySequence("Meta+Return"));
-        setIcon(giconOK);
+        setIcon(Icons::icOK());
         setText("OK");
         move(parentWidget()->size().width()-width-8,parentWidget()->size().height()-60);
         break;
     case ANNULBUTTON:
         setShortcut(QKeySequence("F12"));
-        setIcon(giconAnnul);
+        setIcon(Icons::icAnnuler());
         setText(tr("Annuler"));
         move(parentWidget()->size().width()-width-width-8,parentWidget()->size().height()-60);
         break;
     case IMPRIMEBUTTON:
-        setIcon(giconImprime);
+        setIcon(Icons::icImprimer());
         setText(tr("Imprimer"));
         move(parentWidget()->size().width()-width-width-width-8,parentWidget()->size().height()-60);
         break;

@@ -82,28 +82,12 @@ public:
     int                 gMode;
     enum gMode          {Poste, ReseauLocal, Distant};
     QDate               DateDebut, DateFin;
-    QIcon               giconAlcool, giconAnnul, giconArchive, giconAttente, giconAvant, giconApres, giconBaby, giconBack, giconBackup, giconBlackCheck;
-    QIcon               giconBlockCenter, giconBlockJustify, giconBlockLeft, giconBlockRight;
-    QIcon               giconBoy, giconCheck, giconCheckOblig, giconClock;
-    QIcon               giconComputer, giconContact, giconCopy, giconCPS, giconCreer, giconCut, giconDate, giconDoctor;
-    QIcon               giconErase, giconEuro, giconEuroCount, giconFamily, giconFermeAppuye, giconFermeRelache;
-    QIcon               giconFont, giconFontbold, giconFontitalic, giconFontless, giconFontmore, giconInsert, giconFontnormal, giconFontunderline;
-    QIcon               giconGirl, giconHelp, giconImprime, giconInformation, giconInternet, giconKid, giconListe, giconLoupe, giconLunettes;
-    QIcon               giconMarteau, giconMan, giconMedoc, giconMessage, giconModify;
-    QIcon               giconNetwork, giconNoNoNo, giconNull, giconOK, giconOKpushed, giconOups;
-    QIcon               giconPageAvant, giconPageApres, giconPassword, giconPaste, giconPostit, giconPoubelle;
-    QIcon               giconQuestion, giconRecopier, giconReinit;
-    QIcon               giconSide, giconSilhouette, giconSmoking, giconSortirDossier, giconStetho, giconStop, giconSunglasses, giconSuppr;
-    QIcon               giconText, giconTri, giconUpdate, giconValide, giconVitale, giconWomen;
 
-    QMap<QString,QIcon> gmapIcons;
     QSettings           *gsettingsIni;
-    QSplashScreen       *splash;
     QString             CouleurTitres;
 
     void                    ab(int i = 1);
     QMap<QString,QVariant>  CalculAge(QDate ddn, QDate datedujour, QString Sexe = "");
-    QIcon                   CalcIconAge(QString);
 
 
     QFont                   AppFont();
@@ -124,8 +108,7 @@ public:
     void                    EnChantier(QString msg = "");
     void                    Message(QStringList listmsg, int pause = 1000, bool bottom = true);
     void                    Message(QString mess, int pause = 1000, bool bottom = true);
-    void                    Pause(int msec = 1000);
-    void                    Init_Icones();
+    //void                    Init_Icones();
     bool                    TraiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
     void                    ModifTailleFont(QObject *obj, int siz, QFont font=qApp->font());
     int                     Nombre_Mesure_Selected(QTreeWidget *Tree);
@@ -249,8 +232,6 @@ public:
     QString                 DirImagerie();
     void                    setFicheRefractionOuverte(bool a);
     bool                    FicheRefractionOuverte();
-    void                    setMapDatas();
-    QMap<QString,QIcon>     MapIcons();
     void                    setidUser(int id);
     int                     getidUser();
     QStandardItemModel*     getListeComptesUserAvecDesactive();

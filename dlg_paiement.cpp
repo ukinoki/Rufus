@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_paiement.h"
+#include "icons.h"
 #include "ui_dlg_paiement.h"
 
 /*
@@ -197,7 +198,7 @@ dlg_paiement::dlg_paiement(QList<int> *ListidActeAPasser, int Mode, Procedures *
     gtextureGris = QBrush(Qt::gray,Qt::Dense4Pattern);
     gtextureNoir = QBrush(Qt::NoBrush);
 
-    ui->RecImageLabel->setPixmap(QPixmap("://Record.png"));
+    ui->RecImageLabel->setPixmap( Icons::pxEnregistrer() );
 
     if (PaiementAModifer == 0)
     {
@@ -837,7 +838,7 @@ void dlg_paiement::Slot_RegleAffichageFiche()
         ui->ListeupTableWidget          ->setVisible(false);
         ui->OrdreupPushButton           ->setVisible(false);
         ui->OKupPushButton              ->setText(tr("Fermer"));
-        ui->OKupPushButton              ->setIcon(proc->giconOK);
+        ui->OKupPushButton              ->setIcon(Icons::icOK());
         ui->OKupPushButton              ->setIconSize(QSize(30,30));
         if (gFicheMode == Direct)
         {
@@ -879,7 +880,7 @@ void dlg_paiement::Slot_RegleAffichageFiche()
         ui->ListActesupPushButton           ->setVisible(false);
         ui->NouvPaiementupPushButton        ->setVisible(false);
         ui->OrdreupPushButton               ->move(605,610);
-        ui->OrdreupPushButton               ->setIcon(proc->giconTri);
+        ui->OrdreupPushButton               ->setIcon(Icons::icTri());
         ui->OrdreupPushButton               ->setIconSize(QSize(20,20));
         ui->Buttonsframe                    ->setGeometry(610,10,190,250);
 
@@ -888,7 +889,7 @@ void dlg_paiement::Slot_RegleAffichageFiche()
         {
             ui->Utilisateurlabel            ->setText(tr("Gestion des paiements directs - Enregistrer un paiement"));
             ui->OKupPushButton              ->setText(tr("Valider\net fermer"));
-            ui->OKupPushButton              ->setIcon(proc->giconOK);
+            ui->OKupPushButton              ->setIcon(Icons::icOK());
             ui->OKupPushButton              ->setIconSize(QSize(30,30));
             ui->AnnulupPushButton           ->move(10,150);
             ui->Detailsframe                ->setGeometry(5,280,790,670);
@@ -914,7 +915,7 @@ void dlg_paiement::Slot_RegleAffichageFiche()
         {
             ui->Utilisateurlabel            ->setText(tr("Gestion des paiements directs - Tous les actes effectués"));
             ui->OKupPushButton              ->setText(tr("Modifier"));
-            ui->OKupPushButton              ->setIcon(proc->giconMarteau);
+            ui->OKupPushButton              ->setIcon(Icons::icMarteau());
             ui->OKupPushButton              ->setIconSize(QSize(30,30));
             ui->AnnulupPushButton           ->move(10,150);
             ui->Detailsframe                ->setGeometry(5,280,790,670);
@@ -938,7 +939,7 @@ void dlg_paiement::Slot_RegleAffichageFiche()
         {
             ui->Utilisateurlabel            ->setText(tr("Gestion des tiers payants - Enregistrer un tiers payant"));
             ui->OKupPushButton              ->setText(tr("Valider\net fermer"));
-            ui->OKupPushButton              ->setIcon(proc->giconOK);
+            ui->OKupPushButton              ->setIcon(Icons::icOK());
             ui->OKupPushButton              ->setIconSize(QSize(30,30));
             ui->AnnulupPushButton           ->move(10,150);
             ui->Detailsframe                ->setGeometry(5,280,790,670);
@@ -961,7 +962,7 @@ void dlg_paiement::Slot_RegleAffichageFiche()
         {
             ui->Utilisateurlabel            ->setText(tr("Gestion des tiers payants - Liste des paiements"));
             ui->OKupPushButton              ->setText("Modifier");
-            ui->OKupPushButton              ->setIcon(proc->giconMarteau);
+            ui->OKupPushButton              ->setIcon(Icons::icMarteau());
             ui->OKupPushButton              ->setIconSize(QSize(30,30));
             ui->AnnulupPushButton           ->move(10,150);
             ui->Detailsframe                ->setGeometry(5,280,790,670);
@@ -1323,7 +1324,7 @@ void dlg_paiement::Slot_ValidePaiement()
                 {
                     SupprimerBouton = new UpPushButton(ui->Buttonsframe);
                     SupprimerBouton->setText("Supprimer");
-                    SupprimerBouton->setIcon(proc->giconPoubelle);
+                    SupprimerBouton->setIcon(Icons::icPoubelle());
                     SupprimerBouton->setIconSize(QSize(30,30));
                     SupprimerBouton->setGeometry(10,40,180,55);
                     SupprimerBouton->setObjectName("SupprimerupPushButton");
@@ -3113,7 +3114,7 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
             {
                 SupprimerBouton = new UpPushButton(ui->Buttonsframe);
                 SupprimerBouton->setText(tr("Supprimer"));
-                SupprimerBouton->setIcon(proc->giconPoubelle);
+                SupprimerBouton->setIcon(Icons::icPoubelle());
                 SupprimerBouton->setIconSize(QSize(30,30));
                 SupprimerBouton->move(10,10);
                 SupprimerBouton->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Large);
@@ -3831,7 +3832,7 @@ void dlg_paiement::RemplirTableWidget(QTableWidget *TableARemplir, QString TypeT
                         {
                             QLabel * lbl = new QLabel();
                             lbl->setAlignment(Qt::AlignCenter);
-                            lbl->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+                            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxBlackCheck 15,15
                             TableARemplir->setCellWidget(i,col,lbl);                                    // Impayé (O/N)
                         }
                         col++;
@@ -4503,13 +4504,13 @@ void dlg_paiement::TrieListe(QTableWidget *TableATrier )
         if (gOrdreTri == Chronologique)
         {
             TableATrier->sortItems(ncol - 1,Qt::DescendingOrder);
-            ui->OrdreupPushButton->setIcon(proc->giconTri);
+            ui->OrdreupPushButton->setIcon(Icons::icTri());
             ui->OrdreupPushButton->setIconSize(QSize(20,20));
         }
         else
         {
             TableATrier->sortItems(ColonneATrier,Qt::AscendingOrder);
-            ui->OrdreupPushButton->setIcon(proc->giconDate);
+            ui->OrdreupPushButton->setIcon(Icons::icDate());
             ui->OrdreupPushButton->setIconSize(QSize(20,20));
         }
     }
@@ -4673,7 +4674,7 @@ bool dlg_paiement::VerifCoherencePaiement()
             msgbox.exec();
             if (msgbox.clickedButton() == OKBouton)
             {
-                Dlg_Banq = new dlg_banque(db, proc->MapIcons(), this, Banq.toUpper());
+                Dlg_Banq = new dlg_banque(db, this, Banq.toUpper());
                 if (Dlg_Banq->exec()>0)
                 {
                     ReconstruitListeBanques();

@@ -17,6 +17,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_commentaires.h"
 #include "ui_dlg_commentaires.h"
+#include "icons.h"
 
 
 dlg_commentaires::dlg_commentaires(Procedures *procAPasser, QWidget *parent) :
@@ -64,12 +65,12 @@ dlg_commentaires::dlg_commentaires(Procedures *procAPasser, QWidget *parent) :
     ui->ComupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->ComupTableWidget->verticalHeader()->setVisible(false);
     ui->ComupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->ComupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(proc->giconImprime,""));
+    ui->ComupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(Icons::icImprimer(),""));
     ui->ComupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("TITRES DES COMMENTAIRES")));
     ui->ComupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
     ui->ComupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(""));
     ui->ComupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(""));
-    ui->ComupTableWidget->setHorizontalHeaderItem(5, new QTableWidgetItem(proc->giconCheckOblig,""));
+    ui->ComupTableWidget->setHorizontalHeaderItem(5, new QTableWidgetItem(Icons::icCheckOblig(),""));
     ui->ComupTableWidget->horizontalHeader()->setVisible(true);
     ui->ComupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
     ui->ComupTableWidget->horizontalHeader()->setIconSize(QSize(30,30));
@@ -348,7 +349,7 @@ void dlg_commentaires::MenuContextuel(QPoint pt, QWidget *widg)
     if (line)
     {
         LineSelect(line->getRowTable());
-        pAction_CreerCommentaire                = menuContextuel->addAction(proc->giconCreer, tr("Créer un commentaire"));
+        pAction_CreerCommentaire                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un commentaire"));
         connect (pAction_CreerCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("CreerCom");});
         bool a = false;
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
@@ -362,12 +363,12 @@ void dlg_commentaires::MenuContextuel(QPoint pt, QWidget *widg)
         }
         if (a)
         {
-            pAction_ModifCommentaire                = menuContextuel->addAction(proc->giconModify, tr("Modifier ce commentaire"));
-            pAction_SupprCommentaire                = menuContextuel->addAction(proc->giconPoubelle, tr("Supprimer ce commentaire"));
+            pAction_ModifCommentaire                = menuContextuel->addAction(Icons::icEditer(), tr("Modifier ce commentaire"));
+            pAction_SupprCommentaire                = menuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce commentaire"));
             menuContextuel->addSeparator();
             lbldef                                  = static_cast<UpLabel*>(ui->ComupTableWidget->cellWidget(line->getRowTable(),5));
             if (lbldef->pixmap()!=NULL)
-                pAction_ParDefautCom                = menuContextuel->addAction(proc->giconBlackCheck, tr("Par défaut"));
+                pAction_ParDefautCom                = menuContextuel->addAction(Icons::icBlackCheck(), tr("Par défaut"));
             else
                 pAction_ParDefautCom                = menuContextuel->addAction("Par défaut") ;
             pAction_ParDefautCom->setToolTip(tr("si cette option est cochée\nle commentaire sera systématiquement imprimé"));
@@ -386,13 +387,13 @@ void dlg_commentaires::MenuContextuel(QPoint pt, QWidget *widg)
 
          menuContextuel->addSeparator();
         if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
-            pAction_Copier                  = menuContextuel->addAction(proc->giconCopy,  tr("Copier"));
-            pAction_Cut                     = menuContextuel->addAction(proc->giconCut,   tr("Couper"));
+            pAction_Copier                  = menuContextuel->addAction(Icons::icCopy(),  tr("Copier"));
+            pAction_Cut                     = menuContextuel->addAction(Icons::icCut(),   tr("Couper"));
         }
         const QClipboard *clipboard         = qApp->clipboard();
         const QMimeData *mimeData           = clipboard->mimeData();
         if (mimeData->hasText() || mimeData->hasUrls() || mimeData->hasImage() || mimeData->hasHtml())
-        pAction_Coller                      = menuContextuel->addAction(proc->giconPaste,  tr("Coller"));
+        pAction_Coller                      = menuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
 
         connect (pAction_Copier,            &QAction::triggered,    [=] {ChoixMenuContextuel("Copier");});
         connect (pAction_Coller,            &QAction::triggered,    [=] {ChoixMenuContextuel("Coller");});
@@ -472,7 +473,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
         else
         {
             b = "1";
-            lbldef->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+            lbldef->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled
         }
         QSqlQuery ("update " NOM_TABLE_COMMENTAIRESLUNETTES " set ParDefautComment = " + b +
                    " where idCommentLunet = " + ui->ComupTableWidget->item(row,3)->text(),db);
@@ -1121,7 +1122,7 @@ void dlg_commentaires::Remplir_TableView()
         lbl2 = new UpLabel(ui->ComupTableWidget);
         lbl2->setAlignment(Qt::AlignCenter);
         if (RemplirTableViewQuery.value(1).toInt()==1)
-            lbl2->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+            lbl2->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled
         ui->ComupTableWidget->setCellWidget(i,col,lbl2);
 
         ui->ComupTableWidget->setRowHeight(i, QFontMetrics(qApp->font()).height()*1.3);

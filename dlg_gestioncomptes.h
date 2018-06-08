@@ -38,17 +38,14 @@ class dlg_gestioncomptes : public UpDialog
 
 public:
     explicit dlg_gestioncomptes(QMap<QString, QVariant> DataUser, QSqlDatabase gdb,
-                                QMap<QString,QIcon> Icons, bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
+                                bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncomptes();
 
 private:
     FunctorMAJPremiereLettre fMAJPremiereLettre;
     Ui::dlg_gestioncomptes  *ui;
-    QIcon                   giconEuro;
     QSqlDatabase            db;
     QMap<QString,QVariant>  gDataUser;
-    QMap<QString,QIcon>     gmapIcons;
-    QIcon                   giconHelp, giconNull;
     QStringList             gListBanques;
     dlg_banque              *Dlg_Banq;
     bool                    createurducompte;

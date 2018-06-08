@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_identificationcorresp.h"
+#include "icons.h"
 #include "ui_dlg_identificationcorresp.h"
 
 dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModification, bool quelesmedecins, int idCorresp, Procedures *procAPasser, QWidget *parent) :
@@ -48,7 +49,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     ui->PrenomlineEdit->setFont(font);
     ui->NomlineEdit->setFont(font);
 
-    setWindowIcon(proc->giconDoctor);
+    setWindowIcon(Icons::icDoctor());
     ReconstruitListeSpecialites();
     connect(VilleCPwidg,    SIGNAL(villecpmodified()),  this,   SLOT(Slot_EnableOKpushButton()));
     AfficheDossierAlOuverture();

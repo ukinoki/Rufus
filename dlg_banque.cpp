@@ -17,8 +17,9 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_banque.h"
 #include "ui_dlg_banque.h"
+#include "icons.h"
 
-dlg_banque::dlg_banque(QSqlDatabase gdb, QMap<QString, QIcon> Icons, QWidget *parent, QString nouvbanqueabrege) :
+dlg_banque::dlg_banque(QSqlDatabase gdb, QWidget *parent, QString nouvbanqueabrege) :
     UpDialog(parent),
     ui(new Ui::dlg_banque)
 {
@@ -26,8 +27,6 @@ dlg_banque::dlg_banque(QSqlDatabase gdb, QMap<QString, QIcon> Icons, QWidget *pa
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     db                      = gdb;
-
-    giconEuro               = Icons["Euro"];
 
     gFermeApresValidation   = (nouvbanqueabrege != "");
     setWindowTitle(tr("Enregistrer une nouvelle banque"));
@@ -63,7 +62,7 @@ dlg_banque::dlg_banque(QSqlDatabase gdb, QMap<QString, QIcon> Icons, QWidget *pa
         uptablebanq->setColumnHidden(0,true);
         uptablebanq->setColumnWidth(1,uptablebanq->width()-2);
         uptablebanq->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-        uptablebanq->setHorizontalHeaderItem(1, new QTableWidgetItem(giconEuro,"Banques"));
+        uptablebanq->setHorizontalHeaderItem(1, new QTableWidgetItem(Icons::icEuro(),"Banques"));
         uptablebanq->horizontalHeader()->setVisible(true);
         uptablebanq->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
         uptablebanq->horizontalHeader()->setIconSize(QSize(25,25));

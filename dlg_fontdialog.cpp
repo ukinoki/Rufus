@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_fontdialog.h"
+#include "icons.h"
 
 dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *parent) :
     UpDialog(nomSettings, Position, parent)
@@ -39,9 +40,7 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
     QHBoxLayout *box = new QHBoxLayout();
     box         ->addWidget(button);
     frame       ->setLayout(box);
-    QIcon iconkid;
-    iconkid.addFile(QStringLiteral("://boy.png"), QSize(25,25), QIcon::Normal, QIcon::Off);
-    button      ->setIcon(iconkid);
+    button      ->setIcon(Icons::icBoy());
     TreeWidget  ->setColumnCount(1);
     TreeWidget  ->setHeaderLabels(QStringList() << "Nom de la police");
     TreeWidget  ->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0); selection-background-color: rgb(164, 205, 255);}");

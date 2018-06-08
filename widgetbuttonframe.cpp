@@ -16,6 +16,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "widgetbuttonframe.h"
+#include "icons.h"
 
 WidgetButtonFrame::WidgetButtonFrame(QWidget *proprio)
 {
@@ -23,9 +24,6 @@ WidgetButtonFrame::WidgetButtonFrame(QWidget *proprio)
     widgParent = new QWidget(dynamic_cast<QWidget*>(gProprio->parent()));
     setStyleSheet("");
     setStyleSheet("border-style: none;");
-    giconModif          .addFile(QStringLiteral("://edit.png"), QSize(24,24), QIcon::Normal, QIcon::Off);
-    giconMoins          .addFile(QStringLiteral("://ComMoins.png"), QSize(24,24), QIcon::Normal, QIcon::Off);
-    giconPlus           .addFile(QStringLiteral("://ComPlus.png"), QSize(24,24), QIcon::Normal, QIcon::Off);
 }
 
 void WidgetButtonFrame::AddButtons(Buttons Butt)
@@ -33,9 +31,12 @@ void WidgetButtonFrame::AddButtons(Buttons Butt)
     plusBouton  = new UpSmallButton("", this);
     moinsBouton = new UpSmallButton("", this);
     modifBouton = new UpSmallButton("", this);
-    plusBouton  ->setIcon(giconPlus);
-    modifBouton ->setIcon(giconModif);
-    moinsBouton ->setIcon(giconMoins);
+    plusBouton  ->setIcon(Icons::icAjouter());
+    plusBouton  ->setIconSize(QSize(24,24));
+    modifBouton ->setIcon(Icons::icEditer());
+    modifBouton  ->setIconSize(QSize(24,24));
+    moinsBouton ->setIcon(Icons::icRetirer());
+    moinsBouton  ->setIconSize(QSize(24,24));
     plusBouton  ->setId(1);
     modifBouton ->setId(0);
     moinsBouton ->setId(-1);

@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_identificationpatient.h"
+#include "icons.h"
 #include "ui_dlg_identificationpatient.h"
 
 dlg_identificationpatient::dlg_identificationpatient(QString *CreationModification, int *idPatAPasser, Procedures *procAPasser, QWidget *parent) :
@@ -40,7 +41,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString *CreationModificati
 
     globallay               ->insertWidget(0,ui->Principalframe);
     VitaleButton            = new UpSmallButton();
-    VitaleButton            ->setIcon(proc->giconVitale);
+    VitaleButton            ->setIcon(Icons::icVitale());
     VitaleButton            ->setFixedHeight(100);
     VitaleButton            ->setStyleSheet("qproperty-iconSize:120px 100px;");
     AjouteWidgetLayButtons(VitaleButton, true);

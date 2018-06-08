@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_remisecheques.h"
+#include "icons.h"
 #include "ui_dlg_remisecheques.h"
 
 dlg_remisecheques::dlg_remisecheques(Procedures *procAPasser, QWidget *parent) :
@@ -696,12 +697,12 @@ bool dlg_remisecheques::ConfigMode(int mode)
         ui->TotallineEdit                   ->move(189,520);
         ui->AnnulupPushButton               ->setUpButtonStyle(UpPushButton::ANNULBUTTON, UpPushButton::Small);
         ui->ImprimeupPushButton             ->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Small);
-        ui->ImprimeupPushButton             ->setIcon(proc->giconImprime);
+        ui->ImprimeupPushButton             ->setIcon(Icons::icImprimer());
         ui->ImprimeupPushButton             ->setText("Imprimer");
         ui->ImprimeupPushButton             ->setShortcut(QKeySequence("Meta+Return"));
         ui->RemisePrecsupComboBox           ->setVisible(false);
         ui->RemisesPrecsPushButton          ->setText("Remises\nprécédentes");
-        ui->RemisesPrecsPushButton          ->setIcon(proc->giconArchive);
+        ui->RemisesPrecsPushButton          ->setIcon(Icons::icArchive());
         ui->RemisesPrecsPushButton          ->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Mid);
         ui->RemisesPrecsPushButton          ->setEnabled(true);
 
@@ -863,12 +864,12 @@ bool dlg_remisecheques::ConfigMode(int mode)
         ui->ChequesEnAttentelabel           ->setVisible(false);
         ui->ChequesEnAttenteupTableWidget   ->setVisible(false);
         ui->ListeChequesupTableWidget       ->setFixedSize(ui->ListeChequesupTableWidget->width(),580);
-        ui->ImprimeupPushButton             ->setIcon(proc->giconLoupe);
+        ui->ImprimeupPushButton             ->setIcon(Icons::icLoupe());
         ui->ImprimeupPushButton             ->setText("Revoir");
         ui->TotallineEdit                   ->move(189,740);
         ui->RemisePrecsupComboBox           ->setVisible(true);
         ui->RemisesPrecsPushButton          ->setText("Corriger");
-        ui->RemisesPrecsPushButton          ->setIcon(proc->giconModify);
+        ui->RemisesPrecsPushButton          ->setIcon(Icons::icEditer());
 
         disconnect (ui->ListeChequesupTableWidget,                 SIGNAL(cellClicked(int, int)),                  0, 0);
         disconnect (ui->ChequesEnAttenteupTableWidget,             SIGNAL(cellClicked(int, int)),                  0, 0);

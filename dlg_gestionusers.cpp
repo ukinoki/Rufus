@@ -16,15 +16,15 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_gestionusers.h"
+#include "icons.h"
 #include "ui_dlg_gestionusers.h"
 
-dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, QSqlDatabase gdb, QMap<QString,QIcon> Icons, QWidget *parent) :
+dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, QSqlDatabase gdb, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionGestionUsers", parent),
     ui(new Ui::dlg_gestionusers)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    gmapIcons               = Icons;
 
     db                      = gdb;
     gMode                   = Modifier;
@@ -898,7 +898,7 @@ void dlg_gestionusers::Slot_GestionComptes()
     QString cptact  = ui->CompteActescomboBox->currentText();
     bool verifcpta  = ui->CompteComptawidget->isVisible();
     QString cptcpta = ui->CompteComptacomboBox->currentText();
-    Dlg_GestComptes = new dlg_gestioncomptes(DataUser(), db, gmapIcons, ui->SocieteComptableupRadioButton->isChecked(), (DataUser()["idUser"].toInt()==gidUserDepart), this);
+    Dlg_GestComptes = new dlg_gestioncomptes(DataUser(), db, ui->SocieteComptableupRadioButton->isChecked(), (DataUser()["idUser"].toInt()==gidUserDepart), this);
     Dlg_GestComptes ->setWindowTitle(tr("Comptes bancaires de ") + DataUser()["UserLogin"].toString());
     Dlg_GestComptes ->exec();
     if (verifempl)
@@ -1072,7 +1072,8 @@ void dlg_gestionusers::SupprUser()
         msgbox.setInformativeText("Hum " + vamourir
                                   + ", " + tr("êtes vous bien sûr de vouloir faire ça?\n"
                                     "Si vous le faites, le programme se fermera immédiatement après votre disparition"));
-        msgbox.setIconPixmap(QPixmap("://suicide.png").scaledToWidth(150));
+        msgbox.setIconPixmap(Icons::pxSuicide().scaledToWidth(150)); //TODO : icon scaled : pxSuicide w150
+
         OKBouton->setText(tr("Non, vous avez raison, je vais rester encore un peu"));
         AnnulBouton->setText(tr("Oui, je veux partir"));
     }
@@ -1081,7 +1082,7 @@ void dlg_gestionusers::SupprUser()
         msgbox.setText(tr("Suppression d'un utilisateur"));
         msgbox.setInformativeText(tr("Etes vous bien sûr de vouloir supprimer ")
                                   + vamourir + "?");
-        msgbox.setIconPixmap(QPixmap("://killer.png").scaledToWidth(150));
+        msgbox.setIconPixmap(Icons::pxKiller().scaledToWidth(150)); //TODO : icon scaled : pxKiller w150
         OKBouton->setText(tr("Garder ") + vamourir);
         AnnulBouton->setText(tr("Oui, supprimer ") + vamourir);
     }

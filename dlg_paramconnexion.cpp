@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_paramconnexion.h"
+#include "icons.h"
 #include "ui_dlg_paramconnexion.h"
 
 dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
@@ -35,8 +36,6 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
     rxIP                    = QRegExp("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
-    giconHelp               .addFile(QStringLiteral("://help.png"), QSize(30,30), QIcon::Normal, QIcon::Off);
-    giconNull               .addFile(QStringLiteral(""), QSize(30,30), QIcon::Normal, QIcon::Off);
     gVisible                = true;
     gIPAvecZero             = "";
     gIPSansZero             = "";
@@ -110,9 +109,9 @@ void dlg_paramconnexion::Slot_Clign()
 {
     gVisible = !gVisible;
     if (gVisible)
-        ui->HelpupPushButton->setIcon(giconHelp);
+        ui->HelpupPushButton->setIcon(Icons::icHelp());
     else
-        ui->HelpupPushButton->setIcon(giconNull);
+        ui->HelpupPushButton->setIcon(Icons::icNull());
 }
 
 void dlg_paramconnexion::Slot_HelpMsg()
@@ -223,61 +222,60 @@ bool dlg_paramconnexion::TestConnexion()
 {
     if (!VerifFiche())
         return false;
-    else
+
+    Slot_MAJIP();
+    QString login = ui->LoginlineEdit->text();
+    if (ui->DistantradioButton->isChecked())
+        login += "SSL";
+
+    db = QSqlDatabase::addDatabase("QMYSQL","Rufus");
+    db.setHostName(gServeur);
+    db.setUserName(login);
+    db.setPassword(ui->MDPlineEdit->text());
+    db.setPort(ui->PortcomboBox->currentText().toInt());
+    QString  ConnectOptions = (ui->DistantradioButton->isChecked()?
+                              "SSL_KEY=/etc/mysql/client-key.pem;"
+                              "SSL_CERT=/etc/mysql/client-cert.pem;"
+                              "SSL_CA=/etc/mysql/ca-cert.pem;"
+                              "MYSQL_OPT_RECONNECT=1"
+                                 :
+                              "MYSQL_OPT_RECONNECT=1");
+    db.setConnectOptions(ConnectOptions);
+
+
+    if (!db.open())
     {
-        Slot_MAJIP();
-        QString Login = ui->LoginlineEdit->text();
-        if (ui->DistantradioButton->isChecked())
-            Login += "SSL";
+        UpMessageBox::Watch(this,tr("Paramètres non reconnus!") + "<br />"
+                                + tr("Serveur") + "\n\t-> " + gServeur + "<br />"
+                                //+ tr("Login") + "\n\t-> " NOM_ADMINISTRATEURDOCS "<br />"
+                                + tr("Login") + "\n\t-> " + login + "<br />"
+                                + tr("MDP") + "\n\t-> " + ui->MDPlineEdit->text() + "<br />"
+                                + tr("Port") + "\n\t-> " + ui->PortcomboBox->currentText() + "<br />"
+                                + tr("Connexion impossible.") + "<br />"
+                                + db.lastError().text());
+        return false;
+    }
 
-        db = QSqlDatabase::addDatabase("QMYSQL","Rufus");
-        db.setHostName(gServeur);
-        db.setUserName(Login);
-        db.setPassword(ui->MDPlineEdit->text());
-        db.setPort(ui->PortcomboBox->currentText().toInt());
-        QString  ConnectOptions = (ui->DistantradioButton->isChecked()?
-                                  "SSL_KEY=/etc/mysql/client-key.pem;"
-                                  "SSL_CERT=/etc/mysql/client-cert.pem;"
-                                  "SSL_CA=/etc/mysql/ca-cert.pem;"
-                                  "MYSQL_OPT_RECONNECT=1"
-                                     :
-                                  "MYSQL_OPT_RECONNECT=1");
-        db.setConnectOptions(ConnectOptions);
-
-
-        if (!db.open())
-        {
-            UpMessageBox::Watch(this,tr("Paramètres non reconnus!") + "<br />"
-                                    + tr("Serveur") + "\n\t-> " + gServeur + "<br />"
-                                    + tr("Login") + "\n\t-> " NOM_ADMINISTRATEURDOCS "<br />"
-                                    + tr("MDP") + "\n\t-> " + ui->MDPlineEdit->text() + "<br />"
-                                    + tr("Port") + "\n\t-> " + ui->PortcomboBox->currentText() + "<br />"
-                                    + tr("Connexion impossible.") + "<br />"
-                                    + db.lastError().text());
-            return false;
-        }
-
-        QSqlQuery("set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';", db);
-        QSqlQuery("SET GLOBAL event_scheduler = 1", db);
-        QSqlQuery("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;", db);
-        QString req = "show grants for '" + Login + "'@'" + gClient + "'";
-        QSqlQuery grantsquery(req, db);
-        if (grantsquery.size()==0)
-        {
-            UpMessageBox::Watch(this,tr("Erreur sur le serveur"),
-                                tr("Impossible de retrouver les droits de l'utilisateur ") + ui->LoginlineEdit->text());
-            return false;
-        }
-        grantsquery.first();
-        QString reponse = grantsquery.value(0).toString();
-        if (reponse.left(9) != "GRANT ALL")
-        {
-            UpMessageBox::Watch(this,tr("Erreur sur le serveur"),
-                                tr("L'utilisateur ") + ui->LoginlineEdit->text() + tr(" existe mais ne dispose pas "
-                                 "de toutes les autorisations pour modifier ou créer des données sur le serveur.\n"
-                                 "Choisissez un autre utilisateur ou modifiez les droits de cet utilisateur au niveau du serveur.\n"));
-            return false;
-        }
+    QSqlQuery("set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';", db);
+    QSqlQuery("SET GLOBAL event_scheduler = 1", db);
+    QSqlQuery("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;", db);
+    QString req = "show grants for '" + login + "'@'" + gClient + "'";
+    QSqlQuery grantsquery(req, db);
+    if (grantsquery.size()==0)
+    {
+        UpMessageBox::Watch(this,tr("Erreur sur le serveur"),
+                            tr("Impossible de retrouver les droits de l'utilisateur ") + ui->LoginlineEdit->text());
+        return false;
+    }
+    grantsquery.first();
+    QString reponse = grantsquery.value(0).toString();
+    if (reponse.left(9) != "GRANT ALL")
+    {
+        UpMessageBox::Watch(this,tr("Erreur sur le serveur"),
+                            tr("L'utilisateur ") + ui->LoginlineEdit->text() + tr(" existe mais ne dispose pas "
+                             "de toutes les autorisations pour modifier ou créer des données sur le serveur.\n"
+                             "Choisissez un autre utilisateur ou modifiez les droits de cet utilisateur au niveau du serveur.\n"));
+        return false;
     }
     return true;
 }

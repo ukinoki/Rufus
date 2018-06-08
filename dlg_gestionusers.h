@@ -45,7 +45,7 @@ class dlg_gestionusers : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_gestionusers(int idUser, int idlieu, QSqlDatabase db, QMap<QString,QIcon> Icons, QWidget *parent = Q_NULLPTR);
+    explicit dlg_gestionusers(int idUser, int idlieu, QSqlDatabase db, QWidget *parent = Q_NULLPTR);
     ~dlg_gestionusers();
     Ui::dlg_gestionusers        *ui;
     int                     Mode;
@@ -75,7 +75,6 @@ private:
     UpDialog                *gAsk;
     QSqlDatabase            db;
     QBrush                  gcolor;
-    QMap<QString,QIcon>     gmapIcons;
     int                     gMode;
         enum gMode          {Creer, Modifier, PremierUsr};
     int                     gidUserDepart;

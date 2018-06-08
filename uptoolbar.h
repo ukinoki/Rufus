@@ -20,7 +20,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QToolBar>
 #include <QEvent>
-#include <QIcon>
 
 class UpToolBar : public QToolBar
 {
@@ -33,7 +32,6 @@ public:
     QAction*            Next();
     QAction*            Prec();
 private:
-    QIcon               giconPageAvant, giconAvant,giconApres, giconPageApres;
     void                EmetReponse();
     QAction             *debut, *prec, *suiv, *fin;
 private slots:

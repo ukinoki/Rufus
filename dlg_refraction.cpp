@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_refraction.h"
+#include "icons.h"
 #include "ui_dlg_refraction.h"
 
 dlg_refraction::dlg_refraction(int *idPatAPasser, QString *NomPatient, QString *PrenomPatient, int *idActeAPasser, int *AgeAPasser,
@@ -65,7 +66,7 @@ dlg_refraction::dlg_refraction(int *idPatAPasser, QString *NomPatient, QString *
 
     ui->SphereOD->setFocus();
     ui->SphereOD->selectAll();
-    ui->OupsPushButton->setIcon(proc->giconOups);
+    ui->OupsPushButton->setIcon(Icons::icOups());
     InitEventFilters();
 }
 
@@ -1105,7 +1106,7 @@ void dlg_refraction::AfficherLaMesure()
     if (gMode == Porte)      // mode Porte
     {
         ui->AnnulPushButton->setVisible(true);
-        ui->OKPushButton->setIcon(proc->giconOK);
+        ui->OKPushButton->setIcon(Icons::icOK());
         ui->OKPushButton->setText( tr("Enregistrer\net fermer"));
         ui->ODCheckBox->setVisible(true);
         ui->OGCheckBox->setVisible(true);
@@ -1185,7 +1186,7 @@ void dlg_refraction::AfficherLaMesure()
     if (gMode == Autoref)    // mode AutoRef
     {
         ui->AnnulPushButton->setVisible(true);
-        ui->OKPushButton->setIcon(proc->giconOK);
+        ui->OKPushButton->setIcon(Icons::icOK());
         ui->OKPushButton->setText( tr("Enregistrer\net fermer"));
         ui->ODCheckBox->setVisible(true);
         ui->OGCheckBox->setVisible(true);
@@ -1204,7 +1205,7 @@ void dlg_refraction::AfficherLaMesure()
     if (gMode == Refraction) // mode Refraction
     {
         ui->AnnulPushButton->setVisible(true);
-        ui->OKPushButton->setIcon(proc->giconOK);
+        ui->OKPushButton->setIcon(Icons::icOK());
         ui->OKPushButton->setText( tr("Enregistrer\net fermer"));
         ui->ODCheckBox->setVisible(true);
         ui->OGCheckBox->setVisible(true);
@@ -1240,7 +1241,7 @@ void dlg_refraction::AfficherLaMesure()
     if (gMode == Prescription)   // mode Prescription
     {
         Afficher_AVL_AVP(false);
-        ui->OKPushButton->setIcon(proc->giconImprime);
+        ui->OKPushButton->setIcon(Icons::icImprimer());
         ui->OKPushButton->setText( tr("Imprimer"));
         ui->CycloplegieCheckBox->setVisible(false);
         ui->KeratometrieGroupBox->setVisible(false);
@@ -4034,7 +4035,7 @@ void dlg_refraction::ResumeRefraction()
     Dlg_ResumeRef->txtedit->setText(ResultatRefraction);
     Dlg_ResumeRef->setWindowTitle(tr("Historique réfractions ") + gPrenomPatient + " " + gNomPatient);
     Dlg_ResumeRef->show();
-    Dlg_ResumeRef->setWindowIcon(proc->giconLunettes);
+    Dlg_ResumeRef->setWindowIcon(Icons::icLunettes());
 }
 
 //---------------------------------------------------------------------------------

@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_documents.h"
+#include "icons.h"
 #include "ui_dlg_documents.h"
 
 dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString PrenomPatient,
@@ -81,16 +82,16 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui->DocupTableWidget->setColumnHidden(8,true);   // Editable
     ui->DocupTableWidget->setColumnWidth(9,30);
     ui->DocupTableWidget->setColumnHidden(10,true);  // Checked
-    ui->DocupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(proc->giconImprime,""));
+    ui->DocupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(Icons::icImprimer(),""));
     ui->DocupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("TITRES DES DOCUMENTS")));
     ui->DocupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
     ui->DocupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(""));
     ui->DocupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(""));
     ui->DocupTableWidget->setHorizontalHeaderItem(5, new QTableWidgetItem(""));
     ui->DocupTableWidget->setHorizontalHeaderItem(6, new QTableWidgetItem(""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(7, new QTableWidgetItem(proc->giconFamily,""));
+    ui->DocupTableWidget->setHorizontalHeaderItem(7, new QTableWidgetItem(Icons::icFamily(),""));
     ui->DocupTableWidget->setHorizontalHeaderItem(8, new QTableWidgetItem(""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(9, new QTableWidgetItem(proc->giconModify,""));
+    ui->DocupTableWidget->setHorizontalHeaderItem(9, new QTableWidgetItem(Icons::icEditer(),""));
     ui->DocupTableWidget->setHorizontalHeaderItem(10,new QTableWidgetItem(""));
     ui->DocupTableWidget->horizontalHeader()->setVisible(true);
     ui->DocupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
@@ -110,11 +111,11 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui->DossiersupTableWidget->setColumnHidden(2,true);   // idDocument
     ui->DossiersupTableWidget->setColumnHidden(3,true);   // Public
     ui->DossiersupTableWidget->setColumnWidth(4,30);
-    ui->DossiersupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(proc->giconImprime,""));
+    ui->DossiersupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(Icons::icImprimer(),""));
     ui->DossiersupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("DOSSIERS")));
     ui->DossiersupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
     ui->DossiersupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(""));
-    ui->DossiersupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(proc->giconFamily,""));
+    ui->DossiersupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(Icons::icFamily(),""));
     ui->DossiersupTableWidget->horizontalHeader()->setVisible(true);
     ui->DossiersupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
     ui->DossiersupTableWidget->horizontalHeaderItem(4)->setTextAlignment(Qt::AlignCenter);
@@ -134,14 +135,14 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui->AnnulupPushButton->setUpButtonStyle(UpPushButton::ANNULBUTTON, UpPushButton::Mid);
     ui->OKupPushButton->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Mid);
 
-    ui->OKupPushButton->setIcon(proc->giconImprime);
+    ui->OKupPushButton->setIcon(Icons::icImprimer());
     ui->OKupPushButton->setIconSize(QSize(30,30));
 
     ui->dateEdit->setDate(QDate::currentDate());
     ui->dateEdit->setMaximumDate(QDate::currentDate());
 
     ui->DupliOrdocheckBox->setChecked(proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
-    ui->label->setPixmap(QPixmap("://search.png").scaled(20,20));
+    ui->label->setPixmap(Icons::pxLoupe().scaled(30,30)); //TODO : icon scaled : pxLoupe 20,20
     ui->ChercheupLineEdit->setStyleSheet(
     "UpLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 10px;}"
     "UpLineEdit:focus {border: 3px solid rgb(164, 205, 255);border-radius: 10px;}");
@@ -333,7 +334,7 @@ void dlg_documents::Slot_CheckPublicEditable()
     if (check->isChecked()) {
         ui->DocupTableWidget->item(line->getRowTable(),b)->setText("1");
         UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),c));
-        lbl->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
     }
     else    {
         ui->DocupTableWidget->item(line->getRowTable(),b)->setText("");
@@ -703,13 +704,13 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
         {
             LineSelect(ui->DossiersupTableWidget,line->getRowTable());
 
-            pAction_CreerDossier            = gmenuContextuel->addAction(proc->giconCreer, tr("Créer un dossier")) ;
-            pAction_ModifDossier            = gmenuContextuel->addAction(proc->giconModify, tr("Modifier ce dossier")) ;
-            pAction_SupprDossier            = gmenuContextuel->addAction(proc->giconPoubelle, tr("Supprimer ce dossier")) ;
+            pAction_CreerDossier            = gmenuContextuel->addAction(Icons::icCreer(), tr("Créer un dossier")) ;
+            pAction_ModifDossier            = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
+            pAction_SupprDossier            = gmenuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
             gmenuContextuel->addSeparator();
             lbl                             = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->getRowTable(),4));
             if (lbl->pixmap())
-                pAction_PublicDossier       = gmenuContextuel->addAction(proc->giconBlackCheck, tr("Public")) ;
+                pAction_PublicDossier       = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Public")) ;
             else
                 pAction_PublicDossier       = gmenuContextuel->addAction(tr("Public")) ;
 
@@ -722,19 +723,19 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
         {
             LineSelect(ui->DocupTableWidget,line->getRowTable());
 
-            pAction_ModifDoc                = gmenuContextuel->addAction(proc->giconModify, tr("Modifier ce document"));
-            pAction_SupprDoc                = gmenuContextuel->addAction(proc->giconPoubelle, tr("Supprimer ce document"));
-            pAction_CreerDoc                = gmenuContextuel->addAction(proc->giconCreer, tr("Créer un document"));
+            pAction_ModifDoc                = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
+            pAction_SupprDoc                = gmenuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
+            pAction_CreerDoc                = gmenuContextuel->addAction(Icons::icCreer(), tr("Créer un document"));
             if (ui->DocupTableWidget->item(line->getRowTable(),4)->text().toInt() == 1)
-                pAction_PublicDoc           = gmenuContextuel->addAction(proc->giconBlackCheck, tr("Public"));
+                pAction_PublicDoc           = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Public"));
             else
                 pAction_PublicDoc           = gmenuContextuel->addAction(tr("Public"));
             if (ui->DocupTableWidget->item(line->getRowTable(),6)->text().toInt() == 1)
-                pAction_PrescripDoc         = gmenuContextuel->addAction(proc->giconBlackCheck, tr("Prescription"));
+                pAction_PrescripDoc         = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Prescription"));
             else
                 pAction_PrescripDoc         = gmenuContextuel->addAction(tr("Prescription"));
             if (ui->DocupTableWidget->item(line->getRowTable(),8)->text().toInt() == 1)
-                pAction_EditableDoc         = gmenuContextuel->addAction(proc->giconBlackCheck, tr("Editable"));
+                pAction_EditableDoc         = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Editable"));
             else
                 pAction_EditableDoc         = gmenuContextuel->addAction(tr("Editable"));
 
@@ -763,27 +764,27 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
         }
         if (a)
         {
-            pAction_ModifDoc       = gmenuContextuel->addAction(proc->giconModify, tr("Modifier ce document"));
+            pAction_ModifDoc       = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
             connect (pAction_ModifDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierDoc");});
         }
     }
     else if (sender() == ui->upTextEdit)
     {
-        pAction_InsertChamp         = gmenuContextuel->addAction    (proc->giconInsert, tr("Insérer un champ"));
-        interro                     = gmenuContextuel->addMenu      (proc->giconInsert, tr("Insérer une interrogation"));
-        pAction_InsInterroDate      = interro->addAction            (proc->giconDate,   tr("Date"));
-        pAction_InsInterroHeure     = interro->addAction            (proc->giconClock,  tr("Heure"));
-        pAction_InsInterroCote      = interro->addAction            (proc->giconSide,   tr("Côté"));
-        pAction_InsInterroMontant   = interro->addAction            (proc->giconEuro,   tr("Montant"));
-        pAction_InsInterroText      = interro->addAction            (proc->giconText,   tr("Texte libre"));
+        pAction_InsertChamp         = gmenuContextuel->addAction    (Icons::icAjouter(), tr("Insérer un champ"));
+        interro                     = gmenuContextuel->addMenu      (Icons::icAjouter(), tr("Insérer une interrogation"));
+        pAction_InsInterroDate      = interro->addAction            (Icons::icDate(),   tr("Date"));
+        pAction_InsInterroHeure     = interro->addAction            (Icons::icClock(),  tr("Heure"));
+        pAction_InsInterroCote      = interro->addAction            (Icons::icSide(),   tr("Côté"));
+        pAction_InsInterroMontant   = interro->addAction            (Icons::icEuro(),   tr("Montant"));
+        pAction_InsInterroText      = interro->addAction            (Icons::icText(),   tr("Texte libre"));
 
         gmenuContextuel->addSeparator();
         if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
-            pAction_ModifPolice     = gmenuContextuel->addAction(proc->giconFont,           tr("Modifier la police"));
-            pAction_Fontbold        = gmenuContextuel->addAction(proc->giconFontbold,       tr("Gras"));
-            pAction_Fontitalic      = gmenuContextuel->addAction(proc->giconFontitalic,     tr("Italique"));
-            pAction_Fontunderline   = gmenuContextuel->addAction(proc->giconFontunderline,  tr("Souligné"));
-            pAction_Fontnormal      = gmenuContextuel->addAction(proc->giconFontnormal,     tr("Normal"));
+            pAction_ModifPolice     = gmenuContextuel->addAction(Icons::icFont(),           tr("Modifier la police"));
+            pAction_Fontbold        = gmenuContextuel->addAction(Icons::icFontbold(),       tr("Gras"));
+            pAction_Fontitalic      = gmenuContextuel->addAction(Icons::icFontitalic(),     tr("Italique"));
+            pAction_Fontunderline   = gmenuContextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
+            pAction_Fontnormal      = gmenuContextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
 
             connect (pAction_ModifPolice,       &QAction::triggered,    [=] {ChoixMenuContextuel("Police");});
             connect (pAction_Fontbold,          &QAction::triggered,    [=] {ChoixMenuContextuel("Gras");});
@@ -792,14 +793,14 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
             connect (pAction_Fontnormal,        &QAction::triggered,    [=] {ChoixMenuContextuel("Normal");});
             gmenuContextuel->addSeparator();
         }
-        pAction_Blockleft       = gmenuContextuel->addAction(proc->giconBlockLeft,          tr("Aligné à gauche"));
-        pAction_Blockright      = gmenuContextuel->addAction(proc->giconBlockRight,         tr("Aligné à droite"));
-        pAction_Blockcentr      = gmenuContextuel->addAction(proc->giconBlockCenter,        tr("Centré"));
-        pAction_Blockjust       = gmenuContextuel->addAction(proc->giconBlockJustify,       tr("Justifié"));
+        pAction_Blockleft       = gmenuContextuel->addAction(Icons::icBlockLeft(),          tr("Aligné à gauche"));
+        pAction_Blockright      = gmenuContextuel->addAction(Icons::icBlockRight(),         tr("Aligné à droite"));
+        pAction_Blockcentr      = gmenuContextuel->addAction(Icons::icBlockCenter(),        tr("Centré"));
+        pAction_Blockjust       = gmenuContextuel->addAction(Icons::icBlockJustify(),       tr("Justifié"));
         gmenuContextuel->addSeparator();
         if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
-            pAction_Copier          = gmenuContextuel->addAction(proc->giconCopy,   tr("Copier"));
-            pAction_Cut             = gmenuContextuel->addAction(proc->giconCut,    tr("Couper"));
+            pAction_Copier          = gmenuContextuel->addAction(Icons::icCopy(),   tr("Copier"));
+            pAction_Cut             = gmenuContextuel->addAction(Icons::icCut(),    tr("Couper"));
             connect (pAction_Copier,            &QAction::triggered,    [=] {ChoixMenuContextuel("Copier");});
             connect (pAction_Cut,               &QAction::triggered,    [=] {ChoixMenuContextuel("Couper");});
         }
@@ -807,7 +808,7 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
                 || qApp->clipboard()->mimeData()->hasUrls()
                 || qApp->clipboard()->mimeData()->hasImage()
                 || qApp->clipboard()->mimeData()->hasHtml())
-        pAction_Coller              = gmenuContextuel->addAction(proc->giconPaste,  tr("Coller"));
+        pAction_Coller              = gmenuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
 
         connect (pAction_InsertChamp,       &QAction::triggered,    [=] {ChoixMenuContextuel("Inserer");});
         connect (pAction_InsInterroDate,    &QAction::triggered,    [=] {ChoixMenuContextuel("Date");});
@@ -946,7 +947,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         if (!lbl->pixmap())
         {
             a = "1";
-            lbl->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
         }
         else
         {
@@ -974,7 +975,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         if (!lbl->pixmap())
         {
             a = "1";
-            lbl->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
         }
         else
             lbl->clear();
@@ -999,7 +1000,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         if (!lbl->pixmap())
         {
             if (!VerifDossierPublic(line->getRowTable())) return;
-            lbl->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
             a = "1";
         }
         else
@@ -1990,10 +1991,10 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->upTextEdit->setFocusPolicy(Qt::NoFocus);
         ui->upTextEdit->setStyleSheet("");
 
-        ui->AnnulupPushButton->setIcon(proc->giconAnnul);
+        ui->AnnulupPushButton->setIcon(Icons::icAnnuler());
         ui->AnnulupPushButton->setToolTip(tr("Annuler et fermer la fiche"));
         ui->OKupPushButton->setText(tr("Imprimer\nla sélection"));
-        ui->OKupPushButton->setIcon(proc->giconImprime);
+        ui->OKupPushButton->setIcon(Icons::icImprimer());
         ui->OKupPushButton->setIconSize(QSize(30,30));
 
         int nbCheck = 0;
@@ -2036,9 +2037,9 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
         ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
 
-        ui->AnnulupPushButton->setIcon(proc->giconBack);
+        ui->AnnulupPushButton->setIcon(Icons::icBack());
         ui->AnnulupPushButton->setToolTip(tr("Revenir au mode\nsélection de document"));
-        ui->OKupPushButton->setIcon(proc->giconValide);
+        ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
         ui->OKupPushButton->setText(tr("Enregistrer"));
     }
@@ -2080,9 +2081,9 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->DossiersupTableWidget->setEnabled(true);
         ui->Expliclabel->setText(tr("DOSSIERS - MODIFICATION"));
 
-        ui->AnnulupPushButton->setIcon(proc->giconBack);
+        ui->AnnulupPushButton->setIcon(Icons::icBack());
         ui->AnnulupPushButton->setToolTip(tr("Revenir au mode\nsélection de document"));
-        ui->OKupPushButton->setIcon(proc->giconValide);
+        ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
         ui->OKupPushButton->setText(tr("Enregistrer"));
     }
@@ -2165,11 +2166,11 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
         ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
 
-        ui->AnnulupPushButton->setIcon(proc->giconBack);
+        ui->AnnulupPushButton->setIcon(Icons::icBack());
         ui->AnnulupPushButton->setEnabled(true);
         ui->AnnulupPushButton->setToolTip(tr("Revenir au mode\nsélection de document"));
         ui->OKupPushButton->setText(tr("Enregistrer\nle document"));
-        ui->OKupPushButton->setIcon(proc->giconValide);
+        ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
         upLine0->setFocus();
     }
@@ -2248,11 +2249,11 @@ void dlg_documents::ConfigMode(int mode, int row)
         widgButtonsDossiers->setEnabled(false);
         ui->Expliclabel->setText(tr("DOSSIER - CREATION - Cochez les cases correspondants au dossier que vous voulez créer"));
 
-        ui->AnnulupPushButton->setIcon(proc->giconBack);
+        ui->AnnulupPushButton->setIcon(Icons::icBack());
         ui->AnnulupPushButton->setEnabled(true);
         ui->AnnulupPushButton->setToolTip(tr("Revenir au mode\nsélection de document"));
         ui->OKupPushButton->setText(tr("Enregistrer\nle document"));
-        ui->OKupPushButton->setIcon(proc->giconValide);
+        ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
 
         disconnect (ui->DossiersupTableWidget,  SIGNAL(itemSelectionChanged()), 0, 0);
@@ -3020,7 +3021,7 @@ void dlg_documents::Remplir_TableView()
         UpLabel*lbl = new UpLabel(ui->DocupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         if (RemplirTableViewQuery.value(3).toInt()==1)
-            lbl->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
         ui->DocupTableWidget->setCellWidget(i,col,lbl);                                       // Public
         col++; //8
         pItem6->setText(RemplirTableViewQuery.value(6).toString());                           // Editable
@@ -3029,7 +3030,7 @@ void dlg_documents::Remplir_TableView()
         UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
         lbl1->setAlignment(Qt::AlignCenter);
         if (RemplirTableViewQuery.value(6).toInt()==1)
-            lbl1->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+            lbl1->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
         ui->DocupTableWidget->setCellWidget(i,col,lbl1);
         col++; //10
         pItem10->setText("1" + upLine0->text());                                              // Check+text  -> sert pour le tri de la table
@@ -3126,7 +3127,7 @@ void dlg_documents::Remplir_TableView()
         UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         if (RemplirDossiersTableViewQuery.value(3).toInt()==1)
-            lbl->setPixmap(QPixmap("://blackcheck.png").scaled(15,15));
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
         ui->DossiersupTableWidget->setCellWidget(i,col,lbl);
 
         ui->DossiersupTableWidget->setRowHeight(i,fm.height()*1.3);

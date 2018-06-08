@@ -15,20 +15,13 @@ You should have received a copy of the GNU General Public License
 along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "icons.h"
 #include "procedures.h"
+
 
 Procedures::Procedures(QObject *parent) :
     QObject(parent)
 {
-    QPixmap pixmap("://rufus3.jpg");
-    splash = new QSplashScreen(pixmap);
-    splash->show();
-    QTime dieTime= QTime::currentTime().addMSecs(1500);
-     while (QTime::currentTime() < dieTime)
-         QCoreApplication::processEvents(QEventLoop::AllEvents, 100);
-     splash->close();
-     delete splash;
-
     lCPParDefaut    = "";
     lVilleParDefaut = "";
     rx              = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ -]*");
@@ -51,9 +44,7 @@ Procedures::Procedures(QObject *parent) :
     gidUser         = -1;
 
     gnomFichIni     = QDir::homePath() + NOMFIC_INI;
-    Init_Icones();
     QFile FichierIni(gnomFichIni);
-    setMapDatas();
     gAppFont = QFont(POLICEPARDEFAUT);
     gAppFont.setPointSize(POINTPARDEFAUT);
     qApp->setFont(gAppFont);
@@ -139,6 +130,23 @@ void Procedures::ab(int i)
     UpMessageBox::Watch(0, mess);
 }
 
+/*!
+ *  \brief Calcul de l'âge
+ *
+ *  Methode qui permet ????
+ *
+ *  \param ddn : la date de naissance
+ *  \param datedujour : la date du jour
+ *  \param Sexe : le sexe de la personne
+ *
+ *  \return un object contenant :
+ * Total : une chaine de caractères ( ex: 2 ans 3 mois )
+ * Annee : l'age brut de la personne
+ * Mois :
+ * Icone : l'icone à utiliser [man women, girl, boy, kid, baby]
+ * Formule : une valeur parmi [l'enfant, la jeune, le jeune, madame, monsieur]
+ *
+ */
 QMap<QString,QVariant>  Procedures::CalculAge(QDate ddn, QDate datedujour, QString Sexe)
 {
     int         AnneeNaiss, MoisNaiss, JourNaiss;
@@ -202,20 +210,6 @@ QMap<QString,QVariant>  Procedures::CalculAge(QDate ddn, QDate datedujour, QStri
     Age["Icone"]    = img;
     Age["Formule"]  = formule;
     return Age;
-}
-
-QIcon   Procedures::CalcIconAge(QString img)
-{
-    QIcon icon = giconSilhouette;
-
-    if (img == "man")           icon = giconMan;
-    else if (img == "women")    icon = giconWomen;
-    else if (img == "girl")     icon = giconGirl;
-    else if (img == "boy")      icon = giconBoy;
-    else if (img == "kid")      icon = giconKid;
-    else if (img == "baby")     icon = giconBaby;
-
-    return icon;
 }
 
 /*--------------------------------------------------------------------------------------------------------------
@@ -293,25 +287,25 @@ QString Procedures::getDossierDocuments(QString Appareil, int mode)
     ------------------------------------------------------------------------------------------------------------------------------------*/
 int Procedures::GetflagPatients()
 {
+    //TODO : SQL
     QString req = "select MAJflagPatients from " NOM_TABLE_FLAGS;
-    QSqlQuery quer(req,getDataBase());
-    if (quer.size() > 0)
-    {
-        quer.first();
-        return quer.value(0).toInt();
-    }
-    else return 0;
+    QSqlQuery query(req, getDataBase());
+    if( query.first() )
+        return query.value(0).toInt();
+    else
+        return 0;
 }
 
 int Procedures::MAJflagPatients()
 {
+    //TODO : SQL
     QSqlQuery ("SET AUTOCOMMIT = 0;", getDataBase());
     QString lockrequete = "LOCK TABLES " NOM_TABLE_FLAGS " WRITE;";
     QSqlQuery lockquery (lockrequete, getDataBase());
     if (TraiteErreurRequete(lockquery,lockrequete, tr("Impossible de verrouiller ") + NOM_TABLE_FLAGS))
     {
         return -1;
-        commit(getDataBase());
+        //commit(getDataBase());
     }
     QString req = "select MAJflagPatients from " NOM_TABLE_FLAGS;
     QSqlQuery quer(req,getDataBase());
@@ -353,7 +347,7 @@ int Procedures::MAJflagMG()
     if (TraiteErreurRequete(lockquery,lockrequete, tr("Impossible de verrouiller ") + NOM_TABLE_FLAGS))
     {
         return -1;
-        commit(getDataBase());
+        //commit(getDataBase());
     }
     QString req = "select MAJflagMG from " NOM_TABLE_FLAGS;
     QSqlQuery quer(req,getDataBase());
@@ -425,7 +419,7 @@ QString Procedures::CorrigeApostrophe(QString RechAp)
 void Procedures::EnChantier(QString msg)
 {
     UpMessageBox msgbox;
-    msgbox.setIconPixmap(QPixmap("://work-in-progress.png").scaledToWidth(150));
+    msgbox.setIconPixmap(Icons::pxWorkInProgress());
     UpSmallButton *OKBouton = new UpSmallButton();
     msgbox.setInformativeText(msg);
     msgbox.addButton(OKBouton, UpSmallButton::STARTBUTTON);
@@ -442,13 +436,6 @@ void Procedures::Message(QString mess, int pause, bool bottom)
     QStringList listmsg;
     listmsg << mess;
     dlg_message(listmsg, pause, bottom);
-}
-
-void Procedures::Pause(int msec)
-{
-    QTime dieTime = QTime::currentTime().addMSecs(msec);
-    while (QTime::currentTime() < dieTime)
-        QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -508,97 +495,12 @@ int Procedures::Nombre_Mesure_Selected(QTableWidget *Table, int col)
     return nbCommSelected;
 }
 
-/*-----------------------------------------------------------------------------------------------------------------
--- Initialisation des icones --------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------*/
-void    Procedures::Init_Icones()
-{
-    giconCopy           .addFile(QStringLiteral("://copy.png"),                 QSize(),        QIcon::Normal, QIcon::Off);
-    giconCut            .addFile(QStringLiteral("://cut.ico"),                  QSize(),        QIcon::Normal, QIcon::Off);
-    giconInsert         .addFile(QStringLiteral("://ComPlus.png"),              QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconModify         .addFile(QStringLiteral("://edit.png"),                 QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconSuppr          .addFile(QStringLiteral("://ComMoins.png"),             QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconPaste          .addFile(QStringLiteral("://paste.ico"),                QSize(),        QIcon::Normal, QIcon::Off);
 
-    giconAlcool         .addFile(QStringLiteral("://beer.png"),                 QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconAnnul          .addFile(QStringLiteral("://Supprime.png"),             QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconApres          .addFile(QStringLiteral("://button_blue_play.png"),     QSize(),        QIcon::Normal, QIcon::Off);
-    giconAvant          .addFile(QStringLiteral("://button_blue_rear.png"),     QSize(),        QIcon::Normal, QIcon::Off);
-    giconArchive        .addFile(QStringLiteral("://Archives.png"),             QSize(),        QIcon::Normal, QIcon::Off);
-    giconAttente        .addFile(QStringLiteral("://attente2.png"),             QSize(),        QIcon::Normal, QIcon::Off);
-    giconBaby           .addFile(QStringLiteral("://baby.png"),                 QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconBack           .addFile(QStringLiteral("://back.png"),                 QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconBackup         .addFile(QStringLiteral("://Backup.png"),               QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconBlackCheck     .addFile(QStringLiteral("://blackcheck.png"),           QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconBlockCenter    .addFile(QStringLiteral("://align-center.png"),         QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconBlockJustify   .addFile(QStringLiteral("://align-justify.png"),        QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconBlockLeft      .addFile(QStringLiteral("://align-left.png"),           QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconBlockRight     .addFile(QStringLiteral("://align-right.png"),          QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconBoy            .addFile(QStringLiteral("://boy.png"),                  QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconCheck          .addFile(QStringLiteral("://check.png"),                QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconCheckOblig     .addFile(QStringLiteral("://Check-icon.png"),           QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconClock          .addFile(QStringLiteral("://Clock.png"),                QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconComputer       .addFile(QStringLiteral("://Computer.png"),             QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconContact        .addFile(QStringLiteral("://contact.png"),              QSize(),        QIcon::Normal, QIcon::Off);
-    giconCreer          .addFile(QStringLiteral("://toolbar_new_folder.png"),   QSize(),        QIcon::Normal, QIcon::Off);
-    giconDate           .addFile(QStringLiteral("://calendar2.png"),            QSize(),        QIcon::Normal, QIcon::Off);
-    giconDoctor         .addFile(QStringLiteral("://Doctor-icon.png"),          QSize(),        QIcon::Normal, QIcon::Off);
-    giconErase          .addFile(QStringLiteral("://eraser.png"),               QSize(),        QIcon::Normal, QIcon::Off);
-    giconEuro           .addFile(QStringLiteral("://euro.ico"),                 QSize(40,40),   QIcon::Normal, QIcon::Off);
-    giconEuroCount      .addFile(QStringLiteral("://EuroCount.png"),            QSize(40,40),   QIcon::Normal, QIcon::Off);
-    giconFamily         .addFile(QStringLiteral("://family.png"),               QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconFermeAppuye    .addFile(QStringLiteral("://shutdowndown.png"),         QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconFermeRelache   .addFile(QStringLiteral("://shutdown.png"),             QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconFont           .addFile(QStringLiteral("://font.png"),                 QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconFontmore       .addFile(QStringLiteral("://fontsizemore.ico"),         QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconFontless       .addFile(QStringLiteral("://fontsizeless.ico"),         QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconFontbold       .addFile(QStringLiteral("://fontbold.ico"),             QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconFontitalic     .addFile(QStringLiteral("://fontitalic.ico"),           QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconFontunderline  .addFile(QStringLiteral("://fontunderline.ico"),        QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconFontnormal     .addFile(QStringLiteral("://fontnormal.ico"),           QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconGirl           .addFile(QStringLiteral("://girl.png"),                 QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconHelp           .addFile(QStringLiteral("://help.png"),                 QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconImprime        .addFile(QStringLiteral("://Imprimer.png"),             QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconInformation    .addFile(QStringLiteral("://information.png"),          QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconInternet       .addFile(QStringLiteral("://internet.png"),             QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconListe          .addFile(QStringLiteral("://list_all_participants.png"),QSize(),        QIcon::Normal, QIcon::Off);
-    giconLoupe          .addFile(QStringLiteral("://search.png"),               QSize(),        QIcon::Normal, QIcon::Off);
-    giconLunettes       .addFile(QStringLiteral("://LunettesRondes.png"),       QSize(),        QIcon::Normal, QIcon::Off);
-    giconMarteau        .addFile(QStringLiteral("://wrench-screwdriver.png"),   QSize(),        QIcon::Normal, QIcon::Off);
-    giconMedoc          .addFile(QStringLiteral("://medoc.png"),                QSize(),        QIcon::Normal, QIcon::Off);
-    giconMessage        .addFile(QStringLiteral("://3Dmessage.png"),            QSize(40,40),   QIcon::Normal, QIcon::Off);
-    giconNetwork        .addFile(QStringLiteral("://network.png"),              QSize(40,40),   QIcon::Normal, QIcon::Off);
-    giconNull           .addFile(QStringLiteral(""),                            QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconOK             .addFile(QStringLiteral("://start.png"),                QSize(),        QIcon::Normal, QIcon::Off);
-    giconOKpushed       .addFile(QStringLiteral("://startpushed.png"),          QSize(),        QIcon::Normal, QIcon::Off);
-    giconOups           .addFile(QStringLiteral("://damn-icon.png"),            QSize(45,45),   QIcon::Normal, QIcon::Off);
-    giconPageApres      .addFile(QStringLiteral("://button_blue_ffw.png"),      QSize(),        QIcon::Normal, QIcon::Off);
-    giconPageAvant      .addFile(QStringLiteral("://button_blue_rew.png"),      QSize(),        QIcon::Normal, QIcon::Off);
-    giconPassword       .addFile(QStringLiteral("://password.ico"),             QSize(),        QIcon::Normal, QIcon::Off);
-    giconPostit         .addFile(QStringLiteral("://Post-it.png"),              QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconPoubelle       .addFile(QStringLiteral("://trash.png"),                QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconQuestion       .addFile(QStringLiteral("://question.png"),             QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconRecopier       .addFile(QStringLiteral("://copy_v2.png"),              QSize(),        QIcon::Normal, QIcon::Off);
-    giconReinit         .addFile(QStringLiteral("://reset.png"),                QSize(40,40),   QIcon::Normal, QIcon::Off);
-    giconSide           .addFile(QStringLiteral("://right_left.png"),           QSize(),        QIcon::Normal, QIcon::Off);
-    giconSunglasses     .addFile(QStringLiteral("://Sunglasses.png"),           QSize(),        QIcon::Normal, QIcon::Off);
-    giconSmoking        .addFile(QStringLiteral("://No_smoking.png"),           QSize(),        QIcon::Normal, QIcon::Off);
-    giconSortirDossier  .addFile(QStringLiteral("://metadoc.png"),              QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconStetho         .addFile(QStringLiteral("://stetho.png"),               QSize(),        QIcon::Normal, QIcon::Off);
-    giconText           .addFile(QStringLiteral("://text.png"),                 QSize(),        QIcon::Normal, QIcon::Off);
-    giconTri            .addFile(QStringLiteral("://tri.png"),                  QSize(),        QIcon::Normal, QIcon::Off);
-    giconValide         .addFile(QStringLiteral("://Valide2.jpg"),              QSize(25,25),   QIcon::Normal, QIcon::Off);
-    giconVitale         .addFile(QStringLiteral("://Vitale.jpg"),               QSize(),        QIcon::Normal, QIcon::Off);
-    giconMan            .addFile(QStringLiteral("://man.png"),                  QSize(),        QIcon::Normal, QIcon::Off);
-    giconWomen          .addFile(QStringLiteral("://women.png"),                QSize(30,30),   QIcon::Normal, QIcon::Off);
-    giconKid            .addFile(QStringLiteral("://kid.png"),                  QSize(),        QIcon::Normal, QIcon::Off);
-    giconSilhouette     .addFile(QStringLiteral("://silhouette.png"),           QSize(20,20),   QIcon::Normal, QIcon::Off);
-    giconUpdate         .addFile(QStringLiteral("://update.png"),               QSize(20,20),   QIcon::Normal, QIcon::Off);
-}
 
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Modifier la table Utilisateurs pour signifier aux autres utilisateurs que la salle d'attente vient d'être modifiée --------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
+//TODO : ??? pour quoi faire
 void Procedures::UpdVerrouSalDat()
 {
     QString lockrequete = "LOCK TABLES " NOM_TABLE_USERSCONNECTES " WRITE;";
@@ -778,6 +680,7 @@ bool Procedures::ImmediateBackup(bool full)
     return result;
 }
 
+//TODO : à déplacer
 /*---------------------------------------------------------------------------------
     Retourne le corps du document à imprimer
 -----------------------------------------------------------------------------------*/
@@ -809,6 +712,7 @@ QString Procedures::ImpressionCorps(QString text, bool ALD)
     return Corps;
 }
 
+//TODO : à déplacer
 /*---------------------------------------------------------------------------------
     Retourne l'entête du document à imprimer
 -----------------------------------------------------------------------------------*/
@@ -892,7 +796,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
             }
         }
     }
-    for (int i = 1; i<3; i++)
+    for (int i = 1; i<3; i++)//TODO : ??? pourquoi 3
     {
         if (i==1)
             nomModeleEntete = QDir::homePath() + NOMFIC_ENTETEORDO;
@@ -981,6 +885,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
     return EnteteMap;
 }
 
+//TODO : à déplacer
 /*---------------------------------------------------------------------------------
     Retourne le pied du document à imprimer
 -----------------------------------------------------------------------------------*/
@@ -1012,6 +917,7 @@ QString Procedures::ImpressionPied(bool lunettes, bool ALD)
     return Pied;
 }
 
+//TODO : à déplacer
 bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
 {
@@ -1083,6 +989,7 @@ void Procedures::Imprimer_Etat(QWidget *Formu, QPlainTextEdit *Etat)
     #endif
 }
 
+//TODO : à déplacer dans Utils
 QString Procedures::RetireCaracteresAccentues(QString nom)
 {
     nom.replace(QRegExp("[éêëè]"),"e");
@@ -1156,10 +1063,12 @@ void Procedures::EditHtml(QString txt)
     delete gAsk;
 }
 
+//TODO a déplacer
 void Procedures::Slot_MenuContextuelUptextEdit()
 {
     UpTextEdit *TxtEdit = dynamic_cast<UpTextEdit*>(sender());
     if (!TxtEdit) return;
+
     QMenu *gmenuContextuel          = new QMenu();
     QAction *pAction_ModifPolice    = new QAction(this);
     QAction *pAction_Fontbold       = new QAction(this);
@@ -1175,26 +1084,26 @@ void Procedures::Slot_MenuContextuelUptextEdit()
     QAction *pAction_Blockleft      = new QAction(this);
 
     if (TxtEdit->textCursor().selectedText().size() > 0)   {
-        pAction_ModifPolice    = gmenuContextuel->addAction(giconFont,           tr("Modifier la police"));
-        pAction_Fontbold       = gmenuContextuel->addAction(giconFontbold,       tr("Gras"));
-        pAction_Fontitalic     = gmenuContextuel->addAction(giconFontitalic,     tr("Italique"));
-        pAction_Fontunderline  = gmenuContextuel->addAction(giconFontunderline,  tr("Souligné"));
-        pAction_Fontnormal     = gmenuContextuel->addAction(giconFontnormal,     tr("Normal"));
+        pAction_ModifPolice    = gmenuContextuel->addAction(Icons::icFont(),           tr("Modifier la police"));
+        pAction_Fontbold       = gmenuContextuel->addAction(Icons::icFontbold(),       tr("Gras"));
+        pAction_Fontitalic     = gmenuContextuel->addAction(Icons::icFontitalic(),     tr("Italique"));
+        pAction_Fontunderline  = gmenuContextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
+        pAction_Fontnormal     = gmenuContextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
         gmenuContextuel->addSeparator();
     }
-    pAction_Blockleft           = gmenuContextuel->addAction(giconBlockLeft,      tr("Aligné à gauche"));
-    pAction_Blockright          = gmenuContextuel->addAction(giconBlockRight,     tr("Aligné à droite"));
-    pAction_Blockcentr          = gmenuContextuel->addAction(giconBlockCenter,    tr("Centré"));
-    pAction_Blockjust           = gmenuContextuel->addAction(giconBlockJustify,   tr("Justifié"));
+    pAction_Blockleft           = gmenuContextuel->addAction(Icons::icBlockLeft(),      tr("Aligné à gauche"));
+    pAction_Blockright          = gmenuContextuel->addAction(Icons::icBlockRight(),     tr("Aligné à droite"));
+    pAction_Blockcentr          = gmenuContextuel->addAction(Icons::icBlockCenter(),    tr("Centré"));
+    pAction_Blockjust           = gmenuContextuel->addAction(Icons::icBlockJustify(),   tr("Justifié"));
     gmenuContextuel->addSeparator();
     if (TxtEdit->textCursor().selectedText().size() > 0)   {
-        pAction_Copier         = gmenuContextuel->addAction(giconCopy,            tr("Copier"));
-        pAction_Cut            = gmenuContextuel->addAction(giconCut,             tr("Couper"));
+        pAction_Copier         = gmenuContextuel->addAction(Icons::icCopy(),            tr("Copier"));
+        pAction_Cut            = gmenuContextuel->addAction(Icons::icCut(),             tr("Couper"));
     }
     const QClipboard *clipboard = qApp->clipboard();
     const QMimeData *mimeData = clipboard->mimeData();
     if (mimeData->hasText() || mimeData->hasUrls() || mimeData->hasImage() || mimeData->hasHtml())
-        pAction_Coller         = gmenuContextuel->addAction(giconPaste,  tr("Coller"));
+        pAction_Coller         = gmenuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
 
     connect (pAction_Fontbold,      &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Gras");});
     connect (pAction_Fontitalic,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Italique");});
@@ -1216,45 +1125,53 @@ void Procedures::Slot_MenuContextuelUptextEdit()
 
 void Procedures::Slot_ChoixMenuContextuelUptextEdit(QString choix)
 {
+    //TODO : ??? d'où vient gTextEdit
     if (choix       == "Coller")    gTxtEdit->paste();
     else if (choix  == "Copier")    gTxtEdit->copy();
     else if (choix  == "Couper")    gTxtEdit->cut();
-    else if (choix  == "Police")    {
+    else if (choix  == "Police")
+    {
         bool ok = false;
         QFont police = QFontDialog::getFont(&ok, qApp->font(), 0, tr("Choisissez une police"));
-        if (ok){
+        if (ok)
+        {
             QTextCharFormat format;
             format.setFont(police);
             gTxtEdit->textCursor().setCharFormat(format);
         }
     }
-    else if (choix  == "Gras")    {
+    else if (choix  == "Gras")
+    {
         QTextCharFormat format  = gTxtEdit->textCursor().charFormat();
         format.setFontWeight(QFont::Bold);
         format.setFontUnderline(format.fontUnderline());
         format.setFontItalic(format.fontItalic());
         gTxtEdit->textCursor().setCharFormat(format);
     }
-    else if (choix  == "Italique")    {
+    else if (choix  == "Italique")
+    {
         QTextCharFormat format  = gTxtEdit->textCursor().charFormat();
         format.setFontItalic(true);
         format.setFontUnderline(format.fontUnderline());
         format.setFontWeight(format.fontWeight());
         gTxtEdit->textCursor().setCharFormat(format);
     }
-    else if (choix  == "Souligne")    {
+    else if (choix  == "Souligne")
+    {
         QTextCharFormat format  = gTxtEdit->textCursor().charFormat();
         format.setFontUnderline(true);
         format.setFontItalic(format.fontItalic());
         format.setFontWeight(format.fontWeight());
         gTxtEdit->textCursor().setCharFormat(format);
     }
-    else if (choix  == "Normal")    {
+    else if (choix  == "Normal")
+    {
         QTextCharFormat format  = gTxtEdit->textCursor().charFormat();
         format.setFont(qApp->font());
         gTxtEdit->textCursor().setCharFormat(format);
     }
-    else if (choix  == "Gauche")    {
+    else if (choix  == "Gauche")
+    {
         QTextCursor curs = gTxtEdit->textCursor();
         gTxtEdit->moveCursor(QTextCursor::StartOfBlock);
         gTxtEdit->moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
@@ -1263,7 +1180,8 @@ void Procedures::Slot_ChoixMenuContextuelUptextEdit(QString choix)
         gTxtEdit->textCursor().setBlockFormat(blockformat);
         gTxtEdit->setTextCursor(curs);
     }
-    else if (choix  == "Justifie")    {
+    else if (choix  == "Justifie")
+    {
         QTextCursor curs = gTxtEdit->textCursor();
         gTxtEdit->moveCursor(QTextCursor::StartOfBlock);
         gTxtEdit->moveCursor(QTextCursor::EndOfBlock,QTextCursor::KeepAnchor);
@@ -1292,6 +1210,8 @@ void Procedures::Slot_ChoixMenuContextuelUptextEdit(QString choix)
     }
 }
 
+
+//TODO : Database
 void Procedures::commit(QSqlDatabase db)
 {
     QSqlQuery ("COMMIT;", db);
@@ -1399,28 +1319,12 @@ bool Procedures::FicheRefractionOuverte()
     return dlgrefractionouverte;
 }
 
-void Procedures::setMapDatas()
-{
-    gmapIcons["OK"]             = giconOK;
-    gmapIcons["Annul"]          = giconAnnul;
-    gmapIcons["Euro"]           = giconEuro;
-    gmapIcons["EuroCount"]      = giconEuroCount;
-    gmapIcons["FermeAppuye"]    = giconFermeAppuye;
-    gmapIcons["FermeRelache"]   = giconFermeRelache;
-    gmapIcons["Help"]           = giconHelp;
-    gmapIcons["Null"]           = giconNull;
-}
-
-QMap<QString, QIcon> Procedures::MapIcons()
-{
-    return gmapIcons;
-}
-
 int Procedures::getidUser()
 {
    return gidUser;
 }
 
+//TODO : Compta
 void Procedures::setListeComptesUser(int idUser)
 {
     ListeComptesUser                = new QStandardItemModel();
@@ -1523,6 +1427,8 @@ QStandardItemModel* Procedures::getListeComptesEncaissmtUserAvecDesactive()
     return ListeComptesEncaissUserAvecDesactive;
 }
 
+
+
 QString Procedures::getLogin(int idUser)
 {
     if (gListeUsersModel->rowCount()==0)
@@ -1555,6 +1461,17 @@ QStandardItemModel* Procedures::getListeUsers()
 {
     return gListeUsersModel;
 }
+
+/*!
+ * \brief Procedures::setlisteUsers
+ * Charge l'ensemble des utilisateurs et les range dans 4 tableaux
+ * - la liste complète des utilisateurs (gListeUsersModel)
+ * - la liste des utilisateurs libéraux (gListeLiberauxModel) : UserEnregHonoraires==1
+ * - la liste des "parents" (gListeParentsModel) :
+ * - la liste des "superviseur" (gListeSuperviseursModel)
+ *
+ * ATTENTION : Jamais mis à jour, initialisé au moment du login.
+ */
 
 void Procedures::setlisteUsers()
 {
@@ -1635,7 +1552,7 @@ void Procedures::setlisteUsers()
         }
     }
 }
-
+//Pas normal, les mots de passes doivent etre chiffrés
 QString Procedures::getMDPAdmin()
 {
     QSqlQuery mdpquer("select mdpadmin from " NOM_TABLE_PARAMSYSTEME,db);
@@ -1645,6 +1562,7 @@ QString Procedures::getMDPAdmin()
     return (mdpquer.value(0).toString() != ""? mdpquer.value(0).toString() : NOM_MDPADMINISTRATEUR);
 }
 
+//TODO : compta
 int Procedures::getMAXligneBanque()
 {
     int a(0), b(0);
@@ -3001,25 +2919,25 @@ bool Procedures::FicheChoixConnexion()
         UpPushButton *AnnulBouton = new UpPushButton();
         UpPushButton *RejectButton = new UpPushButton();
         RejectButton->setText(tr("Annuler"));
-        RejectButton->setIcon(giconAnnul);
+        RejectButton->setIcon(Icons::icAnnuler());
         msgbox.addButton(RejectButton);
         if (lReseauLocal)
         {
             NoBouton->setText(tr("Locale, sur ce réseau"));
             msgbox.addButton(NoBouton);
-            NoBouton->setIcon(giconNetwork);
+            NoBouton->setIcon(Icons::icNetwork());
         }
         if (lDistant)
         {
             AnnulBouton->setText(tr("Distante, par internet"));
             msgbox.addButton(AnnulBouton);
-            AnnulBouton->setIcon(giconInternet);
+            AnnulBouton->setIcon(Icons::icInternet());
         }
         if (lPoste)
         {
             OKBouton->setText(tr("Sur cette machine"));
             msgbox.addButton(OKBouton);
-            OKBouton->setIcon(giconComputer);
+            OKBouton->setIcon(Icons::icComputer());
         }
         initOK = false;
         if (msgbox.exec()>0)
@@ -3187,6 +3105,9 @@ int Procedures::DetermineLieuExercice()
         }
         else if (lxquer.size()>1)
         {
+            /* Cas ou le praticient est dans plusieur centre
+             * on lui demande de sélectionner le centre où il se trouve au moment de la connexion
+            */
             gAskLieux               = new UpDialog();
             gAskLieux               ->AjouteLayButtons();
             QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAskLieux->layout());
@@ -3465,7 +3386,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
                                UpDialog::ButtonOK | UpDialog::ButtonEdit, QStringList() << tr("Modifier les données") << tr("Conserver les données"))
         == UpSmallButton::EDITBUTTON)
     {
-        Dlg_GestUsr = new dlg_gestionusers(1, gidLieuExercice, db, MapIcons());
+        Dlg_GestUsr = new dlg_gestionusers(1, gidLieuExercice, db);
         Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + gLoginUser);
         Dlg_GestUsr->setConfig(dlg_gestionusers::PREMIERUSER);
         Dlg_GestUsr->exec();
@@ -3588,11 +3509,10 @@ bool Procedures::IdentificationUser(QString Serveur, int Port, bool SSL, QString
     bool a = false;
 
     int result      = Dlg_IdentUser->exec();
-    db = Dlg_IdentUser->getdatabase();
-    gidUser                 = Dlg_IdentUser->getidUser();
-    gLoginUser              = Dlg_IdentUser->ui->LoginlineEdit->text();
-    gMDPUser                = Dlg_IdentUser->ui->MDPlineEdit->text();
-    //db = QSqlDatabase::addDatabase("QMYSQL","Rufus");
+    db              = Dlg_IdentUser->getdatabase();
+    gidUser         = Dlg_IdentUser->getidUser();
+    gLoginUser      = Dlg_IdentUser->ui->LoginlineEdit->text();
+    gMDPUser        = Dlg_IdentUser->ui->MDPlineEdit->text();
     if (result > 0)
     {
         if (!VerifBaseEtRessources())
@@ -3703,6 +3623,7 @@ bool Procedures::IdentificationUser(QString Serveur, int Port, bool SSL, QString
     else
         a = false;
     delete Dlg_IdentUser;
+
     /*QString compta = "";
     if (avecLaCompta==0)    compta = "avec cotation et comptabilité";
     else if (avecLaCompta==1)    compta = "sans cotation et sans comptabilité";

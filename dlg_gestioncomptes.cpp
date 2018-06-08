@@ -17,10 +17,11 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_gestioncomptes.h"
 #include "ui_dlg_gestioncomptes.h"
+#include "icons.h"
 
 
 dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlDatabase gdb,
-                                       QMap<QString,QIcon> Icons, bool societe, bool AfficheLeSolde, QWidget *parent) :
+                                       bool societe, bool AfficheLeSolde, QWidget *parent) :
     UpDialog(parent),
     ui(new Ui::dlg_gestioncomptes)
 {
@@ -33,11 +34,6 @@ dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlData
     gidCompteParDefaut      = gDataUser.value("idCompteParDefaut").toString().toInt();
     gSociete                = societe;
     gAfficheLeSolde         = AfficheLeSolde;
-
-    gmapIcons               = Icons;
-    giconEuro               = gmapIcons["EuroCount"];
-    giconNull               = gmapIcons["Null"];
-    giconHelp               = gmapIcons["Help"];
 
     gVisible                = true;
     gTimer                  = new QTimer(this);
@@ -52,7 +48,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlData
     widgButtons             ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
     NouvBanqupPushButton    = new UpSmallButton();
     NouvBanqupPushButton    ->setText(tr("Gestion des organismes bancaires"));
-    NouvBanqupPushButton    ->setIcon(giconEuro);
+    NouvBanqupPushButton    ->setIcon(Icons::icEuroCount());
     NouvBanqupPushButton    ->setIconSize(QSize(25,25));
     AjouteWidgetLayButtons(NouvBanqupPushButton);
     AjouteLayButtons(UpDialog::ButtonClose);
@@ -192,7 +188,7 @@ void dlg_gestioncomptes::AnnulModif()
 
 void dlg_gestioncomptes::Banques()
 {
-    Dlg_Banq = new dlg_banque(db, gmapIcons, this);
+    Dlg_Banq = new dlg_banque(db, this);
     if (Dlg_Banq->exec()>0)
         MetAJourListeBanques();
 }
@@ -239,9 +235,9 @@ void dlg_gestioncomptes::Clign()
 {
     gVisible = !gVisible;
     if (gVisible)
-        ui->CompteFacticePushButton->setIcon(giconNull);
+        ui->CompteFacticePushButton->setIcon(Icons::icNull());
     else
-        ui->CompteFacticePushButton->setIcon(giconHelp);
+        ui->CompteFacticePushButton->setIcon(Icons::icHelp());
 }
 
 void dlg_gestioncomptes::CompteFactice()
@@ -497,7 +493,7 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
     ui->ComptesuptableWidget->setColumnWidth(1,ui->ComptesuptableWidget->width());
     ui->ComptesuptableWidget->verticalHeader()->setVisible(false);
     ui->ComptesuptableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-    ui->ComptesuptableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(giconEuro,"Comptes"));
+    ui->ComptesuptableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(Icons::icEuroCount(),"Comptes"));
     ui->ComptesuptableWidget->horizontalHeader()->setVisible(true);
     ui->ComptesuptableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
     ui->ComptesuptableWidget->horizontalHeader()->setIconSize(QSize(25,25));

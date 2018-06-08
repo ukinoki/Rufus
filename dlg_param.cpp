@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_param.h"
+#include "icons.h"
 #include "ui_dlg_param.h"
 
 dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
@@ -128,17 +129,17 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui->GeneralParamtab ->setLayout(ui->GeneralLayout);
     ui->PosteParamtab   ->setLayout(ui->PosteLayout);
 
-    ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->UserParamtab),proc->giconContact);
-    ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->PosteParamtab),proc->giconComputer);
-    ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->GeneralParamtab),proc->giconMarteau);
+    ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->UserParamtab),Icons::icContact());
+    ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->PosteParamtab),Icons::icComputer());
+    ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->GeneralParamtab),Icons::icMarteau());
     ui->ParamtabWidget              ->setIconSize(QSize(30,30));
-    ui->EffacePrgSauvupPushButton   ->setIcon(proc->giconErase);
+    ui->EffacePrgSauvupPushButton   ->setIcon(Icons::icErase());
     ui->EffacePrgSauvupPushButton   ->setIconSize(QSize(35,35));
-    ui->RestaurBaseupPushButton     ->setIcon(proc->giconCopy);
-    ui->ImmediatBackupupPushButton  ->setIcon(proc->giconBackup);
-    ui->ReinitBaseupPushButton      ->setIcon(proc->giconReinit);
+    ui->RestaurBaseupPushButton     ->setIcon(Icons::icCopy());
+    ui->ImmediatBackupupPushButton  ->setIcon(Icons::icBackup());
+    ui->ReinitBaseupPushButton      ->setIcon(Icons::icReinit());
     ui->ChoixFontupPushButton       ->setIconSize(QSize(35,35));
-    ui->ChercheCCAMlabel            ->setPixmap(QPixmap("://search.png").scaled(20,20));
+    ui->ChercheCCAMlabel            ->setPixmap(Icons::pxLoupe().scaled(20,20)); //TODO : icon scaled : pxLoupe 20,20
     ui->ShowCCAMlabel               ->setPixmap(QPixmap());
     ui->StatutComptaupTextEdit      ->setAttribute( Qt::WA_NoSystemBackground, true );
     ui->StatutComptaupTextEdit      ->setReadOnly(true);
@@ -152,13 +153,13 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui->TitreuplineEdit->setFont(font);
 
 
-    ui->LockParamUserupLabel                ->setPixmap(QPixmap("://Lock.png"));
-    ui->LockParamPosteupLabel               ->setPixmap(QPixmap("://Lock.png"));
-    ui->LockParamGeneralupLabel             ->setPixmap(QPixmap("://Lock.png"));
-    ui->Frontolabel                         ->setPixmap(QPixmap("://lensmeter.png").scaled(70,70));
-    ui->Autoreflabel                        ->setPixmap(QPixmap("://autoref.png").scaled(80,80));
-    ui->Refracteurlabel                     ->setPixmap(QPixmap("://phoropter.png").scaled(70,70));
-    ui->Tonometrelabel                      ->setPixmap(QPixmap("://airtonometer.png").scaled(80,80));
+    ui->LockParamUserupLabel                ->setPixmap(Icons::pxVerrouiller());
+    ui->LockParamPosteupLabel               ->setPixmap(Icons::pxVerrouiller());
+    ui->LockParamGeneralupLabel             ->setPixmap(Icons::pxVerrouiller());
+    ui->Frontolabel                         ->setPixmap(Icons::pxLensMeter().scaled(70,70)); //TODO : icon scaled : pxLensMeter 70,70
+    ui->Autoreflabel                        ->setPixmap(Icons::pxAutoref().scaled(80,80)); //TODO : icon scaled : pxAutoref 80,80
+    ui->Refracteurlabel                     ->setPixmap(Icons::pxRefracteur().scaled(70,70)); //TODO : icon scaled : pxRefracteur 70,70
+    ui->Tonometrelabel                      ->setPixmap(Icons::pxTonometre().scaled(80,80)); //TODO : icon scaled : pxTonometre 80,80
     ui->LockParamPosteupLabel->installEventFilter(this);
 
     ui->ParamtabWidget->setStyleSheet("QTabWidget::pane {border: 2px solid #C2C7CB; border-radius: 4px;}");
@@ -574,7 +575,7 @@ void dlg_param::Slot_ChercheCCAM(QString txt)
 {
     QList<QTableWidgetItem*> listitems = ui->ActesCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
     if (listitems.size()<ui->ActesCCAMupTableWidget->rowCount())
-        ui->ShowCCAMlabel               ->setPixmap(QPixmap("://button_blue_play.png").scaled(10,10));
+        ui->ShowCCAMlabel               ->setPixmap(Icons::pxApres().scaled(10,10)); //TODO : icon scaled : pApres 10,10
     else
         ui->ShowCCAMlabel               ->setPixmap(QPixmap());
     if (listitems.size()>0)
@@ -812,23 +813,23 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
 {
     if (obj == ui->LockParamPosteupLabel)
     {
-        if (ui->LockParamPosteupLabel->pixmap()->toImage() == QPixmap("://Lock.png").toImage())
+        if (ui->LockParamPosteupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
             if (proc->VerifMDP(proc->getMDPAdmin(),"Saisissez le mot de passe Administrateur"))
             {
                 ui->Posteframe->setEnabled(ui->PosteServcheckBox->isChecked());
                 ui->Localframe->setEnabled(ui->LocalServcheckBox->isChecked());
                 ui->Distantframe->setEnabled(ui->DistantServcheckBox->isChecked());
-                ui->LockParamPosteupLabel->setPixmap(QPixmap("://Unlock.png"));
+                ui->LockParamPosteupLabel->setPixmap(Icons::pxDeverouiller());
             }
         }
         else
         {
             if (gModifPoste)
                 if (!Valide_Modifications()) return;
-            ui->LockParamPosteupLabel->setPixmap(QPixmap("://Lock.png"));
+            ui->LockParamPosteupLabel->setPixmap(Icons::pxVerrouiller());
         }
-        bool a = (ui->LockParamPosteupLabel->pixmap()->toImage() == QPixmap("://Unlock.png").toImage());
+        bool a = (ui->LockParamPosteupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
         EnableWidgContent(ui->Instrmtsframe,a);
         if (a && ui->FrontoupComboBox       ->currentIndex()==0)    ui->PortFrontoupComboBox->setEnabled(false);
         if (a && ui->RefracteurupComboBox   ->currentIndex()==0)    ui->PortRefracteurupComboBox->setEnabled(false);
@@ -841,16 +842,16 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     }
     else if (obj == ui->LockParamUserupLabel)
     {
-        if (ui->LockParamUserupLabel->pixmap()->toImage() == QPixmap("://Lock.png").toImage())
+        if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
             if (proc->VerifMDP(proc->getDataUser()["MDP"].toString(),tr("Saisissez votre mot de passe")))
-                ui->LockParamUserupLabel->setPixmap(QPixmap("://Unlock.png"));
+                ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
         else
         {
-            ui->LockParamUserupLabel->setPixmap(QPixmap("://Lock.png"));
+            ui->LockParamUserupLabel->setPixmap(Icons::pxVerrouiller());
         }
-        bool a = (ui->LockParamUserupLabel->pixmap()->toImage() == QPixmap("://Unlock.png").toImage());
+        bool a = (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
 
         ui->ChoixFontupPushButton   ->setEnabled(a);
         ui->ModifDataUserpushButton ->setEnabled(a);
@@ -930,17 +931,17 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
                                      + A.remove(" - " NOM_ADMINISTRATEURDOCS));
             return;
         }
-        if (ui->LockParamGeneralupLabel->pixmap()->toImage() == QPixmap("://Lock.png").toImage())
+        if (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
             if (proc->VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
             {
-                ui->LockParamGeneralupLabel ->setPixmap(QPixmap("://Unlock.png"));
+                ui->LockParamGeneralupLabel ->setPixmap(Icons::pxDeverouiller());
                 widgAppareils->moinsBouton      ->setEnabled(ui->AppareilsConnectesupTableWidget->selectedItems().size()>0);
             }
         }
         else
-            ui->LockParamGeneralupLabel->setPixmap(QPixmap("://Lock.png"));
-        bool a = (ui->LockParamGeneralupLabel->pixmap()->toImage() == QPixmap("://Unlock.png").toImage());
+            ui->LockParamGeneralupLabel->setPixmap(Icons::pxVerrouiller());
+        bool a = (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
         if (proc->gMode == Procedures::Distant)
             EnableWidgContent(ui->Appareilsconnectesframe,false);
         else
@@ -1033,7 +1034,7 @@ void dlg_param::Slot_FileDialog()
 void dlg_param::Slot_FiltreActesOphtaSeulmt(bool b)
 {
     Remplir_TableActesCCAM(b);
-    bool a = (ui->LockParamUserupLabel->pixmap()->toImage() == QPixmap("://Unlock.png").toImage());
+    bool a = (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
     for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
@@ -1049,13 +1050,13 @@ void dlg_param::Slot_FiltreActesOphtaSeulmt(bool b)
 
 void dlg_param::Slot_GestionBanques()
 {
-    Dlg_Banq = new dlg_banque(db,  proc->MapIcons(), this);
+    Dlg_Banq = new dlg_banque(db, this);
     Dlg_Banq->exec();
 }
 
 void dlg_param::Slot_GestDataPersoUser()
 {
-    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), db, proc->MapIcons());
+    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), db);
     Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  gDataUser["UserLogin"].toString());
     Dlg_GestUsr->setConfig(dlg_gestionusers::MODIFUSER);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
@@ -1141,7 +1142,7 @@ void dlg_param::ReconstruitListeLieuxExercice()
 
 void dlg_param::Slot_GestUser()
 {
-    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), db, proc->MapIcons());
+    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), db);
     Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
     Dlg_GestUsr->setConfig(dlg_gestionusers::ADMIN);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
@@ -2303,7 +2304,7 @@ bool dlg_param::eventFilter(QObject *obj, QEvent *event)
         if (obj == ui->FermepushButton)
         {
             QPushButton* Button = static_cast<QPushButton*>(obj);
-            Button->setIcon(proc->giconFermeRelache);
+            Button->setIcon(Icons::icFerme());
         }
     }
     if(event->type() == QEvent::MouseButtonPress)
@@ -2311,7 +2312,7 @@ bool dlg_param::eventFilter(QObject *obj, QEvent *event)
         if (obj == ui->FermepushButton)
         {
             QPushButton* Button = static_cast<QPushButton*>(obj);
-            Button->setIcon(proc->giconFermeAppuye);
+            Button->setIcon(Icons::icFermeAppuye());
         }
     }
     if(event->type() == QEvent::MouseMove)
@@ -2321,9 +2322,9 @@ bool dlg_param::eventFilter(QObject *obj, QEvent *event)
             QRect rect = QRect(Button->mapToGlobal(QPoint(0,0)),Button->size());
             QPoint pos = mapFromParent(cursor().pos());
             if (rect.contains(pos))
-                Button->setIcon(proc->giconFermeAppuye);
+                Button->setIcon(Icons::icFermeAppuye());
             else
-                Button->setIcon(proc->giconFermeRelache);
+                Button->setIcon(Icons::icFerme());
         }
 
    return QWidget::eventFilter(obj, event);
@@ -3119,11 +3120,9 @@ void dlg_param::Remplir_Tables()
                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
         line5c->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-        col++; //3                                                                              // bouton
-        QPixmap pix = proc->giconSortirDossier.pixmap(QSize(15,15));
-        QIcon ic;
-        ic.addPixmap(pix);
-        dossbouton->setIcon(ic);
+        col++; //3
+        dossbouton->setIcon(Icons::icSortirDossier());
+        dossbouton->setIconSize(QSize(15,15));
         dossbouton->setId(RemplirTableViewQuery.value(0).toInt());
         dossbouton->setFixedSize(15,15);
         dossbouton->setFlat(true);
@@ -3134,7 +3133,8 @@ void dlg_param::Remplir_Tables()
         l->setContentsMargins(0,0,0,0);
         l->addWidget(dossbouton);
         widg->setLayout(l);
-        dossbouton1->setIcon(ic);
+        dossbouton1->setIcon(Icons::icSortirDossier());
+        dossbouton1->setIconSize(QSize(15,15));
         dossbouton1->setId(RemplirTableViewQuery.value(0).toInt());
         dossbouton1->setFixedSize(15,15);
         dossbouton1->setFlat(true);
@@ -3145,7 +3145,8 @@ void dlg_param::Remplir_Tables()
         l1->setContentsMargins(0,0,0,0);
         l1->addWidget(dossbouton1);
         widg1->setLayout(l1);
-        dossbouton2->setIcon(ic);
+        dossbouton2->setIcon(Icons::icSortirDossier());
+        dossbouton2->setIconSize(QSize(15,15));
         dossbouton2->setId(RemplirTableViewQuery.value(0).toInt());
         dossbouton2->setFixedSize(15,15);
         dossbouton2->setFlat(true);

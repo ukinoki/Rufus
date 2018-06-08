@@ -15,11 +15,11 @@ You should have received a copy of the GNU General Public License
 along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "icons.h"
 #include "rufus.h"
 #include "ui_rufus.h"
 
-Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
-
+Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 /*--------------------------------------------------------------------------------------------------------------
 -- Création de la fiche ----------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------*/
@@ -32,6 +32,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
     QString border = "border-image: url(://wallpaper.jpg)";
+    //TODO : Externaliser dans un fichier
     qApp->setStyleSheet(
         "QDialog{" + border + "}"
         "QGroupBox{font:bold;}"
@@ -99,7 +100,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
     proc->getAvecCompta();
     proc->setListeVilles();
     proc->setListeCP();
-    setWindowIcon(proc->giconSunglasses);
+    setWindowIcon(Icons::icSunglasses());
     //1. Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
 
@@ -160,6 +161,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)//, ui(new Ui::Rufus)
     for (int abc = 1; abc < ui->tabWidget->count(); abc++)
         ui->tabWidget->removeTab(abc);
 
+    //TODO : Mettre en place des websocket pour eviter de faire des appels en permanence.
     //    Lancement du timer de scrutation des modifications de la salle d'attente
     gTimerSalleDAttente = new QTimer(this);
     if (proc->getModeConnexion() == Procedures::Distant)
@@ -3193,7 +3195,7 @@ void Rufus::Slot_ChoixMenuContextuelListePatients(QString choix)
                 int idActe      = autreactequery.value(0).toInt();
                 Dlg_ActesPrecs  = new dlg_actesprecedents(gdossierAOuvrir, idActe, proc, false, this);
                 Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + patNom + " " + patPrenom);
-                Dlg_ActesPrecs  ->setWindowIcon(proc->giconLoupe);
+                Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
                 Dlg_ActesPrecs  ->exec();
             }
         }
@@ -3560,6 +3562,7 @@ QStringList Rufus::MotifMessage(QString Motif, QString Message, QTime heurerdv)
     return llist;
 }
 
+//TODO à déplacer
 void Rufus::Slot_MenuContextuelUptextEdit()
 {
     UpTextEdit *TxtEdit = dynamic_cast<UpTextEdit*>(sender());
@@ -3579,26 +3582,26 @@ void Rufus::Slot_MenuContextuelUptextEdit()
     QAction *pAction_Blockleft      = new QAction(this);
 
     if (TxtEdit->textCursor().selectedText().size() > 0)   {
-        pAction_ModifPolice    = gmenuContextuel->addAction(proc->giconFont,           tr("Modifier la police"));
-        pAction_Fontbold       = gmenuContextuel->addAction(proc->giconFontbold,       tr("Gras"));
-        pAction_Fontitalic     = gmenuContextuel->addAction(proc->giconFontitalic,     tr("Italique"));
-        pAction_Fontunderline  = gmenuContextuel->addAction(proc->giconFontunderline,  tr("Souligné"));
-        pAction_Fontnormal     = gmenuContextuel->addAction(proc->giconFontnormal,     tr("Normal"));
+        pAction_ModifPolice    = gmenuContextuel->addAction(Icons::icFont(),           tr("Modifier la police"));
+        pAction_Fontbold       = gmenuContextuel->addAction(Icons::icFontbold(),       tr("Gras"));
+        pAction_Fontitalic     = gmenuContextuel->addAction(Icons::icFontitalic(),     tr("Italique"));
+        pAction_Fontunderline  = gmenuContextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
+        pAction_Fontnormal     = gmenuContextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
         gmenuContextuel->addSeparator();
     }
-    pAction_Blockleft           = gmenuContextuel->addAction(proc->giconBlockLeft,      tr("Aligné à gauche"));
-    pAction_Blockright          = gmenuContextuel->addAction(proc->giconBlockRight,     tr("Aligné à droite"));
-    pAction_Blockcentr          = gmenuContextuel->addAction(proc->giconBlockCenter,    tr("Centré"));
-    pAction_Blockjust           = gmenuContextuel->addAction(proc->giconBlockJustify,   tr("Justifié"));
+    pAction_Blockleft           = gmenuContextuel->addAction(Icons::icBlockLeft(),      tr("Aligné à gauche"));
+    pAction_Blockright          = gmenuContextuel->addAction(Icons::icBlockRight(),     tr("Aligné à droite"));
+    pAction_Blockcentr          = gmenuContextuel->addAction(Icons::icBlockCenter(),    tr("Centré"));
+    pAction_Blockjust           = gmenuContextuel->addAction(Icons::icBlockJustify(),   tr("Justifié"));
     gmenuContextuel->addSeparator();
     if (TxtEdit->textCursor().selectedText().size() > 0)   {
-        pAction_Copier         = gmenuContextuel->addAction(proc->giconCopy,            tr("Copier"));
-        pAction_Cut            = gmenuContextuel->addAction(proc->giconCut,             tr("Couper"));
+        pAction_Copier         = gmenuContextuel->addAction(Icons::icCopy(),            tr("Copier"));
+        pAction_Cut            = gmenuContextuel->addAction(Icons::icCut(),             tr("Couper"));
     }
     const QClipboard *clipboard = qApp->clipboard();
     const QMimeData *mimeData = clipboard->mimeData();
     if (mimeData->hasText() || mimeData->hasUrls() || mimeData->hasImage() || mimeData->hasHtml())
-        pAction_Coller         = gmenuContextuel->addAction(proc->giconPaste,  tr("Coller"));
+        pAction_Coller         = gmenuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
 
     connect (pAction_Fontbold,      &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Gras");});
     connect (pAction_Fontitalic,    &QAction::triggered,    [=] {Slot_ChoixMenuContextuelUptextEdit("Italique");});
@@ -3698,8 +3701,10 @@ void Rufus::Slot_ChoixMenuContextuelUptextEdit(QString choix)
     }
 }
 
+
 void Rufus::Slot_MetAJourLaConnexion()
 {
+    //TODO : SQL
     QString lockrequete = "LOCK TABLES " NOM_TABLE_USERSCONNECTES " WRITE;";
     QSqlQuery lockquery (lockrequete, db);
     if (proc->TraiteErreurRequete(lockquery,lockrequete,"Impossible de verrouiller " NOM_TABLE_USERSCONNECTES))
@@ -3750,6 +3755,7 @@ void Rufus::Slot_ModifierTerrain()
 
 void Rufus::Slot_OKModifierTerrain()
 {
+    //TODO : SQL
     TerraintreeWidget->clear();
     bool a = false;
     TerraintreeWidget->setVisible(a);
@@ -3779,31 +3785,31 @@ void Rufus::Slot_OKModifierTerrain()
             pItem0 = new QTreeWidgetItem() ;
             pItem0->setText(1,QString::number(gidPatient));                                                             // IdPatient
             pItem0->setText(0,tr("ANTÉCÉDENTS GÉNÉRAUX"));
-            pItem0->setIcon(0,proc->giconStetho);
+            pItem0->setIcon(0,Icons::icStetho());
             pItem0->setTextAlignment(1,Qt::AlignLeft);
             pItem1 = new QTreeWidgetItem() ;
             pItem1->setText(1,QString::number(gidPatient));                                                             // IdPatient
             pItem1->setText(0,tr("TRAITEMENTS EN COURS"));
-            pItem1->setIcon(0,proc->giconMedoc);
+            pItem1->setIcon(0,Icons::icMedoc());
             pItem1->setTextAlignment(1,Qt::AlignLeft);
             pItem2 = new QTreeWidgetItem();
             pItem2->setText(1,QString::number(gidPatient));                                                             // IdPatient
             pItem2->setText(0,tr("ATCDTS OPHTALMOLOGIQUES FAMILIAUX"));
-            pItem2->setIcon(0,proc->giconFamily);
+            pItem2->setIcon(0,Icons::icFamily());
             pItem2->setTextAlignment(1,Qt::AlignLeft);
             pItem3 = new QTreeWidgetItem();
             pItem3->setText(1,QString::number(gidPatient));                                                             // IdPatient
-            pItem3->setIcon(0,proc->giconSmoking);
+            pItem3->setIcon(0,Icons::icSmoking());
             pItem3->setTextAlignment(1,Qt::AlignLeft);
             pItem4 = new QTreeWidgetItem();
             pItem4->setText(1,QString::number(gidPatient));                                                             // IdPatient
             pItem4->setText(0,tr("AUTRES"));
-            pItem4->setIcon(0,proc->giconAlcool);
+            pItem4->setIcon(0,Icons::icAlcool());
             pItem4->setTextAlignment(1,Qt::AlignLeft);
             pItem5 = new QTreeWidgetItem() ;
             pItem5->setText(0,tr("MÉDECIN GÉNÉRALISTE"));
             pItem5->setText(1,QString::number(gidPatient));                                                             // IdPatient
-            pItem5->setIcon(0,proc->giconDoctor);
+            pItem5->setIcon(0,Icons::icDoctor());
             pItem5->setTextAlignment(1,Qt::AlignLeft);
 
             pItem0->setForeground(0,QBrush(QColor(Qt::red)));
@@ -3997,6 +4003,7 @@ void Rufus::Slot_OuvrirJournalDepenses()
 
 void Rufus::Slot_OuvrirParametres()
 {
+    //TODO : SQL
     Dlg_Param = new dlg_param(gidUser, proc, this);
     Dlg_Param->setWindowTitle(tr("Paramètres"));
     Dlg_Param->exec();
@@ -4127,6 +4134,7 @@ void Rufus::Slot_RetrouveiDDepuisTab(int x, int y)
 
 void Rufus::Slot_RetrouveMontantActe()
 {
+    //TODO : SQL
     QString Cotation = ui->ActeCotationcomboBox->currentText();
     // On recherche s'il y a un montant enregistré pour cette cotation
     int idx = ui->ActeCotationcomboBox->findText(Cotation);
@@ -4322,6 +4330,7 @@ void Rufus::Slot_OneusrChkBoxSendMsg(bool a)
 
 void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
 {
+    //TODO : SQL
     gAsk            = new UpDialog(this);
     QHBoxLayout     *tasklayout;
     QHBoxLayout     *totallayout    = new QHBoxLayout();
@@ -4467,6 +4476,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
 
 void Rufus::Slot_VerifSendMessage(int idMsg)
 {
+    //TODO : SQL
     if (gAsk->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
     {
         proc->Message(tr("Vous avez oublié de rédiger le texte de votre message!"),2000,false);
@@ -4896,7 +4906,7 @@ void Rufus::Slot_AfficheMessages(int idx)
     gMsgDialog->setWindowFlags(Qt::Tool | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);
     gMsgDialog->setWindowTitle(tr("Messagerie"));
     gMsgDialog->setMaximumHeight(y-30);
-    gMsgDialog->setWindowIcon(proc->giconSunglasses);
+    gMsgDialog->setWindowIcon(Icons::icSunglasses());
     gMsgDialog->move(x-470,30);
     gMsgDialog->setFixedWidth(500);
     gMsgDialog->show();
@@ -4927,7 +4937,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
         QWidget *widg = new QWidget();
         widg->setLayout(lay);
         Scroll->setWidget(widg);
-        tabw->addTab(Scroll, proc->giconPostit, tr("Reçu"));
+        tabw->addTab(Scroll, Icons::icPostit(), tr("Reçu"));
 
         querdest.first();
 
@@ -4979,7 +4989,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             {
                 UpLabel *Respondlbl = new UpLabel();
                 Respondlbl->setId(querdest.value(0).toInt());
-                Respondlbl->setPixmap(QPixmap("://answer.png").scaled(20,20));
+                Respondlbl->setPixmap(Icons::pxConversation().scaled(20,20)); //TODO : icon scaled : pxConversation 20,20
                 Respondlbl->setImmediateToolTip(tr("Répondre"));
                 connect(Respondlbl, SIGNAL(clicked(int)), this, SLOT(Slot_MsgResp(int)));
                 Respondlbl->setFixedWidth(25);
@@ -4988,7 +4998,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             UpLabel *Dellbl = new UpLabel();
             Dellbl->setId(querdest.value(10).toInt());
-            Dellbl->setPixmap(QPixmap("://trash.png").scaled(20,20));
+            Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //TODO : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
             Dellbl->setMinimumWidth(25);
             connect(Dellbl, SIGNAL(clicked(int)), this, SLOT(Slot_SupprimerMessageRecu(int)));
@@ -5105,7 +5115,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
         QWidget *widg = new QWidget();
         widg->setLayout(lay);
         Scroll->setWidget(widg);
-        tabw->addTab(Scroll, proc->giconMessage, tr("Envoyé"));
+        tabw->addTab(Scroll, Icons::icMessage(), tr("Envoyé"));
 
         queremet.first();
 
@@ -5139,7 +5149,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             UpLabel *Modiflbl = new UpLabel();
             Modiflbl->setId(queremet.value(0).toInt());
-            Modiflbl->setPixmap(QPixmap("://edit.png").scaled(20,20));
+            Modiflbl->setPixmap(Icons::pxEditer().scaled(20,20)); //TODO : icon scaled : pxEditer 20,20
             Modiflbl->setImmediateToolTip(tr("Modifier"));
             Modiflbl->setFixedWidth(25);
             connect(Modiflbl, SIGNAL(clicked(int)), this, SLOT(Slot_MsgModif(int)));
@@ -5147,7 +5157,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             UpLabel *Dellbl = new UpLabel();
             Dellbl->setId(queremet.value(0).toInt());
-            Dellbl->setPixmap(QPixmap("://trash.png").scaled(20,20));
+            Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //TODO : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
             connect(Dellbl, SIGNAL(clicked(int)), this, SLOT(Slot_SupprimerMessageEmis(int)));
             Droplay->addWidget(Dellbl);
@@ -5319,7 +5329,7 @@ void Rufus::Slot_MsgResp(int idmsg)
     gMsgRepons->setWindowTitle(tr("Messagerie"));
     int y = qApp->desktop()->availableGeometry().height();
     gMsgRepons->setMaximumHeight(y-30);
-    gMsgRepons->setWindowIcon(proc->giconSunglasses);
+    gMsgRepons->setWindowIcon(Icons::icSunglasses());
     gMsgRepons->setFixedWidth(450);
 
     gMsgRepons->exec();
@@ -5553,7 +5563,7 @@ void Rufus::Slot_VerifMessages()
     if (msg!="")
     {
         QSound::play(NOM_ALARME);
-        gMessageIcon->showMessage(tr("Messages"), msg, proc->giconPostit, 10000);
+        gMessageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
         if (gMsgDialog !=NULL)
             if (gMsgDialog->isVisible())
                 Slot_AfficheMessages();
@@ -5944,7 +5954,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
         if (obj == ui->FermepushButton  || obj == ui->LFermepushButton)
         {
             QPushButton* Button = static_cast<QPushButton*>(obj);
-            Button->setIcon(proc->giconFermeAppuye);
+            Button->setIcon(Icons::icFermeAppuye());
         }
 
     if(event->type() == QEvent::MouseMove)
@@ -5954,9 +5964,9 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             QRect rect = QRect(Button->pos(),Button->size());
             QPoint pos = mapFromParent(cursor().pos());
             if (rect.contains(pos))
-                Button->setIcon(proc->giconFermeAppuye);
+                Button->setIcon(Icons::icFermeAppuye());
             else
-                Button->setIcon(proc->giconFermeRelache);
+                Button->setIcon(Icons::icFerme());
         }
 
     if(event->type() == QEvent::MouseButtonRelease)
@@ -5964,7 +5974,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
         if (obj == ui->FermepushButton  || obj == ui->LFermepushButton)
         {
             QPushButton* Button = static_cast<QPushButton*>(obj);
-            Button->setIcon(proc->giconFermeRelache);
+            Button->setIcon(Icons::icFerme());
         }
         if (obj == ui->EnregistrePaiementpushButton && ui->EnregistrePaiementpushButton->isEnabled())
         {
@@ -6396,7 +6406,7 @@ void Rufus::AfficheDossier(int idPat)
     gCMUPatient = (DonneesSocialesQuery.value(12).toInt() == 1);
     img = AgeTotal["Icone"].toString();
     Age = AgeTotal["Total"].toString();
-    QIcon icon = proc->CalcIconAge(img);
+    QIcon icon = Icons::getIconAge(img);//proc->CalcIconAge(img);
 
     html =
     "<html>"
@@ -6636,8 +6646,8 @@ void Rufus::AfficheDossier(int idPat)
             msgbox->addButton(AnnulBouton, UpSmallButton::CANCELBUTTON);
             msgbox->addButton(MBouton, UpSmallButton::COPYBUTTON);
             msgbox->addButton(FBouton, UpSmallButton::STARTBUTTON);
-            MBouton->setIcon(proc->giconMan);
-            FBouton->setIcon(proc->giconWomen);
+            MBouton->setIcon(Icons::icMan());
+            FBouton->setIcon(Icons::icWoman());
             msgbox->exec();
             if (msgbox->clickedButton() == MBouton)
                 Sexe = "M";
@@ -7233,7 +7243,7 @@ void    Rufus::ChercherDepuisListe()
     if (gMode != RechercheDDN)
     {
         ui->ChercherDepuisListepushButton->setText(tr("Chercher avec\nnom et prénom"));
-        ui->ChercherDepuisListepushButton->setIcon(proc->giconContact);
+        ui->ChercherDepuisListepushButton->setIcon(Icons::icContact());
         gMode = RechercheDDN;
         ui->CreerDDNdateEdit->setFocus();
         ui->FiltrecheckBox->setVisible(false);
@@ -7385,8 +7395,8 @@ void    Rufus::CreerDossier()
             msgbox.addButton(NoBouton,UpSmallButton::CLOSEBUTTON);
             msgbox.addButton(OKBouton, UpSmallButton::NOBUTTON);
             msgbox.addButton(AnnulBouton, UpSmallButton::NOBUTTON);
-            OKBouton->setIcon(proc->giconAttente);
-            AnnulBouton->setIcon(proc->giconSortirDossier);
+            OKBouton->setIcon(Icons::icAttente());
+            AnnulBouton->setIcon(Icons::icSortirDossier());
             msgbox.setDefaultButton(NoBouton);
             //NoBouton->setFocus();
             msgbox.exec();
@@ -7928,7 +7938,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
                 AgeTotal        = proc->CalculAge(gDDNPatient, QDate::currentDate(), gSexePat);
                 img             = AgeTotal["Icone"].toString();
                 Age             = AgeTotal["Total"].toString();
-                QIcon icon      = proc->CalcIconAge(img);
+                QIcon icon      = Icons::getIconAge(img);//proc->CalcIconAge(img);
 
                 html =
                         "<html>"
@@ -8148,8 +8158,8 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
                 msgbox.addButton(NoBouton,UpSmallButton::CANCELBUTTON);
                 msgbox.addButton(OKBouton, UpSmallButton::STARTBUTTON);
                 msgbox.addButton(AnnulBouton, UpSmallButton::CLOSEBUTTON);
-                AnnulBouton->setIcon(proc->giconAttente);
-                OKBouton->setIcon(proc->giconSortirDossier);
+                AnnulBouton->setIcon(Icons::icAttente());
+                OKBouton->setIcon(Icons::icSortirDossier());
                 msgbox.setDefaultButton(NoBouton);
                 msgbox.exec();
                 if (msgbox.clickedButton() == OKBouton)
@@ -8385,10 +8395,10 @@ void Rufus::InitDivers()
     ui->tabWidget->setIconSize(QSize(25,25));
     ui->VitaleupPushButton->setIconSize(QSize(120,100));
 
-    ui->SalDatlabel     ->setPixmap(QPixmap("://waiting_room.png")          .scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    ui->Bureauxlabel    ->setPixmap(QPixmap("://AVTest1.png")               .scaled(QSize(100,100), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    ui->Accueillabel    ->setPixmap(QPixmap("://reception_icon.png")        .scaled(QSize(70,70), Qt::KeepAspectRatio, Qt::SmoothTransformation));
-    ui->PatientVuslabel ->setPixmap(QPixmap("://list_all_participants.png") .scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation));
+    ui->SalDatlabel     ->setPixmap(Icons::pxSalleAttente().scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //TODO : icon scaled : pxSalleAttente 60,60
+    ui->Bureauxlabel    ->setPixmap(Icons::pxAVTest().scaled(QSize(100,100), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //TODO : icon scaled : pxAVTest 100,100
+    ui->Accueillabel    ->setPixmap(Icons::pxReception().scaled(QSize(70,70), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //TODO : icon scaled : pxReception 70,70
+    ui->PatientVuslabel ->setPixmap(Icons::pxListe().scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //TODO : icon scaled : pxListe 60,60
 
     ui->FiltrecheckBox  ->setChecked(true);
     ui->FiltrecheckBox  ->setEnabled(proc->getModeConnexion() != Procedures::Distant);
@@ -8410,7 +8420,7 @@ void Rufus::InitDivers()
 
     gMessageIcon = new QSystemTrayIcon();
     gMessageIcon->setContextMenu(trayIconMenu);
-    gMessageIcon->setIcon(proc->giconPostit);
+    gMessageIcon->setIcon(Icons::icPostit());
     connect(gMessageIcon,   &QSystemTrayIcon::messageClicked,   [=] {Slot_AfficheMessages();});
 
     gMsgRepons = new QDialog();
@@ -8977,7 +8987,7 @@ void    Rufus::OuvrirActesPrecedents(int idActeEnCours)
     Dlg_ActesPrecs      = new dlg_actesprecedents(gidPatient, idActeEnCours, proc, true, this);
     Dlg_ActesPrecs->setWindowTitle(tr("Consultations précédentes de ") + gNomPatient + " " + gPrenomPatient);
     Dlg_ActesPrecs->show();
-    Dlg_ActesPrecs->setWindowIcon(proc->giconLoupe);
+    Dlg_ActesPrecs->setWindowIcon(Icons::icLoupe());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9012,7 +9022,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
         }
     }
     Dlg_Docs->setWindowTitle(tr("Préparer un document pour ") + nom + " " + prenom);
-    Dlg_Docs->setWindowIcon(proc->giconLoupe);
+    Dlg_Docs->setWindowIcon(Icons::icLoupe());
     bool aa = true;
     if (Dlg_Docs->exec() > 0)
     {
@@ -9075,7 +9085,7 @@ void    Rufus::OuvrirListe(bool AvecRecalcul)
     ui->CreerNomlineEdit->clear();
     ui->CreerPrenomlineEdit->clear();
     ui->ChercherDepuisListepushButton->setText(tr("Chercher avec la\ndate de naissance"));
-    ui->ChercherDepuisListepushButton->setIcon(proc->giconDate);
+    ui->ChercherDepuisListepushButton->setIcon(Icons::icDate());
     ui->ChercherDepuisListepushButton->setVisible(true);
     ui->CreerNomlineEdit->setVisible(true);
     ui->CreerPrenomlineEdit->setVisible(true);
@@ -9085,7 +9095,7 @@ void    Rufus::OuvrirListe(bool AvecRecalcul)
     ui->DDNlabel->setVisible(false);
     ui->FiltrecheckBox->setVisible(true);
 
-    ui->CreerDossierpushButton->setIcon(proc->giconSortirDossier);
+    ui->CreerDossierpushButton->setIcon(Icons::icSortirDossier());
     ui->CreerDossierpushButton->setText(tr("Ouvrir\nle dossier"));
     ui->LListepushButton->setEnabled(false);
     ui->LNouvDossierpushButton->setEnabled(true);
@@ -9142,7 +9152,7 @@ void Rufus::OuvrirNouveauDossier()
 
     ui->FiltrecheckBox->setVisible(false);
     ui->CreerNomlineEdit->setFocus();
-    ui->CreerDossierpushButton->setIcon(proc->giconOK);
+    ui->CreerDossierpushButton->setIcon(Icons::icOK());
     ui->CreerDossierpushButton->setIconSize(QSize(30,30));
     ui->CreerDossierpushButton->setText(tr("Créer\nle dossier"));
     ui->LListepushButton->setEnabled(true);
@@ -9280,7 +9290,7 @@ void    Rufus::Refraction()
 
     Dlg_Refraction     = new dlg_refraction(&idPatAPasser, &NomPatient, &PrenomPatient, &idActeAPasser, &AgeAPasser, proc, this);
     Dlg_Refraction->setWindowTitle("Refraction - " + gNomPatient + " " + gPrenomPatient);
-    Dlg_Refraction->setWindowIcon(proc->giconLunettes);
+    Dlg_Refraction->setWindowIcon(Icons::icLunettes());
     proc->setFicheRefractionOuverte(true);
     int result = Dlg_Refraction->exec();
     proc->setFicheRefractionOuverte(false);
@@ -9695,7 +9705,7 @@ void Rufus::Remplir_SalDat()
         label1->setText(RemplirTableViewUserQuery.value(4).toString());                 // Statut
         label4->setText(RemplirTableViewUserQuery.value(5).toString());                 // Motif
         if (RemplirTableViewUserQuery.value(7).toString()!="")
-            label2->setPixmap(QPixmap("://button_blue_play.png").scaled(10,10));
+            label2->setPixmap(Icons::pxApres().scaled(10,10)); //TODO : icon scaled : pxApres 10,10
 
         QString color;
         if (RemplirTableViewUserQuery.value(3).toTime().toString("HH:mm") != "")
@@ -9815,7 +9825,7 @@ void Rufus::Remplir_SalDat()
         gSalDatTab->setVisible(true);
         if (gListeSuperviseursModel->rowCount()>1)
         {
-            gSalDatTab  ->insertTab(0, proc->giconFamily, tr("Tout le monde"));
+            gSalDatTab  ->insertTab(0, Icons::icFamily(), tr("Tout le monde"));
             gSalDatTab  ->setTabData(k, -1);
             k++;
         }
@@ -10665,8 +10675,8 @@ void Rufus::ToolBarDossier()
 {
     ToolBarListe();
     ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addAction(proc->giconAvant, tr("Dossier précédent du fichier patients"),this,SLOT (Slot_NavigationDossierPrecedentListe()));
-    ui->mainToolBar->addAction(proc->giconApres,tr("Dossier suivant du fichier patients"),this,SLOT (Slot_NavigationDossierSuivantListe()));
+    ui->mainToolBar->addAction(Icons::icAvant(), tr("Dossier précédent du fichier patients"),this,SLOT (Slot_NavigationDossierPrecedentListe()));
+    ui->mainToolBar->addAction(Icons::icApres(),tr("Dossier suivant du fichier patients"),this,SLOT (Slot_NavigationDossierSuivantListe()));
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -10678,15 +10688,15 @@ void Rufus::ToolBarListe()
     ui->mainToolBar->clear();
     ui->mainToolBar->setIconSize(QSize(25,25));
     ui->mainToolBar->setFixedHeight(40);
-    ui->mainToolBar->addAction(proc->giconCreer, tr("créer un nouveau dossier"),this,SLOT (Slot_OuvrirNouveauDossierpushButtonClicked()));
+    ui->mainToolBar->addAction(Icons::icCreer(), tr("créer un nouveau dossier"),this,SLOT (Slot_OuvrirNouveauDossierpushButtonClicked()));
     if (gListePatientsModel->rowCount() > 0)
-        ui->mainToolBar->addAction(proc->giconRecopier, tr("créer un dossier à partir d'un parent\nl'adresse et les antécédents familiaux\nseront recopiés automatiquement"),this,SLOT (Slot_RecopierDossierpushButtonClicked()));
+        ui->mainToolBar->addAction(Icons::icRecopier(), tr("créer un dossier à partir d'un parent\nl'adresse et les antécédents familiaux\nseront recopiés automatiquement"),this,SLOT (Slot_RecopierDossierpushButtonClicked()));
     ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addAction(proc->giconListe, tr("ouvrir un dossier"),this,SLOT (Slot_OuvrirListepushButtonClicked()));
+    ui->mainToolBar->addAction(Icons::icListe(), tr("ouvrir un dossier"),this,SLOT (Slot_OuvrirListepushButtonClicked()));
     ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addAction(proc->giconCPS,"Lire la CPS",this,SLOT (Slot_LireLaCPSpushButtonClicked()));                                                 // CZ001
-    ui->mainToolBar->addAction(proc->giconVitale,"ouvrir ou créer un dossier à partir de la carte vitale",this,SLOT (Slot_LireLaCVpushButtonClicked()));    // CZ001
-    //ui->mainToolBar->addAction(proc->giconVitale,"ouvrir ou créer un dossier à partir de la carte vitale",this,SLOT (Slot_OuvrirRecopierDossierpushButtonClicked()));
+    ui->mainToolBar->addAction(Icons::icCPS(),"Lire la CPS",this,SLOT (Slot_LireLaCPSpushButtonClicked()));                                                 // CZ001
+    ui->mainToolBar->addAction(Icons::icVitale(),"ouvrir ou créer un dossier à partir de la carte vitale",this,SLOT (Slot_LireLaCVpushButtonClicked()));    // CZ001
+    //ui->mainToolBar->addAction(Icons::icVitale(),"ouvrir ou créer un dossier à partir de la carte vitale",this,SLOT (Slot_OuvrirRecopierDossierpushButtonClicked()));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

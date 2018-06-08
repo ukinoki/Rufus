@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "upswitch.h"
+#include "icons.h"
 
 UpSwitch::UpSwitch(QWidget *parent) : QFrame(parent)
 {
@@ -29,7 +30,7 @@ UpSwitch::UpSwitch(QWidget *parent) : QFrame(parent)
     datelbl             ->move(marge+10, 9);
     datelbl             ->setAlignment(Qt::AlignCenter);
     cursorlbl           = new QLabel(this);
-    cursorlbl           ->setPixmap(QPixmap("://switch-left.png").scaled(55,40));
+    cursorlbl           ->setPixmap(Icons::pxSwitchLeft().scaled(55,40)); //TODO : icon scaled : pxSwitchLeft 55,40
     cursorlbl           ->setFixedWidth(60);
     cursorlbl           ->move(datelbl->width() + (marge*2)+10, 0);
     typelbl             = new QLabel(this);
@@ -59,14 +60,14 @@ void UpSwitch::BasculeSwitch()
     if (Activelbl==datelbl)
     {
         Activelbl   = typelbl;
-        cursorlbl   ->setPixmap(QPixmap("://switch-right.png").scaled(55,40));
+        cursorlbl   ->setPixmap(Icons::pxSwitchRight().scaled(55,40)); //TODO : icon scaled : pxSwitchRight 55,40
         datelbl     ->setStyleSheet("");
         emit Bascule(1);
     }
     else if (Activelbl==typelbl)
     {
         Activelbl   = datelbl;
-        cursorlbl   ->setPixmap(QPixmap("://switch-left.png").scaled(55,40));
+        cursorlbl   ->setPixmap(Icons::pxSwitchLeft().scaled(55,40)); //TODO : icon scaled : pxSwitchLeft 55,40
         typelbl     ->setStyleSheet("");
         emit Bascule(0);
     }

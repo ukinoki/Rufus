@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_listecorrespondants.h"
+#include "icons.h"
 
 dlg_listecorrespondants::dlg_listecorrespondants(Procedures *Proc, QSqlQuery Quer, QWidget *parent) :
     UpDialog(parent)
@@ -48,7 +49,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(Procedures *Proc, QSqlQuery Que
 
     label               = new UpLabel();
     label               ->setFixedSize(21,21);
-    label               ->setPixmap(QPixmap("://search.png").scaled(20,20));
+    label               ->setPixmap(Icons::pxLoupe().scaled(20,20)); //TODO : icon scaled : pxLoupe 20,20
     ChercheUplineEdit   = new UpLineEdit();
     ChercheUplineEdit   ->setFixedSize(140,25);
     ChercheUplineEdit   ->setStyleSheet(

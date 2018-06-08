@@ -16,6 +16,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_actesprecedents.h"
+#include "icons.h"
 #include "ui_dlg_actesprecedents.h"
 
 dlg_actesprecedents::dlg_actesprecedents(int idPatient, int idActeAPasser, Procedures *procAPAsser, bool AvantDernier, QWidget *parent) :
@@ -77,17 +78,17 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
     {
         QPushButton* Button = static_cast<QPushButton*>(obj);
         if(event->type() == QEvent::MouseButtonPress)
-            Button->setIcon(proc->giconFermeAppuye);
+            Button->setIcon(Icons::icFermeAppuye());
         if(event->type() == QEvent::MouseButtonRelease)
-            Button->setIcon(proc->giconFermeRelache);
+            Button->setIcon(Icons::icFerme());
         if(event->type() == QEvent::MouseMove)
         {
             QRect rect = QRect(Button->mapToGlobal(QPoint(0,0)),Button->size());
             QPoint pos = cursor().pos();
             if (rect.contains(pos))
-                Button->setIcon(proc->giconFermeAppuye);
+                Button->setIcon(Icons::icFermeAppuye());
             else
-                Button->setIcon(proc->giconFermeRelache);
+                Button->setIcon(Icons::icFerme());
         }
         return false;
     }

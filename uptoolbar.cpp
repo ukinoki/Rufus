@@ -16,18 +16,14 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "uptoolbar.h"
+#include "icons.h"
 
 UpToolBar::UpToolBar(QWidget *parent) : QToolBar(parent)
 {
-    giconApres      .addFile(QStringLiteral("://button_blue_play.png"), QSize(), QIcon::Normal, QIcon::Off);
-    giconAvant      .addFile(QStringLiteral("://button_blue_rear.png"), QSize(), QIcon::Normal, QIcon::Off);
-    giconPageApres  .addFile(QStringLiteral("://button_blue_ffw.png"),  QSize(), QIcon::Normal, QIcon::Off);
-    giconPageAvant  .addFile(QStringLiteral("://button_blue_rew.png"),  QSize(), QIcon::Normal, QIcon::Off);
-
-    debut   = new QAction(giconPageAvant,tr("Début"),this);
-    prec    = new QAction(giconAvant,tr("Précédent"),this);
-    suiv    = new QAction(giconApres,tr("Suivant"),this);
-    fin     = new QAction(giconPageApres,tr("Fin"),this);
+    debut   = new QAction(Icons::icPageAvant(),tr("Début"),this);
+    prec    = new QAction(Icons::icAvant(),tr("Précédent"),this);
+    suiv    = new QAction(Icons::icApres(),tr("Suivant"),this);
+    fin     = new QAction(Icons::icPageApres(),tr("Fin"),this);
 
     connect(debut,  SIGNAL(triggered(bool)), this, SLOT(Slot_TBChoix()));
     connect(prec,   SIGNAL(triggered(bool)), this, SLOT(Slot_TBChoix()));

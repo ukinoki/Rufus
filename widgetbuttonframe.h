@@ -43,7 +43,6 @@ public:
 
 private:
     int             gReponse;
-    QIcon           giconPlus, giconMoins, giconModif;
     QWidget         *gProprio, *widgParent;
     QHBoxLayout     *glayButtonWidg;
     void            Reponse(int id);

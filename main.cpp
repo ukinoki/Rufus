@@ -15,8 +15,16 @@ You should have received a copy of the GNU General Public License
 along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
+/*
+ * Première initisialization de la classe Icons
+*/
+#include "icons.h"
+QMap<QString,QPixmap> Icons::m_mapPixmap = QMap<QString,QPixmap>();
+QMap<QString,QIcon> Icons::m_mapIcon = QMap<QString,QIcon>();
+
 #include "rufus.h"
 #include <QApplication>
+#include <QTimer>
 
 int main(int argc, char *argv[])
 {
@@ -30,7 +38,14 @@ int main(int argc, char *argv[])
     translator.load(dirloc);
     a.installTranslator(&translator);
 
+    QSplashScreen *splash = new QSplashScreen(Icons::pxSplash());
+    splash->show();
+    Utils::Pause(1500);
+    splash->close();
+    delete splash;
+
     Rufus w;
     w.show();
+
     return a.exec();
 }
