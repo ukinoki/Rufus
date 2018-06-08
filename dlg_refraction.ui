@@ -68,7 +68,7 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <widget class="QGroupBox" name="PrismeGroupBox">
+     <widget class="UpGroupBox" name="PrismeGroupBox">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -337,7 +337,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="VerresSpeciauxGroupBox">
+     <widget class="UpGroupBox" name="VerresSpeciauxGroupBox">
       <property name="geometry">
        <rect>
         <x>395</x>
@@ -453,7 +453,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="RyserGroupBox">
+     <widget class="UpGroupBox" name="RyserGroupBox">
       <property name="geometry">
        <rect>
         <x>540</x>
@@ -564,7 +564,7 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <widget class="QGroupBox" name="MesureGroupBox">
+     <widget class="UpGroupBox" name="MesureGroupBox">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -1110,7 +1110,7 @@
        <bool>false</bool>
       </property>
      </widget>
-     <widget class="QGroupBox" name="QuelleDistanceGroupBox">
+     <widget class="UpGroupBox" name="QuelleDistanceGroupBox">
       <property name="geometry">
        <rect>
         <x>735</x>
@@ -1193,7 +1193,7 @@
        <string>Cycloplégie</string>
       </property>
      </widget>
-     <widget class="QGroupBox" name="QuelleMesureGroupBox">
+     <widget class="UpGroupBox" name="QuelleMesureGroupBox">
       <property name="enabled">
        <bool>true</bool>
       </property>
@@ -1359,7 +1359,7 @@ et fermer</string>
        <bool>false</bool>
       </property>
      </widget>
-     <widget class="QGroupBox" name="KeratometrieGroupBox">
+     <widget class="UpGroupBox" name="KeratometrieGroupBox">
       <property name="geometry">
        <rect>
         <x>735</x>
@@ -1711,7 +1711,7 @@ prédéfini</string>
        </date>
       </property>
      </widget>
-     <widget class="QGroupBox" name="QuelleMontureGroupBox">
+     <widget class="UpGroupBox" name="QuelleMontureGroupBox">
       <property name="geometry">
        <rect>
         <x>235</x>
@@ -1759,7 +1759,7 @@ prédéfini</string>
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="QuelOeilGroupBox">
+     <widget class="UpGroupBox" name="QuelOeilGroupBox">
       <property name="geometry">
        <rect>
         <x>130</x>
@@ -1798,7 +1798,7 @@ prédéfini</string>
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="QuelsVerresGroupBox">
+     <widget class="UpGroupBox" name="QuelsVerresGroupBox">
       <property name="geometry">
        <rect>
         <x>10</x>
@@ -1888,6 +1888,12 @@ prédéfini</string>
    <class>UpComboBox</class>
    <extends>QComboBox</extends>
    <header>upcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>upgroupbox.h</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>UpDoubleSpinBox</class>

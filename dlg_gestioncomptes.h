@@ -22,7 +22,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_banque.h"
 #include "upcombobox.h"
 #include <QRadioButton>
-#include <QGroupBox>
 #include "functormajpremierelettre.h"
 
 /* sert à gérer les comptes bancaires des utilisateurs

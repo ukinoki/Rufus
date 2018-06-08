@@ -42,20 +42,6 @@ bool UpRadioButton::eventFilter(QObject *obj, QEvent *event)
         if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
             if (!Toggleable())
                 return true;
-    if (event->type() == QEvent::FocusIn )
-    {
-        QGroupBox *box = dynamic_cast<QGroupBox*>(parent());
-        if (box != Q_NULLPTR)
-            box->setStyleSheet("QGroupBox {border: 1px solid rgb(164, 205, 255); border-radius: 10px;"
-                               "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);}");
-    }
-
-    if (event->type() == QEvent::FocusOut )
-    {
-        QGroupBox *box = dynamic_cast<QGroupBox*>(parent());
-        if (box != Q_NULLPTR)
-            box->setStyleSheet("");
-    }
     return QWidget::eventFilter(obj, event);
 }
 

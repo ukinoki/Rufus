@@ -387,9 +387,6 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
         ui->ParamConnexiontabWidget->setCurrentIndex(2);
 
     ui->ParamtabWidget->setCurrentIndex(0);
-    QList<QGroupBox *> listbox = this->findChildren<QGroupBox *>();
-    for (int i=0; i<listbox.size(); i++)
-            listbox.at(i)->setStyleSheet("QGroupBox {border: 1px solid gray;border-radius: 10px;}");
 
     ui->EntetespinBox->setValue(proc->gsettingsIni->value("Param_Imprimante/TailleEnTete").toInt());
     ui->EnteteALDspinBox->setValue(proc->gsettingsIni->value("Param_Imprimante/TailleEnTeteALD").toInt());
@@ -2263,38 +2260,8 @@ void dlg_param::Slot_VerifPosteImportDocs()
 
 bool dlg_param::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::FocusOut )
-    {
-        QWidget *widg = dynamic_cast<QWidget *>(obj);
-        if (widg!=NULL)
-        {
-            QList<QGroupBox *> listbox = this->findChildren<QGroupBox *>();
-            for (int i=0; i<listbox.size(); i++)
-            {
-                if (listbox.at(i)->isAncestorOf(widg) && listbox.at(i)->isEnabled())
-                {
-                    listbox.at(i)->setStyleSheet("QGroupBox {border: 1px solid gray;border-radius: 10px;}");
-                    i = listbox.size();
-                }
-            }
-        }
-    }
     if (event->type() == QEvent::MouseButtonRelease)
     {
-        QRadioButton *widg = dynamic_cast<QRadioButton *>(obj);
-        if (widg!=Q_NULLPTR)
-        {
-            QList<QGroupBox *> listbox = this->findChildren<QGroupBox *>();
-            for (int i=0; i<listbox.size(); i++)
-            {
-                if (listbox.at(i)->isAncestorOf(widg) && !ui->Principalframe->isAncestorOf(listbox.at(i)))
-                {
-                    listbox.at(i)->setStyleSheet("QGroupBox {border: 2px solid rgb(164, 205, 255); border-radius: 10px;"
-                                                 "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);}");
-                    i = listbox.size();
-                }
-            }
-        }
         UpLabel *lbl = dynamic_cast<UpLabel *>(obj);
         if (lbl != Q_NULLPTR)
         {

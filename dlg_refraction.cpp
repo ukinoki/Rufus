@@ -672,17 +672,6 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             objUpSpin->selectAll();
             objUpSpin = 0;
         }
-        QWidget *widg = dynamic_cast<QWidget *>(obj);
-        if (widg!=NULL)   {
-            QList<QGroupBox *> listbox = findChildren<QGroupBox *>();
-            for (int i=0; i<listbox.size(); i++)    {
-                if (listbox.at(i)->isAncestorOf(widg) && listbox.at(i) != ui->CommentaireGroupBox) {
-                    listbox.at(i)->setStyleSheet("QGroupBox {border: 2px solid rgb(164, 205, 255); border-radius: 10px;"
-                                                 "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);}");
-                    i = listbox.size();
-                }
-            }
-        }
     }
 
     if (event->type() == QEvent::FocusOut )
@@ -693,20 +682,6 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
         if (obj == ui->AddVPOD) QuitteAddVP(ui->AddVPOD);
         if (obj == ui->K1OD || obj == ui->K2OD || obj == ui->K1OG || obj == ui->K2OG)
             return QWidget::eventFilter(obj, event); //traité par la classe uplineedit.h
-
-        QWidget *widg = dynamic_cast<QWidget *>(obj);
-        if (widg!=NULL)
-        {
-            QList<QGroupBox *> listbox = this->findChildren<QGroupBox *>();
-            for (int i=0; i<listbox.size(); i++)
-            {
-                if (listbox.at(i)->isAncestorOf(widg) && listbox.at(i) != ui->CommentaireGroupBox  && !listbox.at(i)->isAncestorOf(focusWidget()))
-                {
-                    listbox.at(i)->setStyleSheet("");
-                    i = listbox.size();
-                }
-            }
-        }
     }
 
     if (event->type() == QEvent::KeyPress )
