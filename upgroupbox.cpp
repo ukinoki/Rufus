@@ -16,11 +16,12 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "upgroupbox.h"
+#include "macros.h"
 
 UpGroupBox::UpGroupBox(QWidget *parent) : QGroupBox(parent)
 {
     installEventFilter(this);
-    setStyleSheet("UpGroupBox {font: bold; border: 1px solid rgb(164,164,164); border-radius: 10px;}");
+    setStyleSheet(UPGROUBOXINACTIVE);
 }
 
 bool UpGroupBox::eventFilter(QObject *obj, QEvent *event)
@@ -33,16 +34,14 @@ bool UpGroupBox::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::FocusIn )
     {
         QWidget *widg = dynamic_cast<QWidget *>(obj);
-        if (widg!=NULL)   {
-            setStyleSheet("UpGroupBox {border: 2px solid rgb(164, 205, 255); border-radius: 10px;"
-                          "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);}");
-        }
+        if (widg!=Q_NULLPTR)
+            setStyleSheet(UPGROUBOXACTIVE);
     }
     if (event->type() == QEvent::FocusOut )
     {
         QWidget *widg = dynamic_cast<QWidget *>(obj);
         if (widg!=Q_NULLPTR)
-            setStyleSheet("UpGroupBox {border: 1px solid rgb(164,164,164); border-radius: 10px;}");
+            setStyleSheet(UPGROUBOXINACTIVE);
     }
     return QWidget::eventFilter(obj, event);
 }
