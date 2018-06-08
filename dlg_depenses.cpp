@@ -126,23 +126,26 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
     ReconstruitListeToutesRubriques();
     ReconstruitListeAnnees();
 
-    connect (ui->GestionComptesupPushButton,    SIGNAL(clicked()),                              this,   SLOT (Slot_GestionComptes()));
-    connect (ui->NouvelleDepenseupPushButton,   SIGNAL(clicked()),                              this,   SLOT (Slot_GererDepense()));
-    connect (ui->ModifierupPushButton,          SIGNAL(clicked()),                              this,   SLOT (Slot_GererDepense()));
-    connect (ui->OKupPushButton,                SIGNAL(clicked()),                              this,   SLOT (accept()));
-    connect (ui->Rubriques2035comboBox,         SIGNAL(currentIndexChanged(QString)),           this,   SLOT (Slot_RedessineBigTable()));
-    connect (ui->MontantlineEdit,               SIGNAL(editingFinished()),                      this,   SLOT (Slot_ConvertitDoubleMontant()));
-    connect (ui->PaiementcomboBox,              SIGNAL(currentIndexChanged(QString)),           this,   SLOT (Slot_ChoixPaiement(QString)));
-    connect (ui->ObjetlineEdit,                 SIGNAL(textEdited(QString)),                    this,   SLOT (Slot_EnableModifiepushButton()));
-    connect (ui->MontantlineEdit,               SIGNAL(textEdited(QString)),                    this,   SLOT (Slot_EnableModifiepushButton()));
-    connect (ui->DateDepdateEdit,               SIGNAL(dateChanged(QDate)),                     this,   SLOT (Slot_EnableModifiepushButton()));
-    connect (ui->PaiementcomboBox,              SIGNAL(currentTextChanged(QString)),            this,   SLOT (Slot_EnableModifiepushButton()));
-    connect (ui->RefFiscalecomboBox,            SIGNAL(currentTextChanged(QString)),            this,   SLOT (Slot_EnableModifiepushButton()));
-    connect (ui->SupprimerupPushButton,         SIGNAL(clicked()),                              this,   SLOT (Slot_SupprimerDepense()));
-    connect (ui->UserscomboBox,                 SIGNAL(currentIndexChanged(int)),               this,   SLOT (Slot_ChangeUser(int)));
+    connect (ui->GestionComptesupPushButton,    &QPushButton::clicked,          [=] {GestionComptes();});
+    connect (ui->NouvelleDepenseupPushButton,   &QPushButton::clicked,          [=] {GererDepense(ui->NouvelleDepenseupPushButton);});
+    connect (ui->ModifierupPushButton,          &QPushButton::clicked,          [=] {GererDepense(ui->ModifierupPushButton);});
+    connect (ui->OKupPushButton,                &QPushButton::clicked,          [=] {accept();});
+    connect (ui->Rubriques2035comboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                [=](int) {RedessineBigTable();});
+    connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    [=] {ConvertitDoubleMontant();});
+    connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                [=](int) {ChoixPaiement();});
+    connect (ui->ObjetlineEdit,                 &QLineEdit::textEdited,         [=] {EnableModifiepushButton();});
+    connect (ui->MontantlineEdit,               &QLineEdit::textEdited,         [=] {EnableModifiepushButton();});
+    connect (ui->DateDepdateEdit,               &QDateEdit::dateChanged,        [=] {EnableModifiepushButton();});
+    connect (ui->PaiementcomboBox,              &QComboBox::currentTextChanged, [=] {EnableModifiepushButton();});
+    connect (ui->RefFiscalecomboBox,            &QComboBox::currentTextChanged, [=] {EnableModifiepushButton();});
+    connect (ui->SupprimerupPushButton,         &QPushButton::clicked,          [=] {SupprimerDepense();});
+    connect (ui->UserscomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                                [=](int) {ChangeUser(ui->UserscomboBox->currentIndex());});
 
-    connect (EnregupPushButton, SIGNAL(clicked()),this,SLOT (Slot_ModifierDepense()));
-    connect (AnnulupPushButton, &QPushButton::clicked,  [=] {AnnulEnreg();});
+    connect (EnregupPushButton,                 &QPushButton::clicked,          [=] {ModifierDepense();});
+    connect (AnnulupPushButton,                 &QPushButton::clicked,          [=] {AnnulEnreg();});
 
     QString year = QDate::currentDate().toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
@@ -150,7 +153,7 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
 
     gBigTable->setFocus();
 
-    Slot_MetAJourFiche();
+    MetAJourFiche();
     InitOK= true;
 }
 
@@ -221,7 +224,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
         break;
     }
     case Modifier: {
-        disconnect (gBigTable,                  SIGNAL(itemSelectionChanged()),                 this,   SLOT (Slot_MetAJourFiche()));
+        disconnect (gBigTable, 0,0,0);
         EnregupPushButton       ->setText("Valider");
         ui->ComptesupComboBox   ->setVisible(ui->PaiementcomboBox->currentText() != tr("Espèces"));
         if (ui->PaiementcomboBox->currentText() != tr("Espèces"))            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
@@ -266,7 +269,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
         break;
     }
     case Enregistrer: {
-        disconnect (gBigTable,                  SIGNAL(itemSelectionChanged()),                 this,   SLOT (Slot_MetAJourFiche()));
+        disconnect (gBigTable, 0,0,0);
         ui->DateDepdateEdit     ->setDate(QDate::currentDate());
         ui->ObjetlineEdit       ->setText("");
         ui->MontantlineEdit     ->setText("0,00");
@@ -291,13 +294,13 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
 void dlg_depenses::AnnulEnreg()
 {
     RegleAffichageFiche(Lire);
-    Slot_MetAJourFiche();
+    MetAJourFiche();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Change l'utilisateur courant ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_ChangeUser(int)
+void dlg_depenses::ChangeUser(int)
 {
     gidUserADebiter             = ui->UserscomboBox->currentData().toInt();
     gNomUser                    = proc->getLogin((gidUserADebiter));
@@ -333,27 +336,12 @@ void dlg_depenses::Slot_ChangeUser(int)
     ui->AnneecomboBox->setCurrentIndex(idx>-1? 0 : idx);
 }
 
-/*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Retrouve la famille fiscale en cas de modificationde RefFiscale ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_ChercheFamilleFiscale(QString RefFiscale)
+void dlg_depenses::ChoixPaiement()
 {
-    QString chercheFamFiscale = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '" + proc->CorrigeApostrophe(RefFiscale) +"'";
-    QSqlQuery cherchefamfiscalequery (chercheFamFiscale,db);
-    proc->TraiteErreurRequete(cherchefamfiscalequery,chercheFamFiscale,"");
-    if (cherchefamfiscalequery.size() > 0)
-    {
-        cherchefamfiscalequery.first();
-        gBigTable->item(gBigTable->currentRow(),6)->setText(cherchefamfiscalequery.value(0).toString());
-    }
+    ui->ComptesupComboBox->setVisible(ui->PaiementcomboBox->currentText() != tr("Espèces") && ui->PaiementcomboBox->currentText() != "");
 }
 
-void dlg_depenses::Slot_ChoixPaiement(QString choix)
-{
-    ui->ComptesupComboBox->setVisible(choix != tr("Espèces") && ui->PaiementcomboBox->currentText() != "");
-}
-
-void dlg_depenses::Slot_ConvertitDoubleMontant()
+void dlg_depenses::ConvertitDoubleMontant()
 {
     QLineEdit * Emetteur = qobject_cast<QLineEdit*> (sender());
     QString b = Emetteur->text();
@@ -361,7 +349,7 @@ void dlg_depenses::Slot_ConvertitDoubleMontant()
     Emetteur->setText(b);
 }
 
-void dlg_depenses::Slot_EnableModifiepushButton()
+void dlg_depenses::EnableModifiepushButton()
 {
     ui->ModifierupPushButton->setEnabled(true);
 }
@@ -369,7 +357,7 @@ void dlg_depenses::Slot_EnableModifiepushButton()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- ENregistrer une dépense ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_EnregistreDepense()
+void dlg_depenses::EnregistreDepense()
 {
     bool OnSauteLaQuestionSuivante = false;
     QString pb = "";
@@ -519,7 +507,7 @@ void dlg_depenses::Slot_EnregistreDepense()
             ReconstruitListeAnnees();
         ui->AnneecomboBox->setCurrentText(QString::number(annee));
     }
-    Slot_RedessineBigTable();
+    RedessineBigTable();
     RegleAffichageFiche(Lire);
     for (int i=0; i < gBigTable->rowCount(); i++)
     {
@@ -535,9 +523,9 @@ void dlg_depenses::Slot_EnregistreDepense()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Gerer une dépense ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_GererDepense()
+void dlg_depenses::GererDepense(QPushButton *widgsender)
 {
-    if (sender() == ui->ModifierupPushButton)
+    if (widgsender == ui->ModifierupPushButton)
     {
         if (gMode == Lire)
             RegleAffichageFiche(Modifier);
@@ -548,11 +536,8 @@ void dlg_depenses::Slot_GererDepense()
         RegleAffichageFiche(Enregistrer);
 }
 
-void dlg_depenses::Slot_MenuContextuel()
+void dlg_depenses::MenuContextuel(QPoint pos, UpLabel *labelClicked)
 {
-    UpLabel *labelClicked = dynamic_cast<UpLabel *> (sender());
-    if (labelClicked == 0) return;
-
     int idDepAOuvrir = labelClicked->getId();
 
     QMenu *menu;
@@ -568,7 +553,7 @@ void dlg_depenses::Slot_MenuContextuel()
 
     // ouvrir le menu
     menu->deleteLater();
-    menu->exec(QCursor::pos());
+    menu->exec(pos);
 }
 
 void dlg_depenses::ChoixMenu(QString choix)
@@ -588,7 +573,7 @@ void dlg_depenses::ChoixMenu(QString choix)
     }
     else
     {
-        Slot_MetAJourFiche();
+        MetAJourFiche();
         gMode = Enregistrer;
         ui->DateDepdateEdit             ->setEnabled(true);
         ui->ObjetlineEdit               ->setEnabled(true);
@@ -609,7 +594,7 @@ void dlg_depenses::ChoixMenu(QString choix)
         EnregupPushButton               ->setVisible(true);
         AnnulupPushButton               ->setVisible(true);
         gBigTable                       ->setEnabled(false);
-        disconnect (gBigTable,          SIGNAL(itemSelectionChanged()), this,   SLOT (Slot_MetAJourFiche()));
+        disconnect (gBigTable, 0,0,0);
         ui->DateDepdateEdit             ->setDate(QDate::currentDate());
         EnregupPushButton               ->setText("Enregistrer");
         ui->OKupPushButton              ->setShortcut(QKeySequence());
@@ -621,7 +606,7 @@ void dlg_depenses::ChoixMenu(QString choix)
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Supprimer une dépense ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_SupprimerDepense()
+void dlg_depenses::SupprimerDepense()
 {
     if (gBigTable->selectedRanges().size() == 0) return;
     // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte
@@ -704,15 +689,15 @@ void dlg_depenses::Slot_SupprimerDepense()
                 }
             }
         }
-        Slot_CalculTotalDepenses();
-        Slot_MetAJourFiche();
+        CalculTotalDepenses();
+        MetAJourFiche();
     }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Recalcule le total des dépenses -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_CalculTotalDepenses()
+void dlg_depenses::CalculTotalDepenses()
 {
     double Total = 0;
     if (gBigTable->rowCount() > 0)
@@ -737,7 +722,7 @@ void dlg_depenses::Slot_CalculTotalDepenses()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Ouvre la gestion des comptes -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_GestionComptes()
+void dlg_depenses::GestionComptes()
 {
     Dlg_Cmpt          = new dlg_comptes(proc, this);
     if (Dlg_Cmpt->getInitOK())
@@ -748,13 +733,13 @@ void dlg_depenses::Slot_GestionComptes()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -- Met à jour la fiche --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_MetAJourFiche()
+void dlg_depenses::MetAJourFiche()
 {
     if (gMode == Lire && gBigTable->rowCount() > 0)
     {
-        disconnect (ui->DateDepdateEdit,               SIGNAL(dateChanged(QDate)),                     this,   SLOT (Slot_EnableModifiepushButton()));
-        disconnect (ui->RefFiscalecomboBox,            SIGNAL(currentTextChanged(QString)),            this,   SLOT (Slot_EnableModifiepushButton()));
-        disconnect (ui->PaiementcomboBox,              SIGNAL(currentTextChanged(QString)),            this,   SLOT (Slot_EnableModifiepushButton()));
+        disconnect (ui->DateDepdateEdit,    0,0,0);
+        disconnect (ui->RefFiscalecomboBox, 0,0,0);
+        disconnect (ui->PaiementcomboBox,   0,0,0);
 
         UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(gBigTable->currentRow(),0));
         idDepEnCours = idDeplbl->text().toInt();
@@ -814,20 +799,22 @@ void dlg_depenses::Slot_MetAJourFiche()
         }
         else
             ui->SupprimerupPushButton->setEnabled(true);
-        connect (ui->DateDepdateEdit,               SIGNAL(dateChanged(QDate)),                     this,   SLOT (Slot_EnableModifiepushButton()));
-        connect (ui->PaiementcomboBox,              SIGNAL(currentTextChanged(QString)),            this,   SLOT (Slot_EnableModifiepushButton()));
-        connect (ui->RefFiscalecomboBox,            SIGNAL(currentTextChanged(QString)),            this,   SLOT (Slot_EnableModifiepushButton()));
+        connect (ui->DateDepdateEdit,       &QDateEdit::dateChanged,        [=] {EnableModifiepushButton();});
+        connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged, [=] {EnableModifiepushButton();});
+        connect (ui->PaiementcomboBox,      QOverload<int>::of(&QComboBox::currentIndexChanged),
+                                                                            [=](int) {ChoixPaiement();});
+        connect (ui->RefFiscalecomboBox,    &QComboBox::currentTextChanged, [=] {EnableModifiepushButton();});
     }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Modifier une dépense ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_ModifierDepense()
+void dlg_depenses::ModifierDepense()
 {
     if (gMode == Enregistrer)
     {
-        Slot_EnregistreDepense();
+        EnregistreDepense();
         return;
     }
     UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(gBigTable->currentRow(),0));
@@ -1020,7 +1007,7 @@ void dlg_depenses::Slot_ModifierDepense()
         ui->AnneecomboBox->setCurrentText(QString::number(year));
     }
 
-    Slot_RedessineBigTable();
+    RedessineBigTable();
     bool trouve = false;
     for (int i=0; i< gBigTable->rowCount(); i++)
     {
@@ -1033,17 +1020,17 @@ void dlg_depenses::Slot_ModifierDepense()
     }
     if (!trouve)    gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
     gMode = Lire;
-    Slot_MetAJourFiche();
+    MetAJourFiche();
     RegleAffichageFiche(Lire);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -- Remplit BigTableWidget --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::Slot_RedessineBigTable()
+void dlg_depenses::RedessineBigTable()
 {
     RemplitBigTable();
-    Slot_CalculTotalDepenses();
+    CalculTotalDepenses();
     if (gBigTable->rowCount() > 0)
     {
         RegleAffichageFiche(Lire);
@@ -1154,10 +1141,10 @@ void dlg_depenses::ReconstruitListeAnnees()
             ChercheAnneesQuery.seek(i);
             ListeAnnees << ChercheAnneesQuery.value(0).toString();
     }
-    disconnect (ui->AnneecomboBox,  SIGNAL(currentIndexChanged(QString)),   this,   SLOT (Slot_RedessineBigTable()));
+    disconnect (ui->AnneecomboBox,  0,0,0);
     ui->AnneecomboBox->clear();
     ui->AnneecomboBox->insertItems(0,ListeAnnees);
-    connect (ui->AnneecomboBox,     SIGNAL(currentIndexChanged(QString)),   this,   SLOT (Slot_RedessineBigTable()));
+    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {RedessineBigTable();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1200,7 +1187,7 @@ void dlg_depenses::RemplitBigTable()
     QTableWidgetItem    *pItem8;
     QString             A;
     UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
-    disconnect (gBigTable,                     SIGNAL(itemSelectionChanged()),                 this,   SLOT (Slot_MetAJourFiche()));
+    disconnect (gBigTable, 0,0,0);
     gBigTable->clearContents();
     QString Deprequete = "SELECT idDep, idUser, year(DateDep) as Annee, DateDep , RefFiscale, Objet, Montant,"
                          "FamFiscale, Nooperation, Monnaie, ModePaiement, Compte, NoCheque FROM " NOM_TABLE_DEPENSES
@@ -1246,13 +1233,13 @@ void dlg_depenses::RemplitBigTable()
             label5->setContextMenuPolicy(Qt::CustomContextMenu);
             label6->setContextMenuPolicy(Qt::CustomContextMenu);
 
-            connect(label0,  SIGNAL(customContextMenuRequested(QPoint)),    this, SLOT (Slot_MenuContextuel()));
-            connect(label1,  SIGNAL(customContextMenuRequested(QPoint)),    this, SLOT (Slot_MenuContextuel()));
-            connect(label2,  SIGNAL(customContextMenuRequested(QPoint)),    this, SLOT (Slot_MenuContextuel()));
-            connect(label3,  SIGNAL(customContextMenuRequested(QPoint)),    this, SLOT (Slot_MenuContextuel()));
-            connect(label4,  SIGNAL(customContextMenuRequested(QPoint)),    this, SLOT (Slot_MenuContextuel()));
-            connect(label5,  SIGNAL(customContextMenuRequested(QPoint)),    this, SLOT (Slot_MenuContextuel()));
-            connect(label6,  SIGNAL(customContextMenuRequested(QPoint)),    this, SLOT (Slot_MenuContextuel()));
+            connect(label0,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label0);});
+            connect(label1,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label1);});
+            connect(label2,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label2);});
+            connect(label3,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label3);});
+            connect(label4,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label4);});
+            connect(label5,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label5);});
+            connect(label6,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label6);});
 
             A = EnumDepensesQuery.value(0).toString();                                                          // idDepense - col = 0
             label0->setText(A);
@@ -1323,7 +1310,7 @@ void dlg_depenses::RemplitBigTable()
             EnumDepensesQuery.next();
         }
     ui->SupprimerupPushButton->setEnabled(false);
-    connect (gBigTable,                     SIGNAL(itemSelectionChanged()),                 this,   SLOT (Slot_MetAJourFiche()));
+    connect (gBigTable,     &QTableWidget::itemSelectionChanged, [=] {MetAJourFiche();});
 }
 
 

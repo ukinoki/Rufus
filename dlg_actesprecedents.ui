@@ -139,7 +139,7 @@
       </layout>
      </item>
      <item>
-      <widget class="QTextEdit" name="MotiftextEdit">
+      <widget class="UpTextEdit" name="MotifupTextEdit">
        <property name="focusPolicy">
         <enum>Qt::NoFocus</enum>
        </property>
@@ -173,7 +173,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTextEdit" name="TextetextEdit">
+    <widget class="UpTextEdit" name="TexteupTextEdit">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
      </property>
@@ -195,7 +195,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QTextEdit" name="ConclusiontextEdit">
+    <widget class="UpTextEdit" name="ConclusionupTextEdit">
      <property name="focusPolicy">
       <enum>Qt::NoFocus</enum>
      </property>
@@ -936,6 +936,11 @@ précédente</string>
    <class>UpSmallButton</class>
    <extends>QPushButton</extends>
    <header>upsmallbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>uptextedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

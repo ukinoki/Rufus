@@ -73,7 +73,7 @@ dlg_docsscanner::dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *pa
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(toolbar,    SIGNAL(TBSignal(QString)), this, SLOT(Slot_NavigueVers(QString)));
+    connect(toolbar,    &UpToolBar::TBSignal, [=] {NavigueVers(toolbar->action);});
 
     uptable     ->setColumnCount(1);
     uptable     ->horizontalHeader()->setVisible(false);
@@ -121,8 +121,8 @@ dlg_docsscanner::dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *pa
     inflabel->setFont(font);
 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
-    connect(OKButton,           SIGNAL(clicked(bool)),  this,   SLOT(Slot_ValideFiche()));
-    connect(dirsearchbutton,    SIGNAL(clicked(bool)),  this,   SLOT(Slot_ChangeFile()));
+    connect(OKButton,           &QPushButton::clicked, [=] {ValideFiche();});
+    connect(dirsearchbutton,    &QPushButton::clicked, [=] {ChangeFile();});
 
     laybuttons->insertLayout(0,rsgnmtVlay);
 
@@ -141,7 +141,7 @@ dlg_docsscanner::~dlg_docsscanner()
 {
 }
 
-void dlg_docsscanner::Slot_NavigueVers(QString but)
+void dlg_docsscanner::NavigueVers(QString but)
 {
     QString fichencours = uptable->Attribut();
     QStringList filters;
@@ -174,7 +174,7 @@ void dlg_docsscanner::Slot_NavigueVers(QString but)
     }
 }
 
-void dlg_docsscanner::Slot_ChangeFile()
+void dlg_docsscanner::ChangeFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), docpath,  tr("Images (*.pdf *.jpg)"));
     if (fileName != "")
@@ -283,7 +283,7 @@ void dlg_docsscanner::AfficheDoc(QString filebut)
     }
 }
 
-void dlg_docsscanner::Slot_ValideFiche()
+void dlg_docsscanner::ValideFiche()
 {
     if (typeDocCombo->currentText() == "")
     {

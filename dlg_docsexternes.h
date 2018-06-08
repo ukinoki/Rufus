@@ -41,6 +41,9 @@ public:
     ~dlg_docsexternes();
     void                    RemplirTreeView(bool recalcul = true);
     QTreeView               *ListDocsTreeView;
+    void                    AfficheDoc(QModelIndex idx);
+    bool                    InitOK();
+
 private:
     Procedures              *proc;
     QAction                 *fin, *debut, *prec, *suiv;
@@ -81,22 +84,19 @@ private:
     bool                    initOK;
     int                     CompteNbreDocs();
     bool                    EcritDansUnFichier(QString NomFichier, QByteArray TexteFichier);
-    void                    ImprimeDoc(QString idimpr);
     QMap<QString,QVariant>  CalcImage(int idimpression, bool imagerie, bool afficher = true);
 
-public slots:
-    void                    Slot_AfficheDoc(QModelIndex idx);
-    bool                    InitOK();
+    void                    BasculeTriListe(int);
+    void                    EditSousTitre(QStandardItem *item);
+    void                    EnregistreVideo();
+    void                    ImprimeDoc();
+    void                    PlayerCtrl(int);
+    void                    SupprimeDoc();
+    void                    ZoomDoc();
+    void                    Print(QPrinter*);
+
 private slots:
-    void                    Slot_BasculeTriListe(int);
     void                    Slot_CompteNbreDocs();
-    void                    Slot_EditSousTitre(QStandardItem *item);
-    void                    Slot_EnregistreVideo();
-    void                    Slot_ImprimeDoc();
-    void                    Slot_PlayerCtrl(int);
-    void                    Slot_Print(QPrinter*);
-    void                    Slot_SupprimeDoc();
-    void                    Slot_ZoomDoc();
 };
 
 #endif // DLG_DOCSEXTERNES_H

@@ -53,7 +53,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     // Initialisation des slots.
     connect (ui->ChercheupLineEdit,             SIGNAL(textEdited(QString)),                        this,   SLOT (Slot_FiltreListe(QString)));
     connect (ui->OKupPushButton,                SIGNAL(clicked()),                                  this,   SLOT (Slot_Validation()));
-    connect (ui->AnnulupPushButton,             SIGNAL(clicked()),                                  this,   SLOT (Slot_Annulation()));
+    connect (ui->AnnulupPushButton,             &QPushButton::clicked, [=] {Annulation();});
     connect (ui->DocPubliccheckBox,             SIGNAL(clicked(bool)),                              this,   SLOT (Slot_CheckPublicEditable()));
     connect (ui->DocEditcheckBox,               SIGNAL(clicked(bool)),                              this,   SLOT (Slot_CheckPublicEditable()));
     connect (ui->PrescriptioncheckBox,          SIGNAL(clicked(bool)),                              this,   SLOT (Slot_EnableOKPushButton()));
@@ -61,8 +61,8 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     connect (ui->upTextEdit,                    SIGNAL(textChanged()),                              this,   SLOT (Slot_EnableOKPushButton()));
     connect (ui->upTextEdit,                    SIGNAL(dblclick(int)),                              this,   SLOT (Slot_dblClicktextEdit()));
     connect (ui->DupliOrdocheckBox,             SIGNAL(clicked(bool)),                              this,   SLOT (Slot_OrdoAvecDupli(bool)));
-    connect(widgButtonsDocs,                    SIGNAL(choix(int)),                                 this, SLOT(Slot_ChoixButtonFrame(int)));
-    connect(widgButtonsDossiers,                SIGNAL(choix(int)),                                 this, SLOT(Slot_ChoixButtonFrame(int)));
+    connect(widgButtonsDocs,                    &WidgetButtonFrame::choix,  [=] {ChoixButtonFrame(widgButtonsDocs->Reponse(), widgButtonsDocs);});
+    connect(widgButtonsDossiers,                &WidgetButtonFrame::choix,  [=] {ChoixButtonFrame(widgButtonsDossiers->Reponse(), widgButtonsDossiers);});
 
     // Mise en forme de la table Documents
     ui->DocupTableWidget->setPalette(QPalette(Qt::white));
@@ -196,7 +196,7 @@ dlg_documents::~dlg_documents()
 // Clic sur le bouton ANNULER.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
 // ----------------------------------------------------------------------------------
-void dlg_documents::Slot_Annulation()
+void dlg_documents::Annulation()
 {
     if (gMode == CreationDOC || gMode == ModificationDOC || gMode == ModificationDOSS || gMode == CreationDOSS)
     {
@@ -242,9 +242,8 @@ void dlg_documents::Slot_Annulation()
         reject();
 }
 
-void dlg_documents::Slot_ChoixButtonFrame(int j)
+void dlg_documents::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
 {
-    WidgetButtonFrame *widgbutt = dynamic_cast<WidgetButtonFrame*>(sender());
     UpLineEdit *line = new UpLineEdit();
     int row = 0;
     if (widgbutt== widgButtonsDocs)
@@ -1754,7 +1753,7 @@ void dlg_documents::keyPressEvent(QKeyEvent * event )
     switch (event->key()) {
     case Qt::Key_Escape:
     {
-        Slot_Annulation();
+        Annulation();
         break;
     }
     default:

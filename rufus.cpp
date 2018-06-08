@@ -25,15 +25,14 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("01-06-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("04-06-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
     QString border = "border-image: url(://wallpaper.jpg)";
-    //TODO : Externaliser dans un fichier
-    qApp->setStyleSheet(
+    QString style =
         "QDialog{" + border + "}"
         "QGroupBox{font:bold;}"
         "QLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 5px;}"
@@ -68,7 +67,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                  "border: 1px solid #5c5c5c;"
                  "width: 18px;"
                  "margin: -2px 0;" /* handle is placed by default on the contents rect of the groove. Expand outside the groove */
-                 "border-radius: 3px;}");
+                 "border-radius: 3px;}";
+    qApp->setStyleSheet(style);
 
     proc = new Procedures(this);
 
@@ -126,6 +126,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
 
     qApp->setFont(proc->AppFont());
+    qApp->setStyleSheet(style);
     proc->Message(gDataUser["Statut"].toString(), 6000);
 
     //dlg_GestionLieux(db, NOM_TABLE_LIEUXEXERCICE, NOM_TABLE_JOINTURESLIEUX, QDir::homePath() + NOMFIC_INI).exec();
@@ -199,7 +200,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->UpdVerrouSalDat();
     setFixedWidth(LARGEURLISTE);
     ui->tabWidget->setGeometry(5,10,-10,920);
-    ToolBarListe();
 
     //Nettoyage des erreurs éventuelles de la salle d'attente
     QString blabla              = ENCOURSEXAMEN;
@@ -404,7 +404,7 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
         {
             Dlg_DocsExt->setWindowTitle(tr("Documents de ") + patPrenom + " " + patNom);
             Dlg_DocsExt->show();
-            Dlg_DocsExt->Slot_AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
+            Dlg_DocsExt->AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
             if (depuismenu)
                 Dlg_DocsExt->setModal(true); //quand la fiche est ouverte depuis le menu contectuel de la liste des patients
         }
@@ -446,7 +446,7 @@ void Rufus::MAJDocsExternes()
             ui->OuvreDocsExternespushButton->setEnabled(true);
             Dlg_DocsExt->setWindowTitle(tr("Documents de ") + gPrenomPatient + " " + gNomPatient);
             Dlg_DocsExt->show();
-            Dlg_DocsExt->Slot_AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
+            Dlg_DocsExt->AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
         }
         else
             ui->OuvreDocsExternespushButton->setEnabled(false);
@@ -1358,7 +1358,6 @@ void Rufus::Slot_ChangeTabBureau()
     if(ui->tabWidget->currentWidget() == ui->tabList)
     {
         setFixedWidth(LARGEURLISTE);
-        ToolBarListe();
         ui->CreerNomlineEdit->setFocus();
         CalcNbDossiers();
         //ui->ChgUserpushButton->setEnabled(ui->tabWidget->indexOf(ui->tabDossier) < 0);
@@ -1366,7 +1365,6 @@ void Rufus::Slot_ChangeTabBureau()
     else
     {
         setFixedWidth(LARGEURNORMALE);
-        ToolBarDossier();
     }
 }
 
@@ -1978,7 +1976,7 @@ void Rufus::EnregistreDocScanner()
     Dlg_DocsScan = new dlg_docsscanner(proc,idpat, this);
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + nomprenompat);
     Dlg_DocsScan->show();
-    Dlg_DocsScan->Slot_NavigueVers("Fin");
+    Dlg_DocsScan->NavigueVers("Fin");
 }
 
 void Rufus::EnregistreVideo()
@@ -2004,7 +2002,7 @@ void Rufus::EnregistreVideo()
     Dlg_DocsVideo = new dlg_docsvideo(proc,idpat, this);
     Dlg_DocsVideo->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + nomprenompat);
     Dlg_DocsVideo->show();
-    Dlg_DocsVideo->Slot_NavigueVers("Fin");
+    Dlg_DocsVideo->NavigueVers("Fin");
 }
 
 void Rufus::Slot_FiltrecheckBoxClicked()
@@ -5843,23 +5841,25 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             objUpText->textCursor().clearSelection();
             if (objUpText->getValeurAvant() != objUpText->toHtml())
             {
-                if (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES)
+                if (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES || objUpText->getTableCorrespondant() == NOM_TABLE_MESSAGES)
                 {
                     QString Corps = objUpText->toHtml();
                     Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
                     Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
+#ifdef Q_OS_LINUX
+                    if (Corps.contains("<!MAC>"))
+                        Corps.replace("<!MAC>","<!LINUX>");
+                    else if (!Corps.contains("<!LINUX>"))
+                        Corps.append("<!LINUX>");
+#endif
+#ifdef Q_OS_MAC
+                    if (Corps.contains("<!LINUX>"))
+                        Corps.replace("<!LINUX>","<!MAC>");
+                    else if (!Corps.contains("<!MAC>"))
+                        Corps.append("<!MAC>");
+#endif
                     requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
-                            + proc->CorrigeApostrophe(Corps) + "' WHERE idActe = " + QString::number(gidActe);
-                    QSqlQuery UpdateUpTextEditQuery (requetemodif,db);
-                    proc->TraiteErreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
-                }
-                else if (objUpText->getTableCorrespondant() == NOM_TABLE_MESSAGES)
-                {
-                    QString Corps = objUpText->toHtml();
-                    Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-                    Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
-                    requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
-                            + proc->CorrigeApostrophe(Corps) + "' WHERE idMessage = " + QString::number(objUpText->getId());
+                            + proc->CorrigeApostrophe(Corps) + "' WHERE " + (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES? "idActe" : "idMessage") + "= " + QString::number(gidActe);
                     QSqlQuery UpdateUpTextEditQuery (requetemodif,db);
                     proc->TraiteErreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                 }
@@ -6141,7 +6141,6 @@ void Rufus::AfficheActe(int idActe)
 
         ui->ActeDatedateEdit->setDate(AfficheActeQuery.value(3).toDate());
         ui->ActeDatedateEdit->setEnabled(false);
-
         ui->ActeMotiftextEdit->setText(AfficheActeQuery.value(4).toString());
         ui->ActeTextetextEdit->setText(AfficheActeQuery.value(5).toString());
         ui->ActeConclusiontextEdit->setText(AfficheActeQuery.value(6).toString());
@@ -10666,37 +10665,6 @@ void Rufus::Tonometrie()
     }
     Dlg_AutresMes->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_AutresMes;
-}
-
-/*------------------------------------------------------------------------------------------------------------------------------------
--- Créer le ToolBar en vue liste -----------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------*/
-void Rufus::ToolBarDossier()
-{
-    ToolBarListe();
-    ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addAction(Icons::icAvant(), tr("Dossier précédent du fichier patients"),this,SLOT (Slot_NavigationDossierPrecedentListe()));
-    ui->mainToolBar->addAction(Icons::icApres(),tr("Dossier suivant du fichier patients"),this,SLOT (Slot_NavigationDossierSuivantListe()));
-}
-
-/*------------------------------------------------------------------------------------------------------------------------------------
--- Créer le ToolBar en vue liste -----------------------------------------------------------------------------------------------------
-------------------------------------------------------------------------------------------------------------------------------------*/
-void Rufus::ToolBarListe()
-{
-
-    ui->mainToolBar->clear();
-    ui->mainToolBar->setIconSize(QSize(25,25));
-    ui->mainToolBar->setFixedHeight(40);
-    ui->mainToolBar->addAction(Icons::icCreer(), tr("créer un nouveau dossier"),this,SLOT (Slot_OuvrirNouveauDossierpushButtonClicked()));
-    if (gListePatientsModel->rowCount() > 0)
-        ui->mainToolBar->addAction(Icons::icRecopier(), tr("créer un dossier à partir d'un parent\nl'adresse et les antécédents familiaux\nseront recopiés automatiquement"),this,SLOT (Slot_RecopierDossierpushButtonClicked()));
-    ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addAction(Icons::icListe(), tr("ouvrir un dossier"),this,SLOT (Slot_OuvrirListepushButtonClicked()));
-    ui->mainToolBar->addSeparator();
-    ui->mainToolBar->addAction(Icons::icCPS(),"Lire la CPS",this,SLOT (Slot_LireLaCPSpushButtonClicked()));                                                 // CZ001
-    ui->mainToolBar->addAction(Icons::icVitale(),"ouvrir ou créer un dossier à partir de la carte vitale",this,SLOT (Slot_LireLaCVpushButtonClicked()));    // CZ001
-    //ui->mainToolBar->addAction(Icons::icVitale(),"ouvrir ou créer un dossier à partir de la carte vitale",this,SLOT (Slot_OuvrirRecopierDossierpushButtonClicked()));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

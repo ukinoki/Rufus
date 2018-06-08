@@ -144,14 +144,18 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 // la taille maximale des images
 #define TAILLEMAXIIMAGES                            262144
 
+//les styles
+#define UPGROUBOXINACTIVE                           "UpGroupBox {font: bold; border: 1px solid rgb(164,164,164); border-radius: 10px;}"
+#define UPGROUBOXACTIVE                             "UpGroupBox {border: 2px solid rgb(164, 205, 255); border-radius: 10px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #E0E0E0, stop: 1 #FFFFFF);}"
+
 #ifdef Q_OS_MACX
 #define POLICEPARDEFAUT         "Comic Sans MS"
 #define POINTPARDEFAUT          13
 #define PATH_SPEC_MAC "/../../.."
 #endif
 #ifdef Q_OS_LINUX
-#define POLICEPARDEFAUT         "Ubuntu Mono"
-#define POINTPARDEFAUT          9
+#define POLICEPARDEFAUT         "Comic Sans MS"
+#define POINTPARDEFAUT          10
 #define LINUX "/../../.."
 #endif
 #ifdef Q_OS_WIN

@@ -35,6 +35,7 @@ class dlg_docsvideo : public UpDialog
     Q_OBJECT
 public:
     dlg_docsvideo(Procedures *ProcAPasser, int idPat, QWidget *parent = Q_NULLPTR);
+    void                NavigueVers(QString);
 
 private:
     Procedures          *proc;
@@ -50,12 +51,8 @@ private:
     QStringList         ListTypeExams;
     QString             docpath;
     void                AfficheVideo(QString filebut);
-
-public slots:
-    void                Slot_NavigueVers(QString);
-private slots:
-    void                Slot_ChangeFile();
-    void                Slot_ValideFiche();
+    void                ChangeFile();
+    void                ValideFiche();
 };
 
 #endif // DLG_DOCSVIDEO_H

@@ -135,9 +135,9 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
 
         //1.  Afficher les éléments de la tables Actes
         ui->ActeDatedateEdit->setDate(ActesPrecsQuery.value(3).toDate());
-        ui->MotiftextEdit->setText(ActesPrecsQuery.value(4).toString());
-        ui->TextetextEdit->setText(ActesPrecsQuery.value(5).toString());
-        ui->ConclusiontextEdit->setText(ActesPrecsQuery.value(6).toString());
+        ui->MotifupTextEdit->setText(ActesPrecsQuery.value(4).toString());
+        ui->TexteupTextEdit->setText(ActesPrecsQuery.value(5).toString());
+        ui->ConclusionupTextEdit->setText(ActesPrecsQuery.value(6).toString());
         ui->CourrierAFairecheckBox->setChecked(ActesPrecsQuery.value(7).toString() == "T");
         ui->idActelineEdit->setText(ActesPrecsQuery.value(0).toString());
         if (ActesPrecsQuery.value(7).toInt() == 1) ui->CourrierAFairecheckBox->setChecked(true);

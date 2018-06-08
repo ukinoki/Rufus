@@ -31,13 +31,14 @@ public:
     QAction*            Last();
     QAction*            Next();
     QAction*            Prec();
+    QString             action;
 private:
     void                EmetReponse();
     QAction             *debut, *prec, *suiv, *fin;
 private slots:
     void                Slot_TBChoix();
 signals:
-    void                TBSignal(QString);
+    void                TBSignal();
 };
 
 #endif // UPTOOLBAR_H

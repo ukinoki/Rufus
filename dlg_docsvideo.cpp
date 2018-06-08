@@ -62,7 +62,7 @@ dlg_docsvideo::dlg_docsvideo(Procedures *ProcAPasser, int idPat, QWidget *parent
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(toolbar,    SIGNAL(TBSignal(QString)), this, SLOT(Slot_NavigueVers(QString)));
+    connect(toolbar,    &UpToolBar::TBSignal, [=] {NavigueVers(toolbar->action);});
 
     toolbar     ->setMinimumHeight(30);
     dirsearchbutton->setFixedHeight(30);
@@ -106,8 +106,8 @@ dlg_docsvideo::dlg_docsvideo(Procedures *ProcAPasser, int idPat, QWidget *parent
     inflabel->setFont(font);
 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
-    connect(OKButton,           SIGNAL(clicked(bool)),  this,   SLOT(Slot_ValideFiche()));
-    connect(dirsearchbutton,    SIGNAL(clicked(bool)),  this,   SLOT(Slot_ChangeFile()));
+    connect(OKButton,           &QPushButton::clicked, [=] {ValideFiche();});
+    connect(dirsearchbutton,    &QPushButton::clicked, [=] {ChangeFile();});
 
     laybuttons->insertLayout(0,rsgnmtVlay);
 
@@ -121,7 +121,7 @@ dlg_docsvideo::dlg_docsvideo(Procedures *ProcAPasser, int idPat, QWidget *parent
     globallay->setStretch(1,1);
 }
 
-void dlg_docsvideo::Slot_NavigueVers(QString but)
+void dlg_docsvideo::NavigueVers(QString but)
 {
     QString fichencours = upvisu->accessibleDescription();
     QStringList filters;
@@ -153,7 +153,7 @@ void dlg_docsvideo::Slot_NavigueVers(QString but)
     }
 }
 
-void dlg_docsvideo::Slot_ChangeFile()
+void dlg_docsvideo::ChangeFile()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), docpath,  tr("Video (*.mp4 *.mpg *.m4v)"));
     if (fileName != "")
@@ -194,7 +194,7 @@ void dlg_docsvideo::AfficheVideo(QString filebut)
     //QMediaRecorder *rec = new QMediaRecorder(player);
 }
 
-void dlg_docsvideo::Slot_ValideFiche()
+void dlg_docsvideo::ValideFiche()
 {
     if (typeDocCombo->currentText() == "")
     {

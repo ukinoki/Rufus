@@ -42,9 +42,10 @@ class PlayerControls : public QWidget
 public:
     PlayerControls(QMediaPlayer *plyr, QWidget *parent = 0);
     void        setPlayer(QMediaPlayer*);
+    int         State();
 
 signals:
-    void ctrl(int);
+    void ctrl();
     void recfile();
 
 private slots:
@@ -63,6 +64,7 @@ private:
     QSlider         *slider;
     QLabel          *labelDuration;
     qint64          duration;
+    int             state;
 };
 
 #endif // PLAYERCONTROLS_H

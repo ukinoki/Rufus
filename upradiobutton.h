@@ -21,7 +21,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include <QMouseEvent>
 #include <QToolTip>
-#include <QGroupBox>
+
 class UpRadioButton : public QRadioButton
 {
     Q_OBJECT

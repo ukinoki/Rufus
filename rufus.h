@@ -364,8 +364,6 @@ private:
     void                SupprimerActe();
     void                SupprimerDossier(int);
     void                Tonometrie();
-    void                ToolBarListe();
-    void                ToolBarDossier();
     void                TrouverDDN();
     bool                ValideActeMontantLineEdit(QString NouveauMontant = "0,00", QString AncienMontant = "0.00");
     void                VerifImportateur();

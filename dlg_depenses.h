@@ -60,7 +60,9 @@ private:
 
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );
+    void                        CalculTotalDepenses();
     void                        DefinitArchitectureBigTable();
+    void                        EnregistreDepense();
     void                        ReconstruitListeAnnees();
     void                        ReconstruitListeRubriques();
     void                        ReconstruitListeToutesRubriques();
@@ -71,22 +73,17 @@ private:
 
     //anciens slots
     void                        AnnulEnreg();
-
-private slots:
-    void                        Slot_ChangeUser(int idx);
-    void                        Slot_CalculTotalDepenses();
-    void                        Slot_ChercheFamilleFiscale(QString RefFiscale);
-    void                        Slot_ChoixPaiement(QString choix);
-    void                        Slot_ConvertitDoubleMontant();
-    void                        Slot_EnableModifiepushButton();
-    void                        Slot_EnregistreDepense();
-    void                        Slot_GererDepense();
-    void                        Slot_GestionComptes();
-    void                        Slot_MenuContextuel();
-    void                        Slot_MetAJourFiche();
-    void                        Slot_ModifierDepense();
-    void                        Slot_RedessineBigTable();
-    void                        Slot_SupprimerDepense();
+    void                        ChangeUser(int idx);
+    void                        ChoixPaiement();
+    void                        ConvertitDoubleMontant();
+    void                        EnableModifiepushButton();
+    void                        GererDepense(QPushButton *widgsender);
+    void                        GestionComptes();
+    void                        MenuContextuel(QPoint pos, UpLabel *labelClicked);
+    void                        MetAJourFiche();
+    void                        ModifierDepense();
+    void                        RedessineBigTable();
+    void                        SupprimerDepense();
 };
 
 #endif // DLG_DEPENSES_H

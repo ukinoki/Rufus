@@ -1509,6 +1509,7 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
 {
     disconnect(ui->ListUserstableWidget, SIGNAL(currentItemChanged(QTableWidgetItem*,QTableWidgetItem*)), this, SLOT(Slot_CompleteRenseignements(QTableWidgetItem*,QTableWidgetItem*)));
     QTableWidgetItem *pitem0, *pitem1;
+    QFontMetrics fm(qApp->font());
     ui->ListUserstableWidget->clearContents();
     ui->ListUserstableWidget->setColumnCount(2);
     ui->ListUserstableWidget->setColumnWidth(0,0);
@@ -1527,18 +1528,20 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
         pitem1 = new QTableWidgetItem;
         req = "select count(idActe) from Rufus.Actes where idUser = " + listusrquery.value(0).toString() + " or creepar = " + listusrquery.value(0).toString();
         QSqlQuery actesquer(req,db);
-        actesquer.first();
-        int nbactes = actesquer.value(0).toInt();
-        if (nbactes>0)
+        if (actesquer.size()>0)
         {
-            pitem0->setForeground(gcolor);
-            pitem1->setForeground(gcolor);
+            actesquer.first();
+            int nbactes = actesquer.value(0).toInt();
+            if (nbactes>0)
+            {
+                pitem0->setForeground(gcolor);
+                pitem1->setForeground(gcolor);
+            }
         }
         pitem0->setText(listusrquery.value(0).toString());
         pitem1->setText(listusrquery.value(1).toString());
         ui->ListUserstableWidget->setItem(i,0, pitem0);
         ui->ListUserstableWidget->setItem(i,1, pitem1);
-        QFontMetrics fm(qApp->font());
         ui->ListUserstableWidget->setRowHeight(i,fm.height()*1.3);
         listusrquery.next();
     }

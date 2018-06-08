@@ -24,6 +24,7 @@ PlayerControls::PlayerControls(QMediaPlayer *plyr, QWidget *parent)
 {
     playButton = new QToolButton(this);
     playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    state = 2;
 
     stopButton = new QToolButton(this);
     stopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
@@ -64,13 +65,19 @@ void PlayerControls::playClicked()
     if (player->state() == QMediaPlayer::PlayingState)
     {
         playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        emit ctrl(1);
+        state = 1;
     }
     else
     {
         playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
-        emit ctrl(2);
+        state = 2;
     }
+    emit ctrl();
+}
+
+int PlayerControls::State()
+{
+    return state;
 }
 
 void PlayerControls::stopClicked()
@@ -79,7 +86,8 @@ void PlayerControls::stopClicked()
     {
         stopButton->setEnabled(false);
         playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        emit ctrl(0);
+        state = 0;
+        emit ctrl();
     }
 }
 

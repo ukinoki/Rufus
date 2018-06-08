@@ -94,8 +94,8 @@ SOURCES += main.cpp\
     functormessage.cpp \
     dlg_gestionlieux.cpp \
     dlg_docsvideo.cpp \
-    playercontrols.cpp \
     utils.cpp
+    upgroupbox.cpp
 
 HEADERS  += rufus.h \
     procedures.h \
@@ -163,10 +163,10 @@ HEADERS  += rufus.h \
     dlg_gestionlieux.h \
     macros.h \
     dlg_docsvideo.h \
-    playercontrols.h \
     sqlconnection.h \
     utils.h \
     icons.h
+    upgroupbox.h
 
 FORMS    += \
     dlg_identificationuser.ui \
