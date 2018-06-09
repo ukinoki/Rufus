@@ -16,12 +16,12 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "upgroupbox.h"
-#include "macros.h"
+#include "styles.h"
 
 UpGroupBox::UpGroupBox(QWidget *parent) : QGroupBox(parent)
 {
     installEventFilter(this);
-    setStyleSheet(UPGROUBOXINACTIVE);
+    setStyleSheet(STYLE_UPGROUBOXINACTIVE);
 }
 
 bool UpGroupBox::eventFilter(QObject *obj, QEvent *event)
@@ -35,13 +35,13 @@ bool UpGroupBox::eventFilter(QObject *obj, QEvent *event)
     {
         QWidget *widg = dynamic_cast<QWidget *>(obj);
         if (widg!=Q_NULLPTR)
-            setStyleSheet(UPGROUBOXACTIVE);
+            setStyleSheet(STYLE_UPGROUBOXACTIVE);
     }
     if (event->type() == QEvent::FocusOut )
     {
         QWidget *widg = dynamic_cast<QWidget *>(obj);
         if (widg!=Q_NULLPTR)
-            setStyleSheet(UPGROUBOXINACTIVE);
+            setStyleSheet(STYLE_UPGROUBOXINACTIVE);
     }
     return QWidget::eventFilter(obj, event);
 }

@@ -53,21 +53,13 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
         objUpText->setValeurAvant(objUpText->toHtml());
     }
 
-    // Ctrl-Return ou Ctrl-Enter ou Ctrl-Tab sur un TextEdit- On ne fait rien - idem avec Shift-------------------------------------------------------------------------
     if (event->type() == QEvent::KeyPress )
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        if ((keyEvent->key()==Qt::Key_Return || keyEvent->key() == Qt::Key_Enter || keyEvent->key()==Qt::Key_Tab)
-                && (keyEvent->modifiers() == Qt::ShiftModifier || keyEvent->modifiers() == Qt::MetaModifier))
-                return true;
-    }
-
-    if (event->type() == QEvent::KeyPress)
-    {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        // Ctrl-Return ou Ctrl-Enter ou Ctrl-Tab sur un TextEdit- On va sur la tabulation suivante ---------------------------------------------------------------------------------------------
-        if ((keyEvent->key()==Qt::Key_Return || keyEvent->key() == Qt::Key_Enter || keyEvent->key()==Qt::Key_Tab)
-                && keyEvent->modifiers() == Qt::MetaModifier)
+        if (keyEvent->key()==Qt::Key_Return || keyEvent->key() == Qt::Key_Enter || keyEvent->key()==Qt::Key_Tab)
+        {
+            // Ctrl-Return ou Ctrl-Enter ou Ctrl-Tab sur un TextEdit- On va sur la tabulation suivante ---------------------------------------------------------------------------------------------
+            if (keyEvent->modifiers() == Qt::MetaModifier)
             {
                 UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
                 UpTextEdit *textnext = dynamic_cast<UpTextEdit*>(textw->nextInFocusChain());
@@ -79,23 +71,22 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
                     focusNextChild();
                 return true;
             }
-
+        }
         // Shift-Return, Shift-Tab ou Shift-Enter - On va au Tab précédent --------------------------------------------------------------------------------------------------------------------
-        if ((keyEvent->key()==Qt::Key_Return || keyEvent->key() == Qt::Key_Enter || keyEvent->key()==Qt::Key_Tab)
-                && (keyEvent->modifiers() == Qt::ShiftModifier || keyEvent->modifiers() == Qt::ShiftModifier + Qt::MetaModifier))
+        else if (keyEvent->modifiers() == Qt::ShiftModifier || keyEvent->modifiers() == Qt::ShiftModifier + Qt::MetaModifier)
         {
-           {
-               UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
-               UpTextEdit *textprev = dynamic_cast<UpTextEdit*>(textw->previousInFocusChain());
-               if (textprev)
-               {
-                   textprev->setFocus();
-                   textprev->moveCursor(QTextCursor::End);
-               }
-               else
-                   focusNextChild();
-               return true;
-           }
+            {
+                UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
+                UpTextEdit *textprev = dynamic_cast<UpTextEdit*>(textw->previousInFocusChain());
+                if (textprev)
+                {
+                    textprev->setFocus();
+                    textprev->moveCursor(QTextCursor::End);
+                }
+                else
+                    focusNextChild();
+                return true;
+            }
         }
     }
     return QWidget::eventFilter(obj, event);

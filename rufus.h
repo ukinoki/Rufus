@@ -110,6 +110,7 @@ private:
     void        ChoixMenuContextuelMotsCles();
     void        EnregistreDocScanner();
     void        EnregistreVideo();
+    void        ListeCorrespondants();
 
 
 
@@ -156,7 +157,6 @@ private slots:
     void        Slot_DropPatient(QByteArray);
     void        Slot_LireLaCPSpushButtonClicked();      // CZ001
     void        Slot_LireLaCVpushButtonClicked();       // CZ001
-    void        Slot_ListeCorrespondants();
     void        Slot_MetAJourLaConnexion();
     void        Slot_MajusculeCreerNom();
     void        Slot_MajusculeCreerPrenom();
@@ -376,6 +376,7 @@ private:
 private:
         QMenu           *menuActe, *menuComptabilite, *menuEdition, *menuDocuments, *menuDossier;
         QMenu           *menuEmettre, *menuPrecedentsActes;
+        QMenu           *menuAide;
         QAction         *actionCreerDossier, *actionCreerActe, *actionOuvrirDossier, *actionEmettreDocument, *actionRecopierDossier;
         QAction         *actionParametres, *actionSupprimerActe, *actionSupprimerDossier, *actionRechercheParMotCle, *actionRechercheParID;
         QAction         *actionDossierPatient, *actionCorrespondants, *actionEnregistrerDocScanner, *actionEnregistrerVideo;

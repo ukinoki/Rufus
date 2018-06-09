@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("04-06-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("09-06-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2739,7 +2739,7 @@ bool Rufus::Slot_InscritEnSalDat(int idpat)
 }
 
 
-void Rufus::Slot_ListeCorrespondants()
+void Rufus::ListeCorrespondants()
 {
     QString req = "SELECT idCor, CorNom, CorPrenom, nomspecialite as metier, CorAdresse1, CorAdresse2, CorAdresse3, CorCodepostal, CorVille, CorTelephone FROM " NOM_TABLE_CORRESPONDANTS ", " NOM_TABLE_SPECIALITES
             " where cormedecin = 1 and corspecialite = idspecialite"
@@ -7429,12 +7429,11 @@ void    Rufus::CreerDossier()
 void Rufus::CreerMenu()
 {
     QAction *Apropos = new QAction(tr("A propos"));
-    menuBar()->addAction(Apropos);
     menuDossier         = menuBar()->addMenu(tr("Dossier"));
     menuEdition         = menuBar()->addMenu(tr("Edition"));
     menuActe            = menuBar()->addMenu(tr("Acte"));
     menuDocuments       = menuBar()->addMenu(tr("Documents"));
-    menuEmettre         = new QMenu(tr("Emettre"));
+    menuEmettre         = menuDocuments->addMenu(tr("Emettre"));
 
     actionCreerDossier              = new QAction(tr("Créer"));
     actionCreerDossier              ->setStatusTip(tr("Créer un nouveau dossier"));
@@ -7460,8 +7459,7 @@ void Rufus::CreerMenu()
 
     actionQuit                      = new QAction(tr("Quitter"));
     actionQuit                      ->setMenuRole(QAction::PreferencesRole);
-    menuBar()->addAction(actionQuit);
-
+    connect (actionQuit,            &QAction::triggered,  [=] {close();});
 
     menuDossier->addAction(actionCreerDossier);
     menuDossier->addAction(actionOuvrirDossier);
@@ -7472,6 +7470,11 @@ void Rufus::CreerMenu()
     menuDossier->addSeparator();
     menuDossier->addAction(actionRechercheParMotCle);
     menuDossier->addAction(actionRechercheParID);
+
+#ifdef Q_OS_MACX
+    menuBar()->addAction(Apropos);
+    menuBar()->addAction(actionQuit);
+#endif
 
     menuEdition->addAction(tr("Copier"));
     menuEdition->addAction(tr("Couper"));
@@ -7504,15 +7507,15 @@ void Rufus::CreerMenu()
     // Documents
     connect (actionEmettreDocument,             &QAction::triggered,                                [=] {Slot_OuvrirDocuments();});
     connect (actionDossierPatient,              &QAction::triggered,                                [=] {Slot_ImprimeDossier();});
-    connect (actionCorrespondants,              &QAction::triggered,                                [=] {Slot_ListeCorrespondants();});
+    connect (actionCorrespondants,              &QAction::triggered,                                [=] {ListeCorrespondants();});
     connect (actionEnregistrerDocScanner,       &QAction::triggered,                                [=] {EnregistreDocScanner();});
     connect (actionEnregistrerVideo,            &QAction::triggered,                                [=] {EnregistreVideo();});
     // Comptabilité
 
-    connect (menuActe,                          SIGNAL(aboutToShow()),                              this,       SLOT (Slot_AfficheMenu()));
-    connect (menuEdition,                       SIGNAL(aboutToShow()),                              this,       SLOT (Slot_AfficheMenu()));
-    connect (menuDocuments,                     SIGNAL(aboutToShow()),                              this,       SLOT (Slot_AfficheMenu()));
-    connect (menuDossier,                       SIGNAL(aboutToShow()),                              this,       SLOT (Slot_AfficheMenu()));
+    connect (menuActe,                          &QMenu::aboutToShow,                                [=] {Slot_AfficheMenu();});
+    connect (menuEdition,                       &QMenu::aboutToShow,                                [=] {Slot_AfficheMenu();});
+    connect (menuDocuments,                     &QMenu::aboutToShow,                                [=] {Slot_AfficheMenu();});
+    connect (menuDossier,                       &QMenu::aboutToShow,                                [=] {Slot_AfficheMenu();});
 
     menuComptabilite                = menuBar()->addMenu(tr("Comptabilité"));
 
@@ -7544,7 +7547,13 @@ void Rufus::CreerMenu()
     connect (actionJournalDepenses,             &QAction::triggered,                                [=] {Slot_OuvrirJournalDepenses();});
     connect (actionRemiseCheques,               &QAction::triggered,                                [=] {Slot_RemiseCheques();});
 
-    connect (menuComptabilite,                  SIGNAL(aboutToShow()),                              this,       SLOT (Slot_AfficheMenu()));
+    connect (menuComptabilite,                  &QMenu::aboutToShow,                                [=] {Slot_AfficheMenu();});
+
+#ifdef Q_OS_LINUX
+    menuAide            = menuBar()->addMenu(tr("Aide"));
+    menuAide->addAction(Apropos);
+    menuDossier->addAction(actionQuit);
+#endif
 }
 
 // ------------------------------------------------------------------------------------------

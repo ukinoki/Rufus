@@ -35,8 +35,7 @@ public:
 private:
     void                EmetReponse();
     QAction             *debut, *prec, *suiv, *fin;
-private slots:
-    void                Slot_TBChoix();
+    void                TBChoix(QAction *choix);
 signals:
     void                TBSignal();
 };

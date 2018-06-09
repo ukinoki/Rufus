@@ -121,25 +121,15 @@ VilleCPWidget::VilleCPWidget(QSqlDatabase gdb, QString NomtableVilles, QWidget *
     ui->CPlineEdit              ->installEventFilter(this);
     ui->VillelineEdit           ->installEventFilter(this);
 
-    connect(complListVilles,    SIGNAL(activated(QString)),         this,       SLOT(Slot_ChercheCPdepuisCompleter()));
-    connect(complListCP,        SIGNAL(activated(QString)),         this,       SLOT(Slot_ChercheVilledepuisCompleter()));
-    connect (ui->CPlineEdit,    SIGNAL(textEdited(QString)),        this,       SLOT(Slot_EnableOKpushButton()));
-    connect (ui->VillelineEdit, SIGNAL(textEdited(QString)),        this,       SLOT(Slot_EnableOKpushButton()));
+    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), [=](const QString &) {ChercheCPdepuisCompleter();});
+    connect(complListCP,        QOverload<const QString &>::of(&QCompleter::activated), [=](const QString &) {ChercheVilledepuisCompleter();});
+    connect (ui->CPlineEdit,    &QLineEdit::textEdited,                                 [=] {EnableOKpushButton(ui->CPlineEdit);});
+    connect (ui->VillelineEdit, &QLineEdit::textEdited,                                 [=] {EnableOKpushButton(ui->VillelineEdit);});
 }
 
 VilleCPWidget::~VilleCPWidget()
 {
     delete ui;
-}
-
-void VilleCPWidget::Slot_ConfirmerLaVille()
-{
-    VilleAConfirmer = true;
-}
-
-void VilleCPWidget::Slot_ConfirmerLeCP()
-{
-    CPAConfirmer = true;
 }
 
 bool VilleCPWidget::eventFilter(QObject *obj, QEvent *event)
@@ -155,10 +145,10 @@ bool VilleCPWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 
-void VilleCPWidget::Slot_EnableOKpushButton()
+void VilleCPWidget::EnableOKpushButton(QLineEdit *line)
 {
-    if (sender()==ui->CPlineEdit)       CPAConfirmer = true;
-    if (sender()==ui->VillelineEdit)    VilleAConfirmer = true;
+    if (line==ui->CPlineEdit)       CPAConfirmer = true;
+    if (line==ui->VillelineEdit)    VilleAConfirmer = true;
     emit villecpmodified();
 }
 
@@ -170,7 +160,7 @@ void VilleCPWidget::ChercheCPdepuisQLine()
             ChercheCodePostal();
 }
 
-void VilleCPWidget::Slot_ChercheCPdepuisCompleter()
+void VilleCPWidget::ChercheCPdepuisCompleter()
 {
     VilleAConfirmer = false;
     if (!VerifCoherence())
@@ -187,7 +177,7 @@ void VilleCPWidget::ChercheVilledepuisQLine()
             ChercheVille();
 }
 
-void VilleCPWidget::Slot_ChercheVilledepuisCompleter()
+void VilleCPWidget::ChercheVilledepuisCompleter()
 {
     CPAConfirmer = false;
     if (!VerifCoherence())
@@ -248,14 +238,14 @@ void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une 
             int larg = 300;
 
             gAskVille->AjouteLayButtons(UpDialog::ButtonOK);
-            connect(gAskVille->OKButton,       SIGNAL(clicked(bool)),      this,   SLOT(Slot_ReponsVille()));
+            connect(gAskVille->OKButton,       &QPushButton::clicked,  [=] {ReponsVille();});
 
             listVille->setFixedWidth(larg);
             listVille->setPalette(QPalette(Qt::white));
             listVille->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
             listVille->setEditTriggers(QAbstractItemView::NoEditTriggers);
             listVille->setSelectionMode(QAbstractItemView::SingleSelection);
-            connect(listVille,      SIGNAL(doubleClicked(QModelIndex)),    this,   SLOT(Slot_ReponsVille()));
+            connect(listVille,      &QListView::doubleClicked,  [=] {ReponsVille();});
 
             listVillemodel->setHorizontalHeaderItem(0, new QStandardItem(tr("Code postal")));
             ChercheVilleQuery.first();
@@ -268,7 +258,7 @@ void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une 
                 ChercheVilleQuery.next();
             }
             listVille->setItemDelegate(deleglabl);
-            connect(deleglabl, SIGNAL(focusitem(int)),   this,   SLOT(Slot_VilleEnableOKbutton()));
+            connect(deleglabl, &QLabelDelegate::focusitem,  [=] {VilleEnableOKbutton();});
             globallay->insertWidget(0,listVille);
             globallay->setSizeConstraint(QLayout::SetFixedSize);
             gAskVille->OKButton->setEnabled(false);
@@ -317,14 +307,14 @@ QString VilleCPWidget::ConfirmeVille(QString Ville)
         int larg = 250;
 
         gAskVille->AjouteLayButtons(UpDialog::ButtonOK);
-        connect(gAskVille->OKButton,       SIGNAL(clicked(bool)),      this,   SLOT(Slot_ReponsVille()));
+        connect(gAskVille->OKButton,       &QPushButton::clicked,  [=] {ReponsVille();});
 
         listVille->setFixedWidth(larg);
         listVille->setPalette(QPalette(Qt::white));
         listVille->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         listVille->setEditTriggers(QAbstractItemView::NoEditTriggers);
         listVille->setSelectionMode(QAbstractItemView::SingleSelection);
-        connect(listVille,      SIGNAL(doubleClicked(QModelIndex)),    this,   SLOT(Slot_ReponsVille()));
+        connect(listVille,      &QListView::doubleClicked,  [=] {ReponsVille();});
 
         listVillemodel->setHorizontalHeaderItem(0, new QStandardItem(tr("Code postal")));
         ChercheVilleQuery.first();
@@ -337,7 +327,7 @@ QString VilleCPWidget::ConfirmeVille(QString Ville)
             ChercheVilleQuery.next();
         }
         listVille->setItemDelegate(deleglabl);
-        connect(deleglabl, SIGNAL(focusitem(int)),   this,   SLOT(Slot_VilleEnableOKbutton()));
+        connect(deleglabl, &QLabelDelegate::focusitem,  [=] {VilleEnableOKbutton();});
         globallay->insertWidget(0,listVille);
         globallay->setSizeConstraint(QLayout::SetFixedSize);
         gAskVille->OKButton->setEnabled(false);
@@ -405,14 +395,14 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
         int larg = 100;
 
         gAskCP->AjouteLayButtons(UpDialog::ButtonOK);
-        connect(gAskCP->OKButton,       SIGNAL(clicked(bool)),      this,   SLOT(Slot_ReponsCodePostal()));
+        connect(gAskCP->OKButton,       &QPushButton::clicked,  [=] {ReponsCodePostal();});
 
         listCP->setFixedWidth(larg);
         listCP->setPalette(QPalette(Qt::white));
         listCP->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         listCP->setEditTriggers(QAbstractItemView::NoEditTriggers);
         listCP->setSelectionMode(QAbstractItemView::SingleSelection);
-        connect(listCP,      SIGNAL(doubleClicked(QModelIndex)),    this,   SLOT(Slot_ReponsCodePostal()));
+        connect(listCP,                 &QListView::doubleClicked,  [=] {ReponsCodePostal();});
 
         listCPmodel->setHorizontalHeaderItem(0, new QStandardItem(tr("Code postal")));
         ChercheCodePostalQuery.first();
@@ -425,7 +415,7 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
         }
         listCP->setModel(listCPmodel);
         listCP->setItemDelegate(deleglabl);
-        connect(deleglabl, SIGNAL(focusitem(int)),   this,   SLOT(Slot_CPEnableOKbutton()));
+        connect(deleglabl, &QLabelDelegate::focusitem,  [=] {CPEnableOKbutton();});
         globallay->insertWidget(0,listCP);
         globallay->setSizeConstraint(QLayout::SetFixedSize);
         gAskCP->OKButton->setEnabled(false);
@@ -437,7 +427,7 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
     }
 }
 
-void VilleCPWidget::Slot_ReponsCodePostal()
+void VilleCPWidget::ReponsCodePostal()
 {
     if (gAskCP == Q_NULLPTR)
         return;
@@ -448,7 +438,7 @@ void VilleCPWidget::Slot_ReponsCodePostal()
     }
 }
 
-void VilleCPWidget::Slot_ReponsVille()
+void VilleCPWidget::ReponsVille()
 {
     if (gAskVille == Q_NULLPTR)
         return;
@@ -459,13 +449,13 @@ void VilleCPWidget::Slot_ReponsVille()
     }
 }
 
-void VilleCPWidget::Slot_CPEnableOKbutton()
+void VilleCPWidget::CPEnableOKbutton()
 {
     if (gAskCP != Q_NULLPTR)
         gAskCP->OKButton->setEnabled(true);
 }
 
-void VilleCPWidget::Slot_VilleEnableOKbutton()
+void VilleCPWidget::VilleEnableOKbutton()
 {
     if (gAskVille != Q_NULLPTR)
         gAskVille->OKButton->setEnabled(true);

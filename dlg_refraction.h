@@ -22,6 +22,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include "updoublespinbox.h"
 #include "updoublevalidator.h"
+#include "upgroupbox.h"
 #include "upspinbox.h"
 
 #include "dlg_commentaires.h"

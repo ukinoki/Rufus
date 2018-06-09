@@ -20,9 +20,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : QDialog(parent)
 {
-    //if (qApp->font() != QFont(POLICEPARDEFAUT,POINTPARDEFAUT))
-        setFont(QFont(POLICEPARDEFAUT,POINTPARDEFAUT));
-
     EnregPosition   = true;
     Position        = NomPosition;
     NomFichIni      = NomSettings;
@@ -34,9 +31,6 @@ UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : 
 
 UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 {
-    //if (qApp->font() != QFont(POLICEPARDEFAUT,POINTPARDEFAUT))
-        setFont(QFont(POLICEPARDEFAUT,POINTPARDEFAUT));
-
     AjouteLay();
     EnregPosition   = false;
 }
@@ -53,7 +47,7 @@ void UpDialog::AjouteLay()
 }
 void UpDialog::AjouteLayButtons(Buttons Button)
 {
-    // le Butoon Cancel est toujours le plus à gauche
+    // le Button Cancel est toujours le plus à gauche
     // Close le plus à droite et OK juste avant Close
     if (Button.testFlag(UpDialog::ButtonCancel))
     {

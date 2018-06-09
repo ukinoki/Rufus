@@ -22,6 +22,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QPixmap>
 #include <QEvent>
+#include "styles.h"
 
 class UpSwitch : public QFrame
 {
@@ -36,7 +37,6 @@ private:
     bool    eventFilter(QObject *watched, QEvent *event);
     void    BasculeSwitch();
     QLabel  *datelbl, *cursorlbl, *typelbl;
-    QString Style;
 
 signals:
     void    Bascule();
