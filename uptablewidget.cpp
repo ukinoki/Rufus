@@ -34,7 +34,6 @@ UpTableWidget::~UpTableWidget()
 
 void UpTableWidget::dropEvent(QDropEvent *drop)
 {
-    QByteArray encodedData;
     encodedData = drop->mimeData()->data("application/x-qabstractitemmodeldatalist");
 //    for (int j=0; j<drop->mimeData()->formats().size(); j++)
 //        qDebug() << drop->mimeData()->formats().at(j) + "\n";
@@ -52,6 +51,11 @@ void UpTableWidget::dropEvent(QDropEvent *drop)
 //    }
     drop->acceptProposedAction();
     emit dropsignal(encodedData);
+}
+
+QByteArray UpTableWidget::dropData()
+{
+    return encodedData;
 }
 
 void UpTableWidget::clearSelection()
