@@ -38,9 +38,12 @@ public:
     QString     Attribut();
     void        setAttribut(QString attrib);
     int         rowNoHiddenCount();
+    QByteArray  dropData();
+
 
 private:
     QString     Attrib;
+    QByteArray  encodedData;
 
 protected:
     void        dropEvent(QDropEvent *) Q_DECL_OVERRIDE;

@@ -218,6 +218,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
         ui->OKupPushButton      ->setShortcut(QKeySequence("Meta+Return"));
         ui->ModifierupPushButton->setShortcut(QKeySequence());
         EnregupPushButton       ->setShortcut(QKeySequence());
+        // => pas de break, on continue avec le code de Lire
     case Lire: {
         EnregupPushButton       ->setText(tr("Modifier"));
         RegleComptesComboBox(false);

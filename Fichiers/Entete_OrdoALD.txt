@@ -5,7 +5,7 @@
 	<style type="text/css">
   	</style>
 </head>
-<body style=" font-family:'Comic Sans MS'; font-size:9pt; font-weight:400; font-style:italic;">
+<body style=" font-family:'{{POLICE}}'; font-size:9pt; font-weight:400; font-style:italic;">
 <table cellpadding="0px" cellspacing="10px" style= text-align:center;"> 
 	<CAPTION ALIGN=top>
 		<span style="font-size:16pt;color:blue; font-style:normal;">Ordonnance Bizone</span><br />

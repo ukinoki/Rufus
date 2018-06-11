@@ -292,11 +292,15 @@ public:
     bool                    Verif_secure_file_priv();
     QString                 Var_secure_file_priv();
 
+    bool                    Connexion();
+
 signals:
     void                    UpdSalDat();
+    void                    ConnectTimers(bool);
 
 private:
     bool                    initOK;
+    bool                    connexion;
     dlg_choixdate           *Dlg_ChxDate;
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_paramconnexion      *Dlg_ParamConnex;
@@ -375,7 +379,6 @@ public:
 
 signals:
     void                    NouvMesureRefraction();
-    void                    ConnectTimers(bool = true);
 
 public:
     SerialThread            *ThreadFronto, *ThreadRefracteur, *ThreadAutoref;

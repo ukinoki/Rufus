@@ -24,7 +24,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui(new Ui::dlg_param)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     proc            = procAPasser;
     db              = proc->getDataBase();
     gidUser         = idUser;

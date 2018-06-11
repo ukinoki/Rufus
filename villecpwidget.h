@@ -62,16 +62,13 @@ private:
     QString                 CorrigeApostrophe(QString);
     bool                    TraiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
 
-private slots:
-    void                    Slot_ConfirmerLaVille();
-    void                    Slot_ConfirmerLeCP();
-    void                    Slot_ChercheCPdepuisCompleter();
-    void                    Slot_ChercheVilledepuisCompleter();
-    void                    Slot_ReponsCodePostal();
-    void                    Slot_ReponsVille();
-    void                    Slot_CPEnableOKbutton();
-    void                    Slot_VilleEnableOKbutton();
-    void                    Slot_EnableOKpushButton();
+    void                    ChercheCPdepuisCompleter();
+    void                    ChercheVilledepuisCompleter();
+    void                    CPEnableOKbutton();
+    void                    EnableOKpushButton(QLineEdit *line);
+    void                    ReponsCodePostal();
+    void                    ReponsVille();
+    void                    VilleEnableOKbutton();
 
 signals:
     void                    villecpmodified();

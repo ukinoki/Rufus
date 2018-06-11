@@ -110,124 +110,105 @@ private:
     void        ChoixMenuContextuelMotsCles();
     void        EnregistreDocScanner();
     void        EnregistreVideo();
+    void        ListeCorrespondants();
 
 
 
 signals:
-    void        EnregistrePaiement(QString);
+    void        EnregistrePaiement();
 
+private:
+    void        ActeMontantModifie();
+    void        ActiveActeAccueil(int);                        // dans l'accueil secrétaire, quand on sélectionne un acte effectué pour un parent, ceux effectués pour d'autres parents sont déselectionnés
+    void        AfficheDossiersRechercheParMotCle();
+    void        AfficheMenu(QMenu *menu);
+    void        AfficheMotif(UpLabel *lbl);
+    void        AfficheToolTip(QPoint pt, QModelIndex);
+    void        AfficheToolTip(QPoint pt, int);
+    void        AppelPaiementDirect(QString Origin = "");
+    void        AppelPaiementTiers();
+    void        AutreDossier(int idPat);
+    void        BilanRecettes();
+    void        ChercheNomparID(QString id);
+    void        ChoixCor(UpComboBox *box);
+    void        BasculerMontantActe();
+    void        ChoixMG();
+    void        ChangeTabBureau();
+    void        ConnectTimers(bool);
+    void        CourrierAFaireChecked();
+    void        CreerBilanOrtho();
+    void        CreerDossierpushButtonClicked();
+    void        DropPatient(QByteArray);
+    void        EnableCreerDossierButton();
+    void        ExporteDocs();
+    void        FiltreAccueil(int idx);
+    void        FiltrecheckBoxClicked();
+    void        FiltreSalleDAttente(int);
+    void        GestionComptes();
+    void        IdentificationUser();
+    void        ImportDocsExternes();
+    void        ImprimeDossier();
+    void        ImprimeListPatients(QVariant var);
+    void        LireLaCV();       // CZ001
+    void        LireLaCPS();      // CZ001
+    void        MajusculeCreerNom();
+    void        MajusculeCreerPrenom();
+    void        ModfiCotationActe();
+    void        ModifierTerrain();
+    void        Moulinette();
+    void        NouvelleMesureRefraction();    // les connexions aux appareils de mesure
+    void        OKModifierTerrain();
+    void        OuvrirActesPrecspushButtonClicked();
+    void        OuvrirJournalDepenses();
+    void        OuvrirParametres();
+    void        RecettesSpeciales();
+    void        RechercheParID();
+    void        RechercheParMotCle();
+    void        RetrouveiDDepuisTab(int x, int y, QTableWidget *);
+    void        RetrouveMontantActe();
+    void        SaisieFSE();           // CZ001
+    void        SalleDAttente();
+    void        SupprimerDocs();
+    void        SupprimerDossier();
+    void        SurbrillanceSalDat(UpLabel *lab);
+
+    // la messagerie
+    void        AfficheMessageLimitDate(bool a);
+    void        AfficheMessages(int idx = -1);
+    void        AllusrChkBoxSendMsg(bool a);
+    void        EnregMsgResp(int);
+    void        MsgDone(UpCheckBox *chk);
+    void        MsgModif(int);
+    void        MsgRead(UpCheckBox *chk);
+    void        MsgResp(int);
+    void        OneusrChkBoxSendMsg(bool a);
+    void        SupprimerMessageEmis(int idMsg);
+    void        SupprimerMessageRecu(int idJoint);
+    void        VerifSendMessage(int idMsg = -1);
+
+    void        MenuContextuelBureaux(QPoint pt, UpTextEdit *UpText);
+    void        MenuContextuelCorrespondant(QPoint pt, UpComboBox *box);
+    void            ChoixMenuContextuelCorrespondant(QString choix);
+    void        MenuContextuelIdentPatient(QPoint pt);
+    void        MenuContextuelListePatients(QPoint point);
+    void            ChoixMenuContextuelListePatients(QString);
+    void        MenuContextuelMedecin(QPoint pt);
+    void            ChoixMenuContextuelMedecin();
+    void        MenuContextuelMotsCles(QPoint pt);
+    void        MenuContextuelSalDatPaiemt(QPoint pt, UpLabel *labelCLicked);
+    void        MenuContextuelSalDat(QPoint pt, UpLabel *labelCLicked);
+    void            ChoixMenuContextuelSalDat(QString);
+    void        MenuContextuelUptextEdit(QPoint point, UpTextEdit *TxtEdit);
+    void            ChoixMenuContextuelUptextEdit(QString);
+
+    //fonctions lancées par des timers
+    void        ActualiseDocsExternes();
+    void        MetAJourLaConnexion();
+    void        VerifMessages();
+    void        VerifSalleDAttente();
+    void        VerifVerrouDossier();
 
 private slots:
-    void        Slot_ActiveActeAccueil(int);                        // dans l'accueil secrétaire, quand on sélectionne un acte effectué pour un parent, ceux effectués pour d'autres parents sont déselectionnés
-    void        Slot_AfficheMessages(int idx = -1);
-    void        Slot_ActeMontantModifie();
-    void        Slot_AfficheMotif(int);
-    void        Slot_AfficheToolTip(QModelIndex);
-    void        Slot_AfficheToolTip(int);
-    void        Slot_AfficheMenu();
-    void        Slot_AppelPaiementDirect(QString Origin = "");
-    void        Slot_AppelPaiementTiers();
-    void        Slot_AutreDossier(int idPat);
-    void        Slot_BasculerMontantActe();
-    void        Slot_BilanRecettes();
-    void        Slot_CCAM(QString);
-    void        Slot_ChangeTabBureau();
-    void        Slot_ChercheNomparID(QString id);
-    void        Slot_ChoixMG();
-    void        Slot_ChoixCor();
-    void        Slot_ChoixDossier();
-    void        Slot_ChoixDossier(int idPat);
-    void        Slot_ConnectTimers(bool = true);
-    void        Slot_CourrierAFaireChecked();
-    void        Slot_CreerActe();
-    void        Slot_CreerBilanOrtho();
-    void        Slot_ChercherDepuisListepushButtonClicked();
-    void        Slot_CreerDossierpushButtonClicked();
-    void        Slot_EnableCreerDossierButton();
-    void        Slot_ExporteDocs();
-    void        Slot_FiltrecheckBoxClicked();
-    void        Slot_FiltreSalleDAttente(int);
-    void        Slot_FiltreAccueil(int idx);
-    void        Slot_GestionComptes();
-    void        Slot_IdentificationUser();   // CZ001
-    void        Slot_ImportDocsExternes();
-    void        Slot_ImprimeDossier();
-    bool        Slot_InscritEnSalDat(int);
-    void        Slot_DropPatient(QByteArray);
-    void        Slot_LireLaCPSpushButtonClicked();      // CZ001
-    void        Slot_LireLaCVpushButtonClicked();       // CZ001
-    void        Slot_ListeCorrespondants();
-    void        Slot_MetAJourLaConnexion();
-    void        Slot_MajusculeCreerNom();
-    void        Slot_MajusculeCreerPrenom();
-    void        Slot_MAJ_SalleDAttente();
-    void        Slot_MenuContextuelIdentPatient();
-    void        Slot_MenuContextuelListePatients(QPoint point);
-    void        Slot_MenuContextuelMotsCles();
-        void        Slot_RechercheParMotCle();
-    void        Slot_RechercheParID();
-    void        Slot_AfficheDossiersRechercheParMotCle();
-    void        Slot_ImprimeListPatients(QVariant var);
-    void        Slot_MenuContextuelBureaux();
-        void        Slot_ChoixMenuContextuelListePatients(QString);
-    void        Slot_MenuContextuelMedecin();
-        void        Slot_ChoixMenuContextuelMedecin();
-    void        Slot_MenuContextuelCorrespondant();
-        void        Slot_ChoixMenuContextuelCorrespondant(QString choix);
-    void        Slot_MenuContextuelSalDat();
-    void        Slot_MenuContextuelSalDatPaiemt();
-        void        Slot_ChoixMenuContextuelSalDat(QString);
-    void        Slot_MenuContextuelUptextEdit();
-        void        Slot_ChoixMenuContextuelUptextEdit(QString);
-    void        Slot_ModifActeDate();
-    void        Slot_ModifierTerrain();
-    void        Slot_MsgModif(int);
-    void        Slot_MsgResp(int);
-    void        Slot_EnregMsgResp(int);
-    void        Slot_MsgDone(bool);
-    void        Slot_MsgRead(bool);
-    void        Slot_OKModifierTerrain();
-    void        Slot_ModfiCotationActe();
-    void        Slot_NavigationActePrecpushButtonClicked();
-    void        Slot_NavigationActeSuivpushButtonClicked();
-    void        Slot_NavigationPremierActepushButtonClicked();
-    void        Slot_NavigationDernierActepushButtonClicked();
-    void        Slot_NavigationDossierPrecedentListe();
-    void        Slot_NavigationDossierSuivantListe();
-    void        Slot_OuvrirActesPrecspushButtonClicked();
-    void        Slot_OuvrirDocsExternes();
-    void        Slot_OuvrirDocuments();
-    void        Slot_OuvrirJournalDepenses();
-    void        Slot_OuvrirListepushButtonClicked();
-    void        Slot_OuvrirNouveauDossierpushButtonClicked();
-    void        Slot_OuvrirParametres();
-    void        Slot_RecopierDossierpushButtonClicked();
-    void        Slot_SendMessage();
-    void        Slot_AllusrChkBoxSendMsg(bool a);
-    void        Slot_OneusrChkBoxSendMsg(bool a);
-    void        Slot_VerifSendMessage(int idMsg = -1);
-    void        Slot_AfficheMessageLimitDate(bool a);
-    void        Slot_SurbrillanceSalDat();
-    void        Slot_SupprimerActepushButtonClicked();
-    void        Slot_RecettesSpeciales();
-    void        Slot_Refraction();
-    void        Slot_RemiseCheques();
-    void        Slot_RetrouveiDDepuisTab(int x, int y);
-    void        Slot_RetrouveMontantActe();
-    void        Slot_SalleDAttente();
-    void        Slot_SaisieFSE();           // CZ001
-    void        Slot_SupprimerDocs();
-    void        Slot_SupprimerDossier();
-    void        Slot_SupprimerMessageEmis(int idMsg);
-    void        Slot_SupprimerMessageRecu(int idJoint);
-    void        Slot_Tonometrie();
-    void        Slot_TrouverDDN();
-    void        Slot_VerifMessages();
-    void        Slot_VerifSalleDAttente();
-    void        Slot_VerifVerrouDossier();
-    void        Slot_ActualiseDocsExternes();
-
-    void        Slot_Moulinette();
     void        Slot_CalcIP(const QHostInfo &);
 
 private:
@@ -270,7 +251,8 @@ private:
     QStandardItemModel      *gListePatientsModel;
     QStandardItemModel      *gListeSuperviseursModel, *gListeParentsModel;
     QTabBar                 *gSalDatTab, *gAccueilTab;
-    QTimer                  *gTimerSalleDAttente, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerVerifGestDocs, *gTimerSupprDocs;
+    QTimer                  *gTimerSalleDAttente, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerSupprDocs;
+    QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
     QSqlDatabase            db;
 
@@ -335,6 +317,7 @@ private:
     void                InitMenus();
     void                InitTables();
     void                InitVariables();
+    bool                InscritEnSalDat(int);
     int                 LectureMesure(QString lIdPatient, QString lPatNom, QString lPatPrenom, QString lPatDDN, QString lPatCreeLe, QString lPatCreePar, QString MessageErreur);
     void                MAJActesPrecs();
     void                MAJDocsExternes();
@@ -343,7 +326,6 @@ private:
     void                Monte20Lignes();
     QStringList         MotifMessage(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(int i);
-    void                NavigationDossier(int i);
     void                OuvrirActesPrecedents(int idActeEnCours);
     void                OuvrirDocsExternes(int idpat, bool depuismenu = false);
     void                OuvrirDocuments(bool AffichDocsExternes = true);
@@ -359,7 +341,7 @@ private:
     bool                Remplir_ListePatients_TableView(QString requete, QString PatNom, QString PatPrenom);
     QTabWidget*         Remplir_MsgTabWidget();
     void                Remplir_SalDat();
-    bool                SalleDattente(QString Titre);
+    bool                RetourSalleDattente(QString Titre);
     void                SendMessage(QMap<QString,QVariant>, int id = -1 , int idMsg = -1);
     void                SupprimerActe();
     void                SupprimerDossier(int);
@@ -368,14 +350,12 @@ private:
     bool                ValideActeMontantLineEdit(QString NouveauMontant = "0,00", QString AncienMontant = "0.00");
     void                VerifImportateur();
 
-    // les connexions aux appareils de mesure
-    private slots:
-        void                    Slot_NouvMesureRefraction();
 
     // Les menus
 private:
         QMenu           *menuActe, *menuComptabilite, *menuEdition, *menuDocuments, *menuDossier;
         QMenu           *menuEmettre, *menuPrecedentsActes;
+        QMenu           *menuAide;
         QAction         *actionCreerDossier, *actionCreerActe, *actionOuvrirDossier, *actionEmettreDocument, *actionRecopierDossier;
         QAction         *actionParametres, *actionSupprimerActe, *actionSupprimerDossier, *actionRechercheParMotCle, *actionRechercheParID;
         QAction         *actionDossierPatient, *actionCorrespondants, *actionEnregistrerDocScanner, *actionEnregistrerVideo;

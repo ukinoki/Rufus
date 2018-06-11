@@ -56,10 +56,10 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
             {
                 QTreeWidgetItem *styleItem = new QTreeWidgetItem(familyItem);
                 styleItem->setText(0, style);
-                qDebug() << family + " - " + style;
+                //qDebug() << family + " - " + style;
             }
         }
-        qDebug() << family;
+        //qDebug() << family;
     }
     AjouteLayButtons();
 

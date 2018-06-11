@@ -25,10 +25,10 @@ UpToolBar::UpToolBar(QWidget *parent) : QToolBar(parent)
     suiv    = new QAction(Icons::icApres(),tr("Suivant"),this);
     fin     = new QAction(Icons::icPageApres(),tr("Fin"),this);
 
-    connect(debut,  SIGNAL(triggered(bool)), this, SLOT(Slot_TBChoix()));
-    connect(prec,   SIGNAL(triggered(bool)), this, SLOT(Slot_TBChoix()));
-    connect(suiv,   SIGNAL(triggered(bool)), this, SLOT(Slot_TBChoix()));
-    connect(fin,    SIGNAL(triggered(bool)), this, SLOT(Slot_TBChoix()));
+    connect(debut,  &QAction::triggered,  [=] {TBChoix(debut);});
+    connect(prec,   &QAction::triggered,  [=] {TBChoix(prec);});
+    connect(suiv,   &QAction::triggered,  [=] {TBChoix(suiv);});
+    connect(fin,    &QAction::triggered,  [=] {TBChoix(fin);});
 
     addAction(debut);
     addAction(prec);
@@ -43,10 +43,9 @@ UpToolBar::~UpToolBar()
 {
 }
 
-void UpToolBar::Slot_TBChoix()
+void UpToolBar::TBChoix(QAction *choix)
 {
-    QAction *Choix = static_cast<QAction*>(sender());
-    action = Choix->text();
+    action = choix->text();
     emit TBSignal();
 }
 

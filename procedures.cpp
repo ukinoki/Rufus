@@ -624,7 +624,8 @@ bool Procedures::ImmediateBackup(bool full)
         return false;
 
     Message(tr("Sauvegarde en cours"),3000,false);
-    ConnectTimers(false);
+    connexion = false;
+    emit ConnectTimers(connexion);
 
     bool result = true;
     if (OKbase)
@@ -675,7 +676,8 @@ bool Procedures::ImmediateBackup(bool full)
             Message(tr("Fichiers d'imagerie restaurés!"), 3000, false);
         }
     }
-    ConnectTimers();
+    connexion = true;
+    emit ConnectTimers(connexion);
     UpMessageBox::Watch(0, tr("Sauvegarde terminée"));
     return result;
 }
@@ -813,6 +815,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
         baEnTete.data()[fileEnTete_len] = 0;
         qFileEnTete.close ();
         Entete = baEnTete;
+        Entete.replace("{{POLICE}}", AppFont().family());
         if (rplct)
         {
             QString reqr = "select usertitre, usernom, userprenom, usernumps, usernumco from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(idparent);
@@ -2374,7 +2377,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         else echecfile = false;
         if (!echecfile)
         {
-            emit ConnectTimers(false);
+            connexion = false;
+            emit ConnectTimers(connexion);
             //Suppression de toutes les tables
             VideDatabases();
             int a = 99;
@@ -2397,7 +2401,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             if (a==0)
             {
                 UpMessageBox::Information(0, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
-                emit ConnectTimers();
+                connexion = true;
+                emit ConnectTimers(connexion);
                 return true;
             }
         }
@@ -2506,7 +2511,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos);
         if (gAskBupRestore->exec()>0)
         {
-            emit ConnectTimers(false);
+            connexion = false;
+            emit ConnectTimers(connexion);
             QList<UpCheckBox*> listchk = gAskBupRestore->findChildren<UpCheckBox*>();
             for (int i= 0; i<listchk.size(); i++)
             {
@@ -2712,7 +2718,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             UpMessageBox::Watch(0,tr("restauration terminée"),msg);
             return true;
         }
-        emit ConnectTimers();
+        connexion = true;
+        emit ConnectTimers(connexion);
     }
     return false;
 }
@@ -2963,6 +2970,13 @@ bool Procedures::FicheChoixConnexion()
     return initOK;
 }
 
+/*--------------------------------------------------------------------------------------------------------------
+-- Connexion des timers -------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------*/
+bool Procedures::Connexion()
+{
+    return connexion;
+}
 /*--------------------------------------------------------------------------------------------------------------
 -- Connexion à Consults -------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------*/

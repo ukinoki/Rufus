@@ -40,8 +40,7 @@ UpSwitch::UpSwitch(QWidget *parent) : QFrame(parent)
     typelbl             ->setAlignment(Qt::AlignCenter);
 
     Activelbl           = datelbl;
-    Style =             "border-radius: 10px; background-color:rgb(50,200,105,145);";
-    Activelbl           ->setStyleSheet(Style);
+    Activelbl           ->setStyleSheet(STYLE_UPSWITCH);
 
     datelbl             ->installEventFilter(this);
     typelbl             ->installEventFilter(this);
@@ -78,5 +77,5 @@ void UpSwitch::BasculeSwitch()
         pos = 0;
         emit Bascule();
     }
-    Activelbl           ->setStyleSheet(Style);
+    Activelbl           ->setStyleSheet(STYLE_UPSWITCH);
 }

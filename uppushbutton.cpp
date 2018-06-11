@@ -18,6 +18,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uppushbutton.h"
 #include <QApplication>
 #include "icons.h"
+#include "styles.h"
 
 UpPushButton::UpPushButton(QWidget *parent) : QPushButton(parent)
 {
@@ -26,13 +27,7 @@ UpPushButton::UpPushButton(QWidget *parent) : QPushButton(parent)
     gToolTipMsg = "";
     installEventFilter(this);
     setFlat(false);
-    setStyleSheet("UpPushButton {border: 1px solid gray; border-radius: 5px; margin-left: 5px; margin-right: 5px;  margin-top: 3px; margin-bottom: 3px;"
-                  " padding-left: 8px; padding-right: 8px; padding-top: 3px; padding-bottom: 3px; qproperty-iconSize: 30px 30px; qproperty-flat: false;"
-                  " color : #000000;"
-                  " background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 #dadbde);}"
-                  " UpPushButton:focus {color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;}"
-                  " UpPushButton:pressed {color : gray; background-color: rgb(175, 175, 175);}"
-                  " UpPushButton:!enabled {color : gray;}");
+    setStyleSheet(STYLE_UPPUSHBUTTON);
     setContextMenuPolicy(Qt::NoContextMenu);
 }
 
