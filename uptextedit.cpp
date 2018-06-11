@@ -71,21 +71,20 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
                     focusNextChild();
                 return true;
             }
-        }
-        // Shift-Return, Shift-Tab ou Shift-Enter - On va au Tab précédent --------------------------------------------------------------------------------------------------------------------
-        else if (keyEvent->modifiers() == Qt::ShiftModifier || keyEvent->modifiers() == Qt::ShiftModifier + Qt::MetaModifier)
-        {
+            if (keyEvent->modifiers() == Qt::ShiftModifier || keyEvent->modifiers() == Qt::ShiftModifier + Qt::MetaModifier)
             {
-                UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
-                UpTextEdit *textprev = dynamic_cast<UpTextEdit*>(textw->previousInFocusChain());
-                if (textprev)
                 {
-                    textprev->setFocus();
-                    textprev->moveCursor(QTextCursor::End);
+                    UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
+                    UpTextEdit *textprev = dynamic_cast<UpTextEdit*>(textw->previousInFocusChain());
+                    if (textprev)
+                    {
+                        textprev->setFocus();
+                        textprev->moveCursor(QTextCursor::End);
+                    }
+                    else
+                        focusNextChild();
+                    return true;
                 }
-                else
-                    focusNextChild();
-                return true;
             }
         }
     }
