@@ -15,6 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "cls_user.h"
+#include "database.h"
 #include "icons.h"
 #include "rufus.h"
 #include "ui_rufus.h"
@@ -141,11 +143,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     InitMenus();
 
     QString modeconnexion = "";
-    if (proc->getModeConnexion() == Procedures::Poste)
+    if (DataBase::getInstance()->getMode() == Procedures::Poste)
         modeconnexion = tr("monoposte");
-    else if (proc->getModeConnexion() == Procedures::ReseauLocal)
+    else if (DataBase::getInstance()->getMode() == Procedures::ReseauLocal)
         modeconnexion = tr("réseau local");
-    if (proc->getModeConnexion() == Procedures::Distant)
+    if (DataBase::getInstance()->getMode() == Procedures::Distant)
     {
         modeconnexion = tr("accès distant - connexion ");
         if (proc->gsettingsIni->value("BDD_DISTANT/SSL").toString() != "NO")
@@ -165,7 +167,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //TODO : Mettre en place des websocket pour eviter de faire des appels en permanence.
     //    Lancement du timer de scrutation des modifications de la salle d'attente
     gTimerSalleDAttente = new QTimer(this);
-    if (proc->getModeConnexion() == Procedures::Distant)
+    if (DataBase::getInstance()->getMode() == Procedures::Distant)
         gTimerSalleDAttente->start(10000);
     else
         gTimerSalleDAttente->start(1000);
@@ -179,7 +181,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerActualiseDocsExternes     = new QTimer(this);
     gTimerImportDocsExternes        = new QTimer(this);
     gTimerVerifMessages             = new QTimer(this);
-    if (proc->getModeConnexion() == Procedures::Distant)
+    if (DataBase::getInstance()->getMode() == Procedures::Distant)
     {
         gTimerExportDocs            ->start(60000);// "toutes les 60 secondes"
         gTimerActualiseDocsExternes ->start(60000);// "toutes les 60 secondes"
@@ -200,7 +202,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     // Lancement du timer de suppression des fichiers documents inutiles
     gTimerSupprDocs = new QTimer(this);
-    if (proc->getModeConnexion() != Procedures::Distant)
+    if (DataBase::getInstance()->getMode() != Procedures::Distant)
     {
         gTimerSupprDocs->start(60000);// "toutes les 60 secondes"
         connect(gTimerSupprDocs, &QTimer::timeout, [=] {SupprimerDocs();});
@@ -248,7 +250,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gIPadr = "";
     QHostInfo::lookupHost(QHostInfo::localHostName(), this, SLOT(Slot_CalcIP(QHostInfo)));
     connect(gTimerImportDocsExternes,       &QTimer::timeout,   [=] {ImportDocsExternes();});
-    if (proc->getModeConnexion() != Procedures::Distant)
+    if (DataBase::getInstance()->getMode() != Procedures::Distant)
         connect(gTimerExportDocs,       &QTimer::timeout, [=] {ExporteDocs();});
     if (QSystemTrayIcon::isSystemTrayAvailable())
     {
@@ -909,33 +911,32 @@ void Rufus::AfficheMotif(UpLabel *lbl)
 {
     int idpat = lbl->getId();
     QString Msg("");
-    QString req = "select saldat.Motif, Message, rdv.motif from " NOM_TABLE_SALLEDATTENTE " saldat left outer join " NOM_TABLE_MOTIFSRDV " rdv on saldat.motif = rdv.raccourci "
+    QString req = "select saldat.Motif, Message, rdv.motif "
+                  "from " NOM_TABLE_SALLEDATTENTE " saldat "
+                  "left outer join " NOM_TABLE_MOTIFSRDV " rdv on saldat.motif = rdv.raccourci "
                   "where idpat = " + QString::number(idpat);
     //qDebug() << req;
-    QSqlQuery quer(req,db);
-    if (quer.size()>0)
+    QSqlQuery query(req,db);
+    if( query.first() )
     {
-        quer.first();
-        if (ui->SalleDAttenteupTableWidget->isAncestorOf(lbl))
-        {
+        UpLabel* lbl = dynamic_cast<UpLabel*>(sender());
+        if(lbl && ui->SalleDAttenteupTableWidget->isAncestorOf(lbl) )
+        {//TODO : Opti : A modifier car je suis sur que l'on possède deja cette information à ce moment
             req = "SELECT PatDDN FROM " NOM_TABLE_PATIENTS " WHERE idPat = " + QString::number(idpat);
             QSqlQuery quer1 (req,db);
             proc->TraiteErreurRequete(quer1,req,"");
-            if (quer1.size() > 0)
-            {
-                quer1.first();
-                if (quer1.value(0).toString() != "")
-                    Msg += proc->CalculAge(quer1.value(0).toDate(), QDate::currentDate())["Total"].toString() + " - ";
-            }
-            if (quer.value(0).toString() == "URG")
+            if( quer1.first() && (quer1.value(0).toString() != "") )
+                Msg += User::CalculAge(quer1.value(0).toDate())["toString"].toString() + " - ";
+
+            if (query.value(0).toString() == "URG")
                 Msg += tr("Urgence");
             else
-                Msg += quer.value(2).toString();
+                Msg += query.value(2).toString();
         }
-        if (quer.value(1).toString()!= "")
+        if (query.value(1).toString()!= "")
         {
             if (Msg != "") Msg += "\n";
-            Msg += quer.value(1).toString();
+            Msg += query.value(1).toString();
         }
     }
     if (Msg!="")
@@ -948,54 +949,22 @@ void Rufus::AfficheMotif(UpLabel *lbl)
 void Rufus::AfficheToolTip(QPoint pt, QModelIndex pindx)
 {
     int row = gListePatientsModel->itemFromIndex(pindx)->row();
-    QString idpat = gListePatientsModel->item(row)->text();
-    QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatVille, PatDDN FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS " dos, " NOM_TABLE_PATIENTS " pat"
-                  "  WHERE pat.idPat = " + idpat + " and pat.idpat = dos.idpat";
-    QSqlQuery quer (req,db);
-    proc->TraiteErreurRequete(quer,req,"");
-    QString Msg = "";
-    if (quer.size() > 0)
-    {
-        quer.first();
-        if (quer.value(4).toString() != "")
-            Msg += proc->CalculAge(quer.value(4).toDate(), QDate::currentDate())["Total"].toString();
-        if (quer.value(3).toString() != "")
-        {
-            if (Msg!="") Msg = "\n" + Msg;
-            Msg = quer.value(3).toString() + Msg;
-        }
-        if (quer.value(2).toString() != "")
-        {
-            if (Msg!="") Msg = "\n" + Msg;
-            Msg = quer.value(2).toString() + Msg;
-        }
-        if (quer.value(1).toString() != "")
-        {
-            if (Msg!="") Msg = "\n" + Msg;
-            Msg = quer.value(1).toString() + Msg;
-        }
-        if (quer.value(0).toString() != "")
-        {
-            if (Msg!="") Msg = "\n" + Msg;
-            Msg = quer.value(0).toString() + Msg;
-        }
-        if (Msg != "")
-            QToolTip::showText(pt,Msg);
-    }
+    int idpat = gListePatientsModel->item(row)->text().toInt();
+    this->AfficheToolTip( pt, idpat );
 }
-
+//TODO : Opti : A modifier car je suis sur que l'on possède deja cette information à ce moment
 void Rufus::AfficheToolTip(QPoint pt, int id)
 {
-    QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatVille, PatDDN FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS " dos, " NOM_TABLE_PATIENTS " pat"
-                  "  WHERE pat.idPat = " + QString::number(id) + " and pat.idpat = dos.idpat";
+    QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatVille, PatDDN "
+                  " FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS " dos, " NOM_TABLE_PATIENTS " pat"
+                  " WHERE pat.idPat = " + QString::number(id) + " and pat.idpat = dos.idpat";
     QSqlQuery quer (req,db);
     proc->TraiteErreurRequete(quer,req,"");
     QString Msg = "";
-    if (quer.size() > 0)
+    if (quer.first())
     {
-        quer.first();
         if (quer.value(4).toString() != "")
-            Msg += proc->CalculAge(quer.value(4).toDate(), QDate::currentDate())["Total"].toString();
+            Msg += User::CalculAge(quer.value(4).toDate())["toString"].toString();
         if (quer.value(3).toString() != "")
         {
             if (Msg!="") Msg = "\n" + Msg;
@@ -1017,10 +986,10 @@ void Rufus::AfficheToolTip(QPoint pt, int id)
             Msg = quer.value(0).toString() + Msg;
         }
     }
+
     if (Msg != "")
         QToolTip::showText(pt,Msg);
 }
-
 /*-----------------------------------------------------------------------------------------------------------------
 -- Gère l'affichage des menus -------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
@@ -1424,7 +1393,7 @@ void Rufus::ConnectTimers(bool a)
 {
     if (a)
     {
-        if (proc->getModeConnexion() == Procedures::Distant)
+        if (DataBase::getInstance()->getMode() == Procedures::Distant)
         {
             gTimerSalleDAttente         ->start(10000);
             gTimerExportDocs            ->start(60000);
@@ -1448,11 +1417,11 @@ void Rufus::ConnectTimers(bool a)
         connect (gTimerVerifVerrou,             &QTimer::timeout,   [=] {VerifVerrouDossier();});
         connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   [=] {ActualiseDocsExternes();});
         connect(gTimerImportDocsExternes,       &QTimer::timeout,   [=] {ImportDocsExternes();});
-        if (proc->getModeConnexion() != Procedures::Distant)
+        if (DataBase::getInstance()->getMode() != Procedures::Distant)
            connect(gTimerExportDocs,            &QTimer::timeout,   [=] {ExporteDocs();});
         if (QSystemTrayIcon::isSystemTrayAvailable())
             connect(gTimerVerifMessages,        &QTimer::timeout,   [=] {VerifMessages();});
-        if (proc->getModeConnexion() == Procedures::Poste)
+        if (DataBase::getInstance()->getMode() == Procedures::Poste)
             connect(gTimerSupprDocs,            &QTimer::timeout, [=] {SupprimerDocs();});
     }
     else
@@ -2067,6 +2036,7 @@ void Rufus::GestionComptes()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Identification de l'utilisateur --------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
+//TODO : SQL User
 void    Rufus::IdentificationUser()
 {
     QList<dlg_paiement *> PaimtList = findChildren<dlg_paiement*>();
@@ -2080,7 +2050,7 @@ void    Rufus::IdentificationUser()
             }
 
     QString Base;
-    switch (proc->gMode) {
+    switch (proc->gMode2) {
     case Procedures::Poste:
         Base = "BDD_POSTE";
         break;
@@ -2096,7 +2066,7 @@ void    Rufus::IdentificationUser()
     }
     QString Serveur  = proc->gsettingsIni->value(Base + "/Serveur").toString();
     int     Port     = proc->gsettingsIni->value(Base + "/Port").toInt();
-    bool    SSL      = (proc->gMode == Procedures::Distant);
+    bool    SSL      = (proc->gMode2 == Procedures::Distant);
     bool    ChgUsr   = true;
     if (!proc->IdentificationUser(Serveur, Port, SSL, Base, ChgUsr))
         gIdentificationOK = false;
@@ -2109,11 +2079,11 @@ void    Rufus::IdentificationUser()
     proc->UpdVerrouSalDat();
 
     QString modeconnexion = "";
-    if (proc->getModeConnexion() == Procedures::Poste)
+    if (DataBase::getInstance()->getMode() == Procedures::Poste)
         modeconnexion = tr("monoposte");
-    else if (proc->getModeConnexion() == Procedures::ReseauLocal)
+    else if (DataBase::getInstance()->getMode() == Procedures::ReseauLocal)
         modeconnexion = tr("réseau local");
-    if (proc->getModeConnexion() == Procedures::Distant)
+    if (DataBase::getInstance()->getMode() == Procedures::Distant)
     {
         modeconnexion = tr("accès distant - connexion ");
         if (proc->gsettingsIni->value("BDD_DISTANT/SSL").toString() != "NO")
@@ -2138,7 +2108,7 @@ void    Rufus::IdentificationUser()
 
 void Rufus::ExporteDocs()
 {
-    if (proc->getModeConnexion() == Procedures::Distant)
+    if (DataBase::getInstance()->getMode() == Procedures::Distant)
         return;
     QString B = proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString();
     QString IpAdr = "";
@@ -2151,7 +2121,7 @@ void Rufus::ExporteDocs()
     if (IpAdr !=  proc->PosteImportDocs())
         return;
     QString NomDirStockageImagerie;
-    if (proc->getModeConnexion() == Procedures::Poste)
+    if (DataBase::getInstance()->getMode() == Procedures::Poste)
     {
         QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, db);
         dirquer.first();
@@ -2447,7 +2417,7 @@ void Rufus::ExporteDocs()
 
 void Rufus::ImportDocsExternes()
 {
-    if (proc->getModeConnexion() != Procedures::Distant)
+    if (DataBase::getInstance()->getMode() != Procedures::Distant)
     {
         QString B = proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString();
         QString IpAdr = "";
@@ -3533,7 +3503,7 @@ QStringList Rufus::MotifMessage(QString Motif, QString Message, QTime heurerdv)
     return llist;
 }
 
-//TODO à déplacer
+//TODO : à déplacer
 void Rufus::MenuContextuelUptextEdit(QPoint point, UpTextEdit *TxtEdit)
 {
     gmenuContextuel          = new QMenu();
@@ -4735,9 +4705,9 @@ void Rufus::SupprimerDocs()
         {
             delreq.seek(i);
             QString CheminFichier ("");
-            if (proc->getModeConnexion() == Procedures::ReseauLocal)
+            if (DataBase::getInstance()->getMode() == Procedures::ReseauLocal)
                 CheminFichier = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
-            if (proc->getModeConnexion() == Procedures::Poste)
+            if (DataBase::getInstance()->getMode() == Procedures::Poste)
                 CheminFichier = proc->DirImagerie();
             CheminFichier += delreq.value(0).toString();
             if (!QFile(CheminFichier).remove())
@@ -5591,7 +5561,7 @@ void Rufus::VerifImportateur()
     if (ImportateurDocs == "Null")
     {
         if ((proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
-                && proc->getModeConnexion() != Procedures::Distant)
+                && DataBase::getInstance()->getMode() != Procedures::Distant)
         {
             proc->setPosteImportDocs();
             return;
@@ -5617,17 +5587,17 @@ void Rufus::VerifImportateur()
                     on n'est pas en accès distant
                     et si on est importateur
                 sinon, on retire le poste*/
-                proc->setPosteImportDocs((B == "YES" || B == "NORM") && proc->getModeConnexion() != Procedures::Distant);
+                proc->setPosteImportDocs((B == "YES" || B == "NORM") && DataBase::getInstance()->getMode() != Procedures::Distant);
             }
             else if (!ImportateurDocs.contains(" - " NOM_ADMINISTRATEURDOCS))
                 // le poste défini comme importateur est valide mais pas administrateur, on prend sa place si
                 //  on est prioritaire et pas lui
                 //  à condition de ne pas être en accès distant
             {
-                if (B == "YES" && !ImportateurDocs.contains(" - prioritaire") && proc->getModeConnexion() != Procedures::Distant)
+                if (B == "YES" && !ImportateurDocs.contains(" - prioritaire") && DataBase::getInstance()->getMode() != Procedures::Distant)
                     proc->setPosteImportDocs();
                 else if (ImportateurDocs.remove(" - prioritaire") == QHostInfo::localHostName()) // cas rare du poste qui a modifié son propre statut
-                    proc->setPosteImportDocs((B == "YES" || B == "NORM") && proc->getModeConnexion() != Procedures::Distant);
+                    proc->setPosteImportDocs((B == "YES" || B == "NORM") && DataBase::getInstance()->getMode() != Procedures::Distant);
             }
         }
     }
@@ -6052,10 +6022,10 @@ void Rufus::AfficheActe(int idActe)
         ui->CreerActepushButton->setToolTip(tr("Créer un nouvel acte pour ") + gPrenomPatient + " " + gNomPatient);
         ui->CreerBOpushButton->setToolTip(tr("Créer un bilan orthoptique pour ") + gPrenomPatient + " " + gNomPatient);
 
-        QMap<QString,QVariant>  Age = proc->CalculAge(gDDNPatient, ui->ActeDatedateEdit->date());
-        ui->AgelineEdit->setText(Age["Total"].toString());
+        QMap<QString,QVariant>  Age = User::CalculAge(gDDNPatient, ui->ActeDatedateEdit->date());
+        ui->AgelineEdit->setText(Age["toString"].toString());
         ui->AgelineEdit->setAlignment(Qt::AlignCenter);
-        gAgePatient = Age["Annee"].toInt();
+        gAgePatient = Age["annee"].toInt();
 
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
         ui->CreeParlineEdit->setText(tr("Créé par ") + proc->getLogin(AfficheActeQuery.value(11).toInt())
@@ -6274,11 +6244,11 @@ void Rufus::AfficheDossier(int idPat)
         }
     }
     QString html, img, Age;
-    QMap<QString,QVariant>  AgeTotal = proc->CalculAge(gDDNPatient, QDate::currentDate(),gSexePat);
+    QMap<QString,QVariant>  AgeTotal = User::CalculAge(gDDNPatient, gSexePat);
     gCMUPatient = (DonneesSocialesQuery.value(12).toInt() == 1);
-    img = AgeTotal["Icone"].toString();
-    Age = AgeTotal["Total"].toString();
-    QIcon icon = Icons::getIconAge(img);//proc->CalcIconAge(img);
+    img = AgeTotal["icone"].toString();
+    Age = AgeTotal["toString"].toString();
+    QIcon icon = Icons::getIconAge(img);
 
     html =
     "<html>"
@@ -6907,7 +6877,7 @@ void    Rufus::CalcNbDossiers()
         ui->label_15->setText("1 dossier");
         break;
     default:
-        if (proc->getModeConnexion() == Procedures::Distant && a==1000)
+        if (DataBase::getInstance()->getMode() == Procedures::Distant && a==1000)
             ui->label_15->setText("> 1000 " + tr("dossiers"));
         else
             ui->label_15->setText(QString::number(a) + " " + tr("dossiers"));
@@ -7816,10 +7786,10 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
                 gCMUPatient     = Dlg_IdentPatient->ui->CMUcheckBox->isChecked();
                 QString html, img, Age;
                 QMap<QString,QVariant>  AgeTotal;
-                AgeTotal        = proc->CalculAge(gDDNPatient, QDate::currentDate(), gSexePat);
-                img             = AgeTotal["Icone"].toString();
-                Age             = AgeTotal["Total"].toString();
-                QIcon icon      = Icons::getIconAge(img);//proc->CalcIconAge(img);
+                AgeTotal        = User::CalculAge(gDDNPatient, gSexePat);
+                img             = AgeTotal["icone"].toString(); //TODO : User icone
+                Age             = AgeTotal["toString"].toString();
+                QIcon icon      = Icons::getIconAge(img);
 
                 html =
                         "<html>"
@@ -7884,8 +7854,8 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(e));
                     OKModifierTerrain();
                 }
-                QMap<QString,QVariant>  NewAge = proc->CalculAge(gDDNPatient, ui->ActeDatedateEdit->date());
-                ui->AgelineEdit->setText(NewAge["Total"].toString());
+                QMap<QString,QVariant>  NewAge = User::CalculAge(gDDNPatient, ui->ActeDatedateEdit->date());
+                ui->AgelineEdit->setText(NewAge["toString"].toString());
             }
             proc->UpdVerrouSalDat();
             if (querc.size() > 0)
@@ -8282,7 +8252,7 @@ void Rufus::InitDivers()
     ui->PatientVuslabel ->setPixmap(Icons::pxListe().scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //TODO : icon scaled : pxListe 60,60
 
     ui->FiltrecheckBox  ->setChecked(true);
-    ui->FiltrecheckBox  ->setEnabled(proc->getModeConnexion() != Procedures::Distant);
+    ui->FiltrecheckBox  ->setEnabled(DataBase::getInstance()->getMode() != Procedures::Distant);
 
     ui->CreerDDNdateEdit->setDateRange(QDate::currentDate().addYears(-105),QDate::currentDate());
 
@@ -8371,7 +8341,7 @@ void Rufus::InitMenus()
     actionRemiseCheques             ->setVisible(a);
     actionImpayes                   ->setVisible(a);
     menuComptabilite                ->setVisible(a || (salarie && !assistant) || remplacant);
-    actionEnregistrerVideo          ->setVisible(proc->getModeConnexion() != Procedures::Distant);
+    actionEnregistrerVideo          ->setVisible(DataBase::getInstance()->getMode() != Procedures::Distant);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9361,7 +9331,7 @@ bool Rufus::Remplir_ListePatients_TableView(QString requete, QString PatNom, QSt
     }
     requete += Addrequete;
     requete += " ORDER BY PatNom, PatPrenom, PatDDN ";
-    if (proc->getModeConnexion() == Procedures::Distant)
+    if (DataBase::getInstance()->getMode() == Procedures::Distant)
         requete += " LIMIT 1000";
     QSqlQuery   RemplirTableViewQuery (requete,db);
     if (proc->TraiteErreurRequete(RemplirTableViewQuery,requete,"")) return false;
@@ -9420,13 +9390,14 @@ void Rufus::Remplir_SalDat()
     QFontMetrics        fm(qApp->font());
 
     // SALLE D'ATTENTE ---------------------------------------------------------------------------------------------------
-    QString SalDatrequete =   "SELECT saldat.IdPat, PatNom, PatPrenom, HeureArrivee, Statut, Motif, HeureRDV, Message, saldat.idUser, UserLogin FROM " NOM_TABLE_SALLEDATTENTE " AS saldat"
-                       " INNER JOIN " NOM_TABLE_PATIENTS " ON " NOM_TABLE_PATIENTS ".idPat = saldat.idPat "
-                       " INNER JOIN " NOM_TABLE_UTILISATEURS " ON " NOM_TABLE_UTILISATEURS ".idUser = saldat.idUser "
-                       " WHERE saldat.Statut = '" ARRIVE "'"
-                       " OR saldat.Statut = '" ENCOURS "'"
-                       " OR (LOCATE('" ENATTENTENOUVELEXAMEN "', saldat.Statut,1) > 0) "
-                       " ORDER BY HeureRDV";
+    QString SalDatrequete = "SELECT saldat.IdPat, PatNom, PatPrenom, HeureArrivee, Statut, Motif, HeureRDV, Message, saldat.idUser, UserLogin "
+                            " FROM " NOM_TABLE_SALLEDATTENTE " AS saldat"
+                            " INNER JOIN " NOM_TABLE_PATIENTS " ON " NOM_TABLE_PATIENTS ".idPat = saldat.idPat "
+                            " INNER JOIN " NOM_TABLE_UTILISATEURS " ON " NOM_TABLE_UTILISATEURS ".idUser = saldat.idUser "
+                            " WHERE saldat.Statut = '" ARRIVE "'"
+                            " OR saldat.Statut = '" ENCOURS "'"
+                            " OR (LOCATE('" ENATTENTENOUVELEXAMEN "', saldat.Statut,1) > 0) "
+                            " ORDER BY HeureRDV";
     //proc->Edit(SalDatrequete);
     /*
       SELECT saldat.IdPat, PatNom, PatPrenom, HeureArrivee, Statut, Motif, HeureRDV, Message, saldat.idUser, UserLogin

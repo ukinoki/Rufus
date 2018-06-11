@@ -58,7 +58,7 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key()==Qt::Key_Return || keyEvent->key() == Qt::Key_Enter || keyEvent->key()==Qt::Key_Tab)
         {
-            // Ctrl-Return ou Ctrl-Enter ou Ctrl-Tab sur un TextEdit- On va sur la tabulation suivante ---------------------------------------------------------------------------------------------
+            // Ctrl-Return ou Ctrl-Enter ou Ctrl-Tab sur un TextEdit- On va sur la tabulation suivante -------------
             if (keyEvent->modifiers() == Qt::MetaModifier)
             {
                 UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
@@ -71,21 +71,21 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
                     focusNextChild();
                 return true;
             }
-        }
-        // Shift-Return, Shift-Tab ou Shift-Enter - On va au Tab précédent --------------------------------------------------------------------------------------------------------------------
-        else if (keyEvent->modifiers() == Qt::ShiftModifier || keyEvent->modifiers() == Qt::ShiftModifier + Qt::MetaModifier)
-        {
+            // Shif-Return ou Shift-Enter ou Shift-Tab sur un TextEdit- On va sur la tabulation suivante --------------
+            if (keyEvent->modifiers() == Qt::ShiftModifier)
             {
-                UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
-                UpTextEdit *textprev = dynamic_cast<UpTextEdit*>(textw->previousInFocusChain());
-                if (textprev)
                 {
-                    textprev->setFocus();
-                    textprev->moveCursor(QTextCursor::End);
+                    UpTextEdit *textw = static_cast<UpTextEdit*>(obj);
+                    UpTextEdit *textprev = dynamic_cast<UpTextEdit*>(textw->previousInFocusChain());
+                    if (textprev)
+                    {
+                        textprev->setFocus();
+                        textprev->moveCursor(QTextCursor::End);
+                    }
+                    else
+                        focusNextChild();
+                    return true;
                 }
-                else
-                    focusNextChild();
-                return true;
             }
         }
     }

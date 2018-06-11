@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "cls_user.h"
 #include "dlg_documents.h"
 #include "icons.h"
 #include "ui_dlg_documents.h"
@@ -2611,7 +2612,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     quer.first();
     QString Sexe                        = quer.value(1).toString();
     QDate ddn                           = quer.value(0).toDate();
-    QMap<QString,QVariant>  AgeTotal    = proc->CalculAge(ddn, QDate::currentDate(), Sexe);
+    QMap<QString,QVariant>  AgeTotal    = User::CalculAge(ddn, Sexe);
     QString age                         = AgeTotal["Total"].toString();
     QString formule                     = AgeTotal["Formule"].toString();
     req = "select idcormedmg, cornom, corprenom, corsexe from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp, " NOM_TABLE_CORRESPONDANTS " cor where idPat = " + QString::number(gidPatient) + " and rmp.idcormedmg = cor.idcor";

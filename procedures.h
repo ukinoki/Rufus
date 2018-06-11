@@ -79,16 +79,14 @@ public:
     bool                gdbOK;
     bool                dlgrefractionouverte;
     QString             gLoginUser, gMDPUser;
-    int                 gMode;
-    enum gMode          {Poste, ReseauLocal, Distant};
+    int                 gMode2;
+    enum gMode2          {Poste, ReseauLocal, Distant};
     QDate               DateDebut, DateFin;
 
     QSettings           *gsettingsIni;
     QString             CouleurTitres;
 
     void                    ab(int i = 1);
-    QMap<QString,QVariant>  CalculAge(QDate ddn, QDate datedujour, QString Sexe = "");
-
 
     QFont                   AppFont();
     QString                 ConvertitEnHtml(QString Texte);
@@ -133,7 +131,7 @@ public:
                                      bool PremDemarrage = false,
                                      bool BaseVierge = false);              // Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
     int                     VerifUserBase(QString Login, QString MDP);      // Vérifie que l'utilisateur existe dans la base
-    bool                    IdentificationUser(QString Serveur, int Port, bool SSL, QString Base, bool ChgtUtilisateur);
+    bool                    IdentificationUser(bool ChgtUtilisateur = false);
 
 
     //--------------------------------------------------------------------------------------------------------
@@ -251,7 +249,6 @@ public:
     QStandardItemModel*     getListeUsers();
     void                    setlisteUsers();
     QString                 getMDPAdmin();
-    int                     getModeConnexion();
     void                    setNomImprimante(QString NomImprimante);
     QString                 getNomImprimante();
     void                    setrx(QRegExp rxS);
@@ -306,7 +303,6 @@ private:
     dlg_paramconnexion      *Dlg_ParamConnex;
     dlg_identificationuser  *Dlg_IdentUser;
     QFont                   gAppFont;
-    QMap<QString,QVariant>  Age;
     QMap<QString,QVariant>  lDataUser;
     QMap<QString,QVariant>  OtherUser;
     QStandardItemModel      *ListeComptesEncaissUser;

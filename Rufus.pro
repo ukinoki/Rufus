@@ -23,7 +23,7 @@ OSX {
 TARGET = /Applications/Rufus
 }
 LINUX {
-TARGET = /home/serge/RufusApp
+TARGET = /home/alexandre/RufusApp
 }
 
 TEMPLATE = app
@@ -96,7 +96,9 @@ SOURCES += main.cpp\
     dlg_docsvideo.cpp \
     utils.cpp \
     playercontrols.cpp \
-    upgroupbox.cpp
+    upgroupbox.cpp \
+    cls_user.cpp \
+    database.cpp
 
 HEADERS  += rufus.h \
     procedures.h \
@@ -164,12 +166,12 @@ HEADERS  += rufus.h \
     dlg_gestionlieux.h \
     macros.h \
     dlg_docsvideo.h \
-    sqlconnection.h \
     utils.h \
     icons.h \
     playercontrols.h \
     upgroupbox.h \
-    styles.h
+    cls_user.h \
+    database.h
 
 FORMS    += \
     dlg_identificationuser.ui \

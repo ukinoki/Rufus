@@ -169,7 +169,7 @@ public:
     static QIcon icClock() { return foundIC("icClock", "://Clock.png", QSize(45,45)); }
     static QIcon icComputer() { return foundIC("icComputer", "://Computer.png", QSize(45,45)); }
     static QIcon icContact() { return foundIC("icContact", "://contact.png"); }
-    static QIcon icCPS() { return foundIC("icCPS", ""); } //TODO manque icon CPS
+    static QIcon icCPS() { return foundIC("icCPS", ""); } //TODO : !!! manque icon CPS
     static QIcon icCreer() { return foundIC("icCreer", "://toolbar_new_folder.png"); }
 
     static QIcon icDate() { return foundIC("icDate", "://calendar2.png"); }

@@ -36,12 +36,11 @@ class dlg_identificationuser : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_identificationuser(QString tblUser, QString Serveur, int Port, bool SSL, QString Base, bool ChgUser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationuser(bool ChgUser = false, QWidget *parent = Q_NULLPTR);
     ~dlg_identificationuser();
     Ui::dlg_identificationuser *ui;
-    QSqlDatabase            getdatabase();
-    QMap<QString,QString>   getParamConnexion();
-    int                     getidUser();
+    //QMap<QString,QString>   getParamConnexion();
+    //int                     getidUser();
 
 
 private slots:
@@ -52,15 +51,9 @@ private:
     int                     ControleDonnees();
     //void                    Pause(int msec);
     int                     gidUser, gPort;
-    QMap<QString,QString>   gmap;
-    QRegExp                 rxIP;
-    QString                 gBase;
-    QString                 gServeur;
-    QString                 gTblUser;
+    //QMap<QString,QString>   gmap;
     QTimer                  *gTimerControl;
-    bool                    gSSL;
     bool                    gChgUsr;
-    QSqlDatabase            db;
     bool                    eventFilter(QObject *, QEvent *);
 };
 

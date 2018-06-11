@@ -17,6 +17,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 #include "icons.h"
 #include "procedures.h"
+#include "database.h"
 
 
 Procedures::Procedures(QObject *parent) :
@@ -130,87 +131,6 @@ void Procedures::ab(int i)
     UpMessageBox::Watch(0, mess);
 }
 
-/*!
- *  \brief Calcul de l'âge
- *
- *  Methode qui permet ????
- *
- *  \param ddn : la date de naissance
- *  \param datedujour : la date du jour
- *  \param Sexe : le sexe de la personne
- *
- *  \return un object contenant :
- * Total : une chaine de caractères ( ex: 2 ans 3 mois )
- * Annee : l'age brut de la personne
- * Mois :
- * Icone : l'icone à utiliser [man women, girl, boy, kid, baby]
- * Formule : une valeur parmi [l'enfant, la jeune, le jeune, madame, monsieur]
- *
- */
-QMap<QString,QVariant>  Procedures::CalculAge(QDate ddn, QDate datedujour, QString Sexe)
-{
-    int         AnneeNaiss, MoisNaiss, JourNaiss;
-    int         AnneeCurrent, MoisCurrent, JourCurrent;
-    int         AgeAnnee, AgeMois;
-    int         FormuleMoisJourNaissance, FormuleMoisJourAujourdhui;
-    QString     img     = "silhouette";
-    QString     formule = "";
-    QDate       Naissance, Aujourdhui;
-
-    Naissance                   = ddn;
-    Aujourdhui                  = datedujour;
-    AnneeNaiss                  = Naissance.toString("yyyy").toInt();
-    MoisNaiss                   = Naissance.toString("MM").toInt();
-    JourNaiss                   = Naissance.toString("dd").toInt();
-    AnneeCurrent                = Aujourdhui.toString("yyyy").toInt();
-    MoisCurrent                 = Aujourdhui.toString("MM").toInt();
-    JourCurrent                 = Aujourdhui.toString("dd").toInt();
-    FormuleMoisJourNaissance    = (MoisNaiss*100) + JourNaiss;
-    FormuleMoisJourAujourdhui   = (MoisCurrent*100) + JourCurrent;
-    AgeAnnee                    = AnneeCurrent - AnneeNaiss;
-    AgeMois                     = MoisCurrent - MoisNaiss;
-    if (FormuleMoisJourAujourdhui < FormuleMoisJourNaissance)   AgeAnnee --;
-    if (JourNaiss > JourCurrent)                                AgeMois --;
-    if (AgeMois < 0)                                            AgeMois = AgeMois + 12;
-    switch (AgeAnnee) {
-    case 0:
-        if (Naissance.daysTo(Aujourdhui) > 31)
-             Age["Total"]               = QString::number(AgeMois) + " mois";
-        else Age["Total"]               = QString::number(Naissance.daysTo(Aujourdhui)) + " jours";
-        break;
-    case 1: case 2: case 3: case 4:
-        Age["Total"]                    = QString::number(AgeAnnee) + " an";
-        if (AgeAnnee > 1) Age["Total"]  = Age["Total"].toString() + "s";
-        if (AgeMois > 0)  Age["Total"]  = Age["Total"].toString() + " " + QString::number(AgeMois) + " mois";
-        break;
-    default:
-        Age["Total"]                    = QString::number(AgeAnnee) + " ans";
-        break;
-    }
-
-    if (Sexe =="M")                     img = "man";
-    if (Sexe =="F")                     img = "women";
-    if (AgeAnnee < 16 && Sexe == "F")   img = "girl";
-    if (AgeAnnee < 16 && Sexe == "M")   img = "boy";
-    if (AgeAnnee < 8)                   img = "kid";
-    if (AgeAnnee < 2)                   img = "baby";
-
-    if (AgeAnnee < 11)                  formule = "l'enfant";
-    else if (AgeAnnee < 18) {
-        if (Sexe == "F")                formule = "la jeune";
-        if (Sexe == "M")                formule = "le jeune";
-    }
-    else    {
-        if (Sexe == "F")                formule = "madame";
-        if (Sexe == "M")                formule = "monsieur";
-    }
-
-    Age["Annee"]    = AgeAnnee;
-    Age["Mois"]     = AgeMois;
-    Age["Icone"]    = img;
-    Age["Formule"]  = formule;
-    return Age;
-}
 
 /*--------------------------------------------------------------------------------------------------------------
 -- Choix d'une date ou d'une période ---------------------------------------------------------------------------
@@ -1066,7 +986,7 @@ void Procedures::EditHtml(QString txt)
     delete gAsk;
 }
 
-//TODO a déplacer
+//TODO : à déplacer
 void Procedures::Slot_MenuContextuelUptextEdit()
 {
     UpTextEdit *TxtEdit = dynamic_cast<UpTextEdit*>(sender());
@@ -1585,11 +1505,6 @@ int Procedures::getMAXligneBanque()
     return (((a<b)?b:a)+1);
 }
 
-int Procedures::getModeConnexion()
-{
-    return gMode;
-}
-
 void Procedures::setNomImprimante(QString NomImprimante)
 {
     gnomImprimante = NomImprimante;
@@ -1937,29 +1852,6 @@ QStringList Procedures::DecomposeScriptSQL(QString nomficscript)
             "END;";
 
     */
-}
-
-QString Procedures::getBase()
-{
-    QString Base = "";
-    if (gMode == Poste)
-        Base = "BDD_POSTE";
-    else if (gMode == ReseauLocal)
-        Base = "BDD_LOCAL";
-    else if (gMode == Distant)
-        Base = "BDD_DISTANT";
-    return Base;
-}
-
-void Procedures::InfoBase()
-{
-    UpMessageBox::Watch(0, tr("Connexion à la base de données!"),
-                        tr("Vos paramètres de connexion") +
-                           "\n" + tr("Serveur     ") + "\n ->\t" + db.hostName() +
-                           "\n" + tr("databaseName") + "\n ->\t" + db.databaseName() +
-                           "\n" + tr("Login       ") + "\n ->\t" + db.userName() +
-                           "\n" + tr("password    ") + "\n ->\t" + db.password() +
-                           "\n" + tr("port        ") + "\n ->\t" + QString::number(db.port()));
 }
 
 bool Procedures::ReinitBase()
@@ -2342,7 +2234,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     if (BaseVierge)
     {
         QString Hote;
-        if (gMode == Poste)
+        if (DataBase::getInstance()->getMode() == Poste)
             Hote = tr("ce poste");
         else
             Hote = tr("le serveur ") + gsettingsIni->value(getBase() + "/Serveur").toString();
@@ -2982,32 +2874,11 @@ bool Procedures::Connexion()
 --------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Connexion_A_La_Base()
 {
-    QString Base;
-    switch (gMode) {
-    case Poste:
-        Base = "BDD_POSTE";
-        break;
-    case ReseauLocal:
-        Base = "BDD_LOCAL";
-        break;
-    case Distant:
-        Base = "BDD_DISTANT";
-        break;
-    default:
-        Base = "BDD_POSTE";
-        break;
-    }
+    DataBase::getInstance()->init(*gsettingsIni, gMode2);
 
-    QString Serveur;
-    if (gMode == Poste)
-        Serveur = "localhost";
-    else
-        Serveur = gsettingsIni->value(Base + "/Serveur").toString();
-    int Port    = gsettingsIni->value(Base + "/Port").toInt();
-    bool SSL    = (gMode == Distant);
-
-    if (!IdentificationUser(Serveur, Port, SSL, Base, false))
+    if (!IdentificationUser())
         return false;
+
     gidLieuExercice = DetermineLieuExercice();
     setlisteUsers();
     ChargeDataUser(gidUser);
@@ -3520,14 +3391,13 @@ QString Procedures::CreerUserFactice(int iduser)
 /*-----------------------------------------------------------------------------------------------------------------
     -- Identification de l'utilisateur -------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::IdentificationUser(QString Serveur, int Port, bool SSL, QString Base, bool ChgUsr)
+bool Procedures::IdentificationUser(bool ChgUsr)
 {
-    Dlg_IdentUser   = new dlg_identificationuser(NOM_TABLE_UTILISATEURS, Serveur, Port, SSL, Base, ChgUsr);
+    Dlg_IdentUser   = new dlg_identificationuser(NOM_TABLE_UTILISATEURS, ChgUsr);
     Dlg_IdentUser   ->setFont(QFont(POLICEPARDEFAUT,POINTPARDEFAUT));
     bool a = false;
 
     int result      = Dlg_IdentUser->exec();
-    db              = Dlg_IdentUser->getdatabase();
     gidUser         = Dlg_IdentUser->getidUser();
     gLoginUser      = Dlg_IdentUser->ui->LoginlineEdit->text();
     gMDPUser        = Dlg_IdentUser->ui->MDPlineEdit->text();
@@ -4620,6 +4490,7 @@ bool Procedures::VerifMDP(QString MDP, QString Msg)
 /*-----------------------------------------------------------------------------------------------------------------
     -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
+//???
 bool Procedures::VerifParamConnexion(bool OKAccesDistant, QString)
 {
     Dlg_ParamConnex = new dlg_paramconnexion(OKAccesDistant);

@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "cls_user.h"
 #include "dlg_actesprecedents.h"
 #include "icons.h"
 #include "ui_dlg_actesprecedents.h"
@@ -156,7 +157,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
         else
         {
             AgePatientQuery.first();
-            ui->AgelineEdit->setText(proc->CalculAge(AgePatientQuery.value(0).toDate(),ui->ActeDatedateEdit->date())["Total"].toString());
+            ui->AgelineEdit->setText(User::CalculAge(AgePatientQuery.value(0).toDate(), ui->ActeDatedateEdit->date())["toString"].toString());
         }
 
         //4. Mettre à jour le numéro d'acte

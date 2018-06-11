@@ -25,7 +25,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 *
 */
 
-dlg_identificationuser::dlg_identificationuser(QString tblUser, QString Serveur, int Port, bool SSL, QString Base, bool ChgUser, QWidget *parent) :
+dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_identificationuser)
 {
@@ -33,13 +33,12 @@ dlg_identificationuser::dlg_identificationuser(QString tblUser, QString Serveur,
     setWindowTitle(tr("Rufus - Identification de l'utilisateur"));
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    QRegExp rx          = QRegExp("[A-Za-z0-9]*");
-    ui->LoginlineEdit   ->setValidator(new QRegExpValidator(rx,this));
-    ui->MDPlineEdit     ->setValidator(new QRegExpValidator(rx,this));
+    ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric,this));
+    ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric,this));
     ui->MDPlineEdit     ->setEchoMode(QLineEdit::Password);
 
     connect (ui->OKpushButton,      &QPushButton::clicked,  this,   &dlg_identificationuser::Slot_RetourOK);
-    connect (ui->AnnulpushButton,   SIGNAL(clicked()),  this,   SLOT (Slot_RetourAnnul()));
+    connect (ui->AnnulpushButton,   &QPushButton::clicked, this,   &dlg_identificationuser::Slot_RetourAnnul);
 
     ui->OKpushButton    ->setShortcut(QKeySequence("Meta+Return"));
     ui->AnnulpushButton ->setShortcut(QKeySequence("F12"));
@@ -49,14 +48,7 @@ dlg_identificationuser::dlg_identificationuser(QString tblUser, QString Serveur,
     ui->LoginlineEdit   ->installEventFilter(this);
     ui->MDPlineEdit     ->installEventFilter(this);
 
-    gBase               = Base;
     gChgUsr             = ChgUser;
-    gidUser             = -1;
-    gTblUser            = tblUser;
-    gServeur            = Serveur;
-    gPort               = Port;
-    gSSL                = SSL;
-    rxIP                = QRegExp("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
     gTimerControl       = new QTimer(this);
     ui->LoginlineEdit   ->setFocus();
 }
@@ -66,19 +58,9 @@ dlg_identificationuser::~dlg_identificationuser()
     delete ui;
 }
 
-int dlg_identificationuser::getidUser()
-{
-    return gidUser;
-}
-
 QMap<QString,QString> dlg_identificationuser::getParamConnexion()
 {
     return gmap;
-}
-
-QSqlDatabase dlg_identificationuser::getdatabase()
-{
-    return db;
 }
 
 void dlg_identificationuser::Slot_RetourAnnul()
@@ -92,7 +74,7 @@ void dlg_identificationuser::Slot_RetourOK()
     ui->OKpushButton->setEnabled(false);
 
 
-    QString AdminDocs = NOM_ADMINISTRATEURDOCS;
+    QString AdminDocs = NOM_ADMINISTRATEURDOCS; //TODO : !!! Test en dur
     if (ui->LoginlineEdit->text().toUpper() == AdminDocs.toUpper())
     {
         UpMessageBox::Watch(this, tr("Vous ne pouvez pas utiliser ce Login pour vous connecter"));
@@ -158,7 +140,7 @@ int dlg_identificationuser::ControleDonnees()
     QString Client;
     if (gBase == "BDD_DISTANT")
             Client = "%";
-    else if (gBase == "BDD_LOCAL" && rxIP.exactMatch(gServeur))
+    else if (gBase == "BDD_LOCAL" && Utils::rgx_IPV4.exactMatch(gServeur))
     {
         QStringList listIP = gServeur.split(".");
         for (int i=0;i<listIP.size()-1;i++)
@@ -170,32 +152,13 @@ int dlg_identificationuser::ControleDonnees()
     }
     else
         Client = gServeur;
+
     if (!gChgUsr)
     {
-        db = QSqlDatabase::addDatabase("QMYSQL","Rufus");
-        db.setHostName(gServeur);
-        db.setPort(gPort);
-        QString  ConnectOptions = (gSSL?
-                                  "SSL_KEY=/etc/mysql/client-key.pem;"
-                                  "SSL_CERT=/etc/mysql/client-cert.pem;"
-                                  "SSL_CA=/etc/mysql/ca-cert.pem;"
-                                  "MYSQL_OPT_RECONNECT=1"
-                                     :
-                                  "MYSQL_OPT_RECONNECT=1");
-        db.setConnectOptions(ConnectOptions);
 
-        if (gSSL)
-            Login += "SSL";
-        db.setUserName(Login);
-        db.setPassword(ui->MDPlineEdit->text());
-
-        gmap["HostName"] = gServeur;
-        gmap["UserName"] = Login;
-        gmap["Password"] = ui->MDPlineEdit->text();
-        gmap["Port"] = QString::number(gPort);
-        gmap["ConnectOptions"] = ConnectOptions;
-
-        if (!db.open())
+//TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
+        QString error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, Login, ui->MDPlineEdit->text());
+        if( error )
         {
             ui->IconServerOKupLabel->setPixmap(Icons::pxError());
             Utils::Pause(200);
@@ -203,7 +166,7 @@ int dlg_identificationuser::ControleDonnees()
                             tr("Impossible de se connecter au serveur avec le login ") + ui->LoginlineEdit->text()
                             + tr(" et ce mot de passe") + "\n"
                             + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
-                            + db.lastError().text());
+                            + error);
             return -1;
         }
         req = "show grants for '" + Login + "'@'" + Client + "'";
@@ -230,6 +193,8 @@ int dlg_identificationuser::ControleDonnees()
                             + "\n" + tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
             return -2;
         }
+
+
         ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
         Utils::Pause(300);
         req = "SHOW TABLES FROM " NOM_BASE_CONSULTS " LIKE '%tilisateurs%'";
@@ -242,19 +207,32 @@ int dlg_identificationuser::ControleDonnees()
             Utils::Pause(600);
             return -3;
         }
-        req =   "SELECT idUser FROM " + gTblUser + " WHERE UserLogin = '" +
-                ui->LoginlineEdit->text() +
-                "' AND UserMDP = '" + ui->MDPlineEdit->text() + "'" ;
-        QSqlQuery UserQuery (req,db);
-        if (UserQuery.lastError().type() != QSqlError::NoError)
+//END
+
+        QJsonObject rep = DataBase::getInstance()->login(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
+        if (rep["code"] == -3)
         {
-            QString noerr;
-            noerr.setNum(UserQuery.lastError().type());
+            ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
+            Utils::Pause(600);
+
             UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
                             tr("Impossible d'ouvrir la table Utilisateurs")
-                            + " \n" + tr("requete = ") + req + "\n");
+                            + " \n" + tr("requete = ") + rep["request"] + "\n"); //a mettre plutot dans un fichier de log
             return -3;
         }
+
+        ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
+        Utils::Pause(300);
+        if( rep["code"] == -4 )
+        {
+            ui->IconUserOKupLabel->setPixmap(Icons::pxError());
+            Utils::Pause(600);
+            UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
+                            tr("Identifiant ou mot de passe incorrect") );
+            return -4;
+        }
+        //Faille de sécurité
+        /*
         if (UserQuery.size() == 0)
         {
             req =   "SELECT UserLogin FROM " + gTblUser;
@@ -295,35 +273,28 @@ int dlg_identificationuser::ControleDonnees()
                 return -4;
             return -5;
         }
-        else
+        */
+
+        ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
+        Utils::Pause(300);
+        if (rep["code"] == -1)
         {
-            ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
-            Utils::Pause(300);
-            UserQuery.first();
-            gidUser = UserQuery.value(0).toInt();
-            req = "select NomPosteconnecte from Rufus.utilisateurs where iduser = " + QString::number(gidUser);
-            QSqlQuery Userquer(req,db);
-            if (Userquer.size() > 0)
-            {
-                Userquer.first();
-                if (Userquer.value(0).toString() != QHostInfo::localHostName().left(60))
-                {
-                    ui->IconUserOKupLabel->setPixmap(Icons::pxError());
-                    Utils::Pause(600);
-                    UpMessageBox::Watch(this, tr("Utilisateur déjà connecté"),
-                                    tr("Impossible de vous connecter sur ce poste!") + "\n"
-                                    + tr("Vous semblez être déjà connecté sur le poste") + "\n" + Userquer.value(0).toString() + "\n"
-                                    + tr("Si ce n'est pas le cas, il faut retirer votre identifiant de la table des utilisateurs connectés.") + "\n"
-                                    + tr("Pour cela, redémarrez Rufus sur le poste ") + Userquer.value(0).toString()
-                                    + tr(" puis quittez Rufus.") + "\n"
-                                    + tr("Cela purgera la table des utilisateurs connectés.") + "/n");
-                    return -1;
-                }
-            }
+            ui->IconUserOKupLabel->setPixmap(Icons::pxError());
+            Utils::Pause(600);
+            UpMessageBox::Watch(this, tr("Utilisateur déjà connecté"),
+                            tr("Impossible de vous connecter sur ce poste!") + "\n"
+                            + tr("Vous semblez être déjà connecté sur le poste") + "\n" + rep["poste"] + "\n"
+                            + tr("Si ce n'est pas le cas, il faut retirer votre identifiant de la table des utilisateurs connectés.") + "\n"
+                            + tr("Pour cela, redémarrez Rufus sur le poste ") + rep["poste"]
+                            + tr(" puis quittez Rufus.") + "\n"
+                            + tr("Cela purgera la table des utilisateurs connectés.") + "/n");
+
+            return -1;
         }
+
         ui->IconUserOKupLabel->setPixmap(Icons::pxCheck());
         Utils::Pause(600);
-        return gidUser;
+        return DataBase::getInstance()->getUser()->id();
     }
     else if (gChgUsr)
     {
