@@ -23,7 +23,7 @@ dlg_autresmesures::dlg_autresmesures(int *idPatAPasser, Procedures *procAPasser,
 {
     proc        = procAPasser;
     gidPatient  = *idPatAPasser;
-    db          = proc->getDataBase();
+    db          = DataBase::getInstance()->getDataBase();
     mode        = mod;
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dynamic_cast<QVBoxLayout*>(layout())->setSizeConstraint(QLayout::SetFixedSize);
@@ -100,7 +100,7 @@ void dlg_autresmesures::EnregistreTono()
     QString req = "INSERT INTO " NOM_TABLE_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  (" + QString::number(gidPatient) + "," + TOD + "," + TOG + ", now(),'" + Methode + "')";
 
     QSqlQuery EnregTOQuery (req,db);
-    proc->TraiteErreurRequete(EnregTOQuery,req,tr("Impossible de sauvegarder la mesure!"));
+    DataBase::getInstance()->traiteErreurRequete(EnregTOQuery,req,tr("Impossible de sauvegarder la mesure!"));
 
     accept();
 }

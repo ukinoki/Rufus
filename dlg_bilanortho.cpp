@@ -249,13 +249,13 @@ void dlg_bilanortho::ImprimeBOClicked()
     QString requete = " select Patnom, patprenom, actedate, creepar, idUser  from " NOM_TABLE_PATIENTS " pat," NOM_TABLE_ACTES " act"
             " where act.idacte = " + QString::number(idActe) + " and act.idpat = pat.idpat";
     //UpMessageBox::Watch(this,requete);
-    QSqlQuery cherchepatquery (requete,proc->getDataBase());
-    proc->TraiteErreurRequete(cherchepatquery,requete,tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
+    QSqlQuery cherchepatquery (requete,DataBase::getInstance()->getDataBase());
+    DataBase::getInstance()->traiteErreurRequete(cherchepatquery,requete,tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
     if (cherchepatquery.size() == 0) return;
     cherchepatquery.first();
     int userentete = cherchepatquery.value(4).toInt();
     gDataUser = proc->setDataOtherUser(userentete);
-    if (!gDataUser.value("Success").toBool())
+    if (gDataUser == nullptr)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
         return;
@@ -274,7 +274,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     Entete.replace("{{PRENOM PATIENT}}"       , prenom);
     Entete.replace("{{NOM PATIENT}}"       , nom);
     Entete.replace("{{DDN}}"               , "");
-    Entete.replace("{{DATE}}"              , gDataUser["Ville"].toString() + ", le " + QDate::currentDate().toString(tr("d MMM yyyy")));
+    Entete.replace("{{DATE}}"              , gDataUser->getVille() + ", le " + QDate::currentDate().toString(tr("d MMM yyyy")));
 
     // création du pied
     Pied = proc->ImpressionPied();
@@ -303,11 +303,11 @@ void dlg_bilanortho::ImprimeBOClicked()
     // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        QSqlQuery query = QSqlQuery(proc->getDataBase());
+        QSqlQuery query = QSqlQuery(DataBase::getInstance()->getDataBase());
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
         query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idUser, idpat, TypeDoc, sousTypedoc, Titre, TextEntete, TextCorps, TextPied, Dateimpression, UserEmetteur, ALD, EmisRecu, FormatDoc, idLieu)"
                                                            " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre, :textEntete, :textCorps, :textPied, :dateimpression, :useremetteur, :ald, :emisrecu, :formatdoc, :idlieu)");
-        query.bindValue(":iduser", proc->getDataUser()["idUser"].toString());
+        query.bindValue(":iduser", QString::number(proc->getDataUser()->id()));
         query.bindValue(":idpat", QString::number(gidpat));
         query.bindValue(":typeDoc", "Orthoptie");
         query.bindValue(":soustypedoc", "Bilan");
@@ -316,10 +316,10 @@ void dlg_bilanortho::ImprimeBOClicked()
         query.bindValue(":textCorps", textHtml->toHtml());
         query.bindValue(":textPied", Pied);
         query.bindValue(":dateimpression", cherchepatquery.value(2).toDate().toString("yyyy-MM-dd"));
-        query.bindValue(":useremetteur", proc->getDataUser()["idUser"].toString());
+        query.bindValue(":useremetteur", QString::number(proc->getDataUser()->id()));
         query.bindValue(":emisrecu", "0");
         query.bindValue(":formatdoc", BILANORTHOPTIQUE);
-        query.bindValue(":idlieu", proc->getDataUser()["idLieu"].toString());
+        query.bindValue(":idlieu", QString::number(proc->getDataUser()->getIdLieu()));
         if(!query.exec())
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
     }
@@ -675,7 +675,7 @@ void dlg_bilanortho::closeEvent(QCloseEvent *event)
 void dlg_bilanortho::AfficheBilan(int idBilan)
 {
     QString chborequete = "select idBilanOrtho from " NOM_TABLE_BILANORTHO " where idBilanOrtho = " + QString::number(idBilan);
-    QSqlQuery chboquery(chborequete,proc->getDataBase());
+    QSqlQuery chboquery(chborequete,DataBase::getInstance()->getDataBase());
     if (chboquery.size() > 0)
     {
         QString a;
@@ -697,8 +697,8 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
                 " from " NOM_TABLE_BILANORTHO     // 65,66,67,68
                 " where idBilanOrtho = " + QString::number(idBilan);
         //UpMessageBox::Watch(this,affichBOrequete);
-        QSqlQuery affichBOquery(affichBOrequete,proc->getDataBase());
-        proc->TraiteErreurRequete(affichBOquery,affichBOrequete,"");
+        QSqlQuery affichBOquery(affichBOrequete,DataBase::getInstance()->getDataBase());
+        DataBase::getInstance()->traiteErreurRequete(affichBOquery,affichBOrequete,"");
         affichBOquery.first();
         ui->MotiftextEdit->setText(affichBOquery.value(44).toString());
         ui->AVODlineEdit->setText(affichBOquery.value(0).toString());

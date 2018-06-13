@@ -64,7 +64,7 @@ private:
     bool                    DonneesUserModifiees;
     Procedures              *proc;
     UpDialog                *gAskAppareil, *gAskMDP;
-    QMap<QString,QVariant>  gDataUser;
+    User                    *gDataUser;
     QSqlDatabase            db;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
     QStringList             glistAppareils;

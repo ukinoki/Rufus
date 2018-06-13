@@ -27,16 +27,15 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     proc        = procAPasser;
-    db          = proc->getDataBase();
-    gidUser     = proc->getDataUser()["idUser"].toInt();
+    db          = DataBase::getInstance()->getDataBase();
     gidUserADebiter     = -1;
-    ui->UserscomboBox   ->setEnabled(proc->getDataUser()["Droits"].toString() == SECRETAIRE);
+    ui->UserscomboBox   ->setEnabled(proc->getDataUser()->isSecretaire() );
     gListeLiberauxModel  = proc->getListeLiberaux(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
 
     for (int i=0; i<gListeLiberauxModel->rowCount(); i++)
         ui->UserscomboBox->addItem(gListeLiberauxModel->item(i,1)->text(), gListeLiberauxModel->item(i,0)->text());
-    if (ui->UserscomboBox->findData(QString::number(gidUser))>-1)
-        ui->UserscomboBox->setCurrentIndex(ui->UserscomboBox->findData(QString::number(gidUser)));
+    if (ui->UserscomboBox->findData(QString::number(proc->getDataUser()->id()))>-1)
+        ui->UserscomboBox->setCurrentIndex(ui->UserscomboBox->findData(QString::number(proc->getDataUser()->id())));
     else
         ui->UserscomboBox->setCurrentIndex(0);
 
@@ -55,14 +54,14 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
     }
 
     gDataUser = proc->setDataOtherUser(gidUserADebiter);
-    if (!gDataUser.value("Success").toBool())
+    if (gDataUser == nullptr)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche paiement!"), tr("Les paramètres de ")
                              + gNomUser + tr("ne sont pas retrouvés"));
         InitOK = false;
         return;
     }
-    if (gDataUser["idCompteParDefaut"].toString() == "")
+    if (gDataUser->getIdCompteParDefaut() <= 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir le journal des dépenses!"), tr("Pas de compte bancaire enregistré pour ")
                                      + gNomUser);
@@ -210,7 +209,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     AnnulupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
     gBigTable               ->setEnabled(gMode == Lire);
 
-    ui->UserscomboBox        ->setEnabled(proc->getDataUser()["Droits"].toString() == SECRETAIRE  && gMode==Lire);
+    ui->UserscomboBox        ->setEnabled(proc->getDataUser()->isSecretaire() && gMode==Lire);
 
 
     switch (gMode) {
@@ -281,7 +280,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
         ui->ModifierupPushButton->setShortcut(QKeySequence());
         EnregupPushButton       ->setShortcut(QKeySequence("Meta+Return"));
         RegleComptesComboBox();
-        ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(gDataUser["idCompteParDefaut"].toString()));
+        ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(QString::number(gDataUser->getIdCompteParDefaut())));
         break;
     }
     default:
@@ -315,14 +314,14 @@ void dlg_depenses::ChangeUser(int)
         return;
     }
     gDataUser = proc->setDataOtherUser(gidUserADebiter);
-    if (!gDataUser.value("Success").toBool())
+    if (gDataUser == nullptr)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche paiement!"), tr("Les paramètres de ")
                              + gNomUser + tr("ne sont pas retrouvés"));
         InitOK = false;
         return;
     }
-    if (gDataUser["idCompteParDefaut"].toString() == "")
+    if (gDataUser->getIdCompteParDefaut() <= 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir le journal des dépenses!"), tr("Pas de compte bancaire enregistré pour ")
                                      + gNomUser);
@@ -455,7 +454,7 @@ void dlg_depenses::EnregistreDepense()
     requete = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '"
             + proc->CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) +"'";
     QSqlQuery cherchefamfiscalequery (requete,db);
-    proc->TraiteErreurRequete(cherchefamfiscalequery,requete,"");
+    DataBase::getInstance()->traiteErreurRequete(cherchefamfiscalequery,requete,"");
     if (cherchefamfiscalequery.size() > 0)
     {
         cherchefamfiscalequery.first();
@@ -473,7 +472,7 @@ void dlg_depenses::EnregistreDepense()
             "', " + (m!="E"? idCompte : "null") + ")";
     QSqlQuery ("LOCK TABLES '" NOM_TABLE_DEPENSES " WRITE, " NOM_TABLE_ARCHIVESBANQUE " WRITE, " NOM_TABLE_LIGNESCOMPTES "' WRITE",db);
     QSqlQuery EnregistreDepenseQuery (insertdeprequete,db);
-    proc        ->TraiteErreurRequete(EnregistreDepenseQuery,insertdeprequete,tr("Impossible d'enregister cete dépense!"));
+    DataBase::getInstance()->traiteErreurRequete(EnregistreDepenseQuery,insertdeprequete,tr("Impossible d'enregister cete dépense!"));
     requete     = "select max(idDep) from " NOM_TABLE_DEPENSES;
     QSqlQuery   ChercheidDepQuery (requete,db);
     ChercheidDepQuery.first();
@@ -492,7 +491,7 @@ void dlg_depenses::EnregistreDepense()
                     "', "  + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
                     ", 0, '" + Paiement + "')";
         QSqlQuery EnregLigneCompeQuery(requete,db);
-        proc->TraiteErreurRequete(EnregLigneCompeQuery,requete,tr("Impossible d'enregister cette opération sur le compte bancaire!"));
+        DataBase::getInstance()->traiteErreurRequete(EnregLigneCompeQuery,requete,tr("Impossible d'enregister cette opération sur le compte bancaire!"));
     }
     QSqlQuery("UNLOCK TABLES", db);
 
@@ -854,7 +853,7 @@ void dlg_depenses::ModifierDepense()
             "'and Objet = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
             "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
             " and iddep <> " + idDep +
-            " and idUser = " + QString::number(proc->getDataUser()["idUserComptable"].toInt());
+            " and idUser = " + QString::number(proc->getDataUser()->getIdUserComptable());
     QSqlQuery ChercheDepQuery (requete,db);
     if (ChercheDepQuery.size() > 0)
     {
@@ -875,7 +874,7 @@ void dlg_depenses::ModifierDepense()
         requete = "select DateDep from " NOM_TABLE_DEPENSES " where Datedep < '" + ui->DateDepdateEdit->date().addDays(-1).toString("yyyy-MM-dd") +
                 "'and Objet = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
                 "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                " and idUser = " + QString::number(proc->getDataUser()["idUserComptable"].toInt());
+                " and idUser = " + QString::number(proc->getDataUser()->getIdUserComptable());
         QSqlQuery ChercheDep2Query (requete,db);
         if (ChercheDep2Query.size() > 0)
         {
@@ -924,7 +923,7 @@ void dlg_depenses::ModifierDepense()
     requete = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '"
             + proc->CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) +"'";
     QSqlQuery cherchefamfiscalequery (requete,db);
-    proc->TraiteErreurRequete(cherchefamfiscalequery,requete,"");
+    DataBase::getInstance()->traiteErreurRequete(cherchefamfiscalequery,requete,"");
     if (cherchefamfiscalequery.size() > 0)
     {
         cherchefamfiscalequery.first();
@@ -941,7 +940,7 @@ void dlg_depenses::ModifierDepense()
             "', Compte = " + (m!="E"? idCompte : "null") +
             " where idDep = " + idDep;
     QSqlQuery ModifieDepenseQuery (modifdeprequete,db);
-    proc->TraiteErreurRequete(ModifieDepenseQuery,modifdeprequete,tr("Impossible d'enregister cete dépense!"));
+    DataBase::getInstance()->traiteErreurRequete(ModifieDepenseQuery,modifdeprequete,tr("Impossible d'enregister cete dépense!"));
 
     // Correction de l'écriture dans la table lignescomptes
     if (Paiement == tr("Espèces"))
@@ -995,7 +994,7 @@ void dlg_depenses::ModifierDepense()
                             "', "  + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
                             ", 0, '" + Paiement + "')";
                 QSqlQuery EnregLigneCompeQuery(requete,db);
-                proc->TraiteErreurRequete(EnregLigneCompeQuery,requete,tr("Impossible d'enregister cette opération sur le compte bancaire!"));
+                DataBase::getInstance()->traiteErreurRequete(EnregLigneCompeQuery,requete,tr("Impossible d'enregister cette opération sur le compte bancaire!"));
             }
         }
     }
@@ -1200,7 +1199,7 @@ void dlg_depenses::RemplitBigTable()
     Deprequete += " ORDER BY DateDep, Objet";
     //proc->Edit(Deprequete);
     QSqlQuery EnumDepensesQuery (Deprequete,db);
-    if (proc->TraiteErreurRequete(EnumDepensesQuery,Deprequete,"Impossible de retrouver la table des depenses"))
+    if (DataBase::getInstance()->traiteErreurRequete(EnumDepensesQuery,Deprequete,"Impossible de retrouver la table des depenses"))
         return;
     gBigTable->setRowCount(EnumDepensesQuery.size());
     EnumDepensesQuery.first();

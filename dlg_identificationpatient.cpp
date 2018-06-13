@@ -29,7 +29,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString *CreationModificati
     proc                = procAPasser;
     gidPatient          = *idPatAPasser;
     lCreatModifCopie    = *CreationModification;
-    db                  = proc->getDataBase();
+    db                  = DataBase::getInstance()->getDataBase();
     QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
 
     QVBoxLayout *vlay       = new QVBoxLayout;
@@ -69,7 +69,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString *CreationModificati
     ReconstruitListeMG();
     ui->MGupComboBox    ->setCurrentIndex(-1);
 
-    VilleCPwidg         = new VilleCPWidget(proc->getDataBase(), NOM_TABLE_VILLES, ui->Principalframe, proc->getListeVilles(), proc->getListeCP(), NOM_ALARME);
+    VilleCPwidg         = new VilleCPWidget(DataBase::getInstance()->getDataBase(), NOM_TABLE_VILLES, ui->Principalframe, proc->getListeVilles(), proc->getListeCP(), NOM_ALARME);
     CPlineEdit          = VilleCPwidg->ui->CPlineEdit;
     VillelineEdit       = VilleCPwidg->ui->VillelineEdit;
     VilleCPwidg         ->move(10,254);
@@ -204,7 +204,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
     PatPrenom   = proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->PrenomlineEdit->text(),true));
     PatDDN      = ui->DDNdateEdit->date().toString("yyyy-MM-dd");
     PatCreeLe   = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-    PatCreePar  = QString::number(proc->getDataUser()["idUser"].toInt());
+    PatCreePar  = QString::number(proc->getDataUser()->id());
 
 
     if (CPlineEdit->text() == "" && VillelineEdit->text() == "")
@@ -239,7 +239,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             OKBouton->setText(tr("Je confirme"));
             UpSmallButton *NoBouton = new UpSmallButton();
             NoBouton->setText(tr("Annuler"));
-            msgbox.setText("Euuhh... " + proc->getDataUser()["UserLogin"].toString());
+            msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin());
             msgbox.setInformativeText(tr("Confirmez vous la date de naissance?") + "\n" + ui->DDNdateEdit->date().toString(tr("d-MMM-yyyy")));
             msgbox.setIcon(UpMessageBox::Warning);
             msgbox.addButton(NoBouton, UpSmallButton::CANCELBUTTON);
@@ -273,7 +273,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         QString requete = "select idPat from " NOM_TABLE_PATIENTS
                 " where PatNom LIKE '" + PatNom + "%' and PatPrenom LIKE '" + PatPrenom + "%' and PatDDN = '" + PatDDN + "'";
         QSqlQuery IdentPatientQuery (requete,db);
-        if (proc->TraiteErreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
+        if (DataBase::getInstance()->traiteErreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
         {
             FermeFiche(Reject);
             return;
@@ -304,7 +304,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                     " VALUES "
                     " ('" + PatNom + "', '" + PatPrenom + "', '" + PatDDN + "', NOW(), '" + PatCreePar +"' , '" + gSexePat +"');";
         QSqlQuery InsertPatQuery (insrequete,db);
-        if (proc->TraiteErreurRequete(InsertPatQuery,insrequete,tr("Impossible de créer le dossier")))
+        if (DataBase::getInstance()->traiteErreurRequete(InsertPatQuery,insrequete,tr("Impossible de créer le dossier")))
         {
             FermeFiche(Reject);
         }
@@ -313,7 +313,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                     " WHERE PatNom = '" + PatNom + "' AND PatPrenom = '" + PatPrenom + "' AND PatDDN = '" + PatDDN + "'";
 
         QSqlQuery ChercheIdPatientQuery (recuprequete,db);
-        if (proc->TraiteErreurRequete(ChercheIdPatientQuery,recuprequete,tr("Impossible de sélectionner les enregistrements")))
+        if (DataBase::getInstance()->traiteErreurRequete(ChercheIdPatientQuery,recuprequete,tr("Impossible de sélectionner les enregistrements")))
         {
             FermeFiche(Reject);
         }
@@ -321,7 +321,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         gidPatient = ChercheIdPatientQuery.value(0).toInt();              // retourne idPatient
         requete =   "INSERT INTO " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(gidPatient) + "')";
         QSqlQuery CreeDonneeSocialePatientQuery (requete,db);
-        proc->TraiteErreurRequete(CreeDonneeSocialePatientQuery,requete,tr("Impossible de créer les données sociales"));
+        DataBase::getInstance()->traiteErreurRequete(CreeDonneeSocialePatientQuery,requete,tr("Impossible de créer les données sociales"));
         FermeFiche(Accept);
     }
     else if (lCreatModifCopie == "Modification")
@@ -332,7 +332,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                 proc->CorrigeApostrophe(ui->PrenomlineEdit->text()) + "%' and PatDDN = '" +
                 ui->DDNdateEdit->date().toString("yyyy-MM-dd") + "'";
         QSqlQuery IdentPatientQuery (requete,db);
-        if (proc->TraiteErreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
+        if (DataBase::getInstance()->traiteErreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
             return;
         if (IdentPatientQuery.size() > 0)
         {
@@ -358,7 +358,7 @@ void    dlg_identificationpatient::Slot_AnnulpushButtonClicked()
         UpSmallButton *OKBouton = new UpSmallButton();
         OKBouton->setText(tr("Annuler la création"));
         UpSmallButton *NoBouton = new UpSmallButton();
-        msgbox.setText("Euuhh... " + proc->getDataUser()["UserLogin"].toString());
+        msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin());
         msgbox.setInformativeText(tr("Annuler la création de ce dossier ?"));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(NoBouton, UpSmallButton::CANCELBUTTON);
@@ -415,7 +415,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS
             " WHERE idPat = '" + QString::number(gidPatient) + "'";
     QSqlQuery AfficheDossierQuery (req,db);
-    if (proc->TraiteErreurRequete(AfficheDossierQuery,req, tr("Impossible de retrouver le dossier de ce patient")))
+    if (DataBase::getInstance()->traiteErreurRequete(AfficheDossierQuery,req, tr("Impossible de retrouver le dossier de ce patient")))
         return;
     if (AfficheDossierQuery.size() == 0)           // Aucune mesure trouvee pour ces criteres
         return;
@@ -447,7 +447,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
     req = "SELECT idPat, PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille, PatTelephone, PatPortable, PatMail, PatNNI, PatALD, PatProfession, PatCMU FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS
             " WHERE idPat = '" + QString::number(gidPatient) + "'";
     QSqlQuery DonneesSocialesQuery (req,db);
-    if (!proc->TraiteErreurRequete(DonneesSocialesQuery,req, tr("Impossible de retrouver les données sociales!")))
+    if (!DataBase::getInstance()->traiteErreurRequete(DonneesSocialesQuery,req, tr("Impossible de retrouver les données sociales!")))
     {
         if (DonneesSocialesQuery.size() > 0)
         {
@@ -497,7 +497,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
             NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
             " WHERE idPat = " + QString::number(gidPatient);
     QSqlQuery MGQuery (req,db);
-    if (!proc->TraiteErreurRequete(MGQuery,req, tr("Impossible de retrouver le médecin traitant!")))
+    if (!DataBase::getInstance()->traiteErreurRequete(MGQuery,req, tr("Impossible de retrouver le médecin traitant!")))
     {
         if (MGQuery.size() > 0)
         {
@@ -573,7 +573,7 @@ void dlg_identificationpatient::MAJMG()
             OKBouton->setText(tr("Enregistrer le correspondant"));
             UpSmallButton *NoBouton = new UpSmallButton();
             NoBouton->setText(tr("Annuler"));
-            msgbox.setText("Euuhh... " + proc->getDataUser()["UserLogin"].toString());
+            msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin());
             msgbox.setInformativeText(tr("Correspondant inconnu! Souhaitez-vous l'enregistrer?"));
             msgbox.setIcon(UpMessageBox::Warning);
             msgbox.addButton(NoBouton, UpSmallButton::CANCELBUTTON);
@@ -615,7 +615,7 @@ void dlg_identificationpatient::ReconstruitListeMG()
     ui->MGupComboBox->clear();
     QString req = "SELECT idCor, CorNom, CorPrenom FROM " NOM_TABLE_CORRESPONDANTS " where cormedecin = 1 order by cornom, corprenom";
     QSqlQuery ListMGQuery (req,db);
-    proc->TraiteErreurRequete(ListMGQuery,req,"");
+    DataBase::getInstance()->traiteErreurRequete(ListMGQuery,req,"");
     for (int i = 0; i < ListMGQuery.size(); i++)
     {
         ListMGQuery.seek(i);

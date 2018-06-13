@@ -67,7 +67,7 @@ private slots:
 
 private:
     void                    ModifGratuitChoixMenu(QString Choix);
-    bool                    ophtalmo;
+    /*bool                    ophtalmo;
     bool                    orthoptist;
     bool                    autresoignant;
     bool                    secretaire;
@@ -77,14 +77,14 @@ private:
     bool                    remplacant;
     bool                    pasremplacant;
     bool                    soignant;
-
+    */
     bool                    AppeleParFichePaiement;
     bool                    FermeALaFin;
     bool                    InitOK;
     bool                    TraiteparCloseFlag;
     bool                    ModifPaiementEnCours;
     bool                    ModifLigneRecettePossible;
-    int                     gidUser;
+    //int                     gidUser;
     int                     gidUserACrediter;
     int                     gFicheMode;
     int                     idRecette;
@@ -105,8 +105,8 @@ private:
     QList<QString>          LigneRecetteAModifier;
     QList<QString>          LigneDepenseAModifier;
     QList<QString>          MontantActesAModifier;
-    QMap<QString,QVariant>  gDataUser;
-    QMap<QString,QVariant>  gPersoDataUser;
+    User                    *gDataUser;
+    User                    *gPersoDataUser;
     QStandardItemModel      *glistComptesEncaissmt;
     QStandardItemModel      *glistComptesEncaissmtAvecDesactive;
     QStandardItemModel      *gListeParentsModel;

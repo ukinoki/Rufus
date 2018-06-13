@@ -254,18 +254,10 @@ private:
     QTimer                  *gTimerSalleDAttente, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerSupprDocs;
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
-    QSqlDatabase            db;
 
-    QMap<QString,QVariant>  gDataUser;
+    User                    gDataUser;
+    User                    *gDataUser2;
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
-    QString                 gUserDroits, gUserLogin, gUserFonction,
-                            gUserTitre, gUserNom, gUserPrenom, gUserAdresse1, gUserAdresse2, gUserAdresse3,
-                            gUserCodePostal, gUserVille, gUserTelephone, gUserMail, gUserSpecialite, gUserNumCO, gUserNumPS,
-                            gUserMDP, gUserPortable, gUserPoste, gUserFax, gUserWeb,
-                            gUserMemo, gUserPoliceEcran, gUserPoliceAttribut, gNomCompteEncaissHonoraires;
-    int                     gidUser, gidUserSuperviseur, gidUserParent, gidUserComptable;
-    int                     gUserNoSpecialite, gidCompteParDefaut, gidCompteEncaissHonoraires, gUserSecteur;
-    bool                    gUserLiberal, gUserDesactive, gUserAGA, gMedecin, gUserOPTAM;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
     UpLabel                 *gAskinflabel;
     UpLineEdit              *gAsklinetitre;

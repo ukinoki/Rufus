@@ -29,9 +29,9 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uplineedit.h"
 #include "uptextedit.h"
 #include "widgetbuttonframe.h"
-#include "functordatauser.h"
 #include "functormajpremierelettre.h"
 #include "macros.h"
+#include "cls_user.h"
 
 /* sert à gérer les comptes utilisateurs
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
@@ -69,7 +69,6 @@ private:
     bool                    respliberal;
     bool                    soigntnonrplct;
 
-    FunctorDataUser         fdatauser;
     FunctorMAJPremiereLettre fMAJPremiereLettre;
     dlg_gestioncomptes      *Dlg_GestComptes;
     UpDialog                *gAsk;
@@ -79,7 +78,7 @@ private:
         enum gMode          {Creer, Modifier, PremierUsr};
     int                     gidUserDepart;
     int                     gidLieu;
-    QMap<QString,QVariant>  OtherUser;
+    User                    *OtherUser;
     QString                 gLoginupLineEdit, gMDPupLineEdit, gConfirmMDPupLineEdit;
     QString                 gLibActiv, gNoLibActiv;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
@@ -100,7 +99,7 @@ private:
     bool                    VerifFiche();
 
     bool                    setDataUser(int id);
-    QMap<QString,QVariant>  DataUser();
+    User*                   DataUser();
     WidgetButtonFrame       *widgButtons;
     void                    CreerUser();
     void                    ModifUser();

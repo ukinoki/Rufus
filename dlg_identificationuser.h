@@ -39,8 +39,6 @@ public:
     explicit dlg_identificationuser(bool ChgUser = false, QWidget *parent = Q_NULLPTR);
     ~dlg_identificationuser();
     Ui::dlg_identificationuser *ui;
-    //QMap<QString,QString>   getParamConnexion();
-    //int                     getidUser();
 
 
 private slots:
@@ -49,10 +47,8 @@ private slots:
 
 private:
     int                     ControleDonnees();
-    //void                    Pause(int msec);
     int                     gidUser, gPort;
-    //QMap<QString,QString>   gmap;
-    QTimer                  *gTimerControl;
+    //QTimer                  *gTimerControl;
     bool                    gChgUsr;
     bool                    eventFilter(QObject *, QEvent *);
 };

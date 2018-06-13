@@ -128,7 +128,7 @@ void dlg_recettes::Slot_ImprimeEtat()
     bool AvecNumPage = false;
 
     //création de l'entête
-    if (!proc->setDataOtherUser(gSupervbox->currentData().toInt()).value("Success").toBool())
+    if (proc->setDataOtherUser(gSupervbox->currentData().toInt()) == nullptr)
     {
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;

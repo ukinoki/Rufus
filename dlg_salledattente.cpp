@@ -26,11 +26,11 @@ dlg_salledattente::dlg_salledattente(int *idPatAPasser, int *idActeAPasser, QStr
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc                = procAPAsser;
     gidPatient          = *idPatAPasser;
-    gidUser             = proc->getDataUser()["idUser"].toInt();
-    gidUserSuperviseur  = proc->getDataUser()["UserSuperviseur"].toInt();
+    gidUser             = proc->getDataUser()->id();
+    gidUserSuperviseur  = proc->getDataUser()->getIdUserActeSuperviseur();
     gTitre              = *Titre;
     gidActe             = *idActeAPasser;
-    db                  = proc->getDataBase();
+    db                  = DataBase::getInstance()->getDataBase();
     QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(layout());
     ui->MessagetextEdit->setText(gTitre);
     ui->MessagetextEdit->document()->setTextWidth(width()-globallay->contentsMargins().left()*2-2);
@@ -56,7 +56,7 @@ dlg_salledattente::dlg_salledattente(int *idPatAPasser, int *idActeAPasser, QStr
             " AND usr.idUser = connectusr.idUser";
     //proc->Edit( Usersrequete);
     QSqlQuery ListUserQuery(Usersrequete,db);
-    proc->TraiteErreurRequete(ListUserQuery,Usersrequete,"");
+    DataBase::getInstance()->traiteErreurRequete(ListUserQuery,Usersrequete,"");
 
     if (ListUserQuery.size() == 0)
     {
@@ -126,7 +126,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
 
     QString saldatrequete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(gidPatient);
     QSqlQuery SalDatQuery(saldatrequete,db);
-    proc->TraiteErreurRequete(SalDatQuery,saldatrequete,tr("Impossible de trouver le dossier dans la salle d'attente!"));
+    DataBase::getInstance()->traiteErreurRequete(SalDatQuery,saldatrequete,tr("Impossible de trouver le dossier dans la salle d'attente!"));
     QString MsgErreur;
     if (SalDatQuery.size() == 0)
     {
@@ -152,7 +152,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     }
     //proc->Edit(saldatrequete);
     QSqlQuery ModifSalDatQuery(saldatrequete,db);
-    proc->TraiteErreurRequete(ModifSalDatQuery,saldatrequete,MsgErreur);
+    DataBase::getInstance()->traiteErreurRequete(ModifSalDatQuery,saldatrequete,MsgErreur);
     proc->UpdVerrouSalDat();
     accept();
 }

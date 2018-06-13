@@ -45,7 +45,7 @@ private:
     Procedures              *proc;
     QString                 CouleurTitres;
     QDate                   DateBO;
-    QMap<QString,QVariant>  gDataUser;
+    User                    *gDataUser;
 
     // anciens slots
     void                    AfficheCombobox(int i, QWidget *widg);

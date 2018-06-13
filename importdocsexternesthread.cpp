@@ -24,9 +24,9 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
     moveToThread(thread);
     proc            = proced;
     EnCours         = false;
-    Acces           = (proc->getModeConnexion()!=Procedures::Distant? Local : Distant);
-    idLieuExercice  = proc->getDataUser()["idLieu"].toInt();
-    db              = proc->getDataBase();
+    Acces           = (DataBase::getInstance()->getMode()!=DataBase::Distant? Local : Distant);
+    idLieuExercice  = proc->getDataUser()->getIdLieu();
+    db              = DataBase::getInstance()->getDataBase();
     RapatrieDocumentsThread();
     thread          ->exit();
 }
@@ -50,7 +50,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread()
     docsquer.first();
     for (int itr=0; itr<docsquer.size(); itr++)
     {
-        QString NomDirDoc         = proc->getDossierDocuments(docsquer.value(1).toString(), proc->getModeConnexion());
+        QString NomDirDoc         = proc->getDossierDocuments(docsquer.value(1).toString(), DataBase::getInstance()->getMode());
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -458,13 +458,13 @@ void ImportDocsExternesThread::RapatrieDocumentsThread()
                                                                " UserEmetteur, lienversfichier, EmisRecu, FormatDoc, idLieu)"
                                                                " values("
                             + QString::number(idimpr) + ", "
-                            + QString::number(proc->getidUser()) + ", "
+                            + QString::number(DataBase::getInstance()->getUserConnected()->id()) + ", "
                             + idPatient + ", '"
                             + Typedoc + "', '"
                             + SousTypeDoc + "', '"
                             + Titredoc + "', '"
                             + datestring + " " + QTime::currentTime().toString("HH:mm:ss") + "', "
-                            + QString::number(proc->getidUser()) + ", '"
+                            + QString::number(DataBase::getInstance()->getUserConnected()->id()) + ", '"
                             + "/" + datetransfer + "/" + NomFileDoc + "', "
                             + "0" + ", '"
                             IMAGERIE "', "
@@ -526,13 +526,13 @@ void ImportDocsExternesThread::RapatrieDocumentsThread()
                           " values(:idimpr, :iduser, :idpat, :typeDoc, :soustypedoc, :titre, :dateimpression, :useremetteur, :doc, :emisrecu, :formatdoc, :lieu)";
                     query.prepare(req);
                     query.bindValue(":idimpr",          QString::number(idimpr));
-                    query.bindValue(":iduser",          QString::number(proc->getidUser()));
+                    query.bindValue(":iduser",          QString::number(DataBase::getInstance()->getUserConnected()->id()));
                     query.bindValue(":idpat",           idPatient);
                     query.bindValue(":typeDoc",         Typedoc);
                     query.bindValue(":soustypedoc",     SousTypeDoc);
                     query.bindValue(":titre",           Titredoc);
                     query.bindValue(":dateimpression",  datestring + " " + QTime::currentTime().toString("HH:mm:ss"));
-                    query.bindValue(":useremetteur",    QString::number(proc->getidUser()));
+                    query.bindValue(":useremetteur",    QString::number(DataBase::getInstance()->getUserConnected()->id()));
                     query.bindValue(":doc",             ba);
                     query.bindValue(":emisrecu",        "0");
                     query.bindValue(":formatdoc",       IMAGERIE);
@@ -593,19 +593,19 @@ void ImportDocsExternesThread::RapatrieDocumentsThread()
 bool ImportDocsExternesThread::DefinitDossiers()
 {
     QString NomOnglet;
-    if (proc->getModeConnexion() == Procedures::Poste)
+    if (DataBase::getInstance()->getMode() == DataBase::Poste)
     {
         NomOnglet = tr("Monoposte");
         QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, db);
         dirquer.first();
         NomDirStockageImagerie = dirquer.value(0).toString();
     }
-    if (proc->getModeConnexion() == Procedures::ReseauLocal)
+    if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
     {
         NomOnglet = tr("Réseau local");
         NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
     }
-    if (proc->getModeConnexion() == Procedures::Distant)
+    if (DataBase::getInstance()->getMode() == DataBase::Distant)
     {
         NomOnglet = tr("Accès distant");
         NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_DISTANT/DossierImagerie").toString();

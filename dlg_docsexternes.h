@@ -59,7 +59,7 @@ private:
     QGraphicsPixmapItem     *jpgItem;
     PlayerControls          *playctrl;
     QMediaPlayer            *player;
-    QMap<QString,QVariant>  gDataUser;
+    User                    *gDataUser;
     QStandardItemModel      *gmodele, *gmodeleTriParDate, *gmodeleTriParType;
     QSqlQuery               TreeQuery;
     QSortFilterProxyModel   *gproxymodele;

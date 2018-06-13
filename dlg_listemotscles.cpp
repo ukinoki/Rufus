@@ -136,15 +136,15 @@ void dlg_listemotscles::Slot_VerifMC()
     if (gAskDialog->mode()=="Creation")
     {
         QString req = "insert into " NOM_TABLE_MOTSCLES " (MotCle) values('" + proc->CorrigeApostrophe(nouvMC) + "')";
-        QSqlQuery (req, proc->getDataBase());
+        QSqlQuery (req, DataBase::getInstance()->getDataBase());
     }
     else if (gAskDialog->mode()=="Modif")
     {
         QString req = "update " NOM_TABLE_MOTSCLES " set MotCle = '" + proc->CorrigeApostrophe(nouvMC) + "' where MotCle = '"
                    + gmodele->itemFromIndex(gselection->currentIndex())->text() + "'";
-        QSqlQuery (req, proc->getDataBase());
+        QSqlQuery (req, DataBase::getInstance()->getDataBase());
     }
-    QSqlQuery ("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat), proc->getDataBase());
+    QSqlQuery ("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat), DataBase::getInstance()->getDataBase());
     QStringList listidMc;
     for (int i=0; i< gmodele->rowCount(); i++)
         if(gmodele->item(i,0)->checkState() == Qt::Checked)
@@ -155,7 +155,7 @@ void dlg_listemotscles::Slot_VerifMC()
         req += "(" + QString::number(idpat) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
             req += ", (" + QString::number(idpat) + ", " + listidMc.at(j) + ")";
-        QSqlQuery (req,proc->getDataBase());
+        QSqlQuery (req,DataBase::getInstance()->getDataBase());
     }
     RemplirTableView();
     gAskDialog->accept();
@@ -178,7 +178,7 @@ void dlg_listemotscles::SupprMC()
     if (msgbox.clickedButton() == OKBouton)
     {
         QString req = "delete from " NOM_TABLE_MOTSCLES " where idmotcle = " + gmodele->itemFromIndex(gselection->currentIndex())->accessibleDescription();
-        QSqlQuery (req, proc->getDataBase());
+        QSqlQuery (req, DataBase::getInstance()->getDataBase());
         RemplirTableView();
     }
 }
@@ -191,7 +191,7 @@ void dlg_listemotscles::Slot_Enablebuttons()
 
 void dlg_listemotscles::Slot_OK()
 {
-    QSqlQuery ("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat), proc->getDataBase());
+    QSqlQuery ("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat), DataBase::getInstance()->getDataBase());
     QStringList listidMc;
     for (int i=0; i< gmodele->rowCount(); i++)
         if(gmodele->item(i,0)->checkState() == Qt::Checked)
@@ -202,7 +202,7 @@ void dlg_listemotscles::Slot_OK()
         req += "(" + QString::number(idpat) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
             req += ", (" + QString::number(idpat) + ", " + listidMc.at(j) + ")";
-        QSqlQuery (req,proc->getDataBase());
+        QSqlQuery (req,DataBase::getInstance()->getDataBase());
     }
     accept();
 }
@@ -220,7 +220,7 @@ QStringList dlg_listemotscles::listMCDepart()
 void dlg_listemotscles::RemplirTableView()
 {
      QString req = "select idMotcle from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat);
-     QSqlQuery querMC(req,proc->getDataBase());
+     QSqlQuery querMC(req,DataBase::getInstance()->getDataBase());
      QStringList listidMC;
      bool a = glistidMCdepart.contains("-1");
      glistidMCdepart.clear();
@@ -236,7 +236,7 @@ void dlg_listemotscles::RemplirTableView()
          }
      }
      req = "select idmotcle, motcle from " NOM_TABLE_MOTSCLES " order by motcle";
-     QSqlQuery quer(req,proc->getDataBase());
+     QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
 
      quer.first();
 

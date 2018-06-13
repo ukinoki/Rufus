@@ -55,8 +55,8 @@ dlg_creeracte::~dlg_creeracte()
 void dlg_creeracte::Initialise(Procedures *procAPasser)
 {
     proc                    = procAPasser;
-    gidUser                 = proc->getidUser();
-    gSecteurUser            = proc->getDataUser()["Secteur"].toInt();
+    gidUser                 = DataBase::getInstance()->getUserConnected()->id();
+    gSecteurUser            = proc->getDataUser()->getSecteur();
     if (gTypeActe != HorsNomenclature)
     {
         ui->CodeActeupLineEdit    ->setValidator(new QRegExpValidator(proc->getrxCot(),this));
@@ -108,7 +108,7 @@ void dlg_creeracte::Initialise(Procedures *procAPasser)
 
     if (gMode == Creation)
     {
-        QSqlQuery typeactequery(req,proc->getDataBase());
+        QSqlQuery typeactequery(req,DataBase::getInstance()->getDataBase());
         if (typeactequery.size()>0)
         {
             for (int i=0; i<typeactequery.size(); i++)
@@ -125,7 +125,7 @@ void dlg_creeracte::Initialise(Procedures *procAPasser)
     {
         ui->CodeActeupLineEdit->setText(gCodeActe);
         req = " select montantoptam, montantnonoptam, montantpratique from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
-        QSqlQuery actequer(req,proc->getDataBase());
+        QSqlQuery actequer(req,DataBase::getInstance()->getDataBase());
         if (actequer.size()>0)
         {
             actequer.first();
@@ -169,7 +169,7 @@ bool dlg_creeracte::VerifFiche()
         if (gMode == Creation)
         {
             req = "select from " NOM_TABLE_COTATIONS " where typeacte = " + ui->CodeActeupLineEdit->text() + " and CCAM = 2 and idUser = " + QString::number(gidUser);
-            QSqlQuery quer1(req,proc->getDataBase());
+            QSqlQuery quer1(req,DataBase::getInstance()->getDataBase());
             if (quer1.size()>0)
             {
                 a = false;
@@ -209,7 +209,7 @@ bool dlg_creeracte::VerifFiche()
         if (gMode == Creation)
         {
             req = "select from " NOM_TABLE_COTATIONS " where typeacte = " + ui->CodeActeupLineEdit->text() + " and CCAM = 3 and idUser = " + QString::number(gidUser);
-            QSqlQuery quer1(req,proc->getDataBase());
+            QSqlQuery quer1(req,DataBase::getInstance()->getDataBase());
             if (quer1.size()>0)
             {
                 a = false;
@@ -245,7 +245,7 @@ bool dlg_creeracte::VerifFiche()
     }
     if (!a)
         return false;
-    QSqlQuery quer(req,proc->getDataBase());
-    proc->TraiteErreurRequete(quer,req,"");
+    QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
+    DataBase::getInstance()->traiteErreurRequete(quer,req,"");
     return true;
 }

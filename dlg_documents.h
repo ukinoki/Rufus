@@ -78,7 +78,7 @@ private:
     QGraphicsOpacityEffect      *gOp;
     QList<int>                  glistidCor;
     QMap<QString,QString>       gChampsMap;
-    QMap<QString,QVariant>      gDataUser;
+    User                        *gDataUser;
     QStringList                 glisttxt;
     UpDialog                    *gAsk;
     UpDialog                    *gAskDialog;

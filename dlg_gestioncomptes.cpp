@@ -20,7 +20,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 
-dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlDatabase gdb,
+dlg_gestioncomptes::dlg_gestioncomptes(User *DataUser, QSqlDatabase gdb,
                                        bool societe, bool AfficheLeSolde, QWidget *parent) :
     UpDialog(parent),
     ui(new Ui::dlg_gestioncomptes)
@@ -29,9 +29,9 @@ dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlData
     db                      = gdb;
     gDataUser               = DataUser;
 
-    gidUser                 = gDataUser.value("idUser").toInt();
+    gidUser                 = gDataUser->id();
 
-    gidCompteParDefaut      = gDataUser.value("idCompteParDefaut").toString().toInt();
+    gidCompteParDefaut      = gDataUser->getIdCompteParDefaut();
     gSociete                = societe;
     gAfficheLeSolde         = AfficheLeSolde;
 
@@ -66,7 +66,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(QMap<QString,QVariant> DataUser, QSqlData
     val->setDecimals(2);
     ui->SoldeuplineEdit->setValidator(val);
 
-    gUserLogin          = gDataUser.value("UserLogin").toString();
+    gUserLogin          = gDataUser->getLogin();
     setWindowTitle(tr("Comptes bancaires de ") + gUserLogin);
 
     MetAJourListeBanques();
@@ -278,9 +278,9 @@ void dlg_gestioncomptes::CompteFactice()
         MetAJourListeBanques();
         ui->BanqueupcomboBox->setCurrentIndex(ui->BanqueupcomboBox->findData(idbanq));
         QString intit;
-        if (gDataUser.value("Titre").toString() != "")
-            intit += gDataUser.value("Titre").toString() + " ";
-        intit += gDataUser.value("Prenom").toString() + " " + gDataUser.value("Nom").toString();
+        if (gDataUser->getTitre().size() )
+            intit += gDataUser->getTitre() + " ";
+        intit += gDataUser->getPrenom() + " " + gDataUser->getNom();
         if (intit.remove(" ") == "") intit = "DOCTEUR EDWARD SNOWDEN";
         ui->IntituleCompteuplineEdit    ->setText(intit);
         int al = 0;

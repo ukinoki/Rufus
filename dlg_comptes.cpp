@@ -30,8 +30,8 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
-    QString ChercheComptesrequete = "SELECT NomCompteAbrege, idcompte from " NOM_TABLE_COMPTES " where idUser = " + QString::number(proc->getDataUser()["idUser"].toInt());
-    QSqlQuery ChercheComptesQuery (ChercheComptesrequete,proc->getDataBase());
+    QString ChercheComptesrequete = "SELECT NomCompteAbrege, idcompte from " NOM_TABLE_COMPTES " where idUser = " + QString::number(proc->getDataUser()->id());
+    QSqlQuery ChercheComptesQuery (ChercheComptesrequete,DataBase::getInstance()->getDataBase());
     if (ChercheComptesQuery.size() == 0)
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas de compte bancaire enregistré!"));
@@ -48,8 +48,8 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
             ui->BanquecomboBox->addItem(ChercheComptesQuery.value(0).toString(),ChercheComptesQuery.value(1));
         }
         QString chercheComptePrefereRequete = " select nomcompteabrege from " NOM_TABLE_COMPTES
-                " where idcompte in (select idcomptepardefaut from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(proc->getDataUser()["idUser"].toInt()) + ")";
-        QSqlQuery chercheComptePreferQuery (chercheComptePrefereRequete,proc->getDataBase());
+                " where idcompte in (select idcomptepardefaut from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(proc->getDataUser()->id()) + ")";
+        QSqlQuery chercheComptePreferQuery (chercheComptePrefereRequete,DataBase::getInstance()->getDataBase());
         if (chercheComptePreferQuery.size() > 0)
         {
             chercheComptePreferQuery.first();
@@ -57,7 +57,7 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
         }
         idCompte = ui->BanquecomboBox->currentData().toInt();
         QString SoldeComptereq = " select SoldeSurDernierReleve from " NOM_TABLE_COMPTES " where idCompte = " + QString::number(idCompte);
-        QSqlQuery SoldeCompteQuery (SoldeComptereq,proc->getDataBase());
+        QSqlQuery SoldeCompteQuery (SoldeComptereq,DataBase::getInstance()->getDataBase());
         if (SoldeCompteQuery.size() > 0)
         {
             SoldeCompteQuery.first();
@@ -97,16 +97,16 @@ dlg_comptes::~dlg_comptes()
 
 void dlg_comptes::AnnulArchive()
 {
-    QSqlQuery ("SET AUTOCOMMIT = 0;", proc->getDataBase());
+    QSqlQuery ("SET AUTOCOMMIT = 0;", DataBase::getInstance()->getDataBase());
     QString lockrequete = "LOCK TABLES " NOM_TABLE_ARCHIVESBANQUE " WRITE, " NOM_TABLE_LIGNESCOMPTES " WRITE, " NOM_TABLE_COMPTES " WRITE;";
-    QSqlQuery lockquery (lockrequete, proc->getDataBase());
-    if (proc->TraiteErreurRequete(lockquery,lockrequete, tr("Impossible de verrouiller ") +  NOM_TABLE_ARCHIVESBANQUE ", " NOM_TABLE_COMPTES + tr(" et ") + NOM_TABLE_LIGNESCOMPTES))
+    QSqlQuery lockquery (lockrequete, DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(lockquery,lockrequete, tr("Impossible de verrouiller ") +  NOM_TABLE_ARCHIVESBANQUE ", " NOM_TABLE_COMPTES + tr(" et ") + NOM_TABLE_LIGNESCOMPTES))
         return;
     QString CalcidArchiverequete = "select max(idArchive) from " NOM_TABLE_ARCHIVESBANQUE;
-    QSqlQuery query1(CalcidArchiverequete,proc->getDataBase());
-    if (proc->TraiteErreurRequete(query1,CalcidArchiverequete,""))
+    QSqlQuery query1(CalcidArchiverequete,DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(query1,CalcidArchiverequete,""))
     {
-        proc->rollback(proc->getDataBase());
+        proc->rollback();
         return;
     }
     query1.first();
@@ -114,20 +114,20 @@ void dlg_comptes::AnnulArchive()
 
     QString RestaureArchiverequete = "insert into " NOM_TABLE_LIGNESCOMPTES " select * from  (select idLigne, idCompte, idDep, idRec, LigneDate, LigneLibelle, LigneMontant,"
             "LigneDebitCredit, LigneTypeOperation, 1 as ligneConsolide from " NOM_TABLE_ARCHIVESBANQUE " where idarchive = " + QString::number(max) + ") as tet";
-    QSqlQuery query3(RestaureArchiverequete,proc->getDataBase());
-    if (proc->TraiteErreurRequete(query3,RestaureArchiverequete,""))
+    QSqlQuery query3(RestaureArchiverequete,DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(query3,RestaureArchiverequete,""))
     {
-        proc->rollback(proc->getDataBase());
+        proc->rollback();
         return;
     }
 
     // recalculer le solde
     double NouveauSolde = QLocale().toDouble(ui->MontantSoldeBrutlabel->text());
     QString CalcSolderequete = "select LigneMontant, LigneDebitCredit from " NOM_TABLE_LIGNESCOMPTES " where idcompte = " + QString::number(idCompte);
-    QSqlQuery query2(CalcSolderequete,proc->getDataBase());
-    if (proc->TraiteErreurRequete(query2,CalcSolderequete,""))
+    QSqlQuery query2(CalcSolderequete,DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(query2,CalcSolderequete,""))
     {
-        proc->rollback(proc->getDataBase());
+        proc->rollback();
         return;
     }
 
@@ -147,24 +147,24 @@ void dlg_comptes::AnnulArchive()
     }
 
     QString SupprimArchiverequete = " delete from " NOM_TABLE_ARCHIVESBANQUE " where idarchive = " + QString::number(max);
-    QSqlQuery query4(SupprimArchiverequete,proc->getDataBase());
-    if (proc->TraiteErreurRequete(query4,SupprimArchiverequete,""))
+    QSqlQuery query4(SupprimArchiverequete,DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(query4,SupprimArchiverequete,""))
     {
-        proc->rollback(proc->getDataBase());
+        proc->rollback();
         return;
     }
 
 
     QString UpdateSolderequete = "update " NOM_TABLE_COMPTES " set SoldeSurDernierReleve = " + QString::number(NouveauSolde,'f',2)
                                     + " where idCompte = " + QString::number(idCompte);
-    QSqlQuery query5(UpdateSolderequete,proc->getDataBase());
-    if (proc->TraiteErreurRequete(query5,UpdateSolderequete,""))
+    QSqlQuery query5(UpdateSolderequete,DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(query5,UpdateSolderequete,""))
     {
-        proc->rollback(proc->getDataBase());
+        proc->rollback();
         return;
     }
 
-    proc->commit(proc->getDataBase());
+    proc->commit();
     SoldeSurReleve = NouveauSolde;
     ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
     gBigTable->clearContents();
@@ -197,17 +197,17 @@ void dlg_comptes::Archiver()
         UpMessageBox::Watch(this,tr("Il n'y a pas d'écriture à archiver!"));
         return;
     }
-    QSqlQuery ("SET AUTOCOMMIT = 0;", proc->getDataBase());
+    QSqlQuery ("SET AUTOCOMMIT = 0;", DataBase::getInstance()->getDataBase());
     QString lockrequete = "LOCK TABLES " NOM_TABLE_ARCHIVESBANQUE " WRITE, " NOM_TABLE_LIGNESCOMPTES " WRITE, " NOM_TABLE_COMPTES " WRITE;";
-    QSqlQuery lockquery (lockrequete, proc->getDataBase());
-    if (proc->TraiteErreurRequete(lockquery,lockrequete, tr("Impossible de verrouiller ") + NOM_TABLE_ARCHIVESBANQUE ", "  NOM_TABLE_COMPTES + tr(" et ") + NOM_TABLE_LIGNESCOMPTES))
+    QSqlQuery lockquery (lockrequete, DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(lockquery,lockrequete, tr("Impossible de verrouiller ") + NOM_TABLE_ARCHIVESBANQUE ", "  NOM_TABLE_COMPTES + tr(" et ") + NOM_TABLE_LIGNESCOMPTES))
         return;
 
     QString CalcidArchiverequete = "select max(idArchive) from " NOM_TABLE_ARCHIVESBANQUE;
-    QSqlQuery query1(CalcidArchiverequete,proc->getDataBase());
-    if (proc->TraiteErreurRequete(query1,CalcidArchiverequete,""))
+    QSqlQuery query1(CalcidArchiverequete,DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(query1,CalcidArchiverequete,""))
     {
-        proc->rollback(proc->getDataBase());
+        proc->rollback();
         return;
     }
     query1.first();
@@ -223,18 +223,18 @@ void dlg_comptes::Archiver()
       reponse += "," + QString::number(ListeActesAArchiver.at(i));
     Archiverequete += reponse + ")) as tet";
 
-    QSqlQuery query2 (Archiverequete, proc->getDataBase());
-    if (proc->TraiteErreurRequete(query2,Archiverequete,""))
+    QSqlQuery query2 (Archiverequete, DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(query2,Archiverequete,""))
     {
-        proc->rollback(proc->getDataBase());
+        proc->rollback();
         return;
     }
 
     QString ArchiveCompterequete = " delete from " NOM_TABLE_LIGNESCOMPTES " where idligne in " + reponse + ")";
-    QSqlQuery query3(ArchiveCompterequete, proc->getDataBase());
-    if (proc->TraiteErreurRequete(query3,ArchiveCompterequete,""))
+    QSqlQuery query3(ArchiveCompterequete, DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(query3,ArchiveCompterequete,""))
     {
-        proc->rollback(proc->getDataBase());
+        proc->rollback();
         return;
     }
 
@@ -243,14 +243,14 @@ void dlg_comptes::Archiver()
 
     QString UpdateSolderequete = "update " NOM_TABLE_COMPTES " set SoldeSurDernierReleve = " + QString::number(SoldeSurReleve,'f',2)
                                     + " where idCompte = " + QString::number(idCompte);
-    QSqlQuery query4(UpdateSolderequete,proc->getDataBase());
-    if (proc->TraiteErreurRequete(query4,UpdateSolderequete,""))
+    QSqlQuery query4(UpdateSolderequete,DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(query4,UpdateSolderequete,""))
     {
-        proc->rollback(proc->getDataBase());
+        proc->rollback();
         return;
     }
 
-    proc->commit(proc->getDataBase());
+    proc->commit();
     gBigTable->clearContents();
     RemplitLaTable(idCompte);
 }
@@ -268,7 +268,7 @@ void dlg_comptes::AnnulConsolidations()
         }
     }
     QString MetAJourConsoliderequete = "update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = null";
-    QSqlQuery (MetAJourConsoliderequete,proc->getDataBase());
+    QSqlQuery (MetAJourConsoliderequete,DataBase::getInstance()->getDataBase());
     CalculeTotal();
 }
 
@@ -300,7 +300,7 @@ void dlg_comptes::RenvoieRangee(bool Coche, UpCheckBox* Check)
     else
         MetAJourConsoliderequete += "null";
     MetAJourConsoliderequete += " where idligne = " + idLigne;
-    QSqlQuery (MetAJourConsoliderequete,proc->getDataBase());
+    QSqlQuery (MetAJourConsoliderequete,DataBase::getInstance()->getDataBase());
     CalculeTotal();
 }
 
@@ -324,7 +324,7 @@ void dlg_comptes::SupprimerEcriture(QString msg)
     if (msgbox->clickedButton() == OKBouton)
     {
         QString req = "delete from " NOM_TABLE_LIGNESCOMPTES " where idligne = " + QString::number(gidLigneASupprimer);
-        QSqlQuery(req,proc->getDataBase());
+        QSqlQuery(req,DataBase::getInstance()->getDataBase());
         RemplitLaTable(idCompte);
     }
     delete OKBouton;
@@ -375,7 +375,7 @@ void dlg_comptes::ChangeCompte(int idx)
 {
     idCompte = ui->BanquecomboBox->itemData(idx).toInt();
     QString SoldeComptereq = " select SoldeSurDernierReleve from " NOM_TABLE_COMPTES " where idcompte = " + QString::number(idCompte);
-    QSqlQuery SoldeCompteQuery (SoldeComptereq,proc->getDataBase());
+    QSqlQuery SoldeCompteQuery (SoldeComptereq,DataBase::getInstance()->getDataBase());
     if (SoldeCompteQuery.size() > 0)
     {
         SoldeCompteQuery.first();
@@ -516,8 +516,8 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
     QPointer<QHBoxLayout> l;
     QString     A;
 
-    QSqlQuery LignesComptesQuery (LignesComptesrequete,proc->getDataBase());
-    if (proc->TraiteErreurRequete(LignesComptesQuery,LignesComptesrequete, tr("Impossible de construire la table des comptes")))
+    QSqlQuery LignesComptesQuery (LignesComptesrequete,DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(LignesComptesQuery,LignesComptesrequete, tr("Impossible de construire la table des comptes")))
         reject();
 
     if (LignesComptesQuery.size() == 0)

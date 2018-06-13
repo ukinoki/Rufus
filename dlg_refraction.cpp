@@ -29,11 +29,11 @@ dlg_refraction::dlg_refraction(int *idPatAPasser, QString *NomPatient, QString *
     gidPatient      = *idPatAPasser;
     gNomPatient     = *NomPatient;
     gPrenomPatient  = *PrenomPatient;
-    gidUser         = proc->getDataUser()["idUser"].toInt();
+    gidUser         = proc->getDataUser()->id();
     gidActe         = *idActeAPasser;
     gAgePatient     = *AgeAPasser;
 
-    db = proc->getDataBase();
+    db = DataBase::getInstance()->getDataBase();
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     InitDivers();
@@ -1300,7 +1300,7 @@ void dlg_refraction::AfficherLaMesure()
     }
     QString LocalRequete = "SELECT  idRefraction FROM " NOM_TABLE_REFRACTION " WHERE  idPat = " + QString::number(gidPatient) ;
     QSqlQuery CompteRefractionsQuery (LocalRequete,db);
-    proc->TraiteErreurRequete(CompteRefractionsQuery,LocalRequete,"");
+    DataBase::getInstance()->traiteErreurRequete(CompteRefractionsQuery,LocalRequete,"");
     if (CompteRefractionsQuery.size() == 0)
     {
         ui->OupsPushButton->setEnabled(false);
@@ -1691,14 +1691,14 @@ int dlg_refraction::DetruireLaMesure(int IdRefract)
 //1. On supprime la mesure de la table
     QString requete = "DELETE  FROM " NOM_TABLE_REFRACTION " WHERE  idRefraction = " + QString::number(IdRefract);
     QSqlQuery DetruireMesureQuery (requete,db);
-    proc->TraiteErreurRequete(DetruireMesureQuery,requete, "Impossible de supprimer la mesure");
+    DataBase::getInstance()->traiteErreurRequete(DetruireMesureQuery,requete, "Impossible de supprimer la mesure");
 
 //2. s'il n'y a plus de mesures pour le patient => on cache les boutons Oups, Resume et Reprendre
     QString LocalRequete = "SELECT  idRefraction"
               " FROM " NOM_TABLE_REFRACTION
               " WHERE  idPat = " + QString::number(gidPatient) ;
     QSqlQuery   CompteRefractionsQuery (LocalRequete,db);
-    proc->TraiteErreurRequete(CompteRefractionsQuery,LocalRequete,"");
+    DataBase::getInstance()->traiteErreurRequete(CompteRefractionsQuery,LocalRequete,"");
     if (CompteRefractionsQuery.size() == 0)
     {
         ui->OupsPushButton->setEnabled(false);
@@ -1790,7 +1790,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    proc->setDataOtherUser(proc->getDataUser()["UserSuperviseur"].toInt());
+    proc->setDataOtherUser(proc->getDataUser()->getIdUserActeSuperviseur());
     Entete = proc->ImpressionEntete(ui->DateDateEdit->date()).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
@@ -1833,7 +1833,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         query.bindValue(":ald", QVariant(QVariant::String));
         query.bindValue(":emisrecu", "0");
         query.bindValue(":formatdoc", PRESCRIPTIONLUNETTES);
-        query.bindValue(":idlieu", proc->getDataUser()["idLieu"].toString());
+        query.bindValue(":idlieu", QString::number(proc->getDataUser()->getIdLieu()));
 
         if(!query.exec())
             UpMessageBox::Watch(this, tr("Impossible d'enregistrer ce document dans la base!"));
@@ -2111,7 +2111,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
        InsertDonneesOphtaQuery.bindValue(gstringListe1.at(i), gstringListe2.at(i));
    }
    InsertDonneesOphtaQuery.exec();
-   if (proc->TraiteErreurRequete(InsertDonneesOphtaQuery,requete, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS))
+   if (DataBase::getInstance()->traiteErreurRequete(InsertDonneesOphtaQuery,requete, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS))
        return;
 }
 
@@ -2310,7 +2310,7 @@ bool dlg_refraction::InsertRefraction()
     for (int i = 0; i< gstringListe1.size(); i++)
         InsertRefractionQuery.bindValue(gstringListe1.at(i), gstringListe2.at(i));
     InsertRefractionQuery.exec();
-    return !proc->TraiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création dans ") + NOM_TABLE_REFRACTION);
+    return !DataBase::getInstance()->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création dans ") + NOM_TABLE_REFRACTION);
 }
 
 //---------------------------------------------------------------------------------
@@ -2364,7 +2364,7 @@ int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun,
     requete += " ORDER BY DateRefraction, idRefraction";
 
     QSqlQuery LectureMesureQuery (requete,db);
-    if (proc->TraiteErreurRequete(LectureMesureQuery,requete,"Impossible d'accéder à la liste table des mesures!"))
+    if (DataBase::getInstance()->traiteErreurRequete(LectureMesureQuery,requete,"Impossible d'accéder à la liste table des mesures!"))
         return 0;
     if (LectureMesureQuery.size() == 0) return 0;
     LectureMesureQuery.last();
@@ -2461,7 +2461,7 @@ void dlg_refraction::MajDonneesOphtaPatient()
               " WHERE   (idPat = " + QString::number(gidPatient) +
               " AND QuelleMesure = '" + QuelleMesure() + "')";
     QSqlQuery MAJDonnesOphtaQuery (MAJrequete,db);
-    if(proc->TraiteErreurRequete(MAJDonnesOphtaQuery,MAJrequete,"Impossible de se connecter à la table des Donnees biométriques!"))
+    if(DataBase::getInstance()->traiteErreurRequete(MAJDonnesOphtaQuery,MAJrequete,"Impossible de se connecter à la table des Donnees biométriques!"))
         return;
     else
     {
@@ -2625,7 +2625,7 @@ void dlg_refraction::RechercheMesureEnCours()
               " WHERE IdPat = " + QString::number(gidPatient) + " and quellemesure <> 'null'" ;
     //proc->Edit(selrequete);
     QSqlQuery RechercheMesureQuery1 (selrequete,db);
-    proc->TraiteErreurRequete(RechercheMesureQuery1,selrequete,"");
+    DataBase::getInstance()->traiteErreurRequete(RechercheMesureQuery1,selrequete,"");
     if (RechercheMesureQuery1.size() == 0)
     {
         gMode = Porte;
@@ -2647,7 +2647,7 @@ void dlg_refraction::RechercheMesureEnCours()
                   " WHERE DateRefraction = '" + QDate::currentDate().toString("yyyy-MM-dd") +
                   "' AND   IdPat = " + QString::number(gidPatient) ;
         QSqlQuery RechercheMesureQuery2 (selrequete,db);
-        proc->TraiteErreurRequete(RechercheMesureQuery2,selrequete,"");
+        DataBase::getInstance()->traiteErreurRequete(RechercheMesureQuery2,selrequete,"");
         if (RechercheMesureQuery2.size() == 0)  break;
         RechercheMesureQuery2.first();
         for (int i = 0; i<RechercheMesureQuery2.size();i++)
@@ -2761,7 +2761,7 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
     requete += " ORDER BY DateRefraction ASC ";
 
     QSqlQuery RechercheResultatQuery(requete,db);
-    proc->TraiteErreurRequete(RechercheResultatQuery,requete,"");
+    DataBase::getInstance()->traiteErreurRequete(RechercheResultatQuery,requete,"");
     if (RechercheResultatQuery.size() == 0) return "";                                        // Aucune mesure trouvee pour ces criteres
     RechercheResultatQuery.last();
     zdate = RechercheResultatQuery.value(2).toDate().toString(tr("dd-MM-yyyy"));                        // date YYYY-MM-DD
@@ -2777,7 +2777,7 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
             requete     = requeteBase + " AND OGcoche =  true  ";
             requete     += " ORDER BY DateRefraction DESC ";
             QSqlQuery RechercheResultatODQuery(requete,db);
-            proc->TraiteErreurRequete(RechercheResultatODQuery,requete,"");
+            DataBase::getInstance()->traiteErreurRequete(RechercheResultatODQuery,requete,"");
             if (RechercheResultatODQuery.isActive() && RechercheResultatODQuery.next())
             {
                 zdate      = RechercheResultatODQuery.value(2).toDate().toString(tr("dd-MM-yyyy"));
@@ -2794,7 +2794,7 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
                 requete     = requeteBase + " AND ODcoche =  true  ";
                 requete     += " ORDER BY DateRefraction DESC ";
                 QSqlQuery RechercheResultatOGQuery(requete,db);
-                proc->TraiteErreurRequete(RechercheResultatOGQuery,requete,"");
+                DataBase::getInstance()->traiteErreurRequete(RechercheResultatOGQuery,requete,"");
                 if (RechercheResultatOGQuery.isActive() && RechercheResultatOGQuery.next())
                 {
                     zdate  = RechercheResultatOGQuery.value(2).toDate().toString(tr("dd-MM-yyyy"));
@@ -2837,7 +2837,7 @@ QString dlg_refraction::RechercheVerres()
                     " ORDER  BY DateRefraction DESC ";
 
     QSqlQuery RechercheVerresQuery(requete,db);
-    proc->TraiteErreurRequete(RechercheVerresQuery,requete,"");
+    DataBase::getInstance()->traiteErreurRequete(RechercheVerresQuery,requete,"");
     RechercheVerresQuery.first();
     for (int i = 0; i < RechercheVerresQuery.size(); i++)
         {
@@ -3470,10 +3470,10 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
             case 4:
-                gResultatRnondil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + proc->getDataUser()["UserLogin"].toString() + "</td>";
+                gResultatRnondil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + proc->getDataUser()->getLogin() + "</td>";
                 break;
             case 5:
-                gResultatRdil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + proc->getDataUser()["UserLogin"].toString() + "</td>";
+                gResultatRdil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + proc->getDataUser()->getLogin() + "</td>";
                 break;
             default:
             break;
@@ -4101,7 +4101,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
     MAJDonneesOphtaQuery.prepare(UpdateDOPrequete);
 
     MAJDonneesOphtaQuery.exec();
-    proc->TraiteErreurRequete(MAJDonneesOphtaQuery,UpdateDOPrequete, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+    DataBase::getInstance()->traiteErreurRequete(MAJDonneesOphtaQuery,UpdateDOPrequete, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS);
 }
 
 //---------------------------------------------------------------------------------------------------------

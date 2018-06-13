@@ -22,19 +22,19 @@ dlg_docsscanner::dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *pa
 {
     proc            = ProcAPasser;
     idpat           = idPat;
-    idLieuExercice  = proc->getDataUser()["idLieu"].toInt();
-    db              = proc->getDataBase();
+    idLieuExercice  = proc->getDataUser()->getIdLieu();
+    db              = DataBase::getInstance()->getDataBase();
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     QString Base;
-    switch (proc->getModeConnexion()) {
-    case Procedures::Poste:
+    switch (DataBase::getInstance()->getMode()) {
+    case DataBase::Poste:
         Base = "BDD_POSTE";
         break;
-    case Procedures::Distant:
+    case DataBase::Distant:
         Base = "BDD_DISTANT";
         break;
-    case Procedures::ReseauLocal:
+    case DataBase::ReseauLocal:
         Base = "BDD_LOCAL";
         break;
     default:
@@ -191,11 +191,11 @@ void dlg_docsscanner::ChangeFile()
         toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
         AfficheDoc(fichierencours);
         QString Base;
-        if (proc->gMode == Procedures::Poste)
+        if (DataBase::getInstance()->getMode() == DataBase::Poste)
             Base = "BDD_POSTE";
-        else if (proc->gMode == Procedures::ReseauLocal)
+        else if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
             Base = "BDD_LOCAL";
-        else if (proc->gMode == Procedures::Distant)
+        else if (DataBase::getInstance()->getMode() == DataBase::Distant)
             Base = "BDD_DISTANT";
         proc->gsettingsIni->setValue(Base + "/DossiersDocsScannes", docpath);
     }
@@ -353,14 +353,14 @@ void dlg_docsscanner::ValideFiche()
         bapdf = fich.readAll();
     }
     QString NomOnglet, NomDirStockageImagerie;
-    if (proc->getModeConnexion() == Procedures::Poste)
+    if (DataBase::getInstance()->getMode() == DataBase::Poste)
     {
         NomOnglet = tr("Monoposte");
         QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, db);
         dirquer.first();
         NomDirStockageImagerie = dirquer.value(0).toString();
     }
-    if (proc->getModeConnexion() == Procedures::ReseauLocal)
+    if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
     {
         NomOnglet = tr("Réseau local");
         NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
@@ -421,7 +421,7 @@ void dlg_docsscanner::ValideFiche()
     query.bindValue(":soustypedoc",     sstypedoc);
     query.bindValue(":titre",           sstypedoc);
     query.bindValue(":dateimpression",  editdate->date().toString("yyyy-MM-dd") + " 00:00:00");
-    query.bindValue(":useremetteur",    QString::number(proc->getidUser()));
+    query.bindValue(":useremetteur",    QString::number(DataBase::getInstance()->getUserConnected()->id()));
     query.bindValue(":lien",            "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe);
     query.bindValue(":emisrecu",        "1");
     query.bindValue(":formatdoc",       DOCUMENTRECU);

@@ -80,7 +80,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     installEventFilter(this);
 
     gModeTri            = parDate;
-    TreeQuery           = QSqlQuery(proc->getDataBase());
+    TreeQuery           = QSqlQuery(DataBase::getInstance()->getDataBase());
     initOK = true;
     RemplirTreeView();
     if(!initOK)
@@ -161,23 +161,23 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     double x;
     double y;
 
-    QSqlQuery quer("select formatdoc, lienversfichier from " NOM_TABLE_IMPRESSIONS " where idimpression = " + it->accessibleDescription(), proc->getDataBase());
+    QSqlQuery quer("select formatdoc, lienversfichier from " NOM_TABLE_IMPRESSIONS " where idimpression = " + it->accessibleDescription(), DataBase::getInstance()->getDataBase());
     quer.first();
 
     if (quer.value(0).toString() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais est un fichier sur le disque
     {
-        if (proc->getModeConnexion() == Procedures::Distant)
+        if (DataBase::getInstance()->getMode() == DataBase::Distant)
         {
             UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
             return;
         }
         QString NomOnglet, NomDirStockageImagerie;
-        if (proc->getModeConnexion() == Procedures::Poste)
+        if (DataBase::getInstance()->getMode() == DataBase::Poste)
         {
             NomOnglet = tr("Monoposte");
             NomDirStockageImagerie = proc->DirImagerie();
         }
-        if (proc->getModeConnexion() == Procedures::ReseauLocal)
+        if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
         {
             NomOnglet = tr("Réseau local");
             NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
@@ -426,8 +426,8 @@ void dlg_docsexternes::Slot_CompteNbreDocs()
 void dlg_docsexternes::EditSousTitre(QStandardItem *item)
 {
     QString txt = (item->text().contains(" - ")? item->text().split(" - ").at(1) : item->text());
-    QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + txt + "' where idimpression = " + item->accessibleDescription(), proc->getDataBase());
-    QSqlQuery quer("select typedoc, dateimpression from " NOM_TABLE_IMPRESSIONS " where idimpression = " + item->accessibleDescription(), proc->getDataBase());
+    QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + txt + "' where idimpression = " + item->accessibleDescription(), DataBase::getInstance()->getDataBase());
+    QSqlQuery quer("select typedoc, dateimpression from " NOM_TABLE_IMPRESSIONS " where idimpression = " + item->accessibleDescription(), DataBase::getInstance()->getDataBase());
     quer.first();
     if (gModeTri == parDate)
         item->setText(quer.value(0).toString() + " - " + txt);
@@ -490,7 +490,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
         {
             QSqlQuery quer("select typedoc, dateimpression, soustypedoc, formatdoc, lienversfichier, compression from " NOM_TABLE_IMPRESSIONS
                            " where idimpression = " + idimpr,
-                           proc->getDataBase());
+                           DataBase::getInstance()->getDataBase());
             quer.first();
             QString sstitre = "<font color='magenta'>" + quer.value(1).toDate().toString(tr("d-M-yyyy")) + " - " + quer.value(0).toString() + " - " + quer.value(2).toString() + "</font>";
             inflabel    ->setText(sstitre);
@@ -506,20 +506,20 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
                 QString sfx = (filesufx == PDF? PDF : JPG);
                 QString imgs = "select idimpression from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr + " and (pdf is not null or jpg is not null)";
                 //qDebug() << imgs;
-                if (QSqlQuery (imgs, proc->getDataBase()).size()==0)
+                if (QSqlQuery (imgs, DataBase::getInstance()->getDataBase()).size()==0)
                 {
-                    QSqlQuery ("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr, proc->getDataBase());
+                    QSqlQuery ("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr, DataBase::getInstance()->getDataBase());
                     QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
                                 "VALUES (" +
                                 idimpr + ", " +
                                 " LOAD_FILE('" + proc->DirImagerie() + NOMDIR_IMAGES + filename + "'), " +
                                 quer.value(5).toString() + ")";
                     //qDebug() << req;
-                    QSqlQuery (req, proc->getDataBase());
+                    QSqlQuery (req, DataBase::getInstance()->getDataBase());
                 }
             }
         }
-        QSqlQuery ChercheImgquer( proc->getDataBase());
+        QSqlQuery ChercheImgquer( DataBase::getInstance()->getDataBase());
         QString req2 = "select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr;
         ChercheImgquer.exec(req2);
         if (ChercheImgquer.size()==0)
@@ -549,7 +549,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
     else                                                                                                    // il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
     {
         QString req = "select TextEntete, TextCorps, TextPied, ALD, formatdoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
-        QSqlQuery quer0(req,proc->getDataBase());
+        QSqlQuery quer0(req,DataBase::getInstance()->getDataBase());
         if (quer0.size() == 0) {
             UpMessageBox::Watch(this,tr("Impossible de charger le document"));
             return result;
@@ -589,7 +589,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
 
 int dlg_docsexternes::CompteNbreDocs()
 {
-    return QSqlQuery("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient),proc->getDataBase()).size();
+    return QSqlQuery("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient),DataBase::getInstance()->getDataBase()).size();
 }
 
 void dlg_docsexternes::ImprimeDoc()
@@ -603,7 +603,7 @@ void dlg_docsexternes::ImprimeDoc()
     if (idimpr != "")
     {
         bool detruirealafin = false;
-        QSqlQuery quer1("select Typedoc, DateImpression, TextOrigine, formatdoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, proc->getDataBase());
+        QSqlQuery quer1("select Typedoc, DateImpression, TextOrigine, formatdoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, DataBase::getInstance()->getDataBase());
         quer1.first();
 
         UpMessageBox msgbox;
@@ -618,7 +618,7 @@ void dlg_docsexternes::ImprimeDoc()
         msgbox.addButton(AnnulBouton,UpSmallButton::CANCELBUTTON);
         if (QDate::currentDate() > quer1.value(1).toDate())
         {
-            if (proc->getDataUser()["Medecin"].toInt() == 1)
+            if (proc->getDataUser()->isMedecin())
             {
                 if (quer1.value(3).toString() != IMAGERIE && quer1.value(3).toString() != DOCUMENTRECU)
                 {
@@ -634,7 +634,7 @@ void dlg_docsexternes::ImprimeDoc()
         }
         else if (QDate::currentDate() == quer1.value(1).toDate())
         {
-            if (proc->getDataUser()["Medecin"].toInt() == 1)
+            if (proc->getDataUser()->isMedecin())
                 if (quer1.value(3).toString() != IMAGERIE && quer1.value(3).toString() != DOCUMENTRECU)
                 {
                     {
@@ -738,7 +738,7 @@ void dlg_docsexternes::ImprimeDoc()
         {
             // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
             QString req = "select idUser, Titre, TypeDoc, TextEntete, TextCorps, TextOrigine, TextPied, ALD, FormatDoc, SousTypeDoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
-            QSqlQuery quer(req,proc->getDataBase());
+            QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
             if (quer.size() == 0) {
                 UpMessageBox::Watch(this,tr("Impossible de charger le document"));
                 return;
@@ -750,7 +750,7 @@ void dlg_docsexternes::ImprimeDoc()
             bool        aa;
 
             gDataUser = proc->setDataOtherUser(quer.value(0).toInt());
-            if (!gDataUser.value("Success").toBool())
+            if (gDataUser == nullptr)
             {
                 UpMessageBox::Watch(this,tr("Impossible de retrouver l'utilisateur"));
                 return;
@@ -763,7 +763,7 @@ void dlg_docsexternes::ImprimeDoc()
                 UpMessageBox::Watch(this,tr("Impossible de retrouver l'entête"));
                 return;
             }
-            Entete.replace(QRegExp("<!--date-->[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùüûÙçÇ'a-zA-ZŒœ0-9°, -]*<!--date-->"), "<!--date-->" + gDataUser["Ville"].toString() + tr(" le, ") + QDate::currentDate().toString(tr("d MMMM yyyy")) + "<!--date-->");
+            Entete.replace(QRegExp("<!--date-->[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùüûÙçÇ'a-zA-ZŒœ0-9°, -]*<!--date-->"), "<!--date-->" + gDataUser->getVille() + tr(" le, ") + QDate::currentDate().toString(tr("d MMMM yyyy")) + "<!--date-->");
             //création du pied
             Pied = quer.value(6).toString();
             if (Pied == "")
@@ -804,7 +804,7 @@ void dlg_docsexternes::ImprimeDoc()
                 Corps.replace("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
                 Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
 
-                QSqlQuery query = QSqlQuery(proc->getDataBase());
+                QSqlQuery query = QSqlQuery(DataBase::getInstance()->getDataBase());
                 // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
                 query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idUser, idpat, TypeDoc, SousTypeDoc, Titre, TextEntete, TextCorps, TextOrigine, TextPied, Dateimpression, FormatDoc, idLieu)"
                                                                    " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre, :textEntete, :textCorps, :textOrigine, :textPied, :dateimpression, :formatdoc, :idlieu)");
@@ -819,12 +819,12 @@ void dlg_docsexternes::ImprimeDoc()
                 query.bindValue(":textPied", Pied);
                 query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
                 query.bindValue(":formatdoc", quer.value(8).toString());
-                query.bindValue(":idlieu", proc->getDataUser()["idLieu"].toString());
+                query.bindValue(":idlieu", QString::number(proc->getDataUser()->getIdLieu()));
                 if(!query.exec())
                     UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
                 RemplirTreeView();
                 if (detruirealafin)
-                    QSqlQuery("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, proc->getDataBase());
+                    QSqlQuery("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, DataBase::getInstance()->getDataBase());
             }
             delete Etat_textEdit;
         }
@@ -866,17 +866,17 @@ void dlg_docsexternes::SupprimeDoc()
     int ndocs = CompteNbreDocs();
     QModelIndex idx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
     QString idimpr = gmodele->itemFromIndex(idx)->accessibleDescription();
-    if (proc->getDataUser()["Soignant"].toInt() != 1 && proc->getDataUser()["Soignant"].toInt() != 2 && proc->getDataUser()["Soignant"].toInt() != 3)         //le user n'est pas un soignant
+    if (!proc->getDataUser()->isSoignant())         //le user n'est pas un soignant
     {
         QString     req = "Select Useremetteur, idrefraction from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
-        QSqlQuery quer(req,proc->getDataBase());
+        QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
         if (quer.size()== 0)
         {
             UpMessageBox::Watch(this,tr("Suppression refusée"), tr("Vous ne pouvez pas supprimer un document dont vous n'êtes pas l'auteur"));
             return;
         }
         quer.first();
-        if (quer.value(0).toInt() != proc->getidUser())
+        if (quer.value(0).toInt() != DataBase::getInstance()->getUserConnected()->id())
         {
             UpMessageBox::Watch(this,tr("Suppression refusée"), tr("Vous ne pouvez pas supprimer un document dont vous n'êtes pas l'auteur"));
             return;
@@ -890,7 +890,7 @@ void dlg_docsexternes::SupprimeDoc()
         OKBouton->setText(tr("Supprimer"));
         UpSmallButton *NoBouton = new UpSmallButton();
         NoBouton->setText(tr("Annuler"));
-        msgbox.setText("Euuhh... " + proc->getDataUser()["UserLogin"].toString());
+        msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin());
         msgbox.setInformativeText(tr("Etes vous certain de vouloir supprimer ce document?"));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(NoBouton,UpSmallButton::CANCELBUTTON);
@@ -903,7 +903,7 @@ void dlg_docsexternes::SupprimeDoc()
         if (!a) return;
         QString req = "select lienversfichier, formatdoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
         //qDebug() << req;
-        QSqlQuery quer(req, proc->getDataBase());
+        QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
         if (quer.size()>0)
         {
             quer.first();
@@ -912,13 +912,13 @@ void dlg_docsexternes::SupprimeDoc()
                 QString filename = (quer.value(1).toString() == VIDEO? "/" : "") + quer.value(0).toString();
                 QString cheminFichier = (quer.value(1).toString() == VIDEO? NOMDIR_VIDEOS : NOMDIR_IMAGES);
                 filename = cheminFichier + filename;
-                QSqlQuery ("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + filename + "')", proc->getDataBase());
+                QSqlQuery ("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + filename + "')", DataBase::getInstance()->getDataBase());
             }
         }
         QString idaafficher = "";
         if (ndocs>1)
         {
-            QSqlQuery idquer("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient) + " order by dateimpression", proc->getDataBase());
+            QSqlQuery idquer("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient) + " order by dateimpression", DataBase::getInstance()->getDataBase());
             for (int i=0; i<idquer.size(); i++)
             {
                 idquer.seek(i);
@@ -933,8 +933,8 @@ void dlg_docsexternes::SupprimeDoc()
                 }
             }
         }
-        QSqlQuery("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr + ")", proc->getDataBase());
-        QSqlQuery("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, proc->getDataBase());
+        QSqlQuery("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr + ")", DataBase::getInstance()->getDataBase());
+        QSqlQuery("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, DataBase::getInstance()->getDataBase());
         gmodele->removeRow(idx.row(),idx);
         QModelIndex idx2;
         bool OK = false;

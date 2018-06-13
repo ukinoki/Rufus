@@ -26,7 +26,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     proc            = procAPasser;
-    db              = proc->getDataBase();
+    db              = DataBase::getInstance()->getDataBase();
     gidUser         = idUser;
 
     gModifPoste     = false;
@@ -263,7 +263,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ReconstruitListeLieuxExercice();
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
-       VilleCPDefautWidg   = new VilleCPWidget(proc->getDataBase(), NOM_TABLE_VILLES, ui->VilleDefautframe, proc->getListeVilles(), proc->getListeCP(), NOM_ALARME);
+       VilleCPDefautWidg   = new VilleCPWidget(DataBase::getInstance()->getDataBase(), NOM_TABLE_VILLES, ui->VilleDefautframe, proc->getListeVilles(), proc->getListeCP(), NOM_ALARME);
        CPDefautlineEdit    = VilleCPDefautWidg->ui->CPlineEdit;
        VilleDefautlineEdit = VilleCPDefautWidg->ui->VillelineEdit;
        VilleCPDefautWidg   ->move(15,10);
@@ -380,11 +380,11 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
         ui->DistantStockageupLineEdit   ->setText(proc->gsettingsIni->value("BDD_DISTANT/DossierImagerie").toString());
     }
 
-    if (proc->getModeConnexion() == Procedures::Poste)
+    if (DataBase::getInstance()->getMode() == DataBase::Poste)
         ui->ParamConnexiontabWidget->setCurrentIndex(0);
-    else if (proc->getModeConnexion() == Procedures::ReseauLocal)
+    else if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
         ui->ParamConnexiontabWidget->setCurrentIndex(1);
-    if (proc->getModeConnexion() == Procedures::Distant)
+    if (DataBase::getInstance()->getMode() == DataBase::Distant)
         ui->ParamConnexiontabWidget->setCurrentIndex(2);
 
     ui->ParamtabWidget->setCurrentIndex(0);
@@ -497,7 +497,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     for (int i=0; i<ui->AppareilsConnectesupTableWidget->columnCount(); i++)
         ui->AppareilsConnectesupTableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignLeft);
     ui->AppareilsConnectesupTableWidget->FixLargeurTotale();
-    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + gDataUser["NomLieu"].toString() + "</b></font> ");
+    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + gDataUser->getNomlieu() + "</b></font> ");
     QVBoxLayout *applay = new QVBoxLayout();
     applay      ->addWidget(ui->AppareilsconnectesupLabel);
     applay      ->addWidget(widgAppareils->widgButtonParent());
@@ -508,10 +508,10 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui->Appareilsconnectesframe->setFixedWidth(widgAppareils->widgButtonParent()->width() + marge + marge);
     ui->Appareilsconnectesframe->setLayout(applay);
 
-    ui->Sauvegardeframe         ->setEnabled(proc->gMode == Procedures::Poste);
+    ui->Sauvegardeframe         ->setEnabled(DataBase::getInstance()->getMode() == DataBase::Poste);
     QString reqBkup = "select LundiBkup, MardiBkup, MercrediBkup, JeudiBkup, VendrediBkup, SamediBkup, DimancheBkup, HeureBkup, DirBkup from " NOM_TABLE_PARAMSYSTEME;
     QSqlQuery querBkup(reqBkup, db);
-    proc->TraiteErreurRequete(querBkup, reqBkup);
+    DataBase::getInstance()->traiteErreurRequete(querBkup, reqBkup);
     querBkup.first();
     ui->DirBackupuplineEdit->setText(querBkup.value(8).toString());
     if (querBkup.value(7).toTime().isValid())
@@ -594,19 +594,19 @@ void dlg_param::Slot_ChoixDossierStockageApp()
 {
     UpPushButton *bout = static_cast<UpPushButton*>(sender());
     QString req = "select TitreExamen, NomAppareil from " NOM_TABLE_LISTEAPPAREILS " where idAppareil = " + QString::number(bout->getId());
-    QSqlQuery quer(req,proc->getDataBase());
+    QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
     QString exam = "";
     if (quer.size()>0){
         quer.first();
         exam = quer.value(1).toString();
     }
-    int mode = Procedures::ReseauLocal;
+    int mode = DataBase::ReseauLocal;
     if (ui->MonoDocupTableWidget->isAncestorOf(bout))
-        mode = Procedures::Poste;
+        mode = DataBase::Poste;
     else if (ui->LocalDocupTableWidget->isAncestorOf(bout))
-        mode = Procedures::ReseauLocal;
+        mode = DataBase::ReseauLocal;
     else if (ui->DistantDocupTableWidget->isAncestorOf(bout))
-        mode = Procedures::Distant;
+        mode = DataBase::Distant;
     QString dir = proc->getDossierDocuments(exam, mode);
     if (dir == "")
         dir = QDir::homePath() + NOMDIR_RUFUS;
@@ -620,21 +620,21 @@ void dlg_param::Slot_ChoixDossierStockageApp()
         int row;
         UpLineEdit *line = 0;
         switch (mode) {
-        case Procedures::Poste:
+        case DataBase::Poste:
             row = ui->MonoDocupTableWidget->findItems(QString::number(bout->getId()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(row,2));
             if (line!=NULL)
                 line->setText(dockdir.path());
             Base = "BDD_POSTE";
             break;
-        case Procedures::ReseauLocal:
+        case DataBase::ReseauLocal:
             row = ui->LocalDocupTableWidget->findItems(QString::number(bout->getId()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(row,2));
             if (line!=NULL)
                 line->setText(dockdir.path());
             Base = "BDD_LOCAL";
             break;
-        case Procedures::Distant:
+        case DataBase::Distant:
             row = ui->DistantDocupTableWidget->findItems(QString::number(bout->getId()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(row,2));
             if (line!=NULL)
@@ -660,37 +660,37 @@ void dlg_param::Slot_EnregDossierStockageApp(QString dir)
         return;
     }
     QString id, Base;
-    int mode = Procedures::ReseauLocal;
+    int mode = DataBase::ReseauLocal;
     if (ui->MonoDocupTableWidget->isAncestorOf(line))
     {
-        mode = Procedures::Poste;
+        mode = DataBase::Poste;
         id = ui->MonoDocupTableWidget->item(line->getRowTable(),0)->text();
     }
     else if (ui->LocalDocupTableWidget->isAncestorOf(line))
     {
-        mode = Procedures::ReseauLocal;
+        mode = DataBase::ReseauLocal;
         id = ui->LocalDocupTableWidget->item(line->getRowTable(),0)->text();
     }
     else if (ui->DistantDocupTableWidget->isAncestorOf(line))
     {
-        mode = Procedures::Distant;
+        mode = DataBase::Distant;
         id = ui->DistantDocupTableWidget->item(line->getRowTable(),0)->text();
     }
     switch (mode) {
-    case Procedures::Poste:
+    case DataBase::Poste:
         Base = "BDD_POSTE";
         break;
-    case Procedures::ReseauLocal:
+    case DataBase::ReseauLocal:
         Base = "BDD_LOCAL";
         break;
-    case Procedures::Distant:
+    case DataBase::Distant:
         Base = "BDD_DISTANT";
         break;
     default:
         break;
     }
     QString req = "select NomAppareil from " NOM_TABLE_LISTEAPPAREILS " where idAppareil = " + id;
-    QSqlQuery quer(req,proc->getDataBase());
+    QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
     QString exam = "";
     if (quer.size()>0){
         quer.first();
@@ -762,9 +762,9 @@ void dlg_param::Slot_ChoixFontpushButtonClicked()
     {
         QString fontrequete = "update " NOM_TABLE_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->getFont().toString()
                                 + "', UserPoliceAttribut = '" + Dlg_Fonts->getFontAttribut()
-                                + "' where idUser = " + proc->getDataUser()["idUser"].toString();
+                                + "' where idUser = " + QString::number(proc->getDataUser()->id());
         QSqlQuery fontquery (fontrequete,db);
-        proc->TraiteErreurRequete(fontquery,fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
+        DataBase::getInstance()->traiteErreurRequete(fontquery,fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
     }
     delete Dlg_Fonts;
 }
@@ -841,7 +841,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            if (proc->VerifMDP(proc->getDataUser()["MDP"].toString(),tr("Saisissez votre mot de passe")))
+            if (proc->VerifMDP(proc->getDataUser()->getPassword(),tr("Saisissez votre mot de passe")))
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
         else
@@ -866,7 +866,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
             }
         }
 
-        ui->AssocCCAMupTableWidget->setEnabled(a && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        ui->AssocCCAMupTableWidget->setEnabled(a && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
         for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
@@ -892,7 +892,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
             ui->AssocCCAMupTableWidget->clearSelection();
         }
 
-        ui->HorsNomenclatureupTableWidget->setEnabled(a && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        ui->HorsNomenclatureupTableWidget->setEnabled(a && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
         for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
@@ -914,8 +914,8 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
 
         if (a) ui->ActesCCAMupTableWidget->setFocus();
         ui->ChercheCCAMupLineEdit->setEnabled(true);
-        widgAssocCCAM   ->setEnabled(a && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
-        widgHN          ->setEnabled(a && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        widgAssocCCAM   ->setEnabled(a && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        widgHN          ->setEnabled(a && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
 
     else if (obj == ui->LockParamGeneralupLabel)
@@ -939,7 +939,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
         else
             ui->LockParamGeneralupLabel->setPixmap(Icons::pxVerrouiller());
         bool a = (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxDeverouiller().toImage());
-        if (proc->gMode == Procedures::Distant)
+        if (DataBase::getInstance()->getMode() == DataBase::Distant)
             EnableWidgContent(ui->Appareilsconnectesframe,false);
         else
             EnableWidgContent(ui->Appareilsconnectesframe,a);
@@ -950,7 +950,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
         ui->InitMDPAdminpushButton          ->setEnabled(a);
         ui->GestionBanquespushButton        ->setEnabled(a);
         ui->EmplacementServeurupComboBox    ->setEnabled(a);
-        EnableWidgContent(ui->Sauvegardeframe, proc->gMode == Procedures::Poste && a);
+        EnableWidgContent(ui->Sauvegardeframe, DataBase::getInstance()->getMode() == DataBase::Poste && a);
     }
 }
 
@@ -1054,7 +1054,7 @@ void dlg_param::Slot_GestionBanques()
 void dlg_param::Slot_GestDataPersoUser()
 {
     Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), db);
-    Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  gDataUser["UserLogin"].toString());
+    Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  gDataUser->getLogin());
     Dlg_GestUsr->setConfig(dlg_gestionusers::MODIFUSER);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
     if(DonneesUserModifiees)
@@ -1218,7 +1218,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
         }
         else
         {
-            int secteur = gDataUser["Secteur"].toInt();
+            int secteur = gDataUser->getSecteur();
             if (secteur>1)
             {
                 UpLineEdit *line = dynamic_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(row,5));
@@ -1227,7 +1227,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                 else
                 {
                     UpLineEdit *lbl = new UpLineEdit();
-                    if (gDataUser["OPTAM"].toInt()==1)
+                    if (gDataUser->isOPTAM())
                         lbl->setText(ui->ActesCCAMupTableWidget->item(row,2)->text());
                     else
                         lbl->setText(ui->ActesCCAMupTableWidget->item(row,3)->text());
@@ -1243,7 +1243,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     montantpratique = QString::number(QLocale().toDouble(lbl->text()));
                 }
              }
-            else if (gDataUser["OPTAM"].toInt()==1)
+            else if (gDataUser->isOPTAM())
                 montantpratique = QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,2)->text()));
             else
                 montantpratique = QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,3)->text()));
@@ -1256,7 +1256,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     QString::number(gidUser) +")";
         }
         QSqlQuery quer(req,db);
-        if (!proc->TraiteErreurRequete(quer,req,""))
+        if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
             gCotationsModifiees = true;
     }
     else
@@ -1275,7 +1275,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     QString req = "update " NOM_TABLE_COTATIONS " set montantpratique = " + montant +
                                   " where typeacte = '" + ui->ActesCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
                     QSqlQuery quer(req,db);
-                    if (!proc->TraiteErreurRequete(quer,req,""))
+                    if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
                         gCotationsModifiees = true;
                 }
         }
@@ -1308,7 +1308,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
         }
         else
         {
-            int secteur = gDataUser["Secteur"].toInt();
+            int secteur = gDataUser->getSecteur();
             QString montantOPTAM(""), montantNonOPTAM("");
             UpLineEdit *lineOPTAM = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,2));
             if (lineOPTAM != Q_NULLPTR)
@@ -1324,7 +1324,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                 else
                 {
                     UpLineEdit *lbl = new UpLineEdit();
-                    if (gDataUser["OPTAM"].toInt()==1)
+                    if (gDataUser->isOPTAM())
                         lbl->setText(ui->AssocCCAMupTableWidget->item(row,2)->text());
                     else
                         lbl->setText(ui->AssocCCAMupTableWidget->item(row,3)->text());
@@ -1340,7 +1340,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     montantpratique = QString::number(QLocale().toDouble(lbl->text()));
                 }
             }
-            else if (gDataUser["OPTAM"].toInt()==1)
+            else if (gDataUser->isOPTAM())
                 montantpratique = montantOPTAM;
             else
                 montantpratique = montantNonOPTAM;
@@ -1352,7 +1352,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     QString::number(gidUser) +")";
         }
         QSqlQuery quer(req,db);
-        if (!proc->TraiteErreurRequete(quer,req,""))
+        if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
             gCotationsModifiees = true;
     }
     else
@@ -1378,7 +1378,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                        req = "update " NOM_TABLE_COTATIONS " set montantpratique = " + montant +
                            " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
                     QSqlQuery quer(req,db);
-                    if (!proc->TraiteErreurRequete(quer,req,""))
+                    if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
                         gCotationsModifiees = true;
                 }
         }
@@ -1409,7 +1409,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
                     " 2, " + QString::number(gidUser) +")";
         }
         QSqlQuery quer(req,db);
-        if (!proc->TraiteErreurRequete(quer,req,""))
+        if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
             gCotationsModifiees = true;
     }
     else
@@ -1428,7 +1428,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
                         req = "update " NOM_TABLE_COTATIONS " set montantOPTAM = " + montant + ", montantNonOPTAM = " + montant + ", montantpratique = " + montant +
                             " where typeacte = '" + ui->HorsNomenclatureupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
                     QSqlQuery quer(req,db);
-                    if (!proc->TraiteErreurRequete(quer,req,""))
+                    if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
                         gCotationsModifiees = true;
                 }
         }
@@ -1449,7 +1449,7 @@ void dlg_param::SupprAppareil()
                   " where list.idAppareil = appcon.idappareil"
                   " and list.idappareil = " + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text();
     QSqlQuery appQuery(req,db);
-    if (proc->TraiteErreurRequete(appQuery, req, ""))
+    if (DataBase::getInstance()->traiteErreurRequete(appQuery, req, ""))
         return;
     if (appQuery.size()==0)
         return;
@@ -1470,14 +1470,14 @@ void dlg_param::SupprAppareil()
     {
         req = "delete from " NOM_TABLE_APPAREILSCONNECTESCENTRE " where idAppareil = "
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
-              + " and idLieu = " + gDataUser["idLieu"].toString();
+              + " and idLieu = " + QString::number(gDataUser->getIdLieu());
         QSqlQuery(req,db);
         QString Base;
-        if (proc->gMode == Procedures::Poste)
+        if (DataBase::getInstance()->getMode() == DataBase::Poste)
             Base = "BDD_POSTE";
-        else if (proc->gMode == Procedures::ReseauLocal)
+        else if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
             Base = "BDD_LOCAL";
-        else if (proc->gMode == Procedures::Distant)
+        else if (DataBase::getInstance()->getMode() == DataBase::Distant)
             Base = "BDD_DISTANT";
         proc->gsettingsIni->remove(Base + "/DossiersDocuments/" + appQuery.value(1).toString());
         Remplir_Tables();
@@ -1606,7 +1606,7 @@ void dlg_param::Slot_EnregistreAppareil()
     if (!gAskAppareil) return;
     QString req = "insert into " NOM_TABLE_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
                   " (select idappareil from " NOM_TABLE_LISTEAPPAREILS " where NomAppareil = '" + gAskAppareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
-                  + gDataUser["idLieu"].toString() + ")";
+                  + QString::number(gDataUser->getIdLieu()) + ")";
     QSqlQuery (req,db);
     gAskAppareil->done(0);
     Remplir_Tables();
@@ -1642,7 +1642,7 @@ void dlg_param::NouvAssocCCAM()
         }
         ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgAssocCCAM          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
     delete Dlg_CrrAct;
 }
@@ -1686,7 +1686,7 @@ void dlg_param::ModifAssocCCAM()
         }
         ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgAssocCCAM          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
     delete Dlg_CrrAct;
 }
@@ -1726,7 +1726,7 @@ void dlg_param::SupprAssocCCAM()
         }
         ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgAssocCCAM          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
 }
 
@@ -1739,7 +1739,7 @@ void dlg_param::NouvHorsNomenclature()
     if (Dlg_CrrAct->exec()>0)
     {
         Remplir_TableHorsNomenclature();
-        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
         for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
@@ -1750,7 +1750,7 @@ void dlg_param::NouvHorsNomenclature()
         }
         ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgHN          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
     delete Dlg_CrrAct;
 }
@@ -1766,7 +1766,7 @@ void dlg_param::ModifHorsNomenclature()
     if (Dlg_CrrAct->exec()>0)
     {
         Remplir_TableHorsNomenclature();
-        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
         for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
@@ -1777,7 +1777,7 @@ void dlg_param::ModifHorsNomenclature()
         }
         ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgHN          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
     delete Dlg_CrrAct;
 }
@@ -1790,7 +1790,7 @@ void dlg_param::SupprHorsNomenclature()
     {
         QSqlQuery ("delete from " NOM_TABLE_COTATIONS " where typeacte = '" + CodeActe + "'", db);
         Remplir_TableHorsNomenclature();
-        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
         for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
@@ -1801,7 +1801,7 @@ void dlg_param::SupprHorsNomenclature()
         }
         ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgHN          ->setEnabled(true && (gDataUser["idParent"].toInt() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
 }
 
@@ -1863,7 +1863,7 @@ void dlg_param::Slot_ParamMotifs()
 
 void dlg_param::Slot_ModifDirBackup()
 {
-    if (proc->gMode != Procedures::Poste)
+    if (DataBase::getInstance()->getMode() != DataBase::Poste)
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     QString dirSauv         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
@@ -1939,14 +1939,14 @@ void dlg_param::Slot_DirPosteStockage()
         proc->gsettingsIni->setValue("BDD_POSTE/DossierImagerie", dockdir.path());
         QString req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + dockdir.path() + "'";
         QSqlQuery quer(req, db);
-        proc->TraiteErreurRequete(quer,req);
+        DataBase::getInstance()->traiteErreurRequete(quer,req);
         proc->setDirImagerie();
     }
 }
 
 void dlg_param::Slot_EffacePrgSauvegarde()
 {
-    QString Base = proc->getBase();
+    QString Base = DataBase::getInstance()->getBase();
     if (Base == "")
         return;
     if (!proc->VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
@@ -1982,7 +1982,7 @@ bool dlg_param::VerifDirStockageImagerie()
 {
     if (ui->NonImportDocscheckBox->isChecked())
         return true;
-    if (ui->PosteServcheckBox->isChecked() && proc->getModeConnexion() == Procedures::Poste)
+    if (ui->PosteServcheckBox->isChecked() && DataBase::getInstance()->getMode() == DataBase::Poste)
     {
         bool DirStockageAVerifier = false;
         if (ui->MonoDocupTableWidget->rowCount()>0)
@@ -2010,7 +2010,7 @@ bool dlg_param::VerifDirStockageImagerie()
             }
         }
     }
-    if (ui->LocalServcheckBox->isChecked() && proc->getModeConnexion() == Procedures::ReseauLocal)
+    if (ui->LocalServcheckBox->isChecked() && DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
     {
         bool DirStockageAVerifier = false;
         if (ui->LocalDocupTableWidget->rowCount()>0)
@@ -2038,7 +2038,7 @@ bool dlg_param::VerifDirStockageImagerie()
             }
         }
     }
-    if (ui->DistantServcheckBox->isChecked() && proc->getModeConnexion() == Procedures::Distant)
+    if (ui->DistantServcheckBox->isChecked() && DataBase::getInstance()->getMode() == DataBase::Distant)
     {
         bool DirStockageAVerifier = false;
         if (ui->DistantDocupTableWidget->rowCount()>0)
@@ -2071,9 +2071,9 @@ bool dlg_param::VerifDirStockageImagerie()
 
 void dlg_param::ModifParamBackup()
 {
-    if (proc->getModeConnexion() != Procedures::Poste)
+    if (DataBase::getInstance()->getMode() != DataBase::Poste)
         return;
-    QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, proc->getDataBase());
+    QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, DataBase::getInstance()->getDataBase());
     dirquer.first();
     QString NomDirStockageImagerie = dirquer.value(0).toString();
     bool NoDirBupDefined        = (ui->DirBackupuplineEdit->text() == "");
@@ -2303,11 +2303,11 @@ bool dlg_param::eventFilter(QObject *obj, QEvent *event)
 // ----------------------------------------------------------------------------------
 void dlg_param::AfficheParamUser()
 {
-    ui->idUseruplineEdit                ->setText(gDataUser["idUser"].toString());
-    ui->LoginuplineEdit                 ->setText(gDataUser["UserLogin"].toString());
-    ui->MDPuplineEdit                   ->setText(gDataUser["MDP"].toString());
-    ui->NomuplineEdit                   ->setText(gDataUser["Nom"].toString());
-    ui->PrenomuplineEdit                ->setText(gDataUser["Prenom"].toString());
+    ui->idUseruplineEdit                ->setText(QString::number(gDataUser->id()));
+    ui->LoginuplineEdit                 ->setText(gDataUser->getLogin());
+    ui->MDPuplineEdit                   ->setText(gDataUser->getPassword());
+    ui->NomuplineEdit                   ->setText(gDataUser->getNom());
+    ui->PrenomuplineEdit                ->setText(gDataUser->getPrenom());
     QSqlQuery lxquer("select idlieu from " NOM_TABLE_JOINTURESLIEUX " where iduser = " + QString::number(gidUser), db);
     QList<int> idlieuxlist;
     for (int k=0; k< lxquer.size(); k++)
@@ -2318,10 +2318,10 @@ void dlg_param::AfficheParamUser()
     for(int i=0; i< ui->AdressgroupBox->findChildren<UpRadioButton*>().size(); i++)
         if (idlieuxlist.contains(ui->AdressgroupBox->findChildren<UpRadioButton*>().at(i)->iD()))
             ui->AdressgroupBox->findChildren<UpRadioButton*>().at(i)->setChecked(true);
-    ui->PortableuplineEdit              ->setText(gDataUser["Portable"].toString());
-    ui->MailuplineEdit                  ->setText(gDataUser["Mail"].toString());
-    ui->Titrelabel                      ->setVisible(gDataUser["Fonction"].toString() == tr("Médecin"));
-    ui->Cotationswidget                 ->setVisible(gDataUser["Droits"].toString() != SECRETAIRE && gDataUser["Droits"].toString() != AUTREFONCTION);
+    ui->PortableuplineEdit              ->setText(gDataUser->getPortable());
+    ui->MailuplineEdit                  ->setText(gDataUser->getMail());
+    ui->Titrelabel                      ->setVisible(gDataUser->isMedecin());
+    ui->Cotationswidget                 ->setVisible(!gDataUser->isSecretaire() && !gDataUser->isAutreFonction());
 
 //    ui->ModeExercicegroupBox->setVisible(false);
     /* Valeurs de soignant
@@ -2331,35 +2331,36 @@ void dlg_param::AfficheParamUser()
      * 4 = non soignant
      * 5 = societe comptable
      */
-    bool ophtalmo       = gDataUser["Soignant"].toInt() == 1;
-    bool orthoptist     = gDataUser["Soignant"].toInt() == 2;
-    bool autresoignant  = gDataUser["Soignant"].toInt() == 3;
-    bool soccomptable   = gDataUser["Soignant"].toInt() == 5;
-    bool medecin        = gDataUser["Medecin"].toInt() == 1;
+    bool ophtalmo       = gDataUser->isOpthalmo();
+    bool orthoptist     = gDataUser->isOrthoptist();
+    //bool autresoignant  = gDataUser->isAutreSoignant();
+    bool soccomptable   = gDataUser->isSocComptable();
+    bool medecin        = gDataUser->isMedecin();
 
-    bool assistant      = gDataUser["ResponsableActes"] == 3;
-    bool responsable    = gDataUser["ResponsableActes"].toInt() == 1;
-    bool responsableles2= gDataUser["ResponsableActes"].toInt() == 2;
+    bool assistant      = gDataUser->isAssistant();
+    bool responsable    = gDataUser->isResponsable();
+    bool responsableles2= gDataUser->isResponsableEtAssistant();
 
-    bool liberal        = gDataUser["EnregHonoraires"].toInt() == 1;
-    bool pasliberal     = gDataUser["EnregHonoraires"].toInt() == 2;
-    bool retrocession   = gDataUser["EnregHonoraires"].toInt() == 3;
-    bool pasdecompta    = gDataUser["EnregHonoraires"].toInt() == 4;
+    bool liberal        = gDataUser->isLiberal();
+    bool pasliberal     = gDataUser->isSalarie();
+    bool retrocession   = gDataUser->isRemplacant();
+    bool pasdecompta    = gDataUser->isSansCompta();
 
-    bool cotation       = gDataUser["Cotation"].toBool();
+    bool cotation       = gDataUser->isCotation();
 
-    bool soignant           = ophtalmo || orthoptist|| autresoignant;
+    bool soignant           = gDataUser->isSoignant();
     bool soigntnonassistant = soignant && !assistant;
     bool respsalarie        = soigntnonassistant && pasliberal;
     bool respliberal        = soigntnonassistant && liberal;
 
-    QString txtstatut = tr("Vos données enregistrées pour cette session")+ "\n\n" + gDataUser["Statut"].toString() + "\n\n\n" + tr("Vos données permanentes") +"\n\n" + tr("Fonction :") + "\t\t\t";
+
+    QString txtstatut = tr("Vos données enregistrées pour cette session")+ "\n\n" + gDataUser->getStatus() + "\n\n\n" + tr("Vos données permanentes") +"\n\n" + tr("Fonction :") + "\t\t\t";
     if (ophtalmo)
         txtstatut += tr("Ophtalmologiste");
     else if (orthoptist)
         txtstatut += tr("Orthoptiste");
     else
-        txtstatut += gDataUser["Specialite"].toString();
+        txtstatut += gDataUser->getSpecialite();
 
     if (soignant)
     {
@@ -2373,23 +2374,23 @@ void dlg_param::AfficheParamUser()
     }
 
     if (soigntnonassistant)
-        txtstatut += "\n" + tr("RPPS :\t\t\t") + gDataUser["NumPS"].toString();
+        txtstatut += "\n" + tr("RPPS :\t\t\t") + QString::number(gDataUser->getNumPS());
     if (medecin && ! assistant)
-        txtstatut += "\nADELI :\t\t\t" + gDataUser["NumCO"].toString();
+        txtstatut += "\nADELI :\t\t\t" + gDataUser->getNumCO();
     if (soignant)
     {
         txtstatut += "\n" + tr("Exercice :\t\t\t");
         if (liberal)
             txtstatut += tr("libéral");
         else if (pasliberal)
-            txtstatut += tr("salarié") + " - " + tr("Employeur : ") + proc->getLogin(gDataUser["Employeur"].toInt());
+            txtstatut += tr("salarié") + " - " + tr("Employeur : ") + proc->getLogin(gDataUser->getEmployeur());
         else if (retrocession)
             txtstatut += tr("remplaçant");
         else if (pasdecompta)
             txtstatut += tr("sans comptabilité");
     }
     if (respliberal||respsalarie)
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + gDataUser["NomCompteEncaissHonoraires"].toString() + "  " + tr("de") + " " + gDataUser["LoginComptable"].toString();
+        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + gDataUser->getNomCompteEncaissHonoraires() + "  " + tr("de") + " " + gDataUser->getLoginComptable();
     else if (retrocession)
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
@@ -2397,7 +2398,7 @@ void dlg_param::AfficheParamUser()
     if (medecin && cotation)
     {
         QString secteur ("");
-        switch (gDataUser["Secteur"].toInt()) {
+        switch (gDataUser->getSecteur()) {
         case 1:     secteur = "1";          break;
         case 2:     secteur = "2";          break;
         case 3:     secteur = "3";          break;
@@ -2405,12 +2406,12 @@ void dlg_param::AfficheParamUser()
             break;
         }
         txtstatut += "\n" + tr("Secteur conventionnel :\t\t") + secteur;
-        txtstatut += "\n" + tr("OPTAM :\t\t\t") + (gDataUser["OPTAM"].toBool()? "Oui": "Non");
+        txtstatut += "\n" + tr("OPTAM :\t\t\t") + (gDataUser->isOPTAM() ? "Oui": "Non");
     }
     if (respliberal || soccomptable)
-        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + gDataUser["NomCompteParDefaut"].toString() + "  " + tr("de") + " " + proc->getLogin(gDataUser["idCompteParDefaut"].toInt());
+        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + gDataUser->getNomCompteParDefaut() + "  " + tr("de") + " " + proc->getLogin(gDataUser->getIdCompteParDefaut());
     if (respliberal)
-        txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (gDataUser["AGA"].toBool()? tr("Oui") : tr("Sans"));
+        txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (gDataUser->getAGA() ? tr("Oui") : tr("Sans"));
 
     ui->StatutComptaupTextEdit->setText(txtstatut);
 
@@ -2419,13 +2420,13 @@ void dlg_param::AfficheParamUser()
     ui->Prenomlabel                 ->setVisible(!soccomptable);
     ui->PrenomuplineEdit            ->setVisible(!soccomptable);
 
-    ui->idUseruplineEdit            ->setText(gDataUser["idUser"].toString());
-    ui->LoginuplineEdit             ->setText(gDataUser["UserLogin"].toString());
-    ui->MDPuplineEdit               ->setText(gDataUser["MDP"].toString());
+    ui->idUseruplineEdit            ->setText(QString::number(gDataUser->id()));
+    ui->LoginuplineEdit             ->setText(gDataUser->getLogin());
+    ui->MDPuplineEdit               ->setText(gDataUser->getPassword());
     if (medecin)
-        ui->TitreuplineEdit         ->setText(gDataUser["Titre"].toString());
+        ui->TitreuplineEdit         ->setText(gDataUser->getTitre());
 
-    if (gDataUser["Droits"].toString() != SECRETAIRE && gDataUser["Droits"].toString() != AUTREFONCTION)
+    if (!gDataUser->isSecretaire() && !gDataUser->isAutreFonction())
     {
         ui->Cotationswidget->setVisible(true);
         Remplir_TableActesCCAM();
@@ -2512,7 +2513,7 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
         listwidg.at(i)->setEnabled(a);
     if (widg == ui->Sauvegardeframe)
     {
-        ui->ModifBaselabel->setVisible(proc->gMode != Procedures::Poste);
+        ui->ModifBaselabel->setVisible(DataBase::getInstance()->getMode() != DataBase::Poste);
         ui->ModifBaselabel->setEnabled(true);
     }
 }
@@ -2581,15 +2582,15 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
         idAdminDocs = usrquer.value(0).toInt();
         req = "update " NOM_TABLE_PARAMSYSTEME " set MDPAdmin = '" + nouv + "'";
         QSqlQuery chgmdpadmquery(req,db);
-        proc->TraiteErreurRequete(chgmdpadmquery,req,"");
+        DataBase::getInstance()->traiteErreurRequete(chgmdpadmquery,req,"");
         // Enregitrer le nouveau MDP de la base
         req = "update " NOM_TABLE_UTILISATEURS " set userMDP = '" + nouv + "' where idUser = " + QString::number(idAdminDocs);
         QSqlQuery chgmdpquery(req,db);
-        proc->TraiteErreurRequete(chgmdpquery,req,"");
+        DataBase::getInstance()->traiteErreurRequete(chgmdpquery,req,"");
         // Enregitrer le nouveau MDP de connexion à MySQL
         req = "set password for '" NOM_ADMINISTRATEURDOCS "'@'localhost' = '" + nouv + "'";
         QSqlQuery chgmdpBasequery(req, db);
-        proc->TraiteErreurRequete(chgmdpBasequery,req, "");
+        DataBase::getInstance()->traiteErreurRequete(chgmdpBasequery,req, "");
         QString AdressIP;
         foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
             if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
@@ -2601,10 +2602,10 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
             Domaine += listIP.at(i) + ".";
         req = "set password for '" NOM_ADMINISTRATEURDOCS "'@'" + Domaine + "%' = '" + nouv + "'";
         QSqlQuery chgmdpBaseReseauquery(req, db);
-        proc->TraiteErreurRequete(chgmdpBaseReseauquery,req, "");
+        DataBase::getInstance()->traiteErreurRequete(chgmdpBaseReseauquery,req, "");
         req = "set password for '" NOM_ADMINISTRATEURDOCS "SSL'@'%' = '" + nouv + "'";
         QSqlQuery chgmdpBaseDistantquery(req, db);
-        proc->TraiteErreurRequete(chgmdpBaseDistantquery,req, "");
+        DataBase::getInstance()->traiteErreurRequete(chgmdpBaseDistantquery,req, "");
         gAskMDP->done(0);
         msgbox.exec();
     }
@@ -2622,7 +2623,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
     ui->ActesCCAMupTableWidget->verticalHeader()->setVisible(false);
     ui->ActesCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->ActesCCAMupTableWidget->setMouseTracking(true);
-    int ncol = (gDataUser["Secteur"].toInt()>1? 6 : 5);
+    int ncol = (gDataUser->getSecteur()>1? 6 : 5);
     ui->ActesCCAMupTableWidget->setColumnCount(ncol);
     ui->ActesCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
     ui->ActesCCAMupTableWidget->setColumnWidth(1,90);           //code CCAM
@@ -2661,7 +2662,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
         Remplirtablerequete += " where codeccam like 'B%'";
     Remplirtablerequete +=  " order by codeccam";
     QSqlQuery ActesQuery (Remplirtablerequete,db);
-    if (proc->TraiteErreurRequete(ActesQuery, Remplirtablerequete,""))
+    if (DataBase::getInstance()->traiteErreurRequete(ActesQuery, Remplirtablerequete,""))
         return;
     ui->ActesCCAMupTableWidget->setRowCount(ActesQuery.size());
     ActesQuery.first();
@@ -2734,7 +2735,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     ui->AssocCCAMupTableWidget->verticalHeader()->setVisible(false);
     ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->AssocCCAMupTableWidget->setMouseTracking(false);
-    int ncol = (gDataUser["Secteur"].toInt()>1? 5 : 4);
+    int ncol = (gDataUser->getSecteur() > 1 ? 5 : 4);
     ui->AssocCCAMupTableWidget->setColumnCount(ncol);
     ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
     ui->AssocCCAMupTableWidget->setColumnWidth(1,135);           //code CCAM
@@ -2769,7 +2770,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     QString Assocrequete = "SELECT TYPEACTE, montantOPTAM, montantNonOptam, montantpratique from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + " order by typeacte";
     //qDebug() << Assocrequete;
     QSqlQuery AssocQuery (Assocrequete,db);
-    if (proc->TraiteErreurRequete(AssocQuery, Assocrequete,""))
+    if (DataBase::getInstance()->traiteErreurRequete(AssocQuery, Assocrequete,""))
         return;
     ui->AssocCCAMupTableWidget->setRowCount(AssocQuery.size());
     AssocQuery.first();
@@ -2827,7 +2828,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     Assocrequete = "SELECT DISTINCT TYPEACTE, montantoptam, montantnonoptam, montantpratique from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2"
                    " and typeacte not in (SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + ")";
     QSqlQuery Assoc2Query (Assocrequete,db);
-    if (proc->TraiteErreurRequete(Assoc2Query, Assocrequete,""))
+    if (DataBase::getInstance()->traiteErreurRequete(Assoc2Query, Assocrequete,""))
         return;
     Assoc2Query.first();
     for (int i=0; i<Assoc2Query.size(); i++)
@@ -2922,7 +2923,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
     ui->HorsNomenclatureupTableWidget->clearContents();
     QString Horsrequete = "SELECT TYPEACTE, montantpratique from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(gidUser);
     QSqlQuery HorsQuery (Horsrequete,db);
-    if (proc->TraiteErreurRequete(HorsQuery, Horsrequete,""))
+    if (DataBase::getInstance()->traiteErreurRequete(HorsQuery, Horsrequete,""))
         return;
     ui->HorsNomenclatureupTableWidget->setRowCount(HorsQuery.size());
     HorsQuery.first();
@@ -2953,7 +2954,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
     Horsrequete = "SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser <> " + QString::number(gidUser)+
             " and typeacte not in (SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(gidUser) + ")";
     QSqlQuery Hors2Query (Horsrequete,db);
-    if (proc->TraiteErreurRequete(Hors2Query, Horsrequete,""))
+    if (DataBase::getInstance()->traiteErreurRequete(Hors2Query, Horsrequete,""))
         return;
     Hors2Query.first();
     for (int i=0; i<Hors2Query.size(); i++)
@@ -3014,11 +3015,11 @@ void dlg_param::Remplir_Tables()
 
     QString  Remplirtablerequete = "SELECT list.idAppareil, list.TitreExamen, list.NomAppareil, Format"
               " FROM "  NOM_TABLE_APPAREILSCONNECTESCENTRE " appcon , " NOM_TABLE_LISTEAPPAREILS " list"
-              " where list.idappareil = appcon.idappareil and idLieu = " + gDataUser["idLieu"].toString() +
+              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(gDataUser->getIdLieu()) +
               " ORDER BY TitreExamen";
 
     QSqlQuery RemplirTableViewQuery (Remplirtablerequete,db);
-    if (proc->TraiteErreurRequete(RemplirTableViewQuery, Remplirtablerequete,""))
+    if (DataBase::getInstance()->traiteErreurRequete(RemplirTableViewQuery, Remplirtablerequete,""))
         return;
     ui->AppareilsConnectesupTableWidget->setRowCount(RemplirTableViewQuery.size());
     ui->MonoDocupTableWidget->setRowCount(RemplirTableViewQuery.size());
@@ -3067,9 +3068,9 @@ void dlg_param::Remplir_Tables()
         col++; //2
         pItem3->setText(RemplirTableViewQuery.value(2).toString());                             // NomAppareil
         ui->AppareilsConnectesupTableWidget->setItem(i,col,pItem3);
-        line5a->setText(proc->getDossierDocuments(RemplirTableViewQuery.value(2).toString(),Procedures::Poste));
-        line5b->setText(proc->getDossierDocuments(RemplirTableViewQuery.value(2).toString(),Procedures::ReseauLocal));
-        line5c->setText(proc->getDossierDocuments(RemplirTableViewQuery.value(2).toString(),Procedures::Distant));
+        line5a->setText(proc->getDossierDocuments(RemplirTableViewQuery.value(2).toString(),DataBase::Poste));
+        line5b->setText(proc->getDossierDocuments(RemplirTableViewQuery.value(2).toString(),DataBase::ReseauLocal));
+        line5c->setText(proc->getDossierDocuments(RemplirTableViewQuery.value(2).toString(),DataBase::Distant));
         line5a->setRowTable(i);
         line5b->setRowTable(i);
         line5c->setRowTable(i);
@@ -3144,7 +3145,7 @@ void dlg_param::Remplir_Tables()
 
     glistAppareils.clear();
     QString req = "select NomAppareil from " NOM_TABLE_LISTEAPPAREILS
-                  " where idAppareil not in (select idAppareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " where idlieu = " + gDataUser["idLieu"].toString() + ")";
+                  " where idAppareil not in (select idAppareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(gDataUser->getIdLieu()) + ")";
     QSqlQuery listappquery(req,db);
     if (listappquery.size() == 0)
         widgAppareils->plusBouton->setEnabled(false);

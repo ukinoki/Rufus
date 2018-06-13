@@ -33,17 +33,15 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     gPrenomPat          = PrenomPatient;
 
     proc                = procAPasser;
-    gidUser             = proc->getDataUser()["idUser"].toInt();
-    gidUserSuperviseur  = proc->getDataUser()["UserSuperviseur"].toInt();
-    db                  = proc->getDataBase();
+    gidUser             = proc->getDataUser()->id();
+    gidUserSuperviseur  = proc->getDataUser()->getIdUserActeSuperviseur();
+    db                  = DataBase::getInstance()->getDataBase();
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     setWindowTitle(tr("Liste des documents prédéfinis"));
-
-    ui->PrescriptioncheckBox
-                        ->setVisible(proc->getDataUser()["Soignant"].toInt() == 1 || proc->getDataUser()["Soignant"].toInt() == 2 || proc->getDataUser()["Soignant"].toInt() == 3);
+    ui->PrescriptioncheckBox->setVisible(proc->getDataUser()->isSoignant());
     widgButtonsDocs     = new WidgetButtonFrame(ui->DocupTableWidget);
     widgButtonsDocs     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
     widgButtonsDocs     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
@@ -157,7 +155,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
 
     QString ALDrequete = "select idPat from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(gidPatient) + " and PatALD = 1";
     QSqlQuery ALDQuery (ALDrequete,db);
-    proc->TraiteErreurRequete(ALDQuery,ALDrequete,"");
+    DataBase::getInstance()->traiteErreurRequete(ALDQuery,ALDrequete,"");
     if (ALDQuery.size() > 0)
         ui->ALDcheckBox->setChecked(true);
 
@@ -359,7 +357,7 @@ void dlg_documents::Slot_dblClicktextEdit()
             }
         }
         int idUser = ui->DocupTableWidget->item(row,5)->text().toInt();
-        if (idUser == proc->getDataUser()["idUser"].toInt())
+        if (idUser == proc->getDataUser()->id())
             ConfigMode(ModificationDOC,row);
     }
 }
@@ -1275,7 +1273,7 @@ void dlg_documents::Slot_Validation()
         }
         if (c == 0)
         {
-            UpMessageBox::Watch(this,"Euuhh... " + proc->getDataUser()["UserLogin"].toString() + ", " + tr("il doit y avoir une erreur..."), tr("Vous n'avez sélectionné aucun document."));
+            UpMessageBox::Watch(this,"Euuhh... " + proc->getDataUser()->getLogin() + ", " + tr("il doit y avoir une erreur..."), tr("Vous n'avez sélectionné aucun document."));
             break;
         }
 
@@ -1859,7 +1857,7 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
             " where idMetaDocument = " + idDossier;
     QSqlQuery listdocsquery(requete,db);
     //UpMessageBox::Watch(this,requete);
-    proc->TraiteErreurRequete(listdocsquery,requete,"");
+    DataBase::getInstance()->traiteErreurRequete(listdocsquery,requete,"");
     if (listdocsquery.size() > 0)
     {
         QStringList listiddocs;
@@ -1895,7 +1893,7 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
                                         requete = "select idDocument from " NOM_TABLE_JOINTURESDOCS
                                                 " where idMetaDocument = " + ui->DossiersupTableWidget->item(j,2)->text();
                                         QSqlQuery docsquer(requete,db);
-                                        proc->TraiteErreurRequete(docsquer,requete,"");
+                                        DataBase::getInstance()->traiteErreurRequete(docsquer,requete,"");
                                         if (docsquer.size() > 0)
                                         {
                                             QStringList listid;
@@ -2430,7 +2428,7 @@ void dlg_documents::InsertDocument(int row)
         requete += ", null)";
 
     QSqlQuery InsertDocumentQuery (requete,db);
-    proc->TraiteErreurRequete(InsertDocumentQuery, requete,tr("Erreur d'enregistrement du document dans ") + NOM_TABLE_COURRIERS);
+    DataBase::getInstance()->traiteErreurRequete(InsertDocumentQuery, requete,tr("Erreur d'enregistrement du document dans ") + NOM_TABLE_COURRIERS);
 
     Remplir_TableView();
 
@@ -2486,7 +2484,7 @@ void dlg_documents::InsertDossier(int row)
         a = "1";
     requete += "," + a + ")";
     QSqlQuery InsertDossierQuery (requete,db);
-    if (!proc->TraiteErreurRequete(InsertDossierQuery, requete, tr("Erreur d'enregistrement du dossier dans ") +  NOM_TABLE_METADOCUMENTS))
+    if (!DataBase::getInstance()->traiteErreurRequete(InsertDossierQuery, requete, tr("Erreur d'enregistrement du dossier dans ") +  NOM_TABLE_METADOCUMENTS))
     {
         QStringList listdocs;
         QString idmetadoc;
@@ -2600,14 +2598,12 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
 
     int         userentete = (proc->UserSuperviseur()<1? proc->getListeSuperviseurs()->item(0)->text().toInt() : proc->UserSuperviseur());
     gDataUser = proc->setDataOtherUser(userentete);
-    if (!gDataUser.value("Success").toBool())
+    if( gDataUser == nullptr )
         return;
-//    gDataUser = proc->setDataOtherUser(proc->UserSuperviseur());
-//    if (!gDataUser.value("Success").toBool())
-//        return;
+
     QString req = "select patDDN, Sexe from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(gidPatient);
     QSqlQuery quer(req,db);
-    if (proc->TraiteErreurRequete(quer,req,tr("Impossible de retrouver la date de naissance de ce patient")))
+    if (DataBase::getInstance()->traiteErreurRequete(quer,req,tr("Impossible de retrouver la date de naissance de ce patient")))
         texte.replace("{{DDN}}"                 ,"xx xx xxxx");
     quer.first();
     QString Sexe                        = quer.value(1).toString();
@@ -2625,9 +2621,10 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     texte.replace("{{" + PRENOMPAT + "}},"      , gPrenomPat + ",");
     texte.replace("{{" + PRENOMPAT + "}} "      , gPrenomPat + " ");
     texte.replace("{{" + PRENOMPAT + "}}"       , gPrenomPat);
-    if (gDataUser["Titre"].toString() != "")
-         texte.replace("{{" + TITRUSER + "}}"   , gDataUser["Titre"].toString() + " " + gDataUser["Prenom"].toString() + " " + gDataUser["Nom"].toString());
-    else texte.replace("{{" + TITRUSER + "}}"   , gDataUser["Prenom"].toString() + " " + gDataUser["Nom"].toString());
+    if (gDataUser->getTitre().size())
+        texte.replace("{{" + TITRUSER + "}}"   , gDataUser->getTitre() + " " + gDataUser->getPrenom() + " " + gDataUser->getNom());
+    else
+        texte.replace("{{" + TITRUSER + "}}"   , gDataUser->getPrenom() + " " + gDataUser->getNom());
     texte.replace("{{" + DDNPAT + "}}"                 ,quer.value(0).toDate().toString((tr("d MMMM yyyy"))));
     texte.replace("{{" + TITREPAT + "}} "       , formule + " ");
     texte.replace("{{" + TITREPAT + "}}"        , formule);
@@ -2951,7 +2948,7 @@ void dlg_documents::Remplir_TableView()
     QString  Remplirtablerequete = "SELECT ResumeDocument, TextDocument, idDocument, DocPublic, idUser, Prescription, editable"
               " FROM "  NOM_TABLE_COURRIERS
               " WHERE (idUser = " + QString::number(gidUser);
-    if (proc->getDataUser()["Fonction"].toString() == tr("Médecin") || proc->getDataUser()["Fonction"].toString() == tr("Orthoptiste"))
+    if (proc->getDataUser()->isMedecin() || proc->getDataUser()->isOrthoptist())
         Remplirtablerequete += " Or (DocPublic = 1 and iduser <> " + QString::number(gidUser) + ")";
     else
         Remplirtablerequete += " Or DocPublic = 1";
@@ -2959,7 +2956,7 @@ void dlg_documents::Remplir_TableView()
     Remplirtablerequete += " ORDER BY ResumeDocument";
 
     QSqlQuery RemplirTableViewQuery (Remplirtablerequete,db);
-    if (proc->TraiteErreurRequete(RemplirTableViewQuery, Remplirtablerequete,""))
+    if (DataBase::getInstance()->traiteErreurRequete(RemplirTableViewQuery, Remplirtablerequete,""))
         return;
     ui->DocupTableWidget->setRowCount(RemplirTableViewQuery.size());
     RemplirTableViewQuery.first();
@@ -3074,7 +3071,7 @@ void dlg_documents::Remplir_TableView()
                 " ORDER BY ResumeMetaDocument;";
     //UpMessageBox::Watch(this,RemplirtableDossiersrequete);
     QSqlQuery RemplirDossiersTableViewQuery (RemplirtableDossiersrequete,db);
-    if (proc->TraiteErreurRequete(RemplirDossiersTableViewQuery, RemplirtableDossiersrequete,""))
+    if (DataBase::getInstance()->traiteErreurRequete(RemplirDossiersTableViewQuery, RemplirtableDossiersrequete,""))
         return;
 
     ui->DossiersupTableWidget->setRowCount(RemplirDossiersTableViewQuery.size());
@@ -3146,7 +3143,7 @@ void dlg_documents::SupprimmDocument(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + line->text().toUpper() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + proc->getDataUser()["UserLogin"].toString() + "?");
+    msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton *NoBouton = new UpSmallButton();
@@ -3162,7 +3159,7 @@ void dlg_documents::SupprimmDocument(int row)
         QString requete = "DELETE FROM  " NOM_TABLE_COURRIERS " WHERE idDocument = " + QString::number(iddoc);
         Msg = tr("Impossible de supprimer le document\n") + line->text().toUpper() + tr("\n ... et je ne sais pas pourquoi...");
         QSqlQuery SupprimeDocQuery (requete,db);
-        proc->TraiteErreurRequete(SupprimeDocQuery,requete, Msg);
+        DataBase::getInstance()->traiteErreurRequete(SupprimeDocQuery,requete, Msg);
         Remplir_TableView();
     }
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3184,7 +3181,7 @@ void dlg_documents::SupprimmDossier(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + line->text().toUpper() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + proc->getDataUser()["UserLogin"].toString() + "?");
+    msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton *OKBouton = new UpSmallButton();
@@ -3197,25 +3194,25 @@ void dlg_documents::SupprimmDossier(int row)
     if (msgbox.clickedButton()  != NoBouton)
     {
         int iddos = ui->DossiersupTableWidget->item(row,2)->text().toInt();
-        QSqlQuery ("SET AUTOCOMMIT = 0;", proc->getDataBase());
+        QSqlQuery ("SET AUTOCOMMIT = 0;", DataBase::getInstance()->getDataBase());
         QString lockrequete = "LOCK TABLES " NOM_TABLE_METADOCUMENTS " WRITE, " NOM_TABLE_JOINTURESDOCS " WRITE;";
-        QSqlQuery lockquery (lockrequete, proc->getDataBase());
-        if (!proc->TraiteErreurRequete(lockquery,lockrequete,"Impossible de verrouiller " NOM_TABLE_METADOCUMENTS " et " NOM_TABLE_JOINTURESDOCS))
+        QSqlQuery lockquery (lockrequete, DataBase::getInstance()->getDataBase());
+        if (!DataBase::getInstance()->traiteErreurRequete(lockquery,lockrequete,"Impossible de verrouiller " NOM_TABLE_METADOCUMENTS " et " NOM_TABLE_JOINTURESDOCS))
         {
             QString requete = "DELETE FROM  " NOM_TABLE_METADOCUMENTS " WHERE idMetaDocument = " + QString::number(iddos);
             Msg = tr("Impossible de suppprimer le dossier") + "\n" + line->text().toUpper() + "!\n ... " + tr("et je ne sais pas pourquoi") + "...\nRufus";
             QSqlQuery SupprimeDossQuery (requete,db);
-            if (!proc->TraiteErreurRequete(SupprimeDossQuery,requete, Msg))
+            if (!DataBase::getInstance()->traiteErreurRequete(SupprimeDossQuery,requete, Msg))
             {
                 requete = "delete from " NOM_TABLE_JOINTURESDOCS " WHERE idMetaDocument = " + QString::number(iddos);
                 SupprimeDossQuery = QSqlQuery(requete,db);
-                proc->TraiteErreurRequete(SupprimeDossQuery,requete, Msg);
+                DataBase::getInstance()->traiteErreurRequete(SupprimeDossQuery,requete, Msg);
             }
-            proc->commit(db);
+            proc->commit();
             Remplir_TableView();
         }
         else
-            proc->rollback(db);
+            proc->rollback();
     }
     if (ui->DocupTableWidget->rowCount() == 0)
         ConfigMode(CreationDOC);
@@ -3279,7 +3276,7 @@ UpdateDocument(int row)
     if (ui->DocEditcheckBox->isChecked())       req += " , Editable = 1";       else req += " , Editable = null";
     req += " WHERE  idDocument = " + idAmodifier;
     QSqlQuery ModifDocQuery (req,db);
-    proc->TraiteErreurRequete(ModifDocQuery, req, tr("Erreur de mise à jour du document dans ") + NOM_TABLE_COURRIERS);
+    DataBase::getInstance()->traiteErreurRequete(ModifDocQuery, req, tr("Erreur de mise à jour du document dans ") + NOM_TABLE_COURRIERS);
     Remplir_TableView();
 
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3356,7 +3353,7 @@ void dlg_documents::UpdateDossier(int row)
             " SET ResumeMetaDocument = '"  + proc->CorrigeApostrophe(line->text().left(100)) + "'"
             " WHERE  idmetaDocument = " + iddoss;
     QSqlQuery ModifDossierQuery (req,db);
-    proc->TraiteErreurRequete(ModifDossierQuery, req, tr("Erreur de mise à jour du dossier dans ") + NOM_TABLE_METADOCUMENTS);
+    DataBase::getInstance()->traiteErreurRequete(ModifDossierQuery, req, tr("Erreur de mise à jour du dossier dans ") + NOM_TABLE_METADOCUMENTS);
 
     Remplir_TableView();
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3420,7 +3417,7 @@ void dlg_documents::VerifDossiers()
                 QString requete = "select idDocument from " NOM_TABLE_JOINTURESDOCS
                                   " where idMetaDocument = " + ui->DossiersupTableWidget->item(j,2)->text();
                 QSqlQuery docsquer(requete,db);
-                proc->TraiteErreurRequete(docsquer,requete,"");
+                DataBase::getInstance()->traiteErreurRequete(docsquer,requete,"");
                 if (docsquer.size() > 0)
                 {
                     QStringList listid;

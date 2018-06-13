@@ -580,7 +580,7 @@ void dlg_motifs::Slot_EnregistreMotifs()
     }
     //vider la table MotifsRDV
     QString req = "delete from " NOM_TABLE_MOTIFSRDV;
-    QSqlQuery (req, proc->getDataBase());
+    QSqlQuery (req, DataBase::getInstance()->getDataBase());
     //la remplir avec les nouvelles valeurs
     req = "insert into " NOM_TABLE_MOTIFSRDV " (Utiliser, Motif, raccourci, couleur, ParDefaut, NoOrdre) Values\n";
     for (int j=0; j<ui->MotifsupTableWidget->rowCount(); j++)
@@ -603,7 +603,7 @@ void dlg_motifs::Slot_EnregistreMotifs()
         req += a + ",";
         req += QString::number(j+1) + ")";
     }
-    QSqlQuery(req,proc->getDataBase());
+    QSqlQuery(req,DataBase::getInstance()->getDataBase());
     accept();
 }
 
@@ -620,8 +620,8 @@ void dlg_motifs::RemplirTableWidget()
     //Remplissage Table MotifsupTableWidget
     ui->MotifsupTableWidget->clearContents();
     QString  Remplirtablerequete = "SELECT idMotifsRDV, Motif, Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre FROM "  NOM_TABLE_MOTIFSRDV " ORDER BY NoOrdre";
-    QSqlQuery RemplirTableViewQuery (Remplirtablerequete,proc->getDataBase());
-    if (proc->TraiteErreurRequete(RemplirTableViewQuery, Remplirtablerequete,""))
+    QSqlQuery RemplirTableViewQuery (Remplirtablerequete,DataBase::getInstance()->getDataBase());
+    if (DataBase::getInstance()->traiteErreurRequete(RemplirTableViewQuery, Remplirtablerequete,""))
         return;
     ui->MotifsupTableWidget->setRowCount(RemplirTableViewQuery.size());
     RemplirTableViewQuery.first();

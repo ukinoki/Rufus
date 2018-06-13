@@ -41,14 +41,13 @@ public:
 private:
     dlg_comptes                 *Dlg_Cmpt;
     int                         r,c, idDepEnCours;
-    int                         gidUser;
     int                         gidUserADebiter;
     Procedures                  *proc;
     QSqlDatabase                db;
     QString                     gNomUser;               //le nom de l'utilisateur dont on affiche les dépenses
     QStringList                 glistMoyensDePaiement;
     QStringList                 glistRefFiscales;
-    QMap<QString,QVariant>      gDataUser;
+    User                        *gDataUser;
     QStandardItemModel          *glistComptes;
     QStandardItemModel          *glistComptesAvecDesactive;
     QStandardItemModel          *gListeLiberauxModel;

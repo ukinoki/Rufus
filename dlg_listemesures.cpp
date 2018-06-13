@@ -27,7 +27,7 @@ dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, Procedures *pro
         gMode       = Supprimer;
     else if (mode == "RECUP")
         gMode       = Recuperer;
-    db          = proc->getDataBase();
+    db          = DataBase::getInstance()->getDataBase();
 
     QVBoxLayout *globallay       = dynamic_cast<QVBoxLayout*>(layout());
     tabLM              = new QTableView(this);
@@ -154,11 +154,11 @@ void dlg_listemesures::DetruireLaMesure(int IdRefract)
         requete = "DELETE  FROM " NOM_TABLE_DONNEES_OPHTA_PATIENTS " WHERE  QuelleMesure = '"
                     + quer.value(1).toString() + "' and idpat = " + quer.value(0).toString();
         QSqlQuery DetruireMesureQuery2 (requete,db);
-        proc->TraiteErreurRequete(DetruireMesureQuery2,requete, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
+        DataBase::getInstance()->traiteErreurRequete(DetruireMesureQuery2,requete, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
     }
     requete = "DELETE  FROM " NOM_TABLE_REFRACTION " WHERE  idRefraction = " + QString::number(IdRefract);
     QSqlQuery DetruireMesureQuery (requete,db);
-    proc->TraiteErreurRequete(DetruireMesureQuery,requete, tr("Impossible de suppimer cette mesure dans refractions!"));
+    DataBase::getInstance()->traiteErreurRequete(DetruireMesureQuery,requete, tr("Impossible de suppimer cette mesure dans refractions!"));
 }
 
 QString dlg_listemesures::IdRefractAOuvrir()
@@ -194,7 +194,7 @@ void dlg_listemesures::RemplirTableView()
               " WHERE  IdPat = " + QString::number(gidPatient);
 
     QSqlQuery quer (requete,db);
-    if (proc->TraiteErreurRequete(quer,requete,tr("Impossible de trouver la table des refractions!")))
+    if (DataBase::getInstance()->traiteErreurRequete(quer,requete,tr("Impossible de trouver la table des refractions!")))
             return;
 
     QStandardItem       *pitem0, *pitem1, *pitem2, *pitem3, *pitem4;

@@ -22,6 +22,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_banque.h"
 #include "upcombobox.h"
 #include <QRadioButton>
+#include "cls_user.h"
 #include "functormajpremierelettre.h"
 
 /* sert à gérer les comptes bancaires des utilisateurs
@@ -36,7 +37,7 @@ class dlg_gestioncomptes : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_gestioncomptes(QMap<QString, QVariant> DataUser, QSqlDatabase gdb,
+    explicit dlg_gestioncomptes(User *DataUser, QSqlDatabase gdb,
                                 bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncomptes();
 
@@ -44,7 +45,7 @@ private:
     FunctorMAJPremiereLettre fMAJPremiereLettre;
     Ui::dlg_gestioncomptes  *ui;
     QSqlDatabase            db;
-    QMap<QString,QVariant>  gDataUser;
+    User                    *gDataUser;
     QStringList             gListBanques;
     dlg_banque              *Dlg_Banq;
     bool                    createurducompte;

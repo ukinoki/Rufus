@@ -41,7 +41,7 @@ ui(new Ui::dlg_actesprecedents)
     else
         restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionAutreDossier").toByteArray());
 
-    db = proc->getDataBase();
+    db = DataBase::getInstance()->getDataBase();
 
     connect (ui->FermepushButton,                       &QPushButton::clicked,                                  [=] {close();});
     connect (ui->ActePrecedentpushButton,               &QPushButton::clicked,                                  [=] {NavigationConsult(Prec);});
@@ -117,7 +117,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
               " WHERE idActe = '" + QString::number(idActeAAfficher) + "'";
 
     QSqlQuery ActesPrecsQuery (requete,db);
-    if (proc->TraiteErreurRequete(ActesPrecsQuery, requete))
+    if (DataBase::getInstance()->traiteErreurRequete(ActesPrecsQuery, requete))
     {
         nbActes = 0;
         noActe = 0;
@@ -152,7 +152,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
         //3. calcul de l'age
         requete = "SELECT PatDDN FROM " NOM_TABLE_PATIENTS " WHERE idPat = " + QString::number(gidPatient);
         QSqlQuery AgePatientQuery (requete,db);
-        if (proc->TraiteErreurRequete(AgePatientQuery,requete,tr("Impossible de retrouver la date de naissance")))
+        if (DataBase::getInstance()->traiteErreurRequete(AgePatientQuery,requete,tr("Impossible de retrouver la date de naissance")))
             return;
         else
         {
@@ -164,7 +164,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
         requete = "SELECT idActe FROM " NOM_TABLE_ACTES
                   " WHERE idPat = '" + QString::number(gidPatient) + "' ORDER BY ActeDate";
         QSqlQuery ChercheNoActeQuery (requete,db);
-        if (proc->TraiteErreurRequete(ChercheNoActeQuery,requete,tr("Impossible de retrouver les consultations de ce patient")))
+        if (DataBase::getInstance()->traiteErreurRequete(ChercheNoActeQuery,requete,tr("Impossible de retrouver les consultations de ce patient")))
             return;
         else
         {
@@ -240,7 +240,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
 
         requete = "SELECT TypePaiement, Tiers From " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(idActeAAfficher);
         QSqlQuery AfficheTypePaiementQuery (requete,db);
-        if (proc->TraiteErreurRequete(AfficheTypePaiementQuery,requete,tr("Impossible de retrouver les renseignements comptables")))
+        if (DataBase::getInstance()->traiteErreurRequete(AfficheTypePaiementQuery,requete,tr("Impossible de retrouver les renseignements comptables")))
             return;
         if (AfficheTypePaiementQuery.size() == 0)
         {
@@ -273,13 +273,13 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
                 // on récupère les lignes de paiement
                 requete = " SELECT idRecette, Paye FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(idActeAAfficher);
                 QSqlQuery ListePaiementsQuery (requete,db);
-                proc->TraiteErreurRequete(ListePaiementsQuery, requete, "");
+                DataBase::getInstance()->traiteErreurRequete(ListePaiementsQuery, requete, "");
                 ListePaiementsQuery.first();
                 for (int l = 0; l < ListePaiementsQuery.size(); l++)
                 {
                     requete = "SELECT Monnaie FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + ListePaiementsQuery.value(0).toString();
                     QSqlQuery MonnaieQuery (requete,db);
-                    proc->TraiteErreurRequete(MonnaieQuery,requete,"");
+                    DataBase::getInstance()->traiteErreurRequete(MonnaieQuery,requete,"");
                     MonnaieQuery.first();
                     if (MonnaieQuery.value(0).toString() == "F")
                         TotalPaye = TotalPaye + (ListePaiementsQuery.value(1).toDouble() / 6.55957);
@@ -339,7 +339,7 @@ int dlg_actesprecedents::ChercheActeAAfficher()
               " WHERE idPat = '" + QString::number(gidPatient) + "' order by actedate asc";
 
     QSqlQuery ActeAAfficherQuery (requete,db);
-    if (proc->TraiteErreurRequete(ActeAAfficherQuery,requete,tr("Impossible de retrouver la dernière consultation")))     // on retrouve les actes du patient
+    if (DataBase::getInstance()->traiteErreurRequete(ActeAAfficherQuery,requete,tr("Impossible de retrouver la dernière consultation")))     // on retrouve les actes du patient
         return 0;
     if (ActeAAfficherQuery.size() == 0) return 0;
     ActeAAfficherQuery.last();
@@ -371,7 +371,7 @@ bool dlg_actesprecedents::NavigationConsult(int i)
     QString requete = "SELECT idActe FROM " NOM_TABLE_ACTES
             " WHERE idPat = '" + QString::number(gidPatient) + "'";
     QSqlQuery NavigationConsultQuery (requete,db);
-    if (proc->TraiteErreurRequete(NavigationConsultQuery,requete,tr("Impossible de retrouver les consultations de ce patient!")))
+    if (DataBase::getInstance()->traiteErreurRequete(NavigationConsultQuery,requete,tr("Impossible de retrouver les consultations de ce patient!")))
         return false;
     if (NavigationConsultQuery.size() < 2)  // Pas plus d'une consultation trouvée
         return false;

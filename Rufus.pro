@@ -171,7 +171,8 @@ HEADERS  += rufus.h \
     playercontrols.h \
     upgroupbox.h \
     cls_user.h \
-    database.h
+    database.h \
+    log.h
 
 FORMS    += \
     dlg_identificationuser.ui \

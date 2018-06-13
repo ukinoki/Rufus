@@ -43,7 +43,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 #include <QSound>
 #include <QSplashScreen>
-#include <QSqlDatabase>
 #include <QStandardItemModel>
 #include <QtSql>
 #include <QTableWidget>
@@ -66,7 +65,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptextedit.h"
 #include "upmessagebox.h"
 
-#include "functordatauser.h"
+#include "cls_user.h"
+#include "database.h"
 #include "functormajpremierelettre.h"
 
 class Procedures : public QObject
@@ -78,7 +78,6 @@ public:
 
     bool                gdbOK;
     bool                dlgrefractionouverte;
-    QString             gLoginUser, gMDPUser;
     int                 gMode2;
     enum gMode2          {Poste, ReseauLocal, Distant};
     QDate               DateDebut, DateFin;
@@ -91,11 +90,10 @@ public:
     QFont                   AppFont();
     QString                 ConvertitEnHtml(QString Texte);
     bool                    ChoixDate();
-    bool                    EcritDansUnFichier(QString NomFichier, QString TexteFichier);
     QString                 Edit(QString txt, QString titre = "");
     void                    EditHtml(QString txt);
     bool                    FicheChoixConnexion();
-    QString                 getDossierDocuments(QString Appareil, int mod = ReseauLocal);
+    QString                 getDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
     int                     GetflagMG();
     int                     MAJflagMG();
     int                     GetflagPatients();
@@ -106,8 +104,7 @@ public:
     void                    EnChantier(QString msg = "");
     void                    Message(QStringList listmsg, int pause = 1000, bool bottom = true);
     void                    Message(QString mess, int pause = 1000, bool bottom = true);
-    //void                    Init_Icones();
-    bool                    TraiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
+
     void                    ModifTailleFont(QObject *obj, int siz, QFont font=qApp->font());
     int                     Nombre_Mesure_Selected(QTreeWidget *Tree);
     int                     Nombre_Mesure_Selected(QTableWidget *Table, int col);
@@ -138,26 +135,26 @@ public:
     // definition du superviseur, de l'utilisateur qui enregistre la commpta et de l'utilistaion de la compta
     //--------------------------------------------------------------------------------------------------------
 private:
-    FunctorDataUser         fdatauser;
     FunctorMAJPremiereLettre fMAJPremiereLettre;
-    int                     gidUser;
-        // le user pour la session en cours
     int                     gidCentre;
         // le centre de soins
     int                     gidLieuExercice;
         // le lieu d'exercice pour la session en cours
     int                     gidUserSuperViseurProv, gidUserSuperViseur;
+    //int gidUserSuperViseurProv;
         // le user qui assume la responsabilité médicale de l'acte
-        // -1 si le user n'a pas de superviseur défini et travaille pour tout le monde
+        // -1 si le gDataUser->getIdUserParent() n'a pas de superviseur défini et travaille pour tout le monde
         // -2 sans objet
         // -3 indéterminé
 
     int                     gidUserParent, gidUserParentProv;
+    //int gidUserParentProv;
         // le user soignant remplacé quand le user est remplaçant, sinon le supervisuer lui même
         // -2 sans objet
         // -3 indéterminé
 
     int                     gidUserComptableProv, gidUserComptable;
+    //int gidUserComptableProv;
         // le user qui comptabilise l'acte
         // -1 si pas de comptabilité
         // -2 sans objet
@@ -165,7 +162,7 @@ private:
     bool                    gUseCotation, gUseCotationProv;
     bool                    avecLaComptaProv;
     bool                    gBoxSuperviseurVisible, gBoxParentVisible;
-    bool                    DefinitRoleUser(int iduser);                       /* definit les iduser pour lequel le user travaille
+    bool                    DefinitRoleUser();                       /* definit les iduser pour lequel le user travaille
                                                                                 . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                                     . lui-même s'il est responsable de ses actes
                                                                                     . un autre user s'il est assistant
@@ -194,13 +191,13 @@ public:
     bool                    VerifMDP(QString MDP, QString Msg);
     bool                    VerifRessources(QString Nomfile = "");
 
-    void                    commit(QSqlDatabase db);
-    void                    rollback(QSqlDatabase db);
-    void                    locktables (QSqlDatabase db, QStringList ListTables, QString ModeBlocage = "WRITE""");
+    void                    commit();
+    void                    rollback();
+    void                    locktables (QStringList ListTables, QString ModeBlocage = "WRITE""");
 
     bool                    Connexion_A_La_Base();
     QStringList             DecomposeScriptSQL(QString nomficscript);
-    QString                 getBase();
+    //QString                 getBase();
     void                    InfoBase();
     bool                    ReinitBase();
     bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifUserConnectes = true);
@@ -222,16 +219,13 @@ public:
     bool                    ApercuAvantImpression();
     QString                 getCodePostalParDefaut();
     void                    setCodePostalParDefaut(QString CPParDefaut);
-    QSqlDatabase            getDataBase();
     void                    setDataUser(QMap<QString,QVariant> DataUser);
-    QMap<QString,QVariant>  getDataUser();
-    QMap<QString,QVariant>  setDataOtherUser(int id);
+    User*                   getDataUser();
+    User*                   setDataOtherUser(int id);
     void                    setDirImagerie();
     QString                 DirImagerie();
     void                    setFicheRefractionOuverte(bool a);
     bool                    FicheRefractionOuverte();
-    void                    setidUser(int id);
-    int                     getidUser();
     QStandardItemModel*     getListeComptesUserAvecDesactive();
     QStandardItemModel*     getListeComptesUser();
     void                    setListeComptesUser(int);
@@ -291,6 +285,9 @@ public:
 
     bool                    Connexion();
 
+    QString                 gLoginUser() { return DataBase::getInstance()->getUserConnected()->getLogin(); }
+    QString                 gMDPUser() { return DataBase::getInstance()->getUserConnected()->getPassword(); }
+
 signals:
     void                    UpdSalDat();
     void                    ConnectTimers(bool);
@@ -303,8 +300,8 @@ private:
     dlg_paramconnexion      *Dlg_ParamConnex;
     dlg_identificationuser  *Dlg_IdentUser;
     QFont                   gAppFont;
-    QMap<QString,QVariant>  lDataUser;
-    QMap<QString,QVariant>  OtherUser;
+    User *lDataUser;
+    User *OtherUser; //TODO créer QMap<int, User> iduser, user
     QStandardItemModel      *ListeComptesEncaissUser;
     QStandardItemModel      *ListeComptesEncaissUserAvecDesactive;
     QStandardItemModel      *ListeComptesUser;
@@ -313,7 +310,6 @@ private:
     QStandardItemModel      *gListeUsersModel, *gListeSuperviseursModel, *gListeParentsModel, *gListeLiberauxModel;
     QString                 DirStockageImages;
     QString                 lCPParDefaut, lVilleParDefaut;
-    QSqlDatabase            db;
     QPlainTextEdit          *gEtat;         // CZ 27082015
     QString                 gnomFichIni;
     QString                 gnomImprimante;
@@ -322,7 +318,7 @@ private:
     UpTextEdit              *gTxtEdit;
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
-    QString                 CreerUserFactice(int iduser);
+    QString                 CreerUserFactice(User &user);
     QStringList             ChoisirUnLogin();
     QString                 gLogin, gConfirmMDP, gNouvMDP;
 private slots:

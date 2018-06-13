@@ -164,7 +164,7 @@ void dlg_listecorrespondants::SupprCorresp()
             gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->text() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + proc->getDataUser()["UserLogin"].toString() + "?");
+    msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton *NoBouton = new UpSmallButton();
@@ -178,11 +178,11 @@ void dlg_listecorrespondants::SupprCorresp()
     {
         QString idCor   = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->accessibleDescription();
         QString req     = "delete from " NOM_TABLE_CORRESPONDANTS " where idcor = " + idCor;
-        QSqlQuery       (req, proc->getDataBase());
-        QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg  = null where idcormedmg  = " + idCor, proc->getDataBase());
-        QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe1 = null where idcormespe1 = " + idCor, proc->getDataBase());
-        QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe2 = null where idcormespe2 = " + idCor, proc->getDataBase());
-        QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe3 = null where idcormespe3 = " + idCor, proc->getDataBase());
+        QSqlQuery       (req, DataBase::getInstance()->getDataBase());
+        QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg  = null where idcormedmg  = " + idCor, DataBase::getInstance()->getDataBase());
+        QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe1 = null where idcormespe1 = " + idCor, DataBase::getInstance()->getDataBase());
+        QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe2 = null where idcormespe2 = " + idCor, DataBase::getInstance()->getDataBase());
+        QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe3 = null where idcormespe3 = " + idCor, DataBase::getInstance()->getDataBase());
         ListeModifiee   = true;
         ReconstruitListeCorrespondants(true);
     }
@@ -204,7 +204,7 @@ void dlg_listecorrespondants::ReconstruitListeCorrespondants(bool AvecRecalcul)
                 " SELECT idCor, CorNom, CorPrenom, corautreprofession as metier, CorAdresse1, CorAdresse2, CorAdresse3, CorCodepostal, CorVille, CorTelephone FROM " NOM_TABLE_CORRESPONDANTS
                 " where cormedecin <> 1 or cormedecin is null"
                 " order by metier, cornom, corprenom";
-        QSqlQuery Recalcquer(req,proc->getDataBase());
+        QSqlQuery Recalcquer(req,DataBase::getInstance()->getDataBase());
         quer = Recalcquer;
         if (treeCor->selectionModel()->selectedIndexes().size()>0)
         {

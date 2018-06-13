@@ -28,20 +28,20 @@ QMap<QString,QVariant> FunctorDataUser::operator ()(int iduser, int idLieu, QSql
             " OPTAM"                                                                                        // 30
             " from " NOM_TABLE_UTILISATEURS
             " where idUser = " + QString::number(iduser);
-    //qDebug() << req;
     QSqlQuery  RetrouveDataUserQuery (req,db);
     if (RetrouveDataUserQuery.lastError().type() != QSqlError::NoError)
     {
         UpMessageBox::Watch(0, "Impossible de retrouver les données de l'utilisateur", "\nErreur\n" + RetrouveDataUserQuery.lastError().text() +  "\nrequete = " + req);
-        //qDebug() << req;
+
     }
-    //TraiteErreurRequete(RetrouveDataUserQuery, req);
+
     if (RetrouveDataUserQuery.size() == 0)
     {
         UpMessageBox::Watch(0, QObject::tr("Impossible de retrouver cet utilisateur!"));
-        DataUser["Success"]            = false;
         return DataUser;
     }
+
+
     RetrouveDataUserQuery.first();
     DataUser["Success"]                     = true;
     DataUser["idUser"]                      = iduser;

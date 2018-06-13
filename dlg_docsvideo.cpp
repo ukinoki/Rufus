@@ -24,14 +24,14 @@ dlg_docsvideo::dlg_docsvideo(Procedures *ProcAPasser, int idPat, QWidget *parent
     proc    = ProcAPasser;
     idpat   = idPat;
     QString Base;
-    switch (proc->getModeConnexion()) {
-    case Procedures::Poste:
+    switch (DataBase::getInstance()->getMode()) {
+    case DataBase::Poste:
         Base = "BDD_POSTE";
         break;
-    case Procedures::Distant:
+    case DataBase::Distant:
         Base = "BDD_DISTANT";
         break;
-    case Procedures::ReseauLocal:
+    case DataBase::ReseauLocal:
         Base = "BDD_LOCAL";
         break;
     default:
@@ -170,11 +170,11 @@ void dlg_docsvideo::ChangeFile()
         toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
         AfficheVideo(fichierencours);
         QString Base;
-        if (proc->gMode == Procedures::Poste)
+        if (DataBase::getInstance()->getMode() == DataBase::Poste)
             Base = "BDD_POSTE";
-        else if (proc->gMode == Procedures::ReseauLocal)
+        else if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
             Base = "BDD_LOCAL";
-        else if (proc->gMode == Procedures::Distant)
+        else if (DataBase::getInstance()->getMode() == DataBase::Distant)
             Base = "BDD_DISTANT";
         proc->gsettingsIni->setValue(Base + "/DossiersVideos", docpath);
     }
@@ -235,8 +235,8 @@ void dlg_docsvideo::ValideFiche()
     }
     // on vérifie qu'un dossier par défaut a été enregistré pour l'imagerie
     QString Base, NomOnglet;
-    if (proc->getModeConnexion() == Procedures::Poste)          {Base = "BDD_POSTE";     NomOnglet = tr("Monoposte");}
-    if (proc->getModeConnexion() == Procedures::ReseauLocal)    {Base = "BDD_LOCAL";     NomOnglet = tr("Réseau local");}
+    if (DataBase::getInstance()->getMode() == DataBase::Poste)          {Base = "BDD_POSTE";     NomOnglet = tr("Monoposte");}
+    if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)    {Base = "BDD_LOCAL";     NomOnglet = tr("Réseau local");}
     QString NomDirStockageImagerie  = proc->gsettingsIni->value(Base + "/DossierImagerie").toString();
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
@@ -260,9 +260,9 @@ void dlg_docsvideo::ValideFiche()
                              + sstypedoc + "_"
                              + editdate->date().toString("yyyyMMdd") + "-" + QFileInfo(qFile).created().toString("HHmmss");
 
-    QSqlQuery ("LOCK TABLES '" NOM_TABLE_IMPRESSIONS "' WRITE", proc->getDataBase());
+    QSqlQuery ("LOCK TABLES '" NOM_TABLE_IMPRESSIONS "' WRITE", DataBase::getInstance()->getDataBase());
     int idimpr(0);
-    QSqlQuery maxquer("select max(idimpression) from " NOM_TABLE_IMPRESSIONS, proc->getDataBase());
+    QSqlQuery maxquer("select max(idimpression) from " NOM_TABLE_IMPRESSIONS, DataBase::getInstance()->getDataBase());
     if (maxquer.size()>0)
     {
         maxquer.first();
@@ -270,7 +270,7 @@ void dlg_docsvideo::ValideFiche()
     }
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
-    QSqlQuery query = QSqlQuery(proc->getDataBase());
+    QSqlQuery query = QSqlQuery(DataBase::getInstance()->getDataBase());
 
     query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idimpression, idpat, TypeDoc, SousTypeDoc, Titre, Dateimpression, UserEmetteur, EmisRecu, formatautre, lienversfichier, FormatDoc)"
                   " values(:idimpression, :idpat, :typeDoc, :soustypedoc, :titre, :dateimpression, :useremetteur, :emisrecu, :format, :lien, :formatdoc)");
@@ -280,13 +280,13 @@ void dlg_docsvideo::ValideFiche()
     query.bindValue(":soustypedoc",     sstypedoc);
     query.bindValue(":titre",           sstypedoc);
     query.bindValue(":dateimpression",  editdate->date().toString("yyyy-MM-dd") + " 00:00:00");
-    query.bindValue(":useremetteur",    QString::number(proc->getidUser()));
+    query.bindValue(":useremetteur",    QString::number(DataBase::getInstance()->getUserConnected()->id()));
     query.bindValue(":emisrecu",        "1");
     query.bindValue(":format",          VIDEO );
     query.bindValue(":lien",            NomFileVideoDoc);
     query.bindValue(":formatdoc",       VIDEO);
     bool b = query.exec();
-    QSqlQuery("UNLOCK TABLES", proc->getDataBase());
+    QSqlQuery("UNLOCK TABLES", DataBase::getInstance()->getDataBase());
     if(!b)
     {
         UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));

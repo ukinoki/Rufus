@@ -30,7 +30,7 @@ dlg_remisecheques::dlg_remisecheques(Procedures *procAPasser, QWidget *parent) :
 
     proc        = procAPasser;
 
-    db = proc->getDataBase();
+    db = DataBase::getInstance()->getDataBase();
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionRemiseCheques").toByteArray());
 
     connect (ui->AnnulupPushButton,                         SIGNAL(clicked()),                              this,           SLOT (Slot_AnnulupPushButton()));
@@ -127,7 +127,7 @@ void dlg_remisecheques::Slot_AnnulupPushButton()
                 " AND ModePaiement = 'C'"
                 " ORDER BY TireurCheque";
         QSqlQuery ChequeARemettreQuery (req,db);
-        proc->TraiteErreurRequete(ChequeARemettreQuery,req,"");
+        DataBase::getInstance()->traiteErreurRequete(ChequeARemettreQuery,req,"");
 
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant FROM " NOM_TABLE_RECETTES " pai"
@@ -137,7 +137,7 @@ void dlg_remisecheques::Slot_AnnulupPushButton()
                 " AND EnAttente IS NOT NULL"
                 " AND ModePaiement = 'C' ORDER BY TireurCheque";
         QSqlQuery ChequesEnAttenteQuery (req,db);
-        proc->TraiteErreurRequete(ChequesEnAttenteQuery,req,"");
+        DataBase::getInstance()->traiteErreurRequete(ChequesEnAttenteQuery,req,"");
 
         if (ChequeARemettreQuery.size() == 0 && ChequesEnAttenteQuery.size() == 0)
             reject();
@@ -221,23 +221,23 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         }
 
         // On verrouille la table RemisesCheques
-        QSqlQuery ("SET AUTOCOMMIT = 0;", proc->getDataBase());
+        QSqlQuery ("SET AUTOCOMMIT = 0;", DataBase::getInstance()->getDataBase());
         QString lockrequete = "LOCK TABLES " NOM_TABLE_REMISECHEQUES " WRITE;";
-        QSqlQuery lockquery (lockrequete, proc->getDataBase());
-        if (proc->TraiteErreurRequete(lockquery,lockrequete,"Impossible de verrouiller " NOM_TABLE_REMISECHEQUES))
+        QSqlQuery lockquery (lockrequete, DataBase::getInstance()->getDataBase());
+        if (DataBase::getInstance()->traiteErreurRequete(lockquery,lockrequete,"Impossible de verrouiller " NOM_TABLE_REMISECHEQUES))
             return;
         //On récupére l'idRemise
         QString RecupMaxrequete = "SELECT MAX(idRemCheq) FROM " NOM_TABLE_REMISECHEQUES;
         QSqlQuery MaxIdRemiseQuery (RecupMaxrequete,db);
-        proc->TraiteErreurRequete(MaxIdRemiseQuery,RecupMaxrequete,"");
+        DataBase::getInstance()->traiteErreurRequete(MaxIdRemiseQuery,RecupMaxrequete,"");
         MaxIdRemiseQuery.first();
         int idRemise = MaxIdRemiseQuery.value(0).toInt() + 1;
 
         QString Remiserequete = " INSERT INTO " NOM_TABLE_REMISECHEQUES " (idRemCheq, Montant, RCDate, idCompte) VALUES (" + QString::number(idRemise) +
                                 "," + QString::number(Total) + ", NOW(),'" + QString::number(gidCompteACrediter) +"')";
         QSqlQuery   MAJRemiseChequesQuery (Remiserequete,db);
-        proc->commit(proc->getDataBase());
-        if (proc->TraiteErreurRequete(MAJRemiseChequesQuery,Remiserequete, tr("Impossible de mettre à jour la table des remises de chèques")))
+        proc->commit();
+        if (DataBase::getInstance()->traiteErreurRequete(MAJRemiseChequesQuery,Remiserequete, tr("Impossible de mettre à jour la table des remises de chèques")))
             return;
 
 
@@ -246,7 +246,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         {
             QString Annulrequete = "delete from " NOM_TABLE_REMISECHEQUES " where idRemCheq = " + QString::number(idRemise);
             QSqlQuery annulRemiseQuery (Annulrequete,db);
-            proc->TraiteErreurRequete(annulRemiseQuery,Annulrequete,"");
+            DataBase::getInstance()->traiteErreurRequete(annulRemiseQuery,Annulrequete,"");
             UpMessageBox::Watch(this,tr("Impression annulée"));
             return;      // CZ001
         }
@@ -257,7 +257,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
             int idChequeAMettreAJour = ui->ListeChequesupTableWidget->item(k,5)->text().toInt();
             req = "UPDATE " NOM_TABLE_RECETTES " SET idRemise = " + QString::number(idRemise) + ", EnAttente = null WHERE idRecette = " + QString::number(idChequeAMettreAJour);
             QSqlQuery UpdatePaiementsQuery (req,db);
-            proc->TraiteErreurRequete(UpdatePaiementsQuery,req,"");
+            DataBase::getInstance()->traiteErreurRequete(UpdatePaiementsQuery,req,"");
         }
 
         // On enregitre dans la table GestionComptes cettte remise
@@ -269,7 +269,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
                 "','" + QString::number(Total) +
                 "','1','" + tr("Remise de chèques") + "')";
         QSqlQuery InsertLigneComptesQuery (req,db);
-         proc->TraiteErreurRequete(InsertLigneComptesQuery,req,"");
+         DataBase::getInstance()->traiteErreurRequete(InsertLigneComptesQuery,req,"");
 
         // On corrige les intitulés de banque et les tireurs dans ActeBanque de la table Actes
         for (int l = 0; l < ui->ListeChequesupTableWidget->rowCount(); l++)
@@ -278,7 +278,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
             req = "UPDATE " NOM_TABLE_RECETTES " Act SET BanqueCheque = '" + AB  + "', TireurCheque = '" + proc->CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
                     + "', DateEnregistrement = NOW() WHERE Act.idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
             QSqlQuery UpdateLignesPaiementsQuery (req,db);
-            proc->TraiteErreurRequete(UpdateLignesPaiementsQuery,req,"");
+            DataBase::getInstance()->traiteErreurRequete(UpdateLignesPaiementsQuery,req,"");
         }
 
         // On corrige les chèques mis en attente
@@ -286,7 +286,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         {
             req = "UPDATE " NOM_TABLE_RECETTES " SET EnAttente = 1 WHERE idRecette = " + ui->ChequesEnAttenteupTableWidget->item(l,5)->text();
             QSqlQuery CorrigeChequesEnAttenteQuery (req,db);
-            proc->TraiteErreurRequete(CorrigeChequesEnAttenteQuery,req,"");
+            DataBase::getInstance()->traiteErreurRequete(CorrigeChequesEnAttenteQuery,req,"");
         }
         accept();
     }
@@ -364,7 +364,7 @@ void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)
         //mise à jour de la table lignesrecettes
         QString UpdateidRec = "update " NOM_TABLE_RECETTES " set EnAttente = 1 where idRecette = " + idRec;
         QSqlQuery UpdateRecQuery (UpdateidRec,db);
-        proc->TraiteErreurRequete(UpdateRecQuery, UpdateidRec,"void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
+        DataBase::getInstance()->traiteErreurRequete(UpdateRecQuery, UpdateidRec,"void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
     }
 }
 
@@ -437,7 +437,7 @@ void dlg_remisecheques::Slot_ItemChequeEnAttenteClicked(int A, int B)
         //mise à jour de la table lignesrecettes
         QString UpdateidRec = "update " NOM_TABLE_RECETTES " set EnAttente = null where idRecette = " + idRec;
         QSqlQuery UpdateRecQuery (UpdateidRec,db);
-        proc->TraiteErreurRequete(UpdateRecQuery, UpdateidRec,"void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
+        DataBase::getInstance()->traiteErreurRequete(UpdateRecQuery, UpdateidRec,"void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
     }
 }
 
@@ -472,7 +472,7 @@ void dlg_remisecheques::Slot_ChangeCompte()
     QString req = "SELECT IntituleCompte, IBAN FROM " NOM_TABLE_COMPTES
                   " WHERE idCompte = " + QString::number(gidCompteACrediter);
     QSqlQuery   IntituleCompteQuery (req,db);
-    proc->TraiteErreurRequete(IntituleCompteQuery,req, "impossible de se connecter à la table des comptes");
+    DataBase::getInstance()->traiteErreurRequete(IntituleCompteQuery,req, "impossible de se connecter à la table des comptes");
     IntituleCompteQuery.first();
     ui->IntituleComptetextEdit->setText(IntituleCompteQuery.value(0).toString() + "\n" + IntituleCompteQuery.value(1).toString());
     bool chgOK = true;
@@ -582,7 +582,7 @@ void dlg_remisecheques::Slot_ToolTip(int A, int B)
             QString requete = "SELECT PatNom, PatPrenom, ActeCotation, ActeDate From " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act WHERE act.idActe in (SELECT idActe FROM "
                     NOM_TABLE_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat.idPat = act.idPat";
             QSqlQuery ResultQuery(requete,db);
-            proc->TraiteErreurRequete(ResultQuery,requete,"");
+            DataBase::getInstance()->traiteErreurRequete(ResultQuery,requete,"");
             ResultQuery.first();
             QString ABC;
             for (int i = 0; i < ResultQuery.size();i++)
@@ -719,7 +719,7 @@ bool dlg_remisecheques::ConfigMode(int mode)
                 " ORDER BY TireurCheque";
         //qDebug() << req;
         QSqlQuery ChequeARemettreQuery (req,db);
-        proc->TraiteErreurRequete(ChequeARemettreQuery,req,"");
+        DataBase::getInstance()->traiteErreurRequete(ChequeARemettreQuery,req,"");
 
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant FROM " NOM_TABLE_RECETTES " pai"
@@ -730,7 +730,7 @@ bool dlg_remisecheques::ConfigMode(int mode)
                 " AND ModePaiement = 'C' ORDER BY TireurCheque";
         //qDebug() << req;
         QSqlQuery ChequesEnAttenteQuery (req,db);
-        proc->TraiteErreurRequete(ChequesEnAttenteQuery,req,"");
+        DataBase::getInstance()->traiteErreurRequete(ChequesEnAttenteQuery,req,"");
 
 
         if (ChequeARemettreQuery.size() == 0 && ChequesEnAttenteQuery.size() == 0)
@@ -882,7 +882,7 @@ bool dlg_remisecheques::ConfigMode(int mode)
         QString req = "select idRemCheq, RCDate, Montant, idCompte from " NOM_TABLE_REMISECHEQUES " where idcompte in (select idcompte from " NOM_TABLE_COMPTES
                       " where idUser = " + QString::number(gidUserACrediter) + ") order by idremcheq desc";
         QSqlQuery quer(req,db);
-        if (proc->TraiteErreurRequete(quer,req,"")) return false;
+        if (DataBase::getInstance()->traiteErreurRequete(quer,req,"")) return false;
         if (quer.size() == 0) return false;
         quer.first();
         QStringList listrem;
@@ -943,14 +943,14 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     //création de l'entête
     QString EnTete;
     if (iduser == -1) return false;
-    if (!proc->setDataOtherUser(iduser).value("Success").toBool())
+    if (proc->setDataOtherUser(iduser) == nullptr)
         return false;
     EnTete = proc->ImpressionEntete(date).value("Norm");
     if (EnTete == "") return false;
     req = "select cmpt.idbanque, IBAN, intitulecompte, NomBanque from " NOM_TABLE_COMPTES " as cmpt "
             "left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque where idcompte = " + QString::number(idcompte) ;
     QSqlQuery  RetrouveBanqueQuery (req,db);
-    proc->TraiteErreurRequete( RetrouveBanqueQuery,req,"");
+    DataBase::getInstance()->traiteErreurRequete( RetrouveBanqueQuery,req,"");
     if ( RetrouveBanqueQuery.size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver cette banque!"));
