@@ -79,7 +79,6 @@ public:
     bool                gdbOK;
     bool                dlgrefractionouverte;
     int                 gMode2;
-    enum gMode2          {Poste, ReseauLocal, Distant};
     QDate               DateDebut, DateFin;
 
     QSettings           *gsettingsIni;

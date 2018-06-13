@@ -342,10 +342,6 @@ private:
     bool                ValideActeMontantLineEdit(QString NouveauMontant = "0,00", QString AncienMontant = "0.00");
     void                VerifImportateur();
 
-    // les connexions aux appareils de mesure
-    private slots:
-        void                    Slot_NouvMesureRefraction();
-
     // Les menus
 private:
         QMenu           *menuActe, *menuComptabilite, *menuEdition, *menuDocuments, *menuDossier;

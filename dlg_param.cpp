@@ -1921,6 +1921,11 @@ void dlg_param::Slot_DirDistantStockage()
 
 void dlg_param::Slot_DirPosteStockage()
 {
+    if (DataBase::getInstance()->getMode() != DataBase::Poste)
+    {
+        UpMessageBox::Watch(this, tr("Impossible de modifier ce paramètre"), tr("Vous devez être connecté sur le serveur de ce poste pour\npouvoir modifier le répertoire de stockage des documents"));
+        return;
+    }
     QString dir = ui->PosteStockageupLineEdit->text();
     if (dir == "")
         dir = QDir::homePath() + NOMDIR_RUFUS;

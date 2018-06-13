@@ -32,7 +32,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     ListDocsTreeView    = new QTreeView(this);
     inflabel            = new QLabel();
     QFont font          = qApp->font();
-    font                .setPointSize(16);
+    font                .setPointSize(font.pointSize()+2);
     inflabel            ->setFont(font);
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
