@@ -98,7 +98,9 @@ SOURCES += main.cpp\
     playercontrols.cpp \
     upgroupbox.cpp \
     cls_user.cpp \
-    database.cpp
+    database.cpp \
+    cls_acte.cpp \
+    cls_item.cpp
 
 HEADERS  += rufus.h \
     procedures.h \
@@ -172,7 +174,9 @@ HEADERS  += rufus.h \
     upgroupbox.h \
     cls_user.h \
     database.h \
-    log.h
+    log.h \
+    cls_acte.h \
+    cls_item.h
 
 FORMS    += \
     dlg_identificationuser.ui \

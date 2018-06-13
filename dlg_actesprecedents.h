@@ -19,6 +19,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_ACTESPRECEDENTS_H
 
 #include <QMessageBox>
+#include "cls_acte.h"
 #include "procedures.h"
 
 /* La fiche dlg_actesprecednets présente les actes d'un patient dans une fiche dans laquelle aucun champ ne peut être modifié.
@@ -61,11 +62,10 @@ private:
         enum                position{Debut, Prec, Suiv, Fin};
     void                    closeEvent(QCloseEvent *event);
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
-    int                     nbActes, noActe;
+    Acte                    *acte;
     int                     gidActe, gidPatient;
     bool                    NavigationConsult(int i);
     bool                    gAvantDernier;
-    QSqlDatabase            db;
     int                     ChercheActeAAfficher();                     // détermine l'acte à afficher suivant l'idPatient et la valeur de AVantDernier
 };
 

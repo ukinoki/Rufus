@@ -16,6 +16,7 @@
 #include <QSettings>
 #include <QSqlDatabase>
 
+#include "cls_acte.h"
 #include "cls_user.h"
 #include "log.h"
 
@@ -57,10 +58,12 @@ public:
     bool traiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
 
     QString connectToDataBase(QString basename, QString login, QString password);
-    QJsonObject login(QString login, QString password);
 
+    QJsonObject login(QString login, QString password);
     QJsonObject loadUser(int idUser, int idLieu);
 
+    Acte* loadActeById(int idActe);
+    QMap<int, Acte*> loadActeByIdPat(int idPat);
 signals:
 
 public slots:

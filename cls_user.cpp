@@ -108,9 +108,9 @@ QMap<QString,QVariant> User::CalculAge(QDate datedenaissance, QString Sexe, QDat
 
 
 
-User::User(QObject *parent) : QObject(parent)
+User::User(QObject *parent) : Item(parent)
 {}
-User::User(QString login, QString password, QJsonObject data, QObject *parent) :QObject(parent),
+User::User(QString login, QString password, QJsonObject data, QObject *parent) : Item(parent),
     m_login(login), m_password(password)
 {
     setData(data);
@@ -179,36 +179,6 @@ void User::setData(QJsonObject data)
 
     //TODO : User : finir init des proprietées
 }
-void User::setDataString(QJsonObject data, QString key)
-{
-    const char* thisKey = ("m_"+key).toStdString().c_str();
-    if( data.contains(key) )
-        this->property(thisKey).setValue( data[key].toString() );
-}
-void User::setDataInt(QJsonObject data, QString key)
-{
-    const char* thisKey = ("m_"+key).toStdString().c_str();
-    if( data.contains(key) )
-        this->property(thisKey).setValue( data[key].toInt() );
-}
-void User::setDataBool(QJsonObject data, QString key)
-{
-    const char* thisKey = ("m_"+key).toStdString().c_str();
-    if( data.contains(key) )
-        this->property(thisKey).setValue( data[key].toBool() );
-}
-void User::setDataDateTime(QJsonObject data, QString key)
-{
-    const char* thisKey = ("m_"+key).toStdString().c_str();
-    if( data.contains(key) )
-    {
-        int64_t time = data[key].toInt();
-        QDateTime dt;
-        dt.setMSecsSinceEpoch( time );
-        this->property(thisKey).setValue( dt );
-    }
-}
-
 
 QString User::getLogin() const { return m_login; }
 QString User::getPassword() const { return m_password; }

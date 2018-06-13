@@ -432,6 +432,8 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::MAJActesPrecs()
 {
+    //TODO : a revoir
+    /*
     QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
     for (int n = 0; n <  ListDialog.size(); n++)
         if (ListDialog.at(n)->getActeAffiche() == gidActe)
@@ -439,6 +441,7 @@ void Rufus::MAJActesPrecs()
             ListDialog.at(n)->ActesPrecsAfficheActe(gidActe);
             break;
         }
+    */
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

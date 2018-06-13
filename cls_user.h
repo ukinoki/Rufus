@@ -6,9 +6,10 @@
 #include <QVariant>
 #include <QDate>
 #include <QJsonObject>
+#include "cls_item.h"
 #include "macros.h"
 
-class User : public QObject
+class User : public Item
 {
     Q_OBJECT
 public: //static
@@ -171,10 +172,6 @@ public:
     bool isDesactive();
 
 private:
-    void setDataString(QJsonObject data, QString key);
-    void setDataInt(QJsonObject data, QString key);
-    void setDataBool(QJsonObject data, QString key);
-    void setDataDateTime(QJsonObject data, QString key);
 
 signals:
 
