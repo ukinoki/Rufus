@@ -4859,7 +4859,7 @@ GESTION DES PORTS SERIES -------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Ouverture_Ports_Series()
 {
-    QString NomPort;
+    QString NomPort             = "";
     gPortRefracteur             = "";
     gPortFronto                 = "";
     gPortAutoref                = "";
@@ -4885,8 +4885,7 @@ bool Procedures::Ouverture_Ports_Series()
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             //qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
-            //qDebug() << QSerialPortInfo::availablePorts().at(i).serialNumber();
-            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
+            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial") | QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
             {
                 portseriedispo = true;
                 break;
@@ -4908,18 +4907,32 @@ bool Procedures::Ouverture_Ports_Series()
         a               = (gPortFronto != "");
         if (!a)
             UpMessageBox::Watch(0, tr("Erreur connexion frontofocomètre"));
-        if (gPortFronto == "COM1") NomPort = "A";
-        else if (gPortFronto == "COM2") NomPort = "B";
-        else if (gPortFronto == "COM3") NomPort = "C";
-        else if (gPortFronto == "COM4") NomPort = "D";
-        else NomPort ="";
+        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+        {
+            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
+            {
+                if (gPortFronto == "COM1") NomPort = "A";
+                else if (gPortFronto == "COM2") NomPort = "B";
+                else if (gPortFronto == "COM3") NomPort = "C";
+                else if (gPortFronto == "COM4") NomPort = "D";
+                if (NomPort != "") break;
+            }
+            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+            {
+                if (gPortFronto == "COM1") NomPort = "ttyUSB0";
+                else if (gPortFronto == "COM2") NomPort = "ttyUSB1";
+                else if (gPortFronto == "COM3") NomPort = "ttyUSB2";
+                else if (gPortFronto == "COM4") NomPort = "ttyUSB3";
+                if (NomPort != "") break;
+            }
+        }
 
         if (NomPort != "")
         {
             lPortFronto     = new QSerialPort();
             for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
             {
-                //qDebug() << QSerialPortInfo::availablePorts().at(i).serialNumber();
+                //Debug() << QSerialPortInfo::availablePorts().at(i).portName();
                 //UpMessageBox::Watch(this,QSerialPortInfo::availablePorts().at(i).portName());
                 if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
                 {
@@ -4935,7 +4948,21 @@ bool Procedures::Ouverture_Ports_Series()
                         break;
                     }
                 }
+                else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+                {
+                    if (QSerialPortInfo::availablePorts().at(i).portName() == NomPort)
+                    {
+                        lPortFronto->setPort(QSerialPortInfo::availablePorts().at(i));
+                        lPortFronto->setBaudRate(ParamPortSerieFronto.baudRate);
+                        lPortFronto->setFlowControl(ParamPortSerieFronto.flowControl);
+                        lPortFronto->setParity(ParamPortSerieFronto.parity);
+                        lPortFronto->setDataBits(ParamPortSerieFronto.dataBits);
+                        lPortFronto->setStopBits(ParamPortSerieFronto.stopBits);
+                        break;
+                    }
+                }
             }
+            qDebug() << "FRONTO -> " + gPortFronto + " - " + NomPort;
             if (lPortFronto->open(QIODevice::ReadWrite))
             {
                 ThreadFronto = new SerialThread(lPortFronto);
@@ -4943,7 +4970,10 @@ bool Procedures::Ouverture_Ports_Series()
                 connect(ThreadFronto,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Fronto(QString)));
             }
             else
+            {
+                UpMessageBox::Watch(0,tr("Connexion impossible"),tr("Impossible de connecter le frontofocomètre") + "\n" + lPortFronto->errorString());
                 lPortFronto = 0;
+            }
         }
     }
 
@@ -4955,11 +4985,26 @@ bool Procedures::Ouverture_Ports_Series()
         a               = (gPortRefracteur != "");
         if (!a)
             UpMessageBox::Watch(0, tr("Erreur connexion refracteur"));
-        if (gPortRefracteur == "COM1") NomPort = "A";
-        else if (gPortRefracteur == "COM2") NomPort = "B";
-        else if (gPortRefracteur == "COM3") NomPort = "C";
-        else if (gPortRefracteur == "COM4") NomPort = "D";
-        else NomPort ="";
+        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+        {
+            //qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
+            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
+            {
+                if (gPortRefracteur == "COM1") NomPort = "A";
+                else if (gPortRefracteur == "COM2") NomPort = "B";
+                else if (gPortRefracteur == "COM3") NomPort = "C";
+                else if (gPortRefracteur == "COM4") NomPort = "D";
+                if (NomPort != "") break;
+            }
+            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+            {
+                if (gPortRefracteur == "COM1") NomPort = "ttyUSB0";
+                else if (gPortRefracteur == "COM2") NomPort = "ttyUSB1";
+                else if (gPortRefracteur == "COM3") NomPort = "ttyUSB2";
+                else if (gPortRefracteur == "COM4") NomPort = "ttyUSB3";
+                if (NomPort != "") break;
+            }
+        }
         if (NomPort != "")
         {
             lPortRefracteur     = new QSerialPort();
@@ -4970,7 +5015,19 @@ bool Procedures::Ouverture_Ports_Series()
                     QString letter = QSerialPortInfo::availablePorts().at(i).portName().split("-").at(1);
                     if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort || letter.left(1) == NomPort)
                     {
-                        Message("OK pour refracteur\nPort = \n" + QSerialPortInfo::availablePorts().at(i).portName(), 1000, true);
+                        lPortRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
+                        lPortRefracteur->setBaudRate(ParamPortSerieRefracteur.baudRate);
+                        lPortRefracteur->setFlowControl(ParamPortSerieRefracteur.flowControl);
+                        lPortRefracteur->setParity(ParamPortSerieRefracteur.parity);
+                        lPortRefracteur->setDataBits(ParamPortSerieRefracteur.dataBits);
+                        lPortRefracteur->setStopBits(ParamPortSerieRefracteur.stopBits);
+                        break;
+                    }
+                }
+                else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+                {
+                    if (QSerialPortInfo::availablePorts().at(i).portName() == NomPort)
+                    {
                         lPortRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
                         lPortRefracteur->setBaudRate(ParamPortSerieRefracteur.baudRate);
                         lPortRefracteur->setFlowControl(ParamPortSerieRefracteur.flowControl);
@@ -4981,6 +5038,7 @@ bool Procedures::Ouverture_Ports_Series()
                     }
                 }
             }
+            qDebug() << "REFRACTEUR -> " + gPortRefracteur + " - " + NomPort;
             if (lPortRefracteur->open(QIODevice::ReadWrite))
             {
                 ThreadRefracteur     = new SerialThread(lPortRefracteur);
@@ -4989,7 +5047,7 @@ bool Procedures::Ouverture_Ports_Series()
             }
             else
             {
-                UpMessageBox::Watch(0,tr("Connexion impossible"),tr("Impossible de connecter le refracteur"));
+                UpMessageBox::Watch(0,tr("Connexion impossible"),tr("Impossible de connecter le refracteur") + "\n" + lPortRefracteur->errorString());
                 lPortRefracteur = 0;
             }
         }
@@ -5003,11 +5061,25 @@ bool Procedures::Ouverture_Ports_Series()
         a               = (gPortAutoref != "");
         if (!a)
             UpMessageBox::Watch(0, tr("Erreur connexion autorefractomètre"));
-        if (gPortAutoref == "COM1") NomPort = "A";
-        else if (gPortAutoref == "COM2") NomPort = "B";
-        else if (gPortAutoref == "COM3") NomPort = "C";
-        else if (gPortAutoref == "COM4") NomPort = "D";
-        else NomPort ="";
+        for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
+        {
+            if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
+            {
+                if (gPortAutoref == "COM1") NomPort = "A";
+                else if (gPortAutoref == "COM2") NomPort = "B";
+                else if (gPortAutoref == "COM3") NomPort = "C";
+                else if (gPortAutoref == "COM4") NomPort = "D";
+                if (NomPort != "") break;
+            }
+            else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+            {
+                if (gPortAutoref == "COM1") NomPort = "ttyUSB0";
+                else if (gPortAutoref == "COM2") NomPort = "ttyUSB1";
+                else if (gPortAutoref == "COM3") NomPort = "ttyUSB2";
+                else if (gPortAutoref == "COM4") NomPort = "ttyUSB3";
+                if (NomPort != "") break;
+            }
+        }
         if (NomPort != "")
         {
             lPortAutoref     = new QSerialPort();
@@ -5027,7 +5099,21 @@ bool Procedures::Ouverture_Ports_Series()
                         break;
                     }
                 }
+                else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
+                {
+                    if (QSerialPortInfo::availablePorts().at(i).portName() == NomPort)
+                    {
+                        lPortAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
+                        lPortAutoref->setBaudRate(ParamPortSerieAutoref.baudRate);
+                        lPortAutoref->setFlowControl(ParamPortSerieAutoref.flowControl);
+                        lPortAutoref->setParity(ParamPortSerieAutoref.parity);
+                        lPortAutoref->setDataBits(ParamPortSerieAutoref.dataBits);
+                        lPortAutoref->setStopBits(ParamPortSerieAutoref.stopBits);
+                        break;
+                    }
+                }
             }
+            qDebug() << "AUTOREF -> " + gPortAutoref + " - " + NomPort;
             if (lPortAutoref->open(QIODevice::ReadWrite))
             {
                 ThreadAutoref     = new SerialThread(lPortAutoref);
@@ -5035,7 +5121,10 @@ bool Procedures::Ouverture_Ports_Series()
                 connect(ThreadAutoref,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Autoref(QString)));
             }
             else
+            {
+                UpMessageBox::Watch(0,tr("Connexion impossible"),tr("Impossible de connecter l'autorefractomètre") + "\n" + lPortAutoref->errorString());
                 lPortAutoref = 0;
+            }
         }
     }
     if (gTonoParametre)
@@ -5773,6 +5862,8 @@ QSerialPort *Procedures::PortFronto()
 void Procedures::Slot_ReponsePortSerie_Fronto(const QString &s)
 {
     gMesureSerie        = s;
+    //qDebug() << gMesureSerie;
+
     QString OKPourRecevoir ("");
     if (gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
      || gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
@@ -5806,7 +5897,6 @@ void Procedures::Slot_ReponsePortSerie_Fronto(const QString &s)
             return;
         }
     }
-    //qDebug() << gMesureSerie;
     setDonneesFronto(gMesureSerie);
     NouvMesureFronto    = true;
     if (MesureFronto.isEmpty())
@@ -6057,7 +6147,6 @@ QSerialPort* Procedures::PortAutoref()
 void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
 {
     gMesureSerie        = s;
-    //Edit(s);
     //qDebug() << gMesureSerie;
 
     if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
@@ -6122,7 +6211,6 @@ void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
 //            }
         }
     }
-    //qDebug() << gMesureSerie;
     setDonneesAutoref(gMesureSerie);
     NouvMesureAutoref = true;
     if (MesureAutoref.isEmpty())
