@@ -28,7 +28,7 @@ void FunctorMessage::operator()(QStringList listmes, int pause, bool bottom)
         dlg                 ->setSizeGripEnabled(false);
 
         UpLabel *imglbl     = new UpLabel(dlg);
-        imglbl              ->setPixmap(Icons::pxDetente().scaled(45,45)); //TODO : icon scaled : pxDetente 45,45
+        imglbl              ->setPixmap(Icons::pxDetente().scaled(45,45)); //WARNING : icon scaled : pxDetente 45,45
 
         UpTextEdit *Msgtxt  = new UpTextEdit(dlg);
         Msgtxt              ->setAttribute( Qt::WA_NoSystemBackground, true );

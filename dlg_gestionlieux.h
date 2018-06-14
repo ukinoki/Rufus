@@ -73,7 +73,6 @@ private:
     void                    ModifLieu();
     void                    SupprLieu();
     void                    ModifLieuxDialog();
-    QRegExp                 rxAdresse, rxCP, rxTel, rxVille;
     void                    ReconstruitModel();
     bool                    ValidationFiche();
 };

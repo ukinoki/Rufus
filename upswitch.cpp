@@ -30,7 +30,7 @@ UpSwitch::UpSwitch(QWidget *parent) : QFrame(parent)
     datelbl             ->move(marge+10, 9);
     datelbl             ->setAlignment(Qt::AlignCenter);
     cursorlbl           = new QLabel(this);
-    cursorlbl           ->setPixmap(Icons::pxSwitchLeft().scaled(55,40)); //TODO : icon scaled : pxSwitchLeft 55,40
+    cursorlbl           ->setPixmap(Icons::pxSwitchLeft().scaled(55,40)); //WARNING : icon scaled : pxSwitchLeft 55,40
     cursorlbl           ->setFixedWidth(60);
     cursorlbl           ->move(datelbl->width() + (marge*2)+10, 0);
     typelbl             = new QLabel(this);
@@ -64,7 +64,7 @@ void UpSwitch::BasculeSwitch()
     if (Activelbl==datelbl)
     {
         Activelbl   = typelbl;
-        cursorlbl   ->setPixmap(Icons::pxSwitchRight().scaled(55,40)); //TODO : icon scaled : pxSwitchRight 55,40
+        cursorlbl   ->setPixmap(Icons::pxSwitchRight().scaled(55,40)); //WARNING : icon scaled : pxSwitchRight 55,40
         datelbl     ->setStyleSheet("");
         pos = 1;
         emit Bascule();
@@ -72,7 +72,7 @@ void UpSwitch::BasculeSwitch()
     else if (Activelbl==typelbl)
     {
         Activelbl   = datelbl;
-        cursorlbl   ->setPixmap(Icons::pxSwitchLeft().scaled(55,40)); //TODO : icon scaled : pxSwitchLeft 55,40
+        cursorlbl   ->setPixmap(Icons::pxSwitchLeft().scaled(55,40)); //WARNING : icon scaled : pxSwitchLeft 55,40
         typelbl     ->setStyleSheet("");
         pos = 0;
         emit Bascule();

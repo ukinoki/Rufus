@@ -100,19 +100,19 @@ void UpMessageBox::setIcon(enum Icon icn)
 {
     switch (icn) {
     case Warning:
-        lblIcon     ->setPixmap(Icons::pxOups().scaled(80,80)); //TODO : icon scaled : px 80,80
+        lblIcon     ->setPixmap(Icons::pxOups().scaled(80,80)); //WARNING : icon scaled : px 80,80
         break;
     case Quest:
-        lblIcon     ->setPixmap(Icons::pxQuestion().scaled(80,80)); //TODO : icon scaled : px 80,80
+        lblIcon     ->setPixmap(Icons::pxQuestion().scaled(80,80)); //WARNING : icon scaled : px 80,80
         break;
     case Info:
-        lblIcon     ->setPixmap(Icons::pxInformation().scaled(80,80)); //TODO : icon scaled : px 80,80
+        lblIcon     ->setPixmap(Icons::pxInformation().scaled(80,80)); //WARNING : icon scaled : px 80,80
         break;
     case Critical:
-        lblIcon     ->setPixmap(Icons::pxAnnuler().scaled(80,80)); //TODO : icon scaled : px 80,80
+        lblIcon     ->setPixmap(Icons::pxAnnuler().scaled(80,80)); //WARNING : icon scaled : px 80,80
         break;
     case Print:
-        lblIcon     ->setPixmap(Icons::pxImprimer().scaled(80,80)); //TODO : icon scaled : pxImprimer 80,80
+        lblIcon     ->setPixmap(Icons::pxImprimer().scaled(80,80)); //WARNING : icon scaled : pxImprimer 80,80
         break;
     default:
         break;

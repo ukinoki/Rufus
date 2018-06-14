@@ -74,27 +74,27 @@ void Acte::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, "id");
-    setDataInt(data, "nbActes");
-    setDataInt(data, "noActe");
-    setDataInt(data, "idActeMin");
-    setDataInt(data, "idActeMax");
-    setDataInt(data, "idCreatedBy");
-    setDataInt(data, "idPatient");
+    setDataInt(data, "id", m_id);
+    setDataInt(data, "nbActes", m_nbActes);
+    setDataInt(data, "noActe", m_noActe);
+    setDataInt(data, "idActeMin", m_idActeMin);
+    setDataInt(data, "idActeMax", m_idActeMax);
+    setDataInt(data, "idCreatedBy", m_idCreatedBy);
+    setDataInt(data, "idPatient", m_idPatient);
 
-    setDataDouble(data, "montant");
+    setDataDouble(data, "montant", m_montant);
 
-    setDataString(data, "motif");
-    setDataString(data, "texte");
-    setDataString(data, "conclusion");
-    setDataString(data, "courrierStatus");
-    setDataString(data, "cotation");
-    setDataString(data, "monnaie");
-    setDataString(data, "paiementType");
-    setDataString(data, "paiementTiers");
+    setDataString(data, "motif", m_motif);
+    setDataString(data, "texte", m_texte);
+    setDataString(data, "conclusion", m_conclusion);
+    setDataString(data, "courrierStatus", m_courrierStatus);
+    setDataString(data, "cotation", m_cotation);
+    setDataString(data, "monnaie", m_monnaie);
+    setDataString(data, "paiementType", m_paiementType);
+    setDataString(data, "paiementTiers", m_paiementTiers);
 
-    setDataDateTime(data, "date");
-    setDataDateTime(data, "agePatient");
+    setDataDateTime(data, "date", m_date);
+    setDataDateTime(data, "agePatient", m_agePatient);
 }
 
 

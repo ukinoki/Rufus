@@ -70,7 +70,7 @@ void dlg_identificationuser::Slot_RetourOK()
     ui->OKpushButton->setEnabled(false);
 
 
-    QString AdminDocs = NOM_ADMINISTRATEURDOCS; //TODO : !!! Test en dur
+    QString AdminDocs = NOM_ADMINISTRATEURDOCS; //FIXME : !!! Test en dur
     if (ui->LoginlineEdit->text().toUpper() == AdminDocs.toUpper())
     {
         UpMessageBox::Watch(this, tr("Vous ne pouvez pas utiliser ce Login pour vous connecter"));
@@ -138,7 +138,7 @@ int dlg_identificationuser::ControleDonnees()
     if (!gChgUsr)
     {
 //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
-        QString error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
+        QString error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
         if( error.size() )
         {
             ui->IconServerOKupLabel->setPixmap(Icons::pxError());
@@ -151,7 +151,7 @@ int dlg_identificationuser::ControleDonnees()
             return -1;
         }
 
-        QString Client;
+        /*QString Client;
         if (DataBase::getInstance()->getBase() == "BDD_DISTANT")
                 Client = "%";
         else if (DataBase::getInstance()->getBase() == "BDD_LOCAL" && Utils::rgx_IPV4.exactMatch(DataBase::getInstance()->getServer()))
@@ -165,8 +165,8 @@ int dlg_identificationuser::ControleDonnees()
             }
         }
         else
-            Client = DataBase::getInstance()->getServer();
-        req = "show grants for '" + Login + "'@'" + Client + "'";
+            Client = DataBase::getInstance()->getServer();*/
+        req = "show grants for 'rufusConnection'@'localhost'";
         //UpMessageBox::Watch(this,req);
         QSqlQuery grantsquery(req, DataBase::getInstance()->getDataBase());
         if (grantsquery.size()==0)
@@ -235,7 +235,7 @@ int dlg_identificationuser::ControleDonnees()
                         tr("Identifiant ou mot de passe incorrect") );
         return -1;
     }
-    //TODO : !!! Faille de sécurité
+    //FIXME : !!! Faille de sécurité
     /*
     if (UserQuery.size() == 0)
     {

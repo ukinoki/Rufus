@@ -18,6 +18,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_param.h"
 #include "icons.h"
 #include "ui_dlg_param.h"
+#include "utils.h"
 
 dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     QDialog(parent),
@@ -139,7 +140,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui->ImmediatBackupupPushButton  ->setIcon(Icons::icBackup());
     ui->ReinitBaseupPushButton      ->setIcon(Icons::icReinit());
     ui->ChoixFontupPushButton       ->setIconSize(QSize(35,35));
-    ui->ChercheCCAMlabel            ->setPixmap(Icons::pxLoupe().scaled(20,20)); //TODO : icon scaled : pxLoupe 20,20
+    ui->ChercheCCAMlabel            ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
     ui->ShowCCAMlabel               ->setPixmap(QPixmap());
     ui->StatutComptaupTextEdit      ->setAttribute( Qt::WA_NoSystemBackground, true );
     ui->StatutComptaupTextEdit      ->setReadOnly(true);
@@ -156,10 +157,10 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui->LockParamUserupLabel                ->setPixmap(Icons::pxVerrouiller());
     ui->LockParamPosteupLabel               ->setPixmap(Icons::pxVerrouiller());
     ui->LockParamGeneralupLabel             ->setPixmap(Icons::pxVerrouiller());
-    ui->Frontolabel                         ->setPixmap(Icons::pxLensMeter().scaled(70,70)); //TODO : icon scaled : pxLensMeter 70,70
-    ui->Autoreflabel                        ->setPixmap(Icons::pxAutoref().scaled(80,80)); //TODO : icon scaled : pxAutoref 80,80
-    ui->Refracteurlabel                     ->setPixmap(Icons::pxRefracteur().scaled(70,70)); //TODO : icon scaled : pxRefracteur 70,70
-    ui->Tonometrelabel                      ->setPixmap(Icons::pxTonometre().scaled(80,80)); //TODO : icon scaled : pxTonometre 80,80
+    ui->Frontolabel                         ->setPixmap(Icons::pxLensMeter().scaled(70,70)); //WARNING : icon scaled : pxLensMeter 70,70
+    ui->Autoreflabel                        ->setPixmap(Icons::pxAutoref().scaled(80,80)); //WARNING : icon scaled : pxAutoref 80,80
+    ui->Refracteurlabel                     ->setPixmap(Icons::pxRefracteur().scaled(70,70)); //WARNING : icon scaled : pxRefracteur 70,70
+    ui->Tonometrelabel                      ->setPixmap(Icons::pxTonometre().scaled(80,80)); //WARNING : icon scaled : pxTonometre 80,80
     ui->LockParamPosteupLabel->installEventFilter(this);
 
     ui->ParamtabWidget->setStyleSheet("QTabWidget::pane {border: 2px solid #C2C7CB; border-radius: 4px;}");
@@ -289,13 +290,13 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
 
     AfficheParamUser();
 
-    ui->LoginuplineEdit             ->setValidator(new QRegExpValidator(proc->getrxLogin(),this));
-    ui->MDPuplineEdit               ->setValidator(new QRegExpValidator(proc->getrxMdp(),this));
-    ui->NomuplineEdit               ->setValidator(new QRegExpValidator(proc->getrx(),this));
-    ui->PrenomuplineEdit            ->setValidator(new QRegExpValidator(proc->getrx(),this));
-    ui->MailuplineEdit              ->setValidator(new QRegExpValidator(proc->getrxMail(),this));
-    ui->PortableuplineEdit          ->setValidator(new QRegExpValidator(proc->getrxTel(),this));
-    ui->EmplacementLocaluplineEdit  ->setValidator(new QRegExpValidator(proc->getrxIP(),this));
+    ui->LoginuplineEdit             ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric,this));
+    ui->MDPuplineEdit               ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
+    ui->NomuplineEdit               ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->PrenomuplineEdit            ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->MailuplineEdit              ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
+    ui->PortableuplineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+    ui->EmplacementLocaluplineEdit  ->setValidator(new QRegExpValidator(Utils::rgx_IPV4_mask,this));
 
     ui->ActesCCAMupTableWidget          ->setEnabled(true);
     ui->AssocCCAMupTableWidget          ->setEnabled(true);
@@ -497,7 +498,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     for (int i=0; i<ui->AppareilsConnectesupTableWidget->columnCount(); i++)
         ui->AppareilsConnectesupTableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignLeft);
     ui->AppareilsConnectesupTableWidget->FixLargeurTotale();
-    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + gDataUser->getNomlieu() + "</b></font> ");
+    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + gDataUser->getEtablissement()->getNom() + "</b></font> ");
     QVBoxLayout *applay = new QVBoxLayout();
     applay      ->addWidget(ui->AppareilsconnectesupLabel);
     applay      ->addWidget(widgAppareils->widgButtonParent());
@@ -572,7 +573,7 @@ void dlg_param::Slot_ChercheCCAM(QString txt)
 {
     QList<QTableWidgetItem*> listitems = ui->ActesCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
     if (listitems.size()<ui->ActesCCAMupTableWidget->rowCount())
-        ui->ShowCCAMlabel               ->setPixmap(Icons::pxApres().scaled(10,10)); //TODO : icon scaled : pApres 10,10
+        ui->ShowCCAMlabel               ->setPixmap(Icons::pxApres().scaled(10,10)); //WARNING : icon scaled : pApres 10,10
     else
         ui->ShowCCAMlabel               ->setPixmap(QPixmap());
     if (listitems.size()>0)
@@ -1470,7 +1471,7 @@ void dlg_param::SupprAppareil()
     {
         req = "delete from " NOM_TABLE_APPAREILSCONNECTESCENTRE " where idAppareil = "
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
-              + " and idLieu = " + QString::number(gDataUser->getIdLieu());
+              + " and idLieu = " + QString::number(gDataUser->getEtablissement()->getId());
         QSqlQuery(req,db);
         QString Base;
         if (DataBase::getInstance()->getMode() == DataBase::Poste)
@@ -1606,7 +1607,7 @@ void dlg_param::Slot_EnregistreAppareil()
     if (!gAskAppareil) return;
     QString req = "insert into " NOM_TABLE_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
                   " (select idappareil from " NOM_TABLE_LISTEAPPAREILS " where NomAppareil = '" + gAskAppareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
-                  + QString::number(gDataUser->getIdLieu()) + ")";
+                  + QString::number(gDataUser->getEtablissement()->getId()) + ")";
     QSqlQuery (req,db);
     gAskAppareil->done(0);
     Remplir_Tables();
@@ -1815,7 +1816,7 @@ void dlg_param::Slot_ModifMDPAdmin()
     UpLineEdit *ConfirmMDP = new UpLineEdit(gAskMDP);
     ConfirmMDP->setEchoMode(QLineEdit::Password);
     ConfirmMDP->setObjectName(gConfirmMDP);
-    ConfirmMDP->setValidator(new QRegExpValidator(proc->getrxMdpAdmin(),this));
+    ConfirmMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_15,this));
     ConfirmMDP->setAlignment(Qt::AlignCenter);
     globallay->insertWidget(0,ConfirmMDP);
     UpLabel *labelConfirmMDP = new UpLabel();
@@ -1824,7 +1825,7 @@ void dlg_param::Slot_ModifMDPAdmin()
     UpLineEdit *NouvMDP = new UpLineEdit(gAskMDP);
     NouvMDP->setEchoMode(QLineEdit::Password);
     NouvMDP->setObjectName(gNouvMDP);
-    NouvMDP->setValidator(new QRegExpValidator(proc->getrxMdpAdmin(),this));
+    NouvMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_15,this));
     NouvMDP->setAlignment(Qt::AlignCenter);
     globallay->insertWidget(0,NouvMDP);
     UpLabel *labelNewMDP = new UpLabel();
@@ -1833,7 +1834,7 @@ void dlg_param::Slot_ModifMDPAdmin()
     UpLineEdit *AncMDP = new UpLineEdit(gAskMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
-    AncMDP->setValidator(new QRegExpValidator(proc->getrxMdpAdmin(),this));
+    AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_15,this));
     AncMDP->setObjectName(gAncMDP);
     globallay->insertWidget(0,AncMDP);
     UpLabel *labelOldMDP = new UpLabel();
@@ -2538,7 +2539,6 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
         anc         = gAskMDP->findChild<UpLineEdit*>(gAncMDP)->text();
         nouv        = gAskMDP->findChild<UpLineEdit*>(gNouvMDP)->text();
         confirm     = gAskMDP->findChild<UpLineEdit*>(gConfirmMDP)->text();
-        QRegExp  rxMdp = proc->getrxMdpAdmin();
 
         if (anc == "")
         {
@@ -2556,7 +2556,7 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
             msgbox.exec();
             return;
         }
-        if (!rxMdp.exactMatch(nouv) || nouv == "")
+        if (!Utils::rgx_AlphaNumeric_3_15.exactMatch(nouv) || nouv == "")
         {
             QSound::play(NOM_ALARME);
             msgbox.setInformativeText(tr("Le nouveau mot de passe n'est pas conforme\n(au moins 3 caractères - chiffres ou lettres non accentuées -\n"));
@@ -3020,7 +3020,7 @@ void dlg_param::Remplir_Tables()
 
     QString  Remplirtablerequete = "SELECT list.idAppareil, list.TitreExamen, list.NomAppareil, Format"
               " FROM "  NOM_TABLE_APPAREILSCONNECTESCENTRE " appcon , " NOM_TABLE_LISTEAPPAREILS " list"
-              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(gDataUser->getIdLieu()) +
+              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(gDataUser->getEtablissement()->getId()) +
               " ORDER BY TitreExamen";
 
     QSqlQuery RemplirTableViewQuery (Remplirtablerequete,db);
@@ -3150,7 +3150,7 @@ void dlg_param::Remplir_Tables()
 
     glistAppareils.clear();
     QString req = "select NomAppareil from " NOM_TABLE_LISTEAPPAREILS
-                  " where idAppareil not in (select idAppareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(gDataUser->getIdLieu()) + ")";
+                  " where idAppareil not in (select idAppareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(gDataUser->getEtablissement()->getId()) + ")";
     QSqlQuery listappquery(req,db);
     if (listappquery.size() == 0)
         widgAppareils->plusBouton->setEnabled(false);

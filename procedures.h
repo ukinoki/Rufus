@@ -137,7 +137,7 @@ private:
     FunctorMAJPremiereLettre fMAJPremiereLettre;
     int                     gidCentre;
         // le centre de soins
-    int                     gidLieuExercice;
+    //int                     gidLieuExercice;
         // le lieu d'exercice pour la session en cours
     int                     gidUserSuperViseurProv, gidUserSuperViseur;
     //int gidUserSuperViseurProv;
@@ -170,7 +170,7 @@ private:
                                                                                 . s'il cote les actes                            (bool gUseCotation)
                                                                                 . s'il enregistre une compta                     (bool AvecLaComptaProv)
                                                                                */
-    int                     DetermineLieuExercice();
+    Etablissement*          DetermineLieuExercice();
     void                    CalcUserResponsable();
     void                    RestoreFontAppliAndGeometry();
 private slots:
@@ -244,31 +244,6 @@ public:
     QString                 getMDPAdmin();
     void                    setNomImprimante(QString NomImprimante);
     QString                 getNomImprimante();
-    void                    setrx(QRegExp rxS);
-    QRegExp                 getrx();
-    void                    setrxAdresse(QRegExp rxA);
-    QRegExp                 getrxAdresse();
-    void                    setrxCot(QRegExp rxCot);
-    QRegExp                 getrxCot();
-    void                    setrxCP(QRegExp rxC);
-    QRegExp                 getrxCP();
-    QRegExp                 getrxIP();
-    void                    setrxLogin(QRegExp rxL);
-    QRegExp                 getrxLogin();
-    void                    setrxMail(QRegExp rxM);
-    QRegExp                 getrxMail();
-    void                    setrxMdpAdmin(QRegExp rxMDP);
-    QRegExp                 getrxMdpAdmin();
-    void                    setrxMdp(QRegExp rxMDP);
-    QRegExp                 getrxMdp();
-    void                    setrxRecherche(QRegExp rxRec);
-    QRegExp                 getrxRecherche();
-    void                    setrxTabac(QRegExp rxT);
-    QRegExp                 getrxTabac();
-    void                    setrxTel(QRegExp rxT);
-    QRegExp                 getrxTel();
-    void                    setrxVille(QRegExp rxV);
-    QRegExp                 getrxVille();
     int                     TailleEnTete();
     int                     TailleEnTeteALD();
     int                     TaillePieddePage();
@@ -299,13 +274,12 @@ private:
     dlg_paramconnexion      *Dlg_ParamConnex;
     dlg_identificationuser  *Dlg_IdentUser;
     QFont                   gAppFont;
-    User *lDataUser;
+    User *m_userConnected = nullptr; //user connected
     User *OtherUser; //TODO créer QMap<int, User> iduser, user
     QStandardItemModel      *ListeComptesEncaissUser;
     QStandardItemModel      *ListeComptesEncaissUserAvecDesactive;
     QStandardItemModel      *ListeComptesUser;
     QStandardItemModel      *ListeComptesUserAvecDesactive;
-    QRegExp                 rx, rxAdresse, rxCot, rxCP, rxIP, rxLogin, rxMail, rxMdp, rxMdpAdmin, rxRecherche, rxTel, rxVille, rxTabac, rxAVP;
     QStandardItemModel      *gListeUsersModel, *gListeSuperviseursModel, *gListeParentsModel, *gListeLiberauxModel;
     QString                 DirStockageImages;
     QString                 lCPParDefaut, lVilleParDefaut;
@@ -313,7 +287,7 @@ private:
     QString                 gnomFichIni;
     QString                 gnomImprimante;
     QStringList             gListVilles, gListCP;
-    UpDialog                *gAskLogin, *gAskUser, *gAskLieux;
+    UpDialog                *gAskLogin, *gAskUser;//, *gAskLieux;
     UpTextEdit              *gTxtEdit;
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);

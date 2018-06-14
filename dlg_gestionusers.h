@@ -83,7 +83,6 @@ private:
     QString                 gLibActiv, gNoLibActiv;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
     QStringList             gListBanques;
-    QRegExp                 rx, rxMail, rxTel;
     UpDialog                *gAskMDP;
     void                    ActualiseRsgnmtBanque(bool soccomptable);
     bool                    AfficheParamUser(int idUser);

@@ -42,13 +42,13 @@ QWidget* QLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem
 
 void QLineDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
 {
-    QRegExp rx("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9 -]+");
     QString value = index.model()->data(index, Qt::EditRole).toString();
     QLineEdit *Line = dynamic_cast<QLineEdit*>(editor);
     if (Line)
     {
+        QRegExp rxt("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9 -]+");
         Line->setText(value);
-        Line->setValidator(new QRegExpValidator(rx));
+        Line->setValidator(new QRegExpValidator(rxt));
     }
 }
 

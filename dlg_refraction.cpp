@@ -1833,7 +1833,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         query.bindValue(":ald", QVariant(QVariant::String));
         query.bindValue(":emisrecu", "0");
         query.bindValue(":formatdoc", PRESCRIPTIONLUNETTES);
-        query.bindValue(":idlieu", QString::number(proc->getDataUser()->getIdLieu()));
+        query.bindValue(":idlieu", QString::number(proc->getDataUser()->getEtablissement()->getId()));
 
         if(!query.exec())
             UpMessageBox::Watch(this, tr("Impossible d'enregistrer ce document dans la base!"));

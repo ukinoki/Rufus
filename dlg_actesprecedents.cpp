@@ -125,12 +125,10 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
                                          tr(" pour ") + proc->getLogin(acte->idPatient()));
 
     //3. calcul de l'age
-    if( acte->agePatient().isNull() ) //TODO : TEST ICI
-        return;
-    ui->AgelineEdit->setText( User::CalculAge(acte->agePatient(), ui->ActeDatedateEdit->date())["toString"].toString() );
+    if( !acte->agePatient().isNull() ) //TODO : TEST ICI
+        ui->AgelineEdit->setText( User::CalculAge(acte->agePatient(), ui->ActeDatedateEdit->date())["toString"].toString() );
 
     //4. Mettre à jour le numéro d'acte
-
     bool canprec = (acte->nbActes() > 1 && acte->noActe() > 1);
     ui->ActePrecedentpushButton->setEnabled(canprec);
 
@@ -198,7 +196,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
                     TotalPaye = TotalPaye + ListePaiementsQuery.value(1).toDouble();
                 ListePaiementsQuery.next();
             }*/
-            //TODO : ??? : correspond au montant total de l'acte ? pourquoi tout recalculersb
+            //TODO : ??? : correspond au montant total de l'acte ? pourquoi tout recalculer
             //TODO : ??? : si oui, on peux simplifier pour eviter un trop grand nombre d'appel
             ui->PayelineEdit->setText(QLocale().toString(acte->montant(),'f',2));
         }

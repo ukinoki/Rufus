@@ -49,7 +49,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(Procedures *Proc, QSqlQuery Que
 
     label               = new UpLabel();
     label               ->setFixedSize(21,21);
-    label               ->setPixmap(Icons::pxLoupe().scaled(20,20)); //TODO : icon scaled : pxLoupe 20,20
+    label               ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
     ChercheUplineEdit   = new UpLineEdit();
     ChercheUplineEdit   ->setFixedSize(140,25);
     ChercheUplineEdit   ->setStyleSheet(
@@ -78,12 +78,11 @@ dlg_listecorrespondants::~dlg_listecorrespondants()
 
 void dlg_listecorrespondants::Slot_ChercheCor(QString txt)
 {
-    QRegExp rx("^"+txt,Qt::CaseInsensitive);
     for (int i=0; i<gmodele->rowCount(); i++)
         for (int k=0; k<gmodele->item(i)->rowCount(); k++)
         {
             QString text = gmodele->item(i)->child(k)->text();
-            if (rx.indexIn(text) > -1)
+            if( text.startsWith(txt) )
             {
                 treeCor->scrollTo(gmodele->item(i)->child(k)->index(), QAbstractItemView::PositionAtCenter);
                 treeCor->selectionModel()->select(gmodele->item(i)->child(k)->index(),QItemSelectionModel::Select);

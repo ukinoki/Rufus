@@ -60,14 +60,14 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
         ui->idDossierlabel  ->setVisible(false);
     }
 
-    ui->NomlineEdit         ->setValidator(new QRegExpValidator(proc->getrx(),this));
-    ui->PrenomlineEdit      ->setValidator(new QRegExpValidator(proc->getrx(),this));
-    ui->MaillineEdit        ->setValidator(new QRegExpValidator(proc->getrxMail(),this));
-    ui->Adresse1lineEdit    ->setValidator(new QRegExpValidator(proc->getrxAdresse(),this));
-    ui->Adresse2lineEdit    ->setValidator(new QRegExpValidator(proc->getrxAdresse(),this));
-    ui->Adresse3lineEdit    ->setValidator(new QRegExpValidator(proc->getrxAdresse(),this));
-    ui->TellineEdit         ->setValidator(new QRegExpValidator(proc->getrxTel(),this));
-    ui->PortablelineEdit    ->setValidator(new QRegExpValidator(proc->getrxTel(),this));
+    ui->NomlineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->PrenomlineEdit      ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->MaillineEdit        ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
+    ui->Adresse1lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+    ui->Adresse2lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+    ui->Adresse3lineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+    ui->TellineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+    ui->PortablelineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
     QList <QWidget *> listtab;
     listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << CPlineEdit << VillelineEdit

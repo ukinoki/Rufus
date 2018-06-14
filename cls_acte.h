@@ -6,6 +6,10 @@
 #include "cls_item.h"
 
 
+/*!
+ * \brief The Acte class
+ * l'ensemble des informations concernant un acte
+ */
 
 class Acte : public Item
 {
@@ -32,7 +36,7 @@ private:
     QString m_paiementTiers;
 
     QDateTime m_date;
-    QDateTime m_agePatient; //TODO : MOVE to user
+    QDateTime m_agePatient; //TODO : MOVE to Patient
 
 
 

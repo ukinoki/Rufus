@@ -62,7 +62,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString *CreationModificati
     MGLineEdit          ->setStyleSheet(
     "UpLineEdit {background-color:white; border-style: none;}"
     "UpLineEdit:focus {border-style:none;}");
-    MGLineEdit          ->setValidator(new QRegExpValidator(proc->getrx(),this));
+    MGLineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
     MGLineEdit          ->setMaxLength(90);
     ui->MGupComboBox    ->setLineEdit(MGLineEdit);
     ui->MGupComboBox    ->setMaxVisibleItems(15);
@@ -77,14 +77,14 @@ dlg_identificationpatient::dlg_identificationpatient(QString *CreationModificati
 
     AfficheDossierAlOuverture();
 
-    ui->NomlineEdit     ->setValidator(new QRegExpValidator(proc->getrx(),this));
-    ui->PrenomlineEdit  ->setValidator(new QRegExpValidator(proc->getrx(),this));
-    ui->MaillineEdit    ->setValidator(new QRegExpValidator(proc->getrxMail(),this));
-    ui->Adresse1lineEdit->setValidator(new QRegExpValidator(proc->getrxAdresse(),this));
-    ui->Adresse2lineEdit->setValidator(new QRegExpValidator(proc->getrxAdresse(),this));
-    ui->Adresse3lineEdit->setValidator(new QRegExpValidator(proc->getrxAdresse(),this));
-    ui->TellineEdit     ->setValidator(new QRegExpValidator(proc->getrxTel(),this));
-    ui->PortablelineEdit->setValidator(new QRegExpValidator(proc->getrxTel(),this));
+    ui->NomlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->PrenomlineEdit  ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->MaillineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
+    ui->Adresse1lineEdit->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+    ui->Adresse2lineEdit->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+    ui->Adresse3lineEdit->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+    ui->TellineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+    ui->PortablelineEdit->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
     QList <QWidget *> listtab;
     listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->DDNdateEdit << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << CPlineEdit << VillelineEdit

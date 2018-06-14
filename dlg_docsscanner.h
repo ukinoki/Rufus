@@ -38,7 +38,6 @@ public:
 private:
     Procedures          *proc;
     int                 idpat;
-    int                 idLieuExercice;
     UpLabel             *inflabel;
     UpLineEdit          *linetitre;
     QDateEdit           *editdate;

@@ -59,7 +59,7 @@ void dlg_creeracte::Initialise(Procedures *procAPasser)
     gSecteurUser            = proc->getDataUser()->getSecteur();
     if (gTypeActe != HorsNomenclature)
     {
-        ui->CodeActeupLineEdit    ->setValidator(new QRegExpValidator(proc->getrxCot(),this));
+        ui->CodeActeupLineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
         ui->CodeActelabel->setText(tr("Code (Majuscules)"));
     }
 

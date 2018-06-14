@@ -1,120 +1,29 @@
 #include "cls_user.h"
+#include "log.h"
 
 int User::ROLE_NON_RENSEIGNE = -1;
 int User::ROLE_VIDE = -2;
 int User::ROLE_INDETERMINE = -3;
 
 
-User User::create()
+
+
+
+
+
+
+
+
+
+
+User::User(QJsonObject data, QObject *parent) : Item(parent)
 {
-
+    setData(data);
 }
-
-/*!
- *  \brief Calcul de l'âge
- *
- *  Methode qui permet ????
- *
- *  \param datedenaissance : la date de naissance
- *  \param Sexe : le sexe de la personne [""]
- *  \param datedujour : la date du jour [Date du jour]
- *
- *  \return un object contenant :
- * toString : une chaine de caractères ( ex: 2 ans 3 mois )
- * annee : l'age brut de la personne
- * mois :
- * icone : l'icone à utiliser [man women, girl, boy, kid, baby]
- * formule : une valeur parmi [l'enfant, la jeune, le jeune, madame, monsieur]
- *
- */
-QMap<QString,QVariant> User::CalculAge(QDate datedenaissance)
-{
-    return User::CalculAge(datedenaissance, "", QDate::currentDate());
-}
-QMap<QString,QVariant> User::CalculAge(QDate datedenaissance, QDate datedujour)
-{
-    return User::CalculAge(datedenaissance, "", datedujour);
-}
-QMap<QString,QVariant> User::CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour)
-{
-    QMap<QString,QVariant>  Age;
-    int         AnneeNaiss, MoisNaiss, JourNaiss;
-    int         AnneeCurrent, MoisCurrent, JourCurrent;
-    int         AgeAnnee, AgeMois;
-    int         FormuleMoisJourNaissance, FormuleMoisJourAujourdhui;
-
-    AnneeNaiss                  = datedenaissance.toString("yyyy").toInt();
-    MoisNaiss                   = datedenaissance.toString("MM").toInt();
-    JourNaiss                   = datedenaissance.toString("dd").toInt();
-    AnneeCurrent                = datedujour.toString("yyyy").toInt();
-    MoisCurrent                 = datedujour.toString("MM").toInt();
-    JourCurrent                 = datedujour.toString("dd").toInt();
-    FormuleMoisJourNaissance    = (MoisNaiss*100) + JourNaiss;
-    FormuleMoisJourAujourdhui   = (MoisCurrent*100) + JourCurrent;
-    AgeAnnee                    = AnneeCurrent - AnneeNaiss;
-    AgeMois                     = MoisCurrent - MoisNaiss;
-    if (FormuleMoisJourAujourdhui < FormuleMoisJourNaissance)   AgeAnnee --;
-    if (JourNaiss > JourCurrent)                                AgeMois --;
-    if (AgeMois < 0)                                            AgeMois = AgeMois + 12;
-
-    Age["annee"] = AgeAnnee;
-    Age["mois"]  = AgeMois;
-
-    // On formate l'âge pour l'affichage
-    switch (AgeAnnee) {
-    case 0:
-        if (datedenaissance.daysTo(datedujour) > 31)
-            Age["toString"]               = QString::number(AgeMois) + " mois";
-        else
-            Age["toString"]               = QString::number(datedenaissance.daysTo(datedujour)) + " jours";
-        break;
-    case 1: case 2: case 3: case 4:
-        Age["toString"]                    = QString::number(AgeAnnee) + " an";
-        if (AgeAnnee > 1) Age["toString"]  = Age["toString"].toString() + "s";
-        if (AgeMois > 0)  Age["toString"]  = Age["toString"].toString() + " " + QString::number(AgeMois) + " mois";
-        break;
-    default:
-        Age["toString"]                    = QString::number(AgeAnnee) + " ans";
-        break;
-    }
-
-    // On cherche l'icone correspondant au mieux à la personne
-    QString img = "silhouette";
-    if (AgeAnnee < 2)                       img = "baby";
-    else if (AgeAnnee < 8)                  img = "kid";
-    else if (AgeAnnee < 16 && Sexe == "M")  img = "boy";
-    else if (AgeAnnee < 16 && Sexe == "F")  img = "girl";
-    else if (Sexe =="M")                    img = "man";
-    else if (Sexe =="F")                    img = "women";
-    Age["icone"] = img;
-
-    // On cherche la formule de polistesse correspondant au mieux à la personne
-    QString formule = "";
-    if (AgeAnnee < 11)                  formule = "l'enfant";
-    else if (AgeAnnee < 18) {
-        if (Sexe == "F")                formule = "la jeune";
-        if (Sexe == "M")                formule = "le jeune";
-    }
-    else {
-        if (Sexe == "F")                formule = "madame";
-        if (Sexe == "M")                formule = "monsieur";
-    }
-    Age["formule"] = formule;
-
-    return Age;
-}
-
-
-
-
-
-User::User(QObject *parent) : Item(parent)
-{}
 User::User(QString login, QString password, QJsonObject data, QObject *parent) : Item(parent),
     m_login(login), m_password(password)
 {
     setData(data);
-
 }
 
 void User::setData(QJsonObject data)
@@ -122,62 +31,49 @@ void User::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, "id");
+    setDataInt(data, "id", m_id);
 
-    setDataString(data, "prenom");
-    setDataString(data, "nom");
-    setDataString(data, "titre");
-    setDataString(data, "login");
-    setDataString(data, "droits");
-    setDataString(data, "fonction");
-    setDataString(data, "mail");
-    setDataString(data, "specialite");
-    setDataString(data, "numCO");
-    setDataString(data, "portable");
-    setDataString(data, "web");
-    setDataString(data, "memo");
-    setDataString(data, "policeEcran");
-    setDataString(data, "policeAttribut");
-    setDataString(data, "nomUserEncaissHonoraires");
-    setDataString(data, "nomCompteEncaissHonoraires");
-    setDataString(data, "nomCompteParDefaut");
-    setDataString(data, "status");
-    setDataString(data, "loginComptable");
+    setDataString(data, "prenom", m_prenom);
+    setDataString(data, "nom", m_nom);
+    setDataString(data, "titre", m_titre);
+    setDataString(data, "login", m_login);
+    setDataString(data, "droits", m_droits);
+    setDataString(data, "fonction", m_fonction);
+    setDataString(data, "mail", m_mail);
+    setDataString(data, "specialite", m_specialite);
+    setDataString(data, "numCO", m_numCO);
+    setDataString(data, "portable", m_portable);
+    setDataString(data, "web", m_web);
+    setDataString(data, "memo", m_memo);
+    setDataString(data, "policeEcran", m_policeEcran);
+    setDataString(data, "policeAttribut", m_policeAttribut);
+    setDataString(data, "nomUserEncaissHonoraires", m_nomUserEncaissHonoraires);
+    setDataString(data, "nomCompteEncaissHonoraires", m_nomCompteEncaissHonoraires);
+    setDataString(data, "nomCompteParDefaut", m_nomCompteParDefaut);
+    setDataString(data, "status", m_status);
+    setDataString(data, "loginComptable", m_loginComptable);
 
 
-    setDataInt(data, "soignant");
-    setDataInt(data, "m_responsableActes");
-    setDataInt(data, "userenreghonoraires");
-    setDataInt(data, "userccam");
-    setDataInt(data, "numPS");
-    setDataInt(data, "noSpecialite");
-    setDataInt(data, "idCompteParDefaut");
-    setDataInt(data, "poste");
-    setDataInt(data, "employeur");
-    setDataInt(data, "medecin");
-    setDataInt(data, "idCompteEncaissHonoraires");
-    setDataInt(data, "enregHonoraires");
-    setDataInt(data, "secteur");
+    setDataInt(data, "soignant", m_soignant);
+    setDataInt(data, "m_responsableActes", m_responsableActes);
+    setDataInt(data, "userenreghonoraires", m_userenreghonoraires);
+    setDataInt(data, "userccam", m_userccam);
+    setDataInt(data, "numPS", m_numPS);
+    setDataInt(data, "noSpecialite", m_noSpecialite);
+    setDataInt(data, "idCompteParDefaut", m_idCompteParDefaut);
+    setDataInt(data, "poste", m_poste);
+    setDataInt(data, "employeur", m_employeur);
+    setDataInt(data, "medecin", m_medecin);
+    setDataInt(data, "idCompteEncaissHonoraires", m_idCompteEncaissHonoraires);
+    setDataInt(data, "enregHonoraires", m_enregHonoraires);
+    setDataInt(data, "secteur", m_secteur);
 
-    setDataBool(data, "AGA");
-    setDataBool(data, "desactive");
-    setDataBool(data, "OPTAM");
-    setDataBool(data, "cotation");
+    setDataBool(data, "AGA", m_AGA);
+    setDataBool(data, "desactive", m_desactive);
+    setDataBool(data, "OPTAM", m_OPTAM);
+    setDataBool(data, "cotation", m_cotation);
 
-    setDataDateTime(data, "dateDerniereConnexion");
-
-    //Adresse de travailgetIdUserComptable
-    setDataInt(data, "idLieu");
-    setDataString(data, "nomLieu");
-    setDataString(data, "adresse1");
-    setDataString(data, "adresse2");
-    setDataString(data, "adresse3");
-    setDataInt(data, "codePostal");
-    setDataString(data, "ville");
-    setDataString(data, "telephone");
-    setDataString(data, "fax");
-
-    //TODO : User : finir init des proprietées
+    setDataDateTime(data, "dateDerniereConnexion", m_dateDerniereConnexion);
 }
 
 QString User::getLogin() const { return m_login; }
@@ -200,7 +96,6 @@ int User::getNumPS() const { return m_numPS; }
 QString User::getNumCO() const { return m_numCO; }
 bool User::getAGA() const { return m_AGA; }
 int User::getEmployeur() const { return m_employeur; }
-int User::getIdLieu() const { return m_idLieu; }
 int User::getIdCompteEncaissHonoraires() const { return m_idCompteEncaissHonoraires; }
 QString User::getNomUserEncaissHonoraires() const { return m_nomUserEncaissHonoraires; }
 QString User::getNomCompteEncaissHonoraires() const { return m_nomCompteEncaissHonoraires; }
@@ -219,13 +114,11 @@ QString User::getPortable() const { return m_portable; }
 QString User::getStatus() const { return m_status; }
 
 
-QString User::getNomlieu() const { return m_nomLieu; }
-QString User::getAdresse1() const { return m_adresse1; }
-QString User::getAdresse2() const { return m_adresse2; }
-QString User::getAdresse3() const { return m_adresse3; }
-int User::getCodePostal() const { return m_codePostal; }
-QString User::getVille() const { return m_ville; }
-QString User::getTelephone() const { return m_telephone; }
+Etablissement* User::getEtablissement() const { return m_etablissement; }
+void User::setEtablissement(Etablissement *etablissement)
+{
+    m_etablissement = etablissement;
+}
 
 
 bool User::isOPTAM() { return m_OPTAM; }
@@ -250,3 +143,5 @@ bool User::isAssistant() { return isSoignant() &&m_idUserActeSuperviseur == 3; }
 //bool User::isAssistant() { return isSoignant() && m_idUserActeSuperviseur != m_id; }
 
 bool User::isDesactive() { return m_desactive; }
+
+

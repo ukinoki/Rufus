@@ -25,23 +25,6 @@ Procedures::Procedures(QObject *parent) :
 {
     lCPParDefaut    = "";
     lVilleParDefaut = "";
-    rx              = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ -]*");
-    rxAdresse       = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°, -]*");
-    rxAVP           = QRegExp("[1,5|1.5|2|3|4|5|6|8|10|14|28|<28]");
-    rxCot           = QRegExp("[xsA-Z0-9.+/]*");  // le x pour BZQKOO1x1.5 et le s pour Cs
-    rxCP            = QRegExp("[0-9]{5}");
-    rxIP            = QRegExp("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                              "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                              "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
-                              "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])");
-    rxLogin         = QRegExp("[A-Za-z0-9]*");
-    rxMail          = QRegExp("^[a-zA-Z][\\w\\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\\w\\.-]*[a-zA-Z0-9]\\.[a-zA-Z][a-zA-Z\\.]*[a-zA-Z]$");
-    rxMdp           = QRegExp("^[a-zA-Z0-9]{5,15}$");
-    rxMdpAdmin      = QRegExp("^[a-zA-Z0-9]{3,15}$");
-    rxRecherche     = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-Z %-]*");
-    rxTabac         = QRegExp("[0-9]{2}");
-    rxTel           = QRegExp("[0-9 ]*");
-    rxVille         = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ -]*");
 
     gnomFichIni     = QDir::homePath() + NOMFIC_INI;
     QFile FichierIni(gnomFichIni);
@@ -720,30 +703,24 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
 
         QString adresse ="";
         int nlignesadresse = 0;
-        if( OtherUser->getNomlieu().size() )
+        if( OtherUser->getEtablissement()->getNom().size() )
         {
             nlignesadresse  ++;
-            adresse         += OtherUser->getNomlieu();
+            adresse         += OtherUser->getEtablissement()->getNom();
         }
-        if (OtherUser->getAdresse1() != "" || OtherUser->getAdresse2() != "")
+        if (OtherUser->getEtablissement()->getAdresse1() != "" || OtherUser->getEtablissement()->getAdresse2() != "")
         {
             nlignesadresse  ++;
             if (nlignesadresse >0)
                 adresse += "<br />";
-            if (OtherUser->getAdresse1() != "" && OtherUser->getAdresse2() != "")
-                adresse += OtherUser->getAdresse1() + " - " + OtherUser->getAdresse2();
+            if (OtherUser->getEtablissement()->getAdresse1() != "" && OtherUser->getEtablissement()->getAdresse2() != "")
+                adresse += OtherUser->getEtablissement()->getAdresse1() + " - " + OtherUser->getEtablissement()->getAdresse2();
             else
-                adresse += OtherUser->getAdresse1() + OtherUser->getAdresse2();
+                adresse += OtherUser->getEtablissement()->getAdresse1() + OtherUser->getEtablissement()->getAdresse2();
         }
         Entete.replace("{{ADRESSE}}", adresse);
-//        if (OtherUser["Adresse1"].toString() == "" && OtherUser["Adresse2"].toString() == "")
-//            Entete.replace("{{ADRESSE}}"       , "<br />" + OtherUser["NomLieu"].toString());
-//        else if (OtherUser["Adresse"].toString() =="")
-//            Entete.replace("{{ADRESSE}}"       , OtherUser["NomLieu"].toString() + "<br />" + OtherUser["Adresse1"].toString());
-//        else
-//            Entete.replace("{{ADRESSE}}"       , OtherUser["NomLieu"].toString() + " - " + OtherUser["Adresse1"].toString() + "<br />" + OtherUser["Adresse2"].toString());
-        Entete.replace("{{CPVILLE}}", QString::number(OtherUser->getCodePostal()) + " " + OtherUser->getVille().toUpper());
-        Entete.replace("{{TEL}}", "Tél. " + OtherUser->getTelephone());
+        Entete.replace("{{CPVILLE}}", QString::number(OtherUser->getEtablissement()->getCodePostal()) + " " + OtherUser->getEtablissement()->getVille().toUpper());
+        Entete.replace("{{TEL}}", "Tél. " + OtherUser->getEtablissement()->getTelephone());
         if (nlignesadresse==2)
             Entete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");
         else
@@ -757,7 +734,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
         }
         if (OtherUser->getNumPS() > 0) NumSS += "RPPS " + QString::number(OtherUser->getNumPS());
         Entete.replace("{{NUMSS}}", NumSS);
-        Entete.replace("{{DATE}}", OtherUser->getVille()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
+        Entete.replace("{{DATE}}", OtherUser->getEtablissement()->getVille()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
 
         (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
     }
@@ -1146,18 +1123,17 @@ void Procedures::setCodePostalParDefaut(QString CPParDefaut)
 
 User* Procedures::getDataUser()
 {
-    return lDataUser; //TODO : lDataUser
+    return m_userConnected; //TODO : m_userConnected
 }
 User* Procedures::setDataOtherUser(int id)
 {
-    QJsonObject jsonUser = DataBase::getInstance()->loadUser(id, gidLieuExercice);
+    QJsonObject jsonUser = DataBase::getInstance()->loadUser(id);
     if( OtherUser != nullptr)
         delete OtherUser;
 
     if( !jsonUser.isEmpty() )
     {
-        OtherUser = new User();
-        OtherUser->setData(jsonUser);
+        OtherUser = new User(jsonUser);
         return OtherUser;
     }
     return nullptr;
@@ -1338,7 +1314,7 @@ QStandardItemModel* Procedures::getListeUsers()
  *
  * ATTENTION : Jamais mis à jour, initialisé au moment du login.
  */
-
+//BUG : !!! : REVOIR pour utiliser la classe User
 void Procedures::setlisteUsers()
 {
     gListeUsersModel            = new QStandardItemModel();
@@ -1456,131 +1432,6 @@ void Procedures::setNomImprimante(QString NomImprimante)
 QString Procedures::getNomImprimante()
 {
     return gnomImprimante;
-}
-
-void Procedures::setrx(QRegExp rxS)
-{
-   rx = rxS;
-}
-
-QRegExp Procedures::getrx()
-{
-    return rx;
-}
-
-void Procedures::setrxAdresse(QRegExp rxA)
-{
-   rxAdresse = rxA;
-}
-
-QRegExp Procedures::getrxAdresse()
-{
-    return rxAdresse;
-}
-
-void Procedures::setrxCot(QRegExp rxC)
-{
-   rxCot = rxC;
-}
-
-QRegExp Procedures::getrxCot()
-{
-    return rxCot;
-}
-
-void Procedures::setrxCP(QRegExp rxC)
-{
-   rxCP = rxC;
-}
-
-QRegExp Procedures::getrxCP()
-{
-    return rxCP;
-}
-
-QRegExp Procedures::getrxIP()
-{
-    return rxIP;
-}
-
-void Procedures::setrxLogin(QRegExp rxL)
-{
-   rxLogin = rxL;
-}
-
-QRegExp Procedures::getrxLogin()
-{
-    return rxLogin;
-}
-
-void Procedures::setrxMail(QRegExp rxM)
-{
-   rxMail = rxM;
-}
-
-QRegExp Procedures::getrxMail()
-{
-    return rxMail;
-}
-
-void Procedures::setrxMdpAdmin(QRegExp rxMDP)
-{
-   rxMdpAdmin = rxMDP;
-}
-
-QRegExp Procedures::getrxMdpAdmin()
-{
-    return rxMdpAdmin;
-}
-
-void Procedures::setrxMdp(QRegExp rxMDP)
-{
-   rxMdp = rxMDP;
-}
-
-QRegExp Procedures::getrxMdp()
-{
-    return rxMdp;
-}
-
-void Procedures::setrxRecherche(QRegExp rxRec)
-{
-   rxRecherche = rxRec;
-}
-
-QRegExp Procedures::getrxRecherche()
-{
-    return rxRecherche;
-}
-
-void Procedures::setrxTel(QRegExp rxT)
-{
-   rxTel = rxT;
-}
-
-QRegExp Procedures::getrxTel()
-{
-    return rxTel;
-}
-
-void Procedures::setrxTabac(QRegExp rxT)
-{
-   rxTabac = rxT;
-}
-
-QRegExp Procedures::getrxTabac()
-{
-    return rxTabac;
-}
-
-void Procedures::setrxVille(QRegExp rxV)
-{
-   rxVille = rxV;
-}
-
-QRegExp Procedures::getrxVille()
-{
-    return rxVille;
 }
 
 int Procedures::TailleEnTete()
@@ -2823,12 +2674,15 @@ bool Procedures::Connexion_A_La_Base()
     if (!IdentificationUser())
         return false;
 
-    gidLieuExercice = DetermineLieuExercice();
     setlisteUsers();
-    ChargeDataUser(DataBase::getInstance()->getUserConnected()->id()); //TODO : ICI
-    if (lDataUser->getIdLieu() <= 0)
+
+    m_userConnected->setEtablissement( DetermineLieuExercice() );
+    ChargeDataUser(m_userConnected->id());
+    if (m_userConnected->getEtablissement() == nullptr )
         UpMessageBox::Watch(0,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     gdbOK = true;
+
+    //Etrange le parametrage ici
     QSqlQuery quer("set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';", DataBase::getInstance()->getDataBase() );
     DataBase::getInstance()->traiteErreurRequete(quer,"set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';","");
     QSqlQuery quer2("SET GLOBAL event_scheduler = 1 ;", DataBase::getInstance()->getDataBase() );
@@ -2840,7 +2694,7 @@ bool Procedures::Connexion_A_La_Base()
 
 bool Procedures::ChargeDataUser(int iduser)
 {
-    QJsonObject jsonUser = DataBase::getInstance()->loadUser(iduser, gidLieuExercice);
+    QJsonObject jsonUser = DataBase::getInstance()->loadUser(iduser);
     if( jsonUser.isEmpty() )
         return false;
 
@@ -2858,7 +2712,7 @@ bool Procedures::ChargeDataUser(int iduser)
     }
     else if( iduser != UserParent() )
     {
-        QJsonObject jsonUserParent = DataBase::getInstance()->loadUser(gidUserParent, gidLieuExercice);
+        QJsonObject jsonUserParent = DataBase::getInstance()->loadUser(gidUserParent);
         if( !jsonUserParent.isEmpty() )
         {
             jsonUser["idCompteParDefaut"]          = jsonUserParent["idCompteParDefaut"];
@@ -2916,11 +2770,9 @@ bool Procedures::ChargeDataUser(int iduser)
     Statut += tr("comptabilité") + "\t= " + compta;
     jsonUser["Statut"]          = Statut;
 
-    /*if( lDataUser != nullptr )
-        delete lDataUser;*/
-    if( lDataUser == nullptr )
-        lDataUser = new User();
-    lDataUser->setData( jsonUser );
+    if( m_userConnected == nullptr )
+        m_userConnected = new User();
+    m_userConnected->setData( jsonUser );
     RestoreFontAppliAndGeometry();
     return true;
 }
@@ -2928,90 +2780,75 @@ bool Procedures::ChargeDataUser(int iduser)
 /*-----------------------------------------------------------------------------------------------------------------
     -- Détermination du lieu exercice pour la session en cours -------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-int Procedures::DetermineLieuExercice()
+Etablissement* Procedures::DetermineLieuExercice()
 {
-    int idLieuExercice = 1;
+    QList<Etablissement*> listEtab = DataBase::getInstance()->loadUserEtablissements(m_userConnected->id());
+    if( listEtab.size() == 1 )
+        return listEtab[0];
+
+    /* Cas ou le praticient est dans plusieur centre
+     * on lui demande de sélectionner le centre où il se trouve au moment de la connexion
+    */
+    UpDialog *gAskLieux     = new UpDialog();
+    gAskLieux               ->AjouteLayButtons();
+    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAskLieux->layout());
+    QGroupBox*boxlieux      = new QGroupBox();
+    globallay               ->insertWidget(0,boxlieux);
+    boxlieux                ->setAccessibleName("Parent");
+    boxlieux                ->setTitle(tr("D'où vous connectez-vous?"));
+    QFontMetrics fm         = QFontMetrics(qApp->font());
+    int hauteurligne        = fm.height()*1.6;
+    boxlieux                ->setFixedHeight(((listEtab.size() + 1)*hauteurligne)+5);
+    QVBoxLayout *vbox       = new QVBoxLayout;
+    QList<Etablissement*>::const_iterator itEtab;
+    bool isFirst = true;
+    for(itEtab = listEtab.constBegin(); itEtab != listEtab.constEnd(); ++itEtab)
+    {
+        Etablissement *etab = const_cast<Etablissement*>(*itEtab);
+        UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
+        pradiobutt->setText(etab->getNom());
+        pradiobutt->setAccessibleName(QString::number(etab->getId()));
+        pradiobutt->mData = etab;
+        QString data("");
+        if( etab->getNom().size() )
+            data += etab->getNom();
+        if( etab->getAdresse1().size() )
+            data += (data.size() ? "\n" : "") + etab->getAdresse1();
+        if( etab->getAdresse2().size() )
+            data += (data.size() ? "\n" : "") + etab->getAdresse2();
+        if( etab->getAdresse3().size() )
+            data += (data.size() ? "\n" : "") + etab->getAdresse3();
+        if( etab->getCodePostal() )
+            data += (data.size() ? "\n" : "") + QString::number(etab->getCodePostal());
+        if( etab->getVille().size() )
+            data += (data.size() ? "\n" : "") + etab->getVille();
+        if( etab->getTelephone().size() )
+            data += (data != ""? "\nTel: " : "Tel: ") + etab->getTelephone();
+        pradiobutt->setImmediateToolTip(data);
+        pradiobutt->setChecked(isFirst);
+        vbox      ->addWidget(pradiobutt);
+        isFirst = false;
+    }
+    vbox                ->setContentsMargins(8,0,8,0);
+    boxlieux            ->setLayout(vbox);
+    gAskLieux           ->setModal(true);
+    globallay           ->setSizeConstraint(QLayout::SetFixedSize);
+    connect(gAskLieux->OKButton,   &QPushButton::clicked,  gAskLieux, &UpDialog::accept);
+    gAskLieux->exec();
+    QList<UpRadioButton*> listbutt = boxlieux->findChildren<UpRadioButton*>();
+    QList<UpRadioButton*>::const_iterator itRB;
+    for(itRB = listbutt.constBegin(); itRB != listbutt.constEnd(); ++itRB)
+    {
+        UpRadioButton *rb = const_cast<UpRadioButton*>(*itRB);
+        if( rb->isChecked() )
+            return qobject_cast<Etablissement*>(rb->mData);
+    }
+    /*
     if (DataBase::getInstance()->getMode() == DataBase::Poste || DataBase::getInstance()->getMode() == DataBase::Distant)
     {
-        QString lieuxreq = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from "
-                        NOM_TABLE_JOINTURESLIEUX " joint left outer join " NOM_TABLE_LIEUXEXERCICE
-                        " lix on joint.idlieu = lix.idLieu"
-                        " where iduser = " + QString::number(DataBase::getInstance()->getUserConnected()->id());
-        //qDebug() << lieuxreq;
-        QSqlQuery lxquer(lieuxreq,DataBase::getInstance()->getDataBase() );
-        DataBase::getInstance()->traiteErreurRequete(lxquer, lieuxreq);
-        if (lxquer.size()==1)
-        {
-            lxquer.first();
-            idLieuExercice = lxquer.value(0).toInt();
-        }
-        else if (lxquer.size()>1)
-        {
-            /* Cas ou le praticient est dans plusieur centre
-             * on lui demande de sélectionner le centre où il se trouve au moment de la connexion
-            */
-            gAskLieux               = new UpDialog();
-            gAskLieux               ->AjouteLayButtons();
-            QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAskLieux->layout());
-            QGroupBox*boxlieux      = new QGroupBox();
-            globallay               ->insertWidget(0,boxlieux);
-            boxlieux                ->setAccessibleName("Parent");
-            boxlieux                ->setTitle(tr("D'où vous connectez-vous?"));
-
-            QFontMetrics fm         = QFontMetrics(qApp->font());
-            int hauteurligne        = fm.height()*1.6;
-            boxlieux                ->setFixedHeight(((lxquer.size() + 1)*hauteurligne)+5);
-            QVBoxLayout *vbox       = new QVBoxLayout;
-            for (int i=0; i<lxquer.size(); i++)
-            {
-                lxquer          .seek(i);
-                UpRadioButton   *pradiobutt = new UpRadioButton(boxlieux);
-                pradiobutt      ->setText(lxquer.value(1).toString());
-                pradiobutt      ->setAccessibleName(lxquer.value(0).toString());
-                QString data ("");
-                if (lxquer.value(1).toString()!="")
-                    data += lxquer.value(1).toString();
-                if (data == "" )
-                {
-                    data += lxquer.value(2).toString();
-                    if (lxquer.value(6).toString()!="")
-                        data += (data != ""? " " : "") + lxquer.value(6).toString();
-                }
-                if (lxquer.value(6).toString()!="")
-                    data += (data != ""? " - " : "") + lxquer.value(6).toString();
-                data = "";
-                if (lxquer.value(1).toString()!="")
-                    data += lxquer.value(1).toString();
-                if (lxquer.value(2).toString()!="")
-                    data += (data != ""? "\n" : "") + lxquer.value(2).toString();
-                if (lxquer.value(3).toString()!="")
-                    data += (data != ""? "\n" : "") + lxquer.value(3).toString();
-                if (lxquer.value(4).toString()!="")
-                    data += (data != ""? "\n" : "") + lxquer.value(4).toString();
-                if (lxquer.value(5).toString()!="")
-                    data += (data != ""? "\n" : "") + lxquer.value(5).toString();
-                if (lxquer.value(6).toString()!="")
-                    data += (data != ""? " " : "") + lxquer.value(6).toString();
-                if (lxquer.value(7).toString()!="")
-                    data += (data != ""? "\nTel: " : "Tel: ") + lxquer.value(7).toString();
-                pradiobutt      ->setImmediateToolTip(data);
-                pradiobutt      ->setChecked(i==0);
-                vbox            ->addWidget(pradiobutt);
-            }
-            vbox                ->setContentsMargins(8,0,8,0);
-            boxlieux            ->setLayout(vbox);
-            gAskLieux           ->setModal(true);
-            globallay           ->setSizeConstraint(QLayout::SetFixedSize);
-            connect(gAskLieux->OKButton,   SIGNAL(clicked(bool)),  gAskLieux, SLOT(accept()));
-            gAskLieux->exec();
-            QList<QRadioButton*> listbutt = boxlieux->findChildren<QRadioButton*>();
-            for (int j=0; j<listbutt.size(); j++)
-                if (listbutt.at(j)->isChecked())
-                    idLieuExercice = listbutt.at(j)->accessibleName().toInt();
             delete gAskLieux;
-        }
     }
-    else
+    else //TODO : ??? : Je ne comprends pas pourquoi
     {
         QString lieuxreq = "select idLieuParDefaut from " NOM_TABLE_PARAMSYSTEME;
         QSqlQuery lxquer(lieuxreq,DataBase::getInstance()->getDataBase() );
@@ -3026,8 +2863,8 @@ int Procedures::DetermineLieuExercice()
             idLieuExercice = lieuquer.value(0).toInt();
             QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + lieuquer.value(0).toString(), DataBase::getInstance()->getDataBase() );
         }
-    }
-    return idLieuExercice;
+    }*/
+    return nullptr;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -3048,7 +2885,6 @@ QStringList Procedures::ChoisirUnLogin()
     UpLineEdit *Line2           = new UpLineEdit();
     UpLineEdit *Line3           = new UpLineEdit();
     QVBoxLayout *globallay      = dynamic_cast<QVBoxLayout*>(gAskLogin->layout());
-    QRegExp rx                  = QRegExp("^[A-Za-z0-9]{5,15}$");
 
     gAskLogin                   ->setModal(true);
     gAskLogin                   ->setFixedSize(300,300);
@@ -3057,9 +2893,9 @@ QStringList Procedures::ChoisirUnLogin()
     Line                        ->setObjectName(gLogin);
     Line2                       ->setObjectName(gNouvMDP);
     Line3                       ->setObjectName(gConfirmMDP);
-    Line                        ->setValidator(new QRegExpValidator(rx));
-    Line2                       ->setValidator(new QRegExpValidator(rx));
-    Line3                       ->setValidator(new QRegExpValidator(rx));
+    Line                        ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
+    Line2                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
+    Line3                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
     Line                        ->setAlignment(Qt::AlignCenter);
     Line2                       ->setAlignment(Qt::AlignCenter);
     Line3                       ->setAlignment(Qt::AlignCenter);
@@ -3119,7 +2955,6 @@ void Procedures::Slot_VerifLogin()
     UpLineEdit *ConfirmMDPline  = gAskLogin->findChild<UpLineEdit*>(gConfirmMDP);
     QString login               = Loginline->text();
     QString MDP                 = MDPline->text();
-    QRegExp rx                  = QRegExp("^[A-Za-z0-9]{5,15}$");
 
     if (Loginline->text() == "")
     {
@@ -3131,7 +2966,7 @@ void Procedures::Slot_VerifLogin()
         msg = tr("Vous avez oublié d'indiquer le mot de passe");
         MDPline->setFocus();
     }
-    if (!rx.exactMatch(MDPline->text()))
+    if (!Utils::rgx_AlphaNumeric_5_15.exactMatch(MDPline->text()))
     {
         msg = tr("Le mot de passe n'est pas conforme.") + "\n" +
               tr("Au moins 5 caractères - uniquement des chifres ou des lettres - max. 5 caractères.");
@@ -3170,7 +3005,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     }
 
     //1. On vérifie si ce login existe dans le serveur et si c'est le cas, on détruit toutes les instances de ce login
-    //TODO : !! un peu brutal
+    //TODO : !!! un peu brutal
     QString req = "select user, host from mysql.user where user = '" + Login + "%'";
     QSqlQuery usrquery(req,DataBase::getInstance()->getDataBase() );
     if (usrquery.size()>0)
@@ -3231,6 +3066,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
                                UpDialog::ButtonOK | UpDialog::ButtonEdit, QStringList() << tr("Modifier les données") << tr("Conserver les données"))
         == UpSmallButton::EDITBUTTON)
     {
+        int gidLieuExercice = -1;
         Dlg_GestUsr = new dlg_gestionusers(1, gidLieuExercice, DataBase::getInstance()->getDataBase() );
         Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + Login);
         Dlg_GestUsr->setConfig(dlg_gestionusers::PREMIERUSER);
@@ -3250,6 +3086,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     -----------------------------------------------------------------------------------------------------------------*/
 QString Procedures::CreerUserFactice(User &user)
 {
+    //TODO : Revoir
     QJsonObject userData{};
     userData["id"] = 1;
     userData["nom"] = "Snow";
@@ -3339,7 +3176,7 @@ QString Procedures::CreerUserFactice(User &user)
     req = "select idLieu from " NOM_TABLE_LIEUXEXERCICE;
     QSqlQuery querr(req, DataBase::getInstance()->getDataBase() );
     querr.first();
-    gidLieuExercice = querr.value(0).toInt();
+    int gidLieuExercice = querr.value(0).toInt(); //TODO : ICI
     req = "insert into " NOM_TABLE_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + id + ", " + QString::number(gidLieuExercice) + ")";
     QSqlQuery(req, DataBase::getInstance()->getDataBase() );
     req = "update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + QString::number(gidLieuExercice);
@@ -3361,6 +3198,7 @@ bool Procedures::IdentificationUser(bool ChgUsr) //TODO : ICI : IdentificationUs
     int result = Dlg_IdentUser->exec();
     if( result > 0 )
     {
+        m_userConnected = DataBase::getInstance()->getUserConnected();
         if (!VerifBaseEtRessources())
         {
             UpMessageBox::Watch(0, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
@@ -3429,12 +3267,11 @@ bool Procedures::IdentificationUser(bool ChgUsr) //TODO : ICI : IdentificationUs
         msgbox.addButton(YesBouton, UpSmallButton::STARTBUTTON);
         msgbox.addButton(OKBouton, UpSmallButton::COPYBUTTON);
         msgbox.exec();
-        if (msgbox.clickedButton() == OKBouton)
-            if (RestaureBase(false,false,false))
-            {
-                UpMessageBox::Watch(0,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
-                exit(0);
-            }
+        if( (msgbox.clickedButton() == OKBouton) && RestaureBase(false,false,false))
+        {
+            UpMessageBox::Watch(0,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
+            exit(0);
+        }
         if (msgbox.clickedButton() == YesBouton)
         {
             QString NomDirRessrces = QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES;
@@ -3447,9 +3284,6 @@ bool Procedures::IdentificationUser(bool ChgUsr) //TODO : ICI : IdentificationUs
             //TODO : ICI
             gdbOK = CreerPremierUser(gLoginUser(), gMDPUser());
             setlisteUsers();
-            ChargeDataUser(DataBase::getInstance()->getUserConnected()->id());
-            PremierParametrageMateriel();
-            PremierParametrageRessources();
             UpMessageBox::Watch(0,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
             exit(0);
         }
@@ -3579,7 +3413,8 @@ void Procedures::DefinitScriptBackup(QString path, bool AvecImages, bool AvecVid
 
 bool Procedures::DefinitRoleUser()
 {
-    const User *usr = DataBase::getInstance()->getUserConnected();
+    //TODO : ??? : revoir fonctionnement
+
     /* definit les iduser pour lequel le user travaille
      *  . iduser
         . iduser superviseur des actes                      (int gidUserSuperViseurProv)
@@ -3630,7 +3465,7 @@ bool Procedures::DefinitRoleUser()
      * 4 = Non soignant
      * 5 = societe comptable
      */
-    if (usr->getSoignant()==1 || usr->getSoignant()==2 || usr->getSoignant()==3)
+    if (m_userConnected->isSoignant() )
     {
         gAskUser                    = new UpDialog();
         gAskUser                    ->AjouteLayButtons();
@@ -3674,7 +3509,7 @@ bool Procedures::DefinitRoleUser()
          * 3 = retrocession honoraires ou remplaçant
          * 4 = pas de comptabilite
          */
-        switch (usr->getResponsableactes()) {
+        switch (m_userConnected->getResponsableactes()) {
         case 1:
             // le user est responsable de ses actes - on cherche à savoir qui comptabilise ses actes
             Slot_CalcUserParent();
@@ -3683,7 +3518,7 @@ bool Procedures::DefinitRoleUser()
             // le user alterne entre responsable des actes et assistant suivant la session - on lui demande son rôle pour cette session
             req   = "select iduser from " NOM_TABLE_UTILISATEURS
                     " where (responsableactes = 1 or responsableactes = 2)"
-                    " and iduser <> " + QString::number(usr->id());
+                    " and iduser <> " + QString::number(m_userConnected->id());
             if (QSqlQuery(req, DataBase::getInstance()->getDataBase()).size() == 0)  // s'il ny a pas de responsable autre que lui dans la bbd,
                                                             // il ne peut se connecter que comme responsable
             {
@@ -3773,7 +3608,7 @@ bool Procedures::DefinitRoleUser()
                     QString req   = "select iduser, userlogin from " NOM_TABLE_UTILISATEURS
                             " where (userenreghonoraires = 1 or userenreghonoraires = 2)"
                             " and iduser <> " + QString::number(gidUserSuperViseurProv) +
-                            " and iduser <> " + QString::number(usr->id()) +
+                            " and iduser <> " + QString::number(m_userConnected->id()) +
                             " and soignant = " + soignquer.value(0).toString() +
                             " and userdesactive is null";
                     //qDebug() << req;
@@ -3848,6 +3683,8 @@ bool Procedures::DefinitRoleUser()
                 break;
             }
          }
+
+        //TODO : METTRE A JOUR LE USER
         return true;
     }
     else  // il s'agit d'un administratif ou d'une société comptable
@@ -3857,6 +3694,7 @@ bool Procedures::DefinitRoleUser()
         gidUserParentProv           = -2;
         gUseCotationProv            = true;
         avecLaComptaProv            = true;
+        //TODO : METTRE A JOUR LE USER
         return true;
     }
     return false;
@@ -4039,7 +3877,9 @@ int Procedures::idCentre()
 
 int Procedures::idLieuExercice()
 {
-    return gidLieuExercice;
+    if( m_userConnected )
+        return m_userConnected->getEtablissement()->getId();
+    return -1;
 }
 
 int Procedures::UserComptable()
@@ -5630,7 +5470,7 @@ void Procedures::setHtmlRefracteur()
             if (Resultat == "" && ResultatOD == "Rien" && ResultatOG != "Rien")
                 Resultat = ResultatVLOG + "<font color = " + colorVLOG + "><b>" + mAVLOG + "</b></font> " + tr("OG");
         }
-        Resultat = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + lDataUser->getLogin() + "</td></p>";
+        Resultat = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + m_userConnected->getLogin() + "</td></p>";
     }
     HtmlMesureRefracteurSubjectif = Resultat;
     // CALCUL DE HtmlMesureTono ======================================================================================================================================
@@ -6608,13 +6448,13 @@ void Procedures::setHtmlTono()
         else
             TOGcolor = "<font color = \"blue\"><b>" + mTOG + "</b></font>";
         if (mTOD.toInt() == 0 && mTOG.toInt() > 0)
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + lDataUser->getLogin() + "</td></p>";
+            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else if (mTOG.toInt() == 0 && mTOD.toInt() > 0)
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + lDataUser->getLogin() + "</td></p>";
+            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else if (mTOD.toInt() == mTOG.toInt())
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + lDataUser->getLogin() + "</td></p>";
+            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + lDataUser->getLogin() + "</td></p>";
+            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
 
     }
     HtmlMesureTono = Tono;
@@ -6637,13 +6477,13 @@ void Procedures::setHtmlPachy()
     if (a > 0 || b > 0)
     {
         if (a == 0 && b > 0)
-            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + lDataUser->getLogin() + "</td></p>";
+            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else if (b == 0 && a > 0)
-            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOD + "</td><td>" + lDataUser->getLogin() + "</td></p>";
+            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOD + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else if (a == b)
-            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("PachyODG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + lDataUser->getLogin() + "</td></p>";
+            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("PachyODG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else
-            Pachy= "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("Pachy:") + "</b></font></td><td width=\"80\">" + mPachyOD + "/" + mPachyOG + "</td><td>" + lDataUser->getLogin() + "</td></p>";
+            Pachy= "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("Pachy:") + "</b></font></td><td width=\"80\">" + mPachyOD + "/" + mPachyOG + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
 
     }
     HtmlMesurePachy = Pachy;

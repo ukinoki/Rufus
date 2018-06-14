@@ -122,11 +122,10 @@ QJsonObject DataBase::login(QString login, QString password)
     //TODO : SQL USER : récupérer tout le reste
     QString req = "SELECT u.idUser, u.UserNom, u.UserPrenom, "
                     "uc.NomPosteconnecte "
-                  " FROM %1 u "
-                  " LEFT JOIN %2 uc on uc.idUSer = u.idUser "
-                  " WHERE UserLogin = '%2' "
-                  " AND UserMDP = '%3' ";
-    req = req.arg(NOM_TABLE_UTILISATEURS, NOM_TABLE_USERSCONNECTES, login, password);
+                  " FROM " NOM_TABLE_UTILISATEURS " u "
+                  " LEFT JOIN " NOM_TABLE_USERSCONNECTES " uc on uc.idUSer = u.idUser "
+                  " WHERE UserLogin = '" + login + "' "
+                  " AND UserMDP = '" + password + "' ";
 
     QSqlQuery query(req, getDataBase() );
     if( query.lastError().type() != QSqlError::NoError )
@@ -157,10 +156,9 @@ QJsonObject DataBase::login(QString login, QString password)
     userData["prenom"] = query.value(2).toString();
 
     m_userConnected = new User(login, password, userData);
-
     return jrep;
 }
-QJsonObject DataBase::loadUser(int idUser, int idLieu)
+QJsonObject DataBase::loadUser(int idUser)
 {
     QJsonObject userData{};
 
@@ -174,7 +172,8 @@ QJsonObject DataBase::loadUser(int idUser, int idLieu)
             " from " NOM_TABLE_UTILISATEURS
             " where idUser = " + QString::number(idUser);
     QSqlQuery  query(req, getDataBase());
-    traiteErreurRequete(query, tr("Impossible de retrouver les données de l'utilisateur"), req);
+    if( traiteErreurRequete(query, tr("Impossible de retrouver les données de l'utilisateur"), req) )
+        return userData;
 
     if( !query.first() )
         return userData;
@@ -219,6 +218,7 @@ QJsonObject DataBase::loadUser(int idUser, int idLieu)
         QSqlQuery cptquer(req, getDataBase());
         if( cptquer.first() )
             userData["idCompteEncaissHonoraires"] = cptquer.value(0).toInt();
+        cptquer.finish();
     }
 
     if( userData["idCompteEncaissHonoraires"].isNull() )
@@ -238,6 +238,7 @@ QJsonObject DataBase::loadUser(int idUser, int idLieu)
             userData["idUserEncaissHonoraires"]     = usrencaisquer.value(0).toInt();
             userData["nomCompteEncaissHonoraires"]  = usrencaisquer.value(1).toString();
             userData["nomUserEncaissHonoraires"]    = usrencaisquer.value(2).toString();
+            usrencaisquer.finish();
         }
     }
 
@@ -250,33 +251,49 @@ QJsonObject DataBase::loadUser(int idUser, int idLieu)
             userData["nomCompteParDefaut"]  = usrcptquer.value(0).toString();
     }
     query.finish();
-
-    QString lxreq = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"    // 0,1,2,3,4
-                    " LieuCodePostal, LieuVille, LieuTelephone, LieuFax"                  // 5,6,7,8
-                    " from " NOM_TABLE_LIEUXEXERCICE
-                    " where idLieu = " + QString::number(idLieu);
-    QSqlQuery  querylieu(lxreq, getDataBase());
-    if( !traiteErreurRequete(querylieu, lxreq, tr("Pas d'adresse enregistrée pour cet utilisateur") ))
-    {
-        if( !querylieu.first())
-        {
-            UpMessageBox::Watch(0, tr("Pas d'adresse enregistrée pour cet utilisateur!"),  tr("Corrigez cette erreur et relancez le programme!"));
-        }
-        else
-        {
-            userData["idLieu"]      = querylieu.value(0).toInt();
-            userData["nomLieu"]     = querylieu.value(1).isNull() ? "" : querylieu.value(1).toString();
-            userData["adresse1"]    = querylieu.value(2).isNull() ? "" : querylieu.value(2).toString();
-            userData["adresse2"]    = querylieu.value(3).isNull() ? "" : querylieu.value(3).toString();
-            userData["adresse3"]    = querylieu.value(4).isNull() ? "" : querylieu.value(4).toString();
-            userData["codePostal"]  = querylieu.value(5).toInt();
-            userData["ville"]       = querylieu.value(6).isNull() ? "" : querylieu.value(6).toString();
-            userData["telephone"]   = querylieu.value(7).isNull() ? "" : querylieu.value(7).toString();
-            userData["fax"]         = querylieu.value(8).isNull() ? "" : querylieu.value(8).toString();
-        }
-    }
     return userData;
 }
+
+/*
+ * Etablissements
+*/
+QList<Etablissement*> DataBase::loadUserEtablissements(int idUser)
+{
+    QList<Etablissement*> etabs;
+
+    QString req = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
+                    "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
+                  "from " NOM_TABLE_JOINTURESLIEUX " joint "
+                  "left join " NOM_TABLE_LIEUXEXERCICE " lix on joint.idlieu = lix.idLieu "
+                  "where iduser = " + QString::number(idUser);
+
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return etabs;
+
+    do
+    {
+        QJsonObject jEtab{};
+        jEtab["idLieu"] = query.value(0).toInt();
+        jEtab["nomLieu"] = query.value(1).toString();
+        jEtab["adresse1"] = query.value(2).toString();
+        jEtab["adresse2"] = query.value(3).toString();
+        jEtab["adresse3"] = query.value(4).toString();
+        jEtab["codePostal"] = query.value(5).toInt();
+        jEtab["ville"] = query.value(6).toString();
+        jEtab["telephone"] = query.value(7).toString();
+        jEtab["fax"] = query.value(8).toString();
+        Etablissement *etab = new Etablissement(jEtab);
+        etabs << etab;
+    } while( query.next() );
+
+    return etabs;
+}
+
+/*
+ * Gestion des Patients
+*/
+
 
 
 /*
@@ -288,11 +305,11 @@ Acte* DataBase::loadActeById(int idActe)
 
     if( idActe == 0 )
         return acte;
-    QString subRequestMinMaxAct = "SELECT idActe, idPat, "
-                                  "CASE WHEN @prevRank = idPat THEN @curRank := @curRank + 1 WHEN @prevRank := idPat THEN @curRank := 1 END AS rank, "
-                                  " FROM " NOM_TABLE_ACTES " (SELECT @curRank := 0, @prevRank := NULL) r "
+    QString subRequestRankAct = "SELECT idActe, idPat, "
+                                  "CASE WHEN @prevRank = idPat THEN @curRank := @curRank + 1 WHEN @prevRank := idPat THEN @curRank := 1 END AS rank "
+                                  " FROM " NOM_TABLE_ACTES ", (SELECT @curRank := 0, @prevRank := NULL) r "
                                   " ORDER BY idPat, idActe ";
-    QString subRequestRankAct = "SELECT min(idActe) as idActeMin, max(idActe) as idActeMax, count(idActe) as total, idPat "
+    QString subRequestMinMaxAct = "SELECT min(idActe) as idActeMin, max(idActe) as idActeMax, count(idActe) as total, idPat "
                                 " FROM " NOM_TABLE_ACTES
                                 " GROUP BY idPat ";
     QString requete = "SELECT act.idActe, act.idPat, act.idUser, "

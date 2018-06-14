@@ -141,7 +141,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui->dateEdit->setMaximumDate(QDate::currentDate());
 
     ui->DupliOrdocheckBox->setChecked(proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
-    ui->label->setPixmap(Icons::pxLoupe().scaled(30,30)); //TODO : icon scaled : pxLoupe 20,20
+    ui->label->setPixmap(Icons::pxLoupe().scaled(30,30)); //WARNING : icon scaled : pxLoupe 20,20
     ui->ChercheupLineEdit->setStyleSheet(
     "UpLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 10px;}"
     "UpLineEdit:focus {border: 3px solid rgb(164, 205, 255);border-radius: 10px;}");
@@ -332,7 +332,7 @@ void dlg_documents::Slot_CheckPublicEditable()
     if (check->isChecked()) {
         ui->DocupTableWidget->item(line->getRowTable(),b)->setText("1");
         UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),c));
-        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
+        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
     }
     else    {
         ui->DocupTableWidget->item(line->getRowTable(),b)->setText("");
@@ -945,7 +945,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         if (!lbl->pixmap())
         {
             a = "1";
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
         }
         else
         {
@@ -973,7 +973,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         if (!lbl->pixmap())
         {
             a = "1";
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
         }
         else
             lbl->clear();
@@ -998,7 +998,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         if (!lbl->pixmap())
         {
             if (!VerifDossierPublic(line->getRowTable())) return;
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
             a = "1";
         }
         else
@@ -1345,7 +1345,7 @@ void dlg_documents::Slot_Validation()
                 if (listtypeQuestions.at(m)  == "TEXTE")
                 {
                     UpLineEdit *Line = new UpLineEdit();
-                    Line->setValidator(new QRegExpValidator(proc->getrxAdresse(),this));
+                    Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
                     Line->setMaxLength(60);
                     Line->setFixedHeight(23);
                     lay->addWidget(Line);
@@ -1782,7 +1782,7 @@ int dlg_documents::AskDialog(QString titre)
     connect(gAskDialog->OKButton,   SIGNAL(clicked(bool)),  gAskDialog, SLOT(accept()));
 
     label->setText(tr("Entrez la question que vous voulez poser."));
-    Line->setValidator(new QRegExpValidator(proc->getrxAdresse(),this));
+    Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
     return gAskDialog->exec();
 }
@@ -3018,7 +3018,7 @@ void dlg_documents::Remplir_TableView()
         UpLabel*lbl = new UpLabel(ui->DocupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         if (RemplirTableViewQuery.value(3).toInt()==1)
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
         ui->DocupTableWidget->setCellWidget(i,col,lbl);                                       // Public
         col++; //8
         pItem6->setText(RemplirTableViewQuery.value(6).toString());                           // Editable
@@ -3027,7 +3027,7 @@ void dlg_documents::Remplir_TableView()
         UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
         lbl1->setAlignment(Qt::AlignCenter);
         if (RemplirTableViewQuery.value(6).toInt()==1)
-            lbl1->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
+            lbl1->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
         ui->DocupTableWidget->setCellWidget(i,col,lbl1);
         col++; //10
         pItem10->setText("1" + upLine0->text());                                              // Check+text  -> sert pour le tri de la table
@@ -3124,7 +3124,7 @@ void dlg_documents::Remplir_TableView()
         UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         if (RemplirDossiersTableViewQuery.value(3).toInt()==1)
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxLoupe 15,15
+            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
         ui->DossiersupTableWidget->setCellWidget(i,col,lbl);
 
         ui->DossiersupTableWidget->setRowHeight(i,fm.height()*1.3);

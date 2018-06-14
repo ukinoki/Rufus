@@ -255,8 +255,7 @@ private:
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
 
-    User                    gDataUser;
-    User                    *gDataUser2;
+    User                    *gDataUser;
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
     UpLabel                 *gAskinflabel;

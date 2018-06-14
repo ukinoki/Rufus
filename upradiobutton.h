@@ -34,12 +34,16 @@ public:
     bool        Toggleable() const;
     void        setiD(int val);
     int         iD() const;
+
+    QObject     *mData;
+
 private:
     int         gid;
     QString     gToolTipMsg;
     bool        eventFilter(QObject *obj, QEvent *event)  ;
     void        AfficheToolTip();
     bool        Toggable;
+
 signals:
     void        enter();
 

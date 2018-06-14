@@ -22,7 +22,6 @@ dlg_docsscanner::dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *pa
 {
     proc            = ProcAPasser;
     idpat           = idPat;
-    idLieuExercice  = proc->getDataUser()->getIdLieu();
     db              = DataBase::getInstance()->getDataBase();
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -425,7 +424,7 @@ void dlg_docsscanner::ValideFiche()
     query.bindValue(":lien",            "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe);
     query.bindValue(":emisrecu",        "1");
     query.bindValue(":formatdoc",       DOCUMENTRECU);
-    query.bindValue(":lieu",            QString::number(idLieuExercice));
+    query.bindValue(":lieu",            QString::number(proc->getDataUser()->getEtablissement()->getId()) );
 
     bool b = query.exec();
     QSqlQuery("UNLOCK TABLES", db);

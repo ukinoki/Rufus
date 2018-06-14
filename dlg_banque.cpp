@@ -18,6 +18,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_banque.h"
 #include "ui_dlg_banque.h"
 #include "icons.h"
+#include "utils.h"
 
 dlg_banque::dlg_banque(QSqlDatabase gdb, QWidget *parent, QString nouvbanqueabrege) :
     UpDialog(parent),
@@ -109,8 +110,7 @@ dlg_banque::dlg_banque(QSqlDatabase gdb, QWidget *parent, QString nouvbanqueabre
     connect(ui->AnnulModifupSmallButton,    &QPushButton::clicked,    [=] {AnnuleModifBanque();});
     connect(ui->OKModifupSmallButton,       &QPushButton::clicked,    [=] {ValideModifBanque();});
 
-    QRegExp rx              = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ -]*");
-    ui->NomBanqueupLineEdit ->setValidator(new QRegExpValidator(rx));
+    ui->NomBanqueupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx));
     QRegExp val             = QRegExp("[A-Z]*");
     ui->NomAbregeupLineEdit ->setValidator(new QRegExpValidator(val));
 }

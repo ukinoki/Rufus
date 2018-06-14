@@ -120,8 +120,8 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     connect(PrintButton,        &QPushButton::clicked, [=] {ImprimeDoc();});
     connect(SupprButton,        &QPushButton::clicked, [=] {SupprimeDoc();});
 
-    ScrollTable     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //TODO : icon scaled : pxZoomIn 30,30
-    GraphicView     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //TODO : icon scaled : pxZoomIn 30,30
+    ScrollTable     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+    GraphicView     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
     hdelta          = 0;
     wdelta          = 0;
     hdeltaframe     = 0;
@@ -763,7 +763,7 @@ void dlg_docsexternes::ImprimeDoc()
                 UpMessageBox::Watch(this,tr("Impossible de retrouver l'entête"));
                 return;
             }
-            Entete.replace(QRegExp("<!--date-->[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùüûÙçÇ'a-zA-ZŒœ0-9°, -]*<!--date-->"), "<!--date-->" + gDataUser->getVille() + tr(" le, ") + QDate::currentDate().toString(tr("d MMMM yyyy")) + "<!--date-->");
+            Entete.replace(QRegExp("<!--date-->[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùüûÙçÇ'a-zA-ZŒœ0-9°, -]*<!--date-->"), "<!--date-->" + gDataUser->getEtablissement()->getVille() + tr(" le, ") + QDate::currentDate().toString(tr("d MMMM yyyy")) + "<!--date-->");
             //création du pied
             Pied = quer.value(6).toString();
             if (Pied == "")
@@ -819,7 +819,7 @@ void dlg_docsexternes::ImprimeDoc()
                 query.bindValue(":textPied", Pied);
                 query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
                 query.bindValue(":formatdoc", quer.value(8).toString());
-                query.bindValue(":idlieu", QString::number(proc->getDataUser()->getIdLieu()));
+                query.bindValue(":idlieu", QString::number(proc->getDataUser()->getEtablissement()->getId()));
                 if(!query.exec())
                     UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
                 RemplirTreeView();
@@ -967,8 +967,8 @@ void dlg_docsexternes::ZoomDoc()
         PosOrigine      = pos();
         SizeOrigine     = size();
         gMode           = Zoom;
-        ScrollTable     ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //TODO : icon scaled : pxZoomOut 30,30
-        GraphicView     ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //TODO : icon scaled : pxZoomOut 30,30
+        ScrollTable     ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomOut 30,30
+        GraphicView     ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomOut 30,30
 
         if (hdeltaframe == 0)   hdeltaframe = frameGeometry().height() - height();
         if (wdeltaframe == 0)   wdeltaframe = frameGeometry().width()  - width();
@@ -1036,8 +1036,8 @@ void dlg_docsexternes::ZoomDoc()
     }
     else if (gMode == Zoom)
     {
-        ScrollTable     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //TODO : icon scaled : pxZoomIn 30,30
-        GraphicView     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //TODO : icon scaled : pxZoomIn 30,30
+        ScrollTable     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+        GraphicView     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         move(PosOrigine);
         resize(SizeOrigine);
         if (gTypeDoc == PDF)

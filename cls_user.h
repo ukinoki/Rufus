@@ -7,7 +7,15 @@
 #include <QDate>
 #include <QJsonObject>
 #include "cls_item.h"
+#include "cls_etablissement.h"
 #include "macros.h"
+
+/*!
+ * \brief The User class
+ * l'ensemble des informations concernant
+ * une personne utilisant le logiciel
+ * ex: Praticien, Secretaire, ...
+ */
 
 class User : public Item
 {
@@ -17,10 +25,6 @@ public: //static
     static int ROLE_VIDE; //-2
     static int ROLE_INDETERMINE; //-3
 
-    static User create();
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance);
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QDate datedujour);
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour = QDate::currentDate());
 
 
 
@@ -71,17 +75,7 @@ private:
 
     QDateTime m_dateDerniereConnexion;
 
-    //Adresse de travail
-    int m_idLieu;
-    QString m_nomLieu;
-    QString m_adresse1;
-    QString m_adresse2;
-    QString m_adresse3;
-    int m_codePostal;
-    QString m_ville;
-    QString m_telephone;
-    QString m_fax;
-
+    Etablissement *m_etablissement = NULL;
 
     //TODO : User : A vérifier
     int m_idUserActeSuperviseur = ROLE_INDETERMINE; //!< son id s'il est responsable de ses actes
@@ -94,8 +88,10 @@ private:
                                          //!< . celui qu'il remplace si celui qu'il remplace est libéral
                                          //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
 
+
+
 public:
-    explicit User(QObject *parent = nullptr);
+    explicit User(QJsonObject data = {}, QObject *parent = nullptr);
     explicit User(QString login, QString password, QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data);
@@ -139,13 +135,8 @@ public:
     QString getStatus() const;
 
 
-    QString getNomlieu() const;
-    QString getAdresse1() const;
-    QString getAdresse2() const;
-    QString getAdresse3() const;
-    int getCodePostal() const;
-    QString getVille() const;
-    QString getTelephone() const;
+    Etablissement* getEtablissement() const;
+    void setEtablissement(Etablissement *etablissement);
 
 
     bool isOPTAM();
@@ -171,7 +162,9 @@ public:
 
     bool isDesactive();
 
-private:
+
+
+
 
 signals:
 

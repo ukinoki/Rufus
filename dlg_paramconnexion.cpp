@@ -18,6 +18,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_paramconnexion.h"
 #include "icons.h"
 #include "ui_dlg_paramconnexion.h"
+#include "utils.h"
 
 dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     QDialog(parent),
@@ -35,7 +36,6 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     ui->HelpupPushButton    ->setIconSize(QSize(50,50));
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
-    rxIP                    = QRegExp("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
     gVisible                = true;
     gIPAvecZero             = "";
     gIPSansZero             = "";
@@ -72,11 +72,11 @@ void dlg_paramconnexion::Slot_CalcIP(QString IP)
     if (ui->DistantradioButton->isChecked())
     {
         gClient   = "%";
-        if (!rxIP.exactMatch(IP))
+        if (!Utils::rgx_IPV4.exactMatch(IP))
             gServeur  = ui->IPlineEdit->text();
     }
     if (ui->LocalradioButton->isChecked()
-        || (ui->DistantradioButton->isChecked() && rxIP.exactMatch(IP)))
+        || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(IP)))
     {
         QStringList listIP = IP.split(".");
         gIPAvecZero        = "";
@@ -139,7 +139,7 @@ void dlg_paramconnexion::Slot_MAJIP()
 {
     Slot_CalcIP(ui->IPlineEdit->text());
     if (ui->LocalradioButton->isChecked()
-        || (ui->DistantradioButton->isChecked() && rxIP.exactMatch(gIPAvecZero)))
+        || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(gIPAvecZero)))
         ui->IPlineEdit->setText(gIPAvecZero);
     //UpMessageBox::Watch(this, "AvecZero = " + gIPAvecZero + "\nSansZero = " + gIPSansZero + "\nClient = " + gClient);
 }

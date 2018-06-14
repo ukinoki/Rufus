@@ -19,6 +19,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestionusers.h"
 #include "icons.h"
 #include "ui_dlg_gestionusers.h"
+#include "utils.h"
 
 dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, QSqlDatabase gdb, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionGestionUsers", parent),
@@ -103,21 +104,17 @@ dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, QSqlDatabase gdb, QWi
     ui->AdressgroupBox  ->setLayout(adresslay);
 
 
-    rx                      = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ -]*");
-    rxMail                  = QRegExp("[A-Za-z0-9_-]+.[A-Za-z0-9_-]+@[A-Za-z0-9_-]+.[A-Za-z0-9_-]+");
-    rxTel                   = QRegExp("[0-9 ]*");
-
     gLibActiv               = tr("Activité libérale");
     gNoLibActiv             = tr("Activité non libérale");
 
-    ui->NomuplineEdit           ->setValidator(new QRegExpValidator(rx,this));
-    ui->PrenomuplineEdit        ->setValidator(new QRegExpValidator(rx,this));
-    ui->AutreSoignantupLineEdit ->setValidator(new QRegExpValidator(rx,this));
-    ui->AutreFonctionuplineEdit ->setValidator(new QRegExpValidator(rx,this));
-    ui->MailuplineEdit          ->setValidator(new QRegExpValidator(rxMail,this));
-    ui->PortableuplineEdit      ->setValidator(new QRegExpValidator(rxTel,this));
-    ui->RPPSupLineEdit          ->setValidator(new QRegExpValidator(rxTel,this));
-    ui->NumCOupLineEdit         ->setValidator(new QRegExpValidator(rxTel,this));
+    ui->NomuplineEdit           ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->PrenomuplineEdit        ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->AutreSoignantupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->AutreFonctionuplineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->MailuplineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
+    ui->PortableuplineEdit      ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+    ui->RPPSupLineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+    ui->NumCOupLineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
     QStringList ListTitres;
     ListTitres                      << tr("Docteur") << tr("Professeur");
@@ -326,7 +323,6 @@ void dlg_gestionusers::CreerUser()
     UpLineEdit *Line2           = new UpLineEdit();
     UpLineEdit *Line3           = new UpLineEdit();
     QVBoxLayout *globallay      = dynamic_cast<QVBoxLayout*>(gAsk->layout());
-    QRegExp rx                  = QRegExp("^[A-Za-z0-9]{5,15}$");
 
     gAsk                        ->setModal(true);
     gAsk                        ->move(QPoint(x()+width()/2,y()+height()/2));
@@ -336,9 +332,9 @@ void dlg_gestionusers::CreerUser()
     Line                        ->setObjectName(gLoginupLineEdit);
     Line2                       ->setObjectName(gMDPupLineEdit);
     Line3                       ->setObjectName(gConfirmMDPupLineEdit);
-    Line                        ->setValidator(new QRegExpValidator(rx));
-    Line2                       ->setValidator(new QRegExpValidator(rx));
-    Line3                       ->setValidator(new QRegExpValidator(rx));
+    Line                        ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
+    Line2                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
+    Line3                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
     Line                        ->setAlignment(Qt::AlignCenter);
     Line2                       ->setAlignment(Qt::AlignCenter);
     Line3                       ->setAlignment(Qt::AlignCenter);
@@ -407,7 +403,6 @@ void dlg_gestionusers::Slot_EnregistreNouvMDP()
         anc         = gAskMDP->findChild<UpLineEdit*>(gAncMDP)->text();
         nouv        = gAskMDP->findChild<UpLineEdit*>(gNouvMDP)->text();
         confirm     = gAskMDP->findChild<UpLineEdit*>(gConfirmMDP)->text();
-        QRegExp  rxMdp           = QRegExp("^[a-zA-Z0-9]{5,15}$");
 
         if (anc == "")
         {
@@ -425,7 +420,7 @@ void dlg_gestionusers::Slot_EnregistreNouvMDP()
             msgbox.exec();
             return;
         }
-        if (!rxMdp.exactMatch(nouv) || nouv == "")
+        if (!Utils::rgx_AlphaNumeric_5_15.exactMatch(nouv) || nouv == "")
         {
             QSound::play(NOM_ALARME);
             msgbox.setInformativeText(tr("Le nouveau mot de passe n'est pas conforme\n(au moins 5 caractères - chiffres ou lettres non accentuées -\n"));
@@ -809,7 +804,6 @@ void dlg_gestionusers::Slot_EnregistreNouvUser()
     UpLineEdit *ConfirmMDPline  = gAsk->findChild<UpLineEdit*>(gConfirmMDPupLineEdit);
     QString login               = Loginline->text();
     QString MDP                 = MDPline->text();
-    QRegExp rx                  = QRegExp("^[A-Za-z0-9]{5,15}$");
 
     if (Loginline->text() == "")
     {
@@ -821,7 +815,7 @@ void dlg_gestionusers::Slot_EnregistreNouvUser()
         msg = tr("Vous avez oublié d'indiquer le mot de passe");
         MDPline->setFocus();
     }
-    if (!rx.exactMatch(MDPline->text()))
+    if (!Utils::rgx_AlphaNumeric_5_15.exactMatch(MDPline->text()))
     {
         msg = tr("Le mot de passe n'est pas conforme.") + "\n" +
               tr("Au moins 5 caractères - uniquement des chifres ou des lettres - max. 5 caractères.");
@@ -939,13 +933,11 @@ void dlg_gestionusers::Slot_ModifMDP()
     gAskMDP    ->setModal(true);
     gAskMDP    ->move(QPoint(x()+width()/2,y()+height()/2));
     QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(gAskMDP->layout());
-    QRegExp  rxMdp           = QRegExp("^[a-zA-Z0-9]{5,15}$");
-
 
     UpLineEdit *ConfirmMDP = new UpLineEdit(gAskMDP);
     ConfirmMDP->setEchoMode(QLineEdit::Password);
     ConfirmMDP->setObjectName(gConfirmMDP);
-    ConfirmMDP->setValidator(new QRegExpValidator(rxMdp,this));
+    ConfirmMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ConfirmMDP->setAlignment(Qt::AlignCenter);
     globallay->insertWidget(0,ConfirmMDP);
     UpLabel *labelConfirmMDP = new UpLabel();
@@ -954,7 +946,7 @@ void dlg_gestionusers::Slot_ModifMDP()
     UpLineEdit *NouvMDP = new UpLineEdit(gAskMDP);
     NouvMDP->setEchoMode(QLineEdit::Password);
     NouvMDP->setObjectName(gNouvMDP);
-    NouvMDP->setValidator(new QRegExpValidator(rxMdp,this));
+    NouvMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     NouvMDP->setAlignment(Qt::AlignCenter);
     globallay->insertWidget(0,NouvMDP);
     UpLabel *labelNewMDP = new UpLabel();
@@ -963,7 +955,7 @@ void dlg_gestionusers::Slot_ModifMDP()
     UpLineEdit *AncMDP = new UpLineEdit(gAskMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
-    AncMDP->setValidator(new QRegExpValidator(rxMdp,this));
+    AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     AncMDP->setObjectName(gAncMDP);
     globallay->insertWidget(0,AncMDP);
     UpLabel *labelOldMDP = new UpLabel();
@@ -1072,7 +1064,7 @@ void dlg_gestionusers::SupprUser()
         msgbox.setInformativeText("Hum " + vamourir
                                   + ", " + tr("êtes vous bien sûr de vouloir faire ça?\n"
                                     "Si vous le faites, le programme se fermera immédiatement après votre disparition"));
-        msgbox.setIconPixmap(Icons::pxSuicide().scaledToWidth(150)); //TODO : icon scaled : pxSuicide w150
+        msgbox.setIconPixmap(Icons::pxSuicide().scaledToWidth(150)); //WARNING : icon scaled : pxSuicide w150
 
         OKBouton->setText(tr("Non, vous avez raison, je vais rester encore un peu"));
         AnnulBouton->setText(tr("Oui, je veux partir"));
@@ -1082,7 +1074,7 @@ void dlg_gestionusers::SupprUser()
         msgbox.setText(tr("Suppression d'un utilisateur"));
         msgbox.setInformativeText(tr("Etes vous bien sûr de vouloir supprimer ")
                                   + vamourir + "?");
-        msgbox.setIconPixmap(Icons::pxKiller().scaledToWidth(150)); //TODO : icon scaled : pxKiller w150
+        msgbox.setIconPixmap(Icons::pxKiller().scaledToWidth(150)); //WARNING : icon scaled : pxKiller w150
         OKBouton->setText(tr("Garder ") + vamourir);
         AnnulBouton->setText(tr("Oui, supprimer ") + vamourir);
     }
@@ -1496,14 +1488,13 @@ bool dlg_gestionusers::ExisteEmployeur(int iduser)
 }
 bool dlg_gestionusers::setDataUser(int id)
 {
-    QJsonObject jsonUser = DataBase::getInstance()->loadUser(id, gidLieu);
+    QJsonObject jsonUser = DataBase::getInstance()->loadUser(id); //TODO : !!! Chargement du lieu
     if( jsonUser.isEmpty() )
     {
         delete OtherUser;
         return false;
     }
-    OtherUser = new User();
-    OtherUser->setData(jsonUser);
+    OtherUser = new User(jsonUser);
     return true;
 }
 

@@ -46,7 +46,6 @@ public:
 private:
     bool            VerifFiche();
     QTimer          *gTimer;
-    QRegExp         rxIP;
     bool            gVisible;
     QSqlDatabase    db;
     bool            TestConnexion();

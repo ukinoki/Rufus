@@ -29,7 +29,7 @@ private:
     DataBase();
     static DataBase *instance;
 
-    User *m_userConnected;
+    User *m_userConnected = nullptr;
 
 
     int m_mode;
@@ -60,7 +60,9 @@ public:
     QString connectToDataBase(QString basename, QString login, QString password);
 
     QJsonObject login(QString login, QString password);
-    QJsonObject loadUser(int idUser, int idLieu);
+    QJsonObject loadUser(int idUser);
+
+    QList<Etablissement*> loadUserEtablissements(int idUser);
 
     Acte* loadActeById(int idActe);
     QMap<int, Acte*> loadActeByIdPat(int idPat);

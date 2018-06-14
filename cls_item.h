@@ -9,22 +9,23 @@
 class Item : public QObject
 {
     Q_OBJECT
+public: //STATIC
+    static QMap<QString,QVariant> CalculAge(QDate datedenaissance);
+    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QDate datedujour);
+    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour = QDate::currentDate());
+
+
 public:
     explicit Item(QObject *parent = nullptr);
 
+
 protected:
-    void setStringProperty(QJsonObject data, QList<QString> props);
-    void setDataString(QJsonObject data, QString key);
 
-    void setIntProperty(QJsonObject data, QList<QString> props);
-    void setDataInt(QJsonObject data, QString key);
-
-    void setDataDouble(QJsonObject data, QString key);
-
-    void setBoolProperty(QJsonObject data, QList<QString> props);
-    void setDataBool(QJsonObject data, QString key);
-
-    void setDataDateTime(QJsonObject data, QString key);
+    void setDataString(QJsonObject data, QString key, QString &prop);
+    void setDataInt(QJsonObject data, QString key, int &prop);
+    void setDataDouble(QJsonObject data, QString key, double &prop);
+    void setDataBool(QJsonObject data, QString key, bool &prop);
+    void setDataDateTime(QJsonObject data, QString key, QDateTime &prop);
 
 private:
 

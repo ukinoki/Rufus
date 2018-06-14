@@ -473,7 +473,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
         else
         {
             b = "1";
-            lbldef->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled
+            lbldef->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled
         }
         QSqlQuery ("update " NOM_TABLE_COMMENTAIRESLUNETTES " set ParDefautComment = " + b +
                    " where idCommentLunet = " + ui->ComupTableWidget->item(row,3)->text(),db);
@@ -1122,7 +1122,7 @@ void dlg_commentaires::Remplir_TableView()
         lbl2 = new UpLabel(ui->ComupTableWidget);
         lbl2->setAlignment(Qt::AlignCenter);
         if (RemplirTableViewQuery.value(1).toInt()==1)
-            lbl2->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled
+            lbl2->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled
         ui->ComupTableWidget->setCellWidget(i,col,lbl2);
 
         ui->ComupTableWidget->setRowHeight(i, QFontMetrics(qApp->font()).height()*1.3);

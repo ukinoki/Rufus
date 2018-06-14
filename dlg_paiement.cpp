@@ -18,6 +18,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_paiement.h"
 #include "icons.h"
 #include "ui_dlg_paiement.h"
+#include "utils.h"
 
 /*
  * la fiche est appelée de 3 façons différentes:
@@ -145,7 +146,7 @@ dlg_paiement::dlg_paiement(QList<int> *ListidActeAPasser, int Mode, Procedures *
 
 
     ui->TireurChequelineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-    ui->TireurChequelineEdit->setValidator(new QRegExpValidator(proc->getrx(),this));
+    ui->TireurChequelineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
     ui->MontantlineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     QDoubleValidator *val= new QDoubleValidator(this);
     val->setDecimals(2);
@@ -3821,7 +3822,7 @@ void dlg_paiement::RemplirTableWidget(QTableWidget *TableARemplir, QString TypeT
                         {
                             QLabel * lbl = new QLabel();
                             lbl->setAlignment(Qt::AlignCenter);
-                            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //TODO : icon scaled : pxBlackCheck 15,15
+                            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxBlackCheck 15,15
                             TableARemplir->setCellWidget(i,col,lbl);                                    // Impayé (O/N)
                         }
                         col++;

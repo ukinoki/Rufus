@@ -16,6 +16,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_gestionlieux.h"
+#include "utils.h"
 
 dlg_GestionLieux::dlg_GestionLieux(QSqlDatabase gdb, QWidget *parent)
     : UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionLieux", parent)
@@ -227,19 +228,14 @@ void dlg_GestionLieux::ModifLieuxDialog()
     ledittel    ->setMaxLength(17);
     leditfax    ->setMaxLength(17);
 
-    rxAdresse       = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°, -]*");
-    rxCP            = QRegExp("[0-9]{5}");
-    rxTel           = QRegExp("[0-9 ]*");
-    rxVille         = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ -]*");
-
-    leditnom    ->setValidator(new QRegExpValidator(rxVille));
-    leditadr1   ->setValidator(new QRegExpValidator(rxAdresse));
-    leditadr2   ->setValidator(new QRegExpValidator(rxAdresse));
-    leditadr3   ->setValidator(new QRegExpValidator(rxAdresse));
-    leditcp     ->setValidator(new QRegExpValidator(rxCP));
-    leditville  ->setValidator(new QRegExpValidator(rxVille));
-    ledittel    ->setValidator(new QRegExpValidator(rxTel));
-    leditfax    ->setValidator(new QRegExpValidator(rxTel));
+    leditnom    ->setValidator(new QRegExpValidator(Utils::rgx_ville));
+    leditadr1   ->setValidator(new QRegExpValidator(Utils::rgx_adresse));
+    leditadr2   ->setValidator(new QRegExpValidator(Utils::rgx_adresse));
+    leditadr3   ->setValidator(new QRegExpValidator(Utils::rgx_adresse));
+    leditcp     ->setValidator(new QRegExpValidator(Utils::rgx_CP));
+    leditville  ->setValidator(new QRegExpValidator(Utils::rgx_ville));
+    ledittel    ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
+    leditfax    ->setValidator(new QRegExpValidator(Utils::rgx_telephone));
 
     layledit->addWidget(leditnom);
     layledit->addWidget(leditadr1);
