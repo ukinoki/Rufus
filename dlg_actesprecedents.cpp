@@ -25,7 +25,7 @@ dlg_actesprecedents::dlg_actesprecedents(int idPatient, int idActeAPasser, Proce
 ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
     gidPatient      = idPatient;
     gidActe         = idActeAPasser;
     proc            = procAPAsser;

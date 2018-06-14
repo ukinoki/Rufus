@@ -20,7 +20,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 dlg_listemotscles::dlg_listemotscles(Procedures *Proc, int idPat, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionMotsCles", parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     idpat              = idPat;
     proc               = Proc;
 
