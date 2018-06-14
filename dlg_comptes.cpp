@@ -272,7 +272,7 @@ void dlg_comptes::AnnulConsolidations()
     CalculeTotal();
 }
 
-void dlg_comptes::ContextMenuTableWidget(QPoint pt, UpLabel *lbl)
+void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
 {
     int row = lbl->getRow();
     gidLigneASupprimer = lbl->getId();
@@ -285,7 +285,7 @@ void dlg_comptes::ContextMenuTableWidget(QPoint pt, UpLabel *lbl)
     connect (pAction_SupprEcriture, &QAction::triggered,    [=] {SupprimerEcriture(msg);});
 
     // ouvrir le menu
-    menuContextuel->exec(pt);
+    menuContextuel->exec(cursor().pos());
     delete menuContextuel;
 }
 
@@ -568,14 +568,14 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
         lbl7->setRow(i);
         lbl8->setRow(i);
 
-        connect (lbl0,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl0);});
-        connect (lbl1,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl1);});
-        connect (lbl2,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl2);});
-        connect (lbl3,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl3);});
-        connect (lbl4,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl4);});
-        connect (lbl5,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl5);});
-        connect (lbl7,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl7);});
-        connect (lbl8,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(cursor().pos(), lbl8);});
+        connect (lbl0,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl0);});
+        connect (lbl1,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl1);});
+        connect (lbl2,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl2);});
+        connect (lbl3,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl3);});
+        connect (lbl4,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl4);});
+        connect (lbl5,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl5);});
+        connect (lbl7,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl7);});
+        connect (lbl8,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl8);});
 
         int col = 0;
 

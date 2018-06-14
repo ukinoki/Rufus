@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("13-06-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("14-06-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -953,6 +953,8 @@ void Rufus::AfficheToolTip(int id)
     if (id==-1)
     {
         QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
+        if (gListePatientsModel->itemFromIndex(pindx) == Q_NULLPTR)
+            return;
         int row = gListePatientsModel->itemFromIndex(pindx)->row();
         id = gListePatientsModel->item(row)->text().toInt();
     }

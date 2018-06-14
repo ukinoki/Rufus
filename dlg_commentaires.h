@@ -87,7 +87,7 @@ private:
     void                        Annulation();
     void                        ChoixButtonFrame(int);
     void                        ComCellEnter(int row);
-    void                        MenuContextuel(QPoint pt, QWidget *widg);
+    void                        MenuContextuel(QWidget *widg);
     void                        dblClicktextEdit();
     void                        EffaceWidget();
     void                        EnableOKPushbutton();

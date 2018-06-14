@@ -59,7 +59,7 @@ private:
     void            Archiver();
     void            AnnulConsolidations();
     void            ChangeCompte(int idCompteAVoir);
-    void            ContextMenuTableWidget(QPoint pt, UpLabel *lbl);
+    void            ContextMenuTableWidget(UpLabel *lbl);
     void            RenvoieRangee(bool Coche, UpCheckBox *Check);
 };
 
