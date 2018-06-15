@@ -114,10 +114,10 @@ QString User::getPortable() const { return m_portable; }
 QString User::getStatus() const { return m_status; }
 
 
-Etablissement* User::getEtablissement() const { return m_etablissement; }
-void User::setEtablissement(Etablissement *etablissement)
+Site* User::getSite() const { return m_Site; }
+void User::setSite(Site *Site)
 {
-    m_etablissement = etablissement;
+    m_Site = Site;
 }
 
 

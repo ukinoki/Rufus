@@ -170,7 +170,7 @@ private:
                                                                                 . s'il cote les actes                            (bool gUseCotation)
                                                                                 . s'il enregistre une compta                     (bool AvecLaComptaProv)
                                                                                */
-    Etablissement*          DetermineLieuExercice();
+    Site*          DetermineLieuExercice();
     void                    CalcUserResponsable();
     void                    RestoreFontAppliAndGeometry();
 private slots:

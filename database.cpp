@@ -255,11 +255,11 @@ QJsonObject DataBase::loadUser(int idUser)
 }
 
 /*
- * Etablissements
+ * Sites
 */
-QList<Etablissement*> DataBase::loadUserEtablissements(int idUser)
+QList<Site*> DataBase::loadUserSites(int idUser)
 {
-    QList<Etablissement*> etabs;
+    QList<Site*> etabs;
 
     QString req = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
                     "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
@@ -283,7 +283,7 @@ QList<Etablissement*> DataBase::loadUserEtablissements(int idUser)
         jEtab["ville"] = query.value(6).toString();
         jEtab["telephone"] = query.value(7).toString();
         jEtab["fax"] = query.value(8).toString();
-        Etablissement *etab = new Etablissement(jEtab);
+        Site *etab = new Site(jEtab);
         etabs << etab;
     } while( query.next() );
 

@@ -6,7 +6,7 @@
 #include <QJsonObject>
 #include <QObject>
 
-class Etablissement : public Item
+class Site : public Item
 {
     Q_OBJECT
 private:
@@ -22,7 +22,7 @@ private:
     QString m_fax;
 
 public:
-    explicit Etablissement(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit Site(QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data);
 

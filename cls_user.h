@@ -7,7 +7,7 @@
 #include <QDate>
 #include <QJsonObject>
 #include "cls_item.h"
-#include "cls_etablissement.h"
+#include "cls_site.h"
 #include "macros.h"
 
 /*!
@@ -75,7 +75,7 @@ private:
 
     QDateTime m_dateDerniereConnexion;
 
-    Etablissement *m_etablissement = NULL;
+    Site *m_Site = NULL;
 
     //TODO : User : A vérifier
     int m_idUserActeSuperviseur = ROLE_INDETERMINE; //!< son id s'il est responsable de ses actes
@@ -135,8 +135,8 @@ public:
     QString getStatus() const;
 
 
-    Etablissement* getEtablissement() const;
-    void setEtablissement(Etablissement *etablissement);
+    Site* getSite() const;
+    void setSite(Site *Site);
 
 
     bool isOPTAM();

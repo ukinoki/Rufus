@@ -763,7 +763,7 @@ void dlg_docsexternes::ImprimeDoc()
                 UpMessageBox::Watch(this,tr("Impossible de retrouver l'entête"));
                 return;
             }
-            Entete.replace(QRegExp("<!--date-->[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùüûÙçÇ'a-zA-ZŒœ0-9°, -]*<!--date-->"), "<!--date-->" + gDataUser->getEtablissement()->getVille() + tr(" le, ") + QDate::currentDate().toString(tr("d MMMM yyyy")) + "<!--date-->");
+            Entete.replace(QRegExp("<!--date-->[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùüûÙçÇ'a-zA-ZŒœ0-9°, -]*<!--date-->"), "<!--date-->" + gDataUser->getSite()->getVille() + tr(" le, ") + QDate::currentDate().toString(tr("d MMMM yyyy")) + "<!--date-->");
             //création du pied
             Pied = quer.value(6).toString();
             if (Pied == "")
@@ -819,7 +819,7 @@ void dlg_docsexternes::ImprimeDoc()
                 query.bindValue(":textPied", Pied);
                 query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
                 query.bindValue(":formatdoc", quer.value(8).toString());
-                query.bindValue(":idlieu", QString::number(proc->getDataUser()->getEtablissement()->getId()));
+                query.bindValue(":idlieu", QString::number(proc->getDataUser()->getSite()->getId()));
                 if(!query.exec())
                     UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
                 RemplirTreeView();

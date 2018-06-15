@@ -274,7 +274,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     Entete.replace("{{PRENOM PATIENT}}"       , prenom);
     Entete.replace("{{NOM PATIENT}}"       , nom);
     Entete.replace("{{DDN}}"               , "");
-    Entete.replace("{{DATE}}"              , gDataUser->getEtablissement()->getVille() + ", le " + QDate::currentDate().toString(tr("d MMM yyyy")));
+    Entete.replace("{{DATE}}"              , gDataUser->getSite()->getVille() + ", le " + QDate::currentDate().toString(tr("d MMM yyyy")));
 
     // création du pied
     Pied = proc->ImpressionPied();
@@ -319,7 +319,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         query.bindValue(":useremetteur", QString::number(proc->getDataUser()->id()));
         query.bindValue(":emisrecu", "0");
         query.bindValue(":formatdoc", BILANORTHOPTIQUE);
-        query.bindValue(":idlieu", QString::number(proc->getDataUser()->getEtablissement()->getId()));
+        query.bindValue(":idlieu", QString::number(proc->getDataUser()->getSite()->getId()));
         if(!query.exec())
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
     }

@@ -62,7 +62,7 @@ public:
     QJsonObject login(QString login, QString password);
     QJsonObject loadUser(int idUser);
 
-    QList<Etablissement*> loadUserEtablissements(int idUser);
+    QList<Site*> loadUserSites(int idUser);
 
     Acte* loadActeById(int idActe);
     QMap<int, Acte*> loadActeByIdPat(int idPat);

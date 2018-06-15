@@ -703,24 +703,24 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
 
         QString adresse ="";
         int nlignesadresse = 0;
-        if( OtherUser->getEtablissement()->getNom().size() )
+        if( OtherUser->getSite()->getNom().size() )
         {
             nlignesadresse  ++;
-            adresse         += OtherUser->getEtablissement()->getNom();
+            adresse         += OtherUser->getSite()->getNom();
         }
-        if (OtherUser->getEtablissement()->getAdresse1() != "" || OtherUser->getEtablissement()->getAdresse2() != "")
+        if (OtherUser->getSite()->getAdresse1() != "" || OtherUser->getSite()->getAdresse2() != "")
         {
             nlignesadresse  ++;
             if (nlignesadresse >0)
                 adresse += "<br />";
-            if (OtherUser->getEtablissement()->getAdresse1() != "" && OtherUser->getEtablissement()->getAdresse2() != "")
-                adresse += OtherUser->getEtablissement()->getAdresse1() + " - " + OtherUser->getEtablissement()->getAdresse2();
+            if (OtherUser->getSite()->getAdresse1() != "" && OtherUser->getSite()->getAdresse2() != "")
+                adresse += OtherUser->getSite()->getAdresse1() + " - " + OtherUser->getSite()->getAdresse2();
             else
-                adresse += OtherUser->getEtablissement()->getAdresse1() + OtherUser->getEtablissement()->getAdresse2();
+                adresse += OtherUser->getSite()->getAdresse1() + OtherUser->getSite()->getAdresse2();
         }
         Entete.replace("{{ADRESSE}}", adresse);
-        Entete.replace("{{CPVILLE}}", QString::number(OtherUser->getEtablissement()->getCodePostal()) + " " + OtherUser->getEtablissement()->getVille().toUpper());
-        Entete.replace("{{TEL}}", "Tél. " + OtherUser->getEtablissement()->getTelephone());
+        Entete.replace("{{CPVILLE}}", QString::number(OtherUser->getSite()->getCodePostal()) + " " + OtherUser->getSite()->getVille().toUpper());
+        Entete.replace("{{TEL}}", "Tél. " + OtherUser->getSite()->getTelephone());
         if (nlignesadresse==2)
             Entete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");
         else
@@ -734,7 +734,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
         }
         if (OtherUser->getNumPS() > 0) NumSS += "RPPS " + QString::number(OtherUser->getNumPS());
         Entete.replace("{{NUMSS}}", NumSS);
-        Entete.replace("{{DATE}}", OtherUser->getEtablissement()->getVille()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
+        Entete.replace("{{DATE}}", OtherUser->getSite()->getVille()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
 
         (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
     }
@@ -2677,9 +2677,9 @@ bool Procedures::Connexion_A_La_Base()
 
     setlisteUsers();
 
-    m_userConnected->setEtablissement( DetermineLieuExercice() );
+    m_userConnected->setSite( DetermineLieuExercice() );
     ChargeDataUser(m_userConnected->id());
-    if (m_userConnected->getEtablissement() == nullptr )
+    if (m_userConnected->getSite() == nullptr )
         UpMessageBox::Watch(0,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     gdbOK = true;
 
@@ -2781,9 +2781,9 @@ bool Procedures::ChargeDataUser(int iduser)
 /*-----------------------------------------------------------------------------------------------------------------
     -- Détermination du lieu exercice pour la session en cours -------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-Etablissement* Procedures::DetermineLieuExercice()
+Site* Procedures::DetermineLieuExercice()
 {
-    QList<Etablissement*> listEtab = DataBase::getInstance()->loadUserEtablissements(m_userConnected->id());
+    QList<Site*> listEtab = DataBase::getInstance()->loadUserSites(m_userConnected->id());
     if( listEtab.size() == 1 )
         return listEtab[0];
 
@@ -2801,11 +2801,11 @@ Etablissement* Procedures::DetermineLieuExercice()
     int hauteurligne        = fm.height()*1.6;
     boxlieux                ->setFixedHeight(((listEtab.size() + 1)*hauteurligne)+5);
     QVBoxLayout *vbox       = new QVBoxLayout;
-    QList<Etablissement*>::const_iterator itEtab;
+    QList<Site*>::const_iterator itEtab;
     bool isFirst = true;
     for(itEtab = listEtab.constBegin(); itEtab != listEtab.constEnd(); ++itEtab)
     {
-        Etablissement *etab = const_cast<Etablissement*>(*itEtab);
+        Site *etab = const_cast<Site*>(*itEtab);
         UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
         pradiobutt->setText(etab->getNom());
         pradiobutt->setAccessibleName(QString::number(etab->getId()));
@@ -2842,7 +2842,7 @@ Etablissement* Procedures::DetermineLieuExercice()
     {
         UpRadioButton *rb = const_cast<UpRadioButton*>(*itRB);
         if( rb->isChecked() )
-            return qobject_cast<Etablissement*>(rb->mData);
+            return qobject_cast<Site*>(rb->mData);
     }
     /*
     if (DataBase::getInstance()->getMode() == DataBase::Poste || DataBase::getInstance()->getMode() == DataBase::Distant)
@@ -3879,7 +3879,7 @@ int Procedures::idCentre()
 int Procedures::idLieuExercice()
 {
     if( m_userConnected )
-        return m_userConnected->getEtablissement()->getId();
+        return m_userConnected->getSite()->getId();
     return -1;
 }
 

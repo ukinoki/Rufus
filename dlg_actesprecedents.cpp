@@ -178,6 +178,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
         // on calcule le montant payé pour l'acte
         if (acte->paiementType() != "G" || acte->paiementType() != "I")
         {
+            /* BUG : Revoir pour integrer le bon calcul
             double TotalPaye = 0;
             // on récupère les lignes de paiement
             requete = " SELECT idRecette, Paye FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(idActeAAfficher);
@@ -198,6 +199,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
             }
             //TODO : ??? : correspond au montant total de l'acte ? pourquoi tout recalculer
             //TODO : ??? : si oui, on peux simplifier pour eviter un trop grand nombre d'appel
+            */
             //ui->PayelineEdit->setText(QLocale().toString(acte->montant(),'f',2));
         }
 

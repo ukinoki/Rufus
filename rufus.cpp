@@ -2621,7 +2621,7 @@ void Rufus::ImprimeDossier()
        query.bindValue(":useremetteur", QString::number(gDataUser->id()));
        query.bindValue(":emisrecu", "0");
        query.bindValue(":formatdoc", COURRIER);
-       query.bindValue(":idlieu", QString::number(gDataUser->getEtablissement()->getId()) );
+       query.bindValue(":idlieu", QString::number(gDataUser->getSite()->getId()) );
        if(!query.exec())
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
@@ -7020,7 +7020,7 @@ void    Rufus::CreerActe(int idPat)
             QString::number(gDataUser->getIdUserParent()) + ", " +
             rempla + ", " +
             QString::number(proc->idCentre()) + ", " +
-            QString::number(gDataUser->getEtablissement()->getId()) +")";
+            QString::number(gDataUser->getSite()->getId()) +")";
     //qDebug() << creerrequete;
     QSqlQuery CreerActeQuery (creerrequete, DataBase::getInstance()->getDataBase() );
     if (DataBase::getInstance()->traiteErreurRequete(CreerActeQuery,creerrequete,tr("Impossible de créer cette consultation dans ") + NOM_TABLE_ACTES))
@@ -8132,7 +8132,7 @@ bool   Rufus::Imprimer_Document(QString idUser, QString titre, QString Entete, Q
         query.bindValue(":ald", ALD100);
         query.bindValue(":emisrecu", "0");
         query.bindValue(":formatdoc", (Prescription? PRESCRIPTION : COURRIER));
-        query.bindValue(":idlieu", QString::number(gDataUser->getEtablissement()->getId()));
+        query.bindValue(":idlieu", QString::number(gDataUser->getSite()->getId()));
         if(!query.exec())
             UpMessageBox::Watch(this, tr("Impossible d'enregistrer ce document dans la base!"));
         ui->OuvreDocsExternespushButton->setEnabled(true);

@@ -25,7 +25,7 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
     proc            = proced;
     EnCours         = false;
     Acces           = (DataBase::getInstance()->getMode()!=DataBase::Distant? Local : Distant);
-    idLieuExercice  = proc->getDataUser()->getEtablissement()->getId();
+    idLieuExercice  = proc->getDataUser()->getSite()->getId();
     db              = DataBase::getInstance()->getDataBase();
     RapatrieDocumentsThread();
     thread          ->exit();
