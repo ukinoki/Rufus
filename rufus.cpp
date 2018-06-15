@@ -15,8 +15,7 @@ You should have received a copy of the GNU General Public License
 along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cls_user.h"
-#include "database.h"
+#include "cls_item.h"
 #include "database.h"
 #include "icons.h"
 #include "rufus.h"
@@ -28,7 +27,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("11-06-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("13-06-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -288,7 +287,7 @@ void Rufus::Connect_Slots()
     QList<UpTextEdit*> listuptextedits = findChildren<UpTextEdit*>();
     for (int i=0; i<listuptextedits.size(); i++)
         if (listuptextedits.at(i)->contextMenuPolicy() == Qt::CustomContextMenu)
-            connect (listuptextedits.at(i),                         &QWidget::customContextMenuRequested,               [=] {MenuContextuelUptextEdit(cursor().pos(), listuptextedits.at(i));});
+            connect (listuptextedits.at(i),                         &QWidget::customContextMenuRequested,               [=] {MenuContextuelUptextEdit(listuptextedits.at(i));});
 
     connect (ui->AccueilupTableWidget,                              &QTableWidget::currentCellChanged,                  [=] {ActiveActeAccueil(ui->AccueilupTableWidget->currentRow());});
     connect (ui->ActePrecedentpushButton,                           &QPushButton::clicked,                              [=] {NavigationConsult(-1);});
@@ -308,7 +307,7 @@ void Rufus::Connect_Slots()
     connect (ui->FermepushButton,                                   &QPushButton::clicked,                              [=] {close();});
     connect (ui->FiltrecheckBox,                                    &QPushButton::clicked,                              [=] {FiltrecheckBoxClicked();});
     connect (ui->FSEpushButton,                                     &QPushButton::clicked,                              [=] {SaisieFSE();});       // CZ001
-    connect (ui->IdentPatienttextEdit,                              &QWidget::customContextMenuRequested,               [=] {MenuContextuelIdentPatient(cursor().pos());});
+    connect (ui->IdentPatienttextEdit,                              &QWidget::customContextMenuRequested,               [=] {MenuContextuelIdentPatient();});
     connect (ui->LFermepushButton,                                  &QPushButton::clicked,                              [=] {close();});
     connect (ui->ListepushButton,                                   &QPushButton::clicked,                              [=] {OuvrirListe(false);});
     connect (ui->LListepushButton,                                  &QPushButton::clicked,                              [=] {OuvrirListe(false);});
@@ -319,22 +318,22 @@ void Rufus::Connect_Slots()
     connect (ui->MGupComboBox,                                      QOverload<int>::of(&QComboBox::activated),          [=] {ChoixMG();});
     connect (ui->AutresCorresp1upComboBox,                          QOverload<int>::of(&QComboBox::activated),          [=] {ChoixCor(ui->AutresCorresp1upComboBox);});
     connect (ui->AutresCorresp2upComboBox,                          QOverload<int>::of(&QComboBox::activated),          [=] {ChoixCor(ui->AutresCorresp2upComboBox);});
-    connect (ui->MGupComboBox,                                      &QWidget::customContextMenuRequested,               [=] {MenuContextuelMedecin(cursor().pos());});
-    connect (ui->AutresCorresp1upComboBox,                          &QWidget::customContextMenuRequested,               [=] {MenuContextuelCorrespondant(cursor().pos(),ui->AutresCorresp1upComboBox);});
-    connect (ui->AutresCorresp2upComboBox,                          &QWidget::customContextMenuRequested,               [=] {MenuContextuelCorrespondant(cursor().pos(),ui->AutresCorresp2upComboBox);});
+    connect (ui->MGupComboBox,                                      &QWidget::customContextMenuRequested,               [=] {MenuContextuelMedecin();});
+    connect (ui->AutresCorresp1upComboBox,                          &QWidget::customContextMenuRequested,               [=] {MenuContextuelCorrespondant(ui->AutresCorresp1upComboBox);});
+    connect (ui->AutresCorresp2upComboBox,                          &QWidget::customContextMenuRequested,               [=] {MenuContextuelCorrespondant(ui->AutresCorresp2upComboBox);});
     connect (ui->ModifDatepushButton,                               &QPushButton::clicked,                              [=] {ui->ActeDatedateEdit->setEnabled(true); ui->ActeDatedateEdit->setFocus();});
     connect (ui->ModifIdentificationSmallButton,                    &QPushButton::clicked,                              [=] {ChoixMenuContextuelIdentPatient();});
     connect (ModifTerrainupSmallButton,                             &QPushButton::clicked,                              [=] {ModifierTerrain();});
-    connect (ui->MotsClesLabel,                                     &QWidget::customContextMenuRequested,               [=] {MenuContextuelMotsCles(cursor().pos());});
+    connect (ui->MotsClesLabel,                                     &QWidget::customContextMenuRequested,               [=] {MenuContextuelMotsCles();});
     connect (ui->MotsClesupSmallButton,                             &QPushButton::clicked,                              [=] {ChoixMenuContextuelMotsCles();});
     connect (ui->OKModifTerrainupSmallButton,                       &QPushButton::clicked,                              [=] {OKModifierTerrain();});
     connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              [=] {OuvrirNouveauDossier();});
     connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              [=] {OuvrirActesPrecspushButtonClicked();});
     connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              [=] {OuvrirDocsExternes(gidPatient);});
     connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              [=] {OuvrirDocuments();});
-    connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               [=] {MenuContextuelListePatients(cursor().pos());});
+    connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               [=] {MenuContextuelListePatients();});
     connect (ui->PatientsListeTableView,                            &QTableView::doubleClicked,                         [=] {ChoixDossier(gListePatientsModel->itemFromIndex(ui->PatientsListeTableView->selectionModel()->selectedIndexes().at(0))->text().toInt());});
-    connect (ui->PatientsListeTableView,                            &QTableView::entered,                               [=] {AfficheToolTip(cursor().pos(), ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos())));});
+    connect (ui->PatientsListeTableView,                            &QTableView::entered,                               [=] {AfficheToolTip(-1);});
     connect (ui->PatientsListeTableView->selectionModel(),          &QItemSelectionModel::selectionChanged,             [=] {EnableCreerDossierButton();});
     connect (ui->SalleDAttenteupTableWidget,                        &QTableWidget::cellDoubleClicked,                   [=] {RetrouveiDDepuisTab(ui->SalleDAttenteupTableWidget->currentRow(), ui->SalleDAttenteupTableWidget->currentColumn(), ui->SalleDAttenteupTableWidget);});
     connect (ui->PatientsVusupTableWidget,                          &QTableWidget::cellDoubleClicked,                   [=] {RetrouveiDDepuisTab(ui->PatientsVusupTableWidget->currentRow(), ui->PatientsVusupTableWidget->currentColumn(), ui->PatientsVusupTableWidget);});
@@ -664,6 +663,9 @@ void Rufus::Moulinette()
 
     // CREATION D'UNE BASE FACTICE ============================================================================================================================================================
     //Mélange les noms, et 1ère ligne d'adresse dans la base
+    if (UpMessageBox::Question(this,tr("ATTENTION"),tr("Cette fonction sert à générer une base factice pour la démonstration du logiciel") + "<br />"
+                               + tr("Si vous cliquez sur OK, tous les enregistrements de la base seront mélangés et les données seront donc irrémédiablement perdues")) != UpSmallButton::STARTBUTTON)
+        return;
     int idauhasard;
     QString copierequete = "drop table if exists rufus.patients2;\n";
     copierequete += "create table rufus.patients2 like rufus.patients;\n";
@@ -931,7 +933,7 @@ void Rufus::AfficheMotif(UpLabel *lbl)
             QSqlQuery quer1 (req, DataBase::getInstance()->getDataBase() );
             DataBase::getInstance()->traiteErreurRequete(quer1,req,"");
             if( quer1.first() && (quer1.value(0).toString() != "") )
-                Msg += User::CalculAge(quer1.value(0).toDate())["toString"].toString() + " - ";
+                Msg += Item::CalculAge(quer1.value(0).toDate())["toString"].toString() + " - ";
 
             if (query.value(0).toString() == "URG")
                 Msg += tr("Urgence");
@@ -951,26 +953,23 @@ void Rufus::AfficheMotif(UpLabel *lbl)
 /*------------------------------------------------------------------------------------------------------------------------------------
     -- Afficher l'adresse du patient en toolTip ----------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------------------*/
-//ENORME : plus je passe et plus j'appele la base de données
-void Rufus::AfficheToolTip(QPoint pt, QModelIndex pindx)
+void Rufus::AfficheToolTip(int id)
 {
-    int row = gListePatientsModel->itemFromIndex(pindx)->row();
-    int idpat = gListePatientsModel->item(row)->text().toInt();
-    this->AfficheToolTip( pt, idpat );
-}
-//TODO : Opti : A modifier car je suis sur que l'on possède deja cette information à ce moment
-void Rufus::AfficheToolTip(QPoint pt, int id)
-{
-    QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatVille, PatDDN "
-                  " FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS " dos, " NOM_TABLE_PATIENTS " pat"
-                  " WHERE pat.idPat = " + QString::number(id) + " and pat.idpat = dos.idpat";
+    if (id==-1)
+    {
+        QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
+        int row = gListePatientsModel->itemFromIndex(pindx)->row();
+        id = gListePatientsModel->item(row)->text().toInt();
+    }
+    QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatVille, PatDDN FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS " dos, " NOM_TABLE_PATIENTS " pat"
+                  "  WHERE pat.idPat = " + QString::number(id) + " and pat.idpat = dos.idpat";
     QSqlQuery quer (req, DataBase::getInstance()->getDataBase() );
     DataBase::getInstance()->traiteErreurRequete(quer,req,"");
     QString Msg = "";
     if (quer.first())
     {
         if (quer.value(4).toString() != "")
-            Msg += User::CalculAge(quer.value(4).toDate())["toString"].toString();
+            Msg += Item::CalculAge(quer.value(4).toDate())["toString"].toString();
         if (quer.value(3).toString() != "")
         {
             if (Msg!="") Msg = "\n" + Msg;
@@ -994,7 +993,7 @@ void Rufus::AfficheToolTip(QPoint pt, int id)
     }
 
     if (Msg != "")
-        QToolTip::showText(pt,Msg);
+        QToolTip::showText(cursor().pos(),Msg);
 }
 /*-----------------------------------------------------------------------------------------------------------------
 -- Gère l'affichage des menus -------------------------------------------------------------------------------------
@@ -2730,7 +2729,7 @@ void Rufus::MajusculeCreerPrenom()
         ChercheNomFiltre();
 }
 
-void Rufus::MenuContextuelIdentPatient(QPoint pt)
+void Rufus::MenuContextuelIdentPatient()
 {
     gmenuContextuel = new QMenu(this);
 
@@ -2738,7 +2737,7 @@ void Rufus::MenuContextuelIdentPatient(QPoint pt)
     connect (pAction_IdentPatient, &QAction::triggered, [=] {ChoixMenuContextuelIdentPatient();});
 
     // ouvrir le menu
-    gmenuContextuel->exec(pt);
+    gmenuContextuel->exec(cursor().pos());
     delete gmenuContextuel;
 }
 
@@ -2747,7 +2746,7 @@ void Rufus::ChoixMenuContextuelIdentPatient()
     IdentificationPatient("Modification",gidPatient);  // aussi appelé depuis le bouton ui->ModifIdentificationSmallButton
 }
 
-void Rufus::MenuContextuelMotsCles(QPoint pt)
+void Rufus::MenuContextuelMotsCles()
 {
     gmenuContextuel = new QMenu(this);
 
@@ -2755,7 +2754,7 @@ void Rufus::MenuContextuelMotsCles(QPoint pt)
     connect (pAction_ModifMotCle, &QAction::triggered, [=] {ChoixMenuContextuelMotsCles();});
 
     // ouvrir le menu
-    gmenuContextuel->exec(pt);
+    gmenuContextuel->exec(cursor().pos());
     delete gmenuContextuel;
 }
 
@@ -3026,7 +3025,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     delete textEdit;
 }
 
-void Rufus::MenuContextuelBureaux(QPoint pt, UpTextEdit *UpText)
+void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
 {
     if (UpText->getId() == 0)
         return;
@@ -3042,13 +3041,13 @@ void Rufus::MenuContextuelBureaux(QPoint pt, UpTextEdit *UpText)
         }
 
         // ouvrir le menu
-        gmenuContextuel->exec(pt);
+        gmenuContextuel->exec(cursor().pos());
         delete gmenuContextuel;
     }
 }
-void Rufus::MenuContextuelListePatients(QPoint point)
+void Rufus::MenuContextuelListePatients()
 {
-    QModelIndex pindx = ui->PatientsListeTableView->indexAt(point);
+    QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
     if (gListePatientsModel->itemFromIndex(pindx) == 0)
         return;
     int row = gListePatientsModel->itemFromIndex(pindx)->row();
@@ -3089,7 +3088,7 @@ void Rufus::MenuContextuelListePatients(QPoint point)
     connect (pAction_SendMess,              &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("SendMess");});
 
     // ouvrir le menu
-    gmenuContextuel->exec(point);
+    gmenuContextuel->exec(cursor().pos());
     delete gmenuContextuel;
 }
 
@@ -3153,16 +3152,16 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
     }
 }
 
-void Rufus::MenuContextuelMedecin(QPoint pt)
+void Rufus::MenuContextuelMedecin()
 {
-    if (ui->MGupComboBox->findText(ui->MGupComboBox->currentText()))
+    if (ui->MGupComboBox->findText(ui->MGupComboBox->currentText()) || ui->MGupComboBox->currentText() != "" || ui->MGupComboBox->currentIndex() != -1)
     {
         gmenuContextuel = new QMenu(this);
         QAction *pAction_IdentPatient = gmenuContextuel->addAction(tr("Modifier les coordonnées de ce médecin"));
         connect (pAction_IdentPatient,      &QAction::triggered,    [=] {ChoixMenuContextuelMedecin();});
 
         // ouvrir le menu
-        gmenuContextuel->exec(pt);
+        gmenuContextuel->exec(cursor().pos());
         delete gmenuContextuel;
     }
 }
@@ -3182,21 +3181,24 @@ void Rufus::ChoixMenuContextuelMedecin()
     delete Dlg_IdentCorresp;
 }
 
-void Rufus::MenuContextuelCorrespondant(QPoint pt, UpComboBox *box)
+void Rufus::MenuContextuelCorrespondant(UpComboBox *box)
 {
-    QString choix = "";
-    if (box == ui->AutresCorresp1upComboBox) choix = "Modifier1";
-    else if (box == ui->AutresCorresp2upComboBox) choix = "Modifier2";
-    else return;
-    if (box->findText(box->currentText()))
+    if (!box->findText(box->currentText()) || box->currentText() != "" || box->currentIndex() == -1)
     {
-        gmenuContextuel = new QMenu(this);
-        QAction *pAction_IdentPatient = gmenuContextuel->addAction(tr("Modifier les coordonnées de ce correspondant"));
-        connect (pAction_IdentPatient,      &QAction::triggered,    [=] {ChoixMenuContextuelCorrespondant(choix);});
+        QString choix = "";
+        if (box == ui->AutresCorresp1upComboBox) choix = "Modifier1";
+        else if (box == ui->AutresCorresp2upComboBox) choix = "Modifier2";
+        else return;
+        if (box->findText(box->currentText()))
+        {
+            gmenuContextuel = new QMenu(this);
+            QAction *pAction_IdentPatient = gmenuContextuel->addAction(tr("Modifier les coordonnées de ce correspondant"));
+            connect (pAction_IdentPatient,      &QAction::triggered,    [=] {ChoixMenuContextuelCorrespondant(choix);});
 
-        // ouvrir le menu
-        gmenuContextuel->exec(pt);
-        delete gmenuContextuel;
+            // ouvrir le menu
+            gmenuContextuel->exec(cursor().pos());
+            delete gmenuContextuel;
+        }
     }
 }
 
@@ -3227,7 +3229,7 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
     delete Dlg_IdentCorresp;
 }
 
-void Rufus::MenuContextuelSalDat(QPoint pt, UpLabel *labelClicked)
+void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
 {
     if (labelClicked == 0) return;
 
@@ -3265,11 +3267,11 @@ void Rufus::MenuContextuelSalDat(QPoint pt, UpLabel *labelClicked)
     connect (pAction_EmettreDoc,                &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Document");});
 
     // ouvrir le menu
-    gmenuContextuel->exec(pt);
+    gmenuContextuel->exec(cursor().pos());
     delete gmenuContextuel;
 }
 
-void Rufus::MenuContextuelSalDatPaiemt(QPoint pt, UpLabel *labelClicked)
+void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
 {
     QList<QTableWidgetSelectionRange> listRange = ui->AccueilupTableWidget->selectedRanges();
     if (labelClicked == 0) return;
@@ -3297,7 +3299,7 @@ void Rufus::MenuContextuelSalDatPaiemt(QPoint pt, UpLabel *labelClicked)
     connect (pAction_EnregistrePaiement,        &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Payer");});
 
     // ouvrir le menu
-    gmenuContextuel->exec(pt);
+    gmenuContextuel->exec(cursor().pos());
     delete gmenuContextuel;
 }
 
@@ -3489,8 +3491,8 @@ QStringList Rufus::MotifMessage(QString Motif, QString Message, QTime heurerdv)
     return llist;
 }
 
-//TODO : à déplacer
-void Rufus::MenuContextuelUptextEdit(QPoint point, UpTextEdit *TxtEdit)
+//TODO à déplacer
+void Rufus::MenuContextuelUptextEdit(UpTextEdit *TxtEdit)
 {
     gmenuContextuel          = new QMenu();
     QAction *pAction_ModifPolice    = new QAction(this);
@@ -3542,7 +3544,7 @@ void Rufus::MenuContextuelUptextEdit(QPoint point, UpTextEdit *TxtEdit)
     connect (pAction_Cut,           &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Couper");});
 
     // ouvrir le menu
-    gmenuContextuel->exec(point);
+    gmenuContextuel->exec(cursor().pos());
     delete gmenuContextuel;
 }
 
@@ -6011,7 +6013,7 @@ void Rufus::AfficheActe(int idActe)
         ui->CreerActepushButton->setToolTip(tr("Créer un nouvel acte pour ") + gPrenomPatient + " " + gNomPatient);
         ui->CreerBOpushButton->setToolTip(tr("Créer un bilan orthoptique pour ") + gPrenomPatient + " " + gNomPatient);
 
-        QMap<QString,QVariant>  Age = User::CalculAge(gDDNPatient, ui->ActeDatedateEdit->date());
+        QMap<QString,QVariant>  Age = Item::CalculAge(gDDNPatient, ui->ActeDatedateEdit->date());
         ui->AgelineEdit->setText(Age["toString"].toString());
         ui->AgelineEdit->setAlignment(Qt::AlignCenter);
         gAgePatient = Age["annee"].toInt();
@@ -6233,7 +6235,7 @@ void Rufus::AfficheDossier(int idPat)
         }
     }
     QString html, img, Age;
-    QMap<QString,QVariant>  AgeTotal = User::CalculAge(gDDNPatient, gSexePat);
+    QMap<QString,QVariant>  AgeTotal = Item::CalculAge(gDDNPatient, gSexePat);
     gCMUPatient = (DonneesSocialesQuery.value(12).toInt() == 1);
     img = AgeTotal["icone"].toString();
     Age = AgeTotal["toString"].toString();
@@ -7774,7 +7776,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
                 gCMUPatient     = Dlg_IdentPatient->ui->CMUcheckBox->isChecked();
                 QString html, img, Age;
                 QMap<QString,QVariant>  AgeTotal;
-                AgeTotal        = User::CalculAge(gDDNPatient, gSexePat);
+                AgeTotal        = Item::CalculAge(gDDNPatient, gSexePat);
                 img             = AgeTotal["icone"].toString(); //TODO : User icone
                 Age             = AgeTotal["toString"].toString();
                 QIcon icon      = Icons::getIconAge(img);
@@ -7842,7 +7844,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(e));
                     OKModifierTerrain();
                 }
-                QMap<QString,QVariant>  NewAge = User::CalculAge(gDDNPatient, ui->ActeDatedateEdit->date());
+                QMap<QString,QVariant>  NewAge = Item::CalculAge(gDDNPatient, ui->ActeDatedateEdit->date());
                 ui->AgelineEdit->setText(NewAge["toString"].toString());
             }
             proc->UpdVerrouSalDat();
@@ -9529,13 +9531,13 @@ void Rufus::Remplir_SalDat()
         label0->setAlignment(Qt::AlignLeft);
         label1->setAlignment(Qt::AlignLeft);
         label2->setAlignment(Qt::AlignCenter);
-        connect (label0,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label0);});
-        connect (label1,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label1);});
-        connect (label2,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label2);});
-        connect (label3,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label3);});
-        connect (label4,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label4);});
-        connect (label5,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label5);});
-        connect (label6,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label6);});
+        connect (label0,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label0);});
+        connect (label1,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label1);});
+        connect (label2,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label2);});
+        connect (label3,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label3);});
+        connect (label4,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label4);});
+        connect (label5,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label5);});
+        connect (label6,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label6);});
         connect (label0,        &UpLabel::enter,                                    [=] {AfficheMotif(label0);});
         connect (label1,        &UpLabel::enter,                                    [=] {AfficheMotif(label1);});
         connect (label2,        &UpLabel::enter,                                    [=] {AfficheMotif(label2);});
@@ -9662,11 +9664,12 @@ void Rufus::Remplir_SalDat()
             {
                 UserBureau->setId(BureauxQuery.value(6).toInt());
                 UserBureau->setContextMenuPolicy(Qt::CustomContextMenu);
-                if (UserBureau->getIdUser() == gDataUser->id())
-                    connect(UserBureau, &UpTextEdit::dblclick,  [=] {if (gDataUser->getFonction() != tr("Secrétaire")) ChoixDossier(UserBureau->getId());});
+                disconnect(UserBureau, 0,0,0);
+                if( UserBureau->getIdUser() == gDataUser->id() )
+                    connect(UserBureau, &UpTextEdit::dblclick,  [=] {if (gDataUser->isSecretaire()) ChoixDossier(UserBureau->getId());});
                 else
                 {
-                    connect(UserBureau,         &QWidget::customContextMenuRequested,   [=] {MenuContextuelBureaux(cursor().pos(), UserBureau);});
+                    connect(UserBureau,         &QWidget::customContextMenuRequested,   [=] {MenuContextuelBureaux(UserBureau);});
                     connect(UserBureau,         &UpTextEdit::dblclick,                  [=] {AutreDossier(UserBureau->getId());});
                 }
                 html += "<p class=\"p2\">" +  BureauxQuery.value(3).toString() + " " + BureauxQuery.value(4).toString() + "</p>";      //Nom Prenom
@@ -9782,12 +9785,12 @@ void Rufus::Remplir_SalDat()
             gListeParentsModel      ->appendRow(listitems);
         }
 
-        connect (label0,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(cursor().pos(), label0);});
-        connect (label1,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(cursor().pos(), label1);});
-        connect (label2,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(cursor().pos(), label2);});
-        connect (label3,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(cursor().pos(), label3);});
-        connect (label4,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(cursor().pos(), label4);});
-        connect (label5,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(cursor().pos(), label5);});
+        connect (label0,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(label0);});
+        connect (label1,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(label1);});
+        connect (label2,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(label2);});
+        connect (label3,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(label3);});
+        connect (label4,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(label4);});
+        connect (label5,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDatPaiemt(label5);});
         connect (label0,        &UpLabel::enter,                                    [=] {AfficheMotif(label0);});
         connect (label1,        &UpLabel::enter,                                    [=] {AfficheMotif(label1);});
         connect (label2,        &UpLabel::enter,                                    [=] {AfficheMotif(label2);});
@@ -9898,21 +9901,21 @@ void Rufus::Remplir_SalDat()
         label3->setAlignment(Qt::AlignLeft);
         label4->setAlignment(Qt::AlignRight);
 
-        connect (label0,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label0);});
-        connect (label1,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label1);});
-        connect (label2,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label2);});
-        connect (label3,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label3);});
-        connect (label4,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(cursor().pos(), label4);});
-        connect (label0,        &UpLabel::enter,                                    [=] {AfficheToolTip(cursor().pos(), label0->getId());});
-        connect (label1,        &UpLabel::enter,                                    [=] {AfficheToolTip(cursor().pos(), label1->getId());});
-        connect (label2,        &UpLabel::enter,                                    [=] {AfficheToolTip(cursor().pos(), label2->getId());});
-        connect (label3,        &UpLabel::enter,                                    [=] {AfficheToolTip(cursor().pos(), label3->getId());});
-        connect (label4,        &UpLabel::enter,                                    [=] {AfficheToolTip(cursor().pos(), label4->getId());});
-        connect (label0,        &UpLabel::dblclick,                                 [=] {if (gDataUser->getFonction() != tr("Secrétaire")) ChoixDossier(label0->getId());});
-        connect (label1,        &UpLabel::dblclick,                                 [=] {if (gDataUser->getFonction() != tr("Secrétaire")) ChoixDossier(label1->getId());});
-        connect (label2,        &UpLabel::dblclick,                                 [=] {if (gDataUser->getFonction() != tr("Secrétaire")) ChoixDossier(label2->getId());});
-        connect (label3,        &UpLabel::dblclick,                                 [=] {if (gDataUser->getFonction() != tr("Secrétaire")) ChoixDossier(label3->getId());});
-        connect (label4,        &UpLabel::dblclick,                                 [=] {if (gDataUser->getFonction() != tr("Secrétaire")) ChoixDossier(label4->getId());});
+        connect (label0,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label0);});
+        connect (label1,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label1);});
+        connect (label2,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label2);});
+        connect (label3,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label3);});
+        connect (label4,        &QWidget::customContextMenuRequested,               [=] {MenuContextuelSalDat(label4);});
+        connect (label0,        &UpLabel::enter,                                    [=] {AfficheToolTip(label0->getId());});
+        connect (label1,        &UpLabel::enter,                                    [=] {AfficheToolTip(label1->getId());});
+        connect (label2,        &UpLabel::enter,                                    [=] {AfficheToolTip(label2->getId());});
+        connect (label3,        &UpLabel::enter,                                    [=] {AfficheToolTip(label3->getId());});
+        connect (label4,        &UpLabel::enter,                                    [=] {AfficheToolTip(label4->getId());});
+        connect (label0,        &UpLabel::dblclick,                                 [=] {if (gDataUser->isSecretaire()) ChoixDossier(label0->getId());});
+        connect (label1,        &UpLabel::dblclick,                                 [=] {if (gDataUser->isSecretaire()) ChoixDossier(label1->getId());});
+        connect (label2,        &UpLabel::dblclick,                                 [=] {if (gDataUser->isSecretaire()) ChoixDossier(label2->getId());});
+        connect (label3,        &UpLabel::dblclick,                                 [=] {if (gDataUser->isSecretaire()) ChoixDossier(label3->getId());});
+        connect (label4,        &UpLabel::dblclick,                                 [=] {if (gDataUser->isSecretaire()) ChoixDossier(label4->getId());});
 
         TableAMettreAJour->setCellWidget(i,0,label0);
         TableAMettreAJour->setCellWidget(i,1,label1);

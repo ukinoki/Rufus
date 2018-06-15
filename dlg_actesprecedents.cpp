@@ -126,7 +126,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
 
     //3. calcul de l'age
     if( !acte->agePatient().isNull() ) //TODO : TEST ICI
-        ui->AgelineEdit->setText( User::CalculAge(acte->agePatient(), ui->ActeDatedateEdit->date())["toString"].toString() );
+        ui->AgelineEdit->setText( Item::CalculAge(acte->agePatient(), ui->ActeDatedateEdit->date())["toString"].toString() );
 
     //4. Mettre à jour le numéro d'acte
     bool canprec = (acte->nbActes() > 1 && acte->noActe() > 1);
@@ -178,7 +178,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
         // on calcule le montant payé pour l'acte
         if (acte->paiementType() != "G" || acte->paiementType() != "I")
         {
-            /*double TotalPaye = 0;
+            double TotalPaye = 0;
             // on récupère les lignes de paiement
             requete = " SELECT idRecette, Paye FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(idActeAAfficher);
             QSqlQuery ListePaiementsQuery (requete,db);
@@ -195,10 +195,10 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
                 else
                     TotalPaye = TotalPaye + ListePaiementsQuery.value(1).toDouble();
                 ListePaiementsQuery.next();
-            }*/
+            }
             //TODO : ??? : correspond au montant total de l'acte ? pourquoi tout recalculer
             //TODO : ??? : si oui, on peux simplifier pour eviter un trop grand nombre d'appel
-            ui->PayelineEdit->setText(QLocale().toString(acte->montant(),'f',2));
+            //ui->PayelineEdit->setText(QLocale().toString(acte->montant(),'f',2));
         }
 
 

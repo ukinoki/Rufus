@@ -62,6 +62,9 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "conversionbase.h"
 #include "pyxinterf.h"
 
+#include "cls_item.h"
+#include "cls_user.h"
+
 namespace Ui {
 class Rufus;
 }
@@ -123,8 +126,7 @@ private:
     void        AfficheDossiersRechercheParMotCle();
     void        AfficheMenu(QMenu *menu);
     void        AfficheMotif(UpLabel *lbl);
-    void        AfficheToolTip(QPoint pt, QModelIndex);
-    void        AfficheToolTip(QPoint pt, int);
+    void        AfficheToolTip(int);
     void        AppelPaiementDirect(QString Origin = "");
     void        AppelPaiementTiers();
     void        AutreDossier(int idPat);
@@ -186,19 +188,19 @@ private:
     void        SupprimerMessageRecu(int idJoint);
     void        VerifSendMessage(int idMsg = -1);
 
-    void        MenuContextuelBureaux(QPoint pt, UpTextEdit *UpText);
-    void        MenuContextuelCorrespondant(QPoint pt, UpComboBox *box);
+    void        MenuContextuelBureaux(UpTextEdit *UpText);
+    void        MenuContextuelCorrespondant(UpComboBox *box);
     void            ChoixMenuContextuelCorrespondant(QString choix);
-    void        MenuContextuelIdentPatient(QPoint pt);
-    void        MenuContextuelListePatients(QPoint point);
+    void        MenuContextuelIdentPatient();
+    void        MenuContextuelListePatients();
     void            ChoixMenuContextuelListePatients(QString);
-    void        MenuContextuelMedecin(QPoint pt);
+    void        MenuContextuelMedecin();
     void            ChoixMenuContextuelMedecin();
-    void        MenuContextuelMotsCles(QPoint pt);
-    void        MenuContextuelSalDatPaiemt(QPoint pt, UpLabel *labelCLicked);
-    void        MenuContextuelSalDat(QPoint pt, UpLabel *labelCLicked);
+    void        MenuContextuelMotsCles();
+    void        MenuContextuelSalDatPaiemt(UpLabel *labelCLicked);
+    void        MenuContextuelSalDat(UpLabel *labelCLicked);
     void            ChoixMenuContextuelSalDat(QString);
-    void        MenuContextuelUptextEdit(QPoint point, UpTextEdit *TxtEdit);
+    void        MenuContextuelUptextEdit(UpTextEdit *TxtEdit);
     void            ChoixMenuContextuelUptextEdit(QString);
 
     //fonctions lancées par des timers

@@ -875,7 +875,8 @@ QString Procedures::Edit(QString txt, QString titre)
     int y = qApp->desktop()->availableGeometry().height();
 
     gAsk->setModal(true);
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+
     gTxtEdit->setText(txt);
 
     gAsk->setMaximumWidth(x);
@@ -904,7 +905,7 @@ void Procedures::EditHtml(QString txt)
     QLabel *lbl                     = new QLabel(gAsk);
 
     gAsk->setModal(true);
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     gAsk->setSizeGripEnabled(false);
     lbl->setStyleSheet("border: 1px solid gray;");
     lbl->setTextFormat(Qt::PlainText);

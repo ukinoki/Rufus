@@ -2608,7 +2608,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     quer.first();
     QString Sexe                        = quer.value(1).toString();
     QDate ddn                           = quer.value(0).toDate();
-    QMap<QString,QVariant>  AgeTotal    = User::CalculAge(ddn, Sexe);
+    QMap<QString,QVariant>  AgeTotal    = Item::CalculAge(ddn, Sexe);
     QString age                         = AgeTotal["Total"].toString();
     QString formule                     = AgeTotal["Formule"].toString();
     req = "select idcormedmg, cornom, corprenom, corsexe from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp, " NOM_TABLE_CORRESPONDANTS " cor where idPat = " + QString::number(gidPatient) + " and rmp.idcormedmg = cor.idcor";
