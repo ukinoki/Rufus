@@ -39,7 +39,14 @@ unix {
     shortcutfiles.path = $$PREFIX/share/applications/
     data.files += misc/Rufus.xpm
     data.path = $$PREFIX/share/pixmaps/
+    desktop.path = $$PREFIX/share/applications/
+    desktop.files += Rufus.desktop
+    icon512.path = $$PREFIX/share/icons/hicolor/512x512/apps
+    icon512.files += Images/Sunglasses.png
 
+    INSTALLS += icon512
+    INSTALLS += desktop
+    INSTALLS += target
     INSTALLS += shortcutfiles
     INSTALLS += data
 }
