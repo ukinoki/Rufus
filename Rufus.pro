@@ -28,6 +28,22 @@ TARGET = /home/serge/RufusApp
 
 TEMPLATE = app
 
+unix {
+    isEmpty(PREFIX) {
+        PREFIX = /usr/local
+    }
+
+    target.path = $$PREFIX/bin
+
+    shortcutfiles.files = misc/Rufus.desktop
+    shortcutfiles.path = $$PREFIX/share/applications/
+    data.files += misc/Rufus.xpm
+    data.path = $$PREFIX/share/pixmaps/
+
+    INSTALLS += shortcutfiles
+    INSTALLS += data
+}
+
 SOURCES += main.cpp\
         rufus.cpp \
     procedures.cpp \
