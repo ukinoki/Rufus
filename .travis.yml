@@ -14,7 +14,7 @@ install:
   - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
   - source /opt/qt*/bin/qt*-env.sh
   - sudo apt-get install g++ autoconf libfontconfig1-dev pkg-config libjpeg-dev cmake gnome-common libglib2.0-dev gtk-doc-tools libyelp-dev yelp-tools gobject-introspection libsecret-1-dev libnautilus-extension-dev
-  - sudo apt-get install poppler-utils poppler-data libpoppler-dev libpoppler-qt5-dev mysql-client libfreetype6 libfontconfig1 libopenjpeg2 libjpeg8 libpoppler-glib-dev libtiff5 liblcms2-2 libcairo2
+  - sudo apt-get install poppler-utils poppler-data libpoppler-dev libpoppler-qt5-dev mysql-client libfreetype6 libfontconfig1 libjpeg8 libpoppler-glib-dev libtiff5 liblcms2-2 libcairo2
   - sudo ln -s /usr/local/lib/libpoppler.so.64 /usr/lib/libpoppler.so.64
 
 script:
