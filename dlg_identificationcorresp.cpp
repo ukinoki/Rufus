@@ -30,7 +30,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     gidCor              = idCorresp;
     lCreatModif         = CreationModification;
     OnlyDoctors         = quelesmedecins;
-    VilleCPwidg     = new VilleCPWidget(DataBase::getInstance()->getDataBase(), NOM_TABLE_VILLES, ui->Principalframe, proc->getListeVilles(), proc->getListeCP(), NOM_ALARME);
+    VilleCPwidg     = new VilleCPWidget(proc->getVilles(), ui->Principalframe, NOM_ALARME);
     CPlineEdit      = VilleCPwidg->ui->CPlineEdit;
     VillelineEdit   = VilleCPwidg->ui->VillelineEdit;
     VilleCPwidg     ->move(10,224);
@@ -51,7 +51,8 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
 
     setWindowIcon(Icons::icDoctor());
     ReconstruitListeSpecialites();
-    connect(VilleCPwidg,    SIGNAL(villecpmodified()),  this,   SLOT(Slot_EnableOKpushButton()));
+    connect(VilleCPwidg, &VilleCPWidget::villecpmodified, this, &dlg_identificationcorresp::Slot_EnableOKpushButton);
+
     AfficheDossierAlOuverture();
     if (lCreatModif == "Creation")
     {
@@ -131,7 +132,7 @@ dlg_identificationcorresp::~dlg_identificationcorresp()
 void    dlg_identificationcorresp::Slot_EnableOKpushButton()
 {
     OKButton->setEnabled(true);
-    OKButton    ->setShortcut(QKeySequence("Meta+Return"));
+    OKButton->setShortcut(QKeySequence("Meta+Return"));
 }
 
 void dlg_identificationcorresp::Slot_Majuscule()
@@ -364,7 +365,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
         ui->Adresse2lineEdit    ->setText(AfficheDossierQuery.value(5).toString());
         ui->Adresse3lineEdit    ->setText(AfficheDossierQuery.value(6).toString());
         QString CP              = AfficheDossierQuery.value(8).toString();
-        CPlineEdit              ->completer()->setCurrentRow(VilleCPwidg->listeCP.indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
+        CPlineEdit              ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
         CPlineEdit              ->setText(CP);
         VillelineEdit           ->setText(AfficheDossierQuery.value(7).toString());

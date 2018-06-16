@@ -16,27 +16,27 @@ class Acte : public Item
     Q_OBJECT
 
 private:
-    int m_id;
-    int m_nbActes;
-    int m_noActe;
-    int m_idActeMin;
-    int m_idActeMax;
-    int m_idCreatedBy;
-    int m_idPatient;
+    int m_id;                   //!< Id de l'acte en base
+    int m_nbActes;              //!< nombres d'acte total
+    int m_noActe;               //!< numero de l'acte
+    int m_idActeMin;            //!< id du premier acte
+    int m_idActeMax;            //!< id du dernier acte
+    int m_idCreatedBy;          //!< id du User qui a créé l'acte
+    int m_idPatient;            //!< id du Patient correspondant à l'acte
 
-    double m_montant;
+    double m_montant;           //!< montant total
 
-    QString m_motif;
-    QString m_texte;
-    QString m_conclusion;
-    QString m_courrierStatus;
-    QString m_cotation;
-    QString m_monnaie;
-    QString m_paiementType;
-    QString m_paiementTiers;
+    QString m_motif;            //!< motif
+    QString m_texte;            //!< détail
+    QString m_conclusion;       //!< conclusion
+    QString m_courrierStatus;   //!< status du courrier //TODO : à compléter
+    QString m_cotation;         //!< //TODO : à compléter : je ne sais pas
+    QString m_monnaie;          //!< en franc "F" ou en euro
+    QString m_paiementType;     //!< moyen de paiement
+    QString m_paiementTiers;    //!< //TODO : à compléter : je ne sais pas
 
-    QDateTime m_date;
-    QDateTime m_agePatient; //TODO : MOVE to Patient
+    QDateTime m_date;           //!< date de la création de l'acte
+    QDateTime m_agePatient;     //!< date de naissance du Patient //TODO : MOVE to Patient
 
 
 

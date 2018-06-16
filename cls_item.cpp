@@ -111,19 +111,16 @@ void Item::setDataInt(QJsonObject data, QString key, int &prop)
     if( data.contains(key) )
         prop = data[key].toInt();
 }
-
 void Item::setDataDouble(QJsonObject data, QString key, double &prop)
 {
     if( data.contains(key) )
         prop = data[key].toDouble();
 }
-
 void Item::setDataBool(QJsonObject data, QString key, bool &prop)
 {
     if( data.contains(key) )
         prop = data[key].toBool();
 }
-
 void Item::setDataDateTime(QJsonObject data, QString key, QDateTime &prop)
 {
     if( data.contains(key) )

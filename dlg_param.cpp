@@ -264,7 +264,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ReconstruitListeLieuxExercice();
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
-       VilleCPDefautWidg   = new VilleCPWidget(DataBase::getInstance()->getDataBase(), NOM_TABLE_VILLES, ui->VilleDefautframe, proc->getListeVilles(), proc->getListeCP(), NOM_ALARME);
+       VilleCPDefautWidg   = new VilleCPWidget(proc->getVilles(), ui->VilleDefautframe, NOM_ALARME);
        CPDefautlineEdit    = VilleCPDefautWidg->ui->CPlineEdit;
        VilleDefautlineEdit = VilleCPDefautWidg->ui->VillelineEdit;
        VilleCPDefautWidg   ->move(15,10);
@@ -498,7 +498,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     for (int i=0; i<ui->AppareilsConnectesupTableWidget->columnCount(); i++)
         ui->AppareilsConnectesupTableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignLeft);
     ui->AppareilsConnectesupTableWidget->FixLargeurTotale();
-    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + gDataUser->getSite()->getNom() + "</b></font> ");
+    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + gDataUser->getSite()->nom() + "</b></font> ");
     QVBoxLayout *applay = new QVBoxLayout();
     applay      ->addWidget(ui->AppareilsconnectesupLabel);
     applay      ->addWidget(widgAppareils->widgButtonParent());
@@ -1471,7 +1471,7 @@ void dlg_param::SupprAppareil()
     {
         req = "delete from " NOM_TABLE_APPAREILSCONNECTESCENTRE " where idAppareil = "
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
-              + " and idLieu = " + QString::number(gDataUser->getSite()->getId());
+              + " and idLieu = " + QString::number(gDataUser->getSite()->id());
         QSqlQuery(req,db);
         QString Base;
         if (DataBase::getInstance()->getMode() == DataBase::Poste)
@@ -1607,7 +1607,7 @@ void dlg_param::Slot_EnregistreAppareil()
     if (!gAskAppareil) return;
     QString req = "insert into " NOM_TABLE_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
                   " (select idappareil from " NOM_TABLE_LISTEAPPAREILS " where NomAppareil = '" + gAskAppareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
-                  + QString::number(gDataUser->getSite()->getId()) + ")";
+                  + QString::number(gDataUser->getSite()->id()) + ")";
     QSqlQuery (req,db);
     gAskAppareil->done(0);
     Remplir_Tables();
@@ -3020,7 +3020,7 @@ void dlg_param::Remplir_Tables()
 
     QString  Remplirtablerequete = "SELECT list.idAppareil, list.TitreExamen, list.NomAppareil, Format"
               " FROM "  NOM_TABLE_APPAREILSCONNECTESCENTRE " appcon , " NOM_TABLE_LISTEAPPAREILS " list"
-              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(gDataUser->getSite()->getId()) +
+              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(gDataUser->getSite()->id()) +
               " ORDER BY TitreExamen";
 
     QSqlQuery RemplirTableViewQuery (Remplirtablerequete,db);
@@ -3150,7 +3150,7 @@ void dlg_param::Remplir_Tables()
 
     glistAppareils.clear();
     QString req = "select NomAppareil from " NOM_TABLE_LISTEAPPAREILS
-                  " where idAppareil not in (select idAppareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(gDataUser->getSite()->getId()) + ")";
+                  " where idAppareil not in (select idAppareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(gDataUser->getSite()->id()) + ")";
     QSqlQuery listappquery(req,db);
     if (listappquery.size() == 0)
         widgAppareils->plusBouton->setEnabled(false);

@@ -231,10 +231,7 @@ public:
     QStandardItemModel*     getListeComptesEncaissmtUser();
     QStandardItemModel*     getListeComptesEncaissmtUserAvecDesactive();
     void                    setListeComptesEncaissmtUser(int);
-    QStringList             getListeVilles();
-    void                    setListeVilles();
-    QStringList             getListeCP();
-    void                    setListeCP();
+    Villes*                 getVilles();
     QString                 getLogin(int idUser);
     QStandardItemModel*     getListeSuperviseurs();
     QStandardItemModel*     getListeLiberaux();
@@ -249,7 +246,6 @@ public:
     int                     TaillePieddePage();
     int                     TaillePieddePageOrdoLunettes();
     int                     TailleTopMarge();
-    void                    setVilleParDefaut(QString VilleParDefaut);
     QString                 getVilleParDefaut();
 
     void                    setPosteImportDocs(bool a = true);
@@ -286,7 +282,7 @@ private:
     QPlainTextEdit          *gEtat;         // CZ 27082015
     QString                 gnomFichIni;
     QString                 gnomImprimante;
-    QStringList             gListVilles, gListCP;
+    Villes                  *m_villes = nullptr;
     UpDialog                *gAskLogin, *gAskUser;//, *gAskLieux;
     UpTextEdit              *gTxtEdit;
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);

@@ -69,11 +69,11 @@ dlg_identificationpatient::dlg_identificationpatient(QString *CreationModificati
     ReconstruitListeMG();
     ui->MGupComboBox    ->setCurrentIndex(-1);
 
-    VilleCPwidg         = new VilleCPWidget(DataBase::getInstance()->getDataBase(), NOM_TABLE_VILLES, ui->Principalframe, proc->getListeVilles(), proc->getListeCP(), NOM_ALARME);
+    VilleCPwidg         = new VilleCPWidget(proc->getVilles(), ui->Principalframe, NOM_ALARME);
     CPlineEdit          = VilleCPwidg->ui->CPlineEdit;
     VillelineEdit       = VilleCPwidg->ui->VillelineEdit;
     VilleCPwidg         ->move(10,254);
-    connect(VilleCPwidg,    SIGNAL(villecpmodified()),  this,   SLOT(Slot_EnableOKpushButton()));
+    connect(VilleCPwidg, &VilleCPWidget::villecpmodified, this, &dlg_identificationpatient::Slot_EnableOKpushButton);
 
     AfficheDossierAlOuverture();
 
@@ -460,7 +460,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
                 CP = proc->getCodePostalParDefaut();
             else
                 CP = DonneesSocialesQuery.value(4).toString();
-            CPlineEdit          ->completer()->setCurrentRow(VilleCPwidg->listeCP.indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
+            CPlineEdit          ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
 
             CPlineEdit          ->setText(CP);

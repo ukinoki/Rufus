@@ -18,6 +18,7 @@
 
 #include "cls_acte.h"
 #include "cls_user.h"
+#include "cls_villes.h"
 #include "log.h"
 
 class DataBase : public QObject
@@ -62,10 +63,28 @@ public:
     QJsonObject login(QString login, QString password);
     QJsonObject loadUser(int idUser);
 
+    /*
+     * Sites
+    */
     QList<Site*> loadUserSites(int idUser);
+    QList<Site*> loadAllSites();
+private:
+    QList<Site*> loadSites(QString req);
 
+public:
+    /*
+     * Villes
+    */
+    Villes* loadAllVilles();
+
+    /*
+     * Actes
+    */
     Acte* loadActeById(int idActe);
     QMap<int, Acte*> loadActeByIdPat(int idPat);
+
+
+
 signals:
 
 public slots:

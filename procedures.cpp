@@ -238,44 +238,12 @@ int Procedures::MAJflagMG()
 géré par la classe villecpwidget
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-QStringList Procedures::getListeVilles()
+Villes* Procedures::getVilles()
 {
-    return gListVilles;
-}
+    if( m_villes == nullptr )
+        m_villes = DataBase::getInstance()->loadAllVilles();
 
-void Procedures::setListeVilles()
-{
-    gListVilles.clear();
-    QString req = "SELECT distinct Ville FROM " NOM_TABLE_VILLES " ORDER BY Ville";
-    QSqlQuery ChercheVillesQuery (req, DataBase::getInstance()->getDataBase());
-    if (!DataBase::getInstance()->traiteErreurRequete(ChercheVillesQuery,req, tr("Impossible de retrouver les villes!")))
-    {
-        for (int i = 0; i < ChercheVillesQuery.size(); i++)
-        {
-            ChercheVillesQuery.seek(i);
-            gListVilles << ChercheVillesQuery.value(0).toString();
-        }
-    }
-}
-
-QStringList Procedures::getListeCP()
-{
-    return gListCP;
-}
-
-void Procedures::setListeCP()
-{
-    gListCP.clear();
-    QString req = "SELECT distinct codePostal FROM " NOM_TABLE_VILLES " ORDER BY codePOstal";
-    QSqlQuery ChercheCPQuery (req, DataBase::getInstance()->getDataBase());
-    if (!DataBase::getInstance()->traiteErreurRequete(ChercheCPQuery,req, tr("Impossible de retrouver les codes postaux!")))
-    {
-        for (int i = 0; i < ChercheCPQuery.size(); i++)
-        {
-            ChercheCPQuery.seek(i);
-            gListCP << ChercheCPQuery.value(0).toString();
-        }
-    }
+    return m_villes;
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -703,24 +671,24 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
 
         QString adresse ="";
         int nlignesadresse = 0;
-        if( OtherUser->getSite()->getNom().size() )
+        if( OtherUser->getSite()->nom().size() )
         {
             nlignesadresse  ++;
-            adresse         += OtherUser->getSite()->getNom();
+            adresse         += OtherUser->getSite()->nom();
         }
-        if (OtherUser->getSite()->getAdresse1() != "" || OtherUser->getSite()->getAdresse2() != "")
+        if (OtherUser->getSite()->adresse1() != "" || OtherUser->getSite()->adresse2() != "")
         {
             nlignesadresse  ++;
             if (nlignesadresse >0)
                 adresse += "<br />";
-            if (OtherUser->getSite()->getAdresse1() != "" && OtherUser->getSite()->getAdresse2() != "")
-                adresse += OtherUser->getSite()->getAdresse1() + " - " + OtherUser->getSite()->getAdresse2();
+            if (OtherUser->getSite()->adresse1() != "" && OtherUser->getSite()->adresse2() != "")
+                adresse += OtherUser->getSite()->adresse1() + " - " + OtherUser->getSite()->adresse2();
             else
-                adresse += OtherUser->getSite()->getAdresse1() + OtherUser->getSite()->getAdresse2();
+                adresse += OtherUser->getSite()->adresse1() + OtherUser->getSite()->adresse2();
         }
         Entete.replace("{{ADRESSE}}", adresse);
-        Entete.replace("{{CPVILLE}}", QString::number(OtherUser->getSite()->getCodePostal()) + " " + OtherUser->getSite()->getVille().toUpper());
-        Entete.replace("{{TEL}}", "Tél. " + OtherUser->getSite()->getTelephone());
+        Entete.replace("{{CPVILLE}}", QString::number(OtherUser->getSite()->codePostal()) + " " + OtherUser->getSite()->ville().toUpper());
+        Entete.replace("{{TEL}}", "Tél. " + OtherUser->getSite()->telephone());
         if (nlignesadresse==2)
             Entete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");
         else
@@ -734,7 +702,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
         }
         if (OtherUser->getNumPS() > 0) NumSS += "RPPS " + QString::number(OtherUser->getNumPS());
         Entete.replace("{{NUMSS}}", NumSS);
-        Entete.replace("{{DATE}}", OtherUser->getSite()->getVille()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
+        Entete.replace("{{DATE}}", OtherUser->getSite()->ville()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
 
         (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
     }
@@ -1458,11 +1426,6 @@ int Procedures::TaillePieddePageOrdoLunettes()
 int Procedures::TailleTopMarge()
 {
     return gsettingsIni->value("Param_Imprimante/TailleTopMarge").toInt();
-}
-
-void Procedures::setVilleParDefaut(QString VilleParDefaut)
-{
-    lVilleParDefaut = VilleParDefaut;
 }
 
 QString Procedures::getVilleParDefaut()
@@ -2807,24 +2770,24 @@ Site* Procedures::DetermineLieuExercice()
     {
         Site *etab = const_cast<Site*>(*itEtab);
         UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
-        pradiobutt->setText(etab->getNom());
-        pradiobutt->setAccessibleName(QString::number(etab->getId()));
+        pradiobutt->setText(etab->nom());
+        pradiobutt->setAccessibleName(QString::number(etab->id()));
         pradiobutt->mData = etab;
         QString data("");
-        if( etab->getNom().size() )
-            data += etab->getNom();
-        if( etab->getAdresse1().size() )
-            data += (data.size() ? "\n" : "") + etab->getAdresse1();
-        if( etab->getAdresse2().size() )
-            data += (data.size() ? "\n" : "") + etab->getAdresse2();
-        if( etab->getAdresse3().size() )
-            data += (data.size() ? "\n" : "") + etab->getAdresse3();
-        if( etab->getCodePostal() )
-            data += (data.size() ? "\n" : "") + QString::number(etab->getCodePostal());
-        if( etab->getVille().size() )
-            data += (data.size() ? "\n" : "") + etab->getVille();
-        if( etab->getTelephone().size() )
-            data += (data != ""? "\nTel: " : "Tel: ") + etab->getTelephone();
+        if( etab->nom().size() )
+            data += etab->nom();
+        if( etab->adresse1().size() )
+            data += (data.size() ? "\n" : "") + etab->adresse1();
+        if( etab->adresse2().size() )
+            data += (data.size() ? "\n" : "") + etab->adresse2();
+        if( etab->adresse3().size() )
+            data += (data.size() ? "\n" : "") + etab->adresse3();
+        if( etab->codePostal() )
+            data += (data.size() ? "\n" : "") + QString::number(etab->codePostal());
+        if( etab->ville().size() )
+            data += (data.size() ? "\n" : "") + etab->ville();
+        if( etab->telephone().size() )
+            data += (data != ""? "\nTel: " : "Tel: ") + etab->telephone();
         pradiobutt->setImmediateToolTip(data);
         pradiobutt->setChecked(isFirst);
         vbox      ->addWidget(pradiobutt);
@@ -3879,7 +3842,7 @@ int Procedures::idCentre()
 int Procedures::idLieuExercice()
 {
     if( m_userConnected )
-        return m_userConnected->getSite()->getId();
+        return m_userConnected->getSite()->id();
     return -1;
 }
 

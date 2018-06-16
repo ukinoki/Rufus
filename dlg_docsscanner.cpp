@@ -424,7 +424,7 @@ void dlg_docsscanner::ValideFiche()
     query.bindValue(":lien",            "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe);
     query.bindValue(":emisrecu",        "1");
     query.bindValue(":formatdoc",       DOCUMENTRECU);
-    query.bindValue(":lieu",            QString::number(proc->getDataUser()->getSite()->getId()) );
+    query.bindValue(":lieu",            QString::number(proc->getDataUser()->getSite()->id()) );
 
     bool b = query.exec();
     QSqlQuery("UNLOCK TABLES", db);

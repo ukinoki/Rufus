@@ -1,0 +1,160 @@
+#include "cls_villes.h"
+
+#include <QException>
+
+/*
+ * Ville
+*/
+Ville::Ville(QJsonObject data, QObject *parent) : Item(parent)
+{
+    setData( data );
+}
+int Ville::id() const { return m_id; }
+QString Ville::codePostal() const { return m_codePostal; }
+QString Ville::nom() const { return m_nom; }
+
+void Ville::setData(QJsonObject data)
+{
+    if( data.isEmpty() )
+        return;
+
+    setDataInt(data, "ville_id", m_id);
+    setDataString(data, "codePostal", m_codePostal);
+    setDataString(data, "ville", m_nom);
+}
+
+
+/*
+ * VilleListModel
+*/
+VilleListModel::VilleListModel(const QList<Ville*> &villes, QObject *parent) : QAbstractListModel(parent)
+{
+    m_villes = villes;
+    std::sort( m_villes.begin(), m_villes.end(), VilleListModel::sortByName );
+}
+
+void VilleListModel::setFieldName(QString fieldName) { m_fieldName = fieldName; }
+int VilleListModel::rowCount(const QModelIndex& parent) const { return m_villes.size(); }
+QVariant VilleListModel::data(const QModelIndex& index, int role) const
+{
+    // Check that the index is valid and within the correct range first:
+    if( !index.isValid()
+            || index.row() >= m_villes.size()
+            || role != Qt::DisplayRole )
+        return QVariant();
+
+    if( m_fieldName.toLower() == "nom" )
+        return QString(m_villes.at(index.row())->nom());
+
+    if( m_fieldName.toLower() == "codepostal" )
+        return QString(m_villes.at(index.row())->codePostal());
+
+    return QVariant();
+}
+
+
+/*
+ * Villes
+*/
+Villes::Villes()
+{}
+
+void Villes::addVille(Ville *ville)
+{
+    if( m_villes.contains(ville->id()) )
+        return;
+
+    m_villes.insert(ville->id(), ville);
+    m_codePostal.insert(ville->codePostal(), ville);
+
+    if( !m_listeNomVilles.contains(ville->nom()) )
+        m_listeNomVilles.append(ville->nom());
+
+    QString strCP = ville->codePostal();
+    if( !m_listeCodePostal.contains(strCP) )
+        m_listeCodePostal.append(strCP);
+}
+
+QStringList Villes::getListVilles() const { return m_listeNomVilles; }
+QStringList Villes::getListCodePostal() const { return m_listeCodePostal; }
+
+QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegrite)
+{
+    QJsonObject error{};
+    if( testIntegrite && !m_listeCodePostal.contains(codePostal) )
+    {
+        error["errorCode"] = 1;
+        error["errorMessage"] = QObject::tr("Code postal inconnu");
+        throw error;
+    }
+
+    QList<Ville *> listV;
+    QMap<QString, Ville*>::const_iterator it = m_codePostal.find( codePostal );
+    while( it != m_codePostal.end() && it.key() == codePostal)
+    {
+        listV << it.value();
+        ++it;
+    }
+
+    if( listV.isEmpty() )
+    {
+        error["errorCode"] = 2;
+        error["errorMessage"] = QObject::tr("Impossible de trouver la ville correspondant au code postal ") + codePostal;
+        throw error;
+    }
+
+    return listV;
+}
+QList<Ville *> Villes::getVilleByName(QString name)
+{
+    QList<Ville *> listV;
+    QList<Ville *> listVStartWith;
+    QMap<int, Ville*>::const_iterator it = m_villes.constBegin();
+    while( it != m_villes.constEnd() )
+    {
+        if( it.value()->nom() == name )
+            listV << it.value();
+
+        if( it.value()->nom().startsWith(name))
+            listVStartWith << it.value();
+        //ajouter test dans le cas ou : accents, espace, trait union
+        ++it;
+    }
+    if( listV.isEmpty() && listVStartWith.size() )
+        return listVStartWith;
+
+    return listV;
+}
+QList<Ville *> Villes::getVilleByCodePostalEtNom(QString codePostal, QString name)
+{
+    QList<Ville *> listV;
+    QJsonObject error{};
+    /*
+    if( testIntegrite && !m_listeCodePostal.contains(QString::number(codePostal)) )
+    {
+        error["errorCode"] = 1;
+        error["errorMessage"] = QObject::tr("Code postal inconnu");
+        throw error;
+    }
+    */
+
+
+    QMap<QString, Ville*>::const_iterator it = m_codePostal.find( codePostal );
+    while( it != m_codePostal.end() && it.key() == codePostal)
+    {
+        if( it.value()->nom() == name )
+            listV << it.value();
+        ++it;
+    }
+
+    if( listV.isEmpty() )
+    {
+        error["errorCode"] = 2;
+        error["errorMessage"] = QObject::tr("Impossible de trouver la ville correspondant au nom ") + name;
+        throw error;
+    }
+
+    return listV;
+}
+
+

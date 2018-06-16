@@ -99,8 +99,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     proc->setDirImagerie();
     proc->getAvecCompta();
-    proc->setListeVilles();
-    proc->setListeCP();
     setWindowIcon(Icons::icSunglasses());
     //1. Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
@@ -2621,7 +2619,7 @@ void Rufus::ImprimeDossier()
        query.bindValue(":useremetteur", QString::number(gDataUser->id()));
        query.bindValue(":emisrecu", "0");
        query.bindValue(":formatdoc", COURRIER);
-       query.bindValue(":idlieu", QString::number(gDataUser->getSite()->getId()) );
+       query.bindValue(":idlieu", QString::number(gDataUser->getSite()->id()) );
        if(!query.exec())
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
@@ -7020,7 +7018,7 @@ void    Rufus::CreerActe(int idPat)
             QString::number(gDataUser->getIdUserParent()) + ", " +
             rempla + ", " +
             QString::number(proc->idCentre()) + ", " +
-            QString::number(gDataUser->getSite()->getId()) +")";
+            QString::number(gDataUser->getSite()->id()) +")";
     //qDebug() << creerrequete;
     QSqlQuery CreerActeQuery (creerrequete, DataBase::getInstance()->getDataBase() );
     if (DataBase::getInstance()->traiteErreurRequete(CreerActeQuery,creerrequete,tr("Impossible de créer cette consultation dans ") + NOM_TABLE_ACTES))
@@ -8132,7 +8130,7 @@ bool   Rufus::Imprimer_Document(QString idUser, QString titre, QString Entete, Q
         query.bindValue(":ald", ALD100);
         query.bindValue(":emisrecu", "0");
         query.bindValue(":formatdoc", (Prescription? PRESCRIPTION : COURRIER));
-        query.bindValue(":idlieu", QString::number(gDataUser->getSite()->getId()));
+        query.bindValue(":idlieu", QString::number(gDataUser->getSite()->id()));
         if(!query.exec())
             UpMessageBox::Watch(this, tr("Impossible d'enregistrer ce document dans la base!"));
         ui->OuvreDocsExternespushButton->setEnabled(true);

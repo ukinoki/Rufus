@@ -254,19 +254,31 @@ QJsonObject DataBase::loadUser(int idUser)
     return userData;
 }
 
+
 /*
  * Sites
 */
+QList<Site*> DataBase::loadAllSites()
+{
+    QString req = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
+                    "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
+                  "from " NOM_TABLE_JOINTURESLIEUX;
+
+    return loadSites( req );
+}
 QList<Site*> DataBase::loadUserSites(int idUser)
 {
-    QList<Site*> etabs;
-
     QString req = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
                     "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
                   "from " NOM_TABLE_JOINTURESLIEUX " joint "
                   "left join " NOM_TABLE_LIEUXEXERCICE " lix on joint.idlieu = lix.idLieu "
                   "where iduser = " + QString::number(idUser);
 
+    return loadSites( req );
+}
+QList<Site*> DataBase::loadSites(QString req)
+{
+    QList<Site*> etabs;
     QSqlQuery query(req, getDataBase() );
     if( traiteErreurRequete(query, req) || !query.first())
         return etabs;
@@ -290,6 +302,34 @@ QList<Site*> DataBase::loadUserSites(int idUser)
     return etabs;
 }
 
+
+/*
+ * Villes
+*/
+Villes* DataBase::loadAllVilles()
+{
+    Villes *villes = new Villes();
+
+    QString req = "select ville_id, codePostal, ville "
+                  "from " NOM_TABLE_VILLES;
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return villes;
+
+    do//TODO : chercher solution, lent en débugger (~36000 enregistrement)
+    {
+        QJsonObject jEtab{};
+        jEtab["ville_id"] = query.value(0).toInt();
+        jEtab["codePostal"] = query.value(1).toString();
+        jEtab["ville"] = query.value(2).toString();
+        Ville *ville = new Ville(jEtab);
+        villes->addVille(ville);
+    } while( query.next() );
+
+    return villes;
+}
+
+
 /*
  * Gestion des Patients
 */
@@ -297,7 +337,7 @@ QList<Site*> DataBase::loadUserSites(int idUser)
 
 
 /*
- * Gestion des Actes
+ * Actes
 */
 Acte* DataBase::loadActeById(int idActe)
 {

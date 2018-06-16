@@ -27,14 +27,14 @@ public:
     void setData(QJsonObject data);
 
 
-    int getId() const;
-    QString getNom() const;
-    QString getAdresse1() const;
-    QString getAdresse2() const;
-    QString getAdresse3() const;
-    int getCodePostal() const;
-    QString getVille() const;
-    QString getTelephone() const;
+    int id() const;
+    QString nom() const;
+    QString adresse1() const;
+    QString adresse2() const;
+    QString adresse3() const;
+    int codePostal() const;
+    QString ville() const;
+    QString telephone() const;
 
 
 signals:

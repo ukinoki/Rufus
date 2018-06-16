@@ -26,9 +26,10 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtSql>
 #include "upmessagebox.h"
 #include "functormajpremierelettre.h"
+#include "cls_villes.h"
 
 namespace Ui {
-class VilleCPWidget;
+    class VilleCPWidget;
 }
 
 class VilleCPWidget : public QWidget
@@ -36,39 +37,24 @@ class VilleCPWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit VilleCPWidget(QSqlDatabase initdb, QString NomtableVilles, QWidget *parent = Q_NULLPTR, QStringList listVilles = QStringList(), QStringList listCP = QStringList(), QString Son = "");
+    explicit VilleCPWidget(Villes *villes, QWidget *parent = Q_NULLPTR, QString Son = "");
     ~VilleCPWidget();
-    QString                 CP();
-    QString                 Ville();
     Ui::VilleCPWidget       *ui;
-    QStringList             listeCP;
+
+    Villes *villes() const;
 
 private:
     FunctorMAJPremiereLettre fMAJPremiereLettre;
-    UpDialog                *gAskCP, *gAskVille;
-    QSqlDatabase            db;
-    bool                    VilleAConfirmer, CPAConfirmer;
-    QString                 NouveauCP,NouvVille, TableVilles;
     QString                 Alarme;
+    Villes                  *m_villes;
 
-    bool                    eventFilter(QObject *obj, QEvent *event);
+    void            Slot_ChercheVille();
+    void            ChercheVille(bool confirmerleCP = true);
+    QString         ConfirmeVille(QString ville);
+    void            ChercheCodePostal(bool confirmerlaville = true);
 
-    void                    ChercheCPdepuisQLine();
-    void                    ChercheVilledepuisQLine();
-    void                    ChercheVille(bool confirmerleCP = true);
-    QString                 ConfirmeVille(QString Ville);
-    void                    ChercheCodePostal(bool confirmerlaville = true);
-    bool                    VerifCoherence();
-    QString                 CorrigeApostrophe(QString);
-    bool                    TraiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
-
-    void                    ChercheCPdepuisCompleter();
-    void                    ChercheVilledepuisCompleter();
-    void                    CPEnableOKbutton();
-    void                    EnableOKpushButton(QLineEdit *line);
-    void                    ReponsCodePostal();
-    void                    ReponsVille();
-    void                    VilleEnableOKbutton();
+    QString          dialogList(QList<Ville*> &listData, QString fieldName, QString headerName);
+    void             Repons(QListView *lv, UpDialog *ud, QString &newValue);
 
 signals:
     void                    villecpmodified();

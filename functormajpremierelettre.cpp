@@ -25,7 +25,7 @@ QString FunctorMAJPremiereLettre::operator()(QString MajLettre, bool fin, bool M
         MajLettre = MajLettre.toLower();
 
     Comptage = MajLettre.size(); //On supprime les espace, tiret et apostrophe du début
-    for (int i=0; i <  Comptage; i++)
+    for (int i=0; i < Comptage; i++)
     {
         Car1 = MajLettre.left(1);
         if ((Car1 == " " || Car1 == "-" || Car1 == "'") && i == 0)
@@ -34,6 +34,7 @@ QString FunctorMAJPremiereLettre::operator()(QString MajLettre, bool fin, bool M
             i = i - 1;
             Comptage = Comptage - 1;
         }
+        break; //on evite de tout tester pour rien.
     }
 
     Comptage = MajLettre.size(); //On supprime les espace et tiret de la fin
@@ -48,14 +49,15 @@ QString FunctorMAJPremiereLettre::operator()(QString MajLettre, bool fin, bool M
                 i = i - 2;
                 Comptage = Comptage - 1;
             }
+            break; //on evite de tout tester pour rien.
         }
     }
 
     Comptage = MajLettre.size(); //On supprime les espace et tiret en répétition au milieu
-    for (int i = 1; i <  Comptage; i++)
+    for (int i = 1; i < (Comptage - 1); i++)
     {
         Car1 = MajLettre.mid(i,1);
-        if ((Car1 == " " || Car1 == "-" || Car1 == "'") && i < (Comptage -1))
+        if( (Car1 == " " || Car1 == "-" || Car1 == "'") )
         {
             Car2 = MajLettre.mid(i+1,1);
             if (Car2 =="'")
@@ -75,10 +77,10 @@ QString FunctorMAJPremiereLettre::operator()(QString MajLettre, bool fin, bool M
 
     Comptage = MajLettre.size();  // On met en majuscule derrière les espace, tiret et apostrophe
     if (Maj){
-        for (int i = 1; i <  Comptage; i++)
+        for (int i = 1; i < (Comptage - 1); i++)
         {
             Car1 = MajLettre.mid(i,1);
-            if ((Car1 == " " || Car1 == "-" || Car1 == "'") && i < (Comptage -1))
+            if( (Car1 == " " || Car1 == "-" || Car1 == "'") )
             {
                 Car2 = MajLettre.mid(i+1,1);
                 MajLettre = MajLettre.left(i+1) + Car2.toUpper()+ MajLettre.right(MajLettre.size() - (i+2));
