@@ -14,18 +14,8 @@ install:
   - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
   - source /opt/qt*/bin/qt*-env.sh
   - sudo apt install g++ autoconf libfontconfig1-dev pkg-config libjpeg-dev cmake gnome-common libglib2.0-dev gtk-doc-tools libyelp-dev yelp-tools gobject-introspection libsecret-1-dev libnautilus-extension-dev
-  - wget https://poppler.freedesktop.org/poppler-data-0.4.9.tar.gz
-  - tar -xf poppler-data-0.4.9.tar.gz
-  - cd poppler-data-0.4.9
-  - sudo make install
-  - cd ..
-  - wget https://poppler.freedesktop.org/poppler-0.62.0.tar.xz
-  - tar -xf poppler-0.62.0.tar.xz
-  - cd poppler-0.62.0
-  - cmake..
-  - sudo make install
+  - sudo apt-get install poppler-utils poppler-data libpoppler-dev libpoppler-qt5-dev mysql-client
   - sudo ln -s /usr/local/lib/libpoppler.so.64 /usr/lib/libpoppler.so.64
-  - sudo apt-get install poppler-utils libpoppler-qt5-dev mysql-client
 
 script:
   - qmake CONFIG+=release PREFIX=/usr
