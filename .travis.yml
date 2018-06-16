@@ -13,7 +13,7 @@ before_install:
 install:
   - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
   - source /opt/qt*/bin/qt*-env.sh
-  - sudo apt install libfontconfig1-dev pkg-config libjpeg-dev  gnome-common libglib2.0-dev gtk-doc-tools libyelp-dev yelp-tools gobject-introspection libsecret-1-dev libnautilus-extension-dev
+  - sudo apt install g++ autoconf libfontconfig1-dev pkg-config libjpeg-dev  gnome-common libglib2.0-dev gtk-doc-tools libyelp-dev yelp-tools gobject-introspection libsecret-1-dev libnautilus-extension-dev
   - wget https://poppler.freedesktop.org/poppler-data-0.4.9.tar.gz
   - tar -xf poppler-data-0.4.9.tar.gz
   - cd poppler-data-0.4.9
