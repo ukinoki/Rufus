@@ -66,6 +66,7 @@ private:
     bool                    NavigationConsult(int i);
     bool                    gAvantDernier;
     QSqlDatabase            db;
+    QList<int>              listactes;
     int                     ChercheActeAAfficher();                     // détermine l'acte à afficher suivant l'idPatient et la valeur de AVantDernier
 };
 

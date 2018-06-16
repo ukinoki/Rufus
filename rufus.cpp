@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("14-06-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("15-06-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2811,7 +2811,7 @@ void Rufus::RechercheParID()
     globallay           ->insertWidget(1,idLine);
     globallay           ->insertWidget(2,lblnom);
     gAskRechParIDDialog ->AjouteLayButtons();
-    connect(idLine,                         &QLineEdit::textEdited,         [=] {ChercheNomparID(QString::number(idLine->getId()));});
+    connect(idLine,                         &QLineEdit::textEdited,         [=] {ChercheNomparID(idLine->text());});
     connect(gAskRechParIDDialog->OKButton,  &QPushButton::clicked,          [=] {gAskRechParIDDialog->close();});
     gAskRechParIDDialog->exec();
 }
