@@ -22,7 +22,6 @@ install:
   - wget https://poppler.freedesktop.org/poppler-0.64.0.tar.xz
   - tar -xf poppler-0.64.0.tar.xz
   - cd poppler-0.64.0
-  - ./configure --enable-poppler-glib
   - make
   - sudo make install
   - sudo ln -s /usr/local/lib/libpoppler.so.64 /usr/lib/libpoppler.so.64
