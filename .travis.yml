@@ -14,13 +14,12 @@ install:
   - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
   - source /opt/qt*/bin/qt*-env.sh
   - sudo apt install g++ autoconf libfontconfig1-dev pkg-config libjpeg-dev  gnome-common libglib2.0-dev gtk-doc-tools libyelp-dev yelp-tools gobject-introspection libsecret-1-dev libnautilus-extension-dev
-  - sudo apt-get install poppler-utils
-  - sudo apt-get install mysql-client
+  - sudo apt-get install poppler-utils  poppler-data mysql-client
 
 script:
-  - cmake . -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr
+  - qmake CONFIG+=release PREFIX=/usr
   - make -j$(nproc)
-  - make DESTDIR=appdir -j$(nproc) install ; find appdir/
+  - make INSTALL_ROOT=appdir -j$(nproc) install ; find appdir/
   - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
   - unset QTDIR; unset QT_PLUGIN_PATH ; unset LD_LIBRARY_PATH
