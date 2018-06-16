@@ -11,7 +11,7 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - sudo apt-get -y install qt510base qt510serialport qt510websockets multimedia multimediawidgets
+  - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
   - source /opt/qt*/bin/qt*-env.sh
   - sudo apt install g++ autoconf libfontconfig1-dev pkg-config libjpeg-dev  gnome-common libglib2.0-dev gtk-doc-tools libyelp-dev yelp-tools gobject-introspection libsecret-1-dev libnautilus-extension-dev
   - sudo apt-get install poppler-utils
