@@ -19,10 +19,10 @@ install:
   - cd poppler-data-0.4.9
   - sudo make install
   - cd ..
-  - wget https://poppler.freedesktop.org/poppler-0.64.0.tar.xz
-  - tar -xf poppler-0.64.0.tar.xz
-  - cd poppler-0.64.0
-  - make
+  - wget https://poppler.freedesktop.org/poppler-0.62.0.tar.xz
+  - tar -xf poppler-0.62.0.tar.xz
+  - cd poppler-0.62.0
+  - cmake..
   - sudo make install
   - sudo ln -s /usr/local/lib/libpoppler.so.64 /usr/lib/libpoppler.so.64
   - sudo apt-get install poppler-utils libpoppler-qt5-dev mysql-client
