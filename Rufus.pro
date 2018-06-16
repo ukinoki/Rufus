@@ -28,7 +28,7 @@ TARGET = /home/serge/RufusApp
 
 TEMPLATE = app
 
-unix {
+linux-g++ {
     isEmpty(PREFIX) {
         PREFIX = /usr/local
     }
