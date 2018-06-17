@@ -308,6 +308,7 @@ QList<Site*> DataBase::loadSites(QString req)
 */
 Villes* DataBase::loadAllVilles()
 {
+    QDateTime startDT = QDateTime::currentDateTime();
     Villes *villes = new Villes();
 
     QString req = "select ville_id, codePostal, ville "
@@ -315,7 +316,7 @@ Villes* DataBase::loadAllVilles()
     QSqlQuery query(req, getDataBase() );
     if( traiteErreurRequete(query, req) || !query.first())
         return villes;
-
+    qDebug() << "nb ville in base : " << QString::number(query.size());
     do//TODO : chercher solution, lent en débugger (~36000 enregistrement)
     {
         QJsonObject jEtab{};
@@ -326,6 +327,8 @@ Villes* DataBase::loadAllVilles()
         villes->addVille(ville);
     } while( query.next() );
 
+    QDateTime endDT = QDateTime::currentDateTime();
+    qDebug("Duree traitement ville : %d sec", startDT.msecsTo(endDT));
     return villes;
 }
 

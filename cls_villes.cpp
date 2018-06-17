@@ -61,27 +61,34 @@ Villes::Villes()
 
 void Villes::addVille(Ville *ville)
 {
+    /*
     if( m_villes.contains(ville->id()) )
         return;
-
-    m_villes.insert(ville->id(), ville);
+    */
+    m_villes.insert(ville->nom(), ville);
     m_codePostal.insert(ville->codePostal(), ville);
-
-    if( !m_listeNomVilles.contains(ville->nom()) )
-        m_listeNomVilles.append(ville->nom());
-
-    QString strCP = ville->codePostal();
-    if( !m_listeCodePostal.contains(strCP) )
-        m_listeCodePostal.append(strCP);
 }
 
-QStringList Villes::getListVilles() const { return m_listeNomVilles; }
-QStringList Villes::getListCodePostal() const { return m_listeCodePostal; }
+QStringList Villes::getListVilles()
+{
+   if( m_listeNomVilles.isEmpty() )
+        m_listeNomVilles = QStringList(m_villes.uniqueKeys());
+
+    return m_listeNomVilles;
+}
+QStringList Villes::getListCodePostal()
+{
+    if( m_listeCodePostal.isEmpty() )
+        m_listeCodePostal = QStringList(m_codePostal.uniqueKeys());
+
+    return m_listeCodePostal;
+}
 
 QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegrite)
 {
+    QMap<QString, Ville*>::const_iterator it = m_codePostal.find( codePostal );
     QJsonObject error{};
-    if( testIntegrite && !m_listeCodePostal.contains(codePostal) )
+    if( testIntegrite && (it == m_codePostal.constEnd()) )
     {
         error["errorCode"] = 1;
         error["errorMessage"] = QObject::tr("Code postal inconnu");
@@ -89,7 +96,6 @@ QList<Ville *> Villes::getVilleByCodePostal(QString codePostal, bool testIntegri
     }
 
     QList<Ville *> listV;
-    QMap<QString, Ville*>::const_iterator it = m_codePostal.find( codePostal );
     while( it != m_codePostal.end() && it.key() == codePostal)
     {
         listV << it.value();
@@ -109,7 +115,7 @@ QList<Ville *> Villes::getVilleByName(QString name)
 {
     QList<Ville *> listV;
     QList<Ville *> listVStartWith;
-    QMap<int, Ville*>::const_iterator it = m_villes.constBegin();
+    QMap<QString, Ville*>::const_iterator it = m_villes.constBegin();
     while( it != m_villes.constEnd() )
     {
         if( it.value()->nom() == name )
@@ -137,7 +143,6 @@ QList<Ville *> Villes::getVilleByCodePostalEtNom(QString codePostal, QString nam
         throw error;
     }
     */
-
 
     QMap<QString, Ville*>::const_iterator it = m_codePostal.find( codePostal );
     while( it != m_codePostal.end() && it.key() == codePostal)

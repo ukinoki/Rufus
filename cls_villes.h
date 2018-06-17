@@ -50,7 +50,7 @@ private:
 class Villes
 {
 private:
-    QMap<int, Ville*> m_villes;                 //!< la liste des villes par id
+    QMultiMap<QString, Ville*> m_villes;        //!< la liste des villes par nom
     QMultiMap<QString, Ville*> m_codePostal;    //!< la liste des villes par codePostal
     QStringList m_listeNomVilles;               //!< la liste de nom de ville
     QStringList m_listeCodePostal;              //!< la liste des codes postaux
@@ -60,8 +60,8 @@ public:
 
     void addVille(Ville *ville);
 
-    QStringList getListVilles() const;
-    QStringList getListCodePostal() const;
+    QStringList getListVilles();
+    QStringList getListCodePostal();
 
     QList<Ville *> getVilleByCodePostal(QString codePostal, bool testIntegrite = true);
     QList<Ville *> getVilleByName(QString name);
