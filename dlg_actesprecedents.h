@@ -20,6 +20,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMessageBox>
 #include "procedures.h"
+#include <QWheelEvent>
 
 /* La fiche dlg_actesprecednets présente les actes d'un patient dans une fiche dans laquelle aucun champ ne peut être modifié.
  * Elle sert à consulter simplement les actes effectués sur un patient
@@ -55,6 +56,8 @@ public:
     int                     getActeAffiche();
 
 private:
+    void                    wheelEvent(QWheelEvent *event);
+    void                    keyPressEvent(QKeyEvent *keyEvent);
     Ui::dlg_actesprecedents *ui;
     Procedures              *proc;
     int                     position;
