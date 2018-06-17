@@ -35,12 +35,12 @@ linux-g++ {
 
     target.path = $$PREFIX/bin
 
-    shortcutfiles.files = misc/Rufus.desktop
+    shortcutfiles.files = misc/rufus.desktop
     shortcutfiles.path = $$PREFIX/share/applications/
-    data.files += misc/Rufus.xpm
+    data.files += misc/rufus.xpm
     data.path = $$PREFIX/share/pixmaps/
     desktop.path = $$PREFIX/share/applications/
-    desktop.files += Rufus.desktop
+    desktop.files += rufus.desktop
     icon512.path = $$PREFIX/share/icons/hicolor/512x512/apps
     icon512.files += Images/Sunglasses.png
 
