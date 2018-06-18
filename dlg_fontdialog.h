@@ -36,7 +36,6 @@ public:
 
 private slots:
     void                Slot_Redessinelabel(QTreeWidgetItem*);
-    void                SlotChangeItem(QTreeWidgetItem*);
     void                Slot_FermeFiche();
 
 private:

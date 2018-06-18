@@ -51,18 +51,18 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     widgButtonsDossiers ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
     // Initialisation des slots.
-    connect (ui->ChercheupLineEdit,             SIGNAL(textEdited(QString)),                        this,   SLOT (Slot_FiltreListe(QString)));
-    connect (ui->OKupPushButton,                SIGNAL(clicked()),                                  this,   SLOT (Slot_Validation()));
-    connect (ui->AnnulupPushButton,             &QPushButton::clicked, [=] {Annulation();});
-    connect (ui->DocPubliccheckBox,             SIGNAL(clicked(bool)),                              this,   SLOT (Slot_CheckPublicEditable()));
-    connect (ui->DocEditcheckBox,               SIGNAL(clicked(bool)),                              this,   SLOT (Slot_CheckPublicEditable()));
-    connect (ui->PrescriptioncheckBox,          SIGNAL(clicked(bool)),                              this,   SLOT (Slot_EnableOKPushButton()));
-    connect (ui->upTextEdit,                    SIGNAL(customContextMenuRequested(QPoint)),         this,   SLOT (Slot_MenuContextuel(QPoint)));
-    connect (ui->upTextEdit,                    SIGNAL(textChanged()),                              this,   SLOT (Slot_EnableOKPushButton()));
-    connect (ui->upTextEdit,                    SIGNAL(dblclick(int)),                              this,   SLOT (Slot_dblClicktextEdit()));
-    connect (ui->DupliOrdocheckBox,             SIGNAL(clicked(bool)),                              this,   SLOT (Slot_OrdoAvecDupli(bool)));
-    connect(widgButtonsDocs,                    &WidgetButtonFrame::choix,  [=] {ChoixButtonFrame(widgButtonsDocs->Reponse(), widgButtonsDocs);});
-    connect(widgButtonsDossiers,                &WidgetButtonFrame::choix,  [=] {ChoixButtonFrame(widgButtonsDossiers->Reponse(), widgButtonsDossiers);});
+    connect (ui->ChercheupLineEdit,             &QLineEdit::textEdited,                 [=] {FiltreListe(ui->ChercheupLineEdit->text());});
+    connect (ui->OKupPushButton,                &QPushButton::clicked,                  [=] {Validation();});
+    connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  [=] {Annulation();});
+    connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    [=] {CheckPublicEditable(ui->DocPubliccheckBox);});
+    connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    [=] {CheckPublicEditable(ui->DocEditcheckBox);});
+    connect (ui->PrescriptioncheckBox,          &QPushButton::clicked,                  [=] {EnableOKPushButton();});
+    connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   [=] {MenuContextuel(ui->upTextEdit);});
+    connect (ui->upTextEdit,                    &QTextEdit::textChanged,                [=] {EnableOKPushButton();});
+    connect (ui->upTextEdit,                    &UpTextEdit::dblclick,                  [=] {dblClicktextEdit();});
+    connect (ui->DupliOrdocheckBox,             &QCheckBox::clicked,                    [=] {OrdoAvecDupli(ui->DupliOrdocheckBox->isChecked());});
+    connect (widgButtonsDocs,                   &WidgetButtonFrame::choix,              [=] {ChoixButtonFrame(widgButtonsDocs->Reponse(), widgButtonsDocs);});
+    connect (widgButtonsDossiers,               &WidgetButtonFrame::choix,              [=] {ChoixButtonFrame(widgButtonsDossiers->Reponse(), widgButtonsDossiers);});
 
     // Mise en forme de la table Documents
     ui->DocupTableWidget->setPalette(QPalette(Qt::white));
@@ -152,7 +152,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui->DocupTableWidget->installEventFilter(this);
     ui->DossiersupTableWidget->installEventFilter(this);
     gOp             = new QGraphicsOpacityEffect();
-    gTimerEfface    = new QTimer;
+    gTimerEfface    = new QTimer(this);
 
     QString ALDrequete = "select idPat from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(gidPatient) + " and PatALD = 1";
     QSqlQuery ALDQuery (ALDrequete,db);
@@ -311,7 +311,7 @@ void dlg_documents::ChoixButtonFrame(int j, WidgetButtonFrame *widgbutt)
     }
 }
 
-void dlg_documents::Slot_CheckPublicEditable()
+void dlg_documents::CheckPublicEditable(QCheckBox *check)
 {
     UpLineEdit *line;
     bool a = false;
@@ -320,7 +320,7 @@ void dlg_documents::Slot_CheckPublicEditable()
         if (line->isEnabled()) {a = true; break;}
     }
     if (!a) return;
-    UpCheckBox *check = static_cast<UpCheckBox*>(sender());
+
     int b(-1), c(-1);
     if (check == ui->DocPubliccheckBox) {
         b = 4;
@@ -342,7 +342,7 @@ void dlg_documents::Slot_CheckPublicEditable()
     }
 }
 
-void dlg_documents::Slot_dblClicktextEdit()
+void dlg_documents::dblClicktextEdit()
 {
     if (gMode == Selection)
     {
@@ -366,12 +366,11 @@ void dlg_documents::Slot_dblClicktextEdit()
 // ----------------------------------------------------------------------------------
 // On entre sur une ligne de comm. On affiche le tooltip
 // ----------------------------------------------------------------------------------
-void dlg_documents::Slot_DocCellEnter(int row)
+void dlg_documents::DocCellEnter(UpLineEdit *line)
 {
     QPoint pos = cursor().pos();
     QRect rect = QRect(pos,QSize(10,10));
-    UpLineEdit *line = dynamic_cast<UpLineEdit*>(sender());
-    if (!line) return;
+    int row = line->getRowTable();
 
     if (ui->DocupTableWidget->isAncestorOf(line))
     {
@@ -464,34 +463,29 @@ void dlg_documents::Slot_DocCellEnter(int row)
 // ----------------------------------------------------------------------------------
 // On clique une ligne de com. On affiche le détail et on met en édition
 // ----------------------------------------------------------------------------------
-void dlg_documents::Slot_DocCellClick(int row)
+void dlg_documents::DocCellClick(UpLineEdit *line)
 {
-    UpLineEdit *line        = dynamic_cast<UpLineEdit*>(sender());
-    if (!line) return;
     if (ui->DocupTableWidget->isAncestorOf(line))
-        LineSelect(ui->DocupTableWidget, row);
+        LineSelect(ui->DocupTableWidget, line->getRowTable());
     if (ui->DossiersupTableWidget->isAncestorOf(line))
-        LineSelect(ui->DossiersupTableWidget, row);
+        LineSelect(ui->DossiersupTableWidget, line->getRowTable());
 }
 
 // ----------------------------------------------------------------------------------
 // On a cliqué une ligne. On affiche le détail
 // ----------------------------------------------------------------------------------
-void dlg_documents::Slot_DocCellDblClick(int row)
+void dlg_documents::DocCellDblClick(UpLineEdit *line)
 {
-    if (gMode != Selection) return;
-    UpLineEdit *line = dynamic_cast<UpLineEdit*>(sender());
-    if (!line) return;
     if (ui->DocupTableWidget->isAncestorOf(line))
-        ConfigMode(ModificationDOC, row);
+        ConfigMode(ModificationDOC, line->getRowTable());
     else if (ui->DossiersupTableWidget->isAncestorOf(line))
-        ConfigMode(ModificationDOSS, row);
+        ConfigMode(ModificationDOSS, line->getRowTable());
 }
 
 // ----------------------------------------------------------------------------------
 // Efface Widget progressivement
 // ----------------------------------------------------------------------------------
-void dlg_documents::Slot_EffaceWidget()
+void dlg_documents::EffaceWidget()
 {
     QRect rect = QRect(gWidg->pos(),gWidg->size());
     QPoint pos = mapFromParent(cursor().pos());
@@ -504,7 +498,7 @@ void dlg_documents::Slot_EffaceWidget()
         gWidg->setGraphicsEffect(gOp);
         if (gOpacity < 0.10)
         {
-            disconnect(gTimerEfface, SIGNAL(timeout()), this, SLOT(Slot_EffaceWidget()));
+            disconnect(gTimerEfface, 0,0,0);
             gTimerEfface->stop();
             gWidg = 0;
         }
@@ -520,7 +514,7 @@ void dlg_documents::Slot_EffaceWidget()
 // ----------------------------------------------------------------------------------
 // Enable OKpushbutton
 // ----------------------------------------------------------------------------------
-void dlg_documents::Slot_EnableOKPushButton()
+void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
 {
     if (gMode == CreationDOC || gMode == ModificationDOC)
     {
@@ -581,8 +575,7 @@ void dlg_documents::Slot_EnableOKPushButton()
     }
     else if (gMode == Selection)
     {
-        UpCheckBox* Check = dynamic_cast<UpCheckBox*>(sender());
-        if (Check)
+        if (Check != Q_NULLPTR)
         {
             if (ui->DossiersupTableWidget->isAncestorOf(Check))
             {
@@ -637,7 +630,7 @@ void dlg_documents::Slot_EnableOKPushButton()
     }
 }
 
-void dlg_documents::Slot_FiltreListe(QString)
+void dlg_documents::FiltreListe(QString)
 {
     Remplir_TableView();
     EnableLines();
@@ -661,7 +654,7 @@ void dlg_documents::Slot_FiltreListe(QString)
         dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(0,1))->selectAll();
 }
 
-void dlg_documents::Slot_MenuContextuel(QPoint)
+void dlg_documents::MenuContextuel(QWidget *widg)
 {
     gmenuContextuel = new QMenu(this);
     QAction *pAction_ModifDossier       = 0;
@@ -695,7 +688,7 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
     QMenu *interro                      = 0;
     UpLabel *lbl                        = 0;
     UpLineEdit *line0                   = 0;
-    UpLineEdit *line = dynamic_cast<UpLineEdit*>(sender());
+    UpLineEdit *line = dynamic_cast<UpLineEdit*>(widg);
 
     if (line)
     {
@@ -767,7 +760,7 @@ void dlg_documents::Slot_MenuContextuel(QPoint)
             connect (pAction_ModifDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierDoc");});
         }
     }
-    else if (sender() == ui->upTextEdit)
+    else if (widg == ui->upTextEdit)
     {
         pAction_InsertChamp         = gmenuContextuel->addAction    (Icons::icAjouter(), tr("Insérer un champ"));
         interro                     = gmenuContextuel->addMenu      (Icons::icAjouter(), tr("Insérer une interrogation"));
@@ -1166,10 +1159,9 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         ListChamps->setModal(true);
         ListChamps->move(QPoint(x()+width()/2,y()+height()/2));
 
-        connect(ListChamps->OKButton,   SIGNAL(clicked(bool)),  ListChamps, SLOT(accept()));
-        ListChamps->setFixedWidth(tabChamps->width()
-                              + globallayout->contentsMargins().left()*2);
-        connect(tabChamps,  SIGNAL(cellDoubleClicked(int,int)), ListChamps, SLOT(accept()));
+        connect(ListChamps->OKButton,   &QPushButton::clicked,          [=] {ListChamps->accept();});
+        ListChamps->setFixedWidth(tabChamps->width() + globallayout->contentsMargins().left()*2);
+        connect(tabChamps,              &QTableWidget::doubleClicked,   [=] {ListChamps->accept();});
         globallayout->setSizeConstraint(QLayout::SetFixedSize);
 
         if (ListChamps->exec()>0)   {
@@ -1218,7 +1210,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
 // Clic sur le bouton OK.
 // L'action depend de ce qu'on est en train de faire (creation modife, selection)
 // ----------------------------------------------------------------------------------
-void dlg_documents::Slot_Validation()
+void dlg_documents::Validation()
 {
     UpLineEdit *line = new UpLineEdit();
     int         c = 0;
@@ -1428,7 +1420,7 @@ void dlg_documents::Slot_Validation()
 
             gAsk->AjouteLayButtons();
             globallay->setSizeConstraint(QLayout::SetFixedSize);
-            connect(gAsk->OKButton,     SIGNAL(clicked(bool)),  this,   SLOT(Slot_VerifCoherencegAsk()));
+            connect(gAsk->OKButton,     &QPushButton::clicked,   [=] {VerifCoherencegAsk();});
 
             if (gAsk->exec() == 0)
             {
@@ -1569,7 +1561,7 @@ void dlg_documents::Slot_Validation()
     }
 }
 
-void dlg_documents::Slot_OrdoAvecDupli(bool a)
+void dlg_documents::OrdoAvecDupli(bool a)
 {
     proc->gsettingsIni->setValue("Param_Imprimante/OrdoAvecDupli",(a? "YES" : "NO"));
 }
@@ -1578,7 +1570,7 @@ void dlg_documents::Slot_OrdoAvecDupli(bool a)
 /* ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Vérifie que les champs sont remplis avant la fermeture de gAsk ------------------------------------------------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_documents::Slot_VerifCoherencegAsk()
+void dlg_documents::VerifCoherencegAsk()
 {
     QList<UpLineEdit*> listUpline = gAsk->findChildren<UpLineEdit*>();
     bool a = true;
@@ -1780,7 +1772,7 @@ int dlg_documents::AskDialog(QString titre)
     gAskDialog->setWindowTitle(titre);
     gAskDialog->AjouteLayButtons();
 
-    connect(gAskDialog->OKButton,   SIGNAL(clicked(bool)),  gAskDialog, SLOT(accept()));
+    connect(gAskDialog->OKButton,   &QPushButton::clicked,   [=] {gAskDialog->accept();});
 
     label->setText(tr("Entrez la question que vous voulez poser."));
     Line->setValidator(new QRegExpValidator(proc->getrxAdresse(),this));
@@ -1954,7 +1946,7 @@ void dlg_documents::ConfigMode(int mode, int row)
 
     gOpacity = 0.1;
     if (gMode != Selection) {
-        disconnect(gTimerEfface, SIGNAL(timeout()), this, SLOT(Slot_EffaceWidget()));
+        disconnect(gTimerEfface, 0,0,0);
         gTimerEfface->stop();
         gOpacity = 1;
     }
@@ -2018,7 +2010,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         line->setFocusPolicy(Qt::WheelFocus);
         line->setFocus();
         line->selectAll();
-        connect(line,            SIGNAL(textEdited(QString)),                this,   SLOT(Slot_EnableOKPushButton()));
+        connect(line,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
 
         ui->upTextEdit->setText(ui->DocupTableWidget->item(row,2)->text());
 
@@ -2051,7 +2043,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         line->setFocusPolicy(Qt::WheelFocus);
         line->setFocus();
         line->selectAll();
-        connect(line,            SIGNAL(textEdited(QString)),                this,   SLOT(Slot_EnableOKPushButton()));
+        connect(line,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
             QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
@@ -2145,7 +2137,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
         lbl1->setAlignment(Qt::AlignCenter);
         ui->DocupTableWidget->setCellWidget(row,col,lbl1);
-        connect(upLine0,            SIGNAL(textEdited(QString)),                this,   SLOT(Slot_EnableOKPushButton()));
+        connect(upLine0,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
         ui->DocupTableWidget->setRowHeight(row,QFontMetrics(qApp->font()).height()*1.3);
 
         ui->DocPubliccheckBox->setChecked(false);
@@ -2237,7 +2229,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         ui->DossiersupTableWidget->setCellWidget(row,col,lbl);
-        connect(upLine0,            SIGNAL(textEdited(QString)),                this,   SLOT(Slot_EnableOKPushButton()));
+        connect(upLine0,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
 
         ui->DossiersupTableWidget->setRowHeight(row,QFontMetrics(qApp->font()).height()*1.3);
 
@@ -2254,8 +2246,6 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->OKupPushButton->setText(tr("Enregistrer\nle document"));
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
-
-        disconnect (ui->DossiersupTableWidget,  SIGNAL(itemSelectionChanged()), 0, 0);
    }
 }
 
@@ -2279,11 +2269,7 @@ void dlg_documents::DisableLines()
             line0->deselect();
             line0->setEnabled(false);
             line0->setFocusPolicy(Qt::NoFocus);
-            disconnect(line0,            SIGNAL(mouseDoubleClick(int)),                 0, 0);
-            disconnect(line0,            SIGNAL(mouseEnter(int)),                       0, 0);
-            disconnect(line0,            SIGNAL(mouseRelease(int)),                     0, 0);
-            disconnect(line0,            SIGNAL(textEdited(QString)),                   0, 0);
-            disconnect(line0,            SIGNAL(customContextMenuRequested(QPoint)),    0, 0);
+            disconnect(line0,  0, 0, 0);
         }
     }
     for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
@@ -2299,11 +2285,7 @@ void dlg_documents::DisableLines()
             line0->deselect();
             line0->setEnabled(false);
             line0->setFocusPolicy(Qt::NoFocus);
-            disconnect(line0,            SIGNAL(mouseDoubleClick(int)),                 0, 0);
-            disconnect(line0,            SIGNAL(mouseEnter(int)),                       0, 0);
-            disconnect(line0,            SIGNAL(mouseRelease(int)),                     0, 0);
-            disconnect(line0,            SIGNAL(textEdited(QString)),                   0, 0);
-            disconnect(line0,            SIGNAL(customContextMenuRequested(QPoint)),    0, 0);
+            disconnect(line0,  0, 0, 0);
         }
     }
 }
@@ -2330,12 +2312,12 @@ void dlg_documents::EnableLines()
             line0->setFocusPolicy(Qt::NoFocus);
             if (ui->DocupTableWidget->item(i,5)->text().toInt() == gidUser)
             {
-                connect(line0,            SIGNAL(mouseDoubleClick(int)),              this,   SLOT(Slot_DocCellDblClick(int)));
-                connect(line0,            SIGNAL(customContextMenuRequested(QPoint)), this,   SLOT(Slot_MenuContextuel(QPoint)));
-                connect(line0,            SIGNAL(textEdited(QString)),                this,   SLOT(Slot_EnableOKPushButton()));
+                connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
+                connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
+                connect(line0,          &QLineEdit::textEdited,                 [=] {EnableOKPushButton();});
             }
-            connect(line0,                SIGNAL(mouseEnter(int)),                    this,   SLOT(Slot_DocCellEnter(int)));
-            connect(line0,                SIGNAL(mouseRelease(int)),                  this,   SLOT(Slot_DocCellClick(int)));
+            connect(line0,              &UpLineEdit::mouseEnter,                [=] {DocCellEnter(line0);});
+            connect(line0,              &UpLineEdit::mouseRelease,              [=] {DocCellClick(line0);});
         }
     }
     for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
@@ -2353,12 +2335,12 @@ void dlg_documents::EnableLines()
             line0->setFocusPolicy(Qt::NoFocus);
             if (ui->DossiersupTableWidget->item(i,3)->text().toInt() == gidUser)
             {
-                connect(line0,            SIGNAL(mouseDoubleClick(int)),              this,   SLOT(Slot_DocCellDblClick(int)));
-                connect(line0,            SIGNAL(customContextMenuRequested(QPoint)), this,   SLOT(Slot_MenuContextuel(QPoint)));
-                connect(line0,            SIGNAL(textEdited(QString)),                this,   SLOT(Slot_EnableOKPushButton()));
+                connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
+                connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
+                connect(line0,          &QLineEdit::textEdited,                 [=] {EnableOKPushButton();});
             }
-            connect(line0,                SIGNAL(mouseEnter(int)),                    this,   SLOT(Slot_DocCellEnter(int)));
-            connect(line0,                SIGNAL(mouseRelease(int)),                  this,   SLOT(Slot_DocCellClick(int)));
+            connect(line0,              &UpLineEdit::mouseEnter,                [=] {DocCellEnter(line0);});
+            connect(line0,              &UpLineEdit::mouseRelease,              [=] {DocCellClick(line0);});
         }
     }
 }
@@ -2374,9 +2356,9 @@ void dlg_documents::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
     gWidg->setVisible(true);
     gWidg->setAutoFillBackground(true);
     gTimerEfface->stop();
-    disconnect(gTimerEfface, SIGNAL(timeout()), this, SLOT(Slot_EffaceWidget()));
+    disconnect(gTimerEfface, 0,0,0);
     gTimerEfface->start(70);
-    connect(gTimerEfface, SIGNAL(timeout()), this, SLOT(Slot_EffaceWidget()));
+    connect(gTimerEfface, &QTimer::timeout, [=] {EffaceWidget();});
 }
 
 // ----------------------------------------------------------------------------------
@@ -2899,12 +2881,12 @@ void dlg_documents::ChoixCorrespondant(QSqlQuery quer)
     gAskCorresp ->setModal(true);
     globallay   ->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(gAskCorresp->OKButton,   SIGNAL(clicked(bool)),  this, SLOT(Slot_ListidCor()));
+    connect(gAskCorresp->OKButton,   &QPushButton::clicked, [=] {ListidCor();});
 
     gAskCorresp ->exec();
 }
 
-void dlg_documents::Slot_ListidCor()
+void dlg_documents::ListidCor()
 {
     QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(gAskCorresp->findChildren<QTableView *>().at(0)->model());
     for (int i=0; i< model->rowCount(); i++)
@@ -2938,11 +2920,7 @@ void dlg_documents::Remplir_TableView()
     {
         upLine0 = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
         if (upLine0){
-            disconnect(upLine0,         SIGNAL(mouseEnter(int)),                        0, 0);
-            disconnect(upLine0,         SIGNAL(mouseRelease(int)),                      0, 0);
-            disconnect(upLine0,         SIGNAL(mouseDoubleClick(int)),                  0, 0);
-            disconnect(upLine0,         SIGNAL(customContextMenuRequested(QPoint)),     0, 0);
-            disconnect(upLine0,         SIGNAL(textEdited(QString)),                    0, 0);
+            disconnect(upLine0, 0,0, 0);
         }
     }
 
@@ -2979,7 +2957,7 @@ void dlg_documents::Remplir_TableView()
         Check->setCheckState(Qt::Unchecked);
         Check->setRowTable(i);
         Check->setFocusPolicy(Qt::NoFocus);
-        connect(Check,              SIGNAL (clicked(bool)),                 this, SLOT (Slot_EnableOKPushButton()));
+        connect(Check, &QCheckBox::clicked,[=] {EnableOKPushButton(Check);});
         QHBoxLayout *l = new QHBoxLayout();
         l->setAlignment( Qt::AlignCenter );
         l->addWidget(Check);
@@ -3046,11 +3024,7 @@ void dlg_documents::Remplir_TableView()
     {
         upLine0 = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
         if (upLine0){
-            disconnect(upLine0,         SIGNAL(mouseEnter(int)),                        0, 0);
-            disconnect(upLine0,         SIGNAL(mouseRelease(int)),                      0, 0);
-            disconnect(upLine0,         SIGNAL(mouseDoubleClick(int)),                  0, 0);
-            disconnect(upLine0,         SIGNAL(customContextMenuRequested(QPoint)),     0, 0);
-            disconnect(upLine0,         SIGNAL(textEdited(QString)),                    0, 0);
+            disconnect(upLine0, 0, 0, 0);
         }
     }
     ui->DossiersupTableWidget->clearContents();
@@ -3090,7 +3064,7 @@ void dlg_documents::Remplir_TableView()
         Check->setCheckState(Qt::Unchecked);
         Check->setRowTable(i);
         Check->setFocusPolicy(Qt::NoFocus);
-        connect(Check,      SIGNAL (clicked(bool)),      this,       SLOT (Slot_EnableOKPushButton()));
+        connect(Check, &QCheckBox::clicked,[=] {EnableOKPushButton(Check);});
         QHBoxLayout *l = new QHBoxLayout();
         l->setAlignment( Qt::AlignCenter );
         l->addWidget(Check);

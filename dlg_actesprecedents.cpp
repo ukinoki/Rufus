@@ -25,7 +25,7 @@ dlg_actesprecedents::dlg_actesprecedents(int idPatient, int idActeAPasser, Proce
 ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
     gidPatient      = idPatient;
     gidActe         = idActeAPasser;
     proc            = procAPAsser;
@@ -109,12 +109,12 @@ void dlg_actesprecedents::wheelEvent(QWheelEvent *event)
 {
     int pas = 10;
     int deplacemtsouris = event->angleDelta().y();
-    //pas = pas + pas/deplacemtsouris;
+    //pas = pas + pas/deplacemtsouris;  // tentative de gérer l'accélération
     if (deplacemtsouris!=0 && fabs(deplacemtsouris)<pas)
         deplacemtsouris = pas*(fabs(deplacemtsouris)/deplacemtsouris);
-    int destination = ui->ScrollBar->value() + deplacemtsouris/pas;
+    int destination = ui->ScrollBar->value() - deplacemtsouris/pas;
     if (destination < ui->ScrollBar->minimum() || destination > ui->ScrollBar->maximum())
-        (event->angleDelta().y() >= 0? ActesPrecsAfficheActe(listactes.last()) : ActesPrecsAfficheActe(listactes.first()));
+        (event->angleDelta().y() <= 0? ActesPrecsAfficheActe(listactes.last()) : ActesPrecsAfficheActe(listactes.first()));
     else
         ActesPrecsAfficheActe(listactes.at(destination));
 }

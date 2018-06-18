@@ -344,10 +344,9 @@ void dlg_depenses::ChoixPaiement()
 
 void dlg_depenses::ConvertitDoubleMontant()
 {
-    QLineEdit * Emetteur = qobject_cast<QLineEdit*> (sender());
-    QString b = Emetteur->text();
+    QString b = ui->MontantlineEdit->text();
     b = QLocale().toString(QLocale().toDouble(b),'f',2);
-    Emetteur->setText(b);
+    ui->MontantlineEdit->setText(b);
 }
 
 void dlg_depenses::EnableModifiepushButton()

@@ -45,21 +45,6 @@ public:
     QStringList                 glistid;
     int                         gidUserEntete;
 
-private slots:
-    void                        Slot_CheckPublicEditable();
-    void                        Slot_dblClicktextEdit();
-    void                        Slot_DocCellClick(int row);
-    void                        Slot_DocCellDblClick(int row);
-    void                        Slot_DocCellEnter(int row);
-    void                        Slot_EffaceWidget();
-    void                        Slot_EnableOKPushButton();
-    void                        Slot_FiltreListe(QString);
-    void                        Slot_ListidCor();
-    void                        Slot_MenuContextuel(QPoint);
-    void                        Slot_OrdoAvecDupli(bool);
-    void                        Slot_Validation();
-    void                        Slot_VerifCoherencegAsk();
-
 protected:
     void                        changeEvent(QEvent *e);
     bool                        event(QEvent *event);
@@ -95,23 +80,36 @@ private:
     void                        ChoixButtonFrame(int, WidgetButtonFrame *);
     void                        ChoixMenuContextuel(QString);
     int                         AskDialog(QString titre);
+    void                        CheckPublicEditable(QCheckBox *check);
     bool                        ChercheDoublon(QString, int row);
     void                        ChoixCorrespondant(QSqlQuery);
     void                        CocheLesDocs(int iddoss, bool A);
     void                        ConfigMode(int mode, int row = 0);
+    void                        dblClicktextEdit();
     void                        DisableLines();
+    void                        DocCellClick(UpLineEdit *line);
+    void                        DocCellDblClick(UpLineEdit *line);
+    void                        DocCellEnter(UpLineEdit *line);
+    void                        EffaceWidget();
     void                        EnableLines();
+    void                        EnableOKPushButton(UpCheckBox *Check = Q_NULLPTR);
     void                        EffaceWidget(QWidget* widg, bool AvecOuSansPause = true);
+    void                        FiltreListe(QString);
     void                        InsertDocument(int row);
     void                        InsertDossier(int row);
     void                        LineSelect(UpTableWidget *table, int row);
+    void                        ListidCor();
+    void                        MenuContextuel(QWidget *widg);
     void                        MetAJour(QString texte, bool pourVisu = true);
+    void                        OrdoAvecDupli(bool);
     void                        Remplir_TableView();
     void                        SupprimmDocument(int row);
     void                        SupprimmDossier(int row);
     void                        TriDocupTableWidget();
     void                        UpdateDocument(int row);
     void                        UpdateDossier(int row);
+    void                        Validation();
+    void                        VerifCoherencegAsk();
     bool                        VerifDocumentPublic(int row, bool msg = true);
     void                        VerifDossiers();
     bool                        VerifDossierPublic(int row, bool msg = true);
