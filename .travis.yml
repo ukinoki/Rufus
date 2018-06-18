@@ -14,7 +14,7 @@ install:
   - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
   - source /opt/qt*/bin/qt*-env.sh
   - sudo apt-get install g++ autoconf libfontconfig1-dev pkg-config libjpeg-dev cmake gnome-common libglib2.0-dev gtk-doc-tools libyelp-dev yelp-tools gobject-introspection libsecret-1-dev libnautilus-extension-dev
-  - sudo apt-get install poppler-utils libopenjpeg-dev libpoppler-dev libpoppler-qt5-dev mysql-client libfreetype6 libfontconfig1 libjpeg8 libpoppler-glib-dev libtiff5 liblcms2-2 libcairo2
+  - sudo apt-get install poppler-utils libopenjpeg-dev libpoppler-dev libpoppler-qt5-dev libfreetype6 libfontconfig1 libjpeg8 libpoppler-glib-dev libtiff5 liblcms2-2 libcairo2
   - wget https://poppler.freedesktop.org/poppler-data-0.4.8.tar.gz
   - tar -xf poppler-data-0.4.8.tar.gz
   - cd poppler-data-0.4.8
@@ -29,9 +29,11 @@ install:
   - sudo apt-get install poppler-utils poppler-data libpoppler-dev libpoppler-qt5-dev mysql-client libfreetype6 libfontconfig1 libjpeg8 libpoppler-glib-dev libtiff5 liblcms2-2 libcairo2
   - sudo ln -s /usr/local/lib/libpoppler.so.64 /usr/lib/libpoppler.so.64
   - mkdir appdir
+  - cd ..
+  - cp ./Rufus.AppDir/rufus.desktop ./appdir
+  - cp ./Rufus.AppDir/Sunglasses.png ./appdir
 
 script:
-  - qmake CONFIG+=release PREFIX=/usr
   - make -j$(nproc)
   - make INSTALL_ROOT=appdir -j$(nproc) install ; find appdir/
   - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
@@ -44,7 +46,7 @@ script:
 
 after_success:
   - find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
-  - # curl --upload-file Rufus.AppImage https://transfer.sh/Rufus-git.$(git rev-parse --short HEAD)-x86_64.AppImage
+  - curl --upload-file Rufus.AppImage https://transfer.sh/Rufus-git.$(git rev-parse --short HEAD)-x86_64.AppImage
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
   - bash upload.sh Rufus.AppImage*
 
