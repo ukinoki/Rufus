@@ -29,8 +29,6 @@ install:
   - sudo apt-get install poppler-utils poppler-data libpoppler-dev libpoppler-qt5-dev mysql-client libfreetype6 libfontconfig1 libjpeg8 libpoppler-glib-dev libtiff5 liblcms2-2 libcairo2
   - sudo ln -s /usr/local/lib/libpoppler.so.64 /usr/lib/libpoppler.so.64
   - mkdir appdir
-  - cp ./Rufus.AppDir/rufus.desktop ./appdir
-  - cp ./Rufus.AppDir/Sunglasses.png ./appdir
 
 script:
   - make
