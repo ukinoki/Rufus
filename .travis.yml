@@ -37,7 +37,7 @@ script:
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
   - unset LD_LIBRARY_PATH
   - export VERSION=$(git rev-parse --short HEAD)
-  - ./linuxdeployqt-continuous-x86_64.AppImage ./appdir/rufus -appimage -verbose=2
+  - ./linuxdeployqt-continuous-x86_64.AppImage /home/travis/build/ukinoki/Rufus/rufus -appimage -verbose=2
 
 after_success:
   - find appdir -executable -type f -exec ldd {} \; | grep " => /usr" | cut -d " " -f 2-3 | sort | uniq
