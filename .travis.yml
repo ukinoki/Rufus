@@ -18,12 +18,7 @@ install:
   - sudo apt-get install poppler-utils poppler-data libopenjpeg-dev libpoppler-dev libpoppler-qt5-dev libfreetype6 libfontconfig1 libjpeg8 libpoppler-glib-dev libtiff5 liblcms2-2 libcairo2 libopenjp2-7-dev
   - wget https://poppler.freedesktop.org/poppler-0.62.0.tar.xz
   - tar -xf poppler-0.62.0.tar.xz
-  - cd poppler-0.62.0
-  - mkdir build
-  - cd build
-  - cmake ..
-  - cd ..
-  - cd ..
+  - pushd poppler-0.62.0 && cmake -DCMAKE_INSTALL_PREFIX=/usr && make && sudo make install && popd
 
 script:
   - qmake CONFIG+=release PREFIX=/usr
