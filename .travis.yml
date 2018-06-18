@@ -20,9 +20,9 @@ install:
   - cd poppler-data-0.4.8
   - sudo make install
   - cd ..
-  - wget https://poppler.freedesktop.org/poppler-0.60.0.tar.xz
-  - tar -xf poppler-0.60.0.tar.xz
-  - cd poppler-0.60.0
+  - wget https://poppler.freedesktop.org/poppler-0.59.0.tar.xz
+  - tar -xf poppler-0.59.0.tar.xz
+  - cd poppler-0.59.0
   - ./configure --enable-poppler-glib
   - make
   - sudo make install
