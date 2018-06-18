@@ -20,9 +20,9 @@ install:
   - cd poppler-data-0.4.8
   - sudo make install
   - cd ..
-  - wget https://poppler.freedesktop.org/poppler-0.59.0.tar.xz
-  - tar -xf poppler-0.59.0.tar.xz
-  - cd poppler-0.59.0
+  - wget https://poppler.freedesktop.org/poppler-0.62.0.tar.xz
+  - tar -xf poppler-0.62.0.tar.xz
+  - cd poppler-0.62.0
   - ./configure --enable-poppler-glib
   - make
   - sudo make install
@@ -32,6 +32,7 @@ install:
 
 script:
   - make
+  - make INSTALL_ROOT=appdir -j$(nproc) install ; find appdir/
   - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/1/linuxdeployqt-1-x86_64.AppImage"
   - chmod a+x linuxdeployqt-1-x86_64.AppImage
   - unset LD_LIBRARY_PATH
