@@ -23,6 +23,7 @@ install:
   - cd build
   - cmake ..
   - cd ..
+  - cd ..
 
 script:
   - qmake CONFIG+=release PREFIX=/usr
