@@ -18,7 +18,7 @@ install:
   - sudo apt-get install poppler-utils poppler-data libopenjpeg-dev libpoppler-dev libpoppler-qt5-dev libpoppler-glib-dev libopenjp2-7-dev
   - wget https://poppler.freedesktop.org/poppler-0.64.0.tar.xz
   - tar -xf poppler-0.64.0.tar.xz
-  - pushd poppler-0.64.0 && cmake -DCMAKE_INSTALL_PREFIX=/usr && make && sudo make install && ./configure --enable-poppler-glib && popd
+  - pushd poppler-0.64.0 && cmake -DCMAKE_INSTALL_PREFIX=/usr && make && sudo make install && popd
   - whereis libpoppler.so
 
 script:
