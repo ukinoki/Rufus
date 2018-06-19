@@ -20,7 +20,7 @@ QT       += sql core gui network printsupport multimedia xml serialport multimed
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 
-TARGET = /home/travis/build/ukinoki/Rufus
+TARGET = /home/travis/build/Rufus
 
 
 TEMPLATE = app
