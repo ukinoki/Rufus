@@ -14,7 +14,7 @@ install:
   - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
   - source /opt/qt*/bin/qt*-env.sh
   - sudo apt-get build-dep libpoppler58
-  - sudo apt-get install cmake libyelp-dev yelp-tools libsecret-1-dev libnautilus-extension-dev
+  - sudo apt-get install cmake libyelp-dev yelp-tools libsecret-1-dev libnautilus-extension-dev libpulse-dev
   - sudo apt-get install poppler-utils poppler-data libopenjpeg-dev libpoppler-dev libpoppler-qt5-dev libpoppler-glib-dev libopenjp2-7-dev
   - wget https://poppler.freedesktop.org/poppler-0.64.0.tar.xz
   - tar -xf poppler-0.64.0.tar.xz
