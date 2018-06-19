@@ -19,7 +19,6 @@ install:
   - wget https://poppler.freedesktop.org/poppler-0.64.0.tar.xz
   - tar -xf poppler-0.64.0.tar.xz
   - pushd poppler-0.64.0 && cmake -DCMAKE_INSTALL_PREFIX=/usr && make && sudo make install && popd
-  - whereis libpoppler.so
 
 script:
   - qmake -unix CONFIG+=release PREFIX=/usr Rufus_travis.pro
