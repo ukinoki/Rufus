@@ -236,7 +236,7 @@ LIBS += -L/usr/local/lib/ -lpoppler-qt5
 }
 LINUX {
 INCLUDEPATH += /usr/include/poppler/qt5
-LIBS += -L/usr/local/lib/ -lpoppler-qt5
+LIBS += -L/usr/lib/x86_64-linux-gnu/ -lpoppler-qt5
 }
 
 DISTFILES += \
