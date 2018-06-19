@@ -26,8 +26,8 @@ dlg_salledattente::dlg_salledattente(int *idPatAPasser, int *idActeAPasser, QStr
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc                = procAPAsser;
     gidPatient          = *idPatAPasser;
-    gidUser             = proc->getDataUser()->id();
-    gidUserSuperviseur  = proc->getDataUser()->getIdUserActeSuperviseur();
+    gidUser             = proc->getUserConnected()->id();
+    gidUserSuperviseur  = proc->getUserConnected()->getIdUserActeSuperviseur();
     gTitre              = *Titre;
     gidActe             = *idActeAPasser;
     db                  = DataBase::getInstance()->getDataBase();
@@ -119,7 +119,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         QSqlQuery actquer(req,db);
         actquer.first();
         if (actquer.value(1).toInt() == -1)
-            QSqlQuery ("update " NOM_TABLE_ACTES " set idUser = " + QString::number(proc->UserSuperviseur()) + ", UserComptable = " + QString::number(proc->UserComptable()) + ", UserParent = " + QString::number(proc->UserParent()) + " where idacte = " + actquer.value(0).toString(), db);
+            QSqlQuery ("update " NOM_TABLE_ACTES " set idUser = " + QString::number(proc->UserSuperviseur()) + ", UserComptable = " + QString::number(proc->getUserConnected()->getIdUserComptable()) + ", UserParent = " + QString::number(proc->UserParent()) + " where idacte = " + actquer.value(0).toString(), db);
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
     }

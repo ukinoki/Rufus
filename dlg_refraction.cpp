@@ -29,7 +29,7 @@ dlg_refraction::dlg_refraction(int *idPatAPasser, QString *NomPatient, QString *
     gidPatient      = *idPatAPasser;
     gNomPatient     = *NomPatient;
     gPrenomPatient  = *PrenomPatient;
-    gidUser         = proc->getDataUser()->id();
+    gidUser         = proc->getUserConnected()->id();
     gidActe         = *idActeAPasser;
     gAgePatient     = *AgeAPasser;
 
@@ -1790,8 +1790,8 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    proc->setDataOtherUser(proc->getDataUser()->getIdUserActeSuperviseur());
-    Entete = proc->ImpressionEntete(ui->DateDateEdit->date()).value("Norm");
+    User *userEntete = proc->getUserById(proc->getUserConnected()->getIdUserActeSuperviseur());
+    Entete = proc->ImpressionEntete(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
     Entete.replace("{{TITRE}}"             , "");
@@ -1833,7 +1833,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         query.bindValue(":ald", QVariant(QVariant::String));
         query.bindValue(":emisrecu", "0");
         query.bindValue(":formatdoc", PRESCRIPTIONLUNETTES);
-        query.bindValue(":idlieu", QString::number(proc->getDataUser()->getSite()->id()));
+        query.bindValue(":idlieu", QString::number(proc->getUserConnected()->getSite()->id()));
 
         if(!query.exec())
             UpMessageBox::Watch(this, tr("Impossible d'enregistrer ce document dans la base!"));
@@ -3470,10 +3470,10 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
             case 4:
-                gResultatRnondil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + proc->getDataUser()->getLogin() + "</td>";
+                gResultatRnondil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + proc->getUserConnected()->getLogin() + "</td>";
                 break;
             case 5:
-                gResultatRdil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + proc->getDataUser()->getLogin() + "</td>";
+                gResultatRdil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + proc->getUserConnected()->getLogin() + "</td>";
                 break;
             default:
             break;

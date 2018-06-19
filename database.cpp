@@ -114,6 +114,10 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     return m_db.lastError().text();
 }
 
+
+/*
+ * Users
+*/
 QJsonObject DataBase::login(QString login, QString password)
 {
     QJsonObject jrep{};
@@ -154,31 +158,37 @@ QJsonObject DataBase::login(QString login, QString password)
     userData["id"] = query.value(0).toInt();
     userData["nom"] = query.value(1).toString();
     userData["prenom"] = query.value(2).toString();
+    query.finish();
 
     m_userConnected = new User(login, password, userData);
+    m_userConnected->setData( loadUserData(m_userConnected->id()) );
     return jrep;
 }
-QJsonObject DataBase::loadUser(int idUser)
+QJsonObject DataBase::loadUserData(int idUser)
 {
     QJsonObject userData{};
 
-    QString req = "select UserDroits, UserAGA, UserLogin, UserFonction, UserTitre, "                        // 0,1,2,3,4
-            " UserNom, UserPrenom, UserMail, UserNumPS, UserSpecialite,"                                    // 5,6,7,8,9
-            " UserNoSpecialite, UserNumCO, idCompteParDefaut, UserEnregHonoraires, UserMDP,"                // 10,11,12,13,14
-            " UserPortable, UserPoste, UserWeb, UserMemo, UserDesactive,"                                   // 15,16,17,18,19
-            " UserPoliceEcran, UserPoliceAttribut, UserSecteur, Soignant, ResponsableActes,"                // 20,21,22,23,24
-            " UserCCAM, UserEmployeur, DateDerniereConnexion, idCompteEncaissHonoraires, Medecin,"          // 25,26,27,28,29
-            " OPTAM"                                                                                        // 30
-            " from " NOM_TABLE_UTILISATEURS
-            " where idUser = " + QString::number(idUser);
+    QString req = "select UserDroits, UserAGA, UserLogin, UserFonction, UserTitre, "                    // 0,1,2,3,4
+            " UserNom, UserPrenom, UserMail, UserNumPS, UserSpecialite,"                                // 5,6,7,8,9
+            " UserNoSpecialite, UserNumCO, idCompteParDefaut, UserEnregHonoraires, UserMDP,"            // 10,11,12,13,14
+            " UserPortable, UserPoste, UserWeb, UserMemo, UserDesactive,"                               // 15,16,17,18,19
+            " UserPoliceEcran, UserPoliceAttribut, UserSecteur, Soignant, ResponsableActes,"            // 20,21,22,23,24
+            " UserCCAM, UserEmployeur, DateDerniereConnexion, idCompteEncaissHonoraires, Medecin,"      // 25,26,27,28,29
+            " OPTAM, cpt.nomcompteabrege, cpt2.nomcompteabrege "                                        // 30,31,32
+            " from " NOM_TABLE_UTILISATEURS " usr "
+            " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte"
+            " left outer join " NOM_TABLE_COMPTES " cpt2 on usr.idCompteParDefaut = cpt2.idCompte"
+            " where usr.idUser = " + QString::number(idUser) +
+            "  and userdesactive is null";
     QSqlQuery  query(req, getDataBase());
-    if( traiteErreurRequete(query, tr("Impossible de retrouver les données de l'utilisateur"), req) )
+    if( traiteErreurRequete(query, req, tr("Impossible de retrouver les données de l'utilisateur")) )
         return userData;
 
     if( !query.first() )
         return userData;
 
-    userData["idUser"]                      = idUser;
+    userData["isAllLoaded"]                 = true;
+    userData["id"]                          = idUser;
     userData["droits"]                      = query.value(0).isNull() ? "" : query.value(0).toString();
     userData["AGA"]                         = (query.value(1).toInt() == 1);
     userData["login"]                       = query.value(2).isNull() ? "" : query.value(2).toString();
@@ -211,54 +221,87 @@ QJsonObject DataBase::loadUser(int idUser)
     userData["medecin"]                     = query.value(29).toInt();
     userData["idCompteEncaissHonoraires"]   = query.value(28).toInt();
 
-    if( !query.value(26).isNull()
-       && (userData["soignant"].toInt() == 1 || userData["soignant"].toInt() == 2 || userData["soignant"].toInt() == 3) )         //le user est un soignant et il y a un employeur
-    {
-        req = "select idCompteEncaissHonoraires from " NOM_TABLE_UTILISATEURS " where iduser = " + query.value(26).toString();
-        QSqlQuery cptquer(req, getDataBase());
-        if( cptquer.first() )
-            userData["idCompteEncaissHonoraires"] = cptquer.value(0).toInt();
-        cptquer.finish();
-    }
-
     if( userData["idCompteEncaissHonoraires"].isNull() )
     {
-        userData["idUserEncaissHonoraires"]     = -1;
-        userData["nomCompteEncaissHonoraires"]  = "";
-        userData["nomUserEncaissHonoraires"]    = "";
+        userData["idUserEncaissHonoraires"] = -1;
     }
     else
     {
-        req = "select cpt.iduser, nomcompteabrege, userlogin from " NOM_TABLE_COMPTES  " cpt"
-              " left outer join " NOM_TABLE_UTILISATEURS " usr on  usr.iduser = cpt.iduser"
-              " where idcompte = " + userData["idCompteEncaissHonoraires"].toString();
-        QSqlQuery usrencaisquer(req, getDataBase());
-        if( usrencaisquer.first() )
-        {
-            userData["idUserEncaissHonoraires"]     = usrencaisquer.value(0).toInt();
-            userData["nomCompteEncaissHonoraires"]  = usrencaisquer.value(1).toString();
-            userData["nomUserEncaissHonoraires"]    = usrencaisquer.value(2).toString();
-            usrencaisquer.finish();
-        }
+        userData["idUserEncaissHonoraires"]    = idUser;
+        userData["nomCompteEncaissHonoraires"] = query.value(31).toString();
+        userData["nomUserEncaissHonoraires"]   = query.value(2).toString();
     }
 
-    if( !query.value(12).isNull() )
-    {
-        req = "select nomcompteabrege from " NOM_TABLE_COMPTES
-              " where idcompte = " + userData["idCompteParDefaut"].toString();
-        QSqlQuery usrcptquer(req, getDataBase());
-        if( usrcptquer.first() )
-            userData["nomCompteParDefaut"]  = usrcptquer.value(0).toString();
-    }
+    if( !query.value(32).isNull() )
+        userData["nomCompteParDefaut"] = query.value(32).toString();
+
     query.finish();
     return userData;
+}
+QList<User*> DataBase::loadUsersAll()
+{
+    QList<User*> users;
+    QString req = "select usr.iduser, usr.userlogin, usr.soignant, usr.responsableactes, "          //0,1,2,3
+                    " usr.UserEnregHonoraires, usr.idCompteEncaissHonoraires, usr.UserCCAM, "       //4,5,6
+                    " usr.UserEmployeur, cpt.nomcompteabrege "                                      //7,8
+                  " from " NOM_TABLE_UTILISATEURS " usr "
+                  " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte "
+                  " where userdesactive is null";
+
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return users;
+
+    do
+    {
+        QJsonObject jData{};
+        jData["id"] = query.value(0).toInt();
+        jData["login"] = query.value(1).toString();
+        jData["soignant"] = query.value(2).toInt();
+        jData["responsableActes"] = query.value(3).toInt();
+        jData["enregHonoraires"] = query.value(4).toInt();
+        jData["idCompteEncaissHonoraires"] = query.value(5).toInt();
+        jData["cotation"] = (query.value(6).toInt() == 1);
+        jData["employeur"] = query.value(7).toInt();
+        jData["nomCompteAbrege"] = query.value(8).toString();
+        User *usr = new User(jData);
+        users << usr;
+    } while( query.next() );
+
+    return users;
+}
+
+/*
+ * Compta
+*/
+QList<Compte*> DataBase::loadComptesByUser(int idUser)
+{
+    QList<Compte*> comptes;
+    QString req = "SELECT idCompte, NomCompteAbrege, desactive "
+                  " FROM " NOM_TABLE_COMPTES
+                  " WHERE idUser = " + QString::number(idUser);
+     QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return comptes;
+
+    do
+    {
+        QJsonObject jData{};
+        jData["id"] = query.value(0).toInt();
+        jData["nom"] = query.value(1).toString();
+        jData["desactive"] = (query.value(2).toInt() == 1);
+        Compte *cpt = new Compte(jData);
+        comptes << cpt;
+    } while( query.next() );
+
+    return comptes;
 }
 
 
 /*
  * Sites
 */
-QList<Site*> DataBase::loadAllSites()
+QList<Site*> DataBase::loadSitesAll()
 {
     QString req = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
                     "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
@@ -266,7 +309,7 @@ QList<Site*> DataBase::loadAllSites()
 
     return loadSites( req );
 }
-QList<Site*> DataBase::loadUserSites(int idUser)
+QList<Site*> DataBase::loadSitesByUser(int idUser)
 {
     QString req = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
                     "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
@@ -306,7 +349,7 @@ QList<Site*> DataBase::loadSites(QString req)
 /*
  * Villes
 */
-Villes* DataBase::loadAllVilles()
+Villes* DataBase::loadVillesAll()
 {
     QDateTime startDT = QDateTime::currentDateTime();
     Villes *villes = new Villes();
@@ -317,7 +360,7 @@ Villes* DataBase::loadAllVilles()
     if( traiteErreurRequete(query, req) || !query.first())
         return villes;
     qDebug() << "nb ville in base : " << QString::number(query.size());
-    do//TODO : chercher solution, lent en débugger (~36000 enregistrement)
+    do
     {
         QJsonObject jEtab{};
         jEtab["ville_id"] = query.value(0).toInt();
@@ -405,7 +448,7 @@ Acte* DataBase::loadActeById(int idActe)
     acte->setData(data);
     return acte;
 }
-QMap<int, Acte*> DataBase::loadActeByIdPat(int idPat)
+QMap<int, Acte*> DataBase::loadActesByIdPat(int idPat)
 {
     QMap<int, Acte*> list;
     if( idPat == 0 )
@@ -470,7 +513,29 @@ QMap<int, Acte*> DataBase::loadActeByIdPat(int idPat)
             data["montant"] = query.value(18).toString();
         acte->setData(data);
         list[acte->id()] = acte;
-    }while( query.next() );
+    } while( query.next() );
 
     return list;
+}
+double DataBase::getActeMontant(int idActe)
+{
+    double montant = 0.0;
+    // on récupère les lignes de paiement
+    QString req = " SELECT lp.Paye, lr.Monnaie "
+                  " FROM " NOM_TABLE_LIGNESPAIEMENTS " lp "
+                  " LEFT JOIN " NOM_TABLE_RECETTES " lr on lr.idRecette = lp.idRecette "
+                  " WHERE idActe = " + QString::number(idActe);
+    QSqlQuery query(req, getDataBase());
+    DataBase::getInstance()->traiteErreurRequete(query, req, "");
+    if( !query.first() )
+        return montant;
+    do
+    {
+        if (query.value(1).toString() == "F")
+            montant += (query.value(0).toDouble() / 6.55957);
+        else
+            montant += query.value(0).toDouble();
+    } while( query.next() );
+
+    return montant;
 }

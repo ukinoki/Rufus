@@ -60,14 +60,23 @@ public:
 
     QString connectToDataBase(QString basename, QString login, QString password);
 
+    /*
+     * Users
+    */
     QJsonObject login(QString login, QString password);
-    QJsonObject loadUser(int idUser);
+    QJsonObject loadUserData(int idUser);
+    QList<User*> loadUsersAll();
+
+    /*
+     * Compta
+    */
+    QList<Compte*> loadComptesByUser(int idUser);
 
     /*
      * Sites
     */
-    QList<Site*> loadUserSites(int idUser);
-    QList<Site*> loadAllSites();
+    QList<Site*> loadSitesByUser(int idUser);
+    QList<Site*> loadSitesAll();
 private:
     QList<Site*> loadSites(QString req);
 
@@ -75,14 +84,14 @@ public:
     /*
      * Villes
     */
-    Villes* loadAllVilles();
+    Villes* loadVillesAll();
 
     /*
      * Actes
     */
     Acte* loadActeById(int idActe);
-    QMap<int, Acte*> loadActeByIdPat(int idPat);
-
+    QMap<int, Acte*> loadActesByIdPat(int idPat);
+    double getActeMontant(int idActe);
 
 
 signals:

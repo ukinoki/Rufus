@@ -9,11 +9,10 @@ int User::ROLE_INDETERMINE = -3;
 
 
 
-
-
-
-
-
+bool User::isAllLoaded() const
+{
+    return m_isAllLoaded;
+}
 
 
 User::User(QJsonObject data, QObject *parent) : Item(parent)
@@ -30,6 +29,9 @@ void User::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
+
+    setDataBool(data, "isAllLoaded", m_isAllLoaded);
+
 
     setDataInt(data, "id", m_id);
 
@@ -55,7 +57,7 @@ void User::setData(QJsonObject data)
 
 
     setDataInt(data, "soignant", m_soignant);
-    setDataInt(data, "m_responsableActes", m_responsableActes);
+    setDataInt(data, "responsableActes", m_responsableActes);
     setDataInt(data, "userenreghonoraires", m_userenreghonoraires);
     setDataInt(data, "userccam", m_userccam);
     setDataInt(data, "numPS", m_numPS);
@@ -75,6 +77,8 @@ void User::setData(QJsonObject data)
 
     setDataDateTime(data, "dateDerniereConnexion", m_dateDerniereConnexion);
 }
+
+
 
 QString User::getLogin() const { return m_login; }
 QString User::getPassword() const { return m_password; }
@@ -100,9 +104,23 @@ int User::getIdCompteEncaissHonoraires() const { return m_idCompteEncaissHonorai
 QString User::getNomUserEncaissHonoraires() const { return m_nomUserEncaissHonoraires; }
 QString User::getNomCompteEncaissHonoraires() const { return m_nomCompteEncaissHonoraires; }
 QString User::getFonction() const { return m_fonction; }
+
 int User::getIdUserActeSuperviseur() const { return m_idUserActeSuperviseur; }
+void User::setIdUserActeSuperviseur(int idUserActeSuperviseur)
+{
+    m_idUserActeSuperviseur = idUserActeSuperviseur;
+}
 int User::getIdUserParent() const { return m_idUserParent; }
+void User::setIdUserParent(int idUserParent)
+{
+    m_idUserParent = idUserParent;
+}
 int User::getIdUserComptable() const { return m_idUserCompta; }
+void User::setIdUserComptable(int idUserCompta)
+{
+    m_idUserCompta = idUserCompta;
+}
+
 int User::getSecteur() const { return m_secteur; }
 int User::getIdCompteParDefaut() const { return m_idCompteParDefaut; }
 QString User::getMail() const { return m_mail; }
@@ -110,15 +128,18 @@ QString User::getLoginComptable() const { return m_loginComptable; }
 QString User::getNomCompteParDefaut() const { return m_nomCompteParDefaut; }
 QString User::getPortable() const { return m_portable; }
 
+QString User::getNomCompteAbrege() const { return m_nomCompteEncaissHonoraires; }
+
 
 QString User::getStatus() const { return m_status; }
 
 
 Site* User::getSite() const { return m_Site; }
-void User::setSite(Site *Site)
-{
-    m_Site = Site;
-}
+void User::setSite(Site *Site) { m_Site = Site; }
+
+
+Comptes* User::getComptes() const { return m_comptes; }
+void User::setComptes(Comptes *comptes) { m_comptes = comptes; }
 
 
 bool User::isOPTAM() { return m_OPTAM; }
@@ -137,9 +158,9 @@ bool User::isLiberal() { return isSoignant() && m_enregHonoraires == 1; }
 bool User::isSalarie() { return isSoignant() && m_enregHonoraires == 2; }
 bool User::isRemplacant() { return isSoignant() && m_enregHonoraires == 3; }
 bool User::isSansCompta() { return m_enregHonoraires == 4; }
-bool User::isResponsable() { return isSoignant() &&m_idUserActeSuperviseur == 1; }
-bool User::isResponsableEtAssistant() { return isSoignant() &&m_idUserActeSuperviseur == 2; }
-bool User::isAssistant() { return isSoignant() &&m_idUserActeSuperviseur == 3; }
+bool User::isResponsable() { return isSoignant() && m_responsableActes == 1; }
+bool User::isResponsableEtAssistant() { return isSoignant() && m_responsableActes == 2; }
+bool User::isAssistant() { return isSoignant() && m_responsableActes == 3; }
 //bool User::isAssistant() { return isSoignant() && m_idUserActeSuperviseur != m_id; }
 
 bool User::isDesactive() { return m_desactive; }

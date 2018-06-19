@@ -62,6 +62,8 @@ public:
     void            setMode(QString);
     void            TuneSize();
     QString         mode();
+
+    QObject     *mData;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

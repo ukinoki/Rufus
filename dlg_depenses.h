@@ -23,6 +23,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uptablewidget.h"
 #include "dlg_comptes.h"
+#include "cls_user.h"
 
 namespace Ui {
 class dlg_depenses;
@@ -41,18 +42,15 @@ public:
 private:
     dlg_comptes                 *Dlg_Cmpt;
     int                         r,c, idDepEnCours;
-    int                         gidUserADebiter;
     Procedures                  *proc;
     QSqlDatabase                db;
-    QString                     gNomUser;               //le nom de l'utilisateur dont on affiche les dépenses
     QStringList                 glistMoyensDePaiement;
     QStringList                 glistRefFiscales;
     User                        *gDataUser;
-    QStandardItemModel          *glistComptes;
-    QStandardItemModel          *glistComptesAvecDesactive;
-    QStandardItemModel          *gListeLiberauxModel;
     UpTableWidget               *gBigTable;
     UpPushButton                *EnregupPushButton, *AnnulupPushButton;
+    QMap<int, User*>            *m_listUserLiberaux;
+
     bool                        InitOK;
     int                         gMode;
     enum gMode                  {Lire, Modifier, Enregistrer, TableVide};
@@ -69,6 +67,7 @@ private:
     void                        RegleComptesComboBox(bool ActiveSeult = true);
     void                        RemplitBigTable();
     void                        ChoixMenu(QString);
+    bool                        initializeUserSelected();
 
     //anciens slots
     void                        AnnulEnreg();

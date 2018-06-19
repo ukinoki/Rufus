@@ -27,7 +27,7 @@ dlg_commentaires::dlg_commentaires(Procedures *procAPasser, QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc        = procAPasser;
-    gidUser     = proc->getDataUser()->id();
+    gidUser     = proc->getUserConnected()->id();
 
     widgButtons = new WidgetButtonFrame(ui->ComupTableWidget);
     widgButtons->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
@@ -40,7 +40,7 @@ dlg_commentaires::dlg_commentaires(Procedures *procAPasser, QWidget *parent) :
     globallay   ->setSizeConstraint(QLayout::SetFixedSize);
     disconnect (CancelButton,           SIGNAL(clicked()),                          this,   SLOT (reject()));
 
-    setWindowTitle(tr("Liste des commentaires prédéfinis de ") + proc->getDataUser()->getLogin());
+    setWindowTitle(tr("Liste des commentaires prédéfinis de ") + proc->getUserConnected()->getLogin());
 
     // Initialisation des slots.
     connect (OKButton,                  &QPushButton::clicked,                  [=] {Validation();});
@@ -262,7 +262,7 @@ void dlg_commentaires::dblClicktextEdit()
         if (a)
         {
             int idUser = ui->ComupTableWidget->item(line->getRowTable(),4)->text().toInt();
-            if (idUser == proc->getDataUser()->id())
+            if (idUser == proc->getUserConnected()->id())
                 ConfigMode(Modification,line->getRowTable());
         }
         line = 0;
@@ -1157,7 +1157,7 @@ void dlg_commentaires::SupprimmCommentaire(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "?";
     UpMessageBox *msgbox = new UpMessageBox(this);
-    msgbox->setText("Euuhh... " + proc->getDataUser()->getLogin() + "?");
+    msgbox->setText("Euuhh... " + proc->getUserConnected()->getLogin() + "?");
     msgbox->setInformativeText(Msg);
     msgbox->setIcon(UpMessageBox::Warning);
     UpSmallButton *OKBouton = new UpSmallButton();

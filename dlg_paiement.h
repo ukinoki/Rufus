@@ -106,10 +106,11 @@ private:
     QList<QString>          LigneDepenseAModifier;
     QList<QString>          MontantActesAModifier;
     User                    *gDataUser;
-    User                    *gPersoDataUser;
+    User                    *m_userConnected;
     QStandardItemModel      *glistComptesEncaissmt;
     QStandardItemModel      *glistComptesEncaissmtAvecDesactive;
-    QStandardItemModel      *gListeParentsModel;
+    QMap<int, User*>        *m_listeParents;
+
     QSqlDatabase            db;
     int                     gidCompteBancaireParDefaut;
     QString                 ModeModif, ModePaiementDirectAModifier;

@@ -943,12 +943,16 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     //création de l'entête
     QString EnTete;
     if (iduser == -1) return false;
-    if (proc->setDataOtherUser(iduser) == nullptr)
+    User *userEntere = proc->getUserById(iduser);
+    if(userEntere == nullptr)
         return false;
-    EnTete = proc->ImpressionEntete(date).value("Norm");
+    EnTete = proc->ImpressionEntete(date, userEntere).value("Norm");
     if (EnTete == "") return false;
-    req = "select cmpt.idbanque, IBAN, intitulecompte, NomBanque from " NOM_TABLE_COMPTES " as cmpt "
-            "left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque where idcompte = " + QString::number(idcompte) ;
+
+    req = "select cmpt.idbanque, IBAN, intitulecompte, NomBanque "
+          " from " NOM_TABLE_COMPTES " as cmpt "
+          " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque "
+          " where idcompte = " + QString::number(idcompte) ;
     QSqlQuery  RetrouveBanqueQuery (req,db);
     DataBase::getInstance()->traiteErreurRequete( RetrouveBanqueQuery,req,"");
     if ( RetrouveBanqueQuery.size() == 0)

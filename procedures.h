@@ -65,7 +65,9 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptextedit.h"
 #include "upmessagebox.h"
 
+#include "cls_patient.h"
 #include "cls_user.h"
+#include "cls_users.h"
 #include "database.h"
 #include "functormajpremierelettre.h"
 
@@ -109,7 +111,7 @@ public:
     int                     Nombre_Mesure_Selected(QTableWidget *Table, int col);
     QString                 RecupPartie(QString ficModele, QString partie);
     QString                 ImpressionCorps(QString text, bool ALD = false);
-    QMap<QString,QString>   ImpressionEntete(QDate date);
+    QMap<QString,QString>   ImpressionEntete(QDate date, User* user);
     QString                 ImpressionPied(bool lunettes = false, bool ALD = false);
     bool                    Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied,
                                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
@@ -134,44 +136,21 @@ public:
     // definition du superviseur, de l'utilisateur qui enregistre la commpta et de l'utilistaion de la compta
     //--------------------------------------------------------------------------------------------------------
 private:
+    //TODO : ICI info pour le rôle
     FunctorMAJPremiereLettre fMAJPremiereLettre;
     int                     gidCentre;
-        // le centre de soins
-    //int                     gidLieuExercice;
-        // le lieu d'exercice pour la session en cours
-    int                     gidUserSuperViseurProv, gidUserSuperViseur;
-    //int gidUserSuperViseurProv;
-        // le user qui assume la responsabilité médicale de l'acte
-        // -1 si le gDataUser->getIdUserParent() n'a pas de superviseur défini et travaille pour tout le monde
-        // -2 sans objet
-        // -3 indéterminé
-
-    int                     gidUserParent, gidUserParentProv;
-    //int gidUserParentProv;
-        // le user soignant remplacé quand le user est remplaçant, sinon le supervisuer lui même
-        // -2 sans objet
-        // -3 indéterminé
-
-    int                     gidUserComptableProv, gidUserComptable;
-    //int gidUserComptableProv;
-        // le user qui comptabilise l'acte
-        // -1 si pas de comptabilité
-        // -2 sans objet
-        // -3 indéterminé
     bool                    gUseCotation, gUseCotationProv;
     bool                    avecLaComptaProv;
-    bool                    gBoxSuperviseurVisible, gBoxParentVisible;
     bool                    DefinitRoleUser();                       /* definit les iduser pour lequel le user travaille
-                                                                                . iduser superviseur des actes                      (int gidUserSuperViseur)
-                                                                                    . lui-même s'il est responsable de ses actes
-                                                                                    . un autre user s'il est assistant
-                                                                                . iduser qui enregistrera la comptabilité des actes (int gidUserComptable)
-                                                                                . idUser soignant remplacé si le superviseur est remplaçant (int gidUserParent)
-                                                                                . s'il cote les actes                            (bool gUseCotation)
-                                                                                . s'il enregistre une compta                     (bool AvecLaComptaProv)
-                                                                               */
-    Site*          DetermineLieuExercice();
-    void                    CalcUserResponsable();
+                                                                        . iduser superviseur des actes                      (int gidUserSuperViseur)
+                                                                            . lui-même s'il est responsable de ses actes
+                                                                            . un autre user s'il est assistant
+                                                                        . iduser qui enregistrera la comptabilité des actes (int gidUserComptable)
+                                                                        . idUser soignant remplacé si le superviseur est remplaçant (int gidUserParent)
+                                                                        . s'il cote les actes                            (bool gUseCotation)
+                                                                        . s'il enregistre une compta                     (bool AvecLaComptaProv)
+                                                                       */
+    Site*                   DetermineLieuExercice();
     void                    RestoreFontAppliAndGeometry();
 private slots:
     void                    Slot_CalcUserSuperviseur();
@@ -179,9 +158,8 @@ private slots:
 public:
     int                     idCentre();
     int                     idLieuExercice();
-    int                     UserSuperviseur();
-    int                     UserComptable();
-    int                     UserParent();
+    int                     UserSuperviseur(); //TODO : DELETE
+    int                     UserParent(); //TODO : DELETE
     bool                    ChargeDataUser(int iduser);
     //--------------------------------------------------------------------------------------------------------
 
@@ -218,26 +196,26 @@ public:
     bool                    ApercuAvantImpression();
     QString                 getCodePostalParDefaut();
     void                    setCodePostalParDefaut(QString CPParDefaut);
-    void                    setDataUser(QMap<QString,QVariant> DataUser);
-    User*                   getDataUser();
-    User*                   setDataOtherUser(int id);
+    User*                   getUserConnected();
+    User*                   getUserById(int id);
+    //User*                   setDataOtherUser(int id);
+    Patient*                getPatientById(int id);
     void                    setDirImagerie();
     QString                 DirImagerie();
     void                    setFicheRefractionOuverte(bool a);
     bool                    FicheRefractionOuverte();
-    QStandardItemModel*     getListeComptesUserAvecDesactive();
-    QStandardItemModel*     getListeComptesUser();
-    void                    setListeComptesUser(int);
     QStandardItemModel*     getListeComptesEncaissmtUser();
     QStandardItemModel*     getListeComptesEncaissmtUserAvecDesactive();
     void                    setListeComptesEncaissmtUser(int);
     Villes*                 getVilles();
     QString                 getLogin(int idUser);
-    QStandardItemModel*     getListeSuperviseurs();
-    QStandardItemModel*     getListeLiberaux();
-    QStandardItemModel*     getListeParents();
-    QStandardItemModel*     getListeUsers();
-    void                    setlisteUsers();
+
+    void                    initListeUsers();
+    QMap<int, User *>*      getListeSuperviseurs();
+    QMap<int, User *>*      getListeLiberaux();
+    QMap<int, User *>*      getListeParents();
+    QMap<int, User *>*      getListeUsers();
+
     QString                 getMDPAdmin();
     void                    setNomImprimante(QString NomImprimante);
     QString                 getNomImprimante();
@@ -268,15 +246,13 @@ private:
     dlg_choixdate           *Dlg_ChxDate;
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_paramconnexion      *Dlg_ParamConnex;
-    dlg_identificationuser  *Dlg_IdentUser;
     QFont                   gAppFont;
     User *m_userConnected = nullptr; //user connected
-    User *OtherUser; //TODO créer QMap<int, User> iduser, user
+    User *OtherUser = nullptr; //TODO créer QMap<int, User> iduser, user
     QStandardItemModel      *ListeComptesEncaissUser;
     QStandardItemModel      *ListeComptesEncaissUserAvecDesactive;
-    QStandardItemModel      *ListeComptesUser;
-    QStandardItemModel      *ListeComptesUserAvecDesactive;
-    QStandardItemModel      *gListeUsersModel, *gListeSuperviseursModel, *gListeParentsModel, *gListeLiberauxModel;
+    Users *m_users = new Users();
+
     QString                 DirStockageImages;
     QString                 lCPParDefaut, lVilleParDefaut;
     QPlainTextEdit          *gEtat;         // CZ 27082015

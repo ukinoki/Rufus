@@ -618,7 +618,7 @@ void dlg_docsexternes::ImprimeDoc()
         msgbox.addButton(AnnulBouton,UpSmallButton::CANCELBUTTON);
         if (QDate::currentDate() > quer1.value(1).toDate())
         {
-            if (proc->getDataUser()->isMedecin())
+            if (proc->getUserConnected()->isMedecin())
             {
                 if (quer1.value(3).toString() != IMAGERIE && quer1.value(3).toString() != DOCUMENTRECU)
                 {
@@ -634,7 +634,7 @@ void dlg_docsexternes::ImprimeDoc()
         }
         else if (QDate::currentDate() == quer1.value(1).toDate())
         {
-            if (proc->getDataUser()->isMedecin())
+            if (proc->getUserConnected()->isMedecin())
                 if (quer1.value(3).toString() != IMAGERIE && quer1.value(3).toString() != DOCUMENTRECU)
                 {
                     {
@@ -749,7 +749,7 @@ void dlg_docsexternes::ImprimeDoc()
             bool        AvecNumPage = false;
             bool        aa;
 
-            gDataUser = proc->setDataOtherUser(quer.value(0).toInt());
+            gDataUser = proc->getUserById(quer.value(0).toInt());
             if (gDataUser == nullptr)
             {
                 UpMessageBox::Watch(this,tr("Impossible de retrouver l'utilisateur"));
@@ -819,7 +819,7 @@ void dlg_docsexternes::ImprimeDoc()
                 query.bindValue(":textPied", Pied);
                 query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
                 query.bindValue(":formatdoc", quer.value(8).toString());
-                query.bindValue(":idlieu", QString::number(proc->getDataUser()->getSite()->id()));
+                query.bindValue(":idlieu", QString::number(proc->getUserConnected()->getSite()->id()));
                 if(!query.exec())
                     UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
                 RemplirTreeView();
@@ -866,7 +866,7 @@ void dlg_docsexternes::SupprimeDoc()
     int ndocs = CompteNbreDocs();
     QModelIndex idx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
     QString idimpr = gmodele->itemFromIndex(idx)->accessibleDescription();
-    if (!proc->getDataUser()->isSoignant())         //le user n'est pas un soignant
+    if (!proc->getUserConnected()->isSoignant())         //le user n'est pas un soignant
     {
         QString     req = "Select Useremetteur, idrefraction from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
         QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
@@ -890,7 +890,7 @@ void dlg_docsexternes::SupprimeDoc()
         OKBouton->setText(tr("Supprimer"));
         UpSmallButton *NoBouton = new UpSmallButton();
         NoBouton->setText(tr("Annuler"));
-        msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin());
+        msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin());
         msgbox.setInformativeText(tr("Etes vous certain de vouloir supprimer ce document?"));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(NoBouton,UpSmallButton::CANCELBUTTON);

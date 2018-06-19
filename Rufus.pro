@@ -103,7 +103,9 @@ SOURCES += main.cpp\
     cls_item.cpp \
     cls_patient.cpp \
     cls_site.cpp \
-    cls_villes.cpp
+    cls_villes.cpp \
+    cls_compte.cpp \
+    cls_users.cpp
 
 HEADERS  += rufus.h \
     procedures.h \
@@ -182,7 +184,9 @@ HEADERS  += rufus.h \
     cls_item.h \
     cls_patient.h \
     cls_site.h \
-    cls_villes.h
+    cls_villes.h \
+    cls_compte.h \
+    cls_users.h
 
 FORMS    += \
     dlg_identificationuser.ui \

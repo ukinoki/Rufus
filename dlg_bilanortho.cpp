@@ -254,7 +254,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     if (cherchepatquery.size() == 0) return;
     cherchepatquery.first();
     int userentete = cherchepatquery.value(4).toInt();
-    gDataUser = proc->setDataOtherUser(userentete);
+    gDataUser = proc->getUserById(userentete);
     if (gDataUser == nullptr)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -267,7 +267,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     QString Entete, Pied;
 
     //création de l'entête
-    Entete = proc->ImpressionEntete(QDate::currentDate()).value("Norm");
+    Entete = proc->ImpressionEntete(QDate::currentDate(), gDataUser).value("Norm");
     if (Entete == "") return;
     Entete.replace("{{TITRE1}}"            , "");
     Entete.replace("{{TITRE}}"             , "<font color = \"" + proc->CouleurTitres + "\">" + tr("BILAN ORTHOPTIQUE DU ") + date + "</font>");
@@ -307,7 +307,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
         query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idUser, idpat, TypeDoc, sousTypedoc, Titre, TextEntete, TextCorps, TextPied, Dateimpression, UserEmetteur, ALD, EmisRecu, FormatDoc, idLieu)"
                                                            " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre, :textEntete, :textCorps, :textPied, :dateimpression, :useremetteur, :ald, :emisrecu, :formatdoc, :idlieu)");
-        query.bindValue(":iduser", QString::number(proc->getDataUser()->id()));
+        query.bindValue(":iduser", QString::number(proc->getUserConnected()->id()));
         query.bindValue(":idpat", QString::number(gidpat));
         query.bindValue(":typeDoc", "Orthoptie");
         query.bindValue(":soustypedoc", "Bilan");
@@ -316,10 +316,10 @@ void dlg_bilanortho::ImprimeBOClicked()
         query.bindValue(":textCorps", textHtml->toHtml());
         query.bindValue(":textPied", Pied);
         query.bindValue(":dateimpression", cherchepatquery.value(2).toDate().toString("yyyy-MM-dd"));
-        query.bindValue(":useremetteur", QString::number(proc->getDataUser()->id()));
+        query.bindValue(":useremetteur", QString::number(proc->getUserConnected()->id()));
         query.bindValue(":emisrecu", "0");
         query.bindValue(":formatdoc", BILANORTHOPTIQUE);
-        query.bindValue(":idlieu", QString::number(proc->getDataUser()->getSite()->id()));
+        query.bindValue(":idlieu", QString::number(proc->getUserConnected()->getSite()->id()));
         if(!query.exec())
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
     }

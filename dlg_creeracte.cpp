@@ -54,9 +54,10 @@ dlg_creeracte::~dlg_creeracte()
 
 void dlg_creeracte::Initialise(Procedures *procAPasser)
 {
+    //TODO : SQL
     proc                    = procAPasser;
     gidUser                 = DataBase::getInstance()->getUserConnected()->id();
-    gSecteurUser            = proc->getDataUser()->getSecteur();
+    gSecteurUser            = proc->getUserConnected()->getSecteur();
     if (gTypeActe != HorsNomenclature)
     {
         ui->CodeActeupLineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));

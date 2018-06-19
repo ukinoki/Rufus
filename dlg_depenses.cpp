@@ -18,6 +18,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_depenses.h"
 #include "icons.h"
 #include "ui_dlg_depenses.h"
+#include "cls_compte.h"
 
 dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
     QDialog(parent),
@@ -28,46 +29,27 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
 
     proc        = procAPasser;
     db          = DataBase::getInstance()->getDataBase();
-    gidUserADebiter     = -1;
-    ui->UserscomboBox   ->setEnabled(proc->getDataUser()->isSecretaire() );
-    gListeLiberauxModel  = proc->getListeLiberaux(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
+    ui->UserscomboBox->setEnabled(proc->getUserConnected()->isSecretaire() );
 
-    for (int i=0; i<gListeLiberauxModel->rowCount(); i++)
-        ui->UserscomboBox->addItem(gListeLiberauxModel->item(i,1)->text(), gListeLiberauxModel->item(i,0)->text());
-    if (ui->UserscomboBox->findData(QString::number(proc->getDataUser()->id()))>-1)
-        ui->UserscomboBox->setCurrentIndex(ui->UserscomboBox->findData(QString::number(proc->getDataUser()->id())));
-    else
+    m_listUserLiberaux = proc->getListeLiberaux();
+    int index = 0;
+    int currentIdUser = proc->getUserConnected()->id(); //Utilisateur connecte
+    for( QMap<int, User*>::const_iterator itUser = m_listUserLiberaux->constBegin(); itUser != m_listUserLiberaux->constEnd(); ++itUser )
+    {
+        ui->UserscomboBox->addItem(itUser.value()->getLogin(), QString::number(itUser.value()->id()) );
+        if( currentIdUser != itUser.value()->id())
+            ++index;
+    }
+    if(index>=m_listUserLiberaux->size())
         ui->UserscomboBox->setCurrentIndex(0);
+    else
+        ui->UserscomboBox->setCurrentIndex(index);
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDepenses").toByteArray());
 
-    gidUserADebiter             = ui->UserscomboBox->currentData().toInt();
-    gNomUser                    = proc->getLogin((gidUserADebiter));
-    proc                        ->setListeComptesUser(gidUserADebiter);
-    glistComptes                = proc->getListeComptesUser();
-    glistComptesAvecDesactive   = proc->getListeComptesUserAvecDesactive();
-    if (glistComptesAvecDesactive->rowCount() == 0)
-    {
-        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gNomUser);
-        InitOK = false;
+    InitOK = initializeUserSelected();
+    if( !InitOK )
         return;
-    }
-
-    gDataUser = proc->setDataOtherUser(gidUserADebiter);
-    if (gDataUser == nullptr)
-    {
-        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche paiement!"), tr("Les paramètres de ")
-                             + gNomUser + tr("ne sont pas retrouvés"));
-        InitOK = false;
-        return;
-    }
-    if (gDataUser->getIdCompteParDefaut() <= 0)
-    {
-        UpMessageBox::Watch(this,tr("Impossible d'ouvrir le journal des dépenses!"), tr("Pas de compte bancaire enregistré pour ")
-                                     + gNomUser);
-        InitOK = false;
-        return;
-    }
 
     setMaximumSize(1642,800);
 
@@ -89,6 +71,7 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
+    //TODO : SQL
     QString requete = "SELECT reffiscale from " NOM_TABLE_RUBRIQUES2035 " where FamFiscale is not null and famfiscale <> 'Prélèvement personnel'";
     QSqlQuery ChercheRubriquesQuery (requete,db);
     QStringList ListeRubriques;
@@ -163,10 +146,11 @@ dlg_depenses::~dlg_depenses()
 
 void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 {
-    QStandardItemModel *model = (ActiveSeult? glistComptes : glistComptesAvecDesactive);
     ui->ComptesupComboBox->clear();
-    for (int i=0; i<model->rowCount(); i++)
-        ui->ComptesupComboBox->addItem(model->item(i,1)->text(), model->item(i,0)->text());
+
+    QMultiMap<int, Compte*> model = (ActiveSeult? gDataUser->getComptes()->comptes() : gDataUser->getComptes()->comptesAll());
+    for( QMultiMap<int, Compte*>::const_iterator itCompte = model.constBegin(); itCompte != model.constEnd(); ++itCompte )
+       ui->UserscomboBox->addItem(itCompte.value()->nom(), QString::number(itCompte.value()->id()) );
 }
 
 void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
@@ -200,16 +184,16 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     ui->GestionComptesupPushButton->setEnabled(gMode == Lire || gMode == TableVide);
     ui->SupprimerupPushButton->setVisible(gMode == Lire);
     ui->ModifierupPushButton->setVisible(gMode == Lire);
-    ui->NouvelleDepenseupPushButton->setEnabled((gMode == Lire || gMode == TableVide) && glistComptes->rowCount()>0);
-    QString ttip = (glistComptes->rowCount()==0?
-                    tr("Vous ne pouvez pas enregistrer de dépenses.\n"
-                       "Aucun compte bancaire n'est enregistré.") : "");
+    ui->NouvelleDepenseupPushButton->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->comptes().size() );
+    QString ttip = "";
+    if( gDataUser->getComptes()->comptes().size() == 0)
+        ttip = tr("Vous ne pouvez pas enregistrer de dépenses.\nAucun compte bancaire n'est enregistré.");
     ui->NouvelleDepenseupPushButton->setToolTip(ttip);
     EnregupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
     AnnulupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
     gBigTable               ->setEnabled(gMode == Lire);
 
-    ui->UserscomboBox        ->setEnabled(proc->getDataUser()->isSecretaire() && gMode==Lire);
+    ui->UserscomboBox        ->setEnabled(proc->getUserConnected()->isSecretaire() && gMode==Lire);
 
 
     switch (gMode) {
@@ -300,34 +284,44 @@ void dlg_depenses::AnnulEnreg()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Change l'utilisateur courant ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::ChangeUser(int)
+bool dlg_depenses::initializeUserSelected()
 {
-    gidUserADebiter             = ui->UserscomboBox->currentData().toInt();
-    gNomUser                    = proc->getLogin((gidUserADebiter));
-    proc                        ->setListeComptesUser(gidUserADebiter);
-    glistComptes                = proc->getListeComptesUser();
-    glistComptesAvecDesactive   = proc->getListeComptesUserAvecDesactive();
-    if (glistComptesAvecDesactive->rowCount() == 0)
+    int id = ui->UserscomboBox->currentData().toInt();
+    gDataUser = m_listUserLiberaux->find(id).value();
+
+    Comptes *comptes = new Comptes();
+    comptes->addCompte( DataBase::getInstance()->loadComptesByUser(gDataUser->id()) );
+    gDataUser->setComptes( comptes );
+    if( gDataUser->getComptes()->comptesAll().size() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gNomUser);
-        InitOK = false;
-        return;
+        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gDataUser->getLogin());
+        return false;
     }
-    gDataUser = proc->setDataOtherUser(gidUserADebiter);
-    if (gDataUser == nullptr)
+
+    QJsonObject data = DataBase::getInstance()->loadUserData(gDataUser->id());
+    if(data.isEmpty())
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche paiement!"), tr("Les paramètres de ")
-                             + gNomUser + tr("ne sont pas retrouvés"));
-        InitOK = false;
-        return;
+                             + gDataUser->getLogin() + tr("ne sont pas retrouvés"));
+        return false;
     }
+    gDataUser->setData( data ); //ON charge le reste des données
+
     if (gDataUser->getIdCompteParDefaut() <= 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir le journal des dépenses!"), tr("Pas de compte bancaire enregistré pour ")
-                                     + gNomUser);
-        InitOK = false;
-        return;
+                                     + gDataUser->getLogin());
+        return false;
     }
+
+    return true;
+}
+void dlg_depenses::ChangeUser(int)
+{
+    InitOK = initializeUserSelected();
+    if( !InitOK )
+        return;
+
     RegleComptesComboBox(false);
     ReconstruitListeAnnees();
     ReconstruitListeRubriques();
@@ -391,7 +385,7 @@ void dlg_depenses::EnregistreDepense()
     QString requete = "select DateDep from " NOM_TABLE_DEPENSES " where DateDep = '" + ui->DateDepdateEdit->date().toString("yyyy-MM-dd") +
             "'and Objet = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
             "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-            " and idUser = " + QString::number(gidUserADebiter);
+            " and idUser = " + QString::number(gDataUser->id());
     QSqlQuery ChercheDepQuery (requete,db);
     if (ChercheDepQuery.size() > 0)
     {
@@ -406,7 +400,7 @@ void dlg_depenses::EnregistreDepense()
         requete = "select DateDep from " NOM_TABLE_DEPENSES " where Datedep > '" + ui->DateDepdateEdit->date().addDays(-180).toString("yyyy-MM-dd") +
                 "'and Objet = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
                 "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                " and idUser = " + QString::number(gidUserADebiter);
+                " and idUser = " + QString::number(gDataUser->id());
         QSqlQuery ChercheDep2Query (requete,db);
         if (ChercheDep2Query.size() > 0)
         {
@@ -463,7 +457,7 @@ void dlg_depenses::EnregistreDepense()
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
     QString insertdeprequete = "insert into " NOM_TABLE_DEPENSES " (DateDep, idUser, Objet, Montant, RefFiscale, FamFiscale, ModePaiement, Compte)"
             " VALUES ('" + ui->DateDepdateEdit->date().toString("yyyy-MM-dd") +
-            "', " + QString::number(gidUserADebiter) +
+            "', " + QString::number(gDataUser->id()) +
             ", '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
             "', " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
             ", '" + proc->CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) +
@@ -743,6 +737,8 @@ void dlg_depenses::MetAJourFiche()
 
         UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(gBigTable->currentRow(),0));
         idDepEnCours = idDeplbl->text().toInt();
+
+        //TODO : SQL
         QString MetAJourrequete = "select DateDep, Objet, Montant, ModePaiement, compte, Reffiscale from " NOM_TABLE_DEPENSES " where idDep = " + idDeplbl->text();
         QSqlQuery ChercheDepQuery (MetAJourrequete,db);
         ChercheDepQuery.first();
@@ -755,8 +751,12 @@ void dlg_depenses::MetAJourFiche()
         if (A == "E")           A = tr("Espèces");
         else
         {
-            int row = glistComptesAvecDesactive->findItems(ChercheDepQuery.value(4).toString()).at(0)->row();
-            B       = glistComptesAvecDesactive->item(row, 1)->text();
+            QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll().find(ChercheDepQuery.value(4).toInt());
+            if( compteFind == gDataUser->getComptes()->comptesAll().constEnd() )
+            {
+                //ATTENTION ERROR
+            }
+            B       = compteFind.value()->nom();
             if (A == "B")       A = tr("Carte de crédit");
             else if (A == "T")  A = tr("TIP");
             else if (A == "V")  A = tr("Virement");
@@ -853,7 +853,7 @@ void dlg_depenses::ModifierDepense()
             "'and Objet = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
             "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
             " and iddep <> " + idDep +
-            " and idUser = " + QString::number(proc->getDataUser()->getIdUserComptable());
+            " and idUser = " + QString::number(proc->getUserConnected()->getIdUserComptable());
     QSqlQuery ChercheDepQuery (requete,db);
     if (ChercheDepQuery.size() > 0)
     {
@@ -874,7 +874,7 @@ void dlg_depenses::ModifierDepense()
         requete = "select DateDep from " NOM_TABLE_DEPENSES " where Datedep < '" + ui->DateDepdateEdit->date().addDays(-1).toString("yyyy-MM-dd") +
                 "'and Objet = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
                 "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                " and idUser = " + QString::number(proc->getDataUser()->getIdUserComptable());
+                " and idUser = " + QString::number(proc->getUserConnected()->getIdUserComptable());
         QSqlQuery ChercheDep2Query (requete,db);
         if (ChercheDep2Query.size() > 0)
         {
@@ -1133,7 +1133,7 @@ void dlg_depenses::DefinitArchitectureBigTable()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::ReconstruitListeAnnees()
 {
-    QString requete = "SELECT distinct Annee from (SELECT year(DateDEP) as Annee FROM " NOM_TABLE_DEPENSES " WHERE idUser = " + QString::number(gidUserADebiter) + ") as ghf order by Annee";
+    QString requete = "SELECT distinct Annee from (SELECT year(DateDEP) as Annee FROM " NOM_TABLE_DEPENSES " WHERE idUser = " + QString::number(gDataUser->id()) + ") as ghf order by Annee";
     QSqlQuery ChercheAnneesQuery (requete,db);
     QStringList ListeAnnees;
     for (int i = 0; i < ChercheAnneesQuery.size(); i++)
@@ -1152,7 +1152,7 @@ void dlg_depenses::ReconstruitListeAnnees()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::ReconstruitListeRubriques()
 {
-    QString requete = "SELECT distinct reffiscale from " NOM_TABLE_DEPENSES " WHERE idUser = " + QString::number(gidUserADebiter) + " order by reffiscale";
+    QString requete = "SELECT distinct reffiscale from " NOM_TABLE_DEPENSES " WHERE idUser = " + QString::number(gDataUser->id()) + " order by reffiscale";
     QSqlQuery ChercheRubriquesQuery (requete,db);
     QStringList ListeRubriques;
     ListeRubriques << "<Aucun>";
@@ -1184,6 +1184,7 @@ void dlg_depenses::ReconstruitListeToutesRubriques()
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::RemplitBigTable()
 {
+    //TODO : SQL
     QTableWidgetItem    *pItem8;
     QString             A;
     UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
@@ -1191,7 +1192,7 @@ void dlg_depenses::RemplitBigTable()
     gBigTable->clearContents();
     QString Deprequete = "SELECT idDep, idUser, year(DateDep) as Annee, DateDep , RefFiscale, Objet, Montant,"
                          "FamFiscale, Nooperation, Monnaie, ModePaiement, Compte, NoCheque FROM " NOM_TABLE_DEPENSES
-                         " WHERE idUser = " + QString::number(gidUserADebiter);
+                         " WHERE idUser = " + QString::number(gDataUser->id());
     if (ui->AnneecomboBox->currentText() != "")
         Deprequete += " AND year(DateDep) = " + ui->AnneecomboBox->currentText();
     if (ui->Rubriques2035comboBox->currentText() != ui->Rubriques2035comboBox->itemText(0))
@@ -1271,12 +1272,9 @@ void dlg_depenses::RemplitBigTable()
             if (A == "E")           A = tr("Espèces");
             else
             {
-                QList<QStandardItem*> litemlist = glistComptesAvecDesactive->findItems(EnumDepensesQuery.value(11).toString());
-                if (litemlist.size()>0)
-                {
-                    int row = litemlist.at(0)->row();
-                    B = glistComptesAvecDesactive->item(row, 1)->text();
-                }
+                QMultiMap<int, Compte*>::iterator cptFind = gDataUser->getComptes()->comptesAll().find(EnumDepensesQuery.value(11).toInt());
+                if( cptFind != gDataUser->getComptes()->comptesAll().end() )
+                    B = cptFind.value()->nom();
                 if (A == "B")       A = tr("Carte de crédit");
                 else if (A == "T")  A = tr("TIP");
                 else if (A == "V")  A = tr("Virement");

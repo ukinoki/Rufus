@@ -116,7 +116,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             nom     = ordoquery.value(5).toString();
             prenom  = proc->MajusculePremiereLettre(ordoquery.value(6).toString());
             //création de l'entête
-            Entete = (ALDQ? proc->ImpressionEntete(DateCreation).value("ALD") : proc->ImpressionEntete(DateCreation).value("Norm"));
+            Entete = (ALDQ? proc->ImpressionEntete(DateCreation, nullptr).value("ALD") : proc->ImpressionEntete(DateCreation, nullptr).value("Norm"));
             Entete.replace("{{TITRE1}}"            , "");
             Entete.replace("{{TITRE}}"             , "");
             Entete.replace("{{DDN}}"               , "");

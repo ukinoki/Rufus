@@ -30,7 +30,7 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
-    QString ChercheComptesrequete = "SELECT NomCompteAbrege, idcompte from " NOM_TABLE_COMPTES " where idUser = " + QString::number(proc->getDataUser()->id());
+    QString ChercheComptesrequete = "SELECT NomCompteAbrege, idcompte from " NOM_TABLE_COMPTES " where idUser = " + QString::number(proc->getUserConnected()->id());
     QSqlQuery ChercheComptesQuery (ChercheComptesrequete,DataBase::getInstance()->getDataBase());
     if (ChercheComptesQuery.size() == 0)
     {
@@ -48,7 +48,7 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
             ui->BanquecomboBox->addItem(ChercheComptesQuery.value(0).toString(),ChercheComptesQuery.value(1));
         }
         QString chercheComptePrefereRequete = " select nomcompteabrege from " NOM_TABLE_COMPTES
-                " where idcompte in (select idcomptepardefaut from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(proc->getDataUser()->id()) + ")";
+                " where idcompte in (select idcomptepardefaut from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(proc->getUserConnected()->id()) + ")";
         QSqlQuery chercheComptePreferQuery (chercheComptePrefereRequete,DataBase::getInstance()->getDataBase());
         if (chercheComptePreferQuery.size() > 0)
         {

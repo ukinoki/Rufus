@@ -31,7 +31,7 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     gidUser         = idUser;
 
     gModifPoste     = false;
-    gDataUser       = proc->getDataUser();
+    gDataUser       = proc->getUserConnected();
 
     gNouvMDP        = "nouv";
     gAncMDP         = "anc";
@@ -763,7 +763,7 @@ void dlg_param::Slot_ChoixFontpushButtonClicked()
     {
         QString fontrequete = "update " NOM_TABLE_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->getFont().toString()
                                 + "', UserPoliceAttribut = '" + Dlg_Fonts->getFontAttribut()
-                                + "' where idUser = " + QString::number(proc->getDataUser()->id());
+                                + "' where idUser = " + QString::number(proc->getUserConnected()->id());
         QSqlQuery fontquery (fontrequete,db);
         DataBase::getInstance()->traiteErreurRequete(fontquery,fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
     }
@@ -842,7 +842,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            if (proc->VerifMDP(proc->getDataUser()->getPassword(),tr("Saisissez votre mot de passe")))
+            if (proc->VerifMDP(proc->getUserConnected()->getPassword(),tr("Saisissez votre mot de passe")))
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
         else
@@ -1061,7 +1061,7 @@ void dlg_param::Slot_GestDataPersoUser()
     if(DonneesUserModifiees)
     {
         proc->ChargeDataUser(gidUser);
-        gDataUser = proc->getDataUser();
+        gDataUser = proc->getUserConnected();
         AfficheParamUser();
     }
 }
@@ -1147,7 +1147,7 @@ void dlg_param::Slot_GestUser()
     if(DonneesUserModifiees)
     {
         proc->ChargeDataUser(gidUser);
-        gDataUser = proc->getDataUser();
+        gDataUser = proc->getUserConnected();
         AfficheParamUser();
     }
     UpMessageBox::Watch(this, tr("Donnes utilisateurs modifiées?"),

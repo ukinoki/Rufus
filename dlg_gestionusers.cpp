@@ -1488,13 +1488,13 @@ bool dlg_gestionusers::ExisteEmployeur(int iduser)
 }
 bool dlg_gestionusers::setDataUser(int id)
 {
-    QJsonObject jsonUser = DataBase::getInstance()->loadUser(id); //TODO : !!! Chargement du lieu
-    if( jsonUser.isEmpty() )
+    QJsonObject data = DataBase::getInstance()->loadUserData(id); //TODO : !!! Chargement du lieu
+    if( data.isEmpty() )
     {
         delete OtherUser;
         return false;
     }
-    OtherUser = new User(jsonUser);
+    OtherUser->setData( data );
     return true;
 }
 

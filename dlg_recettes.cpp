@@ -64,10 +64,10 @@ dlg_recettes::dlg_recettes(QDate *DateDebut, QDate *Datefin, Procedures *ProcAPa
         Titre = tr("Bilan des recettes pour la période du ") + Debut.toString(tr("d MMMM yyyy")) + tr(" au ") + Fin.toString(tr("d MMMM yyyy"));
     setWindowTitle(Titre);
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonClose);
-    if (proc->getListeSuperviseurs()->rowCount()>1)
-        gSupervbox  ->addItem(tr("Tout le monde"),-1);
-    for (int i=0; i<proc->getListeSuperviseurs()->rowCount(); i++)
-        gSupervbox->addItem(proc->getListeSuperviseurs()->item(i,1)->text(), proc->getListeSuperviseurs()->item(i,0)->text());
+    if (proc->getListeSuperviseurs()->size() > 1)
+        gSupervbox->addItem(tr("Tout le monde"),-1);
+    for( QMap<int, User*>::const_iterator itSup = proc->getListeSuperviseurs()->constBegin(); itSup != proc->getListeSuperviseurs()->constEnd(); ++itSup )
+        gSupervbox->addItem(itSup.value()->getLogin(), QString::number(itSup.value()->id()) );
 
     DefinitArchitetureTable();
     RemplitLaTable();
@@ -98,7 +98,8 @@ void dlg_recettes::Slot_FiltreTable()
     }
     else
     {
-        if (proc->getListeParents()->findItems(QString::number(idx)).size()>0)
+        QMultiMap<int, User*>::iterator userFind = proc->getListeParents()->find(idx);
+        if( userFind != proc->getListeParents()->end() )
         {
             gSupervcheckBox->setVisible(true);
             if (gSupervcheckBox->isChecked())
@@ -122,20 +123,22 @@ void dlg_recettes::Slot_FiltreTable()
 
 void dlg_recettes::Slot_ImprimeEtat()
 {
-    QString             Entete, Pied;
+    QString            Entete, Pied;
     bool AvecDupli   = false;
     bool AvecPrevisu = true;//proc->ApercuAvantImpression();
     bool AvecNumPage = false;
 
     //création de l'entête
-    if (proc->setDataOtherUser(gSupervbox->currentData().toInt()) == nullptr)
+    User *userEntete = proc->getUserById(gSupervbox->currentData().toInt());
+    if(userEntete == nullptr)
     {
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
     }
-    Entete = proc->ImpressionEntete(QDate::currentDate()).value("Norm");
+    Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
     if (Entete == "") return;
 
+    // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ceux sont les données d'un User qui sont utilisées ???
     Entete.replace("{{PRENOM PATIENT}}"    , (gSupervbox->currentData().toInt()>0? proc->getLogin(gSupervbox->currentData().toInt()): tr("Bilan global")));
     Entete.replace("{{NOM PATIENT}}"       , "");
     Entete.replace("{{TITRE1}}"            , windowTitle());

@@ -33,15 +33,15 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     gPrenomPat          = PrenomPatient;
 
     proc                = procAPasser;
-    gidUser             = proc->getDataUser()->id();
-    gidUserSuperviseur  = proc->getDataUser()->getIdUserActeSuperviseur();
+    gidUser             = proc->getUserConnected()->id();
+    gidUserSuperviseur  = proc->getUserConnected()->getIdUserActeSuperviseur();
     db                  = DataBase::getInstance()->getDataBase();
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     setWindowTitle(tr("Liste des documents prédéfinis"));
-    ui->PrescriptioncheckBox->setVisible(proc->getDataUser()->isSoignant());
+    ui->PrescriptioncheckBox->setVisible(proc->getUserConnected()->isSoignant());
     widgButtonsDocs     = new WidgetButtonFrame(ui->DocupTableWidget);
     widgButtonsDocs     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
     widgButtonsDocs     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
@@ -357,7 +357,7 @@ void dlg_documents::Slot_dblClicktextEdit()
             }
         }
         int idUser = ui->DocupTableWidget->item(row,5)->text().toInt();
-        if (idUser == proc->getDataUser()->id())
+        if (idUser == proc->getUserConnected()->id())
             ConfigMode(ModificationDOC,row);
     }
 }
@@ -1273,7 +1273,7 @@ void dlg_documents::Slot_Validation()
         }
         if (c == 0)
         {
-            UpMessageBox::Watch(this,"Euuhh... " + proc->getDataUser()->getLogin() + ", " + tr("il doit y avoir une erreur..."), tr("Vous n'avez sélectionné aucun document."));
+            UpMessageBox::Watch(this,"Euuhh... " + proc->getUserConnected()->getLogin() + ", " + tr("il doit y avoir une erreur..."), tr("Vous n'avez sélectionné aucun document."));
             break;
         }
 
@@ -1414,8 +1414,10 @@ void dlg_documents::Slot_Validation()
                 Combo->setContentsMargins(0,0,0,0);
                 Combo->setFixedHeight(34);
                 Combo->setEditable(false);
-                for (int i=0; i<proc->getListeSuperviseurs()->rowCount(); i++)
-                    Combo->addItem(proc->getListeSuperviseurs()->item(i,1)->text(), proc->getListeSuperviseurs()->item(i,0)->text());
+
+                for( QMap<int, User*>::const_iterator itSup = proc->getListeSuperviseurs()->constBegin(); itSup != proc->getListeSuperviseurs()->constEnd(); ++itSup )
+                    Combo->addItem(itSup.value()->getLogin(), QString::number(itSup.value()->id()) );
+
                 Combo->setAccessibleDescription(listusers);
                 lay->addWidget(Combo);
             }
@@ -2596,13 +2598,15 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     glistidCor.clear();
     glisttxt.clear();
 
-    int         userentete = (proc->UserSuperviseur()<1? proc->getListeSuperviseurs()->item(0)->text().toInt() : proc->UserSuperviseur());
-    gDataUser = proc->setDataOtherUser(userentete);
+    int userentete = (proc->UserSuperviseur()<1? proc->getListeSuperviseurs()->first()->id() : proc->UserSuperviseur());
+    gDataUser = proc->getUserById(userentete);
     if( gDataUser == nullptr )
         return;
 
-    QString req = "select patDDN, Sexe from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(gidPatient);
-    QSqlQuery quer(req,db);
+    QString req = "select patDDN, Sexe "
+                  " from " NOM_TABLE_PATIENTS
+                  " where idPat = " + QString::number(gidPatient);
+    QSqlQuery quer(req, db);
     if (DataBase::getInstance()->traiteErreurRequete(quer,req,tr("Impossible de retrouver la date de naissance de ce patient")))
         texte.replace("{{DDN}}"                 ,"xx xx xxxx");
     quer.first();
@@ -2611,7 +2615,9 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     QMap<QString,QVariant>  AgeTotal    = Item::CalculAge(ddn, Sexe);
     QString age                         = AgeTotal["Total"].toString();
     QString formule                     = AgeTotal["Formule"].toString();
-    req = "select idcormedmg, cornom, corprenom, corsexe from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp, " NOM_TABLE_CORRESPONDANTS " cor where idPat = " + QString::number(gidPatient) + " and rmp.idcormedmg = cor.idcor";
+    req = "select idcormedmg, cornom, corprenom, corsexe "
+          " from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp, " NOM_TABLE_CORRESPONDANTS " cor "
+          " where idPat = " + QString::number(gidPatient) + " and rmp.idcormedmg = cor.idcor";
     QSqlQuery quer2(req,db);
 
     texte.replace("{{" + DATEDOC + "}}"         , QDate::currentDate().toString(tr("d MMMM yyyy")));
@@ -2948,7 +2954,7 @@ void dlg_documents::Remplir_TableView()
     QString  Remplirtablerequete = "SELECT ResumeDocument, TextDocument, idDocument, DocPublic, idUser, Prescription, editable"
               " FROM "  NOM_TABLE_COURRIERS
               " WHERE (idUser = " + QString::number(gidUser);
-    if (proc->getDataUser()->isMedecin() || proc->getDataUser()->isOrthoptist())
+    if (proc->getUserConnected()->isMedecin() || proc->getUserConnected()->isOrthoptist())
         Remplirtablerequete += " Or (DocPublic = 1 and iduser <> " + QString::number(gidUser) + ")";
     else
         Remplirtablerequete += " Or DocPublic = 1";
@@ -3143,7 +3149,7 @@ void dlg_documents::SupprimmDocument(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + line->text().toUpper() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton *NoBouton = new UpSmallButton();
@@ -3181,7 +3187,7 @@ void dlg_documents::SupprimmDossier(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + line->text().toUpper() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton *OKBouton = new UpSmallButton();

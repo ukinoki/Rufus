@@ -8,6 +8,7 @@
 #include <QJsonObject>
 #include "cls_item.h"
 #include "cls_site.h"
+#include "cls_compte.h"
 #include "macros.h"
 
 /*!
@@ -29,6 +30,8 @@ public: //static
 
 
 private:
+    bool m_isAllLoaded = false;
+
     int m_id; //!< Id de l'utilsateur en base
 
     QString m_login; //!< Identifiant de l'utilisateur
@@ -76,8 +79,10 @@ private:
     QDateTime m_dateDerniereConnexion;
 
     Site *m_Site = NULL;
+    Comptes *m_comptes = NULL;
 
-    //TODO : User : A vérifier
+
+    //TODO : User : A vérifier Role
     int m_idUserActeSuperviseur = ROLE_INDETERMINE; //!< son id s'il est responsable de ses actes
                                                   //!< un idUser s'il est assistant
     int m_idUserParent = ROLE_INDETERMINE; //!< son id s'il n'est pas remplaçant
@@ -121,15 +126,21 @@ public:
     QString getNomUserEncaissHonoraires() const;
     QString getNomCompteEncaissHonoraires() const;
     QString getFonction() const;
+
     int getIdUserActeSuperviseur() const;
+    void setIdUserActeSuperviseur(int idUserActeSuperviseur);
     int getIdUserParent() const;
+    void setIdUserParent(int idUserParent);
     int getIdUserComptable() const;
+    void setIdUserComptable(int idUserCompta);
+
     int getSecteur() const;
     int getIdCompteParDefaut() const;
     QString getMail() const;
     QString getLoginComptable() const;
     QString getNomCompteParDefaut() const;
     QString getPortable() const;
+    QString getNomCompteAbrege() const;
 
 
     QString getStatus() const;
@@ -138,6 +149,10 @@ public:
     Site* getSite() const;
     void setSite(Site *Site);
 
+    Comptes *getComptes() const;
+    void setComptes(Comptes *comptes);
+
+    bool isAllLoaded() const;
 
     bool isOPTAM();
     bool isCotation();
@@ -161,9 +176,6 @@ public:
     bool isAssistant();
 
     bool isDesactive();
-
-
-
 
 
 signals:

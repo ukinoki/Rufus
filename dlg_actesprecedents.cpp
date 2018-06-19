@@ -178,29 +178,8 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
         // on calcule le montant payé pour l'acte
         if (acte->paiementType() != "G" || acte->paiementType() != "I")
         {
-            /* BUG : Revoir pour integrer le bon calcul
-            double TotalPaye = 0;
-            // on récupère les lignes de paiement
-            requete = " SELECT idRecette, Paye FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(idActeAAfficher);
-            QSqlQuery ListePaiementsQuery (requete,db);
-            DataBase::getInstance()->traiteErreurRequete(ListePaiementsQuery, requete, "");
-            ListePaiementsQuery.first();
-            for (int l = 0; l < ListePaiementsQuery.size(); l++)
-            {
-                requete = "SELECT Monnaie FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + ListePaiementsQuery.value(0).toString();
-                QSqlQuery MonnaieQuery (requete,db);
-                DataBase::getInstance()->traiteErreurRequete(MonnaieQuery,requete,"");
-                MonnaieQuery.first();
-                if (MonnaieQuery.value(0).toString() == "F")
-                    TotalPaye = TotalPaye + (ListePaiementsQuery.value(1).toDouble() / 6.55957);
-                else
-                    TotalPaye = TotalPaye + ListePaiementsQuery.value(1).toDouble();
-                ListePaiementsQuery.next();
-            }
-            //TODO : ??? : correspond au montant total de l'acte ? pourquoi tout recalculer
-            //TODO : ??? : si oui, on peux simplifier pour eviter un trop grand nombre d'appel
-            */
-            //ui->PayelineEdit->setText(QLocale().toString(acte->montant(),'f',2));
+            double montant = DataBase::getInstance()->getActeMontant(idActeAAfficher);
+            ui->PayelineEdit->setText(QLocale().toString(montant,'f',2));
         }
 
 
@@ -245,6 +224,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
 ------------------------------------------------------------------------------------------------------------------------------------*/
 int dlg_actesprecedents::ChercheActeAAfficher()
 {
+    //TODO : SQL
     QString requete = "SELECT idActe FROM " NOM_TABLE_ACTES
               " WHERE idPat = '" + QString::number(gidPatient) + "' order by actedate asc";
 
@@ -273,6 +253,7 @@ int dlg_actesprecedents::getActeAffiche()
 ------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_actesprecedents::NavigationConsult(int i)
 {
+    //TODO : SQL
     //  Afficher les éléments de la tables Actes
     if( acte->nbActes() == 1 )
     {

@@ -241,7 +241,7 @@ géré par la classe villecpwidget
 Villes* Procedures::getVilles()
 {
     if( m_villes == nullptr )
-        m_villes = DataBase::getInstance()->loadAllVilles();
+        m_villes = DataBase::getInstance()->loadVillesAll();
 
     return m_villes;
 }
@@ -543,7 +543,7 @@ QString Procedures::ImpressionCorps(QString text, bool ALD)
 /*---------------------------------------------------------------------------------
     Retourne l'entête du document à imprimer
 -----------------------------------------------------------------------------------*/
-QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
+QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
 {
 
     QMap<QString, QString> EnteteMap;
@@ -552,15 +552,17 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
     int idparent = -1;
     bool rplct = false;
     // si le user est un remplaçant on essaie de savoir qui il remplace
-    if (OtherUser->getEnregHonoraires() == 3)
+    if (user && user->getEnregHonoraires() == 3)
     {
         rplct = true;
-        if (OtherUser->id() == gidUserSuperViseur)
-            idparent = gidUserParent;
+        if (user->id() == m_userConnected->getIdUserActeSuperviseur())
+            idparent = m_userConnected->getIdUserParent();
         else
         {
             // le user est connecté, on cherche qui il remplace - son parent
-            QString reqrp = "select userparent from " NOM_TABLE_USERSCONNECTES " where usersuperviseur = " + QString::number(OtherUser->getEnregHonoraires());
+            QString reqrp = "select userparent "
+                            "from " NOM_TABLE_USERSCONNECTES
+                            " where usersuperviseur = " + QString::number(user->getEnregHonoraires());
             QSqlQuery querrp(reqrp, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
             if (querrp.size()>0)
             {
@@ -570,11 +572,11 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
             else
             {
                 // le user n'est pas connecté on demande quel est son parent
-                QSqlQuery soignquer("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(OtherUser->id()), DataBase::getInstance()->getDataBase());
+                QSqlQuery soignquer("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(user->id()), DataBase::getInstance()->getDataBase());
                 soignquer.first();
                 QString req   = "select iduser, userlogin from " NOM_TABLE_UTILISATEURS
                         " where (userenreghonoraires = 1 or userenreghonoraires = 2)"
-                        " and iduser <> " + QString::number(OtherUser->id()) +
+                        " and iduser <> " + QString::number(user->id()) +
                         " and soignant = " + soignquer.value(0).toString() +
                         " and userdesactive is null";
                 //qDebug() << req;
@@ -593,7 +595,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
                     QGroupBox*boxparent     = new QGroupBox();
                     globallay               ->insertWidget(0,boxparent);
                     boxparent               ->setAccessibleName("Parent");
-                    QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + OtherUser->getLogin() + "?";
+                    QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + user->getLogin() + "?";
                     boxparent               ->setTitle(lblUsrParent);
 
                     QFontMetrics fm         = QFontMetrics(qApp->font());
@@ -609,12 +611,15 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
                         pradiobutt  ->setChecked(i==0);
                         vbox        ->addWidget(pradiobutt);
                     }
-                    vbox                ->setContentsMargins(8,0,8,0);
-                    boxparent           ->setLayout(vbox);
-                    gAskUser                ->setModal(true);
-                    globallay               ->setSizeConstraint(QLayout::SetFixedSize);
-                    connect(gAskUser->OKButton,   SIGNAL(clicked(bool)),  gAskUser, SLOT(accept()));
+                    vbox     ->setContentsMargins(8,0,8,0);
+                    boxparent->setLayout(vbox);
+                    gAskUser ->setModal(true);
+                    globallay->setSizeConstraint(QLayout::SetFixedSize);
+
+                    connect(gAskUser->OKButton, &QPushButton::clicked, gAskUser, &UpDialog::accept);
+
                     gAskUser->exec();
+
                     QList<QRadioButton*> listbutt = boxparent->findChildren<QRadioButton*>();
                     for (int j=0; j<listbutt.size(); j++)
                         if (listbutt.at(j)->isChecked())
@@ -644,65 +649,64 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date)
         Entete.replace("{{POLICE}}", AppFont().family());
         if (rplct)
         {
-            QString reqr = "select usertitre, usernom, userprenom, usernumps, usernumco from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(idparent);
-            QSqlQuery querr (reqr, DataBase::getInstance()->getDataBase());
-
-            if(querr.first() && querr.value(0).toString() != "")
-                Entete.replace("{{TITREUSER}}", "<s>" + querr.value(0).toString() + " " + querr.value(2).toString() + " " + querr.value(1).toString() + "</s> "
-                               "<font color=\"darkblue\">"
-                               + tr ("remplacé par") + " "
-                               + OtherUser->getTitre() + " " + OtherUser->getPrenom() + " " + OtherUser->getNom())
+            User *userRemp = getUserById(idparent);
+            if(userRemp && userRemp->getTitre().size())
+                Entete.replace("{{TITREUSER}}", "<s>" + userRemp->getTitre() + " " + userRemp->getPrenom() + " " + userRemp->getNom() + "</s> "
+                                                "<font color=\"darkblue\">" + tr ("remplacé par") + " "
+                                                + user->getTitre() + " " + user->getPrenom() + " " + user->getNom())
                                + "</font>";
             else
-                Entete.replace("{{TITREUSER}}"     , "<s>" + querr.value(2).toString() + " " + querr.value(1).toString() + " </s><font color=\"red\">" + tr ("remplacé par") + " "
-                               + OtherUser->getPrenom() + " " + OtherUser->getNom()) + "</font>";
+                Entete.replace("{{TITREUSER}}", "<s>" + userRemp->getPrenom() + " " + userRemp->getNom() + " </s> "
+                                                "<font color=\"red\">" + tr ("remplacé par") + " "
+                                                + user->getPrenom() + " " + user->getNom())
+                               + "</font>";
         }
         else
         {
-            if (OtherUser->getTitre() != "")
-                Entete.replace("{{TITREUSER}}", OtherUser->getTitre() + " " + OtherUser->getPrenom() + " " + OtherUser->getNom());
+            if (user->getTitre() != "")
+                Entete.replace("{{TITREUSER}}", user->getTitre() + " " + user->getPrenom() + " " + user->getNom());
             else
-                Entete.replace("{{TITREUSER}}", OtherUser->getPrenom() + " " + OtherUser->getNom());
+                Entete.replace("{{TITREUSER}}", user->getPrenom() + " " + user->getNom());
         }
-        if(OtherUser->getNoSpecialite() != 0)
-            Entete.replace("{{SPECIALITE}}", QString::number(OtherUser->getNoSpecialite()) + " " + OtherUser->getSpecialite());
+        if(user->getNoSpecialite() != 0)
+            Entete.replace("{{SPECIALITE}}", QString::number(user->getNoSpecialite()) + " " + user->getSpecialite());
         else
-            Entete.replace("{{SPECIALITE}}", OtherUser->getSpecialite());
+            Entete.replace("{{SPECIALITE}}", user->getSpecialite());
 
         QString adresse ="";
         int nlignesadresse = 0;
-        if( OtherUser->getSite()->nom().size() )
+        if( user->getSite()->nom().size() )
         {
             nlignesadresse  ++;
-            adresse         += OtherUser->getSite()->nom();
+            adresse         += user->getSite()->nom();
         }
-        if (OtherUser->getSite()->adresse1() != "" || OtherUser->getSite()->adresse2() != "")
+        if (user->getSite()->adresse1() != "" || user->getSite()->adresse2() != "")
         {
             nlignesadresse  ++;
             if (nlignesadresse >0)
                 adresse += "<br />";
-            if (OtherUser->getSite()->adresse1() != "" && OtherUser->getSite()->adresse2() != "")
-                adresse += OtherUser->getSite()->adresse1() + " - " + OtherUser->getSite()->adresse2();
+            if (user->getSite()->adresse1() != "" && user->getSite()->adresse2() != "")
+                adresse += user->getSite()->adresse1() + " - " + user->getSite()->adresse2();
             else
-                adresse += OtherUser->getSite()->adresse1() + OtherUser->getSite()->adresse2();
+                adresse += user->getSite()->adresse1() + user->getSite()->adresse2();
         }
         Entete.replace("{{ADRESSE}}", adresse);
-        Entete.replace("{{CPVILLE}}", QString::number(OtherUser->getSite()->codePostal()) + " " + OtherUser->getSite()->ville().toUpper());
-        Entete.replace("{{TEL}}", "Tél. " + OtherUser->getSite()->telephone());
+        Entete.replace("{{CPVILLE}}", QString::number(user->getSite()->codePostal()) + " " + user->getSite()->ville().toUpper());
+        Entete.replace("{{TEL}}", "Tél. " + user->getSite()->telephone());
         if (nlignesadresse==2)
             Entete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");
         else
             Entete.replace("{{LIGNESARAJOUTER}}", "");
 
         QString NumSS = "";
-        if( OtherUser->getNumCO().size() )
+        if( user->getNumCO().size() )
         {
-            NumSS = OtherUser->getNumCO();
-            if( OtherUser->getNumPS() > 0 ) NumSS += " - ";
+            NumSS = user->getNumCO();
+            if( user->getNumPS() > 0 ) NumSS += " - ";
         }
-        if (OtherUser->getNumPS() > 0) NumSS += "RPPS " + QString::number(OtherUser->getNumPS());
+        if (user->getNumPS() > 0) NumSS += "RPPS " + QString::number(user->getNumPS());
         Entete.replace("{{NUMSS}}", NumSS);
-        Entete.replace("{{DATE}}", OtherUser->getSite()->ville()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
+        Entete.replace("{{DATE}}", user->getSite()->ville()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
 
         (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
     }
@@ -1090,22 +1094,49 @@ void Procedures::setCodePostalParDefaut(QString CPParDefaut)
     lCPParDefaut = CPParDefaut;
 }
 
-User* Procedures::getDataUser()
+User* Procedures::getUserConnected()
 {
-    return m_userConnected; //TODO : m_userConnected
+    return m_userConnected;
 }
-User* Procedures::setDataOtherUser(int id)
-{
-    QJsonObject jsonUser = DataBase::getInstance()->loadUser(id);
-    if( OtherUser != nullptr)
-        delete OtherUser;
 
-    if( !jsonUser.isEmpty() )
+/*!
+ * \brief Procedures::getUserById
+ * Cette fonction va retourner un utilisateur en fonction de son id
+ * \param id l'id de l'utilisateur
+ * \return User l'utilisateur
+ */
+User* Procedures::getUserById(int id)
+{
+    bool addToList = false;
+    User *result = m_users->getUserById(id);
+    if( (addToList = (result == nullptr)) )
+        result = new User();
+
+    if( !result->isAllLoaded() )
     {
-        OtherUser = new User(jsonUser);
-        return OtherUser;
+        QJsonObject jsonUser = DataBase::getInstance()->loadUserData(id);
+        if( jsonUser.isEmpty() )
+            result = nullptr;
+        else
+            result->setData(jsonUser);
     }
-    return nullptr;
+
+    if( addToList )
+        m_users->addUser(result);
+
+    return result;
+}
+
+/*!
+ * \brief Procedures::getPatientById
+ * Cette fonction va retourner un pateint en fonction de son id
+ * \param id l'id du patient
+ * \return Patien le patient
+ */
+Patient* Procedures::getPatientById(int id) //TODO : getPatientById à faire
+{
+    Patient *result = nullptr;
+    return result;
 }
 
 void Procedures::setDirImagerie()
@@ -1136,52 +1167,12 @@ bool Procedures::FicheRefractionOuverte()
 }
 
 //TODO : Compta
-void Procedures::setListeComptesUser(int idUser)
-{
-    ListeComptesUser                = new QStandardItemModel();
-    ListeComptesUserAvecDesactive   = new QStandardItemModel();
-    QStandardItem *pitem0, *pitem1;
-    QStandardItem *oitem0, *oitem1;
-    QString req = "SELECT idCompte, NomCompteAbrege, desactive FROM " NOM_TABLE_COMPTES " WHERE idUser = " + QString::number(idUser);
-    //qDebug() << req;
-    QSqlQuery ChercheNomsComptesQuery (req, DataBase::getInstance()->getDataBase());
-    if (!DataBase::getInstance()->traiteErreurRequete(ChercheNomsComptesQuery,req, tr("Impossible de retrouver les comptes de l'utilisateur!")))
-    {
-        for (int i = 0; i < ChercheNomsComptesQuery.size(); i++)
-        {
-            ChercheNomsComptesQuery.seek(i);
-            pitem0 = new QStandardItem(ChercheNomsComptesQuery.value(0).toString());
-            pitem1 = new QStandardItem(ChercheNomsComptesQuery.value(1).toString());
-            QList<QStandardItem*> listitems;
-            listitems << pitem0 << pitem1;
-            ListeComptesUserAvecDesactive    ->appendRow(listitems);
-            oitem0 = new QStandardItem(ChercheNomsComptesQuery.value(0).toString());
-            oitem1 = new QStandardItem(ChercheNomsComptesQuery.value(1).toString());
-            QList<QStandardItem*> olistitems;
-            olistitems << oitem0 << oitem1;
-            if(ChercheNomsComptesQuery.value(2) != 1)
-                ListeComptesUser    ->appendRow(olistitems);
-        }
-    }
-}
-
-QStandardItemModel* Procedures::getListeComptesUser()
-{
-    return ListeComptesUser;
-}
-
-QStandardItemModel* Procedures::getListeComptesUserAvecDesactive()
-{
-    return ListeComptesUserAvecDesactive;
-}
-
 void Procedures::setListeComptesEncaissmtUser(int idUser)
 {
-    if( OtherUser->id() != idUser)
-        setDataOtherUser(idUser);
+    User* user = getUserById(idUser);
     ListeComptesEncaissUser                 = new QStandardItemModel();
     ListeComptesEncaissUserAvecDesactive    = new QStandardItemModel();
-    int usercpt = ( OtherUser->getEmployeur() > 0 ? OtherUser->getEmployeur() : idUser ) ;
+    int usercpt = ( user->getEmployeur() > 0 ? user->getEmployeur() : idUser ) ;
     QString req = "select idCompte, nomcompteabrege, desactive, userlogin from " NOM_TABLE_COMPTES " cpt"
                   " left outer join " NOM_TABLE_UTILISATEURS " usr on  usr.iduser = cpt.iduser"
                   " where cpt.idUser = " + QString::number(usercpt);
@@ -1208,20 +1199,20 @@ void Procedures::setListeComptesEncaissmtUser(int idUser)
             //qDebug() << oitem0->text() + " - " + oitem1->text();
         }
     }
-    if (ListeComptesEncaissUser->findItems(QString::number(OtherUser->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
+    if (ListeComptesEncaissUser->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
     {
         QStandardItem *nitem0, *nitem1;
-        nitem0 = new QStandardItem(OtherUser->getNomUserEncaissHonoraires() + "/" + OtherUser->getNomCompteEncaissHonoraires());
-        nitem1 = new QStandardItem(QString::number(OtherUser->getIdCompteEncaissHonoraires()));
+        nitem0 = new QStandardItem(user->getNomUserEncaissHonoraires() + "/" + user->getNomCompteEncaissHonoraires());
+        nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
         QList<QStandardItem*> nlistitems;
         nlistitems << nitem0 << nitem1;
         ListeComptesEncaissUser->insertRow(0, nlistitems);
     }
-    if (ListeComptesEncaissUserAvecDesactive->findItems(QString::number(OtherUser->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
+    if (ListeComptesEncaissUserAvecDesactive->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
     {
         QStandardItem *nitem0, *nitem1;
-        nitem0 = new QStandardItem(OtherUser->getNomUserEncaissHonoraires() + "/" + OtherUser->getNomCompteEncaissHonoraires());
-        nitem1 = new QStandardItem(QString::number(OtherUser->getIdCompteEncaissHonoraires()));
+        nitem0 = new QStandardItem(user->getNomUserEncaissHonoraires() + "/" + user->getNomCompteEncaissHonoraires());
+        nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
         QList<QStandardItem*> nlistitems;
         nlistitems << nitem0 << nitem1;
         ListeComptesEncaissUserAvecDesactive->insertRow(0, nlistitems);
@@ -1242,125 +1233,46 @@ QStandardItemModel* Procedures::getListeComptesEncaissmtUserAvecDesactive()
 
 QString Procedures::getLogin(int idUser)
 {
-    if (gListeUsersModel->rowCount()==0)
-        return "";
-    if (gListeUsersModel->findItems(QString::number(idUser)).size()==0)
-        return "";
-    int row = gListeUsersModel->findItems(QString::number(idUser)).at(0)->row();
-    if (row > -1)
-        return gListeUsersModel->item(row,1)->text();
-    else
-        return "";
+    User* user = m_users->getUserById(idUser);
+    if( user != nullptr)
+        return user->getLogin();
+
+    return "";
 }
 
-QStandardItemModel* Procedures::getListeLiberaux()
+QMap<int, User*>* Procedures::getListeLiberaux()
 {
-    return gListeLiberauxModel;
+    return m_users->liberaux();
 }
-
-QStandardItemModel* Procedures::getListeParents()
+QMap<int, User *>* Procedures::getListeParents()
 {
-    return gListeParentsModel;
+    return m_users->parents();
 }
-
-QStandardItemModel* Procedures::getListeSuperviseurs()
+QMap<int, User *>* Procedures::getListeSuperviseurs()
 {
-    return gListeSuperviseursModel;
+    return m_users->superviseurs();
 }
-
-QStandardItemModel* Procedures::getListeUsers()
+QMap<int, User *>* Procedures::getListeUsers()
 {
-    return gListeUsersModel;
+    return m_users->users();
 }
 
 /*!
- * \brief Procedures::setlisteUsers
- * Charge l'ensemble des utilisateurs et les range dans 4 tableaux
- * - la liste complète des utilisateurs (gListeUsersModel)
- * - la liste des utilisateurs libéraux (gListeLiberauxModel) : UserEnregHonoraires==1
- * - la liste des "parents" (gListeParentsModel) :
- * - la liste des "superviseur" (gListeSuperviseursModel)
- *
- * ATTENTION : Jamais mis à jour, initialisé au moment du login.
+ * \brief Procedures::initListeUsers
+ * Charge l'ensemble des utilisateurs
+ * et les ajoute à la classe Users
  */
-//BUG : !!! : REVOIR pour utiliser la classe User
-void Procedures::setlisteUsers()
+void Procedures::initListeUsers()
 {
-    gListeUsersModel            = new QStandardItemModel();
-    gListeLiberauxModel         = new QStandardItemModel();
-    gListeParentsModel          = new QStandardItemModel();
-    gListeSuperviseursModel     = new QStandardItemModel();
-    QStandardItem       *pitem0, *pitem1, *pitem2, *pitem3, *pitem4;
-    QStandardItem       *litem0, *litem1, *litem2, *litem3, *litem4;
-    QStandardItem       *oitem0, *oitem1, *oitem2, *oitem3, *oitem4, *oitem5, *oitem6;
-    QStandardItem       *mitem0, *mitem1, *mitem2, *mitem3, *mitem4;
-    QString req = "select usr.iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires, nomcompteabrege"
-                  " from " NOM_TABLE_UTILISATEURS " as usr"
-                  " left outer join " NOM_TABLE_COMPTES " on idcompteencaisshonoraires = idCompte"
-                  " where userdesactive is null";
-    //qDebug() << req;
-    QSqlQuery usrquer(req, DataBase::getInstance()->getDataBase() );
-    for (int i=0; i<usrquer.size(); i++)
+    QList<User*> listUsers = DataBase::getInstance()->loadUsersAll();
+    QList<User*>::const_iterator itUser;
+    for( itUser = listUsers.constBegin(); itUser != listUsers.constEnd(); ++itUser )
     {
-        //1. la liste des utilisateurs
-        usrquer.seek(i);
-        pitem0 = new QStandardItem(usrquer.value(0).toString());
-        pitem1 = new QStandardItem(usrquer.value(1).toString());
-        pitem2 = new QStandardItem(usrquer.value(2).toString());
-        pitem3 = new QStandardItem(usrquer.value(3).toString());
-        pitem4 = new QStandardItem(usrquer.value(4).toString());
-        QList<QStandardItem*> listitems;
-        listitems << pitem0 << pitem1 << pitem2 << pitem3 << pitem4;
-        gListeUsersModel    ->appendRow(listitems);
+        User *usr = const_cast<User*>(*itUser);
+        if( usr->id() == m_userConnected->id() )
+            usr = m_userConnected;
 
-        bool soignant       = (usrquer.value(2).toInt() == 1 || usrquer.value(2).toInt() == 2 || usrquer.value(2).toInt() == 3);
-        bool pasremplacant  = (usrquer.value(4).toInt() != 3);
-        bool liberal        = (usrquer.value(4).toInt() == 1);
-        bool responsable    = (usrquer.value(3).toInt() == 1 || usrquer.value(3).toInt() == 2);
-
-        if ( soignant && responsable)
-        {
-            //2. la liste des soignants superviseurs (-> soignants qui peuvent être responsables)
-            // on ne peut pas reprendre les mêmes items pour les insérer dans un autre model
-            litem0 = new QStandardItem(usrquer.value(0).toString());
-            litem1 = new QStandardItem(usrquer.value(1).toString());
-            litem2 = new QStandardItem(usrquer.value(2).toString());
-            litem3 = new QStandardItem(usrquer.value(3).toString());
-            litem4 = new QStandardItem(usrquer.value(4).toString());
-            //qDebug() <<usrquer.value(1).toString();
-            QList<QStandardItem*> listitems2;
-            listitems2 << litem0 << litem1 << litem2 << litem3 << litem4;
-            gListeSuperviseursModel    ->appendRow(listitems2);
-        }
-        if (soignant && liberal)
-        {
-            //3. la liste des soignants liberaux (-> soignants qui enregistrent une compta)
-            // on ne peut pas reprendre les mêmes items pour les insérer dans un autre model
-            mitem0 = new QStandardItem(usrquer.value(0).toString());
-            mitem1 = new QStandardItem(usrquer.value(1).toString());
-            mitem2 = new QStandardItem(usrquer.value(2).toString());
-            mitem3 = new QStandardItem(usrquer.value(3).toString());
-            mitem4 = new QStandardItem(usrquer.value(4).toString());
-            QList<QStandardItem*> listitems2;
-            listitems2 << mitem0 << mitem1 << mitem2 << mitem3 << mitem4;
-            gListeLiberauxModel   ->appendRow(listitems2);
-        }
-
-        if (soignant && pasremplacant)
-        {
-            //4. la liste des parents possibles et leurs comptes d'encaissement(-> tous les soignants qui ne sont pas remplaçants)
-            // on ne peut pas reprendre les mêmes items pour les insérer dans un autre model
-            oitem0 = new QStandardItem(usrquer.value(0).toString());
-            oitem1 = new QStandardItem(usrquer.value(1).toString());
-            oitem2 = new QStandardItem(usrquer.value(2).toString());
-            oitem3 = new QStandardItem(usrquer.value(3).toString());
-            oitem4 = new QStandardItem(usrquer.value(4).toString());
-            oitem5 = new QStandardItem(usrquer.value(5).toString());
-            oitem6 = new QStandardItem(usrquer.value(6).toString());
-            QList<QStandardItem*> listitems3;
-            listitems3 << oitem0 << oitem1 << oitem2 << oitem3 << oitem4 << oitem5 << oitem6;
-            gListeParentsModel  ->appendRow(listitems3);
-        }
+        m_users->addUser( usr );
     }
 }
 //Pas normal, les mots de passes doivent etre chiffrés
@@ -2638,10 +2550,9 @@ bool Procedures::Connexion_A_La_Base()
     if (!IdentificationUser())
         return false;
 
-    setlisteUsers();
+    //initListeUsers();
 
     m_userConnected->setSite( DetermineLieuExercice() );
-    ChargeDataUser(m_userConnected->id());
     if (m_userConnected->getSite() == nullptr )
         UpMessageBox::Watch(0,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
     gdbOK = true;
@@ -2658,15 +2569,16 @@ bool Procedures::Connexion_A_La_Base()
 
 bool Procedures::ChargeDataUser(int iduser)
 {
-    QJsonObject jsonUser = DataBase::getInstance()->loadUser(iduser);
+    //NOTE : Etrange
+    QJsonObject jsonUser = DataBase::getInstance()->loadUserData(iduser);
     if( jsonUser.isEmpty() )
         return false;
 
     jsonUser["userSuperviseur"]        = UserSuperviseur(); // -1 = indéterminé (personnel non soignant) -2 = tout le monde
-    jsonUser["idUserComptable"]        = UserComptable();
+    jsonUser["idUserComptable"]        = m_userConnected->getIdUserComptable();
     jsonUser["idParent"]               = UserParent();
     jsonUser["loginSuperviseur"]       = getLogin(UserSuperviseur());
-    jsonUser["loginComptable"]         = getLogin(UserComptable());
+    jsonUser["loginComptable"]         = getLogin(m_userConnected->getIdUserComptable());
     jsonUser["loginParent"]            = getLogin(UserParent());
     if( jsonUser["idUserComptable"].toInt() == -2 )
     {
@@ -2676,7 +2588,7 @@ bool Procedures::ChargeDataUser(int iduser)
     }
     else if( iduser != UserParent() )
     {
-        QJsonObject jsonUserParent = DataBase::getInstance()->loadUser(gidUserParent);
+        QJsonObject jsonUserParent = DataBase::getInstance()->loadUserData(m_userConnected->getIdUserParent());
         if( !jsonUserParent.isEmpty() )
         {
             jsonUser["idCompteParDefaut"]          = jsonUserParent["idCompteParDefaut"];
@@ -2700,20 +2612,20 @@ bool Procedures::ChargeDataUser(int iduser)
     //qDebug() << "superviseur    = " + d;
     Statut += tr("superviseur") + "\t= " + d + "\n";
 
-    switch (gidUserParent) {
+    switch (m_userConnected->getIdUserParent()) {
     case -3: d = tr("indéterminé"); break;
     case -2: d = tr("sans objet"); break;
     default:
-        d = getLogin(gidUserParent); break;
+        d = getLogin(m_userConnected->getIdUserParent()); break;
     }
     //qDebug() << "parent  = " + d ;
     Statut += tr("parent") + "\t= " + d+ "\n";
 
-    switch (gidUserComptable) {
+    switch (m_userConnected->getIdUserComptable()) {
     case -3: d = tr("indéterminé"); break;
     case -2: d = tr("sans objet"); break;
     case -1: d = tr("sans comptabilité"); break;
-    default: d = getLogin(gidUserComptable); break;
+    default: d = getLogin(m_userConnected->getIdUserComptable()); break;
     }
     //qDebug() << "comptable      = " + d;
     Statut += tr("comptable") + "\t= " + d + "\n";
@@ -2746,7 +2658,7 @@ bool Procedures::ChargeDataUser(int iduser)
     -----------------------------------------------------------------------------------------------------------------*/
 Site* Procedures::DetermineLieuExercice()
 {
-    QList<Site*> listEtab = DataBase::getInstance()->loadUserSites(m_userConnected->id());
+    QList<Site*> listEtab = DataBase::getInstance()->loadSitesByUser(m_userConnected->id());
     if( listEtab.size() == 1 )
         return listEtab[0];
 
@@ -3014,9 +2926,9 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     User *newUser = new User(Login, MDP);
     DataBase::getInstance()->setUserConnected( newUser );
     QSqlQuery ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserLogin, UserMDP) VALUES (1,'" + Login + "', '" + MDP + "')",DataBase::getInstance()->getDataBase() );
-    gidUserSuperViseur      = 1;
-    gidUserParent           = 1;
-    gidUserComptable        = 1;
+    newUser->setIdUserActeSuperviseur(1);
+    newUser->setIdUserComptable(1);
+    newUser->setIdUserParent(1);
     gidCentre               = 1;
     avecLaCompta            = 0;
     gUseCotation            = true;
@@ -3153,13 +3065,13 @@ QString Procedures::CreerUserFactice(User &user)
 /*-----------------------------------------------------------------------------------------------------------------
     -- Identification de l'utilisateur -------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::IdentificationUser(bool ChgUsr) //TODO : ICI : IdentificationUser
+bool Procedures::IdentificationUser(bool ChgUsr)
 {
-    Dlg_IdentUser   = new dlg_identificationuser(ChgUsr);
-    Dlg_IdentUser   ->setFont(QFont(POLICEPARDEFAUT,POINTPARDEFAUT));
+    dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser(ChgUsr);
+    dlg_IdentUser   ->setFont(QFont(POLICEPARDEFAUT,POINTPARDEFAUT));
     bool a = false;
 
-    int result = Dlg_IdentUser->exec();
+    int result = dlg_IdentUser->exec();
     if( result > 0 )
     {
         m_userConnected = DataBase::getInstance()->getUserConnected();
@@ -3169,7 +3081,8 @@ bool Procedures::IdentificationUser(bool ChgUsr) //TODO : ICI : IdentificationUs
             exit(0);
         }
         Verif_secure_file_priv();
-        if (DefinitRoleUser())
+        initListeUsers();
+        if (DefinitRoleUser()) //NOTE : User Role
         {
             /* definit les iduser pour lequel le user travaille
                 . iduser superviseur des actes                      (int gidUserSuperViseurProv)
@@ -3193,26 +3106,23 @@ bool Procedures::IdentificationUser(bool ChgUsr) //TODO : ICI : IdentificationUs
                     2 = Sans compta mais avec cotation
                     3 = Avec compta mais sans cotation
            */
-            gidUserSuperViseur      = gidUserSuperViseurProv;
-            gidUserComptable        = gidUserComptableProv;
-            gidUserParent           = gidUserParentProv;
-            gUseCotation            = gUseCotationProv;
-            avecLaCompta            = (avecLaComptaProv? (gUseCotationProv? 0 : 4) : (gUseCotationProv? 2 : 1));
-            //avecLaCompta            = 0;
+            gUseCotation = gUseCotationProv;
+            avecLaCompta = (avecLaComptaProv? (gUseCotationProv? 0 : 4) : (gUseCotationProv? 2 : 1));
+
             QSqlQuery quer("select Numcentre from " NOM_TABLE_PARAMSYSTEME,DataBase::getInstance()->getDataBase() );
-            quer.first();
-            gidCentre = quer.value(0).toInt();
+            if( quer.first() )
+                gidCentre = quer.value(0).toInt();
             a = true;
         }
     }
-    else if (result == -1) // erreur de couple login-MDP
-    {
-         // traité en amont
-    }
-    else if (result == -2) // erreur des droits utilisateur sur le serveur
+    else if (result == -1 || result == -2 || result == -5 ) // erreur de couple login-MDP
     {
         // traité en amont
+        // -1 : erreur de couple login-MDP
+        // -2 : erreur des droits utilisateur sur le serveur
+        // -5 : table utilisateurs non vide mais utilisateur non référencé
     }
+    //BUG : A SUPP, géré par le serveur
     else if (result == -3) // anomalie sur la base - table utilisateurs manquante ou corrompue
     {
         UpMessageBox     msgbox;
@@ -3247,11 +3157,12 @@ bool Procedures::IdentificationUser(bool ChgUsr) //TODO : ICI : IdentificationUs
             // Création de l'utilisateur
             //TODO : ICI
             gdbOK = CreerPremierUser(gLoginUser(), gMDPUser());
-            setlisteUsers();
+            initListeUsers();
             UpMessageBox::Watch(0,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
             exit(0);
         }
     }
+    //BUG : A SUPP, géré par le serveur
     else if (result == -4) // table utilisateurs vide
     {
         UpMessageBox::Watch(0, tr("Erreur sur la base patients!"),
@@ -3261,13 +3172,7 @@ bool Procedures::IdentificationUser(bool ChgUsr) //TODO : ICI : IdentificationUs
                                   "Connectez-vous avec un login enregistré dans la base Rufus"));
         exit(0);
     }
-    else if (result == -5) // table utilisateurs non vide mais utilisateur non référencé
-    {
-       //traité en amont
-    }
-    else
-        a = false;
-    delete Dlg_IdentUser;
+    delete dlg_IdentUser;
 
     /*QString compta = "";
     if (avecLaCompta==0)    compta = "avec cotation et comptabilité";
@@ -3375,117 +3280,92 @@ void Procedures::DefinitScriptBackup(QString path, bool AvecImages, bool AvecVid
     }
 }
 
-bool Procedures::DefinitRoleUser()
+bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 {
-    //TODO : ??? : revoir fonctionnement
-
-    /* definit les iduser pour lequel le user travaille
-     *  . iduser
-        . iduser superviseur des actes                      (int gidUserSuperViseurProv)
-            . lui-même s'il est responsable de ses actes
-            . un autre user s'il est assistant
-            . -1 s'il est assistant pour plusieurs utilisateurs en même temps
-            . -2 = sans objet
-            . -3 = indéterminé
-        . iduser parent qui correspond à l'id de l'utilisateur remplacé quand le superviseur est un remplaçant
-            . = idsuperviseur si l'utilisateur n'est pas remplaçant
-            . un autre user superviseur qui correspond au soigant remplacé
-            . -2 = sans objet
-            . -3 = indéterminé
-        . iduser qui enregistrera la comptabilité des actes (int gidUserComptableProv)
-            . lui même s'il est responsable et libéral
-            . son employeur s'il est responsable et salarié
-            . s'il est remplaçant (retrocession) on lui demande qui il remplace et le comptable devient
-                . celui qu'il remplace si celui qu'il remplace est libéral
-                . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
-            . -1 s'il n'enregistre pas de compta
-            . -2 = sans objet
-            . -3 = indéterminé
-        . si le userparent cote les actes                            (bool gUseCotationProv)
-        . si le userparent enregistre une comptabilité               (bool AvecLaComptaProv)
-    */
-    QString errormsg = tr("Impossible de retrouver toutes les données utilisateur");
-
-    /*QString req = "select soignant, responsableactes, userenreghonoraires, userccam from " NOM_TABLE_UTILISATEURS
-                  " where iduser = " + QString::number(DataBase::getInstance()->getUserConnected()->id());
-
-    gidUserSuperViseurProv      = -3;
-    gidUserComptableProv        = -3;
-    gidUserParentProv           = -3;
-    QSqlQuery rolequery(req, DataBase::getInstance()->getDataBase() );
-    DataBase::getInstance()->traiteErreurRequete(rolequery,req);
-    if (rolequery.size()==0)
-    {
-        UpMessageBox::Watch(0,errormsg);
-        return false;
-    }
-    rolequery.seek(0);
-
-    */
-    // determination du metier de l'utilisateur
-    /* 1 = ophtalmo
-     * 2 = orthoptiste
-     * 3 = autre
-     * 4 = Non soignant
-     * 5 = societe comptable
-     */
     if (m_userConnected->isSoignant() )
     {
-        gAskUser                    = new UpDialog();
-        gAskUser                    ->AjouteLayButtons();
-        gAskUser                    ->setAccessibleName(QString::number(DataBase::getInstance()->getUserConnected()->id()));
-        QVBoxLayout *globallay      = dynamic_cast<QVBoxLayout*>(gAskUser->layout());
         QString req;
-        QVBoxLayout *boxlay         = new QVBoxLayout;
-        globallay                   ->insertLayout(0,boxlay);
+        gAskUser                = new UpDialog();
+        gAskUser                ->AjouteLayButtons();
+        gAskUser                ->setAccessibleName(QString::number(m_userConnected->id()));
+        gAskUser                ->mData = m_userConnected;
+        QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAskUser->layout());
+        QVBoxLayout *boxlay     = new QVBoxLayout;
+        globallay               ->insertLayout(0,boxlay);
 
-        QGroupBox* boxrole      = new QGroupBox(gAskUser);
+        QGroupBox *boxrole      = new QGroupBox(gAskUser);
         boxrole                 ->setAccessibleName("Role");
         QString lblRole         = tr("Quel est votre rôle dans cette session?");
         boxrole                 ->setTitle(lblRole);
         boxrole                 ->setVisible(false);
         boxlay                  ->addWidget(boxrole);
-        QGroupBox* boxsuperv    = new QGroupBox(gAskUser);
+
+        QGroupBox *boxsuperv    = new QGroupBox(gAskUser);
         boxsuperv               ->setAccessibleName("Superv");
         QString lblSuperv       = tr("Qui supervise votre activité pour cette session?");
         boxsuperv               ->setTitle(lblSuperv);
         boxsuperv               ->setVisible(false);
-        gBoxSuperviseurVisible  =  false;
         boxlay                  ->addWidget(boxsuperv);
-        QGroupBox*boxparent     = new QGroupBox(gAskUser);
+
+        QGroupBox *boxparent     = new QGroupBox(gAskUser);
         boxparent               ->setAccessibleName("Parent");
         QString lblUsrParent    = tr("Qui enregistre vos honoraires?");
         boxparent               ->setTitle(lblUsrParent);
         boxparent               ->setVisible(false);
-        gBoxParentVisible    = false;
         boxlay                  ->addWidget(boxparent);
 
-        // determination du superviseur des actes
-        // role du user soignant
-        /* 1 = effectue exlusivement des actes sous sa responsabilite
-         * 2 = effectue des actes sous sa responsabilite et sous celle des autres users
-         * 3 = n effectue aucun acte sous sa responsabilité
-        */
-        // determination du bénéficiaire comptable des actes
-        // mode d'enregistrement comptable des actes
-        /* 1 = enregistre toujours des honoraires
-         * 2 = Salarie
-         * 3 = retrocession honoraires ou remplaçant
-         * 4 = pas de comptabilite
-         */
-        switch (m_userConnected->getResponsableactes()) {
-        case 1:
-            // le user est responsable de ses actes - on cherche à savoir qui comptabilise ses actes
+        // le user est responsable de ses actes - on cherche à savoir qui comptabilise ses actes
+        if( m_userConnected->isResponsable() )
             Slot_CalcUserParent();
-            break;
-        case 2:
-            // le user alterne entre responsable des actes et assistant suivant la session - on lui demande son rôle pour cette session
-            req   = "select iduser from " NOM_TABLE_UTILISATEURS
-                    " where (responsableactes = 1 or responsableactes = 2)"
-                    " and iduser <> " + QString::number(m_userConnected->id());
-            if (QSqlQuery(req, DataBase::getInstance()->getDataBase()).size() == 0)  // s'il ny a pas de responsable autre que lui dans la bbd,
-                                                            // il ne peut se connecter que comme responsable
+
+        // le user alterne entre responsable des actes et assistant suivant la session
+        // on lui demande son rôle pour cette session
+        else if( m_userConnected->isResponsableEtAssistant() )
+        {
+            bool found = false;
+            for( QMap<int, User *>::const_iterator itUser = getListeUsers()->constBegin();
+                 itUser != getListeUsers()->constEnd(); ++itUser )
             {
+                User *us = const_cast<User*>(itUser.value());
+                if( us->id() == m_userConnected->id() )
+                    continue;
+                if( !us->isResponsable() && !us->isResponsableEtAssistant() )
+                    continue;
+
+                found = true;
+                break;
+            }
+
+            if (found)
+            {
+                boxrole                 ->setVisible(true);
+                QFontMetrics fm         = QFontMetrics(qApp->font());
+                int hauteurligne        = fm.height()*1.6;
+                boxrole                 ->setFixedHeight((3*hauteurligne)+5);
+
+                QVBoxLayout *vbox       = new QVBoxLayout;
+                QRadioButton *pbuttResp = new QRadioButton(boxrole);
+                pbuttResp               ->setText(tr("Responsable de mes actes"));
+                pbuttResp               ->setAccessibleName("buttresp");
+                vbox                    ->addWidget(pbuttResp);
+                connect(pbuttResp, &QRadioButton::clicked, this, &Procedures::Slot_CalcUserParent);
+
+                QRadioButton *pbuttAss  = new QRadioButton(boxrole);
+                pbuttAss                ->setText(tr("Assistant"));
+                pbuttAss                ->setAccessibleName("buttass");
+                pbuttAss                ->setChecked(true);      // le user est défini par défaut comme assistant -> on cherche qui supervise les actes
+                vbox                    ->addWidget(pbuttAss);
+                connect(pbuttAss, &QRadioButton::clicked, this, &Procedures::Slot_CalcUserSuperviseur);
+
+                vbox                    ->setContentsMargins(8,0,8,0);
+                boxrole                 ->setLayout(vbox);
+                dynamic_cast<QVBoxLayout*>(gAskUser->layout())->setSizeConstraint(QLayout::SetFixedSize);
+                Slot_CalcUserSuperviseur();
+            }
+            else
+            {
+                // s'il ny a pas de responsable autre que lui dans la bbd,
+                // il ne peut se connecter que comme responsable
                 UpMessageBox::Watch(0,
                                     tr("Vous ne pourrez pas vous connecter en tant qu'assistant"),
                                     tr("Vous étes enregistré comme pouvant être assistant\n"
@@ -3493,107 +3373,111 @@ bool Procedures::DefinitRoleUser()
                                        "vos actes enregistré dans la base de données"));
                 Slot_CalcUserParent();
             }
-            else
-                CalcUserResponsable();
-            break;
-        case 3:{
-            // le user est assistant - on lui demande qui supervise ses actes
-            //gidUserParentProv = - 2;
+        }
+
+        // le user est assistant - on lui demande qui supervise ses actes
+        else if( m_userConnected->isAssistant() )
             Slot_CalcUserSuperviseur();
-        }
-            break;
-        default:
-            break;
-        }
 
         gAskUser        ->setModal(true);
         globallay       ->setSizeConstraint(QLayout::SetFixedSize);
-        connect(gAskUser->OKButton,   &QPushButton::clicked,  gAskUser, &UpDialog::accept);
-        bool affichgAskUser = (gidUserSuperViseurProv==-3 || gidUserParentProv==-3);
+        connect(gAskUser->OKButton, &QPushButton::clicked, gAskUser, &UpDialog::accept);
 
-        if (affichgAskUser)
+        if( m_userConnected->getIdUserActeSuperviseur() == User::ROLE_INDETERMINE
+                || m_userConnected->getIdUserParent() == User::ROLE_INDETERMINE )
         {
-            if (gAskUser->exec()==0)
+            if( gAskUser->exec() == 0 )
             {
                 delete gAskUser;
                 return false;
             }
-            else
+
+            QList<QGroupBox*> Listgroupbx = gAskUser->findChildren<QGroupBox*>();
+            QList<QGroupBox*>::const_iterator itGroup;
+            for( itGroup=Listgroupbx.constBegin(); itGroup < Listgroupbx.constEnd(); ++itGroup )
             {
-                QList<QGroupBox*> Listgroupbx = gAskUser->findChildren<QGroupBox*>();
-                for (int i=0; i<Listgroupbx.size(); i++)
+                QGroupBox *groupBox = const_cast<QGroupBox*>(*itGroup);
+                if( !groupBox->isVisibleTo(gAskUser) )
+                    continue;
+
+                if (groupBox->accessibleName() == "Superv" )
                 {
-                    if (Listgroupbx.at(i)->accessibleName() == "Superv")
-                        if (gBoxSuperviseurVisible)
+                    QList<QRadioButton*> listbutt = groupBox->findChildren<QRadioButton*>();
+                    for (int j=0; j<listbutt.size(); j++)
+                        if (listbutt.at(j)->isChecked())
                         {
-                            QList<QRadioButton*> listbutt = Listgroupbx.at(i)->findChildren<QRadioButton*>();
-                            for (int j=0; j<listbutt.size(); j++)
-                                if (listbutt.at(j)->isChecked())
-                                    gidUserSuperViseurProv = listbutt.at(j)->accessibleName().toInt();
-                        }
-                    if (Listgroupbx.at(i)->accessibleName() == "Parent")
-                        if (gBoxParentVisible)
-                        {
-                            QList<QRadioButton*> listbutt = Listgroupbx.at(i)->findChildren<QRadioButton*>();
-                            for (int j=0; j<listbutt.size(); j++)
-                                if (listbutt.at(j)->isChecked())
-                                    gidUserParentProv = listbutt.at(j)->accessibleName().toInt();
+                            m_userConnected->setIdUserActeSuperviseur(listbutt.at(j)->accessibleName().toInt());
+                            break;
                         }
                 }
-                delete gAskUser;
+                else if (groupBox->accessibleName() == "Parent" )
+                {
+                    QList<QRadioButton*> listbutt = groupBox->findChildren<QRadioButton*>();
+                    for (int j=0; j<listbutt.size(); j++)
+                        if (listbutt.at(j)->isChecked())
+                        {
+                            m_userConnected->setIdUserParent(listbutt.at(j)->accessibleName().toInt());
+                            break;
+                        }
+                }
             }
+            delete gAskUser;
         }
-        if (gidUserSuperViseurProv ==  -3)
+        if( m_userConnected->getIdUserActeSuperviseur() == User::ROLE_INDETERMINE )
         {
             UpMessageBox::Watch(0,tr("Aucun superviseur valide n'a été défini pour vos actes"), tr("Impossible de continuer"));
             return false;
         }
-        else if (gidUserSuperViseurProv == -1)  // le user est assistant et travaille pour tout le monde
+
+        if( m_userConnected->getIdUserActeSuperviseur() == User::ROLE_NON_RENSEIGNE )
         {
-            gidUserComptableProv        = -2;
-            gidUserParentProv           = -2;
-            avecLaComptaProv            = true;
-            gUseCotationProv            = true;
+            // le user est assistant et travaille pour tout le monde
+            m_userConnected->setIdUserParent(User::ROLE_VIDE);
+            m_userConnected->setIdUserComptable(User::ROLE_VIDE);
+
+            avecLaComptaProv            = true; //FIXME : avecLaComptaProv
+            gUseCotationProv            = true; //FIXME : gUseCotationProv
         }
         else
         {
             // determination de comptabilité - cotation
-            if (gidUserParentProv == -3) // -> le user est assistant et il a un superviseur, on essaie de déterminer qui comptabilise les actes
+            if( m_userConnected->getIdUserParent() == User::ROLE_INDETERMINE )
             {
-                QString req2 = "select UserEnregHonoraires, UserEmployeur from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(gidUserSuperViseurProv);
-                QSqlQuery cptquery(req2, DataBase::getInstance()->getDataBase() );
-                DataBase::getInstance()->traiteErreurRequete(cptquery,req2);
-                cptquery.first();
-                if (cptquery.value(0).toInt()==3)
+                User *userSup = m_users->getUserById( m_userConnected->getIdUserActeSuperviseur() );
+                if( userSup != nullptr && userSup->isRemplacant() )
                 {
                     // le superviseur est remplaçant, on essaie de savoir s'il a un parent
-                    QSqlQuery soignquer("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(gidUserSuperViseurProv), DataBase::getInstance()->getDataBase() );
-                    soignquer.first();
-                    QString req   = "select iduser, userlogin from " NOM_TABLE_UTILISATEURS
-                            " where (userenreghonoraires = 1 or userenreghonoraires = 2)"
-                            " and iduser <> " + QString::number(gidUserSuperViseurProv) +
-                            " and iduser <> " + QString::number(m_userConnected->id()) +
-                            " and soignant = " + soignquer.value(0).toString() +
-                            " and userdesactive is null";
-                    //qDebug() << req;
-                    QSqlQuery quer(req, DataBase::getInstance()->getDataBase() );
-                    DataBase::getInstance()->traiteErreurRequete(quer,req);
-                    if (quer.size() == 1)
+                    QList<User*> listUserFound;
+                    for( QMap<int, User *>::const_iterator itUser = getListeUsers()->constBegin();
+                         itUser != getListeUsers()->constEnd(); ++itUser )
                     {
-                        quer              .first();
-                        gidUserParentProv   = quer.value(0).toInt();
+                        User *us = const_cast<User*>(itUser.value());
+                        if( us->id() == m_userConnected->id() )
+                            continue;
+                        if( us->id() == userSup->id() )
+                            continue;
+                        if( us->getSoignant() == userSup->getSoignant() )
+                            continue;
+
+                        listUserFound << us;
                     }
-                    else // on va demander qui est le soignant parent de ce remplaçant....
+                    if (listUserFound.size() == 1)
                     {
+                        m_userConnected->setIdUserParent( listUserFound.first()->id() );
+                    }
+                    else if( !listUserFound.isEmpty() )
+                    {
+                        // on va demander qui est le soignant parent de ce remplaçant....
                         gAskUser                = new UpDialog();
                         gAskUser                ->AjouteLayButtons();
-                        gAskUser                ->setAccessibleName(QString::number(gidUserSuperViseurProv));
+                        gAskUser                ->setAccessibleName(QString::number(userSup->id()));
+                        gAskUser->mData = userSup;
                         QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAskUser->layout());
                         QVBoxLayout *boxlay     = new QVBoxLayout;
                         globallay               ->insertLayout(0,boxlay);
                         QGroupBox*boxparent     = new QGroupBox(gAskUser);
                         boxparent               ->setAccessibleName("Parent");
-                        QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + getLogin(gidUserSuperViseurProv) + "?";
+                        QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + getLogin(m_userConnected->getIdUserActeSuperviseur()) + "?";
                         boxparent               ->setTitle(lblUsrParent);
                         boxparent               ->setVisible(false);
                         boxlay                  ->addWidget(boxparent);
@@ -3617,7 +3501,11 @@ bool Procedures::DefinitRoleUser()
                                     QList<QRadioButton*> listbutt = Listgroupbx.at(i)->findChildren<QRadioButton*>();
                                     for (int j=0; j<listbutt.size(); j++)
                                         if (listbutt.at(j)->isChecked())
-                                            gidUserParentProv = listbutt.at(j)->accessibleName().toInt();
+                                        {
+                                            //gidUserParentProv = listbutt.at(j)->accessibleName().toInt();
+                                            m_userConnected->setIdUserParent( listbutt.at(j)->accessibleName().toInt() );
+                                            break;
+                                        }
                                 }
                             }
                             delete gAskUser;
@@ -3625,211 +3513,208 @@ bool Procedures::DefinitRoleUser()
                     }
                 }
                 else
-                    gidUserParentProv = gidUserSuperViseurProv;
+                    m_userConnected->setIdUserParent( m_userConnected->getIdUserActeSuperviseur() );
             }
-            req = "select userenreghonoraires, userccam, userEmployeur from " NOM_TABLE_UTILISATEURS
-                    " where iduser = " + QString::number(gidUserParentProv);
-            QSqlQuery cptquer(req,DataBase::getInstance()->getDataBase() );
-            cptquer.first();
-            // determination de l'utilisation de la cotation
-            gUseCotationProv = (cptquer.value(1).toInt()==1);
-            // determination de l'utilisation de la comptabilité
-            avecLaComptaProv = (cptquer.value(0).toInt()!=4);
-            switch (cptquer.value(0).toInt()) {
-            case 1:
-                gidUserComptableProv = gidUserParentProv;
-                break;
-            case 2:
-                gidUserComptableProv = cptquer.value(2).toInt();
-                break;
-            default:
-                gidUserComptableProv = -1;
-                break;
+            User *uParent = m_users->getUserById(m_userConnected->getIdUserParent());
+            if( uParent != nullptr )
+            {
+                // determination de l'utilisation de la cotation
+                gUseCotationProv = uParent->isCotation(); // FIXME : gUseCotationProv
+                // determination de l'utilisation de la comptabilité
+                avecLaComptaProv = !uParent->isSansCompta(); // FIXME : avecLaComptaProv
+                if( uParent->isLiberal() )
+                    m_userConnected->setIdUserComptable(uParent->id());
+                else if( uParent->isSalarie() )
+                    m_userConnected->setIdUserComptable(uParent->getEmployeur());
+                else
+                    m_userConnected->setIdUserComptable(User::ROLE_NON_RENSEIGNE);
             }
-         }
-
-        //TODO : METTRE A JOUR LE USER
-        return true;
-    }
-    else  // il s'agit d'un administratif ou d'une société comptable
-    {
-        gidUserSuperViseurProv      = -2;
-        gidUserComptableProv        = -2;
-        gidUserParentProv           = -2;
-        gUseCotationProv            = true;
-        avecLaComptaProv            = true;
-        //TODO : METTRE A JOUR LE USER
-        return true;
-    }
-    return false;
-}
-
-void Procedures::CalcUserResponsable()
-{
-    QList<QGroupBox*> Listgroupbx   = gAskUser->findChildren<QGroupBox*>();
-    QGroupBox *ptbox = 0;
-    for (int i=0; i<Listgroupbx.size(); i++)
-        if (Listgroupbx.at(i)->accessibleName() == "Role")
-        {
-            ptbox = Listgroupbx.at(i);
-            break;
         }
-    ptbox                   ->setVisible(true);
-    QFontMetrics fm         = QFontMetrics(qApp->font());
-    int hauteurligne        = fm.height()*1.6;
-    ptbox                   ->setFixedHeight((3*hauteurligne)+5);
-    QVBoxLayout *vbox       = new QVBoxLayout;
-    QRadioButton *pbuttResp = new QRadioButton(ptbox);
-    pbuttResp               ->setText(tr("Responsable de mes actes"));
-    pbuttResp               ->setAccessibleName("buttresp");
-    connect(pbuttResp,      &QRadioButton::clicked, this, &Procedures::Slot_CalcUserParent);
-    vbox                    ->addWidget(pbuttResp);
-    QRadioButton *pbuttAss  = new QRadioButton(ptbox);
-    pbuttAss                ->setText(tr("Assistant"));
-    pbuttAss                ->setAccessibleName("buttass");
-    pbuttAss                ->setChecked(true);      // le user est défini par défaut comme assistant -> on cherche qui supervise les actes
-    connect(pbuttAss,       &QRadioButton::clicked, this, &Procedures::Slot_CalcUserSuperviseur);
-    vbox                    ->addWidget(pbuttAss);
-    vbox                    ->setContentsMargins(8,0,8,0);
-    ptbox                   ->setLayout(vbox);
-    dynamic_cast<QVBoxLayout*>(gAskUser->layout())->setSizeConstraint(QLayout::SetFixedSize);
-    Slot_CalcUserSuperviseur();
-}
+        return true;
+    }
 
+    // il s'agit d'un administratif ou d'une société comptable
+    m_userConnected->setIdUserActeSuperviseur(User::ROLE_VIDE);
+    m_userConnected->setIdUserComptable(User::ROLE_VIDE);
+    m_userConnected->setIdUserParent(User::ROLE_VIDE);
+    gUseCotationProv            = true; //FIXME : gUseCotationProv
+    avecLaComptaProv            = true; //FIXME : avecLaComptaProv
+    return true;
+}
+/*!
+ * \brief Procedures::Slot_CalcUserSuperviseur
+ *
+ * Prépare le UpDialog en ajoutant si besoin une liste d'User
+ * susceptible d'être le Parent
+ *
+ * Résultat :
+ * gidUserParentProv = -3
+ * gidUserSuperViseurProv = -3 || id
+ */
 void Procedures::Slot_CalcUserSuperviseur()
 {
-    gidUserSuperViseurProv  = -3;
-    gidUserParentProv       = -3;
-    int iduser              = gAskUser->accessibleName().toInt();
+    User *user = qobject_cast<User *>(gAskUser->mData);
+    m_userConnected->setIdUserActeSuperviseur(User::ROLE_INDETERMINE);
+    m_userConnected->setIdUserParent(User::ROLE_INDETERMINE);
     QGroupBox *ptbox = 0;
     QList<QGroupBox*> Listgroupbx   = gAskUser->findChildren<QGroupBox*>();
     for (int i=0; i<Listgroupbx.size(); i++)
     {
         if (Listgroupbx.at(i)->accessibleName() == "Superv")
             ptbox = Listgroupbx.at(i);
-        if (Listgroupbx.at(i)->accessibleName() == "Parent")
+        else if (Listgroupbx.at(i)->accessibleName() == "Parent")
             Listgroupbx.at(i)->setVisible(false);
-
     }
+    ptbox->setVisible(false);
+
     QList<QRadioButton*> listbutt = ptbox->findChildren<QRadioButton*>();
-    for (int j=0; j<listbutt.size(); j++)
-        delete listbutt.at(j);
+    foreach(QRadioButton * rb, listbutt)
+        delete rb;
     delete ptbox->layout();
-    QSqlQuery medquer("select Medecin from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(iduser), DataBase::getInstance()->getDataBase() );
-    medquer.first();
-    bool medecin = (medquer.value(0).toInt()==1);
-    QString req   = "select iduser, userlogin from " NOM_TABLE_UTILISATEURS
-            " where responsableactes < 3"
-            " and iduser <> " + QString::number(iduser) +
-            " and userdesactive is null";
-    if (medecin)
-        req += " and medecin = 1";
-    //qDebug() << req;
-    QSqlQuery quer(req, DataBase::getInstance()->getDataBase() );
-    DataBase::getInstance()->traiteErreurRequete(quer,req);
-    ptbox                   ->setVisible(quer.size() > 1);
-    gBoxSuperviseurVisible  = (quer.size() > 1);
-    gBoxParentVisible    = false;
 
-    if (quer.size() == 1)
+    QList<User*> listUserFound;
+    for( QMap<int, User *>::const_iterator itUser = getListeUsers()->constBegin();
+         itUser != getListeUsers()->constEnd(); ++itUser )
     {
-        quer              .first();
-        gidUserSuperViseurProv   = quer.value(0).toInt();
+        User *us = const_cast<User*>(itUser.value());
+        if( us->id() == user->id() )
+            continue;
+        if( !us->isResponsable() && !us->isResponsableEtAssistant() )
+            continue;
+        if( m_userConnected->isMedecin() && !us->isMedecin() )
+            continue;
+
+        listUserFound << us;
     }
-    else
+
+    if( listUserFound.size() == 1 )
     {
+        m_userConnected->setIdUserActeSuperviseur( listUserFound.first()->id() );
+    }
+    else if( !listUserFound.isEmpty() )
+    {
+        ptbox->setVisible( true );
+
         QFontMetrics fm         = QFontMetrics(qApp->font());
         int hauteurligne        = fm.height()*1.6;
-        ptbox                   ->setFixedHeight(((quer.size() + 2)*hauteurligne)+5);
+        ptbox                   ->setFixedHeight(((listUserFound.size() + 2)*hauteurligne)+5);
         QVBoxLayout *vbox       = new QVBoxLayout;
-        for (int i=0; i<quer.size(); i++)
+        bool isFirst = true;
+        QList<User*>::const_iterator it;
+        for( it=listUserFound.constBegin(); it!=listUserFound.constEnd(); ++it )
         {
-            quer            .seek(i);
+            User *us = const_cast<User*>(*it);
             QRadioButton *pradiobutt = new QRadioButton(ptbox);
-            pradiobutt      ->setText(quer.value(1).toString());
-            pradiobutt      ->setAccessibleName(quer.value(0).toString());
-            vbox            ->addWidget(pradiobutt);
-            pradiobutt      ->setChecked(i==0);
+            pradiobutt->setText(us->getLogin());
+            pradiobutt->setAccessibleName(QString::number(us->id()));
+            if( isFirst )
+            {
+                isFirst = false;
+                pradiobutt->setChecked(true);
+            }
+            vbox->addWidget(pradiobutt);
         }
         QRadioButton *pradiobutt = new QRadioButton();
-        pradiobutt      ->setText(tr("Tout le monde"));
-        pradiobutt      ->setAccessibleName("-1");
-        vbox            ->addWidget(pradiobutt);
-        vbox            ->setContentsMargins(8,0,8,0);
-        ptbox           ->setLayout(vbox);
+        pradiobutt   ->setText(tr("Tout le monde"));
+        pradiobutt   ->setAccessibleName("-1");
+        vbox         ->addWidget(pradiobutt);
+        vbox         ->setContentsMargins(8,0,8,0);
+        ptbox        ->setLayout(vbox);
     }
     dynamic_cast<QVBoxLayout*>(gAskUser->layout())->setSizeConstraint(QLayout::SetFixedSize);
 }
 
+/*!
+ * \brief Procedures::Slot_CalcUserParent
+ * Prépare le UpDialog en ajoutant si besoin une liste d'User
+ * susceptible d'être le Parent
+ *
+ * Résultat :
+ * gidUserSuperViseurProv = user->id()
+ * gidUserParentProv = id || -3 || user->id()
+ */
 void Procedures::Slot_CalcUserParent()
 {
-    int iduser = gAskUser->accessibleName().toInt();
-    gidUserSuperViseurProv  =   iduser;
+    User *user = qobject_cast<User *>(gAskUser->mData);
+    //gidUserSuperViseurProv = user->id();
+    user->setIdUserActeSuperviseur( user->id() );
     QGroupBox *ptbox = 0;
-    QList<QGroupBox*> Listgroupbx   = gAskUser->findChildren<QGroupBox*>();
+    QList<QGroupBox*> Listgroupbx = gAskUser->findChildren<QGroupBox*>();
     for (int i=0; i<Listgroupbx.size(); i++)
     {
         if (Listgroupbx.at(i)->accessibleName() == "Superv")
             Listgroupbx.at(i)->setVisible(false);
-        if (Listgroupbx.at(i)->accessibleName() == "Parent")
+        else if (Listgroupbx.at(i)->accessibleName() == "Parent")
             ptbox = Listgroupbx.at(i);
     }
     ptbox->setVisible(false);
-    gBoxSuperviseurVisible  = false;
-    gBoxParentVisible    = false;
-    // on a déterminé le superviseur, on cherche qui cenregistre les actes
-    QString req = "select UserEnregHonoraires, UserEmployeur from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(gidUserSuperViseurProv);
-    QSqlQuery quer1(req, DataBase::getInstance()->getDataBase() );
-    DataBase::getInstance()->traiteErreurRequete(quer1,req);
-    quer1.first();
-    switch (quer1.value(0).toInt()) {
-    case 3:                     // *  3. le superviseur est remplaçant                  -> il faut lui demander qui il remplace
+
+    // on a déterminé le superviseur, on cherche qui enregistre les actes
+    if( user->isRemplacant() )
     {
-        QSqlQuery soignquer("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + gAskUser->accessibleName(), DataBase::getInstance()->getDataBase() );
-        soignquer.first();
-        req = "select iduser, userlogin from " NOM_TABLE_UTILISATEURS
-                " where (userenreghonoraires = 1 or userenreghonoraires = 2)"
-                " and iduser <> " + QString::number(gidUserSuperViseurProv) +
-                " and iduser <> " + QString::number(iduser) +
-                " and soignant = " + soignquer.value(0).toString() +
-                " and userdesactive is null";
-        QSqlQuery quer(req, DataBase::getInstance()->getDataBase() );
-        DataBase::getInstance()->traiteErreurRequete(quer,req);
-        ptbox                   ->setVisible(quer.size() > 1);
-        gBoxParentVisible    = (quer.size() > 1);
-        if (quer.size() == 1)
+        // *  3. le superviseur est remplaçant -> il faut lui demander qui il remplace
+
+        QList<User*> listUserFound;
+        for( QMap<int, User *>::const_iterator itUser = getListeUsers()->constBegin();
+             itUser != getListeUsers()->constEnd(); ++itUser )
         {
-            quer              .first();
-            gidUserParentProv   = quer.value(0).toInt();
+            User *us = const_cast<User*>(itUser.value());
+            if( us->id() == user->id() )
+                continue;
+            if( !us->isLiberal() && !us->isSalarie() )
+                continue;
+            if( us->getSoignant() != user->getSoignant() )
+                continue;
+
+            listUserFound << us;
+        }
+
+        if( listUserFound.size() == 1 )
+        {
+            //gidUserParentProv = listUserFound.first()->id();
+            user->setIdUserParent( listUserFound.first()->id() );
+        }
+        else if( !listUserFound.isEmpty() )
+        {
+            ptbox->setVisible( true );
+            QList<QRadioButton*> listbutt = ptbox->findChildren<QRadioButton*>();
+            foreach(QRadioButton * rb, listbutt)
+                delete rb;
+            delete ptbox->layout();
+
+            QFontMetrics fm  = QFontMetrics(qApp->font());
+            int hauteurligne = fm.height()*1.6;
+            ptbox->setFixedHeight(((listUserFound.size() + 1)*hauteurligne)+5);
+            QVBoxLayout *vbox = new QVBoxLayout;
+            bool isFirst = true;
+            QList<User*>::const_iterator it;
+            for( it=listUserFound.constBegin(); it!=listUserFound.constEnd(); ++it )
+            {
+                User *us = const_cast<User*>(*it);
+                QRadioButton *pradiobutt = new QRadioButton(ptbox);
+                pradiobutt->setText(us->getLogin());
+                pradiobutt->setAccessibleName(QString::number(us->id()));
+                if( isFirst )
+                {
+                    isFirst = false;
+                    pradiobutt->setChecked(true);
+                }
+                vbox->addWidget(pradiobutt);
+            }
+            vbox->setContentsMargins(8,0,8,0);
+            ptbox->setLayout(vbox);
         }
         else
         {
-            QList<QRadioButton*> listbutt = ptbox->findChildren<QRadioButton*>();
-            for (int j=0; j<listbutt.size(); j++)
-                delete listbutt.at(j);
-            delete ptbox->layout();
-            QFontMetrics fm         = QFontMetrics(qApp->font());
-            int hauteurligne        = fm.height()*1.6;
-            ptbox       ->setFixedHeight(((quer.size() + 1)*hauteurligne)+5);
-            QVBoxLayout *vbox       = new QVBoxLayout;
-            for (int i=0; i<quer.size(); i++)
-            {
-                quer        .seek(i);
-                QRadioButton *pradiobutt = new QRadioButton(ptbox);
-                pradiobutt  ->setText(quer.value(1).toString());
-                pradiobutt  ->setAccessibleName(quer.value(0).toString());
-                pradiobutt  ->setChecked(i==0);
-                vbox        ->addWidget(pradiobutt);
-            }
-            vbox            ->setContentsMargins(8,0,8,0);
-            ptbox           ->setLayout(vbox);
+            // ??? Cas ou list est vide ?
         }
     }
-        break;
-    default:                    // *  4. le superviseur est sans compta               -> pas de compta des actes
-                                // *  1. le superviseur est salarié ou libéral     -> c'est lui qui est le parent
-        gidUserParentProv           = gidUserSuperViseurProv;
-        break;
+    else
+    {
+        // *  1|2. le superviseur est salarié ou libéral  -> c'est lui qui est le parent
+        // *  4.   le superviseur est sans compta         -> pas de compta des actes
+        //gidUserParentProv = gidUserSuperViseurProv;
+        user->setIdUserParent( user->id() );
     }
     dynamic_cast<QVBoxLayout*>(gAskUser->layout())->setSizeConstraint(QLayout::SetFixedSize);
 }
@@ -3846,19 +3731,14 @@ int Procedures::idLieuExercice()
     return -1;
 }
 
-int Procedures::UserComptable()
-{
-    return gidUserComptable;
-}
-
 int Procedures::UserSuperviseur()
 {
-    return gidUserSuperViseur;
+    return m_userConnected->getIdUserActeSuperviseur();
 }
 
 int Procedures::UserParent()
 {
-    return gidUserParent;
+    return m_userConnected->getIdUserParent();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -3921,13 +3801,10 @@ bool Procedures::PremierDemarrage()
             UpMessageBox::Watch(0, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne,\n"
                                        "le login ") + gLoginUser() + tr(" est reconnu et le programme va démarrer\n"));
-            if( DefinitRoleUser() )
+            if( DefinitRoleUser() ) //NOTE : User Role : 1er demarrage
             {
-                gidUserSuperViseur      = gidUserSuperViseurProv;
-                gidUserComptable        = gidUserComptableProv;
-                gidUserParent           = gidUserParentProv;
-                gUseCotation            = gUseCotationProv;
-                avecLaCompta            = (avecLaComptaProv? (gUseCotationProv? 0 : 4) : (gUseCotationProv? 2 : 1));
+                gUseCotation = gUseCotationProv;
+                avecLaCompta = (avecLaComptaProv? (gUseCotationProv? 0 : 4) : (gUseCotationProv? 2 : 1));
                 return true;
             }
         }
@@ -3977,8 +3854,8 @@ bool Procedures::PremierDemarrage()
 
             // Création de l'utilisateur
             gdbOK = CreerPremierUser(gLoginUser(), gMDPUser());
-            setlisteUsers();
-            ChargeDataUser( DataBase::getInstance()->getUserConnected()->id() ); //TODO : ICI : ChargeDataUser
+            initListeUsers();
+            ChargeDataUser( DataBase::getInstance()->getUserConnected()->id() );
             return gdbOK;
         }
     }

@@ -204,7 +204,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
     PatPrenom   = proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->PrenomlineEdit->text(),true));
     PatDDN      = ui->DDNdateEdit->date().toString("yyyy-MM-dd");
     PatCreeLe   = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-    PatCreePar  = QString::number(proc->getDataUser()->id());
+    PatCreePar  = QString::number(proc->getUserConnected()->id());
 
 
     if (CPlineEdit->text() == "" && VillelineEdit->text() == "")
@@ -239,7 +239,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             OKBouton->setText(tr("Je confirme"));
             UpSmallButton *NoBouton = new UpSmallButton();
             NoBouton->setText(tr("Annuler"));
-            msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin());
+            msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin());
             msgbox.setInformativeText(tr("Confirmez vous la date de naissance?") + "\n" + ui->DDNdateEdit->date().toString(tr("d-MMM-yyyy")));
             msgbox.setIcon(UpMessageBox::Warning);
             msgbox.addButton(NoBouton, UpSmallButton::CANCELBUTTON);
@@ -358,7 +358,7 @@ void    dlg_identificationpatient::Slot_AnnulpushButtonClicked()
         UpSmallButton *OKBouton = new UpSmallButton();
         OKBouton->setText(tr("Annuler la création"));
         UpSmallButton *NoBouton = new UpSmallButton();
-        msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin());
+        msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin());
         msgbox.setInformativeText(tr("Annuler la création de ce dossier ?"));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(NoBouton, UpSmallButton::CANCELBUTTON);
@@ -573,7 +573,7 @@ void dlg_identificationpatient::MAJMG()
             OKBouton->setText(tr("Enregistrer le correspondant"));
             UpSmallButton *NoBouton = new UpSmallButton();
             NoBouton->setText(tr("Annuler"));
-            msgbox.setText("Euuhh... " + proc->getDataUser()->getLogin());
+            msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin());
             msgbox.setInformativeText(tr("Correspondant inconnu! Souhaitez-vous l'enregistrer?"));
             msgbox.setIcon(UpMessageBox::Warning);
             msgbox.addButton(NoBouton, UpSmallButton::CANCELBUTTON);

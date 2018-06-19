@@ -1057,14 +1057,12 @@ void Rufus::AppelPaiementDirect(QString Origin)
 {
     QList<int> ListidActeAPasser;
     int Mode = 1;
-    ListidActeAPasser << 0;
 
-    if (Origin == "AttentePaiement")                                        // l'appel est fait par un clic dans le menu contextuel de la salle d'attente des paiements en attente
+    if (Origin == "AttentePaiement") // l'appel est fait par un clic dans le menu contextuel de la salle d'attente des paiements en attente
     {
-        ListidActeAPasser.clear();
         QList<QTableWidgetSelectionRange> ListItems = ui->AccueilupTableWidget->selectedRanges();
         if (ListItems.size() == 0) return;
-        for (int i = 0; i < ListItems.size(); i++)
+        for (int i = 0; i < ListItems.size(); i++) //FIXME : appel SQL dans 1 boucle de boucle
         {
             int debut = ListItems.at(i).topRow();
             int hauteur = ListItems.at(i).rowCount();
@@ -1086,7 +1084,7 @@ void Rufus::AppelPaiementDirect(QString Origin)
             }
         }
     }
-    if (Origin == "Bouton")                                                 // l'appel est fait par un clic sur le bouton enregistrepaiement
+    else if (Origin == "Bouton") // l'appel est fait par un clic sur le bouton enregistrepaiement
     {
         // On vérifie que la cotation est complète
         QString Titre = "";
@@ -1170,11 +1168,10 @@ void Rufus::AppelPaiementDirect(QString Origin)
         proc->UpdVerrouSalDat();
         QSqlQuery ModifSalDatQuery(requete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(ModifSalDatQuery,requete,Msg);
-        ListidActeAPasser.clear();
         ListidActeAPasser << gidActe;
     }
 
-    Dlg_PaimtDirect           = new dlg_paiement(&ListidActeAPasser, Mode, proc, 0, 0, this);
+    Dlg_PaimtDirect = new dlg_paiement(&ListidActeAPasser, Mode, proc, 0, 0, this);//NOTE : New Paiement
     if(Dlg_PaimtDirect->getInitOK())
     {
         Dlg_PaimtDirect->setWindowTitle(tr("Gestion des paiements directs"));
@@ -1227,7 +1224,7 @@ void Rufus::AppelPaiementTiers()
     int Mode = 3;
     QList<int> ListidActeAPasser;
     ListidActeAPasser << 0;
-    Dlg_PaimtTiers = new dlg_paiement(&ListidActeAPasser, Mode, proc, 0, 0, this);
+    Dlg_PaimtTiers = new dlg_paiement(&ListidActeAPasser, Mode, proc, 0, 0, this); //NOTE : New Paiement
     if(Dlg_PaimtTiers->getInitOK())
     {
         Dlg_PaimtTiers->setWindowTitle(tr("Gestion des tiers payants"));
@@ -2560,12 +2557,13 @@ void Rufus::ImprimeDossier()
    bool     AvecNumPage = true;
 
    //création de l'entête
-   if (!proc->setDataOtherUser(gDataUser->getIdUserParent()) )
+   User *userEntete = proc->getUserById(gDataUser->getIdUserParent());
+   if (!userEntete)
    {
        UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
        return;
    }
-   Entete = proc->ImpressionEntete(QDate::currentDate()).value("Norm");
+   Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
    if (Entete == "") return;
    Entete.replace("{{TITRE1}}"             , "");
    Entete.replace("{{TITRE}}"              , "<font color = \"" + proc->CouleurTitres + "\">" + tr("COMPTE RENDU DE DOSSIER") + "</font>");
@@ -2979,9 +2977,10 @@ void Rufus::ImprimeListPatients(QVariant var)
 
     //création de l'entête
     QString EnTete;
-    if (!proc->setDataOtherUser(gDataUser->getIdUserParent()))
+    User *userEntete = proc->getUserById(gDataUser->getIdUserParent());
+    if (!userEntete)
         return;
-    EnTete = proc->ImpressionEntete(date).value("Norm");
+    EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
     if (EnTete == "") return;
     EnTete.replace("{{TITRE1}}"            , "");
     EnTete.replace("{{PRENOM PATIENT}}"    , "");
@@ -3378,8 +3377,9 @@ QStringList Rufus::MotifMessage(QString Motif, QString Message, QTime heurerdv)
     UpLabel         *HeureTitre     = new UpLabel(gAsk);
     QStringList     llist;
     grpBox      ->setTitle(tr("Motif de l'acte"));
-    for (int i=0; i<proc->getListeSuperviseurs()->rowCount(); i++)
-        ComboSuperviseurs          ->addItem(proc->getListeSuperviseurs()->item(i,1)->text(), proc->getListeSuperviseurs()->item(i,0)->text());
+
+    for( QMap<int, User*>::const_iterator itUser = proc->getListeSuperviseurs()->constBegin(); itUser != proc->getListeSuperviseurs()->constEnd(); ++itUser )
+        ComboSuperviseurs->addItem(itUser.value()->getLogin(), QString::number(itUser.value()->id()) );
     ComboSuperviseurs->setFixedWidth(100);
 
     QHBoxLayout *soignantlayout     = new QHBoxLayout();
@@ -6771,7 +6771,7 @@ QString Rufus::CalcToolTipCorrespondant(int idcor)
 -----------------------------------------------------------------------------------------------------------------*/
 bool    Rufus::ChargeDataUser()
 {
-    gDataUser                           = proc->getDataUser();
+    gDataUser                           = proc->getUserConnected();
     /*gDataUser->getIdUserActeSuperviseur()                  = gDataUser["UserSuperviseur"].toInt();
     gDataUser->getIdUserParent()                       = gDataUser["idParent"].toInt();
     gidUserComptable                    = gDataUser["idUserComptable"].toInt();
@@ -8785,13 +8785,14 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     bool aa = true;
     if (Dlg_Docs->exec() > 0)
     {
-        int UserEntete = Dlg_Docs->gidUserEntete;
-        if (!proc->setDataOtherUser(UserEntete))
+        int idUserEntete = Dlg_Docs->gidUserEntete;
+        User *userEntete = proc->getUserById(idUserEntete);
+        if (!userEntete)
             return;
         QString     Entete;
         QDate DateDoc           = Dlg_Docs->ui->dateEdit->date();
         //création de l'entête
-        QMap<QString,QString> EnteteMap = proc->ImpressionEntete(DateDoc);
+        QMap<QString,QString> EnteteMap = proc->ImpressionEntete(DateDoc, userEntete);
 
         bool ALD;
         QString imprimante = "";
@@ -8816,7 +8817,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
             Entete.replace("{{TITRE}}"         , "");
             Entete.replace("{{DDN}}"           , "");
             proc                    ->setNomImprimante(imprimante);
-            aa                      = Imprimer_Document(QString::number(UserEntete), Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante);
+            aa                      = Imprimer_Document(QString::number(idUserEntete), Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante);
             if (!aa)
                 break;
             imprimante = proc->getNomImprimante();
