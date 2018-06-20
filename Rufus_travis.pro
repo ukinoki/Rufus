@@ -19,12 +19,9 @@ QT       += sql core gui network printsupport multimedia xml serialport multimed
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-OSX {
-TARGET = /Applications/Rufus
-}
-LINUX {
-TARGET = /home/alexandre/RufusApp
-}
+
+TARGET = /home/travis/build/Ukinoki/RufusVision
+
 
 TEMPLATE = app
 
@@ -34,14 +31,9 @@ linux-g++ {
     }
 
     target.path = $$PREFIX/bin
-
-    shortcutfiles.files = misc/rufus.desktop
-    shortcutfiles.path = $$PREFIX/share/applications/
-    data.files += misc/rufus.xpm
-    data.path = $$PREFIX/share/pixmaps/
-    desktop.path = $$PREFIX/share/applications/
-    desktop.files += rufus.desktop
-    icon512.path = $$PREFIX/share/icons/hicolor/512x512/apps
+    desktop.path = /Rufus.AppDir
+    desktop.files += /Rufus.AppDir/rufus.desktop
+    icon512.path = /Images
     icon512.files += Images/Sunglasses.png
 
     INSTALLS += icon512
@@ -111,6 +103,7 @@ SOURCES += main.cpp\
     widgetbuttonframe.cpp \
     dlg_listecorrespondants.cpp \
     dlg_message.cpp \
+    functordatauser.cpp \
     functormajpremierelettre.cpp \
     upradiobutton.cpp \
     functormessage.cpp \
@@ -118,16 +111,7 @@ SOURCES += main.cpp\
     dlg_docsvideo.cpp \
     utils.cpp \
     playercontrols.cpp \
-    upgroupbox.cpp \
-    cls_user.cpp \
-    database.cpp \
-    cls_acte.cpp \
-    cls_item.cpp \
-    cls_patient.cpp \
-    cls_site.cpp \
-    cls_villes.cpp \
-    cls_compte.cpp \
-    cls_users.cpp
+    upgroupbox.cpp
 
 HEADERS  += rufus.h \
     procedures.h \
@@ -195,20 +179,12 @@ HEADERS  += rufus.h \
     dlg_gestionlieux.h \
     macros.h \
     dlg_docsvideo.h \
+    sqlconnection.h \
     utils.h \
     icons.h \
     playercontrols.h \
     upgroupbox.h \
-    cls_user.h \
-    database.h \
-    log.h \
-    cls_acte.h \
-    cls_item.h \
-    cls_patient.h \
-    cls_site.h \
-    cls_villes.h \
-    cls_compte.h \
-    cls_users.h
+    styles.h
 
 FORMS    += \
     dlg_identificationuser.ui \
@@ -246,20 +222,11 @@ RESOURCES += \
 ICON += \
     Sunglasses.icns
 
-OSX {
-INCLUDEPATH += /usr/local/include/poppler/qt5
-LIBS += -L/usr/local/lib/ -lpoppler-qt5
-}
-LINUX {
-INCLUDEPATH += /usr/include/poppler/qt5
+
+INCLUDEPATH += /usr/include/poppler/qt5/
 LIBS += -L/usr/lib/x86_64-linux-gnu/ -lpoppler-qt5
-}
+
 
 DISTFILES += \
     _Diagrams/ImpressionsRufus.vpp \
     _Diagrams/readme.txt
-
-ALEX {
-    DEFINES += ALEX
-}
-

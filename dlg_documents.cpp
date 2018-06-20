@@ -150,7 +150,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui->textFrame->installEventFilter(this);
     ui->DocupTableWidget->installEventFilter(this);
     ui->DossiersupTableWidget->installEventFilter(this);
-    gOp             = new QGraphicsOpacityEffect();
+    gOp             = new QGraphicsOpacityEffect(this);
     gTimerEfface    = new QTimer(this);
 
     QString ALDrequete = "select idPat from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(gidPatient) + " and PatALD = 1";

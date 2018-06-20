@@ -37,10 +37,9 @@ ui(new Ui::dlg_actesprecedents)
     setAttribute(Qt::WA_ShowWithoutActivating);
     QString style = "background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));"
                     " border: 1px solid rgb(150,150,150); border-radius: 10px;";
-    ui->EnteteupLabel       ->setStyleSheet(style);
-    ui->CorpsupTextEdit     ->setStyleSheet(style);
-    ui->ConclusionupTextEdit->setStyleSheet(style);
-
+    ui->EnteteupLabel           ->setStyleSheet(style);
+    ui->CorpsupTextEdit         ->setStyleSheet(style);
+    ui->ConclusionupTextEdit    ->setStyleSheet(style);
     ui->FermepushButton->installEventFilter(this);
 
     if (gAvantDernier)
