@@ -28,6 +28,29 @@ TARGET = /home/alexandre/RufusApp
 
 TEMPLATE = app
 
+linux-g++ {
+    isEmpty(PREFIX) {
+        PREFIX = /usr/local
+    }
+
+    target.path = $$PREFIX/bin
+
+    shortcutfiles.files = misc/rufus.desktop
+    shortcutfiles.path = $$PREFIX/share/applications/
+    data.files += misc/rufus.xpm
+    data.path = $$PREFIX/share/pixmaps/
+    desktop.path = $$PREFIX/share/applications/
+    desktop.files += rufus.desktop
+    icon512.path = $$PREFIX/share/icons/hicolor/512x512/apps
+    icon512.files += Images/Sunglasses.png
+
+    INSTALLS += icon512
+    INSTALLS += desktop
+    INSTALLS += target
+    INSTALLS += shortcutfiles
+    INSTALLS += data
+}
+
 SOURCES += main.cpp\
         rufus.cpp \
     procedures.cpp \
@@ -88,7 +111,6 @@ SOURCES += main.cpp\
     widgetbuttonframe.cpp \
     dlg_listecorrespondants.cpp \
     dlg_message.cpp \
-    functordatauser.cpp \
     functormajpremierelettre.cpp \
     upradiobutton.cpp \
     functormessage.cpp \
@@ -236,4 +258,8 @@ LIBS += -L/usr/local/lib/ -lpoppler-qt5
 DISTFILES += \
     _Diagrams/ImpressionsRufus.vpp \
     _Diagrams/readme.txt
+
+ALEX {
+    DEFINES += ALEX
+}
 

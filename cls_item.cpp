@@ -1,4 +1,5 @@
 #include "cls_item.h"
+#include "utils.h"
 
 #include <QDateTime>
 
@@ -101,10 +102,15 @@ Item::Item(QObject *parent) : QObject(parent)
 {
 }
 
-void Item::setDataString(QJsonObject data, QString key, QString &prop)
+void Item::setDataString(QJsonObject data, QString key, QString &prop, bool useTrim)
 {
     if( data.contains(key) )
-        prop = data[key].toString();
+    {
+        QString str = data[key].toString();
+        if( useTrim )
+            str = Utils::trim(str);
+        prop = str;
+    }
 }
 void Item::setDataInt(QJsonObject data, QString key, int &prop)
 {

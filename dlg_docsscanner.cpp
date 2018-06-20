@@ -24,7 +24,7 @@ dlg_docsscanner::dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *pa
     idpat           = idPat;
     db              = DataBase::getInstance()->getDataBase();
     setAttribute(Qt::WA_DeleteOnClose);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     QString Base;
     switch (DataBase::getInstance()->getMode()) {
     case DataBase::Poste:

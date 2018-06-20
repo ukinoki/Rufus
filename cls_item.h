@@ -21,7 +21,7 @@ public:
 
 protected:
 
-    void setDataString(QJsonObject data, QString key, QString &prop);
+    void setDataString(QJsonObject data, QString key, QString &prop, bool useTrim=false);
     void setDataInt(QJsonObject data, QString key, int &prop);
     void setDataDouble(QJsonObject data, QString key, double &prop);
     void setDataBool(QJsonObject data, QString key, bool &prop);

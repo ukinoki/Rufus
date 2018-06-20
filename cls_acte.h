@@ -23,6 +23,8 @@ private:
     int m_idActeMax;            //!< id du dernier acte
     int m_idCreatedBy;          //!< id du User qui a créé l'acte
     int m_idPatient;            //!< id du Patient correspondant à l'acte
+    int m_idUser;               //!< id du User
+    //TODO : ??? : différence idUser et idCreatedBy
 
     double m_montant;           //!< montant total
 
@@ -41,6 +43,7 @@ private:
 
 
 public:
+    Acte(QObject *parent = nullptr);
     Acte(int idActe, int nbActe, int noActe, QObject *parent = nullptr);
     void setData(QJsonObject data);
 
@@ -64,6 +67,7 @@ public:
     double montant() const;
     QString paiementType() const;
     QString paiementTiers() const;
+    int idUser() const;
 };
 
 #endif // CLS_ACTE_H

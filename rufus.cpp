@@ -27,11 +27,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("13-06-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("18-06-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
-    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     QString border = "border-image: url(://wallpaper.jpg)";
     QString style =
@@ -956,6 +956,8 @@ void Rufus::AfficheToolTip(int id)
     if (id==-1)
     {
         QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
+        if (gListePatientsModel->itemFromIndex(pindx) == Q_NULLPTR)
+            return;
         int row = gListePatientsModel->itemFromIndex(pindx)->row();
         id = gListePatientsModel->item(row)->text().toInt();
     }
@@ -2790,7 +2792,7 @@ void Rufus::RechercheParID()
     globallay           ->insertWidget(1,idLine);
     globallay           ->insertWidget(2,lblnom);
     gAskRechParIDDialog ->AjouteLayButtons();
-    connect(idLine,                         &QLineEdit::textEdited,         [=] {ChercheNomparID(QString::number(idLine->getId()));});
+    connect(idLine,                         &QLineEdit::textEdited,         [=] {ChercheNomparID(idLine->text());});
     connect(gAskRechParIDDialog->OKButton,  &QPushButton::clicked,          [=] {gAskRechParIDDialog->close();});
     gAskRechParIDDialog->exec();
 }

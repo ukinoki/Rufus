@@ -20,7 +20,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 dlg_docsvideo::dlg_docsvideo(Procedures *ProcAPasser, int idPat, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsVideo", parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     proc    = ProcAPasser;
     idpat   = idPat;
     QString Base;

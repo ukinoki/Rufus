@@ -28,6 +28,10 @@ public:
 
 
     static void Pause(int msec = 1000);
+    static QString convertHTML(QString text);
+
+    static QString trim(QString text, bool end=true);
+    static QString capitilize(QString text);
 };
 
 #endif // UTILS_H

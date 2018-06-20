@@ -337,10 +337,9 @@ void dlg_depenses::ChoixPaiement()
 
 void dlg_depenses::ConvertitDoubleMontant()
 {
-    QLineEdit * Emetteur = qobject_cast<QLineEdit*> (sender());
-    QString b = Emetteur->text();
+    QString b = ui->MontantlineEdit->text();
     b = QLocale().toString(QLocale().toDouble(b),'f',2);
-    Emetteur->setText(b);
+    ui->MontantlineEdit->setText(b);
 }
 
 void dlg_depenses::EnableModifiepushButton()
@@ -530,7 +529,7 @@ void dlg_depenses::GererDepense(QPushButton *widgsender)
         RegleAffichageFiche(Enregistrer);
 }
 
-void dlg_depenses::MenuContextuel(QPoint pos, UpLabel *labelClicked)
+void dlg_depenses::MenuContextuel(UpLabel *labelClicked)
 {
     int idDepAOuvrir = labelClicked->getId();
 
@@ -547,7 +546,7 @@ void dlg_depenses::MenuContextuel(QPoint pos, UpLabel *labelClicked)
 
     // ouvrir le menu
     menu->deleteLater();
-    menu->exec(pos);
+    menu->exec(cursor().pos());
 }
 
 void dlg_depenses::ChoixMenu(QString choix)
@@ -1234,13 +1233,13 @@ void dlg_depenses::RemplitBigTable()
             label5->setContextMenuPolicy(Qt::CustomContextMenu);
             label6->setContextMenuPolicy(Qt::CustomContextMenu);
 
-            connect(label0,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label0);});
-            connect(label1,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label1);});
-            connect(label2,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label2);});
-            connect(label3,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label3);});
-            connect(label4,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label4);});
-            connect(label5,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label5);});
-            connect(label6,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), label6);});
+            connect(label0,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label0);});
+            connect(label1,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label1);});
+            connect(label2,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label2);});
+            connect(label3,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label3);});
+            connect(label4,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label4);});
+            connect(label5,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label5);});
+            connect(label6,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label6);});
 
             A = EnumDepensesQuery.value(0).toString();                                                          // idDepense - col = 0
             label0->setText(A);

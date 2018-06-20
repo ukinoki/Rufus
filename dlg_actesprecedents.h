@@ -21,6 +21,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include "cls_acte.h"
 #include "procedures.h"
+#include <QWheelEvent>
 
 /* La fiche dlg_actesprecednets présente les actes d'un patient dans une fiche dans laquelle aucun champ ne peut être modifié.
  * Elle sert à consulter simplement les actes effectués sur un patient
@@ -53,9 +54,12 @@ public:
     int                     getidPatient();
     void                    Actualise();
     void                    ActesPrecsAfficheActe(int idActeAAfficher); // Affiche l'acte défini par idActeAAfficher
+    void                    ActesPrecsAfficheActe();
     int                     getActeAffiche();
 
 private:
+    void                    wheelEvent(QWheelEvent *event);
+    void                    keyPressEvent(QKeyEvent *keyEvent); //PAS UTILISE
     Ui::dlg_actesprecedents *ui;
     Procedures              *proc;
     int                     position;
@@ -63,10 +67,11 @@ private:
     void                    closeEvent(QCloseEvent *event);
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     Acte                    *acte;
+    QMap<int, Acte*>::const_iterator    itCurrentActe;
+    QMap<int, Acte*>        m_listeActes;
     int                     gidActe, gidPatient;
     bool                    NavigationConsult(int i);
     bool                    gAvantDernier;
-    int                     ChercheActeAAfficher();                     // détermine l'acte à afficher suivant l'idPatient et la valeur de AVantDernier
 };
 
 #endif // DLG_ACTESPRECEDENTS_H

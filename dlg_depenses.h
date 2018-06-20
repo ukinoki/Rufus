@@ -77,7 +77,7 @@ private:
     void                        EnableModifiepushButton();
     void                        GererDepense(QPushButton *widgsender);
     void                        GestionComptes();
-    void                        MenuContextuel(QPoint pos, UpLabel *labelClicked);
+    void                        MenuContextuel(UpLabel *labelClicked);
     void                        MetAJourFiche();
     void                        ModifierDepense();
     void                        RedessineBigTable();

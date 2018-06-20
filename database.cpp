@@ -385,16 +385,12 @@ Villes* DataBase::loadVillesAll()
 /*
  * Actes
 */
-Acte* DataBase::loadActeById(int idActe)
+QString DataBase::createActeRequest(int idActe, int idPat)
 {
-    Acte *acte = new Acte(idActe, 0, 0);
-
-    if( idActe == 0 )
-        return acte;
     QString subRequestRankAct = "SELECT idActe, idPat, "
-                                  "CASE WHEN @prevRank = idPat THEN @curRank := @curRank + 1 WHEN @prevRank := idPat THEN @curRank := 1 END AS rank "
-                                  " FROM " NOM_TABLE_ACTES ", (SELECT @curRank := 0, @prevRank := NULL) r "
-                                  " ORDER BY idPat, idActe ";
+                                  " CASE WHEN @prevRank = idPat THEN @curRank := @curRank + 1 WHEN @prevRank := idPat THEN @curRank := 1 END AS rank "
+                                " FROM " NOM_TABLE_ACTES ", (SELECT @curRank := 0, @prevRank := NULL) r "
+                                " ORDER BY idPat, idActe ";
     QString subRequestMinMaxAct = "SELECT min(idActe) as idActeMin, max(idActe) as idActeMax, count(idActe) as total, idPat "
                                 " FROM " NOM_TABLE_ACTES
                                 " GROUP BY idPat ";
@@ -408,23 +404,32 @@ Acte* DataBase::loadActeById(int idActe)
                       " LEFT JOIN " NOM_TABLE_PATIENTS " pat on pat.idPat = act.idPat "
                       " JOIN ( "+ subRequestMinMaxAct + " ) ll on ll.idPat = act.idPat "
                       " JOIN ( "+ subRequestRankAct + " ) ll2 on ll2.idPat = act.idPat and ll2.idActe = act.idActe "
-                      " LEFT JOIN " NOM_TABLE_TYPEPAIEMENTACTES " tpm on tpm.idActe = act.idActe "
-                      " WHERE act.idActe = '" + QString::number(idActe) + "'";
-    QSqlQuery query(requete, getDataBase());
-    if( traiteErreurRequete(query, requete) || !query.first() )
-        return acte;
+                      " LEFT JOIN " NOM_TABLE_TYPEPAIEMENTACTES " tpm on tpm.idActe = act.idActe ";
+    if( idActe > 0 )
+        requete += " WHERE act.idActe = '" + QString::number(idActe) + "'";
+    else if( idPat > 0 )
+    {
+        requete += " WHERE act.idPat = '" + QString::number(idPat) + "' "
+                   " ORDER BY act.idActe DESC";
+    }
 
+    return requete;
+}
+QJsonObject DataBase::extractActeData(QSqlQuery query)
+{
     QJsonObject data{};
+    data["id"] = query.value(0).toInt();
+    data["idPatient"] = query.value(1).toInt();
+    data["idUser"] = query.value(2).toInt();
     data["date"] = QDateTime(query.value(3).toDate()).toMSecsSinceEpoch();
     data["motif"] = query.value(4).toString();
     data["texte"] = query.value(5).toString();
     data["conclusion"] = query.value(6).toString();
     data["courrierStatus"] = query.value(7).toString();
-    data["idCreatedBy"] = query.value(11).toInt();
-    data["idPatient"] = query.value(2).toInt();
     data["cotation"] = query.value(8).toString();
-    data["monnaie"] = query.value(10).toString();
     data["montant"] = query.value(9).toDouble();
+    data["monnaie"] = query.value(10).toString();
+    data["idCreatedBy"] = query.value(11).toInt();
 
     if( query.value(12).isNull() )
         data["agePatient"] = -1;
@@ -445,6 +450,21 @@ Acte* DataBase::loadActeById(int idActe)
         data["montant"] = "";
     else
         data["montant"] = query.value(18).toString();
+
+    return data;
+}
+Acte* DataBase::loadActeById(int idActe)
+{
+    Acte *acte = new Acte(idActe, 0, 0);
+
+    if( idActe == 0 )
+        return acte;
+    QString requete = createActeRequest(idActe, 0);
+    QSqlQuery query(requete, getDataBase());
+    if( traiteErreurRequete(query, requete) || !query.first() )
+        return acte;
+
+    QJsonObject data = extractActeData(query);
     acte->setData(data);
     return acte;
 }
@@ -454,63 +474,15 @@ QMap<int, Acte*> DataBase::loadActesByIdPat(int idPat)
     if( idPat == 0 )
         return list;
 
-    QString subRequestMinMaxAct = "SELECT idActe, idPat, "
-                                  "CASE WHEN @prevRank = idPat THEN @curRank := @curRank + 1 WHEN @prevRank := idPat THEN @curRank := 1 END AS rank, "
-                                  " FROM " NOM_TABLE_ACTES " (SELECT @curRank := 0, @prevRank := NULL) r "
-                                  " ORDER BY idPat, idActe ";
-    QString subRequestRankAct = "SELECT min(idActe) as idActeMin, max(idActe) as idActeMax, count(idActe) as total, idPat "
-                                " FROM " NOM_TABLE_ACTES
-                                " GROUP BY idPat ";
-    QString requete = "SELECT act.idActe, act.idPat, act.idUser, "
-                        " act.ActeDate, act.ActeMotif, act.ActeTexte, act.ActeConclusion, "
-                        " act.ActeCourrierAFaire, act.ActeCotation, act.ActeMontant, act.ActeMonnaie, "
-                        " act.CreePar, "
-                        " pat.PatDDN, ll2.rank, ll.idActeMin, ll.idActeMax, ll.total, "
-                        " tpm.TypePaiement, tpm.Tiers "
-                      " FROM " NOM_TABLE_ACTES " act "
-                      " LEFT JOIN " NOM_TABLE_PATIENTS " pat on pat.idPat = act.idPat "
-                      " JOIN ( "+ subRequestMinMaxAct + " ) ll on ll.idPat = act.idPat "
-                      " JOIN ( "+ subRequestRankAct + " ) ll2 on ll2.idPat = act.idPat and ll2.idActe = act.idActe "
-                      " LEFT JOIN " NOM_TABLE_TYPEPAIEMENTACTES " tpm on tpm.idActe = act.idActe "
-                      " WHERE act.idPat = '" + QString::number(idPat) + "' "
-                      " ORDER BY idActe DESC";
+    QString requete = createActeRequest(0, idPat);
     QSqlQuery query(requete, getDataBase());
     if( traiteErreurRequete(query, requete) || !query.first() )
         return list;
 
     do
     {
-        Acte *acte = new Acte(query.value(0).toInt(), query.value(16).toInt(), query.value(13).toInt());
-
-        QJsonObject data{};
-        data["date"] = QDateTime(query.value(3).toDate()).toMSecsSinceEpoch();
-        data["motif"] = query.value(4).toString();
-        data["texte"] = query.value(5).toString();
-        data["conclusion"] = query.value(6).toString();
-        data["courrierStatus"] = query.value(7).toString();
-        data["idCreatedBy"] = query.value(11).toInt();
-        data["idPatient"] = query.value(2).toInt();
-        data["cotation"] = query.value(8).toString();
-        data["monnaie"] = query.value(10).toString();
-        data["montant"] = query.value(9).toDouble();
-
-        if( query.value(12).isNull() )
-            data["agePatient"] = -1;
-        else
-            data["agePatient"] = QDateTime(query.value(12).toDate()).toMSecsSinceEpoch();
-
-        data["idActeMin"] = query.value(14).toInt();
-        data["idActeMax"] = query.value(15).toInt();
-
-        if( query.value(17).isNull() )
-            data["paiementType"] = "";
-        else
-            data["paiementType"] = query.value(17).toString();
-
-        if( query.value(18).isNull() )
-            data["montant"] = "";
-        else
-            data["montant"] = query.value(18).toString();
+        QJsonObject data = extractActeData(query);
+        Acte *acte = new Acte();
         acte->setData(data);
         list[acte->id()] = acte;
     } while( query.next() );

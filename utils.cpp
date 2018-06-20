@@ -1,3 +1,4 @@
+#include "uptextedit.h"
 #include "utils.h"
 
 #include <QCoreApplication>
@@ -53,4 +54,98 @@ void Utils::Pause(int msec)
     QTime dieTime = QTime::currentTime().addMSecs(msec);
     while (QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
+}
+
+QString Utils::convertHTML(QString text)
+{
+    UpTextEdit textprov;
+    textprov.setText( text );
+    // on retire la dernière ligne si elle est vide
+    QString texte = textprov.toHtml();
+    bool a = true;
+    while (a)
+    {
+        // il faut retirer la dernière ligne du html qui contient le retour à la ligne
+        int debut = texte.lastIndexOf("<p");
+        int fin   = texte.lastIndexOf("</p>");
+        int longARetirer = fin - debut + 4;
+        if( (a = (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))) )
+            texte.remove(debut,longARetirer);
+    }
+
+    return texte;
+}
+
+/*!
+ * \brief Utils::trim
+ * Cette fonction va supprimer :
+ * - les " ", "-" et "'" en début et fin du texte
+ * - les " ", "-" et "'" en doublon dans le texte
+ * \param text le texte à nettoyer
+ * \param end mettre false si on ne souhaite pas nettoyer la fin du texte
+ * \return le texte nettoyé
+ */
+QString Utils::trim(QString text, bool end)
+{
+    QString textC = text;
+    QChar c;
+    while( textC.size() )
+    {
+        c = textC.at(0);
+        if( c == " " || c == "-" || c == "'" )
+            textC = textC.remove(0,1);
+        else
+            break;
+    }
+
+    if( end )
+        while( textC.size() )
+        {
+            int lastIndex = textC.size() - 1;
+            c = textC.at(lastIndex);
+            if( c == " " || c == "-" || c == "'" )
+                textC = textC.remove(lastIndex,1);
+            else
+                break;
+        }
+
+    QString newText = "";
+    QChar lastChar;
+    for( int i=0; i < textC.size(); ++i )
+    {
+        c = textC.at(i);
+        if( lastChar == " " || lastChar == "-" || lastChar == "'" )
+            if( lastChar == c )
+                continue;
+
+        newText += c;
+        lastChar = c;
+    }
+
+    return newText;
+}
+
+/*!
+ * \brief Utils::Capitilize
+ * Cette fonction va mettre tous les premiers caractères en majuscule
+ * \param text le texte à modifier
+ * \return le texte modifié
+ */
+QString Utils::capitilize(QString text)
+{
+    QString newText="";
+    QChar c;
+    //Permet de forcer le premier caractère en majucule
+    QChar lastChar = ' ';
+    for( int i=0; i < text.size(); ++i )
+    {
+        c = text.at(i);
+        if( lastChar == " " || lastChar == "-" || lastChar == "'" )
+            c = c.toUpper();
+
+        newText += c;
+        lastChar = c;
+    }
+
+    return newText;
 }

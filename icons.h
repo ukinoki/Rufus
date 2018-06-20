@@ -76,7 +76,7 @@ public:
     static QPixmap pxDetente() { return foundPX("pxDetente", "://beach.png"); }
     static QPixmap pxDeverouiller() { return foundPX("pxDeverouiller", "://Unlock.png"); }
 
-    static QPixmap pxEditer() { return foundPX("pxEnregistrer", "://edit.png"); }
+    static QPixmap pxEditer() { return foundPX("pxEditer", "://edit.png"); }
     static QPixmap pxEnregistrer() { return foundPX("pxEnregistrer", "://Record.png"); }
     static QPixmap pxError() { return foundPX("pxError", "://error.png"); }
 

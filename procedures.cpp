@@ -4770,8 +4770,8 @@ void Procedures::RegleRefracteur()
             SCAOD.replace("-0","- ");
             SCAOG.replace("+0","+ ");
             SCAOG.replace("-0","- ");
-            DTRbuff.append("DRM");                               //section autoref
-            DTRbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
+            DTRbuff.append("DRM");                              //section autoref
+            DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
             DTRbuff.append("OR"+ SCAOD);                        //SD
             DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
             DTRbuff.append("OL"+ SCAOG);                        //SD
@@ -4807,8 +4807,8 @@ void Procedures::RegleRefracteur()
             SCAOG.replace("-0","- ");
             AddOD       = "+ " + QString::number(Mesure["AddOD"].toDouble(),'f',2);
             AddOG       = "+ " + QString::number(Mesure["AddOG"].toDouble(),'f',2);
-            DTRbuff.append("DLM");                               //section fronto
-            DTRbuff.append(QByteArray::fromHex("2"));          //STX -> start of text
+            DTRbuff.append("DLM");                              //section fronto
+            DTRbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
             DTRbuff.append(" R"+ SCAOD);                        //SD
             DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block
             DTRbuff.append(" L"+ SCAOG);                        //SD

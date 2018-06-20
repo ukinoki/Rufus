@@ -46,7 +46,7 @@ dlg_commentaires::dlg_commentaires(Procedures *procAPasser, QWidget *parent) :
     connect (OKButton,                  &QPushButton::clicked,                  [=] {Validation();});
     connect (CancelButton,              &QPushButton::clicked,                  [=] {Annulation();});
     connect (ui->upTextEdit,            &QTextEdit::textChanged,                [=] {EnableOKPushbutton();});
-    connect (ui->upTextEdit,            &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), ui->upTextEdit);});
+    connect (ui->upTextEdit,            &QWidget::customContextMenuRequested,   [=] {MenuContextuel(ui->upTextEdit);});
     connect (ui->upTextEdit,            &UpTextEdit::dblclick,                  [=] {dblClicktextEdit();});
     connect(widgButtons,                &WidgetButtonFrame::choix,              [=] {ChoixButtonFrame(widgButtons->Reponse());});
 
@@ -331,7 +331,7 @@ void dlg_commentaires::EnableOKPushbutton()
         OKButton->setEnabled(true);
 }
 
-void dlg_commentaires::MenuContextuel(QPoint pt, QWidget *widg)
+void dlg_commentaires::MenuContextuel(QWidget *widg)
 {
     QMenu *menuContextuel               = new QMenu(this);
     QAction *pAction_ModifCommentaire   = new QAction();
@@ -401,7 +401,7 @@ void dlg_commentaires::MenuContextuel(QPoint pt, QWidget *widg)
     }
 
     // ouvrir le menu
-    menuContextuel->exec(pt);
+    menuContextuel->exec(cursor().pos());
 
     delete pAction_ModifCommentaire;
     delete pAction_SupprCommentaire;
@@ -912,7 +912,7 @@ void dlg_commentaires::EnableLines()
             line->deselect();
             line->setEnabled(true);
             line->setFocusPolicy(Qt::NoFocus);
-            connect(line,       &QWidget::customContextMenuRequested,   [=] {MenuContextuel(cursor().pos(), line);});
+            connect(line,       &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line);});
             connect(line,       &QLineEdit::textEdited,                 [=] {EnableOKPushbutton();});
             if (ui->ComupTableWidget->item(i,4)->text().toInt() == gidUser)
                 connect(line,   &UpLineEdit::mouseDoubleClick,          [=] {if (gMode == Selection) ConfigMode(Modification, line->getRowTable());});

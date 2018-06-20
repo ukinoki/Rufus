@@ -63,7 +63,16 @@ QString Acte::paiementTiers() const
 {
     return m_paiementTiers;
 }
+int Acte::idUser() const
+{
+    return m_idUser;
+}
 
+
+Acte::Acte(QObject *parent) : Item(parent)
+{
+
+}
 Acte::Acte(int idActe, int nbActe, int noActe, QObject *parent) : Item(parent), m_id(idActe), m_nbActes(nbActe), m_noActe(noActe)
 {
 
@@ -81,12 +90,13 @@ void Acte::setData(QJsonObject data)
     setDataInt(data, "idActeMax", m_idActeMax);
     setDataInt(data, "idCreatedBy", m_idCreatedBy);
     setDataInt(data, "idPatient", m_idPatient);
+    setDataInt(data, "idUser", m_idUser);
 
     setDataDouble(data, "montant", m_montant);
 
-    setDataString(data, "motif", m_motif);
-    setDataString(data, "texte", m_texte);
-    setDataString(data, "conclusion", m_conclusion);
+    setDataString(data, "motif", m_motif, true);
+    setDataString(data, "texte", m_texte, true);
+    setDataString(data, "conclusion", m_conclusion, true);
     setDataString(data, "courrierStatus", m_courrierStatus);
     setDataString(data, "cotation", m_cotation);
     setDataString(data, "monnaie", m_monnaie);

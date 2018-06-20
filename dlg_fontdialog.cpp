@@ -99,12 +99,6 @@ dlg_fontdialog::~dlg_fontdialog()
 {
 }
 
-void dlg_fontdialog::SlotChangeItem(QTreeWidgetItem *arrivee)
-{
-    if (arrivee!=NULL)
-    Slot_Redessinelabel(arrivee);
-}
-
 void dlg_fontdialog::Slot_FermeFiche()
 {
     UpMessageBox::Watch(this,tr("Vous devrez relancer le programme pour appliquer le changement de police"));

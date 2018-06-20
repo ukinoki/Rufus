@@ -138,7 +138,13 @@ int dlg_identificationuser::ControleDonnees()
     if (!gChgUsr)
     {
 //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
-        QString error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
+        QString error = "";
+#ifdef ALEX
+        error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
+#else
+        error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
+#endif
+
         if( error.size() )
         {
             ui->IconServerOKupLabel->setPixmap(Icons::pxError());
@@ -151,7 +157,10 @@ int dlg_identificationuser::ControleDonnees()
             return -1;
         }
 
-        /*QString Client;
+#ifdef ALEX
+        req = "show grants for 'rufusConnection'@'localhost'";
+#else
+        QString Client;
         if (DataBase::getInstance()->getBase() == "BDD_DISTANT")
                 Client = "%";
         else if (DataBase::getInstance()->getBase() == "BDD_LOCAL" && Utils::rgx_IPV4.exactMatch(DataBase::getInstance()->getServer()))
@@ -165,9 +174,10 @@ int dlg_identificationuser::ControleDonnees()
             }
         }
         else
-            Client = DataBase::getInstance()->getServer();*/
-        req = "show grants for 'rufusConnection'@'localhost'";
-        //UpMessageBox::Watch(this,req);
+            Client = DataBase::getInstance()->getServer();
+        req = "show grants for '" + Login + "'@'" + Client + "'";
+#endif
+
         QSqlQuery grantsquery(req, DataBase::getInstance()->getDataBase());
         if (grantsquery.size()==0)
         {

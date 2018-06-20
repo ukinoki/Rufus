@@ -89,6 +89,10 @@ public:
     /*
      * Actes
     */
+private:
+    QString createActeRequest(int idActe, int idPat);
+    QJsonObject extractActeData(QSqlQuery query);
+public:
     Acte* loadActeById(int idActe);
     QMap<int, Acte*> loadActesByIdPat(int idPat);
     double getActeMontant(int idActe);
