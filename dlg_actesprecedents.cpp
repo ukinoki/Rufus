@@ -163,31 +163,11 @@ void dlg_actesprecedents::wheelEvent(QWheelEvent *event)
     */
     if (!ui->CorpsupTextEdit->underMouse() && !ui->ConclusionupTextEdit->underMouse())
     {
-        //int pas = 10;
         int deplacemtsouris = event->angleDelta().y();
         if( deplacemtsouris > 0 ) //on affiche l'acte précédent
             NavigationConsult(Prec);
         else //on affiche l'acte suivant
             NavigationConsult(Suiv);
-        /*
-        //pas = pas + pas/deplacemtsouris;  // tentative de gérer l'accélération
-        if (deplacemtsouris!=0 && fabs(deplacemtsouris)<pas)
-            deplacemtsouris = pas*(fabs(deplacemtsouris)/deplacemtsouris);
-        int destination = ui->ScrollBar->value() - deplacemtsouris/pas;
-        if (destination < ui->ScrollBar->minimum() || destination > ui->ScrollBar->maximum())
-        {
-            if( event->angleDelta().y() <= 0 )
-                itCurrentActe = m_listeActes.find(m_listeActes.lastKey());
-            else
-                itCurrentActe = m_listeActes.constBegin();
-            ActesPrecsAfficheActe();
-        }
-        else
-        {
-            itCurrentActe = m_listeActes.find( m_listeActes.keys().at(destination) );
-            ActesPrecsAfficheActe();
-        }
-        */
     }
 }
 

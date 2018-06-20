@@ -28,7 +28,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_fontdialog.h"
 #include "dlg_gestionlieux.h"
 #include "dlg_motifs.h"
-#include "upqsqltablemodel.h"
 #include "upradiobutton.h"
 #include "villecpwidget.h"
 #include "ui_villecpwidget.h"
@@ -69,7 +68,6 @@ private:
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
     QStringList             glistAppareils;
     QTimer                  *gTimerVerifPosteImportDocs;
-    UpQSqlTableModel        *gActestbl;
     WidgetButtonFrame       *widgHN, *widgAssocCCAM, *widgAppareils;
     QWidget*                widgCCAM;
 

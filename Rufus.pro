@@ -15,7 +15,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
-QT       += sql core gui network printsupport multimedia xml serialport multimediawidgets
+QT       += sql core gui network printsupport xml serialport multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -92,7 +92,6 @@ SOURCES += main.cpp\
     dlg_gestioncomptes.cpp \
     dlg_paramconnexion.cpp \
     dlg_gestionusers.cpp \
-    upqsqltablemodel.cpp \
     dlg_creeracte.cpp \
     updoublevalidator.cpp \
     conversionbase.cpp \
@@ -168,7 +167,6 @@ HEADERS  += rufus.h \
     dlg_gestioncomptes.h \
     dlg_paramconnexion.h \
     dlg_gestionusers.h \
-    upqsqltablemodel.h \
     dlg_creeracte.h \
     updoublevalidator.h \
     conversionbase.h \
@@ -252,7 +250,7 @@ LIBS += -L/usr/local/lib/ -lpoppler-qt5
 }
 LINUX {
 INCLUDEPATH += /usr/include/poppler/qt5
-LIBS += -L/usr/lib/x86_64-linux-gnu/ -lpoppler-qt5
+LIBS += -L/usr/local/lib/ -lpoppler-qt5
 }
 
 DISTFILES += \
