@@ -142,7 +142,7 @@ private:
     void        ExporteDocs();
     void        FiltreAccueil(int idx);
     void        FiltrecheckBoxClicked();
-    void        FiltreSalleDAttente(int);
+    void        FiltreSalleDAttente();
     void        GestionComptes();
     void        IdentificationUser();
     void        ImportDocsExternes();

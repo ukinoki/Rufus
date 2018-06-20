@@ -25,7 +25,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 --------------------------------------------------------------------------------------------------------------*/
 {
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("18-06-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("19-06-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1989,11 +1989,12 @@ void Rufus::FiltrecheckBoxClicked()
         ui->PatientsListeTableView->scrollTo(ui->PatientsListeTableView->selectionModel()->selectedIndexes().at(0),QAbstractItemView::PositionAtTop);
 }
 
-void Rufus::FiltreSalleDAttente(int index)
+void Rufus::FiltreSalleDAttente()
 {
-    int idx         = gSalDatTab->tabData(index).toInt();
+    int index       = gSalDatTab->currentIndex();
+    int iduser      = gSalDatTab->tabData(index).toInt();
     QString usrlog  = gSalDatTab->tabText(index);
-    if (idx==-1)
+    if (iduser==-1)
         for(int i=0; i<ui->SalleDAttenteupTableWidget->rowCount(); i++)
             ui->SalleDAttenteupTableWidget->setRowHidden(i,false);
     else
@@ -3511,54 +3512,46 @@ QStringList Rufus::MotifMessage(QString Motif, QString Message, QTime heurerdv)
 //TODO à déplacer
 void Rufus::MenuContextuelUptextEdit(UpTextEdit *TxtEdit)
 {
-    gmenuContextuel          = new QMenu();
-    QAction *pAction_ModifPolice    = new QAction(this);
-    QAction *pAction_Fontbold       = new QAction(this);
-    QAction *pAction_Fontitalic     = new QAction(this);
-    QAction *pAction_Fontunderline  = new QAction(this);
-    QAction *pAction_Fontnormal     = new QAction(this);
-    QAction *pAction_Copier         = new QAction(this);
-    QAction *pAction_Cut            = new QAction(this);
-    QAction *pAction_Coller         = new QAction(this);
-    QAction *pAction_Blockcentr     = new QAction(this);
-    QAction *pAction_Blockjust      = new QAction(this);
-    QAction *pAction_Blockright     = new QAction(this);
-    QAction *pAction_Blockleft      = new QAction(this);
+    gmenuContextuel          = new QMenu(this);
+    QAction *pAction_Copier         = new QAction();
+    QAction *pAction_Cut            = new QAction();
+    QAction *pAction_Coller         = new QAction();
 
     if (TxtEdit->textCursor().selectedText().size() > 0)   {
-        pAction_ModifPolice    = gmenuContextuel->addAction(Icons::icFont(),           tr("Modifier la police"));
-        pAction_Fontbold       = gmenuContextuel->addAction(Icons::icFontbold(),       tr("Gras"));
-        pAction_Fontitalic     = gmenuContextuel->addAction(Icons::icFontitalic(),     tr("Italique"));
-        pAction_Fontunderline  = gmenuContextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
-        pAction_Fontnormal     = gmenuContextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
+        QAction *pAction_ModifPolice    = gmenuContextuel->addAction(Icons::icFont(),           tr("Modifier la police"));
+        QAction *pAction_Fontbold       = gmenuContextuel->addAction(Icons::icFontbold(),       tr("Gras"));
+        QAction *pAction_Fontitalic     = gmenuContextuel->addAction(Icons::icFontitalic(),     tr("Italique"));
+        QAction *pAction_Fontunderline  = gmenuContextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
+        QAction *pAction_Fontnormal     = gmenuContextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
+        connect (pAction_Fontbold,      &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Gras");});
+        connect (pAction_Fontitalic,    &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Italique");});
+        connect (pAction_Fontunderline, &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Souligne");});
+        connect (pAction_Fontnormal,    &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Normal");});
+        connect (pAction_ModifPolice,   &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Police");});
         gmenuContextuel->addSeparator();
     }
-    pAction_Blockleft           = gmenuContextuel->addAction(Icons::icBlockLeft(),      tr("Aligné à gauche"));
-    pAction_Blockright          = gmenuContextuel->addAction(Icons::icBlockRight(),     tr("Aligné à droite"));
-    pAction_Blockcentr          = gmenuContextuel->addAction(Icons::icBlockCenter(),    tr("Centré"));
-    pAction_Blockjust           = gmenuContextuel->addAction(Icons::icBlockJustify(),   tr("Justifié"));
-    gmenuContextuel->addSeparator();
-    if (TxtEdit->textCursor().selectedText().size() > 0)   {
-        pAction_Copier         = gmenuContextuel->addAction(Icons::icCopy(),            tr("Copier"));
-        pAction_Cut            = gmenuContextuel->addAction(Icons::icCut(),             tr("Couper"));
-    }
-    const QClipboard *clipboard = qApp->clipboard();
-    const QMimeData *mimeData = clipboard->mimeData();
-    if (mimeData->hasText() || mimeData->hasUrls() || mimeData->hasImage() || mimeData->hasHtml())
-        pAction_Coller         = gmenuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
-
-    connect (pAction_Fontbold,      &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Gras");});
-    connect (pAction_Fontitalic,    &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Italique");});
-    connect (pAction_Fontunderline, &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Souligne");});
-    connect (pAction_Fontnormal,    &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Normal");});
-    connect (pAction_ModifPolice,   &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Police");});
+    QAction *pAction_Blockleft           = gmenuContextuel->addAction(Icons::icBlockLeft(),      tr("Aligné à gauche"));
+    QAction *pAction_Blockright          = gmenuContextuel->addAction(Icons::icBlockRight(),     tr("Aligné à droite"));
+    QAction *pAction_Blockcentr          = gmenuContextuel->addAction(Icons::icBlockCenter(),    tr("Centré"));
+    QAction *pAction_Blockjust           = gmenuContextuel->addAction(Icons::icBlockJustify(),   tr("Justifié"));
     connect (pAction_Blockcentr,    &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Centre");});
     connect (pAction_Blockright,    &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Droite");});
     connect (pAction_Blockleft,     &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Gauche");});
     connect (pAction_Blockjust,     &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Justifie");});
-    connect (pAction_Copier,        &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Copier");});
-    connect (pAction_Coller,        &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Coller");});
-    connect (pAction_Cut,           &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Couper");});
+    gmenuContextuel->addSeparator();
+    if (TxtEdit->textCursor().selectedText().size() > 0)   {
+        pAction_Copier         = gmenuContextuel->addAction(Icons::icCopy(),            tr("Copier"));
+        pAction_Cut            = gmenuContextuel->addAction(Icons::icCut(),             tr("Couper"));
+        connect (pAction_Copier,        &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Copier");});
+        connect (pAction_Coller,        &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Coller");});
+    }
+    const QClipboard *clipboard = qApp->clipboard();
+    const QMimeData *mimeData = clipboard->mimeData();
+    if (mimeData->hasText() || mimeData->hasUrls() || mimeData->hasImage() || mimeData->hasHtml())
+    {
+        pAction_Coller         = gmenuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
+        connect (pAction_Cut,           &QAction::triggered,    [=] {ChoixMenuContextuelUptextEdit("Couper");});
+    }
 
     // ouvrir le menu
     gmenuContextuel->exec(cursor().pos());
@@ -8274,7 +8267,7 @@ void Rufus::InitDivers()
     QAction *pAction_VoirMessages = trayIconMenu->addAction(tr("Voir les messages"));
     connect (pAction_VoirMessages, &QAction::triggered,    [=] {AfficheMessages();});
 
-    gMessageIcon = new QSystemTrayIcon();
+    gMessageIcon = new QSystemTrayIcon(this);
     gMessageIcon->setContextMenu(trayIconMenu);
     gMessageIcon->setIcon(Icons::icPostit());
     connect(gMessageIcon,   &QSystemTrayIcon::messageClicked,   [=] {AfficheMessages();});
@@ -8371,7 +8364,7 @@ void Rufus::InitTables()
     hlay        ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Fixed));
     hlay        ->setContentsMargins(0,0,0,0);
     hlay        ->setSpacing(0);
-    connect (gSalDatTab,    &QTabBar::currentChanged,   [=] {FiltreSalleDAttente(gSalDatTab->currentIndex());});
+    connect (gSalDatTab,    &QTabBar::currentChanged,   [=] {FiltreSalleDAttente();});
     ui->SalDatLayout->insertLayout(1,hlay);
     ui->SalDatWidget->setVisible(false);
 
@@ -9487,7 +9480,7 @@ void Rufus::Remplir_SalDat()
             else
                color = "color: red";
         }
-        label6->setText(RemplirTableViewUserQuery.value(9).toString());    // Superviseur
+        label6->setText(RemplirTableViewUserQuery.value(9).toString());                 // Superviseur
         if (!listidusers.contains(RemplirTableViewUserQuery.value(8).toInt()))
         {
             listidusers << RemplirTableViewUserQuery.value(8).toInt();
@@ -9614,7 +9607,7 @@ void Rufus::Remplir_SalDat()
         }
         if (!a)
             gSalDatTab->setCurrentIndex(0);
-        FiltreSalleDAttente(gSalDatTab->currentIndex());
+        FiltreSalleDAttente();
     }
 
 

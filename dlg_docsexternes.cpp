@@ -103,10 +103,9 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
         proc->Edit(info);
     }*/
 
-    MAJTreeViewTimer    = new QTimer;
+    MAJTreeViewTimer    = new QTimer(this);
     MAJTreeViewTimer    ->start(10000);
-    connect(MAJTreeViewTimer,   SIGNAL(timeout()),   this,   SLOT(Slot_CompteNbreDocs()));
-    // connect(MAJTreeViewTimer,   &QTimer::timeout, [=] {Slot_CompteNbreDocs();}); provoque un plantage aléatoire...
+    connect(MAJTreeViewTimer,   &QTimer::timeout, [=] {Slot_CompteNbreDocs();});
     int margemm         = proc->TailleTopMarge(); // exprimé en mm
     printer             = new QPrinter(QPrinter::HighResolution);
     printer             ->setFullPage(true);

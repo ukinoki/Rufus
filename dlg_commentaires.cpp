@@ -38,7 +38,7 @@ dlg_commentaires::dlg_commentaires(Procedures *procAPasser, QWidget *parent) :
     globallay->insertWidget(0,widgButtons->widgButtonParent());
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     globallay   ->setSizeConstraint(QLayout::SetFixedSize);
-    disconnect (CancelButton,           SIGNAL(clicked()),                          this,   SLOT (reject()));
+    CancelButton->disconnect();
 
     setWindowTitle(tr("Liste des commentaires prédéfinis de ") + proc->getDataUser()["UserLogin"].toString());
 
@@ -874,15 +874,11 @@ void dlg_commentaires::DisableLines()
             Check->setEnabled(false);
         }
         line = dynamic_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (line) {
+        if (line != Q_NULLPTR) {
             line->deselect();
             line->setEnabled(false);
             line->setFocusPolicy(Qt::NoFocus);
-            disconnect(line,            SIGNAL(mouseDoubleClick(int)),                 0, 0);
-            disconnect(line,            SIGNAL(mouseEnter(int)),                       0, 0);
-            disconnect(line,            SIGNAL(mouseRelease(int)),                     0, 0);
-            disconnect(line,            SIGNAL(textEdited(QString)),                   0, 0);
-            disconnect(line,            SIGNAL(customContextMenuRequested(QPoint)),    0, 0);
+            line->disconnect();
         }
     }
     Widg    = 0; delete Widg;
@@ -908,7 +904,7 @@ void dlg_commentaires::EnableLines()
             Check->setEnabled(true);
         }
         line = dynamic_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (line) {
+        if (line != Q_NULLPTR) {
             line->deselect();
             line->setEnabled(true);
             line->setFocusPolicy(Qt::NoFocus);
@@ -1052,13 +1048,8 @@ void dlg_commentaires::Remplir_TableView()
     for (int i = 0; i<ui->ComupTableWidget->rowCount(); i++)
     {
         upLine0 = dynamic_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(i,1));
-        if (upLine0){
-            disconnect(upLine0,         SIGNAL(mouseEnter(int)),                        0, 0);
-            disconnect(upLine0,         SIGNAL(mouseRelease(int)),                      0, 0);
-            disconnect(upLine0,         SIGNAL(mouseDoubleClick(int)),                  0, 0);
-            disconnect(upLine0,         SIGNAL(customContextMenuRequested(QPoint)),     0, 0);
-            disconnect(upLine0,         SIGNAL(textEdited(QString)),                    0, 0);
-        }
+        if (upLine0 != Q_NULLPTR)
+            upLine0->disconnect();
     }
 
     ui->ComupTableWidget->clearContents();

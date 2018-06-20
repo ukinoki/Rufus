@@ -32,7 +32,11 @@ ui(new Ui::dlg_actesprecedents)
     gAvantDernier   = AvantDernier;
     setAttribute(Qt::WA_DeleteOnClose);
     setAttribute(Qt::WA_ShowWithoutActivating);
-    ui->Uplabel->setStyleSheet("background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50)); border: 1px solid rgb(150,150,150); border-radius: 10px;");
+    QString style = "background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));"
+                    " border: 1px solid rgb(150,150,150); border-radius: 10px;";
+    ui->EnteteupLabel           ->setStyleSheet(style);
+    ui->CorpsupTextEdit         ->setStyleSheet(style);
+    ui->ConclusionupTextEdit    ->setStyleSheet(style);
     ui->FermepushButton->installEventFilter(this);
 
     if (gAvantDernier)
@@ -107,16 +111,22 @@ void dlg_actesprecedents::keyPressEvent(QKeyEvent *keyEvent)
 
 void dlg_actesprecedents::wheelEvent(QWheelEvent *event)
 {
-    int pas = 10;
-    int deplacemtsouris = event->angleDelta().y();
-    //pas = pas + pas/deplacemtsouris;  // tentative de gérer l'accélération
-    if (deplacemtsouris!=0 && fabs(deplacemtsouris)<pas)
-        deplacemtsouris = pas*(fabs(deplacemtsouris)/deplacemtsouris);
-    int destination = ui->ScrollBar->value() - deplacemtsouris/pas;
-    if (destination < ui->ScrollBar->minimum() || destination > ui->ScrollBar->maximum())
-        (event->angleDelta().y() <= 0? ActesPrecsAfficheActe(listactes.last()) : ActesPrecsAfficheActe(listactes.first()));
-    else
-        ActesPrecsAfficheActe(listactes.at(destination));
+    /* la roulette de la souris fait défiler les actes.
+     * On neutralise la fonction si le curseur est dans ui->CorpsupTextEdit ou ui->ConclusionupTextEdit
+     * pour pouvoir utiliser à la souris les ascenseurs éventuels dans ces zones*/
+    if (!ui->CorpsupTextEdit->underMouse() && !ui->ConclusionupTextEdit->underMouse())
+    {
+        int pas = 10;
+        int deplacemtsouris = event->angleDelta().y();
+        //pas = pas + pas/deplacemtsouris;  // tentative de gérer l'accélération
+        if (deplacemtsouris!=0 && fabs(deplacemtsouris)<pas)
+            deplacemtsouris = pas*(fabs(deplacemtsouris)/deplacemtsouris);
+        int destination = ui->ScrollBar->value() - deplacemtsouris/pas;
+        if (destination < ui->ScrollBar->minimum() || destination > ui->ScrollBar->maximum())
+            (event->angleDelta().y() <= 0? ActesPrecsAfficheActe(listactes.last()) : ActesPrecsAfficheActe(listactes.first()));
+        else
+            ActesPrecsAfficheActe(listactes.at(destination));
+    }
 }
 
 void dlg_actesprecedents::closeEvent(QCloseEvent *event)
@@ -202,6 +212,8 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
                     + proc->CalculAge(ActesPrecsQuery.value(15).toDate(), ActesPrecsQuery.value(3).toDate())["Total"].toString()
                     + "</td><td width=\"400\">"
                     + ActesPrecsQuery.value(14).toString() + " " + ActesPrecsQuery.value(12).toString() + "</td></p>";
+            ui->EnteteupLabel->setText(Reponse);
+            Reponse = "";
             if (ActesPrecsQuery.value(4).toString() != "")
             {
                 textprov.setText(ActesPrecsQuery.value(4).toString());
@@ -242,6 +254,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
                     Reponse += "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
                 }
             }
+            ui->CorpsupTextEdit->setText(Reponse);
             if (ActesPrecsQuery.value(6).toString() != "")
             {
                 textprov.setText(ActesPrecsQuery.value(6).toString());
@@ -258,19 +271,23 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
                     else a = false;}
                 if (proc->MajusculePremiereLettre(textprov.toPlainText())!="")
                 {
-                    if (ActesPrecsQuery.value(2).toString() != "" || ActesPrecsQuery.value(3).toString() != "")
+                    if (ActesPrecsQuery.value(4).toString() != "" || ActesPrecsQuery.value(5).toString() != "")
                     {
-                        Reponse += "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("CONCLUSION") + "</font></td></p>";
+                        Reponse = "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("CONCLUSION") + "</font></td></p>";
                         Reponse += "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
                     }
                     else
-                        Reponse += "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
+                        Reponse = "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
                 }
+                ui->ConclusionupTextEdit->setText(Reponse);
             }
-            ui->Uplabel->setText(Reponse);
         }
         else
-            ui->Uplabel->clear();
+        {
+            ui->EnteteupLabel->clear();
+            ui->CorpsupTextEdit->clear();
+            ui->ConclusionupTextEdit->clear();
+        }
         ui->CourrierAFairecheckBox->setChecked(ActesPrecsQuery.value(7).toString() == "T");
         ui->idActelineEdit->setText(ActesPrecsQuery.value(0).toString());
         if (ActesPrecsQuery.value(7).toInt() == 1) ui->CourrierAFairecheckBox->setChecked(true);
