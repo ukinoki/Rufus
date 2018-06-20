@@ -11,7 +11,7 @@ before_install:
   - sudo apt-get update -qq
 
 install:
-  - sudo apt-get -y install qt510-meta-full
+  - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
   - source /opt/qt*/bin/qt*-env.sh
   - sudo apt-get build-dep libpoppler58
   - sudo apt-get install cmake libyelp-dev yelp-tools libsecret-1-dev libnautilus-extension-dev libpulse-dev libpulse-mainloop-glib0
