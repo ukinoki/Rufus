@@ -4457,7 +4457,7 @@ void Rufus::setTitre()
     }
     QString windowtitle = "Rufus - " + gDataUser->getLogin() + " - " + gDataUser->getFonction() + " - " + modeconnexion + " - " + qApp->applicationVersion();
     if (DataBase::getInstance()->getMode() != DataBase::Distant)
-        windowtitle +=  (UtiliseTCP? " - TCPServeur" : "");
+        windowtitle +=  (UtiliseTCP? " - TCP" : "");
     setWindowTitle(windowtitle);
 }
 
