@@ -1,0 +1,18 @@
+USE `Rufus`;
+
+DROP PROCEDURE IF EXISTS MAJ35;
+DELIMITER |
+    CREATE PROCEDURE MAJ35()
+    BEGIN
+    DECLARE tot INT DEFAULT 1;
+        SELECT COUNT(*) INTO tot FROM
+            (SELECT * FROM INFORMATION_SCHEMA.SCHEMATA WHERE SCHEMA_NAME = 'Images') as chp;
+        IF tot=0
+        THEN
+            CREATE DATABASE `Images` DEFAULT CHARSET = utf8;
+        END IF;
+        UPDATE `ParametresSysteme` SET VersionBase = 35;
+    END|
+CALL MAJ35();
+DROP PROCEDURE MAJ35;
+

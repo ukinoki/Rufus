@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dlg_gestioncomptes</class>
+ <widget class="QDialog" name="dlg_gestioncomptes">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>490</width>
+    <height>280</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>490</width>
+    <height>280</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>490</width>
+    <height>280</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>Dialog</string>
+  </property>
+  <widget class="UpTableWidget" name="ComptesuptableWidget">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>10</y>
+     <width>121</width>
+     <height>205</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>205</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>205</height>
+    </size>
+   </property>
+   <property name="editTriggers">
+    <set>QAbstractItemView::NoEditTriggers</set>
+   </property>
+   <property name="selectionMode">
+    <enum>QAbstractItemView::SingleSelection</enum>
+   </property>
+   <property name="selectionBehavior">
+    <enum>QAbstractItemView::SelectRows</enum>
+   </property>
+   <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+  <widget class="QFrame" name="Compteframe">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>140</x>
+     <y>10</y>
+     <width>345</width>
+     <height>205</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>345</width>
+     <height>205</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>204</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">border: 1px solid rgb(150,150,150);
+border-radius: 5px;
+</string>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLabel" name="Soldelabel">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>115</y>
+      <width>151</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 0px;</string>
+    </property>
+    <property name="text">
+     <string>Solde sur dernier relevé</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="NomAbregelabel">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>90</y>
+      <width>92</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 0px;</string>
+    </property>
+    <property name="text">
+     <string>Nom abrégé</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="idComptelabel">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>90</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 0px;</string>
+    </property>
+    <property name="text">
+     <string>id Compte</string>
+    </property>
+   </widget>
+   <widget class="UpLineEdit" name="SoldeuplineEdit">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>253</x>
+      <y>111</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>15</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IBANlabel">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>65</y>
+      <width>92</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 0px;</string>
+    </property>
+    <property name="text">
+     <string>IBAN</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Banquelabel">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>15</y>
+      <width>92</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 0px;</string>
+    </property>
+    <property name="text">
+     <string>Banque</string>
+    </property>
+   </widget>
+   <widget class="UpLineEdit" name="NomCompteAbregeuplineEdit">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>86</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>10</number>
+    </property>
+   </widget>
+   <widget class="UpLineEdit" name="IBANuplineEdit">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>61</y>
+      <width>240</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>33</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="IntituleComptelabel">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>13</x>
+      <y>40</y>
+      <width>92</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 0px;</string>
+    </property>
+    <property name="text">
+     <string>Intitulé</string>
+    </property>
+   </widget>
+   <widget class="UpLineEdit" name="idCompteupLineEdit">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>86</y>
+      <width>35</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>10</number>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+    </property>
+   </widget>
+   <widget class="UpLineEdit" name="IntituleCompteuplineEdit">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>36</y>
+      <width>240</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>80</number>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="BanqueupcomboBox">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>95</x>
+      <y>10</y>
+      <width>240</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="editable">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="UpSmallButton" name="OKModifupSmallButton">
+    <property name="geometry">
+     <rect>
+      <x>305</x>
+      <y>170</y>
+      <width>30</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 0px</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="Images/images.qrc">
+      <normaloff>:/save.png</normaloff>:/save.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>20</width>
+      <height>20</height>
+     </size>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="UpSmallButton" name="AnnulModifupSmallButton">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>170</y>
+      <width>30</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 0px</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset resource="Images/images.qrc">
+      <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="CompteSocietecheckBox">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>140</y>
+      <width>141</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border:0px</string>
+    </property>
+    <property name="text">
+     <string>compte de société</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="CompteFacticePushButton">
+    <property name="geometry">
+     <rect>
+      <x>5</x>
+      <y>165</y>
+      <width>131</width>
+      <height>35</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::NoContextMenu</enum>
+    </property>
+    <property name="toolTip">
+     <string>un compte factice</string>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: Opx solid rgb(150,150,150);</string>
+    </property>
+    <property name="text">
+     <string>Créer un
+compte factice</string>
+    </property>
+    <property name="icon">
+     <iconset resource="Images/images.qrc">
+      <normaloff>:/help.png</normaloff>:/help.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>35</width>
+      <height>35</height>
+     </size>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="DesactiveComptecheckBox">
+    <property name="enabled">
+     <bool>true</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>140</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border:0px</string>
+    </property>
+    <property name="text">
+     <string>désactiver ce compte</string>
+    </property>
+    <property name="checkable">
+     <bool>true</bool>
+    </property>
+   </widget>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpSmallButton</class>
+   <extends>QPushButton</extends>
+   <header>upsmallbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uptablewidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>ComptesuptableWidget</tabstop>
+  <tabstop>BanqueupcomboBox</tabstop>
+  <tabstop>IntituleCompteuplineEdit</tabstop>
+  <tabstop>IBANuplineEdit</tabstop>
+  <tabstop>NomCompteAbregeuplineEdit</tabstop>
+  <tabstop>SoldeuplineEdit</tabstop>
+  <tabstop>idCompteupLineEdit</tabstop>
+  <tabstop>OKModifupSmallButton</tabstop>
+  <tabstop>AnnulModifupSmallButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="Images/images.qrc"/>
+ </resources>
+ <connections/>
+</ui>

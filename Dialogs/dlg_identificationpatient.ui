@@ -1,0 +1,703 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>dlg_identificationpatient</class>
+ <widget class="QDialog" name="dlg_identificationpatient">
+  <property name="windowModality">
+   <enum>Qt::ApplicationModal</enum>
+  </property>
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>550</width>
+    <height>670</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>550</width>
+    <height>670</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>550</width>
+    <height>1200</height>
+   </size>
+  </property>
+  <property name="palette">
+   <palette>
+    <active>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </active>
+    <inactive>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </inactive>
+    <disabled>
+     <colorrole role="Base">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+     <colorrole role="Window">
+      <brush brushstyle="SolidPattern">
+       <color alpha="255">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </brush>
+     </colorrole>
+    </disabled>
+   </palette>
+  </property>
+  <property name="focusPolicy">
+   <enum>Qt::NoFocus</enum>
+  </property>
+  <property name="contextMenuPolicy">
+   <enum>Qt::PreventContextMenu</enum>
+  </property>
+  <property name="windowTitle">
+   <string>Identification patient</string>
+  </property>
+  <widget class="QFrame" name="Principalframe">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>550</width>
+     <height>560</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>560</height>
+    </size>
+   </property>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
+   </property>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
+   </property>
+   <widget class="QLineEdit" name="NNIlineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>430</y>
+      <width>170</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>15</number>
+    </property>
+   </widget>
+   <widget class="Line" name="line_3">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>470</y>
+      <width>475</width>
+      <height>3</height>
+     </rect>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>3</number>
+    </property>
+    <property name="midLineWidth">
+     <number>1</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="TellineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>340</y>
+      <width>170</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>17</number>
+    </property>
+   </widget>
+   <widget class="UpPushButton" name="ModifierDDNupPushButton">
+    <property name="geometry">
+     <rect>
+      <x>290</x>
+      <y>66</y>
+      <width>115</width>
+      <height>27</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="text">
+     <string>Modifier</string>
+    </property>
+   </widget>
+   <widget class="Line" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>320</y>
+      <width>475</width>
+      <height>3</height>
+     </rect>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>3</number>
+    </property>
+    <property name="midLineWidth">
+     <number>1</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="UpLineEdit" name="NomlineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>8</y>
+      <width>170</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="maxLength">
+     <number>45</number>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="ALDcheckBox">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>525</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ALD</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="NNIlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>434</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>NNI</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="ProfessionlineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>490</y>
+      <width>170</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>45</number>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="MaillineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>400</y>
+      <width>170</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>45</number>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Prenomlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>42</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Prénom</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Adresse2label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>194</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Complément d'adresse</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Maillabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>404</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Adresse mail</string>
+    </property>
+   </widget>
+   <widget class="UpLineEdit" name="PrenomlineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>38</y>
+      <width>170</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="maxLength">
+     <number>45</number>
+    </property>
+   </widget>
+   <widget class="QGroupBox" name="SexegroupBox">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>98</y>
+      <width>111</width>
+      <height>30</height>
+     </rect>
+    </property>
+    <property name="title">
+     <string/>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+    <widget class="QRadioButton" name="MradioButton">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>0</y>
+       <width>35</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>M</string>
+     </property>
+     <property name="autoExclusive">
+      <bool>true</bool>
+     </property>
+    </widget>
+    <widget class="QRadioButton" name="FradioButton">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>0</y>
+       <width>35</width>
+       <height>25</height>
+      </rect>
+     </property>
+     <property name="focusPolicy">
+      <enum>Qt::StrongFocus</enum>
+     </property>
+     <property name="text">
+      <string>F</string>
+     </property>
+     <property name="autoExclusive">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="Sexelabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>102</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Sexe</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Adresse3label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>224</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Complément d'adresse</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="DDNlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>72</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Date de naissance</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Adresse1lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>160</y>
+      <width>340</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>70</number>
+    </property>
+    <property name="frame">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Tellabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>344</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Téléphone</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Portlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>374</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Portable</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Adresse2lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>190</y>
+      <width>340</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>70</number>
+    </property>
+    <property name="frame">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="Adresse3lineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>220</y>
+      <width>340</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>70</number>
+    </property>
+    <property name="frame">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Adresse1label">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>164</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Adresse</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Professionlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>494</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Profession</string>
+    </property>
+   </widget>
+   <widget class="Line" name="line">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>138</y>
+      <width>475</width>
+      <height>3</height>
+     </rect>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Sunken</enum>
+    </property>
+    <property name="lineWidth">
+     <number>3</number>
+    </property>
+    <property name="midLineWidth">
+     <number>1</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Nomlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>12</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Nom</string>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="PortablelineEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>370</y>
+      <width>170</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="maxLength">
+     <number>17</number>
+    </property>
+   </widget>
+   <widget class="QDateEdit" name="DDNdateEdit">
+    <property name="geometry">
+     <rect>
+      <x>170</x>
+      <y>68</y>
+      <width>111</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="Medecinlabel">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>530</y>
+      <width>145</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Médecin traitant</string>
+    </property>
+   </widget>
+   <widget class="UpComboBox" name="MGupComboBox">
+    <property name="geometry">
+     <rect>
+      <x>167</x>
+      <y>523</y>
+      <width>231</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::StrongFocus</enum>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="CMUcheckBox">
+    <property name="geometry">
+     <rect>
+      <x>450</x>
+      <y>490</y>
+      <width>51</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>CMU</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QLabel" name="idPatientlabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>589</y>
+     <width>121</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Dossier n°</string>
+   </property>
+   <property name="textFormat">
+    <enum>Qt::AutoText</enum>
+   </property>
+  </widget>
+  <widget class="QLabel" name="Createurlabel">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>620</y>
+     <width>111</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Créé le</string>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpComboBox</class>
+   <extends>QComboBox</extends>
+   <header>upcombobox.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>NomlineEdit</tabstop>
+  <tabstop>PrenomlineEdit</tabstop>
+  <tabstop>DDNdateEdit</tabstop>
+  <tabstop>MradioButton</tabstop>
+  <tabstop>FradioButton</tabstop>
+  <tabstop>Adresse1lineEdit</tabstop>
+  <tabstop>Adresse2lineEdit</tabstop>
+  <tabstop>Adresse3lineEdit</tabstop>
+  <tabstop>TellineEdit</tabstop>
+  <tabstop>PortablelineEdit</tabstop>
+  <tabstop>MaillineEdit</tabstop>
+  <tabstop>NNIlineEdit</tabstop>
+  <tabstop>ProfessionlineEdit</tabstop>
+  <tabstop>MGupComboBox</tabstop>
+  <tabstop>ALDcheckBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

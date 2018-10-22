@@ -1,0 +1,9 @@
+<html>
+<body LANG="fr-FR" DIR="LTR">
+<br /><br /><br /><br /><br /><br />
+<p><div align="justify" >
+<span style="font-size:9pt">
+{{TEXTE ORDO}}
+</span>
+</div></p>
+</body></html>

@@ -1,0 +1,21 @@
+<html>
+<div align="center" >
+<table  border="0" cellspacing="0" cellpadding="0">
+{{DUPLI}}
+<tr><td >
+<p align="justify" ><span style="font-size:8pt"><i><br />
+La puissance de vos verres correcteurs a &eacute;t&eacute; &eacute;tablie
+ par votre ophtalmologiste qui en prend la responsabilit&eacute;. Il est vivement conseill&eacute; que la r&eacute;alisation
+  de vos lunettes soit faite par un opticien dipl&ocirc;m&eacute;. Cette r&eacute;alisation comporte le conseil pour le choix
+   de la monture, les prises de mesures pr&eacute;cises n&eacute;cessaires au montage (la mesure de l'&eacute;cart pupillaire
+    ne suffit pas), le montage des verres, et l'adaptation des lunettes lors de leur livraison.
+
+<br /></i></span></p>
+</td></tr>
+<tr><td >
+<p align="center" ><span style="font-size:6pt">{{AGA}}</span></p>
+</td></tr>
+</table>
+
+</div>
+</html>

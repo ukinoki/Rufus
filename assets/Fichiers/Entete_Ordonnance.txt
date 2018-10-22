@@ -1,0 +1,14 @@
+<html>
+<head>
+    <meta name="qrichtext" content="1" />
+    <meta charset="utf-8" />
+    <style type="text/css">
+    </style>
+<head>
+<body style=" font-family:'{{POLICE}}'; font-size:9pt; font-style:italic;">
+    <table style=" float: left;">
+        <tr><td width="300"><p><span style="font-size:10pt; font-weight:600;">{{TITREUSER}}<br /></span><span style="font-size:8pt;">{{SPECIALITE}}<br />{{ADRESSE}}<br />{{CPVILLE}}<br />{{TEL}}<br /></span><span style="font-size:5pt;">{{NUMSS}}</span></p></td></tr>
+    </table><table style=" float: right;">
+        <tr><td width="200"><p align="right"><!--date-->{{DATE}}<!--date--><br /><br />{{TITRE1}}<br />{{TITRE}}<br />{{PRENOM PATIENT}} {{NOM PATIENT}}<br />{{DDN}}</p></td></tr></table>
+</body>
+</html>

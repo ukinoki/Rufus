@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>goutte.wav</file>
+    </qresource>
+</RCC>

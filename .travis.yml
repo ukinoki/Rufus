@@ -1,0 +1,43 @@
+language: cpp
+compiler: gcc
+sudo: require
+dist: trusty
+os: linux
+ 
+before_install:
+  - sudo add-apt-repository ppa:beineri/opt-qt-5.10.1-trusty -y
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo add-apt-repository ppa:ubuntuhandbook1/apps -y
+  - sudo apt-get update -qq
+ 
+install:
+  - sudo apt-get -y install qt510base qt510serialport qt510websockets qt510multimedia
+  - source /opt/qt510/bin/qt510-env.sh
+  - sudo rm /usr/lib/x86_64-linux-gnu/libmysqlclient.so.18
+  - sudo cp ./Fichiers/libmysqlclient.so.18 /usr/lib/x86_64-linux-gnu/
+  - sudo apt-get -y install gcc-7 g++-7 cmake libyelp-dev yelp-tools libsecret-1-dev libnautilus-extension-dev libpulse-dev libpulse-mainloop-glib0       
+  - sudo apt-get install libopenjpeg-dev libopenjp2-7-dev libnss3-dev libpoppler-glib-dev libpoppler-qt5-dev libopenjpeg2
+  - wget https://poppler.freedesktop.org/poppler-data-0.4.9.tar.gz && tar -xf poppler-data-0.4.9.tar.gz
+  - pushd poppler-data-0.4.9 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7 && sudo make install && popd
+  - wget https://poppler.freedesktop.org/poppler-0.70.0.tar.xz && tar -xf poppler-0.70.0.tar.xz  
+  - pushd poppler-0.70.0 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7 && sudo make install && popd 
+  
+script:
+  - qmake -unix PREFIX=/usr Rufus_travis.pro
+  - make -j$(nproc) CXX=g++-7 CC=gcc-7
+  - make install
+  - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+  - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
+  - unset LD_LIBRARY_PATH
+  - export VERSION=$(git rev-parse)
+  - ./linuxdeployqt-continuous-x86_64.AppImage /home/travis/build/Ukinoki/Rufus.AppDir/Rufus -appimage
+
+ 
+after_success:
+  - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
+  - rm ./linuxdeployqt-continuous-x86_64.AppImage
+  - bash upload.sh ./*.AppImage
+ 
+branches:
+  only:
+    - master
