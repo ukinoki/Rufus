@@ -12,7 +12,8 @@ SOURCES += $$PWD/cls_acte.cpp \
         $$PWD/cls_site.cpp \
         $$PWD/cls_user.cpp \
         $$PWD/cls_users.cpp \
-        $$PWD/cls_villes.cpp
+        $$PWD/cls_villes.cpp \
+    $$PWD/cls_depense.cpp
 
 HEADERS += $$PWD/cls_acte.h \
         $$PWD/cls_compte.h \
@@ -24,4 +25,5 @@ HEADERS += $$PWD/cls_acte.h \
         $$PWD/cls_site.h \
         $$PWD/cls_user.h \
         $$PWD/cls_users.h \
-        $$PWD/cls_villes.h
+        $$PWD/cls_villes.h \
+    $$PWD/cls_depense.h
