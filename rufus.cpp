@@ -10677,20 +10677,6 @@ void Rufus::TraiteTCPMessage(QString msg)
             qDebug() << data;
         }
     }
-    else if (msg.contains(TCPMSG_NouvelleConnexion))
-    {
-        msg.remove(TCPMSG_NouvelleConnexion);
-        QString login = Datas::I()->users->getLoginById(msg.split(TCPMSG_Separator).at(0).toInt());
-        QString adress = msg.split(TCPMSG_Separator).at(3);
-        dlg_message(QStringList() << login + " " +  tr("vient de se connecter sur") + " " + adress, 3000);
-    }
-    else if (msg.contains(TCPMSG_Deconnexion))
-    {
-        msg.remove(TCPMSG_Deconnexion);
-        QString login = Datas::I()->users->getLoginById(msg.split(TCPMSG_Separator).at(0).toInt());
-        QString adress = msg.split(TCPMSG_Separator).at(1);
-        dlg_message(QStringList() << login + " " +  tr("vient de se déconnecter sur") + " " + adress, 3000);
-    }
 }
 
 void Rufus::envoieMessage(QString msg)
