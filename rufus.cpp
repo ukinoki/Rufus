@@ -9667,24 +9667,24 @@ void Rufus::ResumeStatut()
                         + itsocket->split(TCPMSG_Separator).at(1) + " --- "
                         + Datas::I()->users->getLoginById(itsocket->split(TCPMSG_Separator).at(3).toInt()) + "\n";
             }
+    }
 
-        // l'importateur des documents
-        statut += "\n" + tr("Poste importateur des documents") + "\t";
-        QString A = proc->PosteImportDocs();
-        if (A == "")
-            statut += tr("Pas de poste paramétré");
+    // l'importateur des documents
+    statut += "\n" + tr("Poste importateur des documents") + "\t";
+    QString A = proc->PosteImportDocs();
+    if (A == "")
+        statut += tr("Pas de poste paramétré");
+    else
+    {
+        A.remove(".local");
+        QString B;
+        if (A.contains(" - " NOM_ADMINISTRATEURDOCS))
+            B = tr("Administrateur");
         else
-        {
-            A.remove(".local");
-            QString B;
-            if (A.contains(" - " NOM_ADMINISTRATEURDOCS))
-                B = tr("Administrateur");
-            else
-                B = (A.contains(" - prioritaire")? tr("prioritaire") : tr("non prioritaire"));
-            A.remove(" - prioritaire");
-            A.remove(" - " NOM_ADMINISTRATEURDOCS);
-            statut += A + " - " + B;
-        }
+            B = (A.contains(" - prioritaire")? tr("prioritaire") : tr("non prioritaire"));
+        A.remove(" - prioritaire");
+        A.remove(" - " NOM_ADMINISTRATEURDOCS);
+        statut += A + " - " + B;
     }
 
     // version de Rufus et de la base
