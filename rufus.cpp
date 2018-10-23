@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("23-10-2018");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("23-10-2018/2");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -9656,15 +9656,14 @@ void Rufus::ResumeStatut()
         // le 1er item de gListSockets est le serveur
         gResumeStatut += tr("ServeurTCP") + "\n\t"
                 + Serveur.split(TCPMSG_Separator).at(2) + " - "
-                + gIPadr + " - "
+                + Serveur.split(TCPMSG_Separator).at(0) + " - "
                 + Serveur.split(TCPMSG_Separator).at(1) + " --- "
                 + Datas::I()->users->getLoginById(Serveur.split(TCPMSG_Separator).at(3).toInt());
 
         gListSockets.removeFirst();
-        gResumeStatut += "\n" + tr("postes connectés") + "\n";
+        gResumeStatut += "\n" + tr("Postes connectés") + "\n";
         for( itsocket = gListSockets.constBegin(); itsocket != gListSockets.constEnd(); ++itsocket )
         {
-            //qDebug() << *itsocket;
             gResumeStatut += "\t" + itsocket->split(TCPMSG_Separator).at(2) + " - "
                     + itsocket->split(TCPMSG_Separator).at(0) + " - "
                     + itsocket->split(TCPMSG_Separator).at(1) + " --- "
