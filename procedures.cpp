@@ -823,7 +823,7 @@ QString Procedures::RetireCaracteresAccentues(QString nom)
     return nom;
 }
 
-QString Procedures::Edit(QString txt, QString titre, bool editable)
+QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal)
 {
     QString         rep("");
     UpDialog        *gAsk           = new UpDialog();
@@ -846,7 +846,8 @@ QString Procedures::Edit(QString txt, QString titre, bool editable)
 
     gAsk->AjouteLayButtons();
     connect(gAsk->OKButton, SIGNAL(clicked(bool)),  gAsk,       SLOT(accept()));
-    connect(this,           &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
+    if (ConnectAuSignal)
+        connect(this,       &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
     gAsk->restoreGeometry(gsettingsIni->value("PositionsFiches/PositionEdit").toByteArray());
 
     if (gAsk->exec()>0)

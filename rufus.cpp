@@ -7162,7 +7162,7 @@ void Rufus::CreerMenu()
     connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {
                                                                                                             if (gResumeStatut =="")
                                                                                                                 ResumeStatut();
-                                                                                                            proc->Edit(gResumeStatut);
+                                                                                                            proc->Edit(gResumeStatut, tr("Information statut"), false, true );
                                                                                                         });
     connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe();});
     // Documents

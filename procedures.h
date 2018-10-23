@@ -91,7 +91,7 @@ public:
     QFont                   AppFont();
     QString                 ConvertitEnHtml(QString Texte);
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
-    QString                 Edit(QString txt, QString titre = "", bool editable = true);
+    QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
     bool                    FicheChoixConnexion();
     QString                 getDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
