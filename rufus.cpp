@@ -10787,6 +10787,7 @@ void Rufus::ReinitialiseTCP()          // le client n'a rien reçu du serveur de
 
 void Rufus::InitTCP()
 {
+    qDebug() << "passe";
     QString delaitestskt    = TCPDelai_TestSocket;
     gTimerServeurOK         ->setInterval(delaitestskt.toInt());
     gTimerServeurOK         ->start();
@@ -10823,7 +10824,9 @@ bool Rufus::TcpConnectToServer(QString ipadrserver)
     {
         connect(TcPConnect,                 &QTcpSocket::readyRead,                                              this,   &Rufus::TraiteDonneesRecues);
         connect(TcPConnect,                 QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),this,   &Rufus::erreurSocket);
+        // envoi de l'iduser
         envoieMessage(QString::number(gDataUser->id()) + TCPMSG_idUser);
+        // envoi de adresse IP, adresse MAC, nom d'hôte
         envoieMessage(gIPadr + TCPMSG_Separator + gMacAdress + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
         connect(gTimerServeurOK,            &QTimer::timeout,       this, [=] {envoieMessage(TCPMSG_SocketOK);});
         return true;
