@@ -81,12 +81,12 @@ bool Users::addUser(User *usr)
  */
 User* Users::getUserById(int id, bool loadDetails)
 {
-    bool addToList = false;
+    bool addToList = loadDetails;
     QMap<int, User*>::const_iterator user = m_users->find(id);
     User *result;
     if( user == m_users->constEnd() )
     {
-        if( (addToList = loadDetails) )
+        if( (addToList) )
             result = new User();
         else
             return nullptr;

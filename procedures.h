@@ -236,6 +236,7 @@ public:
 signals:
     void                    UpdSalDat();
     void                    UpdCorrespondants();
+    void                    ModifEdit(QString txt);
     void                    ConnectTimers(bool);
 
 private:

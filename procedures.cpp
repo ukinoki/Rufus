@@ -845,7 +845,8 @@ QString Procedures::Edit(QString txt, QString titre, bool editable)
     globallay->insertWidget(0,TxtEdit);
 
     gAsk->AjouteLayButtons();
-    connect(gAsk->OKButton,SIGNAL(clicked(bool)),gAsk,SLOT(accept()));
+    connect(gAsk->OKButton, SIGNAL(clicked(bool)),  gAsk,       SLOT(accept()));
+    connect(this,           &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
     gAsk->restoreGeometry(gsettingsIni->value("PositionsFiches/PositionEdit").toByteArray());
 
     if (gAsk->exec()>0)

@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("22-10-2018");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("23-10-2018");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -7159,7 +7159,11 @@ void Rufus::CreerMenu()
     connect (actionCreerActe,                   &QAction::triggered,        this,                   [=] {CreerActe(gidPatient);});
 
     connect (actionParametres,                  &QAction::triggered,        this,                   [=] {OuvrirParametres();});
-    connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {ResumeStatut();});
+    connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {
+                                                                                                            if (gResumeStatut =="")
+                                                                                                                ResumeStatut();
+                                                                                                            proc->Edit(gResumeStatut);
+                                                                                                        });
     connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe();});
     // Documents
     connect (actionEmettreDocument,             &QAction::triggered,        this,                   [=] {OuvrirDocuments();});
@@ -9642,38 +9646,37 @@ void Rufus::Remplir_SalDat()
 void Rufus::ResumeStatut()
 {
     // le statut utilisateur
-    QString statut = proc->getsSessionStatus() + "\n\n";
+    gResumeStatut = proc->getsSessionStatus() + "\n\n";
 
     // les socket
     if (UtiliseTCP)
     {
-        envoieMessage(TCPMSG_EnvoieListSocket);
-        QString macadr, nomposte, login;
         QStringList::const_iterator itsocket;
+        QString Serveur = gListSockets.at(0);
+        // le 1er item de gListSockets est le serveur
+        gResumeStatut += tr("ServeurTCP") + "\n\t"
+                + Serveur.split(TCPMSG_Separator).at(2) + " - "
+                + gIPadr + " - "
+                + Serveur.split(TCPMSG_Separator).at(1) + " --- "
+                + Datas::I()->users->getLoginById(Serveur.split(TCPMSG_Separator).at(3).toInt());
+
+        gListSockets.removeFirst();
+        gResumeStatut += "\n" + tr("postes connectés") + "\n";
         for( itsocket = gListSockets.constBegin(); itsocket != gListSockets.constEnd(); ++itsocket )
-            if (itsocket->contains(AdresseTCPServer))
-            {
-                macadr      = itsocket->split(TCPMSG_Separator).at(1);
-                nomposte    = itsocket->split(TCPMSG_Separator).at(2);
-                login       = Datas::I()->users->getLoginById(itsocket->split(TCPMSG_Separator).at(3).toInt());
-            }
-        statut += tr("ServeurTCP") + "\n\t" + nomposte + " - " + AdresseTCPServer + " - " + macadr + " --- " + login;
-        statut += "\n" + tr("postes connectés") + "\n";
-        for( itsocket = gListSockets.constBegin(); itsocket != gListSockets.constEnd(); ++itsocket )
-            if (!itsocket->contains(AdresseTCPServer))
-            {
-                statut += "\t" + itsocket->split(TCPMSG_Separator).at(2) + " - "
-                        + itsocket->split(TCPMSG_Separator).at(0) + " - "
-                        + itsocket->split(TCPMSG_Separator).at(1) + " --- "
-                        + Datas::I()->users->getLoginById(itsocket->split(TCPMSG_Separator).at(3).toInt()) + "\n";
-            }
+        {
+            //qDebug() << *itsocket;
+            gResumeStatut += "\t" + itsocket->split(TCPMSG_Separator).at(2) + " - "
+                    + itsocket->split(TCPMSG_Separator).at(0) + " - "
+                    + itsocket->split(TCPMSG_Separator).at(1) + " --- "
+                    + Datas::I()->users->getLoginById(itsocket->split(TCPMSG_Separator).at(3).toInt()) + "\n";
+        }
     }
 
     // l'importateur des documents
-    statut += "\n" + tr("Poste importateur des documents") + "\t";
+    gResumeStatut += "\n" + tr("Poste importateur des documents") + "\t";
     QString A = proc->PosteImportDocs();
     if (A == "")
-        statut += tr("Pas de poste paramétré");
+        gResumeStatut += tr("Pas de poste paramétré");
     else
     {
         A.remove(".local");
@@ -9684,22 +9687,22 @@ void Rufus::ResumeStatut()
             B = (A.contains(" - prioritaire")? tr("prioritaire") : tr("non prioritaire"));
         A.remove(" - prioritaire");
         A.remove(" - " NOM_ADMINISTRATEURDOCS);
-        statut += A + " - " + B;
+        gResumeStatut += A + " - " + B;
     }
 
     // version de Rufus et de la base
-    statut += "\n\n" + tr("Version de Rufus ") + "\t\t" + qApp->applicationVersion();
-    statut += "\n" + tr("Version de la base ") + "\t\t";
+    gResumeStatut += "\n\n" + tr("Version de Rufus ") + "\t\t" + qApp->applicationVersion();
+    gResumeStatut += "\n" + tr("Version de la base ") + "\t\t";
     QString VerifBasereq = "select VersionBase from " NOM_TABLE_PARAMSYSTEME;
     QSqlQuery VersionBaseQuery(VerifBasereq,DataBase::getInstance()->getDataBase());
     if (VersionBaseQuery.lastError().type() != QSqlError::NoError || VersionBaseQuery.size()==0)
-        statut += tr("inconnue");
+        gResumeStatut += tr("inconnue");
     else
     {
         VersionBaseQuery.first();
-        statut +=  VersionBaseQuery.value(0).toString();
+        gResumeStatut +=  VersionBaseQuery.value(0).toString();
     }
-    proc->Edit(statut, "", false);
+    proc->emit ModifEdit(gResumeStatut);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -10676,6 +10679,7 @@ void Rufus::TraiteTCPMessage(QString msg)
             data.replace(TCPMSG_Separator, " - ");
             qDebug() << data;
         }
+        ResumeStatut();
     }
 }
 
