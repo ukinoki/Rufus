@@ -29,7 +29,7 @@ script:
   - wget -c -nv "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
   - unset LD_LIBRARY_PATH
-  - export VERSION=$(git rev-parse)
+  - export VERSION=$(git rev-parse --short HEAD)
   - ./linuxdeployqt-continuous-x86_64.AppImage /home/travis/build/Ukinoki/Rufus.AppDir/Rufus -appimage
 
  
