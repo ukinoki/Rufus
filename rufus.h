@@ -343,15 +343,10 @@ private:
     QString             currentmsg, erreurmsg;
     QStringList         gListSockets;
     QTcpSocket          *TcPConnect;
-    QStringList         ListclientsTCP;
-    QString             AdresseTCPServer;
     quint16             PortTCPServer;
-    QTimer              *gTimerServeurOK;
     void                erreurSocket();                                 /* traitement des erreurs d'émission de message sur le socket */
     void                TraiteTCPMessage(QString msg);                  /* traitement des messages reçus par les clients */
     bool                TcpConnectToServer(QString ipadrserver = "");   /* Crée la connexion avec le TcpServer sur le réseau */
-    void                InitTCP();                                      /* Initialise le TCP */
-    void                ReinitialiseTCP();                         /* Le serveur est déconnecté et n'a plus envoyé de messages de confirmation de l'existence de la ligne au moins 3 fois de suite */
     void                envoieMessage(QString msg);                     /* envoi d'un message au serveur pour être redispatché vers tous les clients */
     void                envoieMessageA(QList<int> listidusr);           /* envoi d'un message à une liste d'utilisateurs */
     void                TraiteDonneesRecues();                          /* decortiquage des messages reçus et renvoi vers rufus.cpp par le biais du signal tcpmsgfromserver(QString msg) */

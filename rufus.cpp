@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("23-10-2018/2");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("24-10-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -102,8 +102,18 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     InitEventFilters();
     CreerMenu();
     InitMenus();
-    UtiliseTCP = proc->UtiliseTCP();
 
+    UtiliseTCP = proc->UtiliseTCP();
+    gIPadr      = Utils::getIpAdress();
+    gMacAdress  = Utils::getMACAdress();
+    if (UtiliseTCP)
+    {
+        currentmsg          = "";
+        erreurmsg           = "";
+        TcPConnect          = new QTcpSocket(this);
+    }
+    if (DataBase::getInstance()->getMode() != DataBase::Distant && UtiliseTCP)
+        UtiliseTCP = TcpConnectToServer();
 
     //4 reconstruction des combobox
     if (gDataUser->isMedecin() || gDataUser->isOrthoptist())
@@ -132,11 +142,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerVerifMessages         = new QTimer(this);     // utilisé par les postes en accès distants pour vérifier l'arrivée de nouveaux messages
     gTimerVerifVerrou           = new QTimer(this);     // utilisé par le TcpServer pour vérifier l'absence d'utilisateurs déconnectés dans la base
     gTimerSupprDocs             = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer
-    gTimerServeurOK             = new QTimer(this);     // vérification de la connexion au serveur
-    gIPadr      = Utils::getIpAdress();
-    gMacAdress  = Utils::getMACAdress();
-    if (DataBase::getInstance()->getMode() != DataBase::Distant && UtiliseTCP)
-        InitTCP();
 
 
     // 6 mettre en place les timers
@@ -8215,13 +8220,6 @@ void Rufus::InitVariables()
     MGlineEdit                  = new UpLineEdit();
     AutresCorresp1LineEdit      = new UpLineEdit();
     AutresCorresp2LineEdit      = new UpLineEdit();
-    if (UtiliseTCP)
-    {
-        currentmsg          = "";
-        erreurmsg           = "";
-        TcPConnect          = new QTcpSocket(this);
-    }
-
 
     proc->CouleurTitres         = "blue";
 
@@ -10654,7 +10652,6 @@ void Rufus::SaisieFSE()
 void Rufus::TraiteTCPMessage(QString msg)
 {
     //qDebug() << msg + " - sur rufus::traitetcpmessage()";
-    //dlg_message(QStringList() << "gTimerSocket redémarré -> Rufus::TraiteTCPMessage(QString msg)", 3000);
     if (msg == TCPMSG_MAJSalAttente)
         Remplir_SalDat();                       // par le TCPSocket
     else if (msg == TCPMSG_MAJCorrespondants)
@@ -10742,6 +10739,7 @@ void Rufus::TraiteDonneesRecues()
 void Rufus::erreurSocket()
 {
     QAbstractSocket::SocketError erreur = TcPConnect->error();
+    qDebug() << erreur;
     switch(erreur)
     {
         case QAbstractSocket::RemoteHostClosedError:
@@ -10761,78 +10759,55 @@ void Rufus::erreurSocket()
      || erreur == QAbstractSocket::HostNotFoundError           /************** LE SERVER NE RÉPOND PAS ************************** */
      || erreur == QAbstractSocket::SocketTimeoutError)         /************** LE SERVER N'A PAS RÉPONDU À UN ENVOI ************************** */
     {
-        dlg_message(QStringList() << erreurmsg, 3000, false);
-        InitTCP();
+        qDebug() << erreurmsg + " - " + currentmsg;
+        TcpConnectToServer();
     }
     else
     {
-        dlg_message(QStringList() << erreurmsg + " - " + currentmsg + " - void Rufus::erreurSocket(QAbstractSocket::SocketError erreur)", 180000, false);
+        qDebug() << erreurmsg + " - " + currentmsg + " - void Rufus::erreurSocket(QAbstractSocket::SocketError erreur)";
         return;
     }
 }
 
-void Rufus::ReinitialiseTCP()          // le client n'a rien reçu du serveur depuis au moins 3 cycles de test  on réinitialise tout
-{
-    gTimerServeurOK         ->disconnect();
-    gTimerServeurOK         ->stop();
-
-    TcPConnect->abort();
-    TcPConnect->disconnect();
-    TcPConnect = Q_NULLPTR;
-    AdresseTCPServer = "";
-    setTitre();
-    return;
-}
-
-void Rufus::InitTCP()
-{
-    qDebug() << "passe";
-    QString delaitestskt    = TCPDelai_TestSocket;
-    gTimerServeurOK         ->setInterval(delaitestskt.toInt());
-    gTimerServeurOK         ->start();
-    TcpConnectToServer();
-}
-
 bool Rufus::TcpConnectToServer(QString ipadrserver)
 {
-    gTimerServeurOK->disconnect();
-    if (TcPConnect!=Q_NULLPTR)
-    {
-        TcPConnect->abort();
-        TcPConnect->disconnect();
-        TcPConnect = Q_NULLPTR;
-    }
-    TcPConnect = new QTcpSocket(this);  // si on  ne réinitialise pas le TcpConnect, ça plante quand le serveur se déconnecte et je ne comprends pas pourquoi...
     //TcPConnect->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
-    AdresseTCPServer = ipadrserver;
     if (ipadrserver == "")
     {
         QString req = "select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME;
         QSqlQuery TCPServerquer(req, DataBase::getInstance()->getDataBase());
         TCPServerquer.first();
-        AdresseTCPServer    = TCPServerquer.value(0).toString();
+        ipadrserver    = TCPServerquer.value(0).toString();
     }
-    if (AdresseTCPServer == "")
+    if (ipadrserver == "")
         return false;
     QString port        = NOM_PORT_TCPSERVEUR;
     PortTCPServer       = port.toUShort();
-
-    TcPConnect->connectToHost(AdresseTCPServer,PortTCPServer);      // On se connecte au serveur demandé
-    bool a = TcPConnect->waitForConnected(5000);
+    /*
+     * The main difference between close() and disconnectFromHost() is that the first actually closes the OS socket, while the second does not.
+     * The problem is, after a socket was closed, you cannot use it to create a new connection.
+     * Thus, if you want to reuse the socket, use disconnectFromHost() otherwise close()
+    */
+    TcPConnect->disconnect();
+    bool a  = (TcPConnect->state() == QAbstractSocket::ConnectedState || TcPConnect->state() == QAbstractSocket::ConnectingState);
+    if (a)
+        TcPConnect->disconnectFromHost();
+    TcPConnect->connectToHost(ipadrserver,PortTCPServer);      // On se connecte au serveur
+    a = TcPConnect->waitForConnected(5000);
     if (a)
     {
+        TcPConnect->disconnect();
         connect(TcPConnect,                 &QTcpSocket::readyRead,                                              this,   &Rufus::TraiteDonneesRecues);
         connect(TcPConnect,                 QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),this,   &Rufus::erreurSocket);
         // envoi de l'iduser
         envoieMessage(QString::number(gDataUser->id()) + TCPMSG_idUser);
         // envoi de adresse IP, adresse MAC, nom d'hôte
         envoieMessage(gIPadr + TCPMSG_Separator + gMacAdress + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
-        connect(gTimerServeurOK,            &QTimer::timeout,       this, [=] {envoieMessage(TCPMSG_SocketOK);});
         return true;
     }
     else
     {
-        dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>" + tr("Ce poste va prendre la place de serveur TCP sur le réseau"), 5000, false);
+        dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>" + tr("Retour au mode sans TCP"), 5000, false);
         return false;
     }
 }
