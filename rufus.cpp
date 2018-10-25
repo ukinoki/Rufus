@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("24-10-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("26-10-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1328,8 +1328,11 @@ void Rufus::AppelPaiementTiers()
 
 void Rufus::AutreDossier(int idPat)
 {
-    gdossierAOuvrir = idPat;
-    ChoixMenuContextuelListePatients(tr("Autre Dossier"));
+    if(gDataUser->isSoignant())
+    {
+        gdossierAOuvrir = idPat;
+        ChoixMenuContextuelListePatients(tr("Autre Dossier"));
+    }
 }
 
 void Rufus::BasculerMontantActe()
@@ -3079,17 +3082,25 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
 {
     if (UpText->getId() == 0)
         return;
-    else
+    gdossierAOuvrir = UpText->getId();
+    if( gDataUser->isSoignant() )
     {
-        gdossierAOuvrir = UpText->getId();
         gmenuContextuel = new QMenu(this);
-
-        if( gDataUser->isSoignant() )
         {
             QAction *pAction_ReprendreDossier = gmenuContextuel->addAction(tr("Visualiser le dossier"));
             connect (pAction_ReprendreDossier, &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Autre Dossier");});
         }
-
+        // ouvrir le menu
+        gmenuContextuel->exec(cursor().pos());
+        delete gmenuContextuel;
+    }
+    else if( gDataUser->isSecretaire() )
+    {
+        gmenuContextuel = new QMenu(this);
+        {
+            QAction *pAction_ModifierDossier = gmenuContextuel->addAction(tr("Modifier les données de ce patient"));
+            connect (pAction_ModifierDossier,       &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Modifier");});
+        }
         // ouvrir le menu
         gmenuContextuel->exec(cursor().pos());
         delete gmenuContextuel;
@@ -9424,6 +9435,7 @@ void Rufus::Remplir_SalDat()
             QString PosteLog  = BureauxQuery.value(2).toString().remove(".local");
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
+            UserBureau->disconnect();
             UserBureau->setObjectName(UserLogin + "BureauupTextEdit");
             UserBureau->setIdUser(BureauxQuery.value(0).toInt());
             ui->scrollArea->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
@@ -9443,8 +9455,6 @@ void Rufus::Remplir_SalDat()
             if (BureauxQuery.value(3).toString() != "")
             {
                 UserBureau->setId(BureauxQuery.value(6).toInt());
-                UserBureau->setContextMenuPolicy(Qt::CustomContextMenu);
-                UserBureau->disconnect();
                 if( UserBureau->getIdUser() == gDataUser->id() )
                     connect(UserBureau, &UpTextEdit::dblclick,  [=] {if (gDataUser->isSecretaire()) ChoixDossier(UserBureau->getId());});
                 else

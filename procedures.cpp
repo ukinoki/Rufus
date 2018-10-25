@@ -1167,6 +1167,17 @@ void Procedures::initListeCorrespondantsAll()
     }
 }
 
+void Procedures::initListeDepenses(int iduser)
+{
+    QList<Depense*> listdepenses = DataBase::getInstance()->loadDepensesByUser(iduser);
+    QList<Depense*>::const_iterator itdepenses;
+    for( itdepenses = listdepenses.constBegin(); itdepenses != listdepenses.constEnd(); ++itdepenses )
+    {
+        Depense *dep = const_cast<Depense*>(*itdepenses);
+        Datas::I()->depenses->addDepense(dep);
+    }
+}
+
 void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
 {
     box->clear();

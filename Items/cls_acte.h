@@ -24,7 +24,8 @@ private:
     int m_idCreatedBy;          //!< id du User qui a créé l'acte
     int m_idPatient;            //!< id du Patient correspondant à l'acte
     int m_idUser;               //!< id du User
-    //TODO : ??? : différence idUser et idCreatedBy - reponse = le user est le responsable médical de l'acte - le idcreatedby est le user qui a créé l'acte et c'est parfois différent en cas de travila avec un assistant
+    //TODO : ??? : différence idUser et idCreatedBy
+    //-> reponse = le user est le responsable médical de l'acte - le idcreatedby est le user qui a créé l'acte et c'est parfois différent en cas de travail avec un assistant
 
     double m_montant;           //!< montant total
 

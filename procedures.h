@@ -69,6 +69,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_users.h"
 #include "cls_correspondant.h"
 #include "cls_correspondants.h"
+#include "cls_depense.h"
+#include "cls_depenses.h"
 #include "database.h"
 #include "functormajpremierelettre.h"
 
@@ -208,6 +210,7 @@ public:
     void                    initListeUsers();
     void                    initListeCorrespondants();
     void                    initListeCorrespondantsAll();
+    void                    initListeDepenses(int iduser);
     bool                    isPosteImportDocs();
 
     void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes

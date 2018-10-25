@@ -156,6 +156,13 @@ bool DataBase::testconnexionbase() // une requete simple pour vérifier que la c
     return (testbasequery.lastError().type()==QSqlError::NoError);
 }
 
+int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable)
+{
+    QSqlQuery query("select max(" + nomchamp + ") from " + nomtable, getDataBase());
+    query.first();
+    return query.value(0).toInt();
+}
+
 /*
  * Users
 */
@@ -385,8 +392,11 @@ void DataBase::SupprCorrespondant(int idcor)
     QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe3 = null where idcormespe3 = " + id, getDataBase());
 }
 
+/*******************************************************************************************************************************************************************
+ ********* COMPTABILITÊ ********************************************************************************************************************************************
+********************************************************************************************************************************************************************/
 /*
- * Compta
+ * Comptes
 */
 QList<Compte*> DataBase::loadComptesByUser(int idUser)
 {
@@ -413,6 +423,136 @@ QList<Compte*> DataBase::loadComptesByUser(int idUser)
     } while( query.next() );
 
     return comptes;
+}
+
+
+/*
+ * Depenses
+*/
+QList<Depense*> DataBase::loadDepensesByUser(int idUser)
+{
+    QList<Depense*> depenses;
+    QString req = "SELECT idDep, DateDep , RefFiscale, Objet, Montant,"
+                         "FamFiscale, Monnaie, idRec, ModePaiement, Compte, NoCheque FROM " NOM_TABLE_DEPENSES
+                         " WHERE idUser = " + QString::number(idUser);
+    QSqlQuery query (req,getDataBase());
+    if( traiteErreurRequete(query, req) || !query.first())
+        return depenses;
+
+    do
+    {
+        QJsonObject jData{};
+        jData["iddepense"]      = query.value(0).toInt();
+        jData["iduser"]         = idUser;
+        jData["date"]           = query.value(1).toDate().toString("yyyy-MM-dd");
+        jData["reffiscale"]     = query.value(2).toString();
+        jData["objet"]          = query.value(3).toString();
+        jData["montant"]        = query.value(4).toDouble();
+        jData["famfiscale"]     = query.value(5).toString();
+        jData["monnaie"]        = query.value(6).toString();
+        jData["idrecette"]      = query.value(7).toInt();
+        jData["modepaiement"]   = query.value(8).toString();
+        jData["compte"]         = query.value(9).toInt();
+        jData["nocheque"]       = query.value(10).toInt();
+        Depense *dep = new Depense(jData);
+        depenses << dep;
+    } while( query.next() );
+
+    return depenses;
+}
+
+void DataBase::loadDepenseArchivee(Depense *dep)
+{
+    bool archivee = (QSqlQuery ("select idLigne from " NOM_TABLE_ARCHIVESBANQUE
+                                  " where idDep = " + QString::number(dep->id()),
+                       getDataBase())
+                       .size() > 0);
+    if (!archivee)  // pour les anciens enregistrements qui étaient archivés sans l'id...
+    {
+        archivee = (QSqlQuery("select idligne from " NOM_TABLE_ARCHIVESBANQUE
+                                " where LigneDate = '" + dep->date().toString("yyyy-MM-dd")
+                                + "' and LigneLibelle = '" + Utils::capitilize(dep->objet())
+                                + "' and LigneMontant = " + QString::number(dep->montant()),
+                      getDataBase())
+                      .size() > 0);
+    }
+    dep->setArchivee(archivee);
+}
+
+void DataBase::SupprDepense(int iddep, QString nomtable)
+{
+    QSqlQuery (" delete from " + nomtable + " where idDep = " + QString::number(iddep), getDataBase());
+}
+
+QStringList DataBase::ListeRubriquesFiscales()
+{
+    QString req = "SELECT reffiscale from " NOM_TABLE_RUBRIQUES2035 " where FamFiscale is not null and famfiscale <> 'Prélèvement personnel'";
+    QSqlQuery query (req, getDataBase());
+    QStringList ListeRubriques;
+    ListeRubriques << tr("Prélèvement personnel");
+    for (int i = 0; i < query.size(); i++)
+    {
+            query.seek(i);
+            ListeRubriques << query.value(0).toString();
+    }
+    return ListeRubriques;
+}
+
+QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser)
+{
+    QList<Depense*> listdepenses;
+    QString req = "select idDep from " NOM_TABLE_DEPENSES " where DateDep = '" + date.toString("yyyy-MM-dd") +
+            "'and Objet = '" + Utils::capitilize(objet) +
+            "'and Montant = " + QString::number(montant) +
+            " and idUser = " + QString::number(iduser) +
+            " order by DateDep";
+    QSqlQuery query (req,getDataBase());
+    if( traiteErreurRequete(query, req) || !query.first())
+        return listdepenses;
+    do
+    {
+        QMap<int, Depense*>::const_iterator itDepense = m_listDepenses.find(query.value(0).toInt());
+        if (itDepense != m_listDepenses.constEnd())
+        {
+            Depense *dep = itDepense.value();
+            listdepenses << dep;
+        }
+    } while( query.next() );
+    return listdepenses;
+}
+
+QString DataBase::getFamFiscaleFromRefFiscale(QString reffiscale)
+{
+    QString FamFiscale;
+    QString req = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '"
+            + Utils::capitilize(reffiscale) +"'";
+    QSqlQuery query (req, getDataBase());
+    traiteErreurRequete(query,req,"");
+    if (query.size() > 0)
+    {
+        query.first();
+        FamFiscale = query.value(0).toString();
+    }
+    return FamFiscale;
+}
+
+int DataBase::getMaxLigneBanque()
+{
+    int a(0), b(0);
+    QString req = "select max(idligne) from " NOM_TABLE_ARCHIVESBANQUE;
+    QSqlQuery quer(req, getDataBase());
+    if (quer.size()>0){
+        quer.first();
+        a = quer.value(0).toInt();
+    }
+    req = "select max(idligne) from " NOM_TABLE_LIGNESCOMPTES;
+    QSqlQuery quer2(req, getDataBase());
+    if (quer2.size()>0){
+        quer2.first();
+        if (quer2.value(0).toInt()>a)
+            b = quer2.value(0).toInt();
+    }
+    return (((a<b)?b:a)+1);
 }
 
 

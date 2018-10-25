@@ -5,6 +5,7 @@
 #include <cls_users.h>
 #include <cls_correspondants.h>
 #include <cls_patients.h>
+#include <cls_depenses.h>
 
 class Datas : public QObject
 {
@@ -17,9 +18,11 @@ public:
     static Datas *I();
 
     User *userConnected;
-    Users *users;         //!< Les users
-    Patients *patients;   //!< Les patients
-    Correspondants *correspondants;   //!< Les correspondants
+    Users *users;                       //!< Les users
+    Patients *patients;                 //!< Les patients
+    Correspondants *correspondants;     //!< Les correspondants
+    Depenses *depenses;               //!< les depenses pour un user et une  année donnée
+
 
 signals:
 

@@ -2061,7 +2061,7 @@ int dlg_paiement::EnregistreRecette()
                     intitule2035= "Frais financiers";
                 InsertDeprequete +=  "', '" + proc->CorrigeApostrophe(intitule2035);                                            // RefFiscale
                 InsertDeprequete +=  "', 'Commission " + proc->CorrigeApostrophe(ui->TierscomboBox->currentText());             // Objet
-                InsertDeprequete +=  "', " +  QString::number(QLocale().toDouble(ui->CommissionlineEdit->text()));                // Montant
+                InsertDeprequete +=  "', " +  QString::number(QLocale().toDouble(ui->CommissionlineEdit->text()));              // Montant
                 QString chercheFamFiscale = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '" + proc->CorrigeApostrophe(intitule2035) +"'";
                 QSqlQuery cherchefamfiscalequery (chercheFamFiscale,db);
                 if (DataBase::getInstance()->traiteErreurRequete(cherchefamfiscalequery,chercheFamFiscale,""))
@@ -2075,8 +2075,8 @@ int dlg_paiement::EnregistreRecette()
                     InsertDeprequete += ", '" + proc->CorrigeApostrophe(cherchefamfiscalequery.value(0).toString()) + "'";
                 }
                 else
-                    InsertDeprequete += ",''";                                                                                  //Famfiscale
-                InsertDeprequete += ", " + QString::number(idRecette);                                                          // Nooperation
+                    InsertDeprequete += ",''";                                                                                  // Famfiscale
+                InsertDeprequete += ", " + QString::number(idRecette);                                                          // idRec
                 InsertDeprequete += ", 'P'";                                                                                    // ModePaiement = P pour prélèvement
                 InsertDeprequete += ", " + idCompte + ")";
                 QSqlQuery CompleteDepensesQuery (InsertDeprequete,db);

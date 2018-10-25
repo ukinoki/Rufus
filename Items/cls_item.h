@@ -26,6 +26,7 @@ protected:
     void setDataDouble(QJsonObject data, QString key, double &prop);
     void setDataBool(QJsonObject data, QString key, bool &prop);
     void setDataDateTime(QJsonObject data, QString key, QDateTime &prop);
+    void setDataDate(QJsonObject data, QString key, QDate &prop);
 
 private:
 

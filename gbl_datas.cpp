@@ -10,11 +10,12 @@ Datas* Datas::I()
 }
 Datas::Datas()
 {
-    userConnected = nullptr;
+    userConnected = Q_NULLPTR;
 
-    users = new Users();
-    patients = new Patients();
-    correspondants = new Correspondants();
+    users           = new Users();
+    patients        = new Patients();
+    correspondants  = new Correspondants();
+    depenses        = new Depenses();
 }
 
 

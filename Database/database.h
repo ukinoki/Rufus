@@ -21,8 +21,10 @@
 #include "cls_patient.h"
 #include "cls_user.h"
 #include "cls_correspondant.h"
+#include "cls_depense.h"
 #include "cls_villes.h"
 #include "log.h"
+#include "utils.h"
 
 class DataBase : public QObject
 {
@@ -68,6 +70,7 @@ public:
     void    rollback();
     bool    locktables(QStringList ListTables, QString ModeBlocage = "WRITE");
     bool    testconnexionbase();
+    int     selectMaxFromTable(QString nomchamp, QString nomtable);
 
     /*
      * Users
@@ -86,7 +89,14 @@ public:
     /*
      * Compta
     */
-    QList<Compte*> loadComptesByUser(int idUser);
+    QList<Compte*>  loadComptesByUser(int idUser);
+    QList<Depense*> loadDepensesByUser(int idUser);
+    void            loadDepenseArchivee(Depense *dep);
+    void            SupprDepense(int iddep, QString nomtable);
+    QStringList     ListeRubriquesFiscales();
+    QList<Depense*> VerifExistDepense(QMap<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser);
+    QString         getFamFiscaleFromRefFiscale(QString reffiscale);
+    int             getMaxLigneBanque();
 
     /*
      * Sites

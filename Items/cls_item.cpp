@@ -137,3 +137,10 @@ void Item::setDataDateTime(QJsonObject data, QString key, QDateTime &prop)
         prop = dt;
     }
 }
+void Item::setDataDate(QJsonObject data, QString key, QDate &prop)
+{
+    if( data.contains(key) )
+    {
+        prop = QDate::fromString(data[key].toString(),"yyyy-MM-dd");
+    }
+}

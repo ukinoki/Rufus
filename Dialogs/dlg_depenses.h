@@ -24,6 +24,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptablewidget.h"
 #include "dlg_comptes.h"
 #include "cls_user.h"
+#include "cls_depenses.h"
 
 namespace Ui {
 class dlg_depenses;
@@ -45,11 +46,11 @@ private:
     Procedures                  *proc;
     QSqlDatabase                db;
     QStringList                 glistMoyensDePaiement;
-    QStringList                 glistRefFiscales;
     User                        *gDataUser;
     UpTableWidget               *gBigTable;
     UpPushButton                *EnregupPushButton, *AnnulupPushButton;
     QMap<int, User*>            *m_listUserLiberaux;
+    QMap<int, Depense*>         *m_listDepenses;
 
     bool                        InitOK;
     int                         gMode;
@@ -61,9 +62,9 @@ private:
     void                        DefinitArchitectureBigTable();
     void                        EnregistreDepense();
     void                        ExportTable();
+    void                        FiltreTable();
     void                        ReconstruitListeAnnees();
     void                        ReconstruitListeRubriques();
-    void                        ReconstruitListeToutesRubriques();
     void                        RegleAffichageFiche(enum gMode);
     void                        RegleComptesComboBox(bool ActiveSeult = true);
     void                        RemplitBigTable();
