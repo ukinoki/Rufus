@@ -101,7 +101,7 @@ public:
     QList<Depense*> loadDepensesByUser(int idUser);
     void            loadDepenseArchivee(Depense *dep);
     QStringList     ListeRubriquesFiscales();
-    QList<Depense*> VerifExistDepense(QMap<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser, Comparateurs Comp = Egal);
+    QList<Depense*> VerifExistDepense(QHash<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser, Comparateurs Comp = Egal);
     int             getMaxLigneBanque();
 
     /*

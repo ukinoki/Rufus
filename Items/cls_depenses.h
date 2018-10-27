@@ -7,11 +7,11 @@
 class Depenses : public QObject
 {
 public:
-    QMap<int, Depense*> *m_Depenses;    //!< Collection de toutes les depenses pour unuser et une  année donnée
+    QHash<int, Depense*> *m_Depenses;    //!< Collection de toutes les depenses pour unuser et une  année donnée
 
 public:
     //GETTER
-    QMap<int, Depense *> *getDepenses()     const;
+    QHash<int, Depense *> *getDepenses()     const;
 
     Depenses(QObject *parent = Q_NULLPTR);
 

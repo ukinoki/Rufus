@@ -198,7 +198,7 @@ void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
 {
     gMode = mode;
-    QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->find(idDepEnCours);
+    QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->find(idDepEnCours);
         Depense *dep = itDepense.value();
 
     ui->DateDepdateEdit     ->setVisible(gMode != TableVide);
@@ -507,6 +507,7 @@ void dlg_depenses::EnregistreDepense()
     Datas::I()->depenses->addDepense(new Depense(jData));
 
     Depense *dep = Datas::I()->depenses->getDepenseById(idDep.toInt());
+    gBigTable->insertRow(gBigTable->rowCount());
     InsertDepenseDansLaTable(dep, gBigTable->rowCount());
     gBigTable->sortByColumn(7);
 
@@ -519,21 +520,19 @@ void dlg_depenses::EnregistreDepense()
     if (ui->AnneecomboBox->currentText() != annee)
     {
         if (ui->AnneecomboBox->findText(annee))
-        {
             ReconstruitListeAnnees();
-            RemplitBigTable();
-        }
         ui->AnneecomboBox->setCurrentText(annee);
     }
     CalculTotalDepenses();
     RegleAffichageFiche(Lire);
-    for (int i=0; i < gBigTable->rowCount(); i++)
+    for (int i=0; i< gBigTable->rowCount(); i++)
     {
         UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
-        if (idDeplbl->text() == idDep){
+        if (idDeplbl->getId() == dep->id()){
             gBigTable->setCurrentCell(i,1);
             idDepEnCours = idDep.toInt();
-            i = gBigTable->rowCount();
+            gBigTable->scrollTo(gBigTable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
+            break;
         }
     }
 }
@@ -628,7 +627,7 @@ void dlg_depenses::SupprimerDepense()
 {
     if (gBigTable->selectedRanges().size() == 0) return;
     // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte
-    QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->find(idDepEnCours);
+    QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->find(idDepEnCours);
         Depense *dep = itDepense.value();
     if (dep->isArchivee() == Depense::NoLoSo)
         DataBase::getInstance()->loadDepenseArchivee(dep);
@@ -688,16 +687,8 @@ void dlg_depenses::CalculTotalDepenses()
 {
     double Total = 0;
     if (gBigTable->rowCount() > 0)
-    {
         for (int k = 0; k < gBigTable->rowCount(); k++)
-        {
-            UpLabel* Line = dynamic_cast<UpLabel*>(gBigTable->cellWidget(k,3));
-            if (Line)
-                Total = Total + QLocale().toDouble(Line->text());
-            else
-                Total = Total + QLocale().toDouble(gBigTable->item(k,3)->text());
-        }
-    }
+            Total = Total + QLocale().toDouble(static_cast<UpLabel*>(gBigTable->cellWidget(k,3))->text());
     QString TotalRemise;
     TotalRemise = QLocale().toString(Total,'f',2);
     QString AnneeRubrique2035 = tr("Total général");
@@ -732,8 +723,8 @@ void dlg_depenses::MetAJourFiche()
         UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(gBigTable->currentRow(),0));
         idDepEnCours = idDeplbl->text().toInt();
 
-        QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->find(idDepEnCours);
-            Depense *dep = itDepense.value();
+        QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->find(idDepEnCours);
+        Depense *dep = itDepense.value();
 
         ui->ObjetlineEdit->setText(dep->objet());
         ui->DateDepdateEdit->setDate(dep->date());
@@ -771,9 +762,7 @@ void dlg_depenses::MetAJourFiche()
         else
             ui->SupprimerupPushButton->setEnabled(true);
         connect (ui->DateDepdateEdit,       &QDateEdit::dateChanged,        this,   [=] {EnableModifiepushButton();});
-        connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton();});
-        connect (ui->PaiementcomboBox,      QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                            this,   [=](int) {ChoixPaiement();});
+        connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton(); ChoixPaiement();});
         connect (ui->RefFiscalecomboBox,    &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton();});
     }
 }
@@ -790,6 +779,7 @@ void dlg_depenses::ModifierDepense()
     }
     Depense *dep = Datas::I()->depenses->getDepenseById(idDepEnCours);
     QString idDep = QString::number(dep->id());
+    QDate datedepart = dep->date();
 
     bool OnSauteLaQuestionSuivante = false;
     QString pb = "";
@@ -908,7 +898,6 @@ void dlg_depenses::ModifierDepense()
         jData["compte"]         = (m!="E"? idCompte.toInt() : QVariant().toInt());
         jData["nocheque"]       = dep->nocheque();
         dep->setData(jData);
-
     }
 
     // Correction de l'écriture dans la table lignescomptes
@@ -924,12 +913,12 @@ void dlg_depenses::ModifierDepense()
         if (listlignescomptes.size() > 0)                // l'écriture existe et on la modifie
         {
            QHash<QString, QString> listsets;
-           listsets.insert("LigneDate", ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-           listsets.insert("LigneLibelle", ui->ObjetlineEdit->text());
-           listsets.insert("LigneMontant", QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-           listsets.insert("LigneDebitCredit", "0");
-           listsets.insert("LigneTypeOperation", Paiement);
-           listsets.insert("idCompte", (m!="E"? idCompte : "null"));
+           listsets.insert("LigneDate",             ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+           listsets.insert("LigneLibelle",          ui->ObjetlineEdit->text());
+           listsets.insert("LigneMontant",          QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
+           listsets.insert("LigneDebitCredit",      "0");
+           listsets.insert("LigneTypeOperation",    Paiement);
+           listsets.insert("idCompte",              (m!="E"? idCompte : "null"));
            DataBase:: getInstance()->UpdateTable(NOM_TABLE_LIGNESCOMPTES, listsets, "where idDep = " + idDep);
         }
         else           // on n'a pas trouvé la ligne, on la recherche dans les archives
@@ -938,10 +927,10 @@ void dlg_depenses::ModifierDepense()
             if (listlignesarchives.size() > 0)                // l'écriture existe et on la modifie
             {
                 QHash<QString, QString> listsets;
-                listsets.insert("LigneDate", ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-                listsets.insert("LigneLibelle", ui->ObjetlineEdit->text());
-                listsets.insert("LigneDebitCredit", "0");
-                listsets.insert("LigneTypeOperation", Paiement);
+                listsets.insert("LigneDate",            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+                listsets.insert("LigneLibelle",         ui->ObjetlineEdit->text());
+                listsets.insert("LigneDebitCredit",     "0");
+                listsets.insert("LigneTypeOperation",   Paiement);
                 DataBase:: getInstance()->UpdateTable(NOM_TABLE_ARCHIVESBANQUE, listsets, " where idDep = " + idDep);
             }
             else        // l'écriture n'existait ni dans lignescomptes ni dans archives
@@ -949,93 +938,98 @@ void dlg_depenses::ModifierDepense()
                         // on l'enregistre dans lignescomptes
             {
                 QHash<QString, QString> listsets;
-                listsets.insert("idCompte", idCompte);
-                listsets.insert("idDep", idDep);
-                listsets.insert("LigneDate", ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-                listsets.insert("Lignelibelle", ui->ObjetlineEdit->text());
-                listsets.insert("LigneMontant", QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-                listsets.insert("LigneDebitCredit", "0");
-                listsets.insert("LigneTypeoperation", Paiement);
+                listsets.insert("idCompte",             idCompte);
+                listsets.insert("idDep",                idDep);
+                listsets.insert("LigneDate",            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+                listsets.insert("Lignelibelle",         ui->ObjetlineEdit->text());
+                listsets.insert("LigneMontant",         QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
+                listsets.insert("LigneDebitCredit",     "0");
+                listsets.insert("LigneTypeoperation",   Paiement);
                 DataBase:: getInstance()->InsertIntoTable(NOM_TABLE_LIGNESCOMPTES, listsets);
             }
         }
     }
     gBigTable->setEnabled(true);
-    int year = ui->DateDepdateEdit->date().year();
+    int row = -1;
+    int year = dep->annee();    
     if (ui->AnneecomboBox->currentText() != QString::number(year))
     {
         if (ui->AnneecomboBox->findText(QString::number(year)) < 0)
             ReconstruitListeAnnees();
         ui->AnneecomboBox->setCurrentText(QString::number(year));
-    }
-    // Mettre à jour l'affichage dans la table
-    int row = -1;
-    for (int i=0; i< gBigTable->rowCount(); i++)
-    {
-        UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
-        if (idDeplbl->getId() == dep->id()){
-            row = i;
-            break;
+        for (int i=0; i< gBigTable->rowCount(); i++)
+        {
+            UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
+            if (idDeplbl->getId() == dep->id()){
+                row = i;
+                break;
+            }
         }
     }
-    QString A;
-    static_cast<UpLabel*>(gBigTable->cellWidget(row,1))->setText(dep->date().toString(tr("d MMM yyyy") + " "));             // Date - col = 1
-    static_cast<UpLabel*>(gBigTable->cellWidget(row,2))->setText(" " + dep->objet());                                       // Objet - col = 2
-
-    if (dep->monnaie() == "F")
-        A = QLocale().toString(dep->montant()/6.55957,'f',2);                                                               // Montant en F converti en euros
-    else
-        A = QLocale().toString(dep->montant(),'f',2);                                                                       // Montant - col = 3
-    static_cast<UpLabel*>(gBigTable->cellWidget(row,3))->setText(A + " ");
-
-    A = dep->modepaiement();                                                                                                // Mode de paiement - col = 4
-    QString B = "";
-    QString C = "";
-    if (A == "E")           A = tr("Espèces");
     else
     {
-        QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll().find(dep->comptebancaire());
-        if( cptFind != gDataUser->getComptes()->comptesAll().constEnd() )
-            B = cptFind.value()->nom();
-        if (A == "B")       A = tr("Carte de crédit");
-        else if (A == "T")  A = tr("TIP");
-        else if (A == "V")  A = tr("Virement");
-        else if (A == "P")  A = tr("Prélèvement");
-        else if (A == "C") {
-            A = tr("Chèque");
-            if (dep->nocheque() > 0) C += " " + QString::number(dep->nocheque());}
+        // Mettre à jour l'affichage dans la table
+        for (int i=0; i< gBigTable->rowCount(); i++)
+        {
+            UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
+            if (idDeplbl->getId() == dep->id()){
+                row = i;
+                break;
+            }
+        }
+        QString A;
+        static_cast<UpLabel*>(gBigTable->cellWidget(row,1))->setText(dep->date().toString(tr("d MMM yyyy") + " "));             // Date - col = 1
+        static_cast<UpLabel*>(gBigTable->cellWidget(row,2))->setText(" " + dep->objet());                                       // Objet - col = 2
+
+        if (dep->monnaie() == "F")
+            A = QLocale().toString(dep->montant()/6.55957,'f',2);                                                               // Montant en F converti en euros
+        else
+            A = QLocale().toString(dep->montant(),'f',2);                                                                       // Montant - col = 3
+        static_cast<UpLabel*>(gBigTable->cellWidget(row,3))->setText(A + " ");
+
+        A = dep->modepaiement();                                                                                                // Mode de paiement - col = 4
+        QString B = "";
+        QString C = "";
+        if (A == "E")  A = tr("Espèces");
+        else
+        {
+            QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll().find(dep->comptebancaire());
+            if( cptFind != gDataUser->getComptes()->comptesAll().constEnd() )
+                B = cptFind.value()->nom();
+            if (A == "B")       A = tr("Carte de crédit");
+            else if (A == "T")  A = tr("TIP");
+            else if (A == "V")  A = tr("Virement");
+            else if (A == "P")  A = tr("Prélèvement");
+            else if (A == "C") { A = tr("Chèque");  if (dep->nocheque() > 0) C += " " + QString::number(dep->nocheque());}
+        }
+        A += " " + B + " " + C;
+        static_cast<UpLabel*>(gBigTable->cellWidget(row,4))->setText(" " + A);
+        static_cast<UpLabel*>(gBigTable->cellWidget(row,5))->setText(" " + dep->reffiscale());                                  // Ref fiscale - col = 5
+        static_cast<UpLabel*>(gBigTable->cellWidget(row,6))->setText(" " + dep->famillefiscale());                              // Famille fiscale - col = 6
+        A = dep->date().toString("yyyy-MM-dd");
+        gBigTable->item(row,7)->setText(dep->date().toString("yyyy-MM-dd"));                                                    // ClassementparDate - col = 7
     }
-    A += " " + B + " " + C;
-    static_cast<UpLabel*>(gBigTable->cellWidget(row,4))->setText(" " + A);
-    static_cast<UpLabel*>(gBigTable->cellWidget(row,5))->setText(" " + dep->reffiscale());                                  // Ref fiscale - col = 5
-    static_cast<UpLabel*>(gBigTable->cellWidget(row,6))->setText(" " + dep->famillefiscale());                              // Famille fiscale - col = 6
-    A = dep->date().toString("yyyy-MM-dd");
-    gBigTable->item(row,7)->setText(dep->date().toString("yyyy-MM-dd"));                                                    // ClassementparDate - col = 7
 
     CalculTotalDepenses();
     ui->SupprimerupPushButton->setEnabled(gBigTable->rowCount()>0);
     ui->ModifierupPushButton->setEnabled(gBigTable->rowCount()>0);
     FiltreTable();
-    bool trouve = false;
-    for (int i=0; i< gBigTable->rowCount(); i++)
+    gBigTable->setCurrentCell(row,1);
+    if (dep->date() != datedepart)
     {
-        UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
-        if (idDeplbl->text() == idDep){
-            gBigTable->setCurrentCell(i,1);
-            i = gBigTable->rowCount();
-            trouve = true;
+        gBigTable->sortByColumn(7);
+        for (int i=0; i< gBigTable->rowCount(); i++)
+        {
+            UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
+            if (idDeplbl->getId() == dep->id()){
+                gBigTable->scrollTo(gBigTable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
+                break;
+            }
         }
-    }
-    if (!trouve)
-    {
-        gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
-        gBigTable->scrollTo(gBigTable->model()->index(gBigTable->model()->rowCount()-1,1));
-    }
+     }
     gMode = Lire;
     RegleAffichageFiche(Lire);
     MetAJourFiche();
-
-    // mettre à jour l'affichage de la dépense dans la table
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1044,7 +1038,6 @@ void dlg_depenses::ModifierDepense()
 void dlg_depenses::RedessineBigTable()
 {
     RemplitBigTable();
-    CalculTotalDepenses();
     if (gBigTable->rowCount() > 0)
     {
         RegleAffichageFiche(Lire);
@@ -1056,8 +1049,6 @@ void dlg_depenses::RedessineBigTable()
         RegleAffichageFiche(TableVide);
     ui->SupprimerupPushButton->setEnabled(gBigTable->rowCount()>0);
     ui->ModifierupPushButton->setEnabled(gBigTable->rowCount()>0);
-    if (gBigTable->rowCount() > 0)
-        FiltreTable();
 }
 
 void dlg_depenses::closeEvent(QCloseEvent *event)
@@ -1092,9 +1083,7 @@ bool dlg_depenses::getInitOK()
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::DefinitArchitectureBigTable()
 {
-    int                 ColCount;
-
-    ColCount = 8;
+    int                 ColCount = 8;
     gBigTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     gBigTable->setContextMenuPolicy(Qt::CustomContextMenu);
     gBigTable->setPalette(QPalette(Qt::white));
@@ -1185,9 +1174,10 @@ void dlg_depenses::FiltreTable()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::ReconstruitListeAnnees()
 {
+    ui->AnneecomboBox->disconnect();
     QStringList ListeAnnees;
 
-    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
+    for( QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
     {
         Depense *dep = const_cast<Depense*>(itDepense.value());
         if (!ListeAnnees.contains(QString::number(dep->annee())))
@@ -1221,10 +1211,10 @@ void dlg_depenses::RemplitBigTable()
 {
     gBigTable->disconnect();
     gBigTable->clearContents();
-
+    gBigTable->setRowCount(0);
     QList<Depense*> listDepenses;
 
-    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
+    for( QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
     {
         Depense *dep = const_cast<Depense*>(itDepense.value());
         if (dep->annee() == ui->AnneecomboBox->currentText().toInt())
@@ -1232,6 +1222,7 @@ void dlg_depenses::RemplitBigTable()
     }
 
     int i=0;
+    gBigTable->setRowCount(listDepenses.size());
     for (QList<Depense*>::const_iterator itdep = listDepenses.constBegin() ; itdep != listDepenses.constEnd() ; ++itdep)
     {
         Depense *dep = const_cast<Depense*>(*itdep);
@@ -1245,10 +1236,10 @@ void dlg_depenses::RemplitBigTable()
 
 void dlg_depenses::InsertDepenseDansLaTable(Depense *dep, int row)
 {
+    //+++ ne pas utiliser insertRow() qui est très lent au fur et à mesure qu'on vide et remplit la table
     QTableWidgetItem    *pItem7;
     QString             A;
     UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
-    gBigTable->insertRow(row);
     int col = 0;
     int id = dep->id();
 
@@ -1321,9 +1312,7 @@ void dlg_depenses::InsertDepenseDansLaTable(Depense *dep, int row)
         else if (A == "T")  A = tr("TIP");
         else if (A == "V")  A = tr("Virement");
         else if (A == "P")  A = tr("Prélèvement");
-        else if (A == "C") {
-            A = tr("Chèque");
-            if (dep->nocheque() > 0) C += " " + QString::number(dep->nocheque());}
+        else if (A == "C") {A = tr("Chèque");   if (dep->nocheque() > 0) C += " " + QString::number(dep->nocheque());}
     }
     A += " " + B + " " + C;
     label4->setText(" " + A);

@@ -3,7 +3,7 @@
 /*
  * GETTER
 */
-QMap<int, Depense *> *Depenses::getDepenses() const
+QHash<int, Depense *> *Depenses::getDepenses() const
 {
     return m_Depenses;
 }
@@ -15,7 +15,7 @@ QMap<int, Depense *> *Depenses::getDepenses() const
  */
 Depenses::Depenses(QObject *parent) : QObject (parent)
 {
-    m_Depenses = new QMap<int, Depense*>();
+    m_Depenses = new QHash<int, Depense*>();
 }
 
 /*!
@@ -48,7 +48,7 @@ bool Depenses::addDepense(Depense *Depense)
  */
 Depense* Depenses::getDepenseById(int id)
 {
-    QMap<int, Depense*>::const_iterator Depense = m_Depenses->find(id);
+    QHash<int, Depense*>::const_iterator Depense = m_Depenses->find(id);
     if( Depense == m_Depenses->constEnd() )
         return Q_NULLPTR;
     return Depense.value();
