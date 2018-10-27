@@ -19,7 +19,7 @@ private: //Données de la dépense
     int m_iduser;               //!< id du user qui a fait la dépense (ce user est comptable)
     QDate m_datedepepense;      //!< date le la dépense
     QString m_referencefiscale; //!< la référence fiscale 2035 de la dépense
-    QString m_objetdepense;     //!< l'objet de la dépense
+    QString m_objetdépense;     //!< l'objet de la dépense
     double m_montant;           //!> le montant de la dépense
     QString m_famillefiscale;   //!< la famille de la référence fiscale de la dépense
     QString m_monnaie;          //!< monnaie utilisée (F ou €)

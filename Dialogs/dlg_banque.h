@@ -41,7 +41,7 @@ class dlg_banque : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_banque(QSqlDatabase gdb, QWidget *parent = Q_NULLPTR, QString nouvbanqueabrege = "");
+    explicit dlg_banque(QWidget *parent = Q_NULLPTR, QString nouvbanqueabrege = "");
     ~dlg_banque();
     Ui::dlg_banque  *ui;
     UpTableWidget   *uptablebanq;

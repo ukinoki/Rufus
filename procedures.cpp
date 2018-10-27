@@ -1169,6 +1169,7 @@ void Procedures::initListeCorrespondantsAll()
 
 void Procedures::initListeDepenses(int iduser)
 {
+    Datas::I()->depenses->getDepenses()->clear();
     QList<Depense*> listdepenses = DataBase::getInstance()->loadDepensesByUser(iduser);
     QList<Depense*>::const_iterator itdepenses;
     for( itdepenses = listdepenses.constBegin(); itdepenses != listdepenses.constEnd(); ++itdepenses )

@@ -42,7 +42,7 @@ public:
 
 private:
     dlg_comptes                 *Dlg_Cmpt;
-    int                         r,c, idDepEnCours;
+    int                         idDepEnCours;
     Procedures                  *proc;
     QSqlDatabase                db;
     QStringList                 glistMoyensDePaiement;
@@ -50,7 +50,6 @@ private:
     UpTableWidget               *gBigTable;
     UpPushButton                *EnregupPushButton, *AnnulupPushButton;
     QMap<int, User*>            *m_listUserLiberaux;
-    QMap<int, Depense*>         *m_listDepenses;
 
     bool                        InitOK;
     int                         gMode;
@@ -63,6 +62,7 @@ private:
     void                        EnregistreDepense();
     void                        ExportTable();
     void                        FiltreTable();
+    void                        InsertDepenseDansLaTable(Depense *dep, int row);
     void                        ReconstruitListeAnnees();
     void                        ReconstruitListeRubriques();
     void                        RegleAffichageFiche(enum gMode);

@@ -39,6 +39,7 @@ public:
     static QByteArray IntToArray(int source);
     static QString getIpAdress();
     static QString getMACAdress();
+    static QString CorrigeApostrophe(QString RechAp);
 
 };
 

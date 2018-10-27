@@ -196,3 +196,12 @@ QString Utils::getMACAdress()
     //qDebug() << "MacAdress = " + MACAddress;
     return MACAddress;
 }
+
+/*------------------------------------------------------------------------------------------------------------------------------------
+-- Faire précéder l'apostrophe d'un caractère d'échappement pour les requêtes SQL - voir commentaire dans rufus.h --------------------
+------------------------------------------------------------------------------------------------------------------------------------*/
+QString Utils::CorrigeApostrophe(QString RechAp)
+{
+    RechAp.replace("\\","\\\\");
+    return RechAp.replace("'","\\'");
+}

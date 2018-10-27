@@ -4,7 +4,7 @@ int     Depense::id() const             { return  m_iddepense;}
 int     Depense::iduser() const         { return  m_iduser;}
 QDate   Depense::date() const           { return  m_datedepepense;}
 QString Depense::reffiscale() const     { return  m_referencefiscale;}
-QString Depense::objet() const          { return  m_objetdepense;}
+QString Depense::objet() const          { return  m_objetdépense;}
 double  Depense::montant() const        { return  m_montant;}
 QString Depense::famillefiscale() const { return  m_famillefiscale;}
 QString Depense::monnaie() const        { return  m_monnaie;}
@@ -31,7 +31,7 @@ void Depense::setData(QJsonObject data)
     setDataInt(data, "iduser", m_iduser);
     setDataDate(data, "date", m_datedepepense);
     setDataString(data, "reffiscale", m_referencefiscale);
-    setDataString(data, "objet", m_objetdepense);
+    setDataString(data, "objet", m_objetdépense);
     setDataDouble(data, "montant", m_montant);
     setDataString(data, "famfiscale", m_famillefiscale);
     setDataString(data, "monnaie", m_monnaie);

@@ -20,7 +20,7 @@ Depenses::Depenses(QObject *parent) : QObject (parent)
 
 /*!
  * \brief Depenses::addDepense
- * Cette fonction va ajouter le Depense passé en paramètre
+ * Cette fonction va ajouter la Depense passée en paramètre
  *
  * \param Depense le Depense que l'on veut ajouter
  * \return true si le Depense est ajouté
@@ -43,7 +43,7 @@ bool Depenses::addDepense(Depense *Depense)
 /*!
  * \brief Depenses::getDepenseById
  * \param id l'id du Depense recherché
- * \return nullptr si aucun Depense trouvé
+ * \return nullptr si aucune Depense trouvée
  * \return Depense* le Depense Depense à l'id
  */
 Depense* Depenses::getDepenseById(int id)

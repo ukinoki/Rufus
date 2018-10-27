@@ -40,7 +40,6 @@ public:
     int         rowNoHiddenCount();
     QByteArray  dropData();
 
-
 private:
     QString     Attrib;
     QByteArray  encodedData;

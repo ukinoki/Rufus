@@ -31,6 +31,8 @@ class DataBase : public QObject
     Q_OBJECT
 public:
     enum m_mode { Poste, ReseauLocal, Distant };
+    enum m_comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };
+    Q_DECLARE_FLAGS(Comparateurs, m_comparateur)
 
 private:
     DataBase();
@@ -49,6 +51,8 @@ private:
 
 
 public:
+    //enum gComparateur {SUP, INF, EGAL};
+
     static DataBase *getInstance();
 
     void init(QSettings const &setting, int mode);
@@ -71,6 +75,10 @@ public:
     bool    locktables(QStringList ListTables, QString ModeBlocage = "WRITE");
     bool    testconnexionbase();
     int     selectMaxFromTable(QString nomchamp, QString nomtable);
+    void    SupprRecordFromTable(int id, QString nomChamp, QString nomtable);
+    QList<QList<QVariant>> SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, QString where = "", QString order="", bool distinct=false);
+    void    UpdateTable(QString nomtable, QHash<QString, QString>, QString where);
+    void    InsertIntoTable(QString nomtable,  QHash<QString, QString>);
 
     /*
      * Users
@@ -92,10 +100,8 @@ public:
     QList<Compte*>  loadComptesByUser(int idUser);
     QList<Depense*> loadDepensesByUser(int idUser);
     void            loadDepenseArchivee(Depense *dep);
-    void            SupprDepense(int iddep, QString nomtable);
     QStringList     ListeRubriquesFiscales();
-    QList<Depense*> VerifExistDepense(QMap<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser);
-    QString         getFamFiscaleFromRefFiscale(QString reffiscale);
+    QList<Depense*> VerifExistDepense(QMap<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser, Comparateurs Comp = Egal);
     int             getMaxLigneBanque();
 
     /*

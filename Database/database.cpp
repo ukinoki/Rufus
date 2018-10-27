@@ -163,6 +163,66 @@ int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable)
     return query.value(0).toInt();
 }
 
+void DataBase::SupprRecordFromTable(int id, QString nomChamp, QString nomtable)
+{
+    QSqlQuery ("delete from " + nomtable + " where " + nomChamp + " = " + QString::number(id), getDataBase());
+}
+
+QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, QString where, QString order, bool distinct)
+{
+    QList<QList<QVariant>> listreponses;
+    QString Distinct = (distinct? "distinct " : "");
+    QString selectchamp;
+    for (int i=0; i<listselectChamp.size(); ++i)
+        selectchamp += listselectChamp.at(i) + ",";
+    selectchamp = selectchamp.left(selectchamp.size()-1);
+    QString req = "select " + Distinct + selectchamp + " from " + nomtable;
+    if (where != "")
+        req += " where " + where;
+    if (order != "")
+        req += " ORDER by " + order;
+    QSqlQuery query(req, getDataBase());
+    if( traiteErreurRequete(query, req) || !query.first())
+        return listreponses;
+    do
+    {
+        QList<QVariant> record;
+        for (int i=0; i<listselectChamp.size(); ++i)
+            record << query.value(i);
+        listreponses << record;
+    } while (query.next());
+    return listreponses;
+}
+
+void DataBase::UpdateTable(QString nomtable, QHash<QString, QString> sets, QString where)
+{
+    QString req = "update " + nomtable + " set";
+    for (QHash<QString, QString>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+        req += " " + itset.key() + " = " + (itset.value().toLower()=="null"? "null," : "'" + Utils::CorrigeApostrophe(itset.value()) + "',");
+    req = req.left(req.size()-1); //retire la virgule de la fin
+    req += " " + where;
+    QSqlQuery query(req, getDataBase());
+    traiteErreurRequete(query, req) || !query.first();
+}
+
+void DataBase::InsertIntoTable(QString nomtable, QHash<QString, QString> sets)
+{
+    QString req = "insert into " + nomtable + " (";
+    QString champs;
+    QString valeurs;
+    for (QHash<QString, QString>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        champs  += itset.key() + ",";
+        valeurs += (itset.value().toLower()=="null"? "null," : "'" + Utils::CorrigeApostrophe(itset.value()) + "',");
+    }
+    champs = champs.left(champs.size()-1) + ") values (";
+    valeurs = valeurs.left(valeurs.size()-1) + ")";
+    req += champs + valeurs;
+    QSqlQuery query(req, getDataBase());
+    traiteErreurRequete(query, req) || !query.first();
+}
+
+
 /*
  * Users
 */
@@ -425,6 +485,25 @@ QList<Compte*> DataBase::loadComptesByUser(int idUser)
     return comptes;
 }
 
+int DataBase::getMaxLigneBanque()
+{
+    int a(0), b(0);
+    QString req = "select max(idligne) from " NOM_TABLE_ARCHIVESBANQUE;
+    QSqlQuery quer(req, getDataBase());
+    if (quer.size()>0){
+        quer.first();
+        a = quer.value(0).toInt();
+    }
+    req = "select max(idligne) from " NOM_TABLE_LIGNESCOMPTES;
+    QSqlQuery quer2(req, getDataBase());
+    if (quer2.size()>0){
+        quer2.first();
+        if (quer2.value(0).toInt()>a)
+            b = quer2.value(0).toInt();
+    }
+    return (((a<b)?b:a)+1);
+}
+
 
 /*
  * Depenses
@@ -471,17 +550,12 @@ void DataBase::loadDepenseArchivee(Depense *dep)
     {
         archivee = (QSqlQuery("select idligne from " NOM_TABLE_ARCHIVESBANQUE
                                 " where LigneDate = '" + dep->date().toString("yyyy-MM-dd")
-                                + "' and LigneLibelle = '" + Utils::capitilize(dep->objet())
+                                + "' and LigneLibelle = '" + Utils::CorrigeApostrophe(dep->objet())
                                 + "' and LigneMontant = " + QString::number(dep->montant()),
                       getDataBase())
                       .size() > 0);
     }
     dep->setArchivee(archivee);
-}
-
-void DataBase::SupprDepense(int iddep, QString nomtable)
-{
-    QSqlQuery (" delete from " + nomtable + " where idDep = " + QString::number(iddep), getDataBase());
 }
 
 QStringList DataBase::ListeRubriquesFiscales()
@@ -498,11 +572,16 @@ QStringList DataBase::ListeRubriquesFiscales()
     return ListeRubriques;
 }
 
-QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser)
+QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, Comparateurs Comp)
 {
+    QString op = "=";
+    if (Comp.testFlag(DataBase::Sup))
+        op = ">";
+    else if (Comp.testFlag(DataBase::Inf))
+        op = "<";
     QList<Depense*> listdepenses;
-    QString req = "select idDep from " NOM_TABLE_DEPENSES " where DateDep = '" + date.toString("yyyy-MM-dd") +
-            "'and Objet = '" + Utils::capitilize(objet) +
+    QString req = "select idDep from " NOM_TABLE_DEPENSES " where DateDep " + op + "'" + date.toString("yyyy-MM-dd") +
+            "'and Objet = '" + Utils::CorrigeApostrophe(objet) +
             "'and Montant = " + QString::number(montant) +
             " and idUser = " + QString::number(iduser) +
             " order by DateDep";
@@ -520,41 +599,6 @@ QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses,
     } while( query.next() );
     return listdepenses;
 }
-
-QString DataBase::getFamFiscaleFromRefFiscale(QString reffiscale)
-{
-    QString FamFiscale;
-    QString req = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '"
-            + Utils::capitilize(reffiscale) +"'";
-    QSqlQuery query (req, getDataBase());
-    traiteErreurRequete(query,req,"");
-    if (query.size() > 0)
-    {
-        query.first();
-        FamFiscale = query.value(0).toString();
-    }
-    return FamFiscale;
-}
-
-int DataBase::getMaxLigneBanque()
-{
-    int a(0), b(0);
-    QString req = "select max(idligne) from " NOM_TABLE_ARCHIVESBANQUE;
-    QSqlQuery quer(req, getDataBase());
-    if (quer.size()>0){
-        quer.first();
-        a = quer.value(0).toInt();
-    }
-    req = "select max(idligne) from " NOM_TABLE_LIGNESCOMPTES;
-    QSqlQuery quer2(req, getDataBase());
-    if (quer2.size()>0){
-        quer2.first();
-        if (quer2.value(0).toInt()>a)
-            b = quer2.value(0).toInt();
-    }
-    return (((a<b)?b:a)+1);
-}
-
 
 /*
  * Sites

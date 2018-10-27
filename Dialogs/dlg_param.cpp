@@ -1042,7 +1042,7 @@ void dlg_param::Slot_FiltreActesOphtaSeulmt(bool b)
 
 void dlg_param::Slot_GestionBanques()
 {
-    Dlg_Banq = new dlg_banque(db);
+    Dlg_Banq = new dlg_banque();
     Dlg_Banq->exec();
     delete Dlg_Banq;
 }

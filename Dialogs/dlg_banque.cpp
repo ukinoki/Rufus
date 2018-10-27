@@ -19,15 +19,16 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_banque.h"
 #include "icons.h"
 #include "utils.h"
+#include "database.h"
 
-dlg_banque::dlg_banque(QSqlDatabase gdb, QWidget *parent, QString nouvbanqueabrege) :
+dlg_banque::dlg_banque(QWidget *parent, QString nouvbanqueabrege) :
     UpDialog(parent),
     ui(new Ui::dlg_banque)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    db                      = gdb;
+    db                      = DataBase::getInstance()->getDataBase();
 
     gFermeApresValidation   = (nouvbanqueabrege != "");
     setWindowTitle(tr("Enregistrer une nouvelle banque"));
@@ -124,20 +125,16 @@ void dlg_banque::AfficheBanque()
 {
     UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
     int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
-    QString req = "select idBanque, NomBanque, idBanqueAbrege from \n"
-                  NOM_TABLE_BANQUES " where  idBanque = " + QString::number(idBanque);
-    QSqlQuery quer(req,db);
-    TraiteErreurRequete(quer,req,"");
-    if (quer.size()>0)
+    QList<QList<QVariant>> listbanques = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idBanque" << "NomBanque" << "idBanqueAbrege", NOM_TABLE_BANQUES, "idBanque = " + QString::number(idBanque));
+    if (listbanques.size()>0)
     {
-        quer.first();
-        ui->NomBanqueupLineEdit->setText(quer.value(1).toString());
-        ui->NomAbregeupLineEdit->setText(quer.value(2).toString());
+        QList<QVariant> banque = listbanques.at(0);
+        ui->NomBanqueupLineEdit->setText(banque.at(0).toString());
+        ui->NomAbregeupLineEdit->setText(banque.at(1).toString());
     }
     widgButtons->moinsBouton->setEnabled(true);
-    req = "select idBanque from " NOM_TABLE_COMPTES " where idBanque = " + quer.value(0).toString();
-    QSqlQuery quer1(req,db);
-    if (quer1.size()>0)
+    QList<QList<QVariant>> listcomptes = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idBanque", NOM_TABLE_COMPTES, "idBanque = " + listbanques.at(0).at(0).toString());
+    if (listcomptes.size()>0)
         widgButtons->moinsBouton->setEnabled(false);
     lbl = Q_NULLPTR;
     delete lbl;
@@ -215,9 +212,7 @@ void dlg_banque::SupprBanque()
         UpMessageBox::Watch(this, tr("Impossible de supprimer la banque ") + lbl->text(), tr("Elle est utilisée par d'autres utilisateurs"));
         return;
     }
-    QString rq = "delete from " NOM_TABLE_BANQUES " where idbanque = " + QString::number(idBanque);
-    QSqlQuery quer(rq,db);
-    TraiteErreurRequete(quer,rq,"");
+    DataBase::getInstance()->SupprRecordFromTable(idBanque,"idBanque",NOM_TABLE_BANQUES);
     RemplirTableView();
     AfficheBanque();
 }

@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("26-10-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("27-10-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -189,7 +189,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     // Lancement du timer de vérification des verrous - +++ à lancer après le timer gTimerVerifGestDocs puisqu'il l'utilise
     gTimerVerifVerrou->start(60000);// "toutes les 60 secondes"
-    if (!UtiliseTCP && isPosteImport())
+    if (!UtiliseTCP)
         connect (gTimerVerifVerrou,     &QTimer::timeout,   this,   [=] {VerifVerrouDossier();});
 
     // Lancement du timer de suppression des fichiers documents inutiles

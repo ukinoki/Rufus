@@ -177,7 +177,7 @@ void dlg_gestioncomptes::AnnulModif()
 
 void dlg_gestioncomptes::Banques()
 {
-    Dlg_Banq = new dlg_banque(db);
+    Dlg_Banq = new dlg_banque();
     if (Dlg_Banq->exec()>0)
         MetAJourListeBanques();
     delete Dlg_Banq;
