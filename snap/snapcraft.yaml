@@ -89,7 +89,7 @@ parts:
  poppler:
     after: [gcc7, poppler-data]
     plugin: cmake
-    source: https://poppler.freedesktop.org/poppler-0.67.0.tar.xz
+    source: https://poppler.freedesktop.org/poppler-0.70.1.tar.xz
     source-type: tar
     configflags: [-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7]
     build-packages:
