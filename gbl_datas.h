@@ -6,6 +6,7 @@
 #include <cls_correspondants.h>
 #include <cls_patients.h>
 #include <cls_depenses.h>
+#include "cls_compte.h"
 
 class Datas : public QObject
 {
@@ -21,8 +22,8 @@ public:
     Users *users;                       //!< Les users
     Patients *patients;                 //!< Les patients
     Correspondants *correspondants;     //!< Les correspondants
-    Depenses *depenses;               //!< les depenses pour un user et une  année donnée
-
+    Depenses *depenses;                 //!< les depenses pour un user et une  année donnée
+    Comptes *comptesallusers;           //!< tous les comptes bancaires de tous les users
 
 signals:
 

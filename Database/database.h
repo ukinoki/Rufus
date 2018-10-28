@@ -74,11 +74,12 @@ public:
     void    rollback();
     bool    locktables(QStringList ListTables, QString ModeBlocage = "WRITE");
     bool    testconnexionbase();
-    int     selectMaxFromTable(QString nomchamp, QString nomtable);
-    void    SupprRecordFromTable(int id, QString nomChamp, QString nomtable);
-    QList<QList<QVariant>> SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, QString where = "", QString order="", bool distinct=false);
-    void    UpdateTable(QString nomtable, QHash<QString, QString>, QString where);
-    void    InsertIntoTable(QString nomtable,  QHash<QString, QString>);
+    int     selectMaxFromTable(QString nomchamp, QString nomtable, QString errormsg="");
+    bool    SupprRecordFromTable(int id, QString nomChamp, QString nomtable, QString errormsg="");
+    QList<QList<QVariant>> SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, QString where = "", QString orderby="", bool distinct=false);
+    bool    UpdateTable(QString nomtable, QHash<QString, QString>, QString where, QString errormsg="");
+    bool    InsertIntoTable(QString nomtable,  QHash<QString, QString>, QString errormsg="");
+    bool    StandardInsertSQL(QString req , QString errormsg="");
 
     /*
      * Users
@@ -97,6 +98,7 @@ public:
     /*
      * Compta
     */
+    QList<Compte*>  loadComptesAllUsers();
     QList<Compte*>  loadComptesByUser(int idUser);
     QList<Depense*> loadDepensesByUser(int idUser);
     void            loadDepenseArchivee(Depense *dep);

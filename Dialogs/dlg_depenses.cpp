@@ -29,7 +29,7 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     proc        = procAPasser;
-    db          = DataBase::getInstance()->getDataBase();
+    db          = DataBase::getInstance();
     ui->UserscomboBox->setEnabled(proc->getUserConnected()->isSecretaire() );
 
     m_listUserLiberaux = Datas::I()->users->liberaux();
@@ -80,7 +80,7 @@ dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
-    QStringList ListeRubriques = DataBase::getInstance()->ListeRubriquesFiscales();
+    QStringList ListeRubriques = db->ListeRubriquesFiscales();
     ui->RefFiscalecomboBox->insertItems(0,ListeRubriques);
     ui->RefFiscalecomboBox->setCurrentText(ListeRubriques.at(0));
 
@@ -198,8 +198,7 @@ void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
 {
     gMode = mode;
-    QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->find(idDepEnCours);
-        Depense *dep = itDepense.value();
+    Depense *dep = getDepenseFromRow(gBigTable->currentRow());
 
     ui->DateDepdateEdit     ->setVisible(gMode != TableVide);
     ui->ObjetlineEdit       ->setVisible(gMode != TableVide);
@@ -262,7 +261,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
             compte = ui->ComptesupComboBox->currentData().toInt();
             ui->ComptesupComboBox   ->setVisible(true);
             if (dep->isArchivee() == Depense::NoLoSo)
-                DataBase::getInstance()->loadDepenseArchivee(dep);
+                db->loadDepenseArchivee(dep);
             bool modifiable = (dep->isArchivee() == Depense::Non);
             ui->DateDeplabel        ->setEnabled(modifiable);
             ui->DateDepdateEdit     ->setEnabled(modifiable);
@@ -318,7 +317,7 @@ bool dlg_depenses::initializeUserSelected()
     gDataUser = m_listUserLiberaux->find(id).value();
     proc->initListeDepenses(gDataUser->id());
     Comptes *comptes = new Comptes();
-    comptes->addCompte( DataBase::getInstance()->loadComptesByUser(gDataUser->id()) );
+    comptes->addCompte( db->loadComptesByUser(gDataUser->id()) );
     gDataUser->setComptes( comptes );
     if( gDataUser->getComptes()->comptesAll().size() == 0)
     {
@@ -326,7 +325,7 @@ bool dlg_depenses::initializeUserSelected()
         return false;
     }
 
-    QJsonObject data = DataBase::getInstance()->loadUserData(gDataUser->id());
+    QJsonObject data = db->loadUserData(gDataUser->id());
     if(data.isEmpty())
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche paiement!"), tr("Les paramètres de ")
@@ -407,7 +406,7 @@ void dlg_depenses::EnregistreDepense()
             ui->RefFiscalecomboBox->setFocus();
         return;
     }
-    QList<Depense*> veriflistdepenses = DataBase::getInstance()->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Egal);
+    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Egal);
 
     // vérifier que cette dépense n'a pas été déjà saisie
     if (veriflistdepenses.size() > 0)
@@ -420,7 +419,7 @@ void dlg_depenses::EnregistreDepense()
     {
         if (QDate::currentDate() > ui->DateDepdateEdit->date().addDays(90))
             pb = tr("Elle date de plus de 3 mois");
-        veriflistdepenses = DataBase::getInstance()->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-180), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Sup);
+        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-180), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Sup);
         if (veriflistdepenses.size() > 0)
         {
             Depense *dep = veriflistdepenses.last();
@@ -455,41 +454,43 @@ void dlg_depenses::EnregistreDepense()
     else if (Paiement == tr("Prélèvement"))     m = "P";
     else if (Paiement == tr("TIP"))             m = "T";
 
-    QList<QList<QVariant>> listfamfiscale = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "Famfiscale", NOM_TABLE_RUBRIQUES2035, "reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
+    QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
+                                                                                            NOM_TABLE_RUBRIQUES2035,
+                                                                                            "where reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
-    DataBase::getInstance()->locktables(QStringList() << NOM_TABLE_DEPENSES << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES);
+    db->locktables(QStringList() << NOM_TABLE_DEPENSES << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES);
 
     QHash<QString, QString> listsets;
-    listsets.insert("DateDep", ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-    listsets.insert("idUser", QString::number(gDataUser->id()));
-    listsets.insert("Objet", ui->ObjetlineEdit->text());
-    listsets.insert("Montant", QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-    listsets.insert("RefFiscale", ui->RefFiscalecomboBox->currentText());
-    listsets.insert("FamFiscale", FamFiscale);
+    listsets.insert("DateDep",       ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+    listsets.insert("idUser",       QString::number(gDataUser->id()));
+    listsets.insert("Objet",        ui->ObjetlineEdit->text());
+    listsets.insert("Montant",      QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
+    listsets.insert("RefFiscale",   ui->RefFiscalecomboBox->currentText());
+    listsets.insert("FamFiscale",   FamFiscale);
     listsets.insert("ModePaiement", m);
-    listsets.insert("Compte", (m!="E"? idCompte : "null"));
+    listsets.insert("Compte",       (m!="E"? idCompte : "null"));
     DataBase:: getInstance()->InsertIntoTable(NOM_TABLE_DEPENSES, listsets);
 
-    idDep   = QString::number(DataBase::getInstance()->selectMaxFromTable("idDep", NOM_TABLE_DEPENSES));
+    idDep   = QString::number(db->selectMaxFromTable("idDep", NOM_TABLE_DEPENSES));
 
     // insertion de l'écriture dans la table lignescomptes quand il s'agit d'une opération bancaire
     if (m != "E")
     {
         if (Paiement == tr("Virement")) Paiement = tr("Virement débiteur");
-        int a = DataBase::getInstance()->getMaxLigneBanque();
+        int a = db->getMaxLigneBanque();
         QHash<QString, QString> listsets;
-        listsets.insert("idLigne", QString::number(a));
-        listsets.insert("idCompte", idCompte);
-        listsets.insert("idDep", idDep);
-        listsets.insert("LigneDate", ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-        listsets.insert("Lignelibelle", ui->ObjetlineEdit->text());
-        listsets.insert("LigneMontant", QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-        listsets.insert("LigneDebitCredit", "0");
-        listsets.insert("LigneTypeoperation", Paiement);
+        listsets.insert("idLigne",              QString::number(a));
+        listsets.insert("idCompte",             idCompte);
+        listsets.insert("idDep",                idDep);
+        listsets.insert("LigneDate",            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+        listsets.insert("Lignelibelle",         ui->ObjetlineEdit->text());
+        listsets.insert("LigneMontant",         QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
+        listsets.insert("LigneDebitCredit",     "0");
+        listsets.insert("LigneTypeoperation",   Paiement);
         DataBase:: getInstance()->InsertIntoTable(NOM_TABLE_LIGNESCOMPTES, listsets);
     }
-    DataBase::getInstance()->commit();
+    db->commit();
 
     QJsonObject jData{};
     jData["iddepense"]      = idDep.toInt();
@@ -508,7 +509,7 @@ void dlg_depenses::EnregistreDepense()
 
     Depense *dep = Datas::I()->depenses->getDepenseById(idDep.toInt());
     gBigTable->insertRow(gBigTable->rowCount());
-    InsertDepenseDansLaTable(dep, gBigTable->rowCount());
+    SetDepenseToRow(dep, gBigTable->rowCount());
     gBigTable->sortByColumn(7);
 
     gBigTable->setEnabled(true);
@@ -526,15 +527,11 @@ void dlg_depenses::EnregistreDepense()
     CalculTotalDepenses();
     RegleAffichageFiche(Lire);
     for (int i=0; i< gBigTable->rowCount(); i++)
-    {
-        UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
-        if (idDeplbl->getId() == dep->id()){
+        if (getDepenseFromRow(i)->id() == dep->id()){
             gBigTable->setCurrentCell(i,1);
-            idDepEnCours = idDep.toInt();
             gBigTable->scrollTo(gBigTable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
             break;
         }
-    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -553,17 +550,15 @@ void dlg_depenses::GererDepense(QPushButton *widgsender)
         RegleAffichageFiche(Enregistrer);
 }
 
-void dlg_depenses::MenuContextuel(UpLabel *labelClicked)
+void dlg_depenses::MenuContextuel()
 {
-    int idDepAOuvrir = labelClicked->getId();
-
     QMenu *menu;
     menu = new QMenu(this);
 
     if (ui->Rubriques2035comboBox->currentIndex() == 0)
     {
         QAction *pAction_RecopieDep = menu->addAction(tr("Effectuer une copie de cette dépense à la date d'aujourd'hui"));
-        connect (pAction_RecopieDep, &QAction::triggered,    this,   [=] {ChoixMenu(QString::number(idDepAOuvrir));});
+        connect (pAction_RecopieDep, &QAction::triggered,    this,   [=] {ChoixMenu("Copie");});
     }
     QAction *pAction_ChercheVal = menu->addAction(tr("Rechercher une valeur"));
     connect (pAction_ChercheVal, &QAction::triggered,    this,   [=] {ChoixMenu("ChercheVal");});
@@ -627,10 +622,10 @@ void dlg_depenses::SupprimerDepense()
 {
     if (gBigTable->selectedRanges().size() == 0) return;
     // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte
-    QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->find(idDepEnCours);
-        Depense *dep = itDepense.value();
+    Depense *dep = getDepenseFromRow(gBigTable->currentRow());
+
     if (dep->isArchivee() == Depense::NoLoSo)
-        DataBase::getInstance()->loadDepenseArchivee(dep);
+        db->loadDepenseArchivee(dep);
     if (dep->isArchivee() == Depense::Oui)
     {
         UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
@@ -649,8 +644,8 @@ void dlg_depenses::SupprimerDepense()
         return;
 
     //On supprime l'écriture
-    DataBase::getInstance()->SupprRecordFromTable(idDepEnCours, "idDep", NOM_TABLE_LIGNESCOMPTES);
-    DataBase::getInstance()->SupprRecordFromTable(idDepEnCours, "idDep", NOM_TABLE_DEPENSES);
+    db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_LIGNESCOMPTES);
+    db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_DEPENSES);
     Datas::I()->depenses->getDepenses()->remove(dep->id());
 
     if (gBigTable->rowCount() < 2)
@@ -660,22 +655,16 @@ void dlg_depenses::SupprimerDepense()
         int idx = ui->AnneecomboBox->findText(year);
         ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
     }
-    else
-    {
-        for (int i = 0; i< gBigTable->rowCount(); i++)
+    else for (int i = 0; i< gBigTable->rowCount(); i++)
+        if (getDepenseFromRow(i) == Q_NULLPTR)
         {
-            UpLabel *iddeplbl = static_cast<UpLabel *>(gBigTable->cellWidget(i,0));
-            if (iddeplbl->text() == QString::number(idDepEnCours))
-            {
-                gBigTable->removeRow(i);
-                if (i < gBigTable->rowCount() - 1)
-                    gBigTable->setCurrentCell(i,1);
-                else
-                    gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
-                i = gBigTable->rowCount();
-            }
+            gBigTable->removeRow(i);
+            if (i < gBigTable->rowCount() - 1)
+                gBigTable->setCurrentCell(i,1);
+            else
+                gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
+            break;
         }
-    }
     CalculTotalDepenses();
     MetAJourFiche();
 }
@@ -705,7 +694,6 @@ void dlg_depenses::GestionComptes()
     Dlg_Cmpt          = new dlg_comptes(proc);
     if (Dlg_Cmpt->getInitOK())
         Dlg_Cmpt->exec();
-    gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -719,12 +707,10 @@ void dlg_depenses::MetAJourFiche()
         ui->DateDepdateEdit     ->disconnect();
         ui->RefFiscalecomboBox  ->disconnect();
         ui->PaiementcomboBox    ->disconnect();
+        if (gBigTable->selectedRanges().size() == 0)
+            gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
 
-        UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(gBigTable->currentRow(),0));
-        idDepEnCours = idDeplbl->text().toInt();
-
-        QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->find(idDepEnCours);
-        Depense *dep = itDepense.value();
+        Depense *dep = getDepenseFromRow(gBigTable->currentRow());
 
         ui->ObjetlineEdit->setText(dep->objet());
         ui->DateDepdateEdit->setDate(dep->date());
@@ -754,7 +740,7 @@ void dlg_depenses::MetAJourFiche()
         if (dep->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
         {
             if (dep->isArchivee() == Depense::NoLoSo)
-                DataBase::getInstance()->loadDepenseArchivee(dep);
+                db->loadDepenseArchivee(dep);
             //qDebug() << dep->objet() + " - id " + QString::number(dep->id()) + " - archivée = " + (dep->isArchivee()==Depense::Oui? "Oui" : (dep->isArchivee()==Depense::Non? "Non" : "NoloSo"));
             if (gBigTable->selectedRanges().size() > 0)
                 ui->SupprimerupPushButton->setEnabled(dep->isArchivee() == Depense::Non);
@@ -777,7 +763,7 @@ void dlg_depenses::ModifierDepense()
         EnregistreDepense();
         return;
     }
-    Depense *dep = Datas::I()->depenses->getDepenseById(idDepEnCours);
+    Depense *dep = getDepenseFromRow(gBigTable->currentRow());
     QString idDep = QString::number(dep->id());
     QDate datedepart = dep->date();
 
@@ -817,7 +803,7 @@ void dlg_depenses::ModifierDepense()
     }
 
     // vérifier que cette dépense n'a pas été déjà saisie
-    QList<Depense*> veriflistdepenses = DataBase::getInstance()->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Egal);
+    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Egal);
     if (veriflistdepenses.size() > 0){
         for (QList<Depense*>::const_iterator itDepense = veriflistdepenses.constBegin(); itDepense != veriflistdepenses.constEnd(); ++itDepense){
             if (veriflistdepenses.last()->id() == idDep){
@@ -836,7 +822,7 @@ void dlg_depenses::ModifierDepense()
     }
     if (!OnSauteLaQuestionSuivante)
     {
-        veriflistdepenses = DataBase::getInstance()->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-1), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Inf);
+        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-1), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Inf);
         if (veriflistdepenses.size() > 0)
         {
             if (pb != "")
@@ -869,20 +855,24 @@ void dlg_depenses::ModifierDepense()
     else if (Paiement == tr("Chèque"))          m = "C";
     else if (Paiement == tr("Prélèvement"))     m = "P";
     else if (Paiement == tr("TIP"))             m = "T";
-    QList<QList<QVariant>> listfamfiscale = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "Famfiscale", NOM_TABLE_RUBRIQUES2035, "reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
+    QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
+                                                                                            NOM_TABLE_RUBRIQUES2035,
+                                                                                            "where reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
     if (listfamfiscale.size() > 0)                // l'écriture existe et on la modifie
     {
         QHash<QString, QString> listsets;
-        listsets.insert("DateDep", ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-        listsets.insert("Objet", ui->ObjetlineEdit->text());
-        listsets.insert("Montant", QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-        listsets.insert("RefFiscale", ui->RefFiscalecomboBox->currentText());
-        listsets.insert("FamFiscale", FamFiscale);
+        listsets.insert("DateDep",      ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
+        listsets.insert("Objet",        ui->ObjetlineEdit->text());
+        listsets.insert("Montant",      QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
+        listsets.insert("RefFiscale",   ui->RefFiscalecomboBox->currentText());
+        listsets.insert("FamFiscale",   FamFiscale);
         listsets.insert("ModePaiement", m);
-        listsets.insert("Compte", (m!="E"? idCompte : "null"));
-        DataBase:: getInstance()->UpdateTable(NOM_TABLE_DEPENSES, listsets, "where idDep = " + idDep);
+        listsets.insert("Compte",       (m!="E"? idCompte : "null"));
+        DataBase:: getInstance()->UpdateTable(NOM_TABLE_DEPENSES,
+                                              listsets,
+                                              "where idDep = " + idDep);
 
         QJsonObject jData{};
         jData["iddepense"]      = idDep.toInt();
@@ -902,14 +892,16 @@ void dlg_depenses::ModifierDepense()
 
     // Correction de l'écriture dans la table lignescomptes
     if (Paiement == tr("Espèces"))
-        DataBase::getInstance()->SupprRecordFromTable(idDepEnCours, "idDep", NOM_TABLE_LIGNESCOMPTES);
+        db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_LIGNESCOMPTES);
     else
     {
         Paiement = ui->PaiementcomboBox->currentText();
         if (Paiement == tr("Virement")) Paiement = tr("Virement débiteur");
 
         // on recherche si l'écriture existe dans lignescomptes et si c'est le cas, on la modifie
-        QList<QList<QVariant>> listlignescomptes = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idLigne", NOM_TABLE_LIGNESCOMPTES, "idDep = " + idDep);
+        QList<QList<QVariant>> listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idLigne",
+                                                                                                   NOM_TABLE_LIGNESCOMPTES,
+                                                                                                   "where idDep = " + idDep);
         if (listlignescomptes.size() > 0)                // l'écriture existe et on la modifie
         {
            QHash<QString, QString> listsets;
@@ -919,11 +911,15 @@ void dlg_depenses::ModifierDepense()
            listsets.insert("LigneDebitCredit",      "0");
            listsets.insert("LigneTypeOperation",    Paiement);
            listsets.insert("idCompte",              (m!="E"? idCompte : "null"));
-           DataBase:: getInstance()->UpdateTable(NOM_TABLE_LIGNESCOMPTES, listsets, "where idDep = " + idDep);
+           DataBase:: getInstance()->UpdateTable(NOM_TABLE_LIGNESCOMPTES,
+                                                 listsets,
+                                                 "where idDep = " + idDep);
         }
         else           // on n'a pas trouvé la ligne, on la recherche dans les archives
         {
-            QList<QList<QVariant>> listlignesarchives = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idLigne", NOM_TABLE_ARCHIVESBANQUE,  "idDep = " + idDep);
+            QList<QList<QVariant>> listlignesarchives = db->SelectRecordsFromTable(QStringList() << "idLigne",
+                                                                                                        NOM_TABLE_ARCHIVESBANQUE,
+                                                                                                        "where idDep = " + idDep);
             if (listlignesarchives.size() > 0)                // l'écriture existe et on la modifie
             {
                 QHash<QString, QString> listsets;
@@ -931,7 +927,9 @@ void dlg_depenses::ModifierDepense()
                 listsets.insert("LigneLibelle",         ui->ObjetlineEdit->text());
                 listsets.insert("LigneDebitCredit",     "0");
                 listsets.insert("LigneTypeOperation",   Paiement);
-                DataBase:: getInstance()->UpdateTable(NOM_TABLE_ARCHIVESBANQUE, listsets, " where idDep = " + idDep);
+                DataBase:: getInstance()->UpdateTable(NOM_TABLE_ARCHIVESBANQUE,
+                                                      listsets,
+                                                      " where idDep = " + idDep);
             }
             else        // l'écriture n'existait ni dans lignescomptes ni dans archives
                         // => c'était une dépense en espèces
@@ -958,25 +956,19 @@ void dlg_depenses::ModifierDepense()
             ReconstruitListeAnnees();
         ui->AnneecomboBox->setCurrentText(QString::number(year));
         for (int i=0; i< gBigTable->rowCount(); i++)
-        {
-            UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
-            if (idDeplbl->getId() == dep->id()){
+            if (getDepenseFromRow(i)->id() == dep->id()){
                 row = i;
                 break;
             }
-        }
     }
     else
     {
         // Mettre à jour l'affichage dans la table
         for (int i=0; i< gBigTable->rowCount(); i++)
-        {
-            UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
-            if (idDeplbl->getId() == dep->id()){
+            if (getDepenseFromRow(i)->id() == dep->id()){
                 row = i;
                 break;
             }
-        }
         QString A;
         static_cast<UpLabel*>(gBigTable->cellWidget(row,1))->setText(dep->date().toString(tr("d MMM yyyy") + " "));             // Date - col = 1
         static_cast<UpLabel*>(gBigTable->cellWidget(row,2))->setText(" " + dep->objet());                                       // Objet - col = 2
@@ -1019,14 +1011,11 @@ void dlg_depenses::ModifierDepense()
     {
         gBigTable->sortByColumn(7);
         for (int i=0; i< gBigTable->rowCount(); i++)
-        {
-            UpLabel* idDeplbl = static_cast<UpLabel*>(gBigTable->cellWidget(i,0));
-            if (idDeplbl->getId() == dep->id()){
+            if (getDepenseFromRow(i)->id() == dep->id()){
                 gBigTable->scrollTo(gBigTable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
                 break;
             }
-        }
-     }
+    }
     gMode = Lire;
     RegleAffichageFiche(Lire);
     MetAJourFiche();
@@ -1040,8 +1029,8 @@ void dlg_depenses::RedessineBigTable()
     RemplitBigTable();
     if (gBigTable->rowCount() > 0)
     {
-        RegleAffichageFiche(Lire);
         gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
+        RegleAffichageFiche(Lire);
         gBigTable->scrollTo(gBigTable->model()->index(gBigTable->model()->rowCount()-1,1));
         FiltreTable();        
     }
@@ -1195,7 +1184,10 @@ void dlg_depenses::ReconstruitListeAnnees()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::ReconstruitListeRubriques()
 {
-    QList<QList<QVariant>> listreffiscale = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "reffiscale", NOM_TABLE_DEPENSES, "idUser = " + QString::number(gDataUser->id()), "reffiscale", true);
+    QList<QList<QVariant>> listreffiscale = db->SelectRecordsFromTable(QStringList() << "reffiscale",
+                                                                                            NOM_TABLE_DEPENSES,
+                                                                                            "where idUser = " + QString::number(gDataUser->id()),
+                                                                                            "ORDER BY reffiscale", true);
     QStringList ListeRubriques;
     ListeRubriques << tr("<Aucun>");
     for (int i = 0; i < listreffiscale.size(); i++)
@@ -1226,7 +1218,7 @@ void dlg_depenses::RemplitBigTable()
     for (QList<Depense*>::const_iterator itdep = listDepenses.constBegin() ; itdep != listDepenses.constEnd() ; ++itdep)
     {
         Depense *dep = const_cast<Depense*>(*itdep);
-        InsertDepenseDansLaTable(dep, i);
+        SetDepenseToRow(dep, i);
         ++i;
     }
     gBigTable->sortItems(7);
@@ -1234,7 +1226,14 @@ void dlg_depenses::RemplitBigTable()
     connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
 }
 
-void dlg_depenses::InsertDepenseDansLaTable(Depense *dep, int row)
+Depense* dlg_depenses::getDepenseFromRow(int row)
+{
+    UpLabel *iddeplbl = static_cast<UpLabel *>(gBigTable->cellWidget(row,0));
+    Depense *dep = Datas::I()->depenses->getDepenseById(iddeplbl->getId());
+    return dep;
+}
+
+void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
 {
     //+++ ne pas utiliser insertRow() qui est très lent au fur et à mesure qu'on vide et remplit la table
     QTableWidgetItem    *pItem7;
@@ -1251,13 +1250,13 @@ void dlg_depenses::InsertDepenseDansLaTable(Depense *dep, int row)
     label5 = new UpLabel;
     label6 = new UpLabel;
 
-    label0->setId(id);                      // idDep
-    label1->setId(id);                      // idDep
-    label2->setId(id);                      // idDep
-    label3->setId(id);                      // idDep
-    label4->setId(id);                      // idDep
-    label5->setId(id);                      // idDep
-    label6->setId(id);                      // idDep
+    label0->setId(id);
+    label1->setId(id);
+    label2->setId(id);
+    label3->setId(id);
+    label4->setId(id);
+    label5->setId(id);
+    label6->setId(id);
 
     label0->setContextMenuPolicy(Qt::CustomContextMenu);
     label1->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1267,13 +1266,13 @@ void dlg_depenses::InsertDepenseDansLaTable(Depense *dep, int row)
     label5->setContextMenuPolicy(Qt::CustomContextMenu);
     label6->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(label0,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(label0);});
-    connect(label1,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(label1);});
-    connect(label2,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(label2);});
-    connect(label3,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(label3);});
-    connect(label4,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(label4);});
-    connect(label5,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(label5);});
-    connect(label6,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel(label6);});
+    connect(label0,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
+    connect(label1,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
+    connect(label2,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
+    connect(label3,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
+    connect(label4,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
+    connect(label5,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
+    connect(label6,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
 
     A = QString::number(id);                                                                    // idDepense - col = 0
     label0->setText(A);

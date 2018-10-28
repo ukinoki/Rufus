@@ -208,6 +208,7 @@ public:
     QString                 getLogin(int idUser);
 
     void                    initListeUsers();
+    void                    initListeComptes();
     void                    initListeCorrespondants();
     void                    initListeCorrespondantsAll();
     void                    initListeDepenses(int iduser);

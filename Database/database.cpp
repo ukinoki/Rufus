@@ -156,19 +156,26 @@ bool DataBase::testconnexionbase() // une requete simple pour vérifier que la c
     return (testbasequery.lastError().type()==QSqlError::NoError);
 }
 
-int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable)
+int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, QString errormsg)
 {
-    QSqlQuery query("select max(" + nomchamp + ") from " + nomtable, getDataBase());
-    query.first();
+    QString req = "select max(" + nomchamp + ") from " + nomtable;
+    QSqlQuery query(req, getDataBase());
+    if( traiteErreurRequete(query, req, errormsg) || !query.first())
+        return -1;
     return query.value(0).toInt();
 }
 
-void DataBase::SupprRecordFromTable(int id, QString nomChamp, QString nomtable)
+bool DataBase::SupprRecordFromTable(int id, QString nomChamp, QString nomtable, QString errormsg)
 {
-    QSqlQuery ("delete from " + nomtable + " where " + nomChamp + " = " + QString::number(id), getDataBase());
+    QString req = "delete from " + nomtable + " where " + nomChamp + " = " + QString::number(id);
+    return StandardInsertSQL(req, errormsg);
 }
 
-QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, QString where, QString order, bool distinct)
+QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectChamp,
+                                                        QString nomtable,
+                                                        QString where,
+                                                        QString orderby,
+                                                        bool distinct)
 {
     QList<QList<QVariant>> listreponses;
     QString Distinct = (distinct? "distinct " : "");
@@ -178,9 +185,9 @@ QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectCh
     selectchamp = selectchamp.left(selectchamp.size()-1);
     QString req = "select " + Distinct + selectchamp + " from " + nomtable;
     if (where != "")
-        req += " where " + where;
-    if (order != "")
-        req += " ORDER by " + order;
+        req += " " + where;
+    if (orderby != "")
+        req += " " + orderby;
     QSqlQuery query(req, getDataBase());
     if( traiteErreurRequete(query, req) || !query.first())
         return listreponses;
@@ -194,18 +201,22 @@ QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectCh
     return listreponses;
 }
 
-void DataBase::UpdateTable(QString nomtable, QHash<QString, QString> sets, QString where)
+bool DataBase::UpdateTable(QString nomtable,
+                           QHash<QString, QString> sets,
+                           QString where,
+                           QString errormsg)
 {
     QString req = "update " + nomtable + " set";
     for (QHash<QString, QString>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
         req += " " + itset.key() + " = " + (itset.value().toLower()=="null"? "null," : "'" + Utils::CorrigeApostrophe(itset.value()) + "',");
     req = req.left(req.size()-1); //retire la virgule de la fin
     req += " " + where;
-    QSqlQuery query(req, getDataBase());
-    traiteErreurRequete(query, req) || !query.first();
+    return StandardInsertSQL(req, errormsg);
 }
 
-void DataBase::InsertIntoTable(QString nomtable, QHash<QString, QString> sets)
+bool DataBase::InsertIntoTable(QString nomtable,
+                               QHash<QString, QString> sets,
+                               QString errormsg)
 {
     QString req = "insert into " + nomtable + " (";
     QString champs;
@@ -218,8 +229,13 @@ void DataBase::InsertIntoTable(QString nomtable, QHash<QString, QString> sets)
     champs = champs.left(champs.size()-1) + ") values (";
     valeurs = valeurs.left(valeurs.size()-1) + ")";
     req += champs + valeurs;
+    return StandardInsertSQL(req, errormsg);
+}
+
+bool DataBase::StandardInsertSQL(QString req , QString errormsg)
+{
     QSqlQuery query(req, getDataBase());
-    traiteErreurRequete(query, req) || !query.first();
+    return !traiteErreurRequete(query, req, errormsg);
 }
 
 
@@ -458,26 +474,70 @@ void DataBase::SupprCorrespondant(int idcor)
 /*
  * Comptes
 */
+QList<Compte*> DataBase::loadComptesAllUsers()
+{
+    QList<Compte*> comptes;
+    QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
+                  " FROM " NOM_TABLE_COMPTES " as cmpt "
+                  " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque ";
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return comptes;
+    do
+    {
+        QJsonObject jData{};
+        jData["id"] = query.value(0).toInt();
+        jData["idbanque"] = query.value(1).toInt();
+        jData["iduser"] = query.value(2).toInt();
+        jData["IBAN"] = query.value(3).toString();
+        jData["IntituleCompte"] = query.value(4).toString();
+        jData["nom"] = query.value(5).toString();
+        jData["solde"] = query.value(6).toDouble();
+        jData["partage"] = (query.value(7).toInt() == 1);
+        jData["desactive"] = (query.value(8).toInt() == 1);
+        jData["NomBanque"] = query.value(9).toString();
+        Compte *cpt = new Compte(jData);
+        comptes << cpt;
+    } while( query.next() );
+
+    return comptes;
+}
+
 QList<Compte*> DataBase::loadComptesByUser(int idUser)
 {
     QList<Compte*> comptes;
-    QString req = "SELECT idCompte, NomCompteAbrege, desactive, IBAN, cmpt.idbanque, intitulecompte, NomBanque "
+    QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
                   " FROM " NOM_TABLE_COMPTES " as cmpt "
                   " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque "
                   " WHERE idUser = " + QString::number(idUser);
     QSqlQuery query(req, getDataBase() );
     if( traiteErreurRequete(query, req) || !query.first())
         return comptes;
+    int idcptprefer=-1;
+    QString chercheComptePrefereRequete =
+            " select idcomptepardefaut from " NOM_TABLE_UTILISATEURS
+            " where iduser = " + QString::number(idUser);
+    QSqlQuery chercheComptePreferQuery (chercheComptePrefereRequete, getDataBase());
+    if (chercheComptePreferQuery.size()>0)
+    {
+        chercheComptePreferQuery.first();
+        idcptprefer= chercheComptePreferQuery.value(0).toInt();
+    }
 
     do
     {
         QJsonObject jData{};
         jData["id"] = query.value(0).toInt();
-        jData["nom"] = query.value(1).toString();
-        jData["desactive"] = (query.value(2).toInt() == 1);
+        jData["idbanque"] = query.value(1).toInt();
+        jData["iduser"] = query.value(2).toInt();
         jData["IBAN"] = query.value(3).toString();
-        jData["IntituleCompte"] = query.value(5).toString();
-        jData["NomBanque"] = query.value(6).toString();
+        jData["IntituleCompte"] = query.value(4).toString();
+        jData["nom"] = query.value(5).toString();
+        jData["solde"] = query.value(6).toDouble();
+        jData["partage"] = (query.value(7).toInt() == 1);
+        jData["desactive"] = (query.value(8).toInt() == 1);
+        jData["NomBanque"] = query.value(9).toString();
+        jData["prefere"] = (query.value(0).toInt() == idcptprefer);
         Compte *cpt = new Compte(jData);
         comptes << cpt;
     } while( query.next() );

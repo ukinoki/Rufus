@@ -31,7 +31,6 @@ class UpTableWidget : public QTableWidget
     Q_OBJECT
 public:
     explicit UpTableWidget(QWidget *parent = Q_NULLPTR);
-    ~UpTableWidget();
 
     void        clearSelection();
     void        FixLargeurTotale();

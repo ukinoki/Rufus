@@ -1136,8 +1136,24 @@ void Procedures::initListeUsers()
 }
 
 /*!
+ * \brief Procedures::initListeComptes
+ * Charge l'ensemble des comptes bancaires
+ * et les ajoute à la classe Comptes
+ */
+void Procedures::initListeComptes()
+{
+    QList<Compte*> listcomptes = DataBase::getInstance()->loadComptesAllUsers();
+    QList<Compte*>::const_iterator itCpt;
+    for( itCpt = listcomptes.constBegin(); itCpt != listcomptes.constEnd(); ++itCpt )
+    {
+        Compte *cpt = const_cast<Compte*>(*itCpt);
+        Datas::I()->comptesallusers->addCompte( cpt );
+    }
+}
+
+/*!
  * \brief Procedures::initListe correspondants
- * Charge l'ensemble des correspondants correspondants
+ * Charge l'ensemble des correspondants
  * et les ajoute à la classe Correspondants
  */
 void Procedures::initListeCorrespondants()

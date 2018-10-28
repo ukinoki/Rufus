@@ -16,6 +16,7 @@ Datas::Datas()
     patients        = new Patients();
     correspondants  = new Correspondants();
     depenses        = new Depenses();
+    comptesallusers = new Comptes();
 }
 
 

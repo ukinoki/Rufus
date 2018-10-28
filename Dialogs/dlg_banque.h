@@ -61,9 +61,6 @@ private:
     void            ModifBanque();
     void            SupprBanque();
 
-    QString         CorrigeApostrophe(QString RechAp);
-    bool            TraiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
-
     void            AnnuleModifBanque();
     void            AfficheBanque();
     void            ValideModifBanque();

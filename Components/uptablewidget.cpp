@@ -27,11 +27,6 @@ UpTableWidget::UpTableWidget(QWidget *parent) : QTableWidget(parent)
     Attrib  = "";
 }
 
-UpTableWidget::~UpTableWidget()
-{
-
-}
-
 void UpTableWidget::dropEvent(QDropEvent *drop)
 {
     encodedData = drop->mimeData()->data("application/x-qabstractitemmodeldatalist");

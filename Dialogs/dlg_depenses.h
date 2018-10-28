@@ -42,9 +42,8 @@ public:
 
 private:
     dlg_comptes                 *Dlg_Cmpt;
-    int                         idDepEnCours;
+    DataBase                    *db;
     Procedures                  *proc;
-    QSqlDatabase                db;
     QStringList                 glistMoyensDePaiement;
     User                        *gDataUser;
     UpTableWidget               *gBigTable;
@@ -62,7 +61,8 @@ private:
     void                        EnregistreDepense();
     void                        ExportTable();
     void                        FiltreTable();
-    void                        InsertDepenseDansLaTable(Depense *dep, int row);
+    Depense*                    getDepenseFromRow(int row);
+    void                        SetDepenseToRow(Depense *dep, int row);
     void                        ReconstruitListeAnnees();
     void                        ReconstruitListeRubriques();
     void                        RegleAffichageFiche(enum gMode);
@@ -79,7 +79,7 @@ private:
     void                        EnableModifiepushButton();
     void                        GererDepense(QPushButton *widgsender);
     void                        GestionComptes();
-    void                        MenuContextuel(UpLabel *labelClicked);
+    void                        MenuContextuel();
     void                        MetAJourFiche();
     void                        ModifierDepense();
     void                        RedessineBigTable();

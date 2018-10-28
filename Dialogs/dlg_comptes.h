@@ -23,6 +23,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include "upcheckbox.h"
 #include "uplabel.h"
+#include "cls_compte.h"
 
 namespace Ui {
 class dlg_comptes;
@@ -45,6 +46,9 @@ private:
     double          SoldeSurReleve;
     int             idCompte;
     int             gidLigneASupprimer;
+    Compte          *CompteEnCours;
+    Comptes         *comptesusr;
+    DataBase        *db;
     Procedures      *proc;
     QDate           Debut, Fin;
     QTableWidget    *gBigTable;
