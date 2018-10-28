@@ -1044,7 +1044,6 @@ void dlg_param::Slot_GestionBanques()
 {
     Dlg_Banq = new dlg_banque();
     Dlg_Banq->exec();
-    delete Dlg_Banq;
 }
 
 void dlg_param::Slot_GestDataPersoUser()

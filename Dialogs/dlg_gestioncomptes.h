@@ -24,6 +24,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include "cls_user.h"
 #include "functormajpremierelettre.h"
+#include "database.h"
+#include "cls_compte.h"
 
 /* sert à gérer les comptes bancaires des utilisateurs
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
@@ -37,16 +39,17 @@ class dlg_gestioncomptes : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_gestioncomptes(User *DataUser, QSqlDatabase gdb,
+    explicit dlg_gestioncomptes(User *DataUser,
                                 bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncomptes();
 
 private:
     FunctorMAJPremiereLettre fMAJPremiereLettre;
     Ui::dlg_gestioncomptes  *ui;
-    QSqlDatabase            db;
+    DataBase                *db;
     User                    *gDataUser;
-    QStringList             gListBanques;
+    Comptes                 *comptesusr;
+    Compte                  *CompteEnCours;
     dlg_banque              *Dlg_Banq;
     bool                    createurducompte;
     bool                    gAfficheLeSolde;
@@ -61,7 +64,6 @@ private:
     QString                 CorrigeApostrophe(QString RechAp);
     void                    MetAJourListeBanques();
     void                    RemplirTableView(int idcompte = -1);
-    bool                    TraiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
     bool                    VerifCompte();
     WidgetButtonFrame       *widgButtons;
     UpSmallButton           *NouvBanqupPushButton;

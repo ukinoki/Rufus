@@ -55,6 +55,7 @@ private:
     bool            InitOK;
     void            CalculeTotal();
     void            DefinitArchitetureTable();
+    void            InsertLigneSurLaTable(QList<QVariant> ligne, int row);
     void            RemplitLaTable(int idCompteAVoir);
 
     void            SupprimerEcriture(QString);

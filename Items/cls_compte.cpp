@@ -71,6 +71,12 @@ void Comptes::addCompte(QList<Compte*> listCompte)
         addCompte( *it );
 }
 
+void Comptes::removeCompte(Compte* cpt)
+{
+    m_comptesAll    .remove(cpt->id());
+    m_comptes       .remove(cpt->id());
+}
+
 Compte* Comptes::getCompteById(int id)
 {
     QMultiMap<int, Compte*>::const_iterator itcpt = m_comptesAll.find(id);

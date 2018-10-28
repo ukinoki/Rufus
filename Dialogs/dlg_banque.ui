@@ -91,7 +91,7 @@ border-radius: 5px;
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
     </property>
     <property name="iconSize">
@@ -126,7 +126,7 @@ border-radius: 5px;
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/start.png</normaloff>:/start.png</iconset>
     </property>
     <property name="iconSize">
@@ -231,7 +231,7 @@ border-radius: 5px;
   <tabstop>NomAbregeupLineEdit</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

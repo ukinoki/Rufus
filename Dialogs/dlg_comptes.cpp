@@ -32,7 +32,7 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
 
     // On reconstruit le combobox des comptes de l'utilisateur
     comptesusr = new Comptes();
-    comptesusr->addCompte( DataBase::getInstance()->loadComptesByUser(proc->getUserConnected()->id()) );
+    comptesusr->addCompte( db->loadComptesByUser(proc->getUserConnected()->id()) );
     proc->getUserConnected()->setComptes(comptesusr);
 
     if (comptesusr->comptesAll().size() == 0)
@@ -188,57 +188,46 @@ void dlg_comptes::Archiver()
 
     QStringList listlock;
     listlock << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_COMPTES;
-    if (!DataBase::getInstance()->locktables(listlock))
+    if (!db->locktables(listlock))
         return;
-
-    QString CalcidArchiverequete = "select max(idArchive) from " NOM_TABLE_ARCHIVESBANQUE;
-    QSqlQuery query1(CalcidArchiverequete,DataBase::getInstance()->getDataBase());
-    if (DataBase::getInstance()->traiteErreurRequete(query1,CalcidArchiverequete,""))
+    int max = db->selectMaxFromTable("idArchive", NOM_TABLE_ARCHIVESBANQUE);
+    if (max==-1)
     {
-        DataBase::getInstance()->rollback();
+        db->rollback();
         return;
     }
-    query1.first();
-    int max = query1.value(0).toInt();
 
     QString Archiverequete = "insert into " NOM_TABLE_ARCHIVESBANQUE " select * from  (select idLigne, idCompte, idDep, idRec, idrecspec, idremcheq, LigneDate, LigneLibelle, LigneMontant,"
             "LigneDebitCredit, LigneTypeOperation, date(now()) as LigneDateConsolidation, "
             + QString::number(max+1) + " as idArchive from " NOM_TABLE_LIGNESCOMPTES
             " where idLigne in ";
-
     QString reponse = "(" + QString::number(ListeActesAArchiver.at(0));
     for (int i = 1; i < ListeActesAArchiver.size();i++)
       reponse += "," + QString::number(ListeActesAArchiver.at(i));
     Archiverequete += reponse + ")) as tet";
 
-    QSqlQuery query2 (Archiverequete, DataBase::getInstance()->getDataBase());
-    if (DataBase::getInstance()->traiteErreurRequete(query2,Archiverequete,""))
+    if (!db->StandardInsertSQL(Archiverequete))
     {
-        DataBase::getInstance()->rollback();
+        db->rollback();
+        return;
+    }
+    if (!db->StandardInsertSQL(" delete from " NOM_TABLE_LIGNESCOMPTES " where idligne in " + reponse + ")"))
+    {
+        db->rollback();
+        return;
+    }
+    if (!db->StandardInsertSQL("update " NOM_TABLE_COMPTES " set SoldeSurDernierReleve = "
+                               + QString::number(QLocale().toDouble(ui->MontantSoldeConsolidelabel->text()),'f',2)
+                               + " where idCompte = " + QString::number(idCompte)))
+    {
+        db->rollback();
         return;
     }
 
-    QString ArchiveCompterequete = " delete from " NOM_TABLE_LIGNESCOMPTES " where idligne in " + reponse + ")";
-    QSqlQuery query3(ArchiveCompterequete, DataBase::getInstance()->getDataBase());
-    if (DataBase::getInstance()->traiteErreurRequete(query3,ArchiveCompterequete,""))
-    {
-        DataBase::getInstance()->rollback();
-        return;
-    }
-
+    db->commit();
     SoldeSurReleve = QLocale().toDouble(ui->MontantSoldeConsolidelabel->text());
+    CompteEnCours->setSolde(SoldeSurReleve);
     ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
-
-    QString UpdateSolderequete = "update " NOM_TABLE_COMPTES " set SoldeSurDernierReleve = " + QString::number(SoldeSurReleve,'f',2)
-                                    + " where idCompte = " + QString::number(idCompte);
-    QSqlQuery query4(UpdateSolderequete,DataBase::getInstance()->getDataBase());
-    if (DataBase::getInstance()->traiteErreurRequete(query4,UpdateSolderequete,""))
-    {
-        DataBase::getInstance()->rollback();
-        return;
-    }
-
-    DataBase::getInstance()->commit();
     gBigTable->clearContents();
     RemplitLaTable(idCompte);
 }
@@ -255,8 +244,7 @@ void dlg_comptes::AnnulConsolidations()
                 allCheck.at(n)->setCheckState(Qt::Unchecked);
         }
     }
-    QString MetAJourConsoliderequete = "update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = null";
-    QSqlQuery (MetAJourConsoliderequete,DataBase::getInstance()->getDataBase());
+    db->StandardInsertSQL("update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = null");
     CalculeTotal();
 }
 
@@ -281,14 +269,10 @@ void dlg_comptes::RenvoieRangee(bool Coche, UpCheckBox* Check)
 {
     int R = Check->getRowTable();
     QLabel* lbl = dynamic_cast<QLabel*>(gBigTable->cellWidget(R,0));
-    QString idLigne = lbl->text();
-    QString MetAJourConsoliderequete = "update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = ";
-    if (Coche)
-        MetAJourConsoliderequete += "1";
-    else
-        MetAJourConsoliderequete += "null";
-    MetAJourConsoliderequete += " where idligne = " + idLigne;
-    QSqlQuery (MetAJourConsoliderequete,DataBase::getInstance()->getDataBase());
+    QString requete = "update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = ";
+    requete += (Coche? "1" : "null");
+    requete += " where idligne = " + lbl->text();
+    db->StandardInsertSQL(requete);
     CalculeTotal();
 }
 
@@ -309,8 +293,7 @@ void dlg_comptes::SupprimerEcriture(QString msg)
     msgbox->exec();
     if (msgbox->clickedButton() == OKBouton)
     {
-        QString req = "delete from " NOM_TABLE_LIGNESCOMPTES " where idligne = " + QString::number(gidLigneASupprimer);
-        QSqlQuery(req,DataBase::getInstance()->getDataBase());
+        db->StandardInsertSQL("delete from " NOM_TABLE_LIGNESCOMPTES " where idligne = " + QString::number(gidLigneASupprimer));
         RemplitLaTable(idCompte);
     }
 }
@@ -358,12 +341,15 @@ void dlg_comptes::CalculeTotal()
 void dlg_comptes::ChangeCompte(int idx)
 {
     idCompte = ui->BanquecomboBox->itemData(idx).toInt();
-    QString SoldeComptereq = " select SoldeSurDernierReleve from " NOM_TABLE_COMPTES " where idcompte = " + QString::number(idCompte);
-    QSqlQuery SoldeCompteQuery (SoldeComptereq,DataBase::getInstance()->getDataBase());
-    if (SoldeCompteQuery.size() > 0)
+    CompteEnCours = comptesusr->getCompteById(idCompte);
+    // on doit refaire la requête parce que le sole s'il est null est passé en 0 par loadcomptesbyUser()
+    QList<QList<QVariant>> listsoldes = db->SelectRecordsFromTable(QStringList() << "SoldeSurDernierReleve",
+                                                                   NOM_TABLE_COMPTES,
+                                                                   "where idcompte = " + QString::number(idCompte));
+    if (listsoldes.size() > 0)
     {
-        SoldeCompteQuery.first();
-        SoldeSurReleve = SoldeCompteQuery.value(0).toDouble();
+        SoldeSurReleve = listsoldes.at(0).at(0).toDouble();
+        CompteEnCours->setSolde(SoldeSurReleve);  // à tout hasard
         ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
         RemplitLaTable(idCompte);
     }
@@ -483,9 +469,34 @@ void dlg_comptes::DefinitArchitetureTable()
 
 void dlg_comptes::RemplitLaTable(int idCompteAVoir)
 {
-    QString LignesComptesrequete = "select idLigne, idCompte, idDep, idRec, LigneDate, LigneLibelle, LigneMontant, LigneDebitCredit, LigneTypeOperation, LigneConsolide from " NOM_TABLE_LIGNESCOMPTES
-            " where idCompte = " + QString::number(idCompteAVoir) + " order by LigneDate, lignelibelle, ligneMontant";
+    QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "idLigne" << "idCompte" << "idDep" << "idRec" << "LigneDate" << "LigneLibelle"
+                                                                       << "LigneMontant" << "LigneDebitCredit" << "LigneTypeOperation" << "LigneConsolide",
+                                                                       NOM_TABLE_LIGNESCOMPTES,
+                                                                       "where idCompte = " + QString::number(idCompteAVoir),
+                                                                       "order by LigneDate, lignelibelle, ligneMontant");
 
+    if (listfamfiscale.size()==0)
+    {
+        UpMessageBox::Watch(this,tr("Pas d'écriture sur le compte"));
+        gBigTable->clearContents();
+        ui->MontantSoldeBrutlabel->setText("0,00 ");
+        ui->MontantSoldeConsolidelabel->setText("0,00 ");
+        ui->MontantSoldeSurRelevelabel->setText("0,00 ");
+    }
+    gBigTable->clearContents();
+
+    gBigTable->setRowCount(listfamfiscale.size());
+
+
+    for (int i = 0; i < listfamfiscale.size(); i++)
+    {
+        InsertLigneSurLaTable(listfamfiscale.at(i),i);
+    }
+    CalculeTotal();
+ }
+
+void dlg_comptes::InsertLigneSurLaTable(QList<QVariant> ligne, int row)
+{
     UpLabel *      lbl0;
     UpLabel *      lbl1;
     UpLabel *      lbl2;
@@ -500,152 +511,129 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
     QPointer<QHBoxLayout> l;
     QString     A;
 
-    QSqlQuery LignesComptesQuery (LignesComptesrequete,DataBase::getInstance()->getDataBase());
-    if (DataBase::getInstance()->traiteErreurRequete(LignesComptesQuery,LignesComptesrequete, tr("Impossible de construire la table des comptes")))
-        reject();
+    lbl0 = new UpLabel;
+    lbl1 = new UpLabel;
+    lbl2 = new UpLabel;
+    lbl3 = new UpLabel;
+    lbl4 = new UpLabel;
+    lbl5 = new UpLabel;
+    lbl7 = new UpLabel;
+    lbl8 = new UpLabel;
+    lbl0->setContextMenuPolicy(Qt::CustomContextMenu);
+    lbl1->setContextMenuPolicy(Qt::CustomContextMenu);
+    lbl2->setContextMenuPolicy(Qt::CustomContextMenu);
+    lbl3->setContextMenuPolicy(Qt::CustomContextMenu);
+    lbl4->setContextMenuPolicy(Qt::CustomContextMenu);
+    lbl5->setContextMenuPolicy(Qt::CustomContextMenu);
+    lbl7->setContextMenuPolicy(Qt::CustomContextMenu);
+    lbl8->setContextMenuPolicy(Qt::CustomContextMenu);
+    lbl0->setId(ligne.at(0).toInt());                      // idLigne
+    lbl1->setId(ligne.at(0).toInt());                      // idLigne
+    lbl2->setId(ligne.at(0).toInt());                      // idLigne
+    lbl3->setId(ligne.at(0).toInt());                      // idLigne
+    lbl4->setId(ligne.at(0).toInt());                      // idLigne
+    lbl5->setId(ligne.at(0).toInt());                      // idLigne
+    lbl7->setId(ligne.at(0).toInt());                      // idLigne
+    lbl8->setId(ligne.at(0).toInt());                      // idLigne
+    lbl0->setRow(row);
+    lbl1->setRow(row);
+    lbl2->setRow(row);
+    lbl3->setRow(row);
+    lbl4->setRow(row);
+    lbl5->setRow(row);
+    lbl7->setRow(row);
+    lbl8->setRow(row);
 
-    if (LignesComptesQuery.size() == 0)
+    connect (lbl0,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl0);});
+    connect (lbl1,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl1);});
+    connect (lbl2,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl2);});
+    connect (lbl3,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl3);});
+    connect (lbl4,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl4);});
+    connect (lbl5,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl5);});
+    connect (lbl7,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl7);});
+    connect (lbl8,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl8);});
+
+    int col = 0;
+
+    A = ligne.at(0).toString();                                                             // idLigne - col = 0
+    lbl0->setText(A + " ");
+    lbl0->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+    lbl0->setFocusPolicy(Qt::NoFocus);
+    gBigTable->setCellWidget(row,col,lbl0);
+    col++;
+
+    A = ligne.at(4).toDate().toString(tr("d MMM yyyy"));                                        // Date - col = 1
+    lbl1->setText(A + " ");
+    lbl1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+    lbl1->setFocusPolicy(Qt::NoFocus);
+    gBigTable->setCellWidget(row,col,lbl1);
+    col++;
+
+    lbl2->setText(" " + ligne.at(8).toString());                                                // Type opération - col = 2
+    lbl2->setFocusPolicy(Qt::NoFocus);
+    gBigTable->setCellWidget(row,col,lbl2);
+    col++;
+
+    lbl3->setText(" " + ligne.at(5).toString());                                                // Libellé opération - col = 3;
+    lbl3->setFocusPolicy(Qt::NoFocus);
+    gBigTable->setCellWidget(row,col,lbl3);
+    col++;
+
+    if (ligne.at(7).toInt() > 0)
     {
-        UpMessageBox::Watch(this,tr("Pas d'écriture sur le compte"));
-        gBigTable->clearContents();
-        ui->MontantSoldeBrutlabel->setText("0,00 ");
-        ui->MontantSoldeConsolidelabel->setText("0,00 ");
-        ui->MontantSoldeSurRelevelabel->setText("0,00 ");
+        A = QLocale().toString(ligne.at(6).toDouble(),'f',2);                                 // Crédit - col = 4
+        lbl4->setText(A + " ");
+        lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        lbl4->setFocusPolicy(Qt::NoFocus);
+        gBigTable->setCellWidget(row,col,lbl4);
+        col++;
+        lbl5->setText("");
+        lbl5->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        lbl5->setFocusPolicy(Qt::NoFocus);
+        gBigTable->setCellWidget(row,col,lbl5);
     }
-    gBigTable->clearContents();
-
-    gBigTable->setRowCount(LignesComptesQuery.size());
-
-    LignesComptesQuery.first();
-    for (int i = 0; i < LignesComptesQuery.size(); i++)
+    if (ligne.at(7).toInt() < 1)
     {
-        lbl0 = new UpLabel;
-        lbl1 = new UpLabel;
-        lbl2 = new UpLabel;
-        lbl3 = new UpLabel;
-        lbl4 = new UpLabel;
-        lbl5 = new UpLabel;
-        lbl7 = new UpLabel;
-        lbl8 = new UpLabel;
-        lbl0->setContextMenuPolicy(Qt::CustomContextMenu);
-        lbl1->setContextMenuPolicy(Qt::CustomContextMenu);
-        lbl2->setContextMenuPolicy(Qt::CustomContextMenu);
-        lbl3->setContextMenuPolicy(Qt::CustomContextMenu);
-        lbl4->setContextMenuPolicy(Qt::CustomContextMenu);
-        lbl5->setContextMenuPolicy(Qt::CustomContextMenu);
-        lbl7->setContextMenuPolicy(Qt::CustomContextMenu);
-        lbl8->setContextMenuPolicy(Qt::CustomContextMenu);
-        lbl0->setId(LignesComptesQuery.value(0).toInt());                      // idLigne
-        lbl1->setId(LignesComptesQuery.value(0).toInt());                      // idLigne
-        lbl2->setId(LignesComptesQuery.value(0).toInt());                      // idLigne
-        lbl3->setId(LignesComptesQuery.value(0).toInt());                      // idLigne
-        lbl4->setId(LignesComptesQuery.value(0).toInt());                      // idLigne
-        lbl5->setId(LignesComptesQuery.value(0).toInt());                      // idLigne
-        lbl7->setId(LignesComptesQuery.value(0).toInt());                      // idLigne
-        lbl8->setId(LignesComptesQuery.value(0).toInt());                      // idLigne
-        lbl0->setRow(i);
-        lbl1->setRow(i);
-        lbl2->setRow(i);
-        lbl3->setRow(i);
-        lbl4->setRow(i);
-        lbl5->setRow(i);
-        lbl7->setRow(i);
-        lbl8->setRow(i);
-
-        connect (lbl0,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl0);});
-        connect (lbl1,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl1);});
-        connect (lbl2,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl2);});
-        connect (lbl3,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl3);});
-        connect (lbl4,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl4);});
-        connect (lbl5,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl5);});
-        connect (lbl7,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl7);});
-        connect (lbl8,        &QWidget::customContextMenuRequested, [=] {ContextMenuTableWidget(lbl8);});
-
-        int col = 0;
-
-        A = LignesComptesQuery.value(0).toString();                                                             // idLigne - col = 0
-        lbl0->setText(A + " ");
-        lbl0->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        lbl0->setFocusPolicy(Qt::NoFocus);
-        gBigTable->setCellWidget(i,col,lbl0);
+        lbl4->setText("");
+        lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        lbl4->setFocusPolicy(Qt::NoFocus);
+        gBigTable->setCellWidget(row,col,lbl4);
         col++;
-
-        A = LignesComptesQuery.value(4).toDate().toString(tr("d MMM yyyy"));                                        // Date - col = 1
-        lbl1->setText(A + " ");
-        lbl1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        lbl1->setFocusPolicy(Qt::NoFocus);
-        gBigTable->setCellWidget(i,col,lbl1);
-        col++;
-
-        lbl2->setText(" " + LignesComptesQuery.value(8).toString());                                                // Type opération - col = 2
-        lbl2->setFocusPolicy(Qt::NoFocus);
-        gBigTable->setCellWidget(i,col,lbl2);
-        col++;
-
-        lbl3->setText(" " + LignesComptesQuery.value(5).toString());                                                // Libellé opération - col = 3;
-        lbl3->setFocusPolicy(Qt::NoFocus);
-        gBigTable->setCellWidget(i,col,lbl3);
-        col++;
-
-        if (LignesComptesQuery.value(7).toInt() > 0)
-        {
-            A = QLocale().toString(LignesComptesQuery.value(6).toDouble(),'f',2);                                 // Crédit - col = 4
-            lbl4->setText(A + " ");
-            lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-            lbl4->setFocusPolicy(Qt::NoFocus);
-            gBigTable->setCellWidget(i,col,lbl4);
-            col++;
-            lbl5->setText("");
-            lbl5->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-            lbl5->setFocusPolicy(Qt::NoFocus);
-            gBigTable->setCellWidget(i,col,lbl5);
-        }
-        if (LignesComptesQuery.value(7).toInt() < 1)
-        {
-            lbl4->setText("");
-            lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-            lbl4->setFocusPolicy(Qt::NoFocus);
-            gBigTable->setCellWidget(i,col,lbl4);
-            col++;
-            A = QLocale().toString(LignesComptesQuery.value(6).toDouble(),'f',2);                                 // Dédit - col = 5
-            lbl5->setText(A + " ");
-            lbl5->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-            lbl5->setFocusPolicy(Qt::NoFocus);
-            gBigTable->setCellWidget(i,col,lbl5);
-        }
-        col++;
-
-        int b = LignesComptesQuery.value(9).toInt();                                                            // Consolidé - col = 6
-        wdg = new QWidget(this);
-        Checkbx = new UpCheckBox(wdg);
-        if (b == 1)
-            Checkbx->setCheckState(Qt::Checked);
-        else
-            Checkbx->setCheckState(Qt::Unchecked);
-        Checkbx->setRowTable(i);
-        Checkbx->setFocusPolicy(Qt::NoFocus);
-
-        connect(Checkbx,      &QCheckBox::clicked,  [=] {RenvoieRangee(Checkbx->isChecked(), Checkbx);});
-        l = new QHBoxLayout(wdg);
-        l->setContentsMargins(0,0,0,0);
-        l->setAlignment( Qt::AlignCenter );
-        l->addWidget(Checkbx);
-        wdg->setLayout(l);
-        gBigTable->setCellWidget(i,col,wdg);
-        col++;
-
-        lbl7->setText(LignesComptesQuery.value(2).toString());
-        lbl7->setFocusPolicy(Qt::NoFocus);
-        gBigTable->setCellWidget(i,col,lbl7);
-        col++;
-
-        lbl8->setText(LignesComptesQuery.value(3).toString());
-        lbl8->setFocusPolicy(Qt::NoFocus);
-        gBigTable->setCellWidget(i,col,lbl8);
-
-        gBigTable->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
-
-        LignesComptesQuery.next();
+        A = QLocale().toString(ligne.at(6).toDouble(),'f',2);                                 // Dédit - col = 5
+        lbl5->setText(A + " ");
+        lbl5->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        lbl5->setFocusPolicy(Qt::NoFocus);
+        gBigTable->setCellWidget(row,col,lbl5);
     }
-    CalculeTotal();
- }
+    col++;
+
+    int b = ligne.at(9).toInt();                                                            // Consolidé - col = 6
+    wdg = new QWidget(this);
+    Checkbx = new UpCheckBox(wdg);
+    if (b == 1)
+        Checkbx->setCheckState(Qt::Checked);
+    else
+        Checkbx->setCheckState(Qt::Unchecked);
+    Checkbx->setRowTable(row);
+    Checkbx->setFocusPolicy(Qt::NoFocus);
+
+    connect(Checkbx,      &QCheckBox::clicked,  [=] {RenvoieRangee(Checkbx->isChecked(), Checkbx);});
+    l = new QHBoxLayout(wdg);
+    l->setContentsMargins(0,0,0,0);
+    l->setAlignment( Qt::AlignCenter );
+    l->addWidget(Checkbx);
+    wdg->setLayout(l);
+    gBigTable->setCellWidget(row,col,wdg);
+    col++;
+
+    lbl7->setText(ligne.at(2).toString());
+    lbl7->setFocusPolicy(Qt::NoFocus);
+    gBigTable->setCellWidget(row,col,lbl7);
+    col++;
+
+    lbl8->setText(ligne.at(3).toString());
+    lbl8->setFocusPolicy(Qt::NoFocus);
+    gBigTable->setCellWidget(row,col,lbl8);
+
+    gBigTable->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
+}

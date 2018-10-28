@@ -884,7 +884,7 @@ void dlg_gestionusers::Slot_GestionComptes()
     QString cptact  = ui->CompteActescomboBox->currentText();
     bool verifcpta  = ui->CompteComptawidget->isVisible();
     QString cptcpta = ui->CompteComptacomboBox->currentText();
-    Dlg_GestComptes = new dlg_gestioncomptes(DataUser(), db, ui->SocieteComptableupRadioButton->isChecked(), (DataUser()->id()==gidUserDepart), this);
+    Dlg_GestComptes = new dlg_gestioncomptes(DataUser(), ui->SocieteComptableupRadioButton->isChecked(), (DataUser()->id()==gidUserDepart), this);
     Dlg_GestComptes ->setWindowTitle(tr("Comptes bancaires de ") + DataUser()->getLogin());
     Dlg_GestComptes ->exec();
     if (verifempl)

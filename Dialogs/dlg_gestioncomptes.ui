@@ -335,7 +335,7 @@ border-radius: 5px;
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/save.png</normaloff>:/save.png</iconset>
     </property>
     <property name="iconSize">
@@ -367,7 +367,7 @@ border-radius: 5px;
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
     </property>
     <property name="iconSize">
@@ -431,7 +431,7 @@ border-radius: 5px;
 compte factice</string>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/help.png</normaloff>:/help.png</iconset>
     </property>
     <property name="iconSize">
@@ -500,7 +500,7 @@ compte factice</string>
   <tabstop>AnnulModifupSmallButton</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

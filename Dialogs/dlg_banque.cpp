@@ -28,7 +28,7 @@ dlg_banque::dlg_banque(QWidget *parent, QString nouvbanqueabrege) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    db                      = DataBase::getInstance()->getDataBase();
+    db                      = DataBase::getInstance();
 
     gFermeApresValidation   = (nouvbanqueabrege != "");
     setWindowTitle(tr("Enregistrer une nouvelle banque"));
@@ -125,7 +125,7 @@ void dlg_banque::AfficheBanque()
 {
     UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
     int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
-    QList<QList<QVariant>> listbanques = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idBanque" << "NomBanque",
+    QList<QList<QVariant>> listbanques = db->SelectRecordsFromTable(QStringList() << "NomBanque" << "idBanqueAbrege" << "idbanque",
                                                                                          NOM_TABLE_BANQUES,
                                                                                          "where idBanque = " + QString::number(idBanque));
     if (listbanques.size()>0)
@@ -135,9 +135,9 @@ void dlg_banque::AfficheBanque()
         ui->NomAbregeupLineEdit->setText(banque.at(1).toString());
     }
     widgButtons->moinsBouton->setEnabled(true);
-    QList<QList<QVariant>> listcomptes = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idBanque",
-                                                                                         NOM_TABLE_COMPTES,
-                                                                                         "where idBanque = " + listbanques.at(0).at(0).toString());
+    QList<QList<QVariant>> listcomptes = db->SelectRecordsFromTable(QStringList() << "idBanque",
+                                                                    NOM_TABLE_COMPTES,
+                                                                    "where idBanque = " + listbanques.at(0).at(2).toString());
     if (listcomptes.size()>0)
         widgButtons->moinsBouton->setEnabled(false);
     lbl = Q_NULLPTR;
@@ -211,7 +211,7 @@ void dlg_banque::SupprBanque()
     msgbox.exec();
     if (msgbox.clickedButton() != &OKBouton)
        return;
-    QList<QList<QVariant>> listcomptes = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idBanque",
+    QList<QList<QVariant>> listcomptes = db->SelectRecordsFromTable(QStringList() << "idBanque",
                                                                                          NOM_TABLE_COMPTES,
                                                                                          "where idBanque = " + QString::number(idBanque));
     if (listcomptes.size()>0)
@@ -219,7 +219,7 @@ void dlg_banque::SupprBanque()
         UpMessageBox::Watch(this, tr("Impossible de supprimer la banque ") + lbl->text(), tr("Elle est utilisée par d'autres utilisateurs"));
         return;
     }
-    DataBase::getInstance()->SupprRecordFromTable(idBanque,"idBanque",NOM_TABLE_BANQUES);
+    db->SupprRecordFromTable(idBanque,"idBanque",NOM_TABLE_BANQUES);
     RemplirTableView();
     AfficheBanque();
 }
@@ -249,7 +249,7 @@ void dlg_banque::ValideModifBanque()
                 return;
             }
         }
-        QList<QList<QVariant>> listabreges = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idbanqueabrege",
+        QList<QList<QVariant>> listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege",
                                                                                              NOM_TABLE_COMPTES);
         if (listabreges.size()>0)
             for (int i=0; i<listabreges.size(); i++)
@@ -259,7 +259,7 @@ void dlg_banque::ValideModifBanque()
                     UpMessageBox::Watch(this,msg);
                     return;
                 }
-        listabreges = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idbanqueabrege",
+        listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege",
                                                                       NOM_TABLE_COMPTES,
                                                                       "where idbanqueabrege = " + ui->NomAbregeupLineEdit->text());
         if(listabreges.size()>0)
@@ -271,7 +271,7 @@ void dlg_banque::ValideModifBanque()
         QHash<QString, QString> listsets;
         listsets.insert("idbanqueabrege",   ui->NomAbregeupLineEdit->text());
         listsets.insert("nombanque",        nombanque);
-        DataBase:: getInstance()->InsertIntoTable(NOM_TABLE_BANQUES, listsets);
+        db->InsertIntoTable(NOM_TABLE_BANQUES, listsets);
         if (gFermeApresValidation)
         {
             UpMessageBox::Watch(this,tr("La banque ") + nombanque + tr(" a été enregistrée"));
@@ -283,7 +283,7 @@ void dlg_banque::ValideModifBanque()
     {
         UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
         int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
-        QList<QList<QVariant>> listabreges = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "nombanque",
+        QList<QList<QVariant>> listabreges = db->SelectRecordsFromTable(QStringList() << "nombanque",
                                                                                              NOM_TABLE_BANQUES,
                                                                                              "where idbanque <> " + QString::number(idBanque));
         if (listabreges.size()>0)
@@ -294,7 +294,7 @@ void dlg_banque::ValideModifBanque()
                     UpMessageBox::Watch(this,msg);
                     return;
                 }
-        listabreges = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idbanqueabrege",
+        listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege",
                                                                       NOM_TABLE_BANQUES,
                                                                       "where idbanque <> " + QString::number(idBanque));
         if (listabreges.size()>0)
@@ -343,7 +343,7 @@ void dlg_banque::RemplirTableView()
 {
     QTableWidgetItem    *pitem0;
     UpLabel             *label1;
-    QList<QList<QVariant>> listbanques = DataBase::getInstance()->SelectRecordsFromTable(QStringList() << "idbanque" << "nombanque",
+    QList<QList<QVariant>> listbanques = db->SelectRecordsFromTable(QStringList() << "idbanque" << "nombanque",
                                                                                          NOM_TABLE_BANQUES,
                                                                                          "",
                                                                                          "order by nomBanque");

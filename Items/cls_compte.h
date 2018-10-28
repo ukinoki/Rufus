@@ -47,6 +47,7 @@ public:
 
     void addCompte(Compte *compte);
     void addCompte(QList<Compte*> listCompte);
+    void removeCompte(Compte* cpt);
     Compte* getCompteById(int id);
 };
 

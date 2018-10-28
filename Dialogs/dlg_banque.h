@@ -26,6 +26,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmessagebox.h"
 #include "uptablewidget.h"
 #include "widgetbuttonframe.h"
+#include "database.h"
 
 #include "functormajpremierelettre.h"
 
@@ -51,7 +52,7 @@ private:
     bool                                    gFermeApresValidation;
     enum gMode                              {Norm, Modif, Nouv, Suppr};
     QStringList                             gListBanques;
-    QSqlDatabase                            db;
+    DataBase                                *db;
     WidgetButtonFrame                       *widgButtons;
     FunctorMAJPremiereLettre                fMAJPremiereLettre;
 
