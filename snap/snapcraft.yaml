@@ -16,7 +16,7 @@ parts:
  qt:
     after: [gcc7, poppler-data, poppler]
     plugin: qtbuilder
-    qt-version: 5.10.0
+    qt-version: 5.11.0
     qt-source-git: https://code.qt.io/qt/qt5.git
     qt-submodules: ['qtbase', 'qtmultimedia', 'qtserialport']
     environment:
@@ -46,7 +46,6 @@ parts:
       - -prefix
       - $SNAPCRAFT_STAGE
       - -release
-      - -force-debug-info
       - -opensource
       - -confirm-license
       - -qt-zlib
@@ -57,17 +56,6 @@ parts:
       - -qt-pcre
       - -qt-xcb
       - -qt-xkbcommon-x11
-      - -no-gstreamer
-      - -no-gtkstyle
-      - -no-mirclient
-      - -no-opengl
-      - -static
-      - -dbus-runtime
-      - -openssl-linked
-      - -nomake
-      - examples
-      - -nomake
-      - tests
     
  gcc7:
     plugin: nil
@@ -93,7 +81,7 @@ parts:
     plugin: cmake
     source: https://poppler.freedesktop.org/poppler-data-0.4.9.tar.gz
     source-type: tar
-    configflags: [-DCMAKE_BUILD_TYPE=Release]
+    configflags: [-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7]
     build-packages:
       - build-essential
       - cmake
@@ -101,9 +89,9 @@ parts:
  poppler:
     after: [gcc7, poppler-data]
     plugin: cmake
-    source: https://poppler.freedesktop.org/poppler-0.67.0.tar.xz
+    source: https://poppler.freedesktop.org/poppler-0.70.1.tar.xz
     source-type: tar
-    configflags: [-DCMAKE_BUILD_TYPE=Release]
+    configflags: [-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7]
     build-packages:
       - build-essential
       - cmake
