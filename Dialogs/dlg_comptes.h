@@ -24,6 +24,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upcheckbox.h"
 #include "uplabel.h"
 #include "cls_compte.h"
+#include "cls_archivebanque.h"
 
 namespace Ui {
 class dlg_comptes;
@@ -41,11 +42,14 @@ public:
     void            setInitOK(bool init);
 
 private:
+    int             intervalledate;
+    QDate           dateencours;
     void            closeEvent(QCloseEvent *event);
     bool            eventFilter(QObject *obj, QEvent *event)  ;
     double          SoldeSurReleve;
     int             idCompte;
     int             gidLigneASupprimer;
+    Archives        *archivescptencours;
     Compte          *CompteEnCours;
     Comptes         *comptesusr;
     DataBase        *db;
@@ -58,6 +62,15 @@ private:
     void            InsertLigneSurLaTable(QList<QVariant> ligne, int row);
     void            RemplitLaTable(int idCompteAVoir);
 
+    UpDialog        *gArchives;
+    UpTableWidget   *gTableArchives;
+    QComboBox       *glistArchCombo;
+    UpLabel         *glbltitre;
+    UpSmallButton   *gloupButton, *gFlecheHtButton;
+    int             gModeArchives; enum gModeArchives {TOUT, PARARCHIVE};
+    void            RemplirTableArchives();
+    void            RedessineFicheArchives();
+
     void            SupprimerEcriture(QString);
     // anciens slots
     void            AnnulArchive();
@@ -66,6 +79,7 @@ private:
     void            ChangeCompte(int idCompteAVoir);
     void            ContextMenuTableWidget(UpLabel *lbl);
     void            RenvoieRangee(bool Coche, UpCheckBox *Check);
+    void            VoirArchives();
 };
 
 #endif // DLG_COMPTES_H

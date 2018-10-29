@@ -702,7 +702,7 @@
      <string>Ordre alphabétique</string>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/tri.png</normaloff>:/tri.png</iconset>
     </property>
     <property name="iconSize">
@@ -836,7 +836,7 @@
      <string>Retour</string>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/start.png</normaloff>:/start.png</iconset>
     </property>
     <property name="iconSize">
@@ -874,7 +874,7 @@
      <string>Liste des actes</string>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/egyptian-eye.png</normaloff>:/egyptian-eye.png</iconset>
     </property>
     <property name="iconSize">
@@ -903,7 +903,7 @@
      <string>Annuler</string>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
     </property>
     <property name="iconSize">
@@ -933,7 +933,7 @@
 paiements par tiers</string>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/RARFile.ico</normaloff>:/RARFile.ico</iconset>
     </property>
     <property name="iconSize">
@@ -976,7 +976,7 @@ paiements par tiers</string>
 un paiement</string>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/credit_cards_256.png</normaloff>:/credit_cards_256.png</iconset>
     </property>
     <property name="iconSize">
@@ -1006,7 +1006,7 @@ un paiement</string>
 tiers payant</string>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/accueil.png</normaloff>:/accueil.png</iconset>
     </property>
     <property name="iconSize">
@@ -1184,7 +1184,7 @@ pour cet acte</string>
   <tabstop>ListeupTableWidget</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

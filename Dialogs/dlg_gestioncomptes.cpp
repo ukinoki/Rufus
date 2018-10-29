@@ -257,7 +257,7 @@ void dlg_gestioncomptes::CompteFactice()
                                                                       "where idbanqueabrege = 'PaPRS'");
         if (listPaPRS.size()==0)
         {
-            db->StandardInsertSQL("insert into " NOM_TABLE_BANQUES " (idbanqueAbrege, Nombanque) values ('PaPRS','Panama Papers')");
+            db->StandardSQL("insert into " NOM_TABLE_BANQUES " (idbanqueAbrege, Nombanque) values ('PaPRS','Panama Papers')");
             listPaPRS = db->SelectRecordsFromTable(QStringList() << "idbanque",
                                                    NOM_TABLE_BANQUES,
                                                    "where idbanqueabrege = 'PaPRS'");
@@ -367,7 +367,7 @@ void dlg_gestioncomptes::SupprCompte()
     msgbox.exec();
     if (msgbox.clickedButton() != &OKBouton)
         return;
-    db->StandardInsertSQL("delete from " NOM_TABLE_COMPTES " where idCompte = " + ui->idCompteupLineEdit->text());
+    db->StandardSQL("delete from " NOM_TABLE_COMPTES " where idCompte = " + ui->idCompteupLineEdit->text());
     RemplirTableView();
 }
 

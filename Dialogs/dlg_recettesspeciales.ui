@@ -419,7 +419,7 @@
          <string>Modifier</string>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="../assets/Images/images.qrc">
           <normaloff>:/wrench-screwdriver.png</normaloff>:/wrench-screwdriver.png</iconset>
         </property>
         <property name="iconSize">
@@ -564,7 +564,7 @@
          <string>Retour</string>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="../assets/Images/images.qrc">
           <normaloff>:/start.png</normaloff>:/start.png</iconset>
         </property>
         <property name="iconSize">
@@ -606,7 +606,7 @@
 Recette</string>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="../assets/Images/images.qrc">
           <normaloff>:/Cash_Register.png</normaloff>:/Cash_Register.png</iconset>
         </property>
         <property name="iconSize">
@@ -629,7 +629,7 @@ Recette</string>
          <string>Gestion des comptes bancaires</string>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="../assets/Images/images.qrc">
           <normaloff>:/credit_cards_256.png</normaloff>:/credit_cards_256.png</iconset>
         </property>
         <property name="iconSize">
@@ -666,7 +666,7 @@ Recette</string>
   <tabstop>OKupPushButton</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

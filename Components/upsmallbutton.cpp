@@ -58,11 +58,13 @@ void UpSmallButton::setUpButtonStyle(enum StyleBouton Style)
 {
     switch (Style) {
     case BACKBUTTON:            setIcon( Icons::icBack() );         break;
+    case CALENDARBUTTON:        setIcon( Icons::icDate() );         break;
     case CANCELBUTTON:          setIcon( Icons::icAnnuler() );      break;
     case CLOSEBUTTON:           setIcon( Icons::icFerme() );        break;
     case COPYBUTTON:            setIcon( Icons::icRecopier() );     break;
     case DONOTRECORDBUTTON:     setIcon( Icons::icDoNotRecord() );  break;
     case EDITBUTTON:            setIcon( Icons::icEditer() );       break;
+    case LOUPEBUTTON:           setIcon( Icons::icLoupe() );        break;
     case OUPSBUTTON:            setIcon( Icons::icOups() );         break;
     case PRINTBUTTON:           setIcon( Icons::icImprimer() );     break;
     case RECEPTIONBUTTON:       setIcon( Icons::icReception() );    break;

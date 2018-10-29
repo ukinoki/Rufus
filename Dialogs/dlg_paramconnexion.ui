@@ -117,7 +117,7 @@
      <string/>
     </property>
     <property name="icon">
-     <iconset resource="Images/images.qrc">
+     <iconset resource="../assets/Images/images.qrc">
       <normaloff>:/help.png</normaloff>:/help.png</iconset>
     </property>
     <property name="iconSize">
@@ -355,7 +355,7 @@
         <string>Annuler</string>
        </property>
        <property name="icon">
-        <iconset resource="Images/images.qrc">
+        <iconset resource="../assets/Images/images.qrc">
          <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
        </property>
        <property name="iconSize">
@@ -381,7 +381,7 @@
         <string>Tester</string>
        </property>
        <property name="icon">
-        <iconset resource="Images/images.qrc">
+        <iconset resource="../assets/Images/images.qrc">
          <normaloff>:/Test.ico</normaloff>:/Test.ico</iconset>
        </property>
       </widget>
@@ -401,7 +401,7 @@
         <string>OK</string>
        </property>
        <property name="icon">
-        <iconset resource="Images/images.qrc">
+        <iconset resource="../assets/Images/images.qrc">
          <normaloff>:/start.png</normaloff>:/start.png</iconset>
        </property>
       </widget>
@@ -431,7 +431,7 @@
   <tabstop>OKuppushButton</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

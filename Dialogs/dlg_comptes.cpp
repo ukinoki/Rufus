@@ -27,6 +27,8 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
 
     proc = procAPasser;
     db = DataBase::getInstance();
+    intervalledate = 180;
+    dateencours = QDate::currentDate();
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionComptes").toByteArray());
     setAttribute(Qt::WA_DeleteOnClose);
 
@@ -34,6 +36,7 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
     comptesusr = new Comptes();
     comptesusr->addCompte( db->loadComptesByUser(proc->getUserConnected()->id()) );
     proc->getUserConnected()->setComptes(comptesusr);
+
 
     if (comptesusr->comptesAll().size() == 0)
     {
@@ -66,11 +69,12 @@ dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
 
             DefinitArchitetureTable();
             RemplitLaTable(idCompte);
-            connect(ui->AnnulArchivepushButton,             &QPushButton::clicked,                                  [=] {AnnulArchive();});
-            connect(ui->ArchiverpushButton,                 &QPushButton::clicked,                                  [=] {Archiver();});
-            connect(ui->AnnulerConsolidationspushButton,    &QPushButton::clicked,                                  [=] {AnnulConsolidations();});
-            connect(ui->OKpushButton,                       &QPushButton::clicked,                                  [=] {accept();});
-            connect(ui->BanquecomboBox,                     QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int){ChangeCompte(ui->BanquecomboBox->currentIndex());});
+            connect(ui->AnnulArchivepushButton,             &QPushButton::clicked,                              this,   [=] {AnnulArchive();});
+            connect(ui->ArchiverpushButton,                 &QPushButton::clicked,                              this,   [=] {Archiver();});
+            connect(ui->AnnulerConsolidationspushButton,    &QPushButton::clicked,                              this,   [=] {AnnulConsolidations();});
+            connect(ui->OKpushButton,                       &QPushButton::clicked,                              this,   [=] {accept();});
+            connect(ui->BanquecomboBox,                     QOverload<int>::of(&QComboBox::currentIndexChanged),this,   [=](int){ChangeCompte(ui->BanquecomboBox->currentIndex());});
+            connect(ui->VoirArchivespushButton,             &QPushButton::clicked,                              this,   &dlg_comptes::VoirArchives);
 
             setWindowTitle(tr("Gestion des comptes bancaires"));
             QList<UpPushButton *> allUpButtons = this->findChildren<UpPushButton *>();
@@ -105,7 +109,7 @@ void dlg_comptes::AnnulArchive()
         return;
     }
 
-    if (!db->StandardInsertSQL("insert into " NOM_TABLE_LIGNESCOMPTES
+    if (!db->StandardSQL("insert into " NOM_TABLE_LIGNESCOMPTES
                                " select * from"
                                "  (select idLigne, idCompte, idDep, idRec, idrecspec, idremcheq, LigneDate, LigneLibelle, LigneMontant,"
                                "LigneDebitCredit, LigneTypeOperation, 1 as ligneConsolide from " NOM_TABLE_ARCHIVESBANQUE
@@ -142,7 +146,7 @@ void dlg_comptes::AnnulArchive()
     }
 
 
-    if (!db->StandardInsertSQL("update " NOM_TABLE_COMPTES
+    if (!db->StandardSQL("update " NOM_TABLE_COMPTES
                                " set SoldeSurDernierReleve = "
                                + QString::number(NouveauSolde,'f',2)
                                + " where idCompte = " + QString::number(idCompte)))
@@ -206,17 +210,17 @@ void dlg_comptes::Archiver()
       reponse += "," + QString::number(ListeActesAArchiver.at(i));
     Archiverequete += reponse + ")) as tet";
 
-    if (!db->StandardInsertSQL(Archiverequete))
+    if (!db->StandardSQL(Archiverequete))
     {
         db->rollback();
         return;
     }
-    if (!db->StandardInsertSQL(" delete from " NOM_TABLE_LIGNESCOMPTES " where idligne in " + reponse + ")"))
+    if (!db->StandardSQL(" delete from " NOM_TABLE_LIGNESCOMPTES " where idligne in " + reponse + ")"))
     {
         db->rollback();
         return;
     }
-    if (!db->StandardInsertSQL("update " NOM_TABLE_COMPTES " set SoldeSurDernierReleve = "
+    if (!db->StandardSQL("update " NOM_TABLE_COMPTES " set SoldeSurDernierReleve = "
                                + QString::number(QLocale().toDouble(ui->MontantSoldeConsolidelabel->text()),'f',2)
                                + " where idCompte = " + QString::number(idCompte)))
     {
@@ -244,7 +248,7 @@ void dlg_comptes::AnnulConsolidations()
                 allCheck.at(n)->setCheckState(Qt::Unchecked);
         }
     }
-    db->StandardInsertSQL("update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = null");
+    db->StandardSQL("update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = null");
     CalculeTotal();
 }
 
@@ -272,8 +276,251 @@ void dlg_comptes::RenvoieRangee(bool Coche, UpCheckBox* Check)
     QString requete = "update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = ";
     requete += (Coche? "1" : "null");
     requete += " where idligne = " + lbl->text();
-    db->StandardInsertSQL(requete);
+    db->StandardSQL(requete);
     CalculeTotal();
+}
+
+void dlg_comptes::RedessineFicheArchives()
+{
+    gTableArchives->clear();
+    int             ColCount = 6;
+    if (gModeArchives == TOUT)
+        ColCount ++;
+    gTableArchives     ->setColumnCount(ColCount);
+
+    QStringList LabelARemplir;
+    LabelARemplir << tr("NoLigne");
+    LabelARemplir << tr("Date");
+    LabelARemplir << tr("Type opération");
+    LabelARemplir << tr("Libellé opération");
+    LabelARemplir << tr("Crédit");
+    LabelARemplir << tr("Débit");
+    if (gModeArchives == TOUT)
+        LabelARemplir << tr("consolidé le");
+
+    gTableArchives->setHorizontalHeaderLabels(LabelARemplir);
+    gTableArchives->horizontalHeader()->setVisible(true);
+    gTableArchives->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    int li = 0;                                                                   // Réglage de la largeur et du nombre des colonnes
+    gTableArchives->setColumnWidth(li,0);                                                // idLigne
+    li++;
+    gTableArchives->setColumnWidth(li,100);                                              // Date affichage européen
+    li++;
+    gTableArchives->setColumnWidth(li,210);                                              // Type d'opération (virement créditeur, débiteur, retrait, chèque, ...)
+    li++;
+    gTableArchives->setColumnWidth(li,320);                                              // Libellé opération
+    li++;
+    gTableArchives->setColumnWidth(li,85);                                               // Crédit
+    li++;
+    gTableArchives->setColumnWidth(li,85);                                               // Débit
+    if (gModeArchives == TOUT)
+    {
+        li++;
+        gTableArchives->setColumnWidth(li,95);                                           // Date consolidation
+    }
+
+    int larg = gTableArchives->FixLargeurTotale();
+    if (gModeArchives == PARARCHIVE)
+    {
+        gloupButton  ->setUpButtonStyle(UpSmallButton::LOUPEBUTTON);
+        gloupButton  ->setImmediateToolTip(tr("Voir tout"));
+    }
+    else
+    {
+        gloupButton  ->setUpButtonStyle(UpSmallButton::CALENDARBUTTON);
+        gloupButton  ->setImmediateToolTip(tr("Revoir par consolidation"));
+    }
+
+    glistArchCombo->setVisible(gModeArchives == PARARCHIVE);
+    gFlecheHtButton->setVisible(gModeArchives == TOUT);
+    gArchives->setFixedWidth(larg+20);
+
+}
+
+void dlg_comptes::RemplirTableArchives()
+{
+    QList<Archive*> listarchives;
+    for( QMap<int, Archive*>::const_iterator itarc = archivescptencours->archives().constBegin(); itarc != archivescptencours->archives().constEnd(); ++itarc )
+    {
+        Archive *arc = const_cast<Archive*>(itarc.value());
+        if (gModeArchives == PARARCHIVE)
+        {
+            if (arc->idarchive() == glistArchCombo->currentData().toInt())
+                listarchives << arc;
+        }
+        else listarchives << arc;
+    }
+    gTableArchives->setRowCount(listarchives.size());
+    // remplissage de la table
+    for (int row=0; row<listarchives.size(); row++)
+    {
+        Archive* archive = listarchives.at(row);
+        UpLabel *      lbl0 = new UpLabel();
+        UpLabel *      lbl1 = new UpLabel();
+        UpLabel *      lbl2 = new UpLabel();
+        UpLabel *      lbl3 = new UpLabel();
+        UpLabel *      lbl4 = new UpLabel();
+        UpLabel *      lbl5 = new UpLabel();
+
+        QString     A;
+
+        lbl0->setContextMenuPolicy(Qt::NoContextMenu);
+        lbl1->setContextMenuPolicy(Qt::NoContextMenu);
+        lbl2->setContextMenuPolicy(Qt::NoContextMenu);
+        lbl3->setContextMenuPolicy(Qt::NoContextMenu);
+        lbl4->setContextMenuPolicy(Qt::NoContextMenu);
+        lbl5->setContextMenuPolicy(Qt::NoContextMenu);
+
+        int col = 0;
+
+        A = QString::number(archive->id());                                                             // idLigne - col = 0
+        lbl0->setText(A + " ");
+        lbl0->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        lbl0->setFocusPolicy(Qt::NoFocus);
+        gTableArchives->setCellWidget(row,col,lbl0);
+        col++;
+
+        A = archive->lignedate().toString(tr("d MMM yyyy"));                                            // Date - col = 1
+        lbl1->setText(A + " ");
+        lbl1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        lbl1->setFocusPolicy(Qt::NoFocus);
+        gTableArchives->setCellWidget(row,col,lbl1);
+        col++;
+
+        lbl2->setText(" " + archive->lignetypeoperation());                                             // Type opération - col = 2
+        lbl2->setFocusPolicy(Qt::NoFocus);
+        gTableArchives->setCellWidget(row,col,lbl2);
+        col++;
+
+        lbl3->setText(" " + archive->lignelibelle());                                                   // Libellé opération - col = 3;
+        lbl3->setFocusPolicy(Qt::NoFocus);
+        gTableArchives->setCellWidget(row,col,lbl3);
+        col++;
+
+        A = QLocale().toString(archive->montant(),'f',2);                                               // Crédit - col = 4
+        if (archive->montant() > 0)
+        {
+            lbl4->setText(A + " ");
+            lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+            lbl4->setFocusPolicy(Qt::NoFocus);
+            gTableArchives->setCellWidget(row,col,lbl4);
+            col++;
+            lbl5->setText("");
+            lbl5->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+            lbl5->setFocusPolicy(Qt::NoFocus);
+            gTableArchives->setCellWidget(row,col,lbl5);
+        }
+        else                                                                                            // Débit - col = 5
+        {
+            lbl4->setText("");
+            lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+            lbl4->setFocusPolicy(Qt::NoFocus);
+            gTableArchives->setCellWidget(row,col,lbl4);
+            col++;
+            lbl5->setText(A + " ");
+            lbl5->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+            lbl5->setFocusPolicy(Qt::NoFocus);
+            gTableArchives->setCellWidget(row,col,lbl5);
+        }
+        if (gModeArchives == TOUT)
+        {
+            col++;
+            UpLabel *  lbl6 = new UpLabel();
+            lbl6->setContextMenuPolicy(Qt::NoContextMenu);
+            lbl6->setText(" " + archive->lignedateconsolidation().toString("d MMM yyyy"));                   // Date consolidation col = 6;
+            lbl6->setFocusPolicy(Qt::NoFocus);
+            gTableArchives->setCellWidget(row,col,lbl6);
+        }
+        gTableArchives->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
+    }
+}
+void dlg_comptes::VoirArchives()
+{
+    gArchives       = new UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionArchives", this);
+    gTableArchives  = new UpTableWidget();
+    glistArchCombo  = new QComboBox();
+    glbltitre       = new UpLabel();
+    QVBoxLayout     *globallay      = dynamic_cast<QVBoxLayout*>(gArchives->layout());
+    QHBoxLayout     *titreLay       = new QHBoxLayout();
+    gloupButton     = new UpSmallButton();
+    gFlecheHtButton = new UpSmallButton();
+
+    gTableArchives      ->setFocusPolicy(Qt::NoFocus);
+    gTableArchives      ->setPalette(QPalette(Qt::white));
+    gTableArchives      ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    gTableArchives      ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gTableArchives      ->verticalHeader()->setVisible(false);
+    gTableArchives      ->setSelectionMode(QAbstractItemView::SingleSelection);
+    gTableArchives      ->setGridStyle(Qt::SolidLine);
+    gTableArchives      ->verticalHeader()->setVisible(false);
+    gTableArchives      ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
+    gTableArchives      ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+
+    glbltitre           ->setText(tr("Liste des remises archivées sur le compte ") + CompteEnCours->nom() + " ");
+    gFlecheHtButton     ->setIcon( Icons::icFlecheHaut() );
+    gFlecheHtButton     ->setCursor(Qt::PointingHandCursor);
+    gFlecheHtButton     ->setImmediateToolTip(tr("Voir les archives précédentes"));
+    gFlecheHtButton     ->setIconSize(QSize(30,30));
+
+    titreLay    ->addWidget(glbltitre);
+    titreLay    ->addWidget(glistArchCombo);
+    titreLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    titreLay    ->addWidget(gFlecheHtButton);
+    titreLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    titreLay    ->addWidget(gloupButton);
+    titreLay    ->setSpacing(5);
+    titreLay    ->setContentsMargins(0,0,0,0);
+
+    /*Il y a 2 modes d'affichage
+     * PARARCHIVE : on choisit dans un combobox l'archive qu'on veut afficher et on affiche les écritures archive par archive - c'est le mode de départ
+     * TOUT : on affiche toutes les écritures datant de moins de 6 mois
+     * L'intervalle de 6 mois se règle avec la variable intervalledate (dans ce cas 180)
+     * On remonde dans le temps par pas de 6 mois en mode TOUT en cliquant sur la flèche haut mais c'est lent
+     * */
+    gModeArchives = PARARCHIVE;
+    RedessineFicheArchives();
+
+    globallay   ->insertWidget(0,gTableArchives);
+    globallay   ->insertLayout(0, titreLay);
+
+    gArchives->AjouteLayButtons(UpDialog::ButtonOK);
+    connect(gArchives->OKButton,     &QPushButton::clicked,              gArchives, [=] {gArchives->close();});
+    gArchives->setModal(true);
+    globallay->setStretch(0,1);
+    globallay->setStretch(1,15);
+
+    QList<Archive*> listarchives = db->loadArchiveByDate(dateencours, CompteEnCours, intervalledate);
+    dateencours = dateencours.addDays(-intervalledate);
+    archivescptencours = new Archives();
+    archivescptencours->addArchive(listarchives);
+    for (QMap<int, Archive*>::const_iterator itarc = archivescptencours->archives().constBegin(); itarc != archivescptencours->archives().constEnd(); ++itarc)
+    {
+        Archive* arc = const_cast<Archive*>(itarc.value());
+        if (glistArchCombo->findData(arc->idarchive()) == -1)
+            glistArchCombo->addItem(tr("Consolidation") + " " + QString::number(arc->idarchive()) + " "
+                                  + tr("du") + " " + arc->lignedateconsolidation().toString("d MMM yyyy"), arc->idarchive());
+    }
+    connect(gloupButton,             &QPushButton::clicked,       this,  [=]
+    {
+        if (gModeArchives == PARARCHIVE)    gModeArchives = TOUT;
+        else                                gModeArchives = PARARCHIVE;
+        RedessineFicheArchives();
+        RemplirTableArchives();
+    });
+    connect(glistArchCombo,          QOverload<int>::of(&QComboBox::currentIndexChanged) ,this,  &dlg_comptes::RemplirTableArchives);
+    connect(gFlecheHtButton,         &QPushButton::clicked ,this,   [=]
+    {
+        QList<Archive*> listarchives = db->loadArchiveByDate(dateencours, CompteEnCours, intervalledate);
+        dateencours = dateencours.addDays(-intervalledate);
+        archivescptencours->addArchive(listarchives);
+        RemplirTableArchives();
+    });
+    glistArchCombo->setMaxVisibleItems(20);
+    glistArchCombo->setFocusPolicy(Qt::StrongFocus);
+    glistArchCombo->setCurrentIndex(glistArchCombo->count()-1);
+    gArchives->exec();
+    dateencours = QDate::currentDate();
+    delete archivescptencours;
 }
 
 void dlg_comptes::SupprimerEcriture(QString msg)
@@ -293,7 +540,7 @@ void dlg_comptes::SupprimerEcriture(QString msg)
     msgbox->exec();
     if (msgbox->clickedButton() == OKBouton)
     {
-        db->StandardInsertSQL("delete from " NOM_TABLE_LIGNESCOMPTES " where idligne = " + QString::number(gidLigneASupprimer));
+        db->StandardSQL("delete from " NOM_TABLE_LIGNESCOMPTES " where idligne = " + QString::number(gidLigneASupprimer));
         RemplitLaTable(idCompte);
     }
 }

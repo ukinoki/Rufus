@@ -33,7 +33,7 @@ public:
     explicit UpTableWidget(QWidget *parent = Q_NULLPTR);
 
     void        clearSelection();
-    void        FixLargeurTotale();
+    int         FixLargeurTotale();
     QString     Attribut();
     void        setAttribut(QString attrib);
     int         rowNoHiddenCount();

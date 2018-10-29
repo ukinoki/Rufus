@@ -69,13 +69,12 @@ private:
     void                    reject();
     bool                    ImprimerRemise(int);
     QMap<int, User *>       *m_comptables, *m_comptablesavecchequesenattente;
-    QMap<int, User *>       *m_touscomptables; // tous les comptables, y compris ceux qui sont devenus inactifs
     QMap<int, Compte*>      m_comptes;
     User                    *gUser;
     QString                 ValeurAvantChangement;
     QSqlDatabase            m_db;
     void                    ChangeCompte();
-    void                    ReconstruitListeUsers(bool seulmtenattente = true);
+    void                    ReconstruitListeUsers();
     void                    ReconstruitListeComptes(bool avecinactif = false);
     bool                    VoirNouvelleRemise();
     bool                    VoirRemisesPrecs();

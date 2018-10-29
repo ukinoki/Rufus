@@ -116,7 +116,7 @@
     <string>Connecter</string>
    </property>
    <property name="icon">
-    <iconset resource="Images/images.qrc">
+    <iconset resource="../assets/Images/images.qrc">
      <normaloff>:/start.png</normaloff>:/start.png</iconset>
    </property>
    <property name="iconSize">
@@ -173,7 +173,7 @@
     <string>Annuler</string>
    </property>
    <property name="icon">
-    <iconset resource="Images/images.qrc">
+    <iconset resource="../assets/Images/images.qrc">
      <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
    </property>
    <property name="iconSize">
@@ -247,7 +247,7 @@ border-radius: 5px;</string>
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="Images/images.qrc">:/unchecked.png</pixmap>
+     <pixmap resource="../assets/Images/images.qrc">:/unchecked.png</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
@@ -266,7 +266,7 @@ border-radius: 5px;</string>
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="Images/images.qrc">:/unchecked.png</pixmap>
+     <pixmap resource="../assets/Images/images.qrc">:/unchecked.png</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
@@ -298,7 +298,7 @@ border-radius: 5px;</string>
      <string/>
     </property>
     <property name="pixmap">
-     <pixmap resource="Images/images.qrc">:/unchecked.png</pixmap>
+     <pixmap resource="../assets/Images/images.qrc">:/unchecked.png</pixmap>
     </property>
     <property name="scaledContents">
      <bool>true</bool>
@@ -308,14 +308,14 @@ border-radius: 5px;</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpPushButton</class>
-   <extends>QPushButton</extends>
-   <header>uppushbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpLabel</class>
    <extends>QLabel</extends>
    <header>uplabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
@@ -325,7 +325,7 @@ border-radius: 5px;</string>
   <tabstop>AnnulpushButton</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -7,7 +7,7 @@
 class Depenses : public QObject
 {
 public:
-    QHash<int, Depense*> *m_Depenses;    //!< Collection de toutes les depenses pour unuser et une  année donnée
+    QHash<int, Depense*> *m_Depenses;    //!< Collection de toutes les depenses pour unuser et une  année donnée - le QHash plutôt que le QMap pour garder le tri par date
 
 public:
     //GETTER

@@ -884,7 +884,7 @@
              <string>Modifier mes données</string>
             </property>
             <property name="icon">
-             <iconset resource="Images/images.qrc">
+             <iconset resource="../assets/Images/images.qrc">
               <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
             </property>
             <property name="iconSize">
@@ -919,7 +919,7 @@
              <string>Changer la police d'écran</string>
             </property>
             <property name="icon">
-             <iconset resource="Images/images.qrc">
+             <iconset resource="../assets/Images/images.qrc">
               <normaloff>:/font.png</normaloff>:/font.png</iconset>
             </property>
             <property name="iconSize">
@@ -2056,7 +2056,7 @@ un serveur hébergé sur le réseau local</string>
               <string>Oups!</string>
              </property>
              <property name="icon">
-              <iconset resource="Images/images.qrc">
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/damn-icon.png</normaloff>:/damn-icon.png</iconset>
              </property>
              <property name="iconSize">
@@ -2811,7 +2811,7 @@ les données</string>
               <string>Gestion des utilisateurs</string>
              </property>
              <property name="icon">
-              <iconset resource="Images/images.qrc">
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/chgtuser.png</normaloff>:/chgtuser.png</iconset>
              </property>
              <property name="iconSize">
@@ -2864,7 +2864,7 @@ les données</string>
 les motifs de consultation</string>
              </property>
              <property name="icon">
-              <iconset resource="Images/images.qrc">
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/list_all_participants.png</normaloff>:/list_all_participants.png</iconset>
              </property>
              <property name="iconSize">
@@ -2917,7 +2917,7 @@ les motifs de consultation</string>
 de passe administrateur</string>
              </property>
              <property name="icon">
-              <iconset resource="Images/images.qrc">
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/password.ico</normaloff>:/password.ico</iconset>
              </property>
              <property name="iconSize">
@@ -2957,7 +2957,7 @@ de passe administrateur</string>
 des organismes bancaires</string>
              </property>
              <property name="icon">
-              <iconset resource="Images/images.qrc">
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/euro.ico</normaloff>:/euro.ico</iconset>
              </property>
              <property name="iconSize">
@@ -2983,7 +2983,7 @@ des organismes bancaires</string>
               <string>Gestion des lieux d'activité</string>
              </property>
              <property name="icon">
-              <iconset resource="Images/images.qrc">
+              <iconset resource="../assets/Images/images.qrc">
                <normaloff>:/address-book.png</normaloff>:/address-book.png</iconset>
              </property>
              <property name="iconSize">
@@ -3159,7 +3159,7 @@ des organismes bancaires</string>
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="Images/images.qrc">
+        <iconset resource="../assets/Images/images.qrc">
          <normaloff>:/shutdown.png</normaloff>:/shutdown.png</iconset>
        </property>
        <property name="iconSize">
@@ -3179,14 +3179,19 @@ des organismes bancaires</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpSmallButton</class>
    <extends>QPushButton</extends>
    <header>upsmallbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLabel</class>
+   <extends>QLabel</extends>
+   <header>uplabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpPushButton</class>
@@ -3194,19 +3199,14 @@ des organismes bancaires</string>
    <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
-   <class>UpTableWidget</class>
-   <extends>QTableWidget</extends>
-   <header>uptablewidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpComboBox</class>
    <extends>QComboBox</extends>
    <header>upcombobox.h</header>
   </customwidget>
   <customwidget>
-   <class>UpLabel</class>
-   <extends>QLabel</extends>
-   <header>uplabel.h</header>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uptablewidget.h</header>
   </customwidget>
   <customwidget>
    <class>UpRadioButton</class>
@@ -3249,7 +3249,7 @@ des organismes bancaires</string>
   <tabstop>DirBackuppushButton</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

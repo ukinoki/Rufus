@@ -672,7 +672,7 @@
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="../assets/Images/images.qrc">
           <normaloff>:/shutdown.png</normaloff>:/shutdown.png</iconset>
         </property>
         <property name="iconSize">
@@ -711,7 +711,7 @@ acte</string>
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="../assets/Images/images.qrc">
           <normaloff>:/button_blue_last.png</normaloff>:/button_blue_last.png</iconset>
         </property>
         <property name="iconSize">
@@ -756,7 +756,7 @@ suivante</string>
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="../assets/Images/images.qrc">
           <normaloff>:/button_blue_play.png</normaloff>:/button_blue_play.png</iconset>
         </property>
         <property name="iconSize">
@@ -795,7 +795,7 @@ acte</string>
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="../assets/Images/images.qrc">
           <normaloff>:/button_blue_first.png</normaloff>:/button_blue_first.png</iconset>
         </property>
         <property name="iconSize">
@@ -834,7 +834,7 @@ précédente</string>
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="../assets/Images/images.qrc">
           <normaloff>:/button_blue_rear.png</normaloff>:/button_blue_rear.png</iconset>
         </property>
         <property name="iconSize">
@@ -874,8 +874,7 @@ précédente</string>
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>
-

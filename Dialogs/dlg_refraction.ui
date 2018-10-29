@@ -32,7 +32,7 @@
    <string>Dialog</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="Images/images.qrc">
+   <iconset resource="../assets/Images/images.qrc">
     <normaloff>:/lunettes2.png</normaloff>:/lunettes2.png</iconset>
   </property>
   <layout class="QGridLayout" name="gridLayout">
@@ -1033,7 +1033,7 @@
        <string>+ de détails</string>
       </property>
       <property name="icon">
-       <iconset resource="Images/images.qrc">
+       <iconset resource="../assets/Images/images.qrc">
         <normaloff>:/search.png</normaloff>:/search.png</iconset>
       </property>
       <property name="iconSize">
@@ -1062,7 +1062,7 @@
        <string notr="true">Résumé</string>
       </property>
       <property name="icon">
-       <iconset resource="Images/images.qrc">
+       <iconset resource="../assets/Images/images.qrc">
         <normaloff>:/iconResume.png</normaloff>:/iconResume.png</iconset>
       </property>
       <property name="iconSize">
@@ -1091,7 +1091,7 @@
        <string notr="true">Reprendre</string>
       </property>
       <property name="icon">
-       <iconset resource="Images/images.qrc">
+       <iconset resource="../assets/Images/images.qrc">
         <normaloff>:/Archives.png</normaloff>:/Archives.png</iconset>
       </property>
       <property name="iconSize">
@@ -1311,7 +1311,7 @@
 et fermer</string>
       </property>
       <property name="icon">
-       <iconset resource="Images/images.qrc">
+       <iconset resource="../assets/Images/images.qrc">
         <normaloff>:/start.png</normaloff>:/start.png</iconset>
       </property>
       <property name="iconSize">
@@ -1343,7 +1343,7 @@ et fermer</string>
        <string>Annuler</string>
       </property>
       <property name="icon">
-       <iconset resource="Images/images.qrc">
+       <iconset resource="../assets/Images/images.qrc">
         <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
       </property>
       <property name="iconSize">
@@ -1537,7 +1537,7 @@ et fermer</string>
        <string>Oups!</string>
       </property>
       <property name="icon">
-       <iconset resource="Images/images.qrc">
+       <iconset resource="../assets/Images/images.qrc">
         <normaloff>:/damn-icon.png</normaloff>:/damn-icon.png</iconset>
       </property>
       <property name="iconSize">
@@ -1948,7 +1948,7 @@ prédéfini</string>
   <tabstop>DeuxMonturesPrescritRadioButton</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

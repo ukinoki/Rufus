@@ -141,19 +141,13 @@ void dlg_remisecheques::Slot_CorrigeRemise()
     int idRemise = MapRemise["idRemise"].toInt();
 
     // supprimer la remise dans la table Remises
-    QString req = "delete from " NOM_TABLE_REMISECHEQUES " where idRemcheq = " + QString::number(idRemise);
-    QSqlQuery (req,m_db);
-
+    db->SupprRecordFromTable(idRemise, "idRemcheq", NOM_TABLE_REMISECHEQUES);
     // supprimer l'idRemise dans les lignes de la table lignesrecettes
-    req = "update " NOM_TABLE_RECETTES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise);
-    QSqlQuery (req,m_db);
+    db->StandardSQL("update " NOM_TABLE_RECETTES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
     // supprimer l'idRemise dans les lignes de la table autresrecettes
-    req = "update " NOM_TABLE_RECETTESSPECIALES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise);
-    QSqlQuery (req,m_db);
-
+    db->StandardSQL("update " NOM_TABLE_RECETTESSPECIALES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
     // supprimer la remise dans la table lignescomptes
-    req = "delete from " NOM_TABLE_LIGNESCOMPTES " where idremcheq =" + QString::number(idRemise);
-    QSqlQuery (req,m_db);
+    db->SupprRecordFromTable(idRemise, "idremcheq", NOM_TABLE_LIGNESCOMPTES);
 
     // revenir au mode nouvelle remise
     VoirNouvelleRemise();
@@ -221,21 +215,13 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         }
 
         // On verrouille les table RemisesCheques
-        QStringList locklist;
-        locklist << NOM_TABLE_REMISECHEQUES;
-        if (!db->locktables(locklist))
+        if (!db->locktables(QStringList() << NOM_TABLE_REMISECHEQUES))
             return;
         //On récupére l'idRemise
-        QString RecupMaxrequete = "SELECT MAX(idRemCheq) FROM " NOM_TABLE_REMISECHEQUES;
-        QSqlQuery MaxIdRemiseQuery (RecupMaxrequete,m_db);
-        db->traiteErreurRequete(MaxIdRemiseQuery,RecupMaxrequete,"");
-        MaxIdRemiseQuery.first();
-        int idRemise = MaxIdRemiseQuery.value(0).toInt() + 1;
+        int idRemise = db->selectMaxFromTable("idRemCheq", NOM_TABLE_REMISECHEQUES) + 1;
         // on enregistre la remise dans la table remisecheques
-        QString Remiserequete = " INSERT INTO " NOM_TABLE_REMISECHEQUES " (idRemCheq, Montant, RCDate, idCompte) VALUES (" + QString::number(idRemise) +
-                                "," + QString::number(Total) + ", NOW(),'" + ui->ComptecomboBox->currentData().toString() +"')";
-        QSqlQuery   MAJRemiseChequesQuery (Remiserequete,m_db);
-        if (db->traiteErreurRequete(MAJRemiseChequesQuery,Remiserequete, tr("Impossible de mettre à jour la table des remises de chèques")))
+        if (!db->StandardSQL(" INSERT INTO " NOM_TABLE_REMISECHEQUES " (idRemCheq, Montant, RCDate, idCompte) VALUES (" + QString::number(idRemise) +
+                                "," + QString::number(Total) + ", NOW(),'" + ui->ComptecomboBox->currentData().toString() +"')"))
         {
             db->rollback();
             return;
@@ -245,12 +231,14 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         // On imprime la remise
         if (!ImprimerRemise(idRemise))
         {
-            QSqlQuery ("delete from " NOM_TABLE_REMISECHEQUES " where idremcheq = " + QString::number(idRemise), m_db);
+            db->SupprRecordFromTable(idRemise, "idremcheq", NOM_TABLE_REMISECHEQUES);
             UpMessageBox::Watch(this,tr("Impression annulée"));
             return;
         }
 
-        locklist << NOM_TABLE_REMISECHEQUES << NOM_TABLE_RECETTESSPECIALES << NOM_TABLE_RECETTES << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_BANQUES << NOM_TABLE_USERSCONNECTES;
+
+        // on enregistre les lignes de remises
+        db->locktables(QStringList() << NOM_TABLE_REMISECHEQUES << NOM_TABLE_RECETTESSPECIALES << NOM_TABLE_RECETTES << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_BANQUES << NOM_TABLE_USERSCONNECTES);
 
         //  et on update tous les chèques déposés avec cet IdRemise dans la table chèques
         for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
@@ -261,8 +249,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
                 req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET idRemise = " + QString::number(idRemise) + ", EnAttente = null WHERE idRecette = " + QString::number(idChequeAMettreAJour);
             else
                 req = "UPDATE " NOM_TABLE_RECETTES " SET idRemise = " + QString::number(idRemise) + ", EnAttente = null WHERE idRecette = " + QString::number(idChequeAMettreAJour);
-            QSqlQuery UpdatePaiementsQuery (req,m_db);
-            if (db->traiteErreurRequete(UpdatePaiementsQuery,req,""))
+            if (!db->StandardSQL(req))
             {
                 db->rollback();
                 UpMessageBox::Watch(this,tr("Impression annulée"));
@@ -278,8 +265,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
                 "'" + tr("Remise de chèques n°") + QString::number(idRemise) +
                 "','" + QString::number(Total) +
                 "',1,'" + tr("Remise de chèques") + "', " + QString::number(idRemise) + ")";
-        QSqlQuery InsertLigneComptesQuery (req,m_db);
-        if (db->traiteErreurRequete(InsertLigneComptesQuery,req,""))
+        if (!db->StandardSQL(req))
         {
             db->rollback();
             UpMessageBox::Watch(this,tr("Impression annulée"));
@@ -292,13 +278,12 @@ void dlg_remisecheques::Slot_ImprimepushButton()
             QString RecSpec = ui->ListeChequesupTableWidget->item(l,6)->text();
             QString AB = ui->ListeChequesupTableWidget->item(l,3)->text();
             if (RecSpec=="1")
-                req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + proc->CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
+                req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
                     + "', DateEnregistrement = NOW() WHERE recspec.idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
             else
-                req = "UPDATE " NOM_TABLE_RECETTES " Act SET BanqueCheque = '" + AB  + "', TireurCheque = '" + proc->CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
+                req = "UPDATE " NOM_TABLE_RECETTES " Act SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
                         + "', DateEnregistrement = NOW() WHERE Act.idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
-            QSqlQuery UpdateLignesPaiementsQuery (req,m_db);
-            if (db->traiteErreurRequete(UpdateLignesPaiementsQuery,req,""))
+            if (!db->StandardSQL(req))
             {
                 db->rollback();
                 UpMessageBox::Watch(this,tr("Impression annulée"));
@@ -314,8 +299,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
                 req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET EnAttente = 1 WHERE idRecette = " + ui->ChequesEnAttenteupTableWidget->item(l,5)->text();
             else
                 req = "UPDATE " NOM_TABLE_RECETTES " SET EnAttente = 1 WHERE idRecette = " + ui->ChequesEnAttenteupTableWidget->item(l,5)->text();
-            QSqlQuery CorrigeChequesEnAttenteQuery (req,m_db);
-            if (db->traiteErreurRequete(CorrigeChequesEnAttenteQuery,req,""))
+            if (!db->StandardSQL(req))
             {
                 db->rollback();
                 UpMessageBox::Watch(this,tr("Impression annulée"));
@@ -407,8 +391,7 @@ void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)
             UpdateidRec = "update " NOM_TABLE_RECETTESSPECIALES " set EnAttente = 1 where idRecette = " + idRec;
         else
             UpdateidRec = "update " NOM_TABLE_RECETTES " set EnAttente = 1 where idRecette = " + idRec;
-        QSqlQuery UpdateRecQuery (UpdateidRec,m_db);
-        db->traiteErreurRequete(UpdateRecQuery, UpdateidRec,"void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
+        db->StandardSQL(UpdateidRec, "void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
     }
 }
 
@@ -487,8 +470,7 @@ void dlg_remisecheques::Slot_ItemChequeEnAttenteClicked(int A, int B)
             UpdateidRec = "update " NOM_TABLE_RECETTESSPECIALES " set EnAttente = null where idRecette = " + idRec;
         else
             UpdateidRec = "update " NOM_TABLE_RECETTES " set EnAttente = null where idRecette = " + idRec;
-        QSqlQuery UpdateRecQuery (UpdateidRec,m_db);
-        db->traiteErreurRequete(UpdateRecQuery, UpdateidRec,"void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
+        db->StandardSQL(UpdateidRec, "void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
     }
 }
 
@@ -555,10 +537,9 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
                   " from " NOM_TABLE_RECETTESSPECIALES
                   " where idRemise = " + QString::number(idRemise) +
                   " order by Tireurcheque";
-    QSqlQuery quer(req,m_db);
-    ui->ListeChequesupTableWidget->setRowCount(quer.size());
-    quer.first();
-    if (quer.size()>0) {
+    QList<QList<QVariant>> listremises = db->StandardSelectSQL(req);
+    ui->ListeChequesupTableWidget->setRowCount(listremises.size());
+    if (listremises.size()>0) {
         QTableWidgetItem *pItem0    = new QTableWidgetItem() ;
         QTableWidgetItem *pItem1    = new QTableWidgetItem() ;
         QTableWidgetItem *pItem2    = new QTableWidgetItem() ;
@@ -566,8 +547,9 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
         QTableWidgetItem *pItem4    = new QTableWidgetItem() ;
         QTableWidgetItem *pItem5    = new QTableWidgetItem() ;
         UpCheckBox *check           = new UpCheckBox() ;
-        for (int i = 0; i < quer.size(); i++)
+        for (int i = 0; i < listremises.size(); i++)
         {
+            QList<QVariant> remise = listremises.at(i);
             pItem0 = new QTableWidgetItem() ;
             pItem1 = new QTableWidgetItem() ;
             pItem2 = new QTableWidgetItem() ;
@@ -584,24 +566,23 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
             ui->ListeChequesupTableWidget->setCellWidget(i,0,check);
             pItem0->setText(QString::number(i+1));
             ui->ListeChequesupTableWidget->setItem(i,1,pItem0);
-            A = quer.value(1).toString();                           // Tireur
+            A = remise.at(1).toString();                           // Tireur
             pItem1->setText(A);
             ui->ListeChequesupTableWidget->setItem(i,2,pItem1);
-            A = quer.value(2).toString();                           // Banque
+            A = remise.at(2).toString();                           // Banque
             pItem2->setText(A);
             ui->ListeChequesupTableWidget->setItem(i,3,pItem2);
-            A = QLocale().toString(quer.value(3).toDouble(),'f',2);   // Montant
+            A = QLocale().toString(remise.at(3).toDouble(),'f',2);   // Montant
             pItem3->setText(A);
             pItem3->setTextAlignment(Qt::AlignRight);
             ui->ListeChequesupTableWidget->setItem(i,4,pItem3);
-            A = quer.value(0).toString();                           // idRecette
+            A = remise.at(0).toString();                           // idRecette
             pItem4->setText(A);
             ui->ListeChequesupTableWidget->setItem(i,5,pItem4);
-            A = quer.value(4).toString();                           // recspec
+            A = remise.at(4).toString();                           // recspec
             pItem5->setText(A);
             ui->ListeChequesupTableWidget->setItem(i,6,pItem5);
             ui->ListeChequesupTableWidget->setRowHeight(i,int(fm.height()*1.1));
-            quer.next();
         }
         ui->ListeChequesupTableWidget->setFocusPolicy(Qt::NoFocus);
         double Total = 0;
@@ -609,9 +590,8 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
             Total += QLocale().toDouble(ui->ListeChequesupTableWidget->item(k,4)->text());
         ui->TotallineEdit->setText(QString::number(ui->ListeChequesupTableWidget->rowCount()) + tr(" chèques -> ") + QLocale().toString(Total,'f',2) + tr(" euros"));
     }
-    req = "select idligne from " NOM_TABLE_LIGNESCOMPTES " where idremcheq = " + MapRemise["idRemise"].toString();
-    QSqlQuery cquer(req,m_db);
-    ui->RemisesPrecsPushButton->setEnabled(cquer.size()>0);
+    QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idligne from " NOM_TABLE_LIGNESCOMPTES " where idremcheq = " + MapRemise["idRemise"].toString());
+    ui->RemisesPrecsPushButton->setEnabled(listlignes.size()>0);
 }
 
 void dlg_remisecheques::Slot_RecalculeMontant()
@@ -639,23 +619,20 @@ void dlg_remisecheques::Slot_ToolTip(int A, int B)
             else
                 requete = "SELECT PatNom, PatPrenom, ActeCotation, ActeDate From " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act WHERE act.idActe in (SELECT idActe FROM "
                         NOM_TABLE_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat.idPat = act.idPat";
-            QSqlQuery ResultQuery(requete,m_db);
-            db->traiteErreurRequete(ResultQuery,requete,"");
-            ResultQuery.first();
+            QList<QList<QVariant>> listtips = db->StandardSelectSQL(requete);
             QString ABC;
-            for (int i = 0; i < ResultQuery.size();i++)
+            for (int i = 0; i < listtips.size();i++)
             {
                 if (RecSpec == "1")
                 {
-                    ABC += ResultQuery.value(0).toString() + " du " + ResultQuery.value(1).toDate().toString(tr("dd-MM-yyyy"));
-                    i = ResultQuery.size();
+                    ABC += listtips.at(i).at(0).toString() + " du " + listtips.at(i).at(1).toDate().toString(tr("dd-MM-yyyy"));
+                    break;;
                 }
                 else
                 {
-                    ABC += ResultQuery.value(0).toString() + " " + ResultQuery.value(1).toString() + " " + ResultQuery.value(2).toString() + " du " + ResultQuery.value(3).toDate().toString(tr("dd-MM-yyyy"));
-                    if (i< ResultQuery.size()-1)
+                    ABC += listtips.at(i).at(0).toString() + " " + listtips.at(i).at(1).toString() + " " + listtips.at(i).at(2).toString() + " du " + listtips.at(i).at(3).toDate().toString(tr("dd-MM-yyyy"));
+                    if (i< listtips.size()-1)
                         ABC += "\n";
-                    ResultQuery.next();
                 }
             }
             QToolTip::showText(cursor().pos(),ABC);
@@ -705,26 +682,24 @@ bool dlg_remisecheques::VoirRemisesPrecs()
             idlist += ", ";
     }
 
-    QString req = "select idRemCheq, RCDate, Montant, idcompte from " NOM_TABLE_REMISECHEQUES " where idcompte in (" + idlist + ") order by idremcheq desc";
-    QSqlQuery quer(req,m_db);
-    if (db->traiteErreurRequete(quer,req,"")) return false;
-    if (quer.size() == 0)
+    QList<QList<QVariant>> listremisesprecedentes = db->StandardSelectSQL("select idRemCheq, RCDate, Montant, idcompte from " NOM_TABLE_REMISECHEQUES " where idcompte in (" + idlist + ") order by idremcheq desc");
+    if (listremisesprecedentes.size() == 0)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas de remises précédentes"));
         Slot_AnnulupPushButton();
         return false;
     }
     ui->RemisePrecsupComboBox->clear();
-    quer.first();
-    do
+    for (int i=0; i<listremisesprecedentes.size(); i++)
     {
+        QList<QVariant> remise = listremisesprecedentes.at(i);
         QMap<QString,QVariant>  MapRemise;
-        MapRemise["idRemise"] = quer.value(0);
-        MapRemise["idCompte"] = quer.value(3);
-        MapRemise["DateRemise"] = quer.value(1).toDate();
-        ui->RemisePrecsupComboBox->addItem("Remise n° " + quer.value(0).toString() + " du " + quer.value(1).toDate().toString(tr("d MMMM yyyy")) + "\t" + QLocale().toString(quer.value(2).toDouble(),'f',2)
+        MapRemise["idRemise"] = remise.at(0);
+        MapRemise["idCompte"] = remise.at(3);
+        MapRemise["DateRemise"] = remise.at(1).toDate();
+        ui->RemisePrecsupComboBox->addItem("Remise n° " + remise.at(0).toString() + " du " + remise.at(1).toDate().toString(tr("d MMMM yyyy")) + "\t" + QLocale().toString(remise.at(2).toDouble(),'f',2)
                                            ,MapRemise);
-    } while (quer.next());
+    }
 
     connect(ui->RemisePrecsupComboBox,      SIGNAL(currentIndexChanged(int)),   this,       SLOT (Slot_RemplirRemisesPrecs(int)));
     connect(ui->RemisesPrecsPushButton,     SIGNAL(clicked(bool)),              this,       SLOT (Slot_CorrigeRemise()));
@@ -844,8 +819,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
                 " AND Paiement = 'C'";
         req +=  " ORDER BY TireurCheque";
         //qDebug() << req;
-        QSqlQuery ChequeARemettreQuery (req,m_db);
-        db->traiteErreurRequete(ChequeARemettreQuery,req,"");
+        QList<QList<QVariant>> listchequesaremettre = db->StandardSelectSQL(req);
 
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " NOM_TABLE_RECETTES " pai"
@@ -861,11 +835,10 @@ bool dlg_remisecheques::VoirNouvelleRemise()
                 " AND Paiement = 'C'"
                 " ORDER BY TireurCheque";
         //qDebug() << req;
-        QSqlQuery ChequesEnAttenteQuery (req,m_db);
-        db->traiteErreurRequete(ChequesEnAttenteQuery,req,"");
+        QList<QList<QVariant>> listchequesenattente = db->StandardSelectSQL(req);
 
 
-        if (ChequeARemettreQuery.size() == 0 && ChequesEnAttenteQuery.size() == 0)
+        if (listchequesaremettre.size() == 0 && listchequesenattente.size() == 0)
         {
             UpMessageBox::Watch(this,tr("Aucune remise de chèques à effectuer!"));
             return false;
@@ -887,12 +860,12 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         ui->ListeChequesupTableWidget->clearContents();
         ui->ChequesEnAttenteupTableWidget->clearContents();
 
-        ui->ListeChequesupTableWidget->setRowCount(ChequeARemettreQuery.size());
-        ui->ChequesEnAttenteupTableWidget->setRowCount(ChequesEnAttenteQuery.size());
+        ui->ListeChequesupTableWidget->setRowCount(listchequesaremettre.size());
+        ui->ChequesEnAttenteupTableWidget->setRowCount(listchequesenattente.size());
 
-        ChequeARemettreQuery.first();
-        for (int i = 0; i < ChequeARemettreQuery.size(); i++)
+        for (int i = 0; i < listchequesaremettre.size(); i++)
         {
+            QList<QVariant> chequearemettre = listchequesaremettre.at(i);
             pItem1 = new QTableWidgetItem() ;
             pItem2 = new QTableWidgetItem() ;
             pItem3 = new QTableWidgetItem() ;
@@ -918,33 +891,31 @@ bool dlg_remisecheques::VoirNouvelleRemise()
 
             NoLigne->setText(QString::number(i+1));
             ui->ListeChequesupTableWidget->setCellWidget(i,1,NoLigne);
-            A = ChequeARemettreQuery.value(1).toString();                           // Tireur
+            A = chequearemettre.at(1).toString();                           // Tireur
 
             pItem1->setText(A);
             ui->ListeChequesupTableWidget->setItem(i,2,pItem1);
-            A = ChequeARemettreQuery.value(2).toString();                           // Banque
+            A = chequearemettre.at(2).toString();                           // Banque
 
             pItem2->setText(A);
             ui->ListeChequesupTableWidget->setItem(i,3,pItem2);
-            A = QLocale().toString(ChequeARemettreQuery.value(3).toDouble(),'f',2); // Montant
+            A = QLocale().toString(chequearemettre.at(3).toDouble(),'f',2); // Montant
 
             LigneMontant->setText(A);
             ui->ListeChequesupTableWidget->setCellWidget(i,4,LigneMontant);
-            A = ChequeARemettreQuery.value(0).toString();                           // idRecette
+            A = chequearemettre.at(0).toString();                           // idRecette
             pItem3->setText(A);
             ui->ListeChequesupTableWidget->setItem(i,5,pItem3);
 
-            A = ChequeARemettreQuery.value(4).toString();                           // idrecspec
+            A = chequearemettre.at(4).toString();                           // idrecspec
             pItem5->setText(A);
             ui->ListeChequesupTableWidget->setItem(i,6,pItem5);
             ui->ListeChequesupTableWidget->setRowHeight(i,int(fm.height()*1.1));
-
-            ChequeARemettreQuery.next();
         }
 
-        ChequesEnAttenteQuery.first();
-        for (int i = 0; i < ChequesEnAttenteQuery.size(); i++)
+        for (int i = 0; i < listchequesenattente.size(); i++)
         {
+            QList<QVariant> chequeenattente = listchequesenattente.at(i);
             pItem1 = new QTableWidgetItem() ;
             pItem2 = new QTableWidgetItem() ;
             pItem3 = new QTableWidgetItem() ;
@@ -971,29 +942,27 @@ bool dlg_remisecheques::VoirNouvelleRemise()
 
             NoLigne->setText(QString::number(i+1));
             ui->ChequesEnAttenteupTableWidget->setCellWidget(i,1,NoLigne);
-            A = ChequesEnAttenteQuery.value(1).toString();                              // Tireur
+            A = chequeenattente.at(1).toString();                              // Tireur
 
             pItem1->setText(A);
             ui->ChequesEnAttenteupTableWidget->setItem(i,2,pItem1);
-            A = ChequesEnAttenteQuery.value(2).toString();                              // Banque
+            A = chequeenattente.at(2).toString();                              // Banque
 
             pItem2->setText(A);
             ui->ChequesEnAttenteupTableWidget->setItem(i,3,pItem2);
-            A = QLocale().toString(ChequesEnAttenteQuery.value(3).toDouble(),'f',2);    // Montant
+            A = QLocale().toString(chequeenattente.at(3).toDouble(),'f',2);    // Montant
 
             LigneMontant->setText(A);
             ui->ChequesEnAttenteupTableWidget->setCellWidget(i,4,LigneMontant);
-            A = ChequesEnAttenteQuery.value(0).toString();                              // idCheque
+            A = chequeenattente.at(0).toString();                              // idCheque
 
             pItem3->setText(A);
             ui->ChequesEnAttenteupTableWidget->setItem(i,5,pItem3);
-            A = ChequesEnAttenteQuery.value(4).toString();                              // idrecspec
+            A = chequeenattente.at(4).toString();                              // idrecspec
 
             pItem5->setText(A);
             ui->ChequesEnAttenteupTableWidget->setItem(i,6,pItem5);
             ui->ChequesEnAttenteupTableWidget->setRowHeight(i,int(fm.height()*1.1));
-
-            ChequesEnAttenteQuery.next();
         }
         for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
         {
@@ -1115,75 +1084,36 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
 /*---------------------------------------------------------------------------------
     Reconstruit la liste des utilisateurs du combobox
 -----------------------------------------------------------------------------------*/
-void dlg_remisecheques::ReconstruitListeUsers(bool seulmtenattente)
+void dlg_remisecheques::ReconstruitListeUsers()
 {
     ui->UserComboBox->clear();
     //on reconstruit la liste des users comptables qui ont des chèques en attente
     m_comptables    = Datas::I()->users->comptables();
     m_comptablesavecchequesenattente    = new QMap<int, User*>();
-    if (!seulmtenattente)
-    {
-        QList<User*> users;
-        QString req = "select usr.iduser, usr.userlogin, usr.soignant, usr.responsableactes, "          //0,1,2,3
-                        " usr.UserEnregHonoraires, usr.idCompteEncaissHonoraires, usr.UserCCAM, "       //4,5,6
-                        " usr.UserEmployeur, cpt.nomcompteabrege "                                      //7,8
-                      " from " NOM_TABLE_UTILISATEURS " usr "
-                      " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte "
-                      " where (usr.UserEnregHonoraires = 1 and usr.soignant in (1,2,3)) or usr.soignant = 5";
 
-        QSqlQuery query(req, m_db );
-        if( DataBase::getInstance()->traiteErreurRequete(query, req) || !query.first())
-            return;
-        m_touscomptables->clear();
-        do
+    for( QMap<int, User*>::const_iterator itUser = m_comptables->constBegin(); itUser != m_comptables->constEnd(); ++itUser )
+    {
+        //TODO il faudrait trouver un moyen d'accélérer cette requête qui est vraiment très lente
+        User *user = const_cast<User*>(itUser.value());
+        QString req =   "SELECT idRecette FROM " NOM_TABLE_RECETTES " pai"
+                        " WHERE pai.idRecette in (SELECT lig.idRecette FROM " NOM_TABLE_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
+                        " (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE UserComptable = " + QString::number(user->id()) + "))"
+                        " AND pai.IdRemise IS NULL"
+                        " AND pai.ModePaiement = 'C'"
+                        " ORDER BY TireurCheque";
+        //qDebug() << req;
+        QList<QList<QVariant>> listidrecettes = db->StandardSelectSQL(req);
+        if (listidrecettes.size()>0)
         {
-            QJsonObject jData{};
-            jData["id"] = query.value(0).toInt();
-            jData["login"] = query.value(1).toString();
-            jData["soignant"] = query.value(2).toInt();
-            jData["responsableActes"] = query.value(3).toInt();
-            jData["enregHonoraires"] = query.value(4).toInt();
-            jData["idCompteEncaissHonoraires"] = query.value(5).toInt();
-            jData["cotation"] = (query.value(6).toInt() == 1);
-            jData["employeur"] = query.value(7).toInt();
-            jData["nomCompteAbrege"] = query.value(8).toString();
-            User *usr = new User(jData);
-            m_touscomptables->insert(usr->id(), usr);
-        } while( query.next() );
-        for( QMap<int, User*>::const_iterator itUser = m_touscomptables->constBegin(); itUser != m_touscomptables->constEnd(); ++itUser )
-        {
-            User *user = const_cast<User*>(itUser.value());
+            m_comptablesavecchequesenattente->insert(user->id(), user);
             ui->UserComboBox->addItem(user->getLogin(), user->id() );
         }
     }
-    else
+    if (m_comptablesavecchequesenattente->count()<1)
     {
-        for( QMap<int, User*>::const_iterator itUser = m_comptables->constBegin(); itUser != m_comptables->constEnd(); ++itUser )
-        {
-            User *user = const_cast<User*>(itUser.value());
-            ui->UserComboBox->addItem(user->getLogin(), user->id() );
-        }
-        for( QMap<int, User*>::const_iterator itUser = m_comptables->constBegin(); itUser != m_comptables->constEnd(); ++itUser )
-        {
-             //TODO il faudrait trouver un moyen d'accélérer cette requête qui est vraiment très lente
-            User *user = const_cast<User*>(itUser.value());
-            QString req =   "SELECT idRecette FROM " NOM_TABLE_RECETTES " pai"
-                            " WHERE pai.idRecette in (SELECT lig.idRecette FROM " NOM_TABLE_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                            " (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE UserComptable = " + QString::number(user->id()) + "))"
-                            " AND pai.IdRemise IS NULL"
-                            " ORDER BY TireurCheque";
-            if (QSqlQuery (req, m_db).size()>0)
-            {
-                m_comptablesavecchequesenattente->insert(user->id(), user);
-                ui->UserComboBox->addItem(user->getLogin(), user->id() );
-            }
-        }
-        if (m_comptablesavecchequesenattente->count()<1)
-        {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Pas de remise de chèque en attente"));
-            InitOK = false;
-            return;
-        }
+        UpMessageBox::Watch(Q_NULLPTR, tr("Pas de remise de chèque en attente"));
+        InitOK = false;
+        return;
     }
     gUser = db->getUserConnected();
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste

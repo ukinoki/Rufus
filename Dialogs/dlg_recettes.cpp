@@ -23,6 +23,7 @@ dlg_recettes::dlg_recettes(Procedures *ProcAPasser, QWidget *parent) :
 {
     InitOK = true;
     proc        = ProcAPasser;
+    db          = DataBase::getInstance();
 
     CalcBilan();
     if (!InitOK)
@@ -30,7 +31,7 @@ dlg_recettes::dlg_recettes(Procedures *ProcAPasser, QWidget *parent) :
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    gidUser     = DataBase::getInstance()->getUserConnected();
+    gidUser     = db->getUserConnected();
 
     QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
     TotalMontantlbl         = new UpLabel();
@@ -132,7 +133,7 @@ bool dlg_recettes::getInitOK()
     return InitOK;
 }
 
-QSqlQuery dlg_recettes::CalcBilan()
+QList<QList<QVariant> > dlg_recettes::CalcBilan()
 {
     QMap<QString, QDate> DateMap = proc->ChoixDate();
     if (!DateMap.isEmpty())
@@ -189,13 +190,9 @@ QSqlQuery dlg_recettes::CalcBilan()
         " order by actedate, nom";
 
         //proc->Edit(req);
+        //p... ça c'est de la requête
 
-        gBilan = QSqlQuery(req, DataBase::getInstance()->getDataBase());
-        if (DataBase::getInstance()->traiteErreurRequete(gBilan,req,tr("Impossible de construire la table des recettes")))
-        {
-            InitOK = false;
-            return gBilan;
-        }
+        gBilan =  db->StandardSelectSQL(req);
 
         if (gBilan.size() == 0)
         {
@@ -207,7 +204,7 @@ QSqlQuery dlg_recettes::CalcBilan()
     else
     {
         InitOK = false;
-        gBilan = QSqlQuery();
+        gBilan.clear();
         return gBilan;
     }
 
@@ -409,12 +406,11 @@ void dlg_recettes::CalcSuperviseursEtComptables()
 
     for (int i=0; i< gBilan.size(); i++)
     {
-        gBilan.seek(i);
-        int iduser = gBilan.value(9).toInt();
+        int iduser = gBilan.at(i).at(9).toInt();
         if (!listiD.contains(iduser) && iduser > 0)
             listiD << iduser;
         if (!idcomptabletrouve)
-            idcomptabletrouve = (gBilan.value(11).toInt() == gidUser->id());
+            idcomptabletrouve = (gBilan.at(i).at(11).toInt() == gidUser->id());
     }
     if( listiD.size() > 1 )
         gSupervBox->addItem(tr("Tout le monde"),-1);
@@ -644,7 +640,7 @@ void dlg_recettes::ExportTable()
 void dlg_recettes::NouvPeriode()
 {
     QDate debutavant, finavant;
-    QSqlQuery bilanavant;
+    QList<QList<QVariant>> bilanavant;
     CalcBilan();
     if (!InitOK)
     {
@@ -681,14 +677,15 @@ void dlg_recettes::RemplitLaTable()
     for (int i = 0; i < gBilan.size(); i++)
     {
         int col = 0;
+        QList<QVariant> rec = gBilan.at(i);
 
-        A = gBilan.value(0).toString();                                                             // idActe - col = 0
+        A = rec.at(0).toString();                                                             // idActe - col = 0
         pItem0 = new QTableWidgetItem();
         pItem0->setText(A);
         gBigTable->setItem(i,col,pItem0);
         col++;
 
-        A = gBilan.value(1).toDate().toString(tr("d MMM yyyy"));                                     // Date - col = 1
+        A = rec.at(1).toDate().toString(tr("d MMM yyyy"));                                     // Date - col = 1
         pItem1 = new QTableWidgetItem();
         pItem1->setText(A);
         pItem1->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -696,29 +693,29 @@ void dlg_recettes::RemplitLaTable()
         col++;
 
         pItem2 = new QTableWidgetItem();
-        pItem2->setText(gBilan.value(2).toString());                                                // NomPrenom - col = 2
+        pItem2->setText(rec.at(2).toString());                                                // NomPrenom - col = 2
         gBigTable->setItem(i,col,pItem2);
         col++;
 
         pItem3 = new QTableWidgetItem();
-        pItem3->setText(gBilan.value(3).toString());                                                // Cotation - col = 3;
+        pItem3->setText(rec.at(3).toString());                                                // Cotation - col = 3;
         gBigTable->setItem(i,col,pItem3);
         col++;
 
-        if (gBilan.value(5).toString() == "F")
-            A = QLocale().toString(gBilan.value(4).toDouble()/6.55957,'f',2);// Montant en F converti en euros
+        if (rec.at(5).toString() == "F")
+            A = QLocale().toString(rec.at(4).toDouble()/6.55957,'f',2);// Montant en F converti en euros
         else
-            A = QLocale().toString(gBilan.value(4).toDouble(),'f',2);                               // Montant - col = 4
+            A = QLocale().toString(rec.at(4).toDouble(),'f',2);                               // Montant - col = 4
         pItem4 = new QTableWidgetItem();
         pItem4->setText(A);
         pItem4->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
         gBigTable->setItem(i,col,pItem4);
         col++;
 
-        A = gBilan.value(6).toString();                                                             // Mode de paiement - col = 5
+        A = rec.at(6).toString();                                                             // Mode de paiement - col = 5
         QString B = A;
         if (A == "T")
-            B = gBilan.value(7).toString();
+            B = rec.at(7).toString();
         if (B == "CB")
             B = tr("Carte Bancaire");
         else if (B == "E")
@@ -737,7 +734,7 @@ void dlg_recettes::RemplitLaTable()
         col++;
 
 
-        double C = gBilan.value(8).toDouble();                                                      // Reçu- col = 6
+        double C = rec.at(8).toDouble();                                                      // Reçu- col = 6
         pItem6 = new QTableWidgetItem();
         pItem6->setText(QLocale().toString(C,'f',2));
         pItem6->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -746,29 +743,29 @@ void dlg_recettes::RemplitLaTable()
 
         pItem7 = new QTableWidgetItem() ;                                                           //DIvers et autres recettes - col = 7
         pItem7->setText(("0,00"));
-        if (gBilan.value(13).toString() == tr("Divers et autres recettes"))
-            pItem7->setText(QLocale().toString(gBilan.value(12).toDouble(),'f',2));
+        if (rec.at(13).toString() == tr("Divers et autres recettes"))
+            pItem7->setText(QLocale().toString(rec.at(12).toDouble(),'f',2));
         pItem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
         gBigTable->setItem(i,col,pItem7);
         col++;
 
         pItem8 = new QTableWidgetItem();
-        pItem8->setText(gBilan.value(9).toString());                                                // iduser - col = 8 - superviseur;
+        pItem8->setText(rec.at(9).toString());                                                // iduser - col = 8 - superviseur;
         gBigTable->setItem(i,col,pItem8);
         col++;
 
         pItem9 = new QTableWidgetItem();
-        pItem9->setText(gBilan.value(10).toString());                                               // idparent - col = 9;
+        pItem9->setText(rec.at(10).toString());                                               // idparent - col = 9;
         gBigTable->setItem(i,col,pItem9);
         col++;
 
         pItem10 = new QTableWidgetItem();
-        pItem10->setText(gBilan.value(11).toString());                                               // idcomptable - col = 10;
+        pItem10->setText(rec.at(11).toString());                                               // idcomptable - col = 10;
         gBigTable->setItem(i,col,pItem10);
         col++;
 
         pItem11 = new QTableWidgetItem();
-        pItem11->setText(gBilan.value(1).toString());                                               // date format MySQL (yyyy-MM-dd) - col = 11;
+        pItem11->setText(rec.at(1).toString());                                               // date format MySQL (yyyy-MM-dd) - col = 11;
         gBigTable->setItem(i,col,pItem11);
 
         gBigTable->setRowHeight(i,hauteurrow);
@@ -777,11 +774,10 @@ void dlg_recettes::RemplitLaTable()
 
         pItem12 = new QTableWidgetItem() ;                                                           // Apports praticien - col = 12
         pItem12->setText(("0,00"));
-        if (gBilan.value(13).toString() == tr("Apport praticien"))
-            pItem12->setText(QLocale().toString(gBilan.value(12).toDouble(),'f',2));
+        if (rec.at(13).toString() == tr("Apport praticien"))
+            pItem12->setText(QLocale().toString(rec.at(12).toDouble(),'f',2));
         pItem12->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
         gBigTable->setItem(i,col,pItem12);
-        gBilan.next();
     }
     int nbrowsAAfficher = 30;
     gBigTable->setFixedHeight(nbrowsAAfficher*hauteurrow+2);

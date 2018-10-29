@@ -124,7 +124,7 @@
     <string>Annuler</string>
    </property>
    <property name="icon">
-    <iconset resource="Images/images.qrc">
+    <iconset resource="../assets/Images/images.qrc">
      <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
    </property>
    <property name="iconSize">
@@ -198,7 +198,7 @@
 précédentes</string>
    </property>
    <property name="icon">
-    <iconset resource="Images/images.qrc">
+    <iconset resource="../assets/Images/images.qrc">
      <normaloff>:/Archives.png</normaloff>:/Archives.png</iconset>
    </property>
    <property name="iconSize">
@@ -278,18 +278,18 @@ précédentes</string>
    <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
-   <class>UpTableWidget</class>
-   <extends>QTableWidget</extends>
-   <header>uptablewidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpComboBox</class>
    <extends>QComboBox</extends>
    <header>upcombobox.h</header>
   </customwidget>
+  <customwidget>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uptablewidget.h</header>
+  </customwidget>
  </customwidgets>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

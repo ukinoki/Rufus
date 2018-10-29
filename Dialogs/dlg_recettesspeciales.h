@@ -42,8 +42,7 @@ private:
     dlg_comptes                 *Dlg_Cmpt;
     int                         r,c, idRecEnCours;
     Procedures                  *proc;
-    QSqlDatabase                db;
-    DataBase                    *m_db;
+    DataBase                    *db;
     QStringList                 glistMoyensDePaiement;
     QStringList                 glistRefFiscales;
     User                        *gDataUser;

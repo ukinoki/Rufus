@@ -783,7 +783,7 @@ alternée</string>
     <string>Annuler</string>
    </property>
    <property name="icon">
-    <iconset resource="Images/images.qrc">
+    <iconset resource="../assets/Images/images.qrc">
      <normaloff>:/Supprime.png</normaloff>:/Supprime.png</iconset>
    </property>
    <property name="iconSize">
@@ -824,7 +824,7 @@ alternée</string>
     <string>Valider</string>
    </property>
    <property name="icon">
-    <iconset resource="Images/images.qrc">
+    <iconset resource="../assets/Images/images.qrc">
      <normaloff>:/start.png</normaloff>:/start.png</iconset>
    </property>
    <property name="iconSize">
@@ -1135,7 +1135,7 @@ alternée</string>
     <string>Imprimer</string>
    </property>
    <property name="icon">
-    <iconset resource="Images/images.qrc">
+    <iconset resource="../assets/Images/images.qrc">
      <normaloff>:/Imprimer.png</normaloff>:/Imprimer.png</iconset>
    </property>
    <property name="iconSize">
@@ -1894,7 +1894,7 @@ alternée</string>
   <tabstop>ConclusiontextEdit</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

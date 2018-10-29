@@ -28,10 +28,9 @@ dlg_recettesspeciales::dlg_recettesspeciales(Procedures *procAPasser, QWidget *p
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
 
     proc        = procAPasser;
-    m_db        = DataBase::getInstance();
-    db          = m_db->getDataBase();
+    db        = DataBase::getInstance();
 
-    ui->Userlabel->setText(tr("Recettes spéciales de ") + m_db->getUserConnected()->getLogin());
+    ui->Userlabel->setText(tr("Recettes spéciales de ") + db->getUserConnected()->getLogin());
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDepenses").toByteArray());
 
@@ -59,13 +58,9 @@ dlg_recettesspeciales::dlg_recettesspeciales(Procedures *procAPasser, QWidget *p
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
-    QString req = "SELECT idBanqueAbrege, idBanque FROM " NOM_TABLE_BANQUES " ORDER by idBanqueAbrege";
-    QSqlQuery ListBanquesQuery (req,db);
-    m_db->traiteErreurRequete(ListBanquesQuery,req,"");
-    ListBanquesQuery.first();
-    do
-        ui->BanqChequpComboBox->addItem(ListBanquesQuery.value(0).toString(),ListBanquesQuery.value(1).toInt());
-    while (ListBanquesQuery.next());
+    QList<QList<QVariant>> listbanq = db->StandardSelectSQL("SELECT idBanqueAbrege, idBanque FROM " NOM_TABLE_BANQUES " ORDER by idBanqueAbrege");
+    for (int i=0; i<listbanq.size(); i++)
+        ui->BanqChequpComboBox->addItem(listbanq.at(i).at(0).toString(),listbanq.at(i).at(1).toInt());
 
     //TODO : SQL
     QStringList ListeRubriques;
@@ -195,10 +190,10 @@ void dlg_recettesspeciales::AnnulEnreg()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_recettesspeciales::initializeUserSelected()
 {
-    gDataUser = m_db->getUserConnected();
+    gDataUser = db->getUserConnected();
 
     Comptes *comptes = new Comptes();
-    comptes->addCompte( m_db->loadComptesByUser(gDataUser->id()) );
+    comptes->addCompte( db->loadComptesByUser(gDataUser->id()) );
     gDataUser->setComptes( comptes );
     if( gDataUser->getComptes()->comptesAll().size() == 0)
     {
@@ -206,7 +201,7 @@ bool dlg_recettesspeciales::initializeUserSelected()
         return false;
     }
 
-    QJsonObject data = m_db->loadUserData(gDataUser->id());
+    QJsonObject data = db->loadUserData(gDataUser->id());
     if(data.isEmpty())
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche recettes spéciales!"), tr("Les paramètres de ")
@@ -261,12 +256,13 @@ void dlg_recettesspeciales::EnregistreRecette()
         return;
 
     // vérifier que cette recette n'a pas été déjà saisie
-    QString requete = "select DateRecette from " NOM_TABLE_RECETTESSPECIALES " where DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
-            "'and Libelle = '"  + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
-            "'and Montant = "   + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-            " and idUser = "    + QString::number(gDataUser->id());
-    QSqlQuery ChercheRecQuery (requete,db);
-    if (ChercheRecQuery.size() > 0)
+    QList<QList<QVariant>> listrec =
+            db->StandardSelectSQL("select DateRecette from " NOM_TABLE_RECETTESSPECIALES
+                                  " where DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
+                                  "'and Libelle = '"  + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +
+                                  "'and Montant = "   + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
+                                  " and idUser = "    + QString::number(gDataUser->id()));
+    if (listrec.size() > 0)
     {
         pb = tr("Elle a déjà été saisie");
         OnSauteLaQuestionSuivante = true;
@@ -276,17 +272,15 @@ void dlg_recettesspeciales::EnregistreRecette()
     {
         if (QDate::currentDate() > ui->DateRecdateEdit->date().addDays(90))
             pb = tr("Elle date de plus de 3 mois");
-        requete = "select DateRecette from " NOM_TABLE_RECETTESSPECIALES " where DateRecette > '" + ui->DateRecdateEdit->date().addDays(-180).toString("yyyy-MM-dd") +
-                "'and Libelle = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
+        listrec = db->StandardSelectSQL("select DateRecette from " NOM_TABLE_RECETTESSPECIALES " where DateRecette > '" + ui->DateRecdateEdit->date().addDays(-180).toString("yyyy-MM-dd") +
+                "'and Libelle = '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +
                 "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                " and idUser = " + QString::number(gDataUser->id());
-        QSqlQuery ChercheDep2Query (requete,db);
-        if (ChercheDep2Query.size() > 0)
+                " and idUser = " + QString::number(gDataUser->id()));
+        if (listrec.size() > 0)
         {
-            ChercheDep2Query.last();
             if (pb != "")
                 pb += "\n";
-            pb += tr("Une recette semblable a été saisie le ") + ChercheDep2Query.value(0).toDate().toString("dd MMM yyyy");
+            pb += tr("Une recette semblable a été saisie le ") + listrec.last().at(0).toDate().toString("dd MMM yyyy");
         }
     }
 
@@ -313,52 +307,45 @@ void dlg_recettesspeciales::EnregistreRecette()
 
     QStringList listtables;
     listtables << NOM_TABLE_RECETTESSPECIALES << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES;
-    if (!m_db->locktables(listtables))
+    if (!db->locktables(listtables))
         return;
-    QString insertRecrequete = "insert into " NOM_TABLE_RECETTESSPECIALES " (DateRecette, idUser, Libelle, Montant, TypeRecette, Paiement, CompteVirement, TireurCheque, BanqueCheque)"
+    if (!db->StandardSQL("insert into " NOM_TABLE_RECETTESSPECIALES " (DateRecette, idUser, Libelle, Montant, TypeRecette, Paiement, CompteVirement, TireurCheque, BanqueCheque)"
             " VALUES ('" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
             "', " + QString::number(gDataUser->id()) +
-            ", '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
+            ", '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +
             "', " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-            ", '" + proc->CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) +
+            ", '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) +
             "', '" + m +
             "', " + (m=="V"||m=="E"? ui->ComptesupComboBox->currentData().toString()    : "null") +
             ", "  + (m=="C"? "'" + ui->TireurlineEdit->text() + "'"  : "null") +
-            ", "  + (m=="C"? "'" + ui->BanqChequpComboBox->currentText() + "'"  : "null") + ")";
+            ", "  + (m=="C"? "'" + ui->BanqChequpComboBox->currentText() + "'"  : "null") + ")",tr("Impossible d'enregister cete recette!")))
 
-    QSqlQuery EnregistreDepenseQuery (insertRecrequete,db);
-    if (m_db->traiteErreurRequete(EnregistreDepenseQuery,insertRecrequete,tr("Impossible d'enregister cete recette!")))
     {
-        m_db->rollback();
+        db->rollback();
         return;
     }
 
-    requete     = "select max(idRecette) from " NOM_TABLE_RECETTESSPECIALES;
-    QSqlQuery   ChercheidDepQuery (requete,db);
-    ChercheidDepQuery.first();
-    idRec       = ChercheidDepQuery.value(0).toString();
+    idRec       = QString::number(db->selectMaxFromTable("idrecette", NOM_TABLE_RECETTESSPECIALES));
 
     // insertion de l'écriture dans la table lignescomptes quand il s'agit d'un virement ou d'un dépôt d'espèces
     if (Paiement == NOM_VIREMENT || Paiement == NOM_ESPECES)
     {
         Paiement = (Paiement == NOM_VIREMENT? tr("Virement crébiteur") : tr("Dépôt espèces"));
-        int a = proc->getMAXligneBanque();
-        requete = "insert into " NOM_TABLE_LIGNESCOMPTES "(idLigne, idCompte, idRecSpec, LigneDate, Lignelibelle, LigneMontant, LigneDebitCredit, LigneTypeoperation) VALUES (" +
+        int a = db->getMaxLigneBanque();
+        if (!db->StandardSQL("insert into " NOM_TABLE_LIGNESCOMPTES "(idLigne, idCompte, idRecSpec, LigneDate, Lignelibelle, LigneMontant, LigneDebitCredit, LigneTypeoperation) VALUES (" +
                     QString::number(a) + "," +
                     ui->ComptesupComboBox->currentData().toString() +
                     "," + idRec +
                     ", '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
-                    "', '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +
+                    "', '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +
                     "', "  + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                    ", 1, '" + Paiement + "')";
-        QSqlQuery EnregLigneCompeQuery(requete,db);
-        if (m_db->traiteErreurRequete(EnregLigneCompeQuery,requete,tr("Transaction annulée!\nImpossible d'enregister cette opération sur le compte bancaire!")))
+                    ", 1, '" + Paiement + "')"))
         {
-                m_db->rollback();
+                db->rollback();
                 return;
         }
     }
-    m_db->commit();
+    db->commit();
 
     gBigTable->setEnabled(true);
     ui->SupprimerupPushButton->setVisible(true);
@@ -475,41 +462,33 @@ void dlg_recettesspeciales::SupprimerRecette()
 {
     if (gBigTable->selectedRanges().size() == 0) return;
     // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte
-    QString VerifArchivesrequete = " select idRecSpec from " NOM_TABLE_ARCHIVESBANQUE " where idRecSpec = " + QString::number(idRecEnCours);
-    QSqlQuery VerifArchivQuery (VerifArchivesrequete,db);
-    if (VerifArchivQuery.size() > 0)
+    QList<QList<QVariant>> listidrecspec = db->StandardSelectSQL(" select idRecSpec from " NOM_TABLE_ARCHIVESBANQUE " where idRecSpec = " + QString::number(idRecEnCours));
+    if (listidrecspec.size() > 0)
     {
         UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
         return;
     }
 
-    QString VerifRemiserequete = " select idRemise from " NOM_TABLE_RECETTESSPECIALES " where idRecette = " + QString::number(idRecEnCours);
-    QSqlQuery VerifRemiseQuery (VerifRemiserequete,db);
-    if (VerifRemiseQuery.size() > 0)
-    {
-        VerifRemiseQuery.first();
-        if (VerifRemiseQuery.value(0).toInt()>0)
+    QList<QList<QVariant>> listremises = db->StandardSelectSQL(" select idRemise from " NOM_TABLE_RECETTESSPECIALES " where idRecette = " + QString::number(idRecEnCours));
+    if (listremises.size() > 0)
+        if (listremises.at(0).at(0).toInt()>0)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
             return;
         }
-    }
 
     QDate   Dateop;
     QString Libelle;
     double  montant;
-    QString requete1 = "select DateRecette, Libelle, Montant from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + QString::number(idRecEnCours);
-    QSqlQuery query1 (requete1,db);
-    if (query1.size() > 0)
+    QList<QList<QVariant>> listrecettes = db->StandardSelectSQL("select DateRecette, Libelle, Montant from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + QString::number(idRecEnCours));
+    if (listrecettes.size() > 0)
     {
-        query1.first();
-        Dateop = query1.value(0).toDate();
-        Libelle = query1.value(1).toString();
-        montant = query1.value(2).toDouble();
-        QString requete2 = "select idligne from " NOM_TABLE_ARCHIVESBANQUE " where LigneDate = '" + Dateop.toString("yyyy-MM-dd")
-                + "' and LigneLibelle = '" + proc->CorrigeApostrophe(Libelle) + "' and LigneMontant = " + QString::number(montant);
-        QSqlQuery query2 (requete2,db);
-        if (query2.size()> 0)
+        Dateop  = listrecettes.at(0).at(0).toDate();
+        Libelle = listrecettes.at(0).at(1).toString();
+        montant = listrecettes.at(0).at(2).toDouble();
+        QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idligne from " NOM_TABLE_ARCHIVESBANQUE " where LigneDate = '" + Dateop.toString("yyyy-MM-dd")
+                + "' and LigneLibelle = '" + Utils::CorrigeApostrophe(Libelle) + "' and LigneMontant = " + QString::number(montant));
+        if (listlignes.size()> 0)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
             return;
@@ -528,12 +507,8 @@ void dlg_recettesspeciales::SupprimerRecette()
             return;
 
         //On supprime l'écriture
-        QString SupprComptesrequete = "delete from " NOM_TABLE_LIGNESCOMPTES " where idrecspec = " + QString::number(idRecEnCours);
-        QSqlQuery (SupprComptesrequete,db);
-
-        QString SupprDepenserequete = "delete from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + QString::number(idRecEnCours);
-        QSqlQuery (SupprDepenserequete,db);
-
+        db->SupprRecordFromTable(idRecEnCours,"idrecspec", NOM_TABLE_LIGNESCOMPTES);
+        db->SupprRecordFromTable(idRecEnCours,"idrecette", NOM_TABLE_RECETTESSPECIALES);
         if (gBigTable->rowCount() == 1)
         {
             ui->AnneecomboBox->disconnect();
@@ -614,14 +589,15 @@ void dlg_recettesspeciales::MetAJourFiche()
         idRecEnCours = static_cast<UpLabel*>(gBigTable->cellWidget(gBigTable->currentRow(),0))->text().toInt();
 
         //TODO : SQL
-        QString MetAJourrequete = "select DateRecette, Libelle, Montant, Paiement, idremise, TypeRecette, CompteVirement, BanqueCheque, TireurCheque from " NOM_TABLE_RECETTESSPECIALES " where idRecette = " + QString::number(idRecEnCours);
-        QSqlQuery ChercheRecQuery (MetAJourrequete,db);
-        ChercheRecQuery.first();
+        QList<QList<QVariant>> listrecettes =
+                db->StandardSelectSQL("select DateRecette, Libelle, Montant, Paiement, idremise, TypeRecette, CompteVirement, BanqueCheque, TireurCheque"
+                                      " from " NOM_TABLE_RECETTESSPECIALES " where idRecette = " + QString::number(idRecEnCours));
+        QList<QVariant> recette = listrecettes.at(0);
 
-        ui->ObjetlineEdit->setText(ChercheRecQuery.value(1).toString());
-        ui->DateRecdateEdit->setDate(ChercheRecQuery.value(0).toDate());
-        ui->MontantlineEdit->setText(QLocale().toString(ChercheRecQuery.value(2).toDouble(),'f',2));
-        QString A = ChercheRecQuery.value(3).toString();                                                         // Mode de paiement - col = 4
+        ui->ObjetlineEdit->setText(recette.at(1).toString());
+        ui->DateRecdateEdit->setDate(recette.at(0).toDate());
+        ui->MontantlineEdit->setText(QLocale().toString(recette.at(2).toDouble(),'f',2));
+        QString A = recette.at(3).toString();                                                         // Mode de paiement - col = 4
         QString B = "";
         ui->Comptelabel->setVisible(false);
         ui->ComptesupComboBox->setVisible(false);
@@ -636,31 +612,31 @@ void dlg_recettesspeciales::MetAJourFiche()
             A = NOM_ESPECES;
         else if (A == "V")
         {
-            if (ChercheRecQuery.value(6).toInt()>0)
+            if (recette.at(6).toInt()>0)
             {
-                QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll().find(ChercheRecQuery.value(6).toInt());
+                QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll().find(recette.at(6).toInt());
                 if( compteFind != gDataUser->getComptes()->comptesAll().constEnd() )
                 {
                     B = compteFind.value()->nom();
                     ui->Comptelabel->setVisible(true);
                     ui->ComptesupComboBox->setVisible(true);
-                    ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(ChercheRecQuery.value(6).toInt()));
+                    ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
                 }
             }
             A = NOM_VIREMENT;
         }
         else if (A == "C")
         {
-            if (ChercheRecQuery.value(7).toString() != "")
+            if (recette.at(7).toString() != "")
             {
-                B = ChercheRecQuery.value(7).toString();
+                B = recette.at(7).toString();
                 ui->BanqChequpComboBox  ->setVisible(true);
                 ui->BanqueChequelabel   ->setVisible(true);
                 ui->BanqChequpComboBox  ->setCurrentIndex(ui->BanqChequpComboBox->findText(B));
             }
-            if (ChercheRecQuery.value(8).toString() != "")
+            if (recette.at(8).toString() != "")
             {
-                B = ChercheRecQuery.value(8).toString();
+                B = recette.at(8).toString();
                 ui->Tireurlabel     ->setVisible(true);
                 ui->TireurlineEdit  ->setVisible(true);
                 ui->TireurlineEdit  ->setText(B);
@@ -668,7 +644,7 @@ void dlg_recettesspeciales::MetAJourFiche()
             A = NOM_CHEQUE;
         }
         ui->PaiementcomboBox    ->setCurrentIndex(ui->PaiementcomboBox->findText(A));
-        ui->RefFiscalecomboBox  ->setCurrentText(ChercheRecQuery.value(5).toString());
+        ui->RefFiscalecomboBox  ->setCurrentText(recette.at(5).toString());
 
         connect (ui->DateRecdateEdit,       &QDateEdit::dateChanged,                                [=] {EnableModifiepushButton();});
         connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged,                         [=] {EnableModifiepushButton();});
@@ -692,7 +668,8 @@ void dlg_recettesspeciales::MetAJourFiche()
             if (Paiement == NOM_VIREMENT)
                 // on recherche si l'écriture existe dans archivesbanques et si c'est le cas, on ne peut pas modifier le montant
             {
-                modifiable = QSqlQuery("select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idrecspec = " + QString::number(idRecEnCours),db).size() == 0;
+                QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idrecspec = " + QString::number(idRecEnCours));
+                modifiable = (listlignes.size() == 0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
                 ui->Comptelabel->setVisible(modifiable);
@@ -703,10 +680,8 @@ void dlg_recettesspeciales::MetAJourFiche()
             else if (Paiement == NOM_CHEQUE)
                 // on recherche si le chéque a été déposé et si c'est le cas, on ne peut pas modifier le montant
             {
-                QString requete = "select idRemise from " NOM_TABLE_RECETTESSPECIALES " where idrecspec = " + QString::number(idRecEnCours);
-                QSqlQuery cherchequery(requete,db);
-                cherchequery.first();
-                modifiable = !cherchequery.value(0).isNull();
+                QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idRemise from " NOM_TABLE_RECETTESSPECIALES " where idrecspec = " + QString::number(idRecEnCours));
+                modifiable = !(listlignes.at(0).at(0).toInt()>0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
                 ui->BanqChequpComboBox->setEnabled(modifiable);
@@ -741,76 +716,56 @@ void dlg_recettesspeciales::ModifierRecette()
     if (!VerifSaisie())
         return;
     // on reconstruit les renseignements de la recette à modifier
-    QString req = "select paiement, comptevirement, banquecheque, idremise from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + idRec;
-    QSqlQuery ancquer(req, db);
-    if (ancquer.size()==0)
+    QList<QList<QVariant>> listpaiements = db->StandardSelectSQL("select paiement, comptevirement, banquecheque, idremise from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + idRec);
+    if (listpaiements.size()==0)
     {
         EnregistreRecette();
         return;
     }
-    ancquer.first();
-    QString ancpaiement = ancquer.value(0).toString();
+    QString ancpaiement = listpaiements.at(0).at(0).toString();
 
     if (ancpaiement == "E")
-     {
-        req = "delete from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + idRec;
-        //qDebug() << req;
-        QSqlQuery(req, db);
-        EnregistreRecette();
-     }
-     else if (ancpaiement == "C")
-     {
-         // le cheque a été remis en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecettes
-         if (ancquer.value(3).toInt()>0)
-         {
-             req = "update " NOM_TABLE_RECETTESSPECIALES " set "
-                   "DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                   "Libelle = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) +"', "
-                   "TypeRecette = '" + ui->RefFiscalecomboBox->currentText() + "'"
-                   " where idrecette = " + idRec;
-             QSqlQuery(req,db);
-         }
-         else
-         // le cheque n'a pas été remis en banque, on remet tout à jour
-         {
-             req = "delete from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + idRec;
-             //qDebug() << req;
-             QSqlQuery(req, db);
-             EnregistreRecette();
-         }
-     }
-     else if (ancpaiement == "V")
-     {
-         QString req = "select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idrecspec = " + idRec;
-         QSqlQuery archvirquer(req, db);
-         if (archvirquer.size()>0)
-         {
-             // le virement a été enregistré en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecettes et archivesbanques
-             archvirquer.first();
-             QString idligne = archvirquer.value(0).toString();
-             req = "update " NOM_TABLE_ARCHIVESBANQUE " set "
-                   "LigneDate = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                   "LigneLibelle = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) + "'"
-                   "LigneTypeOperation = '" + proc->CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'"
-                   " where idligne = " + idligne;
-             QSqlQuery quer1(req,db);
-             m_db->traiteErreurRequete(quer1,req);
-             req = "update " NOM_TABLE_RECETTESSPECIALES " set "
-                   "DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                   "Libelle = '" + proc->CorrigeApostrophe(ui->ObjetlineEdit->text()) + "'"
-                   "TypeRecette = '" + proc->CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'"
-                   " where idrecette = " + idRec;
-             QSqlQuery quer2(req,db);
-             m_db->traiteErreurRequete(quer2,req);
-         }
-         else
-         // le virement n'a pas été enregistré en banque
-         {
-             req = "delete from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + idRec;
-             //qDebug() << req;
-             QSqlQuery(req, db);
-             EnregistreRecette();
-         }
+        db->SupprRecordFromTable(idRecEnCours,"idrecette", NOM_TABLE_RECETTESSPECIALES);
+    else if (ancpaiement == "C")
+    {
+        // le cheque a été remis en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecettes
+        if (listpaiements.at(0).at(3).toInt()>0)
+            db->StandardSQL("update " NOM_TABLE_RECETTESSPECIALES " set "
+                  "DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
+                  "Libelle = '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +"', "
+                  "TypeRecette = '" + ui->RefFiscalecomboBox->currentText() + "'"
+                  " where idrecette = " + idRec);
+        else
+            // le cheque n'a pas été remis en banque, on remet tout à jour
+        {
+            db->SupprRecordFromTable(idRecEnCours,"idrecette", NOM_TABLE_RECETTESSPECIALES);
+            EnregistreRecette();
+        }
+    }
+    else if (ancpaiement == "V")
+    {
+        QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idrecspec = " + idRec);
+        if (listlignes.size()>0)
+        {
+            // le virement a été enregistré en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecettes et archivesbanques
+            QString idligne = listlignes.at(0).at(0).toString();
+            db->StandardSQL("update " NOM_TABLE_ARCHIVESBANQUE " set "
+                  "LigneDate = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
+                  "LigneLibelle = '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) + "'"
+                  "LigneTypeOperation = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'"
+                  " where idligne = " + idligne);
+            db->StandardSQL("update " NOM_TABLE_RECETTESSPECIALES " set "
+                  "DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
+                  "Libelle = '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) + "'"
+                  "TypeRecette = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'"
+                  " where idrecette = " + idRec);
+        }
+        else
+            // le virement n'a pas été enregistré en banque
+        {
+            db->SupprRecordFromTable(idRecEnCours,"idrecette", NOM_TABLE_RECETTESSPECIALES);
+            EnregistreRecette();
+        }
     }
     RedessineBigTable(idRec.toInt());
     RegleAffichageFiche(gBigTable->rowCount()>0? Lire : TableVide);
@@ -940,14 +895,12 @@ void dlg_recettesspeciales::DefinitArchitectureBigTable()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_recettesspeciales::ReconstruitListeAnnees()
 {
-    QString requete = "SELECT distinct Annee from (SELECT year(DateRecette) as Annee FROM " NOM_TABLE_RECETTESSPECIALES " WHERE idUser = " + QString::number(gDataUser->id()) + ") as ghf order by Annee";
-    QSqlQuery ChercheAnneesQuery (requete,db);
+    QList<QList<QVariant>> listannees =
+            db->StandardSelectSQL("SELECT distinct Annee from (SELECT year(DateRecette) as Annee FROM " NOM_TABLE_RECETTESSPECIALES
+                                  " WHERE idUser = " + QString::number(gDataUser->id()) + ") as ghf order by Annee");
     QStringList ListeAnnees;
-    for (int i = 0; i < ChercheAnneesQuery.size(); i++)
-    {
-            ChercheAnneesQuery.seek(i);
-            ListeAnnees << ChercheAnneesQuery.value(0).toString();
-    }
+    for (int i = 0; i < listannees.size(); i++)
+            ListeAnnees << listannees.at(i).at(0).toString();
     ui->AnneecomboBox->disconnect();
     ui->AnneecomboBox->clear();
     ui->AnneecomboBox->insertItems(0,ListeAnnees);
@@ -972,16 +925,17 @@ void dlg_recettesspeciales::RemplitBigTable()
         Recrequete += " AND year(DateRecette) = " + ui->AnneecomboBox->currentText();
     Recrequete += " ORDER BY DateRecette, Libelle";
     //proc->Edit(Recrequete);
-    QSqlQuery EnumRecettesQuery (Recrequete,db);
-    if (m_db->traiteErreurRequete(EnumRecettesQuery,Recrequete,"Impossible de retrouver la table des depenses"))
-        return;
-    gBigTable->setRowCount(EnumRecettesQuery.size());
-    EnumRecettesQuery.first();
+    QList<QList<QVariant>> listrecettes = db->StandardSelectSQL(Recrequete);
 
-    for (int i = 0; i < EnumRecettesQuery.size(); i++)
+    if (listrecettes.size()==1 && listrecettes.at(0).at(0)==QVariant())
+        return;
+    gBigTable->setRowCount(listrecettes.size());
+
+    for (int i = 0; i < listrecettes.size(); i++)
         {
             int col = 0;
-            int id = EnumRecettesQuery.value(0).toInt();
+            QList<QVariant> recette = listrecettes.at(i);
+            int id = recette.at(i).toInt();
 
             label0 = new UpLabel;
             label1 = new UpLabel;
@@ -1015,40 +969,40 @@ void dlg_recettesspeciales::RemplitBigTable()
             connect(label5,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label5);});
             connect(label6,  &QWidget::customContextMenuRequested,   [=] {MenuContextuel(label6);});
 
-            A = EnumRecettesQuery.value(0).toString();                                                                  // idRecette - col = 0
+            A = recette.at(0).toString();                                                                  // idRecette - col = 0
             label0->setText(A);
             gBigTable->setCellWidget(i,col,label0);
             col++;
 
-            A = EnumRecettesQuery.value(3).toDate().toString(tr("d MMM yyyy"));                                         // DateRecette col = 1
+            A = recette.at(3).toDate().toString(tr("d MMM yyyy"));                                         // DateRecette col = 1
             label1->setText(A + " ");
             label1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
             gBigTable->setCellWidget(i,col,label1);
             col++;
 
-            label2->setText(" " + EnumRecettesQuery.value(4).toString());                                               // Libelle - col = 2
+            label2->setText(" " + recette.at(4).toString());                                               // Libelle - col = 2
             gBigTable->setCellWidget(i,col,label2);
             col++;
 
-            if (EnumRecettesQuery.value(8).toString() == "F")
-                A = QLocale().toString(EnumRecettesQuery.value(5).toDouble()/6.55957,'f',2);                            // Montant en F converti en euros
+            if (recette.at(8).toString() == "F")
+                A = QLocale().toString(recette.at(5).toDouble()/6.55957,'f',2);                            // Montant en F converti en euros
             else
-                A = QLocale().toString(EnumRecettesQuery.value(5).toDouble(),'f',2);                                    // Montant - col = 3
+                A = QLocale().toString(recette.at(5).toDouble(),'f',2);                                    // Montant - col = 3
             label3->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
             label3->setText(A + " ");                                                                                   // Montant - col = 3
             gBigTable->setCellWidget(i,col,label3);
             col++;
 
-            A = EnumRecettesQuery.value(9).toString();                                                                  // Paiement - col = 4
+            A = recette.at(9).toString();                                                                  // Paiement - col = 4
             QString B = "";
             QString C = "";
             if (A == "E")
                 A = NOM_ESPECES;
             else if (A == "V")
             {
-                if (EnumRecettesQuery.value(10).toInt() > 0)
+                if (recette.at(10).toInt() > 0)
                 {
-                    QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll().find(EnumRecettesQuery.value(10).toInt());
+                    QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll().find(recette.at(10).toInt());
                     if( cptFind != gDataUser->getComptes()->comptesAll().constEnd() )
                         B = cptFind.value()->nom();
                 }
@@ -1056,26 +1010,24 @@ void dlg_recettesspeciales::RemplitBigTable()
             }
             else if (A == "C")
             {
-                B = EnumRecettesQuery.value(11).toString();
+                B = recette.at(11).toString();
                 A = NOM_CHEQUE + (B==""? "" : " " + B);
             }
             label4->setText(" " + A);
             gBigTable->setCellWidget(i,col,label4);
             col++;
 
-            A = EnumRecettesQuery.value(6).toString();                                                                  // Famille fiscale - col = 5
+            A = recette.at(6).toString();                                                                  // Famille fiscale - col = 5
             label6->setText(" " + A);
             gBigTable->setCellWidget(i,col,label6);
             col++;
 
-            A = EnumRecettesQuery.value(3).toDate().toString("yyyy-MM-dd");                                             // ClassementparDate - col = 6
+            A = recette.at(3).toDate().toString("yyyy-MM-dd");                                             // ClassementparDate - col = 6
             pItem8 = new QTableWidgetItem() ;
             pItem8->setText(A);
             gBigTable->setItem(i,col,pItem8);
 
             gBigTable->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
-
-            EnumRecettesQuery.next();
         }
     ui->SupprimerupPushButton->setEnabled(false);
     connect (gBigTable,     &QTableWidget::itemSelectionChanged, [=] {RegleAffichageFiche(Lire);});

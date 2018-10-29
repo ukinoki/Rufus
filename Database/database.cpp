@@ -168,14 +168,15 @@ int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, QString err
 bool DataBase::SupprRecordFromTable(int id, QString nomChamp, QString nomtable, QString errormsg)
 {
     QString req = "delete from " + nomtable + " where " + nomChamp + " = " + QString::number(id);
-    return StandardInsertSQL(req, errormsg);
+    return StandardSQL(req, errormsg);
 }
 
 QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectChamp,
                                                         QString nomtable,
                                                         QString where,
                                                         QString orderby,
-                                                        bool distinct)
+                                                        bool distinct,
+                                                        QString errormsg)
 {
     QList<QList<QVariant>> listreponses;
     QString Distinct = (distinct? "distinct " : "");
@@ -188,17 +189,7 @@ QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectCh
         req += " " + where;
     if (orderby != "")
         req += " " + orderby;
-    QSqlQuery query(req, getDataBase());
-    if( traiteErreurRequete(query, req) || !query.first())
-        return listreponses;
-    do
-    {
-        QList<QVariant> record;
-        for (int i=0; i<listselectChamp.size(); ++i)
-            record << query.value(i);
-        listreponses << record;
-    } while (query.next());
-    return listreponses;
+    return StandardSelectSQL(req, errormsg);
 }
 
 bool DataBase::UpdateTable(QString nomtable,
@@ -211,7 +202,7 @@ bool DataBase::UpdateTable(QString nomtable,
         req += " " + itset.key() + " = " + (itset.value().toLower()=="null"? "null," : "'" + Utils::CorrigeApostrophe(itset.value()) + "',");
     req = req.left(req.size()-1); //retire la virgule de la fin
     req += " " + where;
-    return StandardInsertSQL(req, errormsg);
+    return StandardSQL(req, errormsg);
 }
 
 bool DataBase::InsertIntoTable(QString nomtable,
@@ -229,13 +220,35 @@ bool DataBase::InsertIntoTable(QString nomtable,
     champs = champs.left(champs.size()-1) + ") values (";
     valeurs = valeurs.left(valeurs.size()-1) + ")";
     req += champs + valeurs;
-    return StandardInsertSQL(req, errormsg);
+    return StandardSQL(req, errormsg);
 }
 
-bool DataBase::StandardInsertSQL(QString req , QString errormsg)
+bool DataBase::StandardSQL(QString req , QString errormsg)
 {
     QSqlQuery query(req, getDataBase());
     return !traiteErreurRequete(query, req, errormsg);
+}
+
+QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , QString errormsg)
+{
+    QList<QList<QVariant>> listreponses;
+    QSqlQuery query(req, getDataBase());
+    QSqlRecord rec = query.record();
+    if( traiteErreurRequete(query, req, errormsg) || !query.first())
+    {
+        QList<QVariant> recnull;
+        recnull << QVariant();
+        listreponses << recnull;
+        return listreponses;
+    }
+    do
+    {
+        QList<QVariant> record;
+        for (int i=0; i<rec.count(); ++i)
+            record << query.value(i);
+        listreponses << record;
+    } while (query.next());
+    return listreponses;
 }
 
 
@@ -660,6 +673,45 @@ QList<Depense*> DataBase::VerifExistDepense(QHash<int, Depense *> m_listDepenses
     return listdepenses;
 }
 
+/*
+ * Archives
+*/
+QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int intervalle)
+{
+    QList<Archive*> archives;
+    QString req = "select idLigne, idcompte, iddep, idrec, idrecspec, idremcheq, LigneDate, LigneLibelle, LigneMontant,"
+                  " LigneDebitCredit, LigneTypeoperation, LigneDateConsolidation, idArchive from " NOM_TABLE_ARCHIVESBANQUE
+                  " where idCompte = " + QString::number(compte->id())
+                + " and lignedateconsolidation > '" + date.addDays(-intervalle).toString("yyyy-MM-dd") + "'"
+                + " and lignedateconsolidation <= '" + date.toString("yyyy-MM-dd") + "'";
+   QSqlQuery query (req,getDataBase());
+    if( traiteErreurRequete(query, req) || !query.first())
+        return archives;
+    do
+    {
+       QJsonObject jData{};
+        jData["idligne"]                = query.value(0).toInt();
+        jData["idcompte"]               = query.value(1).toInt();
+        jData["iddepense"]              = query.value(2).toInt();
+        jData["idrecette"]              = query.value(3).toInt();
+        jData["idrecettespeciale"]      = query.value(4).toInt();
+        jData["idremisecheque"]         = query.value(5).toInt();
+        jData["lignedate"]              = query.value(6).toDate().toString("yyyy-MM-dd");
+        jData["lignelibelle"]           = query.value(7).toString();
+        jData["montant"]                = (query.value(9).toInt()==1? query.value(8).toDouble() : query.value(8).toDouble()*-1);
+        jData["lignetypeoperation"]     = query.value(10).toString();
+        jData["lignedateconsolidation"] = query.value(11).toDate().toString("yyyy-MM-dd");
+        jData["idarchive"]              = query.value(12).toInt();
+        Archive *arc = new Archive(jData);
+        archives << arc;
+    } while( query.next() );
+
+    return archives;
+}
+
+/*******************************************************************************************************************************************************************
+ ***** FIN COMPTABILITÊ ********************************************************************************************************************************************
+********************************************************************************************************************************************************************/
 /*
  * Sites
 */

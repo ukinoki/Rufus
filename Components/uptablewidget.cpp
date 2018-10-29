@@ -58,13 +58,14 @@ void UpTableWidget::clearSelection()
     setRangeSelected(QTableWidgetSelectionRange(0,0,rowCount()-1,columnCount()-1),false);
 }
 
-void UpTableWidget::FixLargeurTotale()
+int UpTableWidget::FixLargeurTotale()
 {
     int larg = 0;
     for (int i=0; i < columnCount(); i++)
         if (!isColumnHidden(i))
             larg += columnWidth(i);
     setFixedWidth(larg+2);
+    return larg+2;
 }
 
 int UpTableWidget::rowNoHiddenCount()

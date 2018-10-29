@@ -64,6 +64,7 @@ void Comptes::addCompte(Compte *compte)
     if( !compte->isDesactive() )
         m_comptes.insert(compte->id(), compte);
 }
+
 void Comptes::addCompte(QList<Compte*> listCompte)
 {
     QList<Compte*>::const_iterator it;

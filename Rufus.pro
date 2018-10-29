@@ -107,14 +107,12 @@ include(Database/database.pri)
 include(Dialogs/dialogs.pri)
 include(Items/items.pri)
 
-
-
 TRANSLATIONS    = rufus_en.ts
 
 RESOURCES += \
     assets/Images/images.qrc \
     assets/Sons/sons.qrc \
-    assets/Fichiers/Fichiers.qrc
+    assets/Fichiers/Fichiers.qrc \
 
 ICON += \
     Sunglasses.icns

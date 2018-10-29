@@ -185,6 +185,7 @@ public:
     static QIcon icFamily() { return foundIC("icFamily", "://family.png", QSize(30,30)); }
     static QIcon icFerme(QSize size = QSize(30,30)) { return foundIC("icFermeRelache", "://shutdown.png", size); }
     static QIcon icFermeAppuye(QSize size = QSize(30,30)) { return foundIC("icFermeAppuye", "://shutdowndown.png", size); }
+    static QIcon icFlecheHaut() { return foundIC("icFlHaut", "://up-arrow-icon.png", QSize(30,30)); }
     static QIcon icFont() { return foundIC("icFont", "://font.png", QSize(30,30)); }
     static QIcon icFontmore() { return foundIC("icFontmore", "://fontsizemore.ico", QSize(30,30)); }
     static QIcon icFontless() { return foundIC("icFontless", "://fontsizeless.ico", QSize(30,30)); }

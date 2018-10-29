@@ -16,8 +16,10 @@
 #include <QObject>
 #include <QSettings>
 #include <QSqlDatabase>
+#include <QSqlRecord>
 
 #include "cls_acte.h"
+#include "cls_archivebanque.h"
 #include "cls_patient.h"
 #include "cls_user.h"
 #include "cls_correspondant.h"
@@ -70,17 +72,17 @@ public:
 
     QString connectToDataBase(QString basename, QString login, QString password);
 
-    void    commit();
-    void    rollback();
-    bool    locktables(QStringList ListTables, QString ModeBlocage = "WRITE");
-    bool    testconnexionbase();
-    int     selectMaxFromTable(QString nomchamp, QString nomtable, QString errormsg="");
-    bool    SupprRecordFromTable(int id, QString nomChamp, QString nomtable, QString errormsg="");
-    QList<QList<QVariant>> SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, QString where = "", QString orderby="", bool distinct=false);
-    bool    UpdateTable(QString nomtable, QHash<QString, QString>, QString where, QString errormsg="");
-    bool    InsertIntoTable(QString nomtable,  QHash<QString, QString>, QString errormsg="");
-    bool    StandardInsertSQL(QString req , QString errormsg="");
-
+    void                    commit();
+    void                    rollback();
+    bool                    locktables(QStringList ListTables, QString ModeBlocage = "WRITE");
+    bool                    testconnexionbase();
+    int                     selectMaxFromTable(QString nomchamp, QString nomtable, QString errormsg="");
+    bool                    SupprRecordFromTable(int id, QString nomChamp, QString nomtable, QString errormsg="");
+    QList<QList<QVariant>>  SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, QString where = "", QString orderby="", bool distinct=false, QString errormsg="");
+    bool                    UpdateTable(QString nomtable, QHash<QString, QString>, QString where, QString errormsg="");
+    bool                    InsertIntoTable(QString nomtable,  QHash<QString, QString>, QString errormsg="");
+    bool                    StandardSQL(QString req , QString errormsg="");
+    QList<QList<QVariant>>  StandardSelectSQL(QString req, QString errormsg="");
     /*
      * Users
     */
@@ -105,6 +107,7 @@ public:
     QStringList     ListeRubriquesFiscales();
     QList<Depense*> VerifExistDepense(QHash<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser, Comparateurs Comp = Egal);
     int             getMaxLigneBanque();
+    QList<Archive*> loadArchiveByDate(QDate date, Compte *compte, int intervalle); //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
 
     /*
      * Sites

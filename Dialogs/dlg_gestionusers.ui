@@ -461,7 +461,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap resource="Images/images.qrc">:/password.png</pixmap>
+          <pixmap resource="../assets/Images/images.qrc">:/password.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>true</bool>
@@ -1381,14 +1381,19 @@ pour l'enregistrement des actes</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpSmallButton</class>
    <extends>QPushButton</extends>
    <header>upsmallbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLabel</class>
+   <extends>QLabel</extends>
+   <header>uplabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpPushButton</class>
@@ -1399,11 +1404,6 @@ pour l'enregistrement des actes</string>
    <class>UpComboBox</class>
    <extends>QComboBox</extends>
    <header>upcombobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLabel</class>
-   <extends>QLabel</extends>
-   <header>uplabel.h</header>
   </customwidget>
   <customwidget>
    <class>UpRadioButton</class>
@@ -1445,7 +1445,7 @@ pour l'enregistrement des actes</string>
   <tabstop>AssistantupRadioButton</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="../assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>
