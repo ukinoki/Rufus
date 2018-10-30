@@ -205,3 +205,33 @@ QString Utils::CorrigeApostrophe(QString RechAp)
     RechAp.replace("\\","\\\\");
     return RechAp.replace("'","\\'");
 }
+
+/*---------------------------------------------------------------------------------------------------------------------
+    -- VÉRIFICATION DE MDP --------------------------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------------------------------*/
+bool Utils::VerifMDP(QString MDP, QString Msg, bool mdpverified)
+{
+    if (mdpverified)
+        return true;
+    QInputDialog quest;
+    quest.setCancelButtonText("Annuler");
+    quest.setLabelText(Msg);
+    quest.setInputMode(QInputDialog::TextInput);
+    quest.setTextEchoMode(QLineEdit::Password);
+    QList<QLineEdit*> list = quest.findChildren<QLineEdit*>();
+    for (int i=0;i<list.size();i++)
+        list.at(0)->setAlignment(Qt::AlignCenter);
+    QList<QLabel*> listlab = quest.findChildren<QLabel*>();
+    for (int i=0;i<listlab.size();i++)
+        listlab.at(0)->setAlignment(Qt::AlignCenter);
+    quest.setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    if (quest.exec() > 0)
+    {
+        if (quest.textValue() == MDP)
+            return true;
+        else
+            UpMessageBox::Watch(Q_NULLPTR, "Mot de passe invalide!");
+    }
+    return false;
+}
+

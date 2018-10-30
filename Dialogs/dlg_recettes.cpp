@@ -191,8 +191,8 @@ QList<QList<QVariant> > dlg_recettes::CalcBilan()
 
         //proc->Edit(req);
         //p... ça c'est de la requête
-
-        gBilan =  db->StandardSelectSQL(req);
+        bool OK = true;
+        gBilan =  db->StandardSelectSQL(req, OK);
 
         if (gBilan.size() == 0)
         {

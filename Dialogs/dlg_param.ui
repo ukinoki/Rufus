@@ -484,19 +484,6 @@
               <number>45</number>
              </property>
             </widget>
-            <widget class="UpGroupBox" name="AdressgroupBox">
-             <property name="geometry">
-              <rect>
-               <x>70</x>
-               <y>130</y>
-               <width>461</width>
-               <height>141</height>
-              </rect>
-             </property>
-             <property name="title">
-              <string/>
-             </property>
-            </widget>
             <widget class="QTextEdit" name="StatutComptaupTextEdit">
              <property name="geometry">
               <rect>
@@ -508,6 +495,16 @@
              </property>
              <property name="focusPolicy">
               <enum>Qt::NoFocus</enum>
+             </property>
+            </widget>
+            <widget class="UpTableWidget" name="AdressupTableWidget">
+             <property name="geometry">
+              <rect>
+               <x>28</x>
+               <y>130</y>
+               <width>530</width>
+               <height>145</height>
+              </rect>
              </property>
             </widget>
            </widget>
@@ -3179,6 +3176,11 @@ des organismes bancaires</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpSmallButton</class>
    <extends>QPushButton</extends>
    <header>upsmallbutton.h</header>
@@ -3194,19 +3196,9 @@ des organismes bancaires</string>
    <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>UpPushButton</class>
-   <extends>QPushButton</extends>
-   <header>uppushbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpComboBox</class>
    <extends>QComboBox</extends>
    <header>upcombobox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpTableWidget</class>
-   <extends>QTableWidget</extends>
-   <header>uptablewidget.h</header>
   </customwidget>
   <customwidget>
    <class>UpRadioButton</class>
@@ -3214,10 +3206,9 @@ des organismes bancaires</string>
    <header>upradiobutton.h</header>
   </customwidget>
   <customwidget>
-   <class>UpGroupBox</class>
-   <extends>QGroupBox</extends>
-   <header>upgroupbox.h</header>
-   <container>1</container>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header location="global">uptablewidget.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

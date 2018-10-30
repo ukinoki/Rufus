@@ -32,6 +32,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "villecpwidget.h"
 #include "ui_villecpwidget.h"
 #include "widgetbuttonframe.h"
+#include "upheaderview.h"
 
 namespace Ui {
 class dlg_param;
@@ -61,6 +62,7 @@ private:
     bool                    gModifPoste;
     bool                    gCotationsModifiees;
     bool                    DonneesUserModifiees;
+    bool                    MDPVerifiedAdmin, MDPVerifiedUser;
     Procedures              *proc;
     UpDialog                *gAskAppareil, *gAskMDP;
     User                    *gDataUser;

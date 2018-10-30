@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("29-10-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("30-10-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -43,7 +43,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     proc = new Procedures(this);
 
-    if (!proc->Init())                                                  // vérifie que les fichier rufus.ini est cohérent
+    if (!proc->Init())                                                  // vérifie que le fichier rufus.ini est cohérent
         exit(0);                                                        // choisit le mode de connexion au serveur
 
     //0. Connexion à la base et récupération des données utilisateur
@@ -228,7 +228,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     connect(gTimerImportDocsExternes,       &QTimer::timeout,   [=] {ImportDocsExternes();});
 
     VerifMessages();
-    if (DataBase::getInstance()->getMode() == DataBase::Distant)
+    if (DataBase::getInstance()->getMode() == DataBase::Distant || !UtiliseTCP)
         connect(gTimerVerifMessages,        &QTimer::timeout,   [=] {VerifMessages();});
     FlagMetAjourSalDat();
 

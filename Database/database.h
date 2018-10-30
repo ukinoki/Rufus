@@ -53,8 +53,6 @@ private:
 
 
 public:
-    //enum gComparateur {SUP, INF, EGAL};
-
     static DataBase *getInstance();
 
     void init(QSettings const &setting, int mode);
@@ -78,11 +76,11 @@ public:
     bool                    testconnexionbase();
     int                     selectMaxFromTable(QString nomchamp, QString nomtable, QString errormsg="");
     bool                    SupprRecordFromTable(int id, QString nomChamp, QString nomtable, QString errormsg="");
-    QList<QList<QVariant>>  SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, QString where = "", QString orderby="", bool distinct=false, QString errormsg="");
+    QList<QList<QVariant>>  SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, bool &OK, QString where = "", QString orderby="", bool distinct=false, QString errormsg="");
     bool                    UpdateTable(QString nomtable, QHash<QString, QString>, QString where, QString errormsg="");
     bool                    InsertIntoTable(QString nomtable,  QHash<QString, QString>, QString errormsg="");
     bool                    StandardSQL(QString req , QString errormsg="");
-    QList<QList<QVariant>>  StandardSelectSQL(QString req, QString errormsg="");
+    QList<QList<QVariant>>  StandardSelectSQL(QString req, bool &ok, QString errormsg="");  // la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides
     /*
      * Users
     */
@@ -129,6 +127,11 @@ public:
     QList<Patient*> loadPatientAll();
     Patient*        loadPatientById(int idPat);
 
+    /*
+     * Mots de passe
+    */
+    //Pas normal, les mots de passes doivent etre chiffrés
+    QString getMDPAdmin();
 
     /*
      * Actes

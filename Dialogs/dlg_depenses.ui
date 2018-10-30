@@ -145,7 +145,7 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4">
+      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,1,5,15">
        <item>
         <widget class="UpPushButton" name="ExportupPushButton">
          <property name="minimumSize">
@@ -179,7 +179,7 @@
          </property>
          <property name="sizeHint" stdset="0">
           <size>
-           <width>250</width>
+           <width>160</width>
            <height>20</height>
           </size>
          </property>
@@ -195,13 +195,13 @@
          </property>
          <property name="minimumSize">
           <size>
-           <width>280</width>
+           <width>480</width>
            <height>0</height>
           </size>
          </property>
          <property name="maximumSize">
           <size>
-           <width>200</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>

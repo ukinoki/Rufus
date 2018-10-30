@@ -173,6 +173,7 @@ bool DataBase::SupprRecordFromTable(int id, QString nomChamp, QString nomtable, 
 
 QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectChamp,
                                                         QString nomtable,
+                                                        bool &OK,
                                                         QString where,
                                                         QString orderby,
                                                         bool distinct,
@@ -189,7 +190,7 @@ QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectCh
         req += " " + where;
     if (orderby != "")
         req += " " + orderby;
-    return StandardSelectSQL(req, errormsg);
+    return StandardSelectSQL(req, OK, errormsg);
 }
 
 bool DataBase::UpdateTable(QString nomtable,
@@ -229,18 +230,19 @@ bool DataBase::StandardSQL(QString req , QString errormsg)
     return !traiteErreurRequete(query, req, errormsg);
 }
 
-QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , QString errormsg)
+QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg)
 {
     QList<QList<QVariant>> listreponses;
     QSqlQuery query(req, getDataBase());
     QSqlRecord rec = query.record();
-    if( traiteErreurRequete(query, req, errormsg) || !query.first())
+    if( traiteErreurRequete(query, req, errormsg))
     {
-        QList<QVariant> recnull;
-        recnull << QVariant();
-        listreponses << recnull;
+        OK = false;
         return listreponses;
     }
+    OK = true;
+    if( !query.first())
+        return listreponses;
     do
     {
         QList<QVariant> record;
@@ -831,6 +833,19 @@ Patient* DataBase::loadPatientById(int idPat)
     patient->setData(jData);
 
     return patient;
+}
+
+/*
+ * MDP
+*/
+//Pas normal, les mots de passes doivent etre chiffrés
+QString DataBase::getMDPAdmin()
+{
+    QSqlQuery mdpquer("select mdpadmin from " NOM_TABLE_PARAMSYSTEME, getDataBase() );
+    mdpquer.first();
+    if (mdpquer.value(0).toString() == "")
+        QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'", getDataBase() );
+    return (mdpquer.value(0).toString() != ""? mdpquer.value(0).toString() : NOM_MDPADMINISTRATEUR);
 }
 
 

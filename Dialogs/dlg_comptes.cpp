@@ -123,8 +123,9 @@ void dlg_comptes::AnnulArchive()
 
     // recalculer le solde
     double NouveauSolde = QLocale().toDouble(ui->MontantSoldeBrutlabel->text());
+    bool ok = true;
     QList<QList<QVariant>> listsoldes = db->SelectRecordsFromTable(QStringList() << "LigneMontant" << "LigneDebitCredit",
-                                                              NOM_TABLE_LIGNESCOMPTES,
+                                                              NOM_TABLE_LIGNESCOMPTES, ok,
                                                               " where idcompte = " + QString::number(idCompte));
     if (listsoldes.size() == 0)
     {
@@ -569,14 +570,14 @@ void dlg_comptes::CalculeTotal()
             QLabel *Lbl2 = dynamic_cast<QLabel*>(gBigTable->cellWidget(k,5));
             if (Lbl2)
             {
-                Total -= QLocale().toDouble(Lbl2->text());
+                Total += QLocale().toDouble(Lbl2->text());
                 QWidget *Wdg = dynamic_cast<QWidget*>(gBigTable->cellWidget(k,6));
                 if (Wdg)
                 {
                     QList<UpCheckBox *> allCheck = Wdg->findChildren<UpCheckBox *>();
                     for (int n = 0; n <  allCheck.size(); n++)
                         if (allCheck.at(n)->isChecked())
-                            TotalConsolide -= QLocale().toDouble(Lbl2->text());
+                            TotalConsolide += QLocale().toDouble(Lbl2->text());
                 }
             }
         }
@@ -590,8 +591,9 @@ void dlg_comptes::ChangeCompte(int idx)
     idCompte = ui->BanquecomboBox->itemData(idx).toInt();
     CompteEnCours = comptesusr->getCompteById(idCompte);
     // on doit refaire la requête parce que le sole s'il est null est passé en 0 par loadcomptesbyUser()
+    bool ok = true;
     QList<QList<QVariant>> listsoldes = db->SelectRecordsFromTable(QStringList() << "SoldeSurDernierReleve",
-                                                                   NOM_TABLE_COMPTES,
+                                                                   NOM_TABLE_COMPTES, ok,
                                                                    "where idcompte = " + QString::number(idCompte));
     if (listsoldes.size() > 0)
     {
@@ -716,9 +718,10 @@ void dlg_comptes::DefinitArchitetureTable()
 
 void dlg_comptes::RemplitLaTable(int idCompteAVoir)
 {
+    bool ok = true;
     QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "idLigne" << "idCompte" << "idDep" << "idRec" << "LigneDate" << "LigneLibelle"
                                                                        << "LigneMontant" << "LigneDebitCredit" << "LigneTypeOperation" << "LigneConsolide",
-                                                                       NOM_TABLE_LIGNESCOMPTES,
+                                                                       NOM_TABLE_LIGNESCOMPTES, ok,
                                                                        "where idCompte = " + QString::number(idCompteAVoir),
                                                                        "order by LigneDate, lignelibelle, ligneMontant");
 
@@ -826,9 +829,9 @@ void dlg_comptes::InsertLigneSurLaTable(QList<QVariant> ligne, int row)
     gBigTable->setCellWidget(row,col,lbl3);
     col++;
 
-    if (ligne.at(7).toInt() > 0)
+    if (ligne.at(7).toInt() > 0)                                                                // Crédit - col = 4
     {
-        A = QLocale().toString(ligne.at(6).toDouble(),'f',2);                                 // Crédit - col = 4
+        A = QLocale().toString(ligne.at(6).toDouble(),'f',2);
         lbl4->setText(A + " ");
         lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
         lbl4->setFocusPolicy(Qt::NoFocus);
@@ -839,14 +842,14 @@ void dlg_comptes::InsertLigneSurLaTable(QList<QVariant> ligne, int row)
         lbl5->setFocusPolicy(Qt::NoFocus);
         gBigTable->setCellWidget(row,col,lbl5);
     }
-    if (ligne.at(7).toInt() < 1)
+    if (ligne.at(7).toInt() < 1)                                                                // Débit - col = 5
     {
+        A = QLocale().toString(ligne.at(6).toDouble()*-1,'f',2);
         lbl4->setText("");
         lbl4->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
         lbl4->setFocusPolicy(Qt::NoFocus);
         gBigTable->setCellWidget(row,col,lbl4);
         col++;
-        A = QLocale().toString(ligne.at(6).toDouble(),'f',2);                                 // Dédit - col = 5
         lbl5->setText(A + " ");
         lbl5->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
         lbl5->setFocusPolicy(Qt::NoFocus);
@@ -854,7 +857,7 @@ void dlg_comptes::InsertLigneSurLaTable(QList<QVariant> ligne, int row)
     }
     col++;
 
-    int b = ligne.at(9).toInt();                                                            // Consolidé - col = 6
+    int b = ligne.at(9).toInt();                                                                // Consolidé - col = 6
     wdg = new QWidget(this);
     Checkbx = new UpCheckBox(wdg);
     if (b == 1)

@@ -37,6 +37,9 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     gAncMDP         = "anc";
     gConfirmMDP     = "confirm";
 
+    MDPVerifiedAdmin= false;
+    MDPVerifiedUser = false;
+
     QStringList ports;
     ports << "3306" << "3307";
     ui->SQLPortDistantcomboBox  ->addItems(ports);
@@ -260,8 +263,6 @@ dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
     ui->RefracteurupComboBox        ->setCurrentText(proc->gsettingsIni->value("Param_Poste/Refracteur").toString());
     ui->PortRefracteurupComboBox    ->setCurrentText(proc->gsettingsIni->value("Param_Poste/PortRefracteur").toString());
     ui->PortTonometreupComboBox     ->setCurrentText(proc->gsettingsIni->value("Param_Poste/PortTonometre").toString());
-
-    ReconstruitListeLieuxExercice();
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
        VilleCPDefautWidg   = new VilleCPWidget(proc->getVilles(), ui->VilleDefautframe, NOM_ALARME);
@@ -814,7 +815,8 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamPosteupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            if (proc->VerifMDP(proc->getMDPAdmin(),"Saisissez le mot de passe Administrateur"))
+            MDPVerifiedAdmin = proc->VerifMDP(proc->getMDPAdmin(),"Saisissez le mot de passe Administrateur", MDPVerifiedAdmin);
+            if (MDPVerifiedAdmin)
             {
                 ui->Posteframe->setEnabled(ui->PosteServcheckBox->isChecked());
                 ui->Localframe->setEnabled(ui->LocalServcheckBox->isChecked());
@@ -843,7 +845,8 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            if (proc->VerifMDP(proc->getUserConnected()->getPassword(),tr("Saisissez votre mot de passe")))
+            MDPVerifiedUser = proc->VerifMDP(proc->getUserConnected()->getPassword(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
+            if (MDPVerifiedUser)
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
         else
@@ -932,7 +935,8 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
         }
         if (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            if (proc->VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
+            MDPVerifiedAdmin = proc->VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), MDPVerifiedAdmin);
+            if (MDPVerifiedAdmin)
             {
                 ui->LockParamGeneralupLabel ->setPixmap(Icons::pxDeverouiller());
                 widgAppareils->moinsBouton      ->setEnabled(ui->AppareilsConnectesupTableWidget->selectedItems().size()>0);
@@ -1048,7 +1052,7 @@ void dlg_param::Slot_GestionBanques()
 
 void dlg_param::Slot_GestDataPersoUser()
 {
-    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), db);
+    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), db, MDPVerifiedAdmin);
     Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  gDataUser->getLogin());
     Dlg_GestUsr->setConfig(dlg_gestionusers::MODIFUSER);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
@@ -1058,6 +1062,8 @@ void dlg_param::Slot_GestDataPersoUser()
         gDataUser = proc->getUserConnected();
         AfficheParamUser();
     }
+    if (!MDPVerifiedUser)
+        MDPVerifiedUser = Dlg_GestUsr->isMDPverified();
     delete Dlg_GestUsr;
 }
 
@@ -1065,7 +1071,6 @@ void dlg_param::Slot_GestLieux()
 {
     dlg_GestionLieux *gestLieux = new dlg_GestionLieux(db);
     gestLieux->exec();
-    ReconstruitListeLieuxExercice();
     AfficheParamUser();
     delete gestLieux;
 }
@@ -1073,32 +1078,38 @@ void dlg_param::Slot_GestLieux()
 void dlg_param::ReconstruitListeLieuxExercice()
 {
     /*-------------------- GESTION DES LIEUX D'EXERCICE-------------------------------------------------------*/
-    while(ui->AdressgroupBox->findChildren<QObject*>().size()>0)
-        delete ui->AdressgroupBox->findChildren<QObject*>().at(0);
+    ui->AdressupTableWidget->clear();
     ui->EmplacementServeurupComboBox->clear();
-    ui->AdressgroupBox->setTitle(tr("Lieux de travail utilisés"));
-    //QButtonGroup *butgrp = new QButtonGroup();
-    QVBoxLayout  *adresslay = new QVBoxLayout();
-    UpRadioButton *box;
-    adresslay           ->addSpacerItem(new QSpacerItem(25,15,QSizePolicy::Fixed,QSizePolicy::Fixed));
-    QSqlQuery adrquer("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone from " NOM_TABLE_LIEUXEXERCICE, db);
+    int             ColCount = 3;
+
+    ui->AdressupTableWidget->setColumnCount(ColCount);
+    ui->AdressupTableWidget->verticalHeader()->setVisible(false);
+    ui->AdressupTableWidget->setGridStyle(Qt::NoPen);
+    int li = 0;                                                                                   // Réglage de la largeur et du nombre des colonnes
+    ui->AdressupTableWidget->setColumnWidth(li,200);                                              // nom du lieu
+    li++;
+    ui->AdressupTableWidget->setColumnWidth(li,180);                                              // ville
+    li++;
+    ui->AdressupTableWidget->setColumnWidth(li,110);                                              // téléphone
+    ui->AdressupTableWidget->FixLargeurTotale();
+
+    UpHeaderView *upheader = new UpHeaderView(ui->AdressupTableWidget->horizontalHeader());
+    upheader->setVisible(true);
+    QStringList list;
+    list << tr("Liste des lieux d'exercice");
+    QStandardItemModel *mod = new QStandardItemModel();
+    mod->setHorizontalHeaderLabels(list);
+    upheader->setModel(mod);
+    upheader->reDim(0,0,2);
+
+    QString req ="select j.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone from " NOM_TABLE_LIEUXEXERCICE
+                       " j inner join " NOM_TABLE_JOINTURESLIEUX " p on j.idLieu = p.idLieu where iduser = " + QString::number(gDataUser->id());
+    QSqlQuery adrquer(req, db);
+    ui->AdressupTableWidget->setRowCount(adrquer.size());
     for (int i=0; i< adrquer.size(); i++)
     {
         adrquer.seek(i);
-        box = new UpRadioButton();
         QString data ("");
-        if (adrquer.value(1).toString()!="")
-            data += adrquer.value(1).toString();
-        if (data == "" )
-        {
-            data += adrquer.value(2).toString();
-            if (adrquer.value(6).toString()!="")
-                data += (data != ""? " " : "") + adrquer.value(6).toString();
-        }
-        if (adrquer.value(6).toString()!="")
-            data += (data != ""? " - " : "") + adrquer.value(6).toString();
-        box->setText(data);
-        data = "";
         if (adrquer.value(1).toString()!="")
             data += adrquer.value(1).toString();
         if (adrquer.value(2).toString()!="")
@@ -1113,18 +1124,22 @@ void dlg_param::ReconstruitListeLieuxExercice()
             data += (data != ""? " " : "") + adrquer.value(6).toString();
         if (adrquer.value(7).toString()!="")
             data += (data != ""? "\nTel: " : "Tel: ") + adrquer.value(7).toString();
-        box->setImmediateToolTip(data);
-        box->setiD(adrquer.value(0).toInt());
-        box->setToggleable(false);
-        box->setAutoExclusive(false);
-        //butgrp->addButton(box);
-        adresslay->addWidget(box);
-        ui->EmplacementServeurupComboBox->addItem(adrquer.value(1).toString(),adrquer.value(0));
+
+        QTableWidgetItem *pitem1, *pitem2, *pitem3;
+        pitem1 = new QTableWidgetItem();
+        pitem2 = new QTableWidgetItem();
+        pitem3 = new QTableWidgetItem();
+        pitem1->setText(adrquer.value(1).toString());
+        pitem2->setText(adrquer.value(6).toString());
+        pitem3->setText(adrquer.value(7).toString());
+        ui->AdressupTableWidget->setItem(i,0,pitem1);
+        ui->AdressupTableWidget->setItem(i,1,pitem2);
+        ui->AdressupTableWidget->setItem(i,2,pitem3);
+        pitem1->setToolTip(data);
+        pitem2->setToolTip(data);
+        pitem3->setToolTip(data);
+        ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
     }
-    //butgrp              ->setExclusive(false);
-    adresslay           ->setSpacing(10);
-    adresslay           ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    ui->AdressgroupBox  ->setLayout(adresslay);
     QSqlQuery DefautLieuquer("select idlieupardefaut from " NOM_TABLE_PARAMSYSTEME, db);
     DefautLieuquer.first();
     if (DefautLieuquer.value(0).toInt()>0)
@@ -1943,7 +1958,8 @@ void dlg_param::Slot_EffacePrgSauvegarde()
     QString Base = DataBase::getInstance()->getBase();
     if (Base == "")
         return;
-    if (!proc->VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
+    MDPVerifiedAdmin = proc->VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), MDPVerifiedAdmin);
+    if (!MDPVerifiedAdmin)
         return;
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardegroupBox->findChildren<QRadioButton*>();
     for (int i=0; i<listbutton2.size(); i++)
@@ -2321,9 +2337,7 @@ void dlg_param::AfficheParamUser()
         lxquer.seek(k);
         idlieuxlist << lxquer.value(0).toInt();
     }
-    for(int i=0; i< ui->AdressgroupBox->findChildren<UpRadioButton*>().size(); i++)
-        if (idlieuxlist.contains(ui->AdressgroupBox->findChildren<UpRadioButton*>().at(i)->iD()))
-            ui->AdressgroupBox->findChildren<UpRadioButton*>().at(i)->setChecked(true);
+
     ui->PortableuplineEdit              ->setText(gDataUser->getPortable());
     ui->MailuplineEdit                  ->setText(gDataUser->getMail());
     ui->Titrelabel                      ->setVisible(gDataUser->isMedecin());
@@ -2360,6 +2374,7 @@ void dlg_param::AfficheParamUser()
     }
     else
         ui->Cotationswidget->setVisible(false);
+    ReconstruitListeLieuxExercice();
 }
 
 void dlg_param::ConnectSlots()

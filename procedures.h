@@ -169,7 +169,7 @@ public:
 
 
 public:
-    bool                    VerifMDP(QString MDP, QString Msg);
+    bool                    VerifMDP(QString MDP, QString Msg, bool MDPVerifie = false);
     bool                    VerifRessources(QString Nomfile = "");
 
     bool                    Connexion_A_La_Base();

@@ -3995,8 +3995,10 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
 /*---------------------------------------------------------------------------------------------------------------------
     -- VÉRIFICATION DE MDP --------------------------------------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifMDP(QString MDP, QString Msg)
+bool Procedures::VerifMDP(QString MDP, QString Msg, bool MDPVerifie)
 {
+    if (MDPVerifie)
+        return true;
     QInputDialog quest;
     quest.setCancelButtonText("Annuler");
     quest.setLabelText(Msg);

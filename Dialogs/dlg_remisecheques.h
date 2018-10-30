@@ -72,7 +72,6 @@ private:
     QMap<int, Compte*>      m_comptes;
     User                    *gUser;
     QString                 ValeurAvantChangement;
-    QSqlDatabase            m_db;
     void                    ChangeCompte();
     void                    ReconstruitListeUsers();
     void                    ReconstruitListeComptes(bool avecinactif = false);

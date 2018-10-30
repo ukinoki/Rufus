@@ -26,12 +26,14 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSqlDatabase>
 
 #include "dlg_gestioncomptes.h"
+#include "dlg_gestionlieux.h"
 #include "uplineedit.h"
 #include "uptextedit.h"
 #include "widgetbuttonframe.h"
 #include "functormajpremierelettre.h"
 #include "macros.h"
 #include "cls_user.h"
+#include "upheaderview.h"
 
 /* sert à gérer les comptes utilisateurs
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
@@ -45,14 +47,21 @@ class dlg_gestionusers : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_gestionusers(int idUser, int idlieu, QSqlDatabase db, QWidget *parent = Q_NULLPTR);
+    explicit dlg_gestionusers(int idUser, int idlieu, QSqlDatabase db, bool mdpverified=true, QWidget *parent = Q_NULLPTR);
+    /*
+     * la variable mdpverified est utilisée pour l'appel de la fiche dlg_gestionlieux
+     * Cette fiche est parfois appelée alors que le mdp administrateur a déjà eté vérifié, parfois non
+     */
     ~dlg_gestionusers();
-    Ui::dlg_gestionusers        *ui;
+    Ui::dlg_gestionusers    *ui;
     int                     Mode;
     enum                    Mode {PREMIERUSER, ADMIN, MODIFUSER};
     void                    setConfig(enum Mode);
+    bool                    isMDPverified();
 
 private:
+    bool                    MDPverified;
+
     bool                    ophtalmo;
     bool                    orthoptist;
     bool                    autresoignant;
@@ -94,6 +103,7 @@ private:
     QString                 Edit(QString txt, QString titre = "");
     bool                    ExisteEmployeur(int iduser);
     void                    RemplirTableWidget(int iduser);
+    void                    ReconstruitListeLieuxExercice();
     bool                    TraiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
     bool                    VerifFiche();
 
@@ -111,6 +121,7 @@ private slots:
     void                    Slot_EnregistreUser();
     void                    Slot_FermeFiche();
     void                    Slot_GestionComptes();
+    void                    Slot_GestLieux();
     void                    Slot_ModifMDP();
     void                    Slot_RegleAffichage();
     void                    Slot_EnregistreNouvUser();

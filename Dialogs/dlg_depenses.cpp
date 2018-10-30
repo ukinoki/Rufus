@@ -454,9 +454,10 @@ void dlg_depenses::EnregistreDepense()
     else if (Paiement == tr("Prélèvement"))     m = "P";
     else if (Paiement == tr("TIP"))             m = "T";
 
+    bool ok = true;
     QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
-                                                                                            NOM_TABLE_RUBRIQUES2035,
-                                                                                            "where reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
+                                                                       NOM_TABLE_RUBRIQUES2035, ok,
+                                                                       "where reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
     db->locktables(QStringList() << NOM_TABLE_DEPENSES << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES);
@@ -855,9 +856,10 @@ void dlg_depenses::ModifierDepense()
     else if (Paiement == tr("Chèque"))          m = "C";
     else if (Paiement == tr("Prélèvement"))     m = "P";
     else if (Paiement == tr("TIP"))             m = "T";
+    bool ok = true;
     QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
-                                                                                            NOM_TABLE_RUBRIQUES2035,
-                                                                                            "where reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
+                                                                       NOM_TABLE_RUBRIQUES2035, ok,
+                                                                       "where reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
     if (listfamfiscale.size() > 0)                // l'écriture existe et on la modifie
@@ -900,8 +902,8 @@ void dlg_depenses::ModifierDepense()
 
         // on recherche si l'écriture existe dans lignescomptes et si c'est le cas, on la modifie
         QList<QList<QVariant>> listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idLigne",
-                                                                                                   NOM_TABLE_LIGNESCOMPTES,
-                                                                                                   "where idDep = " + idDep);
+                                                                              NOM_TABLE_LIGNESCOMPTES, ok,
+                                                                              "where idDep = " + idDep);
         if (listlignescomptes.size() > 0)                // l'écriture existe et on la modifie
         {
            QHash<QString, QString> listsets;
@@ -918,8 +920,8 @@ void dlg_depenses::ModifierDepense()
         else           // on n'a pas trouvé la ligne, on la recherche dans les archives
         {
             QList<QList<QVariant>> listlignesarchives = db->SelectRecordsFromTable(QStringList() << "idLigne",
-                                                                                                        NOM_TABLE_ARCHIVESBANQUE,
-                                                                                                        "where idDep = " + idDep);
+                                                                                   NOM_TABLE_ARCHIVESBANQUE, ok,
+                                                                                   "where idDep = " + idDep);
             if (listlignesarchives.size() > 0)                // l'écriture existe et on la modifie
             {
                 QHash<QString, QString> listsets;
@@ -1184,10 +1186,11 @@ void dlg_depenses::ReconstruitListeAnnees()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::ReconstruitListeRubriques()
 {
+    bool ok = true;
     QList<QList<QVariant>> listreffiscale = db->SelectRecordsFromTable(QStringList() << "reffiscale",
-                                                                                            NOM_TABLE_DEPENSES,
-                                                                                            "where idUser = " + QString::number(gDataUser->id()),
-                                                                                            "ORDER BY reffiscale", true);
+                                                                       NOM_TABLE_DEPENSES, ok,
+                                                                       "where idUser = " + QString::number(gDataUser->id()),
+                                                                       "ORDER BY reffiscale", true);
     QStringList ListeRubriques;
     ListeRubriques << tr("<Aucun>");
     for (int i = 0; i < listreffiscale.size(); i++)

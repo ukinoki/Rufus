@@ -5,6 +5,10 @@
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QHostInfo>
+#include "uplineedit.h"
+#include "uplabel.h"
+#include "upmessagebox.h"
+#include <QInputDialog>
 
 class Utils
 {
@@ -40,7 +44,7 @@ public:
     static QString getIpAdress();
     static QString getMACAdress();
     static QString CorrigeApostrophe(QString RechAp);
-
+    static bool VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
 };
 
 #endif // UTILS_H

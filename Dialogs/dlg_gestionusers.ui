@@ -123,7 +123,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>392</y>
+           <y>414</y>
            <width>149</width>
            <height>16</height>
           </rect>
@@ -180,7 +180,7 @@
          <property name="geometry">
           <rect>
            <x>0</x>
-           <y>424</y>
+           <y>444</y>
            <width>149</width>
            <height>16</height>
           </rect>
@@ -211,8 +211,8 @@
         <widget class="Line" name="line_2">
          <property name="geometry">
           <rect>
-           <x>10</x>
-           <y>380</y>
+           <x>20</x>
+           <y>400</y>
            <width>450</width>
            <height>3</height>
           </rect>
@@ -269,7 +269,7 @@
          <property name="geometry">
           <rect>
            <x>160</x>
-           <y>388</y>
+           <y>410</y>
            <width>170</width>
            <height>21</height>
           </rect>
@@ -348,7 +348,7 @@
          <property name="geometry">
           <rect>
            <x>160</x>
-           <y>420</y>
+           <y>440</y>
            <width>316</width>
            <height>21</height>
           </rect>
@@ -426,19 +426,6 @@
           <enum>Qt::Horizontal</enum>
          </property>
         </widget>
-        <widget class="QGroupBox" name="AdressgroupBox">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>170</y>
-           <width>480</width>
-           <height>200</height>
-          </rect>
-         </property>
-         <property name="title">
-          <string/>
-         </property>
-        </widget>
         <widget class="UpLabel" name="ModifMDPUserupLabel">
          <property name="geometry">
           <rect>
@@ -465,6 +452,40 @@
          </property>
          <property name="scaledContents">
           <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="UpPushButton" name="GestLieuxpushButton">
+         <property name="geometry">
+          <rect>
+           <x>155</x>
+           <y>345</y>
+           <width>181</width>
+           <height>51</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Gestion des
+lieux d'activité</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../assets/Images/images.qrc">
+           <normaloff>:/address-book.png</normaloff>:/address-book.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>30</width>
+           <height>30</height>
+          </size>
+         </property>
+        </widget>
+        <widget class="UpTableWidget" name="AdressupTableWidget">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>170</y>
+           <width>451</width>
+           <height>171</height>
+          </rect>
          </property>
         </widget>
        </widget>
@@ -1381,6 +1402,11 @@ pour l'enregistrement des actes</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpSmallButton</class>
    <extends>QPushButton</extends>
    <header>upsmallbutton.h</header>
@@ -1396,11 +1422,6 @@ pour l'enregistrement des actes</string>
    <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
-   <class>UpPushButton</class>
-   <extends>QPushButton</extends>
-   <header>uppushbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpComboBox</class>
    <extends>QComboBox</extends>
    <header>upcombobox.h</header>
@@ -1409,6 +1430,11 @@ pour l'enregistrement des actes</string>
    <class>UpRadioButton</class>
    <extends>QRadioButton</extends>
    <header>upradiobutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header location="global">uptablewidget.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

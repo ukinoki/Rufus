@@ -29,7 +29,6 @@ dlg_remisecheques::dlg_remisecheques(Procedures *procAPasser, QWidget *parent) :
     //TODO on ne peut pas afficher les remises d'un utilisateur qui est désactivé ou qui n'a pas de chèque en attente
 
     db = DataBase::getInstance();
-    m_db = DataBase::getInstance()->getDataBase();
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     InitOK = true;
@@ -259,7 +258,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
 
         // On enregitre dans la table GestionComptes cettte remise
         req =  "INSERT INTO " NOM_TABLE_LIGNESCOMPTES " (idLigne, idCompte,LigneDate,LigneLibelle,LigneMontant,LigneDebitCredit,LigneTypeOperation, idremcheq) VALUES (" +
-                QString::number(proc->getMAXligneBanque()) + "," +
+                QString::number(db->getMaxLigneBanque()) + "," +
                 ui->ComptecomboBox->currentData().toString() +
                 ", NOW(),"
                 "'" + tr("Remise de chèques n°") + QString::number(idRemise) +
@@ -292,13 +291,30 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         }
 
         // On corrige les chèques mis en attente
+        QString chqatt, chqattrecspec;
         for (int l = 0; l < ui->ChequesEnAttenteupTableWidget->rowCount(); l++)
         {
             QString RecSpec = ui->ChequesEnAttenteupTableWidget->item(l,6)->text();
             if (RecSpec=="1")
-                req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET EnAttente = 1 WHERE idRecette = " + ui->ChequesEnAttenteupTableWidget->item(l,5)->text();
+                chqatt += ui->ChequesEnAttenteupTableWidget->item(l,5)->text() + ",";
             else
-                req = "UPDATE " NOM_TABLE_RECETTES " SET EnAttente = 1 WHERE idRecette = " + ui->ChequesEnAttenteupTableWidget->item(l,5)->text();
+                chqattrecspec += ui->ChequesEnAttenteupTableWidget->item(l,5)->text() + ",";
+        }
+        if (chqatt!= "")
+        {
+            chqatt = chqatt.left(chqatt.size()-1);
+            req = "UPDATE " NOM_TABLE_RECETTES " SET EnAttente = 1 WHERE idRecette in (" + chqatt + ")";
+            if (!db->StandardSQL(req))
+            {
+                db->rollback();
+                UpMessageBox::Watch(this,tr("Impression annulée"));
+                return;
+            }
+        }
+        if (chqatt!= "")
+        {
+            chqattrecspec = chqattrecspec.left(chqattrecspec.size()-1);
+            req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET EnAttente = 1 WHERE idRecette in (" + chqattrecspec + ")";
             if (!db->StandardSQL(req))
             {
                 db->rollback();
@@ -537,7 +553,8 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
                   " from " NOM_TABLE_RECETTESSPECIALES
                   " where idRemise = " + QString::number(idRemise) +
                   " order by Tireurcheque";
-    QList<QList<QVariant>> listremises = db->StandardSelectSQL(req);
+    bool ok = true;
+    QList<QList<QVariant>> listremises = db->StandardSelectSQL(req,ok);
     ui->ListeChequesupTableWidget->setRowCount(listremises.size());
     if (listremises.size()>0) {
         QTableWidgetItem *pItem0    = new QTableWidgetItem() ;
@@ -590,8 +607,9 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
             Total += QLocale().toDouble(ui->ListeChequesupTableWidget->item(k,4)->text());
         ui->TotallineEdit->setText(QString::number(ui->ListeChequesupTableWidget->rowCount()) + tr(" chèques -> ") + QLocale().toString(Total,'f',2) + tr(" euros"));
     }
-    QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idligne from " NOM_TABLE_LIGNESCOMPTES " where idremcheq = " + MapRemise["idRemise"].toString());
-    ui->RemisesPrecsPushButton->setEnabled(listlignes.size()>0);
+    req = "select idligne from " NOM_TABLE_ARCHIVESBANQUE " where idremcheq = " + MapRemise["idRemise"].toString();
+    QList<QList<QVariant>> listlignes = db->StandardSelectSQL(req, ok);
+    ui->RemisesPrecsPushButton->setEnabled(listlignes.size()==0 && ok);
 }
 
 void dlg_remisecheques::Slot_RecalculeMontant()
@@ -619,7 +637,8 @@ void dlg_remisecheques::Slot_ToolTip(int A, int B)
             else
                 requete = "SELECT PatNom, PatPrenom, ActeCotation, ActeDate From " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act WHERE act.idActe in (SELECT idActe FROM "
                         NOM_TABLE_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat.idPat = act.idPat";
-            QList<QList<QVariant>> listtips = db->StandardSelectSQL(requete);
+            bool ok = true;
+            QList<QList<QVariant>> listtips = db->StandardSelectSQL(requete,ok);
             QString ABC;
             for (int i = 0; i < listtips.size();i++)
             {
@@ -682,7 +701,9 @@ bool dlg_remisecheques::VoirRemisesPrecs()
             idlist += ", ";
     }
 
-    QList<QList<QVariant>> listremisesprecedentes = db->StandardSelectSQL("select idRemCheq, RCDate, Montant, idcompte from " NOM_TABLE_REMISECHEQUES " where idcompte in (" + idlist + ") order by idremcheq desc");
+    bool ok = true;
+    QList<QList<QVariant>> listremisesprecedentes = db->StandardSelectSQL("select idRemCheq, RCDate, Montant, idcompte from " NOM_TABLE_REMISECHEQUES
+                                                                          " where idcompte in (" + idlist + ") order by idremcheq desc",ok);
     if (listremisesprecedentes.size() == 0)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas de remises précédentes"));
@@ -819,7 +840,8 @@ bool dlg_remisecheques::VoirNouvelleRemise()
                 " AND Paiement = 'C'";
         req +=  " ORDER BY TireurCheque";
         //qDebug() << req;
-        QList<QList<QVariant>> listchequesaremettre = db->StandardSelectSQL(req);
+        bool ok = true;
+        QList<QList<QVariant>> listchequesaremettre = db->StandardSelectSQL(req,ok);
 
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " NOM_TABLE_RECETTES " pai"
@@ -834,8 +856,8 @@ bool dlg_remisecheques::VoirNouvelleRemise()
                 " AND EnAttente IS NOT NULL"
                 " AND Paiement = 'C'"
                 " ORDER BY TireurCheque";
-        //qDebug() << req;
-        QList<QList<QVariant>> listchequesenattente = db->StandardSelectSQL(req);
+        //qDebug() << req; // durée = 0,4s en moyenne
+        QList<QList<QVariant>> listchequesenattente = db->StandardSelectSQL(req,ok);
 
 
         if (listchequesaremettre.size() == 0 && listchequesenattente.size() == 0)
@@ -1102,7 +1124,8 @@ void dlg_remisecheques::ReconstruitListeUsers()
                         " AND pai.ModePaiement = 'C'"
                         " ORDER BY TireurCheque";
         //qDebug() << req;
-        QList<QList<QVariant>> listidrecettes = db->StandardSelectSQL(req);
+        bool ok = true;
+        QList<QList<QVariant>> listidrecettes = db->StandardSelectSQL(req,ok);
         if (listidrecettes.size()>0)
         {
             m_comptablesavecchequesenattente->insert(user->id(), user);
