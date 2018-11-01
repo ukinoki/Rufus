@@ -48,6 +48,13 @@ DocExterne* DocsExternes::getDocumentById(int id, bool loadDetails, bool addToLi
     }
     return result;
 }
+
+DocExterne* DocsExternes::reloadDocument(DocExterne* docmt)
+{
+    docmt->setAllLoaded(false);
+    return getDocumentById(docmt->id());
+}
+
 void DocsExternes::addDocExterneByDat(DocExterne *docext)
 {
     if( m_docsexternespardate.contains(docext->id()) )

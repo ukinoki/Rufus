@@ -96,7 +96,6 @@ private:
     void                    BasculeTriListe(int);
     QString                 CalcTitre(DocExterne *docmt);
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
-    void                    EditSousTitre(QModelIndex idx);
     void                    EnregistreVideo();
     void                    FiltrerListe(UpCheckBox *chk);
     DocExterne*             getDocumentFromIndex(QModelIndex idx);

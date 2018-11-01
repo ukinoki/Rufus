@@ -20,6 +20,7 @@ public:
     void addDocExterneByTyp(DocExterne *DocExterne);
     void addListDocsExternesByDat(QList<DocExterne*> listdocs);
     void addListDocsExternesByTyp(QList<DocExterne*> listdocs);
+    DocExterne* reloadDocument(DocExterne* docmt);
     void VideLesListes();
 };
 #endif // CLS_DOCSEXTERNES_H

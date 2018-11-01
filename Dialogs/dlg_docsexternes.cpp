@@ -508,23 +508,6 @@ void dlg_docsexternes::Slot_CompteNbreDocs()
     }
 }
 
-void dlg_docsexternes::EditSousTitre(QModelIndex idx)
-{
-    QStandardItem *item = gmodele->itemFromIndex(idx);
-    qDebug()<< item->text();
-    QString txt = (item->text().contains(" - ")? item->text().split(" - ").at(1) : item->text());
-    QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + txt + "' where idimpression = " + item->data().toMap().value("id").toString(), DataBase::getInstance()->getDataBase());
-    QSqlQuery quer("select typedoc, dateimpression from " NOM_TABLE_IMPRESSIONS " where idimpression = " + item->data().toMap().value("id").toString(), DataBase::getInstance()->getDataBase());
-    quer.first();
-    if (gModeTri == parDate)
-        item->setText(quer.value(0).toString() + " - " + txt);
-    else
-        item->setText(quer.value(1).toDate().toString(tr("d-M-yyyy")) + " - " + txt);
-    QString sstitre = "<font color='magenta'>" + quer.value(1).toDate().toString(tr("d-M-yyyy")) + " - " + quer.value(0).toString() + " - " + txt + "</font>";
-    inflabel    ->setText(sstitre);
-    //qDebug() << "Sous-titre = " + sstitre;
-}
-
 void dlg_docsexternes::EnregistreVideo()
 {
     QString filename = player->media().canonicalUrl().path();
@@ -603,42 +586,50 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
                 QString sfx = (filesufx == PDF? PDF : JPG);
                 QString imgs = "select idimpression from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr + " and (pdf is not null or jpg is not null)";
                 //qDebug() << imgs;
-                if (QSqlQuery (imgs, DataBase::getInstance()->getDataBase()).size()==0)
+                bool ok = false;
+                QList<QList<QVariant>> listimpr = db->StandardSelectSQL(imgs, ok);
+                if (!ok)
+                    UpMessageBox::Watch(this, tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
+                if (listimpr.size()==0)
                 {
-                    QSqlQuery ("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr, DataBase::getInstance()->getDataBase());
+                    db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr);
                     QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
                                 "VALUES (" +
                                 idimpr + ", " +
                                 " LOAD_FILE('" + proc->DirImagerie() + NOMDIR_IMAGES + filename + "'), " +
                                 QString::number(docmt->compression()) + ")";
                     //qDebug() << req;
-                    QSqlQuery (req, DataBase::getInstance()->getDataBase());
+                    db->StandardSQL(req);
                 }
             }
         }
-        QSqlQuery ChercheImgquer( DataBase::getInstance()->getDataBase());
-        QString req2 = "select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr;
-        ChercheImgquer.exec(req2);
-        if (ChercheImgquer.size()==0)           // le document n'est pas dans echangeimages, on va le chercher dans impressions
-        {
-            req2 = "select pdf, jpg, compression  from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
-            ChercheImgquer.exec(req2);
-        }
-        if (ChercheImgquer.size()==0)
+        bool ok = false;
+        QList<QList<QVariant>> listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr
+                                                                , ok
+                                                                , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
+        if (!ok)
             return result;
-        ChercheImgquer.first();
-        if (ChercheImgquer.value(0).toByteArray().size()>0)                                                 // c'est un pdf
+        if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans impressions
         {
-            if (ChercheImgquer.value(2).toString()=="1")
-                bapdf.append(qUncompress(ChercheImgquer.value(0).toByteArray()));
+            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr
+                                             , ok
+                                             , tr("Impossible d'accéder à la table ") + NOM_TABLE_IMPRESSIONS);
+        }
+        if (listimpr.size()==0)
+            return result;
+        QList<QVariant> impr = listimpr.at(0);
+        if (impr.at(0).toByteArray().size()>0)                                                 // c'est un pdf
+        {
+            if (impr.at(2).toString()=="1")
+                bapdf.append(qUncompress(impr.at(0).toByteArray()));
             else
-                bapdf.append(ChercheImgquer.value(0).toByteArray());
+                bapdf.append(impr.at(0).toByteArray());
             result["Type"]    = PDF;
             result["ba"]      = bapdf;
         }
-        else if (ChercheImgquer.value(1).toByteArray().size()>0)                                            // c'est un jpg
+        else if (impr.at(1).toByteArray().size()>0)                                            // c'est un jpg
         {
-            bapdf.append(ChercheImgquer.value(1).toByteArray());
+            bapdf.append(impr.at(1).toByteArray());
             result["Type"]    = JPG;
             result["ba"]      = bapdf;
         }
@@ -681,10 +672,8 @@ int dlg_docsexternes::CompteNbreDocs()
 {
     bool ok = true;
     QList<QList<QVariant>> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
-    if (!ok) return -1;
-    if (list.size()==0)
-        return - 1;
-    return list.at(0).at(0).toInt();
+    if (!ok) return 0;
+    return list.size();
 }
 
 DocExterne* dlg_docsexternes::getDocumentFromIndex(QModelIndex idx)
@@ -979,7 +968,45 @@ int dlg_docsexternes::initListDocs()
 
 void dlg_docsexternes::ModifierItem(QModelIndex idx)
 {
-    qDebug() << gmodele->itemFromIndex(idx)->text();
+    DocExterne *docmt = getDocumentFromIndex(idx);
+    UpDialog * dlg              = new UpDialog();
+    dlg                         ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
+    QVBoxLayout *globallay      = dynamic_cast<QVBoxLayout*>(dlg->layout());
+    UpLineEdit  *Line           = new UpLineEdit(dlg);
+    UpLabel     *label          = new UpLabel(dlg);
+    globallay->setSpacing(4);
+    globallay->insertWidget(0,Line);
+    globallay->insertWidget(0,label);
+    dlg->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
+
+    dlg->setModal(true);
+    dlg->setSizeGripEnabled(false);
+    dlg->setFixedSize(270,100);
+    dlg->move(QPoint(x()+width()/2,y()+height()/2));
+    dlg->setWindowTitle(tr("Modifier le titre"));
+    Line->setText(docmt->soustypedoc());
+    QTimer::singleShot(0, Line, &QLineEdit::selectAll);
+
+    connect(dlg->OKButton,   &QPushButton::clicked,   [=]
+    {
+        if (Line->text()!="")
+        {
+            db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + Line->text() + "' where idimpression = " + QString::number(docmt->id()));
+            gmodele->itemFromIndex(idx)->setText(CalcTitre(m_ListDocs.reloadDocument(docmt)));
+            dlg->accept();
+        }
+        else
+        {
+            QSound::play(NOM_ALARME);
+            QToolTip::showText(cursor().pos(),tr("Vous devez entrer du texte"));
+        }
+    });
+
+    label->setText(tr("Entrez le titre du document"));
+    Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
+    Line->setMaxLength(60);
+    dlg->exec();
+    delete dlg;
 }
 
 void dlg_docsexternes::PlayerCtrl(int ctrl)
@@ -1039,44 +1066,30 @@ void dlg_docsexternes::SupprimeDoc()
             QString filename = (docmt->format() == VIDEO? "/" : "") + docmt->lienversfichier();
             QString cheminFichier = (docmt->format()== VIDEO? NOMDIR_VIDEOS : NOMDIR_IMAGES);
             filename = cheminFichier + filename;
-            QSqlQuery ("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + filename + "')", DataBase::getInstance()->getDataBase());
+            db->StandardSQL("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + filename + "')");
         }
         QString idaafficher = "";
-        if (ndocs>1)
+        if (ndocs>1)    // on recherche le document sur qui va être mis en surbrillance après la suppression
         {
-            QSqlQuery idquer("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(docmt->idpatient())
-                             + " order by dateimpression", DataBase::getInstance()->getDataBase());
-            for (int i=0; i<idquer.size(); i++)
-            {
-                idquer.seek(i);
-                if (idquer.value(0).toInt() == idimpr.toInt())
-                {
-                    if (i==0)
-                        idquer.next();
-                    else
-                        idquer.previous();
-                    idaafficher = idquer.value(0).toString();
-                    break;
-                }
-            }
+            QHash<int, DocExterne*> listaexplorer = (gModeTri == parDate? m_ListDocs.docsexternespardate() : m_ListDocs.docsexternespartype());
+            QHash<int, DocExterne*>::const_iterator itdoc = listaexplorer.find(docmt->idpatient());
+            if (itdoc == listaexplorer.constBegin())
+                ++itdoc;
+            else
+                --itdoc;
+            idaafficher = QString::number(itdoc.value()->id());
         }
-        QSqlQuery("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr + ")", DataBase::getInstance()->getDataBase());
-        QSqlQuery("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, DataBase::getInstance()->getDataBase());
+        db->StandardSQL("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS
+                        " where idimpression = " + idimpr + ")");
+        db->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr);
         gmodele->removeRow(idx.row(),idx);
         QModelIndex idx2;
-        bool OK = false;
         if (idaafficher != "")
-            for (int m = 0; m<gmodele->rowCount(); m++)
-            {
-                for (int n=0; n<gmodele->item(m)->rowCount(); n++)
-                    if (gmodele->item(m)->child(n)->data().toMap().value("id").toString() == idaafficher)
-                    {
-                        idx2 = gmodele->item(m)->child(n)->index();
-                        OK = true;
-                        break;
-                    }
-                if (OK) break;
-            }
+        {
+            QModelIndex indx = getIndexFromId(idaafficher.toInt());
+            if (indx.isValid())
+                idx2 = indx;
+        }
         if (ndocs==1)
             reject();
         ListDocsTreeView->reset();

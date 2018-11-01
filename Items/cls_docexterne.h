@@ -34,6 +34,8 @@ public:
     int importance() const;
     int compression() const;
     bool isAllLoaded() const;
+
     void setimportance(int imptce);
+    void setAllLoaded(bool allloaded);
 };
 #endif // CLS_DOCEXTERNE_H
