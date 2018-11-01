@@ -27,7 +27,7 @@ public:
 
     Users();
     bool addUser(User *usr);
-    User* getUserById(int id, bool loadDetails=false);
+    User* getUserById(int id, bool loadDetails=false, bool addToList = true);
     QString getLoginById(int id);
 
 };

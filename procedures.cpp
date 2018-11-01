@@ -1169,6 +1169,7 @@ void Procedures::initListeCorrespondants()
             Datas::I()->correspondants->addMGCorrespondant(cor);
     }
 }
+
 void Procedures::initListeCorrespondantsAll()
 {
     QList<Correspondant*> listcorrespondants = DataBase::getInstance()->loadCorrespondantsALL();
@@ -2855,7 +2856,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         == UpSmallButton::EDITBUTTON)
     {
         int gidLieuExercice = -1;
-        Dlg_GestUsr = new dlg_gestionusers(1, gidLieuExercice, DataBase::getInstance()->getDataBase() );
+        Dlg_GestUsr = new dlg_gestionusers(1, gidLieuExercice, DataBase::getInstance()->getDataBase(),true );
         Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + Login);
         Dlg_GestUsr->setConfig(dlg_gestionusers::PREMIERUSER);
         Dlg_GestUsr->exec();

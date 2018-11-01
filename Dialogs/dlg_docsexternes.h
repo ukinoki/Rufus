@@ -31,6 +31,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsView>
 #include <QMediaPlayer>
 #include "playercontrols.h"
+#include "cls_docexterne.h"
+#include "cls_docsexternes.h"
 
 class dlg_docsexternes : public UpDialog
 {
@@ -39,13 +41,16 @@ class dlg_docsexternes : public UpDialog
 public:
     explicit dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
-    void                    RemplirTreeView(bool recalcul = true);
+    void                    RemplirTreeView();
     QTreeView               *ListDocsTreeView;
     void                    AfficheDoc(QModelIndex idx);
     bool                    InitOK();
 
 private:
     Procedures              *proc;
+    DocsExternes            m_ListDocs;
+    DocExterne              *docencours;
+    DataBase                *db;
     QAction                 *fin, *debut, *prec, *suiv;
     QFont                   gFont;
     QImage                  image;
@@ -60,8 +65,6 @@ private:
     PlayerControls          *playctrl;
     QMediaPlayer            *player;
     QStandardItemModel      *gmodele, *gmodeleTriParDate, *gmodeleTriParType;
-    QSqlQuery               TreeQuery;
-    QSortFilterProxyModel   *gproxymodele;
     QTimer                  *MAJTreeViewTimer;
     QLabel                  *inflabel;
     QRectF                  rect;
@@ -91,11 +94,17 @@ private:
     QMap<QString,QVariant>  CalcImage(int idimpression, bool imagerie, bool afficher = true);
 
     void                    BasculeTriListe(int);
-    void                    CorrigeImportance(QStandardItem *item, enum Importance imptce);
-    void                    EditSousTitre(QStandardItem *item);
+    QString                 CalcTitre(DocExterne *docmt);
+    void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
+    void                    EditSousTitre(QModelIndex idx);
     void                    EnregistreVideo();
     void                    FiltrerListe(UpCheckBox *chk);
+    DocExterne*             getDocumentFromIndex(QModelIndex idx);
+    QModelIndex             getIndexFromId(int id);
+    QStandardItem*          getItemFromDocument(DocExterne* docmt);
     void                    ImprimeDoc();
+    int                     initListDocs();
+    void                    ModifierItem(QModelIndex idx);
     void                    PlayerCtrl(int);
     void                    SupprimeDoc();
     void                    ZoomDoc();

@@ -1140,6 +1140,14 @@ void dlg_param::ReconstruitListeLieuxExercice()
         pitem3->setToolTip(data);
         ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
     }
+    req ="select idLieu, NomLieu, LieuVille from " NOM_TABLE_LIEUXEXERCICE;
+    QSqlQuery servquer(req, db);
+    if (servquer.first())
+    for (int i=0; i<servquer.size(); ++i)
+    {
+        servquer.seek(i);
+        ui->EmplacementServeurupComboBox->addItem(servquer.value(1).toString() + " " + servquer.value(2).toString(), servquer.value(0));
+    }
     QSqlQuery DefautLieuquer("select idlieupardefaut from " NOM_TABLE_PARAMSYSTEME, db);
     DefautLieuquer.first();
     if (DefautLieuquer.value(0).toInt()>0)

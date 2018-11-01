@@ -26,6 +26,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
 {
     proc                = ProcAPasser;
     gidPatient          = idpat;
+    db                  = DataBase::getInstance();
 
     ScrollTable         = new UpTableWidget(this);
     Scene               = new QGraphicsScene(this);
@@ -90,7 +91,6 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     installEventFilter(this);
 
     gModeTri            = parDate;
-    TreeQuery           = QSqlQuery(DataBase::getInstance()->getDataBase());
     initOK = true;
     RemplirTreeView();
     if(!initOK)
@@ -99,6 +99,10 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     ListDocsTreeView    ->setEditTriggers(QAbstractItemView::DoubleClicked);
     ListDocsTreeView    ->setSelectionMode(QAbstractItemView::SingleSelection);
     ListDocsTreeView    ->setContextMenuPolicy(Qt::CustomContextMenu);
+    ListDocsTreeView    ->setAnimated(true);
+    ListDocsTreeView    ->setIndentation(3);
+    ListDocsTreeView    ->header()->setVisible(false);
+
     AvecPrevisu = proc  ->ApercuAvantImpression();
     /*Gestion des XML - exemple
     QString adressexml = QDir::homePath() + NOMDIR_RUFUS + "/XML/" + QString::number(idpat) + "/Exam_Data.xml";
@@ -152,20 +156,20 @@ bool dlg_docsexternes::InitOK()
 void dlg_docsexternes::AfficheCustomMenu()
 {
     QModelIndex idx = ListDocsTreeView->indexAt(ListDocsTreeView->mapFromGlobal(cursor().pos()));
-    if (gmodele->itemFromIndex(idx) == Q_NULLPTR)
-        return;
-    if (gmodele->itemFromIndex(idx)->hasChildren())
-        return;
+    DocExterne *docmt = getDocumentFromIndex(idx);
+    if (docmt == Q_NULLPTR)
+         return;
 
-    QStandardItem *pitem = gmodele->itemFromIndex(idx);
     QMenu *menu = new QMenu(this);
     QAction *paction_ImportantMin   = new QAction;
     QAction *paction_ImportantNorm  = new QAction;
     QAction *paction_ImportantMax   = new QAction;
+    QAction *paction_Modifier       = new QAction;
     paction_ImportantMin    = menu->addAction(tr("Importance faible"));
     paction_ImportantNorm   = menu->addAction(tr("Importance normale"));
     paction_ImportantMax    = menu->addAction(tr("Importance forte"));
-    int imptce = pitem->data().toInt();
+    paction_Modifier        = menu->addAction(tr("Modifier"));
+    int imptce = docmt->importance();
     QIcon icon = Icons::icBlackCheck();
     if (imptce == 0)
         paction_ImportantMin->setIcon(icon);
@@ -173,40 +177,67 @@ void dlg_docsexternes::AfficheCustomMenu()
         paction_ImportantNorm->setIcon(icon);
     else if (imptce == 2)
         paction_ImportantMax->setIcon(icon);
-    connect (paction_ImportantMin,  &QAction::triggered,    this,  [=] {CorrigeImportance(pitem, Min);});
-    connect (paction_ImportantNorm, &QAction::triggered,    this,  [=] {CorrigeImportance(pitem, Norm);});
-    connect (paction_ImportantMax,  &QAction::triggered,    this,  [=] {CorrigeImportance(pitem, Max);});
+    connect (paction_ImportantMin,  &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Min);});
+    connect (paction_ImportantNorm, &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Norm);});
+    connect (paction_ImportantMax,  &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Max);});
+    connect (paction_Modifier,      &QAction::triggered,    this,  [=] {ModifierItem(idx);});
     menu->exec(cursor().pos());
 }
 
-void dlg_docsexternes::CorrigeImportance(QStandardItem *item, enum Importance imptce)
+QString dlg_docsexternes::CalcTitre(DocExterne* docmt)
 {
-    QFont fontitem = gFont;
+    QString a = docmt->typedoc();                                     // 1 = Type de document
+    if (docmt->soustypedoc() != "")
+    {
+        if (a!="") a += " - ";
+        a += docmt->soustypedoc();                                    // 4 - Sous-type du document
+    }
+    else if (docmt->titre() != "")                                    // 2 - Titre du document
+    {
+        if (a!="") a += " - ";
+        QTextEdit text;
+        text.setHtml(docmt->titre());
+        a += text.toPlainText();
+    }
+    return a;
+}
+
+void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance imptce)
+{
+    QStandardItem *item = getItemFromDocument(docmt);
+    if (item == Q_NULLPTR)
+        return;
     switch (imptce) {
-    case Min:
-        QSqlQuery("update " NOM_TABLE_IMPRESSIONS " set Importance = 0 where idImpression = " + item->accessibleDescription(), DataBase::getInstance()->getDataBase());
-        item->setData(0);
+    case Min:{
+        db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set Importance = 0 where idImpression = " + QString::number(docmt->id()));
+        QFont fontitem  = gFont;
         fontitem.setItalic(true);
         item->setFont(fontitem);
+        docmt->setimportance(0);
         break;
-    case Norm:
-        QSqlQuery("update " NOM_TABLE_IMPRESSIONS " set Importance = 1 where idImpression = " + item->accessibleDescription(), DataBase::getInstance()->getDataBase());
-        item->setData(1);
+    }
+    case Norm:{
+        db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set Importance = 1 where idImpression = " + QString::number(docmt->id()));
         item->setFont(gFont);
+        docmt->setimportance(1);
         break;
-    case Max:
-        QSqlQuery("update " NOM_TABLE_IMPRESSIONS " set Importance = 2 where idImpression = " + item->accessibleDescription(), DataBase::getInstance()->getDataBase());
-        item->setData(2);
+    }
+    case Max:{
+        QFont fontitem = gFont;
+        db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set Importance = 2 where idImpression = " + QString::number(docmt->id()));
         fontitem.setBold(true);
         item->setFont(fontitem);
+        docmt->setimportance(2);
         break;
-
+    }
     }
 }
-void dlg_docsexternes::AfficheDoc(QModelIndex idx)
-{    
-    //QModelIndex idx = gproxymodele->mapFromSource(idxproxy);
-    if (gmodele->itemFromIndex(idx)->hasChildren())
+
+void dlg_docsexternes::AfficheDoc(QModelIndex idxproxy)
+{
+    DocExterne *docmt = getDocumentFromIndex(idxproxy);
+
+    if (docmt == Q_NULLPTR)
     {
         PrintButton->setEnabled(false);
         SupprButton->setEnabled(false);
@@ -216,7 +247,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     PrintButton                 ->setVisible(true);
     PrintButton                 ->setEnabled(true);
     SupprButton                 ->setEnabled(true);
-    QStandardItem *it           = gmodele->itemFromIndex(idx);
     QPixmap pix;
     glistPix    .clear();
     ScrollTable ->clear();
@@ -226,10 +256,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     double x;
     double y;
 
-    QSqlQuery quer("select formatdoc, lienversfichier, dateimpression, soustypedoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + it->accessibleDescription(), DataBase::getInstance()->getDataBase());
-    quer.first();
-
-    if (quer.value(0).toString() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais est un fichier sur le disque
+    if (docmt->format() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais est un fichier sur le disque
     {
         if (DataBase::getInstance()->getMode() == DataBase::Distant)
         {
@@ -254,7 +281,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this,msg, msg2);
             return;
         }
-        QString filename = NomDirStockageImagerie + NOMDIR_VIDEOS "/" + quer.value(1).toString();
+        QString filename = NomDirStockageImagerie + NOMDIR_VIDEOS "/" + docmt->lienversfichier();
         QFile   qFile(filename);
         if (!qFile.open(QIODevice::ReadOnly))
         {
@@ -262,7 +289,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             return;
         }
         inflabel->setParent(GraphicView);
-        QString sstitre = "<font color='magenta'>" + quer.value(2).toDate().toString(tr("d-M-yyyy")) + " - " + quer.value(3).toString() + "</font>";
+        QString sstitre = "<font color='magenta'>" + docmt->date().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
         inflabel    ->setText(sstitre);
 
         gTypeDoc                = VIDEO;
@@ -286,8 +313,8 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     }
     else                                    // le document est une image ou un document écrit (ordonnance, certificat...)
     {
-        bool pict = (quer.value(0).toString() == IMAGERIE || quer.value(0).toString() == DOCUMENTRECU);
-        QMap<QString,QVariant> doc = CalcImage(it->accessibleDescription().toInt(), pict, true);
+        bool pict = (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU);
+        QMap<QString,QVariant> doc = CalcImage(docmt->id(), pict, true);
         QByteArray bapdf = doc.value("ba").toByteArray();
         if (doc.value("Type").toString() == JPG)     // le document est un JPG
         {
@@ -430,18 +457,15 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 void dlg_docsexternes::BasculeTriListe(int a)
 {
     QString             idimpraretrouver = "";
-    gmodele = dynamic_cast<QStandardItemModel*>(ListDocsTreeView->model());
-    if (gmodele)
+    ListDocsTreeView    ->disconnect();
+    if (ListDocsTreeView->selectionModel()->selectedIndexes().size()>0)
     {
-        if (ListDocsTreeView->selectionModel()->selectedIndexes().size()>0)
-        {
-            QModelIndex         actifidx;
-            actifidx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
-            if (!gmodele->itemFromIndex(actifidx)->hasChildren())
-                idimpraretrouver = gmodele->itemFromIndex(actifidx)->accessibleDescription();
-        }
+        QModelIndex actifidx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
+        if (!gmodele->itemFromIndex(actifidx)->hasChildren())
+            idimpraretrouver = gmodele->itemFromIndex(actifidx)->data().toMap().value("id").toString();
     }
-    if (a == 0)
+    gmodele             = new QStandardItemModel(this);
+     if (a == 0)
     {
         gModeTri = parDate;
         gmodele  = gmodeleTriParDate;
@@ -451,31 +475,25 @@ void dlg_docsexternes::BasculeTriListe(int a)
         gModeTri = parType;
         gmodele = gmodeleTriParType;
     }
+
+    QItemSelectionModel *m = ListDocsTreeView->selectionModel();
     ListDocsTreeView->setModel(gmodele);
+    delete m;
 
     int nrows = gmodele->item(gmodele->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item date
     QStandardItem *item =  gmodele->item(gmodele->rowCount()-1)->child(nrows,0);    // le tout dernier item
     QModelIndex idx = item->index();                                                // l'index de ce dernier item
     if (idimpraretrouver != "")
     {
-        bool nouvelidx = false;
-        for (int m = 0; m<gmodele->rowCount(); m++)
-        {
-            for (int n=0; n<gmodele->item(m)->rowCount(); n++)
-                if (gmodele->item(m)->child(n)->accessibleDescription() == idimpraretrouver)
-                {
-                    idx = gmodele->item(m)->child(n)->index();
-                    nouvelidx = true;
-                    break;
-                }
-            if (nouvelidx) break;
-        }
+        QModelIndex indx = getIndexFromId(idimpraretrouver.toInt());
+        if (indx.isValid())
+            idx = indx;
     }
+    ListDocsTreeView->setSelectionModel(new QItemSelectionModel(gmodele));
+    ListDocsTreeView->expandAll();
     ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
     ListDocsTreeView->setCurrentIndex(idx);
-    ListDocsTreeView->expandAll();
-    connect(gmodele,    &QStandardItemModel::itemChanged, this,   [=] {EditSousTitre(gmodele->itemFromIndex(ListDocsTreeView->selectionModel()->currentIndex()));});
-    connect(ListDocsTreeView->selectionModel(), &QItemSelectionModel::currentChanged, this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
+    connect(ListDocsTreeView->selectionModel()  , &QItemSelectionModel::currentChanged,     this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
 }
 
 void dlg_docsexternes::Slot_CompteNbreDocs()
@@ -490,11 +508,13 @@ void dlg_docsexternes::Slot_CompteNbreDocs()
     }
 }
 
-void dlg_docsexternes::EditSousTitre(QStandardItem *item)
+void dlg_docsexternes::EditSousTitre(QModelIndex idx)
 {
+    QStandardItem *item = gmodele->itemFromIndex(idx);
+    qDebug()<< item->text();
     QString txt = (item->text().contains(" - ")? item->text().split(" - ").at(1) : item->text());
-    QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + txt + "' where idimpression = " + item->accessibleDescription(), DataBase::getInstance()->getDataBase());
-    QSqlQuery quer("select typedoc, dateimpression from " NOM_TABLE_IMPRESSIONS " where idimpression = " + item->accessibleDescription(), DataBase::getInstance()->getDataBase());
+    QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + txt + "' where idimpression = " + item->data().toMap().value("id").toString(), DataBase::getInstance()->getDataBase());
+    QSqlQuery quer("select typedoc, dateimpression from " NOM_TABLE_IMPRESSIONS " where idimpression = " + item->data().toMap().value("id").toString(), DataBase::getInstance()->getDataBase());
     quer.first();
     if (gModeTri == parDate)
         item->setText(quer.value(0).toString() + " - " + txt);
@@ -558,7 +578,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
      *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
      *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base, de la table echangeimages
     */
-
+    DocExterne *docmt = m_ListDocs.getDocumentById(idimpression);
     QMap<QString,QVariant> result;
     QString idimpr = QString::number(idimpression);
     QString filename = "";
@@ -569,13 +589,9 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
     {
         if (afficher)
         {
-            QSqlQuery quer("select typedoc, dateimpression, soustypedoc, formatdoc, lienversfichier, compression from " NOM_TABLE_IMPRESSIONS
-                           " where idimpression = " + idimpr,
-                           DataBase::getInstance()->getDataBase());
-            quer.first();
-            QString sstitre = "<font color='magenta'>" + quer.value(1).toDate().toString(tr("d-M-yyyy")) + " - " + quer.value(0).toString() + " - " + quer.value(2).toString() + "</font>";
+            QString sstitre = "<font color='magenta'>" + docmt->date().toString(tr("d-M-yyyy")) + " - " + docmt->typedoc() + " - " + docmt->soustypedoc() + "</font>";
             inflabel    ->setText(sstitre);
-            filename = quer.value(4).toString();
+            filename = docmt->lienversfichier();
             if (filename != "")
             {
                 QString filesufx;
@@ -594,7 +610,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
                                 "VALUES (" +
                                 idimpr + ", " +
                                 " LOAD_FILE('" + proc->DirImagerie() + NOMDIR_IMAGES + filename + "'), " +
-                                quer.value(5).toString() + ")";
+                                QString::number(docmt->compression()) + ")";
                     //qDebug() << req;
                     QSqlQuery (req, DataBase::getInstance()->getDataBase());
                 }
@@ -603,7 +619,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
         QSqlQuery ChercheImgquer( DataBase::getInstance()->getDataBase());
         QString req2 = "select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr;
         ChercheImgquer.exec(req2);
-        if (ChercheImgquer.size()==0)
+        if (ChercheImgquer.size()==0)           // le document n'est pas dans echangeimages, on va le chercher dans impressions
         {
             req2 = "select pdf, jpg, compression  from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
             ChercheImgquer.exec(req2);
@@ -629,28 +645,21 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
     }
     else                                                                                                    // il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
     {
-        QString req = "select TextEntete, TextCorps, TextPied, ALD, formatdoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
-        QSqlQuery quer0(req,DataBase::getInstance()->getDataBase());
-        if (quer0.size() == 0) {
-            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-            return result;
-        }
         inflabel    ->setText("");
-        quer0.first();
         QByteArray bapdf;
-        QString Entete  = quer0.value(0).toString();
-        QString Corps   = quer0.value(1).toString();
-        QString Pied    = quer0.value(2).toString();
+        QString Entete  = docmt->textentete();
+        QString Corps   = docmt->textcorps();
+        QString Pied    = docmt->textpied();
         QTextEdit   *Etat_textEdit = new QTextEdit;
         Etat_textEdit->setHtml(Corps);
         TextPrinter *TexteAImprimer = new TextPrinter();
-        if (quer0.value(4).toString() == PRESCRIPTIONLUNETTES)
+        if (docmt->format() == PRESCRIPTIONLUNETTES)
             TexteAImprimer->setFooterSize(proc->TaillePieddePageOrdoLunettes());
         else
             TexteAImprimer->setFooterSize(proc->TaillePieddePage());
         TexteAImprimer->setHeaderText(Entete);
         int TailleEnTete = proc->TailleEnTete();
-        if (quer0.value(3).toString()=="1") TailleEnTete = proc->TailleEnTeteALD();
+        if (docmt->isALD()) TailleEnTete = proc->TailleEnTeteALD();
         TexteAImprimer->setHeaderSize(TailleEnTete);
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(proc->TailleTopMarge());
@@ -670,22 +679,53 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
 
 int dlg_docsexternes::CompteNbreDocs()
 {
-    return QSqlQuery("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient),DataBase::getInstance()->getDataBase()).size();
+    bool ok = true;
+    QList<QList<QVariant>> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
+    if (!ok) return -1;
+    if (list.size()==0)
+        return - 1;
+    return list.at(0).at(0).toInt();
+}
+
+DocExterne* dlg_docsexternes::getDocumentFromIndex(QModelIndex idx)
+{
+    QStandardItem *it = gmodele->itemFromIndex(idx);
+    if (it == Q_NULLPTR || it->hasChildren())
+        return Q_NULLPTR;
+    int idimpr = it->data().toMap().value("id").toInt();
+    return m_ListDocs.getDocumentById(idimpr);
+}
+
+QModelIndex dlg_docsexternes::getIndexFromId(int id)
+{
+    QModelIndex idx;
+    for (int m = 0; m<gmodele->rowCount(); m++)
+        for (int n=0; n<gmodele->item(m)->rowCount(); n++)
+            if (gmodele->item(m)->child(n)->data().toMap().value("id").toInt() == id)
+            {
+                idx = gmodele->item(m)->child(n)->index();
+                break;
+            }
+    return idx;
+}
+
+QStandardItem* dlg_docsexternes::getItemFromDocument(DocExterne* docmt)
+{
+    QModelIndex idx = getIndexFromId(docmt->id());
+    return gmodele->itemFromIndex(idx);
 }
 
 void dlg_docsexternes::ImprimeDoc()
 {
 #ifndef QT_NO_PRINTER
-    PrintButton                 ->disconnect();
-    QModelIndex idx             = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
-    QStandardItemModel *modele  = static_cast<QStandardItemModel*>(ListDocsTreeView->model());
-    QString idimpr              = modele->itemFromIndex(idx)->accessibleDescription();
-    AvecPrevisu                 = proc->ApercuAvantImpression();
-    if (idimpr != "")
+    PrintButton         ->disconnect();
+    AvecPrevisu         = proc->ApercuAvantImpression();
+    DocExterne * docmt  = getDocumentFromIndex(ListDocsTreeView->selectionModel()->selectedIndexes().at(0));
+    docmt               = m_ListDocs.getDocumentById(docmt->id());
+    if (docmt != Q_NULLPTR)
     {
         bool detruirealafin = false;
-        QSqlQuery quer1("select Typedoc, DateImpression, TextOrigine, formatdoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, DataBase::getInstance()->getDataBase());
-        quer1.first();
+
 
         UpMessageBox msgbox;
         UpSmallButton OKBouton      (tr("Réimprimer\nle document"));
@@ -697,16 +737,16 @@ void dlg_docsexternes::ImprimeDoc()
 
         msgbox.addButton(&AnnulBouton,UpSmallButton::CANCELBUTTON);
         if (proc->getUserConnected()->isMedecin()
-            && (quer1.value(3).toString() != IMAGERIE && quer1.value(3).toString() != DOCUMENTRECU))
+            && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
         {
-            if (QDate::currentDate() == quer1.value(1).toDate())
+            if (QDate::currentDate() == docmt->date().date())
             {
                 msgbox.addButton(&NoBouton,UpSmallButton::EDITBUTTON);
                 detruirealafin = true;
             }
             else
             {
-                if (quer1.value(2).toString() != "")    // si on a un texte d'origine, on peut modifier le document
+                if (docmt->textorigine() != "")    // si on a un texte d'origine, on peut modifier le document
                 {
                     NoBouton.setText(tr("Modifier et imprimer\nà la date d'aujourd'hui"));
                     msgbox.addButton(&NoBouton,UpSmallButton::EDITBUTTON);
@@ -720,8 +760,8 @@ void dlg_docsexternes::ImprimeDoc()
         //Reimpression simple du document, sans réédition => pas d'action sur la BDD
         if (msgbox.clickedButton() == &OKBouton)
         {
-            bool pict = (quer1.value(3).toString() == IMAGERIE || quer1.value(3).toString() == DOCUMENTRECU);
-            QMap<QString,QVariant> doc = CalcImage(idimpr.toInt(), pict, false);
+            bool pict = (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU);
+            QMap<QString,QVariant> doc = CalcImage(docmt->id(), pict, false);
             QByteArray bapdf = doc.value("ba").toByteArray();
             if (doc.value("Type").toString() == PDF)     // le document est un pdf ou un document texte
             {
@@ -729,11 +769,13 @@ void dlg_docsexternes::ImprimeDoc()
                 if (!document || document->isLocked()) {
                     UpMessageBox::Watch(this,tr("Impossible de charger le document"));
                     delete document;
+                    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
                     return;
                 }
                 if (document == Q_NULLPTR) {
                     UpMessageBox::Watch(this,tr("Impossible de charger le document"));
                     delete document;
+                    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
                     return;
                 }
 
@@ -745,12 +787,14 @@ void dlg_docsexternes::ImprimeDoc()
                     if (pdfPage == Q_NULLPTR) {
                         UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
                         delete document;
+                        connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
                         return;
                     }
                     image = pdfPage->renderToImage(600,600);
                     if (image.isNull()) {
                         UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
                         delete document;
+                        connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
                         return;
                     }
                     // ... use image ...
@@ -805,22 +849,16 @@ void dlg_docsexternes::ImprimeDoc()
         else if (msgbox.clickedButton() == &NoBouton || msgbox.clickedButton() == &ImpBouton)
         {
             // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
-            QString req = "select idUser, Titre, TypeDoc, TextEntete, TextCorps, TextOrigine, TextPied, ALD, FormatDoc, SousTypeDoc, Importance from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
-            QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
-            if (quer.size() == 0) {
-                UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                return;
-            }
-            quer.first();
+
             QString     Corps, Entete, Pied, txt;
             QTextEdit   *Etat_textEdit  = new QTextEdit;
             bool        AvecNumPage     = false;
             bool        aa;
-            bool        ALD             = (quer.value(7).toInt()==1);
-            bool        Prescription    = (quer.value(8).toString() == PRESCRIPTION || quer.value(8).toString() == PRESCRIPTIONLUNETTES);
+            bool        ALD             = (docmt->isALD());
+            bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
             Patient*    pat = DataBase::getInstance()->loadPatientById(gidPatient);
 
-            User *userEntete = proc->setDataOtherUser(quer.value(0).toInt());
+            User *userEntete = proc->setDataOtherUser(docmt->iduser());
             if (userEntete == nullptr)
             {
                 UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -838,17 +876,17 @@ void dlg_docsexternes::ImprimeDoc()
             Entete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
 
             //création du pied
-            Pied = proc->ImpressionPied(quer.value(8).toString()==PRESCRIPTIONLUNETTES, ALD);
+            Pied = proc->ImpressionPied(docmt->format() == PRESCRIPTIONLUNETTES, ALD);
 
             // creation du corps de l'ordonnance
-            QString txtautiliser    = (quer.value(5).toString() == QString()?           quer.value(4).toString()        : quer.value(5).toString());
-            txt                     = (msgbox.clickedButton() == &NoBouton?             proc->Edit(txtautiliser)        : txtautiliser);
-            Corps                   = (quer.value(2).toString()==tr("Prescription")?    proc->ImpressionCorps(txt,ALD)  : proc->ImpressionCorps(txt));
+            QString txtautiliser    = (docmt->textorigine() != ""?              docmt->textcorps()              : docmt->textorigine());
+            txt                     = (msgbox.clickedButton() == &NoBouton?     proc->Edit(txtautiliser)        : txtautiliser);
+            Corps                   = (docmt->typedoc() == tr("Prescription")?  proc->ImpressionCorps(txt,ALD)  : proc->ImpressionCorps(txt));
             Etat_textEdit           ->setHtml(Corps);
             if (Etat_textEdit->toPlainText() == "")
             {   UpMessageBox::Watch(this,tr("Rien à imprimer"));    return; }
-            int TailleEnTete        = (ALD?                                             proc->TailleEnTeteALD()         : proc->TailleEnTete());
-            bool AvecDupli          = (proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES" && quer.value(2).toString() == tr("Prescription"));
+            int TailleEnTete        = (ALD?                                     proc->TailleEnTeteALD()         : proc->TailleEnTete());
+            bool AvecDupli          = (proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES" && docmt->typedoc() == tr("Prescription"));
             bool AvecChoixImprimante = true;
 
             aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
@@ -875,6 +913,23 @@ void dlg_docsexternes::ImprimeDoc()
                 // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
                 query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idUser, idpat, TypeDoc, SousTypeDoc, Titre, TextEntete, TextCorps, TextOrigine, TextPied, Dateimpression, FormatDoc, idLieu, ALD, UserEmetteur, Importance)"
                                                                    " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre, :textEntete, :textCorps, :textOrigine, :textPied, :dateimpression, :formatdoc, :idlieu, :ald, :useremetteur, :importance)");
+                query.bindValue(":iduser", QString::number(docmt->iduser()));
+                query.bindValue(":idpat", QString::number(docmt->idpatient()));
+                query.bindValue(":typeDoc", docmt->typedoc());
+                query.bindValue(":soustypedoc", docmt->soustypedoc());
+                query.bindValue(":titre", docmt->titre());
+                query.bindValue(":textEntete", Entete);
+                query.bindValue(":textCorps", Corps);
+                query.bindValue(":textOrigine", txt);
+                query.bindValue(":textPied", Pied);
+                query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
+                query.bindValue(":formatdoc", docmt->format());
+                query.bindValue(":idlieu", QString::number(DataBase::getInstance()->getUserConnected()->getSite()->id()));
+                query.bindValue(":ald", ALD? "1" : QVariant(QVariant::String));
+                query.bindValue(":useremetteur", QString::number(DataBase::getInstance()->getUserConnected()->id()));
+                query.bindValue(":importance", docmt->importance());
+
+                /*
                 query.bindValue(":iduser", quer.value(0).toString());
                 query.bindValue(":idpat", QString::number(gidPatient));
                 query.bindValue(":typeDoc", quer.value(2).toString());
@@ -890,11 +945,17 @@ void dlg_docsexternes::ImprimeDoc()
                 query.bindValue(":ald", ALD? "1" : QVariant(QVariant::String));
                 query.bindValue(":useremetteur", QString::number(DataBase::getInstance()->getUserConnected()->id()));
                 query.bindValue(":importance", quer.value(10).toInt());
+                */
+
+
                 if(!query.exec())
+                {
                     UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
+                    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
+                }
                 RemplirTreeView();
                 if (detruirealafin)
-                    QSqlQuery("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr, DataBase::getInstance()->getDataBase());
+                    db->SupprRecordFromTable(docmt->id(),"idimpression",NOM_TABLE_IMPRESSIONS);
             }
             delete Etat_textEdit;
         }
@@ -902,6 +963,23 @@ void dlg_docsexternes::ImprimeDoc()
     }
     connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
 #endif
+}
+
+int dlg_docsexternes::initListDocs()
+{
+    m_ListDocs.VideLesListes();
+    QList<DocExterne*> listdocsexternesbydate = db->loadDoscExternesByDateByPatientAll(gidPatient);
+    m_ListDocs.addListDocsExternesByDat(listdocsexternesbydate);                            // liste des documents classés par date
+
+    QList<DocExterne*> listdocsexternesbytype = db->loadDoscExternesByTypeByPatientAll(gidPatient);
+    m_ListDocs.addListDocsExternesByTyp(listdocsexternesbytype);                            // liste des documetns classés par date
+
+    return m_ListDocs.docsexternespardate().size();
+}
+
+void dlg_docsexternes::ModifierItem(QModelIndex idx)
+{
+    qDebug() << gmodele->itemFromIndex(idx)->text();
 }
 
 void dlg_docsexternes::PlayerCtrl(int ctrl)
@@ -932,18 +1010,11 @@ void dlg_docsexternes::SupprimeDoc()
 {
     int ndocs = CompteNbreDocs();
     QModelIndex idx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
-    QString idimpr = gmodele->itemFromIndex(idx)->accessibleDescription();
+    DocExterne *docmt = getDocumentFromIndex(idx);
+    QString idimpr = QString::number(docmt->id());
     if (!proc->getUserConnected()->isSoignant())         //le user n'est pas un soignant
     {
-        QString     req = "Select Useremetteur, idrefraction from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
-        QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
-        if (quer.size()== 0)
-        {
-            UpMessageBox::Watch(this,tr("Suppression refusée"), tr("Vous ne pouvez pas supprimer un document dont vous n'êtes pas l'auteur"));
-            return;
-        }
-        quer.first();
-        if (quer.value(0).toInt() != DataBase::getInstance()->getUserConnected()->id())
+        if (docmt->useremetteur() != DataBase::getInstance()->getUserConnected()->id())
         {
             UpMessageBox::Watch(this,tr("Suppression refusée"), tr("Vous ne pouvez pas supprimer un document dont vous n'êtes pas l'auteur"));
             return;
@@ -963,24 +1034,18 @@ void dlg_docsexternes::SupprimeDoc()
         msgbox.exec();
         if (msgbox.clickedButton() != &OKBouton)
             return;
-        QString req = "select lienversfichier, formatdoc from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr;
-        //qDebug() << req;
-        QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
-        if (quer.size()>0)
+        if (docmt->lienversfichier() != "")
         {
-            quer.first();
-            if (quer.value(0).toString() != "")
-            {
-                QString filename = (quer.value(1).toString() == VIDEO? "/" : "") + quer.value(0).toString();
-                QString cheminFichier = (quer.value(1).toString() == VIDEO? NOMDIR_VIDEOS : NOMDIR_IMAGES);
-                filename = cheminFichier + filename;
-                QSqlQuery ("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + filename + "')", DataBase::getInstance()->getDataBase());
-            }
+            QString filename = (docmt->format() == VIDEO? "/" : "") + docmt->lienversfichier();
+            QString cheminFichier = (docmt->format()== VIDEO? NOMDIR_VIDEOS : NOMDIR_IMAGES);
+            filename = cheminFichier + filename;
+            QSqlQuery ("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + filename + "')", DataBase::getInstance()->getDataBase());
         }
         QString idaafficher = "";
         if (ndocs>1)
         {
-            QSqlQuery idquer("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient) + " order by dateimpression", DataBase::getInstance()->getDataBase());
+            QSqlQuery idquer("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(docmt->idpatient())
+                             + " order by dateimpression", DataBase::getInstance()->getDataBase());
             for (int i=0; i<idquer.size(); i++)
             {
                 idquer.seek(i);
@@ -1004,7 +1069,7 @@ void dlg_docsexternes::SupprimeDoc()
             for (int m = 0; m<gmodele->rowCount(); m++)
             {
                 for (int n=0; n<gmodele->item(m)->rowCount(); n++)
-                    if (gmodele->item(m)->child(n)->accessibleDescription() == idaafficher)
+                    if (gmodele->item(m)->child(n)->data().toMap().value("id").toString() == idaafficher)
                     {
                         idx2 = gmodele->item(m)->child(n)->index();
                         OK = true;
@@ -1204,7 +1269,7 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-void dlg_docsexternes::RemplirTreeView(bool recalcul)
+void dlg_docsexternes::RemplirTreeView()
 {
     /*
      * 0-idImpression
@@ -1221,202 +1286,181 @@ void dlg_docsexternes::RemplirTreeView(bool recalcul)
      * 11-lienversfichier
     */
     int                 ndocs = 0;
-    QStandardItem       *dateitem, *typitem, *pitem, *pitem1;
+    if (ListDocsTreeView != Q_NULLPTR)
+        ListDocsTreeView->disconnect();
+    if (ListDocsTreeView->selectionModel() != Q_NULLPTR)
+        ListDocsTreeView->selectionModel()->disconnect();
+    QStandardItem       *dateitem, *typitem, *pitem;
     QString             idimpraretrouver = "";
     gmodele = dynamic_cast<QStandardItemModel*>(ListDocsTreeView->model());
     if (gmodele)
     {
         if (ListDocsTreeView->selectionModel()->selectedIndexes().size()>0)
         {
-            QModelIndex         actifidx;
-            actifidx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
+            QModelIndex actifidx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
             if (!gmodele->itemFromIndex(actifidx)->hasChildren())
-                idimpraretrouver = gmodele->itemFromIndex(actifidx)->accessibleDescription();
+                idimpraretrouver = gmodele->itemFromIndex(actifidx)->data().toMap().value("id").toString();
         }
         gmodele->clear();
         gmodeleTriParDate->clear();
         gmodeleTriParType->clear();
-        gproxymodele->clear();
     }
     else
     {
         gmodele             = new QStandardItemModel(this);
         gmodeleTriParDate   = new QStandardItemModel(this);
         gmodeleTriParType   = new QStandardItemModel(this);
-        gproxymodele        = new QSortFilterProxyModel(this);
     }
-    if (recalcul)
-        TreeQuery.exec("Select idImpression, TypeDoc, Titre, Dateimpression, SousTypeDoc, Importance from " NOM_TABLE_IMPRESSIONS
-                       " where idpat = " + QString::number(gidPatient));
-    QStandardItemModel treemodel;
-    QStandardItem *tit0, *tit1, *tit2, *tit3, *tit4, *tit5;
-    for (int i=0; i<TreeQuery.size(); i++)
+
+    ndocs = initListDocs();
+    if (ndocs == 0)
     {
-        tit0 = new QStandardItem();
-        tit1 = new QStandardItem();
-        tit2 = new QStandardItem();
-        tit3 = new QStandardItem();
-        tit4 = new QStandardItem();
-        tit5 = new QStandardItem();
-        TreeQuery.seek(i);
-        tit0->setText(TreeQuery.value(0).toString());
-        tit1->setText(TreeQuery.value(1).toString());
-        tit2->setText(TreeQuery.value(2).toString());
-        tit3->setText(TreeQuery.value(3).toString());
-        tit4->setText(TreeQuery.value(4).toString());
-        tit5->setText(TreeQuery.value(5).toString());
-        QList<QStandardItem *> pitemlist;
-        pitemlist << tit0 << tit1 << tit2 << tit3 << tit4 << tit5;
-        treemodel.appendRow(pitemlist);
+        initOK = false;
+        return;
     }
+    /*
+     *          |---------------------------|           TRI PAR DATE
+                |        dateitem           |
+                |    text = date examen     |
+                |___________________________|---|
+                                                |
+                                                |––––––––––––––––––––––––––––––––––––––-|
+                                                |               pitem                   |
+                                                |   text = type + sous type document    |
+                                                |   data["id"] = id                     |
+                                                |_______________________________________|
+
+
+
+                |---------------------------|           TRI PAR TYPE EXAMEN
+                |        typitem            |
+                |    text = type examen     |
+                |___________________________|---|
+                                                |
+                                                |––––––––––––––––––––––––––––––––––––––-|
+                                                |               pitem                   |
+                                                |   text = date + sous type document    |
+                                                |   data["id"] = id                     |
+                                                |_______________________________________|
+
+    */
 
     //1 Liste des documents (ordonnances, certificats, courriers, imagerie...etc...) imprimés par le poste ou reçus
-    if (treemodel.rowCount()>0)
-    {
-        ndocs = treemodel.rowCount();
-        // Tri par date
-        treemodel.sort(3);
-        QString datestring ="";
-        for (int i=0;i<treemodel.rowCount();i++)
-        {
-            QString textdate = treemodel.item(i,3)->text();
-            QString date = QDateTime::fromString(textdate, "yyyy-MM-ddThh:mm:ss").toString(tr("dd-MM-yyyy"));
-            if (date != datestring)
-            {
-                dateitem   = new QStandardItem();
-                datestring = date;
-                dateitem->setText(datestring);
-                dateitem->setForeground(QBrush(QColor(Qt::red)));
-                dateitem->setEditable(false);
-                dateitem->setEnabled(false);
-                gmodeleTriParDate->appendRow(dateitem);
-            }
-        }
-        for (int i=0;i<treemodel.rowCount();i++)
-        {
-            QString date = QDateTime::fromString(treemodel.item(i,3)->text(), "yyyy-MM-ddThh:mm:ss").toString(tr("dd-MM-yyyy"));
-            QString a = treemodel.item(i,1)->text();                       //Type de document
-            if (treemodel.item(i,4)->text() != "")
-            {
-                if (a!="") a += " - ";
-                a += treemodel.item(i,4)->text();                       //Sous-type du document
-            }
-            else if (treemodel.item(i,2)->text() != "")                // Titre du document
-            {
-                if (a!="") a += " - ";
-                QTextEdit text;
-                text.setHtml(treemodel.item(i,2)->text());
-                a += text.toPlainText();
-            }
-            pitem   = new QStandardItem(a);
-            pitem1  = new QStandardItem(QDateTime::fromString(treemodel.item(i,3)->text(), "yyyy-MM-ddThh:mm:ss").toString("yyyyMMddHHmmss") +"000");
-            pitem->setAccessibleDescription(treemodel.item(i,0)->text());
-            QFont fontitem = gFont;
-            fontitem.setBold(treemodel.item(i,5)->text()=="2");
-            fontitem.setItalic(treemodel.item(i,5)->text()=="0");
-            pitem->setFont(fontitem);
-            pitem->setData(treemodel.item(i,5)->text());
-            pitem->setEditable(true);
-            QList<QStandardItem *> pitemlist;
-            pitemlist << pitem << pitem1;
-            QList<QStandardItem *> listitems = gmodeleTriParDate->findItems(date);
-            if (listitems.size()>0)
-            {
-                listitems.at(0)->appendRow(pitemlist);
-                listitems.at(0)->sortChildren(1);
-            }
-        }
-        // Tri par type
-        treemodel.sort(2);
-        QString typedoc ="";
-        for (int i=0;i<treemodel.rowCount();i++)
-        {
-            if (treemodel.item(i,1)->text() != typedoc)
-            {
-                typitem     = new QStandardItem();
-                typedoc     = treemodel.item(i,1)->text();
-                typitem     ->setText(typedoc);
-                typitem     ->setForeground(QBrush(QColor(Qt::red)));
-                typitem     ->setEditable(false);
-                typitem     ->setEnabled(false);
-                gmodeleTriParType     ->appendRow(typitem);
-            }
-        }
-        for (int i=0;i<treemodel.rowCount();i++)
-        {
-            QString textdate = treemodel.item(i,3)->text();
-            QString date = QDateTime::fromString(textdate, "yyyy-MM-ddThh:mm:ss").toString(tr("dd-MM-yyyy"));
-            QString a = date + " - ";
-            if (treemodel.item(i,4)->text() != "")
-                a += treemodel.item(i,4)->text();                       //Sous-type du document
-            else if (treemodel.item(i,2)->text() != "")                // Titre du document
-            {
-                QTextEdit text;
-                text.setHtml(treemodel.item(i,2)->text());
-                a += text.toPlainText();
-            }
-            else
-                a += treemodel.item(i,1)->text();                       //Type de document
+    QList<QDate> listdates;
 
-            pitem   = new QStandardItem(a);
-            pitem1  = new QStandardItem(QDateTime::fromString(treemodel.item(i,3)->text(), "yyyy-MM-ddThh:mm:ss").toString("yyyyMMddHHmmss") +"000");
-            pitem   ->setAccessibleDescription(treemodel.item(i,0)->text());
-            pitem   ->setEditable(true);
-            QList<QStandardItem *> pitemlist;
-            pitemlist << pitem << pitem1;
-            QList<QStandardItem *> listitems = gmodeleTriParType->findItems(treemodel.item(i,1)->text());
-            if (listitems.size()>0)
-            {
-                listitems.at(0)->appendRow(pitemlist);
-                listitems.at(0)->sortChildren(1);
-            }
+    // Tri par date
+    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespardate().constBegin(); itdoc != m_ListDocs.docsexternespardate().constEnd(); ++itdoc )
+    {
+        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
+
+        // individualisation des dates en item root
+
+        if (!listdates.contains(doc->date().date()))
+            listdates << doc->date().date();
+    }
+    qSort(listdates);
+    for (int i=0; i<listdates.size(); ++i)
+    {
+        QString datestring = listdates.at(i).toString("dd-MM-yyyy");
+        dateitem    = new QStandardItem(datestring);
+        dateitem    ->setForeground(QBrush(QColor(Qt::red)));
+        dateitem    ->setEditable(false);
+        gmodeleTriParDate->appendRow(dateitem);
+    }
+
+    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespardate().constBegin(); itdoc != m_ListDocs.docsexternespardate().constEnd(); ++itdoc )
+    {
+        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());      // rajout des items de chaque examen en child des dates
+
+        QString date = doc->date().toString(tr("dd-MM-yyyy"));
+        QString a = doc->typedoc();                                     // 1 = Type de document
+        pitem           = new QStandardItem(CalcTitre(doc));
+        QMap<QString, QVariant> data;
+        data["id"]  = QString::number(doc->id());                       // 0 - idimpression
+        QFont fontitem  = gFont;
+        fontitem        .setBold(doc->importance()==2);                     // 5 - importance
+        fontitem        .setItalic(doc->importance()==0);
+        pitem           ->setFont(fontitem);
+        pitem           ->setData(data);
+        pitem           ->setEditable(false);
+        QList<QStandardItem *> listitems = gmodeleTriParDate->findItems(date);
+        if (listitems.size()>0)
+        {
+            listitems.at(0)->appendRow(pitem);
+            listitems.at(0)->sortChildren(1);
         }
     }
-    nbredocs = ndocs;
+
+    // Tri par type
+    QStringList listtypedocs;
+    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespartype().constBegin(); itdoc != m_ListDocs.docsexternespartype().constEnd(); ++itdoc )
+    {
+        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
+        if (!listtypedocs.contains(doc->typedoc()))                     // individualisation des type document en item root
+            listtypedocs << doc->typedoc();
+    }
+    qSort(listtypedocs);
+    for (int i=0; i<listtypedocs.size(); ++i)
+    {
+        typitem     = new QStandardItem(listtypedocs.at(i));
+        typitem     ->setForeground(QBrush(QColor(Qt::red)));
+        typitem     ->setEditable(false);
+        gmodeleTriParType     ->appendRow(typitem);
+    }
+    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespartype().constBegin(); itdoc != m_ListDocs.docsexternespartype().constEnd(); ++itdoc )
+    {
+        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
+        QString date = doc->date().toString(tr("dd-MM-yyyy"));
+        QString a = date + " - ";
+        pitem           = new QStandardItem(CalcTitre(doc));
+        QMap<QString, QVariant> data;
+        data["id"]  = QString::number(doc->id());                       // 0 - idimpression
+        QFont fontitem  = gFont;
+        fontitem        .setBold(doc->importance() == 2);
+        fontitem        .setItalic(doc->importance() == 0);
+        pitem           ->setFont(fontitem);
+        pitem           ->setData(data);
+        pitem           ->setEditable(false);
+        QList<QStandardItem *> listitems = gmodeleTriParType->findItems(doc->typedoc());
+        if (listitems.size()>0)
+        {
+            listitems.at(0)->appendRow(pitem);
+            listitems.at(0)->sortChildren(1);
+        }
+    }
+
     if (gModeTri == parDate)
-        gmodele  = gmodeleTriParDate;
-    else gmodele = gmodeleTriParType;
-    if (gmodele->rowCount()>0)
-    {
-        int nrows = gmodele->item(gmodele->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item date
-        QStandardItem *item =  gmodele->item(gmodele->rowCount()-1)->child(nrows,0);    // le tout dernier item
-        QModelIndex idx = item->index();                                                // l'index de ce dernier item
-        if (idimpraretrouver != "")
-        {
-            bool nouvelidx = false;
-            for (int m = 0; m<gmodele->rowCount(); m++)
-            {
-                for (int n=0; n<gmodele->item(m)->rowCount(); n++)
-                    if (gmodele->item(m)->child(n)->accessibleDescription() == idimpraretrouver)
-                    {
-                        idx = gmodele->item(m)->child(n)->index();
-                        nouvelidx = true;
-                        break;
-                    }
-                if (nouvelidx) break;
-            }
-        }
-        else
-        {
-            //gproxymodele->setSourceModel(gmodele);
-            ListDocsTreeView->setModel(gmodele);
-            gmodele                             ->disconnect();
-            connect(gmodele,    &QStandardItemModel::itemChanged, this,   [=] {EditSousTitre(gmodele->itemFromIndex(ListDocsTreeView->selectionModel()->currentIndex()));});
-            ListDocsTreeView->setAnimated(true);
-            ListDocsTreeView->setIndentation(3);
-            ListDocsTreeView->header()->setVisible(false);
-        }
-        ListDocsTreeView->expandAll();
-        ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
-        ListDocsTreeView->setCurrentIndex(idx);
-        connect(ListDocsTreeView->selectionModel()  , &QItemSelectionModel::currentChanged,     this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
-        ListDocsTreeView                    ->disconnect();
-        connect(ListDocsTreeView                    , &QTreeView::customContextMenuRequested,   this,   [=] {AfficheCustomMenu();});
-     }
+        gmodele = gmodeleTriParDate;
     else
+        gmodele = gmodeleTriParType;
+    nbredocs = ndocs;
+    QItemSelectionModel *m = ListDocsTreeView->selectionModel();
+    ListDocsTreeView->setModel(gmodele);
+    delete m;
+
+    int nrows = gmodele->item(gmodele->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item
+    QStandardItem *item =  gmodele->item(gmodele->rowCount()-1)->child(nrows,0);    // le tout dernier item
+    QModelIndex idx = item->index();                                                // l'index de ce dernier item
+    if (idimpraretrouver != "")
     {
-        initOK =false;
-        close();
+        // la suite ne marche pas et provoque des plantages
+        //        QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespardate().find(idimpraretrouver.toInt());
+        //        if (itdoc != m_ListDocs.docsexternespardate().constEnd())
+        //        {
+        //            qDebug() << itdoc.key();
+        //            DocExterne *doc = itdoc.value();
+        //            if (getItemFromDocument(doc) != Q_NULLPTR)
+        //                idx = getItemFromDocument(doc)->index();
+        //        }
+        QModelIndex indx = getIndexFromId(idimpraretrouver.toInt());
+        if (indx.isValid())
+            idx = indx;
     }
+    ListDocsTreeView->setSelectionModel(new QItemSelectionModel(gmodele));
+    ListDocsTreeView->expandAll();
+    ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
+    ListDocsTreeView->setCurrentIndex(idx);
+    connect(ListDocsTreeView->selectionModel(), &QItemSelectionModel::currentChanged,   this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
+    connect(ListDocsTreeView,                   &QTreeView::customContextMenuRequested, this,   [=] {AfficheCustomMenu();});
 }
 

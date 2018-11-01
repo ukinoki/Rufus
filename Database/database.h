@@ -25,6 +25,7 @@
 #include "cls_correspondant.h"
 #include "cls_depense.h"
 #include "cls_villes.h"
+#include "cls_docexterne.h"
 #include "log.h"
 #include "utils.h"
 
@@ -91,9 +92,17 @@ public:
     /*
      * Correspondants
     */
-    QList<Correspondant*> loadCorrespondants();
+    QList<Correspondant *> loadCorrespondants();
     void    SupprCorrespondant(int idcor);
     QList<Correspondant*> loadCorrespondantsALL();
+
+    /*
+     * DocsExternes
+    */
+    QList<DocExterne*> loadDoscExternesByDateByPatientAll(int idpatient);
+    QList<DocExterne*> loadDoscExternesByTypeByPatientAll(int idpatient);
+    QJsonObject loadDocExterneData(int idDoc);
+    void    SupprDocExterne(int iddoc);
 
     /*
      * Compta

@@ -232,6 +232,16 @@ bool DataBase::StandardSQL(QString req , QString errormsg)
 
 QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg)
 {
+    /*
+    exemple:
+        bool ok = true;
+        QList<QList<QVariant>> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
+        if (!ok)                                // erreur
+            return -1;
+        if (list.size()==0)                     // réponse vide
+            return - 1;
+        return list.at(0).at(0).toInt();
+     */
     QList<QList<QVariant>> listreponses;
     QSqlQuery query(req, getDataBase());
     QSqlRecord rec = query.record();
@@ -482,6 +492,113 @@ void DataBase::SupprCorrespondant(int idcor)
     QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe2 = null where idcormespe2 = " + id, getDataBase());
     QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe3 = null where idcormespe3 = " + id, getDataBase());
 }
+
+/*
+ * DocsExternes
+*/
+QList<DocExterne*> DataBase::loadDoscExternesByDateByPatientAll(int idpatient)
+{
+    QList<DocExterne*> docsexternes;
+    QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression,"
+                  " compression, lienversfichier, formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
+                  " where idpat = " + QString::number(idpatient) + " order by dateimpression, typedoc";
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return docsexternes;
+    do
+    {
+        QJsonObject jData{};
+        jData["id"] = query.value(0).toInt();
+        jData["idpat"] = idpatient;
+        jData["typedoc"] = query.value(1).toString();
+        jData["soustypedoc"] = query.value(2).toString();
+        jData["titre"] = query.value(3).toString();
+        jData["dateimpression"] = QDateTime(query.value(4).toDate(), query.value(4).toTime()).toMSecsSinceEpoch();
+        jData["compression"] = query.value(5).toInt();
+        jData["lienversfichier"] = query.value(6).toString();
+        jData["formatdoc"] = query.value(7).toString();
+        jData["importance"] = query.value(8).toInt();
+        DocExterne *doc = new DocExterne(jData);
+        docsexternes << doc;
+    } while( query.next() );
+    return docsexternes;
+}
+
+QJsonObject DataBase::loadDocExterneData(int idDoc)
+{
+    QJsonObject docexterneData{};
+    QString req = "Select idImpression, idUser, idPat, TypeDoc, SousTypeDoc,"
+                  " Titre, TextEntete, TextCorps, TextOrigine, TextPied,"
+                  " Dateimpression, compression, lienversfichier, ALD, UserEmetteur,"
+                  " formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
+                  " where idimpression = " + QString::number(idDoc);
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return docexterneData;
+    if( !query.first() )
+        return docexterneData;
+    docexterneData["isallloaded"] = true;
+
+    docexterneData["id"] = query.value(0).toInt();
+    docexterneData["iduser"] = query.value(1).toInt();
+    docexterneData["idpat"] = query.value(2).toInt();
+    docexterneData["typedoc"] = query.value(3).toString();
+    docexterneData["soustypedoc"] = query.value(4).toString();
+
+    docexterneData["titre"] = query.value(5).toString();
+    docexterneData["textentete"] = query.value(6).toString();
+    docexterneData["textcorps"] = query.value(7).toString();
+    docexterneData["textorigine"] = query.value(8).toString();
+    docexterneData["textpied"] = query.value(9).toString();
+
+    docexterneData["dateimpression"] = QDateTime(query.value(10).toDate(), query.value(10).toTime()).toMSecsSinceEpoch();
+    docexterneData["compression"] = query.value(11).toInt();
+    docexterneData["lienversfichier"] = query.value(12).toString();
+    docexterneData["ALD"] = (query.value(13).toInt()==1);
+    docexterneData["useremetteur"] = query.value(14).toString();
+
+    docexterneData["formatdoc"] = query.value(15).toString();
+    docexterneData["importance"] = query.value(16).toInt();
+    query.finish();
+    return docexterneData;
+
+}
+
+QList<DocExterne*> DataBase::loadDoscExternesByTypeByPatientAll(int idpatient)
+{
+    QList<DocExterne*> docsexternes;
+    QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression, compression, lienversfichier, formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
+                    " where idpat = " + QString::number(idpatient) + " order by typedoc, dateimpression";
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return docsexternes;
+    do
+    {
+        QJsonObject jData{};
+        jData["id"] = query.value(0).toInt();
+        jData["idpat"] = idpatient;
+        jData["typedoc"] = query.value(1).toString();
+        jData["soustypedoc"] = query.value(2).toString();
+        jData["titre"] = query.value(3).toString();
+        jData["dateimpression"] = QDateTime(query.value(4).toDate(), query.value(4).toTime()).toMSecsSinceEpoch();
+        jData["compression"] = query.value(5).toInt();
+        jData["lienversfichier"] = query.value(6).toString();
+        jData["formatdoc"] = query.value(7).toString();
+        jData["importance"] = query.value(8).toInt();
+        DocExterne *doc = new DocExterne(jData);
+        docsexternes << doc;
+    } while( query.next() );
+    return docsexternes;
+}
+
+void DataBase::SupprDocExterne(int iddoc)
+{
+    QString id = QString::number(iddoc);
+    QSqlQuery       ("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + id, DataBase::getInstance()->getDataBase());
+}
+
+
+
 
 /*******************************************************************************************************************************************************************
  ********* COMPTABILITÊ ********************************************************************************************************************************************
