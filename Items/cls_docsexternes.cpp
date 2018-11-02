@@ -95,6 +95,12 @@ void DocsExternes::VideLesListes()
     m_docsexternespartype.clear();
 }
 
+void DocsExternes::RemoveKey(int key)
+{
+    m_docsexternespardate.remove(key);
+    m_docsexternespartype.remove(key);
+}
+
 void DocsExternes::TrieDocsExternes()
 {
     QList<QDateTime>listdates;

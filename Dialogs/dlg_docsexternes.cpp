@@ -168,7 +168,7 @@ void dlg_docsexternes::AfficheCustomMenu()
     paction_ImportantMin    = menu->addAction(tr("Importance faible"));
     paction_ImportantNorm   = menu->addAction(tr("Importance normale"));
     paction_ImportantMax    = menu->addAction(tr("Importance forte"));
-    paction_Modifier        = menu->addAction(tr("Modifier"));
+    paction_Modifier        = menu->addAction(Icons::icEditer(), tr("Modifier le titre"));
     int imptce = docmt->importance();
     QIcon icon = Icons::icBlackCheck();
     if (imptce == 0)
@@ -181,6 +181,45 @@ void dlg_docsexternes::AfficheCustomMenu()
     connect (paction_ImportantNorm, &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Norm);});
     connect (paction_ImportantMax,  &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Max);});
     connect (paction_Modifier,      &QAction::triggered,    this,  [=] {ModifierItem(idx);});
+
+#ifndef QT_NO_PRINTER
+    if (docmt != Q_NULLPTR)
+    {
+        QMenu *menuImprime  = menu->addMenu(tr("Imprimer"));
+        menuImprime         ->setIcon(Icons::icImprimer());
+
+        bool detruirealafin = false;
+        QAction *paction_Reimprimer = new QAction(tr("Réimprimer"));
+        QAction *paction_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
+        QAction *paction_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
+        QAction *paction_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
+        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=] {ReImprimeDoc(docmt);});
+        connect (paction_ModifierReimprimer,        &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, true,  true);});
+        connect (paction_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, true,  false);});
+        connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, false, false);});
+
+        if (proc->getUserConnected()->isMedecin()
+            && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))   // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
+        {   // si le document a été émis aujourd'hui, on propose de le modifier - dans ce cas, on va créer une copie qu'on va modifier et on détruira le document d'origine à la fin
+            if (QDate::currentDate() == docmt->date().date())
+            {
+                menuImprime->addAction(paction_ModifierReimprimer);
+                detruirealafin = true;
+            }
+            else
+            {   // si on a un texte d'origine, on peut modifier le document - (pour les anciennes versions de Rufus, il n'y avait pas de texte d'origine)
+                if (docmt->textorigine() != "")
+                    menuImprime->addAction(paction_ModifierReimprimerCeJour);
+                menuImprime->addAction(paction_ReimprimerCeJour);
+            }
+            menuImprime->addAction(paction_Reimprimer);
+        }
+     }
+#endif
+    QAction *paction_Poubelle   = new QAction(Icons::icPoubelle(), tr("Supprimer"));
+    connect (paction_Poubelle,  &QAction::triggered,    this,  [=] {SupprimeDoc(docmt);});
+    menu->addAction(paction_Poubelle);
+
     menu->exec(cursor().pos());
 }
 
@@ -707,14 +746,12 @@ QStandardItem* dlg_docsexternes::getItemFromDocument(DocExterne* docmt)
 void dlg_docsexternes::ImprimeDoc()
 {
 #ifndef QT_NO_PRINTER
-    PrintButton         ->disconnect();
-    AvecPrevisu         = proc->ApercuAvantImpression();
+    PrintButton         ->disconnect();  // pour éviter le doubles impressions en cas de double clic lent
     DocExterne * docmt  = getDocumentFromIndex(ListDocsTreeView->selectionModel()->selectedIndexes().at(0));
     docmt               = m_ListDocs.getDocumentById(docmt->id());
     if (docmt != Q_NULLPTR)
     {
         bool detruirealafin = false;
-
 
         UpMessageBox msgbox;
         UpSmallButton OKBouton      (tr("Réimprimer\nle document"));
@@ -726,16 +763,19 @@ void dlg_docsexternes::ImprimeDoc()
 
         msgbox.addButton(&AnnulBouton,UpSmallButton::CANCELBUTTON);
         if (proc->getUserConnected()->isMedecin()
-            && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
+            && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))   // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
         {
-            if (QDate::currentDate() == docmt->date().date())
+            if (QDate::currentDate() == docmt->date().date())           // si le document a été émis aujourd'hui, on propose de le modifier
+                                                                        // dans ce cas, on va créer une copie qu'on va modifier
+                                                                        // et on détruira le document d'origine à la fin
             {
                 msgbox.addButton(&NoBouton,UpSmallButton::EDITBUTTON);
                 detruirealafin = true;
             }
             else
             {
-                if (docmt->textorigine() != "")    // si on a un texte d'origine, on peut modifier le document
+                if (docmt->textorigine() != "")     // si on a un texte d'origine, on peut modifier le document
+                                                    // (pour les anciennes versions de Rufus, il n'y avait pas de texte d'origine)
                 {
                     NoBouton.setText(tr("Modifier et imprimer\nà la date d'aujourd'hui"));
                     msgbox.addButton(&NoBouton,UpSmallButton::EDITBUTTON);
@@ -748,74 +788,165 @@ void dlg_docsexternes::ImprimeDoc()
 
         //Reimpression simple du document, sans réédition => pas d'action sur la BDD
         if (msgbox.clickedButton() == &OKBouton)
-        {
-            bool pict = (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU);
-            QMap<QString,QVariant> doc = CalcImage(docmt->id(), pict, false);
-            QByteArray bapdf = doc.value("ba").toByteArray();
-            if (doc.value("Type").toString() == PDF)     // le document est un pdf ou un document texte
-            {
-                Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-                if (!document || document->isLocked()) {
-                    UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                    delete document;
-                    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
-                    return;
-                }
-                if (document == Q_NULLPTR) {
-                    UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                    delete document;
-                    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
-                    return;
-                }
+            ReImprimeDoc(docmt);
 
-                document->setRenderHint(Poppler::Document::TextAntialiasing);
-                int numpages = document->numPages();
-                for (int i=0; i<numpages ;i++)
-                {
-                    Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
-                    if (pdfPage == Q_NULLPTR) {
-                        UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                        delete document;
-                        connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
-                        return;
-                    }
-                    image = pdfPage->renderToImage(600,600);
-                    if (image.isNull()) {
-                        UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                        delete document;
-                        connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
-                        return;
-                    }
-                    // ... use image ...
-                    if (i == 0)
-                    {
-                        if (AvecPrevisu)
-                        {
-                            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
-                            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer);});
-                            dialog->exec();
-                            delete dialog;
-                        }
-                        else
-                        {
-                            QPrintDialog *dialog = new QPrintDialog(printer, this);
-                            if (dialog->exec() != QDialog::Rejected)
-                                Print(printer);
-                            delete dialog;
-                            AvecPrevisu = proc->ApercuAvantImpression();
-                        }
-                    }
-                    else
-                        Print(printer);
-                    delete pdfPage;
-                }
-                delete document;
-            }
-            if (doc.value("Type").toString() == JPG)     // le document est un jpg
+        //Réédition d'un document - on va réimprimer le document à la date du jour en le modifiant - ne concerne que les courriers et ordonnances émis => on enregistre le nouveau document dans la BDD
+        else if (msgbox.clickedButton() == &NoBouton || msgbox.clickedButton() == &ImpBouton)
+            ModifieEtReImprimeDoc(docmt, msgbox.clickedButton() == &NoBouton, detruirealafin);
+        msgbox.close();
+    }
+    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
+#endif
+}
+
+bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin)
+{
+    // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
+    QString     Corps, Entete, Pied, txt;
+    QTextEdit   *Etat_textEdit  = new QTextEdit;
+    bool        AvecNumPage     = false;
+    bool        aa;
+    bool        ALD             = (docmt->isALD());
+    bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
+    Patient*    pat = DataBase::getInstance()->loadPatientById(gidPatient);
+
+    User *userEntete = proc->setDataOtherUser(docmt->iduser());
+    if (userEntete == Q_NULLPTR)
+    {
+        UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
+        return false;
+    }
+
+    //création de l'entête
+    QMap<QString,QString> EnteteMap = proc->ImpressionEntete(QDate::currentDate(), userEntete);
+    Entete = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
+    if (Entete == "")
+        return false;
+    Entete.replace("{{TITRE1}}"        , "");
+    Entete.replace("{{TITRE}}"         , "");
+    Entete.replace("{{DDN}}"           , "");
+    Entete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
+    Entete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
+
+    //création du pied
+    Pied = proc->ImpressionPied(docmt->format() == PRESCRIPTIONLUNETTES, ALD);
+
+    // creation du corps de l'ordonnance
+    QString txtautiliser    = (docmt->textorigine() == ""?              docmt->textcorps()              : docmt->textorigine());
+    txt                     = (modifiable?                              proc->Edit(txtautiliser)        : txtautiliser);
+    Corps                   = (docmt->typedoc() == PRESCRIPTION?        proc->ImpressionCorps(txt,ALD)  : proc->ImpressionCorps(txt));
+    Etat_textEdit           ->setHtml(Corps);
+    if (Etat_textEdit->toPlainText() == "" || txt == "")
+    {
+        if (Etat_textEdit->toPlainText() == "")
+            UpMessageBox::Watch(this,tr("Rien à imprimer"));
+        return false;
+    }
+    int TailleEnTete        = (ALD?                                     proc->TailleEnTeteALD()         : proc->TailleEnTete());
+    bool AvecDupli          = (proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES"
+                               && docmt->typedoc() == PRESCRIPTION);
+    bool AvecChoixImprimante = true;
+
+    aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
+                            proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
+                            AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
+
+    // stockage du document dans la base de donnees - table impressions
+    if (aa)
+    {
+        bool a = true;
+        while (a) {
+            // il faut retirer la dernière ligne du html qui contient le retour à la ligne
+            int debut = Corps.lastIndexOf("<p");
+            int fin   = Corps.lastIndexOf("</p>");
+            int longARetirer = fin - debut + 4;
+            if (Corps.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
+                Corps.remove(debut,longARetirer);
+            else a = false;
+        }
+        Corps.replace("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
+        Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
+
+        QHash<QString,QVariant> listbinds;
+        listbinds["iduser"] = docmt->iduser();
+        listbinds["idpat"] = docmt->idpatient();
+        listbinds["typeDoc"] = docmt->typedoc();
+        listbinds["soustypedoc"] = docmt->soustypedoc();
+        listbinds["titre"] = docmt->titre();
+        listbinds["textEntete"] = Entete;
+        listbinds["textCorps"] = Corps;
+        listbinds["textOrigine"] = txt;
+        listbinds["textPied"] = Pied;
+        listbinds["dateimpression"] = QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+        listbinds["formatdoc"] = docmt->format();
+        listbinds["idlieu"] = db->getUserConnected()->getSite()->id();
+        listbinds["ald"] = (ALD? "1" : QVariant(QVariant::String));
+        listbinds["useremetteur"] = db->getUserConnected()->id();
+        listbinds["importance"] = docmt->importance();
+        if (!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
+        {
+            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
+            connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
+        }
+        else
+        {
+            if (detruirealafin)
             {
-                QPixmap pix;
-                pix.loadFromData(bapdf);
-                image= pix.toImage();
+                db->SupprRecordFromTable(docmt->id(),"idimpression",NOM_TABLE_IMPRESSIONS);
+                m_ListDocs.RemoveKey(docmt->id());
+            }
+            else
+                m_ListDocs.reloadDocument(docmt);
+            RemplirTreeView();
+            int idimpr = db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS);
+            QModelIndex idx = getIndexFromId(idimpr);
+            ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
+            ListDocsTreeView->setCurrentIndex(idx);
+            AfficheDoc(idx);
+        }
+    }
+    delete Etat_textEdit;
+    return true;
+}
+
+bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
+{
+    bool pict = (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU);
+    QMap<QString,QVariant> doc = CalcImage(docmt->id(), pict, false);
+    QByteArray bapdf = doc.value("ba").toByteArray();
+    if (doc.value("Type").toString() == PDF)     // le document est un pdf ou un document texte
+    {
+        Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
+        if (!document || document->isLocked()) {
+            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+            delete document;
+            return false;
+        }
+        if (document == Q_NULLPTR) {
+            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+            delete document;
+            return false;
+        }
+
+        document->setRenderHint(Poppler::Document::TextAntialiasing);
+        int numpages = document->numPages();
+        for (int i=0; i<numpages ;i++)
+        {
+            Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
+            if (pdfPage == Q_NULLPTR) {
+                UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
+                delete document;
+                return false;
+            }
+            image = pdfPage->renderToImage(600,600);
+            if (image.isNull()) {
+                UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
+                delete document;
+                return false;
+            }
+            // ... use image ...
+            if (i == 0)
+            {
                 if (AvecPrevisu)
                 {
                     QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
@@ -829,129 +960,35 @@ void dlg_docsexternes::ImprimeDoc()
                     if (dialog->exec() != QDialog::Rejected)
                         Print(printer);
                     delete dialog;
-                    AvecPrevisu = proc->ApercuAvantImpression();
                 }
             }
+            else
+                Print(printer);
+            delete pdfPage;
         }
-
-        //Réédition d'un document - on va réimprimer le document à la datedu jour en le modifiant - ne concerne que les courriers et ordonnances émis => on enregistre le nouveau document dans la BDD
-        else if (msgbox.clickedButton() == &NoBouton || msgbox.clickedButton() == &ImpBouton)
-        {
-            // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
-
-            QString     Corps, Entete, Pied, txt;
-            QTextEdit   *Etat_textEdit  = new QTextEdit;
-            bool        AvecNumPage     = false;
-            bool        aa;
-            bool        ALD             = (docmt->isALD());
-            bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
-            Patient*    pat = DataBase::getInstance()->loadPatientById(gidPatient);
-
-            User *userEntete = proc->setDataOtherUser(docmt->iduser());
-            if (userEntete == nullptr)
-            {
-                UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
-                return;
-            }
-
-            //création de l'entête
-            QMap<QString,QString> EnteteMap = proc->ImpressionEntete(QDate::currentDate(), userEntete);
-            Entete = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
-            if (Entete == "") return;
-            Entete.replace("{{TITRE1}}"        , "");
-            Entete.replace("{{TITRE}}"         , "");
-            Entete.replace("{{DDN}}"           , "");
-            Entete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
-            Entete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
-
-            //création du pied
-            Pied = proc->ImpressionPied(docmt->format() == PRESCRIPTIONLUNETTES, ALD);
-
-            // creation du corps de l'ordonnance
-            QString txtautiliser    = (docmt->textorigine() != ""?              docmt->textcorps()              : docmt->textorigine());
-            txt                     = (msgbox.clickedButton() == &NoBouton?     proc->Edit(txtautiliser)        : txtautiliser);
-            Corps                   = (docmt->typedoc() == tr("Prescription")?  proc->ImpressionCorps(txt,ALD)  : proc->ImpressionCorps(txt));
-            Etat_textEdit           ->setHtml(Corps);
-            if (Etat_textEdit->toPlainText() == "")
-            {   UpMessageBox::Watch(this,tr("Rien à imprimer"));    return; }
-            int TailleEnTete        = (ALD?                                     proc->TailleEnTeteALD()         : proc->TailleEnTete());
-            bool AvecDupli          = (proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES" && docmt->typedoc() == tr("Prescription"));
-            bool AvecChoixImprimante = true;
-
-            aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
-                                    proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
-                                    AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
-
-            // stockage du document dans la base de donnees - table impressions
-            if (aa)
-            {
-                bool a = true;
-                while (a) {
-                    // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-                    int debut = Corps.lastIndexOf("<p");
-                    int fin   = Corps.lastIndexOf("</p>");
-                    int longARetirer = fin - debut + 4;
-                    if (Corps.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                        Corps.remove(debut,longARetirer);
-                    else a = false;
-                }
-                Corps.replace("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-                Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-
-                QSqlQuery query = QSqlQuery(DataBase::getInstance()->getDataBase());
-                // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-                query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idUser, idpat, TypeDoc, SousTypeDoc, Titre, TextEntete, TextCorps, TextOrigine, TextPied, Dateimpression, FormatDoc, idLieu, ALD, UserEmetteur, Importance)"
-                                                                   " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre, :textEntete, :textCorps, :textOrigine, :textPied, :dateimpression, :formatdoc, :idlieu, :ald, :useremetteur, :importance)");
-                query.bindValue(":iduser", QString::number(docmt->iduser()));
-                query.bindValue(":idpat", QString::number(docmt->idpatient()));
-                query.bindValue(":typeDoc", docmt->typedoc());
-                query.bindValue(":soustypedoc", docmt->soustypedoc());
-                query.bindValue(":titre", docmt->titre());
-                query.bindValue(":textEntete", Entete);
-                query.bindValue(":textCorps", Corps);
-                query.bindValue(":textOrigine", txt);
-                query.bindValue(":textPied", Pied);
-                query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
-                query.bindValue(":formatdoc", docmt->format());
-                query.bindValue(":idlieu", QString::number(DataBase::getInstance()->getUserConnected()->getSite()->id()));
-                query.bindValue(":ald", ALD? "1" : QVariant(QVariant::String));
-                query.bindValue(":useremetteur", QString::number(DataBase::getInstance()->getUserConnected()->id()));
-                query.bindValue(":importance", docmt->importance());
-
-                /*
-                query.bindValue(":iduser", quer.value(0).toString());
-                query.bindValue(":idpat", QString::number(gidPatient));
-                query.bindValue(":typeDoc", quer.value(2).toString());
-                query.bindValue(":soustypedoc", quer.value(9).toString());
-                query.bindValue(":titre", quer.value(1).toString());
-                query.bindValue(":textEntete", Entete);
-                query.bindValue(":textCorps", Corps);
-                query.bindValue(":textOrigine", txt);
-                query.bindValue(":textPied", Pied);
-                query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
-                query.bindValue(":formatdoc", quer.value(8).toString());
-                query.bindValue(":idlieu", QString::number(DataBase::getInstance()->getUserConnected()->getSite()->id()));
-                query.bindValue(":ald", ALD? "1" : QVariant(QVariant::String));
-                query.bindValue(":useremetteur", QString::number(DataBase::getInstance()->getUserConnected()->id()));
-                query.bindValue(":importance", quer.value(10).toInt());
-                */
-
-
-                if(!query.exec())
-                {
-                    UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
-                    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
-                }
-                RemplirTreeView();
-                if (detruirealafin)
-                    db->SupprRecordFromTable(docmt->id(),"idimpression",NOM_TABLE_IMPRESSIONS);
-            }
-            delete Etat_textEdit;
-        }
-        msgbox.close();
+        delete document;
     }
-    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
-#endif
+    if (doc.value("Type").toString() == JPG)     // le document est un jpg
+    {
+        QPixmap pix;
+        pix.loadFromData(bapdf);
+        image= pix.toImage();
+        if (AvecPrevisu)
+        {
+            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
+            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer);});
+            dialog->exec();
+            delete dialog;
+        }
+        else
+        {
+            QPrintDialog *dialog = new QPrintDialog(printer, this);
+            if (dialog->exec() != QDialog::Rejected)
+                Print(printer);
+            delete dialog;
+        }
+    }
+    return true;
 }
 
 int dlg_docsexternes::initListDocs()
@@ -985,7 +1022,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     dlg->move(QPoint(x()+width()/2,y()+height()/2));
     dlg->setWindowTitle(tr("Modifier le titre"));
     Line->setText(docmt->soustypedoc());
-    QTimer::singleShot(0, Line, &QLineEdit::selectAll);
+    QTimer::singleShot(0, Line, &QLineEdit::selectAll);     // de la bidouille mais pas trouvé autre chose
 
     connect(dlg->OKButton,   &QPushButton::clicked,   [=]
     {
@@ -1033,11 +1070,18 @@ void dlg_docsexternes::Print(QPrinter *Imprimante)
     PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
 }
 
-void dlg_docsexternes::SupprimeDoc()
+void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
 {
     int ndocs = CompteNbreDocs();
-    QModelIndex idx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
-    DocExterne *docmt = getDocumentFromIndex(idx);
+    QModelIndex idx;
+    if (docmt == Q_NULLPTR)
+    {
+        idx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
+        docmt = getDocumentFromIndex(idx);
+    }
+    else idx = getIndexFromId(docmt->id());
+    if (docmt == Q_NULLPTR)
+        return;
     QString idimpr = QString::number(docmt->id());
     if (!proc->getUserConnected()->isSoignant())         //le user n'est pas un soignant
     {
@@ -1447,7 +1491,7 @@ void dlg_docsexternes::RemplirTreeView()
     else
         gmodele = gmodeleTriParType;
     nbredocs = ndocs;
-    QItemSelectionModel *m = ListDocsTreeView->selectionModel();
+    QItemSelectionModel *m = ListDocsTreeView->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
     ListDocsTreeView->setModel(gmodele);
     delete m;
 

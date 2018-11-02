@@ -56,6 +56,13 @@ void Utils::Pause(int msec)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
 }
 
+/*!
+ *  \brief convertHTML
+ *
+ *  Methode qui permet de convertir un QString en html
+ *  on écrit le QString dans un QtextEdit et on récupère le html avec QTextEdit::toHtml()
+ *
+ */
 QString Utils::convertHTML(QString text)
 {
     UpTextEdit textprov;

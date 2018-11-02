@@ -1828,8 +1828,8 @@ bool    dlg_refraction::Imprimer_Ordonnance()
                                                            " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre, :textEntete, :textCorps, :textorigine, :textPied, :dateimpression, :useremetteur, :ald, :emisrecu, :formatdoc, :idlieu)");
         query.bindValue(":iduser", QString::number(gidUser));
         query.bindValue(":idpat", QString::number(gidPatient));
-        query.bindValue(":typeDoc", "Prescription");
-        query.bindValue(":soustypedoc", "Correction");
+        query.bindValue(":typeDoc", PRESCRIPTION);
+        query.bindValue(":soustypedoc", CORRECTION);
         query.bindValue(":titre", "Prescription correction");
         query.bindValue(":textEntete", Entete);
         query.bindValue(":textCorps", Corps);

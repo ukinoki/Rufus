@@ -224,6 +224,36 @@ bool DataBase::InsertIntoTable(QString nomtable,
     return StandardSQL(req, errormsg);
 }
 
+bool DataBase::InsertSQLByBinds(QString nomtable,
+                                QHash<QString, QVariant> sets,
+                                QString errormsg)
+{
+    QSqlQuery query = QSqlQuery(getDataBase());
+    QString champs, champs2;
+    QString valeurs;
+    for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        champs  += itset.key() + ",";
+        champs2  += ":" + itset.key() + ",";
+    }
+    champs = champs.left(champs.size()-1);
+    champs2 = champs2.left(champs2.size()-1);
+    QString prepare = "insert into " + nomtable + " (" + champs +  + ") values (" + champs2 + ")";
+    query.prepare(prepare);
+    for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        query.bindValue(":" + itset.key(), itset.value());
+        //qDebug() << "query.bindValue("":" + itset.key() + "," + itset.value().toString() + ")";
+    }
+    query.exec();
+    if (query.lastError().type() != QSqlError::NoError)
+    {
+        Logs::ERROR(errormsg, tr("\nErreur\n") + query.lastError().text());
+        return false;
+    }
+    return true;
+}
+
 bool DataBase::StandardSQL(QString req , QString errormsg)
 {
     QSqlQuery query(req, getDataBase());

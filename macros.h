@@ -89,9 +89,11 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define JPG                                         "jpg"
 
 #define BILANORTHOPTIQUE                            "BO"
+#define CORRECTION                                  "Correction"
 #define COURRIER                                    "Courrier"
 #define DOCUMENTRECU                                "DocRecu"
 #define IMAGERIE                                    "Imagerie"
+#define ORHTOPTIE                                   "Orthoptie"
 #define PRESCRIPTION                                "Prescription"
 #define PRESCRIPTIONLUNETTES                        "PrescrLun"
 #define COURRIERADMINISTRATIF                       "DocAdmin"

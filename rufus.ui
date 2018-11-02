@@ -93,7 +93,7 @@
    <string>Rufus</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="Images/images.qrc">
+   <iconset resource="assets/Images/images.qrc">
     <normaloff>:/rufus.jpg</normaloff>:/rufus.jpg</iconset>
   </property>
   <property name="windowOpacity">
@@ -152,7 +152,7 @@
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideLeft</enum>
@@ -165,7 +165,7 @@
         <enum>Qt::NoFocus</enum>
        </property>
        <attribute name="icon">
-        <iconset resource="Images/images.qrc">
+        <iconset resource="assets/Images/images.qrc">
          <normaloff>:/list_all_participants.png</normaloff>:/list_all_participants.png</iconset>
        </attribute>
        <attribute name="title">
@@ -271,7 +271,7 @@
 dossier - F6</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="Images/images.qrc">
+                   <iconset resource="assets/Images/images.qrc">
                     <normaloff>:/toolbar_new_folder.png</normaloff>:/toolbar_new_folder.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -299,7 +299,7 @@ seront recopiés automatiquement</string>
                    <string>Recopier</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="Images/images.qrc">
+                   <iconset resource="assets/Images/images.qrc">
                     <normaloff>:/copy_v2.png</normaloff>:/copy_v2.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -326,7 +326,7 @@ seront recopiés automatiquement</string>
 patients - F5</string>
                   </property>
                   <property name="icon">
-                   <iconset resource="Images/images.qrc">
+                   <iconset resource="assets/Images/images.qrc">
                     <normaloff>:/list_all_participants.png</normaloff>:/list_all_participants.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -401,7 +401,7 @@ patients - F5</string>
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="Images/images.qrc">
+                 <iconset resource="assets/Images/images.qrc">
                   <normaloff>:/Vitale.jpg</normaloff>:/Vitale.jpg</iconset>
                 </property>
                 <property name="iconSize">
@@ -1034,7 +1034,7 @@ patients - F5</string>
 le dossier</string>
               </property>
               <property name="icon">
-               <iconset resource="Images/images.qrc">
+               <iconset resource="assets/Images/images.qrc">
                 <normaloff>:/start.png</normaloff>:/start.png</iconset>
               </property>
               <property name="iconSize">
@@ -1064,7 +1064,7 @@ le dossier</string>
 date de naissance</string>
               </property>
               <property name="icon">
-               <iconset resource="Images/images.qrc">
+               <iconset resource="assets/Images/images.qrc">
                 <normaloff>:/calendar2.png</normaloff>:/calendar2.png</iconset>
               </property>
               <property name="iconSize">
@@ -1194,7 +1194,7 @@ date de naissance</string>
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="Images/images.qrc">
+                 <iconset resource="assets/Images/images.qrc">
                   <normaloff>:/Post-it.png</normaloff>:/Post-it.png</iconset>
                 </property>
                 <property name="iconSize">
@@ -1296,7 +1296,7 @@ date de naissance</string>
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset resource="Images/images.qrc">
+                 <iconset resource="assets/Images/images.qrc">
                   <normaloff>:/shutdown.png</normaloff>:/shutdown.png</iconset>
                 </property>
                 <property name="iconSize">
@@ -2155,7 +2155,7 @@ aujourd'hui</string>
         </size>
        </property>
        <attribute name="icon">
-        <iconset resource="Images/images.qrc">
+        <iconset resource="assets/Images/images.qrc">
          <normaloff>:/stylo.png</normaloff>:/stylo.png</iconset>
        </attribute>
        <attribute name="title">
@@ -2216,7 +2216,7 @@ background-color:rgb(255, 255, 255)</string>
          <string/>
         </property>
         <property name="icon">
-         <iconset resource="Images/images.qrc">
+         <iconset resource="assets/Images/images.qrc">
           <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
         </property>
         <property name="iconSize">
@@ -2324,7 +2324,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="Images/images.qrc">
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/list_all_participants.png</normaloff>:/list_all_participants.png</iconset>
            </property>
            <property name="iconSize">
@@ -2377,7 +2377,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="Images/images.qrc">
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/toolbar_new_folder.png</normaloff>:/toolbar_new_folder.png</iconset>
            </property>
            <property name="iconSize">
@@ -2440,7 +2440,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="Images/images.qrc">
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/FSE.png</normaloff>:/FSE.png</iconset>
            </property>
            <property name="iconSize">
@@ -2503,7 +2503,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="Images/images.qrc">
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/orthoptist.png</normaloff>:/orthoptist.png</iconset>
            </property>
            <property name="iconSize">
@@ -2553,7 +2553,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="Images/images.qrc">
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/nouveau_dossier.jpg</normaloff>:/nouveau_dossier.jpg</iconset>
            </property>
            <property name="iconSize">
@@ -2609,7 +2609,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="Images/images.qrc">
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/Post-it.png</normaloff>:/Post-it.png</iconset>
            </property>
            <property name="iconSize">
@@ -2675,7 +2675,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="Images/images.qrc">
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/waiting_room.png</normaloff>:/waiting_room.png</iconset>
            </property>
            <property name="iconSize">
@@ -2728,7 +2728,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset resource="Images/images.qrc">
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/shutdown.png</normaloff>:/shutdown.png</iconset>
            </property>
            <property name="iconSize">
@@ -3070,7 +3070,7 @@ background-color:rgb(255, 255, 255)</string>
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="Images/images.qrc">
+          <iconset resource="assets/Images/images.qrc">
            <normaloff>:/start.png</normaloff>
            <normalon>:/startpushed.png</normalon>:/start.png</iconset>
          </property>
@@ -3106,7 +3106,7 @@ background-color:rgb(255, 255, 255)</string>
           <string/>
          </property>
          <property name="icon">
-          <iconset resource="Images/images.qrc">
+          <iconset resource="assets/Images/images.qrc">
            <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
          </property>
          <property name="iconSize">
@@ -3593,7 +3593,7 @@ suivante</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/button_blue_play.png</normaloff>:/button_blue_play.png</iconset>
           </property>
           <property name="iconSize">
@@ -3626,7 +3626,7 @@ précédente</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/button_blue_rear.png</normaloff>:/button_blue_rear.png</iconset>
           </property>
           <property name="iconSize">
@@ -3722,7 +3722,7 @@ acte</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/button_blue_first.png</normaloff>:/button_blue_first.png</iconset>
           </property>
           <property name="iconSize">
@@ -3755,7 +3755,7 @@ acte</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/button_blue_last.png</normaloff>:/button_blue_last.png</iconset>
           </property>
           <property name="iconSize">
@@ -3787,7 +3787,7 @@ acte</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/trash.png</normaloff>:/trash.png</iconset>
           </property>
           <property name="iconSize">
@@ -3947,7 +3947,7 @@ color : gray;
            <string>Réfraction - F3</string>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/LunettesRondes.png</normaloff>:/LunettesRondes.png</iconset>
           </property>
           <property name="iconSize">
@@ -4005,7 +4005,7 @@ color : gray;
            <string>Tonométrie - F4</string>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/Tonometrie2.png</normaloff>:/Tonometrie2.png</iconset>
           </property>
           <property name="iconSize">
@@ -4201,7 +4201,7 @@ color : gray;
            <string>Créer un acte</string>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/nouveau_dossier.jpg</normaloff>:/nouveau_dossier.jpg</iconset>
           </property>
           <property name="iconSize">
@@ -4256,7 +4256,7 @@ color : gray;
            <string>Actes précédents</string>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/listedossiers.jpg</normaloff>:/listedossiers.jpg</iconset>
           </property>
           <property name="iconSize">
@@ -4311,7 +4311,7 @@ color : gray;
            <string>Imprimer</string>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/Imprimer.png</normaloff>:/Imprimer.png</iconset>
           </property>
           <property name="iconSize">
@@ -4460,7 +4460,7 @@ color : gray;
            <string>bilan orthoptique</string>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/orthoptist.png</normaloff>:/orthoptist.png</iconset>
           </property>
           <property name="iconSize">
@@ -4546,7 +4546,7 @@ color : gray;
            <string/>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/calendar2.png</normaloff>:/calendar2.png</iconset>
           </property>
          </widget>
@@ -4563,7 +4563,7 @@ color : gray;
            <enum>Qt::ClickFocus</enum>
           </property>
           <property name="toolTip">
-           <string>Voir les consultations précédentes</string>
+           <string>Voir les documents</string>
           </property>
           <property name="styleSheet">
            <string notr="true">QPushButton
@@ -4592,7 +4592,7 @@ color : gray;
            <string>Documents</string>
           </property>
           <property name="icon">
-           <iconset resource="Images/images.qrc">
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/Archives.png</normaloff>:/Archives.png</iconset>
           </property>
           <property name="iconSize">
@@ -4940,7 +4940,7 @@ color : gray;
   <tabstop>ModifIdentificationSmallButton</tabstop>
  </tabstops>
  <resources>
-  <include location="Images/images.qrc"/>
+  <include location="assets/Images/images.qrc"/>
  </resources>
  <connections/>
 </ui>

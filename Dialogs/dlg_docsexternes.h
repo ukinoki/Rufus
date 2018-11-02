@@ -102,10 +102,12 @@ private:
     QModelIndex             getIndexFromId(int id);
     QStandardItem*          getItemFromDocument(DocExterne* docmt);
     void                    ImprimeDoc();
+    bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin);
+    bool                    ReImprimeDoc(DocExterne *docmt);
     int                     initListDocs();
     void                    ModifierItem(QModelIndex idx);
     void                    PlayerCtrl(int);
-    void                    SupprimeDoc();
+    void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
     void                    ZoomDoc();
     void                    Print(QPrinter*);
 
