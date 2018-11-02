@@ -4,13 +4,9 @@ DocsExternes::DocsExternes()
 {
 }
 
-QHash<int, DocExterne *> DocsExternes::docsexternespardate()
+QHash<int, DocExterne *> DocsExternes::docsexternes()
 {
-    return m_docsexternespardate;
-}
-QHash<int, DocExterne *> DocsExternes::docsexternespartype()
-{
-    return m_docsexternespartype;
+    return m_docsexternes;
 }
 
 /*!
@@ -21,9 +17,9 @@ QHash<int, DocExterne *> DocsExternes::docsexternespartype()
  */
 DocExterne* DocsExternes::getDocumentById(int id, bool loadDetails, bool addToList)
 {
-    QHash<int, DocExterne*>::const_iterator itdoc = m_docsexternespardate.find(id);
+    QHash<int, DocExterne*>::const_iterator itdoc = m_docsexternes.find(id);
     DocExterne *result;
-    if( itdoc == m_docsexternespardate.constEnd() )
+    if( itdoc == m_docsexternes.constEnd() )
             result = new DocExterne();
     else
     {
@@ -42,11 +38,18 @@ DocExterne* DocsExternes::getDocumentById(int id, bool loadDetails, bool addToLi
             result->setData(jsonDocExterne);
     }
     if( addToList )
-    {
-        addDocExterneByDat( result );
-        addDocExterneByTyp( result );
-    }
+        addDocExterne( result );
     return result;
+}
+
+bool DocsExternes::NouveauDocument()
+{
+    return m_nouveaudocument;
+}
+
+void DocsExternes::setNouveauDocumentFalse()
+{
+    m_nouveaudocument = false;
 }
 
 DocExterne* DocsExternes::reloadDocument(DocExterne* docmt)
@@ -55,64 +58,29 @@ DocExterne* DocsExternes::reloadDocument(DocExterne* docmt)
     return getDocumentById(docmt->id());
 }
 
-void DocsExternes::addDocExterneByDat(DocExterne *docext)
+void DocsExternes::addDocExterne(DocExterne *docext)
 {
-    if( m_docsexternespardate.contains(docext->id()) )
+    if( m_docsexternes.contains(docext->id()) )
         return;
-    else
-        m_docsexternespardate.insert(docext->id(), docext);
+    m_docsexternes.insert(docext->id(), docext);
+    m_nouveaudocument = true;
 }
 
-void DocsExternes::addDocExterneByTyp(DocExterne *docext)
-{
-    if( m_docsexternespartype.contains(docext->id()) )
-        return;
-    else
-        m_docsexternespartype.insert(docext->id(), docext);
-}
-
-void DocsExternes::addListDocsExternesByTyp(QList<DocExterne*> listdocs)
+void DocsExternes::addListDocsExternes(QList<DocExterne*> listdocs)
 {
     for(QList<DocExterne*>::const_iterator it = listdocs.constBegin(); it != listdocs.constEnd(); ++it )
     {
         DocExterne *doc = const_cast<DocExterne*>(*it);
-        addDocExterneByTyp(doc);
+        addDocExterne(doc);
     }
 }
 
-void DocsExternes::addListDocsExternesByDat(QList<DocExterne*> listdocs)
+void DocsExternes::VideLaListe()
 {
-    for(QList<DocExterne*>::const_iterator it = listdocs.constBegin(); it != listdocs.constEnd(); ++it )
-    {
-        DocExterne *doc = const_cast<DocExterne*>(*it);
-        addDocExterneByDat(doc);
-    }
-}
-
-void DocsExternes::VideLesListes()
-{
-    m_docsexternespardate.clear();
-    m_docsexternespartype.clear();
+    m_docsexternes.clear();
 }
 
 void DocsExternes::RemoveKey(int key)
 {
-    m_docsexternespardate.remove(key);
-    m_docsexternespartype.remove(key);
+    m_docsexternes.remove(key);
 }
-
-void DocsExternes::TrieDocsExternes()
-{
-    QList<QDateTime>listdates;
-    QStringList listtypes;
-    QHash<int, DocExterne*>::const_iterator itdocdate;
-    for( itdocdate = m_docsexternespartype.constBegin(); itdocdate != m_docsexternespartype.constEnd(); ++itdocdate )
-    {
-        DocExterne *doc= const_cast<DocExterne*>(itdocdate.value());
-        listdates << doc->date();
-        listtypes << doc->typedoc();
-    }
-    std::sort(listdates.begin(), listdates.end());
-    listtypes.sort();
-}
-

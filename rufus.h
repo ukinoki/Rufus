@@ -345,11 +345,11 @@ private:
     QTcpSocket          *TcPConnect;
     quint16             PortTCPServer;
     void                erreurSocket();                                 /* traitement des erreurs d'émission de message sur le socket */
-    void                TraiteTCPMessage(QString msg);                  /* traitement des messages reçus par les clients */
     bool                TcpConnectToServer(QString ipadrserver = "");   /* Crée la connexion avec le TcpServer sur le réseau */
     void                envoieMessage(QString msg);                     /* envoi d'un message au serveur pour être redispatché vers tous les clients */
     void                envoieMessageA(QList<int> listidusr);           /* envoi d'un message à une liste d'utilisateurs */
-    void                TraiteDonneesRecues();                          /* decortiquage des messages reçus et renvoi vers rufus.cpp par le biais du signal tcpmsgfromserver(QString msg) */
+    void                TraiteDonneesRecues();                          /* decortiquage des messages reçus */
+    void                TraiteTCPMessage(QString msg);                  /* traitement des messages reçus par les clients */
     QString             gResumeStatut;
 
     // Les menus

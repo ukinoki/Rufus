@@ -27,42 +27,66 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     proc                = ProcAPasser;
     gidPatient          = idpat;
     db                  = DataBase::getInstance();
-
-    ScrollTable         = new UpTableWidget(this);
-    Scene               = new QGraphicsScene(this);
-    GraphicView         = new QGraphicsView(Scene, this);
-    ListDocsTreeView    = new QTreeView(this);
-    inflabel            = new QLabel();
-    QFont font          = qApp->font();
-    font                .setPointSize(font.pointSize()+2);
-    inflabel            ->setFont(font);
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    installEventFilter(this);
+    setMaximumHeight(qApp->desktop()->availableGeometry().height());
 
-    QHBoxLayout *lay   = new QHBoxLayout();
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
-    ScrollTable->horizontalHeader() ->setVisible(false);
-    ScrollTable->verticalHeader()   ->setVisible(false);
-
+    QFont font          = qApp->font();
+    font                .setPointSize(font.pointSize()+2);
     gFont = QApplication::font();
     int d=0;
 #ifdef QT_OSX_PLATFORM_SDK_EQUAL_OR_ABOVE
     d=2;
 #endif
     gFont.setPointSize(gFont.pointSize()-d);
+
+    int margemm         = proc->TailleTopMarge(); // exprimé en mm
+    printer             = new QPrinter(QPrinter::HighResolution);
+    printer             ->setFullPage(true);
+    rect                = printer->paperRect();
+
+    rect.adjust(mmToInches(margemm) * printer->logicalDpiX(),
+                mmToInches(margemm) * printer->logicalDpiY(),
+                -mmToInches(margemm) * printer->logicalDpiX(),
+                -mmToInches(margemm) * printer->logicalDpiY());
+
+    Scene               = new QGraphicsScene(this);
+    ListDocsTreeView    = new QTreeView(this);
+    inflabel            = new QLabel();
+    inflabel            ->setFont(font);
+
+
+    ScrollTable         = new UpTableWidget(this);
+    ScrollTable->horizontalHeader() ->setVisible(false);
+    ScrollTable->verticalHeader()   ->setVisible(false);
     ScrollTable         ->installEventFilter(this);
-    GraphicView         ->installEventFilter(this);
-    GraphicView         ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    GraphicView         ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ScrollTable         ->setFocusPolicy(Qt::NoFocus);
     ScrollTable         ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
     ScrollTable         ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setMaximumHeight(qApp->desktop()->availableGeometry().height());
+    ScrollTable     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+
+    GraphicView         = new QGraphicsView(Scene, this);
+    GraphicView         ->installEventFilter(this);
+    GraphicView         ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    GraphicView         ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    GraphicView     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+
     ListDocsTreeView    ->setFixedWidth(185);
     ListDocsTreeView    ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    ListDocsTreeView    ->setFont(gFont);
+    ListDocsTreeView    ->setEditTriggers(QAbstractItemView::DoubleClicked);
+    ListDocsTreeView    ->setSelectionMode(QAbstractItemView::SingleSelection);
+    ListDocsTreeView    ->setContextMenuPolicy(Qt::CustomContextMenu);
+    ListDocsTreeView    ->setAnimated(true);
+    ListDocsTreeView    ->setIndentation(3);
+    ListDocsTreeView    ->header()->setVisible(false);
+
     player              = new QMediaPlayer;
 
+    QHBoxLayout *lay   = new QHBoxLayout();
+    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
     lay                 ->addWidget(ListDocsTreeView,2);
     lay                 ->addWidget(ScrollTable,8);
     lay                 ->addWidget(GraphicView,8);
@@ -74,36 +98,22 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     OnlyImportantDocsupCheckBox = new UpCheckBox(tr("Importants"));
     AllDocsupCheckBox           ->setImmediateToolTip(tr("Afficher tous les documents\ny compris les documents d'importance minime"));
     OnlyImportantDocsupCheckBox ->setImmediateToolTip(tr("N'afficher que les documents marqués importants"));
-    connect (AllDocsupCheckBox,             &QCheckBox::toggled, this, [=] {FiltrerListe(AllDocsupCheckBox);});
-    connect (OnlyImportantDocsupCheckBox,   &QCheckBox::toggled, this, [=] {FiltrerListe(OnlyImportantDocsupCheckBox);});
     AjouteWidgetLayButtons(AllDocsupCheckBox, false);
     AjouteWidgetLayButtons(OnlyImportantDocsupCheckBox, false);
 
     playctrl            = new PlayerControls(player, this);
-    connect (playctrl,  &PlayerControls::ctrl,      this,   [=] {PlayerCtrl(playctrl->State());});
-    connect (playctrl,  &PlayerControls::recfile,   this,   [=] {EnregistreVideo();});
     AjouteWidgetLayButtons(playctrl, false);
     sw                  = new UpSwitch(this);
     AjouteWidgetLayButtons(sw, false);
-    connect(sw,         &UpSwitch::Bascule,         this,   [=] {BasculeTriListe(sw->PosSwitch());});
     AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
 
-    installEventFilter(this);
 
-    gModeTri            = parDate;
-    initOK = true;
-    RemplirTreeView();
-    if(!initOK)
-        return;
-    ListDocsTreeView    ->setFont(gFont);
-    ListDocsTreeView    ->setEditTriggers(QAbstractItemView::DoubleClicked);
-    ListDocsTreeView    ->setSelectionMode(QAbstractItemView::SingleSelection);
-    ListDocsTreeView    ->setContextMenuPolicy(Qt::CustomContextMenu);
-    ListDocsTreeView    ->setAnimated(true);
-    ListDocsTreeView    ->setIndentation(3);
-    ListDocsTreeView    ->header()->setVisible(false);
-
+    hdelta          = 0;
+    wdelta          = 0;
+    hdeltaframe     = 0;
+    wdeltaframe     = 0;
     AvecPrevisu = proc  ->ApercuAvantImpression();
+
     /*Gestion des XML - exemple
     QString adressexml = QDir::homePath() + NOMDIR_RUFUS + "/XML/" + QString::number(idpat) + "/Exam_Data.xml";
     QFile xmldoc(adressexml);
@@ -118,28 +128,24 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
         proc->Edit(info);
     }*/
 
-    MAJTreeViewTimer    = new QTimer(this);
-    MAJTreeViewTimer    ->start(10000);
-    connect(MAJTreeViewTimer,   &QTimer::timeout, this,   [=] {Slot_CompteNbreDocs();});
-    int margemm         = proc->TailleTopMarge(); // exprimé en mm
-    printer             = new QPrinter(QPrinter::HighResolution);
-    printer             ->setFullPage(true);
-    rect                = printer->paperRect();
+    QTimer *TimerActualiseDocsExternes    = new QTimer(this);
+    TimerActualiseDocsExternes    ->start(10000);
 
-    rect.adjust(mmToInches(margemm) * printer->logicalDpiX(),
-                mmToInches(margemm) * printer->logicalDpiY(),
-                -mmToInches(margemm) * printer->logicalDpiX(),
-                -mmToInches(margemm) * printer->logicalDpiY());
+    connect(sw,                             &UpSwitch::Bascule,         this,   [=] {BasculeTriListe(sw->PosSwitch());});
+    connect (TimerActualiseDocsExternes,    &QTimer::timeout,           this,   [=] {ActualiseDocsExternes();});
+    connect (PrintButton,                   &QPushButton::clicked,      this,   [=] {ImprimeDoc();});
+    connect (SupprButton,                   &QPushButton::clicked,      this,   [=] {SupprimeDoc();});
+    connect (AllDocsupCheckBox,             &QCheckBox::toggled,        this,   [=] {FiltrerListe(AllDocsupCheckBox);});
+    connect (OnlyImportantDocsupCheckBox,   &QCheckBox::toggled,        this,   [=] {FiltrerListe(OnlyImportantDocsupCheckBox);});
+    connect (playctrl,                      &PlayerControls::ctrl,      this,   [=] {PlayerCtrl(playctrl->State());});
+    connect (playctrl,                      &PlayerControls::recfile,   this,   [=] {EnregistreVideo();});
+
     gMode               = Normal;
-    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
-    connect(SupprButton,        &QPushButton::clicked, this,   [=] {SupprimeDoc();});
-
-    ScrollTable     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-    GraphicView     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-    hdelta          = 0;
-    wdelta          = 0;
-    hdeltaframe     = 0;
-    wdeltaframe     = 0;
+    gModeTri            = parDate;
+    initOK = (initListDocs() > 0);
+    if(!initOK)
+        return;
+    RemplirTreeView();
 }
 
 dlg_docsexternes::~dlg_docsexternes()
@@ -153,13 +159,9 @@ bool dlg_docsexternes::InitOK()
     return initOK;
 }
 
-void dlg_docsexternes::AfficheCustomMenu()
+void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 {
-    QModelIndex idx = ListDocsTreeView->indexAt(ListDocsTreeView->mapFromGlobal(cursor().pos()));
-    DocExterne *docmt = getDocumentFromIndex(idx);
-    if (docmt == Q_NULLPTR)
-         return;
-
+    QModelIndex idx = getIndexFromId(docmt->id());
     QMenu *menu = new QMenu(this);
     QAction *paction_ImportantMin   = new QAction;
     QAction *paction_ImportantNorm  = new QAction;
@@ -183,7 +185,7 @@ void dlg_docsexternes::AfficheCustomMenu()
     connect (paction_Modifier,      &QAction::triggered,    this,  [=] {ModifierItem(idx);});
 
 #ifndef QT_NO_PRINTER
-    if (docmt != Q_NULLPTR)
+    if (docmt != Q_NULLPTR && docmt->format()!=VIDEO)
     {
         QMenu *menuImprime  = menu->addMenu(tr("Imprimer"));
         menuImprime         ->setIcon(Icons::icImprimer());
@@ -198,8 +200,9 @@ void dlg_docsexternes::AfficheCustomMenu()
         connect (paction_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, true,  false);});
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, false, false);});
 
+        // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
         if (proc->getUserConnected()->isMedecin()
-            && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))   // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
+            && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
         {   // si le document a été émis aujourd'hui, on propose de le modifier - dans ce cas, on va créer une copie qu'on va modifier et on détruira le document d'origine à la fin
             if (QDate::currentDate() == docmt->date().date())
             {
@@ -212,8 +215,8 @@ void dlg_docsexternes::AfficheCustomMenu()
                     menuImprime->addAction(paction_ModifierReimprimerCeJour);
                 menuImprime->addAction(paction_ReimprimerCeJour);
             }
-            menuImprime->addAction(paction_Reimprimer);
         }
+        menuImprime->addAction(paction_Reimprimer);
      }
 #endif
     QAction *paction_Poubelle   = new QAction(Icons::icPoubelle(), tr("Supprimer"));
@@ -377,7 +380,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idxproxy)
             y = pix.size().height();
             Scene   ->setSceneRect(1,1,x-1,y-1);
         }
-        else if (doc.value("Type").toString() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage
+        else if (doc.value("Type").toString() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
         {
             Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
             if (!document || document->isLocked()) {
@@ -429,7 +432,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idxproxy)
                 UpLabel *lab = new UpLabel(ScrollTable);
                 lab->resize(pix.width(),pix.height());
                 lab->setPixmap(pix);
-                connect(lab,    &UpLabel::clicked, this,   [=] {ZoomDoc();});
+                lab->setContextMenuPolicy(Qt::CustomContextMenu);
+                connect(lab,    &UpLabel::clicked,                      this, [=] {ZoomDoc();});
+                connect(lab,    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
                 delete pdfPage;
                 ScrollTable->setCellWidget(i,0,lab);
             }
@@ -532,17 +537,20 @@ void dlg_docsexternes::BasculeTriListe(int a)
     ListDocsTreeView->expandAll();
     ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
     ListDocsTreeView->setCurrentIndex(idx);
-    connect(ListDocsTreeView->selectionModel()  , &QItemSelectionModel::currentChanged,     this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
+    connect(ListDocsTreeView->selectionModel()  ,   &QItemSelectionModel::currentChanged,   this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
+    connect(ListDocsTreeView,                       &QTreeView::customContextMenuRequested, this,   [=] {
+        QModelIndex idx = ListDocsTreeView->indexAt(ListDocsTreeView->mapFromGlobal(cursor().pos()));
+        DocExterne *docmt = getDocumentFromIndex(idx);
+        if (docmt != Q_NULLPTR)
+            AfficheCustomMenu(docmt);});
 }
 
-void dlg_docsexternes::Slot_CompteNbreDocs()
+void dlg_docsexternes::ActualiseDocsExternes()
 {
-    int ndocs = CompteNbreDocs();
-    if (ndocs == 0)
-        reject();
-    if (nbredocs != ndocs)
+    m_ListDocs.addListDocsExternes(db->loadDoscExternesByPatientAll(gidPatient));
+    if (m_ListDocs.NouveauDocument())
     {
-        nbredocs = ndocs;
+        m_ListDocs.setNouveauDocumentFalse();
         RemplirTreeView();
     }
 }
@@ -993,14 +1001,9 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
 
 int dlg_docsexternes::initListDocs()
 {
-    m_ListDocs.VideLesListes();
-    QList<DocExterne*> listdocsexternesbydate = db->loadDoscExternesByDateByPatientAll(gidPatient);
-    m_ListDocs.addListDocsExternesByDat(listdocsexternesbydate);                            // liste des documents classés par date
-
-    QList<DocExterne*> listdocsexternesbytype = db->loadDoscExternesByTypeByPatientAll(gidPatient);
-    m_ListDocs.addListDocsExternesByTyp(listdocsexternesbytype);                            // liste des documetns classés par date
-
-    return m_ListDocs.docsexternespardate().size();
+    QList<DocExterne*> listdocsexternes = db->loadDoscExternesByPatientAll(gidPatient);
+    m_ListDocs.addListDocsExternes(listdocsexternes);
+    return m_ListDocs.docsexternes().size();
 }
 
 void dlg_docsexternes::ModifierItem(QModelIndex idx)
@@ -1072,7 +1075,6 @@ void dlg_docsexternes::Print(QPrinter *Imprimante)
 
 void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
 {
-    int ndocs = CompteNbreDocs();
     QModelIndex idx;
     if (docmt == Q_NULLPTR)
     {
@@ -1113,9 +1115,9 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
             db->StandardSQL("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + filename + "')");
         }
         QString idaafficher = "";
-        if (ndocs>1)    // on recherche le document sur qui va être mis en surbrillance après la suppression
+        if (m_ListDocs.docsexternes().size() > 1)    // on recherche le document sur qui va être mis en surbrillance après la suppression
         {
-            QHash<int, DocExterne*> listaexplorer = (gModeTri == parDate? m_ListDocs.docsexternespardate() : m_ListDocs.docsexternespartype());
+            QHash<int, DocExterne*> listaexplorer = m_ListDocs.docsexternes();
             QHash<int, DocExterne*>::const_iterator itdoc = listaexplorer.find(docmt->idpatient());
             if (itdoc == listaexplorer.constBegin())
                 ++itdoc;
@@ -1126,7 +1128,10 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         db->StandardSQL("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS
                         " where idimpression = " + idimpr + ")");
         db->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr);
-        gmodele->removeRow(idx.row(),idx);
+        m_ListDocs.RemoveKey(docmt->id());
+        if (m_ListDocs.docsexternes().size() == 0)
+            reject();
+        RemplirTreeView();
         QModelIndex idx2;
         if (idaafficher != "")
         {
@@ -1134,13 +1139,9 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
             if (indx.isValid())
                 idx2 = indx;
         }
-        if (ndocs==1)
-            reject();
-        ListDocsTreeView->reset();
         ListDocsTreeView->expandAll();
         ListDocsTreeView->scrollTo(idx2, QAbstractItemView::EnsureVisible);
         ListDocsTreeView->setCurrentIndex(idx2);
-        RemplirTreeView();
      }
 }
 
@@ -1347,7 +1348,6 @@ void dlg_docsexternes::RemplirTreeView()
         ListDocsTreeView->disconnect();
     if (ListDocsTreeView->selectionModel() != Q_NULLPTR)
         ListDocsTreeView->selectionModel()->disconnect();
-    QStandardItem       *dateitem, *typitem, *pitem;
     QString             idimpraretrouver = "";
     gmodele = dynamic_cast<QStandardItemModel*>(ListDocsTreeView->model());
     if (gmodele)
@@ -1369,12 +1369,6 @@ void dlg_docsexternes::RemplirTreeView()
         gmodeleTriParType   = new QStandardItemModel(this);
     }
 
-    ndocs = initListDocs();
-    if (ndocs == 0)
-    {
-        initOK = false;
-        return;
-    }
     /*
      *          |---------------------------|           TRI PAR DATE
                 |        dateitem           |
@@ -1404,17 +1398,20 @@ void dlg_docsexternes::RemplirTreeView()
 
     //1 Liste des documents (ordonnances, certificats, courriers, imagerie...etc...) imprimés par le poste ou reçus
     QList<QDate> listdates;
+    QStringList listtypedocs;
 
-    // Tri par date
-    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespardate().constBegin(); itdoc != m_ListDocs.docsexternespardate().constEnd(); ++itdoc )
+    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().constBegin(); itdoc != m_ListDocs.docsexternes().constEnd(); ++itdoc )
     {
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
-
-        // individualisation des dates en item root
-
+        // créations des entêtes par date et par type d'examen
         if (!listdates.contains(doc->date().date()))
             listdates << doc->date().date();
+        if (!listtypedocs.contains(doc->typedoc()))
+            listtypedocs << doc->typedoc();
     }
+
+    QStandardItem       *dateitem, *typitem, *pitemdate, *pitemtype;
+    // Tri par date
     qSort(listdates);
     for (int i=0; i<listdates.size(); ++i)
     {
@@ -1424,38 +1421,7 @@ void dlg_docsexternes::RemplirTreeView()
         dateitem    ->setEditable(false);
         gmodeleTriParDate->appendRow(dateitem);
     }
-
-    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespardate().constBegin(); itdoc != m_ListDocs.docsexternespardate().constEnd(); ++itdoc )
-    {
-        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());      // rajout des items de chaque examen en child des dates
-
-        QString date = doc->date().toString(tr("dd-MM-yyyy"));
-        QString a = doc->typedoc();                                     // 1 = Type de document
-        pitem           = new QStandardItem(CalcTitre(doc));
-        QMap<QString, QVariant> data;
-        data["id"]  = QString::number(doc->id());                       // 0 - idimpression
-        QFont fontitem  = gFont;
-        fontitem        .setBold(doc->importance()==2);                     // 5 - importance
-        fontitem        .setItalic(doc->importance()==0);
-        pitem           ->setFont(fontitem);
-        pitem           ->setData(data);
-        pitem           ->setEditable(false);
-        QList<QStandardItem *> listitems = gmodeleTriParDate->findItems(date);
-        if (listitems.size()>0)
-        {
-            listitems.at(0)->appendRow(pitem);
-            listitems.at(0)->sortChildren(1);
-        }
-    }
-
     // Tri par type
-    QStringList listtypedocs;
-    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespartype().constBegin(); itdoc != m_ListDocs.docsexternespartype().constEnd(); ++itdoc )
-    {
-        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
-        if (!listtypedocs.contains(doc->typedoc()))                     // individualisation des type document en item root
-            listtypedocs << doc->typedoc();
-    }
     qSort(listtypedocs);
     for (int i=0; i<listtypedocs.size(); ++i)
     {
@@ -1464,25 +1430,36 @@ void dlg_docsexternes::RemplirTreeView()
         typitem     ->setEditable(false);
         gmodeleTriParType     ->appendRow(typitem);
     }
-    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespartype().constBegin(); itdoc != m_ListDocs.docsexternespartype().constEnd(); ++itdoc )
+
+    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().constBegin(); itdoc != m_ListDocs.docsexternes().constEnd(); ++itdoc )
     {
-        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
+        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());      // rajout des items de chaque examen en child des dates et des types
         QString date = doc->date().toString(tr("dd-MM-yyyy"));
-        QString a = date + " - ";
-        pitem           = new QStandardItem(CalcTitre(doc));
+        QString a = doc->typedoc();
+        pitemdate           = new QStandardItem(CalcTitre(doc));
+        pitemtype           = new QStandardItem(CalcTitre(doc));
         QMap<QString, QVariant> data;
-        data["id"]  = QString::number(doc->id());                       // 0 - idimpression
-        QFont fontitem  = gFont;
-        fontitem        .setBold(doc->importance() == 2);
-        fontitem        .setItalic(doc->importance() == 0);
-        pitem           ->setFont(fontitem);
-        pitem           ->setData(data);
-        pitem           ->setEditable(false);
-        QList<QStandardItem *> listitems = gmodeleTriParType->findItems(doc->typedoc());
-        if (listitems.size()>0)
+        data["id"]          = QString::number(doc->id());
+        QFont fontitem      = gFont;
+        fontitem            .setBold(doc->importance()==2);
+        fontitem            .setItalic(doc->importance()==0);
+        pitemdate           ->setFont(fontitem);
+        pitemdate           ->setData(data);
+        pitemdate           ->setEditable(false);
+        pitemtype           ->setFont(fontitem);
+        pitemtype           ->setData(data);
+        pitemtype           ->setEditable(false);
+        QList<QStandardItem *> listitemsdate = gmodeleTriParDate->findItems(date);
+        if (listitemsdate.size()>0)
         {
-            listitems.at(0)->appendRow(pitem);
-            listitems.at(0)->sortChildren(1);
+            listitemsdate.at(0)->appendRow(pitemdate);
+            listitemsdate.at(0)->sortChildren(1);
+        }
+        QList<QStandardItem *> listitemstype = gmodeleTriParType->findItems(doc->typedoc());
+        if (listitemstype.size()>0)
+        {
+            listitemstype.at(0)->appendRow(pitemtype);
+            listitemstype.at(0)->sortChildren(1);
         }
     }
 
@@ -1490,7 +1467,6 @@ void dlg_docsexternes::RemplirTreeView()
         gmodele = gmodeleTriParDate;
     else
         gmodele = gmodeleTriParType;
-    nbredocs = ndocs;
     QItemSelectionModel *m = ListDocsTreeView->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
     ListDocsTreeView->setModel(gmodele);
     delete m;
@@ -1500,9 +1476,9 @@ void dlg_docsexternes::RemplirTreeView()
     QModelIndex idx = item->index();                                                // l'index de ce dernier item
     if (idimpraretrouver != "")
     {
-        // la suite ne marche pas et provoque des plantages
-        //        QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternespardate().find(idimpraretrouver.toInt());
-        //        if (itdoc != m_ListDocs.docsexternespardate().constEnd())
+        // la suite ne marche pas et provoque des plantages ????
+        //        QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().find(idimpraretrouver.toInt());
+        //        if (itdoc != m_ListDocs.docsexternes().constEnd())
         //        {
         //            qDebug() << itdoc.key();
         //            DocExterne *doc = itdoc.value();
@@ -1518,6 +1494,11 @@ void dlg_docsexternes::RemplirTreeView()
     ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
     ListDocsTreeView->setCurrentIndex(idx);
     connect(ListDocsTreeView->selectionModel(), &QItemSelectionModel::currentChanged,   this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
-    connect(ListDocsTreeView,                   &QTreeView::customContextMenuRequested, this,   [=] {AfficheCustomMenu();});
+    connect(ListDocsTreeView,                   &QTreeView::customContextMenuRequested, this,   [=] {
+        QModelIndex idx = ListDocsTreeView->indexAt(ListDocsTreeView->mapFromGlobal(cursor().pos()));
+        DocExterne *docmt = getDocumentFromIndex(idx);
+        if (docmt != Q_NULLPTR)
+            AfficheCustomMenu(docmt);
+    });
 }
 

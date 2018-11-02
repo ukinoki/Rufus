@@ -267,7 +267,7 @@ QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QStri
         bool ok = true;
         QList<QList<QVariant>> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
         if (!ok)                                // erreur
-            return -1;
+            return - 2;
         if (list.size()==0)                     // réponse vide
             return - 1;
         return list.at(0).at(0).toInt();
@@ -526,12 +526,12 @@ void DataBase::SupprCorrespondant(int idcor)
 /*
  * DocsExternes
 */
-QList<DocExterne*> DataBase::loadDoscExternesByDateByPatientAll(int idpatient)
+QList<DocExterne*> DataBase::loadDoscExternesByPatientAll(int idpatient)
 {
     QList<DocExterne*> docsexternes;
     QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression,"
                   " compression, lienversfichier, formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
-                  " where idpat = " + QString::number(idpatient) + " order by dateimpression, typedoc";
+                  " where idpat = " + QString::number(idpatient);
     QSqlQuery query(req, getDataBase() );
     if( traiteErreurRequete(query, req) || !query.first())
         return docsexternes;
@@ -592,33 +592,6 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
     query.finish();
     return docexterneData;
 
-}
-
-QList<DocExterne*> DataBase::loadDoscExternesByTypeByPatientAll(int idpatient)
-{
-    QList<DocExterne*> docsexternes;
-    QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression, compression, lienversfichier, formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
-                    " where idpat = " + QString::number(idpatient) + " order by typedoc, dateimpression";
-    QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
-        return docsexternes;
-    do
-    {
-        QJsonObject jData{};
-        jData["id"] = query.value(0).toInt();
-        jData["idpat"] = idpatient;
-        jData["typedoc"] = query.value(1).toString();
-        jData["soustypedoc"] = query.value(2).toString();
-        jData["titre"] = query.value(3).toString();
-        jData["dateimpression"] = QDateTime(query.value(4).toDate(), query.value(4).toTime()).toMSecsSinceEpoch();
-        jData["compression"] = query.value(5).toInt();
-        jData["lienversfichier"] = query.value(6).toString();
-        jData["formatdoc"] = query.value(7).toString();
-        jData["importance"] = query.value(8).toInt();
-        DocExterne *doc = new DocExterne(jData);
-        docsexternes << doc;
-    } while( query.next() );
-    return docsexternes;
 }
 
 void DataBase::SupprDocExterne(int iddoc)

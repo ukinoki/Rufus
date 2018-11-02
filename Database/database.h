@@ -100,8 +100,7 @@ public:
     /*
      * DocsExternes
     */
-    QList<DocExterne*> loadDoscExternesByDateByPatientAll(int idpatient);
-    QList<DocExterne*> loadDoscExternesByTypeByPatientAll(int idpatient);
+    QList<DocExterne*> loadDoscExternesByPatientAll(int idpatient);
     QJsonObject loadDocExterneData(int idDoc);
     void    SupprDocExterne(int iddoc);
 

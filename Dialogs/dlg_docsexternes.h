@@ -51,68 +51,70 @@ private:
     DocsExternes            m_ListDocs;
     DocExterne              *docencours;
     DataBase                *db;
-    QAction                 *fin, *debut, *prec, *suiv;
-    QFont                   gFont;
-    QImage                  image;
-    QList<QPixmap>          glistPix;
-    QPrinter                *printer;
-    UpTableWidget           *ScrollTable;
-    QGraphicsPixmapItem     *jpgPixmap;
+
     QGraphicsScene          *Scene;
-    QGraphicsView           *GraphicView;
     QGraphicsVideoItem      *videoItem;
-    QGraphicsPixmapItem     *jpgItem;
+    QGraphicsView           *GraphicView;
+    QImage                  image;
+    QLabel                  *inflabel;
     PlayerControls          *playctrl;
     QMediaPlayer            *player;
-    QStandardItemModel      *gmodele, *gmodeleTriParDate, *gmodeleTriParType;
-    QTimer                  *MAJTreeViewTimer;
-    QLabel                  *inflabel;
-    QRectF                  rect;
-    QPoint                  PosOrigine;
-    QSize                   SizeOrigine;
     UpCheckBox              *AllDocsupCheckBox;
     UpCheckBox              *OnlyImportantDocsupCheckBox;
     UpSwitch                *sw;
+    UpTableWidget           *ScrollTable;
+
+    QRectF                  rect;
+    QFont                   gFont;
+    QList<QPixmap>          glistPix;
+    QPrinter                *printer;
+    QStandardItemModel      *gmodele, *gmodeleTriParDate, *gmodeleTriParType;
+    QPoint                  PosOrigine;
+    QSize                   SizeOrigine;
+
+    bool                    AvecPrevisu;
+    bool                    initOK;
     int                     gidPatient;
     int                     hdelta , wdelta;
     int                     hdeltaframe, wdeltaframe;
-    int                     nbredocs;
     int                     gMode;
     enum gMode              {Zoom, Normal};
     int                     Importance;
     enum Importance         {Min, Norm, Max};
-    double                  idealproportion;
-    QString                 gTypeDoc;
     int                     gModeTri;
     enum gModeTri           {parDate, parType};
+    int                     gModeFiltre;
+    enum gModeFiltre        {FiltreSans, NormalFiltre, ImportantFiltre};
+    double                  idealproportion;
+    QString                 gTypeDoc;
+
     bool                    eventFilter(QObject *, QEvent *);
-    bool                    AvecPrevisu;
-    bool                    initOK;
-    void                    AfficheCustomMenu();
-    int                     CompteNbreDocs();
-    bool                    EcritDansUnFichier(QString NomFichier, QByteArray TexteFichier);
+    void                    ActualiseDocsExternes();
+    void                    AfficheCustomMenu(DocExterne *docmt);
+    void                    BasculeTriListe(int);
     QMap<QString,QVariant>  CalcImage(int idimpression, bool imagerie, bool afficher = true);
 
-    void                    BasculeTriListe(int);
     QString                 CalcTitre(DocExterne *docmt);
+    int                     CompteNbreDocs();
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
+    bool                    EcritDansUnFichier(QString NomFichier, QByteArray TexteFichier);
     void                    EnregistreVideo();
+
     void                    FiltrerListe(UpCheckBox *chk);
     DocExterne*             getDocumentFromIndex(QModelIndex idx);
     QModelIndex             getIndexFromId(int id);
     QStandardItem*          getItemFromDocument(DocExterne* docmt);
     void                    ImprimeDoc();
-    bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin);
-    bool                    ReImprimeDoc(DocExterne *docmt);
+
     int                     initListDocs();
+    bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin);
     void                    ModifierItem(QModelIndex idx);
     void                    PlayerCtrl(int);
-    void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
-    void                    ZoomDoc();
     void                    Print(QPrinter*);
 
-private slots:
-    void                    Slot_CompteNbreDocs();
+    bool                    ReImprimeDoc(DocExterne *docmt);
+    void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
+    void                    ZoomDoc();
 };
 
 #endif // DLG_DOCSEXTERNES_H

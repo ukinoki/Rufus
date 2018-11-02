@@ -8,20 +8,19 @@
 class DocsExternes
 {
 private:
-    QHash<int, DocExterne*> m_docsexternespardate; //!< la liste des DocExternes pour un patient donné triée par date
-    QHash<int, DocExterne*> m_docsexternespartype; //!< la liste des DocExternes pour un patient donné triée par type de document
-    void TrieDocsExternes();
+    QHash<int, DocExterne*> m_docsexternes; //!< la liste des DocExternes pour un patient donné
+    bool m_nouveaudocument;
+
 public:
     explicit DocsExternes();
-    QHash<int, DocExterne *> docsexternespardate();
-    QHash<int, DocExterne *> docsexternespartype();
+    QHash<int, DocExterne *> docsexternes();
     DocExterne* getDocumentById(int id, bool loadDetails=true, bool addToList=true);
-    void addDocExterneByDat(DocExterne *DocExterne);
-    void addDocExterneByTyp(DocExterne *DocExterne);
-    void addListDocsExternesByDat(QList<DocExterne*> listdocs);
-    void addListDocsExternesByTyp(QList<DocExterne*> listdocs);
+    void addDocExterne(DocExterne *DocExterne);
+    void addListDocsExternes(QList<DocExterne*> listdocs);
+    bool NouveauDocument();
+    void setNouveauDocumentFalse();
     DocExterne* reloadDocument(DocExterne* docmt);
     void RemoveKey(int key);
-    void VideLesListes();
+    void VideLaListe();
 };
 #endif // CLS_DOCSEXTERNES_H

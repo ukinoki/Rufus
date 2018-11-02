@@ -106,6 +106,7 @@ include(Components/components.pri)
 include(Database/database.pri)
 include(Dialogs/dialogs.pri)
 include(Items/items.pri)
+include(TcpSocket/tcpsocket.pri)
 
 TRANSLATIONS    = rufus_en.ts
 

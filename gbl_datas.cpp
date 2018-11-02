@@ -1,6 +1,6 @@
 #include "gbl_datas.h"
 
-Datas* Datas::instance = 0;
+Datas* Datas::instance =  Q_NULLPTR;
 Datas* Datas::I()
 {
     if( !instance )
