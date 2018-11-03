@@ -180,5 +180,8 @@
         <file>Administration.png</file>
         <file>down-arrow-icon.png</file>
         <file>up-arrow-icon.png</file>
+        <file>camera.png</file>
+        <file>movie.png</file>
+        <file>stamp.png</file>
     </qresource>
 </RCC>

@@ -82,7 +82,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     ListDocsTreeView    ->setSelectionMode(QAbstractItemView::SingleSelection);
     ListDocsTreeView    ->setContextMenuPolicy(Qt::CustomContextMenu);
     ListDocsTreeView    ->setAnimated(true);
-    ListDocsTreeView    ->setIndentation(3);
+    ListDocsTreeView    ->setIndentation(6);
     ListDocsTreeView    ->header()->setVisible(false);
 
     player              = new QMediaPlayer;
@@ -102,6 +102,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     OnlyImportantDocsupCheckBox ->setImmediateToolTip(tr("N'afficher que les documents marqués importants"));
     AjouteWidgetLayButtons(AllDocsupCheckBox, false);
     AjouteWidgetLayButtons(OnlyImportantDocsupCheckBox, false);
+    AllDocsupCheckBox->setChecked(true);
 
     playctrl            = new PlayerControls(player, this);
     AjouteWidgetLayButtons(playctrl, false);
@@ -148,7 +149,6 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     initOK = (initListDocs() > 0);
     if(!initOK)
         return;
-    AllDocsupCheckBox->setChecked(true);
     RemplirTreeView();
 }
 
@@ -232,15 +232,13 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 
 QString dlg_docsexternes::CalcTitre(DocExterne* docmt)
 {
-    QString a = docmt->typedoc();                                     // 1 = Type de document
+    QString a;
+    if (docmt->format() == IMAGERIE || docmt->format() == VIDEO)
+        a = docmt->typedoc() + " ";
     if (docmt->soustypedoc() != "")
+        a += docmt->soustypedoc();
+    else if (docmt->titre() != "")
     {
-        if (a!="") a += " - ";
-        a += docmt->soustypedoc();                                    // 4 - Sous-type du document
-    }
-    else if (docmt->titre() != "")                                    // 2 - Titre du document
-    {
-        if (a!="") a += " - ";
         QTextEdit text;
         text.setHtml(docmt->titre());
         a += text.toPlainText();
@@ -250,20 +248,45 @@ QString dlg_docsexternes::CalcTitre(DocExterne* docmt)
 
 void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance imptce)
 {
-
     auto modifieitem = [] (QStandardItem *item, DocExterne *docmt, int imp, QFont fontitem)
     {
         switch (imp) {
         case 0:{
             fontitem.setItalic(true);
             item->setFont(fontitem);
-            item->setIcon(QIcon());
+            if (docmt->typedoc() == PRESCRIPTION)
+                item->setIcon(Icons::icStetho());
+            else if (docmt->format() == PRESCRIPTIONLUNETTES)
+                item->setIcon(Icons::icSunglasses());
+            else if (docmt->format() == VIDEO)
+                item->setIcon(Icons::icCinema());
+            else if (docmt->format() == IMAGERIE)
+                item->setIcon(Icons::icPhoto());
+            else if (docmt->format() == COURRIER)
+                item->setIcon(Icons::icImprimer());
+            else if (docmt->format() == COURRIERADMINISTRATIF)
+                item->setIcon(Icons::icTampon());
+            else
+                item->setIcon(QIcon());
             docmt->setimportance(0);
             break;
         }
         case 1:{
             item->setFont(fontitem);
-            item->setIcon(QIcon());
+            if (docmt->typedoc() == PRESCRIPTION)
+                item->setIcon(Icons::icStetho());
+            else if (docmt->format() == PRESCRIPTIONLUNETTES)
+                item->setIcon(Icons::icSunglasses());
+            else if (docmt->format() == VIDEO)
+                item->setIcon(Icons::icCinema());
+            else if (docmt->format() == IMAGERIE)
+                item->setIcon(Icons::icPhoto());
+            else if (docmt->format() == COURRIER)
+                item->setIcon(Icons::icImprimer());
+            else if (docmt->format() == COURRIERADMINISTRATIF)
+                item->setIcon(Icons::icTampon());
+            else
+                item->setIcon(QIcon());
             docmt->setimportance(1);
             break;
         }
@@ -292,6 +315,17 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     if (item != Q_NULLPTR)
         modifieitem(item, docmt, imp, gFont);
     db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set Importance = " + QString::number(imp) + " where idImpression = " + QString::number(id));
+    int nimportants = 0;
+    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().constBegin(); itdoc != m_ListDocs.docsexternes().constEnd(); ++itdoc )
+    {
+        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
+        if (doc->importance() == 2)
+        {
+            nimportants ++;
+            break;
+        }
+    }
+    OnlyImportantDocsupCheckBox->setEnabled( nimportants>0 || OnlyImportantDocsupCheckBox->isChecked());
 }
 
 void dlg_docsexternes::AfficheDoc(QModelIndex idxproxy)
@@ -1361,20 +1395,6 @@ void dlg_docsexternes::RemplirTreeView()
     else
         gModeFiltre = NormalFiltre;
 
-    /*
-     * 0-idImpression
-     * 1-idUser
-     * 2-idpat
-     * 3-TypeDoc
-     * 4-Titre
-     * 5-TextEntete
-     * 6-TextCorps
-     * 7-TextPied
-     * 8-Dateimpression
-     * 9-pdf
-     * 10-formatautre
-     * 11-lienversfichier
-    */
     if (ListDocsTreeView != Q_NULLPTR)
         ListDocsTreeView->disconnect();
     if (ListDocsTreeView->selectionModel() != Q_NULLPTR)
@@ -1383,12 +1403,13 @@ void dlg_docsexternes::RemplirTreeView()
     gmodele = dynamic_cast<QStandardItemModel*>(ListDocsTreeView->model());
     if (gmodele)
     {
-        if (ListDocsTreeView->selectionModel()->selectedIndexes().size()>0)
-        {
-            QModelIndex actifidx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
-            if (!gmodele->itemFromIndex(actifidx)->hasChildren())
-                idimpraretrouver = gmodele->itemFromIndex(actifidx)->data().toMap().value("id").toString();
-        }
+        if (gmodele->rowCount()>0)
+            if (ListDocsTreeView->selectionModel()->selectedIndexes().size()>0)
+            {
+                QModelIndex actifidx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
+                if (!gmodele->itemFromIndex(actifidx)->hasChildren())
+                    idimpraretrouver = gmodele->itemFromIndex(actifidx)->data().toMap().value("id").toString();
+            }
         gmodele->clear();
         gmodeleTriParDate->clear();
         gmodeleTriParType->clear();
@@ -1430,8 +1451,8 @@ void dlg_docsexternes::RemplirTreeView()
     QStandardItem * rootNodeType = gmodeleTriParType->invisibleRootItem();
 
     //1 Liste des documents (ordonnances, certificats, courriers, imagerie...etc...) imprimés par le poste ou reçus
-    QList<QDate> listdates;
-    QStringList listtypedocs;
+    QList<QDate> listdatesnorm, listdatessansfilte, listdatesimportants;
+    QStringList listtypesnorm, listtypessansfiltre, listtypesimportants;
 
     auto completelistes = [&] (QList<QDate> &dates, QStringList &typedocs, DocExterne* doc)
     {
@@ -1446,19 +1467,28 @@ void dlg_docsexternes::RemplirTreeView()
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
         // créations des entêtes par date et par type d'examen
         {
-            switch (gModeFiltre) {
-            case FiltreSans:
-                completelistes(listdates, listtypedocs, doc);
-                break;
-            case NormalFiltre:
-                if (doc->importance()>0)
-                    completelistes(listdates, listtypedocs, doc);
-                break;
-            case ImportantFiltre:
-                if (doc->importance()==2)
-                    completelistes(listdates, listtypedocs, doc);
-            }
+            if (doc->importance()>0)
+                completelistes(listdatesnorm, listtypesnorm, doc);
+            completelistes(listdatessansfilte, listtypessansfiltre, doc);
+            if (doc->importance()==2)
+                completelistes(listdatesimportants, listtypesimportants, doc);
         }
+    }
+    if (listdatessansfilte.size() == 0)
+        accept();
+    OnlyImportantDocsupCheckBox->setEnabled(listdatesimportants.size() > 0);
+    if (gModeFiltre == ImportantFiltre && listdatesimportants.size() == 0)
+    {
+        GraphicView->setVisible(false);
+        ScrollTable->setVisible(false);
+    }
+
+    QList<QDate> listdates;
+    QStringList listtypes;
+    switch (gModeFiltre) {
+    case FiltreSans:        listdates = listdatessansfilte;     listtypes = listtypessansfiltre;    break;
+    case NormalFiltre:      listdates = listdatesnorm;          listtypes = listtypesnorm;          break;
+    case ImportantFiltre:   listdates = listdatesimportants;    listtypes = listtypesimportants;    break;
     }
 
     QStandardItem       *dateitem, *typitem, *pitemdate, *pitemtype;
@@ -1474,10 +1504,10 @@ void dlg_docsexternes::RemplirTreeView()
         rootNodeDate->appendRow(dateitem);
     }
     // Tri par type
-    qSort(listtypedocs);
-    for (int i=0; i<listtypedocs.size(); ++i)
+    qSort(listtypes);
+    for (int i=0; i<listtypes.size(); ++i)
     {
-        typitem     = new QStandardItem(listtypedocs.at(i));
+        typitem     = new QStandardItem(listtypes.at(i));
         typitem     ->setForeground(QBrush(QColor(Qt::red)));
         typitem     ->setEditable(false);
         typitem     ->setIcon(Icons::icSortirDossier());
@@ -1502,6 +1532,36 @@ void dlg_docsexternes::RemplirTreeView()
         pitemtype           ->setFont(fontitem);
         pitemtype           ->setData(data);
         pitemtype           ->setEditable(false);
+        if (doc->format() == PRESCRIPTION)
+        {
+            pitemdate->setIcon(Icons::icStetho());
+            pitemtype->setIcon(Icons::icStetho());
+        }
+        else if (doc->format() == PRESCRIPTIONLUNETTES)
+        {
+            pitemdate->setIcon(Icons::icSunglasses());
+            pitemtype->setIcon(Icons::icSunglasses());
+        }
+        else if (doc->format() == VIDEO)
+        {
+            pitemdate->setIcon(Icons::icCinema());
+            pitemtype->setIcon(Icons::icCinema());
+        }
+        else if (doc->format() == IMAGERIE)
+        {
+            pitemdate->setIcon(Icons::icPhoto());
+            pitemtype->setIcon(Icons::icPhoto());
+        }
+        else if (doc->format() == COURRIER)
+        {
+            pitemdate->setIcon(Icons::icImprimer());
+            pitemtype->setIcon(Icons::icImprimer());
+        }
+        else if (doc->format() == COURRIERADMINISTRATIF)
+        {
+            pitemdate->setIcon(Icons::icTampon());
+            pitemtype->setIcon(Icons::icTampon());
+        }
         if (doc->importance()==2)
         {
             pitemdate->setIcon(Icons::icImportant());
@@ -1574,6 +1634,9 @@ void dlg_docsexternes::RemplirTreeView()
     }
     ListDocsTreeView->setSelectionModel(new QItemSelectionModel(gmodele));
     ListDocsTreeView->expandAll();
+    ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
+    ListDocsTreeView->setCurrentIndex(idx);
+    AfficheDoc(idx);
     connect(ListDocsTreeView->selectionModel(), &QItemSelectionModel::currentChanged,   this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
     connect(ListDocsTreeView,                   &QTreeView::customContextMenuRequested, this,   [=] {
         QModelIndex idx = ListDocsTreeView->indexAt(ListDocsTreeView->mapFromGlobal(cursor().pos()));
@@ -1581,7 +1644,5 @@ void dlg_docsexternes::RemplirTreeView()
         if (docmt != Q_NULLPTR)
             AfficheCustomMenu(docmt);
     });
-    ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
-    ListDocsTreeView->setCurrentIndex(idx);
 }
 
