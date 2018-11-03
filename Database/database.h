@@ -34,8 +34,8 @@ class DataBase : public QObject
     Q_OBJECT
 public:
     enum m_mode { Poste, ReseauLocal, Distant };
-    enum m_comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };
-    Q_DECLARE_FLAGS(Comparateurs, m_comparateur)
+    int comparateur;
+    enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };
 
 private:
     DataBase();
@@ -112,7 +112,7 @@ public:
     QList<Depense*> loadDepensesByUser(int idUser);
     void            loadDepenseArchivee(Depense *dep);
     QStringList     ListeRubriquesFiscales();
-    QList<Depense*> VerifExistDepense(QHash<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser, Comparateurs Comp = Egal);
+    QList<Depense*> VerifExistDepense(QHash<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur = Egal);
     int             getMaxLigneBanque();
     QList<Archive*> loadArchiveByDate(QDate date, Compte *compte, int intervalle); //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
 

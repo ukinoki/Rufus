@@ -41,9 +41,6 @@ class dlg_docsexternes : public UpDialog
 public:
     explicit dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
-    void                    RemplirTreeView();
-    QTreeView               *ListDocsTreeView;
-    void                    AfficheDoc(QModelIndex idx);
     bool                    InitOK();
 
 private:
@@ -51,6 +48,7 @@ private:
     DocsExternes            m_ListDocs;
     DocExterne              *docencours;
     DataBase                *db;
+    Patient                 *patient;
 
     QGraphicsScene          *Scene;
     QGraphicsVideoItem      *videoItem;
@@ -59,6 +57,7 @@ private:
     QLabel                  *inflabel;
     PlayerControls          *playctrl;
     QMediaPlayer            *player;
+    QTreeView               *ListDocsTreeView;
     UpCheckBox              *AllDocsupCheckBox;
     UpCheckBox              *OnlyImportantDocsupCheckBox;
     UpSwitch                *sw;
@@ -89,8 +88,10 @@ private:
     QString                 gTypeDoc;
 
     bool                    eventFilter(QObject *, QEvent *);
+
     void                    ActualiseDocsExternes();
     void                    AfficheCustomMenu(DocExterne *docmt);
+    void                    AfficheDoc(QModelIndex idx);
     void                    BasculeTriListe(int);
     QMap<QString,QVariant>  CalcImage(int idimpression, bool imagerie, bool afficher = true);
 
@@ -102,8 +103,8 @@ private:
 
     void                    FiltrerListe(UpCheckBox *chk);
     DocExterne*             getDocumentFromIndex(QModelIndex idx);
-    QModelIndex             getIndexFromId(int id);
-    QStandardItem*          getItemFromDocument(DocExterne* docmt);
+    QModelIndex             getIndexFromId(QStandardItemModel *model, int id);
+    QStandardItem*          getItemFromDocument(QStandardItemModel *model, DocExterne* docmt);
     void                    ImprimeDoc();
 
     int                     initListDocs();
@@ -113,6 +114,7 @@ private:
     void                    Print(QPrinter*);
 
     bool                    ReImprimeDoc(DocExterne *docmt);
+    void                    RemplirTreeView();
     void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
     void                    ZoomDoc();
 };

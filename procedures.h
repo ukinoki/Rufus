@@ -240,6 +240,7 @@ public:
 signals:
     void                    UpdSalDat();
     void                    UpdCorrespondants();
+    void                    UpdDocsExternes();
     void                    ModifEdit(QString txt);
     void                    ConnectTimers(bool);
 

@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("02-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("03-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -366,33 +366,9 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
     {
         Dlg_DocsExt = new dlg_docsexternes(proc,idpat, this);
         ui->OuvreDocsExternespushButton->setEnabled(true);
-        QString patNom;
-        QString patPrenom;
-        if (depuismenu)
-        {
-            QString autrerequete = "select PatNom, PatPrenom from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idpat);
-            QSqlQuery autrequery (autrerequete, DataBase::getInstance()->getDataBase());
-            if (DataBase::getInstance()->traiteErreurRequete(autrequery,autrerequete,""))
-                return;
-            if (autrequery.size() == 0)
-            {
-                UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ce patient"));
-                return;
-            }
-            autrequery.first();
-            patNom      = autrequery.value(0).toString();
-            patPrenom   = autrequery.value(1).toString();
-        }
-        else
-        {
-            patNom      = gNomPatient;
-            patPrenom   = gPrenomPatient;
-        }
         if (Dlg_DocsExt->InitOK())
         {
-            Dlg_DocsExt->setWindowTitle(tr("Documents de ") + patPrenom + " " + patNom);
             Dlg_DocsExt->show();
-            Dlg_DocsExt->AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
             if (depuismenu)
                 Dlg_DocsExt->setModal(true); //quand la fiche est ouverte depuis le menu contectuel de la liste des patients
         }
@@ -426,21 +402,18 @@ void Rufus::MAJDocsExternes()
 {
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     if (ListDialogDocs.size()>0)
-        ListDialogDocs.at(0)->RemplirTreeView();
+        proc->emit UpdDocsExternes();
     else
     {
         QString req = "Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient);
         QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
         if (quer.size()>0)
         {
-            Dlg_DocsExt = new dlg_docsexternes(proc,gidPatient, this);
-            ui->OuvreDocsExternespushButton->setEnabled(true);
-            Dlg_DocsExt->setWindowTitle(tr("Documents de ") + gPrenomPatient + " " + gNomPatient);
-            Dlg_DocsExt->show();
-            Dlg_DocsExt->AfficheDoc(Dlg_DocsExt->ListDocsTreeView->selectionModel()->currentIndex());
+            Dlg_DocsExt = new dlg_docsexternes(proc, gidPatient, this);
+            if (Dlg_DocsExt->InitOK())
+                Dlg_DocsExt->show();
         }
-        else
-            ui->OuvreDocsExternespushButton->setEnabled(false);
+        ui->OuvreDocsExternespushButton->setEnabled(quer.size()>0);
     }
 }
 
@@ -9844,16 +9817,6 @@ void Rufus::SupprimerActe()
     QString delborequete = "DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idBilanOrtho  = " + QString::number(idASupprimer);
     QSqlQuery DelBOQuery(delborequete, DataBase::getInstance()->getDataBase() );
     DataBase::getInstance()->traiteErreurRequete(DelBOQuery,delborequete,"");
-
-    // On supprime les documents émis
-    requete =  "DELETE FROM " NOM_TABLE_IMPRESSIONS " WHERE idPat = " + QString::number(gidPatient) + " and dateimpression = '" + dateacte.toString("yyyy-MM-dd") + "'";
-    QSqlQuery DelPatientImpressionsQuery(requete, DataBase::getInstance()->getDataBase() );
-    if (DataBase::getInstance()->traiteErreurRequete(DelPatientImpressionsQuery,requete, tr("Impossible de supprimer les impressoins de ce dossier!")))
-        return;
-    QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
-    if (ListDialogDocs.size()>0)
-        for (int n = 0; n <  ListDialogDocs.size(); n++)
-            ListDialogDocs.at(n)->RemplirTreeView();
 
     /* on corrige la compta
     */

@@ -406,7 +406,9 @@ void dlg_depenses::EnregistreDepense()
             ui->RefFiscalecomboBox->setFocus();
         return;
     }
-    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Egal);
+    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(),
+                                                              ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(),
+                                                              DataBase::Egal);
 
     // vérifier que cette dépense n'a pas été déjà saisie
     if (veriflistdepenses.size() > 0)
@@ -419,7 +421,9 @@ void dlg_depenses::EnregistreDepense()
     {
         if (QDate::currentDate() > ui->DateDepdateEdit->date().addDays(90))
             pb = tr("Elle date de plus de 3 mois");
-        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-180), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Sup);
+        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-180),
+                                                  ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(),
+                                                  DataBase::Sup);
         if (veriflistdepenses.size() > 0)
         {
             Depense *dep = veriflistdepenses.last();
@@ -804,7 +808,9 @@ void dlg_depenses::ModifierDepense()
     }
 
     // vérifier que cette dépense n'a pas été déjà saisie
-    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Egal);
+    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(),
+                                                              ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(),
+                                                              DataBase::Egal);
     if (veriflistdepenses.size() > 0){
         for (QList<Depense*>::const_iterator itDepense = veriflistdepenses.constBegin(); itDepense != veriflistdepenses.constEnd(); ++itDepense){
             if (veriflistdepenses.last()->id() == idDep){
@@ -823,7 +829,9 @@ void dlg_depenses::ModifierDepense()
     }
     if (!OnSauteLaQuestionSuivante)
     {
-        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-1), ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(), DataBase::Inf);
+        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-1),
+                                                  ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(),
+                                                  DataBase::Inf);
         if (veriflistdepenses.size() > 0)
         {
             if (pb != "")

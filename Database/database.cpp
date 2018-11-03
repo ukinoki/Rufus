@@ -767,12 +767,12 @@ QStringList DataBase::ListeRubriquesFiscales()
     return ListeRubriques;
 }
 
-QList<Depense*> DataBase::VerifExistDepense(QHash<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, Comparateurs Comp)
+QList<Depense*> DataBase::VerifExistDepense(QHash<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur Comp)
 {
     QString op = "=";
-    if (Comp.testFlag(DataBase::Sup))
+    if (Comp == DataBase::Sup)
         op = ">";
-    else if (Comp.testFlag(DataBase::Inf))
+    else if (Comp == DataBase::Inf)
         op = "<";
     QList<Depense*> listdepenses;
     QString req = "select idDep from " NOM_TABLE_DEPENSES " where DateDep " + op + "'" + date.toString("yyyy-MM-dd") +
