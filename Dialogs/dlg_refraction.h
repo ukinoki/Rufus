@@ -179,8 +179,6 @@ public:
     void                    AfficheMesureFronto();
     void                    AfficheMesureAutoref();
     void                    AfficheMesureRefracteur();
-    void                    EnvoiMesureRefracteur();
-
 };
 
 #endif // DLG_REFRACTION_H

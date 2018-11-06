@@ -73,7 +73,7 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
     GraphicView         ->installEventFilter(this);
     GraphicView         ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     GraphicView         ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    GraphicView     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+    GraphicView         ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
 
     ListDocsTreeView    ->setFixedWidth(185);
     ListDocsTreeView    ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -328,9 +328,9 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     OnlyImportantDocsupCheckBox->setEnabled( nimportants>0 || OnlyImportantDocsupCheckBox->isChecked());
 }
 
-void dlg_docsexternes::AfficheDoc(QModelIndex idxproxy)
+void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 {
-    DocExterne *docmt = getDocumentFromIndex(idxproxy);
+    DocExterne *docmt = getDocumentFromIndex(idx);
 
     if (docmt == Q_NULLPTR)
     {
@@ -545,6 +545,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idxproxy)
         if ((w + wdeltaframe) > (qApp->desktop()->availableGeometry().width() - this->x()))
             move(qApp->desktop()->availableGeometry().width() - (w + wdeltaframe), 0);
     }
+
     if (gTypeDoc == PDF)
         inflabel    ->setGeometry(10,ScrollTable->viewport()->height()-40, 500, 25);
     else
@@ -588,7 +589,7 @@ void dlg_docsexternes::BasculeTriListe(int a)
     }
     ListDocsTreeView->setSelectionModel(new QItemSelectionModel(gmodele));
     ListDocsTreeView->expandAll();
-    ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
+    ListDocsTreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     ListDocsTreeView->setCurrentIndex(idx);
     connect(ListDocsTreeView->selectionModel()  ,   &QItemSelectionModel::currentChanged,   this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});
     connect(ListDocsTreeView,                       &QTreeView::customContextMenuRequested, this,   [=] {
@@ -962,7 +963,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
             RemplirTreeView();
             int idimpr = db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS);
             QModelIndex idx = getIndexFromId(gmodele, idimpr);
-            ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
+            ListDocsTreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
             ListDocsTreeView->setCurrentIndex(idx);
             AfficheDoc(idx);
         }
@@ -1134,13 +1135,11 @@ void dlg_docsexternes::Print(QPrinter *Imprimante)
 
 void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
 {
-    QModelIndex idx;
     if (docmt == Q_NULLPTR)
     {
-        idx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
+        QModelIndex idx = ListDocsTreeView->selectionModel()->selectedIndexes().at(0);
         docmt = getDocumentFromIndex(idx);
     }
-    else idx = getIndexFromId(gmodele, docmt->id());
     if (docmt == Q_NULLPTR)
         return;
     QString idimpr = QString::number(docmt->id());
@@ -1152,7 +1151,6 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
             return;
         }
     }
-
     if (idimpr != "")
     {
         UpMessageBox msgbox;
@@ -1188,8 +1186,6 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
                         " where idimpression = " + idimpr + ")");
         db->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr);
         m_ListDocs.RemoveKey(docmt->id());
-        if (m_ListDocs.docsexternes().size() == 0)
-            reject();
         RemplirTreeView();
         QModelIndex idx2;
         if (idaafficher != "")
@@ -1199,7 +1195,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
                 idx2 = indx;
         }
         ListDocsTreeView->expandAll();
-        ListDocsTreeView->scrollTo(idx2, QAbstractItemView::EnsureVisible);
+        ListDocsTreeView->scrollTo(idx2, QAbstractItemView::PositionAtCenter);
         ListDocsTreeView->setCurrentIndex(idx2);
      }
 }
@@ -1388,6 +1384,10 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_docsexternes::RemplirTreeView()
 {
+    if (m_ListDocs.docsexternes().size() == 0){
+        reject();
+        return;  // si on ne met pas ça, le reject n'est pas effectué...
+    }
     if (AllDocsupCheckBox->isChecked())
         gModeFiltre = FiltreSans;
     else if (OnlyImportantDocsupCheckBox->isChecked())
@@ -1427,10 +1427,10 @@ void dlg_docsexternes::RemplirTreeView()
                 |    text = date examen     |
                 |___________________________|---|
                                                 |
-                                                |––––––––––––––––––––––––––––––––––––––-|
-                                                |               pitem                   |
-                                                |   text = type + sous type document    |
-                                                |   data["id"] = id                     |
+                                                |––––––––––––––––––––––––––––––––––––––-|---|––––––––––––––––––––––––––––––––––––––-|
+                                                |               pitemdate               |   |            pitemtridated              |
+                                                |   text = type + sous type document    |   |   text = datetime - pour le tri       |
+                                                |   data["id"] = id                     |   |_______________________________________|
                                                 |_______________________________________|
 
 
@@ -1440,10 +1440,10 @@ void dlg_docsexternes::RemplirTreeView()
                 |    text = type examen     |
                 |___________________________|---|
                                                 |
-                                                |––––––––––––––––––––––––––––––––––––––-|
-                                                |               pitem                   |
-                                                |   text = date + sous type document    |
-                                                |   data["id"] = id                     |
+                                                |––––––––––––––––––––––––––––––––––––––-|---|––––––––––––––––––––––––––––––––––––––-|
+                                                |               pitemtype               |   |            pitemtidatep               |
+                                                |   text = date + sous type document    |   |   text = datetime - pour le tri       |
+                                                |   data["id"] = id                     |   |_______________________________________|
                                                 |_______________________________________|
 
     */
@@ -1491,7 +1491,7 @@ void dlg_docsexternes::RemplirTreeView()
     case ImportantFiltre:   listdates = listdatesimportants;    listtypes = listtypesimportants;    break;
     }
 
-    QStandardItem       *dateitem, *typitem, *pitemdate, *pitemtype;
+    QStandardItem       *dateitem, *typitem, *pitemdate, *pitemtype, *pitemtridated, *pitemtridatet;
     // Tri par date
     qSort(listdates);
     for (int i=0; i<listdates.size(); ++i)
@@ -1521,6 +1521,8 @@ void dlg_docsexternes::RemplirTreeView()
         QString a = doc->typedoc();
         pitemdate           = new QStandardItem(CalcTitre(doc));
         pitemtype           = new QStandardItem(CalcTitre(doc));
+        pitemtridated        = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
+        pitemtridatet        = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
         QMap<QString, QVariant> data;
         data["id"]          = QString::number(doc->id());
         QFont fontitem      = gFont;
@@ -1572,15 +1574,15 @@ void dlg_docsexternes::RemplirTreeView()
         {
             switch (gModeFiltre) {
             case FiltreSans:
-                listitemsdate.at(0)->appendRow(pitemdate);
+                listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << pitemdate << pitemtridated);
                 break;
             case NormalFiltre:
                 if (doc->importance()>0)
-                    listitemsdate.at(0)->appendRow(pitemdate);
+                    listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << pitemdate << pitemtridated);
                 break;
             case ImportantFiltre:
                 if (doc->importance()==2)
-                    listitemsdate.at(0)->appendRow(pitemdate);
+                    listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << pitemdate << pitemtridated);
             }
             listitemsdate.at(0)->sortChildren(1);
         }
@@ -1589,15 +1591,15 @@ void dlg_docsexternes::RemplirTreeView()
         {
             switch (gModeFiltre) {
             case FiltreSans:
-                listitemstype.at(0)->appendRow(pitemtype);
+                listitemstype.at(0)->appendRow(QList<QStandardItem*>() << pitemtype << pitemtridatet);
                 break;
             case NormalFiltre:
                 if (doc->importance()>0)
-                    listitemstype.at(0)->appendRow(pitemtype);
+                    listitemstype.at(0)->appendRow(QList<QStandardItem*>() << pitemtype << pitemtridatet);
                 break;
             case ImportantFiltre:
                 if (doc->importance()==2)
-                    listitemstype.at(0)->appendRow(pitemtype);
+                    listitemstype.at(0)->appendRow(QList<QStandardItem*>() << pitemtype << pitemtridatet);
             }
             listitemstype.at(0)->sortChildren(1);
         }
@@ -1634,7 +1636,7 @@ void dlg_docsexternes::RemplirTreeView()
     }
     ListDocsTreeView->setSelectionModel(new QItemSelectionModel(gmodele));
     ListDocsTreeView->expandAll();
-    ListDocsTreeView->scrollTo(idx, QAbstractItemView::EnsureVisible);
+    ListDocsTreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     ListDocsTreeView->setCurrentIndex(idx);
     AfficheDoc(idx);
     connect(ListDocsTreeView->selectionModel(), &QItemSelectionModel::currentChanged,   this,   [=] {AfficheDoc(ListDocsTreeView->selectionModel()->currentIndex());});

@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("03-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("05-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1275,6 +1275,159 @@ void Rufus::AppelPaiementDirect(QString Origin)
     }
     AfficheActeCompta();
     delete Dlg_PaimtDirect;
+}
+
+void Rufus::AppelPaiementDirect2(QString Origin)
+{
+    QList<int> ListidActeAPasser;
+    int Mode = 1;
+
+    if (Origin == "AttentePaiement") // l'appel est fait par un clic dans le menu contextuel de la salle d'attente des paiements en attente
+    {
+        QList<QTableWidgetSelectionRange> ListItems = ui->AccueilupTableWidget->selectedRanges();
+        if (ListItems.size() == 0) return;
+        for (int i = 0; i < ListItems.size(); i++) //FIXME : appel SQL dans 1 boucle de boucle
+        {
+            int debut = ListItems.at(i).topRow();
+            int hauteur = ListItems.at(i).rowCount();
+            for (int k=0;k<hauteur;k++)
+            {
+                // On vérifie que chaque acte sélectionné n'est pas déjà en cours d'enregistrement sur un autre poste
+                QString req = "SELECT idActe FROM "  NOM_TABLE_VERROUCOMPTAACTES
+                              " WHERE idActe = "  + ui->AccueilupTableWidget->item(debut+k,5)->text();
+                QSqlQuery ChercheVerrouQuery (req, DataBase::getInstance()->getDataBase() );
+                DataBase::getInstance()->traiteErreurRequete(ChercheVerrouQuery, req,"");
+                if (ChercheVerrouQuery.size() == 0)
+                    ListidActeAPasser << ui->AccueilupTableWidget->item(debut+k,5)->text().toInt();
+            }
+            if (ListidActeAPasser.size() == 0)
+            {
+                QSound::play(NOM_ALARME);
+                UpMessageBox::Watch(this,tr("Le ou les actes que vous avez sélectionnés\nsont déjà en cours d'enregistrement!"));
+                return;
+            }
+        }
+    }
+    else if (Origin == "Bouton") // l'appel est fait par un clic sur le bouton enregistrepaiement
+    {
+        // On vérifie que la cotation est complète
+        QString Titre = "";
+        if (ui->ActeCotationcomboBox->currentText() == "")
+            Titre = tr("Il manque la cotation!");
+        else if (ui->ActeMontantlineEdit->text() == "")
+            Titre = tr("Il manque le montant!");
+        if (Titre != "")
+        {
+            UpMessageBox::Watch(this,tr("Vous ne pouvez pas enregistrer le paiement de cet acte !"), Titre);
+            return;
+        }
+        // On vérifie que cet acte n'est pas déjà en cours d'enregistrement sur un autre poste
+        QString req = "SELECT UserLogin FROM " NOM_TABLE_VERROUCOMPTAACTES ", " NOM_TABLE_UTILISATEURS
+                      " WHERE idActe = "  + QString::number(gidActe) +
+                      " AND PosePar = idUser";
+        QSqlQuery ChercheVerrouQuery (req, DataBase::getInstance()->getDataBase() );
+        DataBase::getInstance()->traiteErreurRequete(ChercheVerrouQuery, req,"");
+        if (ChercheVerrouQuery.size() > 0)
+        {
+            ChercheVerrouQuery.first();
+            UpMessageBox::Watch(this,tr("Vous ne pouvez paz enregistrer le paiement de cet acte !"),
+                                tr("Il est déjà en cours d'enregistrement par ") + ChercheVerrouQuery.value(0).toString());
+            return;
+        }
+        // il s'agit d'un acte gratuit - on propose de le classer
+        if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")
+        {
+            UpMessageBox msgbox;
+            UpSmallButton OKBouton(tr("Consultation gratuite"));
+            msgbox.setText(tr("Vous avez entré un montant nul !"));
+            msgbox.setInformativeText(tr("Enregistrer cette consultation comme gratuite?"));
+            UpSmallButton NoBouton(tr("Annuler"));
+            msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+            msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+            msgbox.exec();
+            if (msgbox.clickedButton() != &OKBouton)
+                ui->ActeMontantlineEdit->setFocus();
+            else
+            {
+                QString enreggratuit = "INSERT INTO " NOM_TABLE_TYPEPAIEMENTACTES " (idActe, TypePaiement) VALUES (" + QString::number(gidActe) + ",'G')";
+                QSqlQuery InsertGratuitQuery (enreggratuit, DataBase::getInstance()->getDataBase() );
+                DataBase::getInstance()->traiteErreurRequete(InsertGratuitQuery,enreggratuit,tr("Impossible d'enregister cet acte comme gratuit"));
+                AfficheActeCompta();
+            }
+            return;
+        }
+
+        QString ActeSal = QString::number(gidActe);
+        QString Msg;
+        QString requete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE
+                    " WHERE idPat = " + QString::number(gidPatient);
+        QSqlQuery SalDatQuery(requete, DataBase::getInstance()->getDataBase() );
+        DataBase::getInstance()->traiteErreurRequete(SalDatQuery,requete,tr("Impossible de trouver le dossier dans la salle d'attente!"));
+
+        if (SalDatQuery.size() == 0)
+        {
+
+            requete = "INSERT INTO " NOM_TABLE_SALLEDATTENTE
+                    " (idPat, idUser, Statut, HeureStatut, idUserEnCoursExam, idActeAPayer, PosteExamen)"
+                    " VALUES (" + QString::number(gidPatient) + "," + QString::number(gDataUser->getIdUserActeSuperviseur()) + ",'" RETOURACCUEIL "',"
+                                + QTime::currentTime().toString("hh:mm") +", null," + ActeSal + ", null)";
+            Msg = tr("Impossible de mettre ce dossier en salle d'attente");
+        }
+        else
+        {
+            requete = "UPDATE " NOM_TABLE_SALLEDATTENTE
+                    " SET Statut = '" RETOURACCUEIL
+                    "', HeureStatut = '" + QTime::currentTime().toString("hh:mm") +
+                    "', idUserEnCoursExam = null"
+                    " , PosteExamen = null";
+            if (ActeSal != "null")
+                requete += ", idActeAPayer = " + ActeSal;
+            requete += " WHERE idPat = '" + QString::number(gidPatient) + "'";
+            Msg = tr("Impossible de modifier les statuts du dossier en salle d'attente!");
+        }
+        FlagMetAjourSalDat();
+        QSqlQuery ModifSalDatQuery(requete, DataBase::getInstance()->getDataBase() );
+        DataBase::getInstance()->traiteErreurRequete(ModifSalDatQuery,requete,Msg);
+        ListidActeAPasser << gidActe;
+    }
+    else
+        ListidActeAPasser << 0;
+
+    Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, Mode, proc, 0, 0, this);//NOTE : New Paiement
+ //   if(Dlg_PmtDirect->getInitOK())
+    {
+        Dlg_PmtDirect->setWindowTitle(tr("Gestion des paiements directs"));
+        Dlg_PmtDirect->exec();
+    }
+    if (Origin == "Bouton")  // on redonne le statut en cours d'examen au dossier
+    {
+        QString Msg;
+        QString req =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE
+                " WHERE idPat = " + QString::number(gidPatient);
+        QSqlQuery SalDatQuery(req, DataBase::getInstance()->getDataBase() );
+        DataBase::getInstance()->traiteErreurRequete(SalDatQuery,req, tr("Impossible de trouver le dossier dans la salle d'attente!"));
+        if (SalDatQuery.size() == 0)
+        {
+            req =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
+                    " (idPat, idUser, Statut, HeureStatut, idUserEnCoursExam, PosteExamen)"
+                    " VALUES ('" + QString::number(gidPatient) + "','" + QString::number(gDataUser->getIdUserActeSuperviseur()) + "','" ENCOURSEXAMEN + gDataUser->getLogin() + "','" + QTime::currentTime().toString("hh:mm")
+                    + "'," + QString::number(gDataUser->id()) + ",'" + QHostInfo::localHostName().left(60) + "')";
+            Msg = tr("Impossible de modifier le statut du dossier");
+        }
+        else
+        {
+            req =   "UPDATE " NOM_TABLE_SALLEDATTENTE
+                    " SET Statut = '" ENCOURSEXAMEN + gDataUser->getLogin() +
+                    "', HeureStatut = '" + QTime::currentTime().toString("hh:mm") +
+                    "', idUserEnCoursExam = " + QString::number(gDataUser->id()) +
+                    ", PosteExamen = '" + QHostInfo::localHostName().left(60) +
+                    "' WHERE idPat = " + QString::number(gidPatient);
+            Msg = tr("Impossible de modifier le statut du dossier");
+        }
+        QSqlQuery ModifSalDatQuery (req, DataBase::getInstance()->getDataBase() );
+        DataBase::getInstance()->traiteErreurRequete(ModifSalDatQuery,req,Msg);
+        FlagMetAjourSalDat();
+    }
 }
 
 void Rufus::AppelPaiementTiers()
@@ -2626,11 +2779,12 @@ void Rufus::ListeCorrespondants()
 
 void Rufus::MajusculeCreerNom()
 {
-    QString nom;
-    QLineEdit *UiNom;
-    UiNom = ui->CreerNomlineEdit;
-    nom = proc->MajusculePremiereLettre(UiNom->text(),false);
-    UiNom->setText(nom);
+//    QString nom;
+//    QLineEdit *UiNom;
+//    UiNom = ui->CreerNomlineEdit;
+//    nom = proc->MajusculePremiereLettre(UiNom->text(),false);
+//    UiNom->setText(nom);
+    ui->CreerNomlineEdit->setText(proc->MajusculePremiereLettre(ui->CreerNomlineEdit->text()));
     if (gMode == NouveauDossier) ChercheNomFiltre();
     ChercheNomFiltre();
 }
@@ -2640,7 +2794,7 @@ void Rufus::MajusculeCreerPrenom()
     QString nom;
     QLineEdit *UiNom;
     UiNom = ui->CreerPrenomlineEdit;
-    nom = proc->MajusculePremiereLettre(UiNom->text(),false);
+    nom =  proc->MajusculePremiereLettre(UiNom->text(),false);
     UiNom->setText(nom);
     if (gMode == NouveauDossier) ChercheNomFiltre();
     ChercheNomFiltre();
@@ -7171,6 +7325,7 @@ void Rufus::CreerMenu()
     menuComptabilite                = menuBar()->addMenu(tr("Comptabilité"));
 
     actionPaiementDirect            = new QAction(tr("Gestion des paiements directs"));
+    actionPaiementDirect2            = new QAction(tr("Gestion des paiements directs 2"));
     actionPaiementTiers             = new QAction(tr("Gestion des tiers payants"));
     actionBilanRecettes             = new QAction(tr("Bilan des recettes"));
     actionRecettesSpeciales         = new QAction(tr("Enregistrement des recettes spéciales"));
@@ -7180,6 +7335,7 @@ void Rufus::CreerMenu()
     actionImpayes                   = new QAction(tr("Impayés"));
 
     menuComptabilite->addAction(actionPaiementDirect);
+    //menuComptabilite->addAction(actionPaiementDirect2);
     menuComptabilite->addAction(actionPaiementTiers);
     menuComptabilite->addAction(actionBilanRecettes);
     menuComptabilite->addAction(actionRecettesSpeciales);
@@ -7192,6 +7348,7 @@ void Rufus::CreerMenu()
 
     connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   [=] {GestionComptes();});
     connect (actionPaiementDirect,              &QAction::triggered,        this,                   [=] {AppelPaiementDirect();});
+    connect (actionPaiementDirect2,             &QAction::triggered,        this,                   [=] {AppelPaiementDirect2();});
     connect (actionPaiementTiers,               &QAction::triggered,        this,                   [=] {AppelPaiementTiers();});
     connect (actionRecettesSpeciales,           &QAction::triggered,        this,                   [=] {RecettesSpeciales();});
     connect (actionBilanRecettes,               &QAction::triggered,        this,                   [=] {BilanRecettes();});
@@ -8168,6 +8325,7 @@ void Rufus::InitMenus()
     bool a = (gDataUser->isLiberal() || gDataUser->isSecretaire());
     actionPaiementTiers             ->setVisible(a || (gDataUser->isSalarie() && !gDataUser->isAssistant()));
     actionPaiementDirect            ->setVisible(a || (gDataUser->isSalarie() && !gDataUser->isAssistant()) || gDataUser->isRemplacant());
+    actionPaiementDirect2           ->setVisible(a || (gDataUser->isSalarie() && !gDataUser->isAssistant()) || gDataUser->isRemplacant());
     actionBilanRecettes             ->setVisible(a);
     actionRecettesSpeciales         ->setVisible(gDataUser->isComptable());
     actionJournalDepenses           ->setVisible(a);

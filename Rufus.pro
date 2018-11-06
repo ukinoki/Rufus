@@ -130,7 +130,8 @@ LIBS += -L/usr/local/lib -lpoppler-qt5
 DISTFILES += \
     _Diagrams/ImpressionsRufus.vpp \
     _Diagrams/readme.txt \
-    _Diagrams/Gestion des documents sous Rufus.pdf
+    _Diagrams/Gestion des documents sous Rufus.pdf \
+    Rufus.dmg
 
 ALEX {
     DEFINES += ALEX

@@ -22,22 +22,6 @@ DELIMITER |
             END IF;
         SELECT COUNT(*) INTO tot FROM
             (SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_NAME='UtilisateursConnectes' AND COLUMN_NAME = 'LastIdModifSalDat') as chp;
-            IF tot=0
-            THEN
-                ALTER TABLE `UtilisateursConnectes`
-                DROP COLUMN `LastIdModifSalDat`;
-            END IF;
-        SELECT COUNT(*) INTO tot FROM
-            (SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS
-            WHERE TABLE_NAME='UtilisateursConnectes' AND COLUMN_NAME = 'NewIdModifSalDat') as chp;
-            IF tot=0
-            THEN
-                ALTER TABLE `UtilisateursConnectes`
-                DROP COLUMN `NewIdModifSalDat`;
-            END IF;
-        SELECT COUNT(*) INTO tot FROM
-            (SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS
             WHERE TABLE_NAME='UtilisateursConnectes' AND COLUMN_NAME = 'MACAdressePosteConnecte') as chp;
             IF tot=0
             THEN

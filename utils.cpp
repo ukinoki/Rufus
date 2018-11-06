@@ -128,7 +128,6 @@ QString Utils::trim(QString text, bool end)
         newText += c;
         lastChar = c;
     }
-
     return newText;
 }
 

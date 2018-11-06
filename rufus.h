@@ -59,6 +59,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_salledattente.h"
 #include "ui_dlg_salledattente.h"
 #include "dlg_autresmesures.h"
+#include "dlg_paiementdirect.h"
 
 #include "importdocsexternesthread.h"
 
@@ -97,6 +98,7 @@ private:
     dlg_identificationpatient       *Dlg_IdentPatient;
     dlg_listecorrespondants         *Dlg_ListCor;
     dlg_paiement                    *Dlg_PaimtDirect, *Dlg_PaimtTiers;
+    dlg_paiementdirect              *Dlg_PmtDirect;
     dlg_param                       *Dlg_Param;
     dlg_autresmesures               *Dlg_AutresMes;
     dlg_recettes                    *Dlg_Rec;
@@ -131,6 +133,7 @@ private:
     void        AfficheMotif(UpLabel *lbl);
     void        AfficheToolTip(int);
     void        AppelPaiementDirect(QString Origin = "");
+    void        AppelPaiementDirect2(QString Origin = "");
     void        AppelPaiementTiers();
     void        AutreDossier(int idPat);
     void        BilanRecettes();
@@ -360,7 +363,7 @@ private:
         QAction         *actionCreerDossier, *actionCreerActe, *actionOuvrirDossier, *actionEmettreDocument, *actionRecopierDossier;
         QAction         *actionParametres, *actionSupprimerActe, *actionSupprimerDossier, *actionRechercheParMotCle, *actionRechercheParID;
         QAction         *actionDossierPatient, *actionCorrespondants, *actionEnregistrerDocScanner, *actionEnregistrerVideo, *actionRechercheCourrier;
-        QAction         *actionGestionComptesBancaires, *actionPaiementDirect, *actionPaiementTiers, *actionRecettesSpeciales, *actionResumeStatut;
+        QAction         *actionGestionComptesBancaires, *actionPaiementDirect, *actionPaiementDirect2, *actionPaiementTiers, *actionRecettesSpeciales, *actionResumeStatut;
         QAction         *actionBilanRecettes, *actionJournalDepenses, *actionRemiseCheques, *actionImpayes;
         QAction         *actionQuit;
 };

@@ -27,6 +27,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptablewidget.h"
 #include "widgetbuttonframe.h"
 #include "database.h"
+#include "utils.h"
 
 #include "functormajpremierelettre.h"
 

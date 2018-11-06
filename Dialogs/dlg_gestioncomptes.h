@@ -44,7 +44,6 @@ public:
     ~dlg_gestioncomptes();
 
 private:
-    FunctorMAJPremiereLettre fMAJPremiereLettre;
     Ui::dlg_gestioncomptes  *ui;
     DataBase                *db;
     User                    *gDataUser;

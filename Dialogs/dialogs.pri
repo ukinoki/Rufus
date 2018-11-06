@@ -35,7 +35,8 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_refraction.cpp \
     $$PWD/dlg_remisecheques.cpp \
     $$PWD/dlg_resumerefraction.cpp \
-    $$PWD/dlg_salledattente.cpp
+    $$PWD/dlg_salledattente.cpp \
+    $$PWD/dlg_paiementdirect.cpp
 
 HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_autresmesures.h \
@@ -70,7 +71,8 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_refraction.h \
     $$PWD/dlg_remisecheques.h \
     $$PWD/dlg_resumerefraction.h \
-    $$PWD/dlg_salledattente.h
+    $$PWD/dlg_salledattente.h \
+    $$PWD/dlg_paiementdirect.h
 
 FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_banque.ui \
@@ -93,4 +95,5 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_recettesspeciales.ui \
     $$PWD/dlg_refraction.ui \
     $$PWD/dlg_remisecheques.ui \
-    $$PWD/dlg_salledattente.ui
+    $$PWD/dlg_salledattente.ui \
+    $$PWD/dlg_paiementdirect.ui

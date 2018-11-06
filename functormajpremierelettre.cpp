@@ -19,74 +19,58 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 QString FunctorMAJPremiereLettre::operator()(QString MajLettre, bool fin, bool Maj, bool lower)
 {
-    int     Comptage;
+    QString textC = MajLettre;
+    QChar c;
     QString Car1, Car2;
     if (lower)
-        MajLettre = MajLettre.toLower();
+        textC = MajLettre.toLower();
 
-    Comptage = MajLettre.size(); //On supprime les espace, tiret et apostrophe du début
-    for (int i=0; i < Comptage; i++)
+    while( textC.size() ) //On supprime les espace, tiret et apostrophe du début
     {
-        Car1 = MajLettre.left(1);
-        if ((Car1 == " " || Car1 == "-" || Car1 == "'") && i == 0)
-        {
-            MajLettre = MajLettre.mid(1,1).toUpper() + MajLettre.right(MajLettre.size()-2);
-            i = i - 1;
-            Comptage = Comptage - 1;
-        }
-        break; //on evite de tout tester pour rien.
+        c = textC.at(0);
+        if( c == " " || c == "-" || c == "'" )
+            textC = textC.remove(0,1);
+        else
+            break;
     }
+    if( fin ) //On supprime les espace et tiret de la fin
+        while( textC.size() )
+        {
+            int lastIndex = textC.size() - 1;
+            c = textC.at(lastIndex);
+            if( c == " " || c == "-" || c == "'" )
+                textC = textC.remove(lastIndex,1);
+            else
+                break;
+        }
 
-    Comptage = MajLettre.size(); //On supprime les espace et tiret de la fin
-    if (fin)
+    QString newText = ""; //On supprime les espace et tiret en répétition au milieu
+    QChar lastChar;
+    for( int i=0; i < textC.size(); ++i )
     {
-        for (int i=0; i <  Comptage; i++)
-        {
-            Car1 = MajLettre.right(1);
-            if ((Car1 == " " || Car1 == "-" || Car1 == "\n") && i == (Comptage -1))
-            {
-                MajLettre = MajLettre.left(MajLettre.size()-1);
-                i = i - 2;
-                Comptage = Comptage - 1;
-            }
-            break; //on evite de tout tester pour rien.
-        }
-    }
+        c = textC.at(i);
+        if( lastChar == " " || lastChar == "-" || lastChar == "'" )
+            if( lastChar == c )
+                continue;
 
-    Comptage = MajLettre.size(); //On supprime les espace et tiret en répétition au milieu
-    for (int i = 1; i < (Comptage - 1); i++)
-    {
-        Car1 = MajLettre.mid(i,1);
-        if( (Car1 == " " || Car1 == "-" || Car1 == "'") )
-        {
-            Car2 = MajLettre.mid(i+1,1);
-            if (Car2 =="'")
-            {
-                MajLettre = MajLettre.left(i) + MajLettre.right(MajLettre.size() - (i+1));
-                i = i -1;
-                Comptage = Comptage - 1;
-            }
-            if (Car2 == " " || Car2 == "-")
-            {
-                MajLettre = MajLettre.left(i+1) + MajLettre.right(MajLettre.size() - (i+2));
-                i = i -1;
-                Comptage = Comptage - 1;
-            }
-        }
+        newText += c;
+        lastChar = c;
     }
+    textC = newText;
 
-    Comptage = MajLettre.size();  // On met en majuscule derrière les espace, tiret et apostrophe
+    // On met en majuscule derrière les espace, tiret et apostrophe
     if (Maj){
-        for (int i = 1; i < (Comptage - 1); i++)
+        for (int i = 1; i < (textC.size() - 1); i++)
         {
-            Car1 = MajLettre.mid(i,1);
+            Car1 = textC.mid(i,1);
             if( (Car1 == " " || Car1 == "-" || Car1 == "'") )
             {
-                Car2 = MajLettre.mid(i+1,1);
-                MajLettre = MajLettre.left(i+1) + Car2.toUpper()+ MajLettre.right(MajLettre.size() - (i+2));
+                QString Car2 = textC.mid(i+1,1);
+                textC = textC.replace(i+1,1, Car2.toUpper());
             }
         }
     }
-    MajLettre = MajLettre.mid(0,1).toUpper() + MajLettre.right(MajLettre.size()-1);
+    QString C = textC.mid(0,1).toUpper();
+    MajLettre = textC.replace(0,1, C);
     return(MajLettre);
 }
