@@ -5,6 +5,7 @@ description: Logiciel de gestion de cabinet d'Ophtalmologie.
 type: app
 grade: devel
 confinement: classic
+base: core18
 
 apps:
  rufus:
@@ -13,49 +14,6 @@ apps:
     desktop: ./Rufus.AppDir/rufus.desktop
  
 parts:
- qt:
-    after: [gcc7, poppler-data, poppler]
-    plugin: qtbuilder
-    qt-version: 5.11.0
-    qt-source-git: https://code.qt.io/qt/qt5.git
-    qt-submodules: ['qtbase', 'qtmultimedia', 'qtserialport']
-    environment:
-      - CC: gcc-7
-      - CXX: g++-7
-      - QMAKE_CC: gcc-7
-      - QMAKE_CXX: g++-7
-    build-packages:
-      - libasound2-dev
-      - libdbusmenu-glib-dev
-      - libffi-dev
-      - liblzma-dev
-      - libpulse-dev
-      - libssl-dev
-      - libx11-xcb-dev
-      - libxcb-icccm4-dev
-      - libxcb-image0-dev
-      - libxcb-keysyms1-dev
-      - libxcb-randr0-dev
-      - libxcb-render-util0-dev
-      - libxcb-sync-dev
-      - libxcb-util0-dev
-      - libxcb-xfixes0-dev
-      - libxcb1-dev
-      - libxrender-dev
-    configflags:
-      - -prefix
-      - $SNAPCRAFT_STAGE
-      - -release
-      - -opensource
-      - -confirm-license
-      - -qt-zlib
-      - -qt-libpng
-      - -qt-libjpeg
-      - -qt-freetype
-      - -qt-harfbuzz
-      - -qt-pcre
-      - -qt-xcb
-      - -qt-xkbcommon-x11
     
  gcc7:
     plugin: nil
@@ -110,7 +68,7 @@ parts:
       - libjpeg-dev
 
  rufus:
-    after: [qt, gcc7, poppler-data, poppler]
+    after: [desktop-qt5, gcc7, poppler-data, poppler]
     plugin: qmake
     project-files: [snapcraft.pro]
     organize:
