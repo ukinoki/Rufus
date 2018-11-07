@@ -9,7 +9,7 @@ Développer un outil logiciel d'activité de soins en santé oculaire, libre, ut
 Fédérer une communauté et réaliser un développement collaboratif.
 
 # Installation
-Sous MacOs, télécharger le fichier rufus.dmg et déplacer le,  l'aide du finder, dans le dossier Applications de Macos.
+Sous MacOs, télécharger le fichier rufus.dmg, l'ouvrir par un double et le déplacer à l'aide du finder, dans le dossier Applications de Macos.
 Sous Linux, télécharger le fichier rufus.Appimage et copier le dans le dossier "/usr/bin". Effectuez dans le terminal un "chmod a+x" sur l'appimage afin de la rendre exécutable.
 
 # Contact
