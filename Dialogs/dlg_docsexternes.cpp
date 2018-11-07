@@ -194,7 +194,6 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         QMenu *menuImprime  = menu->addMenu(tr("Imprimer"));
         menuImprime         ->setIcon(Icons::icImprimer());
 
-        bool detruirealafin = false;
         QAction *paction_Reimprimer = new QAction(tr("Réimprimer"));
         QAction *paction_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
         QAction *paction_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
@@ -209,10 +208,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
         {   // si le document a été émis aujourd'hui, on propose de le modifier - dans ce cas, on va créer une copie qu'on va modifier et on détruira le document d'origine à la fin
             if (QDate::currentDate() == docmt->date().date())
-            {
                 menuImprime->addAction(paction_ModifierReimprimer);
-                detruirealafin = true;
-            }
             else
             {   // si on a un texte d'origine, on peut modifier le document - (pour les anciennes versions de Rufus, il n'y avait pas de texte d'origine)
                 if (docmt->textorigine() != "")
