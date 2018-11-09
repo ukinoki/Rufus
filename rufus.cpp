@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("05-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("09-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -139,7 +139,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base
     gTimerActualiseDocsExternes = new QTimer(this);     // actualise l'affichage des documents externes si un dossier est ouvert
     gTimerImportDocsExternes    = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à importer dans la base
-    gTimerVerifMessages         = new QTimer(this);     // utilisé par les postes en accès distants pour vérifier l'arrivée de nouveaux messages
+    gTimerVerifMessages         = new QTimer(this);     // utilisé par les postes en accès distants ou les réseaux sans RufusAdmin pour vérifier l'arrivée de nouveaux messages
     gTimerVerifVerrou           = new QTimer(this);     // utilisé par le TcpServer pour vérifier l'absence d'utilisateurs déconnectés dans la base
     gTimerSupprDocs             = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer
 
@@ -5329,6 +5329,7 @@ void Rufus::EnregMsgResp(int idmsg)
     {
         proc->Message(tr("Message enregistré"),1000,false);
         DataBase::getInstance()->commit();
+
         envoieMessageA(QList<int>() << iddest);
     }
     gMsgRepons->accept();
@@ -10812,6 +10813,8 @@ void Rufus::TraiteTCPMessage(QString msg)
 
 void Rufus::envoieMessage(QString msg)
 {
+    if (!UtiliseTCP)
+        return;
     currentmsg = msg;
     QByteArray paquet   = currentmsg.toUtf8();
     QByteArray size     = Utils::IntToArray(paquet.size());
@@ -10825,6 +10828,8 @@ void Rufus::envoieMessage(QString msg)
 
 void Rufus::envoieMessageA(QList<int> listidusr)
 {
+    if (!UtiliseTCP)
+        return;
     QString listid;
     for (int i=0; i<listidusr.size(); i++)
     {

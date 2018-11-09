@@ -1355,6 +1355,9 @@ bool Procedures::Verif_secure_file_priv()
 
 bool Procedures::UtiliseTCP()
 {
+    QString req = "select iduser from " NOM_TABLE_USERSCONNECTES " where iduser = (select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
+    int a = QSqlQuery(req, DataBase::getInstance()->getDataBase()).size();
+    OKTCP = (a>0  && DataBase::getInstance()->getMode() != DataBase::Distant);
     return OKTCP;
 }
 

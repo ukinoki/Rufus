@@ -45,6 +45,14 @@ DELIMITER |
                 ALTER TABLE `flags`
                 CHANGE COLUMN `MAJflagPatients` `MAJflagSalDat` INT(11) NULL DEFAULT NULL ;
             END IF;
+            SELECT COUNT(*) INTO tot FROM
+                (SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS
+                WHERE TABLE_NAME='flags' AND COLUMN_NAME = 'MAJflagMessages') as chp;
+                IF tot=0
+                THEN
+                    ALTER TABLE `flags`
+                    ADD COLUMN `MAJflagMessages` INT(11) NULL DEFAULT NULL AFTER `MAJflagSalDat`,
+                END IF;
         DROP TABLE IF EXISTS `gestionfichiers`;
     END|
     UPDATE `ParametresSysteme` SET VersionBase = 46;

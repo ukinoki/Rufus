@@ -744,6 +744,7 @@ DROP TABLE IF EXISTS `flags`;
 CREATE TABLE `flags` (
   `MAJflagSalDat` int(11) DEFAULT NULL,
   `MAJflagMG` int(11) DEFAULT NULL,
+  `MAJflagMessages` INT(11) DEFAULT,
   `flagMGdistant` INT(1) DEFAULT NULL COMMENT '1 = le flagMG a été mis à jour par un poste distant'
 ) ENGINE=InnoDB;
 
