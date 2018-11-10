@@ -75,3 +75,4 @@ parts:
     build-packages:
       - libpoppler-qt5-dev
       - libqt5sql5-mysql
+      - dirmngr
