@@ -53,8 +53,7 @@ parts:
     build-packages:
       - build-essential
       - cmake
-      - libyelp-dev            
-      - libopenjpeg-dev        
+      - libyelp-dev                    
       - libopenjp2-7-dev
       - poppler-data
       - libpoppler-glib-dev
@@ -76,4 +75,3 @@ parts:
     build-packages:
       - libpoppler-qt5-dev
       - libqt5sql5-mysql
-      - libopenjpeg-dev
