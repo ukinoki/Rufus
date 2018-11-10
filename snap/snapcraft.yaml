@@ -75,4 +75,4 @@ parts:
     build-packages:
       - libqt5sql5-mysql
       - dirmngr
-      - qt5-default
+      - qtbase-opensource-src
