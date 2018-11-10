@@ -76,4 +76,4 @@ parts:
       - build-essential
       - qt5-default
       - qtmultimedia5-dev
-      - libqt5serialport5
+      - libqt5serialport5-dev
