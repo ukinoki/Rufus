@@ -1,5 +1,10 @@
 QT       += sql core gui network printsupport multimedia xml serialport multimediawidgets
 
+CC = gcc-7 
+CXX = g++-7 
+QMAKE_CC = gcc-7 
+QMAKE_CXX = g++-7
+
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 isEmpty(PREFIX) {
