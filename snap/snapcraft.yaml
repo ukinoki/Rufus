@@ -68,10 +68,10 @@ parts:
     plugin: qmake
     project-files: [snapcraft.pro]
     options: 
-      - CC: gcc-7 
-      - CXX: g++-7 
-      - QMAKE_CC: gcc-7 
-      - QMAKE_CXX: g++-7
+      - CC:gcc-7 
+      - CXX:g++-7 
+      - QMAKE_CC:gcc-7 
+      - QMAKE_CXX:g++-7
     build-packages:
       - libqt5sql5-mysql
       - dirmngr
