@@ -67,8 +67,6 @@ parts:
     after: [desktop-qt5, gcc7, poppler-data, poppler]
     plugin: qmake
     project-files: [snapcraft.pro]
-    organize:
-        opt/rufus/bin: bin
     environment:
       - CC: gcc-7
       - CXX: g++-7
