@@ -2786,7 +2786,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'localhost' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",DataBase::getInstance()->getDataBase() );
     QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'" + MasqueReseauLocal + "' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",DataBase::getInstance()->getDataBase() );
     QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "SSL'@'%' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserNom, UserLogin) values (100, 'Admin','Admin')",DataBase::getInstance()->getDataBase());
+    QSqlQuery ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserNom, UserLogin) values (100, '" NOM_ADMINISTRATEURDOCS "','" NOM_ADMINISTRATEURDOCS "')",DataBase::getInstance()->getDataBase());
 
     // On crée l'utilisateur dans la table utilisateurs
 
