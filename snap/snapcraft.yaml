@@ -11,7 +11,6 @@ apps:
  rufus:
     command: usr/bin/rufus
     plugs: [desktop, home, x11, network, wayland, serial-port, raw-usb]
-    desktop: ./Rufus.AppDir/rufus.desktop
  
 parts:
     
@@ -68,6 +67,12 @@ parts:
     after: [desktop-qt5, gcc7, poppler-data, poppler]
     plugin: qmake
     project-files: [snapcraft.pro]
+    stage-packages:
+      - libqt5xml5
+      - libnspr4
+      - libnss3
+      - libopenjp2-7
+      - libnspr4
     build-packages:
       - libqt5sql5-mysql
       - dirmngr
