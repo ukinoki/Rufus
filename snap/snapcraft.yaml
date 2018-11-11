@@ -5,7 +5,6 @@ description: Logiciel de gestion de cabinet d'Ophtalmologie.
 type: app
 grade: devel
 confinement: classic
-base: core18
 
 apps:
  rufus:
@@ -41,7 +40,6 @@ parts:
     source-type: tar
     configflags: [-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7]
     build-packages:
-      - build-essential
       - cmake
 
  poppler:
@@ -51,10 +49,8 @@ parts:
     source-type: tar
     configflags: [-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7]
     build-packages:
-      - build-essential
       - cmake
-      - libyelp-dev            
-      - libopenjpeg-dev        
+      - libyelp-dev                    
       - libopenjp2-7-dev
       - poppler-data
       - libpoppler-glib-dev
@@ -74,5 +70,9 @@ parts:
     organize:
         opt/rufus/bin: bin
     build-packages:
-      - libpoppler-qt5-dev
       - libqt5sql5-mysql
+      - dirmngr
+      - build-essential
+      - qt5-default
+      - qtmultimedia5-dev
+      - libqt5serialport5-dev
