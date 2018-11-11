@@ -5,6 +5,9 @@ Rufus est un logiciel médical libre et gratuit de gestion des activités de soi
 basé sur le modèle client-serveur et publié en open source sous licence GPL. Son développement est assuré sous QT5 et la base de données fait appel à Mysql.
 
 # Objectifs
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/d1e0fc08281d47c39fb3114c045b94e9)](https://app.codacy.com/app/ukinoki/Rufus?utm_source=github.com&utm_medium=referral&utm_content=ukinoki/Rufus&utm_campaign=Badge_Grade_Dashboard)
+
 Développer un outil logiciel d'activité de soins en santé oculaire, libre, utilisable par la communauté des acteurs et facile à faire évoluer par tous.
 Fédérer une communauté et réaliser un développement collaboratif.
 
