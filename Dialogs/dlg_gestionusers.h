@@ -56,6 +56,11 @@ public:
     Ui::dlg_gestionusers    *ui;
     int                     Mode;
     enum                    Mode {PREMIERUSER, ADMIN, MODIFUSER};
+    /* correspond aux 3 modes d'utilisation de la fiche
+     * PREMIERUSER -> la fiche est appelée au premier lancement du programme pour créer le premier utilisateur -> on peut tout modifier
+     * MODIFUSER   -> appelé par l'utilisateur dans le premier onglet de la fiche dlg_param -> on ne peut modifier que les données d'identité, geographiques et bancaires
+     * ADMIN       -> appelé par l'administrateur, on peut tout modidier, y compris le statut
+    */
     void                    setConfig(enum Mode);
     bool                    isMDPverified();
 

@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("09-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("11-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -103,17 +103,17 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     CreerMenu();
     InitMenus();
 
-    UtiliseTCP = proc->UtiliseTCP();
+    UtiliseTCP = (proc->UtiliseTCP() && DataBase::getInstance()->getMode() != DataBase::Distant);
     gIPadr      = Utils::getIpAdress();
     gMacAdress  = Utils::getMACAdress();
     if (UtiliseTCP)
     {
-        currentmsg          = "";
-        erreurmsg           = "";
-        TcPConnect          = new QTcpSocket(this);
+        currentmsg = "";
+        erreurmsg  = "";
+        TcPConnect = TcpSocket::getInstance();
+        UtiliseTCP = TcPConnect->TcpConnectToServer();
+        connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});
     }
-    if (DataBase::getInstance()->getMode() != DataBase::Distant && UtiliseTCP)
-        UtiliseTCP = TcpConnectToServer();
 
     //4 reconstruction des combobox
     if (gDataUser->isMedecin() || gDataUser->isOrthoptist())
@@ -334,13 +334,11 @@ void Rufus::Connect_Slots()
 
     // MAJ Salle d'attente ----------------------------------------------------------------------------------
     connect(proc,                                                   &Procedures::UpdSalDat,                             this,   [=] {
-                                                                                                                                        if (DataBase::getInstance()->getMode() != DataBase::Distant && UtiliseTCP)
-                                                                                                                                            envoieMessage(TCPMSG_MAJSalAttente);
+                                                                                                                                        envoieMessage(TCPMSG_MAJSalAttente);
                                                                                                                                         Remplir_SalDat();
                                                                                                                                     } );
     connect(proc,                                                   &Procedures::UpdCorrespondants,                     this,   [=] {
-                                                                                                                                        if (DataBase::getInstance()->getMode() != DataBase::Distant && UtiliseTCP)
-                                                                                                                                            envoieMessage(TCPMSG_MAJCorrespondants);
+                                                                                                                                        envoieMessage(TCPMSG_MAJCorrespondants);
                                                                                                                                         ReconstruitCombosCorresp();
                                                                                                                                      } );
 
@@ -5329,7 +5327,6 @@ void Rufus::EnregMsgResp(int idmsg)
     {
         proc->Message(tr("Message enregistré"),1000,false);
         DataBase::getInstance()->commit();
-
         envoieMessageA(QList<int>() << iddest);
     }
     gMsgRepons->accept();
@@ -10777,10 +10774,6 @@ void Rufus::SaisieFSE()
 // CZ001 - fin interface Pyxvital
 
 
-
-
-
-
 void Rufus::TraiteTCPMessage(QString msg)
 {
     //qDebug() << msg + " - sur rufus::traitetcpmessage()";
@@ -10805,7 +10798,7 @@ void Rufus::TraiteTCPMessage(QString msg)
         {
             QString data = gListSockets.at(i);
             data.replace(TCPMSG_Separator, " - ");
-            qDebug() << data;
+            //qDebug() << data;
         }
         ResumeStatut();
     }
@@ -10829,7 +10822,10 @@ void Rufus::envoieMessage(QString msg)
 void Rufus::envoieMessageA(QList<int> listidusr)
 {
     if (!UtiliseTCP)
+    {
+        proc->MAJflagMessages();
         return;
+    }
     QString listid;
     for (int i=0; i<listidusr.size(); i++)
     {
@@ -10842,108 +10838,3 @@ void Rufus::envoieMessageA(QList<int> listidusr)
     envoieMessage(msg);
 }
 
-void Rufus::TraiteDonneesRecues()
-{
-    QString msg= "";
-    QByteArray *buffer = new QByteArray();
-    qint32 *s = new qint32(0);
-    qint32 size = *s;
-    while (TcPConnect->bytesAvailable() > 0)
-    {
-        buffer->append(TcPConnect->readAll());
-        while ((size == 0 && buffer->size() >= 4) || (size > 0 && buffer->size() >= size)) //While can process data, process it
-        {
-            if (size == 0 && buffer->size() >= 4) //if size of data has received completely, then store it on our global variable
-            {
-                size = Utils::ArrayToInt(buffer->mid(0, 4));
-                *s = size;
-                buffer->remove(0, 4);
-            }
-            if (size > 0 && buffer->size() >= size) // If data has received completely, then emit our SIGNAL with the data
-            {
-                QByteArray data = buffer->mid(0, size);
-                buffer->remove(0, size);
-                size = 0;
-                *s = size;
-                QString msg = QString::fromUtf8(data);
-                TraiteTCPMessage(msg);
-            }
-        }
-    }
-}
-
-void Rufus::erreurSocket()
-{
-    QAbstractSocket::SocketError erreur = TcPConnect->error();
-    qDebug() << erreur;
-    switch(erreur)
-    {
-        case QAbstractSocket::RemoteHostClosedError:
-            erreurmsg = tr("Le serveur TCP s'est déconnecté et va être remplacé");
-            break;
-        case QAbstractSocket::HostNotFoundError:
-            erreurmsg = tr("Le serveur TCP est introuvable et va être remplacé");
-            break;
-        case QAbstractSocket::SocketTimeoutError:
-            erreurmsg = tr("Le serveur TCP ne répond pas");
-            break;
-        default:
-            erreurmsg = tr("ERREUR : ") + TcPConnect->errorString();
-    }
-
-    if (erreur == QAbstractSocket::RemoteHostClosedError       /************** LE SERVER S'EST DÉCONNECTÉ ACCIDENTELLEMENT OU VOLONTAIREMENT *************************** */
-     || erreur == QAbstractSocket::HostNotFoundError           /************** LE SERVER NE RÉPOND PAS ************************** */
-     || erreur == QAbstractSocket::SocketTimeoutError)         /************** LE SERVER N'A PAS RÉPONDU À UN ENVOI ************************** */
-    {
-        qDebug() << erreurmsg + " - " + currentmsg;
-        TcpConnectToServer();
-    }
-    else
-    {
-        qDebug() << erreurmsg + " - " + currentmsg + " - void Rufus::erreurSocket(QAbstractSocket::SocketError erreur)";
-        return;
-    }
-}
-
-bool Rufus::TcpConnectToServer(QString ipadrserver)
-{
-    //TcPConnect->setSocketOption(QAbstractSocket::KeepAliveOption, 1);
-    if (ipadrserver == "")
-    {
-        QString req = "select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME;
-        QSqlQuery TCPServerquer(req, DataBase::getInstance()->getDataBase());
-        TCPServerquer.first();
-        ipadrserver    = TCPServerquer.value(0).toString();
-    }
-    if (ipadrserver == "")
-        return false;
-    QString port        = NOM_PORT_TCPSERVEUR;
-    PortTCPServer       = port.toUShort();
-    /*
-     * The main difference between close() and disconnectFromHost() is that the first actually closes the OS socket, while the second does not.
-     * The problem is, after a socket was closed, you cannot use it to create a new connection.
-     * Thus, if you want to reuse the socket, use disconnectFromHost() otherwise close()
-    */
-    TcPConnect->disconnect();
-    bool a  = (TcPConnect->state() == QAbstractSocket::ConnectedState || TcPConnect->state() == QAbstractSocket::ConnectingState);
-    if (a)
-        TcPConnect->disconnectFromHost();
-    TcPConnect->connectToHost(ipadrserver,PortTCPServer);      // On se connecte au serveur
-    a = TcPConnect->waitForConnected(5000);
-    if (a)
-    {
-        TcPConnect->disconnect();
-        connect(TcPConnect,                 &QTcpSocket::readyRead,                                              this,   &Rufus::TraiteDonneesRecues);
-        connect(TcPConnect,                 QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),this,   &Rufus::erreurSocket);
-        // envoi de l'iduser
-        envoieMessage(QString::number(gDataUser->id()) + TCPMSG_idUser);
-        // envoi de adresse IP, adresse MAC, nom d'hôte
-        envoieMessage(gIPadr + TCPMSG_Separator + gMacAdress + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
-        return true;
-    }
-    else
-    {
-        dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>" + tr("Retour au mode sans TCP"), 5000, false);
-        return false;
-    }
-}

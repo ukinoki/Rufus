@@ -2516,7 +2516,7 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
         QSqlQuery usrquer(req, db);
         if (usrquer.size()==0)
         {
-            QSqlQuery("insert into " NOM_TABLE_UTILISATEURS " (UserNom) values ('" NOM_ADMINISTRATEURDOCS "')",db);
+            QSqlQuery("insert into " NOM_TABLE_UTILISATEURS " (UserNom, UserLogin) values ('" NOM_ADMINISTRATEURDOCS "', '" NOM_ADMINISTRATEURDOCS "')",db);
             usrquer.exec();
         }
         usrquer.first();

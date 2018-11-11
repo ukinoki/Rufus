@@ -196,7 +196,7 @@ void Procedures::MAJflagMG()
         QSqlQuery quer("select MAJflagMG from " NOM_TABLE_FLAGS, DataBase::getInstance()->getDataBase());
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
         if (DataBase::getInstance()->getMode() == DataBase::Distant)
-            MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG, flagMGdistant) VALUES (1,1)";
+            MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
         int a = 0;
         if (quer.seek(0)) {
             a = quer.value(0).toInt() + 1;
@@ -225,6 +225,28 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
         if (quer.seek(0)) {
             a = quer.value(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagSalDat = " + QString::number(a);
+        }
+        QSqlQuery (MAJreq, DataBase::getInstance()->getDataBase());
+        DataBase::getInstance()->commit();
+    }
+}
+
+/*------------------------------------------------------------------------------------------------------------------------------------
+-- Signifier aux autres utilisateurs qu'un message vient d'être envoyé --------------------
+------------------------------------------------------------------------------------------------------------------------------------*/
+void Procedures::MAJflagMessages()
+{
+    /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
+    if (!OKTCP || DataBase::getInstance()->getMode() == DataBase::Distant)
+    {
+        if (!DataBase::getInstance()->locktables(QStringList(NOM_TABLE_FLAGS)))
+            return;
+        QSqlQuery quer("select MAJflagMessages from " NOM_TABLE_FLAGS, DataBase::getInstance()->getDataBase());
+        QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMessages) VALUES (1)";
+        int a = 0;
+        if (quer.seek(0)) {
+            a = quer.value(0).toInt() + 1;
+            MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMessages = " + QString::number(a);
         }
         QSqlQuery (MAJreq, DataBase::getInstance()->getDataBase());
         DataBase::getInstance()->commit();
@@ -2324,78 +2346,6 @@ bool Procedures::VerifBaseEtRessources()
             }
             if (result!=1)
                 return false;
-            if (Version == 30)
-            {
-                QSqlQuery("LOCK TABLES " NOM_TABLE_UTILISATEURS " WRITE, " NOM_TABLE_LIEUXEXERCICE " WRITE, " NOM_TABLE_JOINTURESLIEUX " WRITE", DataBase::getInstance()->getDataBase() );
-                QSqlQuery listusrquer("select idUser, UserAdresse1, UserAdresse2, UserAdresse3, UserCodePostal, UserVille, UserTelephone, UserFax from " NOM_TABLE_UTILISATEURS, DataBase::getInstance()->getDataBase() );
-                for (int i=0; i<listusrquer.size(); i++)
-                {
-                    listusrquer.seek(i);
-                    req = "select idlieu from " NOM_TABLE_LIEUXEXERCICE
-                                     " where nomlieu = '" + listusrquer.value(1).toString() + " " + listusrquer.value(5).toString() + "'";
-                    //qDebug() << req;
-                    QSqlQuery dlquer(req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                    if (dlquer.size()>0)
-                    {
-                        dlquer.first();
-                        req = "insert into " NOM_TABLE_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + listusrquer.value(0).toString() + ", " + dlquer.value(0).toString() + ")";
-                        QSqlQuery(req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                    }
-                    else
-                    {
-                        QString req = "insert into " NOM_TABLE_LIEUXEXERCICE " (NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax)"
-                                    " VALUES ("
-                                    "'" + listusrquer.value(1).toString() + " " + listusrquer.value(5).toString() + "', "
-                                    "'" + listusrquer.value(1).toString() + "', "
-                                    "'" + listusrquer.value(2).toString() + "', "
-                                    "'" + listusrquer.value(3).toString() + "', "
-                                    "'" + listusrquer.value(4).toString() + "', "
-                                    "'" + listusrquer.value(5).toString() + "', "
-                                    "'" + listusrquer.value(6).toString() + "', "
-                                    "'" + listusrquer.value(7).toString() + "')";
-                        QSqlQuery(req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                        //                    QSqlQuery maxquer("select max(idLieu) from " NOM_TABLE_LIEUXEXERCICE, DataBase::getInstance()->getDataBase() );
-                        //                    maxquer.first();
-                        req = "insert into " NOM_TABLE_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + listusrquer.value(0).toString() + ", (select max(idLieu) from " NOM_TABLE_LIEUXEXERCICE "))";
-                        QSqlQuery(req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                    }
-                }
-                QSqlQuery("UNLOCK TABLES", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-            }
-            if (Version == 31)
-            {
-                QSqlQuery ("update " NOM_TABLE_UTILISATEURS ",set OPTAM = 1 where UserSecteur = 2", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                QSqlQuery ("update " NOM_TABLE_UTILISATEURS ",set UserSecteur = 2 where UserSecteur = 3", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                QSqlQuery ("update " NOM_TABLE_UTILISATEURS ",set UserSecteur = 3 where UserSecteur = 4", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-            }
-            if (Version == 34)
-            {
-                if (gsettingsIni->value("BDD_LOCAL/Serveur").toString() != "")
-                    QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurLocal = '" + gsettingsIni->value("BDD_LOCAL/Serveur").toString() + "'", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                if (gsettingsIni->value("BDD_DISTANT/Serveur").toString() != "")
-                    QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurDistant = '" + gsettingsIni->value("BDD_DISTANT/Serveur").toString() + "'", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-            }
-            if (Version == 35)
-            {
-                QString AdressIP, MasqueReseauLocal;
-                foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
-                    if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-                         AdressIP = address.toString();
-                }
-                QStringList listIP = AdressIP.split(".");
-                for (int i=0;i<listIP.size()-1;i++)
-                    MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
-                MasqueReseauLocal += "%";
-                QSqlQuery ("create user if not exists '" NOM_ADMINISTRATEURDOCS "'@'localhost' identified by '" NOM_MDPADMINISTRATEUR "'", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                QSqlQuery ("create user if not exists '" NOM_ADMINISTRATEURDOCS "'@'" + MasqueReseauLocal + "' identified by '" NOM_MDPADMINISTRATEUR "'", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'localhost' identified by '" NOM_MDPADMINISTRATEUR "' with grant option", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'" + MasqueReseauLocal + "' identified by '" NOM_MDPADMINISTRATEUR "' with grant option", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-            }
-            if (Version == 40)
-            {
-                QSqlQuery ("create user if not exists '" NOM_ADMINISTRATEURDOCS "SSL'@'%' identified by '" + getMDPAdmin() + "' REQUIRE SSL", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-                QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "SSL'@'%' identified by '" + getMDPAdmin() + "' with grant option", DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-            }
         }
     }
     //verification des fichiers ressources
@@ -2836,6 +2786,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'localhost' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",DataBase::getInstance()->getDataBase() );
     QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'" + MasqueReseauLocal + "' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",DataBase::getInstance()->getDataBase() );
     QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "SSL'@'%' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",DataBase::getInstance()->getDataBase() );
+    QSqlQuery ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserNom, UserLogin) values (100, 'Admin','Admin')",DataBase::getInstance()->getDataBase());
 
     // On crée l'utilisateur dans la table utilisateurs
 

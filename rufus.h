@@ -60,6 +60,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_salledattente.h"
 #include "dlg_autresmesures.h"
 #include "dlg_paiementdirect.h"
+#include "tcpsocket.h"
 
 #include "importdocsexternesthread.h"
 
@@ -345,13 +346,9 @@ private:
     bool                UtiliseTCP;
     QString             currentmsg, erreurmsg;
     QStringList         gListSockets;
-    QTcpSocket          *TcPConnect;
-    quint16             PortTCPServer;
-    void                erreurSocket();                                 /* traitement des erreurs d'émission de message sur le socket */
-    bool                TcpConnectToServer(QString ipadrserver = "");   /* Crée la connexion avec le TcpServer sur le réseau */
+    TcpSocket           *TcPConnect;
     void                envoieMessage(QString msg);                     /* envoi d'un message au serveur pour être redispatché vers tous les clients */
     void                envoieMessageA(QList<int> listidusr);           /* envoi d'un message à une liste d'utilisateurs */
-    void                TraiteDonneesRecues();                          /* decortiquage des messages reçus */
     void                TraiteTCPMessage(QString msg);                  /* traitement des messages reçus par les clients */
     QString             gResumeStatut;
 

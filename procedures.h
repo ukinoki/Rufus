@@ -101,6 +101,7 @@ public:
     int                     GetflagSalDat();
     void                    MAJflagMG();
     void                    MAJTcpMsgEtFlagSalDat();
+    void                    MAJflagMessages();
     int                     getMAXligneBanque();
     QString                 MajusculePremiereLettre(QString, bool fin = true, bool Maj = true, bool lower = true);
     QString                 CorrigeApostrophe(QString);  //ajoute un \ devant les apostrophes pour les requetes SQL

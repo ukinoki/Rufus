@@ -595,7 +595,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,46,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,47,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);
@@ -744,8 +744,7 @@ DROP TABLE IF EXISTS `flags`;
 CREATE TABLE `flags` (
   `MAJflagSalDat` int(11) DEFAULT NULL,
   `MAJflagMG` int(11) DEFAULT NULL,
-  `MAJflagMessages` INT(11) DEFAULT,
-  `flagMGdistant` INT(1) DEFAULT NULL COMMENT '1 = le flagMG a été mis à jour par un poste distant'
+  `MAJflagMessages` INT(11) DEFAULT NULL
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `jointuresdocuments`;

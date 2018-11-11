@@ -194,6 +194,8 @@ void dlg_gestionusers::setConfig(enum Mode Style)
         ui->ComptagroupBox                  ->setEnabled(false);
         ui->CotationupRadioButton           ->setEnabled(false);
         ui->SecteurgroupBox                 ->setEnabled(false);
+        ui->OPTAMupRadioButton              ->setEnabled(false);
+        ui->AGAupRadioButton                ->setEnabled(false);
         CloseButton                         ->setVisible(false);
         ui->InactivUsercheckBox             ->setVisible(false);
         ui->ModifMDPUserupLabel             ->setVisible(true);
@@ -873,6 +875,7 @@ void dlg_gestionusers::ModifUser()
     ui->Principalframe              ->setEnabled(true);
     ui->ModeExercicegroupBox        ->setEnabled(true);
     ui->SecteurgroupBox             ->setEnabled(true);
+    ui->OPTAMupRadioButton          ->setEnabled(true);
     ui->OKupSmallButton             ->setEnabled(false);
     ui->AGAupRadioButton            ->setEnabled(true);
     ui->CompteActeswidget           ->setEnabled(true);
