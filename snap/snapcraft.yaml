@@ -72,7 +72,6 @@ parts:
       - libnspr4
       - libnss3
       - libopenjp2-7
-      - libnspr4
     build-packages:
       - libqt5sql5-mysql
       - dirmngr
