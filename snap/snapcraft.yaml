@@ -5,6 +5,7 @@ description: Logiciel de gestion de cabinet d'Ophtalmologie.
 type: app
 grade: devel
 confinement: classic
+base: core18
 
 apps:
  rufus:
