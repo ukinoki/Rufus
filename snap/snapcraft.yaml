@@ -68,7 +68,7 @@ parts:
     plugin: qmake
     project-files: [snapcraft.pro]
     organize:
-        opt/rufus/bin: 
+        opt/rufus/bin: bin
     environment:
       - CC: gcc-7
       - CXX: g++-7
