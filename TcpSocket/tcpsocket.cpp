@@ -48,7 +48,7 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     }
     else
     {
-        dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>", 5000, false);
+        dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Fonctionnement sans Tcpsocket"), 5000, false);
         return false;
     }
 }

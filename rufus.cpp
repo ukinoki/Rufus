@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("11-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("12-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -103,17 +103,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     CreerMenu();
     InitMenus();
 
-    UtiliseTCP = (proc->UtiliseTCP() && DataBase::getInstance()->getMode() != DataBase::Distant);
-    gIPadr      = Utils::getIpAdress();
-    gMacAdress  = Utils::getMACAdress();
-    if (UtiliseTCP)
-    {
-        currentmsg = "";
-        erreurmsg  = "";
-        TcPConnect = TcpSocket::getInstance();
-        UtiliseTCP = TcPConnect->TcpConnectToServer();
-        connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});
-    }
 
     //4 reconstruction des combobox
     if (gDataUser->isMedecin() || gDataUser->isOrthoptist())
@@ -131,6 +120,19 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     OuvrirListe();
 
+    UtiliseTCP = (proc->UtiliseTCP() && DataBase::getInstance()->getMode() != DataBase::Distant);
+    gIPadr      = Utils::getIpAdress();
+    gMacAdress  = Utils::getMACAdress();
+    if (UtiliseTCP)
+    {
+        currentmsg = "";
+        erreurmsg  = "";
+        TcPConnect = TcpSocket::getInstance();
+        UtiliseTCP = TcPConnect->TcpConnectToServer();
+        if (UtiliseTCP)
+            connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});
+    }
+
     // 5 mettre en place le TcpSocket
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
     gTimerSalDatEtCorresp       = new QTimer(this);     // scrutation des modifs de la salle d'attente et des correspondants utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
@@ -143,62 +145,51 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerVerifVerrou           = new QTimer(this);     // utilisé par le TcpServer pour vérifier l'absence d'utilisateurs déconnectés dans la base
     gTimerSupprDocs             = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer
 
-
-    // 6 mettre en place les timers
     gTimerPatientsVus   ->setSingleShot(true);          // il est singleshot et n'est démarré que quand on affiche la liste des patients vus
     gTimerPatientsVus   ->setInterval(20000);
-
-
-    //TODO : Mettre en place des websocket pour eviter de faire des appels en permanence.
-    //    Lancement du timer de scrutation des modifications de la salle d'attente
-
-
-    if (DataBase::getInstance()->getMode() == DataBase::Distant)
-        gTimerSalDatEtCorresp->start(10000);
-    else if (!UtiliseTCP)
-        gTimerSalDatEtCorresp->start(1000);
-
-    gTimerUserConnecte->start(10000);// "toutes les 10 secondes - remet à jour le statut connecté du poste dans la base - tables utilisateursconnectes"
-
-    if (DataBase::getInstance()->getMode() == DataBase::Distant || !UtiliseTCP)
-    {
-        gflagMG     = proc->GetflagMG();
-        gflagSalDat = proc->GetflagSalDat();
-        connect (gTimerSalDatEtCorresp,     &QTimer::timeout,   this,   [=] {VerifSalleDAttenteEtCorrespondants();});
-    }
-
     // Lancement des timers de gestion des documents
-    if (DataBase::getInstance()->getMode() != DataBase::Distant || !UtiliseTCP)
-    {
-        gTimerVerifImportateurDocs->start(60000);
-        connect(gTimerVerifImportateurDocs, &QTimer::timeout, this, [=] {VerifImportateur();});
-    }
+    gTimerVerifImportateurDocs      ->start(60000);
+    // Lancement du timer de vérification des verrous - +++ à lancer après le timer gTimerVerifGestDocs puisqu'il l'utilise
+    gTimerVerifVerrou               ->start(60000);// "toutes les 60 secondes"
+
 
     if (DataBase::getInstance()->getMode() == DataBase::Distant)
     {
+        gTimerSalDatEtCorresp       ->start(10000);
         gTimerActualiseDocsExternes ->start(60000);// "toutes les 60 secondes"
         gTimerImportDocsExternes    ->start(60000);// "toutes les 60 secondes"
         gTimerVerifMessages         ->start(60000);// "toutes les 60 secondes"
+        gTimerSupprDocs             ->start(60000);// "toutes les 60 secondes"
     }
     else
     {
         gTimerExportDocs            ->start(10000);// "toutes les 10 secondes"
         gTimerActualiseDocsExternes ->start(10000);// "toutes les 10 secondes"
         gTimerImportDocsExternes    ->start(10000);// "toutes les 10 secondes"
+        gTimerVerifMessages         ->start(10000);// "toutes les 60 secondes"
+        if (!UtiliseTCP)
+                gTimerSalDatEtCorresp->start(1000);
     }
 
-    // Lancement du timer de vérification des verrous - +++ à lancer après le timer gTimerVerifGestDocs puisqu'il l'utilise
-    gTimerVerifVerrou->start(60000);// "toutes les 60 secondes"
+    gTimerUserConnecte->start(10000);// "toutes les 10 secondes - remet à jour le statut connecté du poste dans la base - tables utilisateursconnectes"
+
     if (!UtiliseTCP)
-        connect (gTimerVerifVerrou,     &QTimer::timeout,   this,   [=] {VerifVerrouDossier();});
-
-    // Lancement du timer de suppression des fichiers documents inutiles
-    if (DataBase::getInstance()->getMode() != DataBase::Distant)
     {
-        gTimerSupprDocs->start(60000);// "toutes les 60 secondes"
-        connect(gTimerSupprDocs, &QTimer::timeout, [=] {SupprimerDocs();});
+        gflagMG     = proc->GetflagMG();
+        gflagSalDat = proc->GetflagSalDat();
+        connect (gTimerSalDatEtCorresp,     &QTimer::timeout,   this,   [=] {VerifSalleDAttenteEtCorrespondants();});
+        connect (gTimerVerifImportateurDocs,&QTimer::timeout,   this,   [=] {VerifImportateur();});
+        connect (gTimerVerifVerrou,         &QTimer::timeout,   this,   [=] {VerifVerrouDossier();});
+        connect (gTimerVerifMessages,       &QTimer::timeout,   this,   [=] {VerifMessages();});
     }
 
+    connect (gTimerUserConnecte,            &QTimer::timeout,   this,   [=] {MetAJourUserConnectes();});
+    connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   [=] {ActualiseDocsExternes();});
+    connect (gTimerPatientsVus,             &QTimer::timeout,   this,   [=] {MasquePatientsVusWidget();});
+    connect (gTimerImportDocsExternes,      &QTimer::timeout,   this,   [=] {ImportDocsExternes();});
+
+    if (DataBase::getInstance()->getMode() != DataBase::Distant)
+        connect(gTimerSupprDocs, &QTimer::timeout, [=] {SupprimerDocs();});
 
     //Nettoyage des erreurs éventuelles de la salle d'attente
     QString blabla              = ENCOURSEXAMEN;
@@ -225,12 +216,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
 
     closeFlag = false;
-    connect(gTimerImportDocsExternes,       &QTimer::timeout,   [=] {ImportDocsExternes();});
-
-    VerifMessages();
-    if (DataBase::getInstance()->getMode() == DataBase::Distant || !UtiliseTCP)
-        connect(gTimerVerifMessages,        &QTimer::timeout,   [=] {VerifMessages();});
-    FlagMetAjourSalDat();
 
     setTitre();
 }
@@ -323,10 +308,6 @@ void Rufus::Connect_Slots()
     // Les tabs --------------------------------------------------------------------------------------------------
     connect (ui->tabWidget,                                         &QTabWidget::currentChanged,                        this,   [=] {ChangeTabBureau();});
 
-    // les timers -------------------------------------------------------------------------------------------------
-    connect (gTimerUserConnecte,                                    &QTimer::timeout,                                   this,   [=] {MetAJourUserConnectes();});
-    connect (gTimerActualiseDocsExternes,                           &QTimer::timeout,                                   this,   [=] {ActualiseDocsExternes();});
-    connect (gTimerPatientsVus,                                     &QTimer::timeout,                                   this,   [=] {MasquePatientsVusWidget();});
     connect (proc,                                                  &Procedures::ConnectTimers,                         this,   [=] {ConnectTimers(proc->Connexion());});
 
     // les signaux personnalisés ----------------------------------------------------------------------------------
@@ -1589,14 +1570,13 @@ void Rufus::ConnectTimers(bool a)
         connect (gTimerUserConnecte,                &QTimer::timeout,   this,   [=] {MetAJourUserConnectes();});
         connect (gTimerActualiseDocsExternes,       &QTimer::timeout,   this,   [=] {ActualiseDocsExternes();});
         connect (gTimerImportDocsExternes,          &QTimer::timeout,   this,   [=] {ImportDocsExternes();});
-        if (DataBase::getInstance()->getMode() == DataBase::Distant || !UtiliseTCP)
+        if (!UtiliseTCP)
+        {
             connect (gTimerSalDatEtCorresp,         &QTimer::timeout,   this,   [=] {VerifSalleDAttenteEtCorrespondants();});
-        if (!UtiliseTCP && isPosteImport())
             connect (gTimerVerifVerrou,             &QTimer::timeout,   this,   [=] {VerifVerrouDossier();});
-        if (DataBase::getInstance()->getMode() == DataBase::Distant || !UtiliseTCP)
             connect(gTimerVerifMessages,            &QTimer::timeout,   this,   [=] {VerifMessages();});
-        if (DataBase::getInstance()->getMode() != DataBase::Distant && !UtiliseTCP)
             connect(gTimerVerifImportateurDocs,     &QTimer::timeout,   this,   [=] {VerifImportateur();});
+        }
         if (DataBase::getInstance()->getMode() == DataBase::Poste)
             connect(gTimerSupprDocs,                &QTimer::timeout,   this,   [=] {SupprimerDocs();});
     }
@@ -2482,8 +2462,8 @@ void Rufus::ImportDocsExternes()
         if (isPosteImport())
             ImportDocsExtThread = new ImportDocsExternesThread(proc);
     }
-    else if (proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES"
-             || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
+    else if (!UtiliseTCP && (proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES"
+             || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM"))
         ImportDocsExtThread = new ImportDocsExternesThread(proc);
 }
 
@@ -3712,13 +3692,14 @@ void Rufus::MetAJourUserConnectes()
     else
     {
         MAJsaldat = true;
-        MAJConnexionRequete = "insert into " NOM_TABLE_USERSCONNECTES "(HeureDerniereConnexion, idUser,UserSuperviseur,UserComptable,UserParent,NomPosteConnecte)"
+        MAJConnexionRequete = "insert into " NOM_TABLE_USERSCONNECTES "(HeureDerniereConnexion, idUser,UserSuperviseur,UserComptable,UserParent,NomPosteConnecte, MACAdressePosteConnecte)"
                                " VALUES(NOW()," +
                                QString::number(gDataUser->id()) + "," +
                                QString::number(gDataUser->getIdUserActeSuperviseur()) + "," +
                                QString::number(gDataUser->getIdUserComptable()) + "," +
                                QString::number(gDataUser->getIdUserParent()) +",'" +
-                               QHostInfo::localHostName().left(60) + "')";
+                               QHostInfo::localHostName().left(60) + "', '" +
+                               gMacAdress +" - Client')";
     }
     //qDebug() << MAJConnexionRequete;
     QSqlQuery MAJConnexionQuery (MAJConnexionRequete,  DataBase::getInstance()->getDataBase() );
@@ -10793,7 +10774,7 @@ void Rufus::TraiteTCPMessage(QString msg)
         msg.remove("{}" TCPMSG_ListeSockets);
         gListSockets.clear();
         gListSockets = msg.split("{}");
-        qDebug() << "liste des clients connectés rufus.cpp - " + QTime::currentTime().toString("hh-mm-ss");
+        //qDebug() << "liste des clients connectés rufus.cpp - " + QTime::currentTime().toString("hh-mm-ss");
         for (int i=0; i<gListSockets.size(); i++)
         {
             QString data = gListSockets.at(i);
