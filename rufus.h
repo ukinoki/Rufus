@@ -224,8 +224,6 @@ private:
     void        VerifVerrouDossier();
 
 private:
-    QString                 gIPadr, gMacAdress;
-
     bool                    gAutorModifConsult, closeFlag;
     bool                    gIdentificationOK;
     bool                    gCMUPatient;

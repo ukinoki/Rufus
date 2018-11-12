@@ -171,9 +171,12 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
     QAction *paction_ImportantNorm  = new QAction;
     QAction *paction_ImportantMax   = new QAction;
     QAction *paction_Modifier       = new QAction;
-    paction_ImportantMin    = menu->addAction(tr("Importance faible"));
-    paction_ImportantNorm   = menu->addAction(tr("Importance normale"));
-    paction_ImportantMax    = menu->addAction(tr("Importance forte"));
+    if (proc->getUserConnected()->isMedecin())
+    {
+        paction_ImportantMin    = menu->addAction(tr("Importance faible"));
+        paction_ImportantNorm   = menu->addAction(tr("Importance normale"));
+        paction_ImportantMax    = menu->addAction(tr("Importance forte"));
+    }
     paction_Modifier        = menu->addAction(Icons::icEditer(), tr("Modifier le titre"));
     int imptce = docmt->importance();
     QIcon icon = Icons::icBlackCheck();
@@ -221,7 +224,8 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 #endif
     QAction *paction_Poubelle   = new QAction(Icons::icPoubelle(), tr("Supprimer"));
     connect (paction_Poubelle,  &QAction::triggered,    this,  [=] {SupprimeDoc(docmt);});
-    menu->addAction(paction_Poubelle);
+    if (proc->getUserConnected()->isMedecin())
+        menu->addAction(paction_Poubelle);
 
     menu->exec(cursor().pos());
 }

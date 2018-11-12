@@ -113,16 +113,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     grequeteListe   = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe FROM " NOM_TABLE_PATIENTS;
     Remplir_ListePatients_TableView(grequeteListe,"","");       //InitTables()
     CalcNbDossiers();
-
     MetAJourUserConnectes();
-
     gidPatient = 0;
 
-    OuvrirListe();
-
     UtiliseTCP = (proc->UtiliseTCP() && DataBase::getInstance()->getMode() != DataBase::Distant);
-    gIPadr      = Utils::getIpAdress();
-    gMacAdress  = Utils::getMACAdress();
     if (UtiliseTCP)
     {
         currentmsg = "";
@@ -218,6 +212,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     closeFlag = false;
 
     setTitre();
+    Remplir_SalDat();
 }
 
 Rufus::~Rufus()
@@ -3699,7 +3694,7 @@ void Rufus::MetAJourUserConnectes()
                                QString::number(gDataUser->getIdUserComptable()) + "," +
                                QString::number(gDataUser->getIdUserParent()) +",'" +
                                QHostInfo::localHostName().left(60) + "', '" +
-                               gMacAdress +" - Client')";
+                               Utils::getMACAdress() +" - Client')";
     }
     //qDebug() << MAJConnexionRequete;
     QSqlQuery MAJConnexionQuery (MAJConnexionRequete,  DataBase::getInstance()->getDataBase() );
