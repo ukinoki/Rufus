@@ -278,10 +278,10 @@ void dlg_remisecheques::Slot_ImprimepushButton()
             QString AB = ui->ListeChequesupTableWidget->item(l,3)->text();
             if (RecSpec=="1")
                 req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
-                    + "', DateEnregistrement = NOW() WHERE recspec.idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
+                    + "', DateEnregistrement = NOW() WHERE idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
             else
-                req = "UPDATE " NOM_TABLE_RECETTES " Act SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
-                        + "', DateEnregistrement = NOW() WHERE Act.idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
+                req = "UPDATE " NOM_TABLE_RECETTES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
+                        + "', DateEnregistrement = NOW() WHERE idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
             if (!db->StandardSQL(req))
             {
                 db->rollback();

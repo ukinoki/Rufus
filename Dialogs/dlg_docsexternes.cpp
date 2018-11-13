@@ -167,17 +167,10 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 {
     QModelIndex idx = getIndexFromId(gmodele, docmt->id());
     QMenu *menu = new QMenu(this);
-    QAction *paction_ImportantMin   = new QAction;
-    QAction *paction_ImportantNorm  = new QAction;
-    QAction *paction_ImportantMax   = new QAction;
-    QAction *paction_Modifier       = new QAction;
-    if (proc->getUserConnected()->isMedecin())
-    {
-        paction_ImportantMin    = menu->addAction(tr("Importance faible"));
-        paction_ImportantNorm   = menu->addAction(tr("Importance normale"));
-        paction_ImportantMax    = menu->addAction(tr("Importance forte"));
-    }
-    paction_Modifier        = menu->addAction(Icons::icEditer(), tr("Modifier le titre"));
+    QAction *paction_ImportantMin   = new QAction(tr("Importance faible"));
+    QAction *paction_ImportantNorm  = new QAction(tr("Importance normale"));
+    QAction *paction_ImportantMax   = new QAction(tr("Importance forte"));
+    QAction *paction_Modifier       = new QAction(Icons::icEditer(), tr("Modifier le titre"));
     int imptce = docmt->importance();
     QIcon icon = Icons::icBlackCheck();
     if (imptce == 0)
@@ -186,6 +179,13 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         paction_ImportantNorm->setIcon(icon);
     else if (imptce == 2)
         paction_ImportantMax->setIcon(icon);
+    if (proc->getUserConnected()->isMedecin())
+    {
+        menu->addAction(paction_ImportantMin);
+        menu->addAction(paction_ImportantNorm);
+        menu->addAction(paction_ImportantMax);
+    }
+    menu->addAction(paction_Modifier);
     connect (paction_ImportantMin,  &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Min);});
     connect (paction_ImportantNorm, &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Norm);});
     connect (paction_ImportantMax,  &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Max);});

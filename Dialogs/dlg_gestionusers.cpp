@@ -761,6 +761,12 @@ void dlg_gestionusers::Slot_EnregistreNouvUser()
         msg = tr("Vous avez oublié d'indiquer le login");
         Loginline->setFocus();
     }
+    if (Loginline->text() == NOM_ADMINISTRATEURDOCS)
+    {
+        msg = tr("Ce login est réservé");
+        Loginline->setFocus();
+        QTimer::singleShot(0, Loginline, &QLineEdit::selectAll);
+    }
     if (MDPline->text() == "")
     {
         msg = tr("Vous avez oublié d'indiquer le mot de passe");
