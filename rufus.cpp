@@ -10762,8 +10762,26 @@ void Rufus::TraiteTCPMessage(QString msg)
         // TODO signifier à dlg_identificationpatient la modification au cas où cette fiche serait ouverte
         //dlg_message(QStringList() << tr("Mise à jour de la liste des correspondants"), 3000);
     }
-    else if (msg == TCPMSG_MsgBAL)
-        VerifMessages();
+    else if (msg.contains(TCPMSG_MsgBAL))
+    {
+        /* le message a le format suivant TCPMSG_Separator + nombredemessages + TCPMSG_MsgBAL) */
+        msg.remove(TCPMSG_MsgBAL);
+        msg.remove(TCPMSG_Separator);
+        gTotalNvxMessages = msg.toInt();
+        msg = "";
+        if (gTotalNvxMessages>1)
+               msg = tr("Vous avez ") + QString::number(gTotalNvxMessages) + tr(" nouveaux messages");
+           else if (gTotalNvxMessages>0)
+               msg = tr("Vous avez 1 nouveau message");
+           if (msg!="")
+           {
+               QSound::play(NOM_ALARME);
+               gMessageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
+               if (gMsgDialog != Q_NULLPTR)
+                   if (gMsgDialog->isVisible())
+                       AfficheMessages();
+           }
+    }
     else if (msg.contains(TCPMSG_ListeSockets))
     {
         msg.remove("{}" TCPMSG_ListeSockets);
@@ -10809,7 +10827,7 @@ void Rufus::envoieMessageA(QList<int> listidusr)
         if (listidusr.at(i) < (listidusr.size()-1))
             listid += ",";
     }
-    QString msg = listid + TCPMSG_MsgBAL;
+    QString msg = listid + TCPMSG_Separator + "1" + TCPMSG_MsgBAL;
     currentmsg = tr("courrier");
     envoieMessage(msg);
 }

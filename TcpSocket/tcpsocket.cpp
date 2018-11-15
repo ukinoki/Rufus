@@ -34,7 +34,7 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     disconnect();
     if (state() == QAbstractSocket::ConnectedState || state() == QAbstractSocket::ConnectingState)
         disconnectFromHost();
-    connectToHost(ipadrserver,PortTCPServer);      // On se connecte au serveur
+    connectToHost(ipadrserver,PortTCPServer);//});      // On se connecte au serveur
     if (waitForConnected(5000))
     {
         disconnect();
@@ -77,6 +77,7 @@ void TcpSocket::TraiteDonneesRecues()
                 size = 0;
                 *s = size;
                 QString msg = QString::fromUtf8(data);
+                qDebug() << msg;
                 emit tcpmessage(msg);
             }
         }
