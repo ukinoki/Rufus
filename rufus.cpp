@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("13-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("16-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -213,6 +213,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     setTitre();
     Remplir_SalDat();
+    VerifMessages();
 }
 
 Rufus::~Rufus()
@@ -3679,11 +3680,14 @@ void Rufus::MetAJourUserConnectes()
         return;
     bool MAJsaldat =false;
     QString MAJConnexionRequete;
-    QSqlQuery usrquer("select iduser from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte = '" + QHostInfo::localHostName().left(60) + "'",  DataBase::getInstance()->getDataBase() );
+    QSqlQuery usrquer("select iduser from " NOM_TABLE_USERSCONNECTES
+                      " where NomPosteConnecte = '" + QHostInfo::localHostName().left(60) + "'"
+                      " and idUser = " + QString::number(gDataUser->id()),  DataBase::getInstance()->getDataBase() );
     if (usrquer.size()>0)
         MAJConnexionRequete = "UPDATE " NOM_TABLE_USERSCONNECTES " SET HeureDerniereConnexion = NOW(), "
                               " idUser = " + QString::number(gDataUser->id()) +
-                              " where NomPosteConnecte = '" + QHostInfo::localHostName().left(60) + "'";
+                              " where NomPosteConnecte = '" + QHostInfo::localHostName().left(60) + "'"
+                              " and idUser = " + QString::number(gDataUser->id()) ;
     else
     {
         MAJsaldat = true;
@@ -3694,7 +3698,7 @@ void Rufus::MetAJourUserConnectes()
                                QString::number(gDataUser->getIdUserComptable()) + "," +
                                QString::number(gDataUser->getIdUserParent()) +",'" +
                                QHostInfo::localHostName().left(60) + "', '" +
-                               Utils::getMACAdress() +" - Client')";
+                               Utils::getMACAdress() + " - " + gDataUser->getLogin() + "')";
     }
     //qDebug() << MAJConnexionRequete;
     QSqlQuery MAJConnexionQuery (MAJConnexionRequete,  DataBase::getInstance()->getDataBase() );
@@ -5549,7 +5553,7 @@ void Rufus::VerifVerrouDossier()
             QSqlQuery LibereVerrouComptaQuery (LibereVerrouRequete, DataBase::getInstance()->getDataBase() );
             DataBase::getInstance()->traiteErreurRequete(LibereVerrouComptaQuery,LibereVerrouRequete,"");
             // on retire cet utilisateur de la table des utilisateurs connectés
-            QString req = "delete from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte = '" + Poste + "'";
+            QString req = "delete from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte = '" + Poste + "' and idUser = " + QString::number(a);
             QSqlQuery(req, DataBase::getInstance()->getDataBase() );
             FlagMetAjourSalDat();
             proc->Message(tr("Le poste ") + Poste + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
