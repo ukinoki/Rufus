@@ -510,11 +510,12 @@ void dlg_depenses::EnregistreDepense()
     jData["modepaiement"]   = m;
     jData["compte"]         = (m!="E"? idCompte.toInt() : QVariant().toInt());
     jData["nocheque"]       = QVariant().toInt();
-    Datas::I()->depenses->addDepense(new Depense(jData));
 
-    Depense *dep = Datas::I()->depenses->getDepenseById(idDep.toInt());
+    Depense *dep = new Depense(jData);
+    Datas::I()->depenses->addDepense(dep);
+
     gBigTable->insertRow(gBigTable->rowCount());
-    SetDepenseToRow(dep, gBigTable->rowCount());
+    SetDepenseToRow(dep, gBigTable->rowCount()-1);
     gBigTable->sortByColumn(7);
 
     gBigTable->setEnabled(true);
