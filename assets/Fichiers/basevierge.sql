@@ -595,7 +595,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,47,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,48,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);
@@ -937,7 +937,6 @@ CREATE TABLE `UtilisateursConnectes` (
   `idLieu` int(11) DEFAULT NULL,
   `HeureDerniereConnexion` datetime DEFAULT NULL,
   `idPat` int(11) DEFAULT NULL,
-  UNIQUE KEY `NomPosteConnecte_UNIQUE` (`NomPosteConnecte`),
   UNIQUE KEY `MACAdressePosteConnecte_UNIQUE` (`MACAdressePosteConnecte`)
 ) ENGINE=InnoDB;
 
