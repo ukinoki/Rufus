@@ -1564,6 +1564,19 @@ void dlg_docsexternes::RemplirTreeView()
             pitemdate->setIcon(Icons::icTampon());
             pitemtype->setIcon(Icons::icTampon());
         }
+        else if (doc->format() == DOCUMENTRECU)
+        {
+            if (doc->typedoc()== COURRIER)
+            {
+                pitemdate->setIcon(Icons::icImprimer());
+                pitemtype->setIcon(Icons::icImprimer());
+            }
+                else
+            {
+                pitemdate->setIcon(Icons::icPhoto());
+                pitemtype->setIcon(Icons::icPhoto());
+            }
+        }
         if (doc->importance()==2)
         {
             pitemdate->setIcon(Icons::icImportant());

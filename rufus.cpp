@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("18-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("20-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -96,7 +96,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->Message(gDataUser->getStatus(), 6000);
 
     //3 Initialisation de tout
-    gUserDateDernierMessage = QDateTime();
     InitVariables();
     InitWidgets();
     InitEventFilters();
@@ -127,9 +126,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});
     }
 
-    // 5 mettre en place le TcpSocket
+    // 5 mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
-    gTimerSalDatEtCorresp       = new QTimer(this);     // scrutation des modifs de la salle d'attente et des correspondants utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
+    gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente, utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
+    gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants, utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerUserConnecte          = new QTimer(this);     // mise à jour de la connexion à la base de données
     gTimerVerifImportateurDocs  = new QTimer(this);     // vérifie que le poste importateur des documents externes est toujours là
     gTimerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base
@@ -149,20 +149,24 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     if (DataBase::getInstance()->getMode() == DataBase::Distant)
     {
-        gTimerSalDatEtCorresp       ->start(10000);
+        gTimerSalDat                ->start(10000);
+        gTimerCorrespondants        ->start(60000);
         gTimerActualiseDocsExternes ->start(60000);// "toutes les 60 secondes"
         gTimerImportDocsExternes    ->start(60000);// "toutes les 60 secondes"
         gTimerVerifMessages         ->start(60000);// "toutes les 60 secondes"
-        gTimerSupprDocs             ->start(60000);// "toutes les 60 secondes"
     }
     else
     {
         gTimerExportDocs            ->start(10000);// "toutes les 10 secondes"
         gTimerActualiseDocsExternes ->start(10000);// "toutes les 10 secondes"
         gTimerImportDocsExternes    ->start(10000);// "toutes les 10 secondes"
-        gTimerVerifMessages         ->start(10000);// "toutes les 60 secondes"
+        gTimerSupprDocs             ->start(60000);// "toutes les 60 secondes"
+        gTimerVerifMessages         ->start(10000);// "toutes les 10 secondes"
         if (!UtiliseTCP)
-                gTimerSalDatEtCorresp->start(1000);
+        {
+                gTimerSalDat->start(1000);
+                gTimerCorrespondants->start(30000);
+        }
     }
 
     gTimerUserConnecte->start(10000);// "toutes les 10 secondes - remet à jour le statut connecté du poste dans la base - tables utilisateursconnectes"
@@ -171,19 +175,21 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     {
         gflagMG     = proc->GetflagMG();
         gflagSalDat = proc->GetflagSalDat();
-        connect (gTimerSalDatEtCorresp,     &QTimer::timeout,   this,   [=] {VerifSalleDAttenteEtCorrespondants();});
+        connect (gTimerSalDat,              &QTimer::timeout,   this,   [=] {VerifSalleDAttente();});
+        connect (gTimerCorrespondants,      &QTimer::timeout,   this,   [=] {VerifCorrespondants();});
         connect (gTimerVerifImportateurDocs,&QTimer::timeout,   this,   [=] {VerifImportateur();});
         connect (gTimerVerifVerrou,         &QTimer::timeout,   this,   [=] {VerifVerrouDossier();});
         connect (gTimerVerifMessages,       &QTimer::timeout,   this,   [=] {VerifMessages();});
+        connect (gTimerImportDocsExternes,  &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
+        if (DataBase::getInstance()->getMode() != DataBase::Distant)
+            connect(gTimerSupprDocs,        &QTimer::timeout,   this,   [=] {SupprimerDocs();});
+        VerifImportateur();
     }
 
     connect (gTimerUserConnecte,            &QTimer::timeout,   this,   [=] {MetAJourUserConnectes();});
     connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   [=] {ActualiseDocsExternes();});
     connect (gTimerPatientsVus,             &QTimer::timeout,   this,   [=] {MasquePatientsVusWidget();});
-    connect (gTimerImportDocsExternes,      &QTimer::timeout,   this,   [=] {ImportDocsExternes();});
 
-    if (DataBase::getInstance()->getMode() != DataBase::Distant)
-        connect(gTimerSupprDocs, &QTimer::timeout, [=] {SupprimerDocs();});
 
     //Nettoyage des erreurs éventuelles de la salle d'attente
     QString blabla              = ENCOURSEXAMEN;
@@ -1544,7 +1550,8 @@ void Rufus::ConnectTimers(bool a)
     {
         if (DataBase::getInstance()->getMode() == DataBase::Distant)
         {
-            gTimerSalDatEtCorresp       ->start(10000);
+            gTimerSalDat                ->start(10000);
+            gTimerCorrespondants        ->start(60000);
             gTimerActualiseDocsExternes ->start(60000);
             gTimerImportDocsExternes    ->start(60000);
             gTimerVerifMessages         ->start(60000);
@@ -1552,34 +1559,39 @@ void Rufus::ConnectTimers(bool a)
         else
         {
             if (!UtiliseTCP)
-                gTimerSalDatEtCorresp   ->start(1000);
+            {
+                gTimerSalDat            ->start(1000);
+                gTimerCorrespondants    ->start(30000);
+            }
             gTimerVerifImportateurDocs  ->start(60000);
             gTimerExportDocs            ->start(10000);
             gTimerActualiseDocsExternes ->start(10000);
             gTimerImportDocsExternes    ->start(10000);
             gTimerVerifMessages         ->start(10000);
+            gTimerSupprDocs             ->start(60000);
         }
         gTimerUserConnecte  ->start(10000);
         gTimerVerifVerrou   ->start(60000);
-        gTimerSupprDocs     ->start(60000);
 
         connect (gTimerUserConnecte,                &QTimer::timeout,   this,   [=] {MetAJourUserConnectes();});
         connect (gTimerActualiseDocsExternes,       &QTimer::timeout,   this,   [=] {ActualiseDocsExternes();});
-        connect (gTimerImportDocsExternes,          &QTimer::timeout,   this,   [=] {ImportDocsExternes();});
         if (!UtiliseTCP)
         {
-            connect (gTimerSalDatEtCorresp,         &QTimer::timeout,   this,   [=] {VerifSalleDAttenteEtCorrespondants();});
+            connect (gTimerSalDat,                  &QTimer::timeout,   this,   [=] {VerifSalleDAttente();});
+            connect (gTimerCorrespondants,          &QTimer::timeout,   this,   [=] {VerifCorrespondants();});
             connect (gTimerVerifVerrou,             &QTimer::timeout,   this,   [=] {VerifVerrouDossier();});
-            connect(gTimerVerifMessages,            &QTimer::timeout,   this,   [=] {VerifMessages();});
-            connect(gTimerVerifImportateurDocs,     &QTimer::timeout,   this,   [=] {VerifImportateur();});
+            connect (gTimerVerifMessages,           &QTimer::timeout,   this,   [=] {VerifMessages();});
+            connect (gTimerVerifImportateurDocs,    &QTimer::timeout,   this,   [=] {VerifImportateur();});
+            connect (gTimerImportDocsExternes,      &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
+            if (DataBase::getInstance()->getMode() != DataBase::Distant)
+                connect(gTimerSupprDocs,                &QTimer::timeout,   this,   [=] {SupprimerDocs();});
         }
-        if (DataBase::getInstance()->getMode() == DataBase::Poste)
-            connect(gTimerSupprDocs,                &QTimer::timeout,   this,   [=] {SupprimerDocs();});
     }
     else
     {
         gTimerVerifImportateurDocs  ->disconnect();
-        gTimerSalDatEtCorresp       ->disconnect();
+        gTimerSalDat                ->disconnect();
+        gTimerCorrespondants        ->disconnect();
         gTimerExportDocs            ->disconnect();
         gTimerActualiseDocsExternes ->disconnect();
         gTimerImportDocsExternes    ->disconnect();
@@ -1588,7 +1600,8 @@ void Rufus::ConnectTimers(bool a)
         gTimerVerifVerrou           ->disconnect();
         gTimerSupprDocs             ->disconnect();
         gTimerVerifImportateurDocs  ->stop();
-        gTimerSalDatEtCorresp       ->stop();
+        gTimerSalDat                ->stop();
+        gTimerCorrespondants        ->stop();
         gTimerExportDocs            ->stop();
         gTimerActualiseDocsExternes ->stop();
         gTimerImportDocsExternes    ->stop();
@@ -2453,14 +2466,16 @@ void Rufus::ExporteDocs()
 
 void Rufus::ImportDocsExternes()
 {
-    if (DataBase::getInstance()->getMode() != DataBase::Distant)
-    {
-        if (isPosteImport())
-            ImportDocsExtThread = new ImportDocsExternesThread(proc);
-    }
-    else if (!UtiliseTCP && (proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES"
-             || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM"))
-        ImportDocsExtThread = new ImportDocsExternesThread(proc);
+    if (ImportDocsExtThread != Q_NULLPTR)
+        if (PosteImport)
+        {
+            QString req = "select distinct list.TitreExamen, list.NomAPPareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " appcon, " NOM_TABLE_LISTEAPPAREILS " list"
+                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number( gDataUser->getSite()->id() );
+            //qDebug()<< req;
+            QSqlQuery docsquer(req,  DataBase::getInstance()->getDataBase());
+            if (docsquer.size()>0)
+                ImportDocsExtThread->RapatrieDocumentsThread(docsquer);
+        }
 }
 
 void Rufus::ImprimeDossier()
@@ -4747,15 +4762,7 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
 
 void Rufus::SupprimerDocs()
 {
-    QString B = proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString();
-    QString IpAdr = "";
-    if (B=="YES")
-        IpAdr = QHostInfo::localHostName() + " - prioritaire";
-    else if (B=="NORM")
-        IpAdr = QHostInfo::localHostName();
-    else
-        return;
-    if (IpAdr ==  proc->PosteImportDocs())
+    if (PosteImport)
     {
         QSqlQuery ("lock tables '" NOM_TABLE_DOCSASUPPRIMER "' write",  DataBase::getInstance()->getDataBase() );
         QString req = "Select filepath from " NOM_TABLE_DOCSASUPPRIMER;
@@ -5479,20 +5486,25 @@ void Rufus::VerifMessages()
     gAffichTotalMessages = false;
 }
 
-void Rufus::VerifSalleDAttenteEtCorrespondants()
+void Rufus::VerifSalleDAttente()
 {
-    if (gflagSalDat < proc->GetflagSalDat())
+    int flagsaldat = proc->GetflagSalDat();
+    if (gflagSalDat < flagsaldat)
     {
-        gflagSalDat = proc->GetflagSalDat();
-        Remplir_SalDat();                       // par le timer VerifSalleDattenteEtCorrespondants
+        gflagSalDat = flagsaldat;
+        Remplir_SalDat();                       // par le timer VerifSalleDAttente
     }
-    // on en profite aussi pour remettre à jour la liste des correspondants au besoin si un autre utilisteur a créé ou supprimé un dossier
-    if (gflagMG < proc->GetflagMG())
+}
+
+void Rufus::VerifCorrespondants()
+{
+    int flagcor = proc->GetflagMG();
+    if (gflagMG < flagcor)
     {
-        gflagMG = proc->GetflagMG();
+        gflagMG = flagcor;
         // on reconstruit la liste des MG et des correspondants
         proc->initListeCorrespondants();
-        ReconstruitCombosCorresp();                     // par le timer VerifSalleDattenteEtCorrespondants
+        ReconstruitCombosCorresp();                     // par le timer VerifSalleDAttente
         // on resynchronise l'affichage du combobox au besoin
         if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
         {
@@ -5596,8 +5608,17 @@ void Rufus::VerifImportateur()
         * si on est prioritaire et pas lui
         * s'il n'est pas administrateur
         */
+    if (DataBase::getInstance()->getMode() == DataBase::Distant)
+    {
+        if (ImportDocsExtThread == Q_NULLPTR)
+            ImportDocsExtThread = new ImportDocsExternesThread(proc);
+        PosteImport = true;
+        return;
+    }
+
+    bool statut = PosteImport;
     QString ImportateurDocs       = proc->PosteImportDocs(); //le nom du poste importateur des docs externes
-    if (ImportateurDocs == "Null")
+    if (ImportateurDocs.toUpper() == "NULL")
     {
         if ((proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
                 && DataBase::getInstance()->getMode() != DataBase::Distant)
@@ -5637,11 +5658,20 @@ void Rufus::VerifImportateur()
             }
         }
     }
-    PosteImport = proc->isPosteImportDocs();
-    if (PosteImport)
-        connect(gTimerExportDocs,           &QTimer::timeout,   [=] {ExporteDocs();});
-    else
-        gTimerExportDocs->disconnect();
+    PosteImport = (proc->PosteImportDocs().remove(" - prioritaire") == QHostInfo::localHostName());
+    bool chgtstatut = (statut != PosteImport);
+    if (chgtstatut)
+    {
+        if (PosteImport)
+        {
+            connect(gTimerExportDocs,           &QTimer::timeout,   [=] {ExporteDocs();});
+            if (ImportDocsExtThread == Q_NULLPTR)
+                if (proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
+                    ImportDocsExtThread = new ImportDocsExternesThread(proc);
+        }
+        else
+            gTimerExportDocs->disconnect();
+    }
 }
 
 void Rufus::ActualiseDocsExternes()
@@ -8340,6 +8370,8 @@ void Rufus::InitVariables()
     MGlineEdit                  = new UpLineEdit();
     AutresCorresp1LineEdit      = new UpLineEdit();
     AutresCorresp2LineEdit      = new UpLineEdit();
+    ImportDocsExtThread         = Q_NULLPTR;
+    gUserDateDernierMessage     = QDateTime();
 
     proc->CouleurTitres         = "blue";
 

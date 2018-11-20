@@ -78,7 +78,7 @@ dlg_docsscanner::dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *pa
     linetitre       = new UpLineEdit(this);
     editdate        = new QDateEdit(this);
     typeDocCombo    = new UpComboBox(this);
-    ListTypeExams   << tr("Courrier")
+    ListTypeExams   << COURRIER
                     << tr("CV")
                     << tr("Orthoptie")
                     << tr("ANGIO")

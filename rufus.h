@@ -219,8 +219,9 @@ private:
     //fonctions lancées par des timers
     void        ActualiseDocsExternes();
     void        MetAJourUserConnectes();
+    void        VerifCorrespondants();
     void        VerifMessages();
-    void        VerifSalleDAttenteEtCorrespondants();
+    void        VerifSalleDAttente();
     void        VerifVerrouDossier();
 
 private:
@@ -249,7 +250,7 @@ private:
     QStandardItemModel      *gListePatientsModel;
     QStandardItemModel      *gListeSuperviseursModel, *gListeParentsModel;
     QTabBar                 *gSalDatTab, *gAccueilTab;
-    QTimer                  *gTimerSalDatEtCorresp, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
+    QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
 

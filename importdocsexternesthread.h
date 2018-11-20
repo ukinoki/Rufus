@@ -34,10 +34,11 @@ class ImportDocsExternesThread : public QObject
     Q_OBJECT
 public:
     explicit ImportDocsExternesThread(Procedures *proced);
+    void                        RapatrieDocumentsThread(QSqlQuery docsquer);
 private:
+    int                         a;
     int                         idLieuExercice;
     bool                        docscompress;
-    void                        RapatrieDocumentsThread();
     Procedures                  *proc;
     bool                        DefinitDossiers();
     void                        EchecImport(QString txt);
@@ -45,7 +46,7 @@ private:
     FunctorMessage              fmessage;
     FunctorMAJPremiereLettre    fMAJPremLettre;
     QSqlDatabase                db;
-    QThread                     *thread;
+    QThread                     thread;
 
     int                         Acces;
     enum Acces                  {Local, Distant};

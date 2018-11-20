@@ -19,38 +19,36 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
 {
-    thread          = new QThread;
-    thread          ->start();
-    moveToThread(thread);
+    moveToThread(&thread);
+    a=0;
     proc            = proced;
     EnCours         = false;
     Acces           = (DataBase::getInstance()->getMode()!=DataBase::Distant? Local : Distant);
     idLieuExercice  = proc->getUserConnected()->getSite()->id();
     db              = DataBase::getInstance()->getDataBase();
-    RapatrieDocumentsThread();
-    thread          ->exit();
+    thread          .start();
 }
 
-void ImportDocsExternesThread::RapatrieDocumentsThread()
+void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
 {
+    //qDebug() << "OK import " + QString::number(++a);
+
     if (EnCours)
         return;
     EnCours = true;
-    // INCORPORATION DES FICHIERS IMAGE DANS LA BASE ============================================================================================================================================================
-    QString req = "select distinct list.TitreExamen, list.NomAPPareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " appcon, " NOM_TABLE_LISTEAPPAREILS " list"
-          " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(idLieuExercice);
-    //qDebug()<< req;
-    QSqlQuery docsquer(req, db);
-    if (docsquer.size()==0)
-        return;
+    listmsg.clear();
     datetransfer            = QDate::currentDate().toString("yyyy-MM-dd");
     if (!DefinitDossiers())
+    {
+        EnCours = false;
         return;
+    }
 
     docsquer.first();
     for (int itr=0; itr<docsquer.size(); itr++)
     {
         QString NomDirDoc         = proc->getDossierDocuments(docsquer.value(1).toString(), DataBase::getInstance()->getMode());
+        //qDebug() << NomDirDoc;
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -66,11 +64,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread()
             QString Typedoc     = Titredoc;
             QString SousTypeDoc = Titredoc;
             QString Appareil    = docsquer.value(1).toString();
+            //qDebug() << Appareil;
             QStringList listfich = QDir(NomDirDoc).entryList(QDir::Files | QDir::NoDotAndDotDot);
             int stop = listfich.size();
+            //qDebug() << "stop = " << stop;
             for (int k=0; k<stop; k++)
             {
                 QString nomdoc  = listfich.at(k);
+                //qDebug() << nomdoc;
                 if (Appareil == "NAVIS-EX")   {
                     QString AbregeTitre = nomdoc.split("_").at(3);
                     if (AbregeTitre == "OT") {
