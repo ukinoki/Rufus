@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("22-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("23-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5618,7 +5618,7 @@ void Rufus::VerifImportateur()
         if (ImportDocsExtThread == Q_NULLPTR)
         {
             ImportDocsExtThread = new ImportDocsExternesThread(proc);
-            connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList)), this, SLOT(AfficheMessageImport(QStringList)));
+            connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList, int, bool)), this, SLOT(AfficheMessageImport(QStringList, int, bool)));
         }
         PosteImport = true;
         return;
