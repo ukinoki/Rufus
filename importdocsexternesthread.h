@@ -35,6 +35,10 @@ class ImportDocsExternesThread : public QObject
 public:
     explicit ImportDocsExternesThread(Procedures *proced);
     void                        RapatrieDocumentsThread(QSqlQuery docsquer);
+
+signals:
+    void                        emitmsg(QStringList listmsg, int pause, bool bottom);
+
 private:
     int                         a;
     int                         idLieuExercice;

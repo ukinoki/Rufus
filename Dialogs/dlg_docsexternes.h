@@ -39,7 +39,7 @@ class dlg_docsexternes : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsexternes(Procedures *ProcAPasser, int idpat, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
     bool                    InitOK();
 
@@ -89,7 +89,7 @@ private:
 
     bool                    eventFilter(QObject *, QEvent *);
 
-    void                    ActualiseDocsExternes();
+    int                     ActualiseDocsExternes();
     void                    AfficheCustomMenu(DocExterne *docmt);
     void                    AfficheDoc(QModelIndex idx);
     void                    BasculeTriListe(int);
@@ -107,7 +107,6 @@ private:
     QStandardItem*          getItemFromDocument(QStandardItemModel *model, DocExterne* docmt);
     void                    ImprimeDoc();
 
-    int                     initListDocs();
     bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin);
     void                    ModifierItem(QModelIndex idx);
     void                    PlayerCtrl(int);

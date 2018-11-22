@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("20-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("22-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -345,7 +345,7 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
     QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
     if (quer.size()>0)
     {
-        Dlg_DocsExt = new dlg_docsexternes(proc,idpat, this);
+        Dlg_DocsExt = new dlg_docsexternes(proc,idpat, UtiliseTCP, this);
         ui->OuvreDocsExternespushButton->setEnabled(true);
         if (Dlg_DocsExt->InitOK())
         {
@@ -390,7 +390,7 @@ void Rufus::MAJDocsExternes()
         QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
         if (quer.size()>0)
         {
-            Dlg_DocsExt = new dlg_docsexternes(proc, gidPatient, this);
+            Dlg_DocsExt = new dlg_docsexternes(proc, gidPatient, UtiliseTCP, this);
             if (Dlg_DocsExt->InitOK())
                 Dlg_DocsExt->show();
         }
@@ -4571,6 +4571,11 @@ void Rufus::VerifSendMessage(int idMsg)
     gAsk->accept();
 }
 
+void Rufus::AfficheMessageImport(QStringList listmsg, int pause, bool bottom)
+{
+    dlg_message(listmsg, pause, bottom);
+}
+
 void Rufus::AfficheMessageLimitDate(bool a)
 {
     gAsk->findChildren<QDateEdit*>().at(0)->setEnabled(a);
@@ -5611,7 +5616,10 @@ void Rufus::VerifImportateur()
     if (DataBase::getInstance()->getMode() == DataBase::Distant)
     {
         if (ImportDocsExtThread == Q_NULLPTR)
+        {
             ImportDocsExtThread = new ImportDocsExternesThread(proc);
+            connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList)), this, SLOT(AfficheMessageImport(QStringList)));
+        }
         PosteImport = true;
         return;
     }
@@ -5667,7 +5675,10 @@ void Rufus::VerifImportateur()
             connect(gTimerExportDocs,           &QTimer::timeout,   [=] {ExporteDocs();});
             if (ImportDocsExtThread == Q_NULLPTR)
                 if (proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
+                {
                     ImportDocsExtThread = new ImportDocsExternesThread(proc);
+                    connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList)), this, SLOT(AfficheMessageImport(QStringList)));
+                }
         }
         else
             gTimerExportDocs->disconnect();
@@ -7543,7 +7554,6 @@ bool Rufus::FermeDossier()
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) gidPatient = 0;
     FlagMetAjourSalDat();
-
     return a;
 }
 
@@ -8725,7 +8735,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     }
     delete Dlg_Docs;
     if (aa && AffichDocsExternes)
-        MAJDocsExternes();
+        MAJDocsExternes();              // depuis dlg_documents
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -10800,9 +10810,8 @@ void Rufus::TraiteTCPMessage(QString msg)
     }
     else if (msg.contains(TCPMSG_MsgBAL))
     {
-        /* le message a le format suivant TCPMSG_Separator + nombredemessages + TCPMSG_MsgBAL) */
+        /* le message a le format suivant nombredemessages + TCPMSG_MsgBAL) */
         msg.remove(TCPMSG_MsgBAL);
-        msg.remove(TCPMSG_Separator);
         gTotalNvxMessages = msg.toInt();
         msg = "";
         if (gTotalNvxMessages>1)
@@ -10817,6 +10826,13 @@ void Rufus::TraiteTCPMessage(QString msg)
                    if (gMsgDialog->isVisible())
                        AfficheMessages();
            }
+    }
+    else if (msg.contains(TCPMSG_MAJDocsExternes))
+    {
+        /* le message a le format suivant idpatient + TCPMSG_MAJDocsExternes) */
+        msg.remove(TCPMSG_MAJDocsExternes);
+        if (gidPatient == msg.toInt())
+            MAJDocsExternes();                  // depuis le tcpsocket
     }
     else if (msg.contains(TCPMSG_ListeSockets))
     {

@@ -587,7 +587,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
     }
 
     if (listmsg.size()>0)
-        fmessage(listmsg, 3000, true);  // on shunte le thread de dlg_message parce qu'on est déjà dans un thread
+        emit emitmsg(listmsg, 3000, true);
     EnCours = false;
 }
 
@@ -618,7 +618,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
         msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Editions/Paramètres/Onglet \"ce poste\" /Onglet \"") + NomOnglet + "</b></font>";
         QStringList listmsg;
         listmsg << msg;
-        fmessage(listmsg, 6000, false);  // on shunte le thread de dlg_message
+        emit emitmsg(listmsg, 3000, false);
         return false;
     }
     NomDirStockageProv      = NomDirStockageImagerie + NOMDIR_PROV;
@@ -629,7 +629,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + NomDirStockageProv + "</b></font>" + tr(" invalide");
             QStringList listmsg;
             listmsg << msg;
-            fmessage(listmsg, 3000, false);  // on shunte le thread de dlg_message
+            emit emitmsg(listmsg, 3000, false);
             return false;
         }
     CheminOKTransfrDir      = NomDirStockageImagerie + NOMDIR_IMAGES;
@@ -640,7 +640,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
             QStringList listmsg;
             listmsg << msg;
-            fmessage(listmsg, 3000, false);  // on shunte le thread de dlg_message
+            emit emitmsg(listmsg, 3000, false);
             return false;
         }
     CheminOKTransfrDir      = CheminOKTransfrDir + "/" + datetransfer;
@@ -650,7 +650,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
             QStringList listmsg;
             listmsg << msg;
-            fmessage(listmsg, 3000, false);  // on shunte le thread de dlg_message
+            emit emitmsg(listmsg, 3000, false);
             return false;
         }
     CheminEchecTransfrDir   = NomDirStockageImagerie + NOMDIR_ECHECSTRANSFERTS;
@@ -661,7 +661,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
             QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + tr(" invalide");
             QStringList listmsg;
             listmsg << msg;
-            fmessage(listmsg, 3000, false);  // on shunte le thread de dlg_message
+            emit emitmsg(listmsg, 3000, false);
             return false;
         }
 
@@ -675,7 +675,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
                 QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirOrigin + "</b></font>" + tr(" invalide");
                 QStringList listmsg;
                 listmsg << msg;
-                fmessage(listmsg, 3000, false);  // on shunte le thread de dlg_message
+                emit emitmsg(listmsg, 3000, false);
                 return false;
             }
         CheminOKTransfrDirOrigin    = CheminOKTransfrDirOrigin + "/" + datetransfer;
@@ -685,7 +685,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
                 QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirOrigin + "</b></font>" + tr(" invalide");
                 QStringList listmsg;
                 listmsg << msg;
-                fmessage(listmsg, 3000, false);  // on shunte le thread de dlg_message
+                emit emitmsg(listmsg, 3000, false);
                 return false;
             }
     }
@@ -697,7 +697,7 @@ void ImportDocsExternesThread::EchecImport(QString txt)
     QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(FichierImage).fileName() + "</b></font>" + tr(" dans la base de données");
     QStringList listmsg;
     listmsg << msg;
-    fmessage(listmsg, 3000, false);  // on shunte le thread de dlg_message
+    emit emitmsg(listmsg, 3000, false);
 
     QString CheminEchecTransfrDoc   = CheminEchecTransfrDir + "/" + QFileInfo(FichierImage).fileName();
     FichierImage.copy(CheminEchecTransfrDoc);

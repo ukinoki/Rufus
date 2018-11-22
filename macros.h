@@ -109,6 +109,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_PORT_TCPSERVEUR                         "50885"
 #define TCPMSG_idUser                               "idUser"                                            /* nom du message fournissant l'idUser */
 #define TCPMSG_MAJCorrespondants                    "MajCorrespondants"                                 /* fin du message invitant à mettre à jour la liste des correspondants */
+#define TCPMSG_MAJDocsExternes                      "MajDocsExternes"                                   /* fin du message invitant à mettre à jour la liste des documents externes pour un patient */
 #define TCPMSG_MAJSalAttente                        "MajSalAttente"                                     /* fin du message invitant à mettre à jour la salle d'attente */
 #define TCPMSG_MsgBAL                               "MsgRecuDansBAL"                                    /* fin du message informant de la réception d'un message de messagerie instantanée */
 #define TCPMSG_Separator                            "triumphspeedtriple1050"                            /* separateur au sein d'un message */

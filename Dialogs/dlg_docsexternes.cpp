@@ -21,7 +21,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 static inline double mmToInches(double mm) { return mm * 0.039370147; }
 
-dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *parent) :
+dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, bool UtiliseTCP, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
     proc                = ProcAPasser;
@@ -131,22 +131,26 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, QWidget *
         proc->Edit(info);
     }*/
 
-    QTimer *TimerActualiseDocsExternes    = new QTimer(this);
-    TimerActualiseDocsExternes    ->start(10000);
 
     connect(sw,                             &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(sw->PosSwitch());});
-    connect (TimerActualiseDocsExternes,    &QTimer::timeout,               this,   [=] {ActualiseDocsExternes();});
-    connect (PrintButton,                   &QPushButton::clicked,          this,   [=] {ImprimeDoc();});
     connect (SupprButton,                   &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
     connect (AllDocsupCheckBox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(AllDocsupCheckBox);});
     connect (OnlyImportantDocsupCheckBox,   &QCheckBox::toggled,            this,   [=] {FiltrerListe(OnlyImportantDocsupCheckBox);});
     connect (playctrl,                      &PlayerControls::ctrl,          this,   [=] {PlayerCtrl(playctrl->State());});
     connect (playctrl,                      &PlayerControls::recfile,       this,   [=] {EnregistreVideo();});
-    connect (proc,                          &Procedures::UpdDocsExternes,   this,   [=] {initListDocs(); RemplirTreeView();});
+    connect (proc,                          &Procedures::UpdDocsExternes,   this,   [=] {ActualiseDocsExternes();});
+    connect (PrintButton,                   &QPushButton::clicked,          this,   [=] {ImprimeDoc();});
+
+    if (!UtiliseTCP)
+    {
+        QTimer *TimerActualiseDocsExternes    = new QTimer(this);
+        TimerActualiseDocsExternes    ->start(10000);
+        connect (TimerActualiseDocsExternes,    &QTimer::timeout,               this,   [=] {ActualiseDocsExternes();});
+    }
 
     gMode               = Normal;
     gModeTri            = parDate;
-    initOK = (initListDocs() > 0);
+    initOK = (ActualiseDocsExternes() > 0);
     if(!initOK)
         return;
     RemplirTreeView();
@@ -600,7 +604,7 @@ void dlg_docsexternes::BasculeTriListe(int a)
     });
 }
 
-void dlg_docsexternes::ActualiseDocsExternes()
+int dlg_docsexternes::ActualiseDocsExternes()
 {
     m_ListDocs.addListDocsExternes(db->loadDoscExternesByPatientAll(gidPatient));
     if (m_ListDocs.NouveauDocument())
@@ -608,6 +612,7 @@ void dlg_docsexternes::ActualiseDocsExternes()
         m_ListDocs.setNouveauDocumentFalse();
         RemplirTreeView();
     }
+    return m_ListDocs.docsexternes().size();
 }
 
 void dlg_docsexternes::EnregistreVideo()
@@ -1052,14 +1057,6 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         }
     }
     return true;
-}
-
-int dlg_docsexternes::initListDocs()
-{
-    QList<DocExterne*> listdocsexternes = db->loadDoscExternesByPatientAll(gidPatient);
-    m_ListDocs.addListDocsExternes(listdocsexternes);
-    m_ListDocs.setNouveauDocumentFalse();
-    return m_ListDocs.docsexternes().size();
 }
 
 void dlg_docsexternes::ModifierItem(QModelIndex idx)

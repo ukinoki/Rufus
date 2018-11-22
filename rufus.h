@@ -270,8 +270,10 @@ private:
     bool                    PasDExportPourLeMoment = false;
     QTreeWidget             *TerraintreeWidget;
     UpSmallButton           *ModifTerrainupSmallButton;
+private slots:
+    void                    AfficheMessageImport(QStringList listmsg, int pause, bool bottom=true);
 
-
+private:
                     // Connexion objets ---------------------------------------------------------------------------------------------
     void                Connect_Slots();
 
