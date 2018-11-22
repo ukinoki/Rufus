@@ -392,6 +392,8 @@ void dlg_depenses::EnregistreDepense()
         Erreur = tr("le mode de paiement");
     else if (ui->RefFiscalecomboBox->currentText() == "")
         Erreur = tr("la rubrique fiscale");
+    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= tr("Espèces"))
+        Erreur = tr("le compte bancaire");
 
     if (Erreur != "")
     {
@@ -404,8 +406,14 @@ void dlg_depenses::EnregistreDepense()
             ui->PaiementcomboBox->setFocus();
         else if (Erreur == tr("la rubrique fiscale"))
             ui->RefFiscalecomboBox->setFocus();
+        else if (Erreur == tr("le compte bancaire"))
+        {
+            ui->ComptesupComboBox->setFocus();
+            ui->ComptesupComboBox->showPopup();
+        }
         return;
     }
+
     QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(),
                                                               ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(),
                                                               DataBase::Egal);
@@ -532,6 +540,7 @@ void dlg_depenses::EnregistreDepense()
     }
     CalculTotalDepenses();
     RegleAffichageFiche(Lire);
+    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
     for (int i=0; i< gBigTable->rowCount(); i++)
         if (getDepenseFromRow(i)->id() == dep->id()){
             gBigTable->setCurrentCell(i,1);
@@ -786,7 +795,7 @@ void dlg_depenses::ModifierDepense()
         Erreur = tr("le mode de paiement");
     else if (ui->RefFiscalecomboBox->currentText() == "")
         Erreur = tr("la rubrique fiscale");
-    else if (ui->ComptesupComboBox->currentIndex()==-1)
+    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= tr("Espèces"))
         Erreur = tr("le compte bancaire");
 
     if (Erreur != "")
@@ -1030,6 +1039,7 @@ void dlg_depenses::ModifierDepense()
     gMode = Lire;
     RegleAffichageFiche(Lire);
     MetAJourFiche();
+    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
