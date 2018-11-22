@@ -5677,7 +5677,7 @@ void Rufus::VerifImportateur()
                 if (proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
                 {
                     ImportDocsExtThread = new ImportDocsExternesThread(proc);
-                    connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList)), this, SLOT(AfficheMessageImport(QStringList)));
+                    connect(ImportDocsExtThread, SIGNAL(emitmsg(QStringList, int, bool)), this, SLOT(AfficheMessageImport(QStringList, int, bool)));
                 }
         }
         else

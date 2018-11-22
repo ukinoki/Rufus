@@ -345,11 +345,11 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                 QString req(""), idPatient("");
                 if (Appareil == "TOPCON ALADDIN")   {
                     QStringList listn = nomdoc.split("_");
-                    QString nom     = fMAJPremLettre(listn.at(0));
-                    QString prenom  = fMAJPremLettre(listn.at(1));
-                    QString jour    = fMAJPremLettre(listn.at(2));
-                    QString mois    = fMAJPremLettre(listn.at(3));
-                    QString annee   = fMAJPremLettre(listn.at(4));
+                    QString nom     = Utils::capitilize(listn.at(0));
+                    QString prenom  = Utils::capitilize(listn.at(1));
+                    QString jour    = Utils::capitilize(listn.at(2));
+                    QString mois    = Utils::capitilize(listn.at(3));
+                    QString annee   = Utils::capitilize(listn.at(4));
                     req              = "select idpat from " NOM_TABLE_PATIENTS
                                        " where patnom like '" + nom + "'"
                                        " and patprenom like '" + prenom  + "'"

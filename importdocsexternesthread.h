@@ -21,8 +21,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QThread>
 #include <QMessageBox>
 #include "procedures.h"
-#include "functormessage.h"
-#include "functormajpremierelettre.h"
+#include "utils.h"
 
 
 /* Cette classe tourne en tache de fond et importe les documents d'imagerie dans la base de données
@@ -47,8 +46,6 @@ private:
     bool                        DefinitDossiers();
     void                        EchecImport(QString txt);
     bool                        EnCours;
-    FunctorMessage              fmessage;
-    FunctorMAJPremiereLettre    fMAJPremLettre;
     QSqlDatabase                db;
     QThread                     thread;
 

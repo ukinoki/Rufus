@@ -65,7 +65,6 @@ SOURCES += main.cpp\
     widgtono.cpp \
     widgetbuttonframe.cpp \
     functormajpremierelettre.cpp \
-    functormessage.cpp \
     utils.cpp \
     playercontrols.cpp \
     gbl_datas.cpp
@@ -84,7 +83,6 @@ HEADERS += rufus.h \
     widgetbuttonframe.h \
     functordatauser.h \
     functormajpremierelettre.h \
-    functormessage.h \
     macros.h \
     utils.h \
     icons.h \

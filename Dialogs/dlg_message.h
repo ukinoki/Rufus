@@ -27,9 +27,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QDebug>
 #include <QDialog>
-
-#include "functormessage.h"
-
+#include <QScreen>
+#include "icons.h"
 #include "uptextedit.h"
 
 /* Cette classe sert à afficher un message dans une fenêtre popo-up, sans bouton, sans bandeau de titre
@@ -45,9 +44,9 @@ class dlg_message : public QObject
 public:
     explicit        dlg_message(QStringList listmsg, int pause = 1000, bool bottom = true);
 private:
+    void            AfficheMsg(QStringList listmes, int pause, bool bottom);
     void            delay(int msec);
     QThread         *thread;
-    FunctorMessage  fmessage;
 };
 
 #endif // DLG_MESSAGE_H
