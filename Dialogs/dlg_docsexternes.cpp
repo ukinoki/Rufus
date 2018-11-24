@@ -153,7 +153,6 @@ dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, bool Util
     initOK = (ActualiseDocsExternes() > 0);
     if(!initOK)
         return;
-    RemplirTreeView();
 }
 
 dlg_docsexternes::~dlg_docsexternes()
@@ -320,7 +319,7 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
         modifieitem(item, docmt, imp, gFont);
     db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set Importance = " + QString::number(imp) + " where idImpression = " + QString::number(id));
     int nimportants = 0;
-    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().constBegin(); itdoc != m_ListDocs.docsexternes().constEnd(); ++itdoc )
+    for(QMap<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().constBegin(); itdoc != m_ListDocs.docsexternes().constEnd(); ++itdoc )
     {
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
         if (doc->importance() == 2)
@@ -823,10 +822,10 @@ void dlg_docsexternes::ImprimeDoc()
         bool detruirealafin = false;
 
         UpMessageBox msgbox;
-        UpSmallButton OKBouton      (tr("Réimprimer\nle document"));
-        UpSmallButton NoBouton      (tr("Modifier\net imprimer"));
-        UpSmallButton ImpBouton     (tr("Réimprimer à\nla date d'aujourd'hui"));
-        UpSmallButton AnnulBouton   (tr("Annuler"));
+        UpSmallButton ReimprBouton          (tr("Réimprimer\nle document"));
+        UpSmallButton ModifEtReimprBouton   (tr("Modifier\net imprimer"));
+        UpSmallButton ImpAujourdhuiBouton   (tr("Réimprimer à\nla date d'aujourd'hui"));
+        UpSmallButton AnnulBouton           (tr("Annuler"));
         msgbox.setText(tr("Réimprimer un document"));
         msgbox.setIcon(UpMessageBox::Print);
 
@@ -838,7 +837,7 @@ void dlg_docsexternes::ImprimeDoc()
                                                                         // dans ce cas, on va créer une copie qu'on va modifier
                                                                         // et on détruira le document d'origine à la fin
             {
-                msgbox.addButton(&NoBouton,UpSmallButton::EDITBUTTON);
+                msgbox.addButton(&ModifEtReimprBouton,UpSmallButton::EDITBUTTON);
                 detruirealafin = true;
             }
             else
@@ -846,25 +845,25 @@ void dlg_docsexternes::ImprimeDoc()
                 if (docmt->textorigine() != "")     // si on a un texte d'origine, on peut modifier le document
                                                     // (pour les anciennes versions de Rufus, il n'y avait pas de texte d'origine)
                 {
-                    NoBouton.setText(tr("Modifier et imprimer\nà la date d'aujourd'hui"));
-                    msgbox.addButton(&NoBouton,UpSmallButton::EDITBUTTON);
+                    ModifEtReimprBouton.setText(tr("Modifier et imprimer\nà la date d'aujourd'hui"));
+                    msgbox.addButton(&ModifEtReimprBouton,UpSmallButton::EDITBUTTON);
                 }
-                msgbox.addButton(&ImpBouton,UpSmallButton::COPYBUTTON);
+                msgbox.addButton(&ImpAujourdhuiBouton,UpSmallButton::COPYBUTTON);
             }
         }
-        msgbox.addButton(&OKBouton, UpSmallButton::PRINTBUTTON);
+        msgbox.addButton(&ReimprBouton, UpSmallButton::PRINTBUTTON);
         msgbox.exec();
 
         //Reimpression simple du document, sans réédition => pas d'action sur la BDD
-        if (msgbox.clickedButton() == &OKBouton)
+        if (msgbox.clickedButton() == &ReimprBouton)
             ReImprimeDoc(docmt);
 
         //Réédition d'un document - on va réimprimer le document à la date du jour en le modifiant - ne concerne que les courriers et ordonnances émis => on enregistre le nouveau document dans la BDD
-        else if (msgbox.clickedButton() == &NoBouton || msgbox.clickedButton() == &ImpBouton)
-            ModifieEtReImprimeDoc(docmt, msgbox.clickedButton() == &NoBouton, detruirealafin);
+        else if (msgbox.clickedButton() == &ModifEtReimprBouton || msgbox.clickedButton() == &ImpAujourdhuiBouton)
+            ModifieEtReImprimeDoc(docmt, msgbox.clickedButton() == &ModifEtReimprBouton, detruirealafin);
         msgbox.close();
     }
-    connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
+    connect(PrintButton, &QPushButton::clicked, this, &dlg_docsexternes::ImprimeDoc);
 #endif
 }
 
@@ -963,9 +962,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
                 db->SupprRecordFromTable(docmt->id(),"idimpression",NOM_TABLE_IMPRESSIONS);
                 m_ListDocs.RemoveKey(docmt->id());
             }
-            else
-                m_ListDocs.reloadDocument(docmt);
-            RemplirTreeView();
+            ActualiseDocsExternes();
             int idimpr = db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS);
             QModelIndex idx = getIndexFromId(gmodele, idimpr);
             ListDocsTreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
@@ -1171,30 +1168,30 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         QString idaafficher = "";
         if (m_ListDocs.docsexternes().size() > 1)    // on recherche le document sur qui va être mis en surbrillance après la suppression
         {
-            QHash<int, DocExterne*> listaexplorer = m_ListDocs.docsexternes();
-            QHash<int, DocExterne*>::const_iterator itdoc = listaexplorer.find(docmt->idpatient());
+            QMap<int, DocExterne*> listaexplorer = m_ListDocs.docsexternes();
+            QMap<int, DocExterne*>::const_iterator itdoc = listaexplorer.find(docmt->id());
             if (itdoc == listaexplorer.constBegin())
                 ++itdoc;
             else
                 --itdoc;
-            idaafficher = QString::number(itdoc.value()->id());
+            idaafficher = QString::number(itdoc.key());
         }
         db->StandardSQL("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS
                         " where idimpression = " + idimpr + ")");
         db->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr);
         m_ListDocs.RemoveKey(docmt->id());
         RemplirTreeView();
-        QModelIndex idx2;
+        ListDocsTreeView->expandAll();
         if (idaafficher != "")
         {
-            QModelIndex indx = getIndexFromId(gmodele, idaafficher.toInt());
-            if (indx.isValid())
-                idx2 = indx;
+            QModelIndex idx = getIndexFromId(gmodele, idaafficher.toInt());
+            if (idx.isValid())
+            {
+                ListDocsTreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+                ListDocsTreeView->setCurrentIndex(idx);
+            }
         }
-        ListDocsTreeView->expandAll();
-        ListDocsTreeView->scrollTo(idx2, QAbstractItemView::PositionAtCenter);
-        ListDocsTreeView->setCurrentIndex(idx2);
-     }
+    }
 }
 
 void dlg_docsexternes::ZoomDoc()
@@ -1459,7 +1456,7 @@ void dlg_docsexternes::RemplirTreeView()
             typedocs << doc->typedoc();
     };
 
-    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().constBegin(); itdoc != m_ListDocs.docsexternes().constEnd(); ++itdoc )
+    for(QMap<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().constBegin(); itdoc != m_ListDocs.docsexternes().constEnd(); ++itdoc )
     {
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
         // créations des entêtes par date et par type d'examen
@@ -1511,7 +1508,7 @@ void dlg_docsexternes::RemplirTreeView()
         rootNodeType->appendRow(typitem);
     }
 
-    for(QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().constBegin(); itdoc != m_ListDocs.docsexternes().constEnd(); ++itdoc )
+    for(QMap<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().constBegin(); itdoc != m_ListDocs.docsexternes().constEnd(); ++itdoc )
     {
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());      // rajout des items de chaque examen en child des dates et des types
         QString date = doc->date().toString(tr("dd-MM-yyyy"));
@@ -1632,7 +1629,7 @@ void dlg_docsexternes::RemplirTreeView()
     if (idimpraretrouver != "")
     {
         // la suite ne marche pas et provoque des plantages ????
-        //        QHash<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().find(idimpraretrouver.toInt());
+        //        QMap<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes().find(idimpraretrouver.toInt());
         //        if (itdoc != m_ListDocs.docsexternes().constEnd())
         //        {
         //            qDebug() << itdoc.key();

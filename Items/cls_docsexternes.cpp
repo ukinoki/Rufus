@@ -4,7 +4,7 @@ DocsExternes::DocsExternes()
 {
 }
 
-QHash<int, DocExterne *> DocsExternes::docsexternes()
+QMap<int, DocExterne *> DocsExternes::docsexternes()
 {
     return m_docsexternes;
 }
@@ -17,7 +17,7 @@ QHash<int, DocExterne *> DocsExternes::docsexternes()
  */
 DocExterne* DocsExternes::getDocumentById(int id, bool loadDetails, bool addToList)
 {
-    QHash<int, DocExterne*>::const_iterator itdoc = m_docsexternes.find(id);
+    QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes.find(id);
     DocExterne *result;
     if( itdoc == m_docsexternes.constEnd() )
             result = new DocExterne();

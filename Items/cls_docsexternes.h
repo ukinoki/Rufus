@@ -8,12 +8,12 @@
 class DocsExternes
 {
 private:
-    QHash<int, DocExterne*> m_docsexternes; //!< la liste des DocExternes pour un patient donné
+    QMap<int, DocExterne*> m_docsexternes; //!< la liste des DocExternes pour un patient donné
     bool m_nouveaudocument;
 
 public:
     explicit DocsExternes();
-    QHash<int, DocExterne *> docsexternes();
+    QMap<int, DocExterne *> docsexternes();
     DocExterne* getDocumentById(int id, bool loadDetails=true, bool addToList=true);
     void addDocExterne(DocExterne *DocExterne);
     void addListDocsExternes(QList<DocExterne*> listdocs);
