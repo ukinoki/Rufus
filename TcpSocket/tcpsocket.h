@@ -23,6 +23,8 @@ private:
     QString             currentmsg, erreurmsg;
     QStringList         gListSockets;
     quint16             PortTCPServer;
+    QByteArray          buffer;                                         // le buffer stocke les data jusqu'à ce que tout le bloc soit reçu
+    qint32              sizedata;                                       // le stockage de la taille permet de savoir si le bloc a été reçu
     void                erreurSocket();                                 /* traitement des erreurs d'émission de message sur le socket */
     void                TraiteDonneesRecues();                          /* decortiquage des messages reçus */
 

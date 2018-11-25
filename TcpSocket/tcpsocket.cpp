@@ -12,6 +12,8 @@ TcpSocket* TcpSocket::getInstance()
 TcpSocket::TcpSocket()
 {
     db = DataBase::getInstance();
+    buffer.clear();
+    sizedata = 0;
 }
 
 bool TcpSocket::TcpConnectToServer(QString ipadrserver)
@@ -37,12 +39,11 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     connectToHost(ipadrserver,PortTCPServer);//});      // On se connecte au serveur
     if (waitForConnected(5000))
     {
-        disconnect();
         connect(this,                 &QTcpSocket::readyRead,                                              this,   &TcpSocket::TraiteDonneesRecues);
         connect(this,                 QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),this,   &TcpSocket::erreurSocket);
-        // envoi de l'iduser
+        // envoi iduser
         envoieMessage(QString::number(db->getUserConnected()->id()) + TCPMSG_idUser);
-        // envoi de adresse IP, adresse MAC, nom d'hôte
+        // envoi adresse IP, adresse MAC, nom d'hôte
         envoieMessage(Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
         return true;
     }
@@ -55,29 +56,23 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
 
 void TcpSocket::TraiteDonneesRecues()
 {
-    QString msg= "";
-    QByteArray *buffer = new QByteArray();
-    qint32 *s = new qint32(0);
-    qint32 size = *s;
     while (bytesAvailable() > 0)
     {
-        buffer->append(readAll());
-        while ((size == 0 && buffer->size() >= 4) || (size > 0 && buffer->size() >= size)) //While can process data, process it
+        buffer.append(readAll());
+        while ((sizedata == 0 && buffer.size() >= 4) || (sizedata > 0 && buffer.size() >= sizedata)) // on n'a toujours pas la teille du message ou on n'a pas le message complet
         {
-            if (size == 0 && buffer->size() >= 4) //if size of data has received completely, then store it on our global variable
+            if (sizedata == 0 && buffer.size() >= 4)                // on a les 4 premiers caractères => on a la taille du message
             {
-                size = Utils::ArrayToInt(buffer->mid(0, 4));
-                *s = size;
-                buffer->remove(0, 4);
+                sizedata = Utils::ArrayToInt(buffer.mid(0, 4));
+                buffer.remove(0, 4);
             }
-            if (size > 0 && buffer->size() >= size) // If data has received completely, then emit our SIGNAL with the data
+            if (sizedata > 0 && buffer.size() >= sizedata)          // le message est complet
             {
-                QByteArray data = buffer->mid(0, size);
-                buffer->remove(0, size);
-                size = 0;
-                *s = size;
+                QByteArray data = buffer.mid(0, sizedata);
+                buffer.clear();                                     // on remet à 0 buffer et sizedata
+                sizedata = 0;
                 QString msg = QString::fromUtf8(data);
-                qDebug() << msg;
+                //qDebug() << msg;
                 emit tcpmessage(msg);
             }
         }
@@ -91,10 +86,10 @@ void TcpSocket::erreurSocket()
     switch(erreur)
     {
         case QAbstractSocket::RemoteHostClosedError:
-            erreurmsg = tr("Le serveur TCP s'est déconnecté et va être remplacé");
+            erreurmsg = tr("Le serveur TCP s'est déconnecté");
             break;
         case QAbstractSocket::HostNotFoundError:
-            erreurmsg = tr("Le serveur TCP est introuvable et va être remplacé");
+            erreurmsg = tr("Le serveur TCP est introuvable");
             break;
         case QAbstractSocket::SocketTimeoutError:
             erreurmsg = tr("Le serveur TCP ne répond pas");
