@@ -5,6 +5,7 @@ description: Logiciel de gestion de cabinet d'Ophtalmologie.
 type: app
 grade: devel
 confinement: classic
+base: core18
 
 apps:
  rufus:
@@ -45,7 +46,7 @@ parts:
  poppler:
     after: [gcc7, poppler-data]
     plugin: cmake
-    source: https://poppler.freedesktop.org/poppler-0.70.1.tar.xz
+    source: https://poppler.freedesktop.org/poppler-0.71.0.tar.xz
     source-type: tar
     configflags: [-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7]
     build-packages:
