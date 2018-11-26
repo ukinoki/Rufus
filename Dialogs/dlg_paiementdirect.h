@@ -3,6 +3,10 @@
 
 #include <QDialog>
 #include "procedures.h"
+#include "database.h"
+#include "gbl_datas.h"
+#include "icons.h"
+#include "utils.h"
 
 namespace Ui {
 class dlg_paiementdirect;
@@ -10,6 +14,11 @@ class dlg_paiementdirect;
 
 /*!
  * \brief l'ensemble des informations concernant un paiments direct ( = en attente d'être enregistré )
+ * rappel pour un acte
+ * iduser           = le soignant responsable médical de l'acte
+ * creepar          = le soignant qui a cree l'acte
+ * userparent       = le soignant remplacé si iduser est un remplaçant
+ * usercomptable    = le user qui comptabilise l'acte
  */
 
 class dlg_paiementdirect : public QDialog
@@ -17,11 +26,20 @@ class dlg_paiementdirect : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_paiementdirect(QList<int> ListidActeAPasser, int Mode, Procedures *procAPasser, int PaiementAModifer=0, int idUser=0, QWidget *parent = Q_NULLPTR);
+    explicit dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures *procAPasser, int PaiementAModifer=0, QWidget *parent = Q_NULLPTR);
     ~dlg_paiementdirect();
 
 private:
-    Ui::dlg_paiementdirect *ui;
+    Ui::dlg_paiementdirect      *ui;
+    Procedures                  *proc;
+    DataBase                    *db;
+    QList<int>                  gListidActe;
+    int                         gidComptableACrediter;
+    bool                        FermeALaFin;
+    QMap<int, User*>            *m_listeComptables;
+    QMap<int, User*>            *m_listeParents;
+    User                        *m_userConnected;
+
 };
 
 #endif // DLG_PAIEMENTDIRECT_H

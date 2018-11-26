@@ -9,6 +9,11 @@
 /*!
  * \brief The Acte class
  * l'ensemble des informations concernant un acte
+ * rappel pour un acte
+ * iduser           = le soignant responsable médical de l'acte
+ * creepar          = le soignant qui a cree l'acte
+ * userparent       = le soignant remplacé si iduser est un remplaçant
+ * usercomptable    = le user qui comptabilise l'acte
  */
 
 class Acte : public Item
@@ -21,9 +26,11 @@ private:
     int m_noActe;               //!< numero de l'acte
     int m_idActeMin;            //!< id du premier acte
     int m_idActeMax;            //!< id du dernier acte
-    int m_idCreatedBy;          //!< id du User qui a créé l'acte
     int m_idPatient;            //!< id du Patient correspondant à l'acte
     int m_idUser;               //!< id du User
+    int m_idCreatedBy;          //!< id du User qui a créé l'acte
+    int m_idUserParent;         //!< id du User remplacé si le user est ramplaçant ( = iduser si pas remplacé)
+    int m_idUserComptable;      //!< id du User qui comptabilise l'acte
     //TODO : ??? : différence idUser et idCreatedBy
     //-> reponse = le user est le responsable médical de l'acte - le idcreatedby est le user qui a créé l'acte et c'est parfois différent en cas de travail avec un assistant
 
@@ -69,6 +76,9 @@ public:
     QString paiementType() const;
     QString paiementTiers() const;
     int idUser() const;
+
+    bool idParent() const;
+    bool idComptable() const;
 };
 
 #endif // CLS_ACTE_H

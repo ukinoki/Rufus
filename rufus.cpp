@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("24-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("25-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1261,8 +1261,6 @@ void Rufus::AppelPaiementDirect(QString Origin)
 void Rufus::AppelPaiementDirect2(QString Origin)
 {
     QList<int> ListidActeAPasser;
-    int Mode = 1;
-
     if (Origin == "AttentePaiement") // l'appel est fait par un clic dans le menu contextuel de la salle d'attente des paiements en attente
     {
         QList<QTableWidgetSelectionRange> ListItems = ui->AccueilupTableWidget->selectedRanges();
@@ -1374,7 +1372,7 @@ void Rufus::AppelPaiementDirect2(QString Origin)
     else
         ListidActeAPasser << 0;
 
-    Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, Mode, proc, 0, 0, this);//NOTE : New Paiement
+    Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, proc, 0, this);//NOTE : New Paiement
  //   if(Dlg_PmtDirect->getInitOK())
     {
         Dlg_PmtDirect->setWindowTitle(tr("Gestion des paiements directs"));
@@ -7344,7 +7342,7 @@ void Rufus::CreerMenu()
     menuComptabilite                = menuBar()->addMenu(tr("Comptabilité"));
 
     actionPaiementDirect            = new QAction(tr("Gestion des paiements directs"));
-    actionPaiementDirect2            = new QAction(tr("Gestion des paiements directs 2"));
+    actionPaiementDirect2           = new QAction(tr("Gestion des paiements directs 2"));
     actionPaiementTiers             = new QAction(tr("Gestion des tiers payants"));
     actionBilanRecettes             = new QAction(tr("Bilan des recettes"));
     actionRecettesSpeciales         = new QAction(tr("Enregistrement des recettes spéciales"));

@@ -511,6 +511,16 @@ effectués par</string>
       </widget>
      </item>
      <item>
+      <widget class="QLabel" name="PasdePaiementlabel">
+       <property name="text">
+        <string>text</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="Line" name="line_2">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
@@ -845,7 +855,7 @@ le paiement</string>
            <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
-           <string>Actes en attente</string>
+           <string>Salle d'attente</string>
           </property>
          </widget>
         </item>
@@ -909,7 +919,7 @@ le paiement</string>
            <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
-           <string>Actes en attente</string>
+           <string>Actes en attente de paiement</string>
           </property>
          </widget>
         </item>

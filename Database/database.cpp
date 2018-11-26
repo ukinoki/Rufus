@@ -984,7 +984,7 @@ QString DataBase::createActeRequest(int idActe, int idPat)
     QString requete = "SELECT act.idActe, act.idPat, act.idUser, "
                         " act.ActeDate, act.ActeMotif, act.ActeTexte, act.ActeConclusion, "
                         " act.ActeCourrierAFaire, act.ActeCotation, act.ActeMontant, act.ActeMonnaie, "
-                        " act.CreePar, "
+                        " act.CreePar, act.UserComptable, act.UserParent, "
                         " pat.PatDDN, ll2.rank, ll.idActeMin, ll.idActeMax, ll.total, "
                         " tpm.TypePaiement, tpm.Tiers "
                       " FROM " NOM_TABLE_ACTES " act "
@@ -1017,26 +1017,28 @@ QJsonObject DataBase::extractActeData(QSqlQuery query)
     data["montant"] = query.value(9).toDouble();
     data["monnaie"] = query.value(10).toString();
     data["idCreatedBy"] = query.value(11).toInt();
+    data["idUserParent"] = query.value(12).toInt();
+    data["idUserComptable"] = query.value(13).toInt();
 
-    if( query.value(12).isNull() )
+    if( query.value(14).isNull() )
         data["agePatient"] = -1;
     else
-        data["agePatient"] = QDateTime(query.value(12).toDate()).toMSecsSinceEpoch();
+        data["agePatient"] = QDateTime(query.value(14).toDate()).toMSecsSinceEpoch();
 
-    data["noActe"] = query.value(13).toInt();
-    data["idActeMin"] = query.value(14).toInt();
-    data["idActeMax"] = query.value(15).toInt();
-    data["nbActes"] = query.value(16).toInt();
+    data["noActe"] = query.value(15).toInt();
+    data["idActeMin"] = query.value(16).toInt();
+    data["idActeMax"] = query.value(17).toInt();
+    data["nbActes"] = query.value(18).toInt();
 
-    if( query.value(17).isNull() )
+    if( query.value(19).isNull() )
         data["paiementType"] = "";
     else
-        data["paiementType"] = query.value(17).toString();
+        data["paiementType"] = query.value(19).toString();
 
-    if( query.value(18).isNull() )
+    if( query.value(20).isNull() )
         data["paiementTiers"] = "";
     else
-        data["paiementTiers"] = query.value(18).toString();
+        data["paiementTiers"] = query.value(20).toString();
 
     return data;
 }
