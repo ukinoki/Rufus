@@ -55,7 +55,7 @@ private:
     void                EnregistreNouveauCorresp();
     void                ModifCorresp(int idcor);
     void                SupprCorresp();
-    void                ReconstruitListeCorrespondants(QString filtre = "", bool listemodifiee = false);
+    void                ReconstruitListeCorrespondants(QString filtre = "");
 };
 
 #endif // dlg_listecorrespondants_H

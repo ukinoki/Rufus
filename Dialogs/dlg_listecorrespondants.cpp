@@ -27,6 +27,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(Procedures *Proc, QWidget *pare
     proc            = Proc;
     globallayout    = dynamic_cast<QVBoxLayout*>(layout());
     gmodele         = new QStandardItemModel;
+    ListeModifiee   = false;
 
     setModal(true);
     setWindowTitle(tr("Liste des correspondants"));
@@ -115,7 +116,7 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
     {
         ListeModifiee = true;
         proc->initListeCorrespondantsAll();
-        ReconstruitListeCorrespondants("");
+        ReconstruitListeCorrespondants();
     }
     delete Dlg_IdentCorresp;
 }
@@ -131,7 +132,7 @@ void dlg_listecorrespondants::ModifCorresp(int idcor)
     {
         ListeModifiee = true;
         proc->initListeCorrespondantsAll();
-        ReconstruitListeCorrespondants("");
+        ReconstruitListeCorrespondants();
     }
     delete Dlg_IdentCorresp;
 }
@@ -161,7 +162,7 @@ void dlg_listecorrespondants::SupprCorresp()
         DataBase::getInstance()->SupprCorrespondant(idCor.toInt());
         ListeModifiee = true;
         proc->initListeCorrespondantsAll();
-        ReconstruitListeCorrespondants("");
+        ReconstruitListeCorrespondants();
     }
 }
 
@@ -196,9 +197,8 @@ QList<QStandardItem*> dlg_listecorrespondants::ListeMetiers()
     return listmetiers;
 }
 
-void dlg_listecorrespondants::ReconstruitListeCorrespondants(QString filtre, bool listemodifiee)
+void dlg_listecorrespondants::ReconstruitListeCorrespondants(QString filtre)
 {
-    ListeModifiee = listemodifiee;
     treeCor->disconnect();
     gmodele->clear();
 

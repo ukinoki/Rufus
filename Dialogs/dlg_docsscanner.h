@@ -52,6 +52,7 @@ private:
     QStringList         ListTypeExams;
     QString             docpath;
     QString             NomDirStockageImagerie;
+    QString             fichierimageencours;
     bool                eventFilter(QObject *, QEvent *);
     void                AfficheDoc(QString filebut);
     void                ValideFiche();

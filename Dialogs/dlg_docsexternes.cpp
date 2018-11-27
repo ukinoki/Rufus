@@ -1179,6 +1179,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         db->StandardSQL("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS
                         " where idimpression = " + idimpr + ")");
         db->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr);
+        db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr);
         m_ListDocs.RemoveKey(docmt->id());
         RemplirTreeView();
         ListDocsTreeView->expandAll();

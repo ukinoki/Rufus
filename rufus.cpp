@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("25-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("26-11-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2083,7 +2083,11 @@ void Rufus::EnregistreDocScanner()
         return;
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + nomprenompat);
     Dlg_DocsScan->show();
-    Dlg_DocsScan->NavigueVers("Fin");
+    Dlg_DocsScan->NavigueVers("Fin"); /*on fait comme ça parce que si on utilise NavigueVers
+                                        dans le constructeur de dlg_docsscanner,
+                                        la première image a une résolution très dégradée*/
+    Dlg_DocsScan->disconnect();
+    connect(Dlg_DocsScan, &dlg_docsscanner::accepted, this, &Rufus::MAJDocsExternes);
 }
 
 void Rufus::EnregistreVideo()
@@ -2110,6 +2114,8 @@ void Rufus::EnregistreVideo()
     Dlg_DocsVideo->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + nomprenompat);
     Dlg_DocsVideo->show();
     Dlg_DocsVideo->NavigueVers("Fin");
+    Dlg_DocsVideo->disconnect();
+    connect(Dlg_DocsVideo, &dlg_docsvideo::accepted, this, &Rufus::MAJDocsExternes);
 }
 
 void Rufus::FiltreSalleDAttente()
@@ -2684,6 +2690,7 @@ void Rufus::ImprimeDossier()
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
    }
+   MAJDocsExternes();
    delete Etat_textEdit;
 }
 
@@ -7470,20 +7477,19 @@ bool Rufus::FermeDossier()
     UpSmallButton OKBouton     (tr("Garder le dossier\nen salle d'attente"));
     UpSmallButton AnnulBouton  (tr("Annuler"));
     UpSmallButton NoBouton     (tr("Fermer\nle dossier"));
-    UpSmallButton ReBouton     (tr("Retour\nà l'accueil"));
 
     msgbox.addButton(&AnnulBouton,   UpSmallButton::CANCELBUTTON);
     msgbox.addButton(&OKBouton,      UpSmallButton::STARTBUTTON);
     msgbox.addButton(&NoBouton,      UpSmallButton::CLOSEBUTTON);
     msgbox.exec();
-    if (msgbox.clickedButton() == &NoBouton)                                                         // Fermer le dossier
+    if (msgbox.clickedButton() == &NoBouton)                                                        // Fermer le dossier
     {
         QString requete =   "DELETE FROM " NOM_TABLE_SALLEDATTENTE
                 " WHERE idPat = '" + QString::number(gidPatient) + "'";
         QSqlQuery supprimePatSalDatQuery (requete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(supprimePatSalDatQuery,requete, tr("Impossible de supprimer ce patient de la salle d'attente!"));
     }
-    else if (msgbox.clickedButton() == &OKBouton)                                                    // Garder le dossier en salle d'attente
+    else if (msgbox.clickedButton() == &OKBouton)                                                   // Garder le dossier en salle d'attente
     {
         QString Message(""), Motif(""), idUser ("");
         QString req = "select Motif, Message from " NOM_TABLE_SALLEDATTENTE " where idPat = " + QString::number(gidPatient);
@@ -7534,20 +7540,6 @@ bool Rufus::FermeDossier()
         }
         else
             a = InscritEnSalDat(gidPatient);
-    }
-    else if (msgbox.clickedButton() == &ReBouton)                                                         // Fermer le dossier
-    {
-        QString saldatrequete   = "UPDATE " NOM_TABLE_SALLEDATTENTE " SET Statut = '" RETOURACCUEIL
-                                  "', HeureStatut = '" + QTime::currentTime().toString("hh:mm") +
-                                  "', idUserEnCoursExam = null"
-                                  ", PosteExamen = null"
-                                  ", idActeAPayer = " + QString::number(gidActe);
-        saldatrequete           += " WHERE idPat = '" + QString::number(gidPatient) + "'";
-        QString MsgErreur       = tr("Impossible de modifier le statut du dossier en salle d'attente!");
-        //qDebug() << saldatrequete;
-        QSqlQuery ModifSalDatQuery(saldatrequete, DataBase::getInstance()->getDataBase() );
-        DataBase::getInstance()->traiteErreurRequete(ModifSalDatQuery,saldatrequete,MsgErreur);
-        FlagMetAjourSalDat();
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) gidPatient = 0;
@@ -8543,6 +8535,7 @@ void Rufus::MAJMG(QObject *obj)
                     QSqlQuery (req, DataBase::getInstance()->getDataBase() );
                     ReconstruitCombosCorresp();             // par une modif introduite par la fiche identcorrespondant
                     FlagMetAjourMG();
+                    cbox->setCurrentIndex(cbox->findData(idcor));
                 }
             }
             else
@@ -8965,6 +8958,61 @@ void Rufus::ReconstruitCombosCorresp()
         ui->MGupComboBox            ->setCurrentIndex( idcor>-1?     ui->MGupComboBox               ->findData(idcor)   : -1 );
         ui->AutresCorresp1upComboBox->setCurrentIndex( idcorA1>-1?   ui->AutresCorresp1upComboBox   ->findData(idcorA1) : -1 );
         ui->AutresCorresp2upComboBox->setCurrentIndex( idcorA2>-1?   ui->AutresCorresp2upComboBox   ->findData(idcorA2) : -1 );
+    }
+    //Actualisation des combobox des correspondants
+    if (ui->tabWidget->indexOf(ui->tabDossier) == -1)
+        return;
+
+    QString req = "SELECT idPat, idCorMedMG, idCorMedSpe1, idCorMedSpe2, idCorMedSpe3, idCorNonMed FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+              " WHERE idPat = " + QString::number(gidPatient);
+    //qDebug() << requete;
+    QSqlQuery DonneesMedicalesQuery (req, DataBase::getInstance()->getDataBase() );
+    if (!DataBase::getInstance()->traiteErreurRequete(DonneesMedicalesQuery,req,"Impossible de retrouver les correspondants"))
+    {
+        if (DonneesMedicalesQuery.size() > 0)
+        {
+            DonneesMedicalesQuery.first();
+            QString tooltp = "";
+            if (DonneesMedicalesQuery.value(1).toInt()>0)
+            {
+                int id = DonneesMedicalesQuery.value(1).toInt();
+                ui->MGupComboBox->setCurrentIndex
+                        (ui->MGupComboBox->findData(id));
+                tooltp = CalcToolTipCorrespondant(id);
+            }
+            else
+                ui->MGupComboBox->setCurrentIndex(-1);
+            ui->MGupComboBox->setImmediateToolTip(tooltp);
+            tooltp = "";
+            if (DonneesMedicalesQuery.value(2).toInt()>0)
+            {
+                int id = DonneesMedicalesQuery.value(2).toInt();
+                ui->AutresCorresp1upComboBox->setCurrentIndex
+                        (ui->AutresCorresp1upComboBox->findData(id));
+                tooltp = CalcToolTipCorrespondant(id);
+            }
+            else
+                ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
+            ui->AutresCorresp1upComboBox->setImmediateToolTip(tooltp);
+            tooltp = "";
+            if (DonneesMedicalesQuery.value(3).toInt()>0)
+            {
+                int id = DonneesMedicalesQuery.value(3).toInt();
+                ui->AutresCorresp2upComboBox->setCurrentIndex
+                        (ui->AutresCorresp2upComboBox->findData(id));
+                tooltp = CalcToolTipCorrespondant(id);
+            }
+            else
+                ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
+            ui->AutresCorresp2upComboBox->setImmediateToolTip(tooltp);
+        }
+        else
+        {
+            MGlineEdit->clear();
+            AutresCorresp1LineEdit->clear();
+            AutresCorresp2LineEdit->clear();
+        }
+        OKModifierTerrain();
     }
 }
 
@@ -10852,6 +10900,7 @@ void Rufus::envoieMessage(QString msg)
 {
     if (!UtiliseTCP)
         return;
+    //qDebug() << msg + " - void Rufus::envoieMessage(QString msg)";
     currentmsg = msg;
     QByteArray paquet   = currentmsg.toUtf8();
     QByteArray size     = Utils::IntToArray(paquet.size());

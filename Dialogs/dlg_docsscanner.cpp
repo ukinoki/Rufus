@@ -173,7 +173,6 @@ dlg_docsscanner::~dlg_docsscanner()
 
 void dlg_docsscanner::NavigueVers(QString but)
 {
-    QString fichencours = uptable->Attribut();
     QStringList filters;
     filters << "*.pdf" << "*.jpg";
     QStringList listfich = QDir(docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
@@ -182,7 +181,7 @@ void dlg_docsscanner::NavigueVers(QString but)
                              tr("Vous devez scanner les documents au format pdf."));
         return;
     }
-    int idx = listfich.indexOf(fichencours);
+    int idx = listfich.indexOf(fichierimageencours);
     if (but == "Fin")
         idx = listfich.size()-1;
     else if (but == "Début")
@@ -196,12 +195,7 @@ void dlg_docsscanner::NavigueVers(QString but)
     toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
     toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
     if (idx>-1)
-    {
-        QString filebut = listfich.at(idx);
-        //for (int i = 0; i<listfich.size();i++)
-        //    qDebug() << listfich.at(i) + " - index = " + QString::number(i) + "/" + QString::number(listfich.size());
-        AfficheDoc(filebut);
-    }
+        AfficheDoc(listfich.at(idx));
 }
 
 void dlg_docsscanner::ChangeFile()
@@ -233,20 +227,20 @@ void dlg_docsscanner::ChangeFile()
 
 void dlg_docsscanner::AfficheDoc(QString filebut)
 {
+    fichierimageencours = filebut;
     glistPix    .clear();
     uptable     ->clear();
     uptable     ->setColumnCount(1);
     uptable     ->setColumnWidth(0,uptable->width()-2);
     uptable     ->horizontalHeader()->setVisible(false);
     uptable     ->verticalHeader()->setVisible(false);
-    uptable     ->setAttribut(filebut);
 
     QPixmap     pix;
     QDir        dirpict = QDir(docpath);
-    inflabel    ->setText("<font color='magenta'>" + filebut + "</font>");
+    inflabel    ->setText("<font color='magenta'>" + fichierimageencours + "</font>");
     inflabel    ->setGeometry(10,uptable->height()-30,350,25);
 
-    QFile       qFile(dirpict.filePath(filebut));
+    QFile       qFile(dirpict.filePath(fichierimageencours));
     if (!qFile.open( QIODevice::ReadOnly ))
     {
         UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier"), qFile.fileName());
@@ -348,9 +342,7 @@ void dlg_docsscanner::ValideFiche()
     }
 
     // enregistrement du document ----------------------------------------------------------------------------------------------------------------------------------------------
-    QTextEdit txtedit;
-    txtedit.setHtml(inflabel->text());
-    QString filename = docpath + "/" + txtedit.toPlainText();
+    QString filename = docpath + "/" + fichierimageencours;
     QFile   qFile(filename);
     if (!qFile.open( QIODevice::ReadOnly ))
     {
@@ -478,7 +470,7 @@ void dlg_docsscanner::ValideFiche()
                           | QFileDevice::ReadUser   | QFileDevice::WriteUser);
         qFile.remove();
         proc->Message(tr("Document ") + sstypedoc +  tr(" enregistré"), 1000, false);
-        close();
+        accept();
     }
 }
 

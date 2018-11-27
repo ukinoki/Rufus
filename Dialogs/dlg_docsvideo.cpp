@@ -304,7 +304,7 @@ void dlg_docsvideo::ValideFiche()
         if (QFileInfo(qFile).absoluteFilePath() != CheminVideoDir + "/" + NomFileVideoDoc)
             qFile.remove();
         proc->Message(tr("Video ") + sstypedoc +  tr(" enregistrée"), 1000, false);
-        close();
+        accept();
     }
 }
 
