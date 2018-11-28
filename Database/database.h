@@ -23,6 +23,7 @@
 #include "cls_patient.h"
 #include "cls_user.h"
 #include "cls_correspondant.h"
+#include "cls_banque.h"
 #include "cls_depense.h"
 #include "cls_villes.h"
 #include "cls_docexterne.h"
@@ -115,6 +116,7 @@ public:
     QList<Depense*> VerifExistDepense(QHash<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur = Egal);
     int             getMaxLigneBanque();
     QList<Archive*> loadArchiveByDate(QDate date, Compte *compte, int intervalle); //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
+    QList<Banque*>  loadBanques();
 
     /*
      * Sites

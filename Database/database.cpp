@@ -831,6 +831,30 @@ QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int inte
     return archives;
 }
 
+/*
+ * Banques
+*/
+QList<Banque*> DataBase::loadBanques()
+{
+    QList<Banque*> banques;
+    QString req = "SELECT idBanque, idBanqueAbrege, NomBanque, CodeBanque FROM " NOM_TABLE_BANQUES;
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return banques;
+    do
+    {
+        QJsonObject jData{};
+        jData["id"] = query.value(0).toInt();
+        jData["idbanqueabrege"] = query.value(1).toString();
+        jData["nombanque"] = query.value(2).toString();
+        jData["codebanque"] = query.value(3).toInt();
+        Banque *bq = new Banque(jData);
+        banques << bq;
+    } while( query.next() );
+    return banques;
+}
+
+
 /*******************************************************************************************************************************************************************
  ***** FIN COMPTABILITÊ ********************************************************************************************************************************************
 ********************************************************************************************************************************************************************/

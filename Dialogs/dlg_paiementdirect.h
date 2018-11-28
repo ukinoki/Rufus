@@ -33,12 +33,20 @@ private:
     Ui::dlg_paiementdirect      *ui;
     Procedures                  *proc;
     DataBase                    *db;
-    QList<int>                  gListidActe;
-    int                         gidComptableACrediter;
+
     bool                        FermeALaFin;
+    bool                        InitOK;
+    int                         gidComptableACrediter;
+    int                         gidCompteBancaireParDefaut;
+    QList<int>                  gListidActe;
     QMap<int, User*>            *m_listeComptables;
     QMap<int, User*>            *m_listeParents;
-    User                        *m_userConnected;
+    QMap<int, Banque*>          *m_listeBanques;
+    QStandardItemModel          *glistComptesEncaissmt;
+    QStandardItemModel          *glistComptesEncaissmtAvecDesactive;
+    User                        *m_userConnected, *UserComptableACrediter;
+
+    void                        ReconstruitListeBanques();
 
 };
 

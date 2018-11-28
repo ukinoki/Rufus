@@ -34,42 +34,34 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures 
   m_listeParents            = Datas::I()->users->parents();
   m_userConnected           = proc->getUserConnected();
 
-  //*!
-  //ui->UserscomboBox->setEnabled(proc->getUserConnected().isSecretaire());
+  ui->UserscomboBox->setEnabled(m_userConnected->isSecretaire());
 
-
-
-  if (gListidActe.size() > 0)        //1. il y a un ou pusieurs actes à enregistrer
+  if (gListidActe.size() > 0)        //1. il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis la 'accueil ou par le bouton enregistrepaiement
   {
       // la fiche a été appelée par le bouton "enregistrer le paiement"
       if (gListidActe.at(0)>0)
           gidComptableACrediter = db->loadActeById(gListidActe.at(0))->idComptable();
       // la fiche a été appelée par le menu et il n'y a pas d'acte prédéterminé à enregistrer
-      gidComptableACrediter = m_userConnected->getUserComptable()->id();
+      gidComptableACrediter = m_userConnected->getUserComptable()->id();     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
   }
-  /*else // la fiche a été appelée par elle-même pour modifier un enregistrement
-  {
-      gidUserACrediter = idUser;
-      ui->UserscomboBox->setEnabled(false);
-  }
-  if (gidUserACrediter == -1)
+
+  if (gidComptableACrediter == -1)
   {
       InitOK = false;
       return;
   }
 
-  gDataUser                               = Datas::I()->users->getUserById(gidUserACrediter);
-  if (gDataUser != nullptr)
+  UserComptableACrediter                               = Datas::I()->users->getUserById(gidComptableACrediter);
+  if (UserComptableACrediter != Q_NULLPTR)
   {
-      gNomUser                            = gDataUser->getLogin();
-      gidCompteBancaireParDefaut          = gDataUser->getIdCompteEncaissHonoraires();
-      proc                                ->setListeComptesEncaissmtUser(gidUserACrediter);
+      gidCompteBancaireParDefaut          = UserComptableACrediter->getIdCompteEncaissHonoraires();
+      proc                                ->setListeComptesEncaissmtUser(UserComptableACrediter->id());
       glistComptesEncaissmt               = proc->getListeComptesEncaissmtUser();
       glistComptesEncaissmtAvecDesactive  = proc->getListeComptesEncaissmtUserAvecDesactive();
   }
-  if( gDataUser == nullptr || glistComptesEncaissmt->rowCount() == 0)
+  if( UserComptableACrediter == Q_NULLPTR || glistComptesEncaissmt->rowCount() == 0)
   {
-      UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + proc->getLogin(gidUserACrediter));
+      UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + UserComptableACrediter->getLogin());
       InitOK = false;
       return;
   }
@@ -80,7 +72,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures 
   for( QMap<int, User*>::const_iterator itParent = m_listeParents->constBegin(); itParent != m_listeParents->constEnd(); ++itParent )
   {
       ui->UserscomboBox->addItem(itParent.value()->getLogin(), QString::number(itParent.value()->id()) );
-      if( gidUserACrediter != itParent.value()->id())
+      if( gidComptableACrediter != itParent.value()->id())
           ++index;
   }
   if(index>=m_listeParents->size())
@@ -89,8 +81,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures 
       ui->UserscomboBox->setCurrentIndex(index);
 
   // idem pour les comptes
-  RegleComptesComboBox();
-  ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(gidCompteBancaireParDefaut));
+/*
 
   connect (ui->AnnulupPushButton,                     SIGNAL(clicked()),                              this,           SLOT (Slot_Annul()));
   connect (ui->BanqueChequecomboBox,                  SIGNAL(editTextChanged(QString)),               this,           SLOT (Slot_EnableOKButton()));
@@ -119,7 +110,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures 
   connect (ui->UserscomboBox,                         SIGNAL(currentIndexChanged(int)),               this,           SLOT (Slot_ChangeUtilisateur()));
   connect (ui->OKupPushButton,                        SIGNAL(clicked()),                              this,           SLOT (Slot_ValidePaiement()));
   connect (ui->VirementradioButton,                   SIGNAL(clicked()),                              this,           SLOT (Slot_RegleAffichageTypePaiementframe()));
-
+*/
 
   ui->TireurChequelineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
   ui->TireurChequelineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
@@ -127,15 +118,13 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures 
   QDoubleValidator *val= new QDoubleValidator(this);
   val->setDecimals(2);
   ui->MontantlineEdit->setValidator(val);
-  ui->CommissionlineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-  ui->CommissionlineEdit->setValidator(val);
+
   QRegExp val2 = QRegExp("[A-Z]*");
   ui->BanqueChequecomboBox->setValidator(new QRegExpValidator(val2));
   ui->BanqueChequecomboBox->lineEdit()->setMaxLength(10);
-  ui->TierscomboBox->lineEdit()->setMaxLength(30);
 
   ReconstruitListeBanques();
-  ReconstruitListeTiers();
+  /*ReconstruitListeTiers();
   gOrdreTri = Chronologique;
 
   ui->RecImageLabel->setVisible(false);
@@ -207,3 +196,25 @@ dlg_paiementdirect::~dlg_paiementdirect()
 {
     delete ui;
 }
+
+/*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    -- Reconstruit la liste des Banques dans le combobox Banques --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+void dlg_paiementdirect::ReconstruitListeBanques()
+{
+    ui->BanqueChequecomboBox->clear();
+    QMap<int, Banque*>::const_iterator itbanq;
+    // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
+    QStandardItemModel *model = new QStandardItemModel();
+    for( itbanq = m_listeBanques->constBegin(); itbanq != m_listeBanques->constEnd(); ++itbanq )
+    {
+        Banque *bq = const_cast<Banque*>(*itbanq);
+        QList<QStandardItem *> items;
+        items << new QStandardItem(bq->NomBanqueAbrege()) << new QStandardItem(QString::number(bq->id()));
+            model->appendRow(items);
+    }
+    model->sort(0);
+    for(int i=0; i<model->rowCount(); i++)
+        ui->BanqueChequecomboBox->addItem(model->item(i)->text(), model->item(i,1)->text());
+}
+

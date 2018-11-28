@@ -6,6 +6,7 @@
 #include <cls_correspondants.h>
 #include <cls_patients.h>
 #include <cls_depenses.h>
+#include "cls_banque.h"
 #include "cls_compte.h"
 #include "cls_paiementsdirects.h"
 
@@ -25,7 +26,8 @@ public:
     Correspondants *correspondants;     //!< Les correspondants
     Depenses *depenses;                 //!< les depenses pour un user et une  année donnée
     Comptes *comptesallusers;           //!< tous les comptes bancaires de tous les users
-    PaiementsDirects *paiementsdirects; //! < tous les paiements en attente d'enregistrement
+    Banques *banques;                   //!< toutes les banques
+    PaiementsDirects *paiementsdirects; //!< tous les paiements en attente d'enregistrement
 
 signals:
 

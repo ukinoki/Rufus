@@ -17,6 +17,7 @@ Datas::Datas()
     correspondants  = new Correspondants();
     depenses        = new Depenses();
     comptesallusers = new Comptes();
+    banques         = new Banques();
 }
 
 
