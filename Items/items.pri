@@ -20,7 +20,8 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_docsexternes.cpp \
     $$PWD/cls_paiementdirect.cpp \
     $$PWD/cls_paiementsdirects.cpp \
-    $$PWD/cls_banque.cpp
+    $$PWD/cls_banque.cpp \
+    $$PWD/cls_tiers.cpp
 
 HEADERS += $$PWD/cls_acte.h \
         $$PWD/cls_compte.h \
@@ -40,4 +41,5 @@ HEADERS += $$PWD/cls_acte.h \
     $$PWD/cls_docsexternes.h \
     $$PWD/cls_paiementdirect.h \
     $$PWD/cls_paiementsdirects.h \
-    $$PWD/cls_banque.h
+    $$PWD/cls_banque.h \
+    $$PWD/cls_tiers.h

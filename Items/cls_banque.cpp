@@ -23,18 +23,19 @@ void Banque::setData(QJsonObject data)
 
 Banques::Banques()
 {
+    m_banques = new QMultiMap<int, Banque*>();
 }
 
-QMultiMap<int, Banque *> Banques::banques() const
+QMap<int, Banque *> *Banques::banques() const
 {
     return m_banques;
 }
 
 void Banques::addBanque(Banque *banque)
 {
-    if( m_banques.contains(banque->id()) )
+    if( m_banques->contains(banque->id()) )
         return;
-    m_banques.insert(banque->id(), banque);
+    m_banques->insert(banque->id(), banque);
 }
 
 void Banques::addBanque(QList<Banque*> listbanques)
@@ -46,13 +47,13 @@ void Banques::addBanque(QList<Banque*> listbanques)
 
 void Banques::removeBanque(Banque* banque)
 {
-    m_banques       .remove(banque->id());
+    m_banques       ->remove(banque->id());
 }
 
 Banque* Banques::getBanqueById(int id)
 {
-    QMultiMap<int, Banque*>::const_iterator itcpt = m_banques.find(id);
-    if( itcpt == m_banques.constEnd() )
+    QMap<int, Banque*>::const_iterator itcpt = m_banques->find(id);
+    if( itcpt == m_banques->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }

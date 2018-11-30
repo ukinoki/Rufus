@@ -4,6 +4,12 @@
 #include <QObject>
 #include "cls_item.h"
 
+/*!
+ * \brief Banque class
+ * l'ensemble des informations concernant une banque
+ */
+
+
 class Banque : public Item
 {
 private:
@@ -24,12 +30,12 @@ public:
 class Banques
 {
 private:
-    QMultiMap<int, Banque*> m_banques; //!< la liste des Banques
+    QMap<int, Banque*> *m_banques; //!< la liste des Banques
 
 public:
     explicit Banques();
 
-    QMultiMap<int, Banque *> banques() const;
+    QMap<int, Banque *> *banques() const;
 
     void addBanque(Banque *banque);
     void addBanque(QList<Banque*> listbanques);

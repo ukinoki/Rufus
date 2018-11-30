@@ -854,6 +854,50 @@ QList<Banque*> DataBase::loadBanques()
     return banques;
 }
 
+/*
+ * Tiers
+*/
+QList<Tiers*> DataBase::loadTiersPayants()
+{
+    QList<Tiers*> listetiers;
+    QString req = "SELECT idtIERS, Nomtiers, AdresseTiers, Codepostaltiers, Villetiers, Telephonetiers, FaxTiers from " NOM_TABLE_TIERS;
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return listetiers;
+    do
+    {
+        QJsonObject jData{};
+        jData["id"] = query.value(0).toInt();
+        jData["nomtiers"] = query.value(1).toInt();
+        jData["adressetiers"] = query.value(2).toString();
+        jData["codepostaltiers"] = query.value(3).toString();
+        jData["villetiers"] = query.value(4).toString();
+        jData["telephonetiers"] = query.value(5).toString();
+        jData["faxtiers"] = query.value(5).toString();
+        Tiers *tiers = new Tiers(jData);
+        listetiers << tiers;
+    } while( query.next() );
+
+    return listetiers;
+}
+
+QList<TypeTiers*> DataBase::loadTypesTiers()
+{
+    QList<TypeTiers*> types;
+    QString req = "SELECT Tiers FROM " NOM_TABLE_LISTETIERS;
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return types;
+    do
+    {
+        QJsonObject jData{};
+        jData["typetiers"] = query.value(0).toString();
+        TypeTiers *type = new TypeTiers(jData);
+        types << type;
+    } while( query.next() );
+    return types;
+}
+
 
 /*******************************************************************************************************************************************************************
  ***** FIN COMPTABILITÊ ********************************************************************************************************************************************

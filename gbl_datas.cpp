@@ -18,6 +18,8 @@ Datas::Datas()
     depenses        = new Depenses();
     comptesallusers = new Comptes();
     banques         = new Banques();
+    tiers           = new TiersPayants();
+    typestiers      = new TypesTiers();
 }
 
 

@@ -27,6 +27,7 @@
 #include "cls_depense.h"
 #include "cls_villes.h"
 #include "cls_docexterne.h"
+#include "cls_tiers.h"
 #include "log.h"
 #include "utils.h"
 
@@ -117,6 +118,8 @@ public:
     int             getMaxLigneBanque();
     QList<Archive*> loadArchiveByDate(QDate date, Compte *compte, int intervalle); //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
     QList<Banque*>  loadBanques();
+    QList<Tiers*>   loadTiersPayants();
+    QList<TypeTiers*>  loadTypesTiers();
 
     /*
      * Sites

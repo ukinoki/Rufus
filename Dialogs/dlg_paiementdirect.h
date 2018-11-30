@@ -2,6 +2,7 @@
 #define DLG_PAIEMENTDIRECT_H
 
 #include <QDialog>
+#include <QSqlQuery>
 #include "procedures.h"
 #include "database.h"
 #include "gbl_datas.h"
@@ -36,17 +37,51 @@ private:
 
     bool                        FermeALaFin;
     bool                        InitOK;
+    bool                        AppeleParFichePaiement, ModifPaiementEnCours, ModifLigneRecettePossible;
     int                         gidComptableACrediter;
     int                         gidCompteBancaireParDefaut;
+    int                     gMode;
+        enum gMode              {Accueil, EnregistrePaiementDirect, VoirListeActes};
+    int                     gOrdreTri;
+        enum gOrdreTri          {Alphabetique, Chronologique};
+    int                     gTypeTable;
+        enum gTypeTable         {ActesDirects,ActesTiers,Paiements};                    // définit les 3 types de tables possibles dans la fiche
+    QString                     ModeModif;
+
+    QBrush                      gtextureGris, gtextureNoir;
     QList<int>                  gListidActe;
     QMap<int, User*>            *m_listeComptables;
     QMap<int, User*>            *m_listeParents;
     QMap<int, Banque*>          *m_listeBanques;
     QStandardItemModel          *glistComptesEncaissmt;
     QStandardItemModel          *glistComptesEncaissmtAvecDesactive;
+    QTimer                      *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;
+    UpPushButton                *SupprimerBouton;
     User                        *m_userConnected, *UserComptableACrediter;
+    QList<TypeTiers*>           *m_typestiers;
 
+    void                        CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche = true);
+    void                        DefinitArchitectureTableView(UpTableWidget *TableARemplir, int TypeTable = 0);
+    void                        PoseVerrouCompta(int ActeAVerrouiller);
     void                        ReconstruitListeBanques();
+    void                        ReconstruitListeTiers();
+    void                        RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
+    void                        RegleComptesComboBox(bool ActiveSeult = true);
+    void                        RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QSqlQuery TableQuery, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
+    void                        RemplitLesTables(int Mode);
+    void                        ResizePaiementGroupBox();
+    void                        RetireVerrouCompta(int ActeADeverrouiller);
+    void                        TrieListe(UpTableWidget *TableATrier);
+    bool                        VerifVerrouCompta(UpTableWidget *TableAVerifier, int Rangee);
+    void                        VideDetailsTable(int Rangee);
+
+private slots:
+    void                        Slot_AfficheRecord();
+    void                        Slot_CalculTotalDetails();
+    void                        Slot_EnableOKButton();
+    void                        Slot_RegleAffichageFiche();
+    void                        Slot_RenvoieRangee(bool Coche = true);
+    void                        Slot_VoirListeActes();
 
 };
 

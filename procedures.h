@@ -209,10 +209,13 @@ public:
     QString                 getLogin(int idUser);
 
     void                    initListeUsers();
+    void                    initListeBanques();
     void                    initListeComptes();
     void                    initListeCorrespondants();
     void                    initListeCorrespondantsAll();
     void                    initListeDepenses(int iduser);
+    void                    initListeTiers();
+    void                    initTypesTiers();
     bool                    isPosteImportDocs();
 
     void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes

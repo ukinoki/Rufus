@@ -1158,18 +1158,50 @@ void Procedures::initListeUsers()
 }
 
 /*!
- * \brief Procedures::initListeComptes
- * Charge l'ensemble des comptes bancaires
- * et les ajoute à la classe Comptes
+ * \brief Procedures::initListeBanques
+ * Charge l'ensemble des banques
+ * et les ajoute à la classe Banques
  */
-void Procedures::initListeComptes()
+void Procedures::initListeBanques()
 {
-    QList<Compte*> listcomptes = DataBase::getInstance()->loadComptesAllUsers();
-    QList<Compte*>::const_iterator itCpt;
-    for( itCpt = listcomptes.constBegin(); itCpt != listcomptes.constEnd(); ++itCpt )
+    QList<Banque*> listbanques = DataBase::getInstance()->loadBanques();
+    QList<Banque*>::const_iterator itbq;
+    for( itbq = listbanques.constBegin(); itbq != listbanques.constEnd(); ++itbq )
     {
-        Compte *cpt = const_cast<Compte*>(*itCpt);
-        Datas::I()->comptesallusers->addCompte( cpt );
+        Banque *bq = const_cast<Banque*>(*itbq);
+        Datas::I()->banques->addBanque( bq );
+    }
+}
+
+/*!
+ * \brief Procedures::initListeTiers
+ * Charge l'ensemble des tiers payants
+ * et les ajoute à la classe Tiers
+ */
+void Procedures::initListeTiers()
+{
+    QList<Tiers*> listtiers = DataBase::getInstance()->loadTiersPayants();
+    QList<Tiers*>::const_iterator ittrs;
+    for( ittrs = listtiers.constBegin(); ittrs != listtiers.constEnd(); ++ittrs )
+    {
+        Tiers *trs = const_cast<Tiers*>(*ittrs);
+        Datas::I()->tiers->addTiers( trs );
+    }
+}
+
+/*!
+ * \brief Procedures::initTypesTiers
+ * Charge l'ensemble des types de tiers payants
+ * et les ajoute à la classe TypesTiers
+ */
+void Procedures::initTypesTiers()
+{
+    QList<TypeTiers*> listtypes = DataBase::getInstance()->loadTypesTiers();
+    QList<TypeTiers*>::const_iterator ittyp;
+    for( ittyp = listtypes.constBegin(); ittyp != listtypes.constEnd(); ++ittyp )
+    {
+        TypeTiers *typ = const_cast<TypeTiers*>(*ittyp);
+        Datas::I()->typestiers->addTypeTiers( typ );
     }
 }
 

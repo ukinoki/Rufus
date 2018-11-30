@@ -40,7 +40,9 @@ void UpDialog::AjouteLay()
     laybuttons      = new QHBoxLayout();
     laybuttons      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
     laybuttons      ->setSpacing(20);
-    QVBoxLayout *globallay = new QVBoxLayout(this);
+    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(this->layout());
+    if (globallay == Q_NULLPTR)
+        globallay = new QVBoxLayout(this);
     globallay       ->addLayout(laybuttons);
     globallay       ->setContentsMargins(10,10,10,10);
     globallay       ->setSpacing(5);
