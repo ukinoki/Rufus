@@ -23,7 +23,7 @@ void Banque::setData(QJsonObject data)
 
 Banques::Banques()
 {
-    m_banques = new QMultiMap<int, Banque*>();
+    m_banques = new QMap<int, Banque*>();
 }
 
 QMap<int, Banque *> *Banques::banques() const

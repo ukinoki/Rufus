@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QSqlQuery>
+#include "dlg_banque.h"
 #include "procedures.h"
 #include "database.h"
 #include "gbl_datas.h"
@@ -27,8 +28,9 @@ class dlg_paiementdirect : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures *procAPasser, int PaiementAModifer=0, QWidget *parent = Q_NULLPTR);
+    explicit dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
     ~dlg_paiementdirect();
+    bool                        getInitOK();
 
 private:
     Ui::dlg_paiementdirect      *ui;
@@ -37,19 +39,31 @@ private:
 
     bool                        FermeALaFin;
     bool                        InitOK;
-    bool                        AppeleParFichePaiement, ModifPaiementEnCours, ModifLigneRecettePossible;
+    bool                        ModifLigneRecettePossible;
+    bool                        ModifPaiementEnCours;
+    bool                        TraiteparCloseFlag;
     int                         gidComptableACrediter;
     int                         gidCompteBancaireParDefaut;
+    int                         gidRecette;
     int                     gMode;
-        enum gMode              {Accueil, EnregistrePaiementDirect, VoirListeActes};
+        enum gMode              {Accueil, EnregistrePaiement, ModifiePaiement, VoirListeActes};
     int                     gOrdreTri;
         enum gOrdreTri          {Alphabetique, Chronologique};
     int                     gTypeTable;
         enum gTypeTable         {ActesDirects,ActesTiers,Paiements};                    // définit les 3 types de tables possibles dans la fiche
-    QString                     ModeModif;
+    int                     ResultEnregRecette;
+        enum ResultEnregRecette {Impossible, Annul, OK};
+    QString                     ModeModif, ModePaiementDirectAModifier;
+    QString                     ValeurAvantChangement, ValeurMaxi;
 
     QBrush                      gtextureGris, gtextureNoir;
     QList<int>                  gListidActe;
+    QList<int>                  ListeActesAModifier;
+    QList<QString>              LigneCommissionCompteAModifier;
+    QList<QString>              LigneCompteAModifier;
+    QList<QString>              LigneDepenseAModifier;
+    QList<QString>              LigneRecetteAModifier;
+    QList<QString>              MontantActesAModifier;
     QMap<int, User*>            *m_listeComptables;
     QMap<int, User*>            *m_listeParents;
     QMap<int, Banque*>          *m_listeBanques;
@@ -60,27 +74,49 @@ private:
     User                        *m_userConnected, *UserComptableACrediter;
     QList<TypeTiers*>           *m_typestiers;
 
+    dlg_banque                  *Dlg_Banq;
+
+    void                        closeEvent(QCloseEvent *event);
+    bool                        eventFilter(QObject *obj, QEvent *event)  ;
     void                        CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche = true);
     void                        DefinitArchitectureTableView(UpTableWidget *TableARemplir, int TypeTable = 0);
+    int                         EnregistreRecette();
+    void                        ModifGratuitChoixMenu(QString Choix);
+    void                        NettoieVerrousCompta();
     void                        PoseVerrouCompta(int ActeAVerrouiller);
     void                        ReconstruitListeBanques();
     void                        ReconstruitListeTiers();
     void                        RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
     void                        RegleComptesComboBox(bool ActiveSeult = true);
+    void                        RemetToutAZero();
     void                        RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QSqlQuery TableQuery, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
     void                        RemplitLesTables(int Mode);
     void                        ResizePaiementGroupBox();
     void                        RetireVerrouCompta(int ActeADeverrouiller);
     void                        TrieListe(UpTableWidget *TableATrier);
+    bool                        VerifCoherencePaiement();
     bool                        VerifVerrouCompta(UpTableWidget *TableAVerifier, int Rangee);
     void                        VideDetailsTable(int Rangee);
 
+    void                        Annuler();
 private slots:
+    void                        Slot_AfficheActeVerrouille();
+    void                        Slot_AfficheActeVerrouilleClignotant();
+    void                        Slot_AfficheDDN(QTableWidgetItem*);
     void                        Slot_AfficheRecord();
     void                        Slot_CalculTotalDetails();
+    void                        Slot_ChangeUtilisateur();
+    void                        Slot_ConvertitDoubleMontant();
     void                        Slot_EnableOKButton();
+    void                        Slot_EnregistrePaiement();
+    void                        Slot_Majuscule();
+    void                        Slot_ModifGratuit(QPoint pos);
+    void                        Slot_ModifiePaiement();
     void                        Slot_RegleAffichageFiche();
+    void                        Slot_RegleAffichageTypePaiementframe();
     void                        Slot_RenvoieRangee(bool Coche = true);
+    void                        Slot_SupprimerPaiement();
+    void                        Slot_ValidePaiement();
     void                        Slot_VoirListeActes();
 
 };

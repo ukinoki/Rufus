@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("30-11-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("03-12-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1375,8 +1375,8 @@ void Rufus::AppelPaiementDirect2(QString Origin)
     else
         ListidActeAPasser << 0;
 
-    Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, proc, 0, this);//NOTE : New Paiement
- //   if(Dlg_PmtDirect->getInitOK())
+    Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, proc, this);//NOTE : New Paiement
+    if(Dlg_PmtDirect->getInitOK())
     {
         Dlg_PmtDirect->setWindowTitle(tr("Gestion des paiements directs"));
         Dlg_PmtDirect->exec();
@@ -2776,24 +2776,13 @@ void Rufus::ListeCorrespondants()
 
 void Rufus::MajusculeCreerNom()
 {
-//    QString nom;
-//    QLineEdit *UiNom;
-//    UiNom = ui->CreerNomlineEdit;
-//    nom = proc->MajusculePremiereLettre(UiNom->text(),false);
-//    UiNom->setText(nom);
-    ui->CreerNomlineEdit->setText(proc->MajusculePremiereLettre(ui->CreerNomlineEdit->text()));
-    if (gMode == NouveauDossier) ChercheNomFiltre();
+    ui->CreerNomlineEdit->setText(proc->MajusculePremiereLettre(ui->CreerNomlineEdit->text(), false));
     ChercheNomFiltre();
 }
 
 void Rufus::MajusculeCreerPrenom()
 {
-    QString nom;
-    QLineEdit *UiNom;
-    UiNom = ui->CreerPrenomlineEdit;
-    nom =  proc->MajusculePremiereLettre(UiNom->text(),false);
-    UiNom->setText(nom);
-    if (gMode == NouveauDossier) ChercheNomFiltre();
+    ui->CreerNomlineEdit->setText(proc->MajusculePremiereLettre(ui->CreerPrenomlineEdit->text(), false));
     ChercheNomFiltre();
 }
 
@@ -8762,8 +8751,8 @@ void    Rufus::OuvrirListe()
     ui->LListepushButton->setEnabled(false);
     ui->LNouvDossierpushButton->setEnabled(true);
     ui->LRecopierpushButton->setEnabled(ui->PatientsListeTableView->model()->rowCount() > 0);
-    ui->CreerNomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_recherche,this));
-    ui->CreerPrenomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_recherche,this));
+    ui->CreerNomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->CreerPrenomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
 
     gSexePat = "";      // CZ001
     gNNIPat  = "";      // CZ001
@@ -8783,8 +8772,6 @@ void    Rufus::OuvrirListe()
         ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(0)->index(),QAbstractItemView::PositionAtTop);
     }
     CalcNbDossiers();
-    ui->CreerNomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_recherche,this));
-    ui->CreerPrenomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_recherche,this));
     gMode = Liste;
 }
 
@@ -8809,8 +8796,6 @@ void Rufus::OuvrirNouveauDossier()
     ui->Nomlabel->setVisible(true);
     ui->Prenomlabel->setVisible(true);
     ui->ChercherDepuisListepushButton->setVisible(false);
-    ui->CreerNomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->CreerPrenomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
 
     ui->CreerNomlineEdit->setFocus();
     ui->CreerDossierpushButton->setIcon(Icons::icOK());

@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>818</width>
+    <width>819</width>
     <height>1040</height>
    </rect>
   </property>
@@ -28,7 +28,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_6">
+  <layout class="QVBoxLayout" name="verticalLayout_9" stretch="0,0,0,0">
    <property name="spacing">
     <number>5</number>
    </property>
@@ -45,7 +45,7 @@
     <number>10</number>
    </property>
    <item>
-    <widget class="QLabel" name="Utilisateurlabel">
+    <widget class="QLabel" name="Titrelabel">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
@@ -86,12 +86,15 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="10,10,0,10,10,0,10,10">
      <property name="spacing">
-      <number>5</number>
+      <number>3</number>
      </property>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>5</number>
+       </property>
        <item>
         <widget class="QLabel" name="Comptelabel">
          <property name="minimumSize">
@@ -154,7 +157,7 @@ effectués par</string>
         <widget class="QLabel" name="RecImageLabel">
          <property name="maximumSize">
           <size>
-           <width>160</width>
+           <width>120</width>
            <height>16777215</height>
           </size>
          </property>
@@ -210,7 +213,7 @@ effectués par</string>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
+         <width>0</width>
          <height>20</height>
         </size>
        </property>
@@ -220,13 +223,13 @@ effectués par</string>
       <widget class="QFrame" name="TypePaiementframe">
        <property name="minimumSize">
         <size>
-         <width>420</width>
+         <width>360</width>
          <height>190</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>420</width>
+         <width>360</width>
          <height>190</height>
         </size>
        </property>
@@ -254,6 +257,12 @@ effectués par</string>
         </property>
         <item>
          <widget class="QWidget" name="Paiementwidget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -281,7 +290,13 @@ effectués par</string>
              <property name="minimumSize">
               <size>
                <width>0</width>
-               <height>96</height>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>190</height>
               </size>
              </property>
              <property name="focusPolicy">
@@ -296,128 +311,162 @@ effectués par</string>
              <property name="checkable">
               <bool>false</bool>
              </property>
-             <widget class="QRadioButton" name="ChequeradioButton">
-              <property name="geometry">
-               <rect>
-                <x>5</x>
-                <y>55</y>
-                <width>130</width>
-                <height>20</height>
-               </rect>
+             <layout class="QVBoxLayout" name="verticalLayout_10">
+              <property name="spacing">
+               <number>8</number>
               </property>
-              <property name="focusPolicy">
-               <enum>Qt::StrongFocus</enum>
+              <property name="leftMargin">
+               <number>0</number>
               </property>
-              <property name="text">
-               <string>Chèque</string>
+              <property name="topMargin">
+               <number>0</number>
               </property>
-             </widget>
-             <widget class="QRadioButton" name="CarteCreditradioButton">
-              <property name="geometry">
-               <rect>
-                <x>5</x>
-                <y>30</y>
-                <width>130</width>
-                <height>20</height>
-               </rect>
+              <property name="rightMargin">
+               <number>0</number>
               </property>
-              <property name="focusPolicy">
-               <enum>Qt::StrongFocus</enum>
+              <property name="bottomMargin">
+               <number>0</number>
               </property>
-              <property name="text">
-               <string>Carte bancaire</string>
-              </property>
-             </widget>
-             <widget class="QRadioButton" name="EspecesradioButton">
-              <property name="geometry">
-               <rect>
-                <x>5</x>
-                <y>80</y>
-                <width>130</width>
-                <height>20</height>
-               </rect>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::StrongFocus</enum>
-              </property>
-              <property name="text">
-               <string>Espèces</string>
-              </property>
-             </widget>
-             <widget class="QRadioButton" name="TiersradioButton">
-              <property name="geometry">
-               <rect>
-                <x>5</x>
-                <y>105</y>
-                <width>130</width>
-                <height>20</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Tiers</string>
-              </property>
-             </widget>
-             <widget class="QRadioButton" name="ImpayeradioButton">
-              <property name="geometry">
-               <rect>
-                <x>5</x>
-                <y>130</y>
-                <width>130</width>
-                <height>20</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Impayé</string>
-              </property>
-             </widget>
-             <widget class="QRadioButton" name="GratuitradioButton">
-              <property name="geometry">
-               <rect>
-                <x>5</x>
-                <y>155</y>
-                <width>130</width>
-                <height>20</height>
-               </rect>
-              </property>
-              <property name="text">
-               <string>Gratuit</string>
-              </property>
-             </widget>
-             <widget class="QRadioButton" name="VirementradioButton">
-              <property name="geometry">
-               <rect>
-                <x>5</x>
-                <y>180</y>
-                <width>130</width>
-                <height>20</height>
-               </rect>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::StrongFocus</enum>
-              </property>
-              <property name="text">
-               <string>Virement</string>
-              </property>
-             </widget>
+              <item>
+               <widget class="QRadioButton" name="CarteCreditradioButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="focusPolicy">
+                 <enum>Qt::StrongFocus</enum>
+                </property>
+                <property name="text">
+                 <string>Carte bancaire</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="ChequeradioButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="focusPolicy">
+                 <enum>Qt::StrongFocus</enum>
+                </property>
+                <property name="text">
+                 <string>Chèque</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="EspecesradioButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="focusPolicy">
+                 <enum>Qt::StrongFocus</enum>
+                </property>
+                <property name="text">
+                 <string>Espèces</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="TiersradioButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Tiers</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="ImpayeradioButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Impayé</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="GratuitradioButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Gratuit</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="VirementradioButton">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>22</height>
+                 </size>
+                </property>
+                <property name="focusPolicy">
+                 <enum>Qt::StrongFocus</enum>
+                </property>
+                <property name="text">
+                 <string>Virement</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer_2">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>6</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
             </widget>
            </item>
            <item>
-            <spacer name="verticalSpacer_2">
+            <spacer name="verticalSpacer_6">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
-             <property name="sizeType">
-              <enum>QSizePolicy::Expanding</enum>
-             </property>
              <property name="sizeHint" stdset="0">
               <size>
-               <width>20</width>
-               <height>20</height>
+               <width>17</width>
+               <height>13</height>
               </size>
              </property>
             </spacer>
            </item>
           </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
          </widget>
         </item>
         <item>
@@ -431,7 +480,7 @@ effectués par</string>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>350</height>
+            <height>190</height>
            </size>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -490,6 +539,12 @@ effectués par</string>
               </item>
               <item>
                <widget class="QDateEdit" name="dateEdit">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
                 <property name="buttonSymbols">
                  <enum>QAbstractSpinBox::UpDownArrows</enum>
                 </property>
@@ -551,7 +606,20 @@ effectués par</string>
                </spacer>
               </item>
               <item>
-               <widget class="QLineEdit" name="MontantlineEdit"/>
+               <widget class="QLineEdit" name="MontantlineEdit">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -606,6 +674,12 @@ effectués par</string>
               </item>
               <item>
                <widget class="QComboBox" name="TierscomboBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
                 <property name="editable">
                  <bool>true</bool>
                 </property>
@@ -654,6 +728,18 @@ effectués par</string>
               </item>
               <item>
                <widget class="QComboBox" name="TypeTierscomboBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="editable">
                  <bool>true</bool>
                 </property>
@@ -702,6 +788,18 @@ effectués par</string>
               </item>
               <item>
                <widget class="QComboBox" name="ComptesupComboBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>120</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="editable">
                  <bool>true</bool>
                 </property>
@@ -750,6 +848,18 @@ effectués par</string>
               </item>
               <item>
                <widget class="QComboBox" name="BanqueChequecomboBox">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
                 <property name="editable">
                  <bool>true</bool>
                 </property>
@@ -800,7 +910,14 @@ effectués par</string>
                </spacer>
               </item>
               <item>
-               <widget class="QLineEdit" name="TireurChequelineEdit"/>
+               <widget class="QLineEdit" name="TireurChequelineEdit">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -844,7 +961,20 @@ effectués par</string>
                </spacer>
               </item>
               <item>
-               <widget class="QLineEdit" name="CommissionlineEdit"/>
+               <widget class="QLineEdit" name="CommissionlineEdit">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>80</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -919,13 +1049,6 @@ effectués par</string>
           </layout>
          </widget>
         </item>
-        <item>
-         <widget class="Line" name="line">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
-        </item>
        </layout>
       </widget>
      </item>
@@ -934,7 +1057,7 @@ effectués par</string>
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>190</height>
+         <height>20</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -958,7 +1081,7 @@ effectués par</string>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
+         <width>0</width>
          <height>20</height>
         </size>
        </property>
@@ -982,7 +1105,7 @@ effectués par</string>
        <property name="maximumSize">
         <size>
          <width>185</width>
-         <height>16777215</height>
+         <height>190</height>
         </size>
        </property>
        <property name="frameShape">
@@ -993,29 +1116,64 @@ effectués par</string>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout">
         <property name="spacing">
-         <number>12</number>
+         <number>0</number>
         </property>
         <property name="sizeConstraint">
          <enum>QLayout::SetMinimumSize</enum>
         </property>
         <property name="leftMargin">
-         <number>5</number>
+         <number>0</number>
         </property>
         <property name="topMargin">
-         <number>5</number>
+         <number>0</number>
         </property>
         <property name="rightMargin">
-         <number>5</number>
+         <number>0</number>
         </property>
         <property name="bottomMargin">
-         <number>5</number>
+         <number>0</number>
         </property>
         <item>
-         <widget class="UpPushButton" name="ListActesupPushButton">
+         <widget class="UpPushButton" name="SupprimerupPushButton">
+          <property name="minimumSize">
+           <size>
+            <width>165</width>
+            <height>50</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
-            <width>180</width>
-            <height>16777215</height>
+            <width>165</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Supprimer</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../assets/Images/images.qrc">
+            <normaloff>:/trash.png</normaloff>:/trash.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>25</width>
+            <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="UpPushButton" name="ListActesupPushButton">
+          <property name="minimumSize">
+           <size>
+            <width>165</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>165</width>
+            <height>50</height>
            </size>
           </property>
           <property name="focusPolicy">
@@ -1041,10 +1199,16 @@ effectués par</string>
         </item>
         <item>
          <widget class="UpPushButton" name="NouvPaiementupPushButton">
+          <property name="minimumSize">
+           <size>
+            <width>165</width>
+            <height>50</height>
+           </size>
+          </property>
           <property name="maximumSize">
            <size>
-            <width>180</width>
-            <height>16777215</height>
+            <width>165</width>
+            <height>50</height>
            </size>
           </property>
           <property name="focusPolicy">
@@ -1052,7 +1216,7 @@ effectués par</string>
           </property>
           <property name="text">
            <string>Enregistrer
-le paiement</string>
+un paiement</string>
           </property>
           <property name="icon">
            <iconset resource="../assets/Images/images.qrc">
@@ -1070,46 +1234,31 @@ le paiement</string>
          </widget>
         </item>
         <item>
-         <widget class="UpPushButton" name="OKupPushButton">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
+         <widget class="UpPushButton" name="ModifierupPushButton">
+          <property name="minimumSize">
+           <size>
+            <width>165</width>
+            <height>50</height>
+           </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>180</width>
-            <height>16777215</height>
+            <width>165</width>
+            <height>50</height>
            </size>
           </property>
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
           <property name="text">
-           <string>Retour</string>
+           <string>Modifier</string>
           </property>
           <property name="icon">
            <iconset resource="../assets/Images/images.qrc">
-            <normaloff>:/start.png</normaloff>:/start.png</iconset>
+            <normaloff>:/wrench-screwdriver.png</normaloff>:/wrench-screwdriver.png</iconset>
           </property>
           <property name="iconSize">
            <size>
-            <width>30</width>
-            <height>30</height>
+            <width>25</width>
+            <height>25</height>
            </size>
-          </property>
-          <property name="shortcut">
-           <string>Meta+Return</string>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
-          </property>
-          <property name="default">
-           <bool>false</bool>
-          </property>
-          <property name="flat">
-           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -1121,7 +1270,7 @@ le paiement</string>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>20</height>
+            <height>0</height>
            </size>
           </property>
          </spacer>
@@ -1130,14 +1279,14 @@ le paiement</string>
          <widget class="UpPushButton" name="AnnulupPushButton">
           <property name="minimumSize">
            <size>
-            <width>0</width>
-            <height>0</height>
+            <width>165</width>
+            <height>50</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
-            <width>180</width>
-            <height>16777215</height>
+            <width>165</width>
+            <height>50</height>
            </size>
           </property>
           <property name="mouseTracking">
@@ -1170,6 +1319,56 @@ le paiement</string>
           </property>
          </widget>
         </item>
+        <item>
+         <widget class="UpPushButton" name="OKupPushButton">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>165</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>165</width>
+            <height>50</height>
+           </size>
+          </property>
+          <property name="focusPolicy">
+           <enum>Qt::NoFocus</enum>
+          </property>
+          <property name="text">
+           <string>Retour</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../assets/Images/images.qrc">
+            <normaloff>:/start.png</normaloff>:/start.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="shortcut">
+           <string>Meta+Return</string>
+          </property>
+          <property name="autoDefault">
+           <bool>false</bool>
+          </property>
+          <property name="default">
+           <bool>false</bool>
+          </property>
+          <property name="flat">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
        </layout>
       </widget>
      </item>
@@ -1185,7 +1384,7 @@ le paiement</string>
      </property>
      <property name="maximumSize">
       <size>
-       <width>800</width>
+       <width>16777215</width>
        <height>16777215</height>
       </size>
      </property>
@@ -1195,9 +1394,9 @@ le paiement</string>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,5,1,4,1,12">
+     <layout class="QVBoxLayout" name="verticalLayout_8">
       <property name="spacing">
-       <number>0</number>
+       <number>3</number>
       </property>
       <property name="leftMargin">
        <number>0</number>
@@ -1409,19 +1608,97 @@ le paiement</string>
        </layout>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_11">
+       <layout class="QHBoxLayout" name="horizontalLayout_17">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QLabel" name="ActesEnAttentelabel">
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="text">
-           <string>Salle d'attente</string>
-          </property>
+         <widget class="QWidget" name="SalleDAttentewidget" native="true">
+          <layout class="QVBoxLayout" name="verticalLayout_6">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_11">
+             <item>
+              <widget class="QLabel" name="ActesEnAttentelabel">
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="text">
+                <string>Salle d'attente</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_10">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="UpTableWidget" name="SalleDAttenteupTableWidget">
+             <property name="minimumSize">
+              <size>
+               <width>520</width>
+               <height>80</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>720</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::ClickFocus</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderHighlightSections">
+              <bool>false</bool>
+             </attribute>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer_10">
+         <spacer name="horizontalSpacer_2">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -1436,56 +1713,127 @@ le paiement</string>
        </layout>
       </item>
       <item>
-       <widget class="UpTableWidget" name="SalleDAttenteupTableWidget">
-        <property name="minimumSize">
-         <size>
-          <width>520</width>
-          <height>80</height>
-         </size>
+       <layout class="QHBoxLayout" name="horizontalLayout_18">
+        <property name="spacing">
+         <number>0</number>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>720</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="focusPolicy">
-         <enum>Qt::ClickFocus</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::SingleSelection</enum>
-        </property>
-        <property name="selectionBehavior">
-         <enum>QAbstractItemView::SelectRows</enum>
-        </property>
-        <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderHighlightSections">
-         <bool>false</bool>
-        </attribute>
-       </widget>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_12">
         <item>
-         <widget class="QLabel" name="ActesEnAttentelabel_2">
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="text">
-           <string>Actes en attente de paiement</string>
-          </property>
+         <widget class="QWidget" name="Listewidget" native="true">
+          <layout class="QVBoxLayout" name="verticalLayout_7">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_12">
+             <item>
+              <widget class="QLabel" name="ActesEnAttentelabel_2">
+               <property name="focusPolicy">
+                <enum>Qt::NoFocus</enum>
+               </property>
+               <property name="text">
+                <string>Actes en attente de paiement</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <spacer name="horizontalSpacer_11">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+            </layout>
+           </item>
+           <item>
+            <widget class="UpTableWidget" name="ListeupTableWidget">
+             <property name="minimumSize">
+              <size>
+               <width>520</width>
+               <height>320</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="mouseTracking">
+              <bool>true</bool>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::StrongFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::CustomContextMenu</enum>
+             </property>
+             <property name="horizontalScrollBarPolicy">
+              <enum>Qt::ScrollBarAlwaysOff</enum>
+             </property>
+             <property name="autoScroll">
+              <bool>true</bool>
+             </property>
+             <property name="editTriggers">
+              <set>QAbstractItemView::NoEditTriggers</set>
+             </property>
+             <property name="tabKeyNavigation">
+              <bool>false</bool>
+             </property>
+             <property name="showDropIndicator" stdset="0">
+              <bool>false</bool>
+             </property>
+             <property name="dragDropOverwriteMode">
+              <bool>false</bool>
+             </property>
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="wordWrap">
+              <bool>true</bool>
+             </property>
+             <property name="cornerButtonEnabled">
+              <bool>true</bool>
+             </property>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderDefaultSectionSize">
+              <number>0</number>
+             </attribute>
+             <attribute name="verticalHeaderHighlightSections">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="verticalHeaderMinimumSectionSize">
+              <number>0</number>
+             </attribute>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
-         <spacer name="horizontalSpacer_11">
+         <spacer name="horizontalSpacer_3">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
           </property>
@@ -1498,73 +1846,6 @@ le paiement</string>
          </spacer>
         </item>
        </layout>
-      </item>
-      <item>
-       <widget class="UpTableWidget" name="ListeupTableWidget">
-        <property name="minimumSize">
-         <size>
-          <width>520</width>
-          <height>320</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="mouseTracking">
-         <bool>true</bool>
-        </property>
-        <property name="focusPolicy">
-         <enum>Qt::StrongFocus</enum>
-        </property>
-        <property name="contextMenuPolicy">
-         <enum>Qt::CustomContextMenu</enum>
-        </property>
-        <property name="horizontalScrollBarPolicy">
-         <enum>Qt::ScrollBarAlwaysOff</enum>
-        </property>
-        <property name="autoScroll">
-         <bool>true</bool>
-        </property>
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-        <property name="tabKeyNavigation">
-         <bool>false</bool>
-        </property>
-        <property name="showDropIndicator" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="dragDropOverwriteMode">
-         <bool>false</bool>
-        </property>
-        <property name="selectionMode">
-         <enum>QAbstractItemView::SingleSelection</enum>
-        </property>
-        <property name="selectionBehavior">
-         <enum>QAbstractItemView::SelectRows</enum>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <property name="cornerButtonEnabled">
-         <bool>true</bool>
-        </property>
-        <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderDefaultSectionSize">
-         <number>0</number>
-        </attribute>
-        <attribute name="verticalHeaderHighlightSections">
-         <bool>false</bool>
-        </attribute>
-        <attribute name="verticalHeaderMinimumSectionSize">
-         <number>0</number>
-        </attribute>
-       </widget>
       </item>
      </layout>
     </widget>
