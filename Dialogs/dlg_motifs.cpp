@@ -92,7 +92,7 @@ dlg_motifs::dlg_motifs(Procedures *prc, QWidget *parent) :
 
     RemplirTableWidget();
     int n = ui->MotifsupTableWidget->columnCount()-1;
-    ui->MotifsupTableWidget ->setRangeSelected(QTableWidgetSelectionRange(0,0,0,n),true);
+    ui->MotifsupTableWidget ->selectRow(0);
     Slot_ActualiseDetails();
 
     connect(OKButton,                                   SIGNAL(clicked()),              this,           SLOT (Slot_EnregistreMotifs()));
@@ -294,7 +294,7 @@ void dlg_motifs::DeplaceVersRow(int id, int anc, int nouv)
     for (int i=0; i<ui->MotifsupTableWidget->rowCount(); i++)
         if (ui->MotifsupTableWidget->item(i,3)->text() == idSender)
         {
-            ui->MotifsupTableWidget->setRangeSelected(QTableWidgetSelectionRange(i, 0, i, ui->MotifsupTableWidget->columnCount()-1),true);
+            ui->MotifsupTableWidget->selectRow(i);
             break;
         }
     Slot_ActualiseDetails();
@@ -479,7 +479,7 @@ void dlg_motifs::SupprimMotif()
             UpchkFromTableW(ui->MotifsupTableWidget,i,6)->setRowTable(i);
     }
 
-    ui->MotifsupTableWidget->setRangeSelected(QTableWidgetSelectionRange(rowdest, 0, rowdest, ui->MotifsupTableWidget->columnCount()-1),true);
+    ui->MotifsupTableWidget->selectRow(rowdest);
     Slot_ActualiseDetails(); // setrangeselected ne déclenche pas le slot
     OKButton->setEnabled(true);
 }
@@ -562,7 +562,7 @@ void dlg_motifs::CreeMotif()
 
     QFontMetrics fm(qApp->font());
     ui->MotifsupTableWidget->setRowHeight(row,int(fm.height()*1.3));
-    ui->MotifsupTableWidget->setRangeSelected(QTableWidgetSelectionRange(row, 0, row, ui->MotifsupTableWidget->columnCount()-1),true);
+    ui->MotifsupTableWidget->selectRow(row);
     OKButton->setEnabled(true);
 }
 
@@ -573,8 +573,7 @@ void dlg_motifs::Slot_EnregistreMotifs()
     {
         if (ui->MotifsupTableWidget->item(i,1)->text()=="" || ui->MotifsupTableWidget->item(i,2)->text()=="")
         {
-            ui->MotifsupTableWidget->setRangeSelected(ui->MotifsupTableWidget->selectedRanges().at(0), false);
-            ui->MotifsupTableWidget->setRangeSelected(QTableWidgetSelectionRange(i,0,i,ui->MotifsupTableWidget->columnCount()-1),true);
+            ui->MotifsupTableWidget->selectRow(i);
             UpMessageBox::Watch(this,tr("Renseignements incomplets pour ce motif"));
             return;
         }

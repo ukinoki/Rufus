@@ -77,6 +77,15 @@ int UpTableWidget::rowNoHiddenCount()
     return nrow;
 }
 
+void UpTableWidget::selectRow(int row)
+{
+    if (selectionBehavior() == QAbstractItemView::SelectRows)
+    {
+        clearSelection();
+        setRangeSelected(QTableWidgetSelectionRange(row,0,row,columnCount()-1),true);
+    }
+}
+
 void UpTableWidget::setAttribut(QString attrib)
 {
     Attrib = attrib;

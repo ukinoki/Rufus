@@ -134,7 +134,6 @@ private:
     void        AfficheMotif(UpLabel *lbl);
     void        AfficheToolTip(int);
     void        AppelPaiementDirect(QString Origin = "");
-    void        AppelPaiementDirect2(QString Origin = "");
     void        AppelPaiementTiers();
     void        AutreDossier(int idPat);
     void        BilanRecettes();
@@ -361,7 +360,7 @@ private:
         QAction         *actionCreerDossier, *actionCreerActe, *actionOuvrirDossier, *actionEmettreDocument, *actionRecopierDossier;
         QAction         *actionParametres, *actionSupprimerActe, *actionSupprimerDossier, *actionRechercheParMotCle, *actionRechercheParID;
         QAction         *actionDossierPatient, *actionCorrespondants, *actionEnregistrerDocScanner, *actionEnregistrerVideo, *actionRechercheCourrier;
-        QAction         *actionGestionComptesBancaires, *actionPaiementDirect, *actionPaiementDirect2, *actionPaiementTiers, *actionRecettesSpeciales, *actionResumeStatut;
+        QAction         *actionGestionComptesBancaires, *actionPaiementDirect, *actionPaiementTiers, *actionRecettesSpeciales, *actionResumeStatut;
         QAction         *actionBilanRecettes, *actionJournalDepenses, *actionRemiseCheques, *actionImpayes;
         QAction         *actionQuit;
 };

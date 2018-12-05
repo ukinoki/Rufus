@@ -65,7 +65,6 @@ private:
     QList<QString>              LigneRecetteAModifier;
     QList<QString>              MontantActesAModifier;
     QMap<int, User*>            *m_listeComptables;
-    QMap<int, User*>            *m_listeParents;
     QMap<int, Banque*>          *m_listeBanques;
     QStandardItemModel          *glistComptesEncaissmt;
     QStandardItemModel          *glistComptesEncaissmtAvecDesactive;
@@ -106,9 +105,11 @@ private slots:
     void                        Slot_AfficheRecord();
     void                        Slot_CalculTotalDetails();
     void                        Slot_ChangeUtilisateur();
+    void                        Slot_ClassementListes(int col);
     void                        Slot_ConvertitDoubleMontant();
     void                        Slot_EnableOKButton();
     void                        Slot_EnregistrePaiement();
+    void                        Slot_FiltreListe(QString filtre);
     void                        Slot_Majuscule();
     void                        Slot_ModifGratuit(QPoint pos);
     void                        Slot_ModifiePaiement();

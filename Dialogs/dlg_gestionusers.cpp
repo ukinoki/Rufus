@@ -239,7 +239,7 @@ void dlg_gestionusers::Slot_Annulation()
         else if (AfficheParamUser(gidUserDepart))
         {
             int row = ui->ListUserstableWidget->findItems(QString::number(gidUserDepart), Qt::MatchExactly).at(0)->row();
-            ui->ListUserstableWidget->setRangeSelected(QTableWidgetSelectionRange(row,0,row,1),true);
+            ui->ListUserstableWidget->selectRow(row);
         }
         ui->Principalframe->setEnabled(false);
         widgButtons->setEnabled(true);

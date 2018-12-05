@@ -88,7 +88,8 @@ dlg_docsscanner::dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *pa
                     << tr("Speculaire")
                     << tr("Topographie")
                     << tr("Hess-Weiss")
-                    << tr("Autre");
+                    << tr("CRO")
+                     << tr("Autre");
     toolbar         = new UpToolBar();
     dirsearchbutton = new UpPushButton();
 
