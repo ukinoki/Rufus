@@ -421,7 +421,10 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             GraphicView             ->setVisible(true);
             QImage image;
             if (!image.loadFromData(bapdf))
+            {
                 UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+                return;
+            }
             pix = QPixmap::fromImage(image).scaled(QSize(qApp->desktop()->availableGeometry().width(),
                                                          qApp->desktop()->availableGeometry().height()),
                                                    Qt::KeepAspectRatioByExpanding,
@@ -496,6 +499,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             }
             delete document;
         }
+        else return;
     }
     if (gMode == Zoom)
     {
@@ -661,12 +665,16 @@ bool dlg_docsexternes::EcritDansUnFichier(QString NomFichier, QByteArray TexteFi
 
 QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imagerie, bool afficher)
 {
-    /* la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
+    /* Cette fonction sert à stocker dans un QByteArray le contenu des documents d'imagerie ou des courriers émis par le logiciel pour pouvoir les afficher
+     * la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
      *      pour afficher un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
      *      pour afficher un document d'imagerie stocké directement dans la base, dans la table impressions - on va extraire le ByteArray directement de la base, de la table impressions
      * la fonction est applée par ImprimeDoc() - on utilise la table echangeimages
      *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
-     *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base, de la table echangeimages
+     *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base de la table echangeimages
+     * la fonction renvoie un QMap<QString,QVariant> reulst
+     * result["Type"] est un QString qui donne le type de document, jpg ou pdf
+     * result["ba"] ets un QByteArray qui stocke le contenu du fichier
     */
     DocExterne *docmt = m_ListDocs.getDocumentById(idimpression);
     QMap<QString,QVariant> result;

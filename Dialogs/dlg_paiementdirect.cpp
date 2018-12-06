@@ -1,3 +1,20 @@
+/* (C) 2018 LAINE SERGE
+This file is part of Rufus.
+
+Rufus is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+Rufus is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with Rufus. If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "dlg_paiementdirect.h"
 #include "ui_dlg_paiementdirect.h"
 
@@ -245,11 +262,35 @@ void dlg_paiementdirect::Slot_AfficheActeVerrouilleClignotant()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::Slot_AfficheDDN(QTableWidgetItem *titem)
 {
-    int col = (gMode==VoirListeActes?2:3);
-    if (titem->column() == col)
-        QToolTip::showText(cursor().pos(),ui->ListeupTableWidget->item(titem->row(),col)->data(1).toString());
-    else
-        QToolTip::showText(cursor().pos(),"");
+    int col;
+    if (gMode==VoirListeActes)
+    {
+        if (titem->column() == 2)
+            QToolTip::showText(cursor().pos(),ui->ListeupTableWidget->item(titem->row(),2)->data(1).toString());
+        else if (titem->column() == 1)
+            QToolTip::showText(cursor().pos(),
+                               QString::number(titem->row())
+                               + " "
+                               + tr("comptable =")
+                               +  "\n"
+                               + Datas::I()->users->getUserById(ui->ListeupTableWidget->item(titem->row(),0)->data(1).toInt())->getLogin());
+        else
+            QToolTip::showText(cursor().pos(),"");
+    }
+    else if (gMode==EnregistrePaiement)
+    {
+        if (titem->column() == 3)
+            QToolTip::showText(cursor().pos(),ui->ListeupTableWidget->item(titem->row(),3)->data(1).toString());
+        else if (titem->column() == 2)
+            QToolTip::showText(cursor().pos(),
+                               QString::number(titem->row())
+                               + " "
+                               + tr("comptable =")
+                               +  "\n"
+                               + Datas::I()->users->getUserById(ui->ListeupTableWidget->item(titem->row(),0)->data(1).toInt())->getLogin());
+        else
+            QToolTip::showText(cursor().pos(),"");
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2157,23 +2198,7 @@ void dlg_paiementdirect::RemplitLesTables(int Mode)
     disconnect (ui->SalleDAttenteupTableWidget, SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
     disconnect (ui->ListeupTableWidget,         SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
 
-    QString user =  " AND act.UserComptable = ";
-    if (m_userConnected->isLiberal())
-        // l'utilisateur est un soignant liberal et responsable - il enregistre ses actes et ceux de ses éventuels salariés
-        user = " AND act.UserComptable = "  + QString::number(UserComptableACrediter->id()) + "\n";
-    else if (m_userConnected->isSalarie() && !m_userConnected->isAssistant())
-        // l'utilisateur est un soignant salarie et responsable
-        user = " AND act.UserComptable = "  + QString::number(m_userConnected->getIdUserComptable()) + "\n"
-               " AND act.UserParent = "     + QString::number(m_userConnected->id()) + "\n";
-    else if (m_userConnected->isRemplacant())
-        // l'utilisateur est un remplacant
-        user = " AND act.UserComptable = "  + QString::number(m_userConnected->getIdUserComptable()) + "\n"
-               " AND act.UserParent = "     + QString::number(m_userConnected->id()) + "\n";
-    else if (m_userConnected->isSecretaire())
-        // l'utilisateur est un secretaire
-        user = " AND act.UserComptable = "  + QString::number(UserComptableACrediter->id()) + "\n";
-    else
-        user = " AND act.UserComptable = "  + QString::number(UserComptableACrediter->id()) + "\n";
+    QString user =  " AND act.UserComptable = "  + QString::number(UserComptableACrediter->id()) + "\n";
 
     switch (Mode)
     {
@@ -2195,8 +2220,10 @@ void dlg_paiementdirect::RemplitLesTables(int Mode)
         DefinitArchitectureTableView(ui->ListeupTableWidget, ActesDirects);
 
         requete =
-                    "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation, ActeMontant, ActeMonnaie, '' as TypePaiement, ActeMontant as ResteDu , SUM(Paye) as Regle, PatDDN FROM "
-                    NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_LIGNESPAIEMENTS " lig\n"
+                    "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                 // 0, 1, 2, 3, 4
+                    " ActeMontant, ActeMonnaie, '' as TypePaiement, ActeMontant as ResteDu , SUM(Paye) as Regle,"    // 5, 6, 7, 8, 9
+                    " PatDDN, UserComptable"                                                                        // 10, 11
+                    " FROM " NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_LIGNESPAIEMENTS " lig\n"
                     " WHERE "
                     " act.idActe IN (SELECT idActe from (\n"
                     " SELECT  lig.idActe, SUM(Paye) as TotalPaye,ActeMontant  FROM " NOM_TABLE_LIGNESPAIEMENTS " as lig, " NOM_TABLE_ACTES " as act2\n"
@@ -2213,8 +2240,10 @@ void dlg_paiementdirect::RemplitLesTables(int Mode)
                     " GROUP BY act.idActe\n";                        // tous les actes dont le paiement est incomplet
 
         requete +=  " UNION \n\n"
-                    " SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation, ActeMontant, ActeMonnaie, '' as TypePaiement, ActeMontant as ResteDu , 0 as Regle, PatDDN FROM "
-                    NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat"
+                    " SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                // 0, 1, 2, 3, 4
+                    " ActeMontant, ActeMonnaie, '' as TypePaiement, ActeMontant as ResteDu , 0 as Regle,"           // 5, 6, 7, 8, 9
+                    " PatDDN, UserComptable"                                                                        // 10, 11
+                    " FROM " NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat"
                     " WHERE "
                     " act.idacte not in (select idacte from " NOM_TABLE_LIGNESPAIEMENTS ")\n"
                     " AND act.idacte not in (select idacte from " NOM_TABLE_TYPEPAIEMENTACTES " WHERE TypePaiement = 'I' OR TypePaiement = 'T')\n"
@@ -2226,7 +2255,9 @@ void dlg_paiementdirect::RemplitLesTables(int Mode)
                     " GROUP BY act.idActe\n";                        // tous les actes pour lesquels aucun renseignement de paiement n'a été enregistré
 
         requete +=  " UNION \n\n"
-                    " SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation, ActeMontant, ActeMonnaie, TypePaiement, ActeMontant as ResteDu, 0 as Regle, PatDDN"
+                    " SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                // 0, 1, 2, 3, 4
+                    " ActeMontant, ActeMonnaie, TypePaiement, ActeMontant as ResteDu, 0 as Regle,"                  // 5, 6, 7, 8, 9
+                    " PatDDN, UserComptable"                                                                        // 10, 11
                     " FROM " NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_TYPEPAIEMENTACTES " typ\n"
                     " WHERE typ.TypePaiement = 'I'\n"
                     " AND typ.idActe = act.idActe\n"
@@ -2245,8 +2276,9 @@ void dlg_paiementdirect::RemplitLesTables(int Mode)
 
         //2. Remplissage ui->SalleDAttenteupTableWidget
         DefinitArchitectureTableView(ui->SalleDAttenteupTableWidget,ActesDirects);
-        requete =   "SELECT idActe, ActeDate, PatNom, PatPrenom, ActeCotation, ActeMontant, ActeMonnaie, ActeMontant as CalculPaiement FROM \n"
-                    NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat \n"
+        requete =   "SELECT idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                // 0, 1, 2, 3, 4
+                    " ActeMontant, ActeMonnaie, ActeMontant as CalculPaiement, UserComptable"                  // 5, 6, 7, 8, 9
+                    " FROM \n" NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat \n"
                     " WHERE idActe IN (SELECT saldat.idActeAPayer FROM " NOM_TABLE_SALLEDATTENTE " saldat) \n"
                     " AND act.idPat = pat.idPat \n";
         requete +=  user;
@@ -2298,7 +2330,9 @@ void dlg_paiementdirect::RemplitLesTables(int Mode)
         // On sélectionne tous les actes sans exception, sauf les gratuits et les impayés
         DefinitArchitectureTableView(ui->ListeupTableWidget, ActesTiers);
         requete =   "select * from (\n"
-                    "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation, ActeMontant, ActeMonnaie, SUM(Paye) as tot, TypePaiement, Tiers, PatDDN\n"
+                    "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                 // 0, 1, 2, 3, 4
+                    " ActeMontant, ActeMonnaie, SUM(Paye) as tot, TypePaiement, Tiers,"                             // 5, 6, 7, 8, 9
+                    " PatDDN, UserComptable\n"                             // 5, 6, 7, 8, 9
                     " FROM " NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_TYPEPAIEMENTACTES " typ, " NOM_TABLE_LIGNESPAIEMENTS " lig\n"
                     " WHERE act.idActe = typ.idActe\n"
                     " AND lig.idActe = act.idActe\n"
@@ -2309,7 +2343,9 @@ void dlg_paiementdirect::RemplitLesTables(int Mode)
         requete +=  " group by act.idacte) as mar\n"
                     " union\n\n"
 
-                    " (SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation, ActeMontant, ActeMonnaie, 0 as tot, TypePaiement, Tiers, PatDDN\n"
+                    " (SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                               // 0, 1, 2, 3, 4
+                    " ActeMontant, ActeMonnaie, 0 as tot, TypePaiement, Tiers,"                                     // 5, 6, 7, 8, 9
+                    " PatDDN, UserComptable\n"                                                                      // 10, 11
                     " FROM " NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_TYPEPAIEMENTACTES " typ\n"
                     " WHERE act.idActe = typ.idActe\n"
                     " AND act.idacte not in (select idacte from " NOM_TABLE_LIGNESPAIEMENTS ")\n"
@@ -2372,6 +2408,10 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 A = TableQuery.value(0).toString();                                                 // idACte
                 pItem1 = new QTableWidgetItem() ;
                 pItem1->setText(A);
+                if (TableARemplir == ui->ListeupTableWidget)
+                    pItem1->setData(1,TableQuery.value(11).toInt());
+                else if (TableARemplir == ui->SalleDAttenteupTableWidget)
+                    pItem1->setData(1,TableQuery.value(8).toInt());
                 TableARemplir->setItem(i,col,pItem1);
                 col++;
 

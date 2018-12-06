@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("05-12-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("06-12-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1255,6 +1255,7 @@ void Rufus::AppelPaiementDirect(QString Origin)
         DataBase::getInstance()->traiteErreurRequete(ModifSalDatQuery,req,Msg);
         FlagMetAjourSalDat();
     }
+    AfficheActeCompta();
 }
 
 void Rufus::AppelPaiementTiers()
@@ -2627,7 +2628,7 @@ void Rufus::MajusculeCreerNom()
 
 void Rufus::MajusculeCreerPrenom()
 {
-    ui->CreerNomlineEdit->setText(proc->MajusculePremiereLettre(ui->CreerPrenomlineEdit->text(), false));
+    ui->CreerPrenomlineEdit->setText(proc->MajusculePremiereLettre(ui->CreerPrenomlineEdit->text(), false));
     ChercheNomFiltre();
 }
 
