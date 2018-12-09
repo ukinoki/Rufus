@@ -314,9 +314,8 @@ void dlg_gestioncomptes::ModifCompte()
      * . il est le seul compte active pour cet utilisateur
     */
     bool ok = true;
-    QList<QList<QVariant>> listcomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
-                                                                    NOM_TABLE_LIGNESCOMPTES, ok,
-                                                                    "where iduser = " + QString::number(gidUser) + " and desactive is null");
+    QList<QList<QVariant>> listcomptes =
+            db->SelectRecordsFromTable(QStringList() << "idcompte", NOM_TABLE_COMPTES, ok, "where iduser = " + QString::number(gidUser) + " and desactive is null");
     if (!ui->DesactiveComptecheckBox->isChecked())
         ui->DesactiveComptecheckBox ->setEnabled(listcomptes.size()>1);
     else
