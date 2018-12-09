@@ -406,13 +406,13 @@ void dlg_gestioncomptes::ValidCompte()
     {
         idcompte = ui->idCompteupLineEdit->text().toInt();
         QHash<QString, QString> listsets;
-        listsets.insert(" IBAN = '"                   , ui->IBANuplineEdit->text());
-        listsets.insert(" IntituleCompte = '"         , ui->IntituleCompteuplineEdit->text());
-        listsets.insert(" NomCompteABrege = '"        , ui->NomCompteAbregeuplineEdit->text());
-        listsets.insert(" SoldeSurDernierReleve = "   , QString::number(QLocale().toDouble(ui->SoldeuplineEdit->text()),'f',2));
-        listsets.insert(" idbanque = "                , QString::number(idbanque));
-        listsets.insert(" partage = "                 , (gSociete? "1" : "null"));
-        listsets.insert(" desactive = "               , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
+        listsets.insert(" IBAN"                 , ui->IBANuplineEdit->text());
+        listsets.insert("IntituleCompte"        , ui->IntituleCompteuplineEdit->text());
+        listsets.insert("NomCompteABrege"       , ui->NomCompteAbregeuplineEdit->text());
+        listsets.insert("SoldeSurDernierReleve" , QString::number(QLocale().toDouble(ui->SoldeuplineEdit->text()),'f',2));
+        listsets.insert("idbanque"              , QString::number(idbanque));
+        listsets.insert("partage"               , (gSociete? "1" : "null"));
+        listsets.insert("desactive"             , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
         db->UpdateTable(NOM_TABLE_COMPTES,
                         listsets,
                         "where idCompte = "          + ui->idCompteupLineEdit->text());
@@ -420,22 +420,22 @@ void dlg_gestioncomptes::ValidCompte()
     else if (gMode == Nouv)
     {
         QHash<QString, QString> listsets;
-        listsets.insert("iduser"                      , QString::number(gidUser));
-        listsets.insert("idbanque"                    , QString::number(idbanque));
-        listsets.insert(" IBAN = '"                   , ui->IBANuplineEdit->text());
-        listsets.insert(" IntituleCompte = '"         , ui->IntituleCompteuplineEdit->text());
-        listsets.insert(" NomCompteABrege = '"        , ui->NomCompteAbregeuplineEdit->text());
-        listsets.insert(" SoldeSurDernierReleve = "   , QString::number(QLocale().toDouble(ui->SoldeuplineEdit->text()),'f',2));
-        listsets.insert(" partage = "                 , (gSociete? "1" : "null"));
-        listsets.insert(" desactive = "               , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
-        db->InsertIntoTable(NOM_TABLE_BANQUES, listsets);
+        listsets.insert("iduser"                 , QString::number(gidUser));
+        listsets.insert("idbanque"               , QString::number(idbanque));
+        listsets.insert("IBAN"                   , ui->IBANuplineEdit->text());
+        listsets.insert("IntituleCompte"         , ui->IntituleCompteuplineEdit->text());
+        listsets.insert("NomCompteABrege"        , ui->NomCompteAbregeuplineEdit->text());
+        listsets.insert("SoldeSurDernierReleve"  , QString::number(QLocale().toDouble(ui->SoldeuplineEdit->text()),'f',2));
+        listsets.insert("partage"                , (gSociete? "1" : "null"));
+        listsets.insert("desactive"              , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
+        db->InsertIntoTable(NOM_TABLE_COMPTES, listsets);
         idcompte = db->selectMaxFromTable("idcompte",NOM_TABLE_COMPTES);
         if (!gAfficheLeSolde)
             UpMessageBox::Watch(this, tr("Le compte ") + ui->IntituleCompteuplineEdit->text() + tr(" a été enregistré."),
                                       tr("le solde a été fixé à O,OO euros et devra être corrigé par le propriétaire du compte"));
     }
     comptesusr->removeCompte(CompteEnCours);
-    comptesusr->addCompte(db->loadComptesByUser(idcompte));
+    comptesusr->addCompte(db->loadComptesByUser(gidUser));
     CompteEnCours = comptesusr->getCompteById(idcompte);
 
     RemplirTableView();

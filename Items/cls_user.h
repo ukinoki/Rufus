@@ -85,17 +85,17 @@ private:
 
     QDateTime m_dateDerniereConnexion;
 
-    Site *m_Site = NULL;
-    Comptes *m_comptes = NULL;
+    Site *m_Site        = Q_NULLPTR;
+    Comptes *m_comptes  = Q_NULLPTR;
 
 
-    User *m_userSuperviseur = NULL;
+    User *m_userSuperviseur     = Q_NULLPTR;
     int m_idUserActeSuperviseur = ROLE_INDETERMINE; //!< son id s'il est responsable de ses actes
                                                   //!< un idUser s'il est assistant
-    User *m_userParent = NULL;
+    User *m_userParent = Q_NULLPTR;
     int m_idUserParent = ROLE_INDETERMINE; //!< son id s'il n'est pas remplaçant
                                          //!< un idUser qui correspond au soigant remplacé
-    User *m_userComptable = NULL;
+    User *m_userComptable = Q_NULLPTR;
     int m_idUserComptable = ROLE_INDETERMINE; //!< son id s'il est responsable et libéral
                                          //!< l'id de son employeur s'il est responsable et salarié
                                          //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le comptable devient
@@ -105,8 +105,8 @@ private:
 
 
 public:
-    explicit User(QJsonObject data = {}, QObject *parent = nullptr);
-    explicit User(QString login, QString password, QJsonObject data = {}, QObject *parent = nullptr);
+    explicit User(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit User(QString login, QString password, QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
     void setData(QJsonObject data);
 

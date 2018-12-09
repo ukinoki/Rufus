@@ -99,6 +99,8 @@ Procedures::Procedures(QObject *parent) :
     Ouverture_Ports_Series();
     MesureRef               = "";
     dlgrefractionouverte    = false;
+    ListeComptesEncaissUser                 = new QStandardItemModel();
+    ListeComptesEncaissUserAvecDesactive    = new QStandardItemModel();
     initOK                  = true;
 }
 
@@ -1070,11 +1072,13 @@ bool Procedures::FicheRefractionOuverte()
 }
 
 //TODO : Compta
-void Procedures::setListeComptesEncaissmtUser(int idUser)
+void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on vide les listes de comptes
 {
+    ListeComptesEncaissUser->clear();
+    ListeComptesEncaissUserAvecDesactive->clear();
+    if (idUser==-1)
+        return;
     User* user = Datas::I()->users->getUserById(idUser);
-    ListeComptesEncaissUser                 = new QStandardItemModel();
-    ListeComptesEncaissUserAvecDesactive    = new QStandardItemModel();
     int usercpt = ( user->getEmployeur() > 0 ? user->getEmployeur() : idUser ) ;
     QString req = "select idCompte, nomcompteabrege, desactive, userlogin from " NOM_TABLE_COMPTES " cpt"
                   " left outer join " NOM_TABLE_UTILISATEURS " usr on  usr.iduser = cpt.iduser"
@@ -1152,7 +1156,6 @@ void Procedures::initListeUsers()
         User *usr = const_cast<User*>(*itUser);
         if( usr->id() == m_userConnected->id() )
             usr = m_userConnected;
-
         Datas::I()->users->addUser( usr );
     }
 }

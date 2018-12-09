@@ -214,9 +214,9 @@ void dlg_gestionusers::Slot_Annulation()
 {
     if (gMode == Creer)
     {
-        QString req = "delete from " NOM_TABLE_UTILISATEURS " where idUser = " + ui->idUseruplineEdit->text();
+        QString req = "delete from " NOM_TABLE_UTILISATEURS " where idUser = " + QString::number(DataUser()->id());
         QSqlQuery (req,db);
-        req = "delete from " NOM_TABLE_COMPTES " where iduser = " + ui->idUseruplineEdit->text();
+        req = "delete from " NOM_TABLE_COMPTES " where iduser = " + QString::number(DataUser()->id());
         QSqlQuery (req,db);
         int b = (QSqlQuery("select idUser from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(gidUserDepart),db).size() == 0?
                      -1:
@@ -831,7 +831,17 @@ void dlg_gestionusers::Slot_FermeFiche()
         msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
         msgbox.exec();
         if (msgbox.clickedButton()==&OKBouton)
-            emit ui->OKupSmallButton->click();
+        {
+            if (VerifFiche())
+            {
+                emit ui->OKupSmallButton->click();
+                reject();
+            }
+            else
+                return;
+        }
+        else
+            return;
     }
     reject();
 }
@@ -848,6 +858,7 @@ void dlg_gestionusers::Slot_GestionComptes()
     QString cptact  = ui->CompteActescomboBox->currentText();
     bool verifcpta  = ui->CompteComptawidget->isVisible();
     QString cptcpta = ui->CompteComptacomboBox->currentText();
+
     Dlg_GestComptes = new dlg_gestioncomptes(DataUser(), ui->SocieteComptableupRadioButton->isChecked(), (DataUser()->id()==gidUserDepart), this);
     Dlg_GestComptes ->setWindowTitle(tr("Comptes bancaires de ") + DataUser()->getLogin());
     Dlg_GestComptes ->exec();
@@ -1075,12 +1086,12 @@ void dlg_gestionusers::SupprUser()
             for (int i=0; i<quercpt.size();i++)
             {
                 QString icpt = quercpt.value(0).toString();
-                if (QSqlQuery ("select idcompte from " NOM_TABLE_RECETTES       " where comptevirement = "    + icpt, db).size()==0
-                 && QSqlQuery ("select idcompte from " NOM_TABLE_ARCHIVESBANQUE " where idcompte = "          + icpt, db).size()==0
-                 && QSqlQuery ("select idcompte from " NOM_TABLE_DEPENSES       " where compte = "            + icpt, db).size()==0
-                 && QSqlQuery ("select idcompte from " NOM_TABLE_REMISECHEQUES  " where idcompte = "          + icpt, db).size()==0
-                 && QSqlQuery ("select idcompte from " NOM_TABLE_LIGNESCOMPTES  " where idcompte = "          + icpt, db).size()==0)
-                    QSqlQuery ("delete from " NOM_TABLE_COMPTES " where idcompte = " + icpt, db);
+                if (QSqlQuery ("select idrecette from " NOM_TABLE_RECETTES " where comptevirement = " + icpt, db).size()==0)
+                    if (QSqlQuery ("select idligne from " NOM_TABLE_ARCHIVESBANQUE " where idcompte = " + icpt, db).size()==0)
+                        if (QSqlQuery ("select iddep from " NOM_TABLE_DEPENSES " where compte = " + icpt, db).size()==0)
+                            if (QSqlQuery ("select idremcheq from " NOM_TABLE_REMISECHEQUES " where idcompte = " + icpt, db).size()==0)
+                                if (QSqlQuery ("select idligne from " NOM_TABLE_LIGNESCOMPTES " where idcompte = " + icpt, db).size()==0)
+                                    QSqlQuery ("delete from " NOM_TABLE_COMPTES " where idcompte = " + icpt, db);
                 quercpt.next();
             }
         }
@@ -1210,27 +1221,6 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     if (chercheUsrQuery.size() == 0)
         return false;
     setDataUser(idUser);
-
-//    for (int i=0; i<ui->SecteurgroupBox->findChildren<QRadioButton*>().size(); i++)
-//    {
-//        ui->SecteurgroupBox->findChildren<QRadioButton*>().at(i)->setAutoExclusive(false);
-//        ui->SecteurgroupBox->findChildren<QRadioButton*>().at(i)->setChecked(false);
-//        ui->SecteurgroupBox->findChildren<QRadioButton*>().at(i)->setAutoExclusive(true);
-//    }
-//    for (int i=0; i<ui->SecteurgroupBox->findChildren<QRadioButton*>().size(); i++)
-//    {
-//        ui->SecteurgroupBox->findChildren<QRadioButton*>().at(i)->setAutoExclusive(false);
-//        ui->SecteurgroupBox->findChildren<QRadioButton*>().at(i)->setChecked(false);
-//        ui->SecteurgroupBox->findChildren<QRadioButton*>().at(i)->setAutoExclusive(true);
-//    }
-//    ui->ModeExercicegroupBox->setVisible(false);
-//    for (int i=0; i<ui->ModeExercicegroupBox->findChildren<QRadioButton*>().size(); i++)
-//    {
-//        ui->ModeExercicegroupBox->findChildren<QRadioButton*>().at(i)->setAutoExclusive(false);
-//        ui->ModeExercicegroupBox->findChildren<QRadioButton*>().at(i)->setChecked(false);
-//        ui->ModeExercicegroupBox->findChildren<QRadioButton*>().at(i)->setAutoExclusive(true);
-//    }
-
 
     /* Valeurs de soignant
      * 1 = ophtalmo

@@ -67,8 +67,8 @@ int Acte::idUser() const
 {
     return m_idUser;
 }
-bool Acte::idParent() const        { return m_idUserParent; }
-bool Acte::idComptable() const     { return m_idUserComptable; }
+int Acte::idParent() const        { return m_idUserParent; }
+int Acte::idComptable() const     { return m_idUserComptable; }
 
 Acte::Acte(QObject *parent) : Item(parent)
 {

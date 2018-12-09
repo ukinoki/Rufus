@@ -111,10 +111,11 @@
          </property>
          <property name="text">
           <string>Actes
-effectués par</string>
+effectués pour
+le compte de</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
+          <set>Qt::AlignBottom|Qt::AlignHCenter</set>
          </property>
         </widget>
        </item>

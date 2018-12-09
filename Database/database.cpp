@@ -1085,8 +1085,8 @@ QJsonObject DataBase::extractActeData(QSqlQuery query)
     data["montant"] = query.value(9).toDouble();
     data["monnaie"] = query.value(10).toString();
     data["idCreatedBy"] = query.value(11).toInt();
-    data["idUserParent"] = query.value(12).toInt();
-    data["idUserComptable"] = query.value(13).toInt();
+    data["idUserComptable"] = query.value(12).toInt();
+    data["idUserParent"] = query.value(13).toInt();
 
     if( query.value(14).isNull() )
         data["agePatient"] = -1;

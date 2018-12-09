@@ -70,10 +70,10 @@ private:
         enum gTypeTable         {ActesDirects,ActesTiers,Paiements};                    // définit les 3 types de tables possibles dans la fiche
     int                     ResultEnregRecette;
         enum ResultEnregRecette {Impossible, Annul, OK};
-    QString                     ModeModif, ModePaiementDirectAModifier;
+    QString                     ModePaiementDirectAModifier;
     QString                     ValeurAvantChangement, ValeurMaxi;
 
-    QBrush                      gtextureGris, gtextureNoir;
+    QBrush                      gtextureGris;
     QList<int>                  gListidActe;
     QList<int>                  ListeActesAModifier;
     QList<QString>              LigneCommissionCompteAModifier;
@@ -83,8 +83,8 @@ private:
     QList<QString>              MontantActesAModifier;
     QMap<int, User*>            *m_listeComptables;
     QMap<int, Banque*>          *m_listeBanques;
-    QStandardItemModel          *glistComptesEncaissmt;
-    QStandardItemModel          *glistComptesEncaissmtAvecDesactive;
+    QStandardItemModel          *p_listComptesEncaissmt;
+    QStandardItemModel          *p_listComptesEncaissmtAvecDesactive;
     QTimer                      *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;
     UpPushButton                *SupprimerBouton;
     User                        *m_userConnected, *UserComptableACrediter;
@@ -94,9 +94,11 @@ private:
 
     void                        closeEvent(QCloseEvent *event);
     bool                        eventFilter(QObject *obj, QEvent *event)  ;
+    void                        ChangeComptable(int idcomptable, bool depuislecombo = false);
     void                        CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche = true);
     void                        DefinitArchitectureTableView(UpTableWidget *TableARemplir, int TypeTable = 0);
     int                         EnregistreRecette();
+    void                        FiltreLesTables();
     void                        ModifGratuitChoixMenu(QString Choix);
     void                        NettoieVerrousCompta();
     void                        PoseVerrouCompta(int ActeAVerrouiller);
@@ -106,7 +108,7 @@ private:
     void                        RegleComptesComboBox(bool ActiveSeult = true);
     void                        RemetToutAZero();
     void                        RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QSqlQuery TableQuery, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
-    void                        RemplitLesTables(int Mode);
+    void                        RemplitLesTables();
     void                        ResizePaiementGroupBox();
     void                        RetireVerrouCompta(int ActeADeverrouiller);
     void                        TrieListe(UpTableWidget *TableATrier);
@@ -118,11 +120,11 @@ private:
 private slots:
     void                        Slot_AfficheActeVerrouille();
     void                        Slot_AfficheActeVerrouilleClignotant();
-    void                        Slot_AfficheDDN(QTableWidgetItem*);
+    void                        Slot_AfficheToolTip(QTableWidgetItem*);
     void                        Slot_AfficheRecord();
     void                        Slot_CalculTotalDetails();
-    void                        Slot_ChangeUtilisateur();
     void                        Slot_ClassementListes(int col);
+    void                        Slot_ChangeComptable();
     void                        Slot_ConvertitDoubleMontant();
     void                        Slot_EnableOKButton();
     void                        Slot_EnregistrePaiement();

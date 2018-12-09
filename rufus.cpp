@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("06-12-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("09-12-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1109,7 +1109,7 @@ void Rufus::AfficheMenu(QMenu *menu)
 void Rufus::AppelPaiementDirect(QString Origin)
 {
     QList<int> ListidActeAPasser;
-    if (Origin == "AttentePaiement") // l'appel est fait par un clic dans le menu contextuel de la salle d'attente des paiements en attente
+    if (Origin == "AttentePaiement")    // l'appel est fait par un clic dans le menu contextuel de la salle d'attente des paiements en attente
     {
         QList<QTableWidgetSelectionRange> ListItems = ui->AccueilupTableWidget->selectedRanges();
         if (ListItems.size() == 0) return;
@@ -1135,7 +1135,7 @@ void Rufus::AppelPaiementDirect(QString Origin)
             }
         }
     }
-    else if (Origin == "Bouton") // l'appel est fait par un clic sur le bouton enregistrepaiement
+    else if (Origin == "Bouton")        // l'appel est fait par un clic sur le bouton enregistrepaiement
     {
         // On vérifie que la cotation est complète
         QString Titre = "";
@@ -1217,15 +1217,10 @@ void Rufus::AppelPaiementDirect(QString Origin)
         DataBase::getInstance()->traiteErreurRequete(ModifSalDatQuery,requete,Msg);
         ListidActeAPasser << gidActe;
     }
-    else
-        ListidActeAPasser << 0;
 
     Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, proc, this);//NOTE : New Paiement
     if(Dlg_PmtDirect->getInitOK())
-    {
-        Dlg_PmtDirect->setWindowTitle(tr("Gestion des paiements directs"));
         Dlg_PmtDirect->exec();
-    }
     if (Origin == "Bouton")  // on redonne le statut en cours d'examen au dossier
     {
         QString Msg;
@@ -3311,13 +3306,16 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
         if( gDataUser->isSoignant() )
         {
             QAction *pAction_ReprendreDossier = gmenuContextuel->addAction(tr("Reprendre le dossier"));
-            connect (pAction_ReprendreDossier,  &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Reprendre");});
+            connect (pAction_ReprendreDossier,  &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat("Reprendre");});
         }
         QAction *pAction_EmettreDoc = gmenuContextuel->addAction(tr("Emettre un document"));
-        connect (pAction_EmettreDoc,            &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Document");});
+        connect (pAction_EmettreDoc,            &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat("Document");});
     }
-    QAction *pAction_EnregistrePaiement = gmenuContextuel->addAction(tr("Enregistrer le paiement"));
-    connect (pAction_EnregistrePaiement,        &QAction::triggered,    [=] {ChoixMenuContextuelSalDat("Payer");});
+    if (gDataUser->isSecretaire() || labelClicked->getData().value("idComptable").toInt()==gDataUser->getIdUserComptable())
+    {
+        QAction *pAction_EnregistrePaiement = gmenuContextuel->addAction(tr("Enregistrer le paiement"));
+        connect (pAction_EnregistrePaiement,    &QAction::triggered,    this, [=] {ChoixMenuContextuelSalDat("Payer");});
+    }
 
     // ouvrir le menu
     gmenuContextuel->exec(cursor().pos());
@@ -5919,11 +5917,11 @@ void Rufus::AfficheActe(int idActe)
         double H = 1;
         if (gMonnaie == "F")
         {
-            ui->ActeMontantLabel->setText("Montant (€)\n(payé en F)");
+            ui->ActeMontantLabel->setText(tr("Montant (€)\n(payé en F)"));
             H = 6.55957;
         }
         else
-            ui->ActeMontantLabel->setText("Montant (€)");
+            ui->ActeMontantLabel->setText(tr("Montant (€)"));
         ui->ActeMontantlineEdit->setText(QLocale().toString(AfficheActeQuery.value(9).toDouble()/H,'f',2));
         int idx = ui->ActeCotationcomboBox->findText(AfficheActeQuery.value(8).toString());
         if (idx>0)
@@ -6041,7 +6039,11 @@ void Rufus::AfficheActeCompta()
     ui->ModifierCotationActepushButton->setVisible(!a);
     if (a)
     {
-        ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->lineEdit()->text()!="");
+        QString req = "SELECT UserComptable From " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(gidActe);
+        QSqlQuery cptQuery (req, DataBase::getInstance()->getDataBase() );
+        DataBase::getInstance()->traiteErreurRequete(cptQuery,req,"Impossible de retrouver les renseignements comptables");
+        cptQuery.first();
+        ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->lineEdit()->text()!="" && cptQuery.value(0).toInt()==gDataUser->getIdUserComptable());
         return;
     }
 
@@ -9514,7 +9516,8 @@ void Rufus::Remplir_SalDat()
     // ACCUEIL ----------------------------------------------------------------------------------------------------------
     QString PaiementsEnAttenterequete  =    "SELECT saldat.IdPat, PatNom, PatPrenom, UserLogin, ActeCotation,"                      // 0,1,2,3,4
                                             " ActeMontant, ActeHeure, saldat.idActeAPayer, Message, saldat.idUser,"                 // 5,6,7,8,9
-                                            " UserParent, saldat.motif, PatDDN, rdv.motif, saldat.iduser "                          // 10, 11, 12, 13, 14
+                                            " UserParent, saldat.motif, PatDDN, rdv.motif, saldat.iduser,"                          // 10, 11, 12, 13, 14
+                                            " UserComptable "                                                                       // 15
                                             " FROM " NOM_TABLE_SALLEDATTENTE " AS saldat"
                                             " INNER JOIN " NOM_TABLE_PATIENTS " ON " NOM_TABLE_PATIENTS ".idPat = saldat.idPat "
                                             " INNER JOIN " NOM_TABLE_UTILISATEURS " ON " NOM_TABLE_UTILISATEURS ".idUser = saldat.idUser"
@@ -9544,6 +9547,7 @@ void Rufus::Remplir_SalDat()
         rsgnmt["loginsuperviseur"] = RemplirTableViewPaiementQuery.value(3).toString();
         rsgnmt["urgence"] = (RemplirTableViewPaiementQuery.value(11).toString()=="URG");
         rsgnmt["message"] = RemplirTableViewPaiementQuery.value(8).toString();
+        rsgnmt["idComptable"] = RemplirTableViewPaiementQuery.value(15).toInt();
 
         UpLabel *label0, *label1, *label2, *label3, *label4, *label5;
         label0 = new UpLabel;

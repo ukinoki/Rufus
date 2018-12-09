@@ -77,8 +77,8 @@ public:
     QString paiementTiers() const;
     int idUser() const;
 
-    bool idParent() const;
-    bool idComptable() const;
+    int idParent() const;
+    int idComptable() const;
 };
 
 #endif // CLS_ACTE_H
