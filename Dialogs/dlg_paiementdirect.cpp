@@ -160,15 +160,11 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures 
     QMap<int, User*>::const_iterator itcptable;
     for( itcptable = m_listeComptables->constBegin(); itcptable != m_listeComptables->constEnd(); ++itcptable )
         ui->ComptablescomboBox->addItem(itcptable.value()->getLogin(), QString::number(itcptable.value()->id()) );
-    /*for (int i=0;i<gListidActe.size();++i)
-        qDebug() << i << "idacte = " <<gListidActe.at(i) << " - comptable = "<< db->loadActeById(gListidActe.at(0))->idComptable();
-     */
     // on cherche le comptable à créditer
     if (gListidActe.size() > 0)                     // il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis l'accueil ou par le bouton enregistrepaiement
         gidComptableACrediter = db->loadActeById(gListidActe.at(0))->idComptable();
     else                                            // la fiche a été appelée par le menu et il n'y a pas d'acte prédéterminé à enregistrer
         gidComptableACrediter = (m_listeComptables->size() == 1? m_listeComptables->begin().key() : m_userConnected->getIdUserComptable());     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
-    //qDebug() << "comptable = " << Datas::I()->users->getUserById(gidComptableACrediter)->getLogin();
 
     ChangeComptable(gidComptableACrediter);
     connect (ui->ComptablescomboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(Slot_ChangeComptable()));
@@ -210,7 +206,7 @@ void dlg_paiementdirect::Slot_AfficheRecord()
             n = allRButtons.size();
         }
     if (
-        (gMode == ModifiePaiement || gMode == EnregistrePaiement)
+        gMode == EnregistrePaiement
         && (QLocale().toDouble(ui->MontantlineEdit->text()) > 0 || radioButtonClicked || ui->DetailupTableWidget->rowCount() > 0)
        )
         ui->RecImageLabel->setVisible(!ui->RecImageLabel->isVisible());
@@ -434,7 +430,7 @@ void dlg_paiementdirect::Slot_CalculTotalDetails()
     QString TotalRemise;
     TotalRemise = QLocale().toString(Total,'f',2);
     ui->TotallineEdit->setText(TotalRemise);
-    if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+    if (gMode == EnregistrePaiement)
     {
         Slot_EnableOKButton();
         if (ModifLigneRecettePossible && !ui->GratuitradioButton->isChecked() && !ui->ImpayeradioButton->isChecked())
@@ -497,6 +493,19 @@ void dlg_paiementdirect::FiltreLesTables()
         ui->ListeupTableWidget->setRowHidden(i, (ui->ListeupTableWidget->item(i,0)->data(1).toInt()!=gidComptableACrediter) && gidComptableACrediter > 0);
     for (int i= 0; i<ui->SalleDAttenteupTableWidget->rowCount(); ++i)
         ui->SalleDAttenteupTableWidget->setRowHidden(i, (ui->SalleDAttenteupTableWidget->item(i,0)->data(1).toInt()!=gidComptableACrediter) && gidComptableACrediter > 0);
+    if (ui->ListeupTableWidget->rowNoHiddenCount()==0 || ui->ListeupTableWidget->FirstRowNoHidden() == -1)
+    {
+        ui->TypePaiementframe->setVisible(false);
+        ui->PasdePaiementlabel->setVisible(false);
+        ui->SalleDAttenteupTableWidget->clearContents();
+        ui->DetailupTableWidget->clearContents();
+    }
+    else
+    {
+        ui->ListeupTableWidget->scrollToItem(ui->ListeupTableWidget->item(ui->ListeupTableWidget->FirstRowNoHidden(),0), QAbstractItemView::PositionAtTop);
+        if (gMode==VoirListeActes)
+            ui->ListeupTableWidget->selectRow(ui->ListeupTableWidget->FirstRowNoHidden());
+    }
 }
 
 void dlg_paiementdirect::Slot_ConvertitDoubleMontant()
@@ -512,7 +521,8 @@ void dlg_paiementdirect::Slot_ConvertitDoubleMontant()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::Slot_ClassementListes(int col)
 {
-    if (col!= 2) return;
+    if (gMode==VoirListeActes && col!= 2) return;
+    if (gMode==EnregistrePaiement && col!= 3) return;
     if (gOrdreTri == Chronologique)
         gOrdreTri = Alphabetique;
     else
@@ -616,7 +626,6 @@ void dlg_paiementdirect::Slot_ModifGratuit(QPoint pos)
 
 void dlg_paiementdirect::Slot_ModifiePaiement()
 {
-    gMode = ModifiePaiement;
     QString requete;
     QString ModePaiement;
     QDate   DateActe;
@@ -877,10 +886,12 @@ void dlg_paiementdirect::Slot_RegleAffichageFiche()
     ui->NouvPaiementupPushButton    ->setVisible(gMode==Accueil);
     ui->ListActesupPushButton       ->setVisible(gMode==Accueil);
     ui->OKupPushButton              ->setVisible(gMode!=VoirListeActes);
-    ui->ModifierupPushButton        ->setVisible(gMode==ModifiePaiement || gMode==VoirListeActes);
+    ui->ModifierupPushButton        ->setVisible(gMode==VoirListeActes);
     ui->PasdePaiementlabel          ->setVisible(false);
+    ui->Comptablelabel              ->setVisible(gMode!=Accueil);
+    ui->ComptablescomboBox          ->setVisible(gMode!=Accueil);
     ui->ComptablescomboBox          ->setEnabled(m_userConnected->getUserComptable()==Q_NULLPTR
-                                                 && (gMode == Accueil || (gMode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0))
+                                                 && (gMode == VoirListeActes || (gMode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0))
                                                  && m_listeComptables->size()>1);
     ui->SupprimerupPushButton       ->setVisible(false);
     ui->CherchePatientupLineEdit    ->clear();
@@ -1081,7 +1092,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
     {
         if (obj->inherits("UpLineEdit"))
         {
-            if (obj->parent()->parent() == ui->DetailupTableWidget  && (gMode == EnregistrePaiement || gMode == ModifiePaiement))
+            if (obj->parent()->parent() == ui->DetailupTableWidget  && gMode == EnregistrePaiement)
             {
                 UpLineEdit* Line = static_cast<UpLineEdit*>(obj);
                 ValeurAvantChangement = Line->text();
@@ -1094,7 +1105,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
     {
         if (obj->inherits("UpLineEdit"))
         {
-            if (obj->parent()->parent() == ui->DetailupTableWidget  && (gMode == EnregistrePaiement || gMode == ModifiePaiement))
+            if (obj->parent()->parent() == ui->DetailupTableWidget  && gMode == EnregistrePaiement)
             {
                 UpLineEdit* Line = static_cast<UpLineEdit*>(obj);
                 if (QLocale().toDouble(Line->text()) > QLocale().toDouble(ValeurMaxi))
@@ -1126,9 +1137,9 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
                 UpCheckBox* CheckBox = static_cast<UpCheckBox*>(obj);
                 if (CheckBox->Toggleable())
                 {
-                    if ((gMode == EnregistrePaiement || gMode == ModifiePaiement)
-                            && (CheckBox->parent()->parent() == ui->ListeupTableWidget || CheckBox->parent()->parent() == ui->SalleDAttenteupTableWidget)
-                            && !CheckBox->isChecked())
+                    if (gMode == EnregistrePaiement
+                        && (CheckBox->parent()->parent() == ui->ListeupTableWidget || CheckBox->parent()->parent() == ui->SalleDAttenteupTableWidget)
+                        && !CheckBox->isChecked())
                     {
                         UpTableWidget *TableAVerifier = static_cast<UpTableWidget*>(CheckBox->parent()->parent());
                         if (!VerifVerrouCompta(TableAVerifier,CheckBox->getRowTable()))
@@ -1150,7 +1161,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
             if (obj->inherits("UpLineEdit"))
             {
                 UpLineEdit* Line = static_cast<UpLineEdit*>(obj);
-                if (obj->parent()->parent() == ui->DetailupTableWidget  && (gMode == EnregistrePaiement || gMode == ModifiePaiement))
+                if (obj->parent()->parent() == ui->DetailupTableWidget  && gMode == EnregistrePaiement)
                 {
                     if (QLocale().toDouble(Line->text()) > QLocale().toDouble(ValeurMaxi))
                     {
@@ -1242,7 +1253,6 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
 
     switch (gMode) {
     case EnregistrePaiement:            // La table est remplie par un clic dans le checkbox de sélection
-    case ModifiePaiement:
     {
         QDoubleValidator        *val;
         QTableWidgetItem        *pItem1, *pItem2, *pItem3, *pItem4, *pItem5, *pItem6, *pItem7;
@@ -1630,7 +1640,7 @@ void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARempl
         if (TableARemplir == ui->DetailupTableWidget)
         {
             ColCount = 9;
-            if (gMode != EnregistrePaiement && gMode != ModifiePaiement && !(gMode == VoirListeActes && TypeTable == ActesDirects))  ColCount = 10;
+            if (gMode != EnregistrePaiement && !(gMode == VoirListeActes && TypeTable == ActesDirects))  ColCount = 10;
             TableARemplir->setColumnCount(ColCount);
             TableARemplir->setSelectionMode(QAbstractItemView::NoSelection);
 
@@ -1640,7 +1650,7 @@ void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARempl
             LabelARemplir << tr("Nom Prénom");
             LabelARemplir << tr("Cotation");
             LabelARemplir << tr("Montant");
-            if (gMode != EnregistrePaiement && gMode != ModifiePaiement && !(gMode == VoirListeActes && TypeTable == ActesDirects))
+            if (gMode != EnregistrePaiement && !(gMode == VoirListeActes && TypeTable == ActesDirects))
             {
                 if (TypeTable == ActesTiers)
                     LabelARemplir << tr("Type tiers");
@@ -1648,7 +1658,7 @@ void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARempl
                     LabelARemplir << tr("Mode paiement");
             }
             LabelARemplir << tr("Reste dû");
-            if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+            if (gMode == EnregistrePaiement)
                 LabelARemplir << tr("A payer");
             else
                 LabelARemplir << tr("Payé");
@@ -1659,7 +1669,7 @@ void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARempl
             int li = 0;
             TableARemplir->setColumnWidth(li,25);                                               // idActe ou idPaiement
             li++;
-            if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+            if (gMode == EnregistrePaiement)
                 TableARemplir->setColumnWidth(li,20);                                           // Checkbox
             else
                 TableARemplir->setColumnWidth(li,0);                                            // Checkbox
@@ -1746,17 +1756,17 @@ void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARempl
         if (TableARemplir == ui->ListeupTableWidget)
         {
             ColCount = 8;
-            if (gMode != EnregistrePaiement && gMode != ModifiePaiement)  ColCount = 9;
-            if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+            if (gMode != EnregistrePaiement)  ColCount = 9;
+            if (gMode == EnregistrePaiement)
                 ColCount ++;
             TableARemplir->setColumnCount(ColCount);
-            if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+            if (gMode == EnregistrePaiement)
                 TableARemplir->setSelectionMode(QAbstractItemView::NoSelection);
             else
                 TableARemplir->setSelectionMode(QAbstractItemView::SingleSelection);
 
             LabelARemplir << "";
-            if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+            if (gMode == EnregistrePaiement)
                 LabelARemplir << "";
             LabelARemplir << tr("Date");
             LabelARemplir << tr("Nom Prénom");
@@ -1764,7 +1774,7 @@ void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARempl
             LabelARemplir << tr("Montant");
             if (gMode == VoirListeActes)
                 LabelARemplir << tr("Mode paiement");
-            if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+            if (gMode == EnregistrePaiement)
                 LabelARemplir << tr("Impayé");
             else
                 LabelARemplir << tr("Payé");
@@ -1775,7 +1785,7 @@ void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARempl
             int li = 0;                                                                         // Réglage de la largeur et du nombre des colonnes
             TableARemplir->setColumnWidth(li,25);                                               // idActe ou idPaiement
             li++;
-            if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+            if (gMode == EnregistrePaiement)
             {
                 TableARemplir->setColumnWidth(li,20);                                           // Checkbox
                 li++;
@@ -1900,7 +1910,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->Commissionwidget    ->setVisible(gMode == VoirListeActes);
             if (gMode == VoirListeActes)
                 ui->ComptesupComboBox   ->setCurrentIndex(ui->ComptesupComboBox->findData(gidCompteBancaireParDefaut));
-            else if ((gMode == EnregistrePaiement || gMode == ModifiePaiement) && AppeleParClicK)
+            else if (gMode == EnregistrePaiement && AppeleParClicK)
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
@@ -1922,7 +1932,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->CompteCreditewidget ->setVisible(false);
             ui->Commissionwidget    ->setVisible(false);
             // Si la Table Details n'est pas vide , on récupère le nom du premier de la liste pour remplir la case Tireur du chèque;
-            if ((gMode == EnregistrePaiement || gMode == ModifiePaiement) && AppeleParClicK)
+            if (gMode == EnregistrePaiement && AppeleParClicK)
                 if (ui->DetailupTableWidget->rowCount() > 0)
                 {
                     QString req = "SELECT PatNom FROM " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act"
@@ -1936,7 +1946,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 if (ui->DetailupTableWidget->rowCount() > 0)
                     ui->Tierswidget         ->setVisible(gTypeTable == ActesTiers);
 
-            if ((gMode == EnregistrePaiement || gMode == ModifiePaiement) && AppeleParClicK)
+            if (gMode == EnregistrePaiement && AppeleParClicK)
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
@@ -1958,7 +1968,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->Montantwidget       ->setVisible(false);
             ui->CompteCreditewidget ->setVisible(false);
             ui->Commissionwidget    ->setVisible(false);
-            if ((gMode == EnregistrePaiement || gMode == ModifiePaiement) && AppeleParClicK)
+            if (gMode == EnregistrePaiement && AppeleParClicK)
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
@@ -1979,7 +1989,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->Montantwidget       ->setEnabled(true);
             ui->CompteCreditewidget ->setVisible(false);
             ui->Commissionwidget    ->setVisible(false);
-            if ((gMode == EnregistrePaiement || gMode == ModifiePaiement) && AppeleParClicK)
+            if (gMode == EnregistrePaiement && AppeleParClicK)
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
@@ -2001,7 +2011,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->Montantwidget       ->setVisible(false);
             ui->CompteCreditewidget ->setVisible(false);
             ui->Commissionwidget    ->setVisible(false);
-            if ((gMode == EnregistrePaiement || gMode == ModifiePaiement) && AppeleParClicK)
+            if (gMode == EnregistrePaiement && AppeleParClicK)
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
@@ -2024,7 +2034,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->CompteCreditewidget ->setVisible(false);
             ui->Commissionwidget    ->setVisible(false);
             ui->Commissionwidget    ->setVisible(false);
-            if ((gMode == EnregistrePaiement || gMode == ModifiePaiement) && AppeleParClicK)
+            if (gMode == EnregistrePaiement&& AppeleParClicK)
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
@@ -2044,7 +2054,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->Montantwidget       ->setVisible(true);
             ui->Montantwidget       ->setEnabled(true);
             ui->CompteCreditewidget ->setVisible(true);
-            ui->Commissionwidget    ->setVisible(gMode!= EnregistrePaiement && gMode != ModifiePaiement);
+            ui->Commissionwidget    ->setVisible(gMode!= EnregistrePaiement);
         }
         ui->OKupPushButton->setEnabled(true);
     }
@@ -2084,7 +2094,6 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->dateEdit->setVisible(true);
             switch (gMode) {
             case EnregistrePaiement:
-            case ModifiePaiement:
             {
                 ui->CarteCreditradioButton->setVisible(true);
                 ui->ChequeradioButton->setVisible(true);
@@ -2113,11 +2122,10 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
         }
     }
 
-    ui->TypePaiementframe   ->setEnabled(gMode == EnregistrePaiement || gMode == ModifiePaiement);
+    ui->TypePaiementframe   ->setEnabled(gMode == EnregistrePaiement);
     ui->PaiementgroupBox    ->setVisible(!(gMode == Accueil || gMode == VoirListeActes));
     switch (gMode) {
     case EnregistrePaiement:
-    case ModifiePaiement:
     {
         ui->OKupPushButton      ->setEnabled(QLocale().toDouble(ui->MontantlineEdit->text()) > 0 || (Emetteur !=Q_NULLPTR) || ui->DetailupTableWidget->rowCount() > 0);
         ui->PaiementgroupBox    ->setEnabled(ModifLigneRecettePossible);
@@ -2179,7 +2187,6 @@ void dlg_paiementdirect::RemplitLesTables()
     -- Enregistrement d'un paiement direct -----------------------------------------------------------------------------------------------------------------------------------------------------
     ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
     case EnregistrePaiement:
-    case ModifiePaiement:
         {
             /*
         1. Remplissage ui->ListeupTableWidget -- tous les paiemenst en attente en dehors de ceux de la salle d'attente
@@ -2437,7 +2444,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 TableARemplir->setItem(i,col,pItem5);
                 col++;
 
-                if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+                if (gMode == EnregistrePaiement)
                 {
                     A = TableQuery.value(7).toString();
                     if (TableARemplir == ui->ListeupTableWidget)
@@ -2694,7 +2701,7 @@ void dlg_paiementdirect::VideDetailsTable(int Rangee)
     QString ActeAVirer = ui->DetailupTableWidget->item(Rangee,0)->text();
     //UpMessageBox::Watch(this,ui->DetailupTableWidget->item(Rangee,3)->text()+"\n"+ActeAVirer);
     //on décoche les items correspondants dans ui->ListeupTableWidget et ui->SalleDAttenteupTableWidget
-    if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+    if (gMode == EnregistrePaiement)
     {
         QList<QTableWidgetItem*> items;
         items = ui->SalleDAttenteupTableWidget->findItems(ActeAVirer,Qt::MatchExactly);
@@ -2765,7 +2772,7 @@ int dlg_paiementdirect::EnregistreRecette()
     if (!db->locktables(locklist))
         return Impossible;
 
-    if ((ui->EspecesradioButton->isChecked() || ui->ChequeradioButton->isChecked()) && (gMode == EnregistrePaiement || gMode == ModifiePaiement))
+    if ((ui->EspecesradioButton->isChecked() || ui->ChequeradioButton->isChecked()) && gMode == EnregistrePaiement)
 
     {
         //1.  Mise à jour LignesRecettes ===============================================================================================================================================================================
@@ -2803,7 +2810,7 @@ int dlg_paiementdirect::EnregistreRecette()
 
             EnregRecetterequete += "," + QString::number(m_userConnected->id());                                        // EnregistrePar
             EnregRecetterequete += ",1";                                                                                // TypeRecette
-            if (gMode == EnregistrePaiement || gMode == ModifiePaiement)                                    // TiersPayant
+            if (gMode == EnregistrePaiement)                                                                            // TiersPayant
                 EnregRecetterequete += ",null";
             else
                 EnregRecetterequete += ",'O'";
@@ -2811,7 +2818,6 @@ int dlg_paiementdirect::EnregistreRecette()
             QString NomTiers = "";
             switch (gMode) {
             case EnregistrePaiement:
-            case ModifiePaiement:
             {
                 if (ui->ChequeradioButton->isChecked())
                     NomTiers = ui->TireurChequelineEdit->text();
@@ -2954,7 +2960,6 @@ int dlg_paiementdirect::EnregistreRecette()
             QString NomTiers = "";
             switch (gMode) {
             case EnregistrePaiement:
-            case ModifiePaiement:
             {
                 if (ui->ChequeradioButton->isChecked())
                     NomTiers = ui->TireurChequelineEdit->text();
@@ -2991,7 +2996,7 @@ int dlg_paiementdirect::EnregistreRecette()
                 QString ActeAInserer = ui->DetailupTableWidget->item(i,0)->text();
                 QString PayeAInserer = "0";
                 int ColonneMontantPaye;
-                if ((gMode ==EnregistrePaiement || gMode == ModifiePaiement))
+                if (gMode ==EnregistrePaiement)
                     ColonneMontantPaye = 7;
                 else
                     ColonneMontantPaye = 8;
@@ -3013,7 +3018,7 @@ int dlg_paiementdirect::EnregistreRecette()
     }
 
     //5.  Mise à jour TypepaiementActes ============================================================================================================================================================
-    if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+    if (gMode == EnregistrePaiement)
     {
         if (ui->GratuitradioButton->isChecked())
         {
@@ -3116,7 +3121,7 @@ int dlg_paiementdirect::EnregistreRecette()
     }
 
     //6. Mise à jour Salle d'attente ==============================================================================================================================================================================
-    if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+    if (gMode == EnregistrePaiement)
         for (int i = 0; i != ui->DetailupTableWidget->rowCount(); i++)
         {
             QString ActeAInserer = ui->DetailupTableWidget->item(i,0)->text();
@@ -3216,7 +3221,7 @@ void dlg_paiementdirect::TrieListe(UpTableWidget *TableATrier )
     int ncol = TableATrier->columnCount();
     int ColonneATrier;
 
-    if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+    if (gMode == EnregistrePaiement)
         ColonneATrier = 3;
     else
         ColonneATrier = 2;
@@ -3234,7 +3239,7 @@ void dlg_paiementdirect::TrieListe(UpTableWidget *TableATrier )
         TableATrier->sortItems(ncol - 1,Qt::DescendingOrder);
     }
 
-    if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+    if (gMode == EnregistrePaiement)
     {
         int ColonneMontantPaye  = TableATrier->columnCount()- 2;
         int NombreRangees       = TableATrier->rowCount();
@@ -3282,7 +3287,8 @@ bool dlg_paiementdirect::VerifCoherencePaiement()
                 || ui->TiersradioButton->isChecked()
                 || ui->ImpayeradioButton->isChecked()
                 || ui->GratuitradioButton->isChecked())
-                    &&  (gMode == EnregistrePaiement || gMode == ModifiePaiement))
+                &&  gMode == EnregistrePaiement
+                )
            )
         {
             Msg = tr("Vous avez oublié de cocher le mode de paiement!");
@@ -3474,7 +3480,7 @@ bool dlg_paiementdirect::VerifVerrouCompta(UpTableWidget *TableAVerifier, int Ra
         connect(gtimerAfficheActeVerrouilleClignotant, SIGNAL(timeout()),this,SLOT(Slot_AfficheActeVerrouilleClignotant()));
         gtimerAfficheActeVerrouille->start(2000);
         gtimerAfficheActeVerrouille->setSingleShot(true);
-        if (gMode == EnregistrePaiement || gMode == ModifiePaiement)
+        if (gMode == EnregistrePaiement)
             for (int i= 0; i != ui->SalleDAttenteupTableWidget->rowCount(); i++)
             {
                 UpCheckBox* Check = dynamic_cast<UpCheckBox*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));

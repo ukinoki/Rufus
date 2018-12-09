@@ -96,7 +96,7 @@
         <number>5</number>
        </property>
        <item>
-        <widget class="QLabel" name="Comptelabel">
+        <widget class="QLabel" name="Comptablelabel">
          <property name="minimumSize">
           <size>
            <width>130</width>
@@ -111,8 +111,8 @@
          </property>
          <property name="text">
           <string>Actes
-effectués pour
-le compte de</string>
+comptabilisés
+pour</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignBottom|Qt::AlignHCenter</set>

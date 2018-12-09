@@ -63,7 +63,7 @@ private:
     int                         gidCompteBancaireParDefaut;
     int                         gidRecette;
     int                     gMode;
-        enum gMode              {Accueil, EnregistrePaiement, ModifiePaiement, VoirListeActes};
+        enum gMode              {Accueil, EnregistrePaiement, VoirListeActes};
     int                     gOrdreTri;
         enum gOrdreTri          {Alphabetique, Chronologique};
     int                     gTypeTable;

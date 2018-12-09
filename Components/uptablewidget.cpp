@@ -77,6 +77,18 @@ int UpTableWidget::rowNoHiddenCount()
     return nrow;
 }
 
+int UpTableWidget::FirstRowNoHidden()
+{
+    int row = -1;
+    for (int i=0; i<rowCount(); i++)
+        if (!isRowHidden(i))
+        {
+            row = i;
+            break;
+        }
+    return row;
+}
+
 void UpTableWidget::selectRow(int row)
 {
     if (selectionBehavior() == QAbstractItemView::SelectRows)

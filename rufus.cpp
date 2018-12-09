@@ -1250,7 +1250,8 @@ void Rufus::AppelPaiementDirect(QString Origin)
         DataBase::getInstance()->traiteErreurRequete(ModifSalDatQuery,req,Msg);
         FlagMetAjourSalDat();
     }
-    AfficheActeCompta();
+    if (gidActe>0 && ui->tabDossier->isVisible())
+        AfficheActeCompta();
 }
 
 void Rufus::AppelPaiementTiers()
@@ -7379,7 +7380,7 @@ bool Rufus::FermeDossier()
             a = InscritEnSalDat(gidPatient);
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
-    if (a) gidPatient = 0;
+    if (a) {gidPatient = 0; gidActe = 0;}
     FlagMetAjourSalDat();
     return a;
 }

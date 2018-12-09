@@ -37,6 +37,7 @@ public:
     QString     Attribut();
     void        setAttribut(QString attrib);
     int         rowNoHiddenCount();
+    int         FirstRowNoHidden();
     void        selectRow(int row);
     QByteArray  dropData();
 
