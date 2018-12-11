@@ -16,7 +16,28 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "serialthread.h"
-#include <QCoreApplication>
+
+/*SerialThread::SerialThread(QSerialPort *PortProc)
+{
+    moveToThread(&thread);
+    Port            = PortProc;
+    connect(Port,   SIGNAL(readyRead()), this, SLOT(Slot_LitPort()));
+    thread.start();
+}
+
+void SerialThread::Slot_LitPort()
+{
+    reponseData = Port->readAll();
+    while (Port->waitForReadyRead(100))
+        reponseData.append(Port->readAll());
+    QString ReponsePort(reponseData);
+    if (ReponsePort != "")
+    {
+        Port->clear();
+        reponseData.clear();
+        emit reponse(ReponsePort);
+    }
+}*/
 
 QT_USE_NAMESPACE
 
@@ -48,4 +69,3 @@ void SerialThread::Slot_LitPort()
         Port->clear();
     }
 }
-

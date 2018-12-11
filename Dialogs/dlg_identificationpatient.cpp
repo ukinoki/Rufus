@@ -533,7 +533,7 @@ void dlg_identificationpatient::FermeFiche(enum CloseReason Cause)
 }
 
 // ------------------------------------------------------------------------------------------
-// Enregistre ou met à jour les coordonnées du méddecin traitant
+// Enregistre ou met à jour les coordonnées du médecin traitant
 // ------------------------------------------------------------------------------------------
 void dlg_identificationpatient::MAJMG()
 {

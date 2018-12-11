@@ -1052,8 +1052,8 @@ void dlg_depenses::RedessineBigTable()
     {
         gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
         RegleAffichageFiche(Lire);
-        gBigTable->scrollTo(gBigTable->model()->index(gBigTable->model()->rowCount()-1,1));
-        FiltreTable();        
+        MetAJourFiche();
+        FiltreTable();
     }
     else
         RegleAffichageFiche(TableVide);
@@ -1121,7 +1121,7 @@ void dlg_depenses::DefinitArchitectureBigTable()
     gBigTable->horizontalHeader()->setVisible(true);
     gBigTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     int li = 0;                                                                     // Réglage de la largeur et du nombre des colonnes
-    gBigTable->setColumnWidth(li,25);                                               // idDepense
+    gBigTable->setColumnWidth(li,0);                                                // idDepense
     li++;
     gBigTable->setColumnWidth(li,100);                                              // DepDate affichage européen
     li++;
@@ -1137,7 +1137,6 @@ void dlg_depenses::DefinitArchitectureBigTable()
     li++;
     gBigTable->setColumnWidth(li,0);                                                // DepDate
 
-    gBigTable->setColumnHidden(0,true);
     gBigTable->setColumnHidden(ColCount-1,true);
 
     gBigTable->setGridStyle(Qt::SolidLine);
@@ -1153,6 +1152,8 @@ void dlg_depenses::FiltreTable()
     int row = rowdep;
 
     QString filtre = ui->Rubriques2035comboBox->currentText();
+    int idrubrique = ui->Rubriques2035comboBox->currentData().toInt();
+    int idx = ui->Rubriques2035comboBox->findData(idrubrique);
     for (int i=0; i<gBigTable->rowCount(); i++)
     {
         if (ui->Rubriques2035comboBox->currentIndex()==0)
@@ -1163,19 +1164,26 @@ void dlg_depenses::FiltreTable()
             gBigTable->setRowHidden(i, rub!=filtre);
         }
     }
-    if (ui->Rubriques2035comboBox->currentIndex()>0)
+    if (idx>0 && gBigTable->isRowHidden(row))
     {
         do row--;
-        while (gBigTable->isRowHidden(row) && row>0);
-        if (gBigTable->isRowHidden(row) && row == 0)
+        while (gBigTable->isRowHidden(row) && row>0);       // on cherche l'enregistrement précédent qui n'est pas caché
+        if (gBigTable->isRowHidden(row) && row == 0)        // si on est remonté au début de la table et qu'on n'a pas trouvé d'enregistrement non caché, on recherche vers la fin
         {
+            row = rowdep;
             do row++;
             while (gBigTable->isRowHidden(row) && row < (gBigTable->rowCount()-1));
         }
-        if (!gBigTable->isRowHidden(row))
-            gBigTable->selectRow(row);
     }
-    MetAJourFiche();
+    if (!gBigTable->isRowHidden(row))
+    {
+        gBigTable->selectRow(row);
+        gBigTable->setCurrentCell(row,1);
+        Utils::Pause(1);            // si on ne fait pas ça, le scroll marche mal
+        gBigTable->scrollToItem(gBigTable->item(row,0), QAbstractItemView::PositionAtCenter);
+        if (row != rowdep)
+            MetAJourFiche();
+    }
     CalculTotalDepenses();
  }
 
@@ -1206,16 +1214,16 @@ void dlg_depenses::ReconstruitListeAnnees()
 void dlg_depenses::ReconstruitListeRubriques()
 {
     bool ok = true;
-    QList<QList<QVariant>> listreffiscale = db->SelectRecordsFromTable(QStringList() << "reffiscale",
-                                                                       NOM_TABLE_DEPENSES, ok,
-                                                                       "where idUser = " + QString::number(gDataUser->id()),
-                                                                       "ORDER BY reffiscale", true);
-    QStringList ListeRubriques;
-    ListeRubriques << tr("<Aucun>");
-    for (int i = 0; i < listreffiscale.size(); i++)
-        ListeRubriques << listreffiscale.at(i).at(0).toString();
-    ui->Rubriques2035comboBox->insertItems(0,ListeRubriques);
-    ui->Rubriques2035comboBox->setCurrentText(ListeRubriques.at(0));
+    QString req = "select distinct dep.reffiscale, idRubrique from " NOM_TABLE_DEPENSES " dep"
+                  " left join " NOM_TABLE_RUBRIQUES2035 " rub"
+                  " on dep.RefFiscale = rub.Reffiscale"
+                  " where idUser = " + QString::number(gDataUser->id()) +
+                  " ORDER BY reffiscale";
+    QList<QList<QVariant>> ListeRubriques = db->StandardSelectSQL(req, ok);
+    ListeRubriques.insert(0, (QList<QVariant>() << tr("<Aucun>") << -1));
+    for (int i = 0; i < ListeRubriques.size(); i++)
+        ui->Rubriques2035comboBox->insertItem(i,ListeRubriques.at(i).at(0).toString(), ListeRubriques.at(i).at(1));
+    ui->Rubriques2035comboBox->setCurrentIndex(0);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1250,8 +1258,7 @@ void dlg_depenses::RemplitBigTable()
 
 Depense* dlg_depenses::getDepenseFromRow(int row)
 {
-    UpLabel *iddeplbl = static_cast<UpLabel *>(gBigTable->cellWidget(row,0));
-    Depense *dep = Datas::I()->depenses->getDepenseById(iddeplbl->getId());
+    Depense *dep = Datas::I()->depenses->getDepenseById(gBigTable->item(row,0)->text().toInt());
     return dep;
 }
 
@@ -1260,11 +1267,12 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     //+++ ne pas utiliser insertRow() qui est très lent au fur et à mesure qu'on vide et remplit la table
     QTableWidgetItem    *pItem7;
     QString             A;
-    UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
+    QTableWidgetItem *pitem0;
+    UpLabel *label1, *label2, *label3, *label4, *label5, *label6;
     int col = 0;
     int id = dep->id();
 
-    label0 = new UpLabel;
+    pitem0 = new QTableWidgetItem;
     label1 = new UpLabel;
     label2 = new UpLabel;
     label3 = new UpLabel;
@@ -1272,7 +1280,6 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     label5 = new UpLabel;
     label6 = new UpLabel;
 
-    label0->setId(id);
     label1->setId(id);
     label2->setId(id);
     label3->setId(id);
@@ -1280,7 +1287,6 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     label5->setId(id);
     label6->setId(id);
 
-    label0->setContextMenuPolicy(Qt::CustomContextMenu);
     label1->setContextMenuPolicy(Qt::CustomContextMenu);
     label2->setContextMenuPolicy(Qt::CustomContextMenu);
     label3->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1288,7 +1294,6 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     label5->setContextMenuPolicy(Qt::CustomContextMenu);
     label6->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(label0,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
     connect(label1,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
     connect(label2,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
     connect(label3,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
@@ -1297,8 +1302,8 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     connect(label6,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
 
     A = QString::number(id);                                                                    // idDepense - col = 0
-    label0->setText(A);
-    gBigTable->setCellWidget(row,col,label0);
+    pitem0->setText(A);
+    gBigTable->setItem(row,col,pitem0);
     col++;
 
     A = dep->date().toString(tr("d MMM yyyy"));                                                 // Date - col = 1

@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("09-12-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("11-12-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -75,7 +75,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //2 charge les data du user connecté
     int gidUser = -1;
-    if( DataBase::getInstance()->getUserConnected() != nullptr )
+    if( DataBase::getInstance()->getUserConnected() != Q_NULLPTR )
         gidUser = DataBase::getInstance()->getUserConnected()->id();
     if (gidUser == -1)
         gidUser = proc->gsettingsIni->value("idUtilisateur/idUser").toInt();
@@ -175,20 +175,20 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     {
         gflagMG     = proc->GetflagMG();
         gflagSalDat = proc->GetflagSalDat();
-        connect (gTimerSalDat,              &QTimer::timeout,   this,   [=] {VerifSalleDAttente();});
-        connect (gTimerCorrespondants,      &QTimer::timeout,   this,   [=] {VerifCorrespondants();});
-        connect (gTimerVerifImportateurDocs,&QTimer::timeout,   this,   [=] {VerifImportateur();});
-        connect (gTimerVerifVerrou,         &QTimer::timeout,   this,   [=] {VerifVerrouDossier();});
-        connect (gTimerVerifMessages,       &QTimer::timeout,   this,   [=] {VerifMessages();});
+        connect (gTimerSalDat,              &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
+        connect (gTimerCorrespondants,      &QTimer::timeout,   this,   &Rufus::VerifCorrespondants);
+        connect (gTimerVerifImportateurDocs,&QTimer::timeout,   this,   &Rufus::VerifImportateur);
+        connect (gTimerVerifVerrou,         &QTimer::timeout,   this,   &Rufus::VerifVerrouDossier);
+        connect (gTimerVerifMessages,       &QTimer::timeout,   this,   &Rufus::VerifMessages);
         connect (gTimerImportDocsExternes,  &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
         if (DataBase::getInstance()->getMode() != DataBase::Distant)
-            connect(gTimerSupprDocs,        &QTimer::timeout,   this,   [=] {SupprimerDocs();});
+            connect(gTimerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocs);
         VerifImportateur();
     }
 
-    connect (gTimerUserConnecte,            &QTimer::timeout,   this,   [=] {MetAJourUserConnectes();});
-    connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   [=] {ActualiseDocsExternes();});
-    connect (gTimerPatientsVus,             &QTimer::timeout,   this,   [=] {MasquePatientsVusWidget();});
+    connect (gTimerUserConnecte,            &QTimer::timeout,   this,   &Rufus::MetAJourUserConnectes);
+    connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
+    connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
 
 
     //Nettoyage des erreurs éventuelles de la salle d'attente

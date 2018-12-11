@@ -31,8 +31,6 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
 
 void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
 {
-    //qDebug() << "OK import " + QString::number(++a);
-
     if (EnCours)
         return;
     EnCours = true;

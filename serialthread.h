@@ -20,7 +20,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QThread>
 #include <QSerialPort>
-#include <QTime>
 
 class SerialThread : public QThread
 {
@@ -35,7 +34,10 @@ signals:
     void            reponse(const QString &s);
 
 private:
+    QByteArray      reponseData;
     QSerialPort     *Port;
+    QThread         thread;
+
 
 private slots:
     void            Slot_LitPort();

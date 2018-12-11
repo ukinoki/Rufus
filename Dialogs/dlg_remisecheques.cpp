@@ -326,7 +326,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         accept();
     }
     else if(gMode == RevoirRemisesPrecs)
-        ImprimerRemise(ui->RemisePrecsupComboBox->currentData().toMap()["idCompte"].toInt());
+        ImprimerRemise(ui->RemisePrecsupComboBox->currentData().toMap()["idRemise"].toInt());
 }
 
 

@@ -4388,7 +4388,7 @@ bool Procedures::Ouverture_Ports_Series()
             if (lPortRefracteur->open(QIODevice::ReadWrite))
             {
                 ThreadRefracteur     = new SerialThread(lPortRefracteur);
-                ThreadRefracteur->transaction();
+                ThreadRefracteur    ->transaction();
                 connect(ThreadRefracteur,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Refracteur(QString)));
             }
             else
@@ -4463,7 +4463,7 @@ bool Procedures::Ouverture_Ports_Series()
             if (lPortAutoref->open(QIODevice::ReadWrite))
             {
                 ThreadAutoref     = new SerialThread(lPortAutoref);
-                ThreadAutoref->transaction();
+                ThreadAutoref   ->transaction();
                 connect(ThreadAutoref,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Autoref(QString)));
             }
             else
