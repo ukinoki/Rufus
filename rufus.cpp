@@ -385,10 +385,10 @@ void Rufus::MAJActesPrecs()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::MAJDocsExternes()
 {
-    QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
+    QList<dlg_docsexternes *> ListDialogDocs = findChildren<dlg_docsexternes *>();
     if (ListDialogDocs.size()>0)
         proc->emit UpdDocsExternes();
-    else
+    else if (gDataUser->isSoignant())
     {
         QString req = "Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient);
         QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
@@ -3396,9 +3396,9 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
 }
 
 
-QStringList Rufus::MotifMessage(QString Motif, QString Message, QTime heurerdv)
+QStringList Rufus::MotifMessage(QString motif, QString Message, QTime heurerdv)
 {
-    //créer une fiche avec 8 checkbox : Cs, OCT, CV, BO, Biométrie, Urgence, Angio Autre
+    //créer une fiche avec tous les checkbox correspondant aux motifs de RDV : Cs, OCT, CV, BO, Biométrie, Urgence, Angio,...etc...
     gAsk            = new UpDialog(this);
     QVBoxLayout     *globallayout   = dynamic_cast<QVBoxLayout*>(gAsk->layout());
     QVBoxLayout     *motiflayout    = new QVBoxLayout();
@@ -3424,29 +3424,28 @@ QStringList Rufus::MotifMessage(QString Motif, QString Message, QTime heurerdv)
     soignantlayout->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
 
 
-    QString req = "select motif, raccourci, couleur, ParDefaut from " NOM_TABLE_MOTIFSRDV " where utiliser = 1 order by NoOrdre";
-    QSqlQuery motifQuery(req, DataBase::getInstance()->getDataBase() );
-    if (motifQuery.size()==0)
+    if (Datas::I()->motifs->motifs()->size()==0)
     {
         llist << "" << "";
         return llist;
     }
-    motifQuery.first();
     int defaut = -1;
-    for (int k=0; k<motifQuery.size();k++)
+    int k = -1;
+    for (QMap<int, Motif*>::const_iterator itmtf = Datas::I()->motifs->motifs()->constBegin() ; itmtf != Datas::I()->motifs->motifs()->constEnd() ; ++itmtf)
     {
+        ++k;
+        Motif *mtf = const_cast<Motif*>(*itmtf);
         QRadioButton *radiobut = new QRadioButton(grpBox);
         radiobut->setAutoExclusive(true);
-        radiobut->setText(motifQuery.value(0).toString());
-        radiobut->setChecked(Motif==motifQuery.value(1).toString());
-        if (motifQuery.value(3).toInt()==1)
+        radiobut->setText(mtf->motif());
+        radiobut->setChecked(motif==mtf->raccourci());
+        if (mtf->pardefaut())
             defaut = k;
-        motifQuery.next();
     }
     QRadioButton    *UrgButton      = new QRadioButton(grpBox);
     UrgButton   ->setAutoExclusive(true);
     UrgButton   ->setText(tr("Urgence"));
-    UrgButton   ->setChecked(Motif=="URG");
+    UrgButton   ->setChecked(motif=="URG");
     bool b = false;
     for (int l=0; l<grpBox->findChildren<QRadioButton*>().size(); l++)
     {
@@ -3500,25 +3499,25 @@ QStringList Rufus::MotifMessage(QString Motif, QString Message, QTime heurerdv)
         {
             if (grpBox->findChildren<QRadioButton*>().at(m)->isChecked())
             {
-                Motif = grpBox->findChildren<QRadioButton*>().at(m)->text();
+                motif = grpBox->findChildren<QRadioButton*>().at(m)->text();
                 break;
             }
         }
-        if (Motif==tr("Urgence"))
-            Motif= "URG";
+        if (motif==tr("Urgence"))
+            motif= "URG";
         else
         {
-            for (int  o=0; o<motifQuery.size(); o++)
+            for (QMap<int, Motif*>::const_iterator itmtf = Datas::I()->motifs->motifs()->constBegin() ; itmtf != Datas::I()->motifs->motifs()->constEnd() ; ++itmtf)
             {
-                motifQuery.seek(o);
-                if (motifQuery.value(0).toString()==Motif)
+                Motif *mtf = const_cast<Motif*>(*itmtf);
+                if (mtf->motif()==motif)
                 {
-                    Motif = motifQuery.value(1).toString();
+                    motif = mtf->raccourci();
                     break;
                 }
             }
         }
-        llist << Motif << Message << HeureRDV->time().toString("HH:mm") << ComboSuperviseurs->currentData().toString();
+        llist << motif << Message << HeureRDV->time().toString("HH:mm") << ComboSuperviseurs->currentData().toString();
     }
     delete gAsk;
     return llist;
@@ -9318,7 +9317,7 @@ void Rufus::Remplir_SalDat()
             else
                colorRDV = "color: red";
         }
-        QString background;
+        QString background = "background:#FFFFEE";
         if (Msg=="URG")
         {
             QString styleurg = "background:#EEFFFF ; color: red";
@@ -9332,15 +9331,15 @@ void Rufus::Remplir_SalDat()
         }
         else
         {
-            QString req2 = "select Couleur from " NOM_TABLE_MOTIFSRDV " where raccourci = '" + Msg + "'";
-            QSqlQuery colorquer(req2, DataBase::getInstance()->getDataBase() );
-            if (colorquer.size()>0)
+            for (QMap<int, Motif*>::const_iterator itmtf = Datas::I()->motifs->motifs()->constBegin() ; itmtf != Datas::I()->motifs->motifs()->constEnd() ; ++itmtf)
             {
-                colorquer.first();
-                background = "background:#" + colorquer.value(0).toString();
+                Motif *mtf = const_cast<Motif*>(*itmtf);
+                if (mtf->raccourci() == Msg)
+                {
+                    background = "background:#" + mtf->couleur();
+                    break;
+                }
             }
-            else
-                background = "background:#FFFFEE";
             label0->setStyleSheet(background);
             label1->setStyleSheet(background);
             label2->setStyleSheet(background);
@@ -10713,7 +10712,7 @@ void Rufus::TraiteTCPMessage(QString msg)
     {
         /* le message a le format suivant idpatient + TCPMSG_MAJDocsExternes) */
         msg.remove(TCPMSG_MAJDocsExternes);
-        if (gidPatient == msg.toInt())
+        if (gidPatient == msg.toInt() && gDataUser->isSoignant())
             MAJDocsExternes();                  // depuis le tcpsocket
     }
     else if (msg.contains(TCPMSG_ListeSockets))

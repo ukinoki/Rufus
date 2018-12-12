@@ -69,6 +69,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_item.h"
 #include "cls_user.h"
+#include "cls_motif.h"
 
 namespace Ui {
 class Rufus;

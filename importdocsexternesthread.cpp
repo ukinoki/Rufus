@@ -218,32 +218,33 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                 }
                 else if (Appareil == "EIDON")
                 {
+                    // il faut découper le nom de fichier à partir de la fin parce que c'est invariable
+                    // si on fait l'inverse et qu'on met un tiret dans le nom de famille p.e.,
+                    // la fonction plante dans ses découpages de QStringList et le programme avec
                     if (nomdoc.split("-").size()<11)
                     {
                         commentechec =  tr("nom invalide");
                         EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
                         continue;
                     }
-                    if (nomdoc.split("-").size()>1)
-                    {
-                        datestring = nomdoc.split("-").at(2);
-                        datestring += nomdoc.split("-").at(3);
-                        datestring += nomdoc.split("-").at(4);
-                        datestring = datestring.left(8);
-                    }
-                    QString cote = ((nomdoc.split("-").at(6)=="right")? tr("OD") : tr("OG"));
+                    QStringList listitems = nomdoc.split("-");
+                    datestring = listitems.at(listitems.size()-5);                  //année
+                    datestring += listitems.at(listitems.size()-4);                 //mois
+                    datestring += listitems.at(listitems.size()-3).split("T").at(0);//jour
+                    QString cote = ((listitems.at(listitems.size()-8)=="right")? tr("OD") : tr("OG"));
                     Titredoc    = "RNM - Eidon ";
                     Typedoc     = "RNM";
                     SousTypeDoc = "Eidon " + cote;
-                    if (nomdoc.split("-").at(8) == "infrared")
+                    if (listitems.at(listitems.size()-6) == "infrared")
                         SousTypeDoc += " IR";
-                    else if (nomdoc.split("-").at(8) == "af")
+                    else if (listitems.at(listitems.size()-6) == "af")
                         SousTypeDoc += " Autofluo";
-                    QString daytime = nomdoc.split("-").at(11);
-                    QString day = daytime.split("T").at(0);
-                    QString time = daytime.split("T").at(1);
+                    QString time = listitems.at(listitems.size()-3).split("T").at(1);
                     time = time.split("Z").at(0);
-                    datetimecreation = nomdoc.split("-").at(9) + nomdoc.split("-").at(10) + day + "-" + time.split("_").at(0) + time.split("_").at(1) + time.split("_").at(2);
+                    datetimecreation   = datestring + "-"
+                                       + time.split("_").at(0)
+                                       + time.split("_").at(1)
+                                       + time.split("_").at(2);
                 }
                 else if (Appareil == "OPTOS Daytona series")
                 {
