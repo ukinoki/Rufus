@@ -28,6 +28,7 @@
 #include "cls_villes.h"
 #include "cls_docexterne.h"
 #include "cls_tiers.h"
+#include "cls_motif.h"
 #include "log.h"
 #include "utils.h"
 
@@ -120,6 +121,11 @@ public:
     QList<Banque*>  loadBanques();
     QList<Tiers*>   loadTiersPayants();
     QList<TypeTiers*>  loadTypesTiers();
+
+    /*
+     * Motifs
+    */
+    QList<Motif*> loadMotifs();
 
     /*
      * Sites

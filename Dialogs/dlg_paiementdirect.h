@@ -82,7 +82,7 @@ private:
     QList<QString>              LigneRecetteAModifier;
     QList<QString>              MontantActesAModifier;
     QMap<int, User*>            *m_listeComptables;
-    QMap<int, Banque*>          *m_listeBanques;
+    QMap<int, Banque*>          *m_banques;
     QStandardItemModel          *p_listComptesEncaissmt;
     QStandardItemModel          *p_listComptesEncaissmtAvecDesactive;
     QTimer                      *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;

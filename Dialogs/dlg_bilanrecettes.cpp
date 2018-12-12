@@ -15,10 +15,10 @@ You should have received a copy of the GNU General Public License
 along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dlg_recettes.h"
+#include "dlg_bilanrecettes.h"
 #include "gbl_datas.h"
 
-dlg_recettes::dlg_recettes(Procedures *ProcAPasser, QWidget *parent) :
+dlg_bilanrecettes::dlg_bilanrecettes(Procedures *ProcAPasser, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionRecettes", parent)
 {
     InitOK = true;
@@ -124,16 +124,16 @@ dlg_recettes::dlg_recettes(Procedures *ProcAPasser, QWidget *parent) :
     connect(SupervRadio,        &UpRadioButton::clicked,                                this, [=] {ChangeMode(SUPERVISEUR);});
 }
 
-dlg_recettes::~dlg_recettes()
+dlg_bilanrecettes::~dlg_bilanrecettes()
 {
 }
 
-bool dlg_recettes::getInitOK()
+bool dlg_bilanrecettes::getInitOK()
 {
     return InitOK;
 }
 
-QList<QList<QVariant> > dlg_recettes::CalcBilan()
+QList<QList<QVariant> > dlg_bilanrecettes::CalcBilan()
 {
     QMap<QString, QDate> DateMap = proc->ChoixDate();
     if (!DateMap.isEmpty())
@@ -211,7 +211,7 @@ QList<QList<QVariant> > dlg_recettes::CalcBilan()
     InitOK = true;
     return gBilan;
 }
-void dlg_recettes::FiltreTable(int idx)
+void dlg_bilanrecettes::FiltreTable(int idx)
 {
     if (gMode==SUPERVISEUR)
     {
@@ -262,7 +262,7 @@ void dlg_recettes::FiltreTable(int idx)
     CalculeTotal();
 }
 
-void dlg_recettes::ImprimeEtat()
+void dlg_bilanrecettes::ImprimeEtat()
 {
     QString            Entete, Pied;
     bool AvecDupli   = false;
@@ -395,7 +395,7 @@ void dlg_recettes::ImprimeEtat()
     delete Etat_textEdit;
 }
 
-void dlg_recettes::CalcSuperviseursEtComptables()
+void dlg_bilanrecettes::CalcSuperviseursEtComptables()
 {
     hboxsup->removeWidget(gLabel);
     glblbox->removeWidget(ClassmtupGrpBox);
@@ -423,7 +423,7 @@ void dlg_recettes::CalcSuperviseursEtComptables()
         hboxsup->insertWidget(0, gLabel);
 }
 
-void dlg_recettes::CalculeTotal()
+void dlg_bilanrecettes::CalculeTotal()
 {
     TotalMontant = 0;
     TotalRecu    = 0;
@@ -505,7 +505,7 @@ void dlg_recettes::CalculeTotal()
     }
 }
 
-void dlg_recettes::ChangeMode(enum gMode Mode)
+void dlg_bilanrecettes::ChangeMode(enum gMode Mode)
 {
     gMode = Mode;
     gSupervBox      ->setVisible(gMode == SUPERVISEUR);
@@ -517,7 +517,7 @@ void dlg_recettes::ChangeMode(enum gMode Mode)
         FiltreTable(gidUser->id());
 }
 
-void dlg_recettes::DefinitArchitetureTable()
+void dlg_bilanrecettes::DefinitArchitetureTable()
 {
     gBigTable = new UpTableWidget();
 
@@ -588,7 +588,7 @@ void dlg_recettes::DefinitArchitetureTable()
     gBigTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 }
 
-void dlg_recettes::ExportTable()
+void dlg_bilanrecettes::ExportTable()
 {
     QByteArray ExportEtat;
     QString sep = "\t";                                                                                                             // séparateur
@@ -637,7 +637,7 @@ void dlg_recettes::ExportTable()
     UpMessageBox::Watch(this, (exportOK? tr("Exportation réussie") : tr("Echec exportation")), (exportOK? msg : tr("Les données n'ont pas pu être exportées")));
 }
 
-void dlg_recettes::NouvPeriode()
+void dlg_bilanrecettes::NouvPeriode()
 {
     QDate debutavant, finavant;
     QList<QList<QVariant>> bilanavant;
@@ -664,7 +664,7 @@ void dlg_recettes::NouvPeriode()
     SupervRadio->click();
 }
 
-void dlg_recettes::RemplitLaTable()
+void dlg_bilanrecettes::RemplitLaTable()
 {
     QTableWidgetItem    *pItem0,*pItem1,*pItem2,*pItem3,*pItem4,*pItem5,*pItem6,*pItem7, *pItem8, *pItem9, *pItem10, *pItem11, *pItem12;
     QString             A;

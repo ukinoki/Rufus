@@ -117,7 +117,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures 
     ui->BanqueChequecomboBox->lineEdit()->setMaxLength(10);
     ui->TierscomboBox->lineEdit()->setMaxLength(30);
 
-    m_listeBanques = Datas::I()->banques->banques();
+    m_banques = Datas::I()->banques->banques();
     ReconstruitListeBanques();
     m_typestiers = Datas::I()->typestiers->typestiers();
     ReconstruitListeTiers();
@@ -1847,9 +1847,9 @@ void dlg_paiementdirect::ReconstruitListeBanques()
 {
     ui->BanqueChequecomboBox->clear();
     QMap<int, Banque*>::const_iterator itbanq;
-    // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
+    // toute la manip qui suit sert à remettre les banques par ordre alphabétique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel *model = new QStandardItemModel();
-    for( itbanq = m_listeBanques->constBegin(); itbanq != m_listeBanques->constEnd(); ++itbanq )
+    for( itbanq = m_banques->constBegin(); itbanq != m_banques->constEnd(); ++itbanq )
     {
         Banque *bq = const_cast<Banque*>(*itbanq);
         QList<QStandardItem *> items;
@@ -3384,6 +3384,7 @@ bool dlg_paiementdirect::VerifCoherencePaiement()
                 Dlg_Banq = new dlg_banque(this, Banq.toUpper());
                 if (Dlg_Banq->exec()>0)
                 {
+                    proc->initListeBanques();
                     ReconstruitListeBanques();
                     ui->BanqueChequecomboBox->setCurrentText(Banq);
                     A = true;

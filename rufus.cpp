@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("11-12-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("12-12-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -41,7 +41,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     qApp->setStyleSheet(Styles::StyleAppli());
 
-    proc = new Procedures(this);
+    proc = Procedures::I();
 
     if (!proc->Init())                                                  // vérifie que le fichier rufus.ini est cohérent
         exit(0);                                                        // choisit le mode de connexion au serveur
@@ -219,6 +219,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     setTitre();
     proc->initListeBanques();
+    proc->initListeMotifs();
     proc->initListeTiers();
     proc->initTypesTiers();
     Remplir_SalDat();
@@ -1312,15 +1313,15 @@ void Rufus::BasculerMontantActe()
 
 void Rufus::BilanRecettes()
 {   
-    Dlg_Rec            = new dlg_recettes(proc);
-    if (!Dlg_Rec->getInitOK())
+    Dlg_BilanRec            = new dlg_bilanrecettes(proc);
+    if (!Dlg_BilanRec->getInitOK())
     {
-        delete Dlg_Rec;
+        delete Dlg_BilanRec;
         return;
     }
-    Dlg_Rec->exec();
-    Dlg_Rec->close(); // nécessaire pour enregistrer la géométrie
-    delete Dlg_Rec;
+    Dlg_BilanRec->exec();
+    Dlg_BilanRec->close(); // nécessaire pour enregistrer la géométrie
+    delete Dlg_BilanRec;
 }
 
 void Rufus::ChangeTabBureau()

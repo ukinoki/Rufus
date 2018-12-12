@@ -52,7 +52,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_param.h"
 #include "ui_dlg_param.h"
 #include "dlg_refraction.h"
-#include "dlg_recettes.h"
+#include "dlg_bilanrecettes.h"
 #include "dlg_recettesspeciales.h"
 #include "ui_dlg_recettesspeciales.h"
 #include "dlg_remisecheques.h"
@@ -102,7 +102,7 @@ private:
     dlg_paiementdirect              *Dlg_PmtDirect;
     dlg_param                       *Dlg_Param;
     dlg_autresmesures               *Dlg_AutresMes;
-    dlg_recettes                    *Dlg_Rec;
+    dlg_bilanrecettes               *Dlg_BilanRec;
     dlg_recettesspeciales           *Dlg_RecSpec;
     dlg_refraction                  *Dlg_Refraction;
     dlg_remisecheques               *Dlg_RemCheq;

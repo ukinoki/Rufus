@@ -21,13 +21,16 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QColorDialog>
 #include <QToolTip>
 #include <QVBoxLayout>
+#include <QSqlQuery>
 
-#include "procedures.h"
 #include "upcheckbox.h"
 #include "uplineedit.h"
 #include "uplabel.h"
 #include "uptablewidget.h"
 #include "widgetbuttonframe.h"
+#include "gbl_datas.h"
+#include "database.h"
+#include "updialog.h"
 
 
 
@@ -40,19 +43,22 @@ class dlg_motifs : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_motifs(Procedures *prc, QWidget *parent = Q_NULLPTR);
+    explicit dlg_motifs(QWidget *parent = Q_NULLPTR);
     ~dlg_motifs();
 
 private:
     Ui::dlg_motifs      *ui;
-    Procedures          *proc;
     void                DeplaceVersRow(int id, int anc, int nouv);
+    void                MAJMotifs();               // met à jour la liste des motifs
     void                RecalculeLesRows();
     void                RemplirTableWidget();
     UpCheckBox*         UpchkFromTableW(QTableWidget*, int row, int col);
     void                SupprimMotif();
     void                CreeMotif();
     WidgetButtonFrame   *widgButtons;
+    QMap<int,Motif*>    *m_motifs;
+    Motif*              getMotifFromRow(int row);
+    void                SetMotifToRow(Motif *mtf, int row);
 
 private slots:
     void                Slot_ActualiseDetails();

@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DLG_RECETTES_H
-#define DLG_RECETTES_H
+#ifndef DLG_BILANRECETTES_H
+#define DLG_BILANRECETTES_H
 
 
 
@@ -26,13 +26,13 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upgroupbox.h"
 #include "upradiobutton.h"
 
-class dlg_recettes : public UpDialog
+class dlg_bilanrecettes : public UpDialog
 {
     Q_OBJECT
 
 public:
-    explicit dlg_recettes(Procedures *ProcAPasser, QWidget *parent = Q_NULLPTR);
-    ~dlg_recettes();
+    explicit dlg_bilanrecettes(Procedures *ProcAPasser, QWidget *parent = Q_NULLPTR);
+    ~dlg_bilanrecettes();
     bool                        getInitOK();
 
 private:
@@ -78,4 +78,4 @@ private:
     bool                        InitOK;
 };
 
-#endif // DLG_RECETTES_H
+#endif // DLG_BILANRECETTES_H

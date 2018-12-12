@@ -20,6 +20,7 @@ Datas::Datas()
     banques         = new Banques();
     tiers           = new TiersPayants();
     typestiers      = new TypesTiers();
+    motifs          = new Motifs();
 }
 
 

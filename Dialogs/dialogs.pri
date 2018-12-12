@@ -30,13 +30,13 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_paiement.cpp \
     $$PWD/dlg_paramconnexion.cpp \
     $$PWD/dlg_param.cpp \
-    $$PWD/dlg_recettes.cpp \
     $$PWD/dlg_recettesspeciales.cpp \
     $$PWD/dlg_refraction.cpp \
     $$PWD/dlg_remisecheques.cpp \
     $$PWD/dlg_resumerefraction.cpp \
     $$PWD/dlg_salledattente.cpp \
-    $$PWD/dlg_paiementdirect.cpp
+    $$PWD/dlg_paiementdirect.cpp \
+    $$PWD/dlg_bilanrecettes.cpp
 
 HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_autresmesures.h \
@@ -66,13 +66,13 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_paiement.h \
     $$PWD/dlg_paramconnexion.h \
     $$PWD/dlg_param.h \
-    $$PWD/dlg_recettes.h \
     $$PWD/dlg_recettesspeciales.h \
     $$PWD/dlg_refraction.h \
     $$PWD/dlg_remisecheques.h \
     $$PWD/dlg_resumerefraction.h \
     $$PWD/dlg_salledattente.h \
-    $$PWD/dlg_paiementdirect.h
+    $$PWD/dlg_paiementdirect.h \
+    $$PWD/dlg_bilanrecettes.h
 
 FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_banque.ui \

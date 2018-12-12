@@ -27,7 +27,9 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptablewidget.h"
 #include "widgetbuttonframe.h"
 #include "database.h"
+#include "gbl_datas.h"
 #include "utils.h"
+#include "cls_banque.h"
 
 #include "functormajpremierelettre.h"
 
@@ -52,7 +54,7 @@ private:
     int                                     gMode;
     bool                                    gFermeApresValidation;
     enum gMode                              {Norm, Modif, Nouv, Suppr};
-    QStringList                             gListBanques;
+    QMap<int,Banque*>                       *m_banques;
     DataBase                                *db;
     WidgetButtonFrame                       *widgButtons;
     FunctorMAJPremiereLettre                fMAJPremiereLettre;
@@ -65,6 +67,7 @@ private:
 
     void            AnnuleModifBanque();
     void            AfficheBanque();
+    void            MAJBanques();               // met à jour la liste des banques
     void            ValideModifBanque();
     void            ChoixButtonFrame(int);
 };

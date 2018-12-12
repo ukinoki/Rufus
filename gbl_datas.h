@@ -10,6 +10,7 @@
 #include "cls_compte.h"
 #include "cls_paiementsdirects.h"
 #include "cls_tiers.h"
+#include "cls_motif.h"
 
 class Datas : public QObject
 {
@@ -28,6 +29,7 @@ public:
     Depenses *depenses;                 //!< les depenses pour un user et une  année donnée
     Comptes *comptesallusers;           //!< tous les comptes bancaires de tous les users
     Banques *banques;                   //!< toutes les banques
+    Motifs *motifs;                     //!< tous les motifs d'actes
     TiersPayants *tiers;                //!< tous les tiers payants
     TypesTiers *typestiers;             //!< tous les types tiers payants
     PaiementsDirects *paiementsdirects; //!< tous les paiements en attente d'enregistrement

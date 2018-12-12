@@ -902,6 +902,34 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
 /*******************************************************************************************************************************************************************
  ***** FIN COMPTABILITÊ ********************************************************************************************************************************************
 ********************************************************************************************************************************************************************/
+
+/*
+ * Motifs
+*/
+QList<Motif*> DataBase::loadMotifs()
+{
+    QString  req = "SELECT idMotifsRDV, Motif, Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre FROM "  NOM_TABLE_MOTIFSRDV " ORDER BY NoOrdre";
+    QList<Motif*> motifs;
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return motifs;
+    do
+    {
+        QJsonObject jmotif{};
+        jmotif["id"] = query.value(0).toInt();
+        jmotif["motif"] = query.value(1).toString();
+        jmotif["raccourci"] = query.value(2).toString();
+        jmotif["couleur"] = query.value(3).toString();
+        jmotif["duree"] = query.value(4).toInt();
+        jmotif["pardefaut"] = (query.value(5).toInt()==1);
+        jmotif["utiliser"] = (query.value(6).toInt()==1);
+        jmotif["noordre"] = query.value(7).toInt();
+        Motif *motif = new Motif(jmotif);
+        motifs << motif;
+    } while( query.next() );
+    return motifs;
+}
+
 /*
  * Sites
 */

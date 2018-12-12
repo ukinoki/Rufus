@@ -1867,7 +1867,7 @@ void dlg_param::Slot_ModifMDPAdmin()
 
 void dlg_param::Slot_ParamMotifs()
 {
-    Dlg_motifs = new dlg_motifs(proc);
+    Dlg_motifs = new dlg_motifs();
     Dlg_motifs->setWindowTitle(tr("Motifs de consultations"));
     Dlg_motifs->exec();
     delete Dlg_motifs;

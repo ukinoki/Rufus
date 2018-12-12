@@ -71,6 +71,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_correspondants.h"
 #include "cls_depense.h"
 #include "cls_depenses.h"
+#include "cls_motif.h"
 #include "database.h"
 #include "functormajpremierelettre.h"
 
@@ -78,9 +79,12 @@ class Procedures : public QObject
 {
     Q_OBJECT
 
-public:
+private:
     explicit Procedures(QObject *parent = Q_NULLPTR);
+    static Procedures *instance;
 
+public:
+    static Procedures *I();
     bool                gdbOK;
     bool                dlgrefractionouverte;
     int                 gMode2;
@@ -214,6 +218,7 @@ public:
     void                    initListeCorrespondants();
     void                    initListeCorrespondantsAll();
     void                    initListeDepenses(int iduser);
+    void                    initListeMotifs();
     void                    initListeTiers();
     void                    initTypesTiers();
     bool                    isPosteImportDocs();

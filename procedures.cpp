@@ -21,6 +21,15 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 
 
+Procedures* Procedures::instance =  Q_NULLPTR;
+Procedures* Procedures::I()
+{
+    if( !instance )
+        instance = new Procedures();
+
+    return instance;
+}
+
 Procedures::Procedures(QObject *parent) :
     QObject(parent)
 {
@@ -1173,6 +1182,22 @@ void Procedures::initListeBanques()
     {
         Banque *bq = const_cast<Banque*>(*itbq);
         Datas::I()->banques->addBanque( bq );
+    }
+}
+
+/*!
+ * \brief Procedures::initListeMotifs
+ * Charge l'ensemble des motifs
+ * et les ajoute à la classe Motifss
+ */
+void Procedures::initListeMotifs()
+{
+    QList<Motif*> listmotifs = DataBase::getInstance()->loadMotifs();
+    QList<Motif*>::const_iterator itmtf;
+    for( itmtf = listmotifs.constBegin(); itmtf != listmotifs.constEnd(); ++itmtf )
+    {
+        Motif *mtf = const_cast<Motif*>(*itmtf);
+        Datas::I()->motifs->addMotif(mtf);
     }
 }
 

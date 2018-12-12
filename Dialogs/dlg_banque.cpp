@@ -29,6 +29,7 @@ dlg_banque::dlg_banque(QWidget *parent, QString nouvbanqueabrege) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     db                      = DataBase::getInstance();
+    m_banques               = Datas::I()->banques->banques();
 
     gFermeApresValidation   = (nouvbanqueabrege != "");
     setWindowTitle(tr("Enregistrer une nouvelle banque"));
@@ -101,15 +102,15 @@ dlg_banque::dlg_banque(QWidget *parent, QString nouvbanqueabrege) :
         RemplirTableView();
         uptablebanq->setCurrentCell(0,1);
         AfficheBanque();
-        connect(uptablebanq,        &UpTableWidget::itemSelectionChanged,   [=] {AfficheBanque();});
-        connect(widgButtons,        &WidgetButtonFrame::choix,              [=] {ChoixButtonFrame(widgButtons->Reponse());});
-        connect(CloseButton,        &QPushButton::clicked,                  [=] {accept();});
+        connect(uptablebanq,        &UpTableWidget::itemSelectionChanged,   this,   &dlg_banque::AfficheBanque);
+        connect(widgButtons,        &WidgetButtonFrame::choix,              this,   &dlg_banque::ChoixButtonFrame);
+        connect(CloseButton,        &QPushButton::clicked,                  this,   &dlg_banque::accept);
         ui->AnnulModifupSmallButton ->setVisible(false);
         ui->OKModifupSmallButton    ->setVisible(false);
     }
 
-    connect(ui->AnnulModifupSmallButton,    &QPushButton::clicked,    [=] {AnnuleModifBanque();});
-    connect(ui->OKModifupSmallButton,       &QPushButton::clicked,    [=] {ValideModifBanque();});
+    connect(ui->AnnulModifupSmallButton,    &QPushButton::clicked,    this,   &dlg_banque::AnnuleModifBanque);
+    connect(ui->OKModifupSmallButton,       &QPushButton::clicked,    this,   &dlg_banque::ValideModifBanque);
 
     ui->NomBanqueupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx));
     QRegExp val             = QRegExp("[A-Z]*");
@@ -226,6 +227,21 @@ void dlg_banque::SupprBanque()
     AfficheBanque();
 }
 
+void dlg_banque::MAJBanques()
+{
+    for(QMap<int, Banque*>::const_iterator itbq = m_banques->constBegin(); itbq != m_banques->constEnd(); ++itbq )
+    {
+        Banque *bq = const_cast<Banque*>(*itbq);
+        Datas::I()->banques->removeBanque( bq );
+    }
+    QList<Banque*> listbanques = DataBase::getInstance()->loadBanques();
+    for(QList<Banque*>::const_iterator itbq = listbanques.constBegin(); itbq != listbanques.constEnd(); ++itbq )
+    {
+        Banque *bq = const_cast<Banque*>(*itbq);
+        Datas::I()->banques->addBanque( bq );
+    }
+}
+
 void dlg_banque::ValideModifBanque()
 {
     QString msg = "";
@@ -243,16 +259,17 @@ void dlg_banque::ValideModifBanque()
 
     if (gMode == Nouv)
     {
-        for (int i = 0; i<gListBanques.size(); i++)
+        for (QMap<int, Banque*>::const_iterator itbanq = m_banques->constBegin(); itbanq != m_banques->constEnd(); ++itbanq)
         {
-            if (gListBanques.at(i).toUpper() == ui->NomBanqueupLineEdit->text().toUpper())
+            Banque *bq = const_cast<Banque*>(itbanq.value());
+            if (bq->NomBanque().toUpper() == ui->NomBanqueupLineEdit->text().toUpper())
             {
                 UpMessageBox::Watch(this,tr("Cette banque est déjà enregistrée!"));
                 return;
             }
         }
         bool ok = true;
-        QList<QList<QVariant>> listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege", NOM_TABLE_COMPTES, ok);
+        QList<QList<QVariant>> listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege", NOM_TABLE_BANQUES, ok);
         if (listabreges.size()>0)
             for (int i=0; i<listabreges.size(); i++)
                 if (listabreges.at(i).at(0).toString() == ui->NomAbregeupLineEdit->text())
@@ -262,8 +279,8 @@ void dlg_banque::ValideModifBanque()
                     return;
                 }
         listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege",
-                                                                      NOM_TABLE_COMPTES, ok,
-                                                                      "where idbanqueabrege = " + ui->NomAbregeupLineEdit->text());
+                                                                      NOM_TABLE_BANQUES, ok,
+                                                                      "where idbanqueabrege = '" + ui->NomAbregeupLineEdit->text() + "'");
         if(listabreges.size()>0)
         {
             UpMessageBox::Watch(this,tr("Cette abréviation est déjà utilisée!"));
@@ -274,10 +291,12 @@ void dlg_banque::ValideModifBanque()
         listsets.insert("idbanqueabrege",   ui->NomAbregeupLineEdit->text());
         listsets.insert("nombanque",        nombanque);
         db->InsertIntoTable(NOM_TABLE_BANQUES, listsets);
+        MAJBanques();
         if (gFermeApresValidation)
         {
             UpMessageBox::Watch(this,tr("La banque ") + nombanque + tr(" a été enregistrée"));
             accept();
+            return;
         }
     }
 
@@ -314,6 +333,7 @@ void dlg_banque::ValideModifBanque()
         DataBase:: getInstance()->UpdateTable(NOM_TABLE_BANQUES,
                                               listsets,
                                               "where idBanque = " + QString::number(idBanque));
+        MAJBanques();
     }
     RemplirTableView();
     UpLabel *lbl;
