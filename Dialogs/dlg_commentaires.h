@@ -38,7 +38,7 @@ class dlg_commentaires : public UpDialog
     Q_OBJECT
 
 public:
-    dlg_commentaires(Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
+    dlg_commentaires(QWidget *parent = Q_NULLPTR);
     ~dlg_commentaires();
     Ui::dlg_commentaires *ui;
 

@@ -18,14 +18,14 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_comptes.h"
 #include "ui_dlg_comptes.h"
 
-dlg_comptes::dlg_comptes(Procedures *procAPasser, QWidget *parent) :
+dlg_comptes::dlg_comptes(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_comptes)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    proc = procAPasser;
+    proc = Procedures::I();
     db = DataBase::getInstance();
     intervalledate = 180;
     dateencours = QDate::currentDate();

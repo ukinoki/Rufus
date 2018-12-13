@@ -12,15 +12,16 @@ Datas::Datas()
 {
     userConnected = Q_NULLPTR;
 
-    users           = new Users();
-    patients        = new Patients();
-    correspondants  = new Correspondants();
-    depenses        = new Depenses();
-    comptesallusers = new Comptes();
     banques         = new Banques();
+    comptesallusers = new Comptes();
+    correspondants  = new Correspondants();
+    cotations       = new Cotations();
+    depenses        = new Depenses();
+    motifs          = new Motifs();
+    patients        = new Patients();
     tiers           = new TiersPayants();
     typestiers      = new TypesTiers();
-    motifs          = new Motifs();
+    users           = new Users();
 }
 
 

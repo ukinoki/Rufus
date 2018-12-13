@@ -20,13 +20,13 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 
-dlg_commentaires::dlg_commentaires(Procedures *procAPasser, QWidget *parent) :
+dlg_commentaires::dlg_commentaires(QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionCommentaires", parent),
     ui(new Ui::dlg_commentaires)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    proc        = procAPasser;
+    proc        = Procedures::I();
     gidUser     = proc->getUserConnected()->id();
 
     widgButtons = new WidgetButtonFrame(ui->ComupTableWidget);

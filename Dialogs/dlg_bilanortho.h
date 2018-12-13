@@ -29,7 +29,7 @@ class dlg_bilanortho : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_bilanortho(Procedures *procAPasser, int idActeAPAsser, int idBilanOrtho = 0, int idpat = -1, QWidget *parent = Q_NULLPTR);
+    explicit dlg_bilanortho(int idActeAPAsser, int idBilanOrtho = 0, int idpat = -1, QWidget *parent = Q_NULLPTR);
     ~dlg_bilanortho();
     Ui::dlg_bilanortho      *ui;
     QString                 calcReponsehTml();

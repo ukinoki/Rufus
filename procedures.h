@@ -64,14 +64,15 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptextedit.h"
 #include "upmessagebox.h"
 
-#include "cls_patient.h"
-#include "cls_user.h"
-#include "cls_users.h"
 #include "cls_correspondant.h"
 #include "cls_correspondants.h"
+#include "cls_cotation.h"
 #include "cls_depense.h"
 #include "cls_depenses.h"
 #include "cls_motif.h"
+#include "cls_patient.h"
+#include "cls_user.h"
+#include "cls_users.h"
 #include "database.h"
 #include "functormajpremierelettre.h"
 
@@ -217,6 +218,7 @@ public:
     void                    initListeComptes();
     void                    initListeCorrespondants();
     void                    initListeCorrespondantsAll();
+    void                    initListeCotationsByUser(int iduser);
     void                    initListeDepenses(int iduser);
     void                    initListeMotifs();
     void                    initListeTiers();

@@ -18,11 +18,11 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_bilanrecettes.h"
 #include "gbl_datas.h"
 
-dlg_bilanrecettes::dlg_bilanrecettes(Procedures *ProcAPasser, QWidget *parent) :
+dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionRecettes", parent)
 {
     InitOK = true;
-    proc        = ProcAPasser;
+    proc        = Procedures::I();
     db          = DataBase::getInstance();
 
     CalcBilan();

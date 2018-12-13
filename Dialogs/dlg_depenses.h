@@ -35,7 +35,7 @@ class dlg_depenses : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_depenses(Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_depenses(QWidget *parent = Q_NULLPTR);
     ~dlg_depenses();
     Ui::dlg_depenses            *ui;
     bool                        getInitOK();

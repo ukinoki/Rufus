@@ -34,7 +34,7 @@ public:
     ~dlg_autresmesures();
     int mode;
     enum mode {TONO, PACHY};
-    explicit dlg_autresmesures(int *idPatAPasser, Procedures *procAPasser, enum mode mod = TONO, QWidget *parent = Q_NULLPTR);
+    explicit dlg_autresmesures(int *idPatAPasser, enum mode mod = TONO, QWidget *parent = Q_NULLPTR);
     WidgTono            *widgto;
 
 private:

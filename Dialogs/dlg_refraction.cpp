@@ -488,7 +488,7 @@ void dlg_refraction::Slot_AnnulPushButton_Clicked()
 }
 void dlg_refraction::Slot_Commentaires()
 {
-    Dlg_Comments    = new dlg_commentaires(proc);
+    Dlg_Comments    = new dlg_commentaires();
     if (Dlg_Comments->exec() > 0)
     {
         gResultatCommPreDef =  Dlg_Comments->gReponseResumePrescription;

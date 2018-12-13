@@ -49,7 +49,7 @@ class dlg_actesprecedents : public QDialog
     Q_OBJECT
 
 public:
-    dlg_actesprecedents(int idPatient, int idActeAPasser, Procedures *procAPAsser, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);
+    dlg_actesprecedents(int idPatient, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);
     ~dlg_actesprecedents();
     int                     getidPatient();
     void                    Actualise();

@@ -1266,6 +1266,23 @@ void Procedures::initListeCorrespondantsAll()
     }
 }
 
+/*!
+ * \brief Procedures::initListeCotations
+ * Charge l'ensemble des cotations pour le user
+ * et les ajoute à la classe Correspondants
+ */
+void Procedures::initListeCotationsByUser(int iduser)
+{
+    Datas::I()->cotations->cotationsbyuser()->clear();
+    QList<Cotation*> listcotations = DataBase::getInstance()->loadCotationsByUser(iduser);
+    QList<Cotation*>::const_iterator itcotations;
+    for( itcotations = listcotations.constBegin(); itcotations != listcotations.constEnd(); ++itcotations )
+    {
+        Cotation *cot = const_cast<Cotation*>(*itcotations);
+        Datas::I()->cotations->addCotationByUser(cot);
+    }
+}
+
 void Procedures::initListeDepenses(int iduser)
 {
     Datas::I()->depenses->getDepenses()->clear();

@@ -68,6 +68,4 @@ public:
     Compte* getCompteById(int id);
 };
 
-
-
 #endif // CLS_COMPTE_H

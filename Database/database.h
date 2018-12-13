@@ -20,15 +20,17 @@
 
 #include "cls_acte.h"
 #include "cls_archivebanque.h"
-#include "cls_patient.h"
-#include "cls_user.h"
-#include "cls_correspondant.h"
 #include "cls_banque.h"
+#include "cls_correspondant.h"
+#include "cls_cotation.h"
 #include "cls_depense.h"
-#include "cls_villes.h"
 #include "cls_docexterne.h"
-#include "cls_tiers.h"
 #include "cls_motif.h"
+#include "cls_patient.h"
+#include "cls_tiers.h"
+#include "cls_user.h"
+#include "cls_villes.h"
+
 #include "log.h"
 #include "utils.h"
 
@@ -121,6 +123,13 @@ public:
     QList<Banque*>  loadBanques();
     QList<Tiers*>   loadTiersPayants();
     QList<TypeTiers*>  loadTypesTiers();
+
+    /*
+     * Cotations
+    */
+    QList<Cotation*> loadCotations();
+    QStringList loadTypesCotations();
+    QList<Cotation*> loadCotationsByUser(int iduser);
 
     /*
      * Motifs

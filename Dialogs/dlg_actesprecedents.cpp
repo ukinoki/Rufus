@@ -23,7 +23,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 //TODO : Mettre en place Patient
 //Uniquement consultatif
-dlg_actesprecedents::dlg_actesprecedents(int idPatient, int idActeAPasser, Procedures *procAPAsser, bool AvantDernier, QWidget *parent) :
+dlg_actesprecedents::dlg_actesprecedents(int idPatient, bool AvantDernier, QWidget *parent) :
     QDialog(parent),
 
 ui(new Ui::dlg_actesprecedents)
@@ -31,8 +31,7 @@ ui(new Ui::dlg_actesprecedents)
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
     gidPatient      = idPatient;
-    gidActe         = idActeAPasser; //jamais utilisé
-    proc            = procAPAsser;
+    proc            = Procedures::I();
     gAvantDernier   = AvantDernier;
     setAttribute(Qt::WA_DeleteOnClose);
     setAttribute(Qt::WA_ShowWithoutActivating);
@@ -375,7 +374,6 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
             ui->PaiementlineEdit->setGeometry(79,25,91,18);
         }
     }
-    gidActe = acte->id();
 }
 
 

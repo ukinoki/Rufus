@@ -31,7 +31,7 @@ class dlg_bilanrecettes : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_bilanrecettes(Procedures *ProcAPasser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_bilanrecettes(QWidget *parent = Q_NULLPTR);
     ~dlg_bilanrecettes();
     bool                        getInitOK();
 

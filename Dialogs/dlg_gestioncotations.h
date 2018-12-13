@@ -15,27 +15,27 @@ You should have received a copy of the GNU General Public License
 along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DLG_CREERACTE_H
-#define DLG_CREERACTE_H
+#ifndef DLG_GESTIONCOTATIONS_H
+#define DLG_GESTIONCOTATIONS_H
 
 #include "updialog.h"
 #include "procedures.h"
 
 namespace Ui {
-class dlg_creeracte;
+class dlg_gestioncotations;
 }
 
-class dlg_creeracte : public UpDialog
+class dlg_gestioncotations : public UpDialog
 {
     Q_OBJECT
 
 public:
-    explicit dlg_creeracte(QString Typeacte, QString Mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
-    ~dlg_creeracte();
-    void        Initialise(Procedures *procAPasser);
+    explicit dlg_gestioncotations(QString Typeacte, QString Mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
+    ~dlg_gestioncotations();
+    void        Initialise();
 
 private:
-    Ui::dlg_creeracte *ui;
+    Ui::dlg_gestioncotations *ui;
     Procedures  *proc;
     int         gMode;      enum gMode      {Creation, Modification};
     int         gTypeActe;  enum gTypeActe  {CCAM, AssocCCAM, HorsNomenclature};
@@ -45,4 +45,4 @@ private:
     bool        VerifFiche();
 };
 
-#endif // DLG_CREERACTE_H
+#endif // DLG_GESTIONCOTATIONS_H

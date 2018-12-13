@@ -904,6 +904,112 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
 ********************************************************************************************************************************************************************/
 
 /*
+ * Cotations
+*/
+QList<Cotation*> DataBase::loadCotations()
+{
+    QString  req = " select idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, Frequence from " NOM_TABLE_COTATIONS;
+    QList<Cotation*> cotations;
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return cotations;
+    do
+    {
+        QJsonObject jcotation{};
+        jcotation["id"] = query.value(0).toInt();
+        jcotation["typeacte"] = query.value(1).toString();
+        jcotation["montantoptam"] = query.value(2).toDouble();
+        jcotation["montantnonoptam"] = query.value(3).toDouble();
+        jcotation["montantpratique"] = query.value(4).toDouble();
+        jcotation["ccam"] = (query.value(5).toInt()==1);
+        jcotation["iduser"] = query.value(6).toInt();
+        jcotation["frequence"] = query.value(7).toInt();
+        jcotation["descriptif"] = "";
+        Cotation *cotation = new Cotation(jcotation);
+        cotations << cotation;
+    } while( query.next() );
+    return cotations;
+}
+
+/*
+ * Cotations
+*/
+QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
+{
+    int k = 0;
+
+    QList<Cotation*> cotations;
+    QString  req = "SELECT idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, Frequence, nom"
+          " FROM " NOM_TABLE_COTATIONS " cot left join " NOM_TABLE_CCAM " cc on cot.typeacte= cc.codeccam\n"
+          "where idUser = " + QString::number(iduser) + " and typeacte in (select codeccam from " NOM_TABLE_CCAM ")\n"
+          "order by typeacte";
+    QSqlQuery query(req, getDataBase() );
+    if( traiteErreurRequete(query, req) || !query.first())
+        return cotations;
+    do
+    {
+        ++k;
+        QJsonObject jcotation{};
+        jcotation["id"] = k;
+        jcotation["idcotation"] = query.value(0).toInt();
+        jcotation["typeacte"] = query.value(1).toString();
+        jcotation["montantoptam"] = query.value(2).toDouble();
+        jcotation["montantnonoptam"] = query.value(3).toDouble();
+        jcotation["montantpratique"] = query.value(4).toDouble();
+        jcotation["ccam"] = (query.value(5).toInt()==1);
+        jcotation["iduser"] = iduser;
+        jcotation["frequence"] = query.value(6).toInt();
+        jcotation["descriptif"] = query.value(7).toString();
+        Cotation *cotation = new Cotation(jcotation);
+        cotations << cotation;
+    } while( query.next() );
+    req = " SELECT idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, Frequence, null as nom"
+          " FROM "  NOM_TABLE_COTATIONS
+          " where idUser = " + QString::number(iduser) +
+          " and typeacte not in (select codeccam from  " NOM_TABLE_CCAM ")\n"
+          "order by typeacte";
+    QSqlQuery query1(req, getDataBase() );
+    if( traiteErreurRequete(query1, req) || !query1.first())
+        return cotations;
+    do
+    {
+        k++;
+        QJsonObject jcotation{};
+        jcotation["id"] = k;
+        jcotation["idcotation"] = query1.value(0).toInt();
+        jcotation["typeacte"] = query1.value(1).toString();
+        jcotation["montantoptam"] = query1.value(2).toDouble();
+        jcotation["montantnonoptam"] = query1.value(3).toDouble();
+        jcotation["montantpratique"] = query1.value(4).toDouble();
+        jcotation["ccam"] = (query1.value(5).toInt()==1);
+        jcotation["iduser"] = iduser;
+        jcotation["frequence"] = query1.value(6).toInt();
+        jcotation["descriptif"] = query1.value(7).toString();
+        Cotation *cotation = new Cotation(jcotation);
+        cotations << cotation;
+    } while( query1.next() );
+
+    return cotations;
+}
+
+QStringList DataBase::loadTypesCotations()
+{
+    QStringList listcotations;
+    QString req = "select typeacte as code from " NOM_TABLE_COTATIONS
+                  " union "
+                  " select codeccam as code from " NOM_TABLE_CCAM
+                  " order by code asc";
+    QSqlQuery query(req, getDataBase());
+    if( traiteErreurRequete(query, req) || !query.first())
+        return listcotations;
+    do
+    {
+        listcotations << query.value(0).toString();
+    } while (query.next());
+    return listcotations;
+}
+
+/*
  * Motifs
 */
 QList<Motif*> DataBase::loadMotifs()

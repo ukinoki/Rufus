@@ -9,7 +9,6 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_choixdate.cpp \
     $$PWD/dlg_commentaires.cpp \
     $$PWD/dlg_comptes.cpp \
-    $$PWD/dlg_creeracte.cpp \
     $$PWD/dlg_depenses.cpp \
     $$PWD/dlg_docsexternes.cpp \
     $$PWD/dlg_docsscanner.cpp \
@@ -36,7 +35,8 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_resumerefraction.cpp \
     $$PWD/dlg_salledattente.cpp \
     $$PWD/dlg_paiementdirect.cpp \
-    $$PWD/dlg_bilanrecettes.cpp
+    $$PWD/dlg_bilanrecettes.cpp \
+    $$PWD/dlg_gestioncotations.cpp
 
 HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_autresmesures.h \
@@ -45,7 +45,6 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_choixdate.h \
     $$PWD/dlg_commentaires.h \
     $$PWD/dlg_comptes.h \
-    $$PWD/dlg_creeracte.h \
     $$PWD/dlg_depenses.h \
     $$PWD/dlg_docsexternes.h \
     $$PWD/dlg_docsscanner.h \
@@ -72,7 +71,8 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_resumerefraction.h \
     $$PWD/dlg_salledattente.h \
     $$PWD/dlg_paiementdirect.h \
-    $$PWD/dlg_bilanrecettes.h
+    $$PWD/dlg_bilanrecettes.h \
+    $$PWD/dlg_gestioncotations.h
 
 FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_banque.ui \
@@ -80,7 +80,6 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_choixdate.ui \
     $$PWD/dlg_commentaires.ui \
     $$PWD/dlg_comptes.ui \
-    $$PWD/dlg_creeracte.ui \
     $$PWD/dlg_depenses.ui \
     $$PWD/dlg_documents.ui \
     $$PWD/dlg_gestioncomptes.ui \
@@ -96,4 +95,5 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_refraction.ui \
     $$PWD/dlg_remisecheques.ui \
     $$PWD/dlg_salledattente.ui \
-    $$PWD/dlg_paiementdirect.ui
+    $$PWD/dlg_paiementdirect.ui \
+    $$PWD/dlg_gestioncotations.ui

@@ -23,7 +23,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uplineedit.h"
 #include "dlg_banque.h"
 #include "ui_dlg_banque.h"
-#include "dlg_creeracte.h"
+#include "dlg_gestioncotations.h"
 #include "dlg_gestionusers.h"
 #include "dlg_fontdialog.h"
 #include "dlg_gestionlieux.h"
@@ -52,7 +52,7 @@ public:
 
 private:
     dlg_banque              *Dlg_Banq;
-    dlg_creeracte           *Dlg_CrrAct;
+    dlg_gestioncotations    *Dlg_CrrCot;
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_fontdialog          *Dlg_Fonts;
     dlg_motifs              *Dlg_motifs;

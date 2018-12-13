@@ -19,7 +19,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_bilanortho.h"
 #include "ui_dlg_bilanortho.h"
 
-dlg_bilanortho::dlg_bilanortho(Procedures *procAPasser, int idActeAPAsser, int idBilanOrtho, int idpat, QWidget *parent) :
+dlg_bilanortho::dlg_bilanortho(int idActeAPAsser, int idBilanOrtho, int idpat, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_bilanortho)
 {
@@ -28,7 +28,7 @@ dlg_bilanortho::dlg_bilanortho(Procedures *procAPasser, int idActeAPAsser, int i
 
     idBilan     = idBilanOrtho;
     idActe      = idActeAPAsser;
-    proc        = procAPasser;
+    proc        = Procedures::I();
     gidpat      = idpat;
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionBilanOrtho").toByteArray());
 

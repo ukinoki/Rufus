@@ -15,12 +15,12 @@ You should have received a copy of the GNU General Public License
 along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dlg_creeracte.h"
-#include "ui_dlg_creeracte.h"
+#include "dlg_gestioncotations.h"
+#include "ui_dlg_gestioncotations.h"
 
-dlg_creeracte::dlg_creeracte(QString TypeActe, QString Mode , QString CodeActe, QWidget *parent) :
+dlg_gestioncotations::dlg_gestioncotations(QString TypeActe, QString Mode , QString CodeActe, QWidget *parent) :
     UpDialog(parent),
-    ui(new Ui::dlg_creeracte)
+    ui(new Ui::dlg_gestioncotations)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -47,15 +47,15 @@ dlg_creeracte::dlg_creeracte(QString TypeActe, QString Mode , QString CodeActe, 
     connect(OKButton,   &QPushButton::clicked,  [=] {if (VerifFiche()) accept();});
 }
 
-dlg_creeracte::~dlg_creeracte()
+dlg_gestioncotations::~dlg_gestioncotations()
 {
     delete ui;
 }
 
-void dlg_creeracte::Initialise(Procedures *procAPasser)
+void dlg_gestioncotations::Initialise()
 {
     //TODO : SQL
-    proc                    = procAPasser;
+    proc                    = Procedures::I();
     gidUser                 = DataBase::getInstance()->getUserConnected()->id();
     gSecteurUser            = proc->getUserConnected()->getSecteur();
     if (gTypeActe != HorsNomenclature)
@@ -137,7 +137,7 @@ void dlg_creeracte::Initialise(Procedures *procAPasser)
     }
 }
 
-bool dlg_creeracte::VerifFiche()
+bool dlg_gestioncotations::VerifFiche()
 {
     bool a = true;
     QString req = "";

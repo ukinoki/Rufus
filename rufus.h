@@ -70,6 +70,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_item.h"
 #include "cls_user.h"
 #include "cls_motif.h"
+#include "cls_cotation.h"
 
 namespace Ui {
 class Rufus;
@@ -109,7 +110,7 @@ private:
     dlg_remisecheques               *Dlg_RemCheq;
     dlg_salledattente               *Dlg_SalDat;
     UpLabel                         *lblnom;
-    UpLineEdit                      *MGlineEdit, *Cotation;
+    UpLineEdit                      *MGlineEdit;
     UpLineEdit                      *AutresCorresp1LineEdit, *AutresCorresp2LineEdit;
 
     pyxinterf                       *pyxi;     // CZ001
@@ -319,7 +320,7 @@ private:
     void                Monte20Lignes();
     QStringList         MotifMessage(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(int i);
-    void                OuvrirActesPrecedents(int idActeEnCours);
+    void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(int idpat, bool depuismenu = false);
     void                OuvrirDocuments(bool AffichDocsExternes = true);
     void                OuvrirListe();

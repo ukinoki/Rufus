@@ -569,7 +569,7 @@ void dlg_recettesspeciales::CalculTotalRecettes()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_recettesspeciales::GestionComptes()
 {
-    Dlg_Cmpt          = new dlg_comptes(proc);
+    Dlg_Cmpt          = new dlg_comptes();
     if (Dlg_Cmpt->getInitOK())
         Dlg_Cmpt->exec();
     gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);

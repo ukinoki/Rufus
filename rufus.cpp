@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("12-12-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("13-12-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -104,9 +104,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
 
     //4 reconstruction des combobox
-    if (gDataUser->isMedecin() || gDataUser->isOrthoptist())
-        ReconstruitListesActes();
-    proc->initListeCorrespondants();
+     proc->initListeCorrespondants();
     ReconstruitCombosCorresp();                 // initialisation de la liste
 
     grequeteListe   = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe FROM " NOM_TABLE_PATIENTS;
@@ -222,6 +220,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->initListeMotifs();
     proc->initListeTiers();
     proc->initTypesTiers();
+    if (gDataUser->isSoignant())
+    {
+        proc->initListeCotationsByUser(gDataUser->getIdUserParent());
+        ReconstruitListesActes();
+    }
     Remplir_SalDat();
     VerifMessages();
 }
@@ -1219,7 +1222,7 @@ void Rufus::AppelPaiementDirect(QString Origin)
         ListidActeAPasser << gidActe;
     }
 
-    Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, proc, this);//NOTE : New Paiement
+    Dlg_PmtDirect = new dlg_paiementdirect(ListidActeAPasser, this);//NOTE : New Paiement
     if(Dlg_PmtDirect->getInitOK())
         Dlg_PmtDirect->exec();
     if (Origin == "Bouton")  // on redonne le statut en cours d'examen au dossier
@@ -1313,7 +1316,7 @@ void Rufus::BasculerMontantActe()
 
 void Rufus::BilanRecettes()
 {   
-    Dlg_BilanRec            = new dlg_bilanrecettes(proc);
+    Dlg_BilanRec            = new dlg_bilanrecettes();
     if (!Dlg_BilanRec->getInitOK())
     {
         delete Dlg_BilanRec;
@@ -1531,7 +1534,7 @@ void Rufus::CreerBilanOrtho()
         }
         if (!nouveauBO)
         {
-            Dlg_BlOrtho             = new dlg_bilanortho(proc, ui->idActelineEdit->text().toInt(), chboquery.value(0).toInt(), gidPatient);
+            Dlg_BlOrtho             = new dlg_bilanortho(ui->idActelineEdit->text().toInt(), chboquery.value(0).toInt(), gidPatient);
             UiDLg_BlOrtho           = Dlg_BlOrtho->ui;
             QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
             UiDLg_BlOrtho->OcclAlternlabel->setVisible(gDDNPatient.daysTo(DateBl) < 730);
@@ -1547,7 +1550,7 @@ void Rufus::CreerBilanOrtho()
             if (!AutorDepartConsult(false)) return;
         if (!ConversionEnBO)
             CreerActe(gidPatient);
-        Dlg_BlOrtho             = new dlg_bilanortho(proc, ui->idActelineEdit->text().toInt(), 0, gidPatient);
+        Dlg_BlOrtho             = new dlg_bilanortho(ui->idActelineEdit->text().toInt(), 0, gidPatient);
         UiDLg_BlOrtho           = Dlg_BlOrtho->ui;
         QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
         Dlg_BlOrtho             ->setWindowTitle(Titre);
@@ -2007,7 +2010,7 @@ void Rufus::FiltreAccueil(int idx)
 
 void Rufus::GestionComptes()
 {
-    Dlg_Cmpt = new dlg_comptes(proc, this);
+    Dlg_Cmpt = new dlg_comptes(this);
     if(Dlg_Cmpt->getInitOK())
         Dlg_Cmpt->exec();
 }
@@ -3139,8 +3142,7 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
             else
             {
                 autreactequery  .first();
-                int idActe      = autreactequery.value(0).toInt();
-                Dlg_ActesPrecs  = new dlg_actesprecedents(gdossierAOuvrir, idActe, proc, false, this);
+                Dlg_ActesPrecs  = new dlg_actesprecedents(gdossierAOuvrir, false, this);
                 Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + patNom + " " + patPrenom);
                 Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
                 Dlg_ActesPrecs  ->exec();
@@ -3780,12 +3782,12 @@ void Rufus::OuvrirActesPrecspushButtonClicked()
             listres.at(0)->show();
     }
     else
-        OuvrirActesPrecedents(gidActe);
+        OuvrirActesPrecedents();
 }
 
 void Rufus::OuvrirJournalDepenses()
 {
-    Dlg_Deps           = new dlg_depenses(proc);
+    Dlg_Deps = new dlg_depenses();
     if(Dlg_Deps->getInitOK())
     {
         Dlg_Deps->setWindowTitle(tr("Journal des dépenses"));
@@ -6329,7 +6331,7 @@ void Rufus::AfficheDossier(int idPat, int idacte)
             int a = (idacte == 0? ActesQuery.value(0).toInt() : idacte);
             AfficheActe(a);
             if (ActesQuery.size() > 1)
-                OuvrirActesPrecedents(a);
+                OuvrirActesPrecedents();
             ui->ActeMotiftextEdit->setFocus();
         }
         else
@@ -6894,7 +6896,7 @@ void    Rufus::CreerActe(int idPat)
         if (listactesprecs.size() == 0)
         {
             quer.last();
-            OuvrirActesPrecedents(quer.value(0).toInt());
+            OuvrirActesPrecedents();
         }
         else
             listactesprecs.at(0)->Actualise();
@@ -8476,9 +8478,9 @@ bool Rufus::NavigationConsult(int i)
 /*-----------------------------------------------------------------------------------------------------------------
 -- Visualiser la fiche dlg_actesprecedents ------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    Rufus::OuvrirActesPrecedents(int idActeEnCours)
+void    Rufus::OuvrirActesPrecedents()
 {
-    Dlg_ActesPrecs      = new dlg_actesprecedents(gidPatient, idActeEnCours, proc, true, this);
+    Dlg_ActesPrecs      = new dlg_actesprecedents(gidPatient, true, this);
     Dlg_ActesPrecs->setWindowTitle(tr("Consultations précédentes de ") + gNomPatient + " " + gPrenomPatient);
     Dlg_ActesPrecs->show();
     Dlg_ActesPrecs->setWindowIcon(Icons::icLoupe());
@@ -8716,47 +8718,39 @@ void    Rufus::RecaleTableView(int idPat)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::ReconstruitListesActes()
 {
+    /* reconstruit les items du combobox ui->ActeCotationComboBox
+       chaque item contient
+            . le texte de l'item -> la cotation de l'acte
+            . en data, une QStringList contenant dans l'ordre le montant (optam ou non), le montant pratiqué, le descriptif de l'acte CCAM
+    */
+
     QString req;
     QString champ = (gDataUser->isOPTAM()? "montantoptam" : "montantnonoptam");
     // il faut d'abord reconstruire la table des cotations
     ui->ActeCotationcomboBox->clear();
-    req = "(SELECT TypeActe, " + champ + ", montantpratique, nom FROM rufus.cotations cot left join rufus.ccam cc on cot.typeacte= cc.codeccam\n"
-    "where idUser = " + QString::number(gDataUser->getIdUserParent()) + " and typeacte in (select codeccam from rufus.ccam)\n"
-    "order by typeacte)";
-    QSqlQuery ListCotationsQuery (req, DataBase::getInstance()->getDataBase() );
-    DataBase::getInstance()->traiteErreurRequete(ListCotationsQuery,req,"");
-    for (int i = 0; i < ListCotationsQuery.size(); i++)
+
+    /*QStandardItemModel *model = new QStandardItemModel();
+    // toute la manip qui suit sert à remetre les correspondants par ordre aplhabétique (dans le QMap, ils sont triés par id croissant) - si  vous trouvez plus simple, ne vous génez pas
+    for(QMap<int, Cotation *>::const_iterator itcot = Datas::I()->cotations->cotationsbyuser()->constBegin(); itcot != Datas::I()->cotations->cotationsbyuser()->constEnd(); ++itcot )
     {
-        ListCotationsQuery.seek(i);
-        QStringList list;
-        list << ListCotationsQuery.value(1).toString() << ListCotationsQuery.value(2).toString() << ListCotationsQuery.value(3).toString();
-        ui->ActeCotationcomboBox->addItem(ListCotationsQuery.value(0).toString(),list);
+        Cotation *cot = const_cast<Cotation*>(*itcor);
+        QList<QStandardItem *> items;
+        items << new QStandardItem(QString::number(cot->id())) << new QStandardItem(QString::number(cor->id()));
+        model->appendRow(items);
     }
-    req = "(SELECT TypeActe, " + champ + ", montantpratique, null as nom FROM rufus.cotations\n"
-    "where idUser = " + QString::number(gDataUser->getIdUserParent()) + " and typeacte not in (select codeccam from rufus.ccam)\n"
-    "order by typeacte)";
-    QSqlQuery ListCotationsQuery2 (req, DataBase::getInstance()->getDataBase() );
-    DataBase::getInstance()->traiteErreurRequete(ListCotationsQuery2,req,"");
-    for (int i = 0; i < ListCotationsQuery2.size(); i++)
+    model->sort(0);*/
+    for (QMap<int, Cotation*>::const_iterator itcot = Datas::I()->cotations->cotationsbyuser()->constBegin();
+         itcot != Datas::I()->cotations->cotationsbyuser()->constEnd();
+         ++itcot)
     {
-        ListCotationsQuery2.seek(i);
+        Cotation *cot = const_cast<Cotation*>(itcot.value());
         QStringList list;
-        list << ListCotationsQuery2.value(1).toString() << ListCotationsQuery2.value(2).toString() << ListCotationsQuery2.value(3).toString();
-        ui->ActeCotationcomboBox->addItem(ListCotationsQuery2.value(0).toString(),list);
+        QString champ = (gDataUser->isOPTAM()? QString::number(cot->montantoptam(),'f',2) : QString::number(cot->montantnonoptam(), 'f', 2));
+        list << champ << QString::number(cot->montantpratique(), 'f', 2) << cot->descriptif();
+        ui->ActeCotationcomboBox->addItem(cot->typeacte(),list);
     }
 
-    req = "select typeacte as code from " NOM_TABLE_COTATIONS
-                  " union "
-                  " select codeccam as code from " NOM_TABLE_CCAM
-                  " order by code asc";
-    QSqlQuery listactquer(req, DataBase::getInstance()->getDataBase() );
-    QStringList listcodes;
-    for (int i=0; i<listactquer.size(); i++)
-    {
-        listactquer.seek(i);
-        listcodes << listactquer.value(0).toString();
-    }
-    QCompleter *comp = new QCompleter(listcodes);
+    QCompleter *comp = new QCompleter(DataBase::getInstance()->loadTypesCotations());
     //comp->setCompletionMode(QCompleter::InlineCompletion);
     comp->setCaseSensitivity(Qt::CaseInsensitive);
     comp->popup()->setFont(ui->ActeMontantlineEdit->font());
@@ -10158,7 +10152,7 @@ void Rufus::Tonometrie()
     if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
     int idPatAPasser = gidPatient;
 
-    Dlg_AutresMes           = new dlg_autresmesures(&idPatAPasser, proc, dlg_autresmesures::TONO);
+    Dlg_AutresMes           = new dlg_autresmesures(&idPatAPasser, dlg_autresmesures::TONO);
     QString TOD, TOG, Methode, TODcolor, TOGcolor;
     Dlg_AutresMes->setWindowTitle(tr("Tonométrie - ") + gNomPatient + " " + gPrenomPatient);
 

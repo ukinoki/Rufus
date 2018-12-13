@@ -17,10 +17,10 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_autresmesures.h"
 
-dlg_autresmesures::dlg_autresmesures(int *idPatAPasser, Procedures *procAPasser, enum mode mod,  QWidget *parent) :
+dlg_autresmesures::dlg_autresmesures(int *idPatAPasser, enum mode mod,  QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionTono", parent)
 {
-    proc        = procAPasser;
+    proc        = Procedures::I();
     gidPatient  = *idPatAPasser;
     db          = DataBase::getInstance()->getDataBase();
     mode        = mod;

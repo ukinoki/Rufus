@@ -18,7 +18,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_paiementdirect.h"
 #include "ui_dlg_paiementdirect.h"
 
-dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures *procAPasser, QWidget *parent) :
+dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_paiementdirect)
 {
@@ -28,7 +28,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, Procedures 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     setWindowTitle(tr("Gestion des paiements directs"));
 
-    proc                      = procAPasser;
+    proc                      = Procedures::I();
     db                        = DataBase::getInstance();
     gListidActe               = ListidActeAPasser;
     gidComptableACrediter     = -2;
@@ -1277,6 +1277,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             CheckItem->installEventFilter(this);
             pItem2->setText(TableOrigine->item(Rangee,2)->text());  //Date
             pItem3->setText(TableOrigine->item(Rangee,3)->text());  //Nom Prenom
+            pItem3->setData(2,TableOrigine->item(Rangee,3)->data(2));//Nom
             pItem4->setText(TableOrigine->item(Rangee,4)->text());  //Cotation
             pItem5->setText(TableOrigine->item(Rangee,5)->text());  //Montant
             QString ResteDu = QLocale().toString(QLocale().toDouble(TableOrigine->item(Rangee,7)->text()),'f',2);
@@ -1409,9 +1410,14 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 RemplitLesTables();
             }
             gidComptableACrediter   = (m_listeComptables->size() == 1? m_listeComptables->begin().key() : m_userConnected->getIdUserComptable());     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+            ui->TireurChequelineEdit->setText("");
         }
         else
+        {
             gidComptableACrediter = ui->DetailupTableWidget->item(0,0)->data(1).toInt();
+            if (ui->ChequeradioButton->isChecked() && ui->TireurChequelineEdit->text() == "")
+                ui->TireurChequelineEdit->setText(ui->DetailupTableWidget->item(0,3)->data(2).toString());
+        }
         ChangeComptable(gidComptableACrediter);
         ui->ComptablescomboBox->setEnabled(m_userConnected->isSecretaire() && (gMode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0));
         ui->ComptablescomboBox          ->setEnabled(m_userConnected->getUserComptable()==Q_NULLPTR
@@ -2424,6 +2430,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                     + Datas::I()->users->getUserById(TableQuery.value(11).toInt())->getLogin()
                     + "\n" + tr("DDN ") + TableQuery.value(10).toDate().toString(tr("dd-MM-yyyy")));
                 }
+                pItem3->setData(2, TableQuery.value(2).toString());
                 TableARemplir->setItem(i,col,pItem3);
                 col++;
 

@@ -1631,11 +1631,11 @@ void dlg_param::Slot_EnregistreEmplacementServeur(int idx)
 
 void dlg_param::NouvAssocCCAM()
 {
-    Dlg_CrrAct = new dlg_creeracte("Assoc", "Creation", "");
-    Dlg_CrrAct->setWindowTitle(tr("Modification des actes"));
-    Dlg_CrrAct->Initialise(proc);
-    Dlg_CrrAct->setModal(true);
-    if (Dlg_CrrAct->exec()>0)
+    Dlg_CrrCot = new dlg_gestioncotations("Assoc", "Creation", "");
+    Dlg_CrrCot->setWindowTitle(tr("Modification des actes"));
+    Dlg_CrrCot->Initialise();
+    Dlg_CrrCot->setModal(true);
+    if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
         for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
@@ -1656,7 +1656,7 @@ void dlg_param::NouvAssocCCAM()
         ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
-    delete Dlg_CrrAct;
+    delete Dlg_CrrCot;
 }
 
 void dlg_param::ModifAssocCCAM()
@@ -1675,11 +1675,11 @@ void dlg_param::ModifAssocCCAM()
         CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
         TypeTabl = "Assoc";
     }
-    Dlg_CrrAct = new dlg_creeracte(TypeTabl, "Modification", CodeActe);
-    Dlg_CrrAct->setWindowTitle(tr("Modification des actes"));
-    Dlg_CrrAct->Initialise(proc);
-    Dlg_CrrAct->setModal(true);
-    if (Dlg_CrrAct->exec()>0)
+    Dlg_CrrCot = new dlg_gestioncotations(TypeTabl, "Modification", CodeActe);
+    Dlg_CrrCot->setWindowTitle(tr("Modification des actes"));
+    Dlg_CrrCot->Initialise();
+    Dlg_CrrCot->setModal(true);
+    if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
         for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
@@ -1700,7 +1700,7 @@ void dlg_param::ModifAssocCCAM()
         ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
-    delete Dlg_CrrAct;
+    delete Dlg_CrrCot;
 }
 
 void dlg_param::SupprAssocCCAM()
@@ -1744,11 +1744,11 @@ void dlg_param::SupprAssocCCAM()
 
 void dlg_param::NouvHorsNomenclature()
 {
-    Dlg_CrrAct = new dlg_creeracte("HorsNomenclature", "Creation", "");
-    Dlg_CrrAct->setWindowTitle(tr("Modification des actes"));
-    Dlg_CrrAct->Initialise(proc);
-    Dlg_CrrAct->setModal(true);
-    if (Dlg_CrrAct->exec()>0)
+    Dlg_CrrCot = new dlg_gestioncotations("HorsNomenclature", "Creation", "");
+    Dlg_CrrCot->setWindowTitle(tr("Modification des actes"));
+    Dlg_CrrCot->Initialise();
+    Dlg_CrrCot->setModal(true);
+    if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
         ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
@@ -1764,18 +1764,18 @@ void dlg_param::NouvHorsNomenclature()
         ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
-    delete Dlg_CrrAct;
+    delete Dlg_CrrCot;
 }
 
 void dlg_param::ModifHorsNomenclature()
 {
     int row = ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow();
     QString CodeActe = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
-    Dlg_CrrAct = new dlg_creeracte("HorsNomenclature", "Modification", CodeActe);
-    Dlg_CrrAct->setWindowTitle(tr("Modification des actes"));
-    Dlg_CrrAct->Initialise(proc);
-    Dlg_CrrAct->setModal(true);
-    if (Dlg_CrrAct->exec()>0)
+    Dlg_CrrCot = new dlg_gestioncotations("HorsNomenclature", "Modification", CodeActe);
+    Dlg_CrrCot->setWindowTitle(tr("Modification des actes"));
+    Dlg_CrrCot->Initialise();
+    Dlg_CrrCot->setModal(true);
+    if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
         ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
@@ -1791,7 +1791,7 @@ void dlg_param::ModifHorsNomenclature()
         ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
     }
-    delete Dlg_CrrAct;
+    delete Dlg_CrrCot;
 }
 
 void dlg_param::SupprHorsNomenclature()

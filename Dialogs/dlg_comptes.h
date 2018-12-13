@@ -35,7 +35,7 @@ class dlg_comptes : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_comptes(Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_comptes(QWidget *parent = Q_NULLPTR);
     ~dlg_comptes();
     Ui::dlg_comptes *ui;
     bool            getInitOK();

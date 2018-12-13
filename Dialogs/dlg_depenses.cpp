@@ -21,14 +21,14 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_depenses.h"
 #include "cls_compte.h"
 
-dlg_depenses::dlg_depenses(Procedures *procAPasser, QWidget *parent) :
+dlg_depenses::dlg_depenses(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_depenses)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    proc        = procAPasser;
+    proc        = Procedures::I();
     db          = DataBase::getInstance();
     ui->UserscomboBox->setEnabled(proc->getUserConnected()->isSecretaire() );
 
@@ -706,7 +706,7 @@ void dlg_depenses::CalculTotalDepenses()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::GestionComptes()
 {
-    Dlg_Cmpt          = new dlg_comptes(proc);
+    Dlg_Cmpt          = new dlg_comptes();
     if (Dlg_Cmpt->getInitOK())
         Dlg_Cmpt->exec();
 }

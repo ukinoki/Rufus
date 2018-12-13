@@ -594,10 +594,9 @@ void dlg_motifs::Slot_EnregistreMotifs()
         }
     }
     //vider la table MotifsRDV
-    QString req = "delete from " NOM_TABLE_MOTIFSRDV;
-    QSqlQuery (req, DataBase::getInstance()->getDataBase());
+    DataBase::getInstance()->StandardSQL("delete from " NOM_TABLE_MOTIFSRDV);
     //la remplir avec les nouvelles valeurs
-    req = "insert into " NOM_TABLE_MOTIFSRDV " (Utiliser, Motif, raccourci, couleur, ParDefaut, NoOrdre) Values\n";
+    QString req = "insert into " NOM_TABLE_MOTIFSRDV " (Utiliser, Motif, raccourci, couleur, ParDefaut, NoOrdre) Values\n";
     for (int j=0; j<ui->MotifsupTableWidget->rowCount(); j++)
     {
         if (j>0)
@@ -618,7 +617,7 @@ void dlg_motifs::Slot_EnregistreMotifs()
         req += a + ",";
         req += QString::number(j+1) + ")";
     }
-    QSqlQuery(req,DataBase::getInstance()->getDataBase());
+    DataBase::getInstance()->StandardSQL(req);
     MAJMotifs();
     accept();
 }
