@@ -37,15 +37,15 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *DataUser,
     gSociete                = societe;
     gAfficheLeSolde         = AfficheLeSolde;
 
-    comptesusr              = new Comptes();
-    comptesusr->addCompte( db->loadComptesByUser(gDataUser->id()) );
-    CompteEnCours = new (Compte);
-    CompteEnCours = comptesusr->getCompteById(gDataUser->getIdCompteParDefaut());
+    comptesusr              = Datas::I()->comptes;
+    comptesusr              ->clearComptes();
+    comptesusr              ->addCompte( db->loadComptesByUser(gDataUser->id()) );
+    CompteEnCours           = comptesusr->getCompteById(gidCompteParDefaut);
 
     gVisible                = true;
     gTimer                  = new QTimer(this);
     gTimer                  ->start(500);
-    connect(gTimer, &QTimer::timeout, [=] {Clign();});
+    connect(gTimer, &QTimer::timeout, this, &dlg_gestioncomptes::Clign);
     ui->CompteFacticePushButton->setVisible(false);
 
     setAttribute(Qt::WA_DeleteOnClose);
@@ -61,13 +61,13 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *DataUser,
     AjouteLayButtons(UpDialog::ButtonClose);
     CloseButton             ->setText(tr("Fermer"));
 
-    connect(CloseButton,                    &QPushButton::clicked,      [=] {Fermer();});
-    connect(ui->OKModifupSmallButton,       &QPushButton::clicked,      [=] {ValidCompte();});
-    connect(ui->AnnulModifupSmallButton,    &QPushButton::clicked,      [=] {AnnulModif();});
-    connect(NouvBanqupPushButton,           &QPushButton::clicked,      [=] {Banques();});
-    connect(widgButtons,                    &WidgetButtonFrame::choix,  [=] {ChoixButtonFrame(widgButtons->Reponse());});
-    connect(ui->CompteFacticePushButton,    &QPushButton::clicked,      [=] {CompteFactice();});
-    connect(ui->DesactiveComptecheckBox,    &QPushButton::clicked,      [=] {DesactiveCompte();});
+    connect(CloseButton,                    &QPushButton::clicked,      this, &dlg_gestioncomptes::Fermer);
+    connect(ui->OKModifupSmallButton,       &QPushButton::clicked,      this, &dlg_gestioncomptes::ValidCompte);
+    connect(ui->AnnulModifupSmallButton,    &QPushButton::clicked,      this, &dlg_gestioncomptes::AnnulModif);
+    connect(NouvBanqupPushButton,           &QPushButton::clicked,      this, &dlg_gestioncomptes::Banques);
+    connect(widgButtons,                    &WidgetButtonFrame::choix,  this, [=]{ChoixButtonFrame(widgButtons->Reponse());});
+    connect(ui->CompteFacticePushButton,    &QPushButton::clicked,      this, &dlg_gestioncomptes::CompteFactice);
+    connect(ui->DesactiveComptecheckBox,    &QPushButton::clicked,      this, &dlg_gestioncomptes::DesactiveCompte);
 
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
@@ -84,8 +84,8 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *DataUser,
     ui->AnnulModifupSmallButton ->setVisible(false);
     ui->idCompteupLineEdit      ->setVisible(false);
     ui->idComptelabel           ->setVisible(false);
-    ui->Soldelabel              ->setVisible(gAfficheLeSolde || gSociete);
-    ui->SoldeuplineEdit         ->setVisible(gAfficheLeSolde || gSociete);
+    ui->Soldelabel              ->setVisible(gAfficheLeSolde);
+    ui->SoldeuplineEdit         ->setVisible(gAfficheLeSolde);
     ui->CompteSocietecheckBox   ->setEnabled(false);
     ui->CompteSocietecheckBox   ->setChecked(gSociete);
 
@@ -136,31 +136,43 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
 {
     int idCompte = ui->ComptesuptableWidget->item(pitem->row(),0)->text().toInt();
     CompteEnCours = comptesusr->getCompteById(idCompte);
-        ui->BanqueupcomboBox            ->setCurrentText(CompteEnCours->nombanque());
-        ui->IBANuplineEdit              ->setText(CompteEnCours->iban());
-        ui->IntituleCompteuplineEdit    ->setText(CompteEnCours->intitulecompte());
-        ui->NomCompteAbregeuplineEdit   ->setText(CompteEnCours->nom());
-        ui->SoldeuplineEdit             ->setText(QLocale().toString(CompteEnCours->solde(),'f',2));
-        ui->idCompteupLineEdit          ->setText(QString::number(CompteEnCours->id()));
-        ui->DesactiveComptecheckBox     ->setChecked(CompteEnCours->isDesactive());
-    createurducompte    =  (gidUser == CompteEnCours->idUser());
-    widgButtons->moinsBouton    ->setEnabled(true);
+    ui->BanqueupcomboBox            ->setCurrentText(CompteEnCours->nombanque());
+    ui->IBANuplineEdit              ->setText(CompteEnCours->iban());
+    ui->IntituleCompteuplineEdit    ->setText(CompteEnCours->intitulecompte());
+    ui->NomCompteAbregeuplineEdit   ->setText(CompteEnCours->nom());
+    ui->SoldeuplineEdit             ->setText(QLocale().toString(CompteEnCours->solde(),'f',2));
+    ui->idCompteupLineEdit          ->setText(QString::number(CompteEnCours->id()));
+    ui->DesactiveComptecheckBox     ->setChecked(CompteEnCours->isDesactive());
+    ui->CompteSocietecheckBox       ->setChecked(CompteEnCours->isPartage());
 
-    /*On ne peut pas supprimer un compte si:
-     * . il y a déjà eu des ecritures bancaires sur ce compte
-    */
-    bool autorsupprimer;
+    widgButtons->modifBouton    ->setEnabled(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
+    ui->SoldeuplineEdit         ->setVisible(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
+    ui->Soldelabel              ->setVisible(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
+
+    /*On ne peut pas supprimer un compte s'il y a déjà eu des ecritures bancaires sur ce compte*/
+    bool autorsupprimer = (CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id())
+                            && ui->ComptesuptableWidget->rowCount()>1;
     bool ok = true;
-    QList<QList<QVariant>> listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
-                                                                          NOM_TABLE_LIGNESCOMPTES, ok,
-                                                                          "where idcompte = " + QString::number(CompteEnCours->id()));
-    autorsupprimer = (listlignescomptes.size()==0);// il n'y a pas d'écritures en cours
     if (autorsupprimer)
     {
-        listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
-                                                       NOM_TABLE_ARCHIVESBANQUE, ok,
-                                                       "where idcompte = " + QString::number(CompteEnCours->id()));
-        autorsupprimer = (listlignescomptes.size()==0);// il n'y a pas d'écritures en cours
+        QList<QList<QVariant>> listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
+                                                                              NOM_TABLE_ARCHIVESBANQUE, ok,
+                                                                              "where idcompte = " + QString::number(idCompte));
+        autorsupprimer = (listlignescomptes.size()==0);         // il n'y a pas d'écritures en cours
+        if (autorsupprimer)
+        {
+            listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
+                                                           NOM_TABLE_LIGNESCOMPTES, ok,
+                                                           "where idcompte = " + QString::number(idCompte));
+            autorsupprimer = (listlignescomptes.size()==0);     // il n'y a pas d'écritures archivées
+        }
+        if (autorsupprimer && CompteEnCours->isPartage())
+        {
+            QList<QList<QVariant>> listcomptes = db->SelectRecordsFromTable(QStringList() << "iduser",
+                                                                            NOM_TABLE_UTILISATEURS, ok,
+                                                                            "where IdCompteParDefaut = " + QString::number(idCompte));
+            autorsupprimer = (listcomptes.size()>1);            // il y a d'autres utilisateurs de ce compte
+        }
     }
     widgButtons->moinsBouton->setEnabled(autorsupprimer);
 }
@@ -196,6 +208,7 @@ void dlg_gestioncomptes::DesactiveCompte()
     ui->IntituleCompteuplineEdit    ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     ui->NomCompteAbregeuplineEdit   ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     ui->SoldeuplineEdit             ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
+    ui->CompteSocietecheckBox       ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     if (!ui->DesactiveComptecheckBox->isChecked())
     {
         /*On ne peut pas desactiver un compte si:
@@ -272,7 +285,8 @@ void dlg_gestioncomptes::CompteFactice()
         if (gDataUser->getTitre().size() )
             intit += gDataUser->getTitre() + " ";
         intit += gDataUser->getPrenom() + " " + gDataUser->getNom();
-        if (intit.remove(" ") == "") intit = "DOCTEUR EDWARD SNOWDEN";
+        if (Utils::trim(intit) == "")
+            intit = "DR EDWARD SNOWDEN";
         ui->IntituleCompteuplineEdit    ->setText(intit);
         int al = 0;
         QString iban = "FR";
@@ -310,8 +324,7 @@ void dlg_gestioncomptes::ModifCompte()
     ui->BanqueupcomboBox            ->setFocus();
     widgButtons                     ->setEnabled(false);
 
-    /*On ne peut pas desactiver un compte si:
-     * . il est le seul compte active pour cet utilisateur
+    /*On ne peut pas desactiver un compte s'il est le seul compte activé pour cet utilisateur
     */
     bool ok = true;
     QList<QList<QVariant>> listcomptes =
@@ -325,6 +338,7 @@ void dlg_gestioncomptes::ModifCompte()
     ui->IntituleCompteuplineEdit    ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     ui->NomCompteAbregeuplineEdit   ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     ui->SoldeuplineEdit             ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
+    ui->CompteSocietecheckBox       ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
 }
 
 void dlg_gestioncomptes::NouvCompte()
@@ -341,6 +355,8 @@ void dlg_gestioncomptes::NouvCompte()
     ui->IntituleCompteuplineEdit    ->setEnabled(true);
     ui->NomCompteAbregeuplineEdit   ->setEnabled(true);
     ui->SoldeuplineEdit             ->setEnabled(true);
+    ui->CompteSocietecheckBox       ->setEnabled(true);
+    ui->CompteSocietecheckBox       ->setChecked(gDataUser->isSocComptable());
 
     ui->BanqueupcomboBox            ->clearEditText();
     ui->IBANuplineEdit              ->clear();
@@ -358,7 +374,7 @@ void dlg_gestioncomptes::NouvCompte()
 void dlg_gestioncomptes::SupprCompte()
 {
     /* si on est à ce point, c'est qu'aucune écriture n'a été saisie sur ce compte
-     * si le compte n'est pas partagé, on le supprime et on supprime son lien dans comptesJiointures
+     * si le compte n'est pas partagé, on le supprime
     */
     UpMessageBox msgbox;
     UpSmallButton OKBouton(tr("Supprimer le compte"));
@@ -371,6 +387,7 @@ void dlg_gestioncomptes::SupprCompte()
     if (msgbox.clickedButton() != &OKBouton)
         return;
     db->StandardSQL("delete from " NOM_TABLE_COMPTES " where idCompte = " + ui->idCompteupLineEdit->text());
+    comptesusr->removeCompte(comptesusr->getCompteById(ui->idCompteupLineEdit->text().toInt()));
     RemplirTableView();
 }
 
@@ -410,7 +427,7 @@ void dlg_gestioncomptes::ValidCompte()
         listsets.insert("NomCompteABrege"       , ui->NomCompteAbregeuplineEdit->text());
         listsets.insert("SoldeSurDernierReleve" , QString::number(QLocale().toDouble(ui->SoldeuplineEdit->text()),'f',2));
         listsets.insert("idbanque"              , QString::number(idbanque));
-        listsets.insert("partage"               , (gSociete? "1" : "null"));
+        listsets.insert("partage"               , (ui->CompteSocietecheckBox->isChecked()? "1" : "null"));
         listsets.insert("desactive"             , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
         db->UpdateTable(NOM_TABLE_COMPTES,
                         listsets,
@@ -424,20 +441,20 @@ void dlg_gestioncomptes::ValidCompte()
         listsets.insert("IBAN"                   , ui->IBANuplineEdit->text());
         listsets.insert("IntituleCompte"         , ui->IntituleCompteuplineEdit->text());
         listsets.insert("NomCompteABrege"        , ui->NomCompteAbregeuplineEdit->text());
-        listsets.insert("SoldeSurDernierReleve"  , QString::number(QLocale().toDouble(ui->SoldeuplineEdit->text()),'f',2));
-        listsets.insert("partage"                , (gSociete? "1" : "null"));
+        listsets.insert("SoldeSurDernierReleve"  , "0");
+        listsets.insert("partage"                , (ui->CompteSocietecheckBox->isChecked()? "1" : "null"));
         listsets.insert("desactive"              , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
         db->InsertIntoTable(NOM_TABLE_COMPTES, listsets);
         idcompte = db->selectMaxFromTable("idcompte",NOM_TABLE_COMPTES);
         if (!gAfficheLeSolde)
             UpMessageBox::Watch(this, tr("Le compte ") + ui->IntituleCompteuplineEdit->text() + tr(" a été enregistré."),
-                                      tr("le solde a été fixé à O,OO euros et devra être corrigé par le propriétaire du compte"));
+                                      tr("le solde a été fixé à 0,00 euros et devra être corrigé par le propriétaire du compte"));
     }
     comptesusr->removeCompte(CompteEnCours);
     comptesusr->addCompte(db->loadComptesByUser(gidUser));
     CompteEnCours = comptesusr->getCompteById(idcompte);
 
-    RemplirTableView();
+    RemplirTableView(idcompte);
     ui->OKModifupSmallButton->setVisible(false);
     ui->AnnulModifupSmallButton->setVisible(false);
     widgButtons->setEnabled(true);
@@ -462,6 +479,7 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
 {
     ui->ComptesuptableWidget->disconnect();
     QTableWidgetItem    *pitem0, *pitem1;
+    ui->ComptesuptableWidget->clearContents();
     ui->ComptesuptableWidget->setColumnCount(2);
     ui->ComptesuptableWidget->setColumnHidden(0,true);
     ui->ComptesuptableWidget->setColumnWidth(1,ui->ComptesuptableWidget->width());

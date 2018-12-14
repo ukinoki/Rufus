@@ -45,7 +45,7 @@ QRegExp const Utils::rgx_recherche = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎ�
  *  \brief Pause
  *
  *  Methode qui permet d'attendre un certain temps (donné en paramètre)
- *
+ *  sert surtout à forcer la mise à jour d'un affichage sans attendre la fin d'une foncion
  *  \param msec : le temps à attendre en milliseconde
  *
  */

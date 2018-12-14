@@ -29,7 +29,7 @@ public:
     Correspondants *correspondants;     //!< Les correspondants
     Cotations *cotations;               //!< Les cotations
     Depenses *depenses;                 //!< les depenses pour un user et une  année donnée
-    Comptes *comptesallusers;           //!< tous les comptes bancaires de tous les users
+    Comptes *comptes;                   //!< tous les comptes bancaires d'un utilisateur
     Banques *banques;                   //!< toutes les banques
     Motifs *motifs;                     //!< tous les motifs d'actes
     TiersPayants *tiers;                //!< tous les tiers payants

@@ -89,6 +89,12 @@ void Comptes::addCompte(QList<Compte*> listCompte)
         addCompte( *it );
 }
 
+void Comptes::clearComptes()
+{
+    m_comptes.clear();
+    m_comptesAll.clear();
+}
+
 void Comptes::removeCompte(Compte* cpt)
 {
     if (cpt == Q_NULLPTR)

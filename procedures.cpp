@@ -646,7 +646,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
         baEnTete.data()[fileEnTete_len] = 0;
         qFileEnTete.close ();
         Entete = baEnTete;
-        Entete.replace("{{POLICE}}", AppFont().family());
+        Entete.replace("{{POLICE}}", qApp->font().family());
         if (rplct)
         {
             User *userRemp = Datas::I()->users->getUserById(idparent, true);
@@ -1682,14 +1682,9 @@ void Procedures::RestoreFontAppliAndGeometry()
 #ifdef Q_OS_LINUX
     gAppFont.setPointSize(gAppFont.pointSize()+1);
 #endif
+    qApp->setFont(gAppFont);
 
 }
-
-QFont Procedures::AppFont()
-{
-    return gAppFont;
-}
-
 
 double Procedures::CalcBaseSize()
 {

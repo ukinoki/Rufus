@@ -49,7 +49,6 @@ private:
     Comptes                 *comptesusr;
     Compte                  *CompteEnCours;
     dlg_banque              *Dlg_Banq;
-    bool                    createurducompte;
     bool                    gAfficheLeSolde;
     bool                    gSociete;
     bool                    gVisible;

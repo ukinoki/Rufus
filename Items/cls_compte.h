@@ -36,7 +36,7 @@ public:
 
     int id() const;
     int idBanque() const;
-    int idUser() const;
+    int idUser() const;                         //!< l'utilisateur qui a créé le compte
     QString iban() const;
     QString intitulecompte() const;
     QString nom() const;
@@ -51,9 +51,9 @@ public:
 class Comptes
 {
 private:
-    QMultiMap<int, Compte*> m_comptes; //!< la liste des comptes actifs d'un user
-    QMultiMap<int, Compte*> m_comptesAll; //!< la liste de tous les comptes même inactifs d'un user
-    QMultiMap<int, Compte*> m_comptesAllusers; //!< la liste de tous les comptes actifs de tous les utsers
+    QMultiMap<int, Compte*> m_comptes;          //!< la liste des comptes actifs d'un user
+    QMultiMap<int, Compte*> m_comptesAll;       //!< la liste de tous les comptes même inactifs d'un user
+    QMultiMap<int, Compte*> m_comptesAllusers;  //!< la liste de tous les comptes actifs de tous les utsers
 
 public:
     explicit Comptes();
@@ -65,6 +65,7 @@ public:
     void addCompte(Compte *compte);
     void addCompte(QList<Compte*> listCompte);
     void removeCompte(Compte* cpt);
+    void clearComptes();
     Compte* getCompteById(int id);
 };
 

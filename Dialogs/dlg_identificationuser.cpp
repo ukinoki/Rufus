@@ -73,7 +73,7 @@ void dlg_identificationuser::Slot_RetourAnnul()
 
 void dlg_identificationuser::Slot_RetourOK()
 {
-    //On desactive le button OK pour eviter de recliquer dessus.
+    //On desactive le button OK pour neutraliser le double clic.
     ui->OKpushButton->setEnabled(false);
 
 
@@ -81,6 +81,7 @@ void dlg_identificationuser::Slot_RetourOK()
     if (ui->LoginlineEdit->text().toUpper() == AdminDocs.toUpper())
     {
         UpMessageBox::Watch(this, tr("Vous ne pouvez pas utiliser ce Login pour vous connecter"));
+        ui->OKpushButton->setEnabled(true);
         return;
     }
 
@@ -98,7 +99,6 @@ void dlg_identificationuser::Slot_RetourOK()
     }
 
     //on le reactive
-    ui->OKpushButton->setEnabled(true);
 }
 
 //-------------------------------------------------------------------------------------

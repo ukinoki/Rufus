@@ -91,7 +91,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         exit(0);
     }
 
-    qApp->setFont(proc->AppFont());
     qApp->setStyleSheet(Styles::StyleAppli());
     proc->Message(gDataUser->getStatus(), 6000);
 

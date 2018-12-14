@@ -94,7 +94,6 @@ public:
 
     void                    ab(int i = 1);
 
-    QFont                   AppFont();
     QString                 ConvertitEnHtml(QString Texte);
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);

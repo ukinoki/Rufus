@@ -13,7 +13,7 @@ Datas::Datas()
     userConnected = Q_NULLPTR;
 
     banques         = new Banques();
-    comptesallusers = new Comptes();
+    comptes         = new Comptes();
     correspondants  = new Correspondants();
     cotations       = new Cotations();
     depenses        = new Depenses();

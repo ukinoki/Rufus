@@ -50,11 +50,7 @@ SOURCES += main.cpp\
     serialthread.cpp \
     importdocsexternesthread.cpp \
     qlabeldelegate.cpp \
-    villecpwidget.cpp \
-    widgtono.cpp \
-    widgetbuttonframe.cpp \
     utils.cpp \
-    playercontrols.cpp \
     gbl_datas.cpp
 
 HEADERS += rufus.h \
@@ -66,22 +62,16 @@ HEADERS += rufus.h \
     serialthread.h \
     importdocsexternesthread.h \
     qlabeldelegate.h \
-    villecpwidget.h \
-    widgtono.h \
-    widgetbuttonframe.h \
     functordatauser.h \
     macros.h \
     utils.h \
     icons.h \
-    playercontrols.h \
     log.h \
     gbl_datas.h \
     styles.h
 
 FORMS += \
-    rufus.ui \
-    villecpwidget.ui \
-    widgtono.ui
+    rufus.ui
 
 
 #--------------------
@@ -92,6 +82,7 @@ include(Database/database.pri)
 include(Dialogs/dialogs.pri)
 include(Items/items.pri)
 include(TcpSocket/tcpsocket.pri)
+include(Widgets/widgets.pri)
 
 TRANSLATIONS    = rufus_en.ts
 
