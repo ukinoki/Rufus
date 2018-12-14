@@ -420,10 +420,10 @@ void dlg_gestionusers::Slot_EnregistreUser()
     QString titre = (ui->OPHupRadioButton->isChecked()?       "'" + Utils::correctquoteSQL(ui->TitreupcomboBox->currentText()) + "'" : "null");
     QString actif = (ui->InactivUsercheckBox->isChecked()?  "1" : "null");
     QString req = "update "         NOM_TABLE_UTILISATEURS
-            " set userNom = '"      + Utils::correctquoteSQL(ui->NomuplineEdit->text())        + "',\n"
-            " userPrenom = "        + (ui->SocieteComptableupRadioButton->isChecked()? "null" : "'" + Utils::correctquoteSQL(ui->PrenomuplineEdit->text()) + "'") + ",\n"
-            " UserPortable = '"     + Utils::correctquoteSQL(ui->PortableuplineEdit->text())   + "',\n"
-            " UserMail = '"         + Utils::correctquoteSQL(ui->MailuplineEdit->text())       + "',\n"
+            " set userNom = '"      + Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomuplineEdit->text()))        + "',\n"
+            " userPrenom = "        + (ui->SocieteComptableupRadioButton->isChecked()? "null" : "'" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomuplineEdit->text())) + "'") + ",\n"
+            " UserPortable = '"     + ui->PortableuplineEdit->text()   + "',\n"
+            " UserMail = '"         + ui->MailuplineEdit->text()       + "',\n"
             " UserPoliceEcran = '" POLICEPARDEFAUT "',\n"
             " UserPoliceAttribut = 'Regular',\n"
             " UserTitre = "         + titre + ",\n"
@@ -556,13 +556,13 @@ void dlg_gestionusers::Slot_EnregistreUser()
     }
     else if (ui->AutreSoignantupRadioButton->isChecked())
     {
-        req += " UserFonction = '" + ui->AutreSoignantupLineEdit->text() + "',\n"
-               " UserSpecialite = '" + ui->AutreSoignantupLineEdit->text() + "',\n"
+        req += " UserFonction = '" + Utils::correctquoteSQL(ui->AutreSoignantupLineEdit->text()) + "',\n"
+               " UserSpecialite = '" + Utils::correctquoteSQL(ui->AutreSoignantupLineEdit->text()) + "',\n"
                " UserNoSpecialite = null,\n"
                " Soignant = 3,\n"
                " Medecin = " + (ui->MedecincheckBox->isChecked()? "1" : "null") + ",\n"
-               " UserNumCO = " + (ui->MedecincheckBox->isChecked()? ((Utils::correctquoteSQL(ui->NumCOupLineEdit->text())=="")? "null" : "'" + Utils::correctquoteSQL(ui->NumCOupLineEdit->text()) + "'") : "null") + ",\n "
-               " UserNumPS = " + ((Utils::correctquoteSQL(ui->RPPSupLineEdit->text())=="")? "null" : "'" + Utils::correctquoteSQL(ui->RPPSupLineEdit->text()) + "'") + ",\n"
+               " UserNumCO = " + (ui->MedecincheckBox->isChecked()? (ui->NumCOupLineEdit->text()==""? "null" : "'" + ui->NumCOupLineEdit->text() + "'") : "null") + ",\n "
+               " UserNumPS = " + (ui->RPPSupLineEdit->text()==""? "null" : "'" + ui->RPPSupLineEdit->text() + "'") + ",\n"
                " ResponsableActes = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -618,8 +618,8 @@ void dlg_gestionusers::Slot_EnregistreUser()
         req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   " UserCCAM = 1,\n" : " UserCCAM = null,\n");
     }
     else if (ui->AutreNonSoignantupRadioButton->isChecked())
-        req += " UserFonction = '" + ui->AutreFonctionuplineEdit->text() + "',\n"
-               " UserSpecialite = '" + ui->AutreFonctionuplineEdit->text() + "',\n"
+        req += " UserFonction = '" + Utils::correctquoteSQL(ui->AutreFonctionuplineEdit->text()) + "',\n"
+               " UserSpecialite = '" + Utils::correctquoteSQL(ui->AutreFonctionuplineEdit->text()) + "',\n"
                " UserNoSpecialite = null,\n"
                " Soignant = 4,\n"
                " Medecin = null,\n"

@@ -90,6 +90,9 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     globallay               ->getContentsMargins(&r,&t,&l,&b);
     setFixedWidth(ui->MotifsupTableWidget->width() + hlay->spacing() + ui->Detailsframe->width() + r + l);
 
+    ui->MotifupLineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->RaccourciupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+
     RemplirTableWidget();
     ui->MotifsupTableWidget ->selectRow(0);
     Slot_ActualiseDetails();
@@ -607,8 +610,8 @@ void dlg_motifs::Slot_EnregistreMotifs()
             if (UpchkFromTableW(ui->MotifsupTableWidget,j,0)->isChecked())
                 a = "1";
         req += a + ",";
-        req += "'" + ui->MotifsupTableWidget->item(j,1)->text() +"',";
-        req += "'" + ui->MotifsupTableWidget->item(j,2)->text() +"',";
+        req += "'" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->MotifsupTableWidget->item(j,1)->text())) +"',";
+        req += "'" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->MotifsupTableWidget->item(j,2)->text())) +"',";
         req += "'" + ui->MotifsupTableWidget->item(j,4)->text() +"',";
         a = "NULL";
         if (UpchkFromTableW(ui->MotifsupTableWidget,j,6)!=Q_NULLPTR)

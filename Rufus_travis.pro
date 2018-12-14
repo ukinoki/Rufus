@@ -53,7 +53,6 @@ SOURCES += main.cpp\
     villecpwidget.cpp \
     widgtono.cpp \
     widgetbuttonframe.cpp \
-    functormajpremierelettre.cpp \
     utils.cpp \
     playercontrols.cpp \
     gbl_datas.cpp
@@ -71,7 +70,6 @@ HEADERS += rufus.h \
     widgtono.h \
     widgetbuttonframe.h \
     functordatauser.h \
-    functormajpremierelettre.h \
     macros.h \
     utils.h \
     icons.h \
