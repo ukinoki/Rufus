@@ -149,30 +149,21 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
     ui->SoldeuplineEdit         ->setVisible(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
     ui->Soldelabel              ->setVisible(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
 
-    /*On ne peut pas supprimer un compte s'il y a déjà eu des ecritures bancaires sur ce compte*/
-    bool autorsupprimer = (CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id())
-                            && ui->ComptesuptableWidget->rowCount()>1;
+    /*On ne peut pas supprimer un compte s'il est utilisé ou s'il y a déjà eu des ecritures bancaires*/
+    bool autorsupprimer = false;
     bool ok = true;
-    if (autorsupprimer)
+    QString req = "select iduser from " NOM_TABLE_UTILISATEURS
+                  " where IdCompteParDefaut = " + QString::number(idCompte) +
+                  " limit 1";
+    if (db->StandardSelectSQL(req, ok).size()==0)                       // on ne peut pas supprimer un compte si quelqu'un l'utilise
     {
-        QList<QList<QVariant>> listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
-                                                                              NOM_TABLE_ARCHIVESBANQUE, ok,
-                                                                              "where idcompte = " + QString::number(idCompte));
-        autorsupprimer = (listlignescomptes.size()==0);         // il n'y a pas d'écritures en cours
-        if (autorsupprimer)
-        {
-            listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idcompte",
-                                                           NOM_TABLE_LIGNESCOMPTES, ok,
-                                                           "where idcompte = " + QString::number(idCompte));
-            autorsupprimer = (listlignescomptes.size()==0);     // il n'y a pas d'écritures archivées
-        }
-        if (autorsupprimer && CompteEnCours->isPartage())
-        {
-            QList<QList<QVariant>> listcomptes = db->SelectRecordsFromTable(QStringList() << "iduser",
-                                                                            NOM_TABLE_UTILISATEURS, ok,
-                                                                            "where IdCompteParDefaut = " + QString::number(idCompte));
-            autorsupprimer = (listcomptes.size()>1);            // il y a d'autres utilisateurs de ce compte
-        }
+        req = "select idcompte from " NOM_TABLE_ARCHIVESBANQUE
+              " where idcompte = " + QString::number(idCompte) +
+              " union"
+              " select idcompte from " NOM_TABLE_LIGNESCOMPTES
+              " where idcompte = " + QString::number(idCompte) +
+              " limit 1";
+        autorsupprimer = (db->StandardSelectSQL(req, ok).size()==0);    // on ne peut pas supprimer un compte s'il y a des écritures
     }
     widgButtons->moinsBouton->setEnabled(autorsupprimer);
 }
