@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <QDir>
 #include <QRegExp>
 #include <QHostAddress>
 #include <QNetworkInterface>
@@ -39,11 +40,13 @@ public:
 
     static QString trim(QString text, bool end=true);
     static QString capitilize(QString text);
+    static QString trimcapitilize(QString, bool end = true, bool maj = true, bool lower = true);
+    static QMap<QString, double> dir_size(const QString DirPath);
     static qint32  ArrayToInt(QByteArray source);
     static QByteArray IntToArray(int source);
     static QString getIpAdress();
     static QString getMACAdress();
-    static QString CorrigeApostrophe(QString RechAp);
+    static QString correctquoteSQL(QString text);
     static bool VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
 };
 

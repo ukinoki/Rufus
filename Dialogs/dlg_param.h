@@ -43,7 +43,7 @@ class dlg_param : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_param(int idUser, Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_param(int idUser, QWidget *parent = Q_NULLPTR);
     ~dlg_param();
     Ui::dlg_param       *ui;
     bool                CotationsModifiees();

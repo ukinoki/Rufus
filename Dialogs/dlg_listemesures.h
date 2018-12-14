@@ -27,7 +27,7 @@ class dlg_listemesures : public UpDialog
     Q_OBJECT
 
 public:
-    explicit                dlg_listemesures(int *IdPatient, QString mode, Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
+    explicit                dlg_listemesures(int *IdPatient, QString mode, QWidget *parent = Q_NULLPTR);
     ~dlg_listemesures();
     QTableView              *tabLM;
     QStandardItemModel      *gmodele;

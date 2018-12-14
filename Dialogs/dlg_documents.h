@@ -36,8 +36,7 @@ class dlg_documents : public QDialog
     Q_OBJECT
 
 public:
-    explicit                    dlg_documents(int idPatAPasser, QString NomPatient, QString PrenomPatient,
-                                              Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
+    explicit                    dlg_documents(int idPatAPasser, QString NomPatient, QString PrenomPatient, QWidget *parent = Q_NULLPTR);
     ~dlg_documents();
     Ui::dlg_documents           *ui;
     QString                     gReponseResumeOrdo, gReponseResumePrescription;

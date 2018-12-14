@@ -859,7 +859,7 @@ void dlg_commentaires::InsertCommentaire(int row)
 {
     // controle validate des champs
     UpLineEdit *line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(row,1));
-    line->setText(proc->MajusculePremiereLettre(line->text(), true, false, false));
+    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
 
     // Creation du commentaire dans la table
     if (ChercheDoublon(line->text(),row))
@@ -872,8 +872,8 @@ void dlg_commentaires::InsertCommentaire(int row)
 
     QString requete = "INSERT INTO " NOM_TABLE_COMMENTAIRESLUNETTES
             " (TextComment, ResumeComment, idUser, Pardefautcomment ) "
-            " VALUES ('" + proc->CorrigeApostrophe(ui->upTextEdit->document()->toPlainText()) +
-            "','" + proc->CorrigeApostrophe(line->text().left(100)) +
+            " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->document()->toPlainText()) +
+            "','" + Utils::correctquoteSQL(line->text().left(100)) +
             "'," + QString::number(gidUser) + ", null)";
     QSqlQuery InsertComumentQuery (requete,db);
     DataBase::getInstance()->traiteErreurRequete(InsertComumentQuery, requete, tr("Erreur d'enregistrement du commentaire dans ") + NOM_TABLE_COURRIERS);
@@ -1100,7 +1100,7 @@ void dlg_commentaires::UpdateCommentaire(int row)
     // controle validate des champs
     UpLineEdit *line = Q_NULLPTR;
     line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(row,1));
-    line->setText(proc->MajusculePremiereLettre(line->text(), true, false, false));
+    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
 
     if (ChercheDoublon(line->text(),row))
     {
@@ -1112,8 +1112,8 @@ void dlg_commentaires::UpdateCommentaire(int row)
 
     QString idAmodifier = ui->ComupTableWidget->item(row,3)->text();
     QString req = "UPDATE " NOM_TABLE_COMMENTAIRESLUNETTES
-            " SET TextComment = '" + proc->CorrigeApostrophe(ui->upTextEdit->document()->toPlainText()) +
-            "', ResumeComment = '" + proc->CorrigeApostrophe(line->text().left(100)) +
+            " SET TextComment = '" + Utils::correctquoteSQL(ui->upTextEdit->document()->toPlainText()) +
+            "', ResumeComment = '" + Utils::correctquoteSQL(line->text().left(100)) +
             "' WHERE  idCommentLunet = " + idAmodifier;
     QSqlQuery ModifDocQuery (req,db);
     DataBase::getInstance()->traiteErreurRequete(ModifDocQuery, req, tr("Erreur de mise à jour du document dans ") +  NOM_TABLE_COURRIERS);

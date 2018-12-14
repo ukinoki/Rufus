@@ -114,7 +114,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             ALDQ = ordoquery.value(2).toString().contains("affection de longue durée");
             idPat   = ordoquery.value(0).toString();
             nom     = ordoquery.value(5).toString();
-            prenom  = proc->MajusculePremiereLettre(ordoquery.value(6).toString());
+            prenom  = Utils::trimcapitilize(ordoquery.value(6).toString());
             //création de l'entête
             Entete = (ALDQ? proc->ImpressionEntete(DateCreation, nullptr).value("ALD") : proc->ImpressionEntete(DateCreation, nullptr).value("Norm"));
             Entete.replace("{{TITRE1}}"            , "");
@@ -245,8 +245,8 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             Sexe = pat.value(4).toString();
             if (Sexe=="H") Sexe = "M";
             listpat = "(" + idPat + ",'"
-                            + proc->CorrigeApostrophe(pat.value(1).toString()).remove("!") + "','"
-                            + proc->CorrigeApostrophe(pat.value(2).toString()) + "','"
+                            + Utils::correctquoteSQL(pat.value(1).toString()).remove("!") + "','"
+                            + Utils::correctquoteSQL(pat.value(2).toString()) + "','"
                             + DDN.toString("yyyy-MM-dd") + "','"
                             + Sexe + "','"
                             + DateCreation.toString("yyyy-MM-dd")
@@ -259,28 +259,28 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             if (pat.value(10).toString() == "")     NNI = "null";   else NNI = QString::number(pat.value(10).toInt());
             if (pat.value(11).toString() == "-1")   ALD = "1";      else ALD = "0";
             listsocpat = "(" + idPat + ",'"
-                            + proc->CorrigeApostrophe(pat.value(6).toString().left(80)) + "','"
+                            + Utils::correctquoteSQL(pat.value(6).toString().left(80)) + "','"
                             + pat.value(7).toString().left(5) + "','"
-                            + proc->CorrigeApostrophe(pat.value(8).toString().left(40)) + "','"
-                            + proc->CorrigeApostrophe(pat.value(9).toString().left(17)) + "',"
+                            + Utils::correctquoteSQL(pat.value(8).toString().left(40)) + "','"
+                            + Utils::correctquoteSQL(pat.value(9).toString().left(17)) + "',"
                             + NNI + ","
                             + ALD + ",'"
-                            + proc->CorrigeApostrophe(pat.value(12).toString().left(45)) + "')";
+                            + Utils::correctquoteSQL(pat.value(12).toString().left(45)) + "')";
             insertreq = "insert into " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idpat,patAdresse1,Patcodepostal,patville,pattelephone,patNNI,patALD,patprofession) values \n" + listsocpat;
             //proc->Edit(insertreq);
             DataBase::getInstance()->traiteErreurRequete(QSqlQuery(insertreq,db),insertreq,"");
 
-            if (proc->CorrigeApostrophe(pat.value(13).toString())!= ""
-                    || proc->CorrigeApostrophe(pat.value(14).toString())!= ""
-                    || proc->CorrigeApostrophe(pat.value(15).toString())!= ""
-                    || proc->CorrigeApostrophe(pat.value(16).toString())!= ""
+            if (Utils::correctquoteSQL(pat.value(13).toString())!= ""
+                    || Utils::correctquoteSQL(pat.value(14).toString())!= ""
+                    || Utils::correctquoteSQL(pat.value(15).toString())!= ""
+                    || Utils::correctquoteSQL(pat.value(16).toString())!= ""
                     )
             {
                 listrmppat = "(" + idPat + ",'"
-                        + proc->CorrigeApostrophe(pat.value(13).toString()) + "','"
-                        + proc->CorrigeApostrophe(pat.value(14).toString()) + "','"
-                        + proc->CorrigeApostrophe(pat.value(15).toString()) + "','"
-                        + proc->CorrigeApostrophe(pat.value(16).toString()) + "')";
+                        + Utils::correctquoteSQL(pat.value(13).toString()) + "','"
+                        + Utils::correctquoteSQL(pat.value(14).toString()) + "','"
+                        + Utils::correctquoteSQL(pat.value(15).toString()) + "','"
+                        + Utils::correctquoteSQL(pat.value(16).toString()) + "')";
                 insertreq = "insert into " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " (idpat,RMPTtGeneral, RMPTtOphs, RMPAtcdtsOPhs, RMPAtcdtsFamiliaux) values \n" + listrmppat;
                 //proc->Edit(insertreq);
                 DataBase::getInstance()->traiteErreurRequete(QSqlQuery(insertreq,db),insertreq,"");
@@ -293,7 +293,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         patnom.first();
         for (int i=0;i<patnom.size();i++)
         {
-            req = "update " NOM_TABLE_PATIENTS " set Patnom = '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(patnom.value(1).toString())) + "' where idpat = "  + patnom.value(0).toString();
+            req = "update " NOM_TABLE_PATIENTS " set Patnom = '" + Utils::correctquoteSQL(Utils::trimcapitilize(patnom.value(1).toString())) + "' where idpat = "  + patnom.value(0).toString();
             DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
             patnom.next();
         }
@@ -320,8 +320,8 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             idPat = acte.value(1).toString();
             listpat = "(" + idActe + "," + idPat + ",'"
                             + DateCreation.toString("yyyy-MM-dd") + "','"
-                            + proc->CorrigeApostrophe(acte.value(3).toString()) + "','"
-                            + proc->CorrigeApostrophe(acte.value(4).toString()) + "','"
+                            + Utils::correctquoteSQL(acte.value(3).toString()) + "','"
+                            + Utils::correctquoteSQL(acte.value(4).toString()) + "','"
                             + HeureCreation.toString("HH:mm")
                             + "')";
             insertreq = "insert into " NOM_TABLE_ACTES " (idActe,idpat,ActeDate,Actemotif, ActeConclusion, ActeHeure) values \n" + listpat;
@@ -422,7 +422,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             QSqlQuery seekcs(req,db);
             if (seekcs.size()>0)
             {
-                req = "update " NOM_TABLE_ACTES " set Actetexte = '" + proc->CorrigeApostrophe(txtCs) + "', idUser = " + idUser + ", ActeMontant = " + csquery.value(5).toString() + ", CreePar = " + idUser +
+                req = "update " NOM_TABLE_ACTES " set Actetexte = '" + Utils::correctquoteSQL(txtCs) + "', idUser = " + idUser + ", ActeMontant = " + csquery.value(5).toString() + ", CreePar = " + idUser +
                         " where idActe = " + idActe;
                 //proc->Edit(req);
                 DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
@@ -435,7 +435,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                 if (!HeureCreation.isValid()) HeureCreation = QTime::fromString("00:00","HH:mm");
                 listpat = "(" + idActe + "," + idPat + "," + idUser + ",'"
                             + DateCreation.toString("yyyy-MM-dd") + "','"
-                            + proc->CorrigeApostrophe(txtCs) + "',"
+                            + Utils::correctquoteSQL(txtCs) + "',"
                             + csquery.value(5).toString() + ",'"
                             + HeureCreation.toString("HH:mm") + "',"
                             + idUser
@@ -455,7 +455,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         cotquery.first();
         for (int i=0; i< cotquery.size(); i++)
         {
-            req = "update " NOM_TABLE_ACTES " set actecotation = '" + proc->CorrigeApostrophe(cotquery.value(1).toString().left(20)) +
+            req = "update " NOM_TABLE_ACTES " set actecotation = '" + Utils::correctquoteSQL(cotquery.value(1).toString().left(20)) +
                     "' where idacte = " + cotquery.value(0).toString();
             DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
             cotquery.next();
@@ -500,14 +500,14 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         {
             req = "insert into " NOM_TABLE_CORRESPONDANTS " (idCor, CorNom, CorPrenom, CorAdresse1, CorCodePostal, CorVille, CorTelephone, CorFax, CorMedecin, CorSpecialite) values (" +
                     med.value(0).toString() +
-                    ",'" + proc->CorrigeApostrophe(med.value(1).toString().left(70)) +
-                    "','" + proc->CorrigeApostrophe(med.value(2).toString().left(70)) +
-                    "','" + proc->CorrigeApostrophe(med.value(3).toString().left(70)) +
-                    "','" + proc->CorrigeApostrophe(med.value(4).toString().left(5)) +
-                    "','" + proc->CorrigeApostrophe(med.value(5).toString().left(40)) +
-                    "','" + proc->CorrigeApostrophe(med.value(6).toString().left(17)) +
-                    "','" + proc->CorrigeApostrophe(med.value(7).toString().left(17)) +
-                    "',1,'" + proc->CorrigeApostrophe(med.value(8).toString().left(45)) + "')";
+                    ",'" + Utils::correctquoteSQL(med.value(1).toString().left(70)) +
+                    "','" + Utils::correctquoteSQL(med.value(2).toString().left(70)) +
+                    "','" + Utils::correctquoteSQL(med.value(3).toString().left(70)) +
+                    "','" + Utils::correctquoteSQL(med.value(4).toString().left(5)) +
+                    "','" + Utils::correctquoteSQL(med.value(5).toString().left(40)) +
+                    "','" + Utils::correctquoteSQL(med.value(6).toString().left(17)) +
+                    "','" + Utils::correctquoteSQL(med.value(7).toString().left(17)) +
+                    "',1,'" + Utils::correctquoteSQL(med.value(8).toString().left(45)) + "')";
             DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
             med.next();
         }
@@ -518,7 +518,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         cor.first();
         for (int i=0;i<cor.size();i++)
         {
-            req = "update " NOM_TABLE_CORRESPONDANTS " set cornom = '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(cor.value(1).toString())) + "' where idcor = "  + cor.value(0).toString();
+            req = "update " NOM_TABLE_CORRESPONDANTS " set cornom = '" + Utils::correctquoteSQL(Utils::trimcapitilize(cor.value(1).toString())) + "' where idcor = "  + cor.value(0).toString();
             DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
             cor.next();
         }

@@ -17,12 +17,12 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_listemotscles.h"
 
-dlg_listemotscles::dlg_listemotscles(Procedures *Proc, int idPat, QWidget *parent) :
+dlg_listemotscles::dlg_listemotscles(int idPat, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionMotsCles", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     idpat              = idPat;
-    proc               = Proc;
+    proc               = Procedures::I();
 
     QVBoxLayout *globallay       = dynamic_cast<QVBoxLayout*>(layout());
     tabMC              = new QTableView();
@@ -135,12 +135,12 @@ void dlg_listemotscles::Slot_VerifMC()
     }
     if (gAskDialog->mode()=="Creation")
     {
-        QString req = "insert into " NOM_TABLE_MOTSCLES " (MotCle) values('" + proc->CorrigeApostrophe(nouvMC) + "')";
+        QString req = "insert into " NOM_TABLE_MOTSCLES " (MotCle) values('" + Utils::correctquoteSQL(nouvMC) + "')";
         QSqlQuery (req, DataBase::getInstance()->getDataBase());
     }
     else if (gAskDialog->mode()=="Modif")
     {
-        QString req = "update " NOM_TABLE_MOTSCLES " set MotCle = '" + proc->CorrigeApostrophe(nouvMC) + "' where MotCle = '"
+        QString req = "update " NOM_TABLE_MOTSCLES " set MotCle = '" + Utils::correctquoteSQL(nouvMC) + "' where MotCle = '"
                    + gmodele->itemFromIndex(gselection->currentIndex())->text() + "'";
         QSqlQuery (req, DataBase::getInstance()->getDataBase());
     }

@@ -28,7 +28,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_commentaires.h"
 #include "ui_dlg_commentaires.h"
 #include "dlg_listemesures.h"
-#include "dlg_resumerefraction.h"
 
 namespace Ui {
     class dlg_refraction;
@@ -39,12 +38,10 @@ class dlg_refraction : public QDialog
     Q_OBJECT
 
 public:
-    dlg_refraction(int *idPatAPasser, QString *NomPatient, QString *PrenomPatient, int *idActeAPasser, int *AgeAPasser,
-                   Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
+    dlg_refraction(int idPatAPasser, QString NomPatient, QString PrenomPatient, int idActeAPasser, int AgeAPasser, QWidget *parent = Q_NULLPTR);
     ~dlg_refraction();
     Ui::dlg_refraction      *ui;
     dlg_listemesures        *Dlg_ListeMes;
-    dlg_resumerefraction    *Dlg_ResumeRef;
     dlg_commentaires        *Dlg_Comments;
 
     QString                 gResultatPR, gResultatObservation;

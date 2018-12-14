@@ -469,7 +469,7 @@ void dlg_depenses::EnregistreDepense()
     bool ok = true;
     QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
                                                                        NOM_TABLE_RUBRIQUES2035, ok,
-                                                                       "where reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
+                                                                       "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
     db->locktables(QStringList() << NOM_TABLE_DEPENSES << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES);
@@ -877,7 +877,7 @@ void dlg_depenses::ModifierDepense()
     bool ok = true;
     QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
                                                                        NOM_TABLE_RUBRIQUES2035, ok,
-                                                                       "where reffiscale = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'");
+                                                                       "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
     if (listfamfiscale.size() > 0)                // l'écriture existe et on la modifie

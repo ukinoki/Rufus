@@ -19,16 +19,16 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_identificationpatient.h"
 
-dlg_identificationpatient::dlg_identificationpatient(QString *CreationModification, int *idPatAPasser, Procedures *procAPasser, QWidget *parent) :
+dlg_identificationpatient::dlg_identificationpatient(QString CreationModification, int idPatAPasser, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionIdentificationPatient", parent),
     ui(new Ui::dlg_identificationpatient)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    proc                = procAPasser;
-    gidPatient          = *idPatAPasser;
-    lCreatModifCopie    = *CreationModification;
+    proc                = Procedures::I();
+    gidPatient          = idPatAPasser;
+    lCreatModifCopie    = CreationModification;
     db                  = DataBase::getInstance()->getDataBase();
     QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
     ReconstruireListMG  = false;
@@ -166,9 +166,9 @@ void    dlg_identificationpatient::Slot_EnableOKpushButton()
 void dlg_identificationpatient::Slot_Majuscule()
 {
     QLineEdit* Line = static_cast<QLineEdit*>(sender());
-    if (Line->text() != proc->MajusculePremiereLettre(Line->text()))
+    if (Line->text() != Utils::trimcapitilize(Line->text()))
     {
-        Line->setText(proc->MajusculePremiereLettre(Line->text(),false));
+        Line->setText(Utils::trimcapitilize(Line->text(),false));
         OKButton->setEnabled(true);
     }
 }
@@ -199,8 +199,8 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
 void    dlg_identificationpatient::Slot_OKpushButtonClicked()
 {
     QString PatNom, PatPrenom, PatDDN, PatCreePar, PatCreeLe;
-    PatNom      = proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->NomlineEdit->text(),true));
-    PatPrenom   = proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->PrenomlineEdit->text(),true));
+    PatNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
+    PatPrenom   = Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text(),true));
     PatDDN      = ui->DDNdateEdit->date().toString("yyyy-MM-dd");
     PatCreeLe   = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
     PatCreePar  = QString::number(proc->getUserConnected()->id());
@@ -319,8 +319,8 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
     {
         // on vérifie si le dossier existe déjà avec les mêmes nom, prénom et DDN
         QString requete = "select idPat from " NOM_TABLE_PATIENTS
-                " where PatNom LIKE '" + proc->CorrigeApostrophe(ui->NomlineEdit->text()) + "%' and PatPrenom LIKE '" +
-                proc->CorrigeApostrophe(ui->PrenomlineEdit->text()) + "%' and PatDDN = '" +
+                " where PatNom LIKE '" + Utils::correctquoteSQL(ui->NomlineEdit->text()) + "%' and PatPrenom LIKE '" +
+                Utils::correctquoteSQL(ui->PrenomlineEdit->text()) + "%' and PatDDN = '" +
                 ui->DDNdateEdit->date().toString("yyyy-MM-dd") + "'";
         QSqlQuery IdentPatientQuery (requete,db);
         if (DataBase::getInstance()->traiteErreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
@@ -499,7 +499,7 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
 {
     int idcor = -1;
     bool onlydoctors = true;
-    Dlg_IdentCorresp        = new dlg_identificationcorresp("Creation",onlydoctors,0, proc);
+    Dlg_IdentCorresp        = new dlg_identificationcorresp("Creation",onlydoctors,0);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(ui->MGupComboBox->currentText());
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
@@ -538,7 +538,7 @@ void dlg_identificationpatient::FermeFiche(enum CloseReason Cause)
 void dlg_identificationpatient::MAJMG()
 {
     QString anc = ui->MGupComboBox->getValeurAvant();
-    QString nou = proc->MajusculePremiereLettre(ui->MGupComboBox->currentText(),true);
+    QString nou = Utils::trimcapitilize(ui->MGupComboBox->currentText(),true);
     ui->MGupComboBox->setCurrentText(nou);
     if (anc != nou) OKButton->setEnabled(true);
     int i = ui->MGupComboBox->findText(nou, Qt::MatchExactly);

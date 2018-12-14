@@ -36,7 +36,7 @@ class dlg_remisecheques : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_remisecheques(Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_remisecheques(QWidget *parent = Q_NULLPTR);
     ~dlg_remisecheques();
     Ui::dlg_remisecheques   *ui;
     bool                    getInitOK();

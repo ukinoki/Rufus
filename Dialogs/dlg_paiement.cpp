@@ -693,7 +693,7 @@ void dlg_paiement::Slot_MajusculeCreerNom()
     QString nom;
     QLineEdit *UiNom;
     UiNom = ui->TireurChequelineEdit;
-    nom = proc->MajusculePremiereLettre(UiNom->text(),false);
+    nom = Utils::trimcapitilize(UiNom->text(),false);
     UiNom->setText(nom);
     Slot_EnableOKButton();
 }
@@ -1267,7 +1267,7 @@ void dlg_paiement::Slot_ValidePaiement()
                 if (RetrouveRecetteQuery.value(6).toString().isEmpty())
                     LigneRecetteAModifier << "null";
                 else
-                    LigneRecetteAModifier << "'" + proc->CorrigeApostrophe(RetrouveRecetteQuery.value(6).toString()) + "'";   //TireurCheque
+                    LigneRecetteAModifier << "'" + Utils::correctquoteSQL(RetrouveRecetteQuery.value(6).toString()) + "'";   //TireurCheque
                 if (RetrouveRecetteQuery.value(7).toString().isEmpty())
                     LigneRecetteAModifier << "null";
                 else
@@ -1275,15 +1275,15 @@ void dlg_paiement::Slot_ValidePaiement()
                 if (RetrouveRecetteQuery.value(8).toString().isEmpty())
                     LigneRecetteAModifier << "null";
                 else
-                    LigneRecetteAModifier << "'" + proc->CorrigeApostrophe(RetrouveRecetteQuery.value(8).toString()) + "'";   //BanqueCheque
+                    LigneRecetteAModifier << "'" + Utils::correctquoteSQL(RetrouveRecetteQuery.value(8).toString()) + "'";   //BanqueCheque
                 if (RetrouveRecetteQuery.value(9).toString().isEmpty())
                     LigneRecetteAModifier << "null";
                 else
-                    LigneRecetteAModifier << "'" + proc->CorrigeApostrophe(RetrouveRecetteQuery.value(9).toString()) + "'";   //TiersPayant
+                    LigneRecetteAModifier << "'" + Utils::correctquoteSQL(RetrouveRecetteQuery.value(9).toString()) + "'";   //TiersPayant
                 if (RetrouveRecetteQuery.value(10).toString().isEmpty())
                     LigneRecetteAModifier << "null";
                 else
-                    LigneRecetteAModifier << "'" + proc->CorrigeApostrophe(RetrouveRecetteQuery.value(10).toString()) + "'";  //NomTiers
+                    LigneRecetteAModifier << "'" + Utils::correctquoteSQL(RetrouveRecetteQuery.value(10).toString()) + "'";  //NomTiers
                 if (RetrouveRecetteQuery.value(11).toString().isEmpty())
                     LigneRecetteAModifier << "null";
                 else
@@ -1940,8 +1940,8 @@ int dlg_paiement::EnregistreRecette()
             if (ui->ChequeradioButton->isChecked())
             {
                 EnregRecetterequete += ",'C";                                                                           // Mode de paiement = chèque
-                EnregRecetterequete += "','" + proc->CorrigeApostrophe(ui->TireurChequelineEdit->text());               // Tireur chèque
-                EnregRecetterequete += "','" + proc->CorrigeApostrophe(ui->BanqueChequecomboBox->currentText());        // BanqueCheque
+                EnregRecetterequete += "','" + Utils::correctquoteSQL(ui->TireurChequelineEdit->text());               // Tireur chèque
+                EnregRecetterequete += "','" + Utils::correctquoteSQL(ui->BanqueChequecomboBox->currentText());        // BanqueCheque
                 if (ui->EnAttentecheckBox->isChecked())                                                                 // EnAttente
                     EnregRecetterequete += "',1";
                 else
@@ -1997,7 +1997,7 @@ int dlg_paiement::EnregistreRecette()
             }
 
             }
-            EnregRecetterequete += ",'" + proc->CorrigeApostrophe(NomTiers);
+            EnregRecetterequete += ",'" + Utils::correctquoteSQL(NomTiers);
             if (ui->CommissionlineEdit->text() =="")
                 EnregRecetterequete += "',null)";
             else
@@ -2027,7 +2027,7 @@ int dlg_paiement::EnregistreRecette()
             {
                 QString InsertComptrequete = "INSERT INTO " NOM_TABLE_LIGNESCOMPTES "(idLigne, idCompte, idRec, LigneDate, LigneLibelle,  LigneMontant, LigneDebitCredit, LigneTypeOperation) VALUES ("
                         + QString::number(proc->getMAXligneBanque()) + "," + idCompte + "," + QString::number(idRecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
-                        + "', 'Virement créditeur " + proc->CorrigeApostrophe(ui->TierscomboBox->currentText()) + "',"
+                        + "', 'Virement créditeur " + Utils::correctquoteSQL(ui->TierscomboBox->currentText()) + "',"
                         + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) + ",1,'Virement créditeur')";
                 QSqlQuery CompleteLigneCompteQuery (InsertComptrequete,db);
                 if (DataBase::getInstance()->traiteErreurRequete(CompleteLigneCompteQuery,InsertComptrequete,""))
@@ -2059,10 +2059,10 @@ int dlg_paiement::EnregistreRecette()
                 QString intitule2035 = "Honoraires rétrocédés";
                 if (ui->TierscomboBox->currentText() == "CB")
                     intitule2035= "Frais financiers";
-                InsertDeprequete +=  "', '" + proc->CorrigeApostrophe(intitule2035);                                            // RefFiscale
-                InsertDeprequete +=  "', 'Commission " + proc->CorrigeApostrophe(ui->TierscomboBox->currentText());             // Objet
+                InsertDeprequete +=  "', '" + Utils::correctquoteSQL(intitule2035);                                            // RefFiscale
+                InsertDeprequete +=  "', 'Commission " + Utils::correctquoteSQL(ui->TierscomboBox->currentText());             // Objet
                 InsertDeprequete +=  "', " +  QString::number(QLocale().toDouble(ui->CommissionlineEdit->text()));              // Montant
-                QString chercheFamFiscale = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '" + proc->CorrigeApostrophe(intitule2035) +"'";
+                QString chercheFamFiscale = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '" + Utils::correctquoteSQL(intitule2035) +"'";
                 QSqlQuery cherchefamfiscalequery (chercheFamFiscale,db);
                 if (DataBase::getInstance()->traiteErreurRequete(cherchefamfiscalequery,chercheFamFiscale,""))
                 {
@@ -2072,7 +2072,7 @@ int dlg_paiement::EnregistreRecette()
                 if (cherchefamfiscalequery.size() > 0)
                 {
                     cherchefamfiscalequery.first();
-                    InsertDeprequete += ", '" + proc->CorrigeApostrophe(cherchefamfiscalequery.value(0).toString()) + "'";
+                    InsertDeprequete += ", '" + Utils::correctquoteSQL(cherchefamfiscalequery.value(0).toString()) + "'";
                 }
                 else
                     InsertDeprequete += ",''";                                                                                  // Famfiscale
@@ -2109,8 +2109,8 @@ int dlg_paiement::EnregistreRecette()
              if (ui->ChequeradioButton->isChecked())
              {
                  updatelignerecettes = true;
-                 Updaterequete += "TireurCheque = '" + proc->CorrigeApostrophe(ui->TireurChequelineEdit->text()) + "', ";                   // Tireur chèque
-                 Updaterequete += "BanqueCheque = '" + proc->CorrigeApostrophe(ui->BanqueChequecomboBox->currentText()) + "'";              // BanqueCheque
+                 Updaterequete += "TireurCheque = '" + Utils::correctquoteSQL(ui->TireurChequelineEdit->text()) + "', ";                   // Tireur chèque
+                 Updaterequete += "BanqueCheque = '" + Utils::correctquoteSQL(ui->BanqueChequecomboBox->currentText()) + "'";              // BanqueCheque
              }
             QString NomTiers = "";
             switch (gMode) {
@@ -2131,7 +2131,7 @@ int dlg_paiement::EnregistreRecette()
                 Updaterequete += ", ";
             if (NomTiers != "")
             {
-                Updaterequete += "NomTiers = '" + proc->CorrigeApostrophe(NomTiers) + "'";
+                Updaterequete += "NomTiers = '" + Utils::correctquoteSQL(NomTiers) + "'";
                 updatelignerecettes = true;
             }
             if (updatelignerecettes)
@@ -2250,7 +2250,7 @@ int dlg_paiement::EnregistreRecette()
         if (ui->TiersradioButton->isChecked())
         {
             ModePaiement    = "'T'";
-            TypeTiers       = "'" + proc->CorrigeApostrophe(ui->TypeTierscomboBox->currentText()) + "'";
+            TypeTiers       = "'" + Utils::correctquoteSQL(ui->TypeTierscomboBox->currentText()) + "'";
         }
         else if (ui->CarteCreditradioButton->isChecked())
         {
@@ -2927,7 +2927,7 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
             if (RetrouveRecetteQuery.value(6).toString().isEmpty())                                                         //TireurCheque
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + proc->CorrigeApostrophe(RetrouveRecetteQuery.value(6).toString()) + "'";
+                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(RetrouveRecetteQuery.value(6).toString()) + "'";
             if (RetrouveRecetteQuery.value(7).toString().isEmpty())                                                         //CompteVirement
                 LigneRecetteAModifier << "null";
             else
@@ -2935,15 +2935,15 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
             if (RetrouveRecetteQuery.value(8).toString().isEmpty())                                                         //BanqueCheque
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + proc->CorrigeApostrophe(RetrouveRecetteQuery.value(8).toString()) + "'";
+                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(RetrouveRecetteQuery.value(8).toString()) + "'";
             if (RetrouveRecetteQuery.value(9).toString().isEmpty())                                                         //TiersPayant
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + proc->CorrigeApostrophe(RetrouveRecetteQuery.value(9).toString()) + "'";
+                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(RetrouveRecetteQuery.value(9).toString()) + "'";
             if (RetrouveRecetteQuery.value(10).toString().isEmpty())                                                        //NomTiers
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + proc->CorrigeApostrophe(RetrouveRecetteQuery.value(10).toString()) + "'";
+                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(RetrouveRecetteQuery.value(10).toString()) + "'";
             if (RetrouveRecetteQuery.value(11).toString().isEmpty())                                                        //Commission
                 LigneRecetteAModifier << "null";
             else
@@ -2995,10 +2995,10 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
                 else
                     LigneCompteAModifier << ChercheVirementCompteQuery.value(5).toString();
                 LigneCompteAModifier << "'" + ChercheVirementCompteQuery.value(6).toDate().toString("yyyy-MM-dd") + "'";        //LigneDate
-                LigneCompteAModifier << "'" + proc->CorrigeApostrophe(ChercheVirementCompteQuery.value(7).toString()) + "'";    //Lignelibelle
+                LigneCompteAModifier << "'" + Utils::correctquoteSQL(ChercheVirementCompteQuery.value(7).toString()) + "'";    //Lignelibelle
                 LigneCompteAModifier << ChercheVirementCompteQuery.value(8).toString();                                         //LigneMontant
                 LigneCompteAModifier << ChercheVirementCompteQuery.value(9).toString();                                         //LigneDebiCredit
-                LigneCompteAModifier << "'" + proc->CorrigeApostrophe(ChercheVirementCompteQuery.value(10).toString()) + "'";   //LigneTypeOperation
+                LigneCompteAModifier << "'" + Utils::correctquoteSQL(ChercheVirementCompteQuery.value(10).toString()) + "'";   //LigneTypeOperation
                 if (ChercheVirementCompteQuery.value(11).toInt() == 0)                                                          //LigneConsolide
                     LigneCompteAModifier << "null";
                 else
@@ -3034,10 +3034,10 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
                           LigneCommissionCompteAModifier << "null";                                                                         //idRecSpec
                           LigneCommissionCompteAModifier << "null";                                                                         //idRemCheq
                           LigneCommissionCompteAModifier << "'" + CommissionCompteQuery.value(4).toDate().toString("yyyy-MM-dd") + "'";     //LigneDate
-                          LigneCommissionCompteAModifier << "'" + proc->CorrigeApostrophe(CommissionCompteQuery.value(5).toString()) + "'"; //Lignelibelle
+                          LigneCommissionCompteAModifier << "'" + Utils::correctquoteSQL(CommissionCompteQuery.value(5).toString()) + "'"; //Lignelibelle
                           LigneCommissionCompteAModifier << CommissionCompteQuery.value(6).toString();                                      //LigneMontant
                           LigneCommissionCompteAModifier << CommissionCompteQuery.value(7).toString();                                      //LigneDebiCredit
-                          LigneCommissionCompteAModifier << "'" + proc->CorrigeApostrophe(CommissionCompteQuery.value(8).toString()) + "'"; //LigneTypeOperation
+                          LigneCommissionCompteAModifier << "'" + Utils::correctquoteSQL(CommissionCompteQuery.value(8).toString()) + "'"; //LigneTypeOperation
                           if (CommissionCompteQuery.value(9).toInt() == 0)
                               LigneCommissionCompteAModifier << "null";
                           else
@@ -3067,16 +3067,16 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
                           if (DepenseQuery.value(3).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + proc->CorrigeApostrophe(DepenseQuery.value(3).toString()) + "'"; //RefFiscale
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(3).toString()) + "'"; //RefFiscale
                           if (DepenseQuery.value(4).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + proc->CorrigeApostrophe(DepenseQuery.value(4).toString()) + "'"; //Objet
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(4).toString()) + "'"; //Objet
                           LigneDepenseAModifier << DepenseQuery.value(5).toString();                                            //Montant
                           if (DepenseQuery.value(6).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + proc->CorrigeApostrophe(DepenseQuery.value(6).toString()) + "'"; //FamFiscale
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(6).toString()) + "'"; //FamFiscale
                           if (DepenseQuery.value(7).toInt() == 0)
                               LigneDepenseAModifier << "null";
                           else
@@ -3084,7 +3084,7 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
                           if (DepenseQuery.value(8).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + proc->CorrigeApostrophe(DepenseQuery.value(8).toString()) + "'"; //Monnaie
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(8).toString()) + "'"; //Monnaie
                           if (DepenseQuery.value(9).toInt() == 0)
                               LigneDepenseAModifier << "null";
                           else
@@ -3092,7 +3092,7 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
                           if (DepenseQuery.value(10).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + proc->CorrigeApostrophe(DepenseQuery.value(10).toString()) + "'";//ModePaiement
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(10).toString()) + "'";//ModePaiement
                           if (DepenseQuery.value(11).toInt() == 0)
                               LigneDepenseAModifier << "null";
                           else

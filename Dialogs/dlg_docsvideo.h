@@ -34,7 +34,7 @@ class dlg_docsvideo : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_docsvideo(Procedures *ProcAPasser, int idPat, QWidget *parent = Q_NULLPTR);
+    dlg_docsvideo(int idPat, QWidget *parent = Q_NULLPTR);
     void                NavigueVers(QString);
 
 private:

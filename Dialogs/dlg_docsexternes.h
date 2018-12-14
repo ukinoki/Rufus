@@ -39,7 +39,7 @@ class dlg_docsexternes : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_docsexternes(Procedures *ProcAPasser, int idpat, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
     bool                    InitOK();
 

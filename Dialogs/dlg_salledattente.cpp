@@ -18,18 +18,18 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_salledattente.h"
 #include "ui_dlg_salledattente.h"
 
-dlg_salledattente::dlg_salledattente(int *idPatAPasser, int *idActeAPasser, QString *Titre, Procedures *procAPAsser, QWidget *parent):
+dlg_salledattente::dlg_salledattente(int idPatAPasser, int idActeAPasser, QString Titre, QWidget *parent):
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionSalDat", parent),
     ui(new Ui::dlg_salledattente)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    proc                = procAPAsser;
-    gidPatient          = *idPatAPasser;
+    proc                = Procedures::I();
+    gidPatient          = idPatAPasser;
     gidUser             = proc->getUserConnected()->id();
     gidUserSuperviseur  = proc->getUserConnected()->getIdUserActeSuperviseur();
-    gTitre              = *Titre;
-    gidActe             = *idActeAPasser;
+    gTitre              = Titre;
+    gidActe             = idActeAPasser;
     db                  = DataBase::getInstance()->getDataBase();
     QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(layout());
     ui->MessagetextEdit->setText(gTitre);
@@ -134,7 +134,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         saldatrequete =     "INSERT INTO " NOM_TABLE_SALLEDATTENTE
                             " (idPat, idUser, Statut, HeureStatut, idUserEnCoursExam, idActeAPayer, PosteExamen, Message)"
                             " VALUES ('" + QString::number(gidPatient) + "','" + QString::number(gidUserSuperviseur) + "','" + Statut + "','"
-                            + QTime::currentTime().toString("hh:mm") +"', null," + ActeSal + ",'" + proc->CorrigeApostrophe(Msg) + "',null)";
+                            + QTime::currentTime().toString("hh:mm") +"', null," + ActeSal + ",'" + Utils::correctquoteSQL(Msg) + "',null)";
         MsgErreur           = tr("Impossible de mettre ce dossier en salle d'attente");
     }
     else
@@ -146,7 +146,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
                             ", PosteExamen = null";
         if (ActeSal != "null")
             saldatrequete   += ", idActeAPayer = " + ActeSal;
-        saldatrequete       += ", Message = '" + proc->CorrigeApostrophe(Msg) + "'";
+        saldatrequete       += ", Message = '" + Utils::correctquoteSQL(Msg) + "'";
         saldatrequete       += " WHERE idPat = '" + QString::number(gidPatient) + "'";
         MsgErreur           = tr("Impossible de modifier les statuts du dossier en salle d'attente!");
     }

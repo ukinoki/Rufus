@@ -20,19 +20,18 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_refraction.h"
 
-dlg_refraction::dlg_refraction(int *idPatAPasser, QString *NomPatient, QString *PrenomPatient, int *idActeAPasser, int *AgeAPasser,
-                               Procedures *procAPasser, QWidget *parent) :
+dlg_refraction::dlg_refraction(int idPatAPasser, QString NomPatient, QString PrenomPatient, int idActeAPasser, int AgeAPasser, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_refraction)
 {
     ui->setupUi(this);
-    proc            = procAPasser;
-    gidPatient      = *idPatAPasser;
-    gNomPatient     = *NomPatient;
-    gPrenomPatient  = *PrenomPatient;
+    proc            = Procedures::I();
+    gidPatient      = idPatAPasser;
+    gNomPatient     = NomPatient;
+    gPrenomPatient  = PrenomPatient;
     gidUser         = proc->getUserConnected()->id();
-    gidActe         = *idActeAPasser;
-    gAgePatient     = *AgeAPasser;
+    gidActe         = idActeAPasser;
+    gAgePatient     = AgeAPasser;
 
     db = DataBase::getInstance()->getDataBase();
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
@@ -2511,7 +2510,7 @@ void dlg_refraction::OuvrirListeMesures(QString SupOuRecup)
     QString nuRefraction = "";
 
     // Creation du formulaire Dlg Liste Mesures
-    Dlg_ListeMes    = new dlg_listemesures(&gidPatient, SupOuRecup, proc);
+    Dlg_ListeMes    = new dlg_listemesures(&gidPatient, SupOuRecup);
     Dlg_ListeMes->setWindowTitle(tr("Liste des mesures : ") + gNomPatient + " " + gPrenomPatient );
 
     RetourListe = Dlg_ListeMes->exec();
@@ -3940,15 +3939,6 @@ void dlg_refraction::ResumePrescription()
 //---------------------------------------------------------------------------------
 void dlg_refraction::ResumeRefraction()
 {
-    QList<dlg_resumerefraction *> listres = findChildren<dlg_resumerefraction *>();
-    if (listres.size()> 0)
-    {
-        if (listres.at(0)->isVisible())
-            listres.at(0)->raise();
-        else
-            listres.at(0)->show();
-        return;
-    }
     // construction du texte Resume Refraction a partir de la table Refraction.
     // 2 - La partie Autoref
     QString ResultatAutorefDil      = "";
@@ -4012,12 +4002,7 @@ void dlg_refraction::ResumeRefraction()
         ResultatVerres = tr("VERRES PRESCRITS OU MESURÉS") + "\n\n" + ResultatVerres;
         ResultatRefraction += "\n\n" + ResultatVerres;
         }
-
-    Dlg_ResumeRef   = new dlg_resumerefraction(proc,this);
-    Dlg_ResumeRef->txtedit->setText(ResultatRefraction);
-    Dlg_ResumeRef->setWindowTitle(tr("Historique réfractions ") + gPrenomPatient + " " + gNomPatient);
-    Dlg_ResumeRef->show();
-    Dlg_ResumeRef->setWindowIcon(Icons::icLunettes());
+    proc->Edit(ResultatRefraction, tr("Historique réfractions ") + gPrenomPatient + " " + gNomPatient, false);
 }
 
 //---------------------------------------------------------------------------------

@@ -21,7 +21,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_remisecheques.h"
 #include <QDebug>
 
-dlg_remisecheques::dlg_remisecheques(Procedures *procAPasser, QWidget *parent) :
+dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_remisecheques)
 {
@@ -32,7 +32,7 @@ dlg_remisecheques::dlg_remisecheques(Procedures *procAPasser, QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     InitOK = true;
-    proc        = procAPasser;
+    proc        = Procedures::I();
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionRemiseCheques").toByteArray());
 
@@ -277,10 +277,10 @@ void dlg_remisecheques::Slot_ImprimepushButton()
             QString RecSpec = ui->ListeChequesupTableWidget->item(l,6)->text();
             QString AB = ui->ListeChequesupTableWidget->item(l,3)->text();
             if (RecSpec=="1")
-                req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
+                req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::correctquoteSQL(ui->ListeChequesupTableWidget->item(l,2)->text()) +
                     + "', DateEnregistrement = NOW() WHERE idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
             else
-                req = "UPDATE " NOM_TABLE_RECETTES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::CorrigeApostrophe(ui->ListeChequesupTableWidget->item(l,2)->text()) +
+                req = "UPDATE " NOM_TABLE_RECETTES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::correctquoteSQL(ui->ListeChequesupTableWidget->item(l,2)->text()) +
                         + "', DateEnregistrement = NOW() WHERE idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
             if (!db->StandardSQL(req))
             {

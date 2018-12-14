@@ -74,7 +74,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_user.h"
 #include "cls_users.h"
 #include "database.h"
-#include "functormajpremierelettre.h"
 
 class Procedures : public QObject
 {
@@ -108,8 +107,6 @@ public:
     void                    MAJTcpMsgEtFlagSalDat();
     void                    MAJflagMessages();
     int                     getMAXligneBanque();
-    QString                 MajusculePremiereLettre(QString, bool fin = true, bool Maj = true, bool lower = true);
-    QString                 CorrigeApostrophe(QString);  //ajoute un \ devant les apostrophes pour les requetes SQL
     void                    EnChantier(bool avecMsg = false);
     void                    Message(QStringList listmsg, int pause = 1000, bool bottom = true);
     void                    Message(QString mess, int pause = 1000, bool bottom = true);
@@ -128,7 +125,7 @@ public:
                                      bool AvecChoixImprimante = true);
     void                    Imprimer_Etat(QWidget *Formu, QPlainTextEdit *Etat);                                  // CZ 27082015
     QString                 RetireCaracteresAccentues(QString mot);
-     bool                    VerifIni(QString msg = "",
+    bool                    VerifIni(QString msg = "",
                                      QString msgInfo = "",
                                      bool DetruitIni = true,
                                      bool RecupIni = true,
@@ -145,7 +142,6 @@ public:
     //--------------------------------------------------------------------------------------------------------
 private:
     //TODO : ICI info pour le rôle
-    FunctorMAJPremiereLettre fMAJPremiereLettre;
     int                     gidCentre;
     bool                    gUseCotation;
     bool                    avecLaComptaProv;
@@ -175,7 +171,6 @@ public:
 
 
 public:
-    bool                    VerifMDP(QString MDP, QString Msg, bool MDPVerifie = false);
     bool                    VerifRessources(QString Nomfile = "");
 
     bool                    Connexion_A_La_Base();
@@ -188,7 +183,6 @@ public:
     double                  BaseSize, ImagesSize, VideosSize, FreeSpace;
     UpDialog                *gAskBupRestore;
     UpLabel                 *labelResume, *labelVolumeLibre;
-    QMap<QString, double>   dir_size(const QString DirPath);
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true);
     void                    DefinitScriptBackup(QString path, bool AvecImages= true, bool AvecVideos = true);
     bool                    ImmediateBackup(bool full=false);

@@ -25,7 +25,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItemModel>
 #include <QtSql>
 #include "upmessagebox.h"
-#include "functormajpremierelettre.h"
 #include "cls_villes.h"
 
 namespace Ui {
@@ -44,7 +43,6 @@ public:
     Villes *villes() const;
 
 private:
-    FunctorMAJPremiereLettre fMAJPremiereLettre;
     QString                 Alarme;
     Villes                  *m_villes;
 

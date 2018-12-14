@@ -200,7 +200,7 @@ bool DataBase::UpdateTable(QString nomtable,
 {
     QString req = "update " + nomtable + " set";
     for (QHash<QString, QString>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
-        req += " " + itset.key() + " = " + (itset.value().toLower()=="null"? "null," : "'" + Utils::CorrigeApostrophe(itset.value()) + "',");
+        req += " " + itset.key() + " = " + (itset.value().toLower()=="null"? "null," : "'" + Utils::correctquoteSQL(itset.value()) + "',");
     req = req.left(req.size()-1); //retire la virgule de la fin
     req += " " + where;
     return StandardSQL(req, errormsg);
@@ -216,7 +216,7 @@ bool DataBase::InsertIntoTable(QString nomtable,
     for (QHash<QString, QString>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
     {
         champs  += itset.key() + ",";
-        valeurs += (itset.value().toLower()=="null"? "null," : "'" + Utils::CorrigeApostrophe(itset.value()) + "',");
+        valeurs += (itset.value().toLower()=="null"? "null," : "'" + Utils::correctquoteSQL(itset.value()) + "',");
     }
     champs = champs.left(champs.size()-1) + ") values (";
     valeurs = valeurs.left(valeurs.size()-1) + ")";
@@ -745,7 +745,7 @@ void DataBase::loadDepenseArchivee(Depense *dep)
     {
         archivee = (QSqlQuery("select idligne from " NOM_TABLE_ARCHIVESBANQUE
                                 " where LigneDate = '" + dep->date().toString("yyyy-MM-dd")
-                                + "' and LigneLibelle = '" + Utils::CorrigeApostrophe(dep->objet())
+                                + "' and LigneLibelle = '" + Utils::correctquoteSQL(dep->objet())
                                 + "' and LigneMontant = " + QString::number(dep->montant()),
                       getDataBase())
                       .size() > 0);
@@ -776,7 +776,7 @@ QList<Depense*> DataBase::VerifExistDepense(QHash<int, Depense *> m_listDepenses
         op = "<";
     QList<Depense*> listdepenses;
     QString req = "select idDep from " NOM_TABLE_DEPENSES " where DateDep " + op + "'" + date.toString("yyyy-MM-dd") +
-            "'and Objet = '" + Utils::CorrigeApostrophe(objet) +
+            "'and Objet = '" + Utils::correctquoteSQL(objet) +
             "'and Montant = " + QString::number(montant) +
             " and idUser = " + QString::number(iduser) +
             " order by DateDep";
@@ -940,12 +940,13 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
 
     QList<Cotation*> cotations;
     QString  req = "SELECT idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, Frequence, nom"
-          " FROM " NOM_TABLE_COTATIONS " cot left join " NOM_TABLE_CCAM " cc on cot.typeacte= cc.codeccam\n"
-          "where idUser = " + QString::number(iduser) + " and typeacte in (select codeccam from " NOM_TABLE_CCAM ")\n"
-          "order by typeacte";
+          " FROM " NOM_TABLE_COTATIONS " cot left join " NOM_TABLE_CCAM " cc on cot.typeacte= cc.codeccam"
+          " where idUser = " + QString::number(iduser) + " and typeacte in (select codeccam from " NOM_TABLE_CCAM ")"
+          " order by typeacte";
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( traiteErreurRequete(query, req))
         return cotations;
+    if (query.first())
     do
     {
         ++k;
@@ -966,8 +967,8 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
     req = " SELECT idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, Frequence, null as nom"
           " FROM "  NOM_TABLE_COTATIONS
           " where idUser = " + QString::number(iduser) +
-          " and typeacte not in (select codeccam from  " NOM_TABLE_CCAM ")\n"
-          "order by typeacte";
+          " and typeacte not in (select codeccam from  " NOM_TABLE_CCAM ")"
+          " order by typeacte";
     QSqlQuery query1(req, getDataBase() );
     if( traiteErreurRequete(query1, req) || !query1.first())
         return cotations;

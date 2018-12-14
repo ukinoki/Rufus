@@ -31,7 +31,7 @@ class dlg_docsscanner : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsscanner(int idPat, QWidget *parent = Q_NULLPTR);
     ~dlg_docsscanner();
     bool                getinitOK();
     void                NavigueVers(QString);

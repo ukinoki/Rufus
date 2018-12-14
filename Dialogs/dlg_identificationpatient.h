@@ -35,8 +35,7 @@ class dlg_identificationpatient : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_identificationpatient(QString *CreationModification, int *idPatAPasser, Procedures *procAPasser,
-                                       QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationpatient(QString CreationModification, int idPatAPasser, QWidget *parent = Q_NULLPTR);
     ~dlg_identificationpatient();
     Ui::dlg_identificationpatient   *ui;
     int                             gidPatient;

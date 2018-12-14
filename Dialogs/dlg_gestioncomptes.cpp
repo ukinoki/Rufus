@@ -399,7 +399,7 @@ void dlg_gestioncomptes::ValidCompte()
     bool ok = true;
     QList<QList<QVariant>> listbanq = db->SelectRecordsFromTable(QStringList() << "idbanque",
                                                                   NOM_TABLE_BANQUES, ok,
-                                                                  "where nomBanque = '" + Utils::CorrigeApostrophe(ui->BanqueupcomboBox->currentText()) + "'");
+                                                                  "where nomBanque = '" + Utils::correctquoteSQL(ui->BanqueupcomboBox->currentText()) + "'");
     int idbanque = listbanq.at(0).at(0).toInt();
     if (gMode == Modif)
     {
@@ -446,11 +446,6 @@ void dlg_gestioncomptes::ValidCompte()
     ui->ComptesuptableWidget->setCurrentCell(ui->ComptesuptableWidget->findItems(QString::number(idcompte),Qt::MatchExactly).at(0)->row(),1);
     gMode = Norm;
     ui->DesactiveComptecheckBox->setVisible(true);
-}
-
-QString dlg_gestioncomptes::CorrigeApostrophe(QString RechAp)
-{
-    return RechAp.replace("'","\\'");
 }
 
 void dlg_gestioncomptes::MetAJourListeBanques()
@@ -532,7 +527,7 @@ bool dlg_gestioncomptes::VerifCompte()
     bool ok = true;
     QList<QList<QVariant>> listbanq = db->SelectRecordsFromTable(QStringList() << "idbanque",
                                                                   NOM_TABLE_BANQUES, ok,
-                                                                  "where nomBanque = '" + Utils::CorrigeApostrophe(ui->BanqueupcomboBox->currentText()) + "'");
+                                                                  "where nomBanque = '" + Utils::correctquoteSQL(ui->BanqueupcomboBox->currentText()) + "'");
     idbanque = listbanq.at(0).at(0).toInt();
 
     if (gMode == Nouv)
@@ -547,7 +542,7 @@ bool dlg_gestioncomptes::VerifCompte()
         }
         QList<QList<QVariant>> listnomcpt = db->SelectRecordsFromTable(QStringList() << "nomcompteabrege",
                                                                       NOM_TABLE_COMPTES, ok,
-                                                                      "where idUser = " + QString::number(gidUser) + " and nomcompteabrege = '" + Utils::CorrigeApostrophe(ui->NomCompteAbregeuplineEdit->text()) + "'");
+                                                                      "where idUser = " + QString::number(gidUser) + " and nomcompteabrege = '" + Utils::correctquoteSQL(ui->NomCompteAbregeuplineEdit->text()) + "'");
         if (listnomcpt.size()>0)
         {
             UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré avec ce nom abrégé!"));

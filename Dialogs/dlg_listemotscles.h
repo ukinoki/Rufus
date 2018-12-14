@@ -29,7 +29,7 @@ class dlg_listemotscles : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_listemotscles(Procedures *Proc, int idpat, QWidget *parent = Q_NULLPTR);
+    explicit dlg_listemotscles(int idpat, QWidget *parent = Q_NULLPTR);
     ~dlg_listemotscles();
     QStringList         listMCDepart();
 

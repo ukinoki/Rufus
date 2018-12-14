@@ -29,7 +29,7 @@ class dlg_salledattente : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_salledattente(int *idPatAPasser, int * idActeAPasser, QString *Titre, Procedures *procAPAsser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_salledattente(int idPatAPasser, int idActeAPasser, QString Titre, QWidget *parent = Q_NULLPTR);
     ~dlg_salledattente();
     Ui::dlg_salledattente *ui;
 

@@ -33,7 +33,7 @@ class dlg_listecorrespondants : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_listecorrespondants(Procedures *Proc, QWidget *parent = Q_NULLPTR);
+    explicit dlg_listecorrespondants(QWidget *parent = Q_NULLPTR);
     ~dlg_listecorrespondants();
     bool                getListeModifiee();
 

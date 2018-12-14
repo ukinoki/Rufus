@@ -17,12 +17,12 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_listemesures.h"
 
-dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, Procedures *procAPasser, QWidget *parent) :
+dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, QWidget *parent) :
     UpDialog (QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     gidPatient  = *IdPatient;
-    proc        = procAPasser;
+    proc        = Procedures::I();
     if (mode == "SUPPR")
         gMode       = Supprimer;
     else if (mode == "RECUP")

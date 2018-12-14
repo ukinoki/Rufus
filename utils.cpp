@@ -96,7 +96,7 @@ QString Utils::trim(QString text, bool end)
 {
     QString textC = text;
     QChar c;
-    while( textC.size() )
+    while( textC.size() )                   // enlève les espaces, les tirets et les apostrophes du début
     {
         c = textC.at(0);
         if( c == " " || c == "-" || c == "'" )
@@ -105,7 +105,7 @@ QString Utils::trim(QString text, bool end)
             break;
     }
 
-    if( end )
+    if( end )                               // enlève les espaces, les tirets et les apostrophes de la fin
         while( textC.size() )
         {
             int lastIndex = textC.size() - 1;
@@ -118,7 +118,7 @@ QString Utils::trim(QString text, bool end)
 
     QString newText = "";
     QChar lastChar;
-    for( int i=0; i < textC.size(); ++i )
+    for( int i=0; i < textC.size(); ++i )   // enlève les espaces, les tirets et les apostrophes en doublon
     {
         c = textC.at(i);
         if( lastChar == " " || lastChar == "-" || lastChar == "'" )
@@ -148,12 +148,66 @@ QString Utils::capitilize(QString text)
         c = text.at(i);
         if( lastChar == " " || lastChar == "-" || lastChar == "'" )
             c = c.toUpper();
-
         newText += c;
         lastChar = c;
     }
-
     return newText;
+}
+
+/*!
+ * \brief Utils::trimcapitilize
+ * Cette fonction va supprimer :
+ * - les " ", "-" et "'" en début et fin du texte
+ * - les " ", "-" et "'" en doublon dans le texte
+ * et va mettre tous les premiers caractères en majuscule
+ * \param text le texte à modifier
+ * \param end mettre false si on ne souhaite pas nettoyer la fin du texte
+ * \param maj mettre false si on ne souhaite mettre le premier caractère de chaque mot en majuscule
+ * \param end mettre false si on ne souhaite pas mettre en minuscule les majuscules situées au milieu des mots
+ * \return le texte modifié
+ */
+QString Utils::trimcapitilize(QString text, bool end, bool maj, bool lower)
+{
+    if (lower)
+        text = text.toLower();
+    text = trim (text, end);
+    if (maj)
+        text = capitilize(text);
+    return text;
+}
+
+/*!
+ * \brief Utils::dir_size
+ * Cette fonction va renvoyer le nombre de fichiers contenu dans un dossier ainsi que le volume du dossier
+ * utilisé pour le calcul du volume d'une opération de sauvegarde-restauration p.e.
+ * \param text le chemin du dossier
+ * \return un QMap avec ces 2 infos
+ */
+QMap<QString, double> Utils::dir_size(const QString DirPath)
+{
+    QMap<QString, double>      DataDir;
+    double sizex = 0;
+    double nfiles = 0;
+
+    QDir dir(DirPath);
+    if(!dir.exists())
+    {
+        DataDir["Size"]= 0;
+        DataDir["Nfiles"]= 0;
+        return DataDir;
+    }
+    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    QFileInfoList list = dir.entryInfoList();
+
+    for(int i = 0; i < list.size(); ++i)
+    {
+        QFileInfo fileInfo = list.at(i);
+        sizex += (fileInfo.isDir()) ? dir_size(fileInfo.absoluteFilePath())["Size"]: fileInfo.size();
+        nfiles += (fileInfo.isDir()) ? dir_size(fileInfo.absoluteFilePath())["Nfiles"] : i+1;
+    }
+    DataDir["Size"]= sizex;
+    DataDir["Nfiles"]= nfiles;
+    return DataDir;
 }
 
 qint32 Utils::ArrayToInt(QByteArray source)
@@ -204,12 +258,12 @@ QString Utils::getMACAdress()
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
--- Faire précéder l'apostrophe d'un caractère d'échappement pour les requêtes SQL - voir commentaire dans rufus.h --------------------
+-- Faire précéder l'apostrophe d'un caractère d'échappement pour les requêtes SQL --------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
-QString Utils::CorrigeApostrophe(QString RechAp)
+QString Utils::correctquoteSQL(QString text)
 {
-    RechAp.replace("\\","\\\\");
-    return RechAp.replace("'","\\'");
+    text.replace("\\","\\\\");
+    return text.replace("'","\\'");
 }
 
 /*---------------------------------------------------------------------------------------------------------------------

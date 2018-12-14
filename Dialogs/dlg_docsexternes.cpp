@@ -21,10 +21,10 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 static inline double mmToInches(double mm) { return mm * 0.039370147; }
 
-dlg_docsexternes::dlg_docsexternes(Procedures *ProcAPasser, int idpat, bool UtiliseTCP, QWidget *parent) :
+dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
-    proc                = ProcAPasser;
+    proc                = Procedures::I();
     gidPatient          = idpat;
     patient             = DataBase::getInstance()->loadPatientById(gidPatient);
     db                  = DataBase::getInstance();

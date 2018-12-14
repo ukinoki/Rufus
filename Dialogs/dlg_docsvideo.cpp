@@ -17,11 +17,11 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_docsvideo.h"
 
-dlg_docsvideo::dlg_docsvideo(Procedures *ProcAPasser, int idPat, QWidget *parent) :
+dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsVideo", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-    proc    = ProcAPasser;
+    proc    = Procedures::I();
     idpat   = idPat;
     QString Base;
     switch (DataBase::getInstance()->getMode()) {

@@ -19,13 +19,13 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_identificationcorresp.h"
 
-dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModification, bool quelesmedecins, int idCorresp, Procedures *procAPasser, QWidget *parent) :
+dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModification, bool quelesmedecins, int idCorresp, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionIdentCorrespondant", parent),
     ui(new Ui::dlg_identificationcorresp)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    proc                = procAPasser;
+    proc                = Procedures::I();
     db                  = DataBase::getInstance()->getDataBase();
     gidCor              = idCorresp;
     lCreatModif         = CreationModification;
@@ -138,9 +138,9 @@ void    dlg_identificationcorresp::Slot_EnableOKpushButton()
 void dlg_identificationcorresp::Slot_Majuscule()
 {
     QLineEdit* Line = static_cast<QLineEdit*>(sender());
-    if (Line->text() != proc->MajusculePremiereLettre(Line->text()))
+    if (Line->text() != Utils::trimcapitilize(Line->text()))
     {
-        Line->setText(proc->MajusculePremiereLettre(Line->text(),false));
+        Line->setText(Utils::trimcapitilize(Line->text(),false));
         OKButton->setEnabled(true);
     }
 }
@@ -148,8 +148,8 @@ void dlg_identificationcorresp::Slot_Majuscule()
 void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
 {
     QString CorNom, CorPrenom;
-    CorNom      = proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->NomlineEdit->text(),true));
-    CorPrenom   = proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->PrenomlineEdit->text(),true));
+    CorNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
+    CorPrenom   = Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text(),true));
 
 
     if (CPlineEdit->text() == "" && VillelineEdit->text() == "")
@@ -239,21 +239,21 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
                 " CorTelephone, CorPortable, CorFax, CorMail,CorMedecin,CorSpecialite,CorAutreProfession) "
                 " VALUES "
                 " ('" + CorNom + "', '" + CorPrenom + "', '" + gSexeCor
-                + "', '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->Adresse1lineEdit->text(),true))
-                + "', '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->Adresse2lineEdit->text(),true))
-                + "', '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->Adresse3lineEdit->text(),true))
-                + "', '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(VillelineEdit->text(),true))
+                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text(),true))
+                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true))
+                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true))
+                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text(),true))
                 + "', '" + CPlineEdit->text()
                 + "', '" + ui->TellineEdit->text()
                 + "', '" + ui->PortablelineEdit->text()
                 + "', '" + ui->FaxlineEdit->text()
-                + "', '" + proc->CorrigeApostrophe(ui->MaillineEdit->text());
+                + "', '" + Utils::correctquoteSQL(ui->MaillineEdit->text());
         if (ui->MGradioButton->isChecked())
             insrequete += "',1, 0,null);";
         else if (ui->SperadioButton->isChecked())
             insrequete += "',1, " + ui->SpecomboBox->currentData().toString() + ",null);";
         else if (ui->AutreradioButton->isChecked())
-            insrequete += "',null,null,'" + proc->CorrigeApostrophe(ui->AutreupLineEdit->text()) + "');";
+            insrequete += "',null,null,'" + Utils::correctquoteSQL(ui->AutreupLineEdit->text()) + "');";
         QSqlQuery InsertCorQuery (insrequete,db);
         if (DataBase::getInstance()->traiteErreurRequete(InsertCorQuery,insrequete,tr("Impossible de créer le dossier")))
             reject();
@@ -272,21 +272,21 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         if (ui->FradioButton->isChecked()) gSexeCor = "F";
         QString Modifrequete = "update " NOM_TABLE_CORRESPONDANTS
                 " set CorNom = '" + CorNom + "', CorPrenom = '" + CorPrenom + "', CorSexe = '" + gSexeCor
-                + "', CorAdresse1 = '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->Adresse1lineEdit->text(),true))
-                + "', CorAdresse2 = '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->Adresse2lineEdit->text(),true))
-                + "', CorAdresse3 = '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->Adresse3lineEdit->text(),true))
-                + "', CorVille = '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(VillelineEdit->text(),true))
+                + "', CorAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text(),true))
+                + "', CorAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true))
+                + "', CorAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true))
+                + "', CorVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text(),true))
                 + "', CorCodePostal = '" + CPlineEdit->text()
                 + "', CorTelephone = '" + ui->TellineEdit->text()
                 + "', CorPortable = '" + ui->PortablelineEdit->text()
                 + "', CorFax = '" + ui->FaxlineEdit->text()
-                + "', CorMail = '" + proc->CorrigeApostrophe(ui->MaillineEdit->text()) + "'";
+                + "', CorMail = '" + Utils::correctquoteSQL(ui->MaillineEdit->text()) + "'";
         if (ui->MGradioButton->isChecked())
             Modifrequete += ", CorMedecin = 1, CorSpecialite = 0, CorautreProfession = NULL";
         else if (ui->SperadioButton->isChecked())
             Modifrequete += ", CorMedecin = 1, CorSpecialite = " + ui->SpecomboBox->currentData().toString() + ", CorautreProfession = NULL";
         else if (ui->AutreradioButton->isChecked())
-            Modifrequete += ", CorMedecin = 1, CorSpecialite = null, CorautreProfession = '" + proc->CorrigeApostrophe(proc->MajusculePremiereLettre(ui->AutreupLineEdit->text())) + "'";
+            Modifrequete += ", CorMedecin = 1, CorSpecialite = null, CorautreProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->AutreupLineEdit->text())) + "'";
         Modifrequete += " where idCor =" + QString::number(gidCor);
         //qDebug() <<  Modifrequete;
         QSqlQuery ModifCorQuery (Modifrequete,db);

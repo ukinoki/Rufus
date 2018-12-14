@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("13-12-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("14-12-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -187,7 +187,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     connect (gTimerUserConnecte,            &QTimer::timeout,   this,   &Rufus::MetAJourUserConnectes);
     connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
     connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
-
 
     //Nettoyage des erreurs éventuelles de la salle d'attente
     QString blabla              = ENCOURSEXAMEN;
@@ -352,7 +351,7 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
     QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
     if (quer.size()>0)
     {
-        Dlg_DocsExt = new dlg_docsexternes(proc,idpat, UtiliseTCP, this);
+        Dlg_DocsExt = new dlg_docsexternes(idpat, UtiliseTCP, this);
         ui->OuvreDocsExternespushButton->setEnabled(true);
         if (Dlg_DocsExt->InitOK())
         {
@@ -397,7 +396,7 @@ void Rufus::MAJDocsExternes()
         QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
         if (quer.size()>0)
         {
-            Dlg_DocsExt = new dlg_docsexternes(proc, gidPatient, UtiliseTCP, this);
+            Dlg_DocsExt = new dlg_docsexternes(gidPatient, UtiliseTCP, this);
             if (Dlg_DocsExt->InitOK())
                 Dlg_DocsExt->show();
         }
@@ -508,7 +507,7 @@ void Rufus::Moulinette()
         texte2.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
         texte2.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
         //proc->Edit(texte + "\n-\n" + texte2 + "\nfin");
-        req = "update " NOM_TABLE_ACTES " set actetexte = '" + proc->CorrigeApostrophe(texte2) + "' where idacte = " + imp.value(0).toString();
+        req = "update " NOM_TABLE_ACTES " set actetexte = '" + Utils::correctquoteSQL(texte2) + "' where idacte = " + imp.value(0).toString();
         QSqlQuery modif(req, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(modif, req,"");
         imp.next();
@@ -536,7 +535,7 @@ void Rufus::Moulinette()
         texte2.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
         texte2.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
         //proc->Edit(texte + "\n-\n" + texte2 + "\nfin");
-        req = "update " NOM_TABLE_IMPRESSIONS " set textcorps = '" + proc->CorrigeApostrophe(texte2) + "' where idimpression = " + imp2.value(0).toString();
+        req = "update " NOM_TABLE_IMPRESSIONS " set textcorps = '" + Utils::correctquoteSQL(texte2) + "' where idimpression = " + imp2.value(0).toString();
         QSqlQuery modif(req, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(modif, req,"");
         imp2.next();
@@ -579,7 +578,7 @@ void Rufus::Moulinette()
         QString ville = quer.value(0).toString();
         if (ville.contains("-"))
         {
-        req = "update " NOM_TABLE_DONNEESSOCIALESPATIENTS " set patVille = '" + proc->CorrigeApostrophe(ville.replace("-"," ")) + "' where patville = '" + proc->CorrigeApostrophe(quer.value(0).toString()) + "'";
+        req = "update " NOM_TABLE_DONNEESSOCIALESPATIENTS " set patVille = '" + Utils::correctquoteSQL(ville.replace("-"," ")) + "' where patville = '" + Utils::correctquoteSQL(quer.value(0).toString()) + "'";
         QSqlQuery(req, DataBase::getInstance()->getDataBase() );
         }
         quer.next();
@@ -592,7 +591,7 @@ void Rufus::Moulinette()
         QString ville = quer1.value(0).toString();
         if (ville.contains("-"))
         {
-        req = "update " NOM_TABLE_CORRESPONDANTS " set corVille = '" + proc->CorrigeApostrophe(ville.replace("-"," ")) + "' where corville = '" + proc->CorrigeApostrophe(quer1.value(0).toString()) + "'";
+        req = "update " NOM_TABLE_CORRESPONDANTS " set corVille = '" + Utils::correctquoteSQL(ville.replace("-"," ")) + "' where corville = '" + Utils::correctquoteSQL(quer1.value(0).toString()) + "'";
         QSqlQuery(req, DataBase::getInstance()->getDataBase() );
         }
         quer1.next();
@@ -637,7 +636,7 @@ void Rufus::Moulinette()
             //proc->Message(quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s), 1);
             //qDebug() << quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s);
         }
-        copierequete = "update rufus.patients2 set patnom = '" + proc->CorrigeApostrophe(listNoms.at(idauhasard)) + "' where idPat = " + idpat;
+        copierequete = "update rufus.patients2 set patnom = '" + Utils::correctquoteSQL(listNoms.at(idauhasard)) + "' where idPat = " + idpat;
         QSqlQuery modif (copierequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(modif,copierequete,"");
         listNoms.removeAt(idauhasard);
@@ -669,9 +668,9 @@ void Rufus::Moulinette()
             if (b)
             {
                 QString req1 = "update " NOM_TABLE_ACTES " set"
-                       " actemotif = '"         + proc->CorrigeApostrophe(nouvmotif) + "',"
-                       " actetexte = '"         + proc->CorrigeApostrophe(nouvtxt)   + "',"
-                       " acteconclusion = '"    + proc->CorrigeApostrophe(nouvconcl) + "'"
+                       " actemotif = '"         + Utils::correctquoteSQL(nouvmotif) + "',"
+                       " actetexte = '"         + Utils::correctquoteSQL(nouvtxt)   + "',"
+                       " acteconclusion = '"    + Utils::correctquoteSQL(nouvconcl) + "'"
                        " where idacte = " + modifactesquer.value(0).toString();
                 //qDebug() << req1;
                 QSqlQuery (req1,  DataBase::getInstance()->getDataBase() );
@@ -703,9 +702,9 @@ void Rufus::Moulinette()
             if (b)
             {
                 QString req1 = "update " NOM_TABLE_IMPRESSIONS " set"
-                       " textentete = '"         + proc->CorrigeApostrophe(nouventete) + "',"
-                       " textcorps = '"         + proc->CorrigeApostrophe(nouvcorps)   + "',"
-                       " textorigine = '"    + proc->CorrigeApostrophe(nouvorigine) + "'"
+                       " textentete = '"         + Utils::correctquoteSQL(nouventete) + "',"
+                       " textcorps = '"         + Utils::correctquoteSQL(nouvcorps)   + "',"
+                       " textorigine = '"    + Utils::correctquoteSQL(nouvorigine) + "'"
                        " where idimpression = " + modifimprquer.value(0).toString();
                 //qDebug() << req1;
                 QSqlQuery (req1,  DataBase::getInstance()->getDataBase() );
@@ -740,7 +739,7 @@ void Rufus::Moulinette()
         copieA.seek(j);
         QString idpat = copieA.value(0).toString();
         idauhasard = rand() % (listAdresses.size());
-        copierequete = "update rufus.donneessocialespatients2 set patAdresse1 = '" + proc->CorrigeApostrophe(listAdresses.at(idauhasard))
+        copierequete = "update rufus.donneessocialespatients2 set patAdresse1 = '" + Utils::correctquoteSQL(listAdresses.at(idauhasard))
                 + "' where idPat = " + idpat;
         QSqlQuery modif3 (copierequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(modif3,copierequete,"");
@@ -761,7 +760,7 @@ void Rufus::Moulinette()
         copieA2.seek(j);
         QString idpat = copieA2.value(0).toString();
         idauhasard = rand() % (listAdresses.size());
-        copierequete = "update rufus.donneessocialespatients2 set patAdresse2 = '" + proc->CorrigeApostrophe(listAdresses.at(idauhasard))
+        copierequete = "update rufus.donneessocialespatients2 set patAdresse2 = '" + Utils::correctquoteSQL(listAdresses.at(idauhasard))
                 + "' where idPat = " + idpat;
         QSqlQuery modif4 (copierequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(modif4,copierequete,"");
@@ -798,7 +797,7 @@ void Rufus::Moulinette()
         idCor       = Corcopie.value(0).toString();
         AncNom      = Corcopie.value(1).toString();
         NouvNom     = listnomcor.at(k);
-        Corcopierequete = "update " NOM_TABLE_CORRESPONDANTS " set Cornom = '" + proc->CorrigeApostrophe(NouvNom) + "' where idCor = " + idCor;
+        Corcopierequete = "update " NOM_TABLE_CORRESPONDANTS " set Cornom = '" + Utils::correctquoteSQL(NouvNom) + "' where idCor = " + idCor;
         QSqlQuery modifnom (Corcopierequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(modifnom,Corcopierequete,"");
 
@@ -809,12 +808,12 @@ void Rufus::Moulinette()
             if (Corimprquery.value(1).toString().contains(AncNom, Qt::CaseInsensitive))
             {
                 //qDebug() << AncNom + " - " + QString::number(k) + "/" + QString::number(Corcopie.size()) + " // " + QString::number(p) + "/" + QString::number(Corimprquery.size());
-                QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set textcorps = '" + proc->CorrigeApostrophe(Corimprquery.value(1).toString().replace(AncNom,NouvNom))
+                QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set textcorps = '" + Utils::correctquoteSQL(Corimprquery.value(1).toString().replace(AncNom,NouvNom))
                            + "' where idimpression = " + Corimprquery.value(0).toString(),  DataBase::getInstance()->getDataBase() );
             }
             if (Corimprquery.value(2).toString().contains(AncNom, Qt::CaseInsensitive))
             {
-                QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set textorigine = '" + proc->CorrigeApostrophe(Corimprquery.value(2).toString().replace(AncNom,NouvNom))
+                QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set textorigine = '" + Utils::correctquoteSQL(Corimprquery.value(2).toString().replace(AncNom,NouvNom))
                            + "' where idimpression = " + Corimprquery.value(0).toString(),  DataBase::getInstance()->getDataBase() );
             }
         }
@@ -836,7 +835,7 @@ void Rufus::Moulinette()
         QSqlQuery adresspatquery("select patadresse1 from " NOM_TABLE_DONNEESSOCIALESPATIENTS " order by rand() limit 1",  DataBase::getInstance()->getDataBase() );
         adresspatquery.first();
         NouvAdresse = adresspatquery.value(0).toString();
-        Corcopierequete = "update rufus.correspondants set Coradresse1 = '" + proc->CorrigeApostrophe(NouvAdresse) + "' where idCor = " + idCor;
+        Corcopierequete = "update rufus.correspondants set Coradresse1 = '" + Utils::correctquoteSQL(NouvAdresse) + "' where idCor = " + idCor;
         QSqlQuery modif (Corcopierequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(modif,Corcopierequete,"");
     }
@@ -1632,7 +1631,7 @@ void Rufus::CreerBilanOrtho()
             texte += Motif;
             ui->ActeMotiftextEdit->setText(texte);
         }
-        QString updaterequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + proc->CorrigeApostrophe(ui->ActeMotiftextEdit->toHtml()) +
+        QString updaterequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(ui->ActeMotiftextEdit->toHtml()) +
                                 "' where idActe = " + ui->idActelineEdit->text();
         QSqlQuery UpdateUpMotifTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(UpdateUpMotifTextEditQuery,updaterequete,tr("Impossible de mettre à jour le champ Motif !"));
@@ -1657,7 +1656,7 @@ void Rufus::CreerBilanOrtho()
             texte += Reponse;
             ui->ActeTextetextEdit->setText(texte);
         }
-        updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + proc->CorrigeApostrophe(ui->ActeTextetextEdit->toHtml()) +
+        updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
         QSqlQuery UpdateUpTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texe !"));
@@ -1686,7 +1685,7 @@ void Rufus::CreerBilanOrtho()
                 texte += Concl;
                 ui->ActeConclusiontextEdit->setText(texte);
             }
-            updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + proc->CorrigeApostrophe(ui->ActeConclusiontextEdit->toHtml()) +
+            updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->toHtml()) +
                     "' where idActe = " + ui->idActelineEdit->text();
             QSqlQuery UpdateUpTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
             DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
@@ -1711,13 +1710,13 @@ void Rufus::CreerBilanOrtho()
                 ", HMaddoxVPSCD, HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD"      // 65,66,67,68,69
                 ") \nVALUES \n(";
         bilanorthorequete += ui->idActelineEdit->text();                                                                        //0
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MotiftextEdit->toHtml()) + "'\n";                   //1
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->AVODlineEdit->text()) + "'\n";                      //2
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->AVOGlineEdit->text()) + "'\n";                      //3
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->OcclAlterncomboBox->currentText()) + "'\n";         //4
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->WirtcomboBox->currentText()) + "'\n";               //5
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->AnimauxWirtcomboBox->currentText()) + "'\n";        //6
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->LangcomboBox->currentText()) + "'\n";               //7 Lang
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MotiftextEdit->toHtml()) + "'\n";                   //1
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->AVODlineEdit->text()) + "'\n";                      //2
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->AVOGlineEdit->text()) + "'\n";                      //3
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->OcclAlterncomboBox->currentText()) + "'\n";         //4
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->WirtcomboBox->currentText()) + "'\n";               //5
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->AnimauxWirtcomboBox->currentText()) + "'\n";        //6
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->LangcomboBox->currentText()) + "'\n";               //7 Lang
         if (UiDLg_BlOrtho->ODdirecteurradioButton->isChecked())                                                                 //8 ODirecteur
             bilanorthorequete += ", 'D'";
         else if (UiDLg_BlOrtho->OGdirecteurradioButton->isChecked())
@@ -1730,136 +1729,136 @@ void Rufus::CreerBilanOrtho()
             bilanorthorequete += ", 'G'";
         else
             bilanorthorequete += ", ''";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->EcranVLSCcomboBox->currentText()) + "'\n";          //10 EcranVLSC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVLSCcomboBox->currentText()) + "'\n";          //10 EcranVLSC
         if (UiDLg_BlOrtho->EcranVLSCDcomboBox->currentText() != "-")                                                            //11 EcranVLSCD
-            bilanorthorequete += ", " + proc->CorrigeApostrophe(UiDLg_BlOrtho->EcranVLSCDcomboBox->currentText()) + "\n";
+            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVLSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
         if (UiDLg_BlOrtho->fixSCVLcomboBox->currentText() != "-")                                                               //12 EcranfixresVLSC
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->fixSCVLcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->fixSCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->EcranVPSCcomboBox->currentText()) + "'\n";          //13 EcranVPSC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVPSCcomboBox->currentText()) + "'\n";          //13 EcranVPSC
         if (UiDLg_BlOrtho->EcranVPSCDcomboBox->currentText() != "-")                                                            //14 ECranVPSCD
-            bilanorthorequete += ", " + proc->CorrigeApostrophe(UiDLg_BlOrtho->EcranVPSCDcomboBox->currentText()) + "\n";
+            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVPSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
         if (UiDLg_BlOrtho->fixSCVPcomboBox->currentText() != "-")                                                               //15 EcranfixresVPSC
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->fixSCVPcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->fixSCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->EcranVLASCcomboBox->currentText()) + "'\n";         //16 EcranVLASC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVLASCcomboBox->currentText()) + "'\n";         //16 EcranVLASC
         if (UiDLg_BlOrtho->EcranVLASCDcomboBox->currentText() != "-")                                                           //17 EcranVLASCD
-            bilanorthorequete += ", " + proc->CorrigeApostrophe(UiDLg_BlOrtho->EcranVLASCDcomboBox->currentText()) + "\n";
+            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVLASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
         if (UiDLg_BlOrtho->fixASCVLcomboBox->currentText() != "-")                                                              //18 EcranfixresVLASC
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->fixASCVLcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->fixASCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->EcranVPASCcomboBox->currentText()) + "'\n";         //19 EcranVPASC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVPASCcomboBox->currentText()) + "'\n";         //19 EcranVPASC
         if (UiDLg_BlOrtho->EcranVPASCDcomboBox->currentText() != "-")                                                           //20 EcranVPASCD
-            bilanorthorequete += ", " + proc->CorrigeApostrophe(UiDLg_BlOrtho->EcranVPASCDcomboBox->currentText()) + "\n";
+            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVPASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
         if (UiDLg_BlOrtho->fixASCVPcomboBox->currentText() != "-")                                                              //21 EcranfixresVPASC
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->fixASCVPcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->fixASCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MaddoxVLSCcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVLSCcomboBox->currentText()) + "'\n";
         if (UiDLg_BlOrtho->MaddoxVLSCDcomboBox->currentText() != "-")
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MaddoxVLSCDcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVLSCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MaddoxVPSCcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVPSCcomboBox->currentText()) + "'\n";
         if (UiDLg_BlOrtho->MaddoxVPSCDcomboBox->currentText() != "-")
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MaddoxVPSCDcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVPSCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MaddoxVLASCcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVLASCcomboBox->currentText()) + "'\n";
         if (UiDLg_BlOrtho->MaddoxVLASCDcomboBox->currentText() != "-")
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MaddoxVLASCDcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVLASCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MaddoxVPASCcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVPASCcomboBox->currentText()) + "'\n";
         if (UiDLg_BlOrtho->MaddoxVPASCDcomboBox->currentText() != "-")
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MaddoxVPASCDcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVPASCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->MotilitetextEdit->toHtml()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->PPCcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->PPClineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->SaccadeslineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->PoursuitelineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->Worth1lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->Worth2lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->Bagolini1lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->Bagolini2lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->VergenceDLcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->VergenceCLcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->VergenceDPcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->VergenceCPcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->Degre1lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->Degre2lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->Degre3lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->ConclusiontextEdit->toHtml()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->TNOcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->VergenceRestDLcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->VergenceRestDPcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HEcranVLSCcomboBox->currentText()) + "'\n";         //50 HEcranVLSC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MotilitetextEdit->toHtml()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->PPCcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->PPClineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->SaccadeslineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->PoursuitelineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Worth1lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Worth2lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Bagolini1lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Bagolini2lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceDLcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceCLcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceDPcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceCPcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Degre1lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Degre2lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Degre3lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->ConclusiontextEdit->toHtml()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->TNOcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceRestDLcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceRestDPcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVLSCcomboBox->currentText()) + "'\n";         //50 HEcranVLSC
         if (UiDLg_BlOrtho->HEcranVLSCDcomboBox->currentText() != "-")                                                           //51 HEcranVLSCD
-            bilanorthorequete += ", " + proc->CorrigeApostrophe(UiDLg_BlOrtho->HEcranVLSCDcomboBox->currentText()) + "\n";
+            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVLSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
         if (UiDLg_BlOrtho->HfixSCVLcomboBox->currentText() != "-")                                                              //52 HEcranfixresVLSC
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HfixSCVLcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HfixSCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HEcranVPSCcomboBox->currentText()) + "'\n";         //53 HEcranVPSC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVPSCcomboBox->currentText()) + "'\n";         //53 HEcranVPSC
         if (UiDLg_BlOrtho->HEcranVPSCDcomboBox->currentText() != "-")                                                           //54 HECranVPSCD
-            bilanorthorequete += ", " + proc->CorrigeApostrophe(UiDLg_BlOrtho->HEcranVPSCDcomboBox->currentText()) + "\n";
+            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVPSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
         if (UiDLg_BlOrtho->HfixSCVPcomboBox->currentText() != "-")                                                              //55 HEcranfixresVPSC
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HfixSCVPcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HfixSCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HEcranVLASCcomboBox->currentText()) + "'\n";        //56 HEcranVLASC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVLASCcomboBox->currentText()) + "'\n";        //56 HEcranVLASC
         if (UiDLg_BlOrtho->HEcranVLASCDcomboBox->currentText() != "-")                                                          //57 HEcranVLASCD
-            bilanorthorequete += ", " + proc->CorrigeApostrophe(UiDLg_BlOrtho->HEcranVLASCDcomboBox->currentText()) + "\n";
+            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVLASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
         if (UiDLg_BlOrtho->HfixASCVLcomboBox->currentText() != "-")                                                             //58 HEcranfixresVLASC
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HfixASCVLcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HfixASCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HEcranVPASCcomboBox->currentText()) + "'\n";        //59 HEcranVPASC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVPASCcomboBox->currentText()) + "'\n";        //59 HEcranVPASC
         if (UiDLg_BlOrtho->HEcranVPASCDcomboBox->currentText() != "-")                                                          //60 HEcranVPASCD
-            bilanorthorequete += ", " + proc->CorrigeApostrophe(UiDLg_BlOrtho->HEcranVPASCDcomboBox->currentText()) + "\n";
+            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVPASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
         if (UiDLg_BlOrtho->HfixASCVPcomboBox->currentText() != "-")                                                             //61 HEcranfixresVPASC
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HfixASCVPcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HfixASCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HMaddoxVLSCcomboBox->currentText()) + "'\n";        //62 HMaddoxVLSC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVLSCcomboBox->currentText()) + "'\n";        //62 HMaddoxVLSC
         if (UiDLg_BlOrtho->HMaddoxVLSCDcomboBox->currentText() != "-")                                                          //63 HMaddoxVLSCD
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HMaddoxVLSCDcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVLSCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HMaddoxVPSCcomboBox->currentText()) + "'\n";        //64 HMaddoxVPSC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVPSCcomboBox->currentText()) + "'\n";        //64 HMaddoxVPSC
         if (UiDLg_BlOrtho->HMaddoxVPSCDcomboBox->currentText() != "-")                                                          //65 HMaddoxVPSCD
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HMaddoxVPSCDcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVPSCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HMaddoxVLASCcomboBox->currentText()) + "'\n";       //66 HMaddoxVLASC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVLASCcomboBox->currentText()) + "'\n";       //66 HMaddoxVLASC
         if (UiDLg_BlOrtho->HMaddoxVLASCDcomboBox->currentText() != "-")                                                         //67 HMaddoxVLASCD
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HMaddoxVLASCDcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVLASCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HMaddoxVPASCcomboBox->currentText()) + "'\n";       //68 HMaddoxVPASC
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVPASCcomboBox->currentText()) + "'\n";       //68 HMaddoxVPASC
         if (UiDLg_BlOrtho->HMaddoxVPASCDcomboBox->currentText() != "-")                                                         //69 HMaddoxVPASCD
-            bilanorthorequete += ", '" + proc->CorrigeApostrophe(UiDLg_BlOrtho->HMaddoxVPASCDcomboBox->currentText()) + "'\n";
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVPASCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
         bilanorthorequete += ");";
@@ -1927,7 +1926,7 @@ void Rufus::EnregistreDocScanner()
         return;
     }
 
-    Dlg_DocsScan = new dlg_docsscanner(proc,idpat, this);
+    Dlg_DocsScan = new dlg_docsscanner(idpat, this);
     if (!Dlg_DocsScan->getinitOK())
         return;
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + nomprenompat);
@@ -1959,7 +1958,7 @@ void Rufus::EnregistreVideo()
         UpMessageBox::Watch(this,tr("Pas de dossier patient en cours"));
         return;
     }
-    Dlg_DocsVideo = new dlg_docsvideo(proc,idpat, this);
+    Dlg_DocsVideo = new dlg_docsvideo(idpat, this);
     Dlg_DocsVideo->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + nomprenompat);
     Dlg_DocsVideo->show();
     Dlg_DocsVideo->NavigueVers("Fin");
@@ -2585,7 +2584,7 @@ bool Rufus::InscritEnSalDat(int idpat)
         QString Arriverequete =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
                 " (idPat, Statut, HeureArrivee, Motif, Message, HeureRDV, idUser)"
                 " VALUES (" + QString::number(idpat) + ",'" ARRIVE "','" + QTime::currentTime().toString("hh:mm") + "','" +
-                            llist.at(0) + "','" + proc->CorrigeApostrophe(llist.at(1)) + "','" + llist.at(2) + "', " + llist.at(3) + ")";
+                            llist.at(0) + "','" + Utils::correctquoteSQL(llist.at(1)) + "','" + llist.at(2) + "', " + llist.at(3) + ")";
         DataBase::getInstance()->traiteErreurRequete(QSqlQuery (Arriverequete, DataBase::getInstance()->getDataBase()),Arriverequete,"");
         FlagMetAjourSalDat();
         RecaleTableView(idpat);
@@ -2600,7 +2599,7 @@ void Rufus::ListeCorrespondants()
     {
         UpMessageBox::Watch(this, tr("pas de correspondant enregistré") );
         bool onlydoctors    = false;
-        Dlg_IdentCorresp    = new dlg_identificationcorresp("Creation", onlydoctors, 0, proc);
+        Dlg_IdentCorresp    = new dlg_identificationcorresp("Creation", onlydoctors, 0);
         if (Dlg_IdentCorresp->exec()>0)
         {
             ReconstruitCombosCorresp();         // par une modif introduite par la fiche identcorrespondant
@@ -2609,7 +2608,7 @@ void Rufus::ListeCorrespondants()
         delete Dlg_IdentCorresp;
         return;
     }
-    Dlg_ListCor = new dlg_listecorrespondants(proc, this);
+    Dlg_ListCor = new dlg_listecorrespondants(this);
 
     Dlg_ListCor->exec();
     if (Dlg_ListCor->getListeModifiee())
@@ -2622,13 +2621,13 @@ void Rufus::ListeCorrespondants()
 
 void Rufus::MajusculeCreerNom()
 {
-    ui->CreerNomlineEdit->setText(proc->MajusculePremiereLettre(ui->CreerNomlineEdit->text(), false));
+    ui->CreerNomlineEdit->setText(Utils::trimcapitilize(ui->CreerNomlineEdit->text(), false));
     ChercheNomFiltre();
 }
 
 void Rufus::MajusculeCreerPrenom()
 {
-    ui->CreerPrenomlineEdit->setText(proc->MajusculePremiereLettre(ui->CreerPrenomlineEdit->text(), false));
+    ui->CreerPrenomlineEdit->setText(Utils::trimcapitilize(ui->CreerPrenomlineEdit->text(), false));
     ChercheNomFiltre();
 }
 
@@ -2662,7 +2661,7 @@ void Rufus::MenuContextuelMotsCles()
 
 void Rufus::ChoixMenuContextuelMotsCles()
 {
-    dlg_listemotscles *ListMCDialog = new dlg_listemotscles(proc, gidPatient);
+    dlg_listemotscles *ListMCDialog = new dlg_listemotscles(gidPatient);
     if (ListMCDialog->exec()==0)
     {
         QStringList listMC = ListMCDialog->listMCDepart();
@@ -3189,7 +3188,7 @@ void Rufus::ChoixMenuContextuelMedecin()
 {
     int id = ui->MGupComboBox->currentData().toInt();
     int idxMG = ui->MGupComboBox->currentIndex();
-    Dlg_IdentCorresp          = new dlg_identificationcorresp("Modification",true,id, proc);
+    Dlg_IdentCorresp          = new dlg_identificationcorresp("Modification",true,id);
     if (Dlg_IdentCorresp->exec()>0)
     {
         FlagMetAjourMG();
@@ -3230,7 +3229,7 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
     else if (choix == "Modifier2")
         id = ui->AutresCorresp2upComboBox->currentData().toInt();
     if (id==-1) return;
-    Dlg_IdentCorresp          = new dlg_identificationcorresp("Modification", false, id, proc);
+    Dlg_IdentCorresp          = new dlg_identificationcorresp("Modification", false, id);
     if (Dlg_IdentCorresp->exec()>0)
     {
         int idCor = Dlg_IdentCorresp->gidCor;
@@ -3379,13 +3378,13 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
             saldatrequete =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
                     " (idPat, Statut, HeureArrivee, Motif, Message, HeureRDV, idUser)"
                     " VALUES (" + QString::number(gdossierAOuvrir) + ",'" ARRIVE "','" + QTime::currentTime().toString("hh:mm") + "','" +
-                    llist.at(0) + "','" + proc->CorrigeApostrophe(llist.at(1)) + "','" + llist.at(2) + "', " + llist.at(3) + ")";
+                    llist.at(0) + "','" + Utils::correctquoteSQL(llist.at(1)) + "','" + llist.at(2) + "', " + llist.at(3) + ")";
         }
         else
         {
             saldatrequete =   "UPDATE " NOM_TABLE_SALLEDATTENTE
                     " SET Motif = '" + llist.at(0) + "',"
-                    " Message = '" + proc->CorrigeApostrophe(llist.at(1)) + "'," +
+                    " Message = '" + Utils::correctquoteSQL(llist.at(1)) + "'," +
                     " HeureRDV = '" + llist.at(2) + "'," +
                     " idUser = " + llist.at(3) +
                     " WHERE idPat = " + QString::number(gdossierAOuvrir);
@@ -3653,7 +3652,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
             QString hash;
             QStringList listhash;
             QFontMetrics fm(qApp->font());
-            hash = proc->MajusculePremiereLettre(DonneesMedicalesQuery.value(6).toString(), true, false, false);
+            hash = Utils::trimcapitilize(DonneesMedicalesQuery.value(6).toString(), true, false, false);
             if (hash != "")
             {
                 a = true;
@@ -3671,7 +3670,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                 }
             }
             listhash.clear();
-            hash = proc->MajusculePremiereLettre(DonneesMedicalesQuery.value(7).toString(), true, false, false);
+            hash = Utils::trimcapitilize(DonneesMedicalesQuery.value(7).toString(), true, false, false);
             if (hash != "")
             {
                 a = true;
@@ -3689,7 +3688,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                 }
             }
             listhash.clear();
-            hash = proc->MajusculePremiereLettre(DonneesMedicalesQuery.value(8).toString(), true, false, false);
+            hash = Utils::trimcapitilize(DonneesMedicalesQuery.value(8).toString(), true, false, false);
             if (hash != "")
             {
                 a = true;
@@ -3706,7 +3705,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                         pit->setToolTip(1, listhash.at(i));
                 }
             }
-            hash = proc->MajusculePremiereLettre(DonneesMedicalesQuery.value(10).toString(), true, false, false);
+            hash = Utils::trimcapitilize(DonneesMedicalesQuery.value(10).toString(), true, false, false);
             if (hash != "")
             {
                 a = true;
@@ -3721,7 +3720,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                 pItem3->setFirstColumnSpanned(true);
             }
             listhash.clear();
-            hash = proc->MajusculePremiereLettre(DonneesMedicalesQuery.value(11).toString(), true, false, false);
+            hash = Utils::trimcapitilize(DonneesMedicalesQuery.value(11).toString(), true, false, false);
             if (hash != "")
             {
                 a = true;
@@ -3800,7 +3799,7 @@ void Rufus::OuvrirJournalDepenses()
 void Rufus::OuvrirParametres()
 {
     //TODO : SQL
-    Dlg_Param = new dlg_param(gDataUser->id(), proc);
+    Dlg_Param = new dlg_param(gDataUser->id());
     Dlg_Param->setWindowTitle(tr("Paramètres"));
     Dlg_Param->exec();
     if (Dlg_Param->DataUserModifiees())
@@ -3892,7 +3891,7 @@ void Rufus::OuvrirParametres()
 
 void Rufus::RecettesSpeciales()
 {
-    Dlg_RecSpec           = new dlg_recettesspeciales(proc);
+    Dlg_RecSpec           = new dlg_recettesspeciales();
     if(Dlg_RecSpec->getInitOK())
     {
         Dlg_RecSpec->setWindowTitle(tr("Journal des recettes spéciales"));
@@ -3934,7 +3933,7 @@ void Rufus::RetrouveMontantActe()
                 "SELECT " + tarifconventionne + ", montantpratique FROM " NOM_TABLE_COTATIONS " cot, " NOM_TABLE_CCAM " cc"
                 " where Typeacte = codeccam"
                 " and iduser = " + QString::number(gDataUser->getIdUserParent()) +
-                " and codeccam like '" + proc->CorrigeApostrophe(Cotation) + "%'";
+                " and codeccam like '" + Utils::correctquoteSQL(Cotation) + "%'";
         //qDebug() << req;
         QSqlQuery ListCotationsQuery(req, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(ListCotationsQuery,req,"");
@@ -3959,7 +3958,7 @@ void Rufus::RetrouveMontantActe()
         }
         else
         {
-            QString req = "SELECT OPTAM, NoOPTAM FROM " NOM_TABLE_CCAM " where codeccam like '" + proc->CorrigeApostrophe(Cotation) + "%'";
+            QString req = "SELECT OPTAM, NoOPTAM FROM " NOM_TABLE_CCAM " where codeccam like '" + Utils::correctquoteSQL(Cotation) + "%'";
             QSqlQuery ListCotationsQuery (req, DataBase::getInstance()->getDataBase() );
             DataBase::getInstance()->traiteErreurRequete(ListCotationsQuery,req,"");
             if (ListCotationsQuery.size()>0)
@@ -4261,7 +4260,7 @@ void Rufus::VerifSendMessage(int idMsg)
     {
         QString req = "insert into " NOM_TABLE_MESSAGES " (idEmetteur, TexteMessage, idPatient, Tache, DateLimite, Urge, CreeLe)\n values(";
         req += QString::number(gDataUser->id()) + ", ";
-        req += "'" + proc->CorrigeApostrophe(gAsk->findChildren<UpTextEdit*>().at(0)->toHtml()) + "', ";
+        req += "'" + Utils::correctquoteSQL(gAsk->findChildren<UpTextEdit*>().at(0)->toHtml()) + "', ";
         int ncheck = gAsk->findChildren<UpCheckBox*>().size();
         QString idpat = "NULL";
         for (int i=0; i<ncheck; i++)
@@ -4345,7 +4344,7 @@ void Rufus::VerifSendMessage(int idMsg)
     else  //    modification d'un message existant
     {
         QString req = "update " NOM_TABLE_MESSAGES " set ";
-        req += "textemessage = '" + proc->CorrigeApostrophe(gAsk->findChildren<UpTextEdit*>().at(0)->toHtml()) + "', ";
+        req += "textemessage = '" + Utils::correctquoteSQL(gAsk->findChildren<UpTextEdit*>().at(0)->toHtml()) + "', ";
         int ncheck = gAsk->findChildren<UpCheckBox*>().size();
         QString idpat = "idpatient = null, ";
         for (int i=0; i<ncheck; i++)
@@ -5124,7 +5123,7 @@ void Rufus::EnregMsgResp(int idmsg)
             + "------<br><b>" + gDataUser->getLogin() + ":</b> " + gMsgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText().replace("\n","<br>");
     UpTextEdit txt;
     txt.setText(Reponse);
-    req += "'" + proc->CorrigeApostrophe(txt.toHtml()) + "', ";
+    req += "'" + Utils::correctquoteSQL(txt.toHtml()) + "', ";
     req += "'" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") + "', ";
     req += QString::number(idmsg) + ", ";
     req += tache + ", ";
@@ -5632,7 +5631,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                         Corps.append("<!MAC>");
 #endif
                     requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
-                            + proc->CorrigeApostrophe(Corps) + "' WHERE " + (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES? "idActe" : "idMessage") + "= " + QString::number(gidActe);
+                            + Utils::correctquoteSQL(Corps) + "' WHERE " + (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES? "idActe" : "idMessage") + "= " + QString::number(gidActe);
                     QSqlQuery UpdateUpTextEditQuery (requetemodif, DataBase::getInstance()->getDataBase() );
                     DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                 }
@@ -5643,10 +5642,10 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     QSqlQuery verifquery(verifrequete, DataBase::getInstance()->getDataBase() );
                     if (verifquery.size() == 0)
                         requetemodif =   "INSERT INTO " + objUpText->getTableCorrespondant() + " (" + objUpText->getChampCorrespondant() + ",idPat)"
-                                + " VALUES ('" + proc->CorrigeApostrophe(objUpText->toPlainText()) + "', " + QString::number(gidPatient) + ")";
+                                + " VALUES ('" + Utils::correctquoteSQL(objUpText->toPlainText()) + "', " + QString::number(gidPatient) + ")";
                     else
                         requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
-                                + proc->CorrigeApostrophe(objUpText->toPlainText()) + "' WHERE idPat = " + QString::number(gidPatient);
+                                + Utils::correctquoteSQL(objUpText->toPlainText()) + "' WHERE idPat = " + QString::number(gidPatient);
                     QSqlQuery UpdateUpTextEditQuery (requetemodif, DataBase::getInstance()->getDataBase() );
                     DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                 }
@@ -5671,31 +5670,31 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             UpLineEdit* objUpText = static_cast<UpLineEdit*>(obj);
             if (objUpText->getValeurAvant() != objUpText->text())
             {
-                objUpText->setText(proc->MajusculePremiereLettre(objUpText->text(),true));
+                objUpText->setText(Utils::trimcapitilize(objUpText->text(),true));
                 if (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES)
                 {
                     requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
-                            + proc->CorrigeApostrophe(objUpText->text()) + "' WHERE idActe = " + QString::number(gidPatient);
+                            + Utils::correctquoteSQL(objUpText->text()) + "' WHERE idActe = " + QString::number(gidPatient);
                     QSqlQuery UpdateUpTextEditQuery (requetemodif, DataBase::getInstance()->getDataBase() );
                     DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                 }
                 else
                 {
-                    objUpText->setText(proc->MajusculePremiereLettre(objUpText->text(),true));
+                    objUpText->setText(Utils::trimcapitilize(objUpText->text(),true));
                     // on vérifie d'abord s'il existe un enregistrement pour ce patient dans la table correspondante, sinon, on le crée
                     QString verifrequete = "select idPat from " + objUpText->getTableCorrespondant() + " where idpat = " + QString::number(gidPatient);
                     QSqlQuery verifquery(verifrequete, DataBase::getInstance()->getDataBase() );
                     if (verifquery.size() == 0)
                     {
                         requetemodif =   "INSERT INTO " + objUpText->getTableCorrespondant() + " (" + objUpText->getChampCorrespondant() + ",idPat)"
-                                + " VALUES ('" + proc->CorrigeApostrophe(objUpText->text()) + "', " + QString::number(gidPatient) + ")";
+                                + " VALUES ('" + Utils::correctquoteSQL(objUpText->text()) + "', " + QString::number(gidPatient) + ")";
                         QSqlQuery UpdateUpTextEditQuery (requetemodif, DataBase::getInstance()->getDataBase() );
                         DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                     }
                     else
                     {
                         requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
-                                + proc->CorrigeApostrophe(objUpText->text()) + "' WHERE idPat = " + QString::number(gidPatient);
+                                + Utils::correctquoteSQL(objUpText->text()) + "' WHERE idPat = " + QString::number(gidPatient);
                         QSqlQuery UpdateUpTextEditQuery (requetemodif, DataBase::getInstance()->getDataBase() );
                         DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                     }
@@ -6770,8 +6769,8 @@ void    Rufus::ChercheNomFiltre(int id) // Dans ce mode de recherche, la liste e
     Filtrerequete = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe "
                     " FROM "  NOM_TABLE_PATIENTS;
     if (ui->CreerNomlineEdit->text() != "" || ui->CreerPrenomlineEdit->text() != "")
-        Filtrerequete += " WHERE PatNom LIKE '" + proc->CorrigeApostrophe(ui->CreerNomlineEdit->text()) + "%'" +
-                " AND PatPrenom LIKE '" + proc->CorrigeApostrophe(ui->CreerPrenomlineEdit->text()) + "%'";
+        Filtrerequete += " WHERE PatNom LIKE '" + Utils::correctquoteSQL(ui->CreerNomlineEdit->text()) + "%'" +
+                " AND PatPrenom LIKE '" + Utils::correctquoteSQL(ui->CreerPrenomlineEdit->text()) + "%'";
 
     Remplir_ListePatients_TableView(Filtrerequete,"","");   //ChercheNomFiltre()
     CalcNbDossiers();
@@ -6935,8 +6934,8 @@ void    Rufus::CreerDossier()
     QString PatNom, PatPrenom, PatDDN, PatCreePar, PatCreeLe;
     int idPat; // on n'utilise pas gidPatient qui ne sera initialisé qu'après que le dossier ait été réellement affiché.
 
-    PatNom      = proc->MajusculePremiereLettre(ui->CreerNomlineEdit->text(),true);
-    PatPrenom   = proc->MajusculePremiereLettre(ui->CreerPrenomlineEdit->text(),true);
+    PatNom      = Utils::trimcapitilize(ui->CreerNomlineEdit->text(),true);
+    PatPrenom   = Utils::trimcapitilize(ui->CreerPrenomlineEdit->text(),true);
     PatDDN      = ui->CreerDDNdateEdit->date().toString("yyyy-MM-dd");
     PatCreeLe   = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
     PatCreePar  = QString::number(gDataUser->id());
@@ -7023,14 +7022,14 @@ void    Rufus::CreerDossier()
         QString insrequete = "INSERT INTO " NOM_TABLE_PATIENTS
                 " (PatNom, PatPrenom, PatDDN, PatCreele, PatCreePar, Sexe) "                                                                      // CZ001
                 " VALUES "
-                " ('" + proc->CorrigeApostrophe(PatNom) + "', '" + proc->CorrigeApostrophe(PatPrenom) + "', '" + PatDDN + "', NOW(), '" + PatCreePar +"' , '" + gSexePat +"');";   // CZ001
+                " ('" + Utils::correctquoteSQL(PatNom) + "', '" + Utils::correctquoteSQL(PatPrenom) + "', '" + PatDDN + "', NOW(), '" + PatCreePar +"' , '" + gSexePat +"');";   // CZ001
         QSqlQuery InsertPatQuery (insrequete, DataBase::getInstance()->getDataBase() );
         if (DataBase::getInstance()->traiteErreurRequete(InsertPatQuery,insrequete,tr("Impossible de créer le dossier")))
             return ;
 
         // Récupération de l'idPatient créé et affichage du dossier ------------------------------------
         QString recuprequete = "SELECT  idPat, PatNom, PatPrenom FROM " NOM_TABLE_PATIENTS
-                " WHERE PatNom = '" + proc->CorrigeApostrophe(PatNom) + "' AND PatPrenom = '" + proc->CorrigeApostrophe(PatPrenom) + "' AND PatDDN = '" + PatDDN + "'";
+                " WHERE PatNom = '" + Utils::correctquoteSQL(PatNom) + "' AND PatPrenom = '" + Utils::correctquoteSQL(PatPrenom) + "' AND PatDDN = '" + PatDDN + "'";
         QSqlQuery ChercheIdPatientQuery (recuprequete, DataBase::getInstance()->getDataBase() );
         if (DataBase::getInstance()->traiteErreurRequete(ChercheIdPatientQuery,recuprequete,tr("Impossible de sélectionner les enregistrements")))
             return ;
@@ -7272,7 +7271,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 {
     int idcor = -1;
     bool onlydoctors = (Cor == "MG");
-    Dlg_IdentCorresp        = new dlg_identificationcorresp("Creation", onlydoctors, 0, proc);
+    Dlg_IdentCorresp        = new dlg_identificationcorresp("Creation", onlydoctors, 0);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(Nom);
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     if (Cor == "MG")
@@ -7360,7 +7359,7 @@ bool Rufus::FermeDossier()
                                     ARRIVE "','" +
                                     QTime::currentTime().toString("hh:mm") + "','" +
                                     Motif + "','" +
-                                    proc->CorrigeApostrophe(Message) + "', " +
+                                    Utils::correctquoteSQL(Message) + "', " +
                                     idUser +
                                     ")";
             }
@@ -7371,7 +7370,7 @@ bool Rufus::FermeDossier()
                                 " idUserEnCoursExam = null,"
                                 " PosteExamen = null,"
                                 " Motif = '" + Motif + "',"
-                                " Message = '" + proc->CorrigeApostrophe(Message) + "'"
+                                " Message = '" + Utils::correctquoteSQL(Message) + "'"
                                 " WHERE idPat = " + QString::number(gidPatient);
             }
             //proc->Edit(saldatrequete);
@@ -7415,7 +7414,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
     int idPatAPasser = idPat;
     QString NomPat, PrenomPat, DDNPat;
 
-    Dlg_IdentPatient           = new dlg_identificationpatient(&mode, &idPatAPasser, proc, this);
+    Dlg_IdentPatient           = new dlg_identificationpatient(mode, idPatAPasser, this);
     if (mode == "Copie")
     {
         QString req = "SELECT pat.idPat, PatNom, PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille, PatTelephone FROM "
@@ -7485,8 +7484,8 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
             //            Mise à jour patients
             QString req;
             QString patreq =    "UPDATE " NOM_TABLE_PATIENTS
-                                " SET PatNom = '" + proc->CorrigeApostrophe(NomPat) +
-                                "', PatPrenom = '" + proc->CorrigeApostrophe(PrenomPat) +
+                                " SET PatNom = '" + Utils::correctquoteSQL(NomPat) +
+                                "', PatPrenom = '" + Utils::correctquoteSQL(PrenomPat) +
                                 "', PatDDN = '" + DDNPat;
             if (gSexePat != "")
                 patreq +=       "', Sexe = '" + gSexePat;
@@ -7505,18 +7504,18 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
 
             //            Mise à jour de donneessocialespatients
             QString requete =   "UPDATE " NOM_TABLE_DONNEESSOCIALESPATIENTS
-                    " SET PatAdresse1 = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->Adresse1lineEdit->text()) +
-                    "', PatAdresse2 = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->Adresse2lineEdit->text()) +
-                    "', PatAdresse3 = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->Adresse3lineEdit->text()) +
+                    " SET PatAdresse1 = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->Adresse1lineEdit->text()) +
+                    "', PatAdresse2 = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->Adresse2lineEdit->text()) +
+                    "', PatAdresse3 = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->Adresse3lineEdit->text()) +
                     "', PatCodePostal = '" + Dlg_IdentPatient->CPlineEdit->text() + "'";
             if (!Dlg_IdentPatient->ui->NNIlineEdit->text().isEmpty())
                 requete += ", PatNNI = " + Dlg_IdentPatient->ui->NNIlineEdit->text();
             requete +=
-                    ", PatVille = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->VillelineEdit->text()).left(70) +
+                    ", PatVille = '" + Utils::correctquoteSQL(Dlg_IdentPatient->VillelineEdit->text()).left(70) +
                     "', PatTelephone = '" + Dlg_IdentPatient->ui->TellineEdit->text() +
                     "', PatPortable = '" + Dlg_IdentPatient->ui->PortablelineEdit->text() +
                     "', PatMail = '" + Dlg_IdentPatient->ui->MaillineEdit->text() +
-                    "', PatProfession = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->ProfessionlineEdit->text()) + "'";
+                    "', PatProfession = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->ProfessionlineEdit->text()) + "'";
             if (Dlg_IdentPatient->ui->ALDcheckBox->isChecked())
                 requete += ", PatALD = 1";
             else
@@ -7647,18 +7646,18 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
             }
             //2 - Mise à jour de donneessocialespatients
             QString requete =   "UPDATE " NOM_TABLE_DONNEESSOCIALESPATIENTS
-                    " SET PatAdresse1 = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->Adresse1lineEdit->text()) +
-                    "', PatAdresse2 = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->Adresse2lineEdit->text()) +
-                    "', PatAdresse3 = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->Adresse3lineEdit->text()) +
+                    " SET PatAdresse1 = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->Adresse1lineEdit->text()) +
+                    "', PatAdresse2 = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->Adresse2lineEdit->text()) +
+                    "', PatAdresse3 = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->Adresse3lineEdit->text()) +
                     "', PatCodePostal = '" + Dlg_IdentPatient->CPlineEdit->text() + "'";
             if (!Dlg_IdentPatient->ui->NNIlineEdit->text().isEmpty())
                 requete += ", PatNNI = " + Dlg_IdentPatient->ui->NNIlineEdit->text();
             requete +=
-                    ", PatVille = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->VillelineEdit->text()).left(70) +
+                    ", PatVille = '" + Utils::correctquoteSQL(Dlg_IdentPatient->VillelineEdit->text()).left(70) +
                     "', PatTelephone = '" + Dlg_IdentPatient->ui->TellineEdit->text() +
                     "', PatPortable = '" + Dlg_IdentPatient->ui->PortablelineEdit->text() +
                     "', PatMail = '" + Dlg_IdentPatient->ui->MaillineEdit->text() +
-                    "', PatProfession = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->ProfessionlineEdit->text()) + "'";
+                    "', PatProfession = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->ProfessionlineEdit->text()) + "'";
             if (Dlg_IdentPatient->ui->ALDcheckBox->isChecked())
                 requete += ", PatALD = 1";
             else
@@ -7691,8 +7690,8 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
             idPat = Dlg_IdentPatient->gidPatient;
             //            Mise à jour patients
             QString patreq =    "UPDATE " NOM_TABLE_PATIENTS
-                    " SET PatNom = '" + proc->CorrigeApostrophe(NomPat) +
-                    "', PatPrenom = '" + proc->CorrigeApostrophe(PrenomPat) +
+                    " SET PatNom = '" + Utils::correctquoteSQL(NomPat) +
+                    "', PatPrenom = '" + Utils::correctquoteSQL(PrenomPat) +
                     "', PatDDN = '" + DDNPat;
             if (gSexePat != "")
                 patreq +=   "', Sexe = '" + gSexePat;
@@ -7702,18 +7701,18 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
 
             // Mise à jour de donneessocialespatients
             QString requete =   "UPDATE " NOM_TABLE_DONNEESSOCIALESPATIENTS
-                    " SET PatAdresse1 = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->Adresse1lineEdit->text()) +
-                    "', PatAdresse2 = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->Adresse2lineEdit->text()) +
-                    "', PatAdresse3 = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->Adresse3lineEdit->text()) +
+                    " SET PatAdresse1 = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->Adresse1lineEdit->text()) +
+                    "', PatAdresse2 = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->Adresse2lineEdit->text()) +
+                    "', PatAdresse3 = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->Adresse3lineEdit->text()) +
                     "', PatCodePostal = '" + Dlg_IdentPatient->CPlineEdit->text() + "'";
             if (!Dlg_IdentPatient->ui->NNIlineEdit->text().isEmpty())
                 requete += ", PatNNI = " + Dlg_IdentPatient->ui->NNIlineEdit->text();
             requete +=
-                    ", PatVille = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->VillelineEdit->text()).left(70) +
+                    ", PatVille = '" + Utils::correctquoteSQL(Dlg_IdentPatient->VillelineEdit->text()).left(70) +
                     "', PatTelephone = '" + Dlg_IdentPatient->ui->TellineEdit->text() +
                     "', PatPortable = '" + Dlg_IdentPatient->ui->PortablelineEdit->text() +
                     "', PatMail = '" + Dlg_IdentPatient->ui->MaillineEdit->text() +
-                    "', PatProfession = '" + proc->CorrigeApostrophe(Dlg_IdentPatient->ui->ProfessionlineEdit->text()) + "'";
+                    "', PatProfession = '" + Utils::correctquoteSQL(Dlg_IdentPatient->ui->ProfessionlineEdit->text()) + "'";
             if (Dlg_IdentPatient->ui->ALDcheckBox->isChecked())
                 requete += ", PatALD = 1";
             else
@@ -7797,8 +7796,8 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
     //*************************************************************************
         else  // si la fiche est rejetée
     {
-        NomPat      = proc->CorrigeApostrophe(Dlg_IdentPatient->ui->NomlineEdit->text());
-        PrenomPat   = proc->CorrigeApostrophe(Dlg_IdentPatient->ui->PrenomlineEdit->text());
+        NomPat      = Utils::correctquoteSQL(Dlg_IdentPatient->ui->NomlineEdit->text());
+        PrenomPat   = Utils::correctquoteSQL(Dlg_IdentPatient->ui->PrenomlineEdit->text());
         DDNPat      = Dlg_IdentPatient->ui->DDNdateEdit->date().toString("yyyy-MM-dd");
         gSexePat = "";
         if (Dlg_IdentPatient->ui->MradioButton->isChecked()) gSexePat = "M";
@@ -8269,23 +8268,23 @@ int Rufus::LectureMesure(QString lidPatient, QString lPatNom, QString lPatPrenom
 
     // On relit la mesure après selection dans la liste mesure (reprendre)
     Addrequete = "";
-    if (lidPatient.length() > 0 || proc->CorrigeApostrophe(lPatNom).length() > 0 || proc->CorrigeApostrophe(lPatPrenom).length() > 0 || lPatDDN.length() > 0 )
+    if (lidPatient.length() > 0 || Utils::correctquoteSQL(lPatNom).length() > 0 || Utils::correctquoteSQL(lPatPrenom).length() > 0 || lPatDDN.length() > 0 )
         Addrequete += " WHERE ";
     if (lidPatient.length() > 0 )
         Addrequete += " idPat = '" + lidPatient + "'";
-    if (proc->CorrigeApostrophe(lPatNom).length() > 0)
+    if (Utils::correctquoteSQL(lPatNom).length() > 0)
     {
         if (Addrequete != " WHERE ")
-            Addrequete += " AND PatNom = '" + proc->CorrigeApostrophe(lPatNom) + "'";
+            Addrequete += " AND PatNom = '" + Utils::correctquoteSQL(lPatNom) + "'";
         else
-            Addrequete += "PatNom = '" + proc->CorrigeApostrophe(lPatNom) + "'";
+            Addrequete += "PatNom = '" + Utils::correctquoteSQL(lPatNom) + "'";
     }
-    if (proc->CorrigeApostrophe(lPatPrenom).length() > 0)
+    if (Utils::correctquoteSQL(lPatPrenom).length() > 0)
     {
         if (Addrequete != " WHERE ")
-            Addrequete += " AND PatPrenom = '" + proc->CorrigeApostrophe(lPatPrenom) + "'";
+            Addrequete += " AND PatPrenom = '" + Utils::correctquoteSQL(lPatPrenom) + "'";
         else
-            Addrequete += "PatPrenom = '" + proc->CorrigeApostrophe(lPatPrenom) + "'";
+            Addrequete += "PatPrenom = '" + Utils::correctquoteSQL(lPatPrenom) + "'";
     }
     if (lPatDDN.length() > 0)
     {
@@ -8332,7 +8331,7 @@ void Rufus::MAJMG(QObject *obj)
     UpLineEdit *Upline = dynamic_cast<UpLineEdit*>(cbox->lineEdit());
     if (Upline == Q_NULLPTR) return;
     QString anc = cbox->getValeurAvant();
-    QString nou = proc->MajusculePremiereLettre(cbox->currentText(),true);
+    QString nou = Utils::trimcapitilize(cbox->currentText(),true);
     QString req;
     cbox->setCurrentText(nou);
     int i = cbox->findText(nou, Qt::MatchFixedString);
@@ -8496,7 +8495,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     {
         nom         = gNomPatient;
         prenom      = gPrenomPatient;
-        Dlg_Docs    = new dlg_documents(gidPatient, nom, prenom, proc);
+        Dlg_Docs    = new dlg_documents(gidPatient, nom, prenom);
     }
     else
     {
@@ -8514,7 +8513,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
             autrequery  .first();
             nom         = autrequery.value(0).toString();
             prenom      = autrequery.value(1).toString();
-            Dlg_Docs    = new dlg_documents(gdossierAOuvrir, nom, prenom, proc, this);
+            Dlg_Docs    = new dlg_documents(gdossierAOuvrir, nom, prenom, this);
         }
     }
     Dlg_Docs->setWindowTitle(tr("Préparer un document pour ") + nom + " " + prenom);
@@ -8855,7 +8854,7 @@ void    Rufus::Refraction()
     int idActeAPasser       = gidActe;
     int AgeAPasser          = gAgePatient;
 
-    Dlg_Refraction     = new dlg_refraction(&idPatAPasser, &NomPatient, &PrenomPatient, &idActeAPasser, &AgeAPasser, proc);
+    Dlg_Refraction     = new dlg_refraction(idPatAPasser, NomPatient, PrenomPatient, idActeAPasser, AgeAPasser);
     Dlg_Refraction->setWindowTitle("Refraction - " + gNomPatient + " " + gPrenomPatient);
     Dlg_Refraction->setWindowIcon(Icons::icLunettes());
     proc->setFicheRefractionOuverte(true);
@@ -8897,7 +8896,7 @@ void    Rufus::Refraction()
             Corps.append("<!MAC>");
 #endif
 
-            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + proc->CorrigeApostrophe(Corps) +
+            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(Corps) +
                                      "' where idActe = " + ui->idActelineEdit->text();
             QSqlQuery UpdateUpTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
             DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,updaterequete,"Impossible de mettre à jour le champ Texte !");
@@ -8952,7 +8951,7 @@ void    Rufus::Refraction()
             Corps.append("<!MAC>");
 #endif
 
-            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + proc->CorrigeApostrophe(Corps) +
+            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(Corps) +
                                      "' where idActe = " + ui->idActelineEdit->text();
             QSqlQuery UpdateUpTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
             DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ conclusion !"));
@@ -9108,7 +9107,7 @@ void Rufus::RegleRefracteur(QString TypeMesure)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::RemiseCheques()
 {
-    Dlg_RemCheq          = new dlg_remisecheques(proc);
+    Dlg_RemCheq          = new dlg_remisecheques();
     if (Dlg_RemCheq->getInitOK())
     {
         Dlg_RemCheq->setWindowTitle(tr("Remise de chèques"));
@@ -9126,16 +9125,16 @@ bool Rufus::Remplir_ListePatients_TableView(QString requete, QString PatNom, QSt
     QString Addrequete;
     QStandardItem *pitem, *pitem0, *pitem1;
 
-    if (proc->CorrigeApostrophe(PatNom).length() > 0 || proc->CorrigeApostrophe(PatPrenom).length() > 0)
+    if (Utils::correctquoteSQL(PatNom).length() > 0 || Utils::correctquoteSQL(PatPrenom).length() > 0)
         Addrequete += " WHERE ";
-    if (proc->CorrigeApostrophe(PatNom).length() > 0)
-        Addrequete += "PatNom = '" + proc->CorrigeApostrophe(PatNom) + "'";
-    if (proc->CorrigeApostrophe(PatPrenom).length() > 0)
+    if (Utils::correctquoteSQL(PatNom).length() > 0)
+        Addrequete += "PatNom = '" + Utils::correctquoteSQL(PatNom) + "'";
+    if (Utils::correctquoteSQL(PatPrenom).length() > 0)
     {
         if (Addrequete != " WHERE ")
-            Addrequete += " AND PatPrenom = '" + proc->CorrigeApostrophe(PatPrenom) + "'";
+            Addrequete += " AND PatPrenom = '" + Utils::correctquoteSQL(PatPrenom) + "'";
         else
-            Addrequete += "PatPrenom = '" + proc->CorrigeApostrophe(PatPrenom) + "'";
+            Addrequete += "PatPrenom = '" + Utils::correctquoteSQL(PatPrenom) + "'";
     }
     requete += Addrequete;
     requete += " ORDER BY PatNom, PatPrenom, PatDDN ";
@@ -9748,7 +9747,7 @@ bool Rufus::RetourSalleDattente(QString Titre)
     QString TitreAPasser= gNomPatient + " " + gPrenomPatient + "\n" + Titre;
     bool retour         = false;
 
-    Dlg_SalDat           = new dlg_salledattente(&idPatAPasser, &idActeAPasser, &TitreAPasser, proc);
+    Dlg_SalDat           = new dlg_salledattente(idPatAPasser, idActeAPasser, TitreAPasser);
     Dlg_SalDat->setWindowTitle(tr("Consultation incomplète!"));
 
     if (Titre == tr("Il manque le montant!") || Titre == tr("Il manque la cotation!"))
@@ -10207,7 +10206,7 @@ void Rufus::Tonometrie()
                 texte += ARajouterEnText;
             ui->ActeTextetextEdit->setText(texte);
 
-            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + proc->CorrigeApostrophe(ui->ActeTextetextEdit->toHtml()) +
+            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                     "' where idActe = " + ui->idActelineEdit->text();
             QSqlQuery UpdateUpTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
             DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
@@ -10383,7 +10382,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
             texte += ARajouterEnText;
         ui->ActeTextetextEdit->setText(texte);
 
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + proc->CorrigeApostrophe(ui->ActeTextetextEdit->toHtml()) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
         QSqlQuery UpdateUpTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
@@ -10421,7 +10420,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
             texte += ARajouterEnText;
         ui->ActeTextetextEdit->setText(texte);
 
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + proc->CorrigeApostrophe(ui->ActeTextetextEdit->toHtml()) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
         QSqlQuery UpdateUpTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
@@ -10449,7 +10448,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
             texte += ARajouterEnText;
         ui->ActeTextetextEdit->setText(texte);
 
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + proc->CorrigeApostrophe(ui->ActeTextetextEdit->toHtml()) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
         QSqlQuery UpdateUpTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
@@ -10476,7 +10475,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
             texte += ARajouterEnText;
         ui->ActeTextetextEdit->setText(texte);
 
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + proc->CorrigeApostrophe(ui->ActeTextetextEdit->toHtml()) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
         QSqlQuery UpdateUpTextEditQuery (updaterequete, DataBase::getInstance()->getDataBase() );
         DataBase::getInstance()->traiteErreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));

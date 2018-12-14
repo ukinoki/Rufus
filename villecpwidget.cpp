@@ -167,7 +167,7 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
         return;
 
     if( confirmerlaville )
-        ui->VillelineEdit->setText(fMAJPremiereLettre(ui->VillelineEdit->text()));
+        ui->VillelineEdit->setText(Utils::trimcapitilize(ui->VillelineEdit->text()));
 
     QString ville = ui->VillelineEdit->text();
 

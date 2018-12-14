@@ -17,10 +17,10 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_docsscanner.h"
 
-dlg_docsscanner::dlg_docsscanner(Procedures *ProcAPasser, int idPat, QWidget *parent) :
+dlg_docsscanner::dlg_docsscanner(int idPat, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
-    proc            = ProcAPasser;
+    proc            = Procedures::I();
     idpat           = idPat;
     db              = DataBase::getInstance()->getDataBase();
     QString         NomOnglet;

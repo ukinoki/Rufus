@@ -18,6 +18,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_IDENTIFICATIONCORRESP_H
 #define DLG_IDENTIFICATIONCORRESP_H
 
+#include "database.h"
 #include "uplabel.h"
 #include "uptablewidget.h"
 #include "procedures.h"
@@ -33,8 +34,7 @@ class dlg_identificationcorresp : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_identificationcorresp(QString CreationModification, bool quelesmedecins, int idCorresp, Procedures *procAPasser,
-                                       QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationcorresp(QString CreationModification, bool quelesmedecins, int idCorresp, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationcorresp *ui;
     ~dlg_identificationcorresp();
     int                 gidCor;

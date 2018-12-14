@@ -18,11 +18,10 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestionlieux.h"
 #include "utils.h"
 
-dlg_GestionLieux::dlg_GestionLieux(QSqlDatabase gdb, QWidget *parent)
-    : UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionLieux", parent)
+dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)  : UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionLieux", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    db              = gdb;
+    db              = DataBase::getInstance()->getDataBase();
     AjouteLayButtons(UpDialog::ButtonClose);
     connect(CloseButton, SIGNAL(clicked(bool)), this, SLOT(Slot_EnregLieux()));
 
@@ -144,14 +143,14 @@ void dlg_GestionLieux::Slot_EnregNouvLieu()
     if (ValidationFiche())
     {
         QString req = "insert into " NOM_TABLE_LIEUXEXERCICE "(NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax)  values("
-                        "'" + CorrigeApostrophe(fmaj(leditnom->text())) + "', "
-                        "'" + CorrigeApostrophe(fmaj(leditadr1->text())) + "', "
-                        "'" + CorrigeApostrophe(fmaj(leditadr2->text())) + "', "
-                        "'" + CorrigeApostrophe(fmaj(leditadr3->text())) + "', "
-                        ""  + CorrigeApostrophe(fmaj(leditcp->text())) + ", "
-                        "'" + CorrigeApostrophe(fmaj(leditville->text())) + "', "
-                        "'" + CorrigeApostrophe(fmaj(ledittel->text())) + "', "
-                        "'" + CorrigeApostrophe(fmaj(leditfax->text())) + "')";
+                        "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditnom->text())) + "', "
+                        "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr1->text())) + "', "
+                        "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr2->text())) + "', "
+                        "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr3->text())) + "', "
+                        ""  + Utils::correctquoteSQL(Utils::trimcapitilize(leditcp->text())) + ", "
+                        "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditville->text())) + "', "
+                        "'" + Utils::correctquoteSQL(Utils::trimcapitilize(ledittel->text())) + "', "
+                        "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditfax->text())) + "')";
         //qDebug() << req;
         QSqlQuery(req,db);
         delete tabModel;
@@ -290,14 +289,14 @@ void dlg_GestionLieux::Slot_ModifLieu()
     if (ValidationFiche())
     {
         QString req = "update " NOM_TABLE_LIEUXEXERCICE " set "
-                        "NomLieu = '"       + CorrigeApostrophe(fmaj(leditnom->text())) + "', "
-                        "LieuAdresse1 = '"  + CorrigeApostrophe(fmaj(leditadr1->text())) + "', "
-                        "LieuAdresse2 = '"  + CorrigeApostrophe(fmaj(leditadr2->text())) + "', "
-                        "LieuAdresse3 = '"  + CorrigeApostrophe(fmaj(leditadr3->text())) + "', "
-                        "LieuCodePostal = " + CorrigeApostrophe(fmaj(leditcp->text())) + ", "
-                        "LieuVille = '"     + CorrigeApostrophe(fmaj(leditville->text())) + "', "
-                        "LieuTelephone = '" + CorrigeApostrophe(fmaj(ledittel->text())) + "', "
-                        "LieuFax = '"       + CorrigeApostrophe(fmaj(leditfax->text())) + "' " +
+                        "NomLieu = '"       + Utils::correctquoteSQL(Utils::trimcapitilize(leditnom->text())) + "', "
+                        "LieuAdresse1 = '"  + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr1->text())) + "', "
+                        "LieuAdresse2 = '"  + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr2->text())) + "', "
+                        "LieuAdresse3 = '"  + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr3->text())) + "', "
+                        "LieuCodePostal = " + Utils::correctquoteSQL(Utils::trimcapitilize(leditcp->text())) + ", "
+                        "LieuVille = '"     + Utils::correctquoteSQL(Utils::trimcapitilize(leditville->text())) + "', "
+                        "LieuTelephone = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ledittel->text())) + "', "
+                        "LieuFax = '"       + Utils::correctquoteSQL(Utils::trimcapitilize(leditfax->text())) + "' " +
                         "where idLieu = "   + QString::number(idLieuAModifier);
         //qDebug() << req;
         QSqlQuery(req,db);
@@ -349,12 +348,6 @@ bool dlg_GestionLieux::ValidationFiche()
         return false;
     }
     return true;
-}
-
-QString dlg_GestionLieux::CorrigeApostrophe(QString RechAp)
-{
-    RechAp.replace("\\","\\\\");
-    return RechAp.replace("'","\\'");
 }
 
 void dlg_GestionLieux::ReconstruitModel()

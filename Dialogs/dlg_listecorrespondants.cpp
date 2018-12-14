@@ -19,12 +19,12 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listecorrespondants.h"
 #include "icons.h"
 
-dlg_listecorrespondants::dlg_listecorrespondants(Procedures *Proc, QWidget *parent) :
+dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     UpDialog(parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
-    proc            = Proc;
+    proc            = Procedures::I();
     globallayout    = dynamic_cast<QVBoxLayout*>(layout());
     gmodele         = new QStandardItemModel;
     ListeModifiee   = false;
@@ -63,7 +63,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(Procedures *Proc, QWidget *pare
     globallayout->insertWidget(0,widgButtons->widgButtonParent());
 
     connect(OKButton,           SIGNAL(clicked(bool)),                  this,   SLOT(reject()));
-    connect(ChercheUplineEdit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = proc->MajusculePremiereLettre(txt, true, false);
+    connect(ChercheUplineEdit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, true, false);
                                                                                                     ChercheUplineEdit->setText(txt);
                                                                                                     ReconstruitListeCorrespondants(txt);});
     connect(widgButtons,        &WidgetButtonFrame::choix,              this,   [=] (int i) {ChoixButtonFrame(i);});
@@ -111,7 +111,7 @@ void dlg_listecorrespondants::ChoixButtonFrame(int i)
 void dlg_listecorrespondants::EnregistreNouveauCorresp()
 {
     bool onlydoctors    = false;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp("Creation", onlydoctors, 0, proc);
+    Dlg_IdentCorresp    = new dlg_identificationcorresp("Creation", onlydoctors, 0);
     if (Dlg_IdentCorresp->exec()>0)
     {
         ListeModifiee = true;
@@ -127,7 +127,7 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
 void dlg_listecorrespondants::ModifCorresp(int idcor)
 {
     bool onlydoctors    = false;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp("Modification", onlydoctors, idcor, proc);
+    Dlg_IdentCorresp    = new dlg_identificationcorresp("Modification", onlydoctors, idcor);
     if (Dlg_IdentCorresp->exec()>0)
     {
         ListeModifiee = true;
@@ -182,7 +182,7 @@ QList<QStandardItem*> dlg_listecorrespondants::ListeMetiers()
     for( itcorrespondants = Correspondants->constBegin(); itcorrespondants != Correspondants->constEnd(); ++itcorrespondants )
     {
         Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
-        QString metier  = proc->MajusculePremiereLettre(cor->metier(), true, false);
+        QString metier  = Utils::trimcapitilize(cor->metier(), true, false);
         if (!list.contains(metier))
         {
             list << metier;
@@ -219,7 +219,7 @@ void dlg_listecorrespondants::ReconstruitListeCorrespondants(QString filtre)
             pitem   ->setAccessibleDescription(QString::number(cor->id()));
             pitem   ->setData(cor->adresseComplete());
             pitem   ->setEditable(false);
-            QList<QStandardItem *> listitems = gmodele->findItems(proc->MajusculePremiereLettre(cor->metier(), true, false));
+            QList<QStandardItem *> listitems = gmodele->findItems(Utils::trimcapitilize(cor->metier(), true, false));
             if (listitems.size()>0)
                 listitems.at(0)->appendRow(pitem);
         }

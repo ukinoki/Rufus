@@ -21,13 +21,13 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_recettesspeciales.h"
 #include "cls_compte.h"
 
-dlg_recettesspeciales::dlg_recettesspeciales(Procedures *procAPasser, QWidget *parent) :
+dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     QDialog(parent), ui(new Ui::dlg_recettesspeciales)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
 
-    proc        = procAPasser;
+    proc      = Procedures::I();
     db        = DataBase::getInstance();
 
     ui->Userlabel->setText(tr("Recettes spéciales de ") + db->getUserConnected()->getLogin());
@@ -261,7 +261,7 @@ void dlg_recettesspeciales::EnregistreRecette()
     QList<QList<QVariant>> listrec =
             db->StandardSelectSQL("select DateRecette from " NOM_TABLE_RECETTESSPECIALES
                                   " where DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
-                                  "'and Libelle = '"  + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +
+                                  "'and Libelle = '"  + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
                                   "'and Montant = "   + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
                                   " and idUser = "    + QString::number(gDataUser->id()),OK);
     if (listrec.size() > 0)
@@ -276,7 +276,7 @@ void dlg_recettesspeciales::EnregistreRecette()
             pb = tr("Elle date de plus de 3 mois");
         bool OK = true;
         listrec = db->StandardSelectSQL("select DateRecette from " NOM_TABLE_RECETTESSPECIALES " where DateRecette > '" + ui->DateRecdateEdit->date().addDays(-180).toString("yyyy-MM-dd") +
-                "'and Libelle = '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +
+                "'and Libelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
                 "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
                 " and idUser = " + QString::number(gDataUser->id()),OK);
         if (listrec.size() > 0)
@@ -315,9 +315,9 @@ void dlg_recettesspeciales::EnregistreRecette()
     if (!db->StandardSQL("insert into " NOM_TABLE_RECETTESSPECIALES " (DateRecette, idUser, Libelle, Montant, TypeRecette, Paiement, CompteVirement, TireurCheque, BanqueCheque)"
             " VALUES ('" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
             "', " + QString::number(gDataUser->id()) +
-            ", '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +
+            ", '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
             "', " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-            ", '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) +
+            ", '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) +
             "', '" + m +
             "', " + (m=="V"||m=="E"? ui->ComptesupComboBox->currentData().toString()    : "null") +
             ", "  + (m=="C"? "'" + ui->TireurlineEdit->text() + "'"  : "null") +
@@ -340,7 +340,7 @@ void dlg_recettesspeciales::EnregistreRecette()
                     ui->ComptesupComboBox->currentData().toString() +
                     "," + idRec +
                     ", '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
-                    "', '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +
+                    "', '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
                     "', "  + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
                     ", 1, '" + Paiement + "')"))
         {
@@ -492,7 +492,7 @@ void dlg_recettesspeciales::SupprimerRecette()
         montant = listrecettes.at(0).at(2).toDouble();
         bool ok = true;
         QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idligne from " NOM_TABLE_ARCHIVESBANQUE " where LigneDate = '" + Dateop.toString("yyyy-MM-dd")
-                + "' and LigneLibelle = '" + Utils::CorrigeApostrophe(Libelle) + "' and LigneMontant = " + QString::number(montant), ok);
+                + "' and LigneLibelle = '" + Utils::correctquoteSQL(Libelle) + "' and LigneMontant = " + QString::number(montant), ok);
         if (listlignes.size()> 0)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
@@ -741,7 +741,7 @@ void dlg_recettesspeciales::ModifierRecette()
         if (listpaiements.at(0).at(3).toInt()>0)
             db->StandardSQL("update " NOM_TABLE_RECETTESSPECIALES " set "
                   "DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                  "Libelle = '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) +"', "
+                  "Libelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +"', "
                   "TypeRecette = '" + ui->RefFiscalecomboBox->currentText() + "'"
                   " where idrecette = " + idRec);
         else
@@ -761,13 +761,13 @@ void dlg_recettesspeciales::ModifierRecette()
             QString idligne = listlignes.at(0).at(0).toString();
             db->StandardSQL("update " NOM_TABLE_ARCHIVESBANQUE " set "
                   "LigneDate = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                  "LigneLibelle = '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) + "'"
-                  "LigneTypeOperation = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'"
+                  "LigneLibelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "'"
+                  "LigneTypeOperation = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'"
                   " where idligne = " + idligne);
             db->StandardSQL("update " NOM_TABLE_RECETTESSPECIALES " set "
                   "DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") + "', "
-                  "Libelle = '" + Utils::CorrigeApostrophe(ui->ObjetlineEdit->text()) + "'"
-                  "TypeRecette = '" + Utils::CorrigeApostrophe(ui->RefFiscalecomboBox->currentText()) + "'"
+                  "Libelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) + "'"
+                  "TypeRecette = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'"
                   " where idrecette = " + idRec);
         }
         else

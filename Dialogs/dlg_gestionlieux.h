@@ -24,8 +24,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItemModel>
 #include <QTableView>
 #include <QSqlQuery>
+#include "database.h"
 #include "dlg_message.h"
-#include "functormajpremierelettre.h"
 #include "macros.h"
 #include "updialog.h"
 #include "uplabel.h"
@@ -41,7 +41,7 @@ class dlg_GestionLieux : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_GestionLieux(QSqlDatabase db, QWidget *parent = Q_NULLPTR);
+    explicit dlg_GestionLieux(QWidget *parent = Q_NULLPTR);
     ~dlg_GestionLieux();
 private slots:
     void                    Slot_EnregLieux();
@@ -52,7 +52,6 @@ private slots:
     void                    Slot_ModifLieu();
 
 private:
-    FunctorMAJPremiereLettre fmaj;
     QSqlDatabase            db;
     QTableView              *tabLM;
     UpDialog                *gLieuDialog;
@@ -68,7 +67,6 @@ private:
     QStandardItemModel      *tabModel;
     WidgetButtonFrame       *widg;
     int                     idLieuAModifier;
-    QString                 CorrigeApostrophe(QString RechAp);
     void                    CreerLieu();
     void                    ModifLieu();
     void                    SupprLieu();

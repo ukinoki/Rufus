@@ -20,13 +20,13 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_param.h"
 #include "utils.h"
 
-dlg_param::dlg_param(int idUser, Procedures *procAPasser, QWidget *parent) :
+dlg_param::dlg_param(int idUser, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_param)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    proc            = procAPasser;
+    proc            = Procedures::I();
     db              = DataBase::getInstance()->getDataBase();
     gidUser         = idUser;
 
@@ -815,7 +815,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamPosteupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedAdmin = proc->VerifMDP(proc->getMDPAdmin(),"Saisissez le mot de passe Administrateur", MDPVerifiedAdmin);
+            MDPVerifiedAdmin = Utils::VerifMDP(proc->getMDPAdmin(),"Saisissez le mot de passe Administrateur", MDPVerifiedAdmin);
             if (MDPVerifiedAdmin)
             {
                 ui->Posteframe->setEnabled(ui->PosteServcheckBox->isChecked());
@@ -845,7 +845,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedUser = proc->VerifMDP(proc->getUserConnected()->getPassword(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
+            MDPVerifiedUser = Utils::VerifMDP(proc->getUserConnected()->getPassword(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
             if (MDPVerifiedUser)
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
@@ -935,7 +935,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
         }
         if (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedAdmin = proc->VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), MDPVerifiedAdmin);
+            MDPVerifiedAdmin = Utils::VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), MDPVerifiedAdmin);
             if (MDPVerifiedAdmin)
             {
                 ui->LockParamGeneralupLabel ->setPixmap(Icons::pxDeverouiller());
@@ -1052,7 +1052,7 @@ void dlg_param::Slot_GestionBanques()
 
 void dlg_param::Slot_GestDataPersoUser()
 {
-    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), db, MDPVerifiedAdmin);
+    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), MDPVerifiedAdmin);
     Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  gDataUser->getLogin());
     Dlg_GestUsr->setConfig(dlg_gestionusers::MODIFUSER);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
@@ -1069,7 +1069,7 @@ void dlg_param::Slot_GestDataPersoUser()
 
 void dlg_param::Slot_GestLieux()
 {
-    dlg_GestionLieux *gestLieux = new dlg_GestionLieux(db);
+    dlg_GestionLieux *gestLieux = new dlg_GestionLieux();
     gestLieux->exec();
     AfficheParamUser();
     delete gestLieux;
@@ -1159,7 +1159,7 @@ void dlg_param::ReconstruitListeLieuxExercice()
 
 void dlg_param::Slot_GestUser()
 {
-    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), db);
+    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice());
     Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
     Dlg_GestUsr->setConfig(dlg_gestionusers::ADMIN);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
@@ -1966,7 +1966,7 @@ void dlg_param::Slot_EffacePrgSauvegarde()
     QString Base = DataBase::getInstance()->getBase();
     if (Base == "")
         return;
-    MDPVerifiedAdmin = proc->VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), MDPVerifiedAdmin);
+    MDPVerifiedAdmin = Utils::VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), MDPVerifiedAdmin);
     if (!MDPVerifiedAdmin)
         return;
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardegroupBox->findChildren<QRadioButton*>();

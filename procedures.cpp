@@ -276,15 +276,6 @@ Villes* Procedures::getVilles()
     return m_villes;
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------
--- Faire précéder l'apostrophe d'un caractère d'échappement pour les requêtes SQL - voir commentaire dans rufus.h --------------------
-------------------------------------------------------------------------------------------------------------------------------------*/
-QString Procedures::CorrigeApostrophe(QString RechAp)
-{
-    RechAp.replace("\\","\\\\");
-    return RechAp.replace("'","\\'");
-}
-
 void Procedures::EnChantier(bool avecMsg)
 {
     UpMessageBox msgbox;
@@ -306,14 +297,6 @@ void Procedures::Message(QString mess, int pause, bool bottom)
     QStringList listmsg;
     listmsg << mess;
     dlg_message(listmsg, pause, bottom);
-}
-
-/*------------------------------------------------------------------------------------------------------------------------------------
-    -- Ecrire la première lettre de chaque Nom et Prénom en majucule ---------------------------------------------------------------------
-    ------------------------------------------------------------------------------------------------------------------------------------*/
-QString Procedures::MajusculePremiereLettre(QString MajLettre, bool fin, bool Maj, bool lower)
-{
-    return fMAJPremiereLettre(MajLettre, fin, Maj, lower);
 }
 
 // ----------------------------------------------------------------------------------
@@ -1471,6 +1454,13 @@ QString Procedures::Var_secure_file_priv()
     return msg;
 }
 
+/*!
+ * \brief Procedures::DecomposeScriptSQL(QString nomficscript)
+ * Cette fonction va décomposer un script SQL en une suite d'instructions SQL utilisables par Qt
+ * \param l'emplacement du fichier à traiter
+ * \return une QStringList avec la liste des instructions
+ * +++ ne marche pas toujours mais suffisant pour un script de sauvegarde de BDD généré par mysqldump
+ */
 QStringList Procedures::DecomposeScriptSQL(QString nomficscript)
 {
     QStringList listinstruct;
@@ -1720,33 +1710,6 @@ double Procedures::CalcBaseSize()
     return basesize;
 }
 
-QMap<QString, double> Procedures::dir_size(const QString DirPath)
-{
-    QMap<QString, double>      DataDir;
-    double sizex = 0;
-    double nfiles = 0;
-
-    QDir dir(DirPath);
-    if(!dir.exists())
-    {
-        DataDir["Size"]= 0;
-        DataDir["Nfiles"]= 0;
-        return DataDir;
-    }
-    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
-    QFileInfoList list = dir.entryInfoList();
-
-    for(int i = 0; i < list.size(); ++i)
-    {
-        QFileInfo fileInfo = list.at(i);
-        sizex += (fileInfo.isDir()) ? this->dir_size(fileInfo.absoluteFilePath())["Size"]: fileInfo.size();
-        nfiles += (fileInfo.isDir()) ? this->dir_size(fileInfo.absoluteFilePath())["Nfiles"] : i+1;
-    }
-    DataDir["Size"]= sizex;
-    DataDir["Nfiles"]= nfiles;
-    return DataDir;
-}
-
 QString Procedures::getExpressionSize(double size)
 {
     QString com = "Mo";
@@ -1827,7 +1790,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
     if (OKvideos)
     {
         // taille du dossier video ---------------------------------------------------------------------------------------------------------------------------------------
-        DataDir = dir_size(pathorigin + NOMDIR_VIDEOS);
+        DataDir = Utils::dir_size(pathorigin + NOMDIR_VIDEOS);
         VideosSize = DataDir["Size"]/1024/1024;
         QHBoxLayout *layVideos = new QHBoxLayout;
         UpLabel *labeVideos = new UpLabel();
@@ -1850,7 +1813,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
     if (OKimages)
     {
         // taille du dossier Images ---------------------------------------------------------------------------------------------------------------------------------------
-        DataDir = dir_size(pathorigin + NOMDIR_IMAGES);
+        DataDir = Utils::dir_size(pathorigin + NOMDIR_IMAGES);
         ImagesSize = DataDir["Size"]/1024/1024;
         QHBoxLayout *layImges = new QHBoxLayout;
         UpLabel *labelmges = new UpLabel();
@@ -1975,7 +1938,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (msgbox.clickedButton() != &OKBouton)
             return false;
 
-        if (!VerifMDP((PremierDemarrage? NOM_MDPADMINISTRATEUR : getMDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
+        if (!Utils::VerifMDP((PremierDemarrage? NOM_MDPADMINISTRATEUR : getMDPAdmin()),tr("Saisissez le mot de passe Administrateur")))
             return false;
 
         QFile BaseViergeFile(QStringLiteral("://basevierge.sql"));
@@ -2064,7 +2027,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + dirtorestore.absolutePath() + tr(" contient des espaces!"));
             return false;
         }
-        if (!VerifMDP(getMDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
+        if (!Utils::VerifMDP(getMDPAdmin(),tr("Saisissez le mot de passe Administrateur")))
             return false;
 
 
@@ -2887,7 +2850,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         == UpSmallButton::EDITBUTTON)
     {
         int gidLieuExercice = -1;
-        Dlg_GestUsr = new dlg_gestionusers(1, gidLieuExercice, DataBase::getInstance()->getDataBase(),true );
+        Dlg_GestUsr = new dlg_gestionusers(1, gidLieuExercice, true);
         Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") + Login);
         Dlg_GestUsr->setConfig(dlg_gestionusers::PREMIERUSER);
         Dlg_GestUsr->exec();
@@ -2912,7 +2875,7 @@ QString Procedures::CreerUserFactice(User &user)
     QJsonObject userData{};
     userData["id"] = "1";
     userData["nom"] = "Snow";
-    userData["prenom"] = MajusculePremiereLettre(user.getLogin());
+    userData["prenom"] = Utils::trimcapitilize(user.getLogin());
     user.setData(userData);
     QString id = userData["id"].toString();
 
@@ -4024,35 +3987,6 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     return reponse;
 }
 
-/*---------------------------------------------------------------------------------------------------------------------
-    -- VÉRIFICATION DE MDP --------------------------------------------------------------------------------------------
-    -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifMDP(QString MDP, QString Msg, bool MDPVerifie)
-{
-    if (MDPVerifie)
-        return true;
-    QInputDialog quest;
-    quest.setCancelButtonText("Annuler");
-    quest.setLabelText(Msg);
-    quest.setInputMode(QInputDialog::TextInput);
-    quest.setTextEchoMode(QLineEdit::Password);
-    QList<QLineEdit*> list = quest.findChildren<QLineEdit*>();
-    for (int i=0;i<list.size();i++)
-        list.at(0)->setAlignment(Qt::AlignCenter);
-    QList<QLabel*> listlab = quest.findChildren<QLabel*>();
-    for (int i=0;i<listlab.size();i++)
-        listlab.at(0)->setAlignment(Qt::AlignCenter);
-    quest.setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    if (quest.exec() > 0)
-    {
-        if (quest.textValue() == MDP)
-            return true;
-        else
-            UpMessageBox::Watch(Q_NULLPTR,tr("Mot de passe invalide!"));
-    }
-    return false;
-}
-
 /*-----------------------------------------------------------------------------------------------------------------
     -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
@@ -4165,8 +4099,8 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
         return -2;
     }
     req =   "SELECT idUser FROM " NOM_TABLE_UTILISATEURS
-            " WHERE UserLogin = '" + CorrigeApostrophe(Login) +
-            "' AND UserMDP = '" + CorrigeApostrophe(MDP) + "'" ;
+            " WHERE UserLogin = '" + Utils::correctquoteSQL(Login) +
+            "' AND UserMDP = '" + Utils::correctquoteSQL(MDP) + "'" ;
     QSqlQuery idUsrQuery(req,DataBase::getInstance()->getDataBase() );
     if (idUsrQuery.size()==0)
     {

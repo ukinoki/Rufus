@@ -21,8 +21,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_documents.h"
 
-dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString PrenomPatient,
-                             Procedures *procAPasser, QWidget *parent) :
+dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString PrenomPatient, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_documents)
 {
@@ -33,7 +32,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     gNomPat             = NomPatient;
     gPrenomPat          = PrenomPatient;
 
-    proc                = procAPasser;
+    proc                = Procedures::I();
     gidUser             = proc->getUserConnected()->id();
     gidUserSuperviseur  = proc->getUserConnected()->getIdUserActeSuperviseur();
     db                  = DataBase::getInstance()->getDataBase();
@@ -2406,7 +2405,7 @@ void dlg_documents::InsertDocument(int row)
 {
     // controle validate des champs
     UpLineEdit *line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(row,1));
-    line->setText(proc->MajusculePremiereLettre(line->text(), true, false, false));
+    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
     if (line->text().length() < 1)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Creation de document"), tr("Veuillez renseigner le champ Résumé, SVP !"));
@@ -2432,8 +2431,8 @@ void dlg_documents::InsertDocument(int row)
 
     QString requete = "INSERT INTO " NOM_TABLE_COURRIERS
             " (TextDocument, ResumeDocument, idUser, DocPublic, Prescription, Editable, Medical) "
-            " VALUES ('" + proc->CorrigeApostrophe(ui->upTextEdit->document()->toHtml()) +
-            "', '" + proc->CorrigeApostrophe(line->text().left(100)) +
+            " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->document()->toHtml()) +
+            "', '" + Utils::correctquoteSQL(line->text().left(100)) +
             "', " + QString::number(gidUser);
     QString Public          = (ui->DocPubliccheckBox->isChecked()?          "1" : "null");
     QString Prescription    = (ui->PrescriptioncheckBox->isChecked()?       "1" : "null");
@@ -2477,7 +2476,7 @@ void dlg_documents::InsertDossier(int row)
 {
     // controle validité des champs
     UpLineEdit *line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(row,1));
-    line->setText(proc->MajusculePremiereLettre(line->text(), true, false, false));
+    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
     if (line->text().length() < 1)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Creation de dossier"), tr("Veuillez renseigner le champ Résumé, SVP !"));
@@ -2494,7 +2493,7 @@ void dlg_documents::InsertDossier(int row)
 
     QString requete = "INSERT INTO " NOM_TABLE_METADOCUMENTS
             " (ResumeMetaDocument, idUser, Public) "
-            " VALUES ('" + proc->CorrigeApostrophe(line->text().left(100)) +
+            " VALUES ('" + Utils::correctquoteSQL(line->text().left(100)) +
             "'," + QString::number(gidUser);
     UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(row,4));
     QString a = "null";
@@ -2506,7 +2505,7 @@ void dlg_documents::InsertDossier(int row)
     {
         QStringList listdocs;
         QString idmetadoc;
-        requete = "select idmetadocument from " NOM_TABLE_METADOCUMENTS " where ResumeMetadocument = '" + proc->CorrigeApostrophe(line->text().left(100)) + "'";
+        requete = "select idmetadocument from " NOM_TABLE_METADOCUMENTS " where ResumeMetadocument = '" + Utils::correctquoteSQL(line->text().left(100)) + "'";
         QSqlQuery quer(requete,db);
         if (quer.size()>0)
         {
@@ -2970,7 +2969,7 @@ void dlg_documents::Remplir_TableWidget()
     QString  Remplirtablerequete = "SELECT ResumeDocument, TextDocument, idDocument, DocPublic, idUser, Prescription, editable, Medical"
               " FROM "  NOM_TABLE_COURRIERS
               " WHERE (idUser = " + QString::number(gidUser) + " Or (DocPublic = 1 and iduser <> " + QString::number(gidUser) + "))";
-    Remplirtablerequete += " and ResumeDocument LIKE '" + proc->CorrigeApostrophe(ui->ChercheupLineEdit->text()) + "%'";
+    Remplirtablerequete += " and ResumeDocument LIKE '" + Utils::correctquoteSQL(ui->ChercheupLineEdit->text()) + "%'";
     Remplirtablerequete += " ORDER BY ResumeDocument";
 
     QSqlQuery RemplirTableViewQuery (Remplirtablerequete,db);
@@ -3269,7 +3268,7 @@ UpdateDocument(int row)
     // recherche de l'enregistrement modifié
     // controle validate des champs
     UpLineEdit *line = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(row,1));
-    line->setText(proc->MajusculePremiereLettre(line->text(), true, false, false));
+    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
     if (line->text().length() < 1)    {
         UpMessageBox::Watch(Q_NULLPTR,tr("Modification de document"), tr("Veuillez renseigner le champ Résumé, SVP !"));
         return;
@@ -3293,8 +3292,8 @@ UpdateDocument(int row)
 
     QString idAmodifier = ui->DocupTableWidget->item(row,3)->text();
     QString req =   "UPDATE " NOM_TABLE_COURRIERS
-            " SET TextDocument = '" + proc->CorrigeApostrophe(ui->upTextEdit->toHtml())     + "'"
-            ", ResumeDocument = '"  + proc->CorrigeApostrophe(line->text().left(100)) + "'";
+            " SET TextDocument = '" + Utils::correctquoteSQL(ui->upTextEdit->toHtml())     + "'"
+            ", ResumeDocument = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'";
     if (ui->DocPubliccheckBox->isChecked())         req += " , DocPublic = 1";      else req += " , DocPublic = null";
     if (ui->PrescriptioncheckBox->isChecked())      req += " , Prescription = 1";   else req += " , Prescription = null";
     if (ui->DocEditcheckBox->isChecked())           req += " , Editable = 1";       else req += " , Editable = null";
@@ -3337,7 +3336,7 @@ void dlg_documents::UpdateDossier(int row)
 {
     QStringList listid;
     UpLineEdit *line = static_cast<UpLineEdit *>(ui->DossiersupTableWidget->cellWidget(row,1));
-    line->setText(proc->MajusculePremiereLettre(line->text(), true, false, false));
+    line->setText(Utils::trimcapitilize(line->text(), true, false, false));
     for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
     {
         QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
@@ -3375,7 +3374,7 @@ void dlg_documents::UpdateDossier(int row)
     QSqlQuery(req,db);
 
     req =   "UPDATE " NOM_TABLE_METADOCUMENTS
-            " SET ResumeMetaDocument = '"  + proc->CorrigeApostrophe(line->text().left(100)) + "'"
+            " SET ResumeMetaDocument = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'"
             " WHERE  idmetaDocument = " + iddoss;
     QSqlQuery ModifDossierQuery (req,db);
     DataBase::getInstance()->traiteErreurRequete(ModifDossierQuery, req, tr("Erreur de mise à jour du dossier dans ") + NOM_TABLE_METADOCUMENTS);

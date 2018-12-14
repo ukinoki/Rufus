@@ -34,7 +34,7 @@ class dlg_recettesspeciales : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_recettesspeciales(Procedures *procAPasser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_recettesspeciales(QWidget *parent = Q_NULLPTR);
     Ui::dlg_recettesspeciales   *ui;
     bool                        getInitOK();
 

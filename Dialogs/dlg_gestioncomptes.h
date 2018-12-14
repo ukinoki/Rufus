@@ -23,7 +23,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upcombobox.h"
 #include <QRadioButton>
 #include "cls_user.h"
-#include "functormajpremierelettre.h"
 #include "database.h"
 #include "cls_compte.h"
 
@@ -60,7 +59,6 @@ private:
     QString                 gUserLogin;
     QTimer                  *gTimer;
     void                    closeEvent(QCloseEvent *);
-    QString                 CorrigeApostrophe(QString RechAp);
     void                    MetAJourListeBanques();
     void                    RemplirTableView(int idcompte = -1);
     bool                    VerifCompte();
