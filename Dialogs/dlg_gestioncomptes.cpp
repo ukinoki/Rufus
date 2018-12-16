@@ -492,15 +492,18 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
     {
         ui->Compteframe->setVisible(true);
         ui->ComptesuptableWidget->setRowCount(listcomptes.size());
-        for (int i=0; i<listcomptes.size(); i++)
+        int i=0;
+        for (QList<Compte*>::const_iterator itcpt = listcomptes.constBegin(); itcpt!=listcomptes.constEnd(); ++itcpt)
         {
+            Compte *cpt = const_cast<Compte*>(*itcpt);
             pitem0 = new QTableWidgetItem;
             pitem1 = new QTableWidgetItem;
-            pitem0->setText(QString::number(listcomptes.at(i)->id()));
-            pitem1->setText(listcomptes.at(i)->nom());
+            pitem0->setText(QString::number(cpt->id()));
+            pitem1->setText(cpt->nom());
             ui->ComptesuptableWidget->setItem(i,0,pitem0);
             ui->ComptesuptableWidget->setItem(i,1,pitem1);
             ui->ComptesuptableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
+            i++;
         }
         connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, [=] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),Q_NULLPTR);});
         if (idcompte<1)

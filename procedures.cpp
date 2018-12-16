@@ -920,7 +920,7 @@ void Procedures::setCodePostalParDefaut(QString CPParDefaut)
     lCPParDefaut = CPParDefaut;
 }
 
-QString Procedures::getsSessionStatus()
+QString Procedures::getSessionStatus()
 {
     // statut de l'utilisateur pour cette session
 
@@ -964,6 +964,8 @@ QString Procedures::getsSessionStatus()
         txtstatut += tr("Orthoptiste");
     else if (autresoignant)
         txtstatut += m_userConnected->getSpecialite();
+    else
+        txtstatut += m_userConnected->getFonction();
 
     if (soignant)
     {
@@ -2504,6 +2506,8 @@ bool Procedures::Connexion_A_La_Base()
     DataBase::getInstance()->traiteErreurRequete(quer2,"SET GLOBAL event_scheduler = 1 ;","");
     QSqlQuery quer3("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;", DataBase::getInstance()->getDataBase() );
     DataBase::getInstance()->traiteErreurRequete(quer3,"SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;","");
+
+    // on recherche si rufusadmin est en fonction auquel cas on utilise les TCPsocket
     QString req = "select iduser from " NOM_TABLE_USERSCONNECTES " where iduser = (select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
     int a = QSqlQuery(req, DataBase::getInstance()->getDataBase()).size();
     OKTCP = (a>0  && DataBase::getInstance()->getMode() != DataBase::Distant);
@@ -2826,18 +2830,21 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     // On crée l'utilisateur dans la table utilisateurs
 
     User *newUser = new User(Login, MDP);
-    //DataBase::getInstance()->setUserConnected( newUser );
     QSqlQuery ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserLogin, UserMDP) VALUES (1,'" + Login + "', '" + MDP + "')",DataBase::getInstance()->getDataBase() );
     //TODO : User : affect User
+    gidCentre               = 1;
+    gUseCotation            = true;
+    CreerUserFactice(*newUser);
+    newUser->setData( DataBase::getInstance()->loadUserData(newUser->id()) );
     newUser->setIdUserActeSuperviseur(1);
     newUser->setIdUserComptable(1);
     newUser->setIdUserParent(1);
-    gidCentre               = 1;
-    gUseCotation            = true;
+    DataBase::getInstance()->setUserConnected( newUser );
 
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été cré"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
-                               CreerUserFactice(*newUser) + "\n\n" +
+                               newUser->getTitre() + " "  + newUser->getPrenom() + " " + newUser->getNom() + ", " + newUser->getFonction()
+                               + "\n\n" +
                                tr("avec le login ") + Login + " " + tr("et le mot de passe que vous avez fourni") + "\n" +
                                tr("Voulez-vous conserver ces données pour le moment ou les modifier?") + "\n" +
                                tr("Vous pourrez les modifier par la suite\n"),
@@ -2857,14 +2864,13 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     // On paramètre l'imprimante et les fichiers ressources
     PremierParametrageMateriel();
     PremierParametrageRessources();
-
     return true;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
     -- Création d'un utilisateur factice ----------------------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-QString Procedures::CreerUserFactice(User &user)
+void Procedures::CreerUserFactice(User &user)
 {
     //TODO : Revoir
     QJsonObject userData{};
@@ -2964,7 +2970,6 @@ QString Procedures::CreerUserFactice(User &user)
     req = "update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + QString::number(gidLieuExercice);
     QSqlQuery(req, DataBase::getInstance()->getDataBase() );
     QSqlQuery("UNLOCK TABLES", DataBase::getInstance()->getDataBase() );
-    return (tr ("Docteur") + " "  + userData["prenom"].toString() + " " + userData["nom"].toString() + ", " + tr("Ophtalmologiste libéral"));
 }
 
 
@@ -3017,6 +3022,9 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             m_userConnected->setTypeCompta(avecLaComptaProv ? (gUseCotation ? 0 : 4) : (gUseCotation ? 2 : 1));
 
             //AFFECT USER:
+            //qDebug() << "superviseur " << m_userConnected->getIdUserActeSuperviseur();
+            //qDebug() << "comptable " << m_userConnected->getIdUserComptable();
+            //qDebug() << "parent " << m_userConnected->getIdUserParent();
             if( m_userConnected->getIdUserActeSuperviseur() > 0 )
                 m_userConnected->setUserSuperviseur(Datas::I()->users->getUserById(m_userConnected->getIdUserActeSuperviseur()));
             if( m_userConnected->getIdUserComptable() > 0 )
@@ -3335,8 +3343,8 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         if( m_userConnected->getIdUserActeSuperviseur() == User::ROLE_NON_RENSEIGNE )
         {
             // le user est assistant et travaille pour tout le monde
-            m_userConnected->setIdUserParent(User::ROLE_VIDE);
-            m_userConnected->setIdUserComptable(User::ROLE_VIDE);
+            m_userConnected->setIdUserParent(User::ROLE_NON_RENSEIGNE);
+            m_userConnected->setIdUserComptable(User::ROLE_NON_RENSEIGNE);
 
             avecLaComptaProv = true;
             gUseCotation     = true;

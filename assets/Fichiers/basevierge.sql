@@ -10,6 +10,7 @@ CREATE TABLE `EchangeImages` (
 `pdf` LONGBLOB NULL,
 `jpg` LONGBLOB NULL,
 `Compression` INT(1) NULL,
+`Facture` INT(1) NULL,
 PRIMARY KEY (`idImpression`)
 ) ENGINE=InnoDB;
 
@@ -17,7 +18,6 @@ DROP TABLE IF EXISTS `DocsASupprimer`;
 CREATE TABLE `DocsASupprimer` (
   `FilePath` VARCHAR(250) DEFAULT NULL
 ) ENGINE=InnoDB;
-
 
 DROP DATABASE IF EXISTS  `Ophtalmologie`;
 CREATE DATABASE  IF NOT EXISTS `Ophtalmologie` DEFAULT CHARSET = utf8;
@@ -338,6 +338,14 @@ CREATE TABLE `Depenses` (
   UNIQUE KEY `idCom_UNIQUE` (`idRec`)
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS `Factures`;
+CREATE TABLE `Factures` (
+`idFacture` INT NOT NULL AUTO_INCREMENT,
+`LienFichier` VARCHAR(150) NULL,
+`Echeancier` INT(1) NULL,
+PRIMARY KEY (`idFacture`)
+) ENGINE=InnoDB;
+
 DROP TABLE IF EXISTS `lignescomptes`;
 CREATE TABLE `lignescomptes` (
     `idLigne` int(11) NOT NULL AUTO_INCREMENT,
@@ -595,7 +603,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,48,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,49,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);

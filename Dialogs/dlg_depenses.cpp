@@ -64,19 +64,42 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     gBigTable       = new UpTableWidget(this);
     ui->horizontalLayout_3->addWidget(gBigTable);
+
+    ModifierupPushButton = new UpPushButton(ui->frame);
+    ModifierupPushButton->setFixedHeight(46);
+    ModifierupPushButton->setText(tr("Modifier"));
+    ModifierupPushButton->setIcon(Icons::icMarteau());
+    ModifierupPushButton->setIconSize(QSize(25,25));
+
+    SupprimerupPushButton = new UpPushButton(ui->frame);
+    SupprimerupPushButton->setFixedHeight(46);
+    SupprimerupPushButton->setText(tr("Supprimer"));
+    SupprimerupPushButton->setIcon(Icons::icPoubelle());
+    SupprimerupPushButton->setIconSize(QSize(25,25));
+
     EnregupPushButton = new UpPushButton(ui->frame);
-    EnregupPushButton->setGeometry(155,285,150,50);
-    EnregupPushButton->setText("Valider");
+    EnregupPushButton->setFixedHeight(46);
+    EnregupPushButton->setText(tr("Valider"));
     EnregupPushButton->setIcon(Icons::icOK());
-    EnregupPushButton->setIconSize(QSize(30,30));
-    EnregupPushButton->setVisible(true);
+    EnregupPushButton->setIconSize(QSize(25,25));
 
     AnnulupPushButton = new UpPushButton(ui->frame);
-    AnnulupPushButton->setGeometry(5,285,150,50);
-    AnnulupPushButton->setText("Annuler");
+    AnnulupPushButton->setFixedHeight(46);
+    AnnulupPushButton->setText(tr("Annuler"));
     AnnulupPushButton->setIcon(Icons::icAnnuler());
-    AnnulupPushButton->setIconSize(QSize(30,30));
-    AnnulupPushButton->setVisible(true);
+    AnnulupPushButton->setIconSize(QSize(25,25));
+
+    boxbutt = new QHBoxLayout();
+    boxbutt->addWidget(AnnulupPushButton);
+    boxbutt->addSpacerItem(new QSpacerItem(0,0));
+    boxbutt->addWidget(EnregupPushButton);
+    boxbutt->addSpacerItem(new QSpacerItem(0,0));
+    boxbutt->addWidget(SupprimerupPushButton);
+    boxbutt->addSpacerItem(new QSpacerItem(0,0));
+    boxbutt->addWidget(ModifierupPushButton);
+    boxbutt->setSpacing(2);
+    boxbutt->setContentsMargins(0,0,0,0);
+    ui->frame->layout()->addItem(boxbutt);
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
@@ -110,30 +133,32 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     int idx = ui->AnneecomboBox->findText(year);
     ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
 
-    connect (ui->GestionComptesupPushButton,    &QPushButton::clicked,          this,   [=] {GestionComptes();});
+    connect (ui->GestionComptesupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::GestionComptes);
     connect (ui->NouvelleDepenseupPushButton,   &QPushButton::clicked,          this,   [=] {GererDepense(ui->NouvelleDepenseupPushButton);});
-    connect (ui->ModifierupPushButton,          &QPushButton::clicked,          this,   [=] {GererDepense(ui->ModifierupPushButton);});
-    connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   [=] {accept();});
+    connect (ModifierupPushButton,              &QPushButton::clicked,          this,   [=] {GererDepense(ModifierupPushButton);});
+    connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   &dlg_depenses::accept);
     connect (ui->Rubriques2035comboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {FiltreTable();});
-    connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   [=] {ExportTable();});
-    connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   [=] {ConvertitDoubleMontant();});
+    connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
+    connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {ChoixPaiement();});
-    connect (ui->ObjetlineEdit,                 &QLineEdit::textEdited,         this,   [=] {EnableModifiepushButton();});
-    connect (ui->MontantlineEdit,               &QLineEdit::textEdited,         this,   [=] {EnableModifiepushButton();});
-    connect (ui->DateDepdateEdit,               &QDateEdit::dateChanged,        this,   [=] {EnableModifiepushButton();});
-    connect (ui->PaiementcomboBox,              &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton();});
-    connect (ui->RefFiscalecomboBox,            &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton();});
-    connect (ui->SupprimerupPushButton,         &QPushButton::clicked,          this,   [=] {SupprimerDepense();});
+    connect (ui->ObjetlineEdit,                 &QLineEdit::textEdited,         this,   &dlg_depenses::EnableModifiepushButton);
+    connect (ui->MontantlineEdit,               &QLineEdit::textEdited,         this,   &dlg_depenses::EnableModifiepushButton);
+    connect (ui->DateDepdateEdit,               &QDateEdit::dateChanged,        this,   &dlg_depenses::EnableModifiepushButton);
+    connect (ui->PaiementcomboBox,              &QComboBox::currentTextChanged, this,   &dlg_depenses::EnableModifiepushButton);
+    connect (ui->RefFiscalecomboBox,            &QComboBox::currentTextChanged, this,   &dlg_depenses::EnableModifiepushButton);
+    connect (SupprimerupPushButton,             &QPushButton::clicked,          this,   &dlg_depenses::SupprimerDepense);
     connect (ui->UserscomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {ChangeUser(ui->UserscomboBox->currentIndex());});
 
-    connect (EnregupPushButton,                 &QPushButton::clicked,          this,   [=] {ModifierDepense();});
-    connect (AnnulupPushButton,                 &QPushButton::clicked,          this,   [=] {AnnulEnreg();});
+    connect (EnregupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::ModifierDepense);
+    connect (AnnulupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::AnnulEnreg);
 
 
     gBigTable->setFocus();
+    ui->AjoutDocupPushButton->setVisible(false);
+    ui->VisuDocupTableWidget->setVisible(false);
 
     InitOK= true;
 }
@@ -226,15 +251,15 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     ui->RefFiscalelabel     ->setEnabled(gMode != Lire);
     ui->OKupPushButton      ->setEnabled(gMode == Lire || gMode == TableVide);
     ui->GestionComptesupPushButton->setEnabled(gMode == Lire || gMode == TableVide);
-    ui->SupprimerupPushButton->setVisible(gMode == Lire);
-    ui->ModifierupPushButton->setVisible(gMode == Lire);
+    EnregupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
+    AnnulupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
     ui->NouvelleDepenseupPushButton->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->comptes().size() );
     QString ttip = "";
     if( gDataUser->getComptes()->comptes().size() == 0)
         ttip = tr("Vous ne pouvez pas enregistrer de dépenses.\nAucun compte bancaire n'est enregistré.");
     ui->NouvelleDepenseupPushButton->setToolTip(ttip);
-    EnregupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
-    AnnulupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
+    SupprimerupPushButton   ->setVisible(gMode == Lire);
+    ModifierupPushButton    ->setVisible(gMode == Lire);
     gBigTable               ->setEnabled(gMode == Lire);
 
     ui->UserscomboBox        ->setEnabled(proc->getUserConnected()->isSecretaire() && gMode==Lire);
@@ -243,7 +268,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     switch (gMode) {
     case TableVide:
         ui->OKupPushButton      ->setShortcut(QKeySequence("Meta+Return"));
-        ui->ModifierupPushButton->setShortcut(QKeySequence());
+        ModifierupPushButton    ->setShortcut(QKeySequence());
         EnregupPushButton       ->setShortcut(QKeySequence());
         [[clang::fallthrough]];// => pas de break, on continue avec le code de Lire
     case Lire: {
@@ -272,7 +297,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
             ui->ComptesupComboBox   ->setEnabled(modifiable);
         }
         ui->OKupPushButton->setShortcut(QKeySequence());
-        ui->ModifierupPushButton->setShortcut(QKeySequence());
+        ModifierupPushButton->setShortcut(QKeySequence());
         EnregupPushButton->setShortcut(QKeySequence("Meta+Return"));
         RegleComptesComboBox();
         ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(compte));
@@ -287,7 +312,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
         ui->RefFiscalecomboBox  ->setCurrentText("");
         EnregupPushButton       ->setText(tr("Enregistrer"));
         ui->OKupPushButton      ->setShortcut(QKeySequence());
-        ui->ModifierupPushButton->setShortcut(QKeySequence());
+        ModifierupPushButton->setShortcut(QKeySequence());
         EnregupPushButton       ->setShortcut(QKeySequence("Meta+Return"));
         RegleComptesComboBox();
         ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(QString::number(gDataUser->getIdCompteParDefaut())));
@@ -371,7 +396,7 @@ void dlg_depenses::ConvertitDoubleMontant()
 
 void dlg_depenses::EnableModifiepushButton()
 {
-    ui->ModifierupPushButton->setEnabled(true);
+    ModifierupPushButton->setEnabled(true);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -527,8 +552,8 @@ void dlg_depenses::EnregistreDepense()
     gBigTable->sortByColumn(7);
 
     gBigTable->setEnabled(true);
-    ui->SupprimerupPushButton->setVisible(true);
-    ui->ModifierupPushButton->setVisible(true);
+    SupprimerupPushButton->setVisible(true);
+    ModifierupPushButton->setVisible(true);
     ui->NouvelleDepenseupPushButton->setEnabled(true);
 
     QString annee =  QString::number(dep->annee());
@@ -554,7 +579,7 @@ void dlg_depenses::EnregistreDepense()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::GererDepense(QPushButton *widgsender)
 {
-    if (widgsender == ui->ModifierupPushButton)
+    if (widgsender == ModifierupPushButton)
     {
         if (gMode == Lire)
             RegleAffichageFiche(Modifier);
@@ -615,17 +640,17 @@ void dlg_depenses::ChoixMenu(QString choix)
         ui->RefFiscalelabel             ->setEnabled(true);
         ui->OKupPushButton              ->setEnabled(false);
         ui->GestionComptesupPushButton  ->setEnabled(false);
-        ui->SupprimerupPushButton       ->setVisible(false);
-        ui->ModifierupPushButton        ->setVisible(false);
-        ui->NouvelleDepenseupPushButton ->setEnabled(false);
+        SupprimerupPushButton           ->setVisible(false);
+        ModifierupPushButton            ->setVisible(false);
         EnregupPushButton               ->setVisible(true);
         AnnulupPushButton               ->setVisible(true);
+        ui->NouvelleDepenseupPushButton ->setEnabled(false);
         gBigTable                       ->setEnabled(false);
         gBigTable                       ->disconnect();
         ui->DateDepdateEdit             ->setDate(QDate::currentDate());
         EnregupPushButton               ->setText("Enregistrer");
         ui->OKupPushButton              ->setShortcut(QKeySequence());
-        ui->ModifierupPushButton        ->setShortcut(QKeySequence());
+        ModifierupPushButton        ->setShortcut(QKeySequence());
         EnregupPushButton               ->setShortcut(QKeySequence("Meta+Return"));
     }
 }
@@ -758,10 +783,10 @@ void dlg_depenses::MetAJourFiche()
                 db->loadDepenseArchivee(dep);
             //qDebug() << dep->objet() + " - id " + QString::number(dep->id()) + " - archivée = " + (dep->isArchivee()==Depense::Oui? "Oui" : (dep->isArchivee()==Depense::Non? "Non" : "NoloSo"));
             if (gBigTable->selectedRanges().size() > 0)
-                ui->SupprimerupPushButton->setEnabled(dep->isArchivee() == Depense::Non);
+                SupprimerupPushButton->setEnabled(dep->isArchivee() == Depense::Non);
         }
         else
-            ui->SupprimerupPushButton->setEnabled(true);
+            SupprimerupPushButton->setEnabled(true);
         connect (ui->DateDepdateEdit,       &QDateEdit::dateChanged,        this,   [=] {EnableModifiepushButton();});
         connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton(); ChoixPaiement();});
         connect (ui->RefFiscalecomboBox,    &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton();});
@@ -1023,8 +1048,8 @@ void dlg_depenses::ModifierDepense()
     }
 
     CalculTotalDepenses();
-    ui->SupprimerupPushButton->setEnabled(gBigTable->rowCount()>0);
-    ui->ModifierupPushButton->setEnabled(gBigTable->rowCount()>0);
+    SupprimerupPushButton->setEnabled(gBigTable->rowCount()>0);
+    ModifierupPushButton->setEnabled(gBigTable->rowCount()>0);
     FiltreTable();
     gBigTable->setCurrentCell(row,1);
     if (dep->date() != datedepart)
@@ -1057,8 +1082,8 @@ void dlg_depenses::RedessineBigTable()
     }
     else
         RegleAffichageFiche(TableVide);
-    ui->SupprimerupPushButton->setEnabled(gBigTable->rowCount()>0);
-    ui->ModifierupPushButton->setEnabled(gBigTable->rowCount()>0);
+    SupprimerupPushButton->setEnabled(gBigTable->rowCount()>0);
+    ModifierupPushButton->setEnabled(gBigTable->rowCount()>0);
 }
 
 void dlg_depenses::closeEvent(QCloseEvent *event)
@@ -1252,7 +1277,7 @@ void dlg_depenses::RemplitBigTable()
         ++i;
     }
     gBigTable->sortItems(7);
-    ui->SupprimerupPushButton->setEnabled(false);
+    SupprimerupPushButton->setEnabled(false);
     connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
 }
 

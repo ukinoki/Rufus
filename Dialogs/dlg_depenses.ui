@@ -34,7 +34,7 @@
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_6">
+  <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="5,1">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout">
      <property name="sizeConstraint">
@@ -236,27 +236,11 @@
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <property name="spacing">
-      <number>0</number>
+      <number>5</number>
      </property>
      <property name="rightMargin">
       <number>0</number>
      </property>
-     <item>
-      <spacer name="verticalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="sizeType">
-        <enum>QSizePolicy::Fixed</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>20</width>
-         <height>37</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
      <item>
       <widget class="QFrame" name="frame">
        <property name="sizePolicy">
@@ -268,6 +252,12 @@
        <property name="minimumSize">
         <size>
          <width>303</width>
+         <height>340</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
          <height>340</height>
         </size>
        </property>
@@ -286,216 +276,301 @@
        <property name="lineWidth">
         <number>3</number>
        </property>
-       <widget class="QLabel" name="Objetlabel">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>60</y>
-          <width>59</width>
-          <height>16</height>
-         </rect>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="spacing">
+         <number>1</number>
         </property>
-        <property name="text">
-         <string>Objet</string>
+        <property name="leftMargin">
+         <number>8</number>
         </property>
-       </widget>
-       <widget class="QLabel" name="Paiementlabel">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>160</y>
-          <width>131</width>
-          <height>16</height>
-         </rect>
+        <property name="topMargin">
+         <number>0</number>
         </property>
-        <property name="text">
-         <string>Mode de paiement</string>
+        <property name="rightMargin">
+         <number>8</number>
         </property>
-       </widget>
-       <widget class="QComboBox" name="PaiementcomboBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>180</y>
-          <width>161</width>
-          <height>25</height>
-         </rect>
+        <property name="bottomMargin">
+         <number>6</number>
         </property>
-        <property name="focusPolicy">
-         <enum>Qt::StrongFocus</enum>
-        </property>
-       </widget>
-       <widget class="QLabel" name="DateDeplabel">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>59</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Date</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="Montantlabel">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>110</y>
-          <width>59</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Montant</string>
-        </property>
-       </widget>
-       <widget class="QLabel" name="RefFiscalelabel">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>210</y>
-          <width>121</width>
-          <height>16</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Référence fiscale</string>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="MontantlineEdit">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>130</y>
-          <width>100</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="RefFiscalecomboBox">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>235</y>
-          <width>280</width>
-          <height>28</height>
-         </rect>
-        </property>
-        <property name="focusPolicy">
-         <enum>Qt::StrongFocus</enum>
-        </property>
-       </widget>
-       <widget class="QDateEdit" name="DateDepdateEdit">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>30</y>
-          <width>110</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
-       <widget class="QLineEdit" name="ObjetlineEdit">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>80</y>
-          <width>250</width>
-          <height>20</height>
-         </rect>
-        </property>
-        <property name="maxLength">
-         <number>99</number>
-        </property>
-       </widget>
-       <widget class="UpPushButton" name="SupprimerupPushButton">
-        <property name="geometry">
-         <rect>
-          <x>5</x>
-          <y>285</y>
-          <width>150</width>
-          <height>50</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Supprimer</string>
-        </property>
-        <property name="icon">
-         <iconset>
-          <normaloff>:/trash-icon-1005110857.png</normaloff>:/trash-icon-1005110857.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-       </widget>
-       <widget class="UpPushButton" name="ModifierupPushButton">
-        <property name="geometry">
-         <rect>
-          <x>155</x>
-          <y>285</y>
-          <width>150</width>
-          <height>50</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-          <horstretch>100</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="focusPolicy">
-         <enum>Qt::StrongFocus</enum>
-        </property>
-        <property name="text">
-         <string>Modifier</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../assets/Images/images.qrc">
-          <normaloff>:/wrench-screwdriver.png</normaloff>:/wrench-screwdriver.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="shortcut">
-         <string>Meta+Return</string>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="default">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-       </widget>
-       <widget class="QComboBox" name="ComptesupComboBox">
-        <property name="geometry">
-         <rect>
-          <x>170</x>
-          <y>180</y>
-          <width>104</width>
-          <height>26</height>
-         </rect>
-        </property>
-       </widget>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <item>
+           <widget class="QLabel" name="DateDeplabel">
+            <property name="text">
+             <string>Date</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <item>
+           <widget class="QDateEdit" name="DateDepdateEdit"/>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_7">
+          <item>
+           <widget class="QLabel" name="Objetlabel">
+            <property name="text">
+             <string>Objet</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="ObjetlineEdit">
+          <property name="maxLength">
+           <number>99</number>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_9">
+          <item>
+           <widget class="QLabel" name="Montantlabel">
+            <property name="text">
+             <string>Montant</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_10">
+          <item>
+           <widget class="QLineEdit" name="MontantlineEdit">
+            <property name="maximumSize">
+             <size>
+              <width>80</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_9">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_11">
+          <item>
+           <widget class="QLabel" name="Paiementlabel">
+            <property name="text">
+             <string>Mode de paiement</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_10">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_12" stretch="6,1,1">
+          <property name="spacing">
+           <number>1</number>
+          </property>
+          <item>
+           <widget class="QComboBox" name="PaiementcomboBox">
+            <property name="maximumSize">
+             <size>
+              <width>120</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::StrongFocus</enum>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QComboBox" name="ComptesupComboBox"/>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_11">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_13">
+          <item>
+           <widget class="QLabel" name="RefFiscalelabel">
+            <property name="text">
+             <string>Référence fiscale</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_12">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QComboBox" name="RefFiscalecomboBox">
+          <property name="focusPolicy">
+           <enum>Qt::StrongFocus</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_3">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="UpPushButton" name="AjoutDocupPushButton">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>46</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>46</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Ajouter un document</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../assets/Images/images.qrc">
+            <normaloff>:/metadocs.png</normaloff>:/metadocs.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>25</width>
+            <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="UpTableWidget" name="VisuDocupTableWidget">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>300</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>340</width>
+         <height>16777215</height>
+        </size>
+       </property>
       </widget>
      </item>
      <item>
@@ -506,17 +581,89 @@
        <property name="sizeHint" stdset="0">
         <size>
          <width>20</width>
-         <height>40</height>
+         <height>13</height>
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QWidget" name="widget" native="true">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>37</height>
+        </size>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_8">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <spacer name="horizontalSpacer_13">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>52</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="VisuDoccheckBox">
+          <property name="minimumSize">
+           <size>
+            <width>205</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Prévisualiser les dépenses</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_7">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>51</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
      </item>
      <item>
       <widget class="QFrame" name="frame_2">
        <property name="minimumSize">
         <size>
          <width>303</width>
-         <height>120</height>
+         <height>90</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>340</width>
+         <height>90</height>
         </size>
        </property>
        <property name="frameShape">
@@ -525,103 +672,171 @@
        <property name="frameShadow">
         <enum>QFrame::Raised</enum>
        </property>
-       <widget class="UpPushButton" name="OKupPushButton">
-        <property name="geometry">
-         <rect>
-          <x>155</x>
-          <y>60</y>
-          <width>150</width>
-          <height>55</height>
-         </rect>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
+         <number>2</number>
         </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>100</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+        <property name="leftMargin">
+         <number>0</number>
         </property>
-        <property name="focusPolicy">
-         <enum>Qt::TabFocus</enum>
+        <property name="topMargin">
+         <number>0</number>
         </property>
-        <property name="text">
-         <string>Retour</string>
+        <property name="rightMargin">
+         <number>0</number>
         </property>
-        <property name="icon">
-         <iconset resource="../assets/Images/images.qrc">
-          <normaloff>:/start.png</normaloff>:/start.png</iconset>
+        <property name="bottomMargin">
+         <number>0</number>
         </property>
-        <property name="iconSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="shortcut">
-         <string>Meta+Return</string>
-        </property>
-        <property name="autoDefault">
-         <bool>false</bool>
-        </property>
-        <property name="default">
-         <bool>false</bool>
-        </property>
-        <property name="flat">
-         <bool>false</bool>
-        </property>
-       </widget>
-       <widget class="UpPushButton" name="NouvelleDepenseupPushButton">
-        <property name="geometry">
-         <rect>
-          <x>5</x>
-          <y>60</y>
-          <width>150</width>
-          <height>55</height>
-         </rect>
-        </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>100</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string>Nouvelle
+        <item>
+         <spacer name="verticalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="UpPushButton" name="GestionComptesupPushButton">
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <height>46</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>46</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Gestion des comptes bancaires</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../assets/Images/images.qrc">
+            <normaloff>:/credit_cards_256.png</normaloff>:/credit_cards_256.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>25</width>
+            <height>25</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_15">
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="UpPushButton" name="NouvelleDepenseupPushButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>100</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>130</width>
+              <height>46</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>46</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>Nouvelle
 dépense</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../assets/Images/images.qrc">
-          <normaloff>:/Cash_Register.png</normaloff>:/Cash_Register.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-       </widget>
-       <widget class="UpPushButton" name="GestionComptesupPushButton">
-        <property name="geometry">
-         <rect>
-          <x>5</x>
-          <y>5</y>
-          <width>290</width>
-          <height>55</height>
-         </rect>
-        </property>
-        <property name="text">
-         <string>Gestion des comptes bancaires</string>
-        </property>
-        <property name="icon">
-         <iconset resource="../assets/Images/images.qrc">
-          <normaloff>:/credit_cards_256.png</normaloff>:/credit_cards_256.png</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>30</width>
-          <height>30</height>
-         </size>
-        </property>
-       </widget>
+            </property>
+            <property name="icon">
+             <iconset resource="../assets/Images/images.qrc">
+              <normaloff>:/Cash_Register.png</normaloff>:/Cash_Register.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>25</width>
+              <height>25</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_15">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="UpPushButton" name="OKupPushButton">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>100</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>130</width>
+              <height>46</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>46</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::TabFocus</enum>
+            </property>
+            <property name="text">
+             <string>Retour</string>
+            </property>
+            <property name="icon">
+             <iconset resource="../assets/Images/images.qrc">
+              <normaloff>:/start.png</normaloff>:/start.png</iconset>
+            </property>
+            <property name="iconSize">
+             <size>
+              <width>25</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="shortcut">
+             <string>Meta+Return</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+            <property name="default">
+             <bool>false</bool>
+            </property>
+            <property name="flat">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
@@ -634,6 +849,11 @@ dépense</string>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
   </customwidget>
+  <customwidget>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uptablewidget.h</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>AnneecomboBox</tabstop>
@@ -644,11 +864,7 @@ dépense</string>
   <tabstop>MontantlineEdit</tabstop>
   <tabstop>PaiementcomboBox</tabstop>
   <tabstop>RefFiscalecomboBox</tabstop>
-  <tabstop>SupprimerupPushButton</tabstop>
-  <tabstop>ModifierupPushButton</tabstop>
-  <tabstop>GestionComptesupPushButton</tabstop>
   <tabstop>NouvelleDepenseupPushButton</tabstop>
-  <tabstop>OKupPushButton</tabstop>
  </tabstops>
  <resources>
   <include location="../assets/Images/images.qrc"/>

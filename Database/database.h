@@ -71,6 +71,9 @@ public:
     QSqlDatabase getDataBase() const;
     void getInformations();
     User* getUserConnected() const;
+    void setUserConnected(User*);           // utilisé uniquement lors du premier démarrage pour définir le premier user
+                                            // normalement effectuéé par DataBase::login() mais pas possible dans ce cas
+                                            // parce que login() utilise la table des utilisateurs connectés qui n'a pas encore été remplie à ce stade
 
     bool traiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
 

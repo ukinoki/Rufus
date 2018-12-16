@@ -165,7 +165,7 @@ public:
     int                     UserSuperviseur(); //TODO : DELETE
     int                     UserParent(); //TODO : DELETE
     bool                    ChargeDataUser(int iduser);
-    QString                 getsSessionStatus();
+    QString                 getSessionStatus();
     //--------------------------------------------------------------------------------------------------------
 
 
@@ -270,7 +270,7 @@ private:
     UpDialog                *gAskLogin, *gAskUser;//, *gAskLieux;
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
-    QString                 CreerUserFactice(User &user);
+    void                    CreerUserFactice(User &user);
     QStringList             ChoisirUnLogin();
     QString                 gLogin, gConfirmMDP, gNouvMDP;
 private slots:

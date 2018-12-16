@@ -1067,6 +1067,25 @@ void dlg_param::Slot_GestDataPersoUser()
     delete Dlg_GestUsr;
 }
 
+void dlg_param::Slot_GestUser()
+{
+    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice());
+    Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
+    Dlg_GestUsr->setConfig(dlg_gestionusers::ADMIN);
+    DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
+    if(DonneesUserModifiees)
+    {
+        proc->ChargeDataUser(gidUser);
+        gDataUser = proc->getUserConnected();
+        AfficheParamUser();
+    }
+    delete Dlg_GestUsr;
+    UpMessageBox::Watch(this, tr("Donnes utilisateurs modifiées?"),
+                              tr("Si vous avez modifié des données d'utilisateurs actuellement connectés,\n"
+                                 "chacun de ces utilisateurs doit relancer le programme\n"
+                                 "pour pouvoir prendre en compte les modifications apportées!"));
+}
+
 void dlg_param::Slot_GestLieux()
 {
     dlg_GestionLieux *gestLieux = new dlg_GestionLieux();
@@ -1155,25 +1174,6 @@ void dlg_param::ReconstruitListeLieuxExercice()
     else
         ui->EmplacementServeurupComboBox->setCurrentIndex(0);
     /*-------------------- GESTION DES LIEUX D'EXRCICE-------------------------------------------------------*/
-}
-
-void dlg_param::Slot_GestUser()
-{
-    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice());
-    Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
-    Dlg_GestUsr->setConfig(dlg_gestionusers::ADMIN);
-    DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
-    if(DonneesUserModifiees)
-    {
-        proc->ChargeDataUser(gidUser);
-        gDataUser = proc->getUserConnected();
-        AfficheParamUser();
-    }
-    delete Dlg_GestUsr;
-    UpMessageBox::Watch(this, tr("Donnes utilisateurs modifiées?"),
-                              tr("Si vous avez modifié des données d'utilisateurs actuellement connectés,\n"
-                                 "chacun de ces utilisateurs doit relancer le programme\n"
-                                 "pour pouvoir prendre en compte les modifications apportées!"));
 }
 
 void dlg_param::NouvAppareil()
@@ -2355,7 +2355,7 @@ void dlg_param::AfficheParamUser()
     bool soccomptable   = gDataUser->isSocComptable();
     bool medecin        = gDataUser->isMedecin();
 
-    ui->StatutComptaupTextEdit->setText(proc->getsSessionStatus());
+    ui->StatutComptaupTextEdit->setText(proc->getSessionStatus());
 
     ui->TitreuplineEdit             ->setVisible(medecin);
     ui->Titrelabel                  ->setVisible(medecin);

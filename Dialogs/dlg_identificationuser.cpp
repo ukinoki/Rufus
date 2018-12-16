@@ -97,8 +97,8 @@ void dlg_identificationuser::Slot_RetourOK()
         done (a);
         return;
     }
-
     //on le reactive
+    ui->OKpushButton->setEnabled(true);
 }
 
 //-------------------------------------------------------------------------------------

@@ -48,6 +48,8 @@ private:
     User                        *gDataUser;
     UpTableWidget               *gBigTable;
     UpPushButton                *EnregupPushButton, *AnnulupPushButton;
+    UpPushButton                *SupprimerupPushButton, *ModifierupPushButton;
+    QHBoxLayout                 *boxbutt;
     QMap<int, User*>            *m_listUserLiberaux;
 
     bool                        InitOK;
