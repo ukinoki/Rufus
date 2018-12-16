@@ -17,11 +17,12 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_docsscanner.h"
 
-dlg_docsscanner::dlg_docsscanner(int idPat, QWidget *parent) :
+dlg_docsscanner::dlg_docsscanner(int idPatouFact, int mode, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
     proc            = Procedures::I();
-    idpat           = idPat;
+    idpat           = idPatouFact;
+    gMode           = mode;
     db              = DataBase::getInstance()->getDataBase();
     QString         NomOnglet;
     if (DataBase::getInstance()->getMode() == DataBase::Poste)
@@ -78,18 +79,26 @@ dlg_docsscanner::dlg_docsscanner(int idPat, QWidget *parent) :
     linetitre       = new UpLineEdit(this);
     editdate        = new QDateEdit(this);
     typeDocCombo    = new UpComboBox(this);
-    ListTypeExams   << COURRIER
-                    << tr("CV")
-                    << tr("Orthoptie")
-                    << tr("ANGIO")
-                    << tr("OCT")
-                    << tr("Biométrie")
-                    << tr("RNM")
-                    << tr("Speculaire")
-                    << tr("Topographie")
-                    << tr("Hess-Weiss")
-                    << tr("CRO")
-                     << tr("Autre");
+    switch (gMode) {
+    case Document:
+        ListTypeExams   << COURRIER
+                        << tr("CV")
+                        << tr("Orthoptie")
+                        << tr("ANGIO")
+                        << tr("OCT")
+                        << tr("Biométrie")
+                        << tr("RNM")
+                        << tr("Speculaire")
+                        << tr("Topographie")
+                        << tr("Hess-Weiss")
+                        << tr("CRO")
+                        << tr("Autre");
+        break;
+    case Facture:
+        ListTypeExams   << FACTURE
+                        << ECHEANCIER;
+        break;
+    }
     toolbar         = new UpToolBar();
     dirsearchbutton = new UpPushButton();
 

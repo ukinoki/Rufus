@@ -199,7 +199,6 @@ void dlg_gestioncomptes::DesactiveCompte()
     ui->IntituleCompteuplineEdit    ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     ui->NomCompteAbregeuplineEdit   ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     ui->SoldeuplineEdit             ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
-    ui->CompteSocietecheckBox       ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     if (!ui->DesactiveComptecheckBox->isChecked())
     {
         /*On ne peut pas desactiver un compte si:
@@ -329,7 +328,6 @@ void dlg_gestioncomptes::ModifCompte()
     ui->IntituleCompteuplineEdit    ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     ui->NomCompteAbregeuplineEdit   ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
     ui->SoldeuplineEdit             ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
-    ui->CompteSocietecheckBox       ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
 }
 
 void dlg_gestioncomptes::NouvCompte()
@@ -346,8 +344,7 @@ void dlg_gestioncomptes::NouvCompte()
     ui->IntituleCompteuplineEdit    ->setEnabled(true);
     ui->NomCompteAbregeuplineEdit   ->setEnabled(true);
     ui->SoldeuplineEdit             ->setEnabled(true);
-    ui->CompteSocietecheckBox       ->setEnabled(true);
-    ui->CompteSocietecheckBox       ->setChecked(gDataUser->isSocComptable());
+    ui->CompteSocietecheckBox       ->setChecked(gSociete);
 
     ui->BanqueupcomboBox            ->clearEditText();
     ui->IBANuplineEdit              ->clear();
@@ -418,7 +415,7 @@ void dlg_gestioncomptes::ValidCompte()
         listsets.insert("NomCompteABrege"       , ui->NomCompteAbregeuplineEdit->text());
         listsets.insert("SoldeSurDernierReleve" , QString::number(QLocale().toDouble(ui->SoldeuplineEdit->text()),'f',2));
         listsets.insert("idbanque"              , QString::number(idbanque));
-        listsets.insert("partage"               , (ui->CompteSocietecheckBox->isChecked()? "1" : "null"));
+        listsets.insert("partage"               , (gSociete? "1" : "null"));
         listsets.insert("desactive"             , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
         db->UpdateTable(NOM_TABLE_COMPTES,
                         listsets,
@@ -433,7 +430,7 @@ void dlg_gestioncomptes::ValidCompte()
         listsets.insert("IntituleCompte"         , ui->IntituleCompteuplineEdit->text());
         listsets.insert("NomCompteABrege"        , ui->NomCompteAbregeuplineEdit->text());
         listsets.insert("SoldeSurDernierReleve"  , "0");
-        listsets.insert("partage"                , (ui->CompteSocietecheckBox->isChecked()? "1" : "null"));
+        listsets.insert("partage"                , (gSociete? "1" : "null"));
         listsets.insert("desactive"              , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
         db->InsertIntoTable(NOM_TABLE_COMPTES, listsets);
         idcompte = db->selectMaxFromTable("idcompte",NOM_TABLE_COMPTES);

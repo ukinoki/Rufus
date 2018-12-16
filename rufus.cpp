@@ -1925,7 +1925,7 @@ void Rufus::EnregistreDocScanner()
         return;
     }
 
-    Dlg_DocsScan = new dlg_docsscanner(idpat, this);
+    Dlg_DocsScan = new dlg_docsscanner(idpat, dlg_docsscanner::Document, this);
     if (!Dlg_DocsScan->getinitOK())
         return;
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + nomprenompat);

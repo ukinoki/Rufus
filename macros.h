@@ -19,7 +19,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                                49  // version de la base de données
+#define VERSION_BASE                                50  // version de la base de données
 #define VERSION_RESSOURCES                          34  // version des fichiers de ressources
 
 // Les bases
@@ -98,6 +98,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PRESCRIPTIONLUNETTES                        "PrescrLun"
 #define COURRIERADMINISTRATIF                       "DocAdmin"
 #define VIDEO                                       "Video"
+#define FACTURE                                     "Facture"
+#define ECHEANCIER                                  "Echéancier"
 
 #define NOM_APPLI                                   "Rufus"
 
@@ -128,6 +130,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOMDIR_LIBS2                                "/Applications";
 #define NOMDIR_RESSOURCES                           "/Ressources"
 #define NOMDIR_RUFUS                                "/Documents/Rufus"
+#define NOMDIR_FACTURES                             "/Factures"
 #define NOMDIR_IMAGES                               "/Images"
 #define NOMDIR_VIDEOS                               "/Videos"
 #define NOMDIR_PROV                                 "/Prov"

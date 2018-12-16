@@ -859,7 +859,10 @@ void dlg_gestionusers::Slot_GestionComptes()
     bool verifcpta  = ui->CompteComptawidget->isVisible();
     QString cptcpta = ui->CompteComptacomboBox->currentText();
 
-    Dlg_GestComptes = new dlg_gestioncomptes(DataUser(), ui->SocieteComptableupRadioButton->isChecked(), (DataUser()->id()==gidUserDepart), this);
+    bool comptedesociete    = ui->SocieteComptableupRadioButton->isChecked();
+    bool affichelesolde     = (DataUser()->id()==gidUserDepart);
+
+    Dlg_GestComptes = new dlg_gestioncomptes(DataUser(), comptedesociete, affichelesolde, this);
     Dlg_GestComptes ->setWindowTitle(tr("Comptes bancaires de ") + DataUser()->getLogin());
     Dlg_GestComptes ->exec();
     if (verifempl)

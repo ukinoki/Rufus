@@ -341,8 +341,9 @@ CREATE TABLE `Depenses` (
 DROP TABLE IF EXISTS `Factures`;
 CREATE TABLE `Factures` (
 `idFacture` INT NOT NULL AUTO_INCREMENT,
-`LienFichier` VARCHAR(150) NULL,
+`LienFichier` VARCHAR(250) NULL,
 `Echeancier` INT(1) NULL,
+`idUser` INT NULL,
 PRIMARY KEY (`idFacture`)
 ) ENGINE=InnoDB;
 
