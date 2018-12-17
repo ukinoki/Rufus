@@ -66,7 +66,7 @@ private:
     Depense*                    getDepenseFromRow(int row);
     void                        SetDepenseToRow(Depense *dep, int row);
     void                        ReconstruitListeAnnees();
-    void                        ReconstruitListeRubriques();
+    void                        ReconstruitListeRubriques(int idx = 0);
     void                        RegleAffichageFiche(enum gMode);
     void                        RegleComptesComboBox(bool ActiveSeult = true);
     void                        RemplitBigTable();

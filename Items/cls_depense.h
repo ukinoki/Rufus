@@ -44,6 +44,9 @@ private: //Données de la dépense
     QString m_modepaiement;     //!< mode de paiement: V virement, C chèque, P prélèvement, T TIP, B carte de crédit, E espèces
     int m_compte;               //!< le compte bancaire concerné
     int m_nocheque;             //!< le no du chèque
+    int m_idfacture;            //!< l'id de la facture ou de l'échéancier correspondant dans la table Facture
+    QString m_lienfacture;      //!< l'emplacement de la facture ou de l'échéancier correspondant sur le disque dur
+    bool m_echeancier;          //!< bool -> true = echeancier - false = facture
     int m_auxarchives;          //!< depense par operation bancaire consolidée
 
 public:
@@ -60,7 +63,10 @@ public:
     int     idrecette() const;
     QString modepaiement() const;
     int     comptebancaire() const;
-    int     nocheque();
+    int     nocheque() const;
+    int     idfacture() const;
+    QString lienfacture() const;
+    bool    isecheancier() const;
     int     annee();
     int     isArchivee();
     void    setArchivee(bool arch);

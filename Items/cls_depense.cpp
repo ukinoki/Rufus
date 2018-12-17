@@ -28,9 +28,12 @@ QString Depense::monnaie() const        { return  m_monnaie;}
 int     Depense::idrecette() const      { return  m_idRec;}
 QString Depense::modepaiement() const   { return  m_modepaiement;}
 int     Depense::comptebancaire() const { return  m_compte;}
-int     Depense::nocheque()             { return  m_nocheque;}
+int     Depense::nocheque() const       { return  m_nocheque;}
+int     Depense::idfacture() const      { return  m_idfacture;}
+QString Depense::lienfacture() const    { return  m_lienfacture;}
+bool    Depense::isecheancier() const   { return  m_echeancier;}
 int     Depense::annee()                { return  m_datedepepense.toString("yyyy").toInt();}
-int     Depense::isArchivee()           { return m_auxarchives;}
+int     Depense::isArchivee()           { return  m_auxarchives;}
 void    Depense::setArchivee(bool arch) { m_auxarchives = (arch? Depense::Oui : Depense::Non);}
 
 Depense::Depense(QJsonObject data, QObject *parent) : Item(parent)
@@ -56,6 +59,9 @@ void Depense::setData(QJsonObject data)
     setDataString(data, "modepaiement", m_modepaiement);
     setDataInt(data, "compte", m_compte);
     setDataInt(data, "nocheque", m_nocheque);
+    setDataInt(data, "idfacture", m_idfacture);
+    setDataString(data, "lienfacture", m_lienfacture);
+    setDataBool(data, "echeancier", m_echeancier);
 }
 
 

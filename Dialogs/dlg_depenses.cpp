@@ -131,7 +131,10 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ReconstruitListeAnnees();
     QString year = QDate::currentDate().toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
+    ui->AnneecomboBox->disconnect();
     ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
+    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
+    RedessineBigTable();
 
     connect (ui->GestionComptesupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::GestionComptes);
     connect (ui->NouvelleDepenseupPushButton,   &QPushButton::clicked,          this,   [=] {GererDepense(ui->NouvelleDepenseupPushButton);});
@@ -155,9 +158,11 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (EnregupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::ModifierDepense);
     connect (AnnulupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::AnnulEnreg);
 
-
     gBigTable->setFocus();
-    ui->AjoutDocupPushButton->setVisible(false);
+    ui->ExportupPushButton->setEnabled(gBigTable->rowCount()>0);
+
+    ui->FactureupPushButton->setVisible(false);
+    ui->EcheancierupPushButton->setVisible(false);
     ui->VisuDocupTableWidget->setVisible(false);
 
     InitOK= true;
@@ -223,7 +228,7 @@ void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
 {
     gMode = mode;
-    Depense *dep = getDepenseFromRow(gBigTable->currentRow());
+    Depense *dep = (gBigTable->rowCount()>0? getDepenseFromRow(gBigTable->currentRow()) : Q_NULLPTR);
 
     ui->DateDepdateEdit     ->setVisible(gMode != TableVide);
     ui->ObjetlineEdit       ->setVisible(gMode != TableVide);
@@ -237,6 +242,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     ui->Montantlabel        ->setVisible(gMode != TableVide);
     ui->Paiementlabel       ->setVisible(gMode != TableVide);
     ui->RefFiscalelabel     ->setVisible(gMode != TableVide);
+    ui->frame               ->setVisible(gMode != TableVide);
 
     ui->DateDepdateEdit     ->setEnabled(gMode != Lire);
     ui->ObjetlineEdit       ->setEnabled(gMode != Lire);
@@ -250,10 +256,12 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     ui->Paiementlabel       ->setEnabled(gMode != Lire);
     ui->RefFiscalelabel     ->setEnabled(gMode != Lire);
     ui->OKupPushButton      ->setEnabled(gMode == Lire || gMode == TableVide);
-    ui->GestionComptesupPushButton->setEnabled(gMode == Lire || gMode == TableVide);
-    EnregupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
-    AnnulupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
-    ui->NouvelleDepenseupPushButton->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->comptes().size() );
+    ui->GestionComptesupPushButton  ->setEnabled(gMode == Lire || gMode == TableVide);
+    EnregupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
+    AnnulupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
+//    ui->FactureupPushButton         ->setVisible(!(gMode == Lire || gMode == TableVide));
+//    ui->EcheancierupPushButton      ->setVisible(!(gMode == Lire || gMode == TableVide));
+    ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->comptes().size() );
     QString ttip = "";
     if( gDataUser->getComptes()->comptes().size() == 0)
         ttip = tr("Vous ne pouvez pas enregistrer de dépenses.\nAucun compte bancaire n'est enregistré.");
@@ -563,8 +571,19 @@ void dlg_depenses::EnregistreDepense()
             ReconstruitListeAnnees();
         ui->AnneecomboBox->setCurrentText(annee);
     }
+    bool rubrique2035trouvee = false;
+    for (int i=0; i<ui->Rubriques2035comboBox->count(); ++i)
+    {
+        if (ui->Rubriques2035comboBox->itemText(i) == ui->RefFiscalecomboBox->currentText())
+        {
+            rubrique2035trouvee = true;
+            break;
+        }
+    }
+    if (!rubrique2035trouvee)
+        ReconstruitListeRubriques();
     CalculTotalDepenses();
-    RegleAffichageFiche(Lire);
+    gMode = Lire;
     connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
     for (int i=0; i< gBigTable->rowCount(); i++)
         if (getDepenseFromRow(i)->id() == dep->id()){
@@ -572,6 +591,7 @@ void dlg_depenses::EnregistreDepense()
             gBigTable->scrollTo(gBigTable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
             break;
         }
+    RegleAffichageFiche(Lire);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -650,7 +670,7 @@ void dlg_depenses::ChoixMenu(QString choix)
         ui->DateDepdateEdit             ->setDate(QDate::currentDate());
         EnregupPushButton               ->setText("Enregistrer");
         ui->OKupPushButton              ->setShortcut(QKeySequence());
-        ModifierupPushButton        ->setShortcut(QKeySequence());
+        ModifierupPushButton            ->setShortcut(QKeySequence());
         EnregupPushButton               ->setShortcut(QKeySequence("Meta+Return"));
     }
 }
@@ -688,12 +708,15 @@ void dlg_depenses::SupprimerDepense()
     db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_DEPENSES);
     Datas::I()->depenses->getDepenses()->remove(dep->id());
 
-    if (gBigTable->rowCount() < 2)
+    if (gBigTable->rowCount() == 1)
     {
         ReconstruitListeAnnees();
         QString year = QDate::currentDate().toString("yyyy");
         int idx = ui->AnneecomboBox->findText(year);
+        ui->AnneecomboBox->disconnect();
         ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
+        RedessineBigTable();
+        connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
     }
     else for (int i = 0; i< gBigTable->rowCount(); i++)
         if (getDepenseFromRow(i) == Q_NULLPTR)
@@ -724,6 +747,7 @@ void dlg_depenses::CalculTotalDepenses()
     if (ui->Rubriques2035comboBox->currentText() != "<Aucun>")
         AnneeRubrique2035 = tr("Total ") + ui->Rubriques2035comboBox->currentText();
     ui->TotallineEdit->setText(AnneeRubrique2035 + " " + ui->AnneecomboBox->currentText() + " -> " + TotalRemise);
+    ui->ExportupPushButton->setEnabled(gBigTable->rowCount()>0);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -994,7 +1018,18 @@ void dlg_depenses::ModifierDepense()
     }
     gBigTable->setEnabled(true);
     int row = -1;
-    int year = dep->annee();    
+    bool rubrique2035trouvee = false;
+    for (int i=0; i<ui->Rubriques2035comboBox->count(); ++i)
+    {
+        if (ui->Rubriques2035comboBox->itemText(i) == ui->RefFiscalecomboBox->currentText())
+        {
+            rubrique2035trouvee = true;
+            break;
+        }
+    }
+    if (!rubrique2035trouvee)
+        ReconstruitListeRubriques();
+    int year = dep->annee();
     if (ui->AnneecomboBox->currentText() != QString::number(year))
     {
         if (ui->AnneecomboBox->findText(QString::number(year)) < 0)
@@ -1229,6 +1264,8 @@ void dlg_depenses::ReconstruitListeAnnees()
     ListeAnnees.sort();
     ui->AnneecomboBox->disconnect();
     ui->AnneecomboBox->clear();
+    if (ListeAnnees.size()==0)
+        ListeAnnees << QDate::currentDate().toString("yyyy");
     ui->AnneecomboBox->insertItems(0,ListeAnnees);
     connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
 }
@@ -1236,8 +1273,9 @@ void dlg_depenses::ReconstruitListeAnnees()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -- Reconstruit la liste des rubriques 2035  de l'utilisateur dans le combobox Rubriques --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_depenses::ReconstruitListeRubriques()
+void dlg_depenses::ReconstruitListeRubriques(int idx)
 {
+    ui->Rubriques2035comboBox->clear();
     bool ok = true;
     QString req = "select distinct dep.reffiscale, idRubrique from " NOM_TABLE_DEPENSES " dep"
                   " left join " NOM_TABLE_RUBRIQUES2035 " rub"
@@ -1248,7 +1286,7 @@ void dlg_depenses::ReconstruitListeRubriques()
     ListeRubriques.insert(0, (QList<QVariant>() << tr("<Aucun>") << -1));
     for (int i = 0; i < ListeRubriques.size(); i++)
         ui->Rubriques2035comboBox->insertItem(i,ListeRubriques.at(i).at(0).toString(), ListeRubriques.at(i).at(1));
-    ui->Rubriques2035comboBox->setCurrentIndex(0);
+    ui->Rubriques2035comboBox->setCurrentIndex(idx);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1269,6 +1307,11 @@ void dlg_depenses::RemplitBigTable()
     }
 
     int i=0;
+    if (listDepenses.size() == 0)
+    {
+        RegleAffichageFiche(TableVide);
+        return;
+    }
     gBigTable->setRowCount(listDepenses.size());
     for (QList<Depense*>::const_iterator itdep = listDepenses.constBegin() ; itdep != listDepenses.constEnd() ; ++itdep)
     {

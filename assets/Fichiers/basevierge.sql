@@ -334,6 +334,7 @@ CREATE TABLE `Depenses` (
   `ModePaiement` varchar(1) DEFAULT NULL,
   `Compte` int(11) DEFAULT NULL,
   `Nocheque` int(11) DEFAULT NULL,
+  `idFacture` int(11) DEFAULT NULL,
   PRIMARY KEY (`idDep`),
   UNIQUE KEY `idCom_UNIQUE` (`idRec`)
 ) ENGINE=InnoDB;
@@ -604,7 +605,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,49,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,50,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);

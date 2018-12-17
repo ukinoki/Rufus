@@ -83,6 +83,7 @@ int UpTableWidget::FirstRowNoHidden()
     for (int i=0; i<rowCount(); i++)
         if (!isRowHidden(i))
         {
+            qDebug() << "first row no hidden" << i;
             row = i;
             break;
         }

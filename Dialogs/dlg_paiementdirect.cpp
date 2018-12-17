@@ -252,14 +252,22 @@ void dlg_paiementdirect::Slot_AfficheToolTip(QTableWidgetItem *titem)
     if (gMode==VoirListeActes)
     {
         if (titem->column() == 2)
-            QToolTip::showText(cursor().pos(), ui->ListeupTableWidget->item(titem->row(),2)->data(1).toString());
+        {
+            QStringList list = ui->ListeupTableWidget->item(titem->row(),2)->data(Qt::UserRole).toStringList();
+            QString tip = list.at(0) + "\n" + list.at(1) + "\n" + list.at(2);
+            QToolTip::showText(cursor().pos(), tip);
+        }
         else
             QToolTip::showText(cursor().pos(),"");
     }
     else if (gMode==EnregistrePaiement)
     {
         if (titem->column() == 3)
-            QToolTip::showText(cursor().pos(), ui->ListeupTableWidget->item(titem->row(),3)->data(1).toString());
+        {
+            QStringList list = ui->ListeupTableWidget->item(titem->row(),3)->data(Qt::UserRole).toStringList();
+            QString tip = list.at(0) + "\n" + list.at(1) + "\n" + list.at(2);
+            QToolTip::showText(cursor().pos(), tip);
+        }
         else
             QToolTip::showText(cursor().pos(),"");
     }
@@ -424,7 +432,10 @@ void dlg_paiementdirect::Slot_CalculTotalDetails()
             if (Line)
                 Total = Total + QLocale().toDouble(Line->text());
             else
-                Total = Total + QLocale().toDouble(ui->DetailupTableWidget->item(k,ui->DetailupTableWidget->columnCount()-2)->text());
+            {
+                QString mnt = ui->DetailupTableWidget->item(k,ui->DetailupTableWidget->columnCount()-2)->text();
+                Total = Total + QLocale().toDouble(mnt);
+            }
         }
     }
     QString TotalRemise;
@@ -476,6 +487,7 @@ void dlg_paiementdirect::ChangeComptable(int idcomptable, bool depuislecombo)
         p_listComptesEncaissmt              = proc->getListeComptesEncaissmtUser();
         p_listComptesEncaissmtAvecDesactive = proc->getListeComptesEncaissmtUserAvecDesactive();
     }
+    if (ui->DetailupTableWidget->rowCount()>-1)
     if (UserComptableACrediter == Q_NULLPTR)
     {
         gidCompteBancaireParDefaut          = -1;
@@ -483,6 +495,7 @@ void dlg_paiementdirect::ChangeComptable(int idcomptable, bool depuislecombo)
         p_listComptesEncaissmt              ->clear();
         p_listComptesEncaissmtAvecDesactive ->clear();
     }
+    if (ui->DetailupTableWidget->rowCount()>-1)
     RegleComptesComboBox();
     FiltreLesTables();
 }
@@ -490,10 +503,10 @@ void dlg_paiementdirect::ChangeComptable(int idcomptable, bool depuislecombo)
 void dlg_paiementdirect::FiltreLesTables()
 {
     for (int i= 0; i<ui->ListeupTableWidget->rowCount(); ++i)
-        ui->ListeupTableWidget->setRowHidden(i, (ui->ListeupTableWidget->item(i,0)->data(1).toInt()!=gidComptableACrediter) && gidComptableACrediter > 0);
+        ui->ListeupTableWidget->setRowHidden(i, (ui->ListeupTableWidget->item(i,0)->data(Qt::UserRole).toInt()!=gidComptableACrediter) && gidComptableACrediter > 0);
     for (int i= 0; i<ui->SalleDAttenteupTableWidget->rowCount(); ++i)
-        ui->SalleDAttenteupTableWidget->setRowHidden(i, (ui->SalleDAttenteupTableWidget->item(i,0)->data(1).toInt()!=gidComptableACrediter) && gidComptableACrediter > 0);
-    if (ui->ListeupTableWidget->rowNoHiddenCount()==0 || ui->ListeupTableWidget->FirstRowNoHidden() == -1)
+        ui->SalleDAttenteupTableWidget->setRowHidden(i, (ui->SalleDAttenteupTableWidget->item(i,0)->data(Qt::UserRole).toInt()!=gidComptableACrediter) && gidComptableACrediter > 0);
+    if (ui->ListeupTableWidget->rowNoHiddenCount()==0 && ui->SalleDAttenteupTableWidget->rowNoHiddenCount() == 0)
     {
         ui->TypePaiementframe->setVisible(false);
         ui->PasdePaiementlabel->setVisible(false);
@@ -1270,14 +1283,14 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             UpCheckBox *CheckItem = new UpCheckBox();
 
             pItem1->setText(TableOrigine->item(Rangee,0)->text());  //idActe
-            pItem1->setData(1,TableOrigine->item(Rangee,0)->data(1));//UserComptable
+            pItem1->setData(Qt::UserRole,TableOrigine->item(Rangee,0)->data(Qt::UserRole));//UserComptable
             CheckItem->setCheckState(Qt::Checked);
             CheckItem->setFocusPolicy(Qt::NoFocus);
             connect(CheckItem,      SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
             CheckItem->installEventFilter(this);
             pItem2->setText(TableOrigine->item(Rangee,2)->text());  //Date
             pItem3->setText(TableOrigine->item(Rangee,3)->text());  //Nom Prenom
-            pItem3->setData(2,TableOrigine->item(Rangee,3)->data(2));//Nom
+            pItem3->setData(Qt::UserRole,TableOrigine->item(Rangee,3)->data(Qt::UserRole));//Nom
             pItem4->setText(TableOrigine->item(Rangee,4)->text());  //Cotation
             pItem5->setText(TableOrigine->item(Rangee,5)->text());  //Montant
             QString ResteDu = QLocale().toString(QLocale().toDouble(TableOrigine->item(Rangee,7)->text()),'f',2);
@@ -1400,6 +1413,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             }
         }
         TrieListe(ui->DetailupTableWidget);
+
         // si DetailsupTableWidget n'est pas vide, on filtre les 2 autres tables pour n'afficher que les enregistrements avec le même comptable
         if (ui->DetailupTableWidget->rowCount() == 0)
         {
@@ -1414,11 +1428,13 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         }
         else
         {
-            gidComptableACrediter = ui->DetailupTableWidget->item(0,0)->data(1).toInt();
+            gidComptableACrediter = ui->DetailupTableWidget->item(0,0)->data(Qt::UserRole).toInt();
             if (ui->ChequeradioButton->isChecked() && ui->TireurChequelineEdit->text() == "")
-                ui->TireurChequelineEdit->setText(ui->DetailupTableWidget->item(0,3)->data(2).toString());
+                ui->TireurChequelineEdit->setText(ui->DetailupTableWidget->item(0,3)->data(Qt::UserRole).toStringList().at(3));
         }
+
         ChangeComptable(gidComptableACrediter);
+
         ui->ComptablescomboBox->setEnabled(m_userConnected->isSecretaire() && (gMode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0));
         ui->ComptablescomboBox          ->setEnabled(m_userConnected->getUserComptable()==Q_NULLPTR
                                                      && ui->DetailupTableWidget->rowCount()==0
@@ -1582,6 +1598,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         }
     }
     } // fin switch
+
     Slot_CalculTotalDetails();
     RegleAffichageTypePaiementframe(false);
     RegleAffichageTypePaiementframe(true,false);
@@ -1673,37 +1690,37 @@ void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARempl
             TableARemplir->horizontalHeader()->setVisible(true);
 //----------------------------------------------------------------------------------------------------------// Réglage de la largeur et du nombre des colonnes
             int li = 0;
-            TableARemplir->setColumnWidth(li,25);                                               // idActe ou idPaiement
+            TableARemplir->setColumnWidth(li,25);                                               // 0 - idActe ou idPaiement
             li++;
             if (gMode == EnregistrePaiement)
-                TableARemplir->setColumnWidth(li,20);                                           // Checkbox
+                TableARemplir->setColumnWidth(li,20);                                           // 1 = Checkbox
             else
-                TableARemplir->setColumnWidth(li,0);                                            // Checkbox
+                TableARemplir->setColumnWidth(li,0);
             li++;
-            TableARemplir->setColumnWidth(li,95);                                               // Date
+            TableARemplir->setColumnWidth(li,95);                                               // 2 - Date
             li++;
-            TableARemplir->setColumnWidth(li,200);                                              // Nom Prenom ou Payeur
+            TableARemplir->setColumnWidth(li,200);                                              // 3 - Nom Prenom ou Payeur
             li++;
-            TableARemplir->setColumnWidth(li,170);                                              // Cotation
+            TableARemplir->setColumnWidth(li,170);                                              // 4 - Cotation
             li++;
             switch (gMode) {
             case VoirListeActes:
             {
-                TableARemplir->setColumnWidth(li,75);                                               // Montant
+                TableARemplir->setColumnWidth(li,75);                                               // 5 - Montant
                 li++;
-                if (TypeTable == ActesTiers)                                                        // Type tiers
+                if (TypeTable == ActesTiers)                                                        // 6 - Type tiers
                 {
-                    TableARemplir->setColumnWidth(li,120);                                           // Type tiers
+                    TableARemplir->setColumnWidth(li,120);                                          // 7 -Type tiers
                     li ++;
                 }
-                TableARemplir->setColumnWidth(li,75);                                               // Reste dû
+                TableARemplir->setColumnWidth(li,75);                                               // 7 ou 8 - Reste dû
                 break;
             }
             default:
             {
-                TableARemplir->setColumnWidth(li,75);                                               // Montant
+                TableARemplir->setColumnWidth(li,75);                                               // 5 - Montant
                 li++;
-                if (TypeTable == ActesTiers)                                                        // Type tiers
+                if (TypeTable == ActesTiers)                                                        // 6 -Type tiers
                 {
                     TableARemplir->setColumnWidth(li,100);
                     li ++;
@@ -1741,22 +1758,22 @@ void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARempl
             TableARemplir->setHorizontalHeaderLabels(LabelARemplir);
             TableARemplir->horizontalHeader()->setVisible(true);
             int li = 0;                                                                         // Réglage de la largeur et du nombre des colonnes
-            TableARemplir->setColumnWidth(li,25);                                               // idActe ou idPaiement
+            TableARemplir->setColumnWidth(li,25);                                               // 0 - idActe ou idPaiement
             li++;
-            TableARemplir->setColumnWidth(li,20);                                           // Checkbox
+            TableARemplir->setColumnWidth(li,20);                                               // 1 - Checkbox
             li++;
-            TableARemplir->setColumnWidth(li,95);                                           // Date
+            TableARemplir->setColumnWidth(li,95);                                               // 2 - Date
             li++;
-            TableARemplir->setColumnWidth(li,200);                                              // Nom Prenom ou Payeur
+            TableARemplir->setColumnWidth(li,200);                                              // 3 - Nom Prenom ou Payeur
             li++;
-            TableARemplir->setColumnWidth(li,170);                                              // Cotation
+            TableARemplir->setColumnWidth(li,170);                                              // 4 - Cotation
             li++;
-            TableARemplir->setColumnWidth(li,75);                                               // Montant
-            TableARemplir->setColumnWidth(li,75);                                               // Payé
+            TableARemplir->setColumnWidth(li,75);                                               // 5 - Montant
+            TableARemplir->setColumnWidth(li,75);                                               // 6 - Payé
             li++;
-            TableARemplir->setColumnWidth(li,75);                                               // Reste dû
+            TableARemplir->setColumnWidth(li,75);                                               // 7 - Reste dû
             li++;
-            TableARemplir->setColumnWidth(li,75);                                               // ActeDate
+            TableARemplir->setColumnWidth(li,75);                                               // 8 - ActeDate
         }
 
         if (TableARemplir == ui->ListeupTableWidget)
@@ -2235,7 +2252,7 @@ void dlg_paiementdirect::RemplitLesTables()
                     " AND act.idPat = pat.idPat\n"
                     " AND ActeDate > AddDate(NOW(),-730)\n";
         requete +=  " AND ActeMontant > 0\n"
-                    " GROUP BY act.idActe\n";                        // tous les actes pour lesquels aucun renseignement de paiement n'a été enregistré
+                    " GROUP BY act.idActe\n";                        // tous les actes pour lesquels aucun renseignement de paiement n'a été enregistré et qui ne sont pas en salle d'attente
 
         requete +=  " UNION \n\n"
                     " SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                // 0, 1, 2, 3, 4
@@ -2390,9 +2407,9 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 pItem1 = new QTableWidgetItem() ;
                 pItem1->setText(A);
                 if (TableARemplir == ui->ListeupTableWidget)
-                    pItem1->setData(1,TableQuery.value(11).toInt());
+                    pItem1->setData(Qt::UserRole,TableQuery.value(11).toInt());                     // l'id comptable est passé en data
                 else if (TableARemplir == ui->SalleDAttenteupTableWidget)
-                    pItem1->setData(1,TableQuery.value(8).toInt());
+                    pItem1->setData(Qt::UserRole,TableQuery.value(8).toInt());
                 TableARemplir->setItem(i,col,pItem1);
                 col++;
 
@@ -2412,7 +2429,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 if (TableARemplir == ui->DetailupTableWidget || AvecUpcheckBox)
                     col++;
 
-                A = TableQuery.value(1).toDate().toString(tr("dd-MM-yyyy"));                            // Date
+                A = TableQuery.value(1).toDate().toString(tr("dd-MM-yyyy"));                       // Date
                 pItem2 = new QTableWidgetItem() ;
                 pItem2->setText(A);
                 TableARemplir->setItem(i,col,pItem2);
@@ -2423,14 +2440,12 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 pItem3->setText(A);
                 if (TableARemplir == ui->ListeupTableWidget)
                 {
-                    pItem3->setData(1,
-                    tr("superviseur -> ")
-                    + Datas::I()->users->getUserById(TableQuery.value(12).toInt())->getLogin()
-                    + "\n" + tr("comptable -> ")
-                    + Datas::I()->users->getUserById(TableQuery.value(11).toInt())->getLogin()
-                    + "\n" + tr("DDN ") + TableQuery.value(10).toDate().toString(tr("dd-MM-yyyy")));
+                    pItem3->setData(Qt::UserRole, QStringList()
+                    << tr("superviseur -> ") + Datas::I()->users->getUserById(TableQuery.value(12).toInt())->getLogin()
+                    << tr("comptable -> ") + Datas::I()->users->getUserById(TableQuery.value(11).toInt())->getLogin()
+                    << tr("DDN ") + TableQuery.value(10).toDate().toString(tr("dd-MM-yyyy"))
+                    << TableQuery.value(2).toString());                                             // Nom
                 }
-                pItem3->setData(2, TableQuery.value(2).toString());
                 TableARemplir->setItem(i,col,pItem3);
                 col++;
 

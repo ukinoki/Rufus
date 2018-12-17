@@ -380,31 +380,6 @@ border-radius: 5px;
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QCheckBox" name="CompteSocietecheckBox">
-    <property name="enabled">
-     <bool>true</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>200</x>
-      <y>140</y>
-      <width>141</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="focusPolicy">
-     <enum>Qt::NoFocus</enum>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">border:0px</string>
-    </property>
-    <property name="text">
-     <string>compte de société</string>
-    </property>
-    <property name="checkable">
-     <bool>true</bool>
-    </property>
-   </widget>
    <widget class="QPushButton" name="CompteFacticePushButton">
     <property name="geometry">
      <rect>

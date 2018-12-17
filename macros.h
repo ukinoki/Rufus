@@ -34,6 +34,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_TABLE_BANQUES                           "ComptaMedicale.banques"
 #define NOM_TABLE_COMPTES                           "ComptaMedicale.Comptes"
 #define NOM_TABLE_DEPENSES                          "ComptaMedicale.Depenses"
+#define NOM_TABLE_FACTURES                          "ComptaMedicale.Factures"
 #define NOM_TABLE_LIGNESCOMPTES                     "ComptaMedicale.lignescomptes"
 #define NOM_TABLE_LIGNESPAIEMENTS                   "ComptaMedicale.lignespaiements"
 #define NOM_TABLE_RECETTES                          "ComptaMedicale.lignesrecettes"

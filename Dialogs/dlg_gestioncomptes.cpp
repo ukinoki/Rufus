@@ -86,8 +86,6 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *DataUser,
     ui->idComptelabel           ->setVisible(false);
     ui->Soldelabel              ->setVisible(gAfficheLeSolde);
     ui->SoldeuplineEdit         ->setVisible(gAfficheLeSolde);
-    ui->CompteSocietecheckBox   ->setEnabled(false);
-    ui->CompteSocietecheckBox   ->setChecked(gSociete);
 
     QHBoxLayout *vlay = new QHBoxLayout();
     int marge   = 5;
@@ -143,7 +141,6 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
     ui->SoldeuplineEdit             ->setText(QLocale().toString(CompteEnCours->solde(),'f',2));
     ui->idCompteupLineEdit          ->setText(QString::number(CompteEnCours->id()));
     ui->DesactiveComptecheckBox     ->setChecked(CompteEnCours->isDesactive());
-    ui->CompteSocietecheckBox       ->setChecked(CompteEnCours->isPartage());
 
     widgButtons->modifBouton    ->setEnabled(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
     ui->SoldeuplineEdit         ->setVisible(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
@@ -344,7 +341,6 @@ void dlg_gestioncomptes::NouvCompte()
     ui->IntituleCompteuplineEdit    ->setEnabled(true);
     ui->NomCompteAbregeuplineEdit   ->setEnabled(true);
     ui->SoldeuplineEdit             ->setEnabled(true);
-    ui->CompteSocietecheckBox       ->setChecked(gSociete);
 
     ui->BanqueupcomboBox            ->clearEditText();
     ui->IBANuplineEdit              ->clear();
