@@ -92,7 +92,7 @@ QString Utils::convertHTML(QString text)
  * \param end mettre false si on ne souhaite pas nettoyer la fin du texte
  * \return le texte nettoyé
  */
-QString Utils::trim(QString text, bool end)
+QString Utils::trim(QString text, bool end, bool removereturnend)
 {
     QString textC = text;
     QChar c;
@@ -116,6 +116,17 @@ QString Utils::trim(QString text, bool end)
                 break;
         }
 
+    if( removereturnend )                   // enlève les retours à la ligne de la fin de la fin
+        while( textC.size() )
+        {
+            int lastIndex = textC.size() - 1;
+            c = textC.at(lastIndex);
+            if( c == "\n" )
+                textC = textC.remove(lastIndex,1);
+            else
+                break;
+        }
+
     QString newText = "";
     QChar lastChar;
     for( int i=0; i < textC.size(); ++i )   // enlève les espaces, les tirets et les apostrophes en doublon
@@ -128,6 +139,7 @@ QString Utils::trim(QString text, bool end)
         newText += c;
         lastChar = c;
     }
+
     return newText;
 }
 

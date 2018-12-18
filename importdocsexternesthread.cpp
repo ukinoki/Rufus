@@ -69,6 +69,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
             for (int k=0; k<stop; k++)
             {
                 QString nomdoc  = listfich.at(k);
+                if (nomdoc.contains("smbtest"))
+                    continue;
                 //qDebug() << nomdoc;
                 if (Appareil == "NAVIS-EX")   {
                     QString AbregeTitre = nomdoc.split("_").at(3);
