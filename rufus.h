@@ -269,8 +269,7 @@ private:
     bool                    isPosteImport();
     bool                    PosteImport;
     bool                    PasDExportPourLeMoment = false;
-    QTreeWidget             *TerraintreeWidget;
-    UpSmallButton           *ModifTerrainupSmallButton;
+    UpSmallButton           *ModifIdentificationupSmallButton;
 private slots:
     void                    AfficheMessageImport(QStringList listmsg, int pause, bool bottom=true);
 

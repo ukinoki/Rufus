@@ -282,11 +282,9 @@ void Rufus::Connect_Slots()
     connect (ui->AutresCorresp1upComboBox,                          &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelCorrespondant(ui->AutresCorresp1upComboBox);});
     connect (ui->AutresCorresp2upComboBox,                          &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelCorrespondant(ui->AutresCorresp2upComboBox);});
     connect (ui->ModifDatepushButton,                               &QPushButton::clicked,                              this,   [=] {ui->ActeDatedateEdit->setEnabled(true); ui->ActeDatedateEdit->setFocus();});
-    connect (ui->ModifIdentificationSmallButton,                    &QPushButton::clicked,                              this,   [=] {ChoixMenuContextuelIdentPatient();});
-    connect (ModifTerrainupSmallButton,                             &QPushButton::clicked,                              this,   [=] {ModifierTerrain();});
+    connect (ModifIdentificationupSmallButton,                      &QPushButton::clicked,                              this,   [=] {ChoixMenuContextuelIdentPatient();});
     connect (ui->MotsClesLabel,                                     &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelMotsCles();});
     connect (ui->MotsClesupSmallButton,                             &QPushButton::clicked,                              this,   [=] {ChoixMenuContextuelMotsCles();});
-    connect (ui->OKModifTerrainupSmallButton,                       &QPushButton::clicked,                              this,   [=] {OKModifierTerrain();});
     connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              this,   [=] {OuvrirNouveauDossier();});
     connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              this,   [=] {OuvrirActesPrecspushButtonClicked();});
     connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              this,   [=] {OuvrirDocsExternes(gidPatient);});
@@ -2643,7 +2641,7 @@ void Rufus::MenuContextuelIdentPatient()
 
 void Rufus::ChoixMenuContextuelIdentPatient()
 {
-    IdentificationPatient("Modification",gidPatient);  // aussi appelé depuis le bouton ui->ModifIdentificationSmallButton
+    IdentificationPatient("Modification",gidPatient);  // aussi appelé depuis le bouton ModifIdentificationupSmallButton
 }
 
 void Rufus::MenuContextuelMotsCles()
@@ -3574,21 +3572,21 @@ void Rufus::ModfiCotationActe()
 
 void Rufus::ModifierTerrain()
 {
-    TerraintreeWidget->setVisible(false);
-    ModifTerrainupSmallButton->setVisible(false);
-    ui->ModifTerrainframe->setVisible(true);
-    ui->ModifTerrainframe->setEnabled(true);
-    ui->OKModifTerrainupSmallButton->setVisible(true);
+    ui->TerraintreeWidget->setVisible(false);
+    ui->ModifTerrainwidget->setVisible(true);
+    ui->TabacLabel->setVisible(true);
+    ui->TabaclineEdit->setVisible(true);
+    ui->OKModifTerrainupSmallButton->setUpButtonStyle(UpSmallButton::STARTBUTTON);
+    ui->OKModifTerrainupSmallButton->disconnect();
+    connect (ui->OKModifTerrainupSmallButton,   &QPushButton::clicked,  this,   [=] {OKModifierTerrain();});
 }
 
-void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
+void Rufus::OKModifierTerrain() // recalcule le ui->TerraintreeWidget et l'affiche
 {
     //TODO : SQL
-    TerraintreeWidget->clear();
+    ui->TerraintreeWidget->clear();
     bool a = false;
-    TerraintreeWidget->setVisible(a);
-    ModifTerrainupSmallButton->setVisible(a);
-    ui->OKModifTerrainupSmallButton->setVisible(!a);
+
     QString requete = "SELECT idPat, idCorMedMG, idCorMedSpe1, idCorMedSpe2, idCorMedSpe3, idCorNonMed, RMPAtcdtsPersos, RMPTtGeneral, RMPAtcdtsFamiliaux"
               ", RMPAtcdtsOphs, Tabac, Autrestoxiques, Gencorresp, Important, Resume, RMPTtOphs,"
               " CorNom, CorPrenom,CorAdresse1,CorAdresse2,CorAdresse3,CorVille,CorTelephone"
@@ -3599,16 +3597,15 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
     if (!DataBase::getInstance()->traiteErreurRequete(DonneesMedicalesQuery,requete,tr("Impossible de retrouver les données médicales")))
         if (DonneesMedicalesQuery.size() > 0)           // Il y a des renseignements medicaux
         {
-            TerraintreeWidget->setGeometry(5,259,360,420);
-            TerraintreeWidget->setColumnCount(2);
-            TerraintreeWidget->setColumnWidth(0,70);        //IdPat
-            TerraintreeWidget->setColumnWidth(1,180 );     //
-            TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0);"
+            ui->TerraintreeWidget->setColumnCount(2);
+            ui->TerraintreeWidget->setColumnWidth(0,70);        //IdPat
+            ui->TerraintreeWidget->setColumnWidth(1,180 );     //
+            ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0);"
                                                  " selection-background-color: rgb(164, 205, 255);"
                                                  " background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));"
                                                  " border: 1px solid rgb(150,150,150); border-radius: 10px;}");
-            TerraintreeWidget->setIconSize(QSize(25,25));
-            TerraintreeWidget->header()->setVisible(false);
+            ui->TerraintreeWidget->setIconSize(QSize(25,25));
+            ui->TerraintreeWidget->header()->setVisible(false);
             QTreeWidgetItem *pItem0, *pItem1, *pItem2, *pItem3, *pItem4, *pItem5;
             pItem0 = new QTreeWidgetItem() ;
             pItem0->setText(1,QString::number(gidPatient));                                                             // IdPatient
@@ -3655,7 +3652,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
             if (hash != "")
             {
                 a = true;
-                TerraintreeWidget->addTopLevelItem(pItem0);
+                ui->TerraintreeWidget->addTopLevelItem(pItem0);
                 pItem0->setFirstColumnSpanned(true);
                 listhash = hash.split("\n");
                 pItem0->setExpanded(listhash.size() > 0);
@@ -3664,7 +3661,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                     QTreeWidgetItem *pit = new QTreeWidgetItem(pItem0);
                     pit->setText(0,"");
                     pit->setText(1,listhash.at(i));
-                    if (fm.width(listhash.at(i)) > (TerraintreeWidget->width() - TerraintreeWidget->columnWidth(0)))
+                    if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                         pit->setToolTip(1, listhash.at(i));
                 }
             }
@@ -3673,7 +3670,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
             if (hash != "")
             {
                 a = true;
-                TerraintreeWidget->addTopLevelItem(pItem1);
+                ui->TerraintreeWidget->addTopLevelItem(pItem1);
                 pItem1->setFirstColumnSpanned(true);
                 listhash = hash.split("\n");
                 pItem1->setExpanded(listhash.size() > 0);
@@ -3682,7 +3679,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                     QTreeWidgetItem *pit = new QTreeWidgetItem(pItem1);
                     pit->setText(0,"");
                     pit->setText(1,listhash.at(i));
-                    if (fm.width(listhash.at(i)) > (TerraintreeWidget->width() - TerraintreeWidget->columnWidth(0)))
+                    if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                         pit->setToolTip(1, listhash.at(i));
                 }
             }
@@ -3691,7 +3688,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
             if (hash != "")
             {
                 a = true;
-                TerraintreeWidget->addTopLevelItem(pItem2);
+                ui->TerraintreeWidget->addTopLevelItem(pItem2);
                 pItem2->setFirstColumnSpanned(true);
                 listhash = hash.split("\n");
                 pItem2->setExpanded(listhash.size() > 0);
@@ -3700,7 +3697,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                     QTreeWidgetItem *pit = new QTreeWidgetItem(pItem2);
                     pit->setText(0,"");
                     pit->setText(1,listhash.at(i));
-                    if (fm.width(listhash.at(i)) > (TerraintreeWidget->width() - TerraintreeWidget->columnWidth(0)))
+                    if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                         pit->setToolTip(1, listhash.at(i));
                 }
             }
@@ -3715,7 +3712,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                 }
                 else
                     pItem3->setText(0,tr("TABAC : ") + hash + tr(" cig/j"));
-                TerraintreeWidget->addTopLevelItem(pItem3);
+                ui->TerraintreeWidget->addTopLevelItem(pItem3);
                 pItem3->setFirstColumnSpanned(true);
             }
             listhash.clear();
@@ -3723,7 +3720,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
             if (hash != "")
             {
                 a = true;
-                TerraintreeWidget->addTopLevelItem(pItem4);
+                ui->TerraintreeWidget->addTopLevelItem(pItem4);
                 pItem4->setFirstColumnSpanned(true);
                 listhash = hash.split("\n");
                 pItem4->setExpanded(listhash.size() > 0);
@@ -3732,7 +3729,7 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                     QTreeWidgetItem *pit = new QTreeWidgetItem(pItem4);
                     pit->setText(0,"");
                     pit->setText(1,listhash.at(i));
-                    if (fm.width(listhash.at(i)) > (TerraintreeWidget->width() - TerraintreeWidget->columnWidth(0)))
+                    if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                         pit->setToolTip(1, listhash.at(i));
                 }
             }
@@ -3752,21 +3749,24 @@ void Rufus::OKModifierTerrain() // recalcule le TerrainTreeWidget et l'affiche
                     tooltp += "\n" + DonneesMedicalesQuery.value(22).toString();
                 hash = "Dr " + DonneesMedicalesQuery.value(17).toString() + " " + DonneesMedicalesQuery.value(16).toString();
                 a = true;
-                TerraintreeWidget->addTopLevelItem(pItem5);
+                ui->TerraintreeWidget->addTopLevelItem(pItem5);
                 pItem5->setFirstColumnSpanned(true);
                 pItem5->setExpanded(true);
                 QTreeWidgetItem *pit = new QTreeWidgetItem(pItem5);
                 pit->setText(0,"");
                 pit->setText(1,hash);
-                if (fm.width(hash) > (TerraintreeWidget->width() - TerraintreeWidget->columnWidth(0)))
+                if (fm.width(hash) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                     pit->setToolTip(1, hash);
             }
         }
-    TerraintreeWidget->setVisible(a);
-    ModifTerrainupSmallButton->setVisible(a);
-    ui->ModifTerrainframe->setVisible(!a);
-    ui->ModifTerrainframe->setEnabled(!a);
-    ui->OKModifTerrainupSmallButton->setVisible(!a);
+    ui->TerraintreeWidget->setVisible(a);
+    ui->ModifTerrainwidget->setVisible(!a);
+    ui->TabacLabel->setVisible(!a);
+    ui->TabaclineEdit->setVisible(!a);
+    ui->OKModifTerrainupSmallButton->setUpButtonStyle(a? UpSmallButton::EDITBUTTON : UpSmallButton::STARTBUTTON);
+
+    ui->OKModifTerrainupSmallButton->disconnect();
+    connect (ui->OKModifTerrainupSmallButton,   &QPushButton::clicked,  this,   [=] {a? ModifierTerrain() : OKModifierTerrain();});
 }
 
 void Rufus::OuvrirActesPrecspushButtonClicked()
@@ -8030,11 +8030,9 @@ void Rufus::InitWidgets()
     ui->AccueilLayout->insertLayout(1,halay);
     ui->AccueilWidget->setVisible(false);
 
-    TerraintreeWidget         = new QTreeWidget(ui->AtcdstMedxframe);
-    ModifTerrainupSmallButton = new UpSmallButton(ui->AtcdstMedxframe);
-    ModifTerrainupSmallButton ->setUpButtonStyle(UpSmallButton::EDITBUTTON);
-    ModifTerrainupSmallButton ->setGeometry(330,640,30,30);
-    ModifTerrainupSmallButton ->setIconSize(QSize(30,30));
+    ModifIdentificationupSmallButton = new UpSmallButton(ui->IdentPatienttextEdit);
+    ModifIdentificationupSmallButton->setUpButtonStyle(UpSmallButton::EDITBUTTON);
+    ModifIdentificationupSmallButton->move(315,190);
     MasquePatientsVusWidget();
 
     ui->SalleDAttenteupTableWidget->verticalHeader()->setVisible(false);
