@@ -7,6 +7,7 @@
 #include <cls_correspondants.h>
 #include "cls_cotation.h"
 #include <cls_depenses.h>
+#include "cls_docsexternes.h"
 #include "cls_motif.h"
 #include "cls_paiementsdirects.h"
 #include <cls_patients.h>
@@ -35,6 +36,7 @@ public:
     TiersPayants *tiers;                //!< tous les tiers payants
     TypesTiers *typestiers;             //!< tous les types tiers payants
     PaiementsDirects *paiementsdirects; //!< tous les paiements en attente d'enregistrement
+    DocsExternes    *documents;         //!< Les documents
 
 signals:
 

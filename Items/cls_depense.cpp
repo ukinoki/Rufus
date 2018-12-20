@@ -34,7 +34,11 @@ QString Depense::lienfacture() const    { return  m_lienfacture;}
 bool    Depense::isecheancier() const   { return  m_echeancier;}
 int     Depense::annee()                { return  m_datedepepense.toString("yyyy").toInt();}
 int     Depense::isArchivee()           { return  m_auxarchives;}
-void    Depense::setArchivee(bool arch) { m_auxarchives = (arch? Depense::Oui : Depense::Non);}
+
+void    Depense::setArchivee(bool arch)         { m_auxarchives = (arch? Depense::Oui : Depense::Non);}
+void    Depense::setidfacture(int idfact)       { m_idfacture = idfact;}
+void    Depense::setlienfacture(QString lien)   { m_lienfacture = lien;}
+void    Depense::setecheancier(bool ech)        { m_echeancier = ech;}
 
 Depense::Depense(QJsonObject data, QObject *parent) : Item(parent)
 {

@@ -48,6 +48,7 @@ public:
     static QString getMACAdress();
     static QString correctquoteSQL(QString text);
     static bool VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
+
 };
 
 #endif // UTILS_H

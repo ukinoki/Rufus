@@ -34,7 +34,6 @@ public:
     Ui::dlg_bilanortho      *ui;
     QString                 calcReponsehTml();
     void                    setDateBO(QDate dateBO);
-    QDate                   getDateBO();
 
 private:
     QStringList             TNOlist, XELlist, XEPlist, VergencesCLlist, VergencesDLlist, VergencesCPlist, VergencesDPlist, HLlist, HPlist;

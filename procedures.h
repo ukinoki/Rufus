@@ -74,6 +74,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_user.h"
 #include "cls_users.h"
 #include "database.h"
+#include "poppler-qt5.h"
 
 class Procedures : public QObject
 {
@@ -94,6 +95,8 @@ public:
 
     void                    ab(int i = 1);
 
+    void                    AfficheDoc(QTableWidget *tab, QMap<QString,QVariant> doc);
+    QMap<QString,QVariant>  CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher = true);
     QString                 ConvertitEnHtml(QString Texte);
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);

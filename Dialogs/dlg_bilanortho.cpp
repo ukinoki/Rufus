@@ -1739,7 +1739,3 @@ void dlg_bilanortho::setDateBO(QDate dateBO)
     DateBO = dateBO;
 }
 
-QDate dlg_bilanortho::getDateBO()
-{
-    return DateBO;
-}

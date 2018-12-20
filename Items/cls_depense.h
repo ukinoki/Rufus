@@ -69,7 +69,11 @@ public:
     bool    isecheancier() const;
     int     annee();
     int     isArchivee();
+
     void    setArchivee(bool arch);
+    void    setidfacture(int idfacture);
+    void    setlienfacture(QString lien);
+    void    setecheancier(bool ech);
 
     explicit Depense(QJsonObject data = {}, QObject *parent = nullptr);
 

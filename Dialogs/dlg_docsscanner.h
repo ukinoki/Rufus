@@ -26,21 +26,25 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uplineedit.h"
 #include "uptablewidget.h"
 #include "uptoolbar.h"
+#include "dlg_message.h"
 
 class dlg_docsscanner : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_docsscanner(int idPatouFact, int mode = dlg_docsscanner::Document, QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsscanner(int idPatouFact, int mode = dlg_docsscanner::Document, QString titre = "", QWidget *parent = Q_NULLPTR);
     ~dlg_docsscanner();
-    bool                getinitOK();
-    void                NavigueVers(QString);
-    int                 gMode;
-        enum gMode      {Document, Facture};
+    bool                    getinitOK();
+    void                    NavigueVers(QString);
+    QMap<QString, QVariant> getdataFacture();
+    int                     gMode;
+        enum gMode          {Document, Facture, Echeancier};
 
 private:
     Procedures          *proc;
-    int                 idpat;
+    DataBase            *db;
+    int                 iditem;
+    QMap<QString, QVariant> datafacture;
     UpLabel             *inflabel;
     UpLineEdit          *linetitre;
     QDateEdit           *editdate;
@@ -50,13 +54,11 @@ private:
     UpPushButton        *dirsearchbutton;
     bool                initOK;
     QList<QPixmap>      glistPix;
-    QSqlDatabase        db;
     QStringList         ListTypeExams;
     QString             docpath;
     QString             NomDirStockageImagerie;
     QString             fichierimageencours;
     bool                eventFilter(QObject *, QEvent *);
-    void                AfficheDoc(QString filebut);
     void                ValideFiche();
     void                ChangeFile();
     bool                AccesDistant;

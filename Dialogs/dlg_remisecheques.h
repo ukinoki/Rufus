@@ -40,7 +40,6 @@ public:
     ~dlg_remisecheques();
     Ui::dlg_remisecheques   *ui;
     bool                    getInitOK();
-    void                    setInitOK(bool init);
 
 private slots:
     void            Slot_ImprimepushButton();

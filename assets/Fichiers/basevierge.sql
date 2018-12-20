@@ -345,6 +345,8 @@ CREATE TABLE `Factures` (
 `LienFichier` VARCHAR(250) NULL,
 `Echeancier` INT(1) NULL,
 `idUser` INT NULL,
+`pdf` LONGBLOB NULL,
+`jpg` LONGBLOB NULL,
 PRIMARY KEY (`idFacture`)
 ) ENGINE=InnoDB;
 
@@ -605,7 +607,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,50,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,51,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);

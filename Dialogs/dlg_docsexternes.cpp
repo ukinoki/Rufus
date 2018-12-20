@@ -667,14 +667,15 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
 {
     /* Cette fonction sert à stocker dans un QByteArray le contenu des documents d'imagerie ou des courriers émis par le logiciel pour pouvoir les afficher
      * la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
-     *      pour afficher un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
-     *      pour afficher un document d'imagerie stocké directement dans la base, dans la table impressions - on va extraire le ByteArray directement de la base, de la table impressions
-     * la fonction est applée par ImprimeDoc() - on utilise la table echangeimages
+     *      imagerie = false -> le document est un document texte. Il est recalculé en pdf et le pdf est incorporé dans un bytearray.
+     *      imagerie = true ->  le document est un document d'imagerie stocké sur un fichier. On va le transférer dans la table echangeimages et le transformer en bytearray
+   * la fonction est applée par ImprimeDoc() - on utilise la table echangeimages
      *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
      *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base de la table echangeimages
-     * la fonction renvoie un QMap<QString,QVariant> reulst
+     * la fonction renvoie un QMap<QString,QVariant> result
      * result["Type"] est un QString qui donne le type de document, jpg ou pdf
-     * result["ba"] ets un QByteArray qui stocke le contenu du fichier
+     * result["ba"] est un QByteArray qui stocke le contenu du fichier
+     * result["lien"] est le lien vers le fichier sur le disque dur du serveur
     */
     DocExterne *docmt = m_ListDocs.getDocumentById(idimpression);
     QMap<QString,QVariant> result;
@@ -683,6 +684,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
     QByteArray bapdf;
     result["Type"]    = "";
     result["ba"]      = QByteArray("");
+    result["lien"]    = "";
     if (imagerie)
     {
         if (afficher)
@@ -741,12 +743,14 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
                 bapdf.append(impr.at(0).toByteArray());
             result["Type"]    = PDF;
             result["ba"]      = bapdf;
+            result["lien"]    = filename;
         }
         else if (impr.at(1).toByteArray().size()>0)                                            // c'est un jpg
         {
             bapdf.append(impr.at(1).toByteArray());
             result["Type"]    = JPG;
             result["ba"]      = bapdf;
+            result["lien"]    = filename;
         }
     }
     else                                                                                                    // il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
@@ -779,6 +783,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
         filepdf.close ();
         result["Type"]    = PDF;
         result["ba"]      = bapdf;
+        result["lien"]    = "";
     }
     return result;
 }

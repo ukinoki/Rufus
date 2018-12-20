@@ -23,8 +23,13 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uptablewidget.h"
 #include "dlg_comptes.h"
-#include "cls_user.h"
+#include "dlg_docsscanner.h"
+#include "cls_compte.h"
 #include "cls_depenses.h"
+#include "cls_user.h"
+#include "gbl_datas.h"
+#include "icons.h"
+#include "ui_dlg_depenses.h"
 
 namespace Ui {
 class dlg_depenses;
@@ -42,8 +47,10 @@ public:
 
 private:
     dlg_comptes                 *Dlg_Cmpt;
+    dlg_docsscanner             *Dlg_DocsScan;
     DataBase                    *db;
     Procedures                  *proc;
+    Depense                     *m_depenseencours;
     QStringList                 glistMoyensDePaiement;
     User                        *gDataUser;
     UpTableWidget               *gBigTable;
@@ -59,19 +66,20 @@ private:
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );
     void                        CalculTotalDepenses();
+    void                        ChoixMenu(QString);
     void                        DefinitArchitectureBigTable();
     void                        EnregistreDepense();
     void                        ExportTable();
     void                        FiltreTable();
     Depense*                    getDepenseFromRow(int row);
-    void                        SetDepenseToRow(Depense *dep, int row);
+    bool                        initializeUserSelected();
     void                        ReconstruitListeAnnees();
     void                        ReconstruitListeRubriques(int idx = 0);
     void                        RegleAffichageFiche(enum gMode);
     void                        RegleComptesComboBox(bool ActiveSeult = true);
     void                        RemplitBigTable();
-    void                        ChoixMenu(QString);
-    bool                        initializeUserSelected();
+    void                        ScanDoc(QString typedoc);
+    void                        SetDepenseToRow(Depense *dep, int row);
 
     //anciens slots
     void                        AnnulEnreg();

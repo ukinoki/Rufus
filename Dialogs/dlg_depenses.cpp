@@ -16,10 +16,6 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_depenses.h"
-#include "gbl_datas.h"
-#include "icons.h"
-#include "ui_dlg_depenses.h"
-#include "cls_compte.h"
 
 dlg_depenses::dlg_depenses(QWidget *parent) :
     QDialog(parent),
@@ -142,6 +138,8 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   &dlg_depenses::accept);
     connect (ui->Rubriques2035comboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {FiltreTable();});
+    connect (ui->FactureupPushButton,           &QPushButton::clicked,          this,   [=] {ScanDoc(FACTURE);});
+    connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=] {ScanDoc(ECHEANCIER);});
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
     connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -154,16 +152,14 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (SupprimerupPushButton,             &QPushButton::clicked,          this,   &dlg_depenses::SupprimerDepense);
     connect (ui->UserscomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {ChangeUser(ui->UserscomboBox->currentIndex());});
-
     connect (EnregupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::ModifierDepense);
     connect (AnnulupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::AnnulEnreg);
 
     gBigTable->setFocus();
     ui->ExportupPushButton->setEnabled(gBigTable->rowCount()>0);
 
-    ui->FactureupPushButton->setVisible(false);
-    ui->EcheancierupPushButton->setVisible(false);
-    ui->VisuDocupTableWidget->setVisible(false);
+    //ui->Facturewidget->setVisible(false);
+    //ui->VisuDocupTableWidget->setVisible(false);
 
     InitOK= true;
 }
@@ -259,8 +255,8 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     ui->GestionComptesupPushButton  ->setEnabled(gMode == Lire || gMode == TableVide);
     EnregupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
     AnnulupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
-//    ui->FactureupPushButton         ->setVisible(!(gMode == Lire || gMode == TableVide));
-//    ui->EcheancierupPushButton      ->setVisible(!(gMode == Lire || gMode == TableVide));
+    ui->Facturewidget         ->setVisible(gMode == Lire);
+    ui->EcheancierupPushButton      ->setVisible(gMode == Lire);
     ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->comptes().size() );
     QString ttip = "";
     if( gDataUser->getComptes()->comptes().size() == 0)
@@ -336,6 +332,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::AnnulEnreg()
 {
+    gBigTable->disconnect();
     RegleAffichageFiche(Lire);
     MetAJourFiche();
     connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
@@ -729,7 +726,6 @@ void dlg_depenses::SupprimerDepense()
             break;
         }
     CalculTotalDepenses();
-    MetAJourFiche();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -774,17 +770,17 @@ void dlg_depenses::MetAJourFiche()
         if (gBigTable->selectedRanges().size() == 0)
             gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
 
-        Depense *dep = getDepenseFromRow(gBigTable->currentRow());
+        m_depenseencours = getDepenseFromRow(gBigTable->currentRow());
 
-        ui->ObjetlineEdit->setText(dep->objet());
-        ui->DateDepdateEdit->setDate(dep->date());
-        ui->MontantlineEdit->setText(QLocale().toString(dep->montant(),'f',2));
-        QString A = dep->modepaiement();                                                         // Mode de paiement - col = 4
+        ui->ObjetlineEdit->setText(m_depenseencours->objet());
+        ui->DateDepdateEdit->setDate(m_depenseencours->date());
+        ui->MontantlineEdit->setText(QLocale().toString(m_depenseencours->montant(),'f',2));
+        QString A = m_depenseencours->modepaiement();                                                         // Mode de paiement - col = 4
         QString B = "";
         if (A == "E")           A = tr("Espèces");
         else
         {
-            QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll().find(dep->comptebancaire());
+            QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll().find(m_depenseencours->comptebancaire());
             if( compteFind == gDataUser->getComptes()->comptesAll().constEnd() )
             {
                 //ATTENTION ERROR
@@ -799,15 +795,24 @@ void dlg_depenses::MetAJourFiche()
         ui->PaiementcomboBox    ->setCurrentText(A);
         ui->ComptesupComboBox   ->setCurrentIndex(ui->ComptesupComboBox->findText(B));
         ui->ComptesupComboBox   ->setVisible(B != "");
-        ui->RefFiscalecomboBox  ->setCurrentText(dep->reffiscale());
-
-        if (dep->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
+        ui->RefFiscalecomboBox  ->setCurrentText(m_depenseencours->reffiscale());
+        bool hasfacture = m_depenseencours->lienfacture()!="";
+        qDebug() << hasfacture;
+        ui->FactureupPushButton     ->setVisible(!hasfacture);
+        ui->EcheancierupPushButton  ->setVisible(!hasfacture);
+        ui->VisuDocupTableWidget    ->setVisible(hasfacture);
+        if (m_depenseencours->lienfacture() != "")
         {
-            if (dep->isArchivee() == Depense::NoLoSo)
-                db->loadDepenseArchivee(dep);
-            //qDebug() << dep->objet() + " - id " + QString::number(dep->id()) + " - archivée = " + (dep->isArchivee()==Depense::Oui? "Oui" : (dep->isArchivee()==Depense::Non? "Non" : "NoloSo"));
+            QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
+            proc->AfficheDoc(ui->VisuDocupTableWidget, doc);
+        }
+        if (m_depenseencours->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
+        {
+            if (m_depenseencours->isArchivee() == Depense::NoLoSo)
+                db->loadDepenseArchivee(m_depenseencours);
+            //qDebug() << m_depenseencours->objet() + " - id " + QString::number(m_depenseencours->id()) + " - archivée = " + (m_depenseencours->isArchivee()==Depense::Oui? "Oui" : (m_depenseencours->isArchivee()==Depense::Non? "Non" : "NoloSo"));
             if (gBigTable->selectedRanges().size() > 0)
-                SupprimerupPushButton->setEnabled(dep->isArchivee() == Depense::Non);
+                SupprimerupPushButton->setEnabled(m_depenseencours->isArchivee() == Depense::Non);
         }
         else
             SupprimerupPushButton->setEnabled(true);
@@ -913,7 +918,6 @@ void dlg_depenses::ModifierDepense()
         if (msgbox.clickedButton() != &OKBouton || pb == tr("Elle a déjà été saisie"))
             return;
     }
-
     // Correction de l'écriture dans la table depenses
     QString Paiement, m;
     Paiement = ui->PaiementcomboBox->currentText();
@@ -1099,7 +1103,6 @@ void dlg_depenses::ModifierDepense()
     gMode = Lire;
     RegleAffichageFiche(Lire);
     MetAJourFiche();
-    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1108,6 +1111,7 @@ void dlg_depenses::ModifierDepense()
 void dlg_depenses::RedessineBigTable()
 {
     RemplitBigTable();
+    gBigTable->disconnect();
     if (gBigTable->rowCount() > 0)
     {
         gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
@@ -1117,6 +1121,7 @@ void dlg_depenses::RedessineBigTable()
     }
     else
         RegleAffichageFiche(TableVide);
+    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
     SupprimerupPushButton->setEnabled(gBigTable->rowCount()>0);
     ModifierupPushButton->setEnabled(gBigTable->rowCount()>0);
 }
@@ -1242,7 +1247,11 @@ void dlg_depenses::FiltreTable()
         Utils::Pause(1);            // si on ne fait pas ça, le scroll marche mal
         gBigTable->scrollToItem(gBigTable->item(row,0), QAbstractItemView::PositionAtCenter);
         if (row != rowdep)
+        {
+            gBigTable->disconnect();
             MetAJourFiche();
+            connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+        }
     }
     CalculTotalDepenses();
  }
@@ -1326,8 +1335,37 @@ void dlg_depenses::RemplitBigTable()
 
 Depense* dlg_depenses::getDepenseFromRow(int row)
 {
-    Depense *dep = Datas::I()->depenses->getDepenseById(gBigTable->item(row,0)->text().toInt());
-    return dep;
+    return Datas::I()->depenses->getDepenseById(gBigTable->item(row,0)->text().toInt());
+}
+
+void dlg_depenses::ScanDoc(QString typedoc)
+{
+    if (m_depenseencours == Q_NULLPTR)
+        return;
+    if (typedoc == FACTURE)
+        Dlg_DocsScan = new dlg_docsscanner(m_depenseencours->id(), dlg_docsscanner::Facture, m_depenseencours->objet(), this);
+    else if (typedoc == ECHEANCIER)
+        Dlg_DocsScan = new dlg_docsscanner(m_depenseencours->id(), dlg_docsscanner::Echeancier, "", this);
+    if (Dlg_DocsScan->exec() > 0)
+    {
+        QMap<QString, QVariant> map = Dlg_DocsScan->getdataFacture();
+        int idfact = map["idfacture"].toInt();
+        if (idfact>-1)
+        {
+            QString req = "update " NOM_TABLE_DEPENSES " set idFacture = " + QString::number(idfact) + " where idDep = " + QString::number(m_depenseencours->id());
+            QSqlQuery (req, db->getDataBase());
+
+            m_depenseencours->setidfacture(idfact);
+            m_depenseencours->setlienfacture(Dlg_DocsScan->getdataFacture()["lien"].toString());
+            m_depenseencours->setecheancier(Dlg_DocsScan->getdataFacture()["echeancier"].toBool());
+            ui->FactureupPushButton     ->setVisible(false);
+            ui->EcheancierupPushButton  ->setVisible(false);
+            ui->VisuDocupTableWidget    ->setVisible(true);
+            QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
+            proc->AfficheDoc(ui->VisuDocupTableWidget, doc);
+        }
+    }
+    delete  Dlg_DocsScan;
 }
 
 void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
