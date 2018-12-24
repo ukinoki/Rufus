@@ -24,11 +24,10 @@ dlg_gestioncotations::dlg_gestioncotations(QString TypeActe, QString Mode , QStr
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(layout());
-    globallay->insertWidget(0,ui->widget);
-    globallay->insertWidget(0,ui->TypeActegroupBox);
+    dlglayout()->insertWidget(0,ui->widget);
+    dlglayout()->insertWidget(0,ui->TypeActegroupBox);
     AjouteLayButtons(UpDialog::ButtonOK);
-    globallay   ->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     gTypeActe   =  AssocCCAM;
     if      (TypeActe   == "CCAM")                gTypeActe   = CCAM;
     else if (TypeActe   == "Assoc")               gTypeActe   = AssocCCAM;

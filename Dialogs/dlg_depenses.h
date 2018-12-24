@@ -20,7 +20,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLocale>
 #include <QMenu>
-#include <QPainter>
 
 #include "uptablewidget.h"
 #include "dlg_comptes.h"
@@ -60,8 +59,6 @@ private:
     QHBoxLayout                 *boxbutt;
     QMap<int, User*>            *m_listUserLiberaux;
     QList<QImage>               glistImg;
-    QPrinter                    *printer;
-    QRectF                      rect;
 
     bool                        InitOK;
     int                         gMode;
@@ -77,7 +74,6 @@ private:
     void                        FiltreTable();
     Depense*                    getDepenseFromRow(int row);
     bool                        initializeUserSelected();
-    void                        Print(QPrinter*, QImage image);
     void                        ReconstruitListeAnnees();
     void                        ReconstruitListeRubriques(int idx = 0);
     void                        RegleAffichageFiche(enum gMode);
@@ -86,7 +82,6 @@ private:
     void                        ScanDoc(QString typedoc);
     void                        SetDepenseToRow(Depense *dep, int row);
     void                        SupprimeFacture();
-    bool                        ImprimeFacture();
 
     //anciens slots
     void                        AnnulEnreg();

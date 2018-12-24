@@ -111,6 +111,15 @@ Procedures::Procedures(QObject *parent) :
     ListeComptesEncaissUser                 = new QStandardItemModel();
     ListeComptesEncaissUserAvecDesactive    = new QStandardItemModel();
     initOK                  = true;
+    int margemm         = TailleTopMarge(); // exprimé en mm
+    printer             = new QPrinter(QPrinter::HighResolution);
+    printer             ->setFullPage(true);
+    rect                = printer->paperRect();
+    rect.adjust(Utils::mmToInches(margemm) * printer->logicalDpiX(),
+                Utils::mmToInches(margemm) * printer->logicalDpiY(),
+                -Utils::mmToInches(margemm) * printer->logicalDpiX(),
+                -Utils::mmToInches(margemm) * printer->logicalDpiY());
+
 }
 
 void Procedures::Test()
@@ -829,8 +838,8 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
      *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
      *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base de la table echangeimages
      * la fonction renvoie un QMap<QString,QVariant> result
-     * result["Type"] est un QString qui donne le type de document, jpg ou pdf
-     * result["ba"] ets un QByteArray qui stocke le contenu du fichier
+     * result["type"] est un QString qui donne le type de document, jpg ou pdf
+     * result["ba"] est un QByteArray qui stocke le contenu du fichier
     */
     DocExterne *docmt = new DocExterne();
     Depense *dep = new Depense();
@@ -849,14 +858,15 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
     }
     QMap<QString,QVariant> result;
     QString filename = "";
-    QByteArray bapdf;
+    QByteArray ba;
     QLabel inflabel;
     result["type"]    = "";
     result["ba"]      = QByteArray("");
     result["lien"]    = "";
-    if (imagerie)
+    if (imagerie)                                                  // il s'agit d'un fichier image
     {
-        if (afficher)
+        if (afficher)                               // si on veut afficher une image, on la charge dans une table SQL
+                                                    // pour pouvoir véhiculer son contenu dans le tunnel SQL et profiter du crypatge en cas d'accès distant
         {
             if (typedoc != FACTURE)
                 sstitre = "<font color='magenta'>" + docmt->date().toString(tr("d-M-yyyy")) + " - " + docmt->typedoc() + " - " + docmt->soustypedoc() + "</font>";
@@ -908,6 +918,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                 }
             }
         }
+        // On charge ensuite le contenu des champs longblob des tables concernées en mémoire pour les afficher
         bool ok = false;
         QList<QList<QVariant>> listimpr;
         if (typedoc != FACTURE)
@@ -936,31 +947,31 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
         if (listimpr.size()==0)
             return result;
         QList<QVariant> impr = listimpr.at(0);
-        if (impr.at(0).toByteArray().size()>0)                                                 // c'est un pdf
+        if (impr.at(0).toByteArray().size()>0)            // c'est le champ SQL pdf de la requête qui est exploré et s'il n'est pas vide, c'est un pdf
         {
             if (typedoc != FACTURE)
             {
                 if (impr.at(2).toString()=="1")
-                    bapdf.append(qUncompress(impr.at(0).toByteArray()));
+                    ba.append(qUncompress(impr.at(0).toByteArray()));
                 else
-                    bapdf.append(impr.at(0).toByteArray());
+                    ba.append(impr.at(0).toByteArray());
             }
             else
-                bapdf.append(impr.at(0).toByteArray());
+                ba.append(impr.at(0).toByteArray());
             result["type"]    = PDF;
         }
-        else if (impr.at(1).toByteArray().size()>0)                                            // c'est un jpg
+        else if (impr.at(1).toByteArray().size()>0)       // c'est le champ SQL jpg de la requête qui est exploré et s'il n'est pas vide, c'est un jpg
         {
-            bapdf.append(impr.at(1).toByteArray());
+            ba.append(impr.at(1).toByteArray());
             result["type"]    = JPG;
         }
-        result["ba"]      = bapdf;
+        result["ba"]      = ba;
         result["lien"]    = filename;
     }
-    else                                                                                                    // il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
+    else                                                  // il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
     {
         inflabel    .setText("");
-        QByteArray bapdf;
+        QByteArray ba;
         QString Entete  = docmt->textentete();
         QString Corps   = docmt->textcorps();
         QString Pied    = docmt->textpied();
@@ -981,10 +992,10 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
         QFile filepdf(ficpdf);
         if (!filepdf.open( QIODevice::ReadOnly ))
             UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
-        bapdf = filepdf.readAll();
+        ba = filepdf.readAll();
         filepdf.close ();
         result["type"]    = PDF;
-        result["ba"]      = bapdf;
+        result["ba"]      = ba;
     }
     return result;
 }
@@ -1044,7 +1055,16 @@ void Procedures::EditHtml(QString txt)
     gAsk->exec();
     delete gAsk;
 }
-
+/*!
+ * \brief Procedures::EditImage
+ * affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pourvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
+ * argument QMap<QString,QVariant> doc contient 2 éléments
+    . ba = le QByteArray contenant les données
+    . type = jpg ou pdf
+ * argument titre le titre de l'image affiché dans un QLable magenta en bas à gauche de l'image
+ * argument Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
+ * si le bouton PrintButton est utilisé il permet d'imprimer l'image en appelant la fonction PrintImage(QMap<QString,QVariant> doc)
+ */
 void Procedures::EditImage(QMap<QString,QVariant> doc, QString titre, UpDialog::Buttons Button)
 {
     UpDialog    *gAsk       = new UpDialog();
@@ -1059,11 +1079,14 @@ void Procedures::EditImage(QMap<QString,QVariant> doc, QString titre, UpDialog::
     globallay->insertWidget(0,uptable);
 
     gAsk->AjouteLayButtons(Button);
-    connect(gAsk->OKButton, SIGNAL(clicked(bool)),  gAsk,       SLOT(accept()));
+    connect(gAsk->OKButton, &QPushButton::clicked, this, [=] {gAsk->accept();});
     if (Button.testFlag(UpDialog::ButtonPrint))
-        connect(gAsk->PrintButton, SIGNAL(clicked(bool)),  this,       SIGNAL(PrintImage()));
+    {
+        gAsk->PrintButton->setLuggage(doc);
+        connect(gAsk->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), [=](QVariant) {PrintImage(doc);});
+    }
     if (Button.testFlag(UpDialog::ButtonSuppr))
-        connect(gAsk->SupprButton, SIGNAL(clicked(bool)),  this,       SIGNAL(DeleteImage()));
+        connect(gAsk->SupprButton, &QPushButton::clicked, this, [=] {emit DelImage();});
 
     int x = qApp->desktop()->availableGeometry().width();
     int y = qApp->desktop()->availableGeometry().height();
@@ -1129,6 +1152,101 @@ void Procedures::EditImage(QMap<QString,QVariant> doc, QString titre, UpDialog::
 
     gAsk->exec();
     delete gAsk;
+}
+
+/*!
+ * \brief Procedures::PrintImage
+ * imprime le contenu d'un fichier image de type pdf ou jpg
+ * argument QMap<QString,QVariant> doc contient 2 éléments
+    . ba = le QByteArray contenant les données
+    . type = jpg ou pdf
+ */
+bool Procedures::PrintImage(QMap<QString,QVariant> doc)
+{
+    bool AvecPrevisu = true;
+    QByteArray ba = doc.value("ba").toByteArray();
+    if (doc.value("type").toString() == PDF)     // le document est un pdf ou un document texte
+    {
+        Poppler::Document* document = Poppler::Document::loadFromData(ba);
+        if (!document || document->isLocked()) {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
+            delete document;
+            return false;
+        }
+        if (document == Q_NULLPTR) {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
+            delete document;
+            return false;
+        }
+
+        document->setRenderHint(Poppler::Document::TextAntialiasing);
+        int numpages = document->numPages();
+        for (int i=0; i<numpages ;i++)
+        {
+            Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
+            if (pdfPage == Q_NULLPTR) {
+                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
+                delete document;
+                return false;
+            }
+            QImage image = pdfPage->renderToImage(600,600);
+            if (image.isNull()) {
+                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
+                delete document;
+                return false;
+            }
+            // ... use image ...
+            if (i == 0)
+            {
+                if (AvecPrevisu)
+                {
+                    QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer);
+                    connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer, image);});
+                    dialog->exec();
+                    delete dialog;
+                }
+                else
+                {
+                    QPrintDialog *dialog = new QPrintDialog(printer);
+                    if (dialog->exec() != QDialog::Rejected)
+                        Print(printer, image);
+                    delete dialog;
+                }
+            }
+            else
+                Print(printer, image);
+            delete pdfPage;
+        }
+        delete document;
+    }
+    if (doc.value("type").toString() == JPG)     // le document est un jpg
+    {
+        QPixmap pix;
+        pix.loadFromData(ba);
+        QImage image= pix.toImage();
+        if (AvecPrevisu)
+        {
+            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer);
+            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer, image);});
+            dialog->exec();
+            delete dialog;
+        }
+        else
+        {
+            QPrintDialog *dialog = new QPrintDialog(printer);
+            if (dialog->exec() != QDialog::Rejected)
+                Print(printer, image);
+            delete dialog;
+        }
+    }
+    return true;
+}
+
+void Procedures::Print(QPrinter *Imprimante, QImage image)
+{
+    QPainter PrintingPreView(Imprimante);
+    QPixmap pix = QPixmap::fromImage(image).scaledToWidth(int(rect.width()),Qt::SmoothTransformation);
+    PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

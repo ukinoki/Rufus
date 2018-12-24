@@ -54,7 +54,7 @@ private:
     void            AjouteLay();
     void            closeEvent(QCloseEvent *);
     void            UpdateTabOrder();
-    int             stageheight = 25;
+    double          stageheight = 35;
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton;
@@ -67,7 +67,7 @@ public:
     QVBoxLayout*    dlglayout();
     QHBoxLayout*    buttonslayout();
     QWidget*        widgetbuttons();
-    void            setStageCount(int stage =  0);
+    void            setStageCount(double stage =  0);
 
     QObject     *mData;
 };

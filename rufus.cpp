@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("21-12-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("24-12-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2847,9 +2847,8 @@ void Rufus::AfficheCourriersAFaire()
         return;
     }
     gAskListPatients = new UpDialog();
-    QVBoxLayout     *globallay          = dynamic_cast<QVBoxLayout*>(gAskListPatients->layout());
     QTableView      *tabCourriers              = new QTableView();
-    globallay       ->insertWidget(0,tabCourriers);
+    gAskListPatients->dlglayout()       ->insertWidget(0,tabCourriers);
     gAskListPatients->AjouteLayButtons(UpDialog::ButtonClose);
     connect(gAskListPatients->CloseButton,     &QPushButton::clicked,   [=] {gAskListPatients->accept();});
 
@@ -2857,6 +2856,7 @@ void Rufus::AfficheCourriersAFaire()
     lbl->setText(tr("Double clic ou clic droit\nsur un dossier pour l'ouvrir"));
     lbl->setAlignment(Qt::AlignCenter);
     gAskListPatients->AjouteWidgetLayButtons(lbl, false);
+    gAskListPatients->setStageCount(1.2);
 
     gAskListPatients->setModal(true);
     gAskListPatients->setSizeGripEnabled(false);
@@ -2899,7 +2899,7 @@ void Rufus::AfficheCourriersAFaire()
     tabCourriers->setColumnWidth(2,0);
     tabCourriers->setFixedWidth(tabCourriers->columnWidth(0)+tabCourriers->columnWidth(1)+tabCourriers->columnWidth(2)+2);
     gAskListPatients->setFixedWidth(tabCourriers->width()
-                        + globallay->contentsMargins().left()*2);
+                        + gAskListPatients->dlglayout()->contentsMargins().left()*2);
     connect(tabCourriers, &QWidget::customContextMenuRequested, [=]
     {
         QPoint tbpos    = tabCourriers->mapFromGlobal(cursor().pos());
@@ -3472,6 +3472,7 @@ QStringList Rufus::MotifMessage(QString motif, QString Message, QTime heurerdv)
     gAsk->AjouteWidgetLayButtons(HeureRDV, false);
     gAsk->AjouteWidgetLayButtons(HeureTitre, false);
     gAsk->AjouteLayButtons(UpDialog::ButtonOK);
+    gAsk->setStageCount(1);
 
     motiflayout->addLayout(soignantlayout);
     motiflayout->addWidget(grpBox);

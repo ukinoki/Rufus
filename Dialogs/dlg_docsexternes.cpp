@@ -109,6 +109,7 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
     sw                  = new UpSwitch(this);
     AjouteWidgetLayButtons(sw, false);
     AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
+    setStageCount(1);
 
 
     hdelta          = 0;

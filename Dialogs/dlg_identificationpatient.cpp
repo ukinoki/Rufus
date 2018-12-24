@@ -48,6 +48,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString CreationModificatio
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     OKButton                ->setText(tr("Enregistrer"));
     CancelButton            ->setText(tr("Annuler"));
+    setStageCount(2);
     buttonslayout()         ->insertLayout(0, vlay);
     globallay               ->setSizeConstraint(QLayout::SetFixedSize);
 

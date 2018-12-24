@@ -34,6 +34,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QPlainTextEdit>
+#include <QPainter>
 #include <QPrinter>
 #include <QPrintPreviewDialog>
 #include <QPrintDialog>
@@ -101,6 +102,7 @@ public:
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
     void                    EditImage(QMap<QString, QVariant> doc, QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
+    bool                    PrintImage(QMap<QString, QVariant> doc);
     bool                    FicheChoixConnexion();
     QString                 getDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
     int                     GetflagMG();
@@ -250,8 +252,7 @@ signals:
     void                    UpdDocsExternes();
     void                    ModifEdit(QString txt);
     void                    ConnectTimers(bool);
-    void                    PrintImage();
-    void                    DeleteImage();
+    void                    DelImage();
 
 private:
     bool                    initOK;
@@ -274,6 +275,9 @@ private:
     Villes                  *m_villes = nullptr;
     UpDialog                *gAskLogin, *gAskUser;
     UpTableWidget           *uptable;
+    QPrinter                *printer;
+    QRectF                  rect;
+    void                    Print(QPrinter*, QImage image);
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(User &user);

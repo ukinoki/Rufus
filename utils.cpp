@@ -327,3 +327,4 @@ bool Utils::VerifMDP(QString MDP, QString Msg, bool mdpverified)
     return false;
 }
 
+double Utils::mmToInches(double mm )  { return mm * 0.039370147; }

@@ -53,6 +53,7 @@ dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, QWidget *parent
         tabLM->setSelectionBehavior(QAbstractItemView::SelectRows);
         connect (SupprButton,   SIGNAL(clicked()),  this, SLOT (Slot_Validation()) );
     }
+    setStageCount(1);
 
     RemplirTableView();
     tabLM->verticalHeader()->setVisible(false);

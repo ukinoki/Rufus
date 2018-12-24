@@ -48,14 +48,15 @@ void UpTableWidget::dropEvent(QDropEvent *drop)
     emit dropsignal(encodedData);
 }
 
-/*---------------------------------------------------------------------------------------------------------------------
-    -- Affichage d'un document pdf ou jpg dans un QTableWidegt
-le QMap contient 2 arguments
-. ba = le QByteArray contenant les données
-. type = jpg ou pdf
-renvoie
-. le Qlist<QImage> des images affichées dans la QTableWidget dabs leurs tailles d'origine
------------------------------------------------------------------------------------------------------------------*/
+/*!
+ * \brief UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom)
+ * Affichage d'un document pdf ou jpg dans un QTableWidegt
+ * argument QMap<QString,QVariant> doc contient 2 éléments
+    . ba = le QByteArray contenant les données
+    . type = jpg ou pdf
+ * renvoie le Qlist<QImage> des images affichées dans la QTableWidget dans leurs tailles d'origine
+ */
+
 QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom)
 {
     QList<QImage> listimage = QList<QImage>();

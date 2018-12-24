@@ -38,12 +38,11 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     gPrenomCor      = "";
     modif           = false;
 
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
-    globallay               ->insertWidget(0,ui->SpegroupBox);
-    globallay               ->insertWidget(0,ui->Principalframe);
+    dlglayout()     ->insertWidget(0,ui->SpegroupBox);
+    dlglayout()     ->insertWidget(0,ui->Principalframe);
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);;
     AjouteWidgetLayButtons(ui->idDossierlabel, false);
-    globallay               ->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     QFont font = qApp->font();
     font.setBold(true);
     ui->PrenomlineEdit->setFont(font);
@@ -106,6 +105,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
     CancelButton->setText(tr("Annuler"));
+    setStageCount(1);
 
     QSqlQuery quer("select distinct corautreprofession from " NOM_TABLE_CORRESPONDANTS " where corautreprofession is not NULL", db);
     if (quer.size()>0)

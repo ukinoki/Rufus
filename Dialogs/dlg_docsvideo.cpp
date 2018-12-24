@@ -106,6 +106,7 @@ dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
     inflabel->setFont(font);
 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
+    setStageCount(2);
     connect(OKButton,           &QPushButton::clicked, [=] {ValideFiche();});
     connect(dirsearchbutton,    &QPushButton::clicked, [=] {ChangeFile();});
 

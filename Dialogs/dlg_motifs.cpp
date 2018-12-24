@@ -34,6 +34,7 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     OKButton                ->setText(tr("Enregistrer\nles modifications"));
     CancelButton            ->setText(tr("Annuler"));
+    setStageCount(1);
 
     ui->MotifsupTableWidget ->setPalette(QPalette(Qt::white));
     ui->MotifsupTableWidget ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

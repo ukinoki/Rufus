@@ -166,7 +166,7 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     uptable->installEventFilter(this);
     setModal(true);
     setMinimumWidth(650);
-    setStageCount(3);
+    setStageCount(2);
     int w = width() - globallay->contentsMargins().left() - globallay->contentsMargins().right();
     int y = height() - globallay->contentsMargins().top() - globallay->contentsMargins().bottom() - globallay->spacing()  - widgetbuttons()->height();
     uptable->resize(w, y);

@@ -198,7 +198,10 @@ int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons
                 msgbox->disconnect(butt);
             connect(butt, &QPushButton::clicked, msgbox, [=] {msgbox->Repons(butt);});
             if (butt->ButtonStyle() == UpSmallButton::STARTBUTTON)
+            {
                 butt->setText("OK");
+                msgbox->setStageCount(1);
+            }
         }
     }
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
@@ -219,6 +222,8 @@ int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Butt
     msgbox  ->setInformativeText(InfoText);
     msgbox  ->setIcon(UpMessageBox::Quest);
     msgbox  ->AjouteLayButtons(Butts);
+    if (textlist.size()>0)
+        msgbox->setStageCount(1);
     int k = 0;
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
     {

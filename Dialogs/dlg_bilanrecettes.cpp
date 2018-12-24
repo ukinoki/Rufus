@@ -95,6 +95,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     ExportButt->setIconSize(QSize(l,l));
     AjouteWidgetLayButtons(ExportButt,false);
     AjouteWidgetLayButtons(ChxPeriodButt, false);
+    setStageCount(1);
 
     glblbox = new QHBoxLayout();
     glblbox->addLayout(box);

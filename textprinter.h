@@ -58,9 +58,9 @@ public:
     explicit                TextPrinter(QObject *parent = Q_NULLPTR);
     ~TextPrinter();
 
-    bool                    print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true, bool QueLePdf = false);           // Print the document
-    void                    exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString()); // Export the document to PDF
-    bool                    preview(const QTextDocument *document, QString ficpdf = QString(), const QString &caption=QString());                                      // Display the document in a preview dialog
+    bool                    print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true, bool QueLePdf = false);   // Print the document
+    void                    exportPdf(const QTextDocument *document, const QString &caption=QString(), const QString &filename=QString());                              // Export the document to PDF
+    bool                    preview(const QTextDocument *document, QString ficpdf = QString(), const QString &caption=QString());                                       // Display the document in a preview dialog
 
     QPrinter::PageSize      pageSize() const;                                                                   // Get page size
     void                    setPageSize(QPrinter::PageSize size);                                               // Set page size

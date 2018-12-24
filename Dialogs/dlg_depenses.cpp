@@ -17,7 +17,6 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_depenses.h"
 
-static inline double mmToInches(double mm) { return mm * 0.039370147; }
 
 dlg_depenses::dlg_depenses(QWidget *parent) :
     QDialog(parent),
@@ -123,15 +122,6 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     for (int n = 0; n <  allUpButtons.size(); n++)
         allUpButtons.at(n)->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Mid);
     ui->GestionComptesupPushButton->resize(290,48);
-
-    int margemm         = proc->TailleTopMarge(); // exprimé en mm
-    printer             = new QPrinter(QPrinter::HighResolution);
-    printer             ->setFullPage(true);
-    rect                = printer->paperRect();
-    rect.adjust(mmToInches(margemm) * printer->logicalDpiX(),
-                mmToInches(margemm) * printer->logicalDpiY(),
-                -mmToInches(margemm) * printer->logicalDpiX(),
-                -mmToInches(margemm) * printer->logicalDpiY());
 
     DefinitArchitectureBigTable();
 
@@ -771,8 +761,7 @@ void dlg_depenses::GestionComptes()
 
 void dlg_depenses::ZoomDoc()
 {
-    connect (proc, &Procedures::PrintImage, this, &dlg_depenses::ImprimeFacture);
-    connect (proc, &Procedures::DeleteImage, this, &dlg_depenses::SupprimeFacture);
+    connect (proc, &Procedures::DelImage, this, &dlg_depenses::SupprimeFacture);
     QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
     proc->EditImage(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
@@ -782,94 +771,6 @@ void dlg_depenses::ZoomDoc()
 void dlg_depenses::SupprimeFacture()
 {
     UpMessageBox::Question(this, tr("Suppression de facture"), tr("Supprimer la facture ") + m_depenseencours->objet() + "?");
-}
-
-void dlg_depenses::Print(QPrinter *Imprimante, QImage image)
-{
-    QPainter PrintingPreView(Imprimante);
-    QPixmap pix         = QPixmap::fromImage(image).scaledToWidth(int(rect.width()),Qt::SmoothTransformation);
-    PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
-}
-
-bool dlg_depenses::ImprimeFacture()
-{
-    bool AvecPrevisu = true;
-    QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
-    QByteArray bapdf = doc.value("ba").toByteArray();
-    if (doc.value("type").toString() == PDF)     // le document est un pdf ou un document texte
-    {
-        Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-        if (!document || document->isLocked()) {
-            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-            delete document;
-            return false;
-        }
-        if (document == Q_NULLPTR) {
-            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-            delete document;
-            return false;
-        }
-
-        document->setRenderHint(Poppler::Document::TextAntialiasing);
-        int numpages = document->numPages();
-        for (int i=0; i<numpages ;i++)
-        {
-            Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
-            if (pdfPage == Q_NULLPTR) {
-                UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return false;
-            }
-            QImage image = pdfPage->renderToImage(600,600);
-            if (image.isNull()) {
-                UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return false;
-            }
-            // ... use image ...
-            if (i == 0)
-            {
-                if (AvecPrevisu)
-                {
-                    QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
-                    connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer, image);});
-                    dialog->exec();
-                    delete dialog;
-                }
-                else
-                {
-                    QPrintDialog *dialog = new QPrintDialog(printer, this);
-                    if (dialog->exec() != QDialog::Rejected)
-                        Print(printer, image);
-                    delete dialog;
-                }
-            }
-            else
-                Print(printer, image);
-            delete pdfPage;
-        }
-        delete document;
-    }
-    if (doc.value("type").toString() == JPG)     // le document est un jpg
-    {
-        QPixmap pix;
-        pix.loadFromData(bapdf);
-        QImage image= pix.toImage();
-        if (AvecPrevisu)
-        {
-            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
-            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer, image);});
-            dialog->exec();
-            delete dialog;
-        }
-        else
-        {
-            QPrintDialog *dialog = new QPrintDialog(printer, this);
-            if (dialog->exec() != QDialog::Rejected)
-                Print(printer, image);
-            delete dialog;
-        }
-    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

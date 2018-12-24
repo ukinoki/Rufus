@@ -38,18 +38,14 @@ UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 
 void UpDialog::AjouteLay()
 {
-    stageheight     = 35;
-    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(this->layout());
-    if (globallay == Q_NULLPTR)
-        globallay = new QVBoxLayout(this);
-    globallay       ->setContentsMargins(10,10,10,10);
-    globallay       ->setSpacing(5);
+    stageheight = 40;
     widgbuttons     = new QWidget();
     laybuttons      = new QHBoxLayout();
     laybuttons      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
+    laybuttons      ->setContentsMargins(0,10,0,10);
     laybuttons      ->setSpacing(20);
     widgbuttons     ->setLayout(laybuttons);
-    globallay       ->addWidget(widgbuttons);
+    dlglayout()     ->addWidget(widgbuttons);
 }
 void UpDialog::AjouteLayButtons(Buttons Button)
 {
@@ -97,7 +93,7 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         laybuttons      ->addWidget(CloseButton);
     }
     UpdateTabOrder();
-    setStageCount(1);
+    setStageCount(0.7);
 }
 
 QVBoxLayout* UpDialog::dlglayout()
@@ -107,7 +103,7 @@ QVBoxLayout* UpDialog::dlglayout()
     {
         globallay = new QVBoxLayout(this);
         globallay       ->setContentsMargins(10,10,10,10);
-        globallay       ->setSpacing(5);
+        globallay       ->setSpacing(0);
     }
     return globallay;
 }
@@ -122,9 +118,18 @@ QWidget* UpDialog::widgetbuttons()
     return widgbuttons;
 }
 
-void UpDialog::setStageCount(int nbstages)
+/*!
+ * \brief UpDialog::setStageCount(double nbstages)
+ * permet de fixer grossièrement le hauteur du widget contenant les buttons
+ * de manière à connaître cette valeur à l'avance, avant l'affichage de la fiche
+ * si que des upsmallbutton sans texte nbstages = 0.6
+ * avec des upsmallbuttons et du texte nbstages = 1
+ * et plus si des widgets de plus grande taille dans le widget de buttons
+ * à déterminer à chaque fois pifométriquement
+ */
+void UpDialog::setStageCount(double nbstages)
 {
-    widgbuttons->setFixedHeight((stageheight * nbstages) + laybuttons->contentsMargins().bottom() +laybuttons->contentsMargins().top());
+    widgbuttons->setFixedHeight(int(stageheight * nbstages) + laybuttons->contentsMargins().bottom() +laybuttons->contentsMargins().top());
 }
 
 void UpDialog::UpdateTabOrder()
