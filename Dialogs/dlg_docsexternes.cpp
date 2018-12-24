@@ -67,7 +67,7 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
     ScrollTable         ->setFocusPolicy(Qt::NoFocus);
     ScrollTable         ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
     ScrollTable         ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    ScrollTable     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+    ScrollTable         ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
 
     GraphicView         = new QGraphicsView(Scene, this);
     GraphicView         ->installEventFilter(this);

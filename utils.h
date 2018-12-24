@@ -38,6 +38,7 @@ public:
     static void Pause(int msec = 1000);
     static QString convertHTML(QString text);
 
+    static QString retirecaracteresaccentues(QString nom);
     static QString trim(QString text, bool end=true, bool removereturnend = false);
     static QString capitilize(QString text);
     static QString trimcapitilize(QString, bool end = true, bool maj = true, bool lower = true);

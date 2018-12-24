@@ -25,24 +25,36 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     gMode           = mode;
     db              = DataBase::getInstance();
     QString         NomOnglet;
-    if (db->getMode() == DataBase::Poste)
+    QString Base;
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    AccesDistant = (db->getMode()==DataBase::Distant);
+    switch (db->getMode()) {
+    case DataBase::Poste:
     {
         NomOnglet = tr("Monoposte");
         QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, db->getDataBase());
         dirquer.first();
         NomDirStockageImagerie = dirquer.value(0).toString();
+        Base = "BDD_POSTE";
+        break;
     }
-    if (db->getMode() == DataBase::ReseauLocal)
+    case DataBase::Distant:
     {
+        Base = "BDD_DISTANT";
         NomOnglet = tr("Réseau local");
         NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
+        break;
     }
-    if (db->getMode() == DataBase::Distant)
+    case DataBase::ReseauLocal:
     {
+        Base = "BDD_LOCAL";
         NomOnglet = tr("Accès distant");
         NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_DISTANT/DossierImagerie").toString();
+        break;
     }
-
+    default:
+        break;
+    }
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
@@ -53,28 +65,12 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
         initOK = false;
         return;
     }
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-    QString Base;
-    AccesDistant = (db->getMode()==DataBase::Distant);
-    switch (db->getMode()) {
-    case DataBase::Poste:
-        Base = "BDD_POSTE";
-        break;
-    case DataBase::Distant:
-        Base = "BDD_DISTANT";
-        break;
-    case DataBase::ReseauLocal:
-        Base = "BDD_LOCAL";
-        break;
-    default:
-        break;
-    }
 
     docpath = proc->gsettingsIni->value(Base + "/DossiersDocsScannes").toString();
     if (!QDir(docpath).exists())
         docpath = QDir::homePath();
     uptable         = new UpTableWidget(this);
-    inflabel        = new UpLabel(uptable);
+    inflabel        = new QLabel(uptable);
     linetitre       = new UpLineEdit(this);
     editdate        = new QDateEdit(this);
     typeDocCombo    = new UpComboBox(this);
@@ -157,26 +153,26 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
 
     globallay   ->insertWidget(0,uptable);
 
-    QFont font = qApp->font();
-    font.setPointSize(12);
-    inflabel->setFont(font);
-
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     connect(OKButton,           &QPushButton::clicked, [=] {ValideFiche();});
     connect(dirsearchbutton,    &QPushButton::clicked, [=] {ChangeFile();});
 
-    laybuttons->insertLayout(0,rsgnmtVlay);
+    buttonslayout()->insertLayout(0,rsgnmtVlay);
 
-    laybuttons->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
 
-    laybuttons->insertLayout(0, dirVlay);
-
+    buttonslayout()->insertLayout(0, dirVlay);
+    uptable->resize(uptable->sizeHint());
     uptable->installEventFilter(this);
     setModal(true);
     setMinimumWidth(650);
-    globallay->setStretch(0,10);
-    globallay->setStretch(1,1);
+    setStageCount(3);
+    int w = width() - globallay->contentsMargins().left() - globallay->contentsMargins().right();
+    int y = height() - globallay->contentsMargins().top() - globallay->contentsMargins().bottom() - globallay->spacing()  - widgetbuttons()->height();
+    uptable->resize(w, y);
     initOK = true;
+    //Utils::Pause(10);
+    NavigueVers("Fin");
 }
 
 dlg_docsscanner::~dlg_docsscanner()
@@ -219,11 +215,15 @@ void dlg_docsscanner::NavigueVers(QString but)
         QByteArray bapdf = qFile.readAll();
         QString suffixe = QFileInfo(qFile).suffix().toLower();
         qFile.close ();
-        doc["type"]    = suffixe;
-        doc["ba"]      = bapdf;
-        doc["lien"]    = docpath + "/" + fichierimageencours;
-        doc["titre"]   = fichierimageencours;
-        proc->AfficheDoc(uptable, doc);
+        doc["ba"]   = bapdf   ;
+        doc["type"] = suffixe;
+        glistImg = uptable->AfficheDoc(doc);
+        inflabel    ->setText("<font color='magenta'>" + fichierimageencours + "</font>");
+        QFont font = qApp->font();
+        font.setPointSize(12);
+        inflabel->setFont(font);
+        Utils::Pause(10);  //force la maj de l'affichage sinon le calcul de la hauteur pour le placement du qlabel est faux
+        inflabel    ->setGeometry(10,uptable->height()-40,350,25);
     }
 }
 
@@ -252,11 +252,14 @@ void dlg_docsscanner::ChangeFile()
         QByteArray bapdf = qFile.readAll();
         QString suffixe = QFileInfo(qFile).suffix().toLower();
         qFile.close ();
-        doc["type"]    = suffixe;
-        doc["ba"]      = bapdf;
-        doc["lien"]    = docpath + "/" + fichierimageencours;
-        doc["titre"]   = fichierimageencours;
-        proc->AfficheDoc(uptable, doc);
+        doc["ba"]   = bapdf   ;
+        doc["type"] = suffixe;
+        glistImg = uptable->AfficheDoc(doc);
+        inflabel    ->setText("<font color='magenta'>" + fichierimageencours + "</font>");
+        QFont font = qApp->font();
+        font.setPointSize(12);
+        inflabel->setFont(font);
+        inflabel    ->setGeometry(10,uptable->viewport()->height()-40,350,25);
         QString Base;
         if (db->getMode() == DataBase::Poste)
             Base = "BDD_POSTE";
@@ -309,41 +312,39 @@ void dlg_docsscanner::ValideFiche()
 
     // enregistrement du document ----------------------------------------------------------------------------------------------------------------------------------------------
     QString filename = docpath + "/" + fichierimageencours;
-    QFile   qFile(filename);
-    if (!qFile.open( QIODevice::ReadOnly ))
+    QFile   qFileOrigin(filename);
+    if (!qFileOrigin.open( QIODevice::ReadOnly ))
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Erreur d'accès au fichier:"), filename);
         return;
     }
-    QString suffixe = QFileInfo(qFile).suffix().toLower();
+    QString suffixe = QFileInfo(qFileOrigin).suffix().toLower();
     if (suffixe == "jpeg")
         suffixe= "jpg";
-    QByteArray bapdf = qFile.readAll();
-    QString bbb = QDir::homePath() + NOMDIR_RUFUS;
-    QString nomfichresize = bbb + "/resize" + "." + suffixe;
-    qFile.copy(nomfichresize);
-    QFile fich(nomfichresize);
-    qint64 sz = fich.size();
+    QByteArray ba = qFileOrigin.readAll();
+    QString nomfichresize = QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES + "/resize" + "." + suffixe;
+    qFileOrigin.copy(nomfichresize);
+    QFile fichCopy(nomfichresize);
+    qint64 sz = fichCopy.size();
     if (suffixe == "jpg" && sz > TAILLEMAXIIMAGES)
     {
         QImage img(filename);
         QPixmap pixmap;
-        QFile fich(docpath + "/resize.jpg");
         int tauxcompress = 100;
         while (sz > TAILLEMAXIIMAGES && tauxcompress > 10)
         {
             pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
-            fich.remove();
-            pixmap.save(docpath + "/resize.jpg", "jpeg",tauxcompress);
-            fich.open(QIODevice::ReadWrite);
-            sz = fich.size();
+            fichCopy.remove();
+            pixmap.save(QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES + "/resize.jpg", "jpeg",tauxcompress);
+            fichCopy.open(QIODevice::ReadWrite);
+            sz = fichCopy.size();
             if (sz > TAILLEMAXIIMAGES)
             {
-                fich.close();
+                fichCopy.close();
                 tauxcompress -= 10;
             }
         }
-        bapdf = fich.readAll();
+        ba = fichCopy.readAll();
     }
     QString datetransfer            = QDate::currentDate().toString("yyyy-MM-dd");
     QString iduser                  = Datas::I()->users->getLoginById(Datas::I()->depenses->getDepenseById(iditem)->iduser());
@@ -412,7 +413,7 @@ void dlg_docsscanner::ValideFiche()
             query.bindValue(":titre",           typeDocCombo->currentText());
             query.bindValue(":dateimpression",  editdate->date().toString("yyyy-MM-dd") + " 00:00:00");
             query.bindValue(":useremetteur",    QString::number(db->getUserConnected()->id()));
-            query.bindValue(":doc",             bapdf);
+            query.bindValue(":doc",             ba);
             query.bindValue(":emisrecu",        "1");
             query.bindValue(":formatdoc",       DOCUMENTRECU);
             query.bindValue(":lieu",            QString::number(proc->getUserConnected()->getSite()->id()) );
@@ -439,7 +440,7 @@ void dlg_docsscanner::ValideFiche()
             query.bindValue(":idfact",      QString::number(idimpr));
             query.bindValue(":echeancier",  (gMode== Echeancier? "1" : QVariant(QVariant::String)));
             query.bindValue(":user",        QString::number(iditem) );
-            query.bindValue(":doc",         bapdf);
+            query.bindValue(":doc",         ba);
         }
         datafacture["idfacture"] = idimpr;
         datafacture["lien"] = "/" + iduser + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
@@ -451,20 +452,20 @@ void dlg_docsscanner::ValideFiche()
     if(!b)
     {
         UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
-        qFile.close ();
+        qFileOrigin.close ();
     }
     else
     {
         QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
-        fich.copy(CheminOKTransfrDoc);
-        fich.remove();
+        fichCopy.copy(CheminOKTransfrDoc);
+        fichCopy.remove();
         QFile CC(CheminOKTransfrDoc);
         CC.open(QIODevice::ReadWrite);
         CC.setPermissions(QFileDevice::ReadOther
                           | QFileDevice::ReadGroup
                           | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                           | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-        qFile.remove();
+        qFileOrigin.remove();
         QString msg;
         switch (gMode) {
         case Document:      msg = tr("Document ") + sstypedoc +  tr(" enregistré");     break;
@@ -487,10 +488,11 @@ bool dlg_docsscanner::eventFilter(QObject *obj, QEvent *event)
             for (int i=0; i < uptable->rowCount(); i++)
             {
                 UpLabel *lbl = static_cast<UpLabel*>(uptable->cellWidget(i,0));
-                lbl->setPixmap(glistPix.at(i).scaled(uptable->width()-2, uptable->height()-2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
-                uptable->setRowHeight(i,lbl->pixmap()->height());
+                QPixmap  pix = QPixmap::fromImage(glistImg.at(i).scaled(uptable->width()-2,uptable->height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation));
+                lbl->setPixmap(pix);
+                uptable->setRowHeight(i,pix.height());
             }
-            inflabel->move(10,uptable->viewport()->height()-30);
+            inflabel    ->move(10,uptable->viewport()->height()-40);
         }
     }
     return QWidget::eventFilter(obj, event);

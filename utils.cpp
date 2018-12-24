@@ -188,6 +188,26 @@ QString Utils::trimcapitilize(QString text, bool end, bool maj, bool lower)
     return text;
 }
 
+QString Utils::retirecaracteresaccentues(QString nom)
+{
+    nom.replace(QRegExp("[éêëè]"),"e");
+    nom.replace(QRegExp("[ÉÈÊË]"),"E");
+    nom.replace(QRegExp("[àâ]"),"a");
+    nom.replace(QRegExp("[ÂÀ]"),"A");
+    nom.replace(QRegExp("[îï]"),"i");
+    nom.replace(QRegExp("[ÏÎ]"),"I");
+    nom.replace(QRegExp("[ôö]"),"o");
+    nom.replace(QRegExp("[ÔÖ]"),"O");
+    nom.replace("ù","u");
+    nom.replace("Ù","U");
+    nom.replace("ç","c");
+    nom.replace("Ç","C");
+    nom.replace("Œ","OE");
+    nom.replace("œ","oe");
+    return nom;
+}
+
+
 /*!
  * \brief Utils::dir_size
  * Cette fonction va renvoyer le nombre de fichiers contenu dans un dossier ainsi que le volume du dossier

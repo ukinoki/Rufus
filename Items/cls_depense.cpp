@@ -32,6 +32,7 @@ int     Depense::nocheque() const       { return  m_nocheque;}
 int     Depense::idfacture() const      { return  m_idfacture;}
 QString Depense::lienfacture() const    { return  m_lienfacture;}
 bool    Depense::isecheancier() const   { return  m_echeancier;}
+QString Depense::objetecheancier() const{ return  m_objetecheancier;}
 int     Depense::annee()                { return  m_datedepepense.toString("yyyy").toInt();}
 int     Depense::isArchivee()           { return  m_auxarchives;}
 
@@ -66,6 +67,7 @@ void Depense::setData(QJsonObject data)
     setDataInt(data, "idfacture", m_idfacture);
     setDataString(data, "lienfacture", m_lienfacture);
     setDataBool(data, "echeancier", m_echeancier);
+    setDataString(data, "objetecheancier", m_objetecheancier);
 }
 
 

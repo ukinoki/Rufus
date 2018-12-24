@@ -23,7 +23,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMouseEvent>
 #include <QDropEvent>
 #include <QMimeData>
-#include <QMessageBox>
+#include "upmessagebox.h"
+#include "poppler-qt5.h"
 
 
 class UpTableWidget : public QTableWidget
@@ -32,26 +33,28 @@ class UpTableWidget : public QTableWidget
 public:
     explicit UpTableWidget(QWidget *parent = Q_NULLPTR);
 
-    void        clearSelection();
-    int         FixLargeurTotale();
-    QString     Attribut();
-    void        setAttribut(QString attrib);
-    int         rowNoHiddenCount();
-    int         FirstRowNoHidden();
-    int         LastRowNoHidden();
-    void        selectRow(int row);
-    QByteArray  dropData();
+    QList<QImage>   AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom = false);
+    void            clearSelection();
+    int             FixLargeurTotale();
+    QString         Attribut();
+    void            setAttribut(QString attrib);
+    int             rowNoHiddenCount();
+    int             FirstRowNoHidden();
+    int             LastRowNoHidden();
+    void            selectRow(int row);
+    QByteArray      dropData();
 
 private:
-    QString     Attrib;
-    QByteArray  encodedData;
+    QString         Attrib;
+    QByteArray      encodedData;
 
 protected:
-    void        dropEvent(QDropEvent *) Q_DECL_OVERRIDE;
+    void            dropEvent(QDropEvent *) Q_DECL_OVERRIDE;
 
 signals:
-    void        dropsignal(QByteArray);
-
+    void            dropsignal(QByteArray);
+    void            zoom();             // ce signal génère l'affichage de le table dans une fenêtre spécifique en taille maxi
+                                        // utilisé pour affiché une image, un document pdf ou une video en grande taille
 };
 
 #endif // UPTABLEWIDGET_H

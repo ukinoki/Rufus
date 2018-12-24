@@ -715,7 +715,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
     QList<Depense*> depenses;
     QString req = "SELECT idDep, DateDep , RefFiscale, Objet, Montant,"
                         " FamFiscale, Monnaie, idRec, ModePaiement, Compte,"
-                        " NoCheque, dep.idFacture, LienFichier, Echeancier"
+                        " NoCheque, dep.idFacture, LienFichier, Echeancier, Intitule"
                         " FROM " NOM_TABLE_DEPENSES " dep left join " NOM_TABLE_FACTURES " fac on dep.idFacture = fac.idFacture"
                         " WHERE dep.idUser = " + QString::number(idUser);
     QSqlQuery query (req,getDataBase());
@@ -740,6 +740,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
         jData["idfacture"]      = query.value(11).toInt();
         jData["lienfacture"]    = query.value(12).toString();
         jData["echeancier"]     = (query.value(13).toInt()==1);
+        jData["objetecheancier"]= query.value(14).toString();
         Depense *dep = new Depense(jData);
         depenses << dep;
     } while( query.next() );

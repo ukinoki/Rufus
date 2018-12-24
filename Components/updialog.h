@@ -49,19 +49,25 @@ private:
     QString         Boutons;
     QString         NomFichIni;
     QSettings       *SettingsIni;
+    QHBoxLayout     *laybuttons;
+    QWidget         *widgbuttons;
     void            AjouteLay();
     void            closeEvent(QCloseEvent *);
     void            UpdateTabOrder();
+    int             stageheight = 25;
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton;
-    QHBoxLayout     *laybuttons;
     void            setEnregPosition(bool);
     void            AjouteLayButtons(Buttons Button=ButtonOK);
     void            AjouteWidgetLayButtons(QWidget *widg, bool ALaFin = true);
     void            setMode(QString);
     void            TuneSize();
     QString         mode();
+    QVBoxLayout*    dlglayout();
+    QHBoxLayout*    buttonslayout();
+    QWidget*        widgetbuttons();
+    void            setStageCount(int stage =  0);
 
     QObject     *mData;
 };

@@ -48,6 +48,7 @@ private: //Données de la dépense
     QString m_lienfacture;      //!< l'emplacement de la facture ou de l'échéancier correspondant sur le disque dur
     bool m_echeancier;          //!< bool -> true = echeancier - false = facture
     int m_auxarchives;          //!< depense par operation bancaire consolidée
+    QString m_objetecheancier;  //!< l'intitule de l'échéancier correspondant sur le disque dur
 
 public:
     enum m_auxarchives {NoLoSo, Oui, Non};
@@ -67,6 +68,7 @@ public:
     int     idfacture() const;
     QString lienfacture() const;
     bool    isecheancier() const;
+    QString objetecheancier() const;
     int     annee();
     int     isArchivee();
 

@@ -48,7 +48,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString CreationModificatio
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     OKButton                ->setText(tr("Enregistrer"));
     CancelButton            ->setText(tr("Annuler"));
-    laybuttons              ->insertLayout(0, vlay);
+    buttonslayout()         ->insertLayout(0, vlay);
     globallay               ->setSizeConstraint(QLayout::SetFixedSize);
 
     ui->DDNdateEdit     ->setDateRange(QDate::currentDate().addYears(-105),QDate::currentDate());

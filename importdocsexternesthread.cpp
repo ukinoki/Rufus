@@ -288,6 +288,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                 // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
                 QByteArray ba;
                 QFile FichierResize;
+                QString nomfichresize = NomDirStockageProv + "/resize" + QString::number(itr) + "_" + QString::number(k) + ".jpg";
                 QString szorigin, szfinal;
                 QStringList listfichresize = QDir(NomDirStockageProv).entryList(QDir::Files | QDir::NoDotAndDotDot);
                 for (int t=0; t<listfichresize.size(); t++)
@@ -298,19 +299,17 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                 }
                 if (FichierImage.open(QIODevice::ReadOnly))
                 {
-                    ba = FichierImage.readAll();
-                    //proc->Edit(ba);
                     double sz = FichierImage.size();
                     if (sz/(1024*1024) > 1)
                         szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
                     else
                         szorigin = QString::number(sz/1024,'f',1) + "Ko";
                     szfinal = szorigin;
-                    QString nomfichresize = NomDirStockageProv + "/resize" + QString::number(itr) + "_" + QString::number(k) + ".jpg";
-                    FichierImage.copy(nomfichresize);
-                    FichierResize.setFileName(nomfichresize);
+                    FichierResize.setFileName(CheminFichierImage);
                     if (formatdoc == "jpg" && sz > TAILLEMAXIIMAGES)
                     {
+                        FichierImage.copy(nomfichresize);
+                        FichierResize.setFileName(nomfichresize);
                         QImage  img(CheminFichierImage);
                         QPixmap pixmap;
                         int     tauxcompress = 100;
@@ -326,13 +325,13 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                                 tauxcompress -= 10;
                             FichierResize.close();
                         }
-                        FichierResize.open(QIODevice::ReadOnly);
-                        ba = FichierResize.readAll();
                         if (sz/(1024*1024) > 1)
                             szfinal = QString::number(sz/(1024*1024),'f',0) + "Mo";
                         else
                             szfinal = QString::number(sz/1024,'f',0) + "Ko";
                     }
+                    FichierResize.open(QIODevice::ReadOnly);
+                    ba = FichierResize.readAll();
                 }
                 else
                 {
@@ -474,17 +473,18 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
 
                     if(query.exec(req))
                     {
-                        QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc;
-                        FichierResize.copy(CheminOKTransfrDoc);
-                        FichierResize.remove();
+                        QString CheminOKTransfrDoc          = CheminOKTransfrDir + "/" + NomFileDoc;
+                        QString CheminOKTransfrDocOrigin    = CheminOKTransfrDirOrigin + "/" + nomdoc;
+                        FichierImage    .copy(CheminOKTransfrDocOrigin);
+                        FichierResize   .copy(CheminOKTransfrDoc);
+                        if (QFile(nomfichresize).exists())
+                            QFile(nomfichresize).remove();
                         QFile CC(CheminOKTransfrDoc);
                         CC.open(QIODevice::ReadWrite);
                         CC.setPermissions(QFileDevice::ReadOther
                                           | QFileDevice::ReadGroup
                                           | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                                           | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-                        QString CheminOKTransfrDocOrigin      = CheminOKTransfrDirOrigin + "/" + nomdoc;
-                        FichierImage.copy(CheminOKTransfrDocOrigin);
                         QFile CO(CheminOKTransfrDocOrigin);
                         CO.open(QIODevice::ReadWrite);
                         CO.setPermissions(QFileDevice::ReadOther
@@ -544,7 +544,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                     {
                         QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc;
                         FichierResize.copy(CheminOKTransfrDoc);
-                        FichierResize.remove();
+                        if (QFile(nomfichresize).exists())
+                            QFile(nomfichresize).remove();
                         QFile CC(CheminOKTransfrDoc);
                         CC.open(QIODevice::ReadWrite);
                         CC.setPermissions(QFileDevice::ReadOther

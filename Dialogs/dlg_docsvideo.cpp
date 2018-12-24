@@ -109,11 +109,11 @@ dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
     connect(OKButton,           &QPushButton::clicked, [=] {ValideFiche();});
     connect(dirsearchbutton,    &QPushButton::clicked, [=] {ChangeFile();});
 
-    laybuttons->insertLayout(0,rsgnmtVlay);
+    buttonslayout()->insertLayout(0,rsgnmtVlay);
 
-    laybuttons->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
 
-    laybuttons->insertLayout(0, dirVlay);
+    buttonslayout()->insertLayout(0, dirVlay);
 
     setModal(true);
     setMinimumWidth(650);

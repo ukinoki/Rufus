@@ -19,7 +19,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_DOCSSCANNER_H
 
 #include "updialog.h"
-#include "poppler-qt5.h"
 #include "procedures.h"
 #include "upcombobox.h"
 #include "uplabel.h"
@@ -45,7 +44,6 @@ private:
     DataBase            *db;
     int                 iditem;
     QMap<QString, QVariant> datafacture;
-    UpLabel             *inflabel;
     UpLineEdit          *linetitre;
     QDateEdit           *editdate;
     UpComboBox          *typeDocCombo;
@@ -53,7 +51,8 @@ private:
     UpToolBar           *toolbar;
     UpPushButton        *dirsearchbutton;
     bool                initOK;
-    QList<QPixmap>      glistPix;
+    QLabel              *inflabel;
+    QList<QImage>       glistImg;
     QStringList         ListTypeExams;
     QString             docpath;
     QString             NomDirStockageImagerie;

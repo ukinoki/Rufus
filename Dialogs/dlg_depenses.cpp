@@ -17,6 +17,8 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_depenses.h"
 
+static inline double mmToInches(double mm) { return mm * 0.039370147; }
+
 dlg_depenses::dlg_depenses(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_depenses)
@@ -98,6 +100,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ui->frame->layout()->addItem(boxbutt);
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
+    ui->VisuDocupTableWidget->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
 
     QStringList ListeRubriques = db->ListeRubriquesFiscales();
     ui->RefFiscalecomboBox->insertItems(0,ListeRubriques);
@@ -120,6 +123,15 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     for (int n = 0; n <  allUpButtons.size(); n++)
         allUpButtons.at(n)->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Mid);
     ui->GestionComptesupPushButton->resize(290,48);
+
+    int margemm         = proc->TailleTopMarge(); // exprimé en mm
+    printer             = new QPrinter(QPrinter::HighResolution);
+    printer             ->setFullPage(true);
+    rect                = printer->paperRect();
+    rect.adjust(mmToInches(margemm) * printer->logicalDpiX(),
+                mmToInches(margemm) * printer->logicalDpiY(),
+                -mmToInches(margemm) * printer->logicalDpiX(),
+                -mmToInches(margemm) * printer->logicalDpiY());
 
     DefinitArchitectureBigTable();
 
@@ -152,6 +164,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (SupprimerupPushButton,             &QPushButton::clicked,          this,   &dlg_depenses::SupprimerDepense);
     connect (ui->UserscomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {ChangeUser(ui->UserscomboBox->currentIndex());});
+    connect (ui->VisuDocupTableWidget,          SIGNAL(zoom()),                 this,   SLOT(ZoomDoc()));
     connect (EnregupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::ModifierDepense);
     connect (AnnulupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::AnnulEnreg);
 
@@ -756,6 +769,109 @@ void dlg_depenses::GestionComptes()
         Dlg_Cmpt->exec();
 }
 
+void dlg_depenses::ZoomDoc()
+{
+    connect (proc, &Procedures::PrintImage, this, &dlg_depenses::ImprimeFacture);
+    connect (proc, &Procedures::DeleteImage, this, &dlg_depenses::SupprimeFacture);
+    QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
+    proc->EditImage(doc,
+                    (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
+                    UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK);
+}
+
+void dlg_depenses::SupprimeFacture()
+{
+    UpMessageBox::Question(this, tr("Suppression de facture"), tr("Supprimer la facture ") + m_depenseencours->objet() + "?");
+}
+
+void dlg_depenses::Print(QPrinter *Imprimante, QImage image)
+{
+    QPainter PrintingPreView(Imprimante);
+    QPixmap pix         = QPixmap::fromImage(image).scaledToWidth(int(rect.width()),Qt::SmoothTransformation);
+    PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
+}
+
+bool dlg_depenses::ImprimeFacture()
+{
+    bool AvecPrevisu = true;
+    QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
+    QByteArray bapdf = doc.value("ba").toByteArray();
+    if (doc.value("type").toString() == PDF)     // le document est un pdf ou un document texte
+    {
+        Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
+        if (!document || document->isLocked()) {
+            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+            delete document;
+            return false;
+        }
+        if (document == Q_NULLPTR) {
+            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+            delete document;
+            return false;
+        }
+
+        document->setRenderHint(Poppler::Document::TextAntialiasing);
+        int numpages = document->numPages();
+        for (int i=0; i<numpages ;i++)
+        {
+            Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
+            if (pdfPage == Q_NULLPTR) {
+                UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
+                delete document;
+                return false;
+            }
+            QImage image = pdfPage->renderToImage(600,600);
+            if (image.isNull()) {
+                UpMessageBox::Watch(this,tr("Impossible de retrouver les pages du document"));
+                delete document;
+                return false;
+            }
+            // ... use image ...
+            if (i == 0)
+            {
+                if (AvecPrevisu)
+                {
+                    QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
+                    connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer, image);});
+                    dialog->exec();
+                    delete dialog;
+                }
+                else
+                {
+                    QPrintDialog *dialog = new QPrintDialog(printer, this);
+                    if (dialog->exec() != QDialog::Rejected)
+                        Print(printer, image);
+                    delete dialog;
+                }
+            }
+            else
+                Print(printer, image);
+            delete pdfPage;
+        }
+        delete document;
+    }
+    if (doc.value("type").toString() == JPG)     // le document est un jpg
+    {
+        QPixmap pix;
+        pix.loadFromData(bapdf);
+        QImage image= pix.toImage();
+        if (AvecPrevisu)
+        {
+            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer, this);
+            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer, image);});
+            dialog->exec();
+            delete dialog;
+        }
+        else
+        {
+            QPrintDialog *dialog = new QPrintDialog(printer, this);
+            if (dialog->exec() != QDialog::Rejected)
+                Print(printer, image);
+            delete dialog;
+        }
+    }
+}
+
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -- Met à jour la fiche --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -797,14 +913,13 @@ void dlg_depenses::MetAJourFiche()
         ui->ComptesupComboBox   ->setVisible(B != "");
         ui->RefFiscalecomboBox  ->setCurrentText(m_depenseencours->reffiscale());
         bool hasfacture = m_depenseencours->lienfacture()!="";
-        qDebug() << hasfacture;
         ui->FactureupPushButton     ->setVisible(!hasfacture);
         ui->EcheancierupPushButton  ->setVisible(!hasfacture);
         ui->VisuDocupTableWidget    ->setVisible(hasfacture);
         if (m_depenseencours->lienfacture() != "")
         {
             QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
-            proc->AfficheDoc(ui->VisuDocupTableWidget, doc);
+            glistImg =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
         }
         if (m_depenseencours->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
         {
@@ -1362,7 +1477,7 @@ void dlg_depenses::ScanDoc(QString typedoc)
             ui->EcheancierupPushButton  ->setVisible(false);
             ui->VisuDocupTableWidget    ->setVisible(true);
             QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
-            proc->AfficheDoc(ui->VisuDocupTableWidget, doc);
+            glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
         }
     }
     delete  Dlg_DocsScan;

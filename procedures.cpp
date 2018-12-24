@@ -819,104 +819,6 @@ void Procedures::Imprimer_Etat(QWidget *Formu, QPlainTextEdit *Etat)
     #endif
 }
 
-//TODO : à déplacer dans Utils
-QString Procedures::RetireCaracteresAccentues(QString nom)
-{
-    nom.replace(QRegExp("[éêëè]"),"e");
-    nom.replace(QRegExp("[ÉÈÊË]"),"E");
-    nom.replace(QRegExp("[àâ]"),"a");
-    nom.replace(QRegExp("[ÂÀ]"),"A");
-    nom.replace(QRegExp("[îï]"),"i");
-    nom.replace(QRegExp("[ÏÎ]"),"I");
-    nom.replace(QRegExp("[ôö]"),"o");
-    nom.replace(QRegExp("[ÔÖ]"),"O");
-    nom.replace("ù","u");
-    nom.replace("Ù","U");
-    nom.replace("ç","c");
-    nom.replace("Ç","C");
-    nom.replace("Œ","OE");
-    nom.replace("œ","oe");
-    return nom;
-}
-
-/*---------------------------------------------------------------------------------------------------------------------
-    -- Affichage d'un document pdf ou jpg dans un QTableWidegt --------------------------------------------------------------------------------------------
-    -----------------------------------------------------------------------------------------------------------------*/
-void Procedures::AfficheDoc(QTableWidget *table, QMap<QString, QVariant> doc)
-{
-    QList<QPixmap>listPix;
-    QPixmap     pix;
-    QLabel inflabel;
-
-    table     ->clear();
-    table     ->setColumnCount(1);
-    table     ->setColumnWidth(0,table->width()-2);
-    table     ->horizontalHeader()->setVisible(false);
-    table     ->verticalHeader()->setVisible(false);
-
-    inflabel    .setText("<font color='magenta'>" + doc["titre"].toString() + "</font>");
-    inflabel    .setGeometry(10,table->height()-30,350,25);
-
-    QByteArray bapdf = doc["ba"].toByteArray();
-    QString suffixe = doc["type"].toString().toLower();
-    if (suffixe == "pdf")
-    {
-        Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-        if (!document || document->isLocked()) {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
-            delete document;
-            return;
-        }
-        if (document == Q_NULLPTR) {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
-            delete document;
-            return;
-        }
-
-        document->setRenderHint(Poppler::Document::TextAntialiasing);
-        int numpages = document->numPages();
-        table->setRowCount(numpages);
-        for (int i=0; i<numpages ;i++)
-        {
-            Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
-            if (pdfPage == Q_NULLPTR) {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return;
-            }
-            QImage image = pdfPage->renderToImage(150,150);
-            if (image.isNull()) {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
-                delete document;
-                return;
-            }
-            // ... use image ...
-            pix = QPixmap::fromImage(image).scaled(table->width()-2,table->height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-            listPix << pix;
-            table->setRowHeight(i,pix.height());
-            UpLabel *lab = new UpLabel(table);
-            lab->resize(pix.width(),pix.height());
-            lab->setPixmap(pix);
-            delete pdfPage;
-            table->setCellWidget(i,0,lab);
-        }
-        delete document;
-    }
-    else if (suffixe=="jpg" || suffixe == "jpeg")
-    {
-        QImage image;
-        if (!image.loadFromData(bapdf))
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
-        pix = QPixmap::fromImage(image).scaled(table->width()-2,table->height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-        listPix << pix;
-        UpLabel* labpix     = new UpLabel(table);
-        labpix->setPixmap(pix);
-        table->setRowCount(1);
-        table->setRowHeight(0,pix.height());
-        table->setCellWidget(0,0,labpix);
-    }
-}
-
 QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher)
 {
     /* Cette fonction sert à stocker dans un QByteArray le contenu des documents d'imagerie ou des courriers émis par le logiciel pour pouvoir les afficher
@@ -1138,6 +1040,92 @@ void Procedures::EditHtml(QString txt)
 
     gAsk->AjouteLayButtons();
     connect(gAsk->OKButton,SIGNAL(clicked(bool)),gAsk,SLOT(accept()));
+
+    gAsk->exec();
+    delete gAsk;
+}
+
+void Procedures::EditImage(QMap<QString,QVariant> doc, QString titre, UpDialog::Buttons Button)
+{
+    UpDialog    *gAsk       = new UpDialog();
+    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAsk->layout());
+    uptable                 = new UpTableWidget(gAsk);
+    inflabel                = new UpLabel(uptable);
+    listimage               = uptable->AfficheDoc(doc);
+    uptable ->installEventFilter(this);
+    gAsk->setModal(true);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    gAsk->setWindowTitle(titre);
+    globallay->insertWidget(0,uptable);
+
+    gAsk->AjouteLayButtons(Button);
+    connect(gAsk->OKButton, SIGNAL(clicked(bool)),  gAsk,       SLOT(accept()));
+    if (Button.testFlag(UpDialog::ButtonPrint))
+        connect(gAsk->PrintButton, SIGNAL(clicked(bool)),  this,       SIGNAL(PrintImage()));
+    if (Button.testFlag(UpDialog::ButtonSuppr))
+        connect(gAsk->SupprButton, SIGNAL(clicked(bool)),  this,       SIGNAL(DeleteImage()));
+
+    int x = qApp->desktop()->availableGeometry().width();
+    int y = qApp->desktop()->availableGeometry().height();
+    gAsk->setMaximumWidth(x);
+    gAsk->setMaximumHeight(y);
+    int topmarge    = gAsk->dlglayout()->contentsMargins().top();
+    int bottommarge = gAsk->dlglayout()->contentsMargins().bottom();
+    int leftmarge   = gAsk->dlglayout()->contentsMargins().left();
+    int rightmarge  = gAsk->dlglayout()->contentsMargins().right();
+    int spacing     = gAsk->dlglayout()->spacing();
+    int hdeltaframe = 60;//gAsk->frameGeometry().height() - gAsk->height();
+                            // on a un problème avec ce calcul sous mac puisque qt ne connait pas la hauteur du dock
+    int wdeltaframe = gAsk->frameGeometry().width() - gAsk->width();
+
+    int hdelta = topmarge + bottommarge + spacing + gAsk->widgetbuttons()->height();
+        // la différence totale entre le hauteur de la fiche et la hauteur de la table
+    int wdelta = leftmarge + rightmarge + spacing;
+        // la différence totale entre la largeur de la fiche et la largeur de la table
+
+    // les dimensions maxi de la zone de visu
+    const double maxwscroll  = x*2/3 - wdelta - wdeltaframe;
+    const double maxhscroll  = y - hdelta - hdeltaframe;
+    // les dimensions calculées de la zone de visu
+    int wtable(0), htable(0);
+
+    const double proportion = maxwscroll/maxhscroll;
+    QPixmap pix = QPixmap::fromImage(listimage.at(0).scaled(QSize(x,y),
+                                           Qt::KeepAspectRatioByExpanding,
+                                           Qt::SmoothTransformation));
+    const double pw = pix.size().width();
+    const double ph = pix.size().height();
+    const double idealproportion = pw/ph;
+
+    if (idealproportion > proportion)
+    {   wtable  = int(maxwscroll);   htable  = int(wtable / idealproportion); }
+    else
+    {   htable  = int(maxhscroll);   wtable  = int(htable * idealproportion); }
+    int w = wtable + wdelta;
+    int h = htable + hdelta;
+    gAsk->resize(w, h);
+    uptable->resize(wtable, htable);
+    int delta = 0;
+    for (int i=0; i < uptable->rowCount(); i++)
+    {
+        UpLabel *lbl = dynamic_cast<UpLabel*>(uptable->cellWidget(i,0));
+        if (lbl != Q_NULLPTR)
+        {
+            pix = pix.scaled(wtable- delta, htable - delta, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+            lbl->setPixmap(pix);
+            uptable->setRowHeight(i,htable-delta);
+            uptable->setColumnWidth(0,wtable-delta);
+        }
+    }
+
+    if (w > (x - gAsk->x()))
+        gAsk->move(x - w, 0);
+
+    inflabel    ->setText("<font color='magenta'>" + titre + "</font>");
+    QFont font = qApp->font();
+    font.setPointSize(12);
+    inflabel->setFont(font);
+    inflabel    ->setGeometry(10,htable-40,350,25);
 
     gAsk->exec();
     delete gAsk;
@@ -1526,6 +1514,32 @@ void Procedures::initListeDepenses(int iduser)
         Depense *dep = const_cast<Depense*>(*itdepenses);
         Datas::I()->depenses->addDepense(dep);
     }
+}
+
+bool Procedures::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj==uptable)
+    {
+        QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
+        if (rszevent != Q_NULLPTR)
+        {
+            for (int i=0; i < uptable->rowCount(); i++)
+            {
+                UpLabel *lbl = dynamic_cast<UpLabel*>(uptable->cellWidget(i,0));
+                if (lbl != Q_NULLPTR)
+                {
+                    QPixmap pix = QPixmap::fromImage(listimage.at(i).scaled(uptable->width(), uptable->height(),
+                                                           Qt::KeepAspectRatioByExpanding,
+                                                           Qt::SmoothTransformation));
+                    lbl->setPixmap(pix);
+                    uptable->setRowHeight(i,lbl->pixmap()->height());
+                    uptable->setColumnWidth(i,lbl->pixmap()->width());
+                }
+            }
+            inflabel    ->move(10,uptable->height()-40);
+        }
+    }
+    return true;
 }
 
 void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)

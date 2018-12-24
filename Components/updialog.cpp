@@ -26,6 +26,7 @@ UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : 
     SettingsIni     = new QSettings(NomFichIni, QSettings::IniFormat);
     restoreGeometry(SettingsIni->value(Position).toByteArray());
     AjouteLay();
+    setStageCount(0);
     gMode           = "";
 }
 
@@ -37,15 +38,18 @@ UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 
 void UpDialog::AjouteLay()
 {
-    laybuttons      = new QHBoxLayout();
-    laybuttons      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
-    laybuttons      ->setSpacing(20);
+    stageheight     = 35;
     QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(this->layout());
     if (globallay == Q_NULLPTR)
         globallay = new QVBoxLayout(this);
-    globallay       ->addLayout(laybuttons);
     globallay       ->setContentsMargins(10,10,10,10);
     globallay       ->setSpacing(5);
+    widgbuttons     = new QWidget();
+    laybuttons      = new QHBoxLayout();
+    laybuttons      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
+    laybuttons      ->setSpacing(20);
+    widgbuttons     ->setLayout(laybuttons);
+    globallay       ->addWidget(widgbuttons);
 }
 void UpDialog::AjouteLayButtons(Buttons Button)
 {
@@ -93,6 +97,34 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         laybuttons      ->addWidget(CloseButton);
     }
     UpdateTabOrder();
+    setStageCount(1);
+}
+
+QVBoxLayout* UpDialog::dlglayout()
+{
+    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(this->layout());
+    if (globallay == Q_NULLPTR)
+    {
+        globallay = new QVBoxLayout(this);
+        globallay       ->setContentsMargins(10,10,10,10);
+        globallay       ->setSpacing(5);
+    }
+    return globallay;
+}
+
+QHBoxLayout* UpDialog::buttonslayout()
+{
+    return laybuttons;
+}
+
+QWidget* UpDialog::widgetbuttons()
+{
+    return widgbuttons;
+}
+
+void UpDialog::setStageCount(int nbstages)
+{
+    widgbuttons->setFixedHeight((stageheight * nbstages) + laybuttons->contentsMargins().bottom() +laybuttons->contentsMargins().top());
 }
 
 void UpDialog::UpdateTabOrder()

@@ -48,6 +48,90 @@ void UpTableWidget::dropEvent(QDropEvent *drop)
     emit dropsignal(encodedData);
 }
 
+/*---------------------------------------------------------------------------------------------------------------------
+    -- Affichage d'un document pdf ou jpg dans un QTableWidegt
+le QMap contient 2 arguments
+. ba = le QByteArray contenant les données
+. type = jpg ou pdf
+renvoie
+. le Qlist<QImage> des images affichées dans la QTableWidget dabs leurs tailles d'origine
+-----------------------------------------------------------------------------------------------------------------*/
+QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom)
+{
+    QList<QImage> listimage = QList<QImage>();
+    QPixmap     pix;
+    QByteArray ba = doc["ba"].toByteArray();
+
+    clear();
+    setColumnCount(1);
+    setColumnWidth(0,width()-2);
+    horizontalHeader()->setVisible(false);
+    verticalHeader()->setVisible(false);
+
+    QString suffixe;
+    if (doc["type"].toString() == PDF)
+    {
+        Poppler::Document* document = Poppler::Document::loadFromData(ba);
+        if (!document || document->isLocked()) {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
+            delete document;
+            return listimage;
+        }
+        if (document == Q_NULLPTR) {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
+            delete document;
+            return listimage;
+        }
+
+        document->setRenderHint(Poppler::Document::TextAntialiasing);
+        int numpages = document->numPages();
+        setRowCount(numpages);
+        for (int i=0; i<numpages ;i++)
+        {
+            Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
+            if (pdfPage == Q_NULLPTR) {
+                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
+                delete document;
+                return listimage;
+            }
+            QImage image = pdfPage->renderToImage(150,150);
+            if (image.isNull()) {
+                UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
+                delete document;
+                return listimage;
+            }
+            // ... use image ...
+            pix = QPixmap::fromImage(image).scaled(width()-2,height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
+            listimage << image;
+            setRowHeight(i,pix.height());
+            UpLabel *lab = new UpLabel(this);
+            lab->resize(pix.width(),pix.height());
+            lab->setPixmap(pix);
+            if (aveczoom)
+                connect(lab, &UpLabel::clicked, this, [=] {emit zoom();});
+            delete pdfPage;
+            setCellWidget(i,0,lab);
+        }
+        delete document;
+    }
+    else if (doc["type"].toString() == JPG)
+    {
+        QImage image;
+        if (!image.loadFromData(ba))
+            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
+        pix = QPixmap::fromImage(image).scaled(width()-2,height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
+        listimage << image;
+        UpLabel* lab     = new UpLabel(this);
+        lab->setPixmap(pix);
+        if (aveczoom)
+            connect(lab, &UpLabel::clicked, this, [=] {emit zoom();});
+        setRowCount(1);
+        setRowHeight(0,pix.height());
+        setCellWidget(0,0,lab);
+    }
+    return listimage;
+}
+
 QByteArray UpTableWidget::dropData()
 {
     return encodedData;

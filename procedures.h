@@ -74,7 +74,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_user.h"
 #include "cls_users.h"
 #include "database.h"
-#include "poppler-qt5.h"
 
 class Procedures : public QObject
 {
@@ -83,6 +82,7 @@ class Procedures : public QObject
 private:
     explicit Procedures(QObject *parent = Q_NULLPTR);
     static Procedures *instance;
+    bool                eventFilter(QObject *obj, QEvent *event)  ;
 
 public:
     static Procedures *I();
@@ -95,12 +95,12 @@ public:
 
     void                    ab(int i = 1);
 
-    void                    AfficheDoc(QTableWidget *tab, QMap<QString,QVariant> doc);
     QMap<QString,QVariant>  CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher = true);
     QString                 ConvertitEnHtml(QString Texte);
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
+    void                    EditImage(QMap<QString, QVariant> doc, QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
     bool                    FicheChoixConnexion();
     QString                 getDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
     int                     GetflagMG();
@@ -125,8 +125,7 @@ public:
                                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                                      bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
                                      bool AvecChoixImprimante = true);
-    void                    Imprimer_Etat(QWidget *Formu, QPlainTextEdit *Etat);                                  // CZ 27082015
-    QString                 RetireCaracteresAccentues(QString mot);
+    void                    Imprimer_Etat(QWidget *Formu, QPlainTextEdit *Etat);
     bool                    VerifIni(QString msg = "",
                                      QString msgInfo = "",
                                      bool DetruitIni = true,
@@ -184,7 +183,8 @@ public:
     void                    VideDatabases();
     double                  BaseSize, ImagesSize, VideosSize, FreeSpace;
     UpDialog                *gAskBupRestore;
-    UpLabel                 *labelResume, *labelVolumeLibre;
+    UpLabel                 *labelResume, *labelVolumeLibre, *inflabel;
+    QList<QImage>           listimage;
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true);
     void                    DefinitScriptBackup(QString path, bool AvecImages= true, bool AvecVideos = true);
     bool                    ImmediateBackup(bool full=false);
@@ -250,6 +250,8 @@ signals:
     void                    UpdDocsExternes();
     void                    ModifEdit(QString txt);
     void                    ConnectTimers(bool);
+    void                    PrintImage();
+    void                    DeleteImage();
 
 private:
     bool                    initOK;
@@ -270,7 +272,8 @@ private:
     QString                 gnomFichIni;
     QString                 gnomImprimante;
     Villes                  *m_villes = nullptr;
-    UpDialog                *gAskLogin, *gAskUser;//, *gAskLieux;
+    UpDialog                *gAskLogin, *gAskUser;
+    UpTableWidget           *uptable;
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(User &user);
