@@ -19,6 +19,11 @@ CREATE TABLE `DocsASupprimer` (
   `FilePath` VARCHAR(250) DEFAULT NULL
 ) ENGINE=InnoDB;
 
+DROP TABLE IF EXISTS `FacturesASupprimer`;
+CREATE TABLE `FacturesASupprimer` (
+  `idFacture` INT DEFAULT NULL
+) ENGINE=InnoDB;
+
 DROP DATABASE IF EXISTS  `Ophtalmologie`;
 CREATE DATABASE  IF NOT EXISTS `Ophtalmologie` DEFAULT CHARSET = utf8;
 USE `Ophtalmologie`;

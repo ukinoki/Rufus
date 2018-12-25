@@ -1061,11 +1061,12 @@ void Procedures::EditHtml(QString txt)
  * argument QMap<QString,QVariant> doc contient 2 éléments
     . ba = le QByteArray contenant les données
     . type = jpg ou pdf
- * argument titre le titre de l'image affiché dans un QLable magenta en bas à gauche de l'image
+ * argument label le label de l'image affiché dans un QLable magenta en bas à gauche de l'image
+ * argument titre le titre de la fiche
  * argument Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
  * si le bouton PrintButton est utilisé il permet d'imprimer l'image en appelant la fonction PrintImage(QMap<QString,QVariant> doc)
  */
-void Procedures::EditImage(QMap<QString,QVariant> doc, QString titre, UpDialog::Buttons Button)
+void Procedures::EditImage(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button)
 {
     UpDialog    *gAsk       = new UpDialog();
     QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAsk->layout());
@@ -1144,7 +1145,7 @@ void Procedures::EditImage(QMap<QString,QVariant> doc, QString titre, UpDialog::
     if (w > (x - gAsk->x()))
         gAsk->move(x - w, 0);
 
-    inflabel    ->setText("<font color='magenta'>" + titre + "</font>");
+    inflabel    ->setText("<font color='magenta'>" + label + "</font>");
     QFont font = qApp->font();
     font.setPointSize(12);
     inflabel->setFont(font);
@@ -1392,18 +1393,40 @@ Patient* Procedures::getPatientById(int id) //TODO : getPatientById à faire
     return result;
 }
 
+/*--------------------------------------------------------------------------------------------------------------------------------------
+    -- détermine la valeur du dossier où est stockée l'imagerie -----------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------------------------------------*/
 void Procedures::setDirImagerie()
 {
     DirStockageImages = "";
-    QString req = "select DirImagerie from " NOM_TABLE_PARAMSYSTEME;
-    QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
-    if (quer.size()>0)
+    switch (DataBase::getInstance()->getMode()) {
+    case DataBase::Poste:
     {
-        quer.first();
-        DirStockageImages = quer.value(0).toString();
+        bool ok = true;
+        QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
+        QList<QList<QVariant>> ListeDir = DataBase::getInstance()->StandardSelectSQL(req, ok);
+        if (ListeDir.size()>0)
+            DirStockageImages = ListeDir.at(0).at(0).toString();
+        break;
+    }
+    case DataBase::Distant:
+    {
+        DirStockageImages  = gsettingsIni->value("BDD_DISTANT/DossierImagerie").toString();
+        break;
+    }
+    case DataBase::ReseauLocal:
+    {
+        DirStockageImages  = gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
+        break;
+    }
+    default:
+        break;
     }
 }
 
+/*--------------------------------------------------------------------------------------------------------------------------------------
+    -- renvoie la valeur du dossier où est stockée l'imagerie -----------------------------------------------------------
+    ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::DirImagerie()
 {
     return DirStockageImages;

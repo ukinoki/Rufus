@@ -101,7 +101,7 @@ public:
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
-    void                    EditImage(QMap<QString, QVariant> doc, QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
+    void                    EditImage(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
     bool                    PrintImage(QMap<QString, QVariant> doc);
     bool                    FicheChoixConnexion();
     QString                 getDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);

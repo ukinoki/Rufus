@@ -28,7 +28,8 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     proc        = Procedures::I();
     db          = DataBase::getInstance();
     ui->UserscomboBox->setEnabled(proc->getUserConnected()->isSecretaire() );
-
+    AccesDistant = (db->getMode()==DataBase::Distant);
+    NomDirStockageImagerie = proc->DirImagerie();
     m_listUserLiberaux = Datas::I()->users->liberaux();
 
     int index = 0;
@@ -761,16 +762,96 @@ void dlg_depenses::GestionComptes()
 
 void dlg_depenses::ZoomDoc()
 {
+    disconnect (proc, &Procedures::DelImage, this, &dlg_depenses::SupprimeFacture);
     connect (proc, &Procedures::DelImage, this, &dlg_depenses::SupprimeFacture);
     QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
     proc->EditImage(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
+                    (m_depenseencours->isecheancier()? tr("Echéancier") : tr("Facture")),
                     UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK);
 }
 
 void dlg_depenses::SupprimeFacture()
 {
-    UpMessageBox::Question(this, tr("Suppression de facture"), tr("Supprimer la facture ") + m_depenseencours->objet() + "?");
+    if (UpMessageBox::Question(this,
+                           (m_depenseencours->isecheancier()? tr("Suppression d'échéancier") : tr("Suppression de facture")),
+                           (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()))
+            != UpSmallButton::STARTBUTTON)
+        return;
+        /* on remet à null les champs idfacture, jpg et pdf de la dépense
+         * on vérifie si l'idfacture est utilisé par d'autres dépenses (cas d'un échéancier)
+         * si non,
+            * en cas d'accès distant
+                * on inscrit l'idfacture dans la table FacturesASupprimer
+            * sinon
+                * on détruit l'enregistrement dans la table factures
+                * on copie le fichier dans le dossier facturessanslien
+                * on l'efface du dossier de factures
+         * on remet à zero les idfacture et lienfacture de la dépense
+         */
+
+    /* on remet à null le champ idfacture de la dépense*/
+    QHash<QString, QString> listsets;
+    listsets.insert("idfacture","null");
+    DataBase:: getInstance()->UpdateTable(NOM_TABLE_DEPENSES,
+                                          listsets,
+                                          "where idDep = " + QString::number(m_depenseencours->id()));
+    /* on vérifie si l'idfacture est utilisé par d'autres dépenses (cas d'un échéancier)*/
+    bool supprimerlafacture = true;
+    bool ok = true;
+    if (m_depenseencours->isecheancier())
+    {
+        QString req = "select idDep from " NOM_TABLE_DEPENSES
+                      " where idFacture = " + QString::number(m_depenseencours->idfacture());
+        supprimerlafacture = (db->StandardSelectSQL(req, ok).size()==0);
+    }
+    /* si non*/
+    if (supprimerlafacture)
+    {
+        /* en cas d'accès distant*/
+        if (AccesDistant)
+        {
+            /* on inscrit l'idfacture dans la table FacturesASupprimer*/
+            QString req = "insert into " NOM_TABLE_FACTURESASUPPRIMER
+                    " (idFacture) values (" + QString::number(m_depenseencours->idfacture()) + ")";
+            DataBase::getInstance()->StandardSelectSQL(req, ok);
+        }
+        /* sinon*/
+        else
+        {
+            /* on détruit l'enregistrement dans la table factures*/
+            db->SupprRecordFromTable(m_depenseencours->idfacture(),"idFacture",NOM_TABLE_FACTURES);
+            /*  on copie le fichier dans le dossier facturessanslien*/
+            QString CheminOKTransfrDir = NomDirStockageImagerie + NOMDIR_FACTURESSANSLIEN;
+            QDir DirTrsferOK;
+            if (!QDir(CheminOKTransfrDir).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+                {
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QStringList listmsg;
+                    listmsg << msg;
+                    dlg_message(listmsg, 3000, false);
+                    return;
+                }
+            CheminOKTransfrDir = CheminOKTransfrDir + "/" + Datas::I()->users->getLoginById(m_depenseencours->iduser());
+            if (!QDir(CheminOKTransfrDir).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+                {
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QStringList listmsg;
+                    listmsg << msg;
+                    dlg_message(listmsg, 3000, false);
+                    return;
+                }
+            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + m_depenseencours->lienfacture()).copy(NomDirStockageImagerie + NOMDIR_FACTURESSANSLIEN + m_depenseencours->lienfacture());
+            /*  on l'efface du dossier de factures*/
+            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + m_depenseencours->lienfacture()).remove();
+        }
+    }
+    /* on remet à zero les idfacture et lienfacture de la dépense*/
+    m_depenseencours->setidfacture(-1);
+    m_depenseencours->setlienfacture("");
+    m_depenseencours->setecheancier(false);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -47,6 +47,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define NOM_TABLE_ECHANGEIMAGES                     "Images.EchangeImages"
 #define NOM_TABLE_DOCSASUPPRIMER                    "Images.DocsASupprimer"
+#define NOM_TABLE_FACTURESASUPPRIMER                "Images.FacturesASupprimer"
 
 #define NOM_TABLE_BILANORTHO                        "Ophtalmologie.bilanortho"
 #define NOM_TABLE_BIOMETRIES                        "Ophtalmologie.biometries"
@@ -132,6 +133,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOMDIR_RESSOURCES                           "/Ressources"
 #define NOMDIR_RUFUS                                "/Documents/Rufus"
 #define NOMDIR_FACTURES                             "/Factures"
+#define NOMDIR_FACTURESSANSLIEN                     "/FacturesSansLien"
 #define NOMDIR_IMAGES                               "/Images"
 #define NOMDIR_VIDEOS                               "/Videos"
 #define NOMDIR_PROV                                 "/Prov"

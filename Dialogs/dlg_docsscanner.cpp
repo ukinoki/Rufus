@@ -28,28 +28,24 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     QString Base;
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     AccesDistant = (db->getMode()==DataBase::Distant);
+    NomDirStockageImagerie = proc->DirImagerie();
     switch (db->getMode()) {
     case DataBase::Poste:
     {
         NomOnglet = tr("Monoposte");
-        QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, db->getDataBase());
-        dirquer.first();
-        NomDirStockageImagerie = dirquer.value(0).toString();
         Base = "BDD_POSTE";
         break;
     }
     case DataBase::Distant:
     {
         Base = "BDD_DISTANT";
-        NomOnglet = tr("Réseau local");
-        NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
+        NomOnglet = tr("Accès distant");
         break;
     }
     case DataBase::ReseauLocal:
     {
         Base = "BDD_LOCAL";
-        NomOnglet = tr("Accès distant");
-        NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_DISTANT/DossierImagerie").toString();
+        NomOnglet = tr("Réseau local");
         break;
     }
     default:
@@ -347,7 +343,7 @@ void dlg_docsscanner::ValideFiche()
         ba = fichCopy.readAll();
     }
     QString datetransfer            = QDate::currentDate().toString("yyyy-MM-dd");
-    QString iduser                  = Datas::I()->users->getLoginById(Datas::I()->depenses->getDepenseById(iditem)->iduser());
+    QString user                    = Datas::I()->users->getLoginById(Datas::I()->depenses->getDepenseById(iditem)->iduser());
     QString CheminOKTransfrDir      = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES : NOMDIR_FACTURES) ;
     QDir DirTrsferOK;
     if (!QDir(CheminOKTransfrDir).exists())
@@ -362,7 +358,7 @@ void dlg_docsscanner::ValideFiche()
     if (gMode==Document)
         CheminOKTransfrDir      = CheminOKTransfrDir + "/" + datetransfer;
     else
-        CheminOKTransfrDir      = CheminOKTransfrDir + "/" + iduser;
+        CheminOKTransfrDir      = CheminOKTransfrDir + "/" + user;
     if (!QDir(CheminOKTransfrDir).exists())
         if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
         {
@@ -429,7 +425,7 @@ void dlg_docsscanner::ValideFiche()
             query.prepare("insert into " NOM_TABLE_FACTURES " (idFacture, LienFichier, Echeancier, idUser)"
                                                      " values(:idfact,   :lien,       :echeancier,:user)");
             query.bindValue(":idfact",      QString::number(idimpr));
-            query.bindValue(":lien",        "/" + iduser + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe);
+            query.bindValue(":lien",        "/" + user + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe);
             query.bindValue(":echeancier",  (gMode== Echeancier? "1" : QVariant(QVariant::String)));
             query.bindValue(":user",        QString::number(iditem) );
         }
@@ -443,7 +439,7 @@ void dlg_docsscanner::ValideFiche()
             query.bindValue(":doc",         ba);
         }
         datafacture["idfacture"] = idimpr;
-        datafacture["lien"] = "/" + iduser + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
+        datafacture["lien"] = "/" + user + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
         datafacture["echeancier"] = (gMode == Echeancier);
     }
 

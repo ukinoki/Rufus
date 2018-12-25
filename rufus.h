@@ -112,6 +112,7 @@ private:
     UpLabel                         *lblnom;
     UpLineEdit                      *MGlineEdit;
     UpLineEdit                      *AutresCorresp1LineEdit, *AutresCorresp2LineEdit;
+    DataBase                        *db;
 
     pyxinterf                       *pyxi;     // CZ001
 
@@ -180,7 +181,7 @@ private:
     void        RetrouveMontantActe();
     void        SaisieFSE();           // CZ001
     void        SalleDAttente();
-    void        SupprimerDocs();
+    void        SupprimerDocsEtFactures();
     void        SupprimerDossier();
     void        SurbrillanceSalDat(UpLabel *lab);
 

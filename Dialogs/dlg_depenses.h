@@ -52,6 +52,7 @@ private:
     Procedures                  *proc;
     Depense                     *m_depenseencours;
     QStringList                 glistMoyensDePaiement;
+    QString                     NomDirStockageImagerie;
     User                        *gDataUser;
     UpTableWidget               *gBigTable;
     UpPushButton                *EnregupPushButton, *AnnulupPushButton;
@@ -60,7 +61,7 @@ private:
     QMap<int, User*>            *m_listUserLiberaux;
     QList<QImage>               glistImg;
 
-    bool                        InitOK;
+    bool                        InitOK, AccesDistant;
     int                         gMode;
     enum gMode                  {Lire, Modifier, Enregistrer, TableVide};
 

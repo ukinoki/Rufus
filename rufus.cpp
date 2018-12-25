@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("24-12-2018/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("25-12-2018/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -67,6 +67,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
 
     proc->setDirImagerie();                                                 // lit l'emplacement du dossier d'imagerie sur le serveur
+    db = DataBase::getInstance();
 
     //1. Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
@@ -179,7 +180,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         connect (gTimerVerifMessages,       &QTimer::timeout,   this,   &Rufus::VerifMessages);
         connect (gTimerImportDocsExternes,  &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
         if (DataBase::getInstance()->getMode() != DataBase::Distant)
-            connect(gTimerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocs);
+            connect(gTimerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
     }
 
@@ -1427,7 +1428,7 @@ void Rufus::ConnectTimers(bool a)
             connect (gTimerVerifImportateurDocs,    &QTimer::timeout,   this,   [=] {VerifImportateur();});
             connect (gTimerImportDocsExternes,      &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
             if (DataBase::getInstance()->getMode() != DataBase::Distant)
-                connect(gTimerSupprDocs,                &QTimer::timeout,   this,   [=] {SupprimerDocs();});
+                connect(gTimerSupprDocs,                &QTimer::timeout,   this,   [=] {SupprimerDocsEtFactures();});
         }
     }
     else
@@ -4605,29 +4606,67 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     }
 }
 
-void Rufus::SupprimerDocs()
+void Rufus::SupprimerDocsEtFactures()
 {
-    if (PosteImport)
+    if (!PosteImport)
+        return;
+    db->locktables(QStringList() << NOM_TABLE_FACTURESASUPPRIMER " sup" << NOM_TABLE_DOCSASUPPRIMER << NOM_TABLE_FACTURES " fac");
+    bool ok = true;
+    QString NomDirStockageImagerie = proc->DirImagerie();
+
+    /* Supprimer les documents en attente de suppression*/
+    QString req = "Select filepath from " NOM_TABLE_DOCSASUPPRIMER;
+    QList<QList<QVariant>> ListeDocs = db->StandardSelectSQL(req, ok);
+    for (int i=0; i<ListeDocs.size(); i++)
     {
-        QSqlQuery ("lock tables '" NOM_TABLE_DOCSASUPPRIMER "' write",  DataBase::getInstance()->getDataBase() );
-        QString req = "Select filepath from " NOM_TABLE_DOCSASUPPRIMER;
-        //qDebug() << req;
-        QSqlQuery delreq (req,  DataBase::getInstance()->getDataBase() );
-        for (int i=0; i<delreq.size(); i++)
-        {
-            delreq.seek(i);
-            QString CheminFichier ("");
-            if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
-                CheminFichier = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
-            if (DataBase::getInstance()->getMode() == DataBase::Poste)
-                CheminFichier = proc->DirImagerie();
-            CheminFichier += delreq.value(0).toString();
-            if (!QFile(CheminFichier).remove())
-                UpMessageBox::Watch(this, tr("Fichier introuvable!"), CheminFichier);
-            QSqlQuery("delete from " NOM_TABLE_DOCSASUPPRIMER " where filepath = '" + delreq.value(0).toString() + "'",  DataBase::getInstance()->getDataBase() );
-        }
-        QSqlQuery("unlock tables",  DataBase::getInstance()->getDataBase() );
+        QString CheminFichier = NomDirStockageImagerie + ListeDocs.at(i).at(0).toString();
+        if (!QFile(CheminFichier).remove())
+            UpMessageBox::Watch(this, tr("Fichier introuvable!"), CheminFichier);
+        db->StandardSQL("delete from " NOM_TABLE_DOCSASUPPRIMER " where filepath = '" + ListeDocs.at(i).at(0).toString() + "'");
     }
+
+    /* Supprimer les factures en attente de suppression*/
+    req = "select sup.idFacture, idUser, LienFichier from " NOM_TABLE_FACTURESASUPPRIMER " sup"
+          " left join " NOM_TABLE_FACTURES " fac"
+          " on sup.idFacture = fac.idFacture";
+    QList<QList<QVariant>> ListeFactures = DataBase::getInstance()->StandardSelectSQL(req, ok);
+    if (ListeFactures.size()>0)
+    {
+        for (int i=0; i<ListeFactures.size(); i++)
+        {
+            int idfacture       = ListeFactures.at(i).at(0).toInt();
+            int iduser          = ListeFactures.at(i).at(1).toInt();
+            QString lienfacture = ListeFactures.at(i).at(2).toString();
+            /* on détruit l'enregistrement dans la table factures*/
+            db->SupprRecordFromTable(idfacture,"idFacture",NOM_TABLE_FACTURES);
+            /*  on copie le fichier dans le dossier facturessanslien*/
+            QString CheminOKTransfrDir = NomDirStockageImagerie + NOMDIR_FACTURESSANSLIEN;
+            QDir DirTrsferOK;
+            if (!QDir(CheminOKTransfrDir).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+                {
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QStringList listmsg;
+                    listmsg << msg;
+                    dlg_message(listmsg, 3000, false);
+                    return;
+                }
+            CheminOKTransfrDir = CheminOKTransfrDir + "/" + Datas::I()->users->getLoginById(iduser);
+            if (!QDir(CheminOKTransfrDir).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+                {
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QStringList listmsg;
+                    listmsg << msg;
+                    dlg_message(listmsg, 3000, false);
+                    return;
+                }
+            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + lienfacture).copy(NomDirStockageImagerie + NOMDIR_FACTURESSANSLIEN + lienfacture);
+            /*  on l'efface du dossier de factures*/
+            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + lienfacture).remove();
+        }
+    }
+    db->commit();
 }
 
 void Rufus::SupprimerDossier()
