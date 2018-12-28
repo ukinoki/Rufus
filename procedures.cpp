@@ -134,6 +134,97 @@ void Procedures::ab(int i)
     UpMessageBox::Watch(Q_NULLPTR, mess);
 }
 
+/*!
+ * \brief Procedures::CompressFileJPG(QByteArray ba, QString nomfileOK, QString nomfileEchec)
+ * comprime un fichier jpg à une taille inférieure à celle de la macro TAILLEMAXIIMAGES
+ * \param QString nomfileOK le nom du fichier d'origine utilisé aussi en cas d'échec pour faire le log
+ * \param QDate datetransfert date utilisée en cas d'échec pour faire le log
+ * \return true si réussi, false si échec de l'enregistrement du fichier
+ * en cas d'échec
+    * un fichier de log est utilisé ou créé au besoin dans le répertoire NOMDIR_ECHECSTRANSFERTS
+    * et une ligne résumant l'échec est ajoutée en fin de ce fichier
+    * le fichier d'origine est ajouté dans ce même répertoire
+ */
+bool Procedures::CompressFileJPG(QString nomfile, QDate datetransfert)
+{
+    /* on vérifie si le dossier des echecs de transferts existe sur le serveur et on le crée au besoin*/
+    QString CheminEchecTransfrDir   = DirImagerie() + NOMDIR_ECHECSTRANSFERTS;
+    QDir DirTrsferEchec;
+    if (!QDir(CheminEchecTransfrDir).exists())
+        if (!DirTrsferEchec.mkdir(CheminEchecTransfrDir))
+        {
+            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + tr(" invalide");
+            QStringList listmsg;
+            listmsg << msg;
+            dlg_message(listmsg, 3000, false);
+            return false;
+        }
+    /* on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin*/
+    QDir DirStockProv;
+    QString DirStockProvPath = QDir::homePath() + NOMDIR_RUFUS NOMDIR_PROV;
+    if (!QDir(DirStockProvPath).exists())
+        if (!DirStockProv.mkdir(DirStockProvPath))
+        {
+            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + DirStockProvPath + "</b></font>" + tr(" invalide");
+            QStringList listmsg;
+            listmsg << msg;
+            dlg_message(listmsg, 3000, false);
+            return false;
+        }
+
+    QFile CC(nomfile);
+    QString filename = QFileInfo(nomfile).fileName();
+    QString nomfichresize = DirStockProvPath + "/" + filename;
+    QFile fileresize(nomfichresize);
+    if (fileresize.exists())
+        fileresize.remove();
+    QFile echectrsfer(CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfert.toString("yyyy-MM-dd") + ".txt");
+    QImage  img(nomfile);
+    QPixmap pixmap;
+    double w = img.width();
+    double h = img.height();
+    int x = img.width();
+    if (int(w*h)>(4096*1024)) // si l'image dépasse 4 Mpixels, on la réduit en conservant les proportions
+    {
+        double proportion = w/h;
+        int y = int(sqrt((4096*1024)/proportion));
+        x = int (y*proportion);
+    }
+    pixmap = pixmap.fromImage(img.scaledToWidth(x,Qt::SmoothTransformation));
+    /* on enregistre le fichier sur le disque du serveur
+     * si on n'y arrive pas,
+        * on crée le fichier log des echecstransferts correspondants dans le répertoire des eches de transfert sur le serveur
+        * on complète ce fichier en ajoutant une ligne correspondant à cet échec
+        * on enregistre dans ce dossier une copie du fichier d'origine
+     */
+    if (!pixmap.save(nomfichresize, "jpeg"))
+    {
+        if (echectrsfer.open(QIODevice::Append))
+        {
+            QTextStream out(&echectrsfer);
+            out << CC.fileName() << "\n" ;
+            echectrsfer.close();
+            CC.copy(CheminEchecTransfrDir + "/" + filename);
+        }
+        return false;
+    }
+    /* on comprime*/
+    int tauxcompress = 90;
+    while (fileresize.size() > TAILLEMAXIIMAGES && tauxcompress > 1)
+    {
+        pixmap.save(nomfichresize, "jpeg",tauxcompress);
+        fileresize.open(QIODevice::ReadWrite);
+        if (fileresize.size() > TAILLEMAXIIMAGES & tauxcompress > 1)
+        {
+            tauxcompress -=10;
+            if (tauxcompress<1)
+                fileresize.copy(nomfile);
+        }
+        fileresize.close();
+        fileresize.remove();
+    }
+    return true;
+}
 
 /*--------------------------------------------------------------------------------------------------------------
 -- Choix d'une date ou d'une période ---------------------------------------------------------------------------
@@ -899,7 +990,9 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                 {
                     if (typedoc != FACTURE)
                     {
-                        DataBase::getInstance()->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem);
+                        DataBase::getInstance()->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
+                                                             " where idimpression = " + iditem +
+                                                             " and facture = null");
                         QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
                                       "VALUES (" +
                                       iditem + ", " +
@@ -909,10 +1002,14 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                     }
                     else
                     {
-                        QString req = "UPDATE " NOM_TABLE_FACTURES
-                                      " set " + sfx + " = "
-                                      " LOAD_FILE('" + DirImagerie() + NOMDIR_FACTURES + filename + "')"
-                                      " where idfacture = " + QString::number(dep->idfacture());
+                        DataBase::getInstance()->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
+                                                             " where idimpression = " + iditem +
+                                                             " and facture = 1");
+                        QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", facture) "
+                                      "VALUES (" +
+                                      iditem + ", " +
+                                      " LOAD_FILE('" + DirImagerie() + NOMDIR_FACTURES + filename + "'), " +
+                                      "1)";
                         DataBase::getInstance()->StandardSQL(req);
                     }
                 }
@@ -923,7 +1020,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
         QList<QList<QVariant>> listimpr;
         if (typedoc != FACTURE)
         {
-            listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem
+            listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = null"
                                                                   , ok
                                                                   , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
             if (!ok)
@@ -937,9 +1034,9 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
         }
         else
         {
-            listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg  from " NOM_TABLE_FACTURES " where idfacture = " + iditem
+            listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = 1"
                                                                   , ok
-                                                                  , tr("Impossible d'accéder à la table ") + NOM_TABLE_FACTURES);
+                                                                  , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
             if (!ok)
                 return result;
         }
@@ -1059,9 +1156,9 @@ void Procedures::EditHtml(QString txt)
  * \brief Procedures::EditImage
  * affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pourvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
  * argument QMap<QString,QVariant> doc contient 2 éléments
-    . ba = le QByteArray contenant les données
-    . type = jpg ou pdf
- * argument label le label de l'image affiché dans un QLable magenta en bas à gauche de l'image
+    . doc["ba"] = le QByteArray correspondant au contenu du fichier   = QFile(emplacementdufichier)->readAll())
+    . doc["type"] = "jpg" ou "pdf" correspondant au type du fichier   = QFileInfo(emplacementdufichier)->suffix();
+ * argument label le label de l'image affiché dans un QLabel magenta en bas à gauche de l'image
  * argument titre le titre de la fiche
  * argument Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
  * si le bouton PrintButton est utilisé il permet d'imprimer l'image en appelant la fonction PrintImage(QMap<QString,QVariant> doc)
@@ -1078,9 +1175,12 @@ void Procedures::EditImage(QMap<QString,QVariant> doc, QString label, QString ti
     gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     gAsk->setWindowTitle(titre);
     globallay->insertWidget(0,uptable);
+    uptable->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
+    uptable->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     gAsk->AjouteLayButtons(Button);
     connect(gAsk->OKButton, &QPushButton::clicked, this, [=] {gAsk->accept();});
+    connect(this, &Procedures::CloseEditImage, gAsk, [=] {gAsk->accept();});
     if (Button.testFlag(UpDialog::ButtonPrint))
     {
         gAsk->PrintButton->setLuggage(doc);
@@ -1382,7 +1482,7 @@ User* Procedures::getUserConnected()
 
 /*!
  * \brief Procedures::getPatientById
- * Cette fonction va retourner un pateint en fonction de son id
+ * Cette fonction va retourner un patient en fonction de son id
  * \param id l'id du patient
  * \return Patien le patient
  */

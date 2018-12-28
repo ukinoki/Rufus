@@ -54,6 +54,7 @@ private:
     QStringList                 glistMoyensDePaiement;
     QString                     NomDirStockageImagerie;
     User                        *gDataUser;
+    UpDialog                    *gAskDialog;
     UpTableWidget               *gBigTable;
     UpPushButton                *EnregupPushButton, *AnnulupPushButton;
     UpPushButton                *SupprimerupPushButton, *ModifierupPushButton;
@@ -67,6 +68,7 @@ private:
 
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );
+    void                        AfficheFacture(Depense *dep = Q_NULLPTR);
     void                        CalculTotalDepenses();
     void                        ChoixMenu(QString);
     void                        DefinitArchitectureBigTable();
@@ -82,7 +84,8 @@ private:
     void                        RemplitBigTable();
     void                        ScanDoc(QString typedoc);
     void                        SetDepenseToRow(Depense *dep, int row);
-    void                        SupprimeFacture();
+    void                        EffaceFacture();
+    void                        SupprimeFacture(Depense*dep);
 
     //anciens slots
     void                        AnnulEnreg();

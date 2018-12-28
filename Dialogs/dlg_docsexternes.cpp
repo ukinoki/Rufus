@@ -60,7 +60,7 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
     inflabel            ->setFont(font);
 
 
-    ScrollTable         = new UpTableWidget(this);
+    ScrollTable         = new UpTableWidget(this);                      // utilisé pour afficher les pdf qui ont parfois plusieurs pages
     ScrollTable->horizontalHeader() ->setVisible(false);
     ScrollTable->verticalHeader()   ->setVisible(false);
     ScrollTable         ->installEventFilter(this);
@@ -69,7 +69,7 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
     ScrollTable         ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     ScrollTable         ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
 
-    GraphicView         = new QGraphicsView(Scene, this);
+    GraphicView         = new QGraphicsView(Scene, this);               // utilisé pour afficher les jpg et les video
     GraphicView         ->installEventFilter(this);
     GraphicView         ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     GraphicView         ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

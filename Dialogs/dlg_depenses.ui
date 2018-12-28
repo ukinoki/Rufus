@@ -754,7 +754,7 @@ un échéancier</string>
          </spacer>
         </item>
         <item>
-         <widget class="QCheckBox" name="VisuDoccheckBox">
+         <widget class="QCheckBox" name="VisuFacturecheckBox">
           <property name="minimumSize">
            <size>
             <width>205</width>
@@ -769,6 +769,9 @@ un échéancier</string>
           </property>
           <property name="text">
            <string>Prévisualiser les dépenses</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
           </property>
          </widget>
         </item>

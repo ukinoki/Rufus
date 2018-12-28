@@ -29,7 +29,7 @@ UpSmallButton::UpSmallButton(QWidget *parent) : QPushButton(parent)
     setFlat(true);
     setFocusPolicy(Qt::NoFocus);
 
-    StyleBouton = NOBUTTON;
+    StyleBouton         = NOBUTTON;
     gLuggage            = -1;
     gToolTipMsg         = "";
     setStyleSheet(STYLE_UPSMALLBUTTON);

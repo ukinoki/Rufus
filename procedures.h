@@ -98,6 +98,7 @@ public:
 
     QMap<QString,QVariant>  CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher = true);
     QString                 ConvertitEnHtml(QString Texte);
+    bool                    CompressFileJPG(QString nomfile, QDate datetransfert = QDate::currentDate());
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
@@ -253,6 +254,7 @@ signals:
     void                    ModifEdit(QString txt);
     void                    ConnectTimers(bool);
     void                    DelImage();
+    void                    CloseEditImage();
 
 private:
     bool                    initOK;

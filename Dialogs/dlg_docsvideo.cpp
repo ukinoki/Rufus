@@ -70,6 +70,7 @@ dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
 
     typeDocCombo->insertItems(0,ListTypeExams);
     typeDocCombo->setEditable(false);
+    linetitre->setValidator(new QRegExpValidator(Utils::rgx_intitulecompta));
 
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));
@@ -258,7 +259,7 @@ void dlg_docsvideo::ValideFiche()
         }
     QString sstypedoc = linetitre->text();
     QString NomFileVideoDoc = QString::number(idpat) + "_"
-                             + sstypedoc + "_"
+                             + sstypedoc.replace("/",".") + "_"
                              + editdate->date().toString("yyyyMMdd") + "-" + QFileInfo(qFile).created().toString("HHmmss");
 
     QSqlQuery ("LOCK TABLES '" NOM_TABLE_IMPRESSIONS "' WRITE", DataBase::getInstance()->getDataBase());

@@ -118,6 +118,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     QDoubleValidator *val= new QDoubleValidator(this);
     val->setDecimals(2);
     ui->MontantlineEdit->setValidator(val);
+    ui->ObjetlineEdit->setValidator(new QRegExpValidator(Utils::rgx_intitulecompta));
 
     QList<UpPushButton *> allUpButtons = this->findChildren<UpPushButton *>();
     for (int n = 0; n <  allUpButtons.size(); n++)
@@ -156,6 +157,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->UserscomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {ChangeUser(ui->UserscomboBox->currentIndex());});
     connect (ui->VisuDocupTableWidget,          SIGNAL(zoom()),                 this,   SLOT(ZoomDoc()));
+    connect (ui->VisuFacturecheckBox,           &QCheckBox::clicked,            this,   [=] {AfficheFacture(m_depenseencours);});
     connect (EnregupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::ModifierDepense);
     connect (AnnulupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::AnnulEnreg);
 
@@ -171,6 +173,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 dlg_depenses::~dlg_depenses()
 {
     delete ui;
+    delete m_depenseencours;
 }
 
 void dlg_depenses::ExportTable()
@@ -278,6 +281,9 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
         ui->OKupPushButton      ->setShortcut(QKeySequence("Meta+Return"));
         ModifierupPushButton    ->setShortcut(QKeySequence());
         EnregupPushButton       ->setShortcut(QKeySequence());
+        ui->FactureupPushButton     ->setVisible(false);
+        ui->EcheancierupPushButton  ->setVisible(false);
+        ui->VisuDocupTableWidget    ->setVisible(false);
         [[clang::fallthrough]];// => pas de break, on continue avec le code de Lire
     case Lire: {
         EnregupPushButton       ->setText(tr("Modifier"));
@@ -409,12 +415,18 @@ void dlg_depenses::EnableModifiepushButton()
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- ENregistrer une dépense ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Enregistrer une dépense ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::EnregistreDepense()
 {
     bool OnSauteLaQuestionSuivante = false;
     QString pb = "";
+    // Vérifier l'absence de slash dans l'intitulé
+    if (!Utils::rgx_intitulecompta.exactMatch(ui->ObjetlineEdit->text()))
+    {
+        UpMessageBox::Watch(this,tr("l'intitulé n'est pas conforme"), tr("Il contient des caractères non admis"));
+        return;
+    }
 
     //  Vérifer que la saisie est complète et cohérente
     QString Erreur = "";
@@ -552,6 +564,7 @@ void dlg_depenses::EnregistreDepense()
     jData["modepaiement"]   = m;
     jData["compte"]         = (m!="E"? idCompte.toInt() : QVariant().toInt());
     jData["nocheque"]       = QVariant().toInt();
+    jData["idfacture"]      = 0;
 
     Depense *dep = new Depense(jData);
     Datas::I()->depenses->addDepense(dep);
@@ -590,7 +603,7 @@ void dlg_depenses::EnregistreDepense()
         if (getDepenseFromRow(i)->id() == dep->id()){
             gBigTable->setCurrentCell(i,1);
             gBigTable->scrollTo(gBigTable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
-            break;
+             break;
         }
     RegleAffichageFiche(Lire);
 }
@@ -704,6 +717,10 @@ void dlg_depenses::SupprimerDepense()
     if (msgbox.clickedButton() != &OKBouton)
         return;
 
+    //On supprime la facture éventuelle
+    if (dep->idfacture()>0)
+        SupprimeFacture(dep);
+
     //On supprime l'écriture
     db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_LIGNESCOMPTES);
     db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_DEPENSES);
@@ -733,8 +750,61 @@ void dlg_depenses::SupprimerDepense()
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Recalcule le total des dépenses -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Affiche la facture dans ui->VisuDocupTableWidget -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+void dlg_depenses::AfficheFacture(Depense *dep)
+{
+    if (dep == Q_NULLPTR)
+        dep = m_depenseencours;
+    if (dep == Q_NULLPTR)
+    {
+        ui->FactureupPushButton     ->setVisible(false);
+        ui->EcheancierupPushButton  ->setVisible(false);
+        ui->VisuDocupTableWidget    ->setVisible(false);
+        return;
+    }
+    bool hasfacture = dep->idfacture()>0;
+    ui->FactureupPushButton     ->setVisible(!hasfacture);
+    ui->EcheancierupPushButton  ->setVisible(!hasfacture);
+    ui->VisuDocupTableWidget    ->setVisible(hasfacture);
+    if (hasfacture)
+    {
+        if (!ui->VisuFacturecheckBox->isChecked())
+        {
+            ui->VisuDocupTableWidget->clear();
+            ui->VisuDocupTableWidget->setColumnCount(1);
+            ui->VisuDocupTableWidget->setColumnWidth(0,ui->VisuDocupTableWidget->width()-2);
+            ui->VisuDocupTableWidget->setRowHeight(0,ui->VisuDocupTableWidget->height()-2);
+            ui->VisuDocupTableWidget->horizontalHeader()->setVisible(false);
+            ui->VisuDocupTableWidget->verticalHeader()->setVisible(false);
+            QWidget *widg = new QWidget();
+            UpLabel* lab = new UpLabel(widg);
+            lab->setText(tr("Voir") + "\n" + (dep->isecheancier()? tr("l'échéancier"): tr("la facture")));
+            lab->setAlignment(Qt::AlignCenter);
+            QGridLayout *lay = new QGridLayout(widg);
+            lay->addWidget(lab,0,0,Qt::AlignCenter);
+            ui->VisuDocupTableWidget->setCellWidget(0,0,widg);
+            connect(lab, &UpLabel::clicked, this,
+            [=]
+            {
+              if (dep->lienfacture()!="")
+                  ui->VisuDocupTableWidget->emit zoom();
+              else
+                  UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible)"));
+            });
+        }
+        else if (dep->lienfacture()!="")
+        {
+            QMap<QString,QVariant> doc = proc->CalcImage(dep->id(), FACTURE, true, true);
+            glistImg =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+        }
+        else
+            UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible"));
+    }
+}
+/*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    -- Recalcule le total des dépenses -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::CalculTotalDepenses()
 {
     double Total = 0;
@@ -762,8 +832,8 @@ void dlg_depenses::GestionComptes()
 
 void dlg_depenses::ZoomDoc()
 {
-    disconnect (proc, &Procedures::DelImage, this, &dlg_depenses::SupprimeFacture);
-    connect (proc, &Procedures::DelImage, this, &dlg_depenses::SupprimeFacture);
+    disconnect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
+    connect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
     QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
     proc->EditImage(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
@@ -771,13 +841,32 @@ void dlg_depenses::ZoomDoc()
                     UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK);
 }
 
-void dlg_depenses::SupprimeFacture()
+void dlg_depenses::EffaceFacture()
 {
     if (UpMessageBox::Question(this,
                            (m_depenseencours->isecheancier()? tr("Suppression d'échéancier") : tr("Suppression de facture")),
-                           (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()))
+                           tr ("Confirmez la suppression de ") + (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
+                           UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                           QStringList() << "Oups!" << tr("Supprimer"))
             != UpSmallButton::STARTBUTTON)
         return;
+        /* on ferme la fiche d'édition de la facture
+         * on supprime toute référence à la facture dans la dépense
+         * on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier
+         */
+    /* on ferme la fiche d'édition de la facture*/
+    proc->emit CloseEditImage();
+    SupprimeFacture(m_depenseencours);
+    /* on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier*/
+    ui->VisuDocupTableWidget->clear();
+    bool hasfacture = m_depenseencours->lienfacture()!="";
+    ui->FactureupPushButton     ->setVisible(!hasfacture);
+    ui->EcheancierupPushButton  ->setVisible(!hasfacture);
+    ui->VisuDocupTableWidget    ->setVisible(hasfacture);
+}
+
+void dlg_depenses::SupprimeFacture(Depense *dep)
+{
         /* on remet à null les champs idfacture, jpg et pdf de la dépense
          * on vérifie si l'idfacture est utilisé par d'autres dépenses (cas d'un échéancier)
          * si non,
@@ -795,14 +884,14 @@ void dlg_depenses::SupprimeFacture()
     listsets.insert("idfacture","null");
     DataBase:: getInstance()->UpdateTable(NOM_TABLE_DEPENSES,
                                           listsets,
-                                          "where idDep = " + QString::number(m_depenseencours->id()));
+                                          "where idDep = " + QString::number(dep->id()));
     /* on vérifie si l'idfacture est utilisé par d'autres dépenses (cas d'un échéancier)*/
     bool supprimerlafacture = true;
     bool ok = true;
-    if (m_depenseencours->isecheancier())
+    if (dep->isecheancier())
     {
         QString req = "select idDep from " NOM_TABLE_DEPENSES
-                      " where idFacture = " + QString::number(m_depenseencours->idfacture());
+                      " where idFacture = " + QString::number(dep->idfacture());
         supprimerlafacture = (db->StandardSelectSQL(req, ok).size()==0);
     }
     /* si non*/
@@ -813,14 +902,14 @@ void dlg_depenses::SupprimeFacture()
         {
             /* on inscrit l'idfacture dans la table FacturesASupprimer*/
             QString req = "insert into " NOM_TABLE_FACTURESASUPPRIMER
-                    " (idFacture) values (" + QString::number(m_depenseencours->idfacture()) + ")";
-            DataBase::getInstance()->StandardSelectSQL(req, ok);
+                    " (idFacture) values (" + QString::number(dep->idfacture()) + ")";
+            db->StandardSQL(req);
         }
         /* sinon*/
         else
         {
             /* on détruit l'enregistrement dans la table factures*/
-            db->SupprRecordFromTable(m_depenseencours->idfacture(),"idFacture",NOM_TABLE_FACTURES);
+            db->SupprRecordFromTable(dep->idfacture(),"idFacture",NOM_TABLE_FACTURES);
             /*  on copie le fichier dans le dossier facturessanslien*/
             QString CheminOKTransfrDir = NomDirStockageImagerie + NOMDIR_FACTURESSANSLIEN;
             QDir DirTrsferOK;
@@ -833,7 +922,7 @@ void dlg_depenses::SupprimeFacture()
                     dlg_message(listmsg, 3000, false);
                     return;
                 }
-            CheminOKTransfrDir = CheminOKTransfrDir + "/" + Datas::I()->users->getLoginById(m_depenseencours->iduser());
+            CheminOKTransfrDir = CheminOKTransfrDir + "/" + Datas::I()->users->getLoginById(dep->iduser());
             if (!QDir(CheminOKTransfrDir).exists())
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
                 {
@@ -843,15 +932,15 @@ void dlg_depenses::SupprimeFacture()
                     dlg_message(listmsg, 3000, false);
                     return;
                 }
-            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + m_depenseencours->lienfacture()).copy(NomDirStockageImagerie + NOMDIR_FACTURESSANSLIEN + m_depenseencours->lienfacture());
+            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + dep->lienfacture()).copy(NomDirStockageImagerie + NOMDIR_FACTURESSANSLIEN + dep->lienfacture());
             /*  on l'efface du dossier de factures*/
-            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + m_depenseencours->lienfacture()).remove();
+            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + dep->lienfacture()).remove();
         }
     }
     /* on remet à zero les idfacture et lienfacture de la dépense*/
-    m_depenseencours->setidfacture(-1);
-    m_depenseencours->setlienfacture("");
-    m_depenseencours->setecheancier(false);
+    dep->setidfacture(0);
+    dep->setlienfacture("");
+    dep->setecheancier(false);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -894,15 +983,7 @@ void dlg_depenses::MetAJourFiche()
         ui->ComptesupComboBox   ->setCurrentIndex(ui->ComptesupComboBox->findText(B));
         ui->ComptesupComboBox   ->setVisible(B != "");
         ui->RefFiscalecomboBox  ->setCurrentText(m_depenseencours->reffiscale());
-        bool hasfacture = m_depenseencours->lienfacture()!="";
-        ui->FactureupPushButton     ->setVisible(!hasfacture);
-        ui->EcheancierupPushButton  ->setVisible(!hasfacture);
-        ui->VisuDocupTableWidget    ->setVisible(hasfacture);
-        if (m_depenseencours->lienfacture() != "")
-        {
-            QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
-            glistImg =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
-        }
+        AfficheFacture(m_depenseencours);
         if (m_depenseencours->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
         {
             if (m_depenseencours->isArchivee() == Depense::NoLoSo)
@@ -1209,6 +1290,7 @@ void dlg_depenses::RedessineBigTable()
 {
     RemplitBigTable();
     gBigTable->disconnect();
+    m_depenseencours = Q_NULLPTR;
     if (gBigTable->rowCount() > 0)
     {
         gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
@@ -1442,7 +1524,84 @@ void dlg_depenses::ScanDoc(QString typedoc)
     if (typedoc == FACTURE)
         Dlg_DocsScan = new dlg_docsscanner(m_depenseencours->id(), dlg_docsscanner::Facture, m_depenseencours->objet(), this);
     else if (typedoc == ECHEANCIER)
+    {
+        /* on recherche s'il y a d'autres échéanciers enregistrés dans la table factures pour cet utilisateur*/
+        QString req = "select distinct dep.idfacture, Intitule, LienFichier from " NOM_TABLE_DEPENSES " dep"
+                      " left join " NOM_TABLE_FACTURES " fac"
+                      " on dep.idfacture = fac.idfacture"
+                      " where Echeancier = 1"
+                      " and idUser = " + QString::number(proc->getUserConnected()->id());
+        //qDebug() << req;
+        bool ok = true;
+        QList<QList<QVariant>> ListeEch = db->StandardSelectSQL(req, ok);
+        if (ListeEch.size()>0)
+        {
+            gAskDialog                      = new UpDialog(this);
+            QListView   *listview           = new QListView(gAskDialog);
+            listview->setMinimumWidth(200);
+            listview->setMinimumHeight(150);
+            UpSmallButton *creerecheancier  = new UpSmallButton();
+            creerecheancier->setIcon(Icons::icAjouter());
+            gAskDialog->dlglayout()->insertWidget(0,listview);
+
+
+            gAskDialog      ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+            gAskDialog      ->setWindowTitle(tr("Choisissez un échéancier"));
+            gAskDialog      ->AjouteWidgetLayButtons(creerecheancier, false);
+            gAskDialog->OKButton->setEnabled(false);
+            int *idfactarecuperer = new int(0);
+            QStandardItemModel model;
+            listview->setModel(&model);
+            listview->setModelColumn(0);
+            for (int i=0; i< ListeEch.size(); ++i)
+            {
+                model.setItem(i,0, new QStandardItem(ListeEch.at(i).at(1).toString()));
+                model.setItem(i,1, new QStandardItem(ListeEch.at(i).at(0).toString()));
+            }
+            connect (listview->selectionModel(),    &QItemSelectionModel::selectionChanged, this,   [=] {gAskDialog->OKButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);});
+            connect(gAskDialog->OKButton,           &QPushButton::clicked,                  this,   [=]
+                {
+                *idfactarecuperer = static_cast<QStandardItemModel*>(listview->model())->item(listview->selectionModel()->selectedIndexes().at(0).row(),1)->text().toInt();;
+                gAskDialog->accept();
+                });
+            connect(creerecheancier,           &QPushButton::clicked,                  gAskDialog,   &UpDialog::accept);
+            connect(gAskDialog->CancelButton,   SIGNAL(clicked(bool)),gAskDialog,SLOT(reject()));
+
+            int a = gAskDialog->exec();
+            int fact = *idfactarecuperer;
+            delete idfactarecuperer;
+            int row = -1;
+            QString lienfichier("");
+            if (listview->selectionModel()->selectedIndexes().size()>0)
+            {
+                row = listview->selectionModel()->selectedIndexes().at(0).row();
+                lienfichier = ListeEch.at(row).at(2).toString();
+            }
+            delete gAskDialog;
+            if (a>0)
+            {
+                if (fact>0)
+                {
+                    /* on a récupéré un idfacture à utiliser comme échéancier pour cette dépense*/
+                    QString req = "update " NOM_TABLE_DEPENSES " set idFacture = " + QString::number(fact) + " where idDep = " + QString::number(m_depenseencours->id());
+                    QSqlQuery (req, db->getDataBase());
+
+                    m_depenseencours->setidfacture(fact);
+                    m_depenseencours->setlienfacture(lienfichier);
+                    m_depenseencours->setecheancier(true);
+                    ui->FactureupPushButton     ->setVisible(false);
+                    ui->EcheancierupPushButton  ->setVisible(false);
+                    ui->VisuDocupTableWidget    ->setVisible(true);
+                    QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
+                    glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+                    return;
+                }
+            }
+            else
+                return;
+        }
         Dlg_DocsScan = new dlg_docsscanner(m_depenseencours->id(), dlg_docsscanner::Echeancier, "", this);
+    }
     if (Dlg_DocsScan->exec() > 0)
     {
         QMap<QString, QVariant> map = Dlg_DocsScan->getdataFacture();

@@ -16,7 +16,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "uptablewidget.h"
-#include <qdebug.h>
 
 UpTableWidget::UpTableWidget(QWidget *parent) : QTableWidget(parent)
 {
@@ -68,6 +67,8 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
     setColumnWidth(0,width()-2);
     horizontalHeader()->setVisible(false);
     verticalHeader()->setVisible(false);
+    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     QString suffixe;
     if (doc["type"].toString() == PDF)

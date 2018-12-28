@@ -25,6 +25,7 @@ public:
     static QRegExp const rgx_mail;
 
     static QRegExp const rgx_adresse;
+    static QRegExp const rgx_intitulecompta;
     static QRegExp const rgx_CP;
     static QRegExp const rgx_ville;
     static QRegExp const rgx_telephone;

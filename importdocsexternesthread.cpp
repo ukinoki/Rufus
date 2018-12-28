@@ -312,8 +312,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                         FichierResize.setFileName(nomfichresize);
                         QImage  img(CheminFichierImage);
                         QPixmap pixmap;
-                        int     tauxcompress = 100;
-                        while (sz > TAILLEMAXIIMAGES && tauxcompress > 10)
+                        int     tauxcompress = 90;
+                        while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
                         {
                             pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
                             if (FichierResize.exists())

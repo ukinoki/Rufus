@@ -21,7 +21,7 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
     proc            = Procedures::I();
-    iditem          = idPatouDep;        // correspond à l'id du patient dans le cas d'un document scanné, à ll'id depense dans le cas d'une facture scannée
+    iditem          = idPatouDep;        // correspond à l'id du patient dans le cas d'un document scanné, à l'id depense dans le cas d'une facture scannée
     gMode           = mode;
     db              = DataBase::getInstance();
     QString         NomOnglet;
@@ -118,6 +118,7 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
 
     typeDocCombo->insertItems(0,ListTypeExams);
     typeDocCombo->setEditable(false);
+    linetitre->setValidator(new QRegExpValidator(Utils::rgx_intitulecompta));
 
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));
@@ -167,7 +168,6 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     int y = height() - globallay->contentsMargins().top() - globallay->contentsMargins().bottom() - globallay->spacing()  - widgetbuttons()->height();
     uptable->resize(w, y);
     initOK = true;
-    //Utils::Pause(10);
     NavigueVers("Fin");
 }
 
@@ -318,33 +318,15 @@ void dlg_docsscanner::ValideFiche()
     if (suffixe == "jpeg")
         suffixe= "jpg";
     QByteArray ba = qFileOrigin.readAll();
-    QString nomfichresize = QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES + "/resize" + "." + suffixe;
-    qFileOrigin.copy(nomfichresize);
-    QFile fichCopy(nomfichresize);
-    qint64 sz = fichCopy.size();
-    if (suffixe == "jpg" && sz > TAILLEMAXIIMAGES)
-    {
-        QImage img(filename);
-        QPixmap pixmap;
-        int tauxcompress = 100;
-        while (sz > TAILLEMAXIIMAGES && tauxcompress > 10)
-        {
-            pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
-            fichCopy.remove();
-            pixmap.save(QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES + "/resize.jpg", "jpeg",tauxcompress);
-            fichCopy.open(QIODevice::ReadWrite);
-            sz = fichCopy.size();
-            if (sz > TAILLEMAXIIMAGES)
-            {
-                fichCopy.close();
-                tauxcompress -= 10;
-            }
-        }
-        ba = fichCopy.readAll();
-    }
-    QString datetransfer            = QDate::currentDate().toString("yyyy-MM-dd");
-    QString user                    = Datas::I()->users->getLoginById(Datas::I()->depenses->getDepenseById(iditem)->iduser());
-    QString CheminOKTransfrDir      = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES : NOMDIR_FACTURES) ;
+
+    if (suffixe == "jpg" && qFileOrigin.size() > TAILLEMAXIIMAGES)
+        if (! proc->CompressFileJPG(filename))
+            return;
+    QString datetransfer        = QDate::currentDate().toString("yyyy-MM-dd");
+    QString user("");
+    if (gMode != Document)
+        user = Datas::I()->users->getLoginById(Datas::I()->depenses->getDepenseById(iditem)->iduser());
+    QString CheminOKTransfrDir  = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES : NOMDIR_FACTURES) ;
     QDir DirTrsferOK;
     if (!QDir(CheminOKTransfrDir).exists())
         if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
@@ -371,12 +353,12 @@ void dlg_docsscanner::ValideFiche()
     QString sstypedoc = linetitre->text();
     QString NomFileDoc = QString::number(iditem) + "_"
             + typeDocCombo->currentText() + "_"
-            + sstypedoc + "_"
-            + editdate->dateTime().toString("yyyy-MM-dd-HHmm");
+            + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
+            + editdate->dateTime().toString("yyyy-MM-dd");
 
     QSqlQuery query = QSqlQuery(db->getDataBase());
     int idimpr (0);
-    if (gMode == Document)
+    if (gMode == Document)      // c'est un document scanné
     {
         if (!db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS))
             return;
@@ -415,31 +397,35 @@ void dlg_docsscanner::ValideFiche()
             query.bindValue(":lieu",            QString::number(proc->getUserConnected()->getSite()->id()) );
         }
     }
-    else
+    else                        // c'est une facture ou un échéancier
     {
         if (!db->locktables(QStringList() << NOM_TABLE_FACTURES << NOM_TABLE_DEPENSES))
             return;
         idimpr =  db->selectMaxFromTable("idFacture", NOM_TABLE_FACTURES) + 1;
         if (!AccesDistant)
         {
-            query.prepare("insert into " NOM_TABLE_FACTURES " (idFacture, LienFichier, Echeancier, idUser)"
-                                                     " values(:idfact,   :lien,       :echeancier,:user)");
+            query.prepare("insert into " NOM_TABLE_FACTURES " (idFacture, DateFacture, Intitule, LienFichier, Echeancier, idDepense)"
+                                                     " values(:idfact,   :datefacture,:intitule,:lien,       :echeancier,:depense)");
             query.bindValue(":idfact",      QString::number(idimpr));
-            query.bindValue(":lien",        "/" + user + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe);
+            query.bindValue(":datefacture", editdate->date().toString("yyyy-MM-dd"));
+            query.bindValue(":intitule",    sstypedoc);
+            query.bindValue(":lien",        "/" + user + "/" + NomFileDoc  + (gMode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe);
             query.bindValue(":echeancier",  (gMode== Echeancier? "1" : QVariant(QVariant::String)));
-            query.bindValue(":user",        QString::number(iditem) );
+            query.bindValue(":depense",     (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem)));
+            datafacture["lien"] = "/" + user + "/" + NomFileDoc + (gMode == Echeancier? "" : "-" + QString::number(idimpr)) + "." + suffixe;
         }
         else
         {
-            query.prepare("insert into " NOM_TABLE_FACTURES " (idFacture, Echeancier, idUser, " + suffixe + ")"
-                                                        " values(:idfact,   :echeancier,:user,      :doc)");
+            query.prepare("insert into " NOM_TABLE_FACTURES " (idFacture, DateFacture, Intitule, Echeancier, idDepense, " + suffixe + ")"
+                                                     " values(:idfact,   :datefacture,:intitule,:echeancier, :depense,      :doc)");
             query.bindValue(":idfact",      QString::number(idimpr));
+            query.bindValue(":datefacture", editdate->date().toString("yyyy-MM-dd"));
+            query.bindValue(":intitule",    sstypedoc);
             query.bindValue(":echeancier",  (gMode== Echeancier? "1" : QVariant(QVariant::String)));
-            query.bindValue(":user",        QString::number(iditem) );
+            query.bindValue(":depense",     (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem)));
             query.bindValue(":doc",         ba);
         }
         datafacture["idfacture"] = idimpr;
-        datafacture["lien"] = "/" + user + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
         datafacture["echeancier"] = (gMode == Echeancier);
     }
 
@@ -449,18 +435,24 @@ void dlg_docsscanner::ValideFiche()
     {
         UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
         qFileOrigin.close ();
+        reject();
     }
     else
     {
-        QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
-        fichCopy.copy(CheminOKTransfrDoc);
-        fichCopy.remove();
+        QString CheminOKTransfrDoc = CheminOKTransfrDir + "/" + NomFileDoc + (gMode == Echeancier? "" : "-" + QString::number(idimpr)) + "." + suffixe;
+        if (suffixe == JPG)
+        {
+            QFile CF(filename);
+            CF.copy(CheminOKTransfrDoc);
+        }
+        else if (suffixe == PDF)
+            qFileOrigin.copy(CheminOKTransfrDoc);
         QFile CC(CheminOKTransfrDoc);
-        CC.open(QIODevice::ReadWrite);
-        CC.setPermissions(QFileDevice::ReadOther
-                          | QFileDevice::ReadGroup
-                          | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                          | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+        if (CC.open(QIODevice::ReadWrite))
+            CC.setPermissions(QFileDevice::ReadOther
+                              | QFileDevice::ReadGroup
+                              | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                              | QFileDevice::ReadUser   | QFileDevice::WriteUser);
         qFileOrigin.remove();
         QString msg;
         switch (gMode) {

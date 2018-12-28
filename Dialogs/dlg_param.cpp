@@ -2231,13 +2231,6 @@ void dlg_param::ModifParamBackup()
             "ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 " + ui->HeureBackuptimeEdit->time().addSecs(-60).toString("HH:mm:ss") + "' "
             "DO DELETE FROM " NOM_BASE_IMAGES "." NOM_TABLE_ECHANGEIMAGES;
     QSqlQuery (req,db);
-    //programmation de l'effacement des pdf et jpg contenus dans Faxtures
-    QSqlQuery ("Use " NOM_BASE_COMPTA, db);
-    QSqlQuery ("DROP EVENT IF EXISTS VideFactures", db);
-    req =   "CREATE EVENT VideFactures "
-            "ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 " + ui->HeureBackuptimeEdit->time().addSecs(-60).toString("HH:mm:ss") + "' "
-            "DO UPDATE " NOM_BASE_COMPTA "." NOM_TABLE_FACTURES " SET jpg = null, pdf = null";
-    QSqlQuery (req,db);
 }
 
 void dlg_param::Slot_RestaureBase()

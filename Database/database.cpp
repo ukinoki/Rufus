@@ -460,6 +460,20 @@ QList<User*> DataBase::loadUsersAll()
     return users;
 }
 
+QJsonObject DataBase::loadUserDatabyLogin(QString login)
+{
+    QJsonObject userData{};
+
+    QString req = "select iduser from " NOM_TABLE_UTILISATEURS " where UserLogin = '" + login + "'";
+    QSqlQuery  query(req, getDataBase());
+    if( traiteErreurRequete(query, req, tr("Impossible de retrouver les données de l'utilisateur")) )
+        return userData;
+
+    if( !query.first() )
+        return userData;
+    return loadUserData(query.value(0).toInt());
+}
+
 /*
  * Correspondants
 */
