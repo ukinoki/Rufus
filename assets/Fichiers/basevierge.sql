@@ -10,8 +10,7 @@ CREATE TABLE `EchangeImages` (
 `pdf` LONGBLOB NULL,
 `jpg` LONGBLOB NULL,
 `Compression` INT(1) NULL,
-`Facture` INT(1) NULL,
-PRIMARY KEY (`idImpression`)
+`Facture` INT(1) NULL
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS `DocsASupprimer`;
@@ -21,8 +20,11 @@ CREATE TABLE `DocsASupprimer` (
 
 DROP TABLE IF EXISTS `FacturesASupprimer`;
 CREATE TABLE `FacturesASupprimer` (
-  `idFacture` INT DEFAULT NULL
-) ENGINE=InnoDB;
+    `idFacture` INT NOT NULL,
+    `Echeancier` INT(1) NULL,
+    `LienFichier` VARCHAR(250) NULL,
+    PRIMARY KEY (`idFacture`)
+    ) ENGINE=InnoDB;
 
 DROP DATABASE IF EXISTS  `Ophtalmologie`;
 CREATE DATABASE  IF NOT EXISTS `Ophtalmologie` DEFAULT CHARSET = utf8;

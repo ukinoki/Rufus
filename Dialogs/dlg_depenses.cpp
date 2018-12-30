@@ -29,7 +29,6 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     db          = DataBase::getInstance();
     ui->UserscomboBox->setEnabled(proc->getUserConnected()->isSecretaire() );
     AccesDistant = (db->getMode()==DataBase::Distant);
-    NomDirStockageImagerie = proc->DirImagerie();
     m_listUserLiberaux = Datas::I()->users->liberaux();
 
     int index = 0;
@@ -58,7 +57,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     if( !InitOK )
         return;
 
-    setMaximumSize(1642,800);
+    setMaximumHeight(800);
 
     gBigTable       = new UpTableWidget(this);
     ui->horizontalLayout_3->addWidget(gBigTable);
@@ -163,6 +162,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     gBigTable->setFocus();
     ui->ExportupPushButton->setEnabled(gBigTable->rowCount()>0);
+    setFixedWidth(gBigTable->width() + ui->VisuDocupTableWidget->width() + layout()->contentsMargins().left() + layout()->contentsMargins().right() +layout()->spacing());
 
     //ui->Facturewidget->setVisible(false);
     //ui->VisuDocupTableWidget->setVisible(false);
@@ -885,62 +885,22 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     DataBase:: getInstance()->UpdateTable(NOM_TABLE_DEPENSES,
                                           listsets,
                                           "where idDep = " + QString::number(dep->id()));
-    /* on vérifie si l'idfacture est utilisé par d'autres dépenses (cas d'un échéancier)*/
-    bool supprimerlafacture = true;
-    bool ok = true;
-    if (dep->isecheancier())
-    {
-        QString req = "select idDep from " NOM_TABLE_DEPENSES
-                      " where idFacture = " + QString::number(dep->idfacture());
-        supprimerlafacture = (db->StandardSelectSQL(req, ok).size()==0);
-    }
-    /* si non*/
-    if (supprimerlafacture)
-    {
-        /* en cas d'accès distant*/
-        if (AccesDistant)
-        {
-            /* on inscrit l'idfacture dans la table FacturesASupprimer*/
-            QString req = "insert into " NOM_TABLE_FACTURESASUPPRIMER
-                    " (idFacture) values (" + QString::number(dep->idfacture()) + ")";
-            db->StandardSQL(req);
-        }
-        /* sinon*/
-        else
-        {
-            /* on détruit l'enregistrement dans la table factures*/
-            db->SupprRecordFromTable(dep->idfacture(),"idFacture",NOM_TABLE_FACTURES);
-            /*  on copie le fichier dans le dossier facturessanslien*/
-            QString CheminOKTransfrDir = NomDirStockageImagerie + NOMDIR_FACTURESSANSLIEN;
-            QDir DirTrsferOK;
-            if (!QDir(CheminOKTransfrDir).exists())
-                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
-                {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                    QStringList listmsg;
-                    listmsg << msg;
-                    dlg_message(listmsg, 3000, false);
-                    return;
-                }
-            CheminOKTransfrDir = CheminOKTransfrDir + "/" + Datas::I()->users->getLoginById(dep->iduser());
-            if (!QDir(CheminOKTransfrDir).exists())
-                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
-                {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                    QStringList listmsg;
-                    listmsg << msg;
-                    dlg_message(listmsg, 3000, false);
-                    return;
-                }
-            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + dep->lienfacture()).copy(NomDirStockageImagerie + NOMDIR_FACTURESSANSLIEN + dep->lienfacture());
-            /*  on l'efface du dossier de factures*/
-            QFile(NomDirStockageImagerie + NOMDIR_FACTURES + dep->lienfacture()).remove();
-        }
-    }
+    /* on inscrit l'idfacture dans la table FacturesASupprimer
+     * la fonction SupprimeDocsetFactures de Rufus ou RufusAdmin
+     * se chargera de supprimer les ficiers du disque
+     * et d'en faire une copie dans le dossier factures sans lien*/
+    QString req = "insert into " NOM_TABLE_FACTURESASUPPRIMER
+            " (idFacture, Echeancier, LienFichier)"
+            " values ("
+            + QString::number(dep->idfacture()) +
+            ", " + (dep->isecheancier()? "1" : "null") +
+            "'" + dep->lienfacture() + "')";
+    db->StandardSQL(req);
     /* on remet à zero les idfacture et lienfacture de la dépense*/
     dep->setidfacture(0);
     dep->setlienfacture("");
     dep->setecheancier(false);
+    SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1337,7 +1297,7 @@ bool dlg_depenses::getInitOK()
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::DefinitArchitectureBigTable()
 {
-    int                 ColCount = 8;
+    int                 ColCount = 9;
     gBigTable->setSelectionBehavior(QAbstractItemView::SelectRows);
     gBigTable->setContextMenuPolicy(Qt::CustomContextMenu);
     gBigTable->setPalette(QPalette(Qt::white));
@@ -1360,28 +1320,31 @@ void dlg_depenses::DefinitArchitectureBigTable()
     LabelARemplir << tr("Rubrique 2035");
     LabelARemplir << tr("Famille rubrique");
     LabelARemplir << tr("Classement par date");
+    LabelARemplir << "";
 
     gBigTable->setHorizontalHeaderLabels(LabelARemplir);
     gBigTable->horizontalHeader()->setVisible(true);
     gBigTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     int li = 0;                                                                     // Réglage de la largeur et du nombre des colonnes
-    gBigTable->setColumnWidth(li,0);                                                // idDepense
+    gBigTable->setColumnWidth(li,0);                                                // 0 -idDepense
     li++;
-    gBigTable->setColumnWidth(li,100);                                              // DepDate affichage européen
+    gBigTable->setColumnWidth(li,100);                                              // 1 - DepDate affichage européen
     li++;
-    gBigTable->setColumnWidth(li,330);                                              // DepNom
+    gBigTable->setColumnWidth(li,330);                                              // 2 - DepNom
     li++;
-    gBigTable->setColumnWidth(li,100);                                              // DepMontant
+    gBigTable->setColumnWidth(li,100);                                              // 3 - DepMontant
     li++;
-    gBigTable->setColumnWidth(li,160);                                              // DepModePaiement
+    gBigTable->setColumnWidth(li,160);                                              // 4 - DepModePaiement
     li++;
-    gBigTable->setColumnWidth(li,300);                                              // Rubrique 2035
+    gBigTable->setColumnWidth(li,300);                                              // 5 - Rubrique 2035
     li++;
-    gBigTable->setColumnWidth(li,293);                                              // Famille rubrique
+    gBigTable->setColumnWidth(li,293);                                              // 6 - Famille rubrique
     li++;
-    gBigTable->setColumnWidth(li,0);                                                // DepDate
+    gBigTable->setColumnWidth(li,0);                                                // 7 - DepDate
+    li++;
+    gBigTable->setColumnWidth(li,15);                                               // 8 - point bleu si une facture est enregistrée
 
-    gBigTable->setColumnHidden(ColCount-1,true);
+    gBigTable->setColumnHidden(ColCount-2,true);
 
     gBigTable->setGridStyle(Qt::SolidLine);
     gBigTable->FixLargeurTotale();
@@ -1584,7 +1547,7 @@ void dlg_depenses::ScanDoc(QString typedoc)
                 {
                     /* on a récupéré un idfacture à utiliser comme échéancier pour cette dépense*/
                     QString req = "update " NOM_TABLE_DEPENSES " set idFacture = " + QString::number(fact) + " where idDep = " + QString::number(m_depenseencours->id());
-                    QSqlQuery (req, db->getDataBase());
+                    db->StandardSQL(req);
 
                     m_depenseencours->setidfacture(fact);
                     m_depenseencours->setlienfacture(lienfichier);
@@ -1594,6 +1557,7 @@ void dlg_depenses::ScanDoc(QString typedoc)
                     ui->VisuDocupTableWidget    ->setVisible(true);
                     QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
                     glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+                    SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
                     return;
                 }
             }
@@ -1609,7 +1573,7 @@ void dlg_depenses::ScanDoc(QString typedoc)
         if (idfact>-1)
         {
             QString req = "update " NOM_TABLE_DEPENSES " set idFacture = " + QString::number(idfact) + " where idDep = " + QString::number(m_depenseencours->id());
-            QSqlQuery (req, db->getDataBase());
+            db->StandardSQL(req);
 
             m_depenseencours->setidfacture(idfact);
             m_depenseencours->setlienfacture(Dlg_DocsScan->getdataFacture()["lien"].toString());
@@ -1619,6 +1583,7 @@ void dlg_depenses::ScanDoc(QString typedoc)
             ui->VisuDocupTableWidget    ->setVisible(true);
             QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
             glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+            SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
         }
     }
     delete  Dlg_DocsScan;
@@ -1630,7 +1595,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     QTableWidgetItem    *pItem7;
     QString             A;
     QTableWidgetItem *pitem0;
-    UpLabel *label1, *label2, *label3, *label4, *label5, *label6;
+    UpLabel *label1, *label2, *label3, *label4, *label5, *label6, *label7;
     int col = 0;
     int id = dep->id();
 
@@ -1641,6 +1606,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     label4 = new UpLabel;
     label5 = new UpLabel;
     label6 = new UpLabel;
+    label7 = new UpLabel;
 
     label1->setId(id);
     label2->setId(id);
@@ -1648,6 +1614,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     label4->setId(id);
     label5->setId(id);
     label6->setId(id);
+    label7->setId(id);
 
     label1->setContextMenuPolicy(Qt::CustomContextMenu);
     label2->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1655,6 +1622,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     label4->setContextMenuPolicy(Qt::CustomContextMenu);
     label5->setContextMenuPolicy(Qt::CustomContextMenu);
     label6->setContextMenuPolicy(Qt::CustomContextMenu);
+    label7->setContextMenuPolicy(Qt::CustomContextMenu);
 
     connect(label1,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
     connect(label2,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
@@ -1662,6 +1630,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     connect(label4,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
     connect(label5,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
     connect(label6,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
+    connect(label7,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
 
     A = QString::number(id);                                                                    // idDepense - col = 0
     pitem0->setText(A);
@@ -1717,10 +1686,16 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     gBigTable->setCellWidget(row,col,label6);
     col++;
 
-    A = dep->date().toString("yyyy-MM-dd");                                                     // ClassementparDate - col = 7
+    A = dep->date().toString("yyyy-MM-dd");                                                     // ClassementparDate - col = 7 (colonne masquée)
     pItem7 = new QTableWidgetItem() ;
     pItem7->setText(A);
     gBigTable->setItem(row,col,pItem7);
+    col++;
+
+    if (dep->idfacture()>0)                                                                     // une facture est enregistrée - col = 8
+        label7->setPixmap(Icons::pxApres().scaled(10,10)); //WARNING : icon scaled : pxApres 10,10
+    label7->setAlignment(Qt::AlignCenter);
+    gBigTable->setCellWidget(row,col,label7);
 
     gBigTable->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
 }

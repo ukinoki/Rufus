@@ -39,6 +39,7 @@ public:
 
 private:
     Procedures          *proc;
+    DataBase            *db;
     int                 idpat;
     UpLabel             *inflabel;
     UpLineEdit          *linetitre;

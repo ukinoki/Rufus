@@ -147,7 +147,7 @@ void Procedures::ab(int i)
  */
 bool Procedures::CompressFileJPG(QString nomfile, QDate datetransfert)
 {
-    /* on vérifie si le dossier des echecs de transferts existe sur le serveur et on le crée au besoin*/
+    /* on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
     QString CheminEchecTransfrDir   = DirImagerie() + NOMDIR_ECHECSTRANSFERTS;
     QDir DirTrsferEchec;
     if (!QDir(CheminEchecTransfrDir).exists())
@@ -992,11 +992,11 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                     {
                         DataBase::getInstance()->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
                                                              " where idimpression = " + iditem +
-                                                             " and facture = null");
+                                                             " and facture is null");
                         QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
                                       "VALUES (" +
                                       iditem + ", " +
-                                      " LOAD_FILE('" + DirImagerie() + NOMDIR_IMAGES + filename + "'), " +
+                                      " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_IMAGES + filename) + "'), " +
                                       QString::number(docmt->compression()) + ")";
                         DataBase::getInstance()->StandardSQL(req);
                     }
@@ -1008,7 +1008,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                         QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", facture) "
                                       "VALUES (" +
                                       iditem + ", " +
-                                      " LOAD_FILE('" + DirImagerie() + NOMDIR_FACTURES + filename + "'), " +
+                                      " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_FACTURES + filename) + "'), " +
                                       "1)";
                         DataBase::getInstance()->StandardSQL(req);
                     }
@@ -1039,6 +1039,12 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                                                                   , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
             if (!ok)
                 return result;
+            if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans factures
+            {
+                listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg  from " NOM_TABLE_FACTURES " where idfacture = " + iditem
+                                                                      , ok
+                                                                      , tr("Impossible d'accéder à la table ") + NOM_TABLE_IMPRESSIONS);
+            }
         }
 
         if (listimpr.size()==0)
@@ -1495,18 +1501,22 @@ Patient* Procedures::getPatientById(int id) //TODO : getPatientById à faire
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
     -- détermine la valeur du dossier où est stockée l'imagerie -----------------------------------------------------------
+    DirStockageImages           = l'emplacement du stockage sur le serveur vu du réseau local
+                                = l'emplacementd stockage des copies des images sur les postes distants
+    DirStockageImagesServeur    = l'emplacement du stockage sur le serveur - correspond au champ dirimagerie de la table parametressysteme
     ------------------------------------------------------------------------------------------------------------------------------------*/
 void Procedures::setDirImagerie()
 {
     DirStockageImages = "";
+    bool ok = true;
+    QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
+    QList<QList<QVariant>> ListeDir = DataBase::getInstance()->StandardSelectSQL(req, ok);
+    if (ListeDir.size()>0)
+        DirStockageImagesServeur = ListeDir.at(0).at(0).toString();
     switch (DataBase::getInstance()->getMode()) {
     case DataBase::Poste:
     {
-        bool ok = true;
-        QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
-        QList<QList<QVariant>> ListeDir = DataBase::getInstance()->StandardSelectSQL(req, ok);
-        if (ListeDir.size()>0)
-            DirStockageImages = ListeDir.at(0).at(0).toString();
+        DirStockageImages = DirStockageImagesServeur;
         break;
     }
     case DataBase::Distant:
@@ -1530,6 +1540,11 @@ void Procedures::setDirImagerie()
 QString Procedures::DirImagerie()
 {
     return DirStockageImages;
+}
+
+QString Procedures::DirImagerieServeur()
+{
+    return DirStockageImagesServeur;;
 }
 
 void Procedures::setFicheRefractionOuverte(bool a)

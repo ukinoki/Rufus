@@ -22,6 +22,9 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_acte.h"
 #include "procedures.h"
 #include <QWheelEvent>
+#include "gbl_datas.h"
+#include "cls_user.h"
+#include "icons.h"
 
 /* La fiche dlg_actesprecednets présente les actes d'un patient dans une fiche dans laquelle aucun champ ne peut être modifié.
  * Elle sert à consulter simplement les actes effectués sur un patient

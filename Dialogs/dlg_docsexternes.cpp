@@ -364,15 +364,10 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         QString NomOnglet, NomDirStockageImagerie;
         if (DataBase::getInstance()->getMode() == DataBase::Poste)
-        {
             NomOnglet = tr("Monoposte");
-            NomDirStockageImagerie = proc->DirImagerie();
-        }
         if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
-        {
             NomOnglet = tr("Réseau local");
-            NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
-        }
+        NomDirStockageImagerie  = proc->DirImagerieServeur();
         if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
         {
             QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
@@ -668,7 +663,10 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
 {
     /* Cette fonction sert à stocker dans un QByteArray le contenu des documents d'imagerie ou des courriers émis par le logiciel pour pouvoir les afficher
      * la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
-     *      imagerie = false -> le document est un document texte. Il est recalculé en pdf et le pdf est incorporé dans un bytearray.
+     *      imagerie = false -> Le document est un document texte (ordo, certificat...etc).
+     *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
+     *                          Ces champs vont être utilisés pour l'impression vers un fichier pdf.
+     *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
      *      imagerie = true ->  le document est un document d'imagerie stocké sur un fichier. On va le transférer dans la table echangeimages et le transformer en bytearray
    * la fonction est applée par ImprimeDoc() - on utilise la table echangeimages
      *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
@@ -702,23 +700,14 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
                     filesufx        = lst.at(lst.size()-1);
                 }
                 QString sfx = (filesufx == PDF? PDF : JPG);
-                QString imgs = "select idimpression from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr + " and (pdf is not null or jpg is not null)";
-                //qDebug() << imgs;
-                bool ok = false;
-                QList<QList<QVariant>> listimpr = db->StandardSelectSQL(imgs, ok);
-                if (!ok)
-                    UpMessageBox::Watch(this, tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
-                if (listimpr.size()==0)
-                {
-                    db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr);
-                    QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
-                                "VALUES (" +
-                                idimpr + ", " +
-                                " LOAD_FILE('" + proc->DirImagerie() + NOMDIR_IMAGES + filename + "'), " +
-                                QString::number(docmt->compression()) + ")";
-                    //qDebug() << req;
-                    db->StandardSQL(req);
-                }
+                QString req = "delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr + " and Facture is null";
+                db->StandardSQL(req);
+                req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
+                               "VALUES (" +
+                               idimpr + ", " +
+                               " LOAD_FILE('" + Utils::correctquoteSQL(proc->DirImagerieServeur() + NOMDIR_IMAGES + filename) + "'), " +
+                               QString::number(docmt->compression()) + ")";
+                 db->StandardSQL(req);
             }
         }
         bool ok = false;
@@ -1095,7 +1084,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     {
         if (Line->text()!="")
         {
-            db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + Line->text() + "' where idimpression = " + QString::number(docmt->id()));
+            db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + Utils::correctquoteSQL(Line->text()) + "' where idimpression = " + QString::number(docmt->id()));
             gmodele->itemFromIndex(idx)->setText(CalcTitre(m_ListDocs.reloadDocument(docmt)));
             int id = docmt->id();
             QString titre = CalcTitre(docmt);
@@ -1177,7 +1166,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
             QString filename = (docmt->format() == VIDEO? "/" : "") + docmt->lienversfichier();
             QString cheminFichier = (docmt->format()== VIDEO? NOMDIR_VIDEOS : NOMDIR_IMAGES);
             filename = cheminFichier + filename;
-            db->StandardSQL("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + filename + "')");
+            db->StandardSQL("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + Utils::correctquoteSQL(filename) + "')");
         }
         QString idaafficher = "";
         if (m_ListDocs.docsexternes().size() > 1)    // on recherche le document sur qui va être mis en surbrillance après la suppression

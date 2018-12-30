@@ -26,6 +26,9 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptablewidget.h"
 #include <QGraphicsOpacityEffect>
 #include "widgetbuttonframe.h"
+#include "gbl_datas.h"
+#include "cls_user.h"
+#include "icons.h"
 
 namespace Ui {
 class dlg_documents;
@@ -58,6 +61,7 @@ private:
     enum gMode                  {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS,SuppressionDOSS};
     int                         gidUser, gidPatient, gidUserSuperviseur;
     Procedures                  *proc;
+    DataBase                    *db;
     QGraphicsOpacityEffect      *gOp;
     QList<int>                  glistidCor;
     QMap<QString,QString>       gChampsMap;
@@ -66,7 +70,6 @@ private:
     UpDialog                    *gAskDialog;
     UpDialog                    *gAskCorresp;
     QMenu                       *gmenuContextuel;
-    QSqlDatabase                db;
     QString                     gNomPat, gPrenomPat;
     QTimer                      *gTimerEfface;
 
@@ -77,7 +80,7 @@ private:
     int                         AskDialog(QString titre);
     void                        CheckPublicEditablAdmin(QCheckBox *check);
     bool                        ChercheDoublon(QString, int row);
-    void                        ChoixCorrespondant(QSqlQuery);
+    void                        ChoixCorrespondant(QList<QList<QVariant>> listcor);
     void                        CocheLesDocs(int iddoss, bool A);
     void                        ConfigMode(int mode, int row = 0);
     void                        dblClicktextEdit();

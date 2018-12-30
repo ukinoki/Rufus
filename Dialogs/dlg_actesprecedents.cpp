@@ -15,14 +15,11 @@ You should have received a copy of the GNU General Public License
 along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "gbl_datas.h"
-#include "cls_user.h"
 #include "dlg_actesprecedents.h"
-#include "icons.h"
 #include "ui_dlg_actesprecedents.h"
 
 //TODO : Mettre en place Patient
-//Uniquement consultatif
+//Uniquement consultative, cette fiche ne permet de modifier aucun élément de la base
 dlg_actesprecedents::dlg_actesprecedents(int idPatient, bool AvantDernier, QWidget *parent) :
     QDialog(parent),
 
@@ -47,11 +44,10 @@ ui(new Ui::dlg_actesprecedents)
     else
         restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionAutreDossier").toByteArray());
 
-    connect (ui->FermepushButton,                       &QPushButton::clicked,                                  [=] {close();});
-    connect (ui->ActePrecedentpushButton,               &QPushButton::clicked,                                  [=] {NavigationConsult(Prec);});
-    connect (ui->ActeSuivantpushButton,                 &QPushButton::clicked,                                  [=] {NavigationConsult(Suiv);});
-    connect (ui->DernierActepushButton,                 &QPushButton::clicked,                                  [=] {NavigationConsult(Fin);});
-    connect (ui->PremierActepushButton,                 &QPushButton::clicked,                                  [=] {NavigationConsult(Debut);});
+    connect (ui->FermepushButton,           &QPushButton::clicked,  this,   &dlg_actesprecedents::close);
+    connect (ui->ActeSuivantpushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(Suiv);});
+    connect (ui->DernierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(Fin);});
+    connect (ui->PremierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(Debut);});
 
     ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
     proc->ModifTailleFont(ui->RenseignementsWidget, -3);

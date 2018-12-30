@@ -28,6 +28,7 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     QString Base;
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     AccesDistant = (db->getMode()==DataBase::Distant);
+
     NomDirStockageImagerie = proc->DirImagerie();
     switch (db->getMode()) {
     case DataBase::Poste:
@@ -51,6 +52,10 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     default:
         break;
     }
+    /* utilisé pour les tests en simulant un accès distant
+    AccesDistant = true;
+    Base = "BDD_LOCAL";*/
+
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
@@ -358,78 +363,71 @@ void dlg_docsscanner::ValideFiche()
 
     QSqlQuery query = QSqlQuery(db->getDataBase());
     int idimpr (0);
+    QHash<QString,QVariant> listbinds;
+    bool b = false;
     if (gMode == Document)      // c'est un document scanné
     {
         if (!db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS))
             return;
         idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS) + 1;
-
         if (!AccesDistant)
         {
-            query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idimpression, idpat, TypeDoc, SousTypeDoc, Titre, Dateimpression, UserEmetteur, lienversfichier, EmisRecu, FormatDoc, idLieu)"
-                                                               " values(:idimpr, :idpat, :typeDoc, :soustypedoc, :titre, :dateimpression, :useremetteur, :lien, :emisrecu, :formatdoc, :lieu)");
-            query.bindValue(":idimpr",          QString::number(idimpr));
-            query.bindValue(":idpat",           QString::number(iditem));
-            query.bindValue(":typeDoc",         typeDocCombo->currentText());
-            query.bindValue(":soustypedoc",     sstypedoc);
-            query.bindValue(":titre",           typeDocCombo->currentText());
-            query.bindValue(":dateimpression",  editdate->date().toString("yyyy-MM-dd") + " 00:00:00");
-            query.bindValue(":useremetteur",    QString::number(db->getUserConnected()->id()));
-            query.bindValue(":lien",            "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe);
-            query.bindValue(":emisrecu",        "1");
-            query.bindValue(":formatdoc",       DOCUMENTRECU);
-            query.bindValue(":lieu",            QString::number(proc->getUserConnected()->getSite()->id()) );
+            listbinds["idImpression"] =     QString::number(idimpr);
+            listbinds["idPat"] =            QString::number(iditem);
+            listbinds["TypeDoc"] =          typeDocCombo->currentText();
+            listbinds["SousTypeDoc"] =      sstypedoc;
+            listbinds["Titre"] =            typeDocCombo->currentText();
+            listbinds["DateImpression"] =   editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
+            listbinds["UserEmetteur"] =     QString::number(db->getUserConnected()->id());
+            listbinds["lienversfichier"] =  "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
+            listbinds["EmisRecu"] =         "1";
+            listbinds["FormatDoc"] =        DOCUMENTRECU;
+            listbinds["idLieu"] =            QString::number(proc->getUserConnected()->getSite()->id()) ;
         }
         else
         {
-            query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idimpression, idpat,  TypeDoc,  SousTypeDoc,  Titre,  Dateimpression,  UserEmetteur," + suffixe + ", EmisRecu,  FormatDoc,  idLieu)"
-                                                        " values(:idimpr,      :idpat, :typeDoc, :soustypedoc, :titre, :dateimpression, :useremetteur,   :doc,        :emisrecu, :formatdoc, :lieu)");
-            query.bindValue(":idimpr",          QString::number(idimpr));
-            query.bindValue(":idpat",           QString::number(iditem));
-            query.bindValue(":typeDoc",         typeDocCombo->currentText());
-            query.bindValue(":soustypedoc",     sstypedoc);
-            query.bindValue(":titre",           typeDocCombo->currentText());
-            query.bindValue(":dateimpression",  editdate->date().toString("yyyy-MM-dd") + " 00:00:00");
-            query.bindValue(":useremetteur",    QString::number(db->getUserConnected()->id()));
-            query.bindValue(":doc",             ba);
-            query.bindValue(":emisrecu",        "1");
-            query.bindValue(":formatdoc",       DOCUMENTRECU);
-            query.bindValue(":lieu",            QString::number(proc->getUserConnected()->getSite()->id()) );
+            listbinds["idImpression"] =     QString::number(idimpr);
+            listbinds["idPat"] =            QString::number(iditem);
+            listbinds["TypeDoc"] =          typeDocCombo->currentText();
+            listbinds["SousTypeDoc"] =      sstypedoc;
+            listbinds["Titre"] =            typeDocCombo->currentText();
+            listbinds["DateImpression"] =   editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
+            listbinds["UserEmetteur"] =     QString::number(db->getUserConnected()->id());
+            listbinds[suffixe] =            ba;
+            listbinds["EmisRecu"] =         "1";
+            listbinds["FormatDoc"] =        DOCUMENTRECU;
+            listbinds["idLieu"] =           QString::number(proc->getUserConnected()->getSite()->id()) ;
         }
+        b = db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds);
     }
     else                        // c'est une facture ou un échéancier
     {
-        if (!db->locktables(QStringList() << NOM_TABLE_FACTURES << NOM_TABLE_DEPENSES))
+        if (!db->locktables(QStringList() << NOM_TABLE_FACTURES))
             return;
         idimpr =  db->selectMaxFromTable("idFacture", NOM_TABLE_FACTURES) + 1;
         if (!AccesDistant)
         {
-            query.prepare("insert into " NOM_TABLE_FACTURES " (idFacture, DateFacture, Intitule, LienFichier, Echeancier, idDepense)"
-                                                     " values(:idfact,   :datefacture,:intitule,:lien,       :echeancier,:depense)");
-            query.bindValue(":idfact",      QString::number(idimpr));
-            query.bindValue(":datefacture", editdate->date().toString("yyyy-MM-dd"));
-            query.bindValue(":intitule",    sstypedoc);
-            query.bindValue(":lien",        "/" + user + "/" + NomFileDoc  + (gMode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe);
-            query.bindValue(":echeancier",  (gMode== Echeancier? "1" : QVariant(QVariant::String)));
-            query.bindValue(":depense",     (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem)));
-            datafacture["lien"] = "/" + user + "/" + NomFileDoc + (gMode == Echeancier? "" : "-" + QString::number(idimpr)) + "." + suffixe;
+            listbinds["idFacture"] =        QString::number(idimpr);
+            listbinds["DateFacture"] =      editdate->date().toString("yyyy-MM-dd");
+            listbinds["Intitule"] =         sstypedoc;
+            listbinds["LienFichier"] =      "/" + user + "/" + NomFileDoc  + (gMode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe;
+            listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
+            listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem));
+            datafacture["lien"] =           "/" + user + "/" + NomFileDoc + (gMode == Echeancier? "" : "-" + QString::number(idimpr)) + "." + suffixe;
         }
         else
         {
-            query.prepare("insert into " NOM_TABLE_FACTURES " (idFacture, DateFacture, Intitule, Echeancier, idDepense, " + suffixe + ")"
-                                                     " values(:idfact,   :datefacture,:intitule,:echeancier, :depense,      :doc)");
-            query.bindValue(":idfact",      QString::number(idimpr));
-            query.bindValue(":datefacture", editdate->date().toString("yyyy-MM-dd"));
-            query.bindValue(":intitule",    sstypedoc);
-            query.bindValue(":echeancier",  (gMode== Echeancier? "1" : QVariant(QVariant::String)));
-            query.bindValue(":depense",     (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem)));
-            query.bindValue(":doc",         ba);
+            listbinds["idFacture"] =        QString::number(idimpr);
+            listbinds["DateFacture"] =      editdate->date().toString("yyyy-MM-dd");
+            listbinds["Intitule"] =         sstypedoc;
+            listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
+            listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem));
+            listbinds[suffixe] =            ba;
         }
+        b = db->InsertSQLByBinds(NOM_TABLE_FACTURES, listbinds);
         datafacture["idfacture"] = idimpr;
         datafacture["echeancier"] = (gMode == Echeancier);
     }
-
-    bool b = query.exec();
     db->commit();
     if(!b)
     {

@@ -204,6 +204,7 @@ public:
     Patient*                getPatientById(int id);
     void                    setDirImagerie();
     QString                 DirImagerie();
+    QString                 DirImagerieServeur();
     void                    setFicheRefractionOuverte(bool a);
     bool                    FicheRefractionOuverte();
     QStandardItemModel*     getListeComptesEncaissmtUser();
@@ -269,7 +270,7 @@ private:
     QStandardItemModel      *ListeComptesEncaissUser;
     QStandardItemModel      *ListeComptesEncaissUserAvecDesactive;
 
-    QString                 DirStockageImages;
+    QString                 DirStockageImages, DirStockageImagesServeur;
     QString                 lCPParDefaut, lVilleParDefaut;
     QPlainTextEdit          *gEtat;         // CZ 27082015
     QString                 gnomFichIni;

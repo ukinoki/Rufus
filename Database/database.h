@@ -91,6 +91,7 @@ public:
     bool                    InsertSQLByBinds(QString nomtable,  QHash<QString, QVariant>, QString errormsg="");
     bool                    StandardSQL(QString req , QString errormsg="");
     QList<QList<QVariant>>  StandardSelectSQL(QString req, bool &ok, QString errormsg="");  // la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides
+    QList<QVariant>         getFirstFromStandardSelectSQL(QString req, bool &ok, QString errormsg="");  // la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides
     /*
      * Users
     */

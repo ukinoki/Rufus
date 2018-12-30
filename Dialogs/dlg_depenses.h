@@ -52,7 +52,6 @@ private:
     Procedures                  *proc;
     Depense                     *m_depenseencours;
     QStringList                 glistMoyensDePaiement;
-    QString                     NomDirStockageImagerie;
     User                        *gDataUser;
     UpDialog                    *gAskDialog;
     UpTableWidget               *gBigTable;
