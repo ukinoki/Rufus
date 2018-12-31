@@ -322,39 +322,37 @@ void dlg_docsscanner::ValideFiche()
     QString suffixe = QFileInfo(qFileOrigin).suffix().toLower();
     if (suffixe == "jpeg")
         suffixe= "jpg";
-    QByteArray ba = qFileOrigin.readAll();
 
-    if (suffixe == "jpg" && qFileOrigin.size() > TAILLEMAXIIMAGES)
-        if (! proc->CompressFileJPG(filename))
-            return;
     QString datetransfer        = QDate::currentDate().toString("yyyy-MM-dd");
     QString user("");
     if (gMode != Document)
         user = Datas::I()->users->getLoginById(Datas::I()->depenses->getDepenseById(iditem)->iduser());
-    QString CheminOKTransfrDir  = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES : NOMDIR_FACTURES) ;
-    QDir DirTrsferOK;
-    if (!QDir(CheminOKTransfrDir).exists())
-        if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+    QString CheminBackup = NomDirStockageImagerie + NOMDIR_ORIGINAUX + (gMode==Document? NOMDIR_IMAGES : NOMDIR_FACTURES) + "/" + (gMode==Document? datetransfer : user);
+    Utils::mkpath(CheminBackup);
+    qFileOrigin.copy(CheminBackup + "/" + fichierimageencours);
+
+    QString CheminOKTransfrDir  = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES "/" + datetransfer : NOMDIR_FACTURES "/" + user) ;
+    if (!Utils::mkpath(CheminOKTransfrDir))
+    {
+        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+        QStringList listmsg;
+        listmsg << msg;
+        dlg_message(listmsg, 3000, false);
+        return;
+    }
+
+    if (suffixe == "jpg" && qFileOrigin.size() > TAILLEMAXIIMAGES)
+    {
+        qFileOrigin.close();
+        if (!proc->CompressFileJPG(filename))
+            return;
+        if (!qFileOrigin.open( QIODevice::ReadOnly ))
         {
-            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-            QStringList listmsg;
-            listmsg << msg;
-            dlg_message(listmsg, 3000, false);
+            UpMessageBox::Watch(Q_NULLPTR, tr("Erreur d'accès au fichier:"), filename);
             return;
         }
-    if (gMode==Document)
-        CheminOKTransfrDir      = CheminOKTransfrDir + "/" + datetransfer;
-    else
-        CheminOKTransfrDir      = CheminOKTransfrDir + "/" + user;
-    if (!QDir(CheminOKTransfrDir).exists())
-        if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
-        {
-            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-            QStringList listmsg;
-            listmsg << msg;
-            dlg_message(listmsg, 3000, false);
-            return;
-        }
+    }
+    QByteArray ba = qFileOrigin.readAll();
     QString sstypedoc = linetitre->text();
     QString NomFileDoc = QString::number(iditem) + "_"
             + typeDocCombo->currentText() + "_"
@@ -365,11 +363,13 @@ void dlg_docsscanner::ValideFiche()
     int idimpr (0);
     QHash<QString,QVariant> listbinds;
     bool b = false;
+    QString lien;
     if (gMode == Document)      // c'est un document scanné
     {
         if (!db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS))
             return;
         idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS) + 1;
+        lien = "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
         if (!AccesDistant)
         {
             listbinds["idImpression"] =     QString::number(idimpr);
@@ -379,7 +379,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds["Titre"] =            typeDocCombo->currentText();
             listbinds["DateImpression"] =   editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
             listbinds["UserEmetteur"] =     QString::number(db->getUserConnected()->id());
-            listbinds["lienversfichier"] =  "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
+            listbinds["lienversfichier"] =  lien;
             listbinds["EmisRecu"] =         "1";
             listbinds["FormatDoc"] =        DOCUMENTRECU;
             listbinds["idLieu"] =            QString::number(proc->getUserConnected()->getSite()->id()) ;
@@ -405,15 +405,16 @@ void dlg_docsscanner::ValideFiche()
         if (!db->locktables(QStringList() << NOM_TABLE_FACTURES))
             return;
         idimpr =  db->selectMaxFromTable("idFacture", NOM_TABLE_FACTURES) + 1;
+        lien = "/" + user + "/" + NomFileDoc  + (gMode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe;
         if (!AccesDistant)
         {
             listbinds["idFacture"] =        QString::number(idimpr);
             listbinds["DateFacture"] =      editdate->date().toString("yyyy-MM-dd");
             listbinds["Intitule"] =         sstypedoc;
-            listbinds["LienFichier"] =      "/" + user + "/" + NomFileDoc  + (gMode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe;
+            listbinds["LienFichier"] =      lien;
             listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
             listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem));
-            datafacture["lien"] =           "/" + user + "/" + NomFileDoc + (gMode == Echeancier? "" : "-" + QString::number(idimpr)) + "." + suffixe;
+            datafacture["lien"] =           lien;
         }
         else
         {
@@ -435,9 +436,9 @@ void dlg_docsscanner::ValideFiche()
         qFileOrigin.close ();
         reject();
     }
-    else
+    else if (!AccesDistant)
     {
-        QString CheminOKTransfrDoc = CheminOKTransfrDir + "/" + NomFileDoc + (gMode == Echeancier? "" : "-" + QString::number(idimpr)) + "." + suffixe;
+        QString CheminOKTransfrDoc = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES : NOMDIR_FACTURES) + lien;
         if (suffixe == JPG)
         {
             QFile CF(filename);

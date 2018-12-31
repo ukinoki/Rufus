@@ -188,13 +188,13 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->PortRefracteurupComboBox->insertItems(0,ListPortsCOM);
     ui->PortTonometreupComboBox->insertItems(0,ListPortsCOM);
 
-    QString tip = tr("Indiquez ici l'emplacement du répertoire de stockage des documents d'imagerie<br /><font color=\"green\"><b>SUR CE POSTE SERVEUR</b></font>");
+    QString tip = tr("Indiquez ici l'emplacement du dossier de stockage des documents d'imagerie<br /><font color=\"green\"><b>SUR CE POSTE SERVEUR</b></font>");
     ui->PosteStockageupLabel        ->setImmediateToolTip(tip);
     ui->PosteStockageupLineEdit     ->setImmediateToolTip(tip);
-    tip = tr("Indiquez ici<br /><font color=\"green\"><b>LE LIEN</b></font><br />vers l'emplacement du répertoire de stockage des documents d'imagerie<br /><font color=\"green\"><b>SUR LE SERVEUR</b></font>");
+    tip = tr("Indiquez ici<br /><font color=\"green\"><b>LE LIEN</b></font><br />vers l'emplacement du dossier de stockage des documents d'imagerie<br /><font color=\"green\"><b>SUR LE SERVEUR</b></font>");
     ui->LocalStockageupLabel        ->setImmediateToolTip(tip);
     ui->LocalStockageupLineEdit     ->setImmediateToolTip(tip);
-    tip = tr("Indiquez ici l'emplacement du répertoire de stockage des documents d'imagerie<br /><font color=\"green\"><b>SUR CE POSTE</b></font>");
+    tip = tr("Indiquez ici l'emplacement du dossier de sauvegarde des documents d'imagerie<br /><font color=\"green\"><b>SUR CE POSTE</b></font>");
     ui->DistantStockageupLabel      ->setImmediateToolTip(tip);
     ui->DistantStockageupLineEdit   ->setImmediateToolTip(tip);
 
@@ -345,7 +345,6 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
         dirquer.first();
         QString NomDirStockageImagerie = dirquer.value(0).toString();
         ui->PosteStockageupLineEdit->setText(NomDirStockageImagerie);
-        proc->gsettingsIni->setValue("BDD_POSTE/DossierImagerie",NomDirStockageImagerie);
         QSqlQuery secquer("SHOW VARIABLES LIKE \"secure_file_priv\";", db);
         secquer.first();
     }
@@ -1953,7 +1952,6 @@ void dlg_param::Slot_DirPosteStockage()
             return;
         }
         ui->PosteStockageupLineEdit->setText(dockdir.path());
-        proc->gsettingsIni->setValue("BDD_POSTE/DossierImagerie", dockdir.path());
         QString req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + dockdir.path() + "'";
         QSqlQuery quer(req, db);
         DataBase::getInstance()->traiteErreurRequete(quer,req);

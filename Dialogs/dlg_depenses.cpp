@@ -262,8 +262,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     ui->GestionComptesupPushButton  ->setEnabled(gMode == Lire || gMode == TableVide);
     EnregupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
     AnnulupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
-    ui->Facturewidget         ->setVisible(gMode == Lire);
-    ui->EcheancierupPushButton      ->setVisible(gMode == Lire);
+    ui->Facturewidget               ->setVisible(gMode == Lire);
     ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->comptes().size() );
     QString ttip = "";
     if( gDataUser->getComptes()->comptes().size() == 0)

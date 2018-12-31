@@ -149,30 +149,25 @@ bool Procedures::CompressFileJPG(QString nomfile, QDate datetransfert)
 {
     /* on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
     QString CheminEchecTransfrDir   = DirImagerie() + NOMDIR_ECHECSTRANSFERTS;
-    QDir DirTrsferEchec;
-    if (!QDir(CheminEchecTransfrDir).exists())
-        if (!DirTrsferEchec.mkdir(CheminEchecTransfrDir))
-        {
-            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + tr(" invalide");
-            QStringList listmsg;
-            listmsg << msg;
-            dlg_message(listmsg, 3000, false);
-            return false;
-        }
+    if (!Utils::mkpath(CheminEchecTransfrDir))
+    {
+        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + tr(" invalide");
+        QStringList listmsg;
+        listmsg << msg;
+        dlg_message(listmsg, 3000, false);
+        return false;
+    }
     /* on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin*/
-    QDir DirStockProv;
-    QString DirStockProvPath = QDir::homePath() + NOMDIR_RUFUS NOMDIR_PROV;
-    if (!QDir(DirStockProvPath).exists())
-        if (!DirStockProv.mkdir(DirStockProvPath))
-        {
-            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + DirStockProvPath + "</b></font>" + tr(" invalide");
-            QStringList listmsg;
-            listmsg << msg;
-            dlg_message(listmsg, 3000, false);
-            return false;
-        }
+    QString DirStockProvPath = DirImagerie() + NOMDIR_PROV;
+    if (!Utils::mkpath(DirStockProvPath))
+    {
+        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + DirStockProvPath + "</b></font>" + tr(" invalide");
+        QStringList listmsg;
+        listmsg << msg;
+        dlg_message(listmsg, 3000, false);
+        return false;
+    }
 
-    QFile CC(nomfile);
     QString filename = QFileInfo(nomfile).fileName();
     QString nomfichresize = DirStockProvPath + "/" + filename;
     QFile fileresize(nomfichresize);
@@ -197,32 +192,34 @@ bool Procedures::CompressFileJPG(QString nomfile, QDate datetransfert)
         * on complète ce fichier en ajoutant une ligne correspondant à cet échec
         * on enregistre dans ce dossier une copie du fichier d'origine
      */
+    QFile CC(nomfile);
     if (!pixmap.save(nomfichresize, "jpeg"))
     {
         if (echectrsfer.open(QIODevice::Append))
         {
             QTextStream out(&echectrsfer);
-            out << CC.fileName() << "\n" ;
+            out << filename << "\n" ;
             echectrsfer.close();
             CC.copy(CheminEchecTransfrDir + "/" + filename);
         }
         return false;
     }
+    CC.close();
+    CC.remove();
     /* on comprime*/
     int tauxcompress = 90;
-    while (fileresize.size() > TAILLEMAXIIMAGES && tauxcompress > 1)
+    double sz = fileresize.size();
+    fileresize.open(QIODevice::ReadWrite);
+    while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
     {
         pixmap.save(nomfichresize, "jpeg",tauxcompress);
-        fileresize.open(QIODevice::ReadWrite);
-        if (fileresize.size() > TAILLEMAXIIMAGES & tauxcompress > 1)
-        {
-            tauxcompress -=10;
-            if (tauxcompress<1)
-                fileresize.copy(nomfile);
-        }
-        fileresize.close();
-        fileresize.remove();
+        sz = fileresize.size();
+        qDebug() << sz;
+        tauxcompress -=10;
     }
+    fileresize.copy(nomfile);
+    fileresize.close();
+    fileresize.remove();
     return true;
 }
 
@@ -932,8 +929,8 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
      * result["type"] est un QString qui donne le type de document, jpg ou pdf
      * result["ba"] est un QByteArray qui stocke le contenu du fichier
     */
-    DocExterne *docmt = new DocExterne();
-    Depense *dep = new Depense();
+    DocExterne *docmt;
+    Depense *dep;
     QString iditem;
     QString sstitre;
     QString imgs;
@@ -983,10 +980,10 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                     imgs = "select idfacture from " NOM_TABLE_FACTURES " where idfacture = " + iditem + " and (pdf is not null or jpg is not null)";
                 //qDebug() << imgs;
                 bool ok = false;
-                QList<QList<QVariant>> listimpr = DataBase::getInstance()->StandardSelectSQL(imgs, ok);
+                QList<QList<QVariant>> listid = DataBase::getInstance()->StandardSelectSQL(imgs, ok);
                 if (!ok)
                     UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'accéder à la table ") + (typedoc != FACTURE? NOM_TABLE_ECHANGEIMAGES : NOM_TABLE_FACTURES));
-                if (listimpr.size()==0)
+                if (listid.size()==0)
                 {
                     if (typedoc != FACTURE)
                     {
@@ -996,7 +993,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                         QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
                                       "VALUES (" +
                                       iditem + ", " +
-                                      " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_IMAGES + filename) + "'), " +
+                                      " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
                                       QString::number(docmt->compression()) + ")";
                         DataBase::getInstance()->StandardSQL(req);
                     }
@@ -1008,7 +1005,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                         QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", facture) "
                                       "VALUES (" +
                                       iditem + ", " +
-                                      " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_FACTURES + filename) + "'), " +
+                                      " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_FACTURES + Utils::correctquoteSQL(filename)) + "'), " +
                                       "1)";
                         DataBase::getInstance()->StandardSQL(req);
                     }
@@ -1501,18 +1498,21 @@ Patient* Procedures::getPatientById(int id) //TODO : getPatientById à faire
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
     -- détermine la valeur du dossier où est stockée l'imagerie -----------------------------------------------------------
-    DirStockageImages           = l'emplacement du stockage sur le serveur vu du réseau local
-                                = l'emplacementd stockage des copies des images sur les postes distants
-    DirStockageImagesServeur    = l'emplacement du stockage sur le serveur - correspond au champ dirimagerie de la table parametressysteme
+    DirStockageImages           = l'emplacement du dossier de l'imagerie sur le poste quand il est serveur
+                                = l'emplacement du dossier de l'imagerie sur le serveur vu par le poste sur le réseau local
+                                = l'emplacement de dossier des copies des images d'origine sur les postes distants
+                                -> utilisé par les postes pour enregistrer une copie de sauvegarde de l'original des ficiers images intégrés dans la base
+    DirStockageImagesServeur    = l'emplacement du dossier de l'imagerie sur le serveur - correspond au champ dirimagerie de la table parametressysteme
+                                -> utilisé par les requêtes SQL pour réintégrer le contenu de ficiers images dans la base
     ------------------------------------------------------------------------------------------------------------------------------------*/
 void Procedures::setDirImagerie()
 {
     DirStockageImages = "";
     bool ok = true;
     QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
-    QList<QList<QVariant>> ListeDir = DataBase::getInstance()->StandardSelectSQL(req, ok);
+    QList<QVariant> ListeDir = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ListeDir.size()>0)
-        DirStockageImagesServeur = ListeDir.at(0).at(0).toString();
+        DirStockageImagesServeur = ListeDir.at(0).toString();
     switch (DataBase::getInstance()->getMode()) {
     case DataBase::Poste:
     {
@@ -2457,8 +2457,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             return false;
 
         QFile BaseViergeFile(QStringLiteral("://basevierge.sql"));
-        BaseViergeFile.copy(QDir::homePath() + "/Documents/Rufus/Ressources/basevierge.sql");
-        QFile DumpFile(QDir::homePath() + "/Documents/Rufus/Ressources/basevierge.sql");
+        BaseViergeFile.copy(QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES "/basevierge.sql");
+        QFile DumpFile(QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES "/basevierge.sql");
         if (!DumpFile.open(QIODevice::ReadOnly))
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le fichier ") + "basevierge.sql" + tr(" n'a pas été trouvé!"));
@@ -2601,7 +2601,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     UpMessageBox::Watch(Q_NULLPTR, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirStockageImagerie + tr(" contient des espaces!"));
                     return false;
                 }
-                gsettingsIni->setValue("BDD_POSTE/DossierImagerie", NomDirStockageImagerie);
             }
         }
         if (!QDir(NomDirStockageImagerie).exists())
@@ -2610,7 +2609,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             dirstock.mkdir(NomDirStockageImagerie);
         }
 
-        gsettingsIni->setValue("BDD_POSTE/DossierImagerie", NomDirStockageImagerie);
+        QString req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + NomDirStockageImagerie + "'";
+        QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
+        DataBase::getInstance()->traiteErreurRequete(quer,req);
         AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos);
         if (gAskBupRestore->exec()>0)
         {
@@ -3586,10 +3587,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
         }
         if (msgbox.clickedButton() == &YesBouton)
         {
-            QString NomDirRessrces = QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES;
-            QDir DirRessrces(NomDirRessrces);
-            if (!DirRessrces.exists())
-                DirRessrces.mkdir(NomDirRessrces);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES);
             if (!RestaureBase(true, true))
                 exit(0);
             // Création de l'utilisateur
@@ -4275,11 +4273,17 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
                                    tr("Bien, la connexion au serveur MySQL fonctionne "
                                        "et le programme va maintenant créer une base de données patients "
                                        "vierge de tout enregistrement."));
+            // Création des dossiers
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_IMAGES);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_ECHECSTRANSFERTS);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_DOSSIERECHANGE);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_VIDEOS);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_PROV);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_FACTURES NOMDIR_FACTURESSANSLIEN);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_ORIGINAUX NOMDIR_FACTURES);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_ORIGINAUX NOMDIR_IMAGES);
             // Création de la base
-            QString NomDirRessrces = QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES;
-            QDir DirRessrces(NomDirRessrces);
-            if (!DirRessrces.exists())
-                DirRessrces.mkdir(NomDirRessrces);
             if (!RestaureBase(true, true))
                 return false;
             if (gMode2 == DataBase::ReseauLocal)
@@ -4320,6 +4324,9 @@ void Procedures::PremierParametrageMateriel()
     gsettingsIni->setValue("Param_Poste/PortTonometre","-");
     gsettingsIni->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
     gsettingsIni->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
+    QString NomDirImg = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE;
+    QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'", DataBase::getInstance()->getDataBase());
+    gsettingsIni->setValue("BDD_DISTANT/DossierImagerie", NomDirImg);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -4397,14 +4404,8 @@ void Procedures::PremierParametrageRessources()
     gsettingsIni->setValue("Param_Poste/VersionRessources",VERSION_RESSOURCES);
     if (gMode2 == DataBase::Poste)
     {
-        QString NomDirImg = QDir::homePath() + NOMDIR_RUFUS "/Imagerie";
-        QDir DirImg(NomDirImg);
-        if (DirImg.exists())
-            DirImg.rmdir(NomDirImg);
-        DirImg.mkdir(NomDirImg);
-        gsettingsIni->setValue("BDD_POSTE/DossierImagerie", NomDirImg);
+        QString NomDirImg = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE;
         QString reqimg = "update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'";
-        //qDebug() << reqimg;
         QSqlQuery (reqimg, DataBase::getInstance()->getDataBase() );
     }
  }

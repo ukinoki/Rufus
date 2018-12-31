@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -1029,7 +1029,7 @@
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>true</bool>
@@ -1139,7 +1139,7 @@
              <enum>Qt::NoContextMenu</enum>
             </property>
             <property name="text">
-             <string>Emplacement de stockage des documents archivés</string>
+             <string>Emplacement du dossier d'imagerie</string>
             </property>
            </widget>
            <widget class="QPushButton" name="PosteStockageupPushButton">
@@ -1349,7 +1349,7 @@ un serveur hébergé sur le réseau local</string>
              <rect>
               <x>360</x>
               <y>15</y>
-              <width>311</width>
+              <width>481</width>
               <height>21</height>
              </rect>
             </property>
@@ -1357,7 +1357,7 @@ un serveur hébergé sur le réseau local</string>
              <enum>Qt::NoContextMenu</enum>
             </property>
             <property name="text">
-             <string>Emplacement de stockage des documents archivés</string>
+             <string>Chemin depuis ce poste du dossier d'imagerie sur le serveur</string>
             </property>
            </widget>
           </widget>
@@ -1514,7 +1514,7 @@ un serveur hébergé sur le réseau local</string>
              <rect>
               <x>360</x>
               <y>15</y>
-              <width>311</width>
+              <width>561</width>
               <height>21</height>
              </rect>
             </property>
@@ -1522,7 +1522,7 @@ un serveur hébergé sur le réseau local</string>
              <enum>Qt::NoContextMenu</enum>
             </property>
             <property name="text">
-             <string>Emplacement de stockage des documents archivés</string>
+             <string>Emplacement du dossier de copie des originaux des ficiers image importés depuis ce poste</string>
             </property>
            </widget>
            <widget class="QPushButton" name="DistantStockageupPushButton">

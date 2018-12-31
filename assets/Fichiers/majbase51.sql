@@ -20,8 +20,13 @@ CREATE TABLE `FacturesASupprimer` (
     `LienFichier` VARCHAR(250) NULL,
     PRIMARY KEY (`idFacture`)
     ) ENGINE=InnoDB;
-ALTER TABLE `EchangeImages`
-    CHANGE COLUMN `idImpression` `idImpression` INT(11) NULL ,
-    DROP PRIMARY KEY;
+DROP TABLE IF EXISTS `EchangeImages`;
+CREATE TABLE `EchangeImages` (
+    `idImpression` INT NOT NULL,
+    `pdf` LONGBLOB NULL,
+    `jpg` LONGBLOB NULL,
+    `Compression` INT(1) NULL,
+    `Facture` INT(1) NULL
+    ) ENGINE=InnoDB;
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 51;
 

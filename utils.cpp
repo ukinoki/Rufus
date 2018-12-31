@@ -328,4 +328,13 @@ bool Utils::VerifMDP(QString MDP, QString Msg, bool mdpverified)
     return false;
 }
 
+/*---------------------------------------------------------------------------------------------------------------------
+    -- Crée le path d'un dossier --------------------------------------------------------------------------------------------
+    -----------------------------------------------------------------------------------------------------------------*/
+bool Utils::mkpath(QString path)
+{
+    QDir Dir;
+    return Dir.mkpath(path);
+}
+
 double Utils::mmToInches(double mm )  { return mm * 0.039370147; }

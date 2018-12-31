@@ -296,7 +296,7 @@ QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QStri
     return listreponses;
 }
 
-QList<QVariant> DataBase::getFirstFromStandardSelectSQL(QString req , bool &OK, QString errormsg)
+QList<QVariant> DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &OK, QString errormsg)
 {
     return StandardSelectSQL(req , OK, errormsg).at(0);
 }
