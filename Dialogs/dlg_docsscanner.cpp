@@ -319,6 +319,7 @@ void dlg_docsscanner::ValideFiche()
         UpMessageBox::Watch(Q_NULLPTR, tr("Erreur d'accès au fichier:"), filename);
         return;
     }
+    QByteArray ba = qFileOrigin.readAll();
     QString suffixe = QFileInfo(qFileOrigin).suffix().toLower();
     if (suffixe == "jpeg")
         suffixe= "jpg";
@@ -351,8 +352,9 @@ void dlg_docsscanner::ValideFiche()
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur d'accès au fichier:"), filename);
             return;
         }
+        ba = qFileOrigin.readAll();
     }
-    QByteArray ba = qFileOrigin.readAll();
+
     QString sstypedoc = linetitre->text();
     QString NomFileDoc = QString::number(iditem) + "_"
             + typeDocCombo->currentText() + "_"
@@ -364,6 +366,7 @@ void dlg_docsscanner::ValideFiche()
     QHash<QString,QVariant> listbinds;
     bool b = false;
     QString lien;
+
     if (gMode == Document)      // c'est un document scanné
     {
         if (!db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS))
@@ -424,10 +427,12 @@ void dlg_docsscanner::ValideFiche()
             listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
             listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem));
             listbinds[suffixe] =            ba;
+            datafacture["lien"] =           "";
         }
         b = db->InsertSQLByBinds(NOM_TABLE_FACTURES, listbinds);
         datafacture["idfacture"] = idimpr;
         datafacture["echeancier"] = (gMode == Echeancier);
+        datafacture["objetecheancier"] = (gMode == Echeancier? sstypedoc : "");
     }
     db->commit();
     if(!b)
@@ -435,6 +440,7 @@ void dlg_docsscanner::ValideFiche()
         UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
         qFileOrigin.close ();
         reject();
+        return;
     }
     else if (!AccesDistant)
     {
@@ -452,16 +458,16 @@ void dlg_docsscanner::ValideFiche()
                               | QFileDevice::ReadGroup
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                               | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-        qFileOrigin.remove();
-        QString msg;
-        switch (gMode) {
-        case Document:      msg = tr("Document ") + sstypedoc +  tr(" enregistré");     break;
-        case Facture:       msg = tr("Facture ") + sstypedoc +  tr(" enregistrée");     break;
-        case Echeancier:    msg = tr("Echeancier ") + sstypedoc +  tr(" enregistré");   break;
-        }
-        dlg_message(QStringList() << msg, 1000, false);
-        accept();
     }
+    qFileOrigin.remove();
+    QString msg;
+    switch (gMode) {
+    case Document:      msg = tr("Document ") + sstypedoc +  tr(" enregistré");     break;
+    case Facture:       msg = tr("Facture ") + sstypedoc +  tr(" enregistrée");     break;
+    case Echeancier:    msg = tr("Echeancier ") + sstypedoc +  tr(" enregistré");   break;
+    }
+    dlg_message(QStringList() << msg, 1000, false);
+    accept();
 }
 
 bool dlg_docsscanner::eventFilter(QObject *obj, QEvent *event)

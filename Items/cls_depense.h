@@ -76,6 +76,7 @@ public:
     void    setidfacture(int idfacture);
     void    setlienfacture(QString lien);
     void    setecheancier(bool ech);
+    void    setobjetecheancier(QString obj);
 
     explicit Depense(QJsonObject data = {}, QObject *parent = nullptr);
 

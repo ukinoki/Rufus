@@ -131,7 +131,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     QString year = QDate::currentDate().toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
     ui->AnneecomboBox->disconnect();
-    ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
+    ui->AnneecomboBox->setCurrentIndex(idx==-1? ui->AnneecomboBox->count()-1 : idx);
     connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
     RedessineBigTable();
 
@@ -792,13 +792,13 @@ void dlg_depenses::AfficheFacture(Depense *dep)
                   UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible)"));
             });
         }
-        else if (dep->lienfacture()!="")
+        else
         {
             QMap<QString,QVariant> doc = proc->CalcImage(dep->id(), FACTURE, true, true);
+            if (doc["type"].toString() == "" || doc["ba"].toByteArray() == QByteArray())
+                UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible"));
             glistImg =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
         }
-        else
-            UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible"));
     }
 }
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -809,7 +809,8 @@ void dlg_depenses::CalculTotalDepenses()
     double Total = 0;
     if (gBigTable->rowCount() > 0)
         for (int k = 0; k < gBigTable->rowCount(); k++)
-            Total = Total + QLocale().toDouble(static_cast<UpLabel*>(gBigTable->cellWidget(k,3))->text());
+            if (!gBigTable->isRowHidden(k))
+                Total += QLocale().toDouble(static_cast<UpLabel*>(gBigTable->cellWidget(k,3))->text());
     QString TotalRemise;
     TotalRemise = QLocale().toString(Total,'f',2);
     QString AnneeRubrique2035 = tr("Total général");
@@ -844,7 +845,7 @@ void dlg_depenses::EffaceFacture()
 {
     if (UpMessageBox::Question(this,
                            (m_depenseencours->isecheancier()? tr("Suppression d'échéancier") : tr("Suppression de facture")),
-                           tr ("Confirmez la suppression de ") + (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
+                           (m_depenseencours->isecheancier()? tr ("Confirmez la suppression du lien vers ") + "\n" + m_depenseencours->objetecheancier() : tr ("Confirmez la suppression de la facture ") + "\n" +  m_depenseencours->objet()),
                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
                            QStringList() << "Oups!" << tr("Supprimer"))
             != UpSmallButton::STARTBUTTON)
@@ -886,14 +887,24 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
                                           "where idDep = " + QString::number(dep->id()));
     /* on inscrit l'idfacture dans la table FacturesASupprimer
      * la fonction SupprimeDocsetFactures de Rufus ou RufusAdmin
-     * se chargera de supprimer les ficiers du disque
-     * et d'en faire une copie dans le dossier factures sans lien*/
-    QString req = "insert into " NOM_TABLE_FACTURESASUPPRIMER
+     * se chargera de supprimer les fichiers du disque
+     * et d'en faire une copie dans le dossier factures sans lien
+     * On vérifie au préalable que cette facture ne vient pas d'être inscrite dans la table */
+    QString req;
+    bool ok;
+    QString ech = (dep->isecheancier()? "1" : "null");
+    if (db->StandardSelectSQL("select idFacture from " NOM_TABLE_FACTURESASUPPRIMER " where idFacture = " + QString::number(dep->idfacture()), ok).size()>0)
+        req = "update " NOM_TABLE_FACTURESASUPPRIMER " set"
+              " Echeancier = " + ech + "," +
+              " LienFichier = '" + dep->lienfacture() + "'"
+              " where idFacture = " + QString::number(dep->idfacture());
+    else
+        req = "insert into " NOM_TABLE_FACTURESASUPPRIMER
             " (idFacture, Echeancier, LienFichier)"
             " values ("
             + QString::number(dep->idfacture()) +
-            ", " + (dep->isecheancier()? "1" : "null") +
-            "'" + dep->lienfacture() + "')";
+            ", " + ech +
+            ", '" + dep->lienfacture() + "')";
     db->StandardSQL(req);
     /* on remet à zero les idfacture et lienfacture de la dépense*/
     dep->setidfacture(0);
@@ -1238,8 +1249,10 @@ void dlg_depenses::ModifierDepense()
             }
     }
     gMode = Lire;
+    gBigTable->disconnect();
     RegleAffichageFiche(Lire);
     MetAJourFiche();
+    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1526,18 +1539,19 @@ void dlg_depenses::ScanDoc(QString typedoc)
                 *idfactarecuperer = static_cast<QStandardItemModel*>(listview->model())->item(listview->selectionModel()->selectedIndexes().at(0).row(),1)->text().toInt();;
                 gAskDialog->accept();
                 });
-            connect(creerecheancier,           &QPushButton::clicked,                  gAskDialog,   &UpDialog::accept);
-            connect(gAskDialog->CancelButton,   SIGNAL(clicked(bool)),gAskDialog,SLOT(reject()));
+            connect(creerecheancier,            &QPushButton::clicked,  gAskDialog, &UpDialog::accept);
+            connect(gAskDialog->CancelButton,   SIGNAL(clicked(bool)),  gAskDialog, SLOT(reject()));
 
             int a = gAskDialog->exec();
             int fact = *idfactarecuperer;
             delete idfactarecuperer;
             int row = -1;
-            QString lienfichier("");
+            QString lienfichier(""), objet("");
             if (listview->selectionModel()->selectedIndexes().size()>0)
             {
                 row = listview->selectionModel()->selectedIndexes().at(0).row();
                 lienfichier = ListeEch.at(row).at(2).toString();
+                objet       = ListeEch.at(row).at(1).toString();
             }
             delete gAskDialog;
             if (a>0)
@@ -1551,6 +1565,7 @@ void dlg_depenses::ScanDoc(QString typedoc)
                     m_depenseencours->setidfacture(fact);
                     m_depenseencours->setlienfacture(lienfichier);
                     m_depenseencours->setecheancier(true);
+                    m_depenseencours->setobjetecheancier(objet);
                     ui->FactureupPushButton     ->setVisible(false);
                     ui->EcheancierupPushButton  ->setVisible(false);
                     ui->VisuDocupTableWidget    ->setVisible(true);
@@ -1577,6 +1592,7 @@ void dlg_depenses::ScanDoc(QString typedoc)
             m_depenseencours->setidfacture(idfact);
             m_depenseencours->setlienfacture(Dlg_DocsScan->getdataFacture()["lien"].toString());
             m_depenseencours->setecheancier(Dlg_DocsScan->getdataFacture()["echeancier"].toBool());
+            m_depenseencours->setobjetecheancier(Dlg_DocsScan->getdataFacture()["objetecheancier"].toString());
             ui->FactureupPushButton     ->setVisible(false);
             ui->EcheancierupPushButton  ->setVisible(false);
             ui->VisuDocupTableWidget    ->setVisible(true);

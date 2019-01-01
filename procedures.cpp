@@ -932,20 +932,32 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
     DocExterne *docmt;
     Depense *dep;
     QString iditem;
+    QString date ("");
     QString sstitre;
     QString imgs;
+    QString typedocmt ("");
+    QString soustypedocmt ("");
+    QString objet ("");
+    QString filename = "";
+
     if (typedoc != FACTURE)
     {
         docmt = Datas::I()->documents->getDocumentById(idimpression);
         iditem = QString::number(idimpression);
+        date = docmt->date().toString(tr("d-M-yyyy"));
+        typedocmt = docmt->typedoc();
+        soustypedocmt = docmt->soustypedoc();
+        filename = docmt->lienversfichier();
     }
     else
     {
         dep = Datas::I()->depenses->getDepenseById(idimpression);
         iditem = QString::number(dep->idfacture());
+        date = dep->date().toString(tr("d-M-yyyy"));
+        objet = dep->objet();
+        filename = dep->lienfacture();
     }
     QMap<QString,QVariant> result;
-    QString filename = "";
     QByteArray ba;
     QLabel inflabel;
     result["type"]    = "";
@@ -957,14 +969,10 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                                                     // pour pouvoir véhiculer son contenu dans le tunnel SQL et profiter du crypatge en cas d'accès distant
         {
             if (typedoc != FACTURE)
-                sstitre = "<font color='magenta'>" + docmt->date().toString(tr("d-M-yyyy")) + " - " + docmt->typedoc() + " - " + docmt->soustypedoc() + "</font>";
+                sstitre = "<font color='magenta'>" + date + " - " + typedocmt + " - " + soustypedocmt + "</font>";
             else
-                sstitre = "<font color='magenta'>" + dep->date().toString(tr("d-M-yyyy")) + " - " + dep->objet() + "</font>";
+                sstitre = "<font color='magenta'>" + date + " - " + objet + "</font>";
             inflabel   .setText(sstitre);
-            if (typedoc != FACTURE)
-                filename = docmt->lienversfichier();
-            else
-                filename = dep->lienfacture();
             if (filename != "")
             {
                 QString filesufx;
@@ -1040,7 +1048,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
             {
                 listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg  from " NOM_TABLE_FACTURES " where idfacture = " + iditem
                                                                       , ok
-                                                                      , tr("Impossible d'accéder à la table ") + NOM_TABLE_IMPRESSIONS);
+                                                                      , tr("Impossible d'accéder à la table ") + NOM_TABLE_FACTURES);
             }
         }
 
@@ -3632,6 +3640,8 @@ void Procedures::DefinitScriptBackup(QString path, bool AvecImages, bool AvecVid
     scriptbackup += "\n";
     scriptbackup += "DIR_IMAGES=\"" + path + NOMDIR_IMAGES + "\"";
     scriptbackup += "\n";
+    scriptbackup += "DIR_FACTURES=\"" + path + NOMDIR_FACTURES + "\"";
+    scriptbackup += "\n";
     scriptbackup += "DIR_VIDEOS=\"" + path + NOMDIR_VIDEOS + "\"";
     //# Rufus.ini
     scriptbackup += "\n";
@@ -3686,6 +3696,8 @@ void Procedures::DefinitScriptBackup(QString path, bool AvecImages, bool AvecVid
     {
         scriptbackup += "\n";
         scriptbackup +=  "cp -R $DIR_IMAGES $BACKUP_DIR/$DATE/Images";
+        scriptbackup += "\n";
+        scriptbackup +=  "cp -R $DIR_FACTURES $BACKUP_DIR/$DATE/Factures";
     }
     // copie les fichiers video
     if (AvecVideos)
