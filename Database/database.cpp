@@ -132,7 +132,7 @@ void DataBase::commit()
     QSqlQuery ("UNLOCK TABLES;", m_db );
     QString commitrequete = "SET AUTOCOMMIT = 1;";
     QSqlQuery commitquery (commitrequete,m_db );
-    getInstance()->traiteErreurRequete(commitquery, commitrequete, tr("Impossible de valider les mofifications"));
+    traiteErreurRequete(commitquery, commitrequete, tr("Impossible de valider les mofifications"));
 }
 
 void DataBase::rollback()
@@ -141,7 +141,7 @@ void DataBase::rollback()
     QSqlQuery ("UNLOCK TABLES;", m_db );
     QString rollbackrequete = "SET AUTOCOMMIT = 1;";
     QSqlQuery rollbackquery (rollbackrequete, m_db );
-    getInstance()->traiteErreurRequete(rollbackquery,rollbackrequete,"");
+    traiteErreurRequete(rollbackquery,rollbackrequete,"");
 }
 
 bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
@@ -152,7 +152,7 @@ bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
     for (int i = 1; i < ListTables.size(); i++)
         lockrequete += "," + ListTables.at(i) + " " + ModeBlocage;
     QSqlQuery lockquery (lockrequete, m_db );
-    return !getInstance()->traiteErreurRequete(lockquery,lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
+    return !traiteErreurRequete(lockquery,lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
 }
 
 bool DataBase::testconnexionbase() // une requete simple pour vérifier que la connexion à la base fontionne toujours

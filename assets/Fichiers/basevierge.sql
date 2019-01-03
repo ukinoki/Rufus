@@ -20,10 +20,7 @@ CREATE TABLE `DocsASupprimer` (
 
 DROP TABLE IF EXISTS `FacturesASupprimer`;
 CREATE TABLE `FacturesASupprimer` (
-    `idFacture` INT NOT NULL,
-    `Echeancier` INT(1) NULL,
-    `LienFichier` VARCHAR(250) NULL,
-    PRIMARY KEY (`idFacture`)
+    `LienFichier` VARCHAR(250) NULL
     ) ENGINE=InnoDB;
 
 DROP DATABASE IF EXISTS  `Ophtalmologie`;

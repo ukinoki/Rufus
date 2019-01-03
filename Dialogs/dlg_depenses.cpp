@@ -885,26 +885,32 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     DataBase:: getInstance()->UpdateTable(NOM_TABLE_DEPENSES,
                                           listsets,
                                           "where idDep = " + QString::number(dep->id()));
-    /* on inscrit l'idfacture dans la table FacturesASupprimer
+
+    QString req;
+    /* on vérifie si l'idfacture est utilisé par d'autres dépenses (cas d'un échéancier)*/
+    bool supprimerlafacture = true;
+    bool ok = true;
+    /* si c'est un échéancier, et s'il est référencé par d'autres dépenses => on ne l'efface pas */
+    if (dep->isecheancier())
+    {
+        req = "select idDep from " NOM_TABLE_DEPENSES " where idfacture = " + QString::number(dep->idfacture());
+        supprimerlafacture = (db->StandardSelectSQL(req, ok).size()==0);
+    }
+    if (supprimerlafacture)
+    {
+        /* on détruit l'enregistrement dans la table factures*/
+        db->SupprRecordFromTable(dep->idfacture(),"idFacture",NOM_TABLE_FACTURES);
+    }
+
+    /* on inscrit le lien vers le fichier dans la table FacturesASupprimer
      * la fonction SupprimeDocsetFactures de Rufus ou RufusAdmin
      * se chargera de supprimer les fichiers du disque
      * et d'en faire une copie dans le dossier factures sans lien
      * On vérifie au préalable que cette facture ne vient pas d'être inscrite dans la table */
-    QString req;
-    bool ok;
-    QString ech = (dep->isecheancier()? "1" : "null");
-    if (db->StandardSelectSQL("select idFacture from " NOM_TABLE_FACTURESASUPPRIMER " where idFacture = " + QString::number(dep->idfacture()), ok).size()>0)
-        req = "update " NOM_TABLE_FACTURESASUPPRIMER " set"
-              " Echeancier = " + ech + "," +
-              " LienFichier = '" + dep->lienfacture() + "'"
-              " where idFacture = " + QString::number(dep->idfacture());
-    else
+    if (db->StandardSelectSQL("select lienfichier from " NOM_TABLE_FACTURESASUPPRIMER " where lienfichier = '" + dep->lienfacture() + "'", ok).size()==0)
         req = "insert into " NOM_TABLE_FACTURESASUPPRIMER
-            " (idFacture, Echeancier, LienFichier)"
-            " values ("
-            + QString::number(dep->idfacture()) +
-            ", " + ech +
-            ", '" + dep->lienfacture() + "')";
+            " (LienFichier)"
+            " values ('" + dep->lienfacture() + "')";
     db->StandardSQL(req);
     /* on remet à zero les idfacture et lienfacture de la dépense*/
     dep->setidfacture(0);

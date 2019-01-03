@@ -15,10 +15,7 @@ CREATE TABLE `Factures` (
 USE  `Images`;
 DROP TABLE IF EXISTS `FacturesASupprimer`;
 CREATE TABLE `FacturesASupprimer` (
-    `idFacture` INT NOT NULL,
-    `Echeancier` INT(1) NULL,
-    `LienFichier` VARCHAR(250) NULL,
-    PRIMARY KEY (`idFacture`)
+    `LienFichier` VARCHAR(250) NULL
     ) ENGINE=InnoDB;
 DROP TABLE IF EXISTS `EchangeImages`;
 CREATE TABLE `EchangeImages` (
