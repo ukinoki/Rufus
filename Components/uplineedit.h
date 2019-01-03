@@ -56,7 +56,7 @@ private:
     bool        CanDepart, PeutEtreVide;
     int         RowTable, ColumnTable, id;
     QString     ValeurAvant, ValeurApres, Champ, Table;
-    void        ReemitTextEdited(QString texte);
+    void        ReemitTextEdited();
     void        AfficheToolTip();
 
 signals:

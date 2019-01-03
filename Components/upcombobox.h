@@ -43,6 +43,7 @@ public:
     void        setTableCorrespondant(QString tablecorrespondant);
     QString     getTableCorrespondant() const;
     void        setImmediateToolTip(QString Msg);
+    void        clearImmediateToolTip();
 
 private:
     QLineEdit   *line;

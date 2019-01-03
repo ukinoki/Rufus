@@ -29,7 +29,7 @@ UpLineEdit::UpLineEdit(QWidget *parent) : QLineEdit(parent)
     Champ           = "";
     Table           = "";
     installEventFilter(this);
-    connect(this, &QLineEdit::textEdited, [=] {ReemitTextEdited(text());});
+    connect(this, &QLineEdit::textEdited, this, &UpLineEdit::ReemitTextEdited);
     setContextMenuPolicy(Qt::NoContextMenu);
 }
 
@@ -174,7 +174,7 @@ QString UpLineEdit::getTableCorrespondant() const
     return Table;
 }
 
-void UpLineEdit::ReemitTextEdited(QString texte)
+void UpLineEdit::ReemitTextEdited()
 {
-    emit upTextEdited(texte, RowTable, ColumnTable);
+    emit upTextEdited(text(), RowTable, ColumnTable);
 }

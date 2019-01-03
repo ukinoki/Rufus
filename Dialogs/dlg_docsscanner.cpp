@@ -103,7 +103,6 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     UpLabel         *lbltitre       = new UpLabel(this);
     UpLabel         *lbldate        = new UpLabel(this);
     UpLabel         *lbltype        = new UpLabel(this);
-    QVBoxLayout     *globallay      = dynamic_cast<QVBoxLayout*>(layout());
     QVBoxLayout     *rsgnmtVlay     = new QVBoxLayout();
     QVBoxLayout     *dirVlay        = new QVBoxLayout();
     QHBoxLayout     *dateLay        = new QHBoxLayout();
@@ -153,7 +152,7 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     titreLay    ->setContentsMargins(0,0,0,0);
     dateLay     ->setContentsMargins(0,0,0,0);
 
-    globallay   ->insertWidget(0,uptable);
+    dlglayout()   ->insertWidget(0,uptable);
 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     connect(OKButton,           &QPushButton::clicked, [=] {ValideFiche();});
@@ -169,8 +168,8 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     setModal(true);
     setMinimumWidth(650);
     setStageCount(2);
-    int w = width() - globallay->contentsMargins().left() - globallay->contentsMargins().right();
-    int y = height() - globallay->contentsMargins().top() - globallay->contentsMargins().bottom() - globallay->spacing()  - widgetbuttons()->height();
+    int w = width() - dlglayout()->contentsMargins().left() - dlglayout()->contentsMargins().right();
+    int y = height() - dlglayout()->contentsMargins().top() - dlglayout()->contentsMargins().bottom() - dlglayout()->spacing()  - widgetbuttons()->height();
     uptable->resize(w, y);
     initOK = true;
     NavigueVers("Fin");

@@ -57,7 +57,7 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         CancelButton    ->setShortcut(QKeySequence("F12"));
         CancelButton    ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
         laybuttons      ->addWidget(CancelButton);
-        connect(CancelButton,   &QPushButton::clicked, [=] {reject();});
+        connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
     }
     if (Button.testFlag(UpDialog::ButtonPrint))
     {

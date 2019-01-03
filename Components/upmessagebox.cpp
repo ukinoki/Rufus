@@ -53,13 +53,13 @@ void UpMessageBox::addButton(UpSmallButton *button, enum UpSmallButton::StyleBou
 {
     button->setUpButtonStyle(Style);
     AjouteWidgetLayButtons(button);
-    connect(button, &QPushButton::clicked, [=] {Repons(button);});
+    connect(button, &QPushButton::clicked, this, [=] {Repons(button);});
 }
 
 void UpMessageBox::addButton(UpPushButton *button)
 {
     AjouteWidgetLayButtons(button);
-    connect(button, &QPushButton::clicked, [=] {Repons(button);});
+    connect(button, &QPushButton::clicked, this, [=] {Repons(button);});
 }
 
 void UpMessageBox::removeButton(UpSmallButton *button)
@@ -257,7 +257,7 @@ void UpMessageBox::Information(QWidget *parent, QString Text, QString InfoText)
     msgbox  ->setIcon(UpMessageBox::Info);
 
     msgbox  ->AjouteLayButtons(UpDialog::ButtonOK);
-    connect (msgbox->OKButton, &QPushButton::clicked, [=] {msgbox->accept();});
+    connect (msgbox->OKButton, &QPushButton::clicked, msgbox, [=] {msgbox->accept();});
     msgbox  ->Textedt       ->setFixedSize(msgbox->CalcSize(Text));
     msgbox  ->InfoTextedt   ->setFixedSize(msgbox->CalcSize(InfoText));
     msgbox->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);

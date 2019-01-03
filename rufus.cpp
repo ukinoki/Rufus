@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("03-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("04-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1929,8 +1929,7 @@ void Rufus::EnregistreDocScanner()
         return;
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + nomprenompat);
     Dlg_DocsScan->exec();
-    Dlg_DocsScan->disconnect();
-    connect(Dlg_DocsScan, &dlg_docsscanner::accepted, this, &Rufus::MAJDocsExternes);
+    MAJDocsExternes();
 }
 
 void Rufus::EnregistreVideo()
@@ -1955,10 +1954,8 @@ void Rufus::EnregistreVideo()
     }
     Dlg_DocsVideo = new dlg_docsvideo(idpat, this);
     Dlg_DocsVideo->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + nomprenompat);
-    Dlg_DocsVideo->show();
-    Dlg_DocsVideo->NavigueVers("Fin");
-    Dlg_DocsVideo->disconnect();
-    connect(Dlg_DocsVideo, &dlg_docsvideo::accepted, this, &Rufus::MAJDocsExternes);
+    Dlg_DocsVideo->exec();
+    MAJDocsExternes();
 }
 
 void Rufus::FiltreSalleDAttente()
@@ -7348,7 +7345,8 @@ void Rufus::CreerMenu()
 
     menuDocuments->addMenu(menuEmettre);
     menuDocuments->addAction(actionEnregistrerDocScanner);
-    menuDocuments->addAction(actionEnregistrerVideo);
+    if (db->getMode() != DataBase::Distant)
+        menuDocuments->addAction(actionEnregistrerVideo);
     menuDocuments->addSeparator();
     menuDocuments->addAction(actionRechercheCourrier);
     menuDocuments->addAction(actionCorrespondants);
@@ -9650,7 +9648,7 @@ void Rufus::Remplir_SalDat()
             QString PosteLog  = BureauxQuery.value(2).toString().remove(".local");
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
-            UserBureau->disconnect();
+            UserBureau->disconnect();; // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
             UserBureau->setObjectName(UserLogin + "BureauupTextEdit");
             UserBureau->setIdUser(BureauxQuery.value(0).toInt());
             ui->scrollArea->setStyleSheet("border: 1px none gray;  border-radius: 10px;");

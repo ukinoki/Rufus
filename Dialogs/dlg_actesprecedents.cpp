@@ -48,6 +48,7 @@ ui(new Ui::dlg_actesprecedents)
     connect (ui->ActeSuivantpushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(Suiv);});
     connect (ui->DernierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(Fin);});
     connect (ui->PremierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(Debut);});
+    connect (ui->ActePrecedentpushButton,   &QPushButton::clicked,  this,   [=] {NavigationConsult(Prec);});
 
     ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
     proc->ModifTailleFont(ui->RenseignementsWidget, -3);

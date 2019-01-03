@@ -34,15 +34,14 @@ dlg_banque::dlg_banque(QWidget *parent, QString nouvbanqueabrege) :
     gFermeApresValidation   = (nouvbanqueabrege != "");
     setWindowTitle(tr("Enregistrer une nouvelle banque"));
     setAttribute(Qt::WA_DeleteOnClose);
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
 
-    globallay               ->insertWidget(0, ui->Banqueframe);
+    dlglayout()               ->insertWidget(0, ui->Banqueframe);
     if (gFermeApresValidation)
     {
         NouvBanque();
         ui->NomAbregeupLineEdit->setText(nouvbanqueabrege);
         ui->NomAbregeupLineEdit->setFocusPolicy(Qt::NoFocus);
-        globallay->setSizeConstraint(QLayout::SetFixedSize);
+        dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     }
     else
     {
@@ -93,12 +92,12 @@ dlg_banque::dlg_banque(QWidget *parent, QString nouvbanqueabrege) :
         y = widgButtons->widgButtonParent()->sizeHint().height();
         qDebug() << (widgButtons->widgButtonParent()->sizeHint().isValid()? "Valide": "Null") << " - x = " + QString::number(x) + " - y = " + QString::number(y) + " - hauteur ligne = " + QString::number(haut + widgButtons->height()) + " Minimum";
         */
-        globallay               ->insertWidget(0,widgButtons->widgButtonParent());
+        dlglayout()               ->insertWidget(0,widgButtons->widgButtonParent());
         int r,t,l,b;
-        globallay               ->getContentsMargins(&r,&t,&l,&b);
+        dlglayout()               ->getContentsMargins(&r,&t,&l,&b);
         AjouteLayButtons(UpDialog::ButtonClose);
         resize(larg + r + l,
-               haut + widgButtons->height() + ui->Banqueframe->height() + CloseButton->height() + t + b + (globallay->spacing()*2));
+               haut + widgButtons->height() + ui->Banqueframe->height() + CloseButton->height() + t + b + (dlglayout()->spacing()*2));
         RemplirTableView();
         uptablebanq->setCurrentCell(0,1);
         AfficheBanque();

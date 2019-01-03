@@ -52,8 +52,9 @@ private:
     bool        eventFilter(QObject *obj, QEvent *event) Q_DECL_OVERRIDE;
     QString     ValeurAvant, ValeurApres, Champ, Table;
     int         id, idUser;
-    void        MenuContextuel();
     void        ChoixMenuContextuel(QString choix);
+
+    void        MenuContextuel();
 
 signals:
     void        dblclick(int a);

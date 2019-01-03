@@ -46,6 +46,8 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     widgButtonsDossiers = new WidgetButtonFrame(ui->DossiersupTableWidget);
     widgButtonsDossiers ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
+    ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
+
     // Initialisation des slots.
     connect (ui->ChercheupLineEdit,             &QLineEdit::textEdited,                 this,   [=] {FiltreListe(ui->ChercheupLineEdit->text());});
     connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_documents::Validation);
@@ -678,8 +680,7 @@ void dlg_documents::MenuContextuel(QWidget *widg)
     QAction *pAction_InsInterroMontant;
     QAction *pAction_InsInterroText;
     QMenu *interro = new QMenu(this);
-    UpLabel *lbl = new UpLabel;
-    UpLineEdit *line0 = new UpLineEdit;
+    UpLineEdit *line0;
     UpLineEdit *line = dynamic_cast<UpLineEdit*>(widg);
 
     if (line)
@@ -692,7 +693,7 @@ void dlg_documents::MenuContextuel(QWidget *widg)
             pAction_ModifDossier            = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
             pAction_SupprDossier            = gmenuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
             gmenuContextuel->addSeparator();
-            lbl                             = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->getRowTable(),4));
+            UpLabel *lbl                    = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->getRowTable(),4));
             if (lbl->pixmap())
                 pAction_PublicDossier       = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Public")) ;
             else
@@ -822,8 +823,6 @@ void dlg_documents::MenuContextuel(QWidget *widg)
     // ouvrir le menu
     gmenuContextuel->exec(cursor().pos());
     delete gmenuContextuel;
-    delete lbl;
-    delete line0;
 }
 
 void dlg_documents::ChoixMenuContextuel(QString choix)

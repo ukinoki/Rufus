@@ -27,7 +27,7 @@ UpTextEdit::UpTextEdit(QWidget *parent) : QTextEdit(parent)
     idUser      = -1;
     installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this,  &QTextEdit::customContextMenuRequested, [=]{MenuContextuel();});
+    connect(this,  &UpTextEdit::customContextMenuRequested, this, &UpTextEdit::MenuContextuel);
 }
 
 UpTextEdit::UpTextEdit(QString txt, QWidget *parent) : QTextEdit(txt, parent)
@@ -40,7 +40,7 @@ UpTextEdit::UpTextEdit(QString txt, QWidget *parent) : QTextEdit(txt, parent)
     idUser      = -1;
     installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(this,  &QTextEdit::customContextMenuRequested, [=]{MenuContextuel();});
+    connect(this,  &UpTextEdit::customContextMenuRequested, this, &UpTextEdit::MenuContextuel);
 }
 
 void UpTextEdit::MenuContextuel()

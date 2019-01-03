@@ -19,7 +19,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 UpHeaderView::UpHeaderView(QHeaderView *header) : QHeaderView(Qt::Horizontal, header), mainHeader(header)
 {
-    connect(static_cast<QTableWidget*>(mainHeader->parentWidget())->horizontalScrollBar(), &QScrollBar::valueChanged, this, [=] {updateOffset();});
+    connect(static_cast<QTableWidget*>(mainHeader->parentWidget())->horizontalScrollBar(), &QScrollBar::valueChanged, this, &UpHeaderView::updateOffset);
     setGeometry(0, 0, header->width(), header->height());
     updateOffset();
     mainHeader->installEventFilter(this);

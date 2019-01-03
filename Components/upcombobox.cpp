@@ -28,12 +28,17 @@ UpComboBox::UpComboBox(QWidget *parent) : QComboBox (parent)
     gToolTipMsg     = "";
     setContextMenuPolicy(Qt::NoContextMenu);
     installEventFilter(this);
-    connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged),  [=] {if (currentIndex()==-1) setImmediateToolTip("");});
+    connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged),  this, &UpComboBox::clearImmediateToolTip);
 }
 
 UpComboBox::~UpComboBox()
 {
 
+}
+
+void UpComboBox::clearImmediateToolTip()
+{
+    if (currentIndex()==-1) setImmediateToolTip("");
 }
 
 // ------------------------------------------------------------------------------------------

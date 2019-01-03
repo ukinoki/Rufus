@@ -56,7 +56,6 @@ dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
     UpLabel         *lbltitre       = new UpLabel(this);
     UpLabel         *lbldate        = new UpLabel(this);
     UpLabel         *lbltype        = new UpLabel(this);
-    QVBoxLayout     *globallay      = dynamic_cast<QVBoxLayout*>(layout());
     QVBoxLayout     *rsgnmtVlay     = new QVBoxLayout();
     QVBoxLayout     *dirVlay        = new QVBoxLayout();
     QHBoxLayout     *dateLay        = new QHBoxLayout();
@@ -101,7 +100,7 @@ dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
     titreLay    ->setContentsMargins(0,0,0,0);
     dateLay     ->setContentsMargins(0,0,0,0);
 
-    globallay   ->insertWidget(0,upvisu);
+    dlglayout()   ->insertWidget(0,upvisu);
 
     QFont font = qApp->font();
     font.setPointSize(12);
@@ -117,11 +116,14 @@ dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
     buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
 
     buttonslayout()->insertLayout(0, dirVlay);
-
+    upvisu->resize(upvisu->sizeHint());
     setModal(true);
     setMinimumWidth(650);
-    globallay->setStretch(0,10);
-    globallay->setStretch(1,1);
+    setStageCount(2);
+    int w = width() - dlglayout()->contentsMargins().left() - dlglayout()->contentsMargins().right();
+    int y = height() - dlglayout()->contentsMargins().top() - dlglayout()->contentsMargins().bottom() - dlglayout()->spacing()  - widgetbuttons()->height();
+    upvisu->resize(w, y);
+    NavigueVers("Fin");
 }
 
 void dlg_docsvideo::NavigueVers(QString but)

@@ -1112,7 +1112,6 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
 {
     QString         rep("");
     UpDialog        *gAsk           = new UpDialog();
-    QVBoxLayout     *globallay      = dynamic_cast<QVBoxLayout*>(gAsk->layout());
     UpTextEdit      *TxtEdit        = new UpTextEdit(gAsk);
     int x = qApp->desktop()->availableGeometry().width();
     int y = qApp->desktop()->availableGeometry().height();
@@ -1127,7 +1126,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     gAsk->setMaximumHeight(y);
     gAsk->setWindowTitle(titre);
 
-    globallay->insertWidget(0,TxtEdit);
+    gAsk->dlglayout()->insertWidget(0,TxtEdit);
 
     gAsk->AjouteLayButtons();
     connect(gAsk->OKButton, SIGNAL(clicked(bool)),  gAsk,       SLOT(accept()));
