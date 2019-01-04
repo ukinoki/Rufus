@@ -55,7 +55,7 @@ private:
     QString                     NomDirStockageProv, NomDirStockageImagerie, CheminOKTransfrDir, CheminOKTransfrDirOrigin;
     QString                     datetransfer, CheminEchecTransfrDir;
     QStringList                 listmsg;
-    QFile                       FichierImage;
+    QFile                       FichierImage, FichierOrigine;
 };
 
 #endif // IMPORTDOCSEXTERNESTHREAD_H

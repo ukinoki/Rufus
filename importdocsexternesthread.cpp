@@ -62,16 +62,12 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
             QString Typedoc     = Titredoc;
             QString SousTypeDoc = Titredoc;
             QString Appareil    = docsquer.value(1).toString();
-            //qDebug() << Appareil;
             QStringList listfich = QDir(NomDirDoc).entryList(QDir::Files | QDir::NoDotAndDotDot);
-            int stop = listfich.size();
-            //qDebug() << "stop = " << stop;
-            for (int k=0; k<stop; k++)
+            for (int k=0; k<listfich.size(); k++)
             {
                 QString nomdoc  = listfich.at(k);
                 if (nomdoc.contains("smbtest"))
                     continue;
-                //qDebug() << nomdoc;
                 if (Appareil == "NAVIS-EX")   {
                     QString AbregeTitre = nomdoc.split("_").at(3);
                     if (AbregeTitre == "OT") {
@@ -91,17 +87,16 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                     }
                 }
                 QString CheminFichierImage      = NomDirDoc + "/" + nomdoc;
-                QString jnaltrsfername          = CheminOKTransfrDir + "/0JournalTransferts - " + datetransfer + ".txt";
-                QFile   jnaltrsfer(jnaltrsfername);
+                QFile   jnaltrsferfile(CheminOKTransfrDir + "/0JournalTransferts - " + datetransfer + ".txt");
                 QString commentechec;
 
-                FichierImage.setFileName(CheminFichierImage);
-                QString datetimecreation = QFileInfo(FichierImage).created().toString("yyyyMMdd-HHmmss");
+                FichierOrigine.setFileName(CheminFichierImage);
+                QString datetimecreation = QFileInfo(FichierOrigine).created().toString("yyyyMMdd-HHmmss");
                 // Date du document------------------------------------------------------------------------------------------------------------------------------------------------
                 QString datestring  = "";
                 if (Appareil == "TOPCON ALADDIN")
                 {
-                    QDateTime datefic   = QFileInfo(FichierImage).created();
+                    QDateTime datefic   = QFileInfo(FichierOrigine).created();
                     datestring          = datefic.toString("yyyyMMdd");
                     Titredoc            = "Biométrie - Aladdin";
                     Typedoc             = "Biométrie";
@@ -287,7 +282,6 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                 }
                 // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
                 QByteArray ba;
-                QFile FichierResize;
                 QString nomfichresize = NomDirStockageProv + "/resize" + QString::number(itr) + "_" + QString::number(k) + ".jpg";
                 QString szorigin, szfinal;
                 QStringList listfichresize = QDir(NomDirStockageProv).entryList(QDir::Files | QDir::NoDotAndDotDot);
@@ -297,41 +291,40 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                     QString CheminFichierResize     = NomDirStockageProv + "/" + nomdocrz;
                     QFile(CheminFichierResize).remove();
                 }
-                if (FichierImage.open(QIODevice::ReadOnly))
+                if (FichierOrigine.open(QIODevice::ReadOnly))
                 {
-                    double sz = FichierImage.size();
+                    double sz = FichierOrigine.size();
                     if (sz/(1024*1024) > 1)
                         szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
                     else
                         szorigin = QString::number(sz/1024,'f',1) + "Ko";
                     szfinal = szorigin;
-                    FichierResize.setFileName(CheminFichierImage);
+                    FichierOrigine.copy(nomfichresize);
+                    FichierImage.setFileName(nomfichresize);
                     if (formatdoc == "jpg" && sz > TAILLEMAXIIMAGES)
                     {
-                        FichierImage.copy(nomfichresize);
-                        FichierResize.setFileName(nomfichresize);
                         QImage  img(CheminFichierImage);
                         QPixmap pixmap;
                         int     tauxcompress = 90;
                         while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
                         {
                             pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
-                            if (FichierResize.exists())
-                                FichierResize.remove();
+                            if (FichierImage.exists())
+                                FichierImage.remove();
                             pixmap.save(nomfichresize, "jpeg",tauxcompress);
-                            FichierResize.open(QIODevice::ReadWrite);
-                            sz = FichierResize.size();
+                            FichierImage.open(QIODevice::ReadWrite);
+                            sz = FichierImage.size();
                             if (sz > TAILLEMAXIIMAGES)
                                 tauxcompress -= 10;
-                            FichierResize.close();
+                            FichierImage.close();
                         }
                         if (sz/(1024*1024) > 1)
                             szfinal = QString::number(sz/(1024*1024),'f',0) + "Mo";
                         else
                             szfinal = QString::number(sz/1024,'f',0) + "Ko";
                     }
-                    FichierResize.open(QIODevice::ReadOnly);
-                    ba = FichierResize.readAll();
+                    FichierImage.open(QIODevice::ReadOnly);
+                    ba = FichierImage.readAll();
                 }
                 else
                 {
@@ -475,29 +468,28 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                     {
                         QString CheminOKTransfrDoc          = CheminOKTransfrDir + "/" + NomFileDoc;
                         QString CheminOKTransfrDocOrigin    = CheminOKTransfrDirOrigin + "/" + nomdoc;
-                        FichierImage    .copy(CheminOKTransfrDocOrigin);
-                        FichierResize   .copy(CheminOKTransfrDoc);
-                        if (QFile(nomfichresize).exists())
-                            QFile(nomfichresize).remove();
+                        FichierImage.copy(CheminOKTransfrDoc);
                         QFile CC(CheminOKTransfrDoc);
                         CC.open(QIODevice::ReadWrite);
                         CC.setPermissions(QFileDevice::ReadOther
                                           | QFileDevice::ReadGroup
                                           | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                                           | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+                        FichierImage.remove();
+                        FichierOrigine.copy(CheminOKTransfrDocOrigin);
                         QFile CO(CheminOKTransfrDocOrigin);
                         CO.open(QIODevice::ReadWrite);
                         CO.setPermissions(QFileDevice::ReadOther
                                           | QFileDevice::ReadGroup
                                           | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                                           | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-                        if (jnaltrsfer.open(QIODevice::Append))
+                        if (jnaltrsferfile.open(QIODevice::Append))
                         {
-                            QTextStream out(&jnaltrsfer);
+                            QTextStream out(&jnaltrsferfile);
                             out << Titredoc << " - " << nomdoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
-                            jnaltrsfer.close();
+                            jnaltrsferfile.close();
                         }
-                        if (FichierImage.remove())
+                        if (FichierOrigine.remove())
                         {
                             QString msg = tr("Enregistrement d'un cliché") + " <font color=\"red\"><b>" + Titredoc + "</b></font>"
                                           " " + tr("pour") + " <font color=\"green\"><b>" + identpat + "</b></font> " + tr("dans la base de données");
@@ -542,23 +534,22 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
 
                     if(query.exec())
                     {
-                        QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc;
-                        FichierResize.copy(CheminOKTransfrDoc);
-                        if (QFile(nomfichresize).exists())
-                            QFile(nomfichresize).remove();
-                        QFile CC(CheminOKTransfrDoc);
-                        CC.open(QIODevice::ReadWrite);
-                        CC.setPermissions(QFileDevice::ReadOther
+                        FichierImage.remove();
+                        QString CheminOKTransfrDocOrigin    = CheminOKTransfrDirOrigin + "/" + nomdoc;
+                        FichierOrigine.copy(CheminOKTransfrDocOrigin);
+                        QFile CO(CheminOKTransfrDocOrigin);
+                        CO.open(QIODevice::ReadWrite);
+                        CO.setPermissions(QFileDevice::ReadOther
                                           | QFileDevice::ReadGroup
                                           | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                                           | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-                        if (jnaltrsfer.open(QIODevice::Append))
+                        if (jnaltrsferfile.open(QIODevice::Append))
                         {
-                            QTextStream out(&jnaltrsfer);
+                            QTextStream out(&jnaltrsferfile);
                             out << Titredoc << " - " << nomdoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
-                            jnaltrsfer.close();
+                            jnaltrsferfile.close();
                         }
-                        if (FichierImage.remove())
+                        if (FichierOrigine.remove())
                         {
                             QString msg = tr("Enregistrement d'un cliché") + " <font color=\"red\"><b>" + Titredoc + "</b></font>"
                                           " " + tr("pour") + " <font color=\"green\"><b>" + identpat + "</b></font> " + tr("dans la base de données");

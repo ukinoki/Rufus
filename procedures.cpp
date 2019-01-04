@@ -4291,7 +4291,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_DOSSIERECHANGE);
             Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_VIDEOS);
             Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_PROV);
-            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_FACTURES NOMDIR_FACTURESSANSLIEN);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_FACTURESSANSLIEN);
+            Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_FACTURES);
             Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_ORIGINAUX NOMDIR_FACTURES);
             Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE NOMDIR_ORIGINAUX NOMDIR_IMAGES);
             // Création de la base
