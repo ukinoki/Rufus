@@ -851,7 +851,7 @@ void dlg_depenses::EffaceFacture()
             != UpSmallButton::STARTBUTTON)
         return;
         /* on ferme la fiche d'édition de la facture
-         * on supprime toute référence à la facture dans la dépense
+         * on supprime la référence à la facture dans la dépense
          * on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier
          */
     /* on ferme la fiche d'édition de la facture*/
@@ -1360,7 +1360,7 @@ void dlg_depenses::DefinitArchitectureBigTable()
     li++;
     gBigTable->setColumnWidth(li,0);                                                // 7 - DepDate
     li++;
-    gBigTable->setColumnWidth(li,15);                                               // 8 - point bleu si une facture est enregistrée
+    gBigTable->setColumnWidth(li,45);                                               // 8 - point bleu si une facture est enregistrée
 
     gBigTable->setColumnHidden(ColCount-2,true);
 
@@ -1511,7 +1511,7 @@ void dlg_depenses::ScanDoc(QString typedoc)
                       " left join " NOM_TABLE_FACTURES " fac"
                       " on dep.idfacture = fac.idfacture"
                       " where Echeancier = 1"
-                      " and idUser = " + QString::number(proc->getUserConnected()->id());
+                      " and idUser = " + QString::number(gDataUser->id());
         //qDebug() << req;
         bool ok = true;
         QList<QList<QVariant>> ListeEch = db->StandardSelectSQL(req, ok);

@@ -31,6 +31,11 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
 
 void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
 {
+    /* req = "select distinct list.TitreExamen, list.NomAPPareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " appcon, " NOM_TABLE_LISTEAPPAREILS " list"
+          " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(idlieuExercice);
+
+    -> docsquer.value(0) = le titre de l'examen
+    -> docsquer.value(1) = le nom de l'appareil*/
     if (EnCours)
         return;
     EnCours = true;
@@ -45,8 +50,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
     docsquer.first();
     for (int itr=0; itr<docsquer.size(); itr++)
     {
-        QString NomDirDoc         = proc->getDossierDocuments(docsquer.value(1).toString(), DataBase::getInstance()->getMode());
-        //qDebug() << NomDirDoc;
+        QString NomDirDoc         = proc->getDossierDocuments(docsquer.value(1).toString(), DataBase::getInstance()->getMode());  // le dossier où sont exportés les documents d'un appareil donné
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -68,31 +72,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                 QString nomdoc  = listfich.at(k);
                 if (nomdoc.contains("smbtest"))
                     continue;
-                if (Appareil == "NAVIS-EX")   {
-                    QString AbregeTitre = nomdoc.split("_").at(3);
-                    if (AbregeTitre == "OT") {
-                        Titredoc    = "OCT - Nidek";
-                        Typedoc     = "OCT";
-                        SousTypeDoc = "Nidek";
-                    }
-                    else if (AbregeTitre == "AO") {
-                        Titredoc    = "OCT SA - Nidek";
-                        Typedoc     = "OCT SA";
-                        SousTypeDoc = "Nidek";
-                    }
-                    else if (AbregeTitre == "CO") {
-                        Titredoc    = "RNM - Nidek";
-                        Typedoc     = "RNM";
-                        SousTypeDoc = "Nidek";
-                    }
-                }
                 QString CheminFichierImage      = NomDirDoc + "/" + nomdoc;
                 QFile   jnaltrsferfile(CheminOKTransfrDir + "/0JournalTransferts - " + datetransfer + ".txt");
                 QString commentechec;
 
                 FichierOrigine.setFileName(CheminFichierImage);
                 QString datetimecreation = QFileInfo(FichierOrigine).created().toString("yyyyMMdd-HHmmss");
-                // Date du document------------------------------------------------------------------------------------------------------------------------------------------------
+
+                // Date et type du document------------------------------------------------------------------------------------------------------------------------------------------------
                 QString datestring  = "";
                 if (Appareil == "TOPCON ALADDIN")
                 {
@@ -212,12 +199,32 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                         datestring = nomdoc.split("_").at(1);
                         datestring = datestring.left(8);
                     }
+                    QString AbregeTitre = nomdoc.split("_").at(3);
+                    if (AbregeTitre == "OT") {
+                        Titredoc    = "OCT - Nidek";
+                        Typedoc     = "OCT";
+                        SousTypeDoc = "Nidek";
+                    }
+                    else if (AbregeTitre == "AO") {
+                        Titredoc    = "OCT SA - Nidek";
+                        Typedoc     = "OCT SA";
+                        SousTypeDoc = "Nidek";
+                    }
+                    else if (AbregeTitre == "CO") {
+                        Titredoc    = "RNM - Nidek";
+                        Typedoc     = "RNM";
+                        SousTypeDoc = "Nidek";
+                    }
                 }
                 else if (Appareil == "EIDON")
                 {
                     // il faut découper le nom de fichier à partir de la fin parce que c'est invariable
                     // si on fait l'inverse et qu'on met un tiret dans le nom de famille p.e.,
                     // la fonction plante dans ses découpages de QStringList et le programme avec
+                    /*
+                     * 368_Zammit-Sauveur-2017-06-14T17_39_21Z-eidon_20129-right-0-visible-2017-06-14T17_39_26Z--report.pdf
+                     * 368_Zammit-Sauveur-2017-06-16T12_27_13Z-eidon_20129-right-0-af-2017-06-16T12_27_18Z--image.jpg
+                    */
                     if (nomdoc.split("-").size()<11)
                     {
                         commentechec =  tr("nom invalide");
@@ -282,13 +289,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                 }
                 // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
                 QByteArray ba;
-                QString nomfichresize = NomDirStockageProv + "/resize" + QString::number(itr) + "_" + QString::number(k) + ".jpg";
+                QString nomfichresize = NomDirStockageProv + "/resize" + nomdoc;
                 QString szorigin, szfinal;
+                // on vide le dossier provisoire
                 QStringList listfichresize = QDir(NomDirStockageProv).entryList(QDir::Files | QDir::NoDotAndDotDot);
                 for (int t=0; t<listfichresize.size(); t++)
                 {
                     QString nomdocrz  = listfichresize.at(t);
-                    QString CheminFichierResize     = NomDirStockageProv + "/" + nomdocrz;
+                    QString CheminFichierResize = NomDirStockageProv + "/" + nomdocrz;
                     QFile(CheminFichierResize).remove();
                 }
                 if (FichierOrigine.open(QIODevice::ReadOnly))
@@ -303,7 +311,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                     FichierImage.setFileName(nomfichresize);
                     if (formatdoc == "jpg" && sz > TAILLEMAXIIMAGES)
                     {
-                        QImage  img(CheminFichierImage);
+                        QImage  img(nomfichresize);
                         QPixmap pixmap;
                         int     tauxcompress = 90;
                         while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
@@ -343,10 +351,10 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                     QString jour    = Utils::capitilize(listn.at(2));
                     QString mois    = Utils::capitilize(listn.at(3));
                     QString annee   = Utils::capitilize(listn.at(4));
-                    req              = "select idpat from " NOM_TABLE_PATIENTS
-                                       " where patnom like '" + nom + "'"
-                                       " and patprenom like '" + prenom  + "'"
-                                       " and patDDN = '" + annee + "-" + mois + "-" + jour + "'";
+                    req             = "select idpat from " NOM_TABLE_PATIENTS
+                                      " where patnom like '" + nom + "'"
+                                      " and patprenom like '" + prenom  + "'"
+                                      " and patDDN = '" + annee + "-" + mois + "-" + jour + "'";
                     //qDebug() << req;
                     QSqlQuery querpat(req, db);
                     if (querpat.size()>0)   {
