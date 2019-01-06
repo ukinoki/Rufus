@@ -92,10 +92,11 @@ private:
     int                     gAgePatient, gidPatient, gidUser, gidActe;
     QString                 gNomPatient, gPrenomPatient;
     QStringList             gstringListe1, gstringListe2;
-    QSqlDatabase            db;
+    DataBase                *db;
     int                     gMode;
     int                     gidRefraction;
     enum gMode              {Porte, Autoref, Refraction, Prescription};
+    bool                    ok;
     bool                    gAfficheDetail;
     double                  gSphereOD;
     double                  gCylindreOD;

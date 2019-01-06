@@ -168,13 +168,17 @@ bool Procedures::CompressFileJPG(QString nomfile, QDate datetransfert)
         return false;
     }
 
+    QFile CC(nomfile);
+    double sz = CC.size();
+    if (sz < TAILLEMAXIIMAGES)
+        return true;
+    QImage  img(nomfile);
     QString filename = QFileInfo(nomfile).fileName();
     QString nomfichresize = DirStockProvPath + "/" + filename;
     QFile fileresize(nomfichresize);
     if (fileresize.exists())
         fileresize.remove();
     QFile echectrsfer(CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfert.toString("yyyy-MM-dd") + ".txt");
-    QImage  img(nomfile);
     QPixmap pixmap;
     double w = img.width();
     double h = img.height();
@@ -188,34 +192,29 @@ bool Procedures::CompressFileJPG(QString nomfile, QDate datetransfert)
     pixmap = pixmap.fromImage(img.scaledToWidth(x,Qt::SmoothTransformation));
     /* on enregistre le fichier sur le disque du serveur
      * si on n'y arrive pas,
-        * on crée le fichier log des echecstransferts correspondants dans le répertoire des eches de transfert sur le serveur
+        * on crée le fichier log des echecstransferts correspondants dans le répertoire des echecs de transfert sur le serveur
         * on complète ce fichier en ajoutant une ligne correspondant à cet échec
         * on enregistre dans ce dossier une copie du fichier d'origine
      */
-    QFile CC(nomfile);
     if (!pixmap.save(nomfichresize, "jpeg"))
     {
         if (echectrsfer.open(QIODevice::Append))
         {
             QTextStream out(&echectrsfer);
-            out << filename << "\n" ;
+            out << CC.fileName() << "\n" ;
             echectrsfer.close();
             CC.copy(CheminEchecTransfrDir + "/" + filename);
         }
         return false;
     }
-    CC.close();
     CC.remove();
     /* on comprime*/
     int tauxcompress = 90;
-    double sz = fileresize.size();
-    fileresize.open(QIODevice::ReadWrite);
     while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
     {
         pixmap.save(nomfichresize, "jpeg",tauxcompress);
         sz = fileresize.size();
-        qDebug() << sz;
-        tauxcompress -=10;
+        tauxcompress -= 10;
     }
     fileresize.copy(nomfile);
     fileresize.close();

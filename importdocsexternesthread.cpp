@@ -29,13 +29,13 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
     thread          .start();
 }
 
-void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
+void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > listdocs)
 {
     /* req = "select distinct list.TitreExamen, list.NomAPPareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " appcon, " NOM_TABLE_LISTEAPPAREILS " list"
           " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(idlieuExercice);
 
-    -> docsquer.value(0) = le titre de l'examen
-    -> docsquer.value(1) = le nom de l'appareil*/
+    -> listdocs.at(i).at(0) = le titre de l'examen
+    -> listdocs.at(i).at(1) = le nom de l'appareil*/
     if (EnCours)
         return;
     EnCours = true;
@@ -47,10 +47,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
         return;
     }
 
-    docsquer.first();
-    for (int itr=0; itr<docsquer.size(); itr++)
+    for (int itr=0; itr<listdocs.size(); itr++)
     {
-        QString NomDirDoc         = proc->getDossierDocuments(docsquer.value(1).toString(), DataBase::getInstance()->getMode());  // le dossier où sont exportés les documents d'un appareil donné
+        QString NomDirDoc         = proc->getDossierDocuments(listdocs.at(itr).at(1).toString(), DataBase::getInstance()->getMode());  // le dossier où sont exportés les documents d'un appareil donné
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -62,10 +61,10 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                  * idpatient
                 */
             // Titre du document------------------------------------------------------------------------------------------------------------------------------------------------
-            QString Titredoc    = docsquer.value(0).toString();
+            QString Titredoc    = listdocs.at(itr).at(0).toString();
             QString Typedoc     = Titredoc;
             QString SousTypeDoc = Titredoc;
-            QString Appareil    = docsquer.value(1).toString();
+            QString Appareil    = listdocs.at(itr).at(1).toString();
             QStringList listfich = QDir(NomDirDoc).entryList(QDir::Files | QDir::NoDotAndDotDot);
             for (int k=0; k<listfich.size(); k++)
             {
@@ -312,19 +311,15 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                     if (formatdoc == "jpg" && sz > TAILLEMAXIIMAGES)
                     {
                         QImage  img(nomfichresize);
+                        FichierImage.remove();
                         QPixmap pixmap;
+                        pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
                         int     tauxcompress = 90;
                         while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
                         {
-                            pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
-                            if (FichierImage.exists())
-                                FichierImage.remove();
                             pixmap.save(nomfichresize, "jpeg",tauxcompress);
-                            FichierImage.open(QIODevice::ReadWrite);
                             sz = FichierImage.size();
-                            if (sz > TAILLEMAXIIMAGES)
-                                tauxcompress -= 10;
-                            FichierImage.close();
+                            tauxcompress -= 10;
                         }
                         if (sz/(1024*1024) > 1)
                             szfinal = QString::number(sz/(1024*1024),'f',0) + "Mo";
@@ -584,7 +579,6 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QSqlQuery docsquer)
                 QSqlQuery("UNLOCK TABLES", db);
             }
         }
-        docsquer.next();
     }
 
     if (listmsg.size()>0)

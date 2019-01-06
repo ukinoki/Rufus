@@ -249,9 +249,9 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="17,20,0,1,1">
      <property name="spacing">
-      <number>5</number>
+      <number>4</number>
      </property>
      <item>
       <widget class="QFrame" name="frame">
@@ -296,7 +296,7 @@
          <number>6</number>
         </property>
         <property name="topMargin">
-         <number>0</number>
+         <number>5</number>
         </property>
         <property name="rightMargin">
          <number>6</number>
@@ -567,7 +567,7 @@
          <height>16777215</height>
         </size>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
+       <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,50,1">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -585,6 +585,9 @@
         </property>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_14">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <item>
            <widget class="UpPushButton" name="FactureupPushButton">
             <property name="minimumSize">
@@ -623,7 +626,7 @@ une facture</string>
             <property name="sizeHint" stdset="0">
              <size>
               <width>13</width>
-              <height>20</height>
+              <height>0</height>
              </size>
             </property>
            </spacer>
@@ -721,7 +724,7 @@ un échéancier</string>
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>37</height>
+         <height>20</height>
         </size>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_8">

@@ -95,7 +95,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     boxbutt->addSpacerItem(new QSpacerItem(0,0));
     boxbutt->addWidget(ModifierupPushButton);
     boxbutt->setSpacing(2);
-    boxbutt->setContentsMargins(0,0,0,0);
+    boxbutt->setContentsMargins(0,5,0,0);
     ui->frame->layout()->addItem(boxbutt);
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
@@ -772,7 +772,8 @@ void dlg_depenses::AfficheFacture(Depense *dep)
         {
             ui->VisuDocupTableWidget->clear();
             ui->VisuDocupTableWidget->setColumnCount(1);
-            ui->VisuDocupTableWidget->setColumnWidth(0,ui->VisuDocupTableWidget->width()-2);
+            ui->VisuDocupTableWidget->setRowCount(1);
+           ui->VisuDocupTableWidget->setColumnWidth(0,ui->VisuDocupTableWidget->width()-2);
             ui->VisuDocupTableWidget->setRowHeight(0,ui->VisuDocupTableWidget->height()-2);
             ui->VisuDocupTableWidget->horizontalHeader()->setVisible(false);
             ui->VisuDocupTableWidget->verticalHeader()->setVisible(false);
@@ -782,6 +783,7 @@ void dlg_depenses::AfficheFacture(Depense *dep)
             lab->setAlignment(Qt::AlignCenter);
             QGridLayout *lay = new QGridLayout(widg);
             lay->addWidget(lab,0,0,Qt::AlignCenter);
+            lab->setFocusPolicy(Qt::ClickFocus);
             ui->VisuDocupTableWidget->setCellWidget(0,0,widg);
             connect(lab, &UpLabel::clicked, this,
             [=]
@@ -900,18 +902,17 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     {
         /* on détruit l'enregistrement dans la table factures*/
         db->SupprRecordFromTable(dep->idfacture(),"idFacture",NOM_TABLE_FACTURES);
+        /* on inscrit le lien vers le fichier dans la table FacturesASupprimer
+         * la fonction SupprimeDocsetFactures de Rufus ou RufusAdmin
+         * se chargera de supprimer les fichiers du disque
+         * et d'en faire une copie dans le dossier factures sans lien
+         * On vérifie au préalable que cette facture ne vient pas d'être inscrite dans la table */
+        if (db->StandardSelectSQL("select lienfichier from " NOM_TABLE_FACTURESASUPPRIMER " where lienfichier = '" + dep->lienfacture() + "'", ok).size()==0)
+            req = "insert into " NOM_TABLE_FACTURESASUPPRIMER
+                  " (LienFichier)"
+                  " values ('" + dep->lienfacture() + "')";
+        db->StandardSQL(req);
     }
-
-    /* on inscrit le lien vers le fichier dans la table FacturesASupprimer
-     * la fonction SupprimeDocsetFactures de Rufus ou RufusAdmin
-     * se chargera de supprimer les fichiers du disque
-     * et d'en faire une copie dans le dossier factures sans lien
-     * On vérifie au préalable que cette facture ne vient pas d'être inscrite dans la table */
-    if (db->StandardSelectSQL("select lienfichier from " NOM_TABLE_FACTURESASUPPRIMER " where lienfichier = '" + dep->lienfacture() + "'", ok).size()==0)
-        req = "insert into " NOM_TABLE_FACTURESASUPPRIMER
-            " (LienFichier)"
-            " values ('" + dep->lienfacture() + "')";
-    db->StandardSQL(req);
     /* on remet à zero les idfacture et lienfacture de la dépense*/
     dep->setidfacture(0);
     dep->setlienfacture("");

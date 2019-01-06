@@ -21,7 +21,7 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
     proc            = Procedures::I();
-    iditem          = idPatouDep;        // correspond à l'id du patient dans le cas d'un document scanné, à l'id depense dans le cas d'une facture scannée
+    iditem          = idPatouDep;       // correspond à l'id du patient dans le cas d'un document scanné, à l'id depense dans le cas d'une facture scannée
     gMode           = mode;
     db              = DataBase::getInstance();
     QString         NomOnglet;
@@ -182,7 +182,7 @@ dlg_docsscanner::~dlg_docsscanner()
 void dlg_docsscanner::NavigueVers(QString but)
 {
     QStringList filters;
-    filters << "*.pdf" << "*.jpg";
+    filters << "*.pdf" << "*.jpg" << "*.jpeg";
     QStringList listfich = QDir(docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {
         UpMessageBox::Watch(this,tr("Il n'y a aucun document dans le dossier ") + docpath,
@@ -323,7 +323,7 @@ void dlg_docsscanner::ValideFiche()
     if (suffixe == "jpeg")
         suffixe= "jpg";
 
-    QString datetransfer        = QDate::currentDate().toString("yyyy-MM-dd");
+    QString datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
     QString user("");
     if (gMode != Document)
         user = Datas::I()->users->getLoginById(Datas::I()->depenses->getDepenseById(iditem)->iduser());
@@ -355,11 +355,6 @@ void dlg_docsscanner::ValideFiche()
     }
 
     QString sstypedoc = linetitre->text();
-    QString NomFileDoc = QString::number(iditem) + "_"
-            + typeDocCombo->currentText() + "_"
-            + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
-            + editdate->dateTime().toString("yyyy-MM-dd");
-
     QSqlQuery query = QSqlQuery(db->getDataBase());
     int idimpr (0);
     QHash<QString,QVariant> listbinds;
@@ -371,6 +366,10 @@ void dlg_docsscanner::ValideFiche()
         if (!db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS))
             return;
         idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS) + 1;
+        QString NomFileDoc = QString::number(iditem) + "_"
+                + typeDocCombo->currentText() + "_"
+                + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
+                + editdate->dateTime().toString("yyyy-MM-dd");
         lien = "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
         if (!AccesDistant)
         {
@@ -407,6 +406,10 @@ void dlg_docsscanner::ValideFiche()
         if (!db->locktables(QStringList() << NOM_TABLE_FACTURES))
             return;
         idimpr =  db->selectMaxFromTable("idFacture", NOM_TABLE_FACTURES) + 1;
+        QString NomFileDoc = QString::number(idimpr) + "_"
+                + typeDocCombo->currentText() + "_"
+                + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
+                + editdate->dateTime().toString("yyyy-MM-dd");
         lien = "/" + user + "/" + NomFileDoc  + (gMode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe;
         if (!AccesDistant)
         {

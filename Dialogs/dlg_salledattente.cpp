@@ -30,15 +30,14 @@ dlg_salledattente::dlg_salledattente(int idPatAPasser, int idActeAPasser, QStrin
     gidUserSuperviseur  = proc->getUserConnected()->getIdUserActeSuperviseur();
     gTitre              = Titre;
     gidActe             = idActeAPasser;
-    db                  = DataBase::getInstance()->getDataBase();
-    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(layout());
+    db                  = DataBase::getInstance();
     ui->MessagetextEdit->setText(gTitre);
-    ui->MessagetextEdit->document()->setTextWidth(width()-globallay->contentsMargins().left()*2-2);
-    ui->MessagetextEdit->setFixedSize(int(width()-globallay->contentsMargins().left()*2), int(ui->MessagetextEdit->document()->size().height()+2));
-    globallay->insertWidget(0,ui->MiseEnSalleDAttentegroupBox);
-    globallay->insertWidget(0,ui->MessagetextEdit);
+    ui->MessagetextEdit->document()->setTextWidth(width()-dlglayout()->contentsMargins().left()*2-2);
+    ui->MessagetextEdit->setFixedSize(int(width()-dlglayout()->contentsMargins().left()*2), int(ui->MessagetextEdit->document()->size().height()+2));
+    dlglayout()->insertWidget(0,ui->MiseEnSalleDAttentegroupBox);
+    dlglayout()->insertWidget(0,ui->MessagetextEdit);
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    globallay->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     connect (OKButton,                                  SIGNAL(clicked()),                  this,            SLOT (Slot_OKButtonClicked()));
     connect (CancelButton,                              SIGNAL(clicked()),                  this,            SLOT (reject()));
@@ -55,33 +54,32 @@ dlg_salledattente::dlg_salledattente(int idPatAPasser, int idActeAPasser, QStrin
             " AND usr.idUser <> '" + QString::number(gidUser) + "'"
             " AND usr.idUser = connectusr.idUser";
     //proc->Edit( Usersrequete);
-    QSqlQuery ListUserQuery(Usersrequete,db);
-    DataBase::getInstance()->traiteErreurRequete(ListUserQuery,Usersrequete,"");
-
-    if (ListUserQuery.size() == 0)
+    bool ok;
+    QList<QList<QVariant>> ListUsers = db->StandardSelectSQL(Usersrequete,ok);
+    if (!ok)
+        return;
+    if (ListUsers.size() == 0)
     {
         ui->ExamenEnAttenteAutreAvisradioButton->setEnabled(false);
         ui->UsercomboBox->setEnabled(false);
     }
-    else if (ListUserQuery.size() == 1)
+    else if (ListUsers.size() == 1)
     {
-        ListUserQuery.first();
         ui->ExamenEnAttenteAutreAvisradioButton->setEnabled(true);
-        ui->ExamenEnAttenteAutreAvisradioButton->setText(tr("Examen terminé, en attente d'être vu par ") + ListUserQuery.value(0).toString());
-        ListUser << ListUserQuery.value(0).toString();
-        ui->UsercomboBox->setEditText(ListUserQuery.value(0).toString());
+        ui->ExamenEnAttenteAutreAvisradioButton->setText(tr("Examen terminé, en attente d'être vu par ") + ListUsers.at(0).at(0).toString());
+        ListUser << ListUsers.at(0).at(0).toString();
+        ui->UsercomboBox->setEditText(ListUsers.at(0).at(0).toString());
         ui->UsercomboBox->insertItems(0,ListUser);
         ui->UsercomboBox->setVisible(false);
     }
     else
     {
-        for (int i = 0; i < ListUserQuery.size(); i++)
+        for (int i = 0; i < ListUsers.size(); i++)
         {
             ui->ExamenEnAttenteAutreAvisradioButton->setEnabled(true);
             ui->UsercomboBox->setVisible(true);
-            ListUserQuery.seek(i);
-            ListUser << ListUserQuery.value(0).toString();
-            if (i == 0) ui->UsercomboBox->setEditText(ListUserQuery.value(0).toString());
+            ListUser << ListUsers.at(i).at(0).toString();
+            if (i == 0) ui->UsercomboBox->setEditText(ListUsers.at(i).at(0).toString());
         }
         ui->UsercomboBox->insertItems(0,ListUser);
     }
@@ -100,6 +98,7 @@ dlg_salledattente::~dlg_salledattente()
 -----------------------------------------------------------------------------------------------------------------*/
 void    dlg_salledattente::Slot_OKButtonClicked()
 {
+    bool ok;
     QString Statut;
 
     if (!ui->ExamEnCoursradioButton->isChecked() && !ui->ExamenEnAttenteAutreAvisradioButton->isChecked() && !ui->RetourAccueilradioButton->isChecked())
@@ -116,19 +115,19 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     {
         ActeSal = QString::number(gidActe);
         QString req = "select idacte, iduser from " NOM_TABLE_ACTES " where idacte = " + ActeSal;
-        QSqlQuery actquer(req,db);
-        actquer.first();
-        if (actquer.value(1).toInt() == -1)
-            QSqlQuery ("update " NOM_TABLE_ACTES " set idUser = " + QString::number(proc->UserSuperviseur()) + ", UserComptable = " + QString::number(proc->getUserConnected()->getIdUserComptable()) + ", UserParent = " + QString::number(proc->UserParent()) + " where idacte = " + actquer.value(0).toString(), db);
+        QList<QList<QVariant>> ListActes = db->StandardSelectSQL(req,ok);
+        if (ListActes.at(0).at(1).toInt() == -1)
+            db->StandardSQL("update " NOM_TABLE_ACTES " set idUser = " + QString::number(proc->UserSuperviseur()) +
+                       ", UserComptable = " + QString::number(proc->getUserConnected()->getIdUserComptable()) +
+                       ", UserParent = " + QString::number(proc->UserParent()) + " where idacte = " + ListActes.at(0).at(0).toString());
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
     }
 
     QString saldatrequete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery SalDatQuery(saldatrequete,db);
-    DataBase::getInstance()->traiteErreurRequete(SalDatQuery,saldatrequete,tr("Impossible de trouver le dossier dans la salle d'attente!"));
+    QList<QList<QVariant>> ListPatients = db->StandardSelectSQL(saldatrequete,ok,tr("Impossible de trouver le dossier dans la salle d'attente!"));
     QString MsgErreur;
-    if (SalDatQuery.size() == 0)
+    if (ListPatients.size() == 0)
     {
 
         saldatrequete =     "INSERT INTO " NOM_TABLE_SALLEDATTENTE
@@ -151,8 +150,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         MsgErreur           = tr("Impossible de modifier les statuts du dossier en salle d'attente!");
     }
     //proc->Edit(saldatrequete);
-    QSqlQuery ModifSalDatQuery(saldatrequete,db);
-    DataBase::getInstance()->traiteErreurRequete(ModifSalDatQuery,saldatrequete,MsgErreur);
+    db->StandardSQL(saldatrequete,MsgErreur);
     proc->MAJTcpMsgEtFlagSalDat();
     accept();
 }

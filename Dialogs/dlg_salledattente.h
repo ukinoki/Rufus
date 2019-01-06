@@ -42,7 +42,7 @@ private:
     int                 gidPatient;
     int                 gidUser, gidActe, gidUserSuperviseur;
     QString             gTitre;
-    QSqlDatabase        db;
+    DataBase            *db;
 };
 
 #endif // DLG_SALLEDATTENTE_H
