@@ -796,7 +796,7 @@ QStringList DataBase::ListeRubriquesFiscales()
     return ListeRubriques;
 }
 
-QList<Depense*> DataBase::VerifExistDepense(QHash<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur Comp)
+QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur Comp)
 {
     QString op = "=";
     if (Comp == DataBase::Sup)
@@ -814,7 +814,7 @@ QList<Depense*> DataBase::VerifExistDepense(QHash<int, Depense *> m_listDepenses
         return listdepenses;
     do
     {
-        QHash<int, Depense*>::const_iterator itDepense = m_listDepenses.find(query.value(0).toInt());
+        QMap<int, Depense*>::const_iterator itDepense = m_listDepenses.find(query.value(0).toInt());
         if (itDepense != m_listDepenses.constEnd())
         {
             Depense *dep = itDepense.value();

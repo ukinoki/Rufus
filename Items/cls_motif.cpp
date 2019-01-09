@@ -70,15 +70,33 @@ void Motifs::addMotif(QList<Motif*> listMotifs)
         addMotif( *it );
 }
 
-void Motifs::removeMotif(Motif* Motif)
-{
-    m_motifs       ->remove(Motif->id());
-}
-
 Motif* Motifs::getMotifById(int id)
 {
     QMap<int, Motif*>::const_iterator itcpt = m_motifs->find(id);
     if( itcpt == m_motifs->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
+}
+
+void Motifs::clearAll()
+{
+    QList<Motif*> listmotfs;
+    for( QMap<int, Motif*>::const_iterator itmotf = m_motifs->constBegin(); itmotf != m_motifs->constEnd(); ++itmotf)
+    {
+        Motif *motf = const_cast<Motif*>(*itmotf);
+        if (!listmotfs.contains(motf))
+                listmotfs << motf;
+    }
+    for (int i=listmotfs.size()-1; i==0; --i)
+        removeMotif(listmotfs.at(i));
+    m_motifs->clear();
+}
+
+void Motifs::removeMotif(Motif *motf)
+{
+    QMap<int, Motif*>::const_iterator itmotf = m_motifs->find(motf->id());
+    if( itmotf == m_motifs->constEnd() )
+        return;
+    m_motifs->remove(motf->id());
+    delete motf;
 }

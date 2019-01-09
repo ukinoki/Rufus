@@ -52,6 +52,7 @@ public:
     int compression() const;
     bool isAllLoaded() const;
 
+    void setDate(QDateTime date);
     void setimportance(int imptce);
     void setAllLoaded(bool allloaded);
 };

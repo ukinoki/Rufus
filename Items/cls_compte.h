@@ -51,21 +51,22 @@ public:
 class Comptes
 {
 private:
-    QMultiMap<int, Compte*> m_comptes;          //!< la liste des comptes actifs d'un user
-    QMultiMap<int, Compte*> m_comptesAll;       //!< la liste de tous les comptes même inactifs d'un user
-    QMultiMap<int, Compte*> m_comptesAllusers;  //!< la liste de tous les comptes actifs de tous les utsers
+    QMultiMap<int, Compte*> *m_comptes = Q_NULLPTR;          //!< la liste des comptes actifs d'un user
+    QMultiMap<int, Compte*> *m_comptesAll = Q_NULLPTR;       //!< la liste de tous les comptes même inactifs d'un user
+    QMultiMap<int, Compte*> *m_comptesAllusers = Q_NULLPTR;  //!< la liste de tous les comptes actifs de tous les utsers
 
 public:
     explicit Comptes();
+    ~Comptes();
 
-    QMultiMap<int, Compte *> comptes() const;
-    QMultiMap<int, Compte *> comptesAll() const;
-    QMultiMap<int, Compte *> comptesAllUsers() const;
+    QMultiMap<int, Compte *>* comptes() const;
+    QMultiMap<int, Compte *>* comptesAll() const;
+    QMultiMap<int, Compte *>* comptesAllUsers() const;
 
     void addCompte(Compte *compte);
     void addCompte(QList<Compte*> listCompte);
     void removeCompte(Compte* cpt);
-    void clearComptes();
+    void clearAll();
     Compte* getCompteById(int id);
 };
 

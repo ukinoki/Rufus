@@ -115,7 +115,7 @@ User* Users::getUserById(int id, bool loadDetails, bool addToList)
 QString Users::getLoginById(int id)
 {
     User* user = getUserById(id);
-    if( user != nullptr)
+    if( user != Q_NULLPTR)
         return user->getLogin();
 
     return "";

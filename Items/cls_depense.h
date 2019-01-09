@@ -47,8 +47,10 @@ private: //Données de la dépense
     int m_idfacture;            //!< l'id de la facture ou de l'échéancier correspondant dans la table Facture
     QString m_lienfacture;      //!< l'emplacement de la facture ou de l'échéancier correspondant sur le disque dur
     bool m_echeancier;          //!< bool -> true = echeancier - false = facture
-    int m_auxarchives;          //!< depense par operation bancaire consolidée
+    int m_auxarchives;          //!< depense par operation bancaire et dont l'operation bancaire est consolidée
     QString m_objetecheancier;  //!< l'intitule de l'échéancier correspondant sur le disque dur
+    QString m_pdfoujpgfacture;  //!< la facture est un jpg ou un pdf
+    QByteArray m_imgfacture;    //!< le contenu du fichier image de la facture
 
 public:
     enum m_auxarchives {NoLoSo, Oui, Non};
@@ -69,19 +71,22 @@ public:
     QString lienfacture() const;
     bool    isecheancier() const;
     QString objetecheancier() const;
-    int     annee();
-    int     isArchivee();
+    int     annee() const;
+    int     isArchivee() const;
+    QString pdfoujpgfacture() const;
+    QByteArray  imgfacture() const;
 
     void    setArchivee(bool arch);
     void    setidfacture(int idfacture);
     void    setlienfacture(QString lien);
     void    setecheancier(bool ech);
     void    setobjetecheancier(QString obj);
+    void    setpdfoujpgfacture(QString typeimg);
+    void    setimgfacture(QByteArray ba);
 
     explicit Depense(QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data);
-
 };
 
 #endif // CLS_DEPENSE_H

@@ -36,7 +36,7 @@ public:
     TiersPayants *tiers;                //!< tous les tiers payants
     TypesTiers *typestiers;             //!< tous les types tiers payants
     PaiementsDirects *paiementsdirects; //!< tous les paiements en attente d'enregistrement
-    DocsExternes    *documents;         //!< Les documents
+    DocsExternes *docsexternes;         //!< Les documents
 
 signals:
 

@@ -160,7 +160,7 @@ void    dlg_recettesspeciales::RegleAffichageFiche(enum gMode mode)
     ui->GestionComptesupPushButton  ->setEnabled(gMode == Lire || gMode == TableVide);
     ui->SupprimerupPushButton       ->setVisible(gMode == Lire);
     ui->ModifierupPushButton        ->setVisible(gMode == Lire);
-    int sz = gDataUser->getComptes()->comptes().size();
+    int sz = gDataUser->getComptes()->comptes()->size();
     ui->NouvelleRecetteupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && sz>0);
     ui->NouvelleRecetteupPushButton->setToolTip((gMode == Lire || gMode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
     EnregupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
@@ -193,10 +193,13 @@ bool dlg_recettesspeciales::initializeUserSelected()
 {
     gDataUser = db->getUserConnected();
 
-    Comptes *comptes = new Comptes();
-    comptes->addCompte( db->loadComptesByUser(gDataUser->id()) );
-    gDataUser->setComptes( comptes );
-    if( gDataUser->getComptes()->comptesAll().size() == 0)
+    if (gDataUser->getComptes() == Q_NULLPTR)
+    {
+        Comptes *comptes = new Comptes();
+        comptes->addCompte( db->loadComptesByUser(gDataUser->id()) );
+        gDataUser->setComptes( comptes );
+    }
+    if( gDataUser->getComptes()->comptesAll()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gDataUser->getLogin());
         return false;
@@ -453,8 +456,8 @@ void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
 
-    QMultiMap<int, Compte*> model = (ActiveSeult? gDataUser->getComptes()->comptes() : gDataUser->getComptes()->comptesAll());
-    for( QMultiMap<int, Compte*>::const_iterator itCompte = model.constBegin(); itCompte != model.constEnd(); ++itCompte )
+    QMultiMap<int, Compte*>* model = (ActiveSeult? gDataUser->getComptes()->comptes() : gDataUser->getComptes()->comptesAll());
+    for( QMultiMap<int, Compte*>::const_iterator itCompte = model->constBegin(); itCompte != model->constEnd(); ++itCompte )
        ui->ComptesupComboBox->addItem(itCompte.value()->nom(), QString::number(itCompte.value()->id()) );
 }
 
@@ -620,8 +623,8 @@ void dlg_recettesspeciales::MetAJourFiche()
         {
             if (recette.at(6).toInt()>0)
             {
-                QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll().find(recette.at(6).toInt());
-                if( compteFind != gDataUser->getComptes()->comptesAll().constEnd() )
+                QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll()->find(recette.at(6).toInt());
+                if( compteFind != gDataUser->getComptes()->comptesAll()->constEnd() )
                 {
                     B = compteFind.value()->nom();
                     ui->Comptelabel->setVisible(true);
@@ -1014,8 +1017,8 @@ void dlg_recettesspeciales::RemplitBigTable()
             {
                 if (recette.at(10).toInt() > 0)
                 {
-                    QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll().find(recette.at(10).toInt());
-                    if( cptFind != gDataUser->getComptes()->comptesAll().constEnd() )
+                    QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll()->find(recette.at(10).toInt());
+                    if( cptFind != gDataUser->getComptes()->comptesAll()->constEnd() )
                         B = cptFind.value()->nom();
                 }
                 A = NOM_VIREMENT + (B==""? "" : " " + B);

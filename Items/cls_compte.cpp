@@ -61,25 +61,36 @@ void Compte::setSolde(double solde)
 
 Comptes::Comptes()
 {
+    m_comptes = new QMultiMap<int, Compte*>();
+    m_comptesAll = new QMultiMap<int, Compte*>();
+    m_comptesAllusers = new QMultiMap<int, Compte*>();
 }
 
-QMultiMap<int, Compte *> Comptes::comptes() const
+Comptes::~Comptes()
+{
+    clearAll();
+    delete m_comptes;
+    delete m_comptesAll;
+    delete m_comptesAllusers;
+}
+
+QMultiMap<int, Compte *>* Comptes::comptes() const
 {
     return m_comptes;
 }
-QMultiMap<int, Compte *> Comptes::comptesAll() const
+QMultiMap<int, Compte *>* Comptes::comptesAll() const
 {
     return m_comptesAll;
 }
 
 void Comptes::addCompte(Compte *compte)
 {
-    if( m_comptesAll.contains(compte->id()) )
+    if( m_comptesAll->contains(compte->id()) )
         return;
 
-    m_comptesAll.insert(compte->id(), compte);
+    m_comptesAll->insert(compte->id(), compte);
     if( !compte->isDesactive() )
-        m_comptes.insert(compte->id(), compte);
+        m_comptes->insert(compte->id(), compte);
 }
 
 void Comptes::addCompte(QList<Compte*> listCompte)
@@ -89,24 +100,60 @@ void Comptes::addCompte(QList<Compte*> listCompte)
         addCompte( *it );
 }
 
-void Comptes::clearComptes()
+void Comptes::clearAll()
 {
-    m_comptes.clear();
-    m_comptesAll.clear();
+    QList<Compte*> listcpts;
+    QMap<int, Compte*>::const_iterator itcpt;
+    for( itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt)
+    {
+        Compte *cpt = const_cast<Compte*>(*itcpt);
+        if (!listcpts.contains(cpt))
+                listcpts << cpt;
+    }
+    for( itcpt = m_comptesAll->constBegin(); itcpt != m_comptesAll->constEnd(); ++itcpt)
+    {
+        Compte *cpt = const_cast<Compte*>(*itcpt);
+        if (!listcpts.contains(cpt))
+                listcpts << cpt;
+    }
+    for( itcpt = m_comptesAllusers->constBegin(); itcpt != m_comptesAllusers->constEnd(); ++itcpt)
+    {
+        Compte *cpt = const_cast<Compte*>(*itcpt);
+        if (!listcpts.contains(cpt))
+                listcpts << cpt;
+    }
+    for (int i=listcpts.size()-1; i==0; --i)
+        removeCompte(listcpts.at(i));
+    m_comptes->clear();
+    m_comptesAllusers->clear();
+    m_comptesAll->clear();
 }
 
 void Comptes::removeCompte(Compte* cpt)
 {
     if (cpt == Q_NULLPTR)
         return;
-    m_comptesAll    .remove(cpt->id());
-    m_comptes       .remove(cpt->id());
+    QMap<int, Compte*>::const_iterator itcpt;
+    m_comptes->find(cpt->id());
+    if( itcpt == m_comptes->constEnd() )
+        return;
+    m_comptesAll->find(cpt->id());
+    if( itcpt == m_comptesAll->constEnd() )
+        return;
+    m_comptesAllusers->find(cpt->id());
+    if( itcpt == m_comptesAllusers->constEnd() )
+        return;
+    m_comptesAll        ->remove(cpt->id());
+    m_comptesAllusers   ->remove(cpt->id());
+    m_comptes           ->remove(cpt->id());
+    delete cpt;
 }
 
 Compte* Comptes::getCompteById(int id)
 {
-    QMultiMap<int, Compte*>::const_iterator itcpt = m_comptesAll.find(id);
-    if( itcpt == m_comptesAll.constEnd() )
+    QMultiMap<int, Compte*>::const_iterator itcpt = m_comptesAll->find(id);
+    if( itcpt == m_comptesAll->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
 }
+

@@ -33,12 +33,17 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
-    comptesusr = new Comptes();
-    comptesusr->addCompte( db->loadComptesByUser(proc->getUserConnected()->id()) );
-    proc->getUserConnected()->setComptes(comptesusr);
+    if (proc->getUserConnected()->getComptes() == Q_NULLPTR)
+    {
+        comptesusr = new Comptes();
+        comptesusr->addCompte( db->loadComptesByUser(proc->getUserConnected()->id()) );
+        proc->getUserConnected()->setComptes(comptesusr);
+    }
+    else
+        comptesusr = proc->getUserConnected()->getComptes();
 
 
-    if (comptesusr->comptesAll().size() == 0)
+    if (comptesusr->comptesAll()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas de compte bancaire enregistré!"));
         InitOK = false;
@@ -46,11 +51,11 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     }
     else
     {
-        CompteEnCours = new (Compte);
+        CompteEnCours = new Compte();
         ui->BanquecomboBox->clear();
         int idcptprefer = -1;
         QMultiMap<int, Compte*>::const_iterator itcpt;
-        for (itcpt = comptesusr->comptes().constBegin(); itcpt != comptesusr->comptes().constEnd(); ++itcpt)
+        for (itcpt = comptesusr->comptes()->constBegin(); itcpt != comptesusr->comptes()->constEnd(); ++itcpt)
         {
             Compte *cpt = const_cast<Compte*>(itcpt.value());
             ui->BanquecomboBox->addItem(cpt->nom(),cpt->id());
@@ -341,7 +346,7 @@ void dlg_comptes::RedessineFicheArchives()
 void dlg_comptes::RemplirTableArchives()
 {
     QList<Archive*> listarchives;
-    for( QMap<int, Archive*>::const_iterator itarc = archivescptencours->archives().constBegin(); itarc != archivescptencours->archives().constEnd(); ++itarc )
+    for( QMap<int, Archive*>::const_iterator itarc = archivescptencours->archives()->constBegin(); itarc != archivescptencours->archives()->constEnd(); ++itarc )
     {
         Archive *arc = const_cast<Archive*>(itarc.value());
         if (gModeArchives == PARARCHIVE)
@@ -494,7 +499,7 @@ void dlg_comptes::VoirArchives()
     dateencours = dateencours.addDays(-intervalledate);
     archivescptencours = new Archives();
     archivescptencours->addArchive(listarchives);
-    for (QMap<int, Archive*>::const_iterator itarc = archivescptencours->archives().constBegin(); itarc != archivescptencours->archives().constEnd(); ++itarc)
+    for (QMap<int, Archive*>::const_iterator itarc = archivescptencours->archives()->constBegin(); itarc != archivescptencours->archives()->constEnd(); ++itarc)
     {
         Archive* arc = const_cast<Archive*>(itarc.value());
         if (glistArchCombo->findData(arc->idarchive()) == -1)

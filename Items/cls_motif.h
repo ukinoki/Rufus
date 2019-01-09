@@ -63,6 +63,7 @@ public:
     void addMotif(QList<Motif*> listMotifs);
     void removeMotif(Motif* Motif);
     Motif* getMotifById(int id);
+    void clearAll();
 };
 
 #endif // CLS_MOTIF_H

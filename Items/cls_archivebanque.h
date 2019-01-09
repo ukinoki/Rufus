@@ -53,12 +53,15 @@ public:
 class Archives
 {
 private:
-    QMap<int, Archive*> m_archives; //!< la liste des archives
+    QMap<int, Archive*>* m_archives = Q_NULLPTR; //!< la liste des archives
 public:
     explicit Archives();
-    QMap<int, Archive *> archives() const;
+    ~Archives();
+    QMap<int, Archive *>* archives() const;
     void addArchive(Archive *archive);
     void addArchive(QList<Archive*> listarchives);
+    void removeArchive(Archive* arch);
+    void clearAll();
 };
 
 #endif // CLS_ARCHIVE_H

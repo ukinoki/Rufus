@@ -68,6 +68,7 @@ public:
     void addTiers(QList<Tiers*> listTierss);
     void removeTiers(Tiers* Tiers);
     Tiers* getTiersById(int id);
+    void clearAll();
 };
 
 class TypeTiers : public Item
@@ -94,6 +95,7 @@ public:
     void addTypeTiers(TypeTiers *Tiers);
     void addTypeTiers(QList<TypeTiers*> listTierss);
     void removeTypeTiers(TypeTiers* Tiers);
+    void clearAll();
 };
 
 

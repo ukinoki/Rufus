@@ -72,6 +72,7 @@ private:
     void                        ChoixMenu(QString);
     void                        DefinitArchitectureBigTable();
     void                        EnregistreDepense();
+    void                        EnregistreFacture(QString typedoc);
     void                        ExportTable();
     void                        FiltreTable();
     Depense*                    getDepenseFromRow(int row);
@@ -81,7 +82,6 @@ private:
     void                        RegleAffichageFiche(enum gMode);
     void                        RegleComptesComboBox(bool ActiveSeult = true);
     void                        RemplitBigTable();
-    void                        ScanDoc(QString typedoc);
     void                        SetDepenseToRow(Depense *dep, int row);
     void                        EffaceFacture();
     void                        SupprimeFacture(Depense*dep);

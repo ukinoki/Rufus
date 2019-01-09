@@ -32,7 +32,7 @@ class Correspondant : public Item
     Q_OBJECT
 
 private: //Données du correspondant
-    int m_id;                       //!< Id du correspondant en base
+    int m_id = -1;                  //!< Id du correspondant en base
     QString m_nom;                  //!< Nom du correspondant
     QString m_prenom;               //!< Prénom du correspondant
     QString m_sexe;                 //!< Sexe du correspondant

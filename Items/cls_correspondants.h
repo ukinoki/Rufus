@@ -23,21 +23,18 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 class Correspondants
 {
-    QMap<int, Correspondant*> *m_Correspondants;    //!<Collection de tous les correspondants
-    QMap<int, Correspondant*> *m_MGCorrespondants;  //!<Collection de tous les généralistes
+    QMap<int, Correspondant*> *m_Correspondants;    //!<Collection de tous les correspondants sans exception, généralistes ou pas
 
 public:
     //GETTER
     QMap<int, Correspondant *> *getCorrespondants()     const;
-    QMap<int, Correspondant *> *getMGCorrespondants()   const;
-
 
     Correspondants();
 
-    bool addCorrespondant(Correspondant *Correspondant);
-    bool addMGCorrespondant(Correspondant *Correspondant);
+    bool addCorrespondant(Correspondant *cor);
     Correspondant* getCorrespondantById(int id);
-    void VideLesListes();
+    void removeCorrespondant(Correspondant* cor);
+    void clearAll();
 };
 
 

@@ -63,6 +63,7 @@ public:
     void addCotation(QList<Cotation*> listcotations);
     void removeCotation(Cotation* cotation);
     Cotation* getCotationById(int id);
+    void clearAll();
 };
 
 #endif // CLS_COTATION_H

@@ -56,17 +56,24 @@ void Archive::setData(QJsonObject data)
 
 Archives::Archives()
 {
+    m_archives = new QMap<int, Archive*>();
 }
 
-QMap<int, Archive *> Archives::archives() const
+Archives::~Archives()
+{
+    clearAll();
+    delete m_archives;
+}
+
+QMap<int, Archive *> *Archives::archives() const
 {
     return m_archives;
 }
 void Archives::addArchive(Archive *archive)
 {
-    if( m_archives.contains(archive->id()) )
+    if( m_archives->contains(archive->id()) )
         return;
-    m_archives.insert(archive->id(), archive);
+    m_archives->insert(archive->id(), archive);
 }
 void Archives::addArchive(QList<Archive*> listarchives)
 {
@@ -75,3 +82,25 @@ void Archives::addArchive(QList<Archive*> listarchives)
         addArchive( *it );
 }
 
+void Archives::clearAll()
+{
+    QList<Archive*> listarchs;
+    for( QMap<int, Archive*>::const_iterator itbq = m_archives->constBegin(); itbq != m_archives->constEnd(); ++itbq)
+    {
+        Archive *arch = const_cast<Archive*>(*itbq);
+        if (!listarchs.contains(arch))
+                listarchs << arch;
+    }
+    for (int i=listarchs.size()-1; i==0; --i)
+        removeArchive(listarchs.at(i));
+    m_archives->clear();
+}
+
+void Archives::removeArchive(Archive *arch)
+{
+    QMap<int, Archive*>::const_iterator itarch = m_archives->find(arch->id());
+    if( itarch == m_archives->constEnd() )
+        return;
+    m_archives->remove(arch->id());
+    delete arch;
+}

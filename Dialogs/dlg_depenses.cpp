@@ -30,6 +30,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ui->UserscomboBox->setEnabled(proc->getUserConnected()->isSecretaire() );
     AccesDistant = (db->getMode()==DataBase::Distant);
     m_listUserLiberaux = Datas::I()->users->liberaux();
+    gDataUser = Q_NULLPTR;
 
     int index = 0;
     bool foundUser = false;
@@ -141,8 +142,8 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   &dlg_depenses::accept);
     connect (ui->Rubriques2035comboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {FiltreTable();});
-    connect (ui->FactureupPushButton,           &QPushButton::clicked,          this,   [=] {ScanDoc(FACTURE);});
-    connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=] {ScanDoc(ECHEANCIER);});
+    connect (ui->FactureupPushButton,           &QPushButton::clicked,          this,   [=] {EnregistreFacture(FACTURE);});
+    connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=] {EnregistreFacture(ECHEANCIER);});
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
     connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
@@ -173,7 +174,9 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 dlg_depenses::~dlg_depenses()
 {
     delete ui;
-    delete m_depenseencours;
+    proc = Q_NULLPTR;
+    delete proc;
+    Datas::I()->depenses->clearAll();
 }
 
 void dlg_depenses::ExportTable()
@@ -223,8 +226,8 @@ void dlg_depenses::ExportTable()
 void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
-    QMultiMap<int, Compte*> model = (ActiveSeult? gDataUser->getComptes()->comptes() : gDataUser->getComptes()->comptesAll());
-    for( QMultiMap<int, Compte*>::const_iterator itCompte = model.constBegin(); itCompte != model.constEnd(); ++itCompte )
+    QMultiMap<int, Compte*>* model = (ActiveSeult? gDataUser->getComptes()->comptes() : gDataUser->getComptes()->comptesAll());
+    for( QMultiMap<int, Compte*>::const_iterator itCompte = model->constBegin(); itCompte != model->constEnd(); ++itCompte )
        ui->ComptesupComboBox->addItem(itCompte.value()->nom(), QString::number(itCompte.value()->id()) );
 }
 
@@ -263,9 +266,9 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     EnregupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
     AnnulupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
     ui->Facturewidget               ->setVisible(gMode == Lire);
-    ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->comptes().size() );
+    ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->comptes()->size() );
     QString ttip = "";
-    if( gDataUser->getComptes()->comptes().size() == 0)
+    if( gDataUser->getComptes()->comptes()->size() == 0)
         ttip = tr("Vous ne pouvez pas enregistrer de dépenses.\nAucun compte bancaire n'est enregistré.");
     ui->NouvelleDepenseupPushButton->setToolTip(ttip);
     SupprimerupPushButton   ->setVisible(gMode == Lire);
@@ -355,10 +358,13 @@ bool dlg_depenses::initializeUserSelected()
     int id = ui->UserscomboBox->currentData().toInt();
     gDataUser = m_listUserLiberaux->find(id).value();
     proc->initListeDepenses(gDataUser->id());
-    Comptes *comptes = new Comptes();
-    comptes->addCompte( db->loadComptesByUser(gDataUser->id()) );
-    gDataUser->setComptes( comptes );
-    if( gDataUser->getComptes()->comptesAll().size() == 0)
+    if (gDataUser->getComptes() == Q_NULLPTR)
+    {
+        Comptes *comptes = new Comptes();
+        comptes->addCompte( db->loadComptesByUser(gDataUser->id()) );
+        gDataUser->setComptes( comptes );
+    }
+    if( gDataUser->getComptes()->comptesAll()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gDataUser->getLogin());
         return false;
@@ -723,7 +729,7 @@ void dlg_depenses::SupprimerDepense()
     //On supprime l'écriture
     db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_LIGNESCOMPTES);
     db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_DEPENSES);
-    Datas::I()->depenses->getDepenses()->remove(dep->id());
+    Datas::I()->depenses->removeDepense(dep);
 
     if (gBigTable->rowCount() == 1)
     {
@@ -773,7 +779,7 @@ void dlg_depenses::AfficheFacture(Depense *dep)
             ui->VisuDocupTableWidget->clear();
             ui->VisuDocupTableWidget->setColumnCount(1);
             ui->VisuDocupTableWidget->setRowCount(1);
-           ui->VisuDocupTableWidget->setColumnWidth(0,ui->VisuDocupTableWidget->width()-2);
+            ui->VisuDocupTableWidget->setColumnWidth(0,ui->VisuDocupTableWidget->width()-2);
             ui->VisuDocupTableWidget->setRowHeight(0,ui->VisuDocupTableWidget->height()-2);
             ui->VisuDocupTableWidget->horizontalHeader()->setVisible(false);
             ui->VisuDocupTableWidget->verticalHeader()->setVisible(false);
@@ -796,7 +802,18 @@ void dlg_depenses::AfficheFacture(Depense *dep)
         }
         else
         {
-            QMap<QString,QVariant> doc = proc->CalcImage(dep->id(), FACTURE, true, true);
+            QMap<QString,QVariant> doc;
+            if (m_depenseencours->pdfoujpgfacture() == "" && m_depenseencours->imgfacture() == QByteArray())
+            {
+                doc = proc->CalcImage(dep->id(), FACTURE, true, true);
+                m_depenseencours->setpdfoujpgfacture(doc["type"].toString());
+                m_depenseencours->setimgfacture(doc["ba"].toByteArray());
+            }
+            else
+            {
+                doc["type"] = m_depenseencours->pdfoujpgfacture();
+                doc["ba"]   = m_depenseencours->imgfacture();
+            }
             if (doc["type"].toString() == "" || doc["ba"].toByteArray() == QByteArray())
                 UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible"));
             glistImg =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
@@ -917,6 +934,8 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     dep->setidfacture(0);
     dep->setlienfacture("");
     dep->setecheancier(false);
+    dep->setpdfoujpgfacture("");
+    dep->setimgfacture(QByteArray());
     SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
 }
 
@@ -944,8 +963,8 @@ void dlg_depenses::MetAJourFiche()
         if (A == "E")           A = tr("Espèces");
         else
         {
-            QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll().find(m_depenseencours->comptebancaire());
-            if( compteFind == gDataUser->getComptes()->comptesAll().constEnd() )
+            QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll()->find(m_depenseencours->comptebancaire());
+            if( compteFind == gDataUser->getComptes()->comptesAll()->constEnd() )
             {
                 //ATTENTION ERROR
             }
@@ -1224,8 +1243,8 @@ void dlg_depenses::ModifierDepense()
         if (A == "E")  A = tr("Espèces");
         else
         {
-            QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll().find(dep->comptebancaire());
-            if( cptFind != gDataUser->getComptes()->comptesAll().constEnd() )
+            QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll()->find(dep->comptebancaire());
+            if( cptFind != gDataUser->getComptes()->comptesAll()->constEnd() )
                 B = cptFind.value()->nom();
             if (A == "B")       A = tr("Carte de crédit");
             else if (A == "T")  A = tr("TIP");
@@ -1425,7 +1444,7 @@ void dlg_depenses::ReconstruitListeAnnees()
     ui->AnneecomboBox->disconnect();
     QStringList ListeAnnees;
 
-    for( QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
+    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
     {
         Depense *dep = const_cast<Depense*>(itDepense.value());
         if (!ListeAnnees.contains(QString::number(dep->annee())))
@@ -1469,7 +1488,7 @@ void dlg_depenses::RemplitBigTable()
     gBigTable->setRowCount(0);
     QList<Depense*> listDepenses;
 
-    for( QHash<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
+    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
     {
         Depense *dep = const_cast<Depense*>(itDepense.value());
         if (dep->annee() == ui->AnneecomboBox->currentText().toInt())
@@ -1499,7 +1518,7 @@ Depense* dlg_depenses::getDepenseFromRow(int row)
     return Datas::I()->depenses->getDepenseById(gBigTable->item(row,0)->text().toInt());
 }
 
-void dlg_depenses::ScanDoc(QString typedoc)
+void dlg_depenses::EnregistreFacture(QString typedoc)
 {
     if (m_depenseencours == Q_NULLPTR)
         return;
@@ -1577,6 +1596,8 @@ void dlg_depenses::ScanDoc(QString typedoc)
                     ui->EcheancierupPushButton  ->setVisible(false);
                     ui->VisuDocupTableWidget    ->setVisible(true);
                     QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
+                    m_depenseencours->setpdfoujpgfacture(doc["type"].toString());
+                    m_depenseencours->setimgfacture(doc["ba"].toByteArray());
                     glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
                     SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
                     return;
@@ -1604,6 +1625,8 @@ void dlg_depenses::ScanDoc(QString typedoc)
             ui->EcheancierupPushButton  ->setVisible(false);
             ui->VisuDocupTableWidget    ->setVisible(true);
             QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
+            m_depenseencours->setpdfoujpgfacture(doc["type"].toString());
+            m_depenseencours->setimgfacture(doc["ba"].toByteArray());
             glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
             SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
         }
@@ -1684,8 +1707,8 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     if (A == "E")           A = tr("Espèces");
     else
     {
-        QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll().find(dep->comptebancaire());
-        if( cptFind != gDataUser->getComptes()->comptesAll().constEnd() )
+        QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll()->find(dep->comptebancaire());
+        if( cptFind != gDataUser->getComptes()->comptesAll()->constEnd() )
             B = cptFind.value()->nom();
         if (A == "B")       A = tr("Carte de crédit");
         else if (A == "T")  A = tr("TIP");

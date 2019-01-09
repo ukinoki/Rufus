@@ -24,17 +24,18 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 class Depenses : public QObject
 {
 public:
-    QHash<int, Depense*> *m_Depenses;    //!< Collection de toutes les depenses pour unuser et une  année donnée - le QHash plutôt que le QMap pour garder le tri par date
+    QMap<int, Depense*> *m_Depenses = Q_NULLPTR;    //!< Collection de toutes les depenses pour un user et une année donnée
 
 public:
     //GETTER
-    QHash<int, Depense *> *getDepenses()     const;
+    QMap<int, Depense *> *getDepenses()     const;
 
     Depenses(QObject *parent = Q_NULLPTR);
 
-    bool addDepense(Depense *Depense);
-    Depense* getDepenseById(int id);
-
+    bool        addDepense(Depense *Depense);
+    Depense*    getDepenseById(int id);
+    void        clearAll();
+    void        removeDepense(Depense *dep);
 };
 
 #endif // CLS_DEPENSES_H

@@ -38,7 +38,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *DataUser,
     gAfficheLeSolde         = AfficheLeSolde;
 
     comptesusr              = Datas::I()->comptes;
-    comptesusr              ->clearComptes();
+    comptesusr              ->clearAll();
     comptesusr              ->addCompte( db->loadComptesByUser(gDataUser->id()) );
     CompteEnCours           = comptesusr->getCompteById(gidCompteParDefaut);
 
@@ -477,7 +477,7 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
     ui->ComptesuptableWidget->setGridStyle(Qt::DotLine);
 
     QList<Compte*> listcomptes;
-    for(QMultiMap<int, Compte*>::const_iterator itcpt = comptesusr->comptesAll().constBegin(); itcpt != comptesusr->comptesAll().constEnd(); ++itcpt)
+    for(QMultiMap<int, Compte*>::const_iterator itcpt = comptesusr->comptesAll()->constBegin(); itcpt != comptesusr->comptesAll()->constEnd(); ++itcpt)
     {
         Compte *cpt = const_cast<Compte*>(itcpt.value());
         listcomptes << cpt;

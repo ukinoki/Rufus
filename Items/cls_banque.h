@@ -47,7 +47,7 @@ public:
 class Banques
 {
 private:
-    QMap<int, Banque*> *m_banques; //!< la liste des Banques
+    QMap<int, Banque*> *m_banques = Q_NULLPTR; //!< la liste des Banques
 
 public:
     explicit Banques();
@@ -57,6 +57,7 @@ public:
     void addBanque(Banque *banque);
     void addBanque(QList<Banque*> listbanques);
     void removeBanque(Banque* banque);
+    void clearAll();
     Banque* getBanqueById(int id);
 };
 

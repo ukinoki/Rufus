@@ -68,11 +68,6 @@ void TiersPayants::addTiers(QList<Tiers*> listTiersPayants)
         addTiers( *it );
 }
 
-void TiersPayants::removeTiers(Tiers* Tiers)
-{
-    m_tierspayants       ->remove(Tiers->id());
-}
-
 Tiers* TiersPayants::getTiersById(int id)
 {
     QMultiMap<int, Tiers*>::const_iterator itcpt = m_tierspayants->find(id);
@@ -80,6 +75,30 @@ Tiers* TiersPayants::getTiersById(int id)
         return Q_NULLPTR;
     return itcpt.value();
 }
+
+void TiersPayants::clearAll()
+{
+    QList<Tiers*> listtierss;
+    for( QMap<int, Tiers*>::const_iterator ittrs = m_tierspayants->constBegin(); ittrs != m_tierspayants->constEnd(); ++ittrs)
+    {
+        Tiers *tiers = const_cast<Tiers*>(*ittrs);
+        if (!listtierss.contains(tiers))
+                listtierss << tiers;
+    }
+    for (int i=listtierss.size()-1; i==0; --i)
+        removeTiers(listtierss.at(i));
+    m_tierspayants->clear();
+}
+
+void TiersPayants::removeTiers(Tiers *tiers)
+{
+    QMap<int, Tiers*>::const_iterator ittiers = m_tierspayants->find(tiers->id());
+    if( ittiers == m_tierspayants->constEnd() )
+        return;
+    m_tierspayants->remove(tiers->id());
+    delete tiers;
+}
+
 
 TypeTiers::TypeTiers(QJsonObject data, QObject *parent) : Item(parent)
 {
@@ -124,5 +143,13 @@ void TypesTiers::removeTypeTiers(TypeTiers* typetiers)
 {
     while( m_typestiers->contains(typetiers) )
         m_typestiers->removeOne(typetiers);
+    delete  typetiers;
 }
+void TypesTiers::clearAll()
+{
+    for (int i=m_typestiers->size()-1; i==0; --i)
+        removeTypeTiers(m_typestiers->at(i));
+    m_typestiers->clear();
+}
+
 

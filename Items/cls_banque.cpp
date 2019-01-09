@@ -62,9 +62,27 @@ void Banques::addBanque(QList<Banque*> listbanques)
         addBanque( *it );
 }
 
-void Banques::removeBanque(Banque* banque)
+void Banques::clearAll()
 {
-    m_banques       ->remove(banque->id());
+    QList<Banque*> listbanqs;
+    for( QMap<int, Banque*>::const_iterator itbq = m_banques->constBegin(); itbq != m_banques->constEnd(); ++itbq)
+    {
+        Banque *banq = const_cast<Banque*>(*itbq);
+        if (!listbanqs.contains(banq))
+                listbanqs << banq;
+    }
+    for (int i=listbanqs.size()-1; i==0; --i)
+        removeBanque(listbanqs.at(i));
+    m_banques->clear();
+}
+
+void Banques::removeBanque(Banque *banq)
+{
+    QMap<int, Banque*>::const_iterator itbanq = m_banques->find(banq->id());
+    if( itbanq == m_banques->constEnd() )
+        return;
+    m_banques->remove(banq->id());
+    delete banq;
 }
 
 Banque* Banques::getBanqueById(int id)

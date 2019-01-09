@@ -122,7 +122,7 @@ public:
     QList<Depense*> loadDepensesByUser(int idUser);
     void            loadDepenseArchivee(Depense *dep);
     QStringList     ListeRubriquesFiscales();
-    QList<Depense*> VerifExistDepense(QHash<int, Depense*> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur = Egal);
+    QList<Depense*> VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur = Egal);
     int             getMaxLigneBanque();
     QList<Archive*> loadArchiveByDate(QDate date, Compte *compte, int intervalle); //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
     QList<Banque*>  loadBanques();

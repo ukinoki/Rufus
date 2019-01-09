@@ -79,8 +79,8 @@ dlg_listecorrespondants::~dlg_listecorrespondants()
 
 void dlg_listecorrespondants::Enablebuttons()
 {
-    widgButtons->modifBouton->setEnabled(gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->accessibleDescription() != "");
-    widgButtons->moinsBouton->setEnabled(gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->accessibleDescription() != "");
+    widgButtons->modifBouton->setEnabled(gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt()>0);
+    widgButtons->moinsBouton->setEnabled(gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt()>0);
 }
 
 
@@ -94,7 +94,7 @@ void dlg_listecorrespondants::ChoixButtonFrame(int i)
     case 0:
         if (treeCor->selectionModel()->selectedIndexes().size()==0)
             return;
-        idCor = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->accessibleDescription().toInt();
+        idCor = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt();
         ModifCorresp(idCor);
         break;
     case -1:
@@ -158,10 +158,10 @@ void dlg_listecorrespondants::SupprCorresp()
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        QString idCor   = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->accessibleDescription();
-        DataBase::getInstance()->SupprCorrespondant(idCor.toInt());
+        int idCor   = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt();
+        DataBase::getInstance()->SupprCorrespondant(idCor);
         ListeModifiee = true;
-        proc->initListeCorrespondantsAll();
+        Datas::I()->correspondants->removeCorrespondant(Datas::I()->correspondants->getCorrespondantById(idCor));
         ReconstruitListeCorrespondants();
     }
 }
@@ -216,8 +216,10 @@ void dlg_listecorrespondants::ReconstruitListeCorrespondants(QString filtre)
         if (cor->nomprenom().startsWith(filtre))
         {
             pitem   = new QStandardItem(cor->nomprenom());
-            pitem   ->setAccessibleDescription(QString::number(cor->id()));
-            pitem   ->setData(cor->adresseComplete());
+            QMap<QString, QVariant> data;
+            data["adr"] = cor->adresseComplete();
+            data["id"]  = cor->id();
+            pitem   ->setData(data);
             pitem   ->setEditable(false);
             QList<QStandardItem *> listitems = gmodele->findItems(Utils::trimcapitilize(cor->metier(), true, false));
             if (listitems.size()>0)
@@ -236,11 +238,14 @@ void dlg_listecorrespondants::ReconstruitListeCorrespondants(QString filtre)
     {
         gmodele->sort(0);
         gmodele->sort(1);
-        connect(treeCor,    &QAbstractItemView::entered,        this,   [=] (QModelIndex idx) {QToolTip::showText(cursor().pos(),gmodele->itemFromIndex(idx)->data().toString());} );
-        connect(treeCor,    &QAbstractItemView::pressed,        this,   [=] {Enablebuttons();});
-        connect(treeCor,    &QAbstractItemView::doubleClicked,  this,   [=] (QModelIndex idx) {
-            QString id = gmodele->itemFromIndex(idx)->accessibleDescription();
-            if (id != "")
-            ModifCorresp(id.toInt());});
+        connect(treeCor,    &QAbstractItemView::entered,        this,   [=] (QModelIndex idx)
+                                                                            {QToolTip::showText(cursor().pos(),gmodele->itemFromIndex(idx)->data().toMap().value("adr").toString());} );
+        connect(treeCor,    &QAbstractItemView::pressed,        this,   &dlg_listecorrespondants::Enablebuttons);
+        connect(treeCor,    &QAbstractItemView::doubleClicked,  this,   [=] (QModelIndex idx)
+                                                                            {
+                                                                                int id = gmodele->itemFromIndex(idx)->data().toMap().value("id").toInt();
+                                                                                if (id != -1)
+                                                                                    ModifCorresp(id);
+                                                                            });
     }
 }

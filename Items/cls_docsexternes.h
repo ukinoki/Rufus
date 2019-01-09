@@ -25,19 +25,19 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 class DocsExternes
 {
 private:
-    QMap<int, DocExterne*> m_docsexternes; //!< la liste des DocExternes pour un patient donné
+    QMap<int, DocExterne*> *m_docsexternes = Q_NULLPTR; //!< la liste des DocExternes pour un patient donné
     bool m_nouveaudocument;
 
 public:
     explicit DocsExternes();
-    QMap<int, DocExterne *> docsexternes();
+    QMap<int, DocExterne *>* docsexternes();
     DocExterne* getDocumentById(int id, bool loadDetails=true, bool addToList=true);
-    void addDocExterne(DocExterne *DocExterne);
+    bool addDocExterne(DocExterne *doc);
     void addListDocsExternes(QList<DocExterne*> listdocs);
     bool NouveauDocument();
     void setNouveauDocumentFalse();
     DocExterne* reloadDocument(DocExterne* docmt);
-    void RemoveKey(int key);
-    void VideLaListe();
+    void removeDocExterne(DocExterne *doc);
+    void clearAll();
 };
 #endif // CLS_DOCSEXTERNES_H

@@ -25,12 +25,6 @@ QMap<int, Correspondant *> *Correspondants::getCorrespondants() const
     return m_Correspondants;
 }
 
-QMap<int, Correspondant *> *Correspondants::getMGCorrespondants() const
-{
-    return m_MGCorrespondants;
-}
-
-
 /*!
  * \brief Correspondants::Correspondants
  * Initialise la map Correspondants
@@ -38,13 +32,30 @@ QMap<int, Correspondant *> *Correspondants::getMGCorrespondants() const
 Correspondants::Correspondants()
 {
     m_Correspondants = new QMap<int, Correspondant*>();
-    m_MGCorrespondants = new QMap<int, Correspondant*>();
 }
 
-void Correspondants::VideLesListes()
+void Correspondants::clearAll()
 {
+    QList<Correspondant*> listcors;
+    for( QMap<int, Correspondant*>::const_iterator itcor = m_Correspondants->constBegin(); itcor != m_Correspondants->constEnd(); ++itcor)
+    {
+        Correspondant *cor = const_cast<Correspondant*>(*itcor);
+        if (!listcors.contains(cor))
+                listcors << cor;
+    }
+    for (int i=listcors.size()-1; i==0; --i)
+        removeCorrespondant(listcors.at(i));
     m_Correspondants->clear();
-    m_MGCorrespondants->clear();
+}
+
+void Correspondants::removeCorrespondant(Correspondant *cor)
+{
+    QMap<int, Correspondant*>::const_iterator itcor;
+    m_Correspondants->find(cor->id());
+    if( itcor == m_Correspondants->constEnd() )
+        return;
+    m_Correspondants->remove(cor->id());
+    delete cor;
 }
 
 /*!
@@ -56,29 +67,13 @@ void Correspondants::VideLesListes()
  * \return false si le paramètre correspondant est un nullptr
  * \return false si le correspondant est déjà présent
  */
-bool Correspondants::addCorrespondant(Correspondant *Correspondant)
+bool Correspondants::addCorrespondant(Correspondant *cor)
 {
-    if( Correspondant == Q_NULLPTR)
+    if( cor == Q_NULLPTR)
         return false;
-
-    if( m_Correspondants->contains(Correspondant->id()) )
+    if( m_Correspondants->contains(cor->id()) )
         return false;
-
-    m_Correspondants->insert(Correspondant->id(), Correspondant);
-
-    return true;
-}
-
-bool Correspondants::addMGCorrespondant(Correspondant *Correspondant)
-{
-    if( Correspondant == Q_NULLPTR)
-        return false;
-
-    if( m_MGCorrespondants->contains(Correspondant->id()) )
-        return false;
-
-    m_MGCorrespondants->insert(Correspondant->id(), Correspondant);
-
+    m_Correspondants->insert(cor->id(), cor);
     return true;
 }
 
@@ -90,8 +85,8 @@ bool Correspondants::addMGCorrespondant(Correspondant *Correspondant)
  */
 Correspondant* Correspondants::getCorrespondantById(int id)
 {
-    QMap<int, Correspondant*>::const_iterator Correspondant = m_Correspondants->find(id);
-    if( Correspondant == m_Correspondants->constEnd() )
+    QMap<int, Correspondant*>::const_iterator itcor = m_Correspondants->find(id);
+    if( itcor == m_Correspondants->constEnd() )
         return Q_NULLPTR;
-    return Correspondant.value();
+    return itcor.value();
 }

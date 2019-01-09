@@ -144,3 +144,10 @@ void Item::setDataDate(QJsonObject data, QString key, QDate &prop)
         prop = QDate::fromString(data[key].toString(),"yyyy-MM-dd");
     }
 }
+void Item::setDataByteArray(QJsonObject data, QString key, QByteArray &prop)
+{
+    if( data.contains(key) )
+    {
+        prop = data[key].toVariant().toByteArray();
+    }
+}

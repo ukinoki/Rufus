@@ -383,7 +383,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds["lienversfichier"] =  lien;
             listbinds["EmisRecu"] =         "1";
             listbinds["FormatDoc"] =        DOCUMENTRECU;
-            listbinds["idLieu"] =            QString::number(proc->getUserConnected()->getSite()->id()) ;
+            listbinds["idLieu"] =           QString::number(proc->getUserConnected()->getSite()->id()) ;
         }
         else
         {

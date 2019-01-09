@@ -941,7 +941,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
 
     if (typedoc != FACTURE)
     {
-        docmt = Datas::I()->documents->getDocumentById(idimpression);
+        docmt = Datas::I()->docsexternes->getDocumentById(idimpression);
         iditem = QString::number(idimpression);
         date = docmt->date().toString(tr("d-M-yyyy"));
         typedocmt = docmt->typedoc();
@@ -1724,28 +1724,24 @@ void Procedures::initTypesTiers()
 void Procedures::initListeCorrespondants()
 {
     QList<Correspondant*> listcorrespondants = DataBase::getInstance()->loadCorrespondants();
-    Datas::I()->correspondants->VideLesListes();
+    Datas::I()->correspondants->clearAll();
     QList<Correspondant*>::const_iterator itcorrespondants;
     for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
     {
         Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
         Datas::I()->correspondants->addCorrespondant(cor);
-        if (cor->isMG())
-            Datas::I()->correspondants->addMGCorrespondant(cor);
     }
 }
 
 void Procedures::initListeCorrespondantsAll()
 {
     QList<Correspondant*> listcorrespondants = DataBase::getInstance()->loadCorrespondantsALL();
-    Datas::I()->correspondants->VideLesListes();
+    Datas::I()->correspondants->clearAll();
     QList<Correspondant*>::const_iterator itcorrespondants;
     for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
     {
         Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
         Datas::I()->correspondants->addCorrespondant(cor);
-        if (cor->isMG())
-            Datas::I()->correspondants->addMGCorrespondant(cor);
     }
 }
 
@@ -1768,7 +1764,7 @@ void Procedures::initListeCotationsByUser(int iduser)
 
 void Procedures::initListeDepenses(int iduser)
 {
-    Datas::I()->depenses->getDepenses()->clear();
+    Datas::I()->depenses->clearAll();
     QList<Depense*> listdepenses = DataBase::getInstance()->loadDepensesByUser(iduser);
     QList<Depense*>::const_iterator itdepenses;
     for( itdepenses = listdepenses.constBegin(); itdepenses != listdepenses.constEnd(); ++itdepenses )

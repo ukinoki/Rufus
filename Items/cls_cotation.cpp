@@ -89,17 +89,35 @@ void Cotations::addCotation(QList<Cotation*> listcotations)
         addCotation( *it );
 }
 
-void Cotations::removeCotation(Cotation* cotation)
-{
-    if (cotation == Q_NULLPTR)
-        return;
-    m_cotations->remove(cotation->id());
-}
-
 Cotation* Cotations::getCotationById(int id)
 {
     QMap<int, Cotation*>::const_iterator itcot = m_cotations->find(id);
     if( itcot == m_cotations->constEnd() )
         return Q_NULLPTR;
     return itcot.value();
+}
+
+void Cotations::clearAll()
+{
+    QList<Cotation*> listcots;
+    for( QMap<int, Cotation*>::const_iterator itcot = m_cotations->constBegin(); itcot != m_cotations->constEnd(); ++itcot)
+    {
+        Cotation *cot = const_cast<Cotation*>(*itcot);
+        if (!listcots.contains(cot))
+                listcots << cot;
+    }
+    for (int i=listcots.size()-1; i==0; --i)
+        removeCotation(listcots.at(i));
+    m_cotations->clear();
+}
+
+void Cotations::removeCotation(Cotation *cot)
+{
+    if (cot == Q_NULLPTR)
+        return;
+    QMap<int, Cotation*>::const_iterator itcot = m_cotations->find(cot->id());
+    if( itcot == m_cotations->constEnd() )
+        return;
+    m_cotations->remove(cot->id());
+    delete cot;
 }

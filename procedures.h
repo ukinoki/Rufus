@@ -223,6 +223,7 @@ public:
     void                    initListeMotifs();
     void                    initListeTiers();
     void                    initTypesTiers();
+
     bool                    isPosteImportDocs();
 
     void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes
