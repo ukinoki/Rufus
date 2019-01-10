@@ -32,6 +32,7 @@ class UpMessageBox : public UpDialog
 public:
     explicit        UpMessageBox(QWidget *parent = Q_NULLPTR);
     ~UpMessageBox();
+    static void     Show        (QWidget*, QString Text = "", QString InfoText = "");
     static int      Watch       (QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonOK);
     static int      Question    (QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList textlist = QStringList());
     static void     Information (QWidget*, QString Text = "", QString InfoText = "");

@@ -19,12 +19,12 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 
 dlg_message::dlg_message(QStringList listmsg, int pause, bool bottom)
 {
-    thread = new QThread;
-    moveToThread(thread);
-    thread->start();
+    QThread thread;
+    moveToThread(&thread);
+    thread.start();
     AfficheMsg(listmsg, pause, bottom);
-    thread->exit();
-    thread->wait();
+    thread.exit();
+    thread.wait();
 }
 
 void dlg_message::delay(int msec)
@@ -85,10 +85,10 @@ void dlg_message::AfficheMsg(QStringList listmes, int pause, bool bottom)
 //                    QString::number(w - 45 - (marge*2) - 10) << "desktop yy = " +
 //                    QString::number(yy)  << "heigth() = " +
 //                    QString::number((hauteurligne*nlignes) - marge*2 - decalage);
-        QTimer *timer   = new QTimer();
-        timer           ->setSingleShot(true);
-        QObject::connect(timer, SIGNAL(timeout()), dlg, SLOT(reject()));
-        timer           ->start(pause);
+        QTimer timer;
+        timer           .setSingleShot(true);
+        connect(&timer, &QTimer::timeout, dlg, &QDialog::reject);
+        timer           .start(pause);
         decalage        += dlg->height();
     }
 }

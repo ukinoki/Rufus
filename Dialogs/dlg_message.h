@@ -46,7 +46,6 @@ public:
 private:
     void            AfficheMsg(QStringList listmes, int pause, bool bottom);
     void            delay(int msec);
-    QThread         *thread;
 };
 
 #endif // DLG_MESSAGE_H

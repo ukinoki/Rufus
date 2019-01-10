@@ -96,7 +96,6 @@ bool DataBase::traiteErreurRequete(QSqlQuery query, QString requete, QString Err
         Logs::ERROR(ErrorMessage, tr("\nErreur\n") + query.lastError().text() +  tr("\nrequete = ") + requete);
         return true;
     }
-
     return false;
 }
 
