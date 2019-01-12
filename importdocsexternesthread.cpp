@@ -23,9 +23,9 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
     a=0;
     proc            = proced;
     EnCours         = false;
-    Acces           = (DataBase::getInstance()->getMode()!=DataBase::Distant? Local : Distant);
+    db              = DataBase::getInstance();
+    Acces           = (db->getMode()!=DataBase::Distant? Local : Distant);
     idLieuExercice  = proc->getUserConnected()->getSite()->id();
-    db              = DataBase::getInstance()->getDataBase();
     thread          .start();
 }
 
@@ -49,7 +49,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
 
     for (int itr=0; itr<listdocs.size(); itr++)
     {
-        QString NomDirDoc         = proc->getDossierDocuments(listdocs.at(itr).at(1).toString(), DataBase::getInstance()->getMode());  // le dossier où sont exportés les documents d'un appareil donné
+        QString NomDirDoc         = proc->getDossierDocuments(listdocs.at(itr).at(1).toString(), db->getMode());  // le dossier où sont exportés les documents d'un appareil donné
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -351,7 +351,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                                       " and patprenom like '" + prenom  + "'"
                                       " and patDDN = '" + annee + "-" + mois + "-" + jour + "'";
                     //qDebug() << req;
-                    QSqlQuery querpat(req, db);
+                    QSqlQuery querpat(req, db->getDataBase());
                     if (querpat.size()>0)   {
                         querpat.first();
                         idPatient = querpat.value(0).toString();
@@ -413,7 +413,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                     continue;
                 }
                 QString identpat;
-                QSqlQuery quer1("select patnom, patprenom from " NOM_TABLE_PATIENTS " where idpat = " + idPatient, db);
+                QSqlQuery quer1("select patnom, patprenom from " NOM_TABLE_PATIENTS " where idpat = " + idPatient, db->getDataBase());
                 if (quer1.size()>0)
                 {
                     quer1.first();
@@ -432,9 +432,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                  * Si on est en accès distant, l'enregistrement se fait dans la table Impressions et le contenu du fichier est copié dans le champ blob de la table
                  * _______________________________________________________________________________________________________________________________________________________
                 */
-                QSqlQuery ("LOCK TABLES '" NOM_TABLE_IMPRESSIONS "' WRITE",db);
+                QSqlQuery ("LOCK TABLES '" NOM_TABLE_IMPRESSIONS "' WRITE",db->getDataBase());
                 int idimpr(0);
-                QSqlQuery maxquer("select max(idimpression) from " NOM_TABLE_IMPRESSIONS, db);
+                QSqlQuery maxquer("select max(idimpression) from " NOM_TABLE_IMPRESSIONS, db->getDataBase());
                 if (maxquer.size()>0)
                 {
                     maxquer.first();
@@ -448,20 +448,20 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                         + "-" + QString::number(idimpr)
                         + "." + QFileInfo(nomdoc).suffix();
 
-                QSqlQuery query = QSqlQuery(db);
+                QSqlQuery query = QSqlQuery(db->getDataBase());
                 if (Acces == Local)
                 {
                     req = "insert into " NOM_TABLE_IMPRESSIONS " (idimpression, idUser,  idpat,  TypeDoc,  SousTypeDoc, Titre, Dateimpression,"
                                                                " UserEmetteur, lienversfichier, EmisRecu, FormatDoc, idLieu)"
                                                                " values("
                             + QString::number(idimpr) + ", "
-                            + QString::number(DataBase::getInstance()->getUserConnected()->id()) + ", "
+                            + QString::number(db->getUserConnected()->id()) + ", "
                             + idPatient + ", '"
                             + Typedoc + "', '"
                             + SousTypeDoc + "', '"
                             + Titredoc + "', '"
                             + datestring + " " + QTime::currentTime().toString("HH:mm:ss") + "', "
-                            + QString::number(DataBase::getInstance()->getUserConnected()->id()) + ", '"
+                            + QString::number(db->getUserConnected()->id()) + ", '"
                             + "/" + datetransfer + "/" + NomFileDoc + "', "
                             + "0" + ", '"
                             IMAGERIE "', "
@@ -507,7 +507,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                         else
                         {
                             req = "delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + QString::number(idimpr);
-                            QSqlQuery(req,db);
+                            QSqlQuery(req,db->getDataBase());
                         }
                     }
                     else
@@ -523,13 +523,13 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                           " values(:idimpr, :iduser, :idpat, :typeDoc, :soustypedoc, :titre, :dateimpression, :useremetteur, :doc, :emisrecu, :formatdoc, :lieu)";
                     query.prepare(req);
                     query.bindValue(":idimpr",          QString::number(idimpr));
-                    query.bindValue(":iduser",          QString::number(DataBase::getInstance()->getUserConnected()->id()));
+                    query.bindValue(":iduser",          QString::number(db->getUserConnected()->id()));
                     query.bindValue(":idpat",           idPatient);
                     query.bindValue(":typeDoc",         Typedoc);
                     query.bindValue(":soustypedoc",     SousTypeDoc);
                     query.bindValue(":titre",           Titredoc);
                     query.bindValue(":dateimpression",  datestring + " " + QTime::currentTime().toString("HH:mm:ss"));
-                    query.bindValue(":useremetteur",    QString::number(DataBase::getInstance()->getUserConnected()->id()));
+                    query.bindValue(":useremetteur",    QString::number(db->getUserConnected()->id()));
                     query.bindValue(":doc",             ba);
                     query.bindValue(":emisrecu",        "0");
                     query.bindValue(":formatdoc",       IMAGERIE);
@@ -567,7 +567,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                         else
                         {
                             req = "delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + QString::number(idimpr);
-                            QSqlQuery(req, db);
+                            QSqlQuery(req, db->getDataBase());
                         }
                     }
                     else
@@ -576,7 +576,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                         EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
                     }
                 }
-                QSqlQuery("UNLOCK TABLES", db);
+                QSqlQuery("UNLOCK TABLES", db->getDataBase());
             }
         }
     }
@@ -589,19 +589,19 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
 bool ImportDocsExternesThread::DefinitDossiers()
 {
     QString NomOnglet;
-    if (DataBase::getInstance()->getMode() == DataBase::Poste)
+    if (db->getMode() == DataBase::Poste)
     {
         NomOnglet = tr("Monoposte");
-        QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, db);
+        QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, db->getDataBase());
         dirquer.first();
         NomDirStockageImagerie = dirquer.value(0).toString();
     }
-    if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
+    if (db->getMode() == DataBase::ReseauLocal)
     {
         NomOnglet = tr("Réseau local");
         NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
     }
-    if (DataBase::getInstance()->getMode() == DataBase::Distant)
+    if (db->getMode() == DataBase::Distant)
     {
         NomOnglet = tr("Accès distant");
         NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_DISTANT/DossierImagerie").toString();

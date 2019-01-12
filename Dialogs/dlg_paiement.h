@@ -97,6 +97,7 @@ private:
         enum gTypeTable     {ActesDirects,ActesTiers,Paiements};                    // définit les 3 types de tables possibles dans la fiche
     dlg_banque              *Dlg_Banq;
     Procedures              *proc;
+    DataBase                *db;
     QBrush                  gtextureGris, gtextureNoir;
     QList<int>              gListidActe;
     QList<int>              ListeActesAModifier;
@@ -111,7 +112,6 @@ private:
     QStandardItemModel      *glistComptesEncaissmtAvecDesactive;
     QMap<int, User*>        *m_listeParents;
 
-    QSqlDatabase            db;
     int                     gidCompteBancaireParDefaut;
     QString                 ModeModif, ModePaiementDirectAModifier;
     QString                 gNomUser;

@@ -1,3 +1,20 @@
+/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "database.h"
 
 #include <QSqlDatabase>
@@ -125,33 +142,46 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     return m_db.lastError().text();
 }
 
+bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
+{
+    unlocktables();
+    QSqlQuery ("SET AUTOCOMMIT = 0;", m_db );
+    QString lockrequete = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
+    for (int i = 1; i < ListTables.size(); i++)
+        lockrequete += "," + ListTables.at(i) + " " + ModeBlocage;
+    return !traiteErreurRequete(QSqlQuery(lockrequete, m_db ),lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
+}
+
 void DataBase::commit()
 {
     QSqlQuery ("COMMIT;", m_db );
-    QSqlQuery ("UNLOCK TABLES;", m_db );
+    unlocktables();
     QString commitrequete = "SET AUTOCOMMIT = 1;";
-    QSqlQuery commitquery (commitrequete,m_db );
-    traiteErreurRequete(commitquery, commitrequete, tr("Impossible de valider les mofifications"));
+    traiteErreurRequete(QSqlQuery(commitrequete,m_db ), commitrequete, tr("Impossible de valider les mofifications"));
 }
 
 void DataBase::rollback()
 {
     QSqlQuery ("ROLLBACK;", m_db );
-    QSqlQuery ("UNLOCK TABLES;", m_db );
+    unlocktables();
     QString rollbackrequete = "SET AUTOCOMMIT = 1;";
-    QSqlQuery rollbackquery (rollbackrequete, m_db );
-    traiteErreurRequete(rollbackquery,rollbackrequete,"");
+    traiteErreurRequete(QSqlQuery(rollbackrequete, m_db ),rollbackrequete,"");
 }
 
 bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
 {
-    QSqlQuery ("UNLOCK TABLES;", m_db );
-    QSqlQuery ("SET AUTOCOMMIT = 0;", m_db );
+    unlocktables();
     QString lockrequete = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
     for (int i = 1; i < ListTables.size(); i++)
         lockrequete += "," + ListTables.at(i) + " " + ModeBlocage;
     QSqlQuery lockquery (lockrequete, m_db );
     return !traiteErreurRequete(lockquery,lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
+}
+
+void DataBase::unlocktables()
+{
+    QString requete = "UNLOCK TABLES;";
+    traiteErreurRequete(QSqlQuery (requete, m_db ), requete,"");
 }
 
 bool DataBase::testconnexionbase() // une requete simple pour vérifier que la connexion à la base fontionne toujours

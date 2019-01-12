@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("09-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("11-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1861,7 +1861,7 @@ void Rufus::CreerBilanOrtho()
             bilanorthorequete += ", null";
         bilanorthorequete += ");";
 
-        if (!db->locktables(QStringList(NOM_TABLE_BILANORTHO)))
+        if (!db->createtransaction(QStringList() << NOM_TABLE_BILANORTHO))
            return;
         QSqlQuery deleteblorthoquery(deleteblorthorequete, db->getDataBase() );
         if (db->traiteErreurRequete(deleteblorthoquery,deleteblorthorequete,"")){
@@ -4452,7 +4452,7 @@ void Rufus::VerifSendMessage(int idMsg)
     }
     QStringList locklist;
     locklist <<  NOM_TABLE_MESSAGES << NOM_TABLE_MESSAGESJOINTURES;
-    db->locktables(locklist);
+    db->createtransaction(locklist);
     if (idMsg<0)  // Enregistrement d'un nouveau message
     {
         QString req = "insert into " NOM_TABLE_MESSAGES " (idEmetteur, TexteMessage, idPatient, Tache, DateLimite, Urge, CreeLe)\n values(";
@@ -5343,7 +5343,7 @@ void Rufus::EnregMsgResp(int idmsg)
 
     QStringList locklist;
     locklist << NOM_TABLE_MESSAGES << NOM_TABLE_MESSAGESJOINTURES;
-    db->locktables(locklist);
+    db->createtransaction(locklist);
 
     req  = "insert into " NOM_TABLE_MESSAGES " (idEmetteur, TexteMessage, CreeLe, ReponseA, Tache, Datelimite, Urge)\n values(";
     req += QString::number(gDataUser->id()) + ", ";

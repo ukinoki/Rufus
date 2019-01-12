@@ -85,10 +85,10 @@ void dlg_message::AfficheMsg(QStringList listmes, int pause, bool bottom)
 //                    QString::number(w - 45 - (marge*2) - 10) << "desktop yy = " +
 //                    QString::number(yy)  << "heigth() = " +
 //                    QString::number((hauteurligne*nlignes) - marge*2 - decalage);
-        QTimer timer;
-        timer           .setSingleShot(true);
-        connect(&timer, &QTimer::timeout, dlg, &QDialog::reject);
-        timer           .start(pause);
+        QTimer *timer = new QTimer(dlg);
+        timer           ->setSingleShot(true);
+        connect(timer, &QTimer::timeout, dlg, &QDialog::reject);
+        timer           ->start(pause);
         decalage        += dlg->height();
     }
 }

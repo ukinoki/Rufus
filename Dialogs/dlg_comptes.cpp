@@ -104,7 +104,7 @@ dlg_comptes::~dlg_comptes()
 
 void dlg_comptes::AnnulArchive()
 {
-    if (!db->locktables(QStringList() <<  NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_COMPTES))
+    if (!db->createtransaction(QStringList() <<  NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_COMPTES))
         return;
 
     int max = db->selectMaxFromTable("idArchive", NOM_TABLE_ARCHIVESBANQUE);
@@ -198,7 +198,7 @@ void dlg_comptes::Archiver()
 
     QStringList listlock;
     listlock << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_COMPTES;
-    if (!db->locktables(listlock))
+    if (!db->createtransaction(listlock))
         return;
     int max = db->selectMaxFromTable("idArchive", NOM_TABLE_ARCHIVESBANQUE);
     if (max==-1)

@@ -90,6 +90,7 @@ public:
     bool                gdbOK;
     bool                dlgrefractionouverte;
     int                 gMode2;
+    DataBase            *db;
 
     QSettings           *gsettingsIni;
     QString             CouleurTitres;

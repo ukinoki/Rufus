@@ -284,7 +284,7 @@ void dlg_docsvideo::ValideFiche()
     listbinds["lienversfichier"] =  NomFileVideoDoc;
     listbinds["FormatDoc"] =        VIDEO;
     b = db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds);
-    db->commit();
+    db->unlocktables();
     if(!b)
     {
         UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));

@@ -554,7 +554,7 @@ void dlg_depenses::EnregistreDepense()
         listsets.insert("LigneTypeoperation",   Paiement);
         DataBase:: getInstance()->InsertIntoTable(NOM_TABLE_LIGNESCOMPTES, listsets);
     }
-    db->commit();
+    db->unlocktables();
 
     QJsonObject jData{};
     jData["iddepense"]      = idDep.toInt();

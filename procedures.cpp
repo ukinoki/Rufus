@@ -35,6 +35,7 @@ Procedures::Procedures(QObject *parent) :
 {
     lCPParDefaut    = "";
     lVilleParDefaut = "";
+    db              = DataBase::getInstance();
 
     gnomFichIni     = QDir::homePath() + NOMFIC_INI;
     QFile FichierIni(gnomFichIni);
@@ -255,7 +256,7 @@ QString Procedures::ConvertitEnHtml(QString Texte)
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::getDossierDocuments(QString Appareil, int mode)
 {
-    return gsettingsIni->value(DataBase::getInstance()->getBaseFromInt( mode ) + "/DossiersDocuments/" + Appareil).toString();
+    return gsettingsIni->value(db->getBaseFromInt( mode ) + "/DossiersDocuments/" + Appareil).toString();
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
@@ -264,7 +265,7 @@ QString Procedures::getDossierDocuments(QString Appareil, int mode)
 int Procedures::GetflagMG()
 {
     int flagMG = 0;
-    QSqlQuery quer("select MAJflagMG from " NOM_TABLE_FLAGS, DataBase::getInstance()->getDataBase());
+    QSqlQuery quer("select MAJflagMG from " NOM_TABLE_FLAGS, db->getDataBase());
     if (quer.size() > 0)
     {
         quer.first();
@@ -279,7 +280,7 @@ int Procedures::GetflagMG()
 int Procedures::GetflagSalDat()
 {
     int flagSalDat = 0;
-    QSqlQuery quer("select MAJflagSalDat from " NOM_TABLE_FLAGS, DataBase::getInstance()->getDataBase());
+    QSqlQuery quer("select MAJflagSalDat from " NOM_TABLE_FLAGS, db->getDataBase());
     if (quer.size() > 0)
     {
         quer.first();
@@ -296,21 +297,21 @@ void Procedures::MAJflagMG()
     /* envoi du message de MAJ de la liste des correspondants au serveur */
     emit UpdCorrespondants();
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
-    if (!OKTCP || DataBase::getInstance()->getMode() == DataBase::Distant)
+    if (!OKTCP || db->getMode() == DataBase::Distant)
     {
-        if (!DataBase::getInstance()->locktables(QStringList(NOM_TABLE_FLAGS)))
+        if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
-        QSqlQuery quer("select MAJflagMG from " NOM_TABLE_FLAGS, DataBase::getInstance()->getDataBase());
+        QSqlQuery quer("select MAJflagMG from " NOM_TABLE_FLAGS, db->getDataBase());
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
-        if (DataBase::getInstance()->getMode() == DataBase::Distant)
+        if (db->getMode() == DataBase::Distant)
             MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
         int a = 0;
         if (quer.seek(0)) {
             a = quer.value(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMG = " + QString::number(a);
         }
-        QSqlQuery (MAJreq, DataBase::getInstance()->getDataBase());
-        DataBase::getInstance()->commit();
+        QSqlQuery (MAJreq, db->getDataBase());
+        db->unlocktables();
     }
 }
 
@@ -322,19 +323,19 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
     /* envoi du message de MAJ de la salle d'attente au serveur */
     emit UpdSalDat();
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
-    if (!OKTCP || DataBase::getInstance()->getMode() == DataBase::Distant)
+    if (!OKTCP || db->getMode() == DataBase::Distant)
     {
-        if (!DataBase::getInstance()->locktables(QStringList(NOM_TABLE_FLAGS)))
+        if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
-        QSqlQuery quer("select MAJflagSalDat from " NOM_TABLE_FLAGS, DataBase::getInstance()->getDataBase());
+        QSqlQuery quer("select MAJflagSalDat from " NOM_TABLE_FLAGS, db->getDataBase());
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagSalDat) VALUES (1)";
         int a = 0;
         if (quer.seek(0)) {
             a = quer.value(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagSalDat = " + QString::number(a);
         }
-        QSqlQuery (MAJreq, DataBase::getInstance()->getDataBase());
-        DataBase::getInstance()->commit();
+        QSqlQuery (MAJreq, db->getDataBase());
+        db->unlocktables();
     }
 }
 
@@ -344,19 +345,19 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
 void Procedures::MAJflagMessages()
 {
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
-    if (!OKTCP || DataBase::getInstance()->getMode() == DataBase::Distant)
+    if (!OKTCP || db->getMode() == DataBase::Distant)
     {
-        if (!DataBase::getInstance()->locktables(QStringList(NOM_TABLE_FLAGS)))
+        if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
-        QSqlQuery quer("select MAJflagMessages from " NOM_TABLE_FLAGS, DataBase::getInstance()->getDataBase());
+        QSqlQuery quer("select MAJflagMessages from " NOM_TABLE_FLAGS, db->getDataBase());
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMessages) VALUES (1)";
         int a = 0;
         if (quer.seek(0)) {
             a = quer.value(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMessages = " + QString::number(a);
         }
-        QSqlQuery (MAJreq, DataBase::getInstance()->getDataBase());
-        DataBase::getInstance()->commit();
+        QSqlQuery (MAJreq, db->getDataBase());
+        db->unlocktables();
     }
 }
 
@@ -368,7 +369,7 @@ géré par la classe villecpwidget
 Villes* Procedures::getVilles()
 {
     if( m_villes == Q_NULLPTR )
-        m_villes = DataBase::getInstance()->loadVillesAll();
+        m_villes = db->loadVillesAll();
     return m_villes;
 }
 
@@ -464,7 +465,7 @@ int pos2 = -1;
 bool Procedures::ImmediateBackup(bool full)
 {
     QString req = "select NomPosteConnecte from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte <> '" + QHostInfo::localHostName().left(60) + "'";
-    QSqlQuery postesquer(req, DataBase::getInstance()->getDataBase());
+    QSqlQuery postesquer(req, db->getDataBase());
     if (postesquer.size() > 0)
     {
         postesquer.first();
@@ -475,7 +476,7 @@ bool Procedures::ImmediateBackup(bool full)
         return false;
     }
 
-    QSqlQuery dirquer("select dirimagerie, DirBkup from " NOM_TABLE_PARAMSYSTEME, DataBase::getInstance()->getDataBase() );
+    QSqlQuery dirquer("select dirimagerie, DirBkup from " NOM_TABLE_PARAMSYSTEME, db->getDataBase() );
     dirquer.first();
     QString NomDirStockageImagerie = dirquer.value(0).toString();
     QString NomDirDestination = dirquer.value(1).toString();
@@ -660,7 +661,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
             QString reqrp = "select userparent "
                             "from " NOM_TABLE_USERSCONNECTES
                             " where usersuperviseur = " + QString::number(user->id());
-            QSqlQuery querrp(reqrp, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
+            QSqlQuery querrp(reqrp, db->getDataBase());
             if (querrp.size()>0)                // le user est connecté, on cherche qui il remplace - son parent
             {
                 querrp.first();
@@ -668,7 +669,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
             }
             else                                // le user n'est pas connecté on demande quel est son parent
             {
-                QSqlQuery soignquer("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(user->id()), DataBase::getInstance()->getDataBase());
+                QSqlQuery soignquer("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(user->id()), db->getDataBase());
                 soignquer.first();
                 QString req   = "select iduser, userlogin from " NOM_TABLE_UTILISATEURS
                         " where (userenreghonoraires = 1 or userenreghonoraires = 2)"
@@ -676,8 +677,8 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
                         " and soignant = " + soignquer.value(0).toString() +
                         " and userdesactive is null";
                 //qDebug() << req;
-                QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
-                DataBase::getInstance()->traiteErreurRequete(quer,req);
+                QSqlQuery quer(req, db->getDataBase());
+                db->traiteErreurRequete(quer,req);
                 if (quer.size() == 1)               // une seule réponse, on la récupère
                 {
                     quer       .first();
@@ -772,7 +773,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
         QString adresse ="";
         int nlignesadresse = 0;
         if (user != m_userConnected)
-            user->setSite(DataBase::getInstance()->loadSitesByUser(user->id()).at(0)); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
+            user->setSite(db->loadSitesByUser(user->id()).at(0)); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
         if( user->getSite()->nom().size() )
         {
             nlignesadresse  ++;
@@ -987,14 +988,14 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                     imgs = "select idfacture from " NOM_TABLE_FACTURES " where idfacture = " + iditem + " and (pdf is not null or jpg is not null)";
                 //qDebug() << imgs;
                 bool ok = false;
-                QList<QList<QVariant>> listid = DataBase::getInstance()->StandardSelectSQL(imgs, ok);
+                QList<QList<QVariant>> listid = db->StandardSelectSQL(imgs, ok);
                 if (!ok)
                     UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'accéder à la table ") + (typedoc != FACTURE? NOM_TABLE_ECHANGEIMAGES : NOM_TABLE_FACTURES));
                 if (listid.size()==0)
                 {
                     if (typedoc != FACTURE)
                     {
-                        DataBase::getInstance()->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
+                        db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
                                                              " where idimpression = " + iditem +
                                                              " and facture is null");
                         QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
@@ -1002,11 +1003,11 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                                       iditem + ", " +
                                       " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
                                       QString::number(docmt->compression()) + ")";
-                        DataBase::getInstance()->StandardSQL(req);
+                        db->StandardSQL(req);
                     }
                     else
                     {
-                        DataBase::getInstance()->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
+                        db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
                                                              " where idimpression = " + iditem +
                                                              " and facture = 1");
                         QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", facture) "
@@ -1014,7 +1015,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                                       iditem + ", " +
                                       " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_FACTURES + Utils::correctquoteSQL(filename)) + "'), " +
                                       "1)";
-                        DataBase::getInstance()->StandardSQL(req);
+                        db->StandardSQL(req);
                     }
                 }
             }
@@ -1024,28 +1025,28 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
         QList<QList<QVariant>> listimpr;
         if (typedoc != FACTURE)
         {
-            listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = null"
+            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = null"
                                                                   , ok
                                                                   , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
             if (!ok)
                 return result;
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans impressions
             {
-                listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_IMPRESSIONS " where idimpression = " + iditem
+                listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_IMPRESSIONS " where idimpression = " + iditem
                                                                       , ok
                                                                       , tr("Impossible d'accéder à la table ") + NOM_TABLE_IMPRESSIONS);
             }
         }
         else
         {
-            listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = 1"
+            listimpr = db->StandardSelectSQL("select pdf, jpg  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = 1"
                                                                   , ok
                                                                   , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
             if (!ok)
                 return result;
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans factures
             {
-                listimpr = DataBase::getInstance()->StandardSelectSQL("select pdf, jpg  from " NOM_TABLE_FACTURES " where idfacture = " + iditem
+                listimpr = db->StandardSelectSQL("select pdf, jpg  from " NOM_TABLE_FACTURES " where idfacture = " + iditem
                                                                       , ok
                                                                       , tr("Impossible d'accéder à la table ") + NOM_TABLE_FACTURES);
             }
@@ -1516,10 +1517,10 @@ void Procedures::setDirImagerie()
     DirStockageImages = "";
     bool ok = true;
     QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
-    QList<QVariant> ListeDir = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(req, ok);
+    QList<QVariant> ListeDir = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ListeDir.size()>0)
         DirStockageImagesServeur = ListeDir.at(0).toString();
-    switch (DataBase::getInstance()->getMode()) {
+    switch (db->getMode()) {
     case DataBase::Poste:
     {
         DirStockageImages = DirStockageImagesServeur;
@@ -1578,8 +1579,8 @@ void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on
     //qDebug() << req;
     QStandardItem *pitem0, *pitem1;
     QStandardItem *oitem0, *oitem1;
-    QSqlQuery ChercheNomsComptesQuery (req, DataBase::getInstance()->getDataBase());
-    if (!DataBase::getInstance()->traiteErreurRequete(ChercheNomsComptesQuery,req, tr("Impossible de retrouver les comptes de l'utilisateur!")))
+    QSqlQuery ChercheNomsComptesQuery (req, db->getDataBase());
+    if (!db->traiteErreurRequete(ChercheNomsComptesQuery,req, tr("Impossible de retrouver les comptes de l'utilisateur!")))
     {
         for (int i = 0; i < ChercheNomsComptesQuery.size(); i++)
         {
@@ -1641,7 +1642,7 @@ QString Procedures::getLogin(int idUser) //TODO : A FAIRE DISPARAITRE
  */
 void Procedures::initListeUsers()
 {
-    QList<User*> listUsers = DataBase::getInstance()->loadUsersAll();
+    QList<User*> listUsers = db->loadUsersAll();
     QList<User*>::const_iterator itUser;
     for( itUser = listUsers.constBegin(); itUser != listUsers.constEnd(); ++itUser )
     {
@@ -1659,7 +1660,7 @@ void Procedures::initListeUsers()
  */
 void Procedures::initListeBanques()
 {
-    QList<Banque*> listbanques = DataBase::getInstance()->loadBanques();
+    QList<Banque*> listbanques = db->loadBanques();
     QList<Banque*>::const_iterator itbq;
     for( itbq = listbanques.constBegin(); itbq != listbanques.constEnd(); ++itbq )
     {
@@ -1675,7 +1676,7 @@ void Procedures::initListeBanques()
  */
 void Procedures::initListeMotifs()
 {
-    QList<Motif*> listmotifs = DataBase::getInstance()->loadMotifs();
+    QList<Motif*> listmotifs = db->loadMotifs();
     QList<Motif*>::const_iterator itmtf;
     for( itmtf = listmotifs.constBegin(); itmtf != listmotifs.constEnd(); ++itmtf )
     {
@@ -1691,7 +1692,7 @@ void Procedures::initListeMotifs()
  */
 void Procedures::initListeTiers()
 {
-    QList<Tiers*> listtiers = DataBase::getInstance()->loadTiersPayants();
+    QList<Tiers*> listtiers = db->loadTiersPayants();
     QList<Tiers*>::const_iterator ittrs;
     for( ittrs = listtiers.constBegin(); ittrs != listtiers.constEnd(); ++ittrs )
     {
@@ -1707,7 +1708,7 @@ void Procedures::initListeTiers()
  */
 void Procedures::initTypesTiers()
 {
-    QList<TypeTiers*> listtypes = DataBase::getInstance()->loadTypesTiers();
+    QList<TypeTiers*> listtypes = db->loadTypesTiers();
     QList<TypeTiers*>::const_iterator ittyp;
     for( ittyp = listtypes.constBegin(); ittyp != listtypes.constEnd(); ++ittyp )
     {
@@ -1723,7 +1724,7 @@ void Procedures::initTypesTiers()
  */
 void Procedures::initListeCorrespondants()
 {
-    QList<Correspondant*> listcorrespondants = DataBase::getInstance()->loadCorrespondants();
+    QList<Correspondant*> listcorrespondants = db->loadCorrespondants();
     Datas::I()->correspondants->clearAll();
     QList<Correspondant*>::const_iterator itcorrespondants;
     for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
@@ -1735,7 +1736,7 @@ void Procedures::initListeCorrespondants()
 
 void Procedures::initListeCorrespondantsAll()
 {
-    QList<Correspondant*> listcorrespondants = DataBase::getInstance()->loadCorrespondantsALL();
+    QList<Correspondant*> listcorrespondants = db->loadCorrespondantsALL();
     Datas::I()->correspondants->clearAll();
     QList<Correspondant*>::const_iterator itcorrespondants;
     for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
@@ -1753,7 +1754,7 @@ void Procedures::initListeCorrespondantsAll()
 void Procedures::initListeCotationsByUser(int iduser)
 {
     Datas::I()->cotations->cotationsbyuser()->clear();
-    QList<Cotation*> listcotations = DataBase::getInstance()->loadCotationsByUser(iduser);
+    QList<Cotation*> listcotations = db->loadCotationsByUser(iduser);
     QList<Cotation*>::const_iterator itcotations;
     for( itcotations = listcotations.constBegin(); itcotations != listcotations.constEnd(); ++itcotations )
     {
@@ -1765,7 +1766,7 @@ void Procedures::initListeCotationsByUser(int iduser)
 void Procedures::initListeDepenses(int iduser)
 {
     Datas::I()->depenses->clearAll();
-    QList<Depense*> listdepenses = DataBase::getInstance()->loadDepensesByUser(iduser);
+    QList<Depense*> listdepenses = db->loadDepensesByUser(iduser);
     QList<Depense*>::const_iterator itdepenses;
     for( itdepenses = listdepenses.constBegin(); itdepenses != listdepenses.constEnd(); ++itdepenses )
     {
@@ -1825,10 +1826,10 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
 //Pas normal, les mots de passes doivent etre chiffrés
 QString Procedures::getMDPAdmin()
 {
-    QSqlQuery mdpquer("select mdpadmin from " NOM_TABLE_PARAMSYSTEME,DataBase::getInstance()->getDataBase() );
+    QSqlQuery mdpquer("select mdpadmin from " NOM_TABLE_PARAMSYSTEME,db->getDataBase() );
     mdpquer.first();
     if (mdpquer.value(0).toString() == "")
-        QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'", DataBase::getInstance()->getDataBase() );
+        QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'", db->getDataBase() );
     return (mdpquer.value(0).toString() != ""? mdpquer.value(0).toString() : NOM_MDPADMINISTRATEUR);
 }
 
@@ -1837,13 +1838,13 @@ int Procedures::getMAXligneBanque()
 {
     int a(0), b(0);
     QString req = "select max(idligne) from " NOM_TABLE_ARCHIVESBANQUE;
-    QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
+    QSqlQuery quer(req, db->getDataBase());
     if (quer.size()>0){
         quer.first();
         a = quer.value(0).toInt();
     }
     req = "select max(idligne) from " NOM_TABLE_LIGNESCOMPTES;
-    QSqlQuery quer2(req, DataBase::getInstance()->getDataBase());
+    QSqlQuery quer2(req, db->getDataBase());
     if (quer2.size()>0){
         quer2.first();
         if (quer2.value(0).toInt()>a)
@@ -1905,12 +1906,12 @@ void Procedures::setPosteImportDocs(bool a)
 
     QString IpAdress("NULL");
     QString req = "USE `" NOM_BASE_CONSULTS "`;";
-    QSqlQuery quer(req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-    DataBase::getInstance()->traiteErreurRequete(quer,req);
+    QSqlQuery quer(req, db->getDataBase());
+    db->traiteErreurRequete(quer,req);
 
     req = "DROP PROCEDURE IF EXISTS " NOM_POSTEIMPORTDOCS ";";
-    QSqlQuery quer1(req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-    DataBase::getInstance()->traiteErreurRequete(quer1,req);
+    QSqlQuery quer1(req, db->getDataBase());
+    db->traiteErreurRequete(quer1,req);
 
     if (a)
         IpAdress = QHostInfo::localHostName()  + ((gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() ==  "YES")? " - prioritaire" : "");
@@ -1918,8 +1919,8 @@ void Procedures::setPosteImportDocs(bool a)
           BEGIN\n\
           SELECT '" + IpAdress + "';\n\
           END ;";
-    QSqlQuery quer2(req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
-    a = !DataBase::getInstance()->traiteErreurRequete(quer2,req);
+    QSqlQuery quer2(req, db->getDataBase());
+    a = !db->traiteErreurRequete(quer2,req);
     gisPosteImpotDocs = a;
 }
 
@@ -1931,7 +1932,7 @@ bool Procedures::isPosteImportDocs()
 QString Procedures::PosteImportDocs()
 {
     QString req = "CALL " NOM_BASE_CONSULTS "." NOM_POSTEIMPORTDOCS;
-    QSqlQuery quer(req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
+    QSqlQuery quer(req, db->getDataBase());
     if (quer.size()==-1)
         return "";
     quer.first();
@@ -1960,15 +1961,15 @@ bool Procedures::Verif_secure_file_priv()
 bool Procedures::UtiliseTCP()
 {
     QString req = "select iduser from " NOM_TABLE_USERSCONNECTES " where iduser = (select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
-    int a = QSqlQuery(req, DataBase::getInstance()->getDataBase()).size();
-    OKTCP = (a>0  && DataBase::getInstance()->getMode() != DataBase::Distant);
+    int a = QSqlQuery(req, db->getDataBase()).size();
+    OKTCP = (a>0  && db->getMode() != DataBase::Distant);
     return OKTCP;
 }
 
 QString Procedures::Var_secure_file_priv()
 {
     QString msg;
-    QSqlQuery secquer("SHOW VARIABLES LIKE \"secure_file_priv\";", DataBase::getInstance()->getDataBase() );
+    QSqlQuery secquer("SHOW VARIABLES LIKE \"secure_file_priv\";", db->getDataBase() );
     secquer.first();
     msg = secquer.value(1).toString();
     if (msg == "NULL")
@@ -2054,11 +2055,11 @@ QStringList Procedures::DecomposeScriptSQL(QString nomficscript)
     Dans les faits
     d'abord
     QString req = "USE `Rufus`;";
-    QSQLquery (req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
+    QSQLquery (req, db->getDataBase());
 
     puis
     req = "DROP PROCEDURE IF EXISTS MAJ16;";
-    QSQLquery (req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
+    QSQLquery (req, db->getDataBase());
 
     enfin
     QString req = "DELIMITER |"
@@ -2095,7 +2096,7 @@ QStringList Procedures::DecomposeScriptSQL(QString nomficscript)
 bool Procedures::ReinitBase()
 {
     QString req = "select NomPosteConnecte from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte <> '" + QHostInfo::localHostName().left(60) + "'";
-    QSqlQuery postesquer(req,DataBase::getInstance()->getDataBase() );
+    QSqlQuery postesquer(req,db->getDataBase() );
     if (postesquer.size() > 0)
     {
         postesquer.first();
@@ -2142,9 +2143,9 @@ bool Procedures::ReinitBase()
 void Procedures::RestoreFontAppliAndGeometry()
 {
     // On essaie de retrouver la police écran enregistrée par l'utilisateur, sinon, on prend celle par défaut
-    QString fontrequete = "select UserPoliceEcran, UserPoliceAttribut from " NOM_TABLE_UTILISATEURS " where idUser = " + QString::number(DataBase::getInstance()->getUserConnected()->id());
-    QSqlQuery fontquery (fontrequete,DataBase::getInstance()->getDataBase() );
-    DataBase::getInstance()->traiteErreurRequete(fontquery,fontrequete,"");
+    QString fontrequete = "select UserPoliceEcran, UserPoliceAttribut from " NOM_TABLE_UTILISATEURS " where idUser = " + QString::number(db->getUserConnected()->id());
+    QSqlQuery fontquery (fontrequete,db->getDataBase() );
+    db->traiteErreurRequete(fontquery,fontrequete,"");
     fontquery.first();
     QString fonteFamily = fontquery.value(0).toString().split(",").at(0);
     bool trouvefont = false;
@@ -2218,7 +2219,7 @@ double Procedures::CalcBaseSize()
                       " or table_schema = 'rufus'"
                       " GROUP BY table_schema)"
                       " as bdd";
-    QSqlQuery sizequer (sizereq,DataBase::getInstance()->getDataBase() );
+    QSqlQuery sizequer (sizereq,db->getDataBase() );
     if (sizequer.size()>0)
     {
         sizequer.first();
@@ -2439,10 +2440,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     if (BaseVierge)
     {
         QString Hote;
-        if (DataBase::getInstance()->getMode() == DataBase::Poste)
+        if (db->getMode() == DataBase::Poste)
             Hote = tr("ce poste");
         else
-            Hote = tr("le serveur ") + gsettingsIni->value(DataBase::getInstance()->getBase() + "/Serveur").toString();
+            Hote = tr("le serveur ") + gsettingsIni->value(db->getBase() + "/Serveur").toString();
         msgbox.setInformativeText(tr("Vous avez choisi de créer une base vierge sur ") + Hote + "\n" +
                                   tr("Si une base de données Rufus existe sur ce serveur, "
                                      "elle sera définitivement effacée pour être remplacée par cette base vierge.\n"
@@ -2481,13 +2482,13 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             int a = 99;
 
             QStringList listinstruct = DecomposeScriptSQL(QDir::homePath() + "/Documents/Rufus/Ressources/basevierge.sql");
-            QSqlQuery query( DataBase::getInstance()->getDataBase());
+            QSqlQuery query( db->getDataBase());
             bool e = true;
             foreach(const QString &s, listinstruct)
             {
                 //qDebug()<<s;
                 query.exec(s);
-                if (DataBase::getInstance()->traiteErreurRequete(query, s, ""))
+                if (db->traiteErreurRequete(query, s, ""))
                 {
                     e = false;
                     break;
@@ -2511,7 +2512,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (VerifUserConnectes)
         {
             QString req = "select NomPosteConnecte from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte <> '" + QHostInfo::localHostName().left(60) + "'";
-            QSqlQuery postesquer(req,DataBase::getInstance()->getDataBase() );
+            QSqlQuery postesquer(req,db->getDataBase() );
             if (postesquer.size() > 0)
             {
                 postesquer.first();
@@ -2577,7 +2578,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
 
         QString NomDirStockageImagerie = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGES;
         QString dirreq = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
-        QSqlQuery dirquer(dirreq, DataBase::getInstance()->getDataBase() );
+        QSqlQuery dirquer(dirreq, db->getDataBase() );
         if (dirquer.lastError().type() == QSqlError::NoError)
         {
             dirquer.first();
@@ -2612,8 +2613,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
 
         QString req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + NomDirStockageImagerie + "'";
-        QSqlQuery quer(req, DataBase::getInstance()->getDataBase());
-        DataBase::getInstance()->traiteErreurRequete(quer,req);
+        QSqlQuery quer(req, db->getDataBase());
+        db->traiteErreurRequete(quer,req);
         AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos);
         if (gAskBupRestore->exec()>0)
         {
@@ -2674,10 +2675,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             //Suppression de toutes les tables
                             QString Msg = tr("Suppression de l'ancienne base Rufus en cours");
                             Message(Msg, 3000, false);
-                            QSqlQuery ("drop database if exists " NOM_BASE_COMPTA,      DataBase::getInstance()->getDataBase() );
-                            QSqlQuery ("drop database if exists " NOM_BASE_OPHTA,       DataBase::getInstance()->getDataBase() );
-                            QSqlQuery ("drop database if exists " NOM_BASE_CONSULTS,    DataBase::getInstance()->getDataBase() );
-                            QSqlQuery ("drop database if exists " NOM_BASE_IMAGES,      DataBase::getInstance()->getDataBase() );
+                            QSqlQuery ("drop database if exists " NOM_BASE_COMPTA,      db->getDataBase() );
+                            QSqlQuery ("drop database if exists " NOM_BASE_OPHTA,       db->getDataBase() );
+                            QSqlQuery ("drop database if exists " NOM_BASE_CONSULTS,    db->getDataBase() );
+                            QSqlQuery ("drop database if exists " NOM_BASE_IMAGES,      db->getDataBase() );
                             int a = 99;
                             //Restauration à partir du dossier sélectionné
                             for (int j=0; j<listnomsfilestorestore.size(); j++)
@@ -2687,13 +2688,13 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                 Message(Msg, 3000);
                                 NomDumpFile = listnomsfilestorestore.at(j);
                                 QProcess dumpProcess(parent());
-                                //qDebug() << "host " + DataBase::getInstance()->getDataBase().hostName();
-                                //qDebug() << "port " + QString::number(DataBase::getInstance()->getDataBase().port());
+                                //qDebug() << "host " + db->getDataBase().hostName();
+                                //qDebug() << "port " + QString::number(db->getDataBase().port());
                                 QStringList args;
-                                args << "-u " + DataBase::getInstance()->getDataBase().userName();
-                                args << "-p"  + DataBase::getInstance()->getDataBase().password();
-                                args << "-h " + DataBase::getInstance()->getDataBase().hostName();
-                                args << "-P " + QString::number(DataBase::getInstance()->getDataBase().port());
+                                args << "-u " + db->getDataBase().userName();
+                                args << "-p"  + db->getDataBase().password();
+                                args << "-h " + db->getDataBase().hostName();
+                                args << "-P " + QString::number(db->getDataBase().port());
                                 args << "<";
                                 args << listnomsfilestorestore.at(j) + "\"";
                                 QDir Dir(QCoreApplication::applicationDirPath());
@@ -2717,7 +2718,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                 }
                                 else msg += tr("Restauration de la base") + " " + nombase + " OK\n";
                                 QString reqimg = "update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirStockageImagerie + "'";
-                                QSqlQuery (reqimg, DataBase::getInstance()->getDataBase() );
+                                QSqlQuery (reqimg, db->getDataBase() );
                             }
                         }
                     }
@@ -2838,7 +2839,7 @@ bool Procedures::VerifBaseEtRessources()
     int Versionencours  = 9; //correspond aux premières versions de MAJ de la base
     int Version         = VERSION_BASE;
     QString req         = "select VersionBase from " NOM_TABLE_PARAMSYSTEME;
-    QSqlQuery MAJBaseQuery(req, DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
+    QSqlQuery MAJBaseQuery(req, db->getDataBase());
     bool b              = false;
     if (MAJBaseQuery.lastError().type() != QSqlError::NoError || MAJBaseQuery.size()==0)
         b = true;
@@ -2881,13 +2882,13 @@ bool Procedures::VerifBaseEtRessources()
             DumpFile.copy(NomDumpFile);
             QFile base(NomDumpFile);
             QStringList listinstruct = DecomposeScriptSQL(NomDumpFile);
-            QSqlQuery query(DataBase::getInstance()-> DataBase::getInstance()->getDataBase());
+            QSqlQuery query(db->getDataBase());
             bool a = true;
             foreach(const QString &s, listinstruct)
             {
                 //Edit(s);
                 query.exec(s);
-                if (DataBase::getInstance()->traiteErreurRequete(query, s, ""))
+                if (db->traiteErreurRequete(query, s, ""))
                     a = false;
             }
             int result=0;
@@ -3008,7 +3009,7 @@ bool Procedures::Connexion()
 --------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Connexion_A_La_Base()
 {
-    DataBase::getInstance()->init(*gsettingsIni, gMode2);
+    db->init(*gsettingsIni, gMode2);
 
     if (!IdentificationUser())
         return false;
@@ -3021,24 +3022,24 @@ bool Procedures::Connexion_A_La_Base()
     gdbOK = true;
 
     //Etrange le parametrage ici
-    QSqlQuery quer("set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';", DataBase::getInstance()->getDataBase() );
-    DataBase::getInstance()->traiteErreurRequete(quer,"set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';","");
-    QSqlQuery quer2("SET GLOBAL event_scheduler = 1 ;", DataBase::getInstance()->getDataBase() );
-    DataBase::getInstance()->traiteErreurRequete(quer2,"SET GLOBAL event_scheduler = 1 ;","");
-    QSqlQuery quer3("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;", DataBase::getInstance()->getDataBase() );
-    DataBase::getInstance()->traiteErreurRequete(quer3,"SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;","");
+    QSqlQuery quer("set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';", db->getDataBase() );
+    db->traiteErreurRequete(quer,"set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';","");
+    QSqlQuery quer2("SET GLOBAL event_scheduler = 1 ;", db->getDataBase() );
+    db->traiteErreurRequete(quer2,"SET GLOBAL event_scheduler = 1 ;","");
+    QSqlQuery quer3("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;", db->getDataBase() );
+    db->traiteErreurRequete(quer3,"SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;","");
 
     // on recherche si rufusadmin est en fonction auquel cas on utilise les TCPsocket
     QString req = "select iduser from " NOM_TABLE_USERSCONNECTES " where iduser = (select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
-    int a = QSqlQuery(req, DataBase::getInstance()->getDataBase()).size();
-    OKTCP = (a>0  && DataBase::getInstance()->getMode() != DataBase::Distant);
+    int a = QSqlQuery(req, db->getDataBase()).size();
+    OKTCP = (a>0  && db->getMode() != DataBase::Distant);
     return gdbOK;
 }
 
 bool Procedures::ChargeDataUser(int iduser)
 {
     //NOTE : Etrange
-    QJsonObject jsonUser = DataBase::getInstance()->loadUserData(iduser);
+    QJsonObject jsonUser = db->loadUserData(iduser);
     if( jsonUser.isEmpty() )
         return false;
 
@@ -3054,7 +3055,7 @@ bool Procedures::ChargeDataUser(int iduser)
     }
     else if( iduser != UserParent() )
     {
-        QJsonObject jsonUserParent = DataBase::getInstance()->loadUserData(m_userConnected->getIdUserParent());
+        QJsonObject jsonUserParent = db->loadUserData(m_userConnected->getIdUserParent());
         if( !jsonUserParent.isEmpty() )
         {
             jsonUser["idCompteParDefaut"]          = jsonUserParent["idCompteParDefaut"];
@@ -3084,7 +3085,7 @@ User *Procedures::setDataOtherUser(int id)
     -----------------------------------------------------------------------------------------------------------------*/
 Site* Procedures::DetermineLieuExercice()
 {
-    QList<Site*> listEtab = DataBase::getInstance()->loadSitesByUser(m_userConnected->id());
+    QList<Site*> listEtab = db->loadSitesByUser(m_userConnected->id());
     if( listEtab.size() == 1 )
         return listEtab[0];
 
@@ -3146,24 +3147,24 @@ Site* Procedures::DetermineLieuExercice()
             return qobject_cast<Site*>(rb->mData);
     }
     /*
-    if (DataBase::getInstance()->getMode() == DataBase::Poste || DataBase::getInstance()->getMode() == DataBase::Distant)
+    if (db->getMode() == DataBase::Poste || db->getMode() == DataBase::Distant)
     {
             delete gAskLieux;
     }
     else //TODO : ??? : Je ne comprends pas pourquoi
     {
         QString lieuxreq = "select idLieuParDefaut from " NOM_TABLE_PARAMSYSTEME;
-        QSqlQuery lxquer(lieuxreq,DataBase::getInstance()->getDataBase() );
-        DataBase::getInstance()->traiteErreurRequete(lxquer,lieuxreq);
+        QSqlQuery lxquer(lieuxreq,db->getDataBase() );
+        db->traiteErreurRequete(lxquer,lieuxreq);
         lxquer.first();
         if (lxquer.value(0).toInt()>=1)
             idLieuExercice = lxquer.value(0).toInt();
         else
         {
-            QSqlQuery lieuquer("select min(idlieu) from " NOM_TABLE_LIEUXEXERCICE,DataBase::getInstance()->getDataBase() );
+            QSqlQuery lieuquer("select min(idlieu) from " NOM_TABLE_LIEUXEXERCICE,db->getDataBase() );
             lieuquer.first();
             idLieuExercice = lieuquer.value(0).toInt();
-            QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + lieuquer.value(0).toString(), DataBase::getInstance()->getDataBase() );
+            QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + lieuquer.value(0).toString(), db->getDataBase() );
         }
     }*/
     return Q_NULLPTR;
@@ -3309,14 +3310,14 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     //1. On vérifie si ce login existe dans le serveur et si c'est le cas, on détruit toutes les instances de ce login
     //TODO : !!! un peu brutal
     QString req = "select user, host from mysql.user where user = '" + Login + "%'";
-    QSqlQuery usrquery(req,DataBase::getInstance()->getDataBase() );
+    QSqlQuery usrquery(req,db->getDataBase() );
     if (usrquery.size()>0)
     {
         usrquery.first();
         for (int i=0; i<usrquery.size(); i++)
         {
             req = "drop user '" + usrquery.value(0).toString() + "'@'" + usrquery.value(1).toString() + "'";
-            QSqlQuery (req,DataBase::getInstance()->getDataBase() );
+            QSqlQuery (req,db->getDataBase() );
             usrquery.next();
         }
     }
@@ -3332,35 +3333,35 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     for (int i=0;i<listIP.size()-1;i++)
         MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
     MasqueReseauLocal += "%";
-    QSqlQuery ("create user '" + Login + "'@'localhost' identified by '" + MDP + "'",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("create user '" + Login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "'",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("create user '" + Login + "SSL'@'%' identified by '" + MDP + "' REQUIRE SSL",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("grant all on *.* to '" + Login + "'@'localhost' identified by '" + MDP + "' with grant option",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("grant all on *.* to '" + Login + "SSL'@'%' identified by '" + MDP + "' with grant option",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("grant all on *.* to '" + Login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "' with grant option",DataBase::getInstance()->getDataBase() );
+    QSqlQuery ("create user '" + Login + "'@'localhost' identified by '" + MDP + "'",db->getDataBase() );
+    QSqlQuery ("create user '" + Login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "'",db->getDataBase() );
+    QSqlQuery ("create user '" + Login + "SSL'@'%' identified by '" + MDP + "' REQUIRE SSL",db->getDataBase() );
+    QSqlQuery ("grant all on *.* to '" + Login + "'@'localhost' identified by '" + MDP + "' with grant option",db->getDataBase() );
+    QSqlQuery ("grant all on *.* to '" + Login + "SSL'@'%' identified by '" + MDP + "' with grant option",db->getDataBase() );
+    QSqlQuery ("grant all on *.* to '" + Login + "'@'" + MasqueReseauLocal + "' identified by '" + MDP + "' with grant option",db->getDataBase() );
 
     // Création de l'administrateur des documents ------------------------------------------------------------------
-    QSqlQuery ("create user if not exists '" NOM_ADMINISTRATEURDOCS "'@'localhost' identified by '" NOM_MDPADMINISTRATEUR "'",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("create user if not exists '" NOM_ADMINISTRATEURDOCS "'@'" + MasqueReseauLocal + "' identified by '" NOM_MDPADMINISTRATEUR "'",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("create user if not exists '" NOM_ADMINISTRATEURDOCS "SSL'@'%' identified by '" NOM_MDPADMINISTRATEUR "' REQUIRE SSL",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'localhost' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'" + MasqueReseauLocal + "' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "SSL'@'%' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserNom, UserLogin) values (100, '" NOM_ADMINISTRATEURDOCS "','" NOM_ADMINISTRATEURDOCS "')",DataBase::getInstance()->getDataBase());
+    QSqlQuery ("create user if not exists '" NOM_ADMINISTRATEURDOCS "'@'localhost' identified by '" NOM_MDPADMINISTRATEUR "'",db->getDataBase() );
+    QSqlQuery ("create user if not exists '" NOM_ADMINISTRATEURDOCS "'@'" + MasqueReseauLocal + "' identified by '" NOM_MDPADMINISTRATEUR "'",db->getDataBase() );
+    QSqlQuery ("create user if not exists '" NOM_ADMINISTRATEURDOCS "SSL'@'%' identified by '" NOM_MDPADMINISTRATEUR "' REQUIRE SSL",db->getDataBase() );
+    QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'localhost' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",db->getDataBase() );
+    QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "'@'" + MasqueReseauLocal + "' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",db->getDataBase() );
+    QSqlQuery ("grant all on *.* to '" NOM_ADMINISTRATEURDOCS "SSL'@'%' identified by '" NOM_MDPADMINISTRATEUR "' with grant option",db->getDataBase() );
+    QSqlQuery ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserNom, UserLogin) values (100, '" NOM_ADMINISTRATEURDOCS "','" NOM_ADMINISTRATEURDOCS "')",db->getDataBase());
 
     // On crée l'utilisateur dans la table utilisateurs
 
     User *newUser = new User(Login, MDP);
-    QSqlQuery ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserLogin, UserMDP) VALUES (1,'" + Login + "', '" + MDP + "')",DataBase::getInstance()->getDataBase() );
+    QSqlQuery ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserLogin, UserMDP) VALUES (1,'" + Login + "', '" + MDP + "')",db->getDataBase() );
     //TODO : User : affect User
     gidCentre               = 1;
     gUseCotation            = true;
     CreerUserFactice(*newUser);
-    newUser->setData( DataBase::getInstance()->loadUserData(newUser->id()) );
+    newUser->setData( db->loadUserData(newUser->id()) );
     newUser->setIdUserActeSuperviseur(1);
     newUser->setIdUserComptable(1);
     newUser->setIdUserParent(1);
-    DataBase::getInstance()->setUserConnected( newUser );
+    db->setUserConnected( newUser );
 
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été cré"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
@@ -3401,18 +3402,18 @@ void Procedures::CreerUserFactice(User &user)
     user.setData(userData);
     QString id = userData["id"].toString();
 
-    QSqlQuery ("LOCK TABLES " NOM_TABLE_COMPTES " WRITE, " NOM_TABLE_UTILISATEURS " WRITE, " NOM_TABLE_BANQUES " WRITE, " NOM_TABLE_LIEUXEXERCICE " WRITE, " NOM_TABLE_JOINTURESLIEUX " WRITE", DataBase::getInstance()->getDataBase() );
+    QSqlQuery ("LOCK TABLES " NOM_TABLE_COMPTES " WRITE, " NOM_TABLE_UTILISATEURS " WRITE, " NOM_TABLE_BANQUES " WRITE, " NOM_TABLE_LIEUXEXERCICE " WRITE, " NOM_TABLE_JOINTURESLIEUX " WRITE", db->getDataBase() );
     int idbanq = 0;
     QString req = "select idbanque, idbanqueabrege, nombanque from " NOM_TABLE_BANQUES " where idbanqueabrege = 'PaPRS'";
-    QSqlQuery quer(req, DataBase::getInstance()->getDataBase() );
+    QSqlQuery quer(req, db->getDataBase() );
     if (quer.first())
     {
         idbanq = quer.value(0).toInt();
     }
     else
     {
-        QSqlQuery ("insert into " NOM_TABLE_BANQUES " (idbanqueAbrege, Nombanque) values ('PaPRS','Panama Papers')", DataBase::getInstance()->getDataBase() );
-        QSqlQuery quer2("select idbanque from " NOM_TABLE_BANQUES " where idbanqueabrege = 'PaPRS'", DataBase::getInstance()->getDataBase() );
+        QSqlQuery ("insert into " NOM_TABLE_BANQUES " (idbanqueAbrege, Nombanque) values ('PaPRS','Panama Papers')", db->getDataBase() );
+        QSqlQuery quer2("select idbanque from " NOM_TABLE_BANQUES " where idbanqueabrege = 'PaPRS'", db->getDataBase() );
         quer2.first();
         //TODO : manque test
         idbanq = quer2.value(0).toInt();
@@ -3441,9 +3442,9 @@ void Procedures::CreerUserFactice(User &user)
            " (idBanque, idUser, IBAN, IntituleCompte, NomCompteAbrege, SoldeSurDernierReleve)"
            " VALUES (" + QString::number(idbanq) + "," + id + ", '" + iban + "', '" + user.getLogin() + "', 'PaPRS" + QString::number(al) + "', 2333.67)";
     //qDebug() << req;
-    QSqlQuery(req,DataBase::getInstance()->getDataBase() );
+    QSqlQuery(req,db->getDataBase() );
     req = "select max(idcompte) from " NOM_TABLE_COMPTES;
-    QSqlQuery idcptquer(req,DataBase::getInstance()->getDataBase() );
+    QSqlQuery idcptquer(req,db->getDataBase() );
     idcptquer.first();
     QString idcpt = idcptquer.value(0).toString();
 
@@ -3472,7 +3473,7 @@ void Procedures::CreerUserFactice(User &user)
             " OPTAM = 1\n"
             " where idUser = " + id;
     //Edit(req);
-    QSqlQuery(req,DataBase::getInstance()->getDataBase() );
+    QSqlQuery(req,db->getDataBase() );
     req = "insert into " NOM_TABLE_LIEUXEXERCICE "(NomLieu, LieuAdresse1, LieuAdresse2, LieuCodePostal, LieuVille, LieuTelephone)  values ("
             "'Centre ophtalmologique de La Mazière', "
             "'place rouge', "
@@ -3481,16 +3482,16 @@ void Procedures::CreerUserFactice(User &user)
             "'La Mazière', "
             "'O4 56 78 90 12')";
     //Edit(req);
-    QSqlQuery(req,DataBase::getInstance()->getDataBase() );
+    QSqlQuery(req,db->getDataBase() );
     req = "select idLieu from " NOM_TABLE_LIEUXEXERCICE;
-    QSqlQuery querr(req, DataBase::getInstance()->getDataBase() );
+    QSqlQuery querr(req, db->getDataBase() );
     querr.first();
     int gidLieuExercice = querr.value(0).toInt(); //TODO : ICI
     req = "insert into " NOM_TABLE_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + id + ", " + QString::number(gidLieuExercice) + ")";
-    QSqlQuery(req, DataBase::getInstance()->getDataBase() );
+    QSqlQuery(req, db->getDataBase() );
     req = "update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + QString::number(gidLieuExercice);
-    QSqlQuery(req, DataBase::getInstance()->getDataBase() );
-    QSqlQuery("UNLOCK TABLES", DataBase::getInstance()->getDataBase() );
+    QSqlQuery(req, db->getDataBase() );
+    QSqlQuery("UNLOCK TABLES", db->getDataBase() );
 }
 
 
@@ -3507,7 +3508,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
 
     if( result > 0 )
     {
-        m_userConnected = DataBase::getInstance()->getUserConnected();
+        m_userConnected = db->getUserConnected();
         if (!VerifBaseEtRessources())
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
@@ -3553,7 +3554,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             if( m_userConnected->getIdUserParent() > 0 )
                 m_userConnected->setUserParent(Datas::I()->users->getUserById(m_userConnected->getIdUserParent()));
 
-            QSqlQuery quer("select Numcentre from " NOM_TABLE_PARAMSYSTEME,DataBase::getInstance()->getDataBase() );
+            QSqlQuery quer("select Numcentre from " NOM_TABLE_PARAMSYSTEME,db->getDataBase() );
             if( quer.first() )
                 gidCentre = quer.value(0).toInt();
             a = true;
@@ -3617,7 +3618,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
 
 void Procedures::DefinitScriptBackup(QString path, bool AvecImages, bool AvecVideos)
 {
-    QSqlQuery dirquer("select DirBkup from " NOM_TABLE_PARAMSYSTEME, DataBase::getInstance()->getDataBase() );
+    QSqlQuery dirquer("select DirBkup from " NOM_TABLE_PARAMSYSTEME, db->getDataBase() );
     dirquer.first();
     QString NomDirDestination = dirquer.value(0).toString();
     // élaboration du script de backup
@@ -4294,11 +4295,11 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             if (!RestaureBase(true, true))
                 return false;
             if (gMode2 == DataBase::ReseauLocal)
-                QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurLocal = '" + gsettingsIni->value("BDD_LOCAL/Serveur").toString() + "'", DataBase::getInstance()->getDataBase() );
+                QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurLocal = '" + gsettingsIni->value("BDD_LOCAL/Serveur").toString() + "'", db->getDataBase() );
 
             // Création de l'utilisateur
             gdbOK = CreerPremierUser(gLoginUser(), gMDPUser());
-            DataBase::getInstance()->login(gLoginUser(), gMDPUser());
+            db->login(gLoginUser(), gMDPUser());
             initListeUsers();
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
@@ -4332,7 +4333,7 @@ void Procedures::PremierParametrageMateriel()
     gsettingsIni->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
     gsettingsIni->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
     QString NomDirImg = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE;
-    QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'", DataBase::getInstance()->getDataBase());
+    QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'", db->getDataBase());
     gsettingsIni->setValue("BDD_DISTANT/DossierImagerie", NomDirImg);
 }
 
@@ -4413,7 +4414,7 @@ void Procedures::PremierParametrageRessources()
     {
         QString NomDirImg = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE;
         QString reqimg = "update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'";
-        QSqlQuery (reqimg, DataBase::getInstance()->getDataBase() );
+        QSqlQuery (reqimg, db->getDataBase() );
     }
  }
 
@@ -4616,7 +4617,7 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
     msgbox.setIcon(QMessageBox::Information);
     msgbox.addButton(&OKBouton, QMessageBox::AcceptRole);
     QString req = "SHOW TABLES FROM " NOM_BASE_CONSULTS " LIKE 'utilisateurs'";
-    QSqlQuery VerifBaseQuery(req,DataBase::getInstance()->getDataBase() );
+    QSqlQuery VerifBaseQuery(req,db->getDataBase() );
     if (VerifBaseQuery.size()==0)
     {
         msgbox.setText(tr("Erreur sur la base patients"));
@@ -4630,11 +4631,11 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
     req =   "SELECT idUser FROM " NOM_TABLE_UTILISATEURS
             " WHERE UserLogin = '" + Utils::correctquoteSQL(Login) +
             "' AND UserMDP = '" + Utils::correctquoteSQL(MDP) + "'" ;
-    QSqlQuery idUsrQuery(req,DataBase::getInstance()->getDataBase() );
+    QSqlQuery idUsrQuery(req,db->getDataBase() );
     if (idUsrQuery.size()==0)
     {
         req =   "SELECT UserLogin FROM " NOM_TABLE_UTILISATEURS;
-        QSqlQuery listusrquery (req,DataBase::getInstance()->getDataBase() );
+        QSqlQuery listusrquery (req,db->getDataBase() );
         if (listusrquery.size() == 0)
         {
             msgbox.setText(tr("Erreur sur la base patients"));
@@ -4683,9 +4684,9 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
 void Procedures::VideDatabases()
 {
     Message(tr("Suppression de l'ancienne base Rufus en cours"));
-    QSqlQuery ("drop database if exists " NOM_BASE_COMPTA,      DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("drop database if exists " NOM_BASE_OPHTA,       DataBase::getInstance()->getDataBase() );
-    QSqlQuery ("drop database if exists " NOM_BASE_CONSULTS,    DataBase::getInstance()->getDataBase() );
+    QSqlQuery ("drop database if exists " NOM_BASE_COMPTA,      db->getDataBase() );
+    QSqlQuery ("drop database if exists " NOM_BASE_OPHTA,       db->getDataBase() );
+    QSqlQuery ("drop database if exists " NOM_BASE_CONSULTS,    db->getDataBase() );
 }
 
 QString Procedures::PrefixePlus(QString Dioptr)                          // convertit en QString signé + ou - les valeurs de dioptries issues des appareils de mesure
@@ -6799,8 +6800,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     " and QuelleMesure = 'P'" +
                     " and FormuleOD = '" + CalculeFormule(MapMesure,"D") + "'" +
                     " and FormuleOG = '" + CalculeFormule(MapMesure,"G") + "'";
-            QSqlQuery delquer(requete, DataBase::getInstance()->getDataBase() );
-            DataBase::getInstance()->traiteErreurRequete(delquer, requete, "");
+            QSqlQuery delquer(requete, db->getDataBase() );
+            db->traiteErreurRequete(delquer, requete, "");
 
             requete = "INSERT INTO " NOM_TABLE_REFRACTION
                     " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
@@ -6823,8 +6824,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     (QLocale().toDouble(mAddOG)>0? QString::number(QLocale().toDouble(mAddOG)) : "null") + ",'" +
                     CalculeFormule(MapMesure,"G") + "')";
 
-            QSqlQuery InsertRefractionQuery (requete, DataBase::getInstance()->getDataBase() );
-            DataBase::getInstance()->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création de données fronto dans ") + NOM_TABLE_REFRACTION);
+            QSqlQuery InsertRefractionQuery (requete, db->getDataBase() );
+            db->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création de données fronto dans ") + NOM_TABLE_REFRACTION);
         }
     }
     if (!MesureAutoref.isEmpty() && Mesure == "Autoref" && NouvMesureAutoref)
@@ -6856,8 +6857,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     " where idPat = " + QString::number(idPatient) +
                     " and idacte = " + QString::number(idActe) +
                     " and QuelleMesure = 'A'" ;
-            QSqlQuery delquer(requete, DataBase::getInstance()->getDataBase() );
-            DataBase::getInstance()->traiteErreurRequete(delquer, requete, "");
+            QSqlQuery delquer(requete, db->getDataBase() );
+            db->traiteErreurRequete(delquer, requete, "");
 
             requete = "INSERT INTO " NOM_TABLE_REFRACTION
                     " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
@@ -6878,11 +6879,11 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     mAxeOG     + ",'" +
                     CalculeFormule(MapMesure,"G") + "', " + PD + ")";
 
-            QSqlQuery InsertRefractionQuery (requete, DataBase::getInstance()->getDataBase() );
-            DataBase::getInstance()->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_REFRACTION);
+            QSqlQuery InsertRefractionQuery (requete, db->getDataBase() );
+            db->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_REFRACTION);
             requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
-            QSqlQuery selquer(requete, DataBase::getInstance()->getDataBase() );
-            DataBase::getInstance()->traiteErreurRequete(selquer,requete,"");
+            QSqlQuery selquer(requete, db->getDataBase() );
+            db->traiteErreurRequete(selquer,requete,"");
             if (selquer.size()== 0)
             {
                 requete = "INSERT INTO " NOM_TABLE_DONNEES_OPHTA_PATIENTS
@@ -6902,8 +6903,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         mAxeOG     + "," +
                         PD + ")";
 
-                QSqlQuery InsertDOPQuery (requete, DataBase::getInstance()->getDataBase() );
-                DataBase::getInstance()->traiteErreurRequete(InsertDOPQuery,requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                QSqlQuery InsertDOPQuery (requete, db->getDataBase() );
+                db->traiteErreurRequete(InsertDOPQuery,requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
             else
             {
@@ -6921,8 +6922,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         " PD = "            + PD +
                         " where idpat = "   + QString::number(idPatient);
 
-                QSqlQuery UpdDOPQuery (requete, DataBase::getInstance()->getDataBase() );
-                DataBase::getInstance()->traiteErreurRequete(UpdDOPQuery,requete, tr("Erreur de mise à jour de données autoref dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                QSqlQuery UpdDOPQuery (requete, db->getDataBase() );
+                db->traiteErreurRequete(UpdDOPQuery,requete, tr("Erreur de mise à jour de données autoref dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
         }
     }
@@ -6943,8 +6944,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
             QString mAxeKOG     = QString::number(MapMesure["AxeKOG"].toInt());
             //qDebug() << mK1OD << mK2OD << mAxeKOD << mK1OG << mK2OG << mAxeKOG;
             QString requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
-            QSqlQuery selquer(requete, DataBase::getInstance()->getDataBase() );
-            DataBase::getInstance()->traiteErreurRequete(selquer,requete,"");
+            QSqlQuery selquer(requete, db->getDataBase() );
+            db->traiteErreurRequete(selquer,requete,"");
             if (selquer.size()== 0)
             {
                 requete = "INSERT INTO " NOM_TABLE_DONNEES_OPHTA_PATIENTS
@@ -6959,8 +6960,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         QString::number(QLocale().toDouble(mK2OG), 'f', 2)   + "," +
                         mAxeKOG + ",'A')";
 
-                QSqlQuery InsertDOPQuery (requete, DataBase::getInstance()->getDataBase() );
-                DataBase::getInstance()->traiteErreurRequete(InsertDOPQuery,requete, tr("Erreur de création de données kératométrie  dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                QSqlQuery InsertDOPQuery (requete, db->getDataBase() );
+                db->traiteErreurRequete(InsertDOPQuery,requete, tr("Erreur de création de données kératométrie  dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
             else
             {
@@ -6975,8 +6976,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         " OrigineK = 'A'" +
                         " where idpat = "+ QString::number(idPatient);
 
-                QSqlQuery UpdDOPQuery (requete, DataBase::getInstance()->getDataBase() );
-                DataBase::getInstance()->traiteErreurRequete(UpdDOPQuery,requete, tr("Erreur de modification de données de kératométrie dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                QSqlQuery UpdDOPQuery (requete, db->getDataBase() );
+                db->traiteErreurRequete(UpdDOPQuery,requete, tr("Erreur de modification de données de kératométrie dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
         }
     }
@@ -7016,8 +7017,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     " where idPat = " + QString::number(idPatient) +
                     " and idacte = " + QString::number(idActe) +
                     " and QuelleMesure = 'R'" ;
-            QSqlQuery delquer(requete, DataBase::getInstance()->getDataBase() );
-            DataBase::getInstance()->traiteErreurRequete(delquer, requete, "");
+            QSqlQuery delquer(requete, db->getDataBase() );
+            db->traiteErreurRequete(delquer, requete, "");
             requete = "INSERT INTO " NOM_TABLE_REFRACTION
                     " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
                     " SphereOD, CylindreOD, AxeCylindreOD, AddVPOD, FormuleOD, AVLOD, AVPOD,"
@@ -7044,11 +7045,11 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     mAVPOG + "'," +
                     PD + ")";
 
-            QSqlQuery InsertRefractionQuery (requete, DataBase::getInstance()->getDataBase() );
-            DataBase::getInstance()->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création  de données de refraction dans ") + NOM_TABLE_REFRACTION);
+            QSqlQuery InsertRefractionQuery (requete, db->getDataBase() );
+            db->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création  de données de refraction dans ") + NOM_TABLE_REFRACTION);
             requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'R'";
-            QSqlQuery selquer(requete, DataBase::getInstance()->getDataBase() );
-            DataBase::getInstance()->traiteErreurRequete(selquer,requete,"");
+            QSqlQuery selquer(requete, db->getDataBase() );
+            db->traiteErreurRequete(selquer,requete,"");
             if (selquer.size()== 0)
             {
                 requete = "INSERT INTO " NOM_TABLE_DONNEES_OPHTA_PATIENTS
@@ -7074,8 +7075,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         mAVPOG + "'," +
                         PD + ")";
 
-                QSqlQuery InsertDOPQuery (requete, DataBase::getInstance()->getDataBase() );
-                DataBase::getInstance()->traiteErreurRequete(InsertDOPQuery,requete, tr("Erreur création de données de refraction dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                QSqlQuery InsertDOPQuery (requete, db->getDataBase() );
+                db->traiteErreurRequete(InsertDOPQuery,requete, tr("Erreur création de données de refraction dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
             else
             {
@@ -7097,8 +7098,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         " PD = "            + PD +
                         " where idpat = "   + QString::number(idPatient);
 
-                QSqlQuery UpdDOPQuery (requete, DataBase::getInstance()->getDataBase() );
-                DataBase::getInstance()->traiteErreurRequete(UpdDOPQuery,requete, tr("Erreur de mise à jour de données de refraction dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                QSqlQuery UpdDOPQuery (requete, db->getDataBase() );
+                db->traiteErreurRequete(UpdDOPQuery,requete, tr("Erreur de mise à jour de données de refraction dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
         }
     }

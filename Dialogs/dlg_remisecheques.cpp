@@ -214,7 +214,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         }
 
         // On verrouille les table RemisesCheques
-        if (!db->locktables(QStringList() << NOM_TABLE_REMISECHEQUES))
+        if (!db->createtransaction(QStringList() << NOM_TABLE_REMISECHEQUES))
             return;
         //On récupére l'idRemise
         int idRemise = db->selectMaxFromTable("idRemCheq", NOM_TABLE_REMISECHEQUES) + 1;
@@ -237,7 +237,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
 
 
         // on enregistre les lignes de remises
-        db->locktables(QStringList() << NOM_TABLE_REMISECHEQUES << NOM_TABLE_RECETTESSPECIALES << NOM_TABLE_RECETTES << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_BANQUES << NOM_TABLE_USERSCONNECTES);
+        db->createtransaction(QStringList() << NOM_TABLE_REMISECHEQUES << NOM_TABLE_RECETTESSPECIALES << NOM_TABLE_RECETTES << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_BANQUES << NOM_TABLE_USERSCONNECTES);
 
         //  et on update tous les chèques déposés avec cet IdRemise dans la table chèques
         for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)

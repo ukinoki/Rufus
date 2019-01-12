@@ -87,14 +87,13 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
 
     player              = new QMediaPlayer;
 
-    QHBoxLayout *lay   = new QHBoxLayout();
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
+    QHBoxLayout *lay    = new QHBoxLayout();
     lay                 ->addWidget(ListDocsTreeView,2);
     lay                 ->addWidget(ScrollTable,8);
     lay                 ->addWidget(GraphicView,8);
     lay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
     lay                 ->setSpacing(10);
-    globallay           ->insertLayout(0,lay);
+    dlglayout()         ->insertLayout(0,lay);
 
     AllDocsupCheckBox           = new UpCheckBox(tr("Tous"));
     OnlyImportantDocsupCheckBox = new UpCheckBox(tr("Importants"));
@@ -133,20 +132,20 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
     }*/
 
 
-    connect(sw,                             &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(sw->PosSwitch());});
+    connect (sw,                            &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(sw->PosSwitch());});
     connect (SupprButton,                   &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
     connect (AllDocsupCheckBox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(AllDocsupCheckBox);});
     connect (OnlyImportantDocsupCheckBox,   &QCheckBox::toggled,            this,   [=] {FiltrerListe(OnlyImportantDocsupCheckBox);});
     connect (playctrl,                      &PlayerControls::ctrl,          this,   [=] {PlayerCtrl(playctrl->State());});
-    connect (playctrl,                      &PlayerControls::recfile,       this,   [=] {EnregistreVideo();});
-    connect (proc,                          &Procedures::UpdDocsExternes,   this,   [=] {ActualiseDocsExternes();});
-    connect (PrintButton,                   &QPushButton::clicked,          this,   [=] {ImprimeDoc();});
+    connect (playctrl,                      &PlayerControls::recfile,       this,   &dlg_docsexternes::EnregistreVideo);
+    connect (proc,                          &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
+    connect (PrintButton,                   &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
 
     if (!UtiliseTCP)
     {
         QTimer *TimerActualiseDocsExternes    = new QTimer(this);
         TimerActualiseDocsExternes    ->start(10000);
-        connect (TimerActualiseDocsExternes,    &QTimer::timeout,               this,   [=] {ActualiseDocsExternes();});
+        connect (TimerActualiseDocsExternes,    &QTimer::timeout,           this,   &dlg_docsexternes::ActualiseDocsExternes);
     }
 
     gMode               = Normal;
@@ -160,6 +159,7 @@ dlg_docsexternes::~dlg_docsexternes()
 {
     proc = Q_NULLPTR;
     delete proc;
+    delete printer;
     Datas::I()->docsexternes->clearAll();
 }
 
@@ -495,7 +495,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 lab->resize(pix.width(),pix.height());
                 lab->setPixmap(pix);
                 lab->setContextMenuPolicy(Qt::CustomContextMenu);
-                connect(lab,    &UpLabel::clicked,                      this, [=] {ZoomDoc();});
+                connect(lab,    &UpLabel::clicked,                      this, &dlg_docsexternes::ZoomDoc);
                 connect(lab,    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
                 delete pdfPage;
                 ScrollTable->setCellWidget(i,0,lab);
@@ -963,7 +963,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         if (!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
         {
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
-            connect(PrintButton,        &QPushButton::clicked, this,   [=] {ImprimeDoc();});
+            connect(PrintButton,        &QPushButton::clicked, this,   &dlg_docsexternes::ImprimeDoc);
         }
         else
         {

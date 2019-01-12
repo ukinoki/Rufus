@@ -46,7 +46,7 @@ private:
     bool                        DefinitDossiers();
     void                        EchecImport(QString txt);
     bool                        EnCours;
-    QSqlDatabase                db;
+    DataBase                    *db;
     QThread                     thread;
 
     int                         Acces;

@@ -436,7 +436,7 @@ void dlg_docsscanner::ValideFiche()
         datafacture["echeancier"] = (gMode == Echeancier);
         datafacture["objetecheancier"] = (gMode == Echeancier? sstypedoc : "");
     }
-    db->commit();
+    db->unlocktables();
     if(!b)
     {
         UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));

@@ -3157,14 +3157,14 @@ void dlg_documents::SupprimmDossier(int row)
         int iddos = ui->DossiersupTableWidget->item(row,2)->text().toInt();
         QStringList locklist;
         locklist << NOM_TABLE_METADOCUMENTS << NOM_TABLE_JOINTURESDOCS ;
-        if (!db->locktables(locklist))
+        if (!db->createtransaction(locklist))
             return;
         if (!db->SupprRecordFromTable(iddos,
                                       "idMetaDocument",
                                       NOM_TABLE_METADOCUMENTS,
                                       tr("Impossible de suppprimer le dossier") + "\n" + line->text().toUpper() + "!\n ... " + tr("et je ne sais pas pourquoi") + "...\nRufus"))
         {
-            db->commit();
+            db->rollback();
             return;
         }
         else

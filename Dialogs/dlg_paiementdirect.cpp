@@ -2791,7 +2791,7 @@ int dlg_paiementdirect::EnregistreRecette()
     locklist << NOM_TABLE_RECETTES << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_PATIENTS <<
                 NOM_TABLE_ACTES << NOM_TABLE_DEPENSES << NOM_TABLE_SALLEDATTENTE << NOM_TABLE_RUBRIQUES2035  <<
                 NOM_TABLE_LIGNESPAIEMENTS << NOM_TABLE_TYPEPAIEMENTACTES << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_USERSCONNECTES;
-    if (!db->locktables(locklist))
+    if (!db->createtransaction(locklist))
         return Impossible;
 
     if ((ui->EspecesradioButton->isChecked() || ui->ChequeradioButton->isChecked()) && gMode == EnregistrePaiement)

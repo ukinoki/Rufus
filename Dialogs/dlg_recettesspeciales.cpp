@@ -313,7 +313,7 @@ void dlg_recettesspeciales::EnregistreRecette()
 
     QStringList listtables;
     listtables << NOM_TABLE_RECETTESSPECIALES << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES;
-    if (!db->locktables(listtables))
+    if (!db->createtransaction(listtables))
         return;
     if (!db->StandardSQL("insert into " NOM_TABLE_RECETTESSPECIALES " (DateRecette, idUser, Libelle, Montant, TypeRecette, Paiement, CompteVirement, TireurCheque, BanqueCheque)"
             " VALUES ('" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
