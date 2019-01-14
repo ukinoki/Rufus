@@ -272,13 +272,13 @@ void dlg_docsvideo::ValideFiche()
     int idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS) + 1;
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
-    listbinds["idImpression"] =     QString::number(idimpr);
-    listbinds["idPat"] =            QString::number(idpat);
+    listbinds["idImpression"] =     idimpr;
+    listbinds["idPat"] =            idpat;
     listbinds["TypeDoc"] =          typeDocCombo->currentText();
     listbinds["SousTypeDoc"] =      sstypedoc;
     listbinds["Titre"] =            sstypedoc;
     listbinds["DateImpression"] =   editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-    listbinds["UserEmetteur"] =     QString::number(db->getUserConnected()->id());
+    listbinds["UserEmetteur"] =     db->getUserConnected()->id();
     listbinds["EmisRecu"] =         "1";
     listbinds["formatautre"] =      VIDEO;
     listbinds["lienversfichier"] =  NomFileVideoDoc;

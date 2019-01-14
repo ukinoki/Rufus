@@ -1801,8 +1801,8 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     {
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
         QHash<QString,QVariant> listbinds;
-        listbinds["iduser"] =           QString::number(gidUser);
-        listbinds["idpat"] =            QString::number(gidPatient);
+        listbinds["iduser"] =           gidUser;
+        listbinds["idpat"] =            gidPatient;
         listbinds["typeDoc"] =          PRESCRIPTION;
         listbinds["soustypedoc"] =      CORRECTION;
         listbinds["titre"] =            "Prescription correction";
@@ -1811,11 +1811,11 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds["textorigine"] =      ui->ResumePrescriptionTextEdit->toPlainText();
         listbinds["textPied"] =         Pied;
         listbinds["dateimpression"] =   ui->DateDateEdit->date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-        listbinds["useremetteur"] =     QString::number(gidUser);
+        listbinds["useremetteur"] =     gidUser;
         listbinds["ald"] =              QVariant(QVariant::String);
         listbinds["emisrecu"] =         "0";
         listbinds["formatdoc"] =        PRESCRIPTIONLUNETTES;
-        listbinds["idlieu"] =           QString::number(proc->getUserConnected()->getSite()->id());
+        listbinds["idlieu"] =           proc->getUserConnected()->getSite()->id();
         if(!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
             UpMessageBox::Watch(this, tr("Impossible d'enregistrer ce document dans la base!"));
     }

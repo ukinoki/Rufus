@@ -1,3 +1,20 @@
+/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin.
+
+RufusAdmin is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef LOG_H
 #define LOG_H
 
@@ -6,6 +23,7 @@
 #include <QString>
 #include "macros.h"
 #include "upmessagebox.h"
+#include "dlg_message.h"
 
 
 /**
@@ -40,7 +58,8 @@ public:
         {
             QTextStream out(&testfile);
             QString timelog = QTime::currentTime().toString();
-            out << type << " : " << msg << (infoMsg==""? "" : " : " + infoMsg) << " : " << timelog;
+            out << type << " : " << msg << (infoMsg==""? "" : " : " + infoMsg) << " : " << timelog << "\n";
+            testfile.close();
         }
         //else UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier\n") + fileName);
 

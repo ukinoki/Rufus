@@ -373,31 +373,31 @@ void dlg_docsscanner::ValideFiche()
         lien = "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
         if (!AccesDistant)
         {
-            listbinds["idImpression"] =     QString::number(idimpr);
-            listbinds["idPat"] =            QString::number(iditem);
+            listbinds["idImpression"] =     idimpr;
+            listbinds["idPat"] =            iditem;
             listbinds["TypeDoc"] =          typeDocCombo->currentText();
             listbinds["SousTypeDoc"] =      sstypedoc;
             listbinds["Titre"] =            typeDocCombo->currentText();
             listbinds["DateImpression"] =   editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-            listbinds["UserEmetteur"] =     QString::number(db->getUserConnected()->id());
+            listbinds["UserEmetteur"] =     db->getUserConnected()->id();
             listbinds["lienversfichier"] =  lien;
             listbinds["EmisRecu"] =         "1";
             listbinds["FormatDoc"] =        DOCUMENTRECU;
-            listbinds["idLieu"] =           QString::number(proc->getUserConnected()->getSite()->id()) ;
+            listbinds["idLieu"] =           proc->getUserConnected()->getSite()->id();
         }
         else
         {
-            listbinds["idImpression"] =     QString::number(idimpr);
-            listbinds["idPat"] =            QString::number(iditem);
+            listbinds["idImpression"] =     idimpr;
+            listbinds["idPat"] =            iditem;
             listbinds["TypeDoc"] =          typeDocCombo->currentText();
             listbinds["SousTypeDoc"] =      sstypedoc;
             listbinds["Titre"] =            typeDocCombo->currentText();
             listbinds["DateImpression"] =   editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-            listbinds["UserEmetteur"] =     QString::number(db->getUserConnected()->id());
+            listbinds["UserEmetteur"] =     db->getUserConnected()->id();
             listbinds[suffixe] =            ba;
             listbinds["EmisRecu"] =         "1";
             listbinds["FormatDoc"] =        DOCUMENTRECU;
-            listbinds["idLieu"] =           QString::number(proc->getUserConnected()->getSite()->id()) ;
+            listbinds["idLieu"] =           proc->getUserConnected()->getSite()->id();
         }
         b = db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds);
     }
@@ -413,7 +413,7 @@ void dlg_docsscanner::ValideFiche()
         lien = "/" + user + "/" + NomFileDoc  + (gMode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe;
         if (!AccesDistant)
         {
-            listbinds["idFacture"] =        QString::number(idimpr);
+            listbinds["idFacture"] =        idimpr;
             listbinds["DateFacture"] =      editdate->date().toString("yyyy-MM-dd");
             listbinds["Intitule"] =         sstypedoc;
             listbinds["LienFichier"] =      lien;
@@ -423,7 +423,7 @@ void dlg_docsscanner::ValideFiche()
         }
         else
         {
-            listbinds["idFacture"] =        QString::number(idimpr);
+            listbinds["idFacture"] =        idimpr;
             listbinds["DateFacture"] =      editdate->date().toString("yyyy-MM-dd");
             listbinds["Intitule"] =         sstypedoc;
             listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));

@@ -185,6 +185,12 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
     msgbox  ->buttonslayout()   ->setSpacing(50);
     msgbox  ->Textedt           ->setFixedSize(msgbox->CalcSize(Text));
     msgbox  ->InfoTextedt       ->setFixedSize(msgbox->CalcSize(InfoText));
+    for (int i=0; i<msgbox->buttonslayout()->count();i++)
+    {
+        UpSmallButton *butt =  dynamic_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
+        if (butt!=Q_NULLPTR)
+            connect(butt, &QPushButton::clicked, msgbox, &UpMessageBox::accept);
+    }
     msgbox  ->exec();
 }
 
