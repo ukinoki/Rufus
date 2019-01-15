@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("14-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("15-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -112,6 +112,13 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     CalcNbDossiers();
     MetAJourUserConnectes();
     gidPatient = 0;
+    bool ok =true;
+    QList<QVariant> admindata= db->getFirstRecordFromStandardSelectSQL("select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "'", ok);
+    if (admindata.size() == 0 || !ok)
+        idAdministrateur = -1;
+    else
+        idAdministrateur = admindata.at(0).toInt();
+
 
     UtiliseTCP = (proc->UtiliseTCP() && db->getMode() != DataBase::Distant);
     if (UtiliseTCP)
@@ -121,8 +128,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         TcPConnect = TcpSocket::getInstance();
         UtiliseTCP = TcPConnect->TcpConnectToServer();
         if (UtiliseTCP)
+        {
             connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});
+        }
     }
+    else
+        db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseTCPServeur = null");
 
     // 5 mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
@@ -225,6 +236,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         ReconstruitListesActes();
     }
     Remplir_SalDat();
+    if(UtiliseTCP)
+        envoieMessage(TCPMSG_MAJSalAttente);
     VerifMessages();
 }
 
@@ -1417,18 +1430,18 @@ void Rufus::ConnectTimers(bool a)
         gTimerUserConnecte  ->start(10000);
         gTimerVerifVerrou   ->start(60000);
 
-        connect (gTimerUserConnecte,                &QTimer::timeout,   this,   [=] {MetAJourUserConnectes();});
-        connect (gTimerActualiseDocsExternes,       &QTimer::timeout,   this,   [=] {ActualiseDocsExternes();});
+        connect (gTimerUserConnecte,                &QTimer::timeout,   this,   &Rufus::MetAJourUserConnectes);
+        connect (gTimerActualiseDocsExternes,       &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
         if (!UtiliseTCP)
         {
-            connect (gTimerSalDat,                  &QTimer::timeout,   this,   [=] {VerifSalleDAttente();});
-            connect (gTimerCorrespondants,          &QTimer::timeout,   this,   [=] {VerifCorrespondants();});
-            connect (gTimerVerifVerrou,             &QTimer::timeout,   this,   [=] {VerifVerrouDossier();});
-            connect (gTimerVerifMessages,           &QTimer::timeout,   this,   [=] {VerifMessages();});
-            connect (gTimerVerifImportateurDocs,    &QTimer::timeout,   this,   [=] {VerifImportateur();});
+            connect (gTimerSalDat,                  &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
+            connect (gTimerCorrespondants,          &QTimer::timeout,   this,   &Rufus::VerifCorrespondants);
+            connect (gTimerVerifVerrou,             &QTimer::timeout,   this,   &Rufus::VerifVerrouDossier);
+            connect (gTimerVerifMessages,           &QTimer::timeout,   this,   &Rufus::VerifMessages);
+            connect (gTimerVerifImportateurDocs,    &QTimer::timeout,   this,   &Rufus::VerifImportateur);
             connect (gTimerImportDocsExternes,      &QTimer::timeout,   this,   &Rufus::ImportDocsExternes);
             if (db->getMode() != DataBase::Distant)
-                connect(gTimerSupprDocs,                &QTimer::timeout,   this,   [=] {SupprimerDocsEtFactures();});
+                connect(gTimerSupprDocs,                &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         }
     }
     else
@@ -5565,6 +5578,7 @@ void Rufus::VerifMessages()
 void Rufus::VerifSalleDAttente()
 {
     int flagsaldat = proc->GetflagSalDat();
+    //qDebug() << "VerifSalleDAttente()" << "gflagSalDat = " << gflagSalDat << "fagsaldat = " << flagsaldat << "gTimerSalDat interval = " << gTimerSalDat->interval();
     if (gflagSalDat < flagsaldat)
     {
         gflagSalDat = flagsaldat;

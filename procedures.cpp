@@ -325,8 +325,10 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
     if (!OKTCP || db->getMode() == DataBase::Distant)
     {
+        //qDebug() << "MAJTcpMsgEtFlagSalDat()";
         if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
+        //qDebug() << "MAJTcpMsgEtFlagSalDat() lock OK";
         QSqlQuery quer("select MAJflagSalDat from " NOM_TABLE_FLAGS, db->getDataBase());
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagSalDat) VALUES (1)";
         int a = 0;
@@ -1962,7 +1964,7 @@ bool Procedures::UtiliseTCP()
 {
     QString req = "select iduser from " NOM_TABLE_USERSCONNECTES " where iduser = (select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
     int a = QSqlQuery(req, db->getDataBase()).size();
-    OKTCP = (a>0  && db->getMode() != DataBase::Distant);
+    OKTCP = a>0;
     return OKTCP;
 }
 

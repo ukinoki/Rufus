@@ -365,6 +365,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                         continue;
                     }
                     idPatient = patlst.at(0).toString();
+                    qDebug() << idPatient;
                 }
                 else if (Appareil == "TOPCON ALADDIN II")
                     idPatient           = nomdoc.split("_").at(0);
@@ -430,6 +431,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                     continue;
                 }
                 identpat = patlst.at(0).toString() + " " + patlst.at(1).toString();
+                qDebug() << identpat;
 
                 /* _______________________________________________________________________________________________________________________________________________________
                  * Enregistrement du fichier dans la base
@@ -439,7 +441,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                 */
                 db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS);
                 int idimpr(0);
-                idimpr = db->selectMaxFromTable("idimpression",  NOM_TABLE_IMPRESSIONS);
+                idimpr = db->selectMaxFromTable("idimpression",  NOM_TABLE_IMPRESSIONS)+1;
 
                 QString NomFileDoc = idPatient + "_"
                         + Typedoc + "_"

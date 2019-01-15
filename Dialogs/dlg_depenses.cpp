@@ -691,6 +691,9 @@ void dlg_depenses::ChoixMenu(QString choix)
         ui->OKupPushButton              ->setShortcut(QKeySequence());
         ModifierupPushButton            ->setShortcut(QKeySequence());
         EnregupPushButton               ->setShortcut(QKeySequence("Meta+Return"));
+        ui->EcheancierupPushButton      ->setVisible(false);
+        ui->FactureupPushButton         ->setVisible(false);
+        ui->VisuDocupTableWidget        ->setVisible(false);
     }
 }
 

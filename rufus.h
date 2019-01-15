@@ -236,6 +236,7 @@ private:
     int                     idRefraction;
     int                     gMode;
     int                     gTotalMessages, gTotalNvxMessages;
+    int                     idAdministrateur;
     bool                    gAffichTotalMessages;
     enum gMode              {NouveauDossier, Liste, RechercheDDN};
     QDate                   gdateParDefaut, gDDNPatient;
