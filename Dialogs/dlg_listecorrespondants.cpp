@@ -63,7 +63,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     globallayout->insertWidget(0,widgButtons->widgButtonParent());
 
     connect(OKButton,           SIGNAL(clicked(bool)),                  this,   SLOT(reject()));
-    connect(ChercheUplineEdit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, true, false);
+    connect(ChercheUplineEdit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     ChercheUplineEdit->setText(txt);
                                                                                                     ReconstruitListeCorrespondants(txt);});
     connect(widgButtons,        &WidgetButtonFrame::choix,              this,   [=] (int i) {ChoixButtonFrame(i);});

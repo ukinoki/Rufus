@@ -365,7 +365,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                         continue;
                     }
                     idPatient = patlst.at(0).toString();
-                    qDebug() << idPatient;
+                    //qDebug() << idPatient;
                 }
                 else if (Appareil == "TOPCON ALADDIN II")
                     idPatient           = nomdoc.split("_").at(0);
@@ -431,7 +431,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                     continue;
                 }
                 identpat = patlst.at(0).toString() + " " + patlst.at(1).toString();
-                qDebug() << identpat;
+                //qDebug() << identpat;
 
                 /* _______________________________________________________________________________________________________________________________________________________
                  * Enregistrement du fichier dans la base
