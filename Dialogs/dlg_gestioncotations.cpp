@@ -43,7 +43,7 @@ dlg_gestioncotations::dlg_gestioncotations(QString TypeActe, QString Mode , QStr
     ui->TarifPratiqueupLineEdit                 ->setValidator(val);
     ui->CodeActeupLineEdit                      ->setText(CodeActe);
 
-    connect(OKButton,   &QPushButton::clicked,  [=] {if (VerifFiche()) accept();});
+    connect(OKButton,   &QPushButton::clicked,  this, [=] {if (VerifFiche()) accept();});
 }
 
 dlg_gestioncotations::~dlg_gestioncotations()
@@ -54,9 +54,9 @@ dlg_gestioncotations::~dlg_gestioncotations()
 void dlg_gestioncotations::Initialise()
 {
     //TODO : SQL
-    proc                    = Procedures::I();
-    gidUser                 = DataBase::getInstance()->getUserConnected()->id();
-    gSecteurUser            = proc->getUserConnected()->getSecteur();
+    db                      = DataBase::getInstance();
+    gidUser                 = db->getUserConnected()->id();
+    gSecteurUser            = db->getUserConnected()->getSecteur();
     if (gTypeActe != HorsNomenclature)
     {
         ui->CodeActeupLineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
@@ -108,14 +108,12 @@ void dlg_gestioncotations::Initialise()
 
     if (gMode == Creation)
     {
-        QSqlQuery typeactequery(req,DataBase::getInstance()->getDataBase());
-        if (typeactequery.size()>0)
+        bool ok;
+        QList<QList<QVariant>> listtypacte = db->StandardSelectSQL(req, ok);
+        if (ok && listtypacte.size()>0)
         {
-            for (int i=0; i<typeactequery.size(); i++)
-            {
-                typeactequery.seek(i);
-                glistActes << typeactequery.value(0).toString();
-            }
+            for (int i=0; i<listtypacte.size(); i++)
+                glistActes << listtypacte.at(i).at(0).toString();
             QCompleter *complistactes = new QCompleter(glistActes,this);
             complistactes->setCompletionMode(QCompleter::InlineCompletion);
             ui->CodeActeupLineEdit->setCompleter(complistactes);
@@ -125,13 +123,13 @@ void dlg_gestioncotations::Initialise()
     {
         ui->CodeActeupLineEdit->setText(gCodeActe);
         req = " select montantoptam, montantnonoptam, montantpratique from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
-        QSqlQuery actequer(req,DataBase::getInstance()->getDataBase());
-        if (actequer.size()>0)
+        bool ok;
+        QList<QVariant> listcot = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (ok && listcot.size()>0)
         {
-            actequer.first();
-            ui->TarifOPTAMupLineEdit    ->setText(QLocale().toString(actequer.value(0).toDouble(),'f',2));
-            ui->TarifNonOPTAMupLineEdit ->setText(QLocale().toString(actequer.value(1).toDouble(),'f',2));
-            ui->TarifPratiqueupLineEdit ->setText(QLocale().toString(actequer.value(2).toDouble(),'f',2));
+            ui->TarifOPTAMupLineEdit    ->setText(QLocale().toString(listcot.at(0).toDouble(),'f',2));
+            ui->TarifNonOPTAMupLineEdit ->setText(QLocale().toString(listcot.at(1).toDouble(),'f',2));
+            ui->TarifPratiqueupLineEdit ->setText(QLocale().toString(listcot.at(2).toDouble(),'f',2));
         }
     }
 }
@@ -168,9 +166,10 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (gMode == Creation)
         {
-            req = "select from " NOM_TABLE_COTATIONS " where typeacte = " + ui->CodeActeupLineEdit->text() + " and CCAM = 2 and idUser = " + QString::number(gidUser);
-            QSqlQuery quer1(req,DataBase::getInstance()->getDataBase());
-            if (quer1.size()>0)
+            req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = " + ui->CodeActeupLineEdit->text() + " and CCAM = 2 and idUser = " + QString::number(gidUser);
+            bool ok;
+            QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+            if (ok && actdata.size()>0)
             {
                 a = false;
                 UpMessageBox::Watch(this, msg, tr("Cet acte est déjà enregistré"));
@@ -208,9 +207,10 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (gMode == Creation)
         {
-            req = "select from " NOM_TABLE_COTATIONS " where typeacte = " + ui->CodeActeupLineEdit->text() + " and CCAM = 3 and idUser = " + QString::number(gidUser);
-            QSqlQuery quer1(req,DataBase::getInstance()->getDataBase());
-            if (quer1.size()>0)
+            req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = " + ui->CodeActeupLineEdit->text() + " and CCAM = 3 and idUser = " + QString::number(gidUser);
+            bool ok;
+            QList<QVariant> cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+            if (ok && cotdata.size()>0)
             {
                 a = false;
                 UpMessageBox::Watch(this, msg, tr("Cet acte est déjà enregistré"));
@@ -245,7 +245,6 @@ bool dlg_gestioncotations::VerifFiche()
     }
     if (!a)
         return false;
-    QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
-    DataBase::getInstance()->traiteErreurRequete(quer,req,"");
+    db->StandardSQL(req);
     return true;
 }

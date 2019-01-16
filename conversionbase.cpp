@@ -158,7 +158,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             if (ALDQ) ALD100 = "1";
             query.bindValue(":ald", ALD100);
             query.exec();
-            DataBase::getInstance()->traiteErreurRequete(query,"problème pour enregistrer une prescription du patient " + nom.toUpper() + " " + prenom, "");
+            DataBase::getInstance()->erreurRequete(query,"problème pour enregistrer une prescription du patient " + nom.toUpper() + " " + prenom, "");
             ordoquery.next();
             if (b==100)
                 b=0;
@@ -220,7 +220,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                     + ")";
             insertreq = "insert into " NOM_TABLE_REFRACTION " (idPat, idActe, DateRefraction, QuelleMesure, SphereOD, CylindreOD, AxeCylindreOD, SphereOG, CylindreOG, AxeCylindreOG, AddVPOD, AddVPOG,"
                                                             "AVLOD, AVLOG, AVPOD, AVPOG) values " + ref;
-            DataBase::getInstance()->traiteErreurRequete(QSqlQuery(insertreq,db),insertreq,"");
+            DataBase::getInstance()->erreurRequete(QSqlQuery(insertreq,db),insertreq,"");
             refquery.next();
         }
         proc->Message("table " NOM_TABLE_REFRACTION " importée",1000);
@@ -253,7 +253,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                             + "',1)";
             insertreq = "insert into " NOM_TABLE_PATIENTS " (idpat,patnom,patprenom,patDDN, Sexe, patCreele, Patcreepar) values \n" + listpat;
             //proc->Edit(insertreq);
-            DataBase::getInstance()->traiteErreurRequete(QSqlQuery(insertreq,db),insertreq,"");
+            DataBase::getInstance()->erreurRequete(QSqlQuery(insertreq,db),insertreq,"");
 
 
             if (pat.value(10).toString() == "")     NNI = "null";   else NNI = QString::number(pat.value(10).toInt());
@@ -268,7 +268,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                             + Utils::correctquoteSQL(pat.value(12).toString().left(45)) + "')";
             insertreq = "insert into " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idpat,patAdresse1,Patcodepostal,patville,pattelephone,patNNI,patALD,patprofession) values \n" + listsocpat;
             //proc->Edit(insertreq);
-            DataBase::getInstance()->traiteErreurRequete(QSqlQuery(insertreq,db),insertreq,"");
+            DataBase::getInstance()->erreurRequete(QSqlQuery(insertreq,db),insertreq,"");
 
             if (Utils::correctquoteSQL(pat.value(13).toString())!= ""
                     || Utils::correctquoteSQL(pat.value(14).toString())!= ""
@@ -283,7 +283,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                         + Utils::correctquoteSQL(pat.value(16).toString()) + "')";
                 insertreq = "insert into " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " (idpat,RMPTtGeneral, RMPTtOphs, RMPAtcdtsOPhs, RMPAtcdtsFamiliaux) values \n" + listrmppat;
                 //proc->Edit(insertreq);
-                DataBase::getInstance()->traiteErreurRequete(QSqlQuery(insertreq,db),insertreq,"");
+                DataBase::getInstance()->erreurRequete(QSqlQuery(insertreq,db),insertreq,"");
             }
 
             pat.next();
@@ -294,7 +294,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         for (int i=0;i<patnom.size();i++)
         {
             req = "update " NOM_TABLE_PATIENTS " set Patnom = '" + Utils::correctquoteSQL(Utils::trimcapitilize(patnom.value(1).toString())) + "' where idpat = "  + patnom.value(0).toString();
-            DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
+            DataBase::getInstance()->erreurRequete(QSqlQuery(req,db),req,"");
             patnom.next();
         }
 
@@ -326,7 +326,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                             + "')";
             insertreq = "insert into " NOM_TABLE_ACTES " (idActe,idpat,ActeDate,Actemotif, ActeConclusion, ActeHeure) values \n" + listpat;
             //proc->Edit(insertreq);
-            DataBase::getInstance()->traiteErreurRequete(QSqlQuery(insertreq,db),insertreq,"");
+            DataBase::getInstance()->erreurRequete(QSqlQuery(insertreq,db),insertreq,"");
 
             acte.next();
         }
@@ -425,7 +425,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                 req = "update " NOM_TABLE_ACTES " set Actetexte = '" + Utils::correctquoteSQL(txtCs) + "', idUser = " + idUser + ", ActeMontant = " + csquery.value(5).toString() + ", CreePar = " + idUser +
                         " where idActe = " + idActe;
                 //proc->Edit(req);
-                DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
+                DataBase::getInstance()->erreurRequete(QSqlQuery(req,db),req,"");
             }
             else
             {
@@ -442,7 +442,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                             + ")";
                 insertreq = "insert into " NOM_TABLE_ACTES " (idActe, idPat, idUser, ActeDate, ActeTexte, ActeMontant, ActeHeure, CreePar) values \n" + listpat;
                 //proc->Edit(insertreq);
-                DataBase::getInstance()->traiteErreurRequete(QSqlQuery(insertreq,db),insertreq,"");
+                DataBase::getInstance()->erreurRequete(QSqlQuery(insertreq,db),insertreq,"");
             }
             csquery.next();
         }
@@ -457,7 +457,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         {
             req = "update " NOM_TABLE_ACTES " set actecotation = '" + Utils::correctquoteSQL(cotquery.value(1).toString().left(20)) +
                     "' where idacte = " + cotquery.value(0).toString();
-            DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
+            DataBase::getInstance()->erreurRequete(QSqlQuery(req,db),req,"");
             cotquery.next();
         }
         QSqlQuery("update " NOM_TABLE_ACTES " set actecotation = 'xxx' where actecotation is null",db);
@@ -475,15 +475,15 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             if (pai.value(1).toDouble()==0)
                 typepai = "G";
             req = "insert into " NOM_TABLE_TYPEPAIEMENTACTES " (idacte, typepaiement) values (" + pai.value(0).toString() + ",'" + typepai + "')";
-            DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
+            DataBase::getInstance()->erreurRequete(QSqlQuery(req,db),req,"");
             if (typepai=="E")
             {
                 req = "insert into " NOM_TABLE_LIGNESPAIEMENTS " (idacte, idRecette, Paye) values (" + pai.value(0).toString() + "," + pai.value(0).toString() + "," + pai.value(1).toString() + ")";
-                DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
+                DataBase::getInstance()->erreurRequete(QSqlQuery(req,db),req,"");
                 req = "insert into " NOM_TABLE_RECETTES " (idRecette, idUser, DatePaiement, DateEnregistrement, Montant, Modepaiement,Monnaie, EnregistrePar,TypeRecette) values (" +
                         pai.value(0).toString() + "," + pai.value(2).toString() + ",'" + DateCreation.toString("yyyy-MM-dd") + "','" + DateCreation.toString("yyyy-MM-dd") + "'," +
                         pai.value(1).toString() + ",'E','E'," + pai.value(2).toString() + ",1)";
-                DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
+                DataBase::getInstance()->erreurRequete(QSqlQuery(req,db),req,"");
             }
             pai.next();
         }
@@ -508,18 +508,18 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                     "','" + Utils::correctquoteSQL(med.value(6).toString().left(17)) +
                     "','" + Utils::correctquoteSQL(med.value(7).toString().left(17)) +
                     "',1,'" + Utils::correctquoteSQL(med.value(8).toString().left(45)) + "')";
-            DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
+            DataBase::getInstance()->erreurRequete(QSqlQuery(req,db),req,"");
             med.next();
         }
         req = "update " NOM_TABLE_CORRESPONDANTS " set corspecialite = 0 where corspecialite = 'Généraliste'";
-        DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
+        DataBase::getInstance()->erreurRequete(QSqlQuery(req,db),req,"");
         req = " select idCor, cornom from " NOM_TABLE_CORRESPONDANTS;
         QSqlQuery cor(req,db);
         cor.first();
         for (int i=0;i<cor.size();i++)
         {
             req = "update " NOM_TABLE_CORRESPONDANTS " set cornom = '" + Utils::correctquoteSQL(Utils::trimcapitilize(cor.value(1).toString())) + "' where idcor = "  + cor.value(0).toString();
-            DataBase::getInstance()->traiteErreurRequete(QSqlQuery(req,db),req,"");
+            DataBase::getInstance()->erreurRequete(QSqlQuery(req,db),req,"");
             cor.next();
         }
         proc->Message("table " NOM_TABLE_CORRESPONDANTS " importée",1000);

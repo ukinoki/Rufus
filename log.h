@@ -54,7 +54,7 @@ public:
         QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
         QString fileName(dirlog +"/logs_" + datelog + ".txt");
         QFile testfile(fileName);
-        if( testfile.open(QIODevice::ReadWrite) )
+        if( testfile.open(QIODevice::Append) )
         {
             QTextStream out(&testfile);
             QString timelog = QTime::currentTime().toString();
@@ -65,6 +65,27 @@ public:
 
         if( showMessage() )
             UpMessageBox::Show(Q_NULLPTR, msg, infoMsg);
+    }
+    static void MSGSOCKET(QString msg, QString infoMsg = "")
+    {
+        tracesocket("MSG", msg, infoMsg);
+    }
+    static void tracesocket(QString type, QString msg, QString infoMsg = "")
+    {
+        QDir DirRssces;
+        QString dirlog = QDir::homePath() + NOMDIR_RUFUS NOMDIR_LOGS;
+        if (!DirRssces.exists(dirlog))
+            DirRssces.mkdir(dirlog);
+        QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
+        QString fileName(dirlog +"/logs_0skt_" + datelog + ".txt");
+        QFile testfile(fileName);
+        if( testfile.open(QIODevice::Append) )
+        {
+            QTextStream out(&testfile);
+            QString timelog = QTime::currentTime().toString();
+            out << type << " : " << msg << (infoMsg==""? "" : " : " + infoMsg) << " : " << timelog << "\n";
+            testfile.close();
+        }
     }
 };
 

@@ -265,7 +265,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         QString requete = "select idPat from " NOM_TABLE_PATIENTS
                 " where PatNom LIKE '" + PatNom + "%' and PatPrenom LIKE '" + PatPrenom + "%' and PatDDN = '" + PatDDN + "'";
         QSqlQuery IdentPatientQuery (requete,db);
-        if (DataBase::getInstance()->traiteErreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
+        if (DataBase::getInstance()->erreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
         {
             FermeFiche(Reject);
             return;
@@ -296,7 +296,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                     " VALUES "
                     " ('" + PatNom + "', '" + PatPrenom + "', '" + PatDDN + "', NOW(), '" + PatCreePar +"' , '" + gSexePat +"');";
         QSqlQuery InsertPatQuery (insrequete,db);
-        if (DataBase::getInstance()->traiteErreurRequete(InsertPatQuery,insrequete,tr("Impossible de créer le dossier")))
+        if (DataBase::getInstance()->erreurRequete(InsertPatQuery,insrequete,tr("Impossible de créer le dossier")))
         {
             FermeFiche(Reject);
         }
@@ -305,7 +305,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                     " WHERE PatNom = '" + PatNom + "' AND PatPrenom = '" + PatPrenom + "' AND PatDDN = '" + PatDDN + "'";
 
         QSqlQuery ChercheIdPatientQuery (recuprequete,db);
-        if (DataBase::getInstance()->traiteErreurRequete(ChercheIdPatientQuery,recuprequete,tr("Impossible de sélectionner les enregistrements")))
+        if (DataBase::getInstance()->erreurRequete(ChercheIdPatientQuery,recuprequete,tr("Impossible de sélectionner les enregistrements")))
         {
             FermeFiche(Reject);
         }
@@ -313,7 +313,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         gidPatient = ChercheIdPatientQuery.value(0).toInt();              // retourne idPatient
         requete =   "INSERT INTO " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(gidPatient) + "')";
         QSqlQuery CreeDonneeSocialePatientQuery (requete,db);
-        DataBase::getInstance()->traiteErreurRequete(CreeDonneeSocialePatientQuery,requete,tr("Impossible de créer les données sociales"));
+        DataBase::getInstance()->erreurRequete(CreeDonneeSocialePatientQuery,requete,tr("Impossible de créer les données sociales"));
         FermeFiche(Accept);
     }
     else if (lCreatModifCopie == "Modification")
@@ -324,7 +324,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                 Utils::correctquoteSQL(ui->PrenomlineEdit->text()) + "%' and PatDDN = '" +
                 ui->DDNdateEdit->date().toString("yyyy-MM-dd") + "'";
         QSqlQuery IdentPatientQuery (requete,db);
-        if (DataBase::getInstance()->traiteErreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
+        if (DataBase::getInstance()->erreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
             return;
         if (IdentPatientQuery.size() > 0)
         {
@@ -400,7 +400,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS
             " WHERE idPat = '" + QString::number(gidPatient) + "'";
     QSqlQuery AfficheDossierQuery (req,db);
-    if (DataBase::getInstance()->traiteErreurRequete(AfficheDossierQuery,req, tr("Impossible de retrouver le dossier de ce patient")))
+    if (DataBase::getInstance()->erreurRequete(AfficheDossierQuery,req, tr("Impossible de retrouver le dossier de ce patient")))
         return;
     if (AfficheDossierQuery.size() == 0)           // Aucune mesure trouvee pour ces criteres
         return;
@@ -432,7 +432,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
     req = "SELECT idPat, PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille, PatTelephone, PatPortable, PatMail, PatNNI, PatALD, PatProfession, PatCMU FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS
             " WHERE idPat = '" + QString::number(gidPatient) + "'";
     QSqlQuery DonneesSocialesQuery (req,db);
-    if (!DataBase::getInstance()->traiteErreurRequete(DonneesSocialesQuery,req, tr("Impossible de retrouver les données sociales!")))
+    if (!DataBase::getInstance()->erreurRequete(DonneesSocialesQuery,req, tr("Impossible de retrouver les données sociales!")))
     {
         if (DonneesSocialesQuery.size() > 0)
         {
@@ -482,7 +482,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
             NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
             " WHERE idPat = " + QString::number(gidPatient);
     QSqlQuery MGQuery (req,db);
-    if (!DataBase::getInstance()->traiteErreurRequete(MGQuery,req, tr("Impossible de retrouver le médecin traitant!")))
+    if (!DataBase::getInstance()->erreurRequete(MGQuery,req, tr("Impossible de retrouver le médecin traitant!")))
     {
         if (MGQuery.size() > 0)
         {

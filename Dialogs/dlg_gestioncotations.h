@@ -36,7 +36,7 @@ public:
 
 private:
     Ui::dlg_gestioncotations *ui;
-    Procedures  *proc;
+    DataBase    *db;
     int         gMode;      enum gMode      {Creation, Modification};
     int         gTypeActe;  enum gTypeActe  {CCAM, AssocCCAM, HorsNomenclature};
     int         gidUser, gSecteurUser;

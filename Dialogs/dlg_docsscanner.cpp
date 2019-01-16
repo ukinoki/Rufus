@@ -355,7 +355,6 @@ void dlg_docsscanner::ValideFiche()
     }
 
     QString sstypedoc = linetitre->text();
-    QSqlQuery query = QSqlQuery(db->getDataBase());
     int idimpr (0);
     QHash<QString,QVariant> listbinds;
     bool b = false;

@@ -176,7 +176,7 @@ QString Utils::capitilize(QString text)
  * \param text le texte à modifier
  * \param end mettre false si on ne souhaite pas nettoyer la fin du texte
  * \param maj mettre false si on ne souhaite mettre le premier caractère de chaque mot en majuscule
- * \param end mettre false si on ne souhaite pas mettre en minuscule les majuscules situées au milieu des mots
+ * \param lower mettre false si on ne souhaite pas mettre en minuscule les majuscules situées au milieu des mots
  * \return le texte modifié
  */
 QString Utils::trimcapitilize(QString text, bool end, bool maj, bool lower)

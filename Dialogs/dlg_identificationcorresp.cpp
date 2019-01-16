@@ -200,7 +200,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     QString requete = "select idcor, corspecialite, cormedecin from " NOM_TABLE_CORRESPONDANTS
             " where CorNom LIKE '" + CorNom + "%' and CorPrenom LIKE '" + CorPrenom + "%'";
     QSqlQuery IdentCorQuery (requete,db);
-    if (DataBase::getInstance()->traiteErreurRequete(IdentCorQuery,requete, "Impossible d'interroger la table des patients!"))
+    if (DataBase::getInstance()->erreurRequete(IdentCorQuery,requete, "Impossible d'interroger la table des patients!"))
     {
         reject();
         return;
@@ -255,7 +255,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         else if (ui->AutreradioButton->isChecked())
             insrequete += "',null,null,'" + Utils::correctquoteSQL(ui->AutreupLineEdit->text()) + "');";
         QSqlQuery InsertCorQuery (insrequete,db);
-        if (DataBase::getInstance()->traiteErreurRequete(InsertCorQuery,insrequete,tr("Impossible de créer le dossier")))
+        if (DataBase::getInstance()->erreurRequete(InsertCorQuery,insrequete,tr("Impossible de créer le dossier")))
             reject();
         insrequete = "select max(idcor) from " NOM_TABLE_CORRESPONDANTS;
         QSqlQuery CorQuery (insrequete,db);
@@ -290,7 +290,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         Modifrequete += " where idCor =" + QString::number(gidCor);
         //qDebug() <<  Modifrequete;
         QSqlQuery ModifCorQuery (Modifrequete,db);
-        DataBase::getInstance()->traiteErreurRequete(ModifCorQuery,Modifrequete,tr("Impossible de modifier le dossier"));
+        DataBase::getInstance()->erreurRequete(ModifCorQuery,Modifrequete,tr("Impossible de modifier le dossier"));
         if (CorNom != gNomCor || CorPrenom != gPrenomCor)
             modif = true;
         proc->initListeCorrespondants();
@@ -341,7 +341,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
         if (OnlyDoctors)
             requete += " and CorMedecin = 1";
         QSqlQuery AfficheDossierQuery (requete,db);
-        if (DataBase::getInstance()->traiteErreurRequete(AfficheDossierQuery,requete,tr("Impossible de retrouver le dossier de ce correspondant")))
+        if (DataBase::getInstance()->erreurRequete(AfficheDossierQuery,requete,tr("Impossible de retrouver le dossier de ce correspondant")))
             return;
         if (AfficheDossierQuery.size() == 0)           // Aucune mesure trouvee pour ces criteres
             return;
@@ -410,7 +410,7 @@ void dlg_identificationcorresp::ReconstruitListeSpecialites()
     QStringList ListSpec;
     QString req = "SELECT idspecialite, nomspecialite FROM " NOM_TABLE_SPECIALITES " order by nomspecialite";
     QSqlQuery ListSpecQuery (req,db);
-    DataBase::getInstance()->traiteErreurRequete(ListSpecQuery,req,"");
+    DataBase::getInstance()->erreurRequete(ListSpecQuery,req,"");
     for (int i = 0; i < ListSpecQuery.size(); i++)
     {
         ListSpecQuery.seek(i);

@@ -310,7 +310,7 @@ void dlg_paiementdirect::Annuler()
             requete += ")";
 
             QSqlQuery RestaureRecetteQuery (requete,db->getDataBase());
-            db->traiteErreurRequete(RestaureRecetteQuery,requete,"");
+            db->erreurRequete(RestaureRecetteQuery,requete,"");
             LigneRecetteAModifier.clear();
 
             //restaurer la ligne de commission s'il y en a eu une
@@ -325,7 +325,7 @@ void dlg_paiementdirect::Annuler()
                 }
                 requete += ")";
                 QSqlQuery RestaureDepenseQuery (requete,db->getDataBase());
-                db->traiteErreurRequete(RestaureDepenseQuery,requete,"");
+                db->erreurRequete(RestaureDepenseQuery,requete,"");
                 LigneDepenseAModifier.clear();
             }
 
@@ -342,7 +342,7 @@ void dlg_paiementdirect::Annuler()
                 requete += ")";
 
                 QSqlQuery RestaureLigneCompteQuery (requete,db->getDataBase());
-                db->traiteErreurRequete(RestaureLigneCompteQuery,requete,"");
+                db->erreurRequete(RestaureLigneCompteQuery,requete,"");
                 LigneCompteAModifier.clear();
             }
 
@@ -359,7 +359,7 @@ void dlg_paiementdirect::Annuler()
                     requete += ",";
             }
             QSqlQuery RestaureLignesPaiementsQuery (requete,db->getDataBase());
-            db->traiteErreurRequete(RestaureLignesPaiementsQuery,requete,"");
+            db->erreurRequete(RestaureLignesPaiementsQuery,requete,"");
         }
 
         // 3.       restaurer les types de paiement quand il s'agit d'un paiement direct
@@ -367,13 +367,13 @@ void dlg_paiementdirect::Annuler()
         {
             requete = "select idacte FROM " NOM_TABLE_TYPEPAIEMENTACTES " where idActe = " + QString::number(ListeActesAModifier.at(i));
             QSqlQuery TypePaiementQuery (requete,db->getDataBase());
-            db->traiteErreurRequete(TypePaiementQuery,requete,"");
+            db->erreurRequete(TypePaiementQuery,requete,"");
             if (TypePaiementQuery.size() == 0)
             {
                 requete = "INSERT INTO " NOM_TABLE_TYPEPAIEMENTACTES " (idActe,TypePaiement) VALUES "
                                                                      "(" + QString::number(ListeActesAModifier.at(i)) + ",'" + ModePaiementDirectAModifier + "')";
                 QSqlQuery RestaureTypesPaiementsQuery (requete,db->getDataBase());
-                db->traiteErreurRequete(RestaureTypesPaiementsQuery,requete,"");
+                db->erreurRequete(RestaureTypesPaiementsQuery,requete,"");
             }
         }
         gMode = Accueil;
@@ -665,7 +665,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
         DateActe        = QDate::fromString(ui->ListeupTableWidget->item(ab,1)->text(),tr("dd-MM-yyyy"));
         requete = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(idActe);
         QSqlQuery SupprimTypPaiementActe(requete, db->getDataBase());
-        db->traiteErreurRequete(SupprimTypPaiementActe,requete,"");
+        db->erreurRequete(SupprimTypPaiementActe,requete,"");
         gListidActe.clear();
         gListidActe << idActe;
         RemplitLesTables();
@@ -701,7 +701,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
         gidRecette  = ui->SalleDAttenteupTableWidget->item(ab,0)->text().toInt();
         requete = "SELECT idRecette FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(gidRecette);
         QSqlQuery ChercheRecetteQuery (requete,db->getDataBase());
-        db->traiteErreurRequete(ChercheRecetteQuery,requete,"");
+        db->erreurRequete(ChercheRecetteQuery,requete,"");
         if (ChercheRecetteQuery.size() == 0)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment"),
@@ -714,7 +714,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
                 " WHERE idRecette = " + QString::number(gidRecette) +
                 " AND idActe IN (SELECT idActe FROM " NOM_TABLE_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userConnected->id()) + ")";
         QSqlQuery ChercheActesVerrouillesQuery (requete, db->getDataBase());
-        db->traiteErreurRequete(ChercheActesVerrouillesQuery,requete,"");
+        db->erreurRequete(ChercheActesVerrouillesQuery,requete,"");
         if (ChercheActesVerrouillesQuery.size() > 0)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment."),
@@ -742,7 +742,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
                   " EnregistrePar, TypeRecette, datediff(DateEnregistrement,NOW()) as Delai"
                   " FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(gidRecette);
         QSqlQuery RetrouveRecetteQuery(requete,db->getDataBase());
-        if (db->traiteErreurRequete(RetrouveRecetteQuery,requete,"")) return;
+        if (db->erreurRequete(RetrouveRecetteQuery,requete,"")) return;
         //qDebug() << requete;
 
         /* Verifier si on peut modifier la recette - impossible si:
@@ -826,7 +826,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
                 LigneRecetteAModifier << RetrouveRecetteQuery.value(16).toString();                                         //TypeRecette
             requete = "DELETE FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(gidRecette);
             QSqlQuery SupprimLignesRecettesQuery(requete, db->getDataBase());
-            db->traiteErreurRequete(SupprimLignesRecettesQuery,requete,"");
+            db->erreurRequete(SupprimLignesRecettesQuery,requete,"");
 
             ui->SupprimerupPushButton->setVisible(true);
         }
@@ -838,21 +838,21 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
         {
             requete = "SELECT idActe FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(ListeActesAModifier.at(i));
             QSqlQuery ChercheLignesPaiements (requete, db->getDataBase());
-            db->traiteErreurRequete(ChercheLignesPaiements,requete,"");
+            db->erreurRequete(ChercheLignesPaiements,requete,"");
             if (ChercheLignesPaiements.size() > 1)
                 GratuitImpayeVisible = false;
             if (ChercheLignesPaiements.size() == 1)
             {
                 requete = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(ListeActesAModifier.at(i));
                 QSqlQuery DeleteTypePaiementQuery (requete, db->getDataBase());
-                db->traiteErreurRequete(DeleteTypePaiementQuery,requete,"");
+                db->erreurRequete(DeleteTypePaiementQuery,requete,"");
             }
         }
 
         // Nettoyer LignesPaiements
         requete = "DELETE FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idRecette = " + QString::number(gidRecette);
         QSqlQuery SupprimLignesPaiementsQuery(requete, db->getDataBase());
-        db->traiteErreurRequete(SupprimLignesPaiementsQuery,requete,"");
+        db->erreurRequete(SupprimLignesPaiementsQuery,requete,"");
 
         gListidActe = ListeActesAModifier;
         RemplitLesTables();
@@ -1458,7 +1458,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             QSqlQuery ChercheLignesRecettesQuery (requete, db->getDataBase());
             //UpMessageBox::Watch(this,TextidActe + "\n" +requete);
 
-            db->traiteErreurRequete(ChercheLignesRecettesQuery,requete,"");
+            db->erreurRequete(ChercheLignesRecettesQuery,requete,"");
             RemplirTableWidget(ui->SalleDAttenteupTableWidget,"Paiements",ChercheLignesRecettesQuery,false,Qt::Unchecked);
             if (ChercheLignesRecettesQuery.size() == 0)
             {
@@ -1511,7 +1511,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         QString TextidRecette   = TableOrigine->item(Rangee,0)->text();
         requete =   "SELECT TiersPayant FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + TextidRecette;
         QSqlQuery RetrouveTiersPayantQuery(requete, db->getDataBase());
-        if (db->traiteErreurRequete(RetrouveTiersPayantQuery,requete,"")) return;
+        if (db->erreurRequete(RetrouveTiersPayantQuery,requete,"")) return;
         if (RetrouveTiersPayantQuery.size() > 0)
         {
             RetrouveTiersPayantQuery.first();
@@ -1553,7 +1553,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
 
             //UpMessageBox::Watch(this,requete);
             QSqlQuery ChercheDetailsPaiementQuery (requete, db->getDataBase());
-            db->traiteErreurRequete(ChercheDetailsPaiementQuery,requete,"");
+            db->erreurRequete(ChercheDetailsPaiementQuery,requete,"");
 
             RemplirTableWidget(ui->DetailupTableWidget,"Actes",ChercheDetailsPaiementQuery,false,Qt::Unchecked);
 
@@ -1561,7 +1561,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             requete =   "SELECT idRecette, idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, CompteVirement, BanqueCheque, TiersPayant, NomTiers, Commission, Monnaie, idRemise, EnAttente, EnregistrePar, TypeRecette FROM " NOM_TABLE_RECETTES
                         " WHERE idRecette = " + TextidRecette;
             QSqlQuery ChercheDetailsRecetteQuery (requete, db->getDataBase());
-            db->traiteErreurRequete(ChercheDetailsRecetteQuery,requete,"");
+            db->erreurRequete(ChercheDetailsRecetteQuery,requete,"");
             ChercheDetailsRecetteQuery.first();
             ui->dateEdit->setDate(ChercheDetailsRecetteQuery.value(2).toDate());
             QRadioButton *RadioAClicker = Q_NULLPTR;
@@ -1899,7 +1899,7 @@ void dlg_paiementdirect::PoseVerrouCompta(int ActeAVerrouiller)
                 " VALUES ("  + QString::number(ActeAVerrouiller) +
                 ", NOW() ,"  + QString::number(m_userConnected->id()) + ")";
         QSqlQuery verrouilleAttentePaiementQuery (VerrouilleEnreg, db->getDataBase());
-        db->traiteErreurRequete(verrouilleAttentePaiementQuery,VerrouilleEnreg,"");
+        db->erreurRequete(verrouilleAttentePaiementQuery,VerrouilleEnreg,"");
     }
 }
 
@@ -1961,7 +1961,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     QString req = "SELECT PatNom FROM " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act"
                                   " WHERE pat.idPat = act.idPat and idActe = " + ui->DetailupTableWidget->item(0,0)->text();
                     QSqlQuery ChercheNomPatQuery (req, db->getDataBase());
-                    db->traiteErreurRequete(ChercheNomPatQuery,req,"");
+                    db->erreurRequete(ChercheNomPatQuery,req,"");
                     ChercheNomPatQuery.first();
                     ui->TireurChequelineEdit->setText(ChercheNomPatQuery.value(0).toString());
                 }
@@ -2268,7 +2268,7 @@ void dlg_paiementdirect::RemplitLesTables()
 
         //proc->Edit(requete);
         QSqlQuery ListeActesQuery (requete, db->getDataBase());
-        db->traiteErreurRequete(ListeActesQuery,requete,"");
+        db->erreurRequete(ListeActesQuery,requete,"");
         RemplirTableWidget(ui->ListeupTableWidget, "Actes", ListeActesQuery, true, Qt::Unchecked);
         if (ui->ListeupTableWidget->rowCount() > 0)
             connect (ui->ListeupTableWidget,    SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
@@ -2285,7 +2285,7 @@ void dlg_paiementdirect::RemplitLesTables()
                     " ORDER BY ActeDate DESC, PatNom, PatPrenom";
         //proc->Edit(requete);
         QSqlQuery SalDatQuery (requete, db->getDataBase());
-        db->traiteErreurRequete(SalDatQuery,requete,"");
+        db->erreurRequete(SalDatQuery,requete,"");
         RemplirTableWidget(ui->SalleDAttenteupTableWidget,"Actes", SalDatQuery, true, Qt::Unchecked);
 
         //3. Remplissage ui->DetailupTableWidget
@@ -2355,7 +2355,7 @@ void dlg_paiementdirect::RemplitLesTables()
         //UpMessageBox::Watch(this,requete);
 
         QSqlQuery ListeActesQuery (requete, db->getDataBase());
-        db->traiteErreurRequete(ListeActesQuery,requete,"");
+        db->erreurRequete(ListeActesQuery,requete,"");
         RemplirTableWidget(ui->ListeupTableWidget,"Actes", ListeActesQuery, false, Qt::Unchecked);
         if (ui->ListeupTableWidget->rowCount() > 0)
         {
@@ -2779,7 +2779,7 @@ void dlg_paiementdirect::RetireVerrouCompta(int ActeADeverrouiller)
     QString VerrouilleEnreg= "DELETE FROM " NOM_TABLE_VERROUCOMPTAACTES
             " WHERE idActe = " + QString::number(ActeADeverrouiller);
     QSqlQuery verrouilleAttentePaiementQuery (VerrouilleEnreg, db->getDataBase());
-    db->traiteErreurRequete(verrouilleAttentePaiementQuery,VerrouilleEnreg,"");
+    db->erreurRequete(verrouilleAttentePaiementQuery,VerrouilleEnreg,"");
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2852,7 +2852,7 @@ int dlg_paiementdirect::EnregistreRecette()
                                             " WHERE pat.idPat = act.idPat"
                                             " AND act.idActe = " + ui->DetailupTableWidget->item(0,0)->text();
                     QSqlQuery ChercheNomPatQuery (ChercheNomPat, db->getDataBase());
-                    if (DataBase::getInstance()->traiteErreurRequete(ChercheNomPatQuery,ChercheNomPat,""))
+                    if (DataBase::getInstance()->erreurRequete(ChercheNomPatQuery,ChercheNomPat,""))
                     {
                         DataBase::getInstance()->rollback();
                         return Impossible;
@@ -2871,7 +2871,7 @@ int dlg_paiementdirect::EnregistreRecette()
                 EnregRecetterequete += "'," + QString::number(QLocale().toDouble(ui->CommissionlineEdit->text())) +")";
             //proc->Edit(EnregRecetterequete);
             QSqlQuery EnregRecetteQuery (EnregRecetterequete,db->getDataBase());
-            if (DataBase::getInstance()->traiteErreurRequete(EnregRecetteQuery,EnregRecetterequete,"Impossible d'enregistrer cette ligne de recette"))
+            if (DataBase::getInstance()->erreurRequete(EnregRecetteQuery,EnregRecetterequete,"Impossible d'enregistrer cette ligne de recette"))
             {
                 DataBase::getInstance()->rollback();
                 return Impossible;
@@ -2880,7 +2880,7 @@ int dlg_paiementdirect::EnregistreRecette()
 
             QString ChercheMaxrequete = "SELECT Max(idRecette) FROM " NOM_TABLE_RECETTES;
             QSqlQuery ChercheMaxidRecetteQuery (ChercheMaxrequete,db->getDataBase());
-            if (DataBase::getInstance()->traiteErreurRequete(ChercheMaxidRecetteQuery, ChercheMaxrequete,""))
+            if (DataBase::getInstance()->erreurRequete(ChercheMaxidRecetteQuery, ChercheMaxrequete,""))
             {
                 DataBase::getInstance()->rollback();
                 return Impossible;
@@ -2897,7 +2897,7 @@ int dlg_paiementdirect::EnregistreRecette()
                         + "', 'Virement créditeur " + Utils::correctquoteSQL(ui->TierscomboBox->currentText()) + "',"
                         + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) + ",1,'Virement créditeur')";
                 QSqlQuery CompleteLigneCompteQuery (InsertComptrequete,db->getDataBase());
-                if (DataBase::getInstance()->traiteErreurRequete(CompleteLigneCompteQuery,InsertComptrequete,""))
+                if (DataBase::getInstance()->erreurRequete(CompleteLigneCompteQuery,InsertComptrequete,""))
                 {
                     DataBase::getInstance()->rollback();
                     return Impossible;
@@ -2909,7 +2909,7 @@ int dlg_paiementdirect::EnregistreRecette()
             {
                 QString SelectMaxrequete = "select max(iddep) + 1 from " NOM_TABLE_DEPENSES;
                 QSqlQuery RecupereMaxQuery (SelectMaxrequete, db->getDataBase());
-                if (DataBase::getInstance()->traiteErreurRequete(RecupereMaxQuery,SelectMaxrequete,""))
+                if (DataBase::getInstance()->erreurRequete(RecupereMaxQuery,SelectMaxrequete,""))
                 {
                     DataBase::getInstance()->rollback();
                     return Impossible;
@@ -2931,7 +2931,7 @@ int dlg_paiementdirect::EnregistreRecette()
                 InsertDeprequete +=  "', " +  QString::number(QLocale().toDouble(ui->CommissionlineEdit->text()));              // Montant
                 QString chercheFamFiscale = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '" + Utils::correctquoteSQL(intitule2035) +"'";
                 QSqlQuery cherchefamfiscalequery (chercheFamFiscale,db->getDataBase());
-                if (DataBase::getInstance()->traiteErreurRequete(cherchefamfiscalequery,chercheFamFiscale,""))
+                if (DataBase::getInstance()->erreurRequete(cherchefamfiscalequery,chercheFamFiscale,""))
                 {
                     DataBase::getInstance()->rollback();
                     return Impossible;
@@ -2947,7 +2947,7 @@ int dlg_paiementdirect::EnregistreRecette()
                 InsertDeprequete += ", 'P'";                                                                                    // ModePaiement = P pour prélèvement
                 InsertDeprequete += ", " + idCompte + ")";
                 QSqlQuery CompleteDepensesQuery (InsertDeprequete,db->getDataBase());
-                if (DataBase::getInstance()->traiteErreurRequete(CompleteDepensesQuery,InsertDeprequete,""))
+                if (DataBase::getInstance()->erreurRequete(CompleteDepensesQuery,InsertDeprequete,""))
                 {
                     DataBase::getInstance()->rollback();
                     return Impossible;
@@ -2961,7 +2961,7 @@ int dlg_paiementdirect::EnregistreRecette()
                             + idCompte + "," + max + "," + QString::number(gidRecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
                             + "', '" + Commission + "'," + QString::number(QLocale().toDouble(ui->CommissionlineEdit->text())) + ",0,'Prélèvement')";
                     QSqlQuery CompleteLigneCompteQuery (InsertComrequete,db->getDataBase());
-                    if (DataBase::getInstance()->traiteErreurRequete(CompleteLigneCompteQuery,InsertComrequete,""))
+                    if (DataBase::getInstance()->erreurRequete(CompleteLigneCompteQuery,InsertComrequete,""))
                     {
                         DataBase::getInstance()->rollback();
                         return Impossible;
@@ -3002,7 +3002,7 @@ int dlg_paiementdirect::EnregistreRecette()
                 Updaterequete += " WHERE idRecette = " + QString::number(gidRecette);
                 //        UpMessageBox::Watch(this,Updaterequete);
                 QSqlQuery UpdateRecetteQuery (Updaterequete,db->getDataBase());
-                if (DataBase::getInstance()->traiteErreurRequete(UpdateRecetteQuery,Updaterequete,tr("Impossible de mettre à jour cette ligne de recette")))
+                if (DataBase::getInstance()->erreurRequete(UpdateRecetteQuery,Updaterequete,tr("Impossible de mettre à jour cette ligne de recette")))
                 {
                     DataBase::getInstance()->rollback();
                     return Impossible;
@@ -3030,7 +3030,7 @@ int dlg_paiementdirect::EnregistreRecette()
                         + ActeAInserer + "," + PayeAInserer + "," + QString::number(gidRecette) +")";
                 //UpMessageBox::Watch(this,UpdatePmtrequete);
                 QSqlQuery InsertLignesPaiementsQuery (UpdatePmtrequete,db->getDataBase());
-                if (DataBase::getInstance()->traiteErreurRequete(InsertLignesPaiementsQuery,UpdatePmtrequete,tr("Impossible de mettre à jour la table LignesPaiements")))
+                if (DataBase::getInstance()->erreurRequete(InsertLignesPaiementsQuery,UpdatePmtrequete,tr("Impossible de mettre à jour la table LignesPaiements")))
                 {
                     DataBase::getInstance()->rollback();
                     return Impossible;
@@ -3073,21 +3073,21 @@ int dlg_paiementdirect::EnregistreRecette()
                 {
                     QString DelPmtrequete = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " where idActe = " + ui->DetailupTableWidget->item(i,0)->text();
                     QSqlQuery DeleteTypPaiementQuery (DelPmtrequete,db->getDataBase());
-                    if (DataBase::getInstance()->traiteErreurRequete(DeleteTypPaiementQuery,DelPmtrequete,tr("Impossible de supprimer le patient de la table TypePaiementActes")))
+                    if (DataBase::getInstance()->erreurRequete(DeleteTypPaiementQuery,DelPmtrequete,tr("Impossible de supprimer le patient de la table TypePaiementActes")))
                     {
                         DataBase::getInstance()->rollback();
                         return Impossible;
                     }
                     QString InsPmtrequete = "INSERT INTO " NOM_TABLE_TYPEPAIEMENTACTES " (idActe, TypePaiement) VALUES (" + ui->DetailupTableWidget->item(i,0)->text() + ",'G')";
                     QSqlQuery InsertTypPaiementQuery (InsPmtrequete,db->getDataBase());
-                    if (DataBase::getInstance()->traiteErreurRequete(InsertTypPaiementQuery,InsPmtrequete,""))
+                    if (DataBase::getInstance()->erreurRequete(InsertTypPaiementQuery,InsPmtrequete,""))
                     {
                         DataBase::getInstance()->rollback();
                         return Impossible;
                     }
                     QString UpdPmtrequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMontant = 0 WHERE idActe = " + ui->DetailupTableWidget->item(i,0)->text();
                     QSqlQuery UpdateMontantActeQuery (UpdPmtrequete,db->getDataBase());
-                    if (DataBase::getInstance()->traiteErreurRequete(UpdateMontantActeQuery,UpdPmtrequete,""))
+                    if (DataBase::getInstance()->erreurRequete(UpdateMontantActeQuery,UpdPmtrequete,""))
                     {
                         DataBase::getInstance()->rollback();
                         return Impossible;
@@ -3102,7 +3102,7 @@ int dlg_paiementdirect::EnregistreRecette()
             QString ActeAInserer = ui->DetailupTableWidget->item(i,0)->text();
             QString Del2Pmtrequete = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " where idActe = " + ActeAInserer;
             QSqlQuery DeleteTypPaiementQuery (Del2Pmtrequete,db->getDataBase());
-            if (DataBase::getInstance()->traiteErreurRequete(DeleteTypPaiementQuery,Del2Pmtrequete,tr("Impossible de supprimer le patient de la table TypePaiementActes")))
+            if (DataBase::getInstance()->erreurRequete(DeleteTypPaiementQuery,Del2Pmtrequete,tr("Impossible de supprimer le patient de la table TypePaiementActes")))
             {
                 DataBase::getInstance()->rollback();
                 return Impossible;
@@ -3134,7 +3134,7 @@ int dlg_paiementdirect::EnregistreRecette()
             QString Ins2Pmtrequete = "INSERT INTO " NOM_TABLE_TYPEPAIEMENTACTES " (idActe,TypePaiement,Tiers) VALUES ("
                     + ActeAInserer + "," + ModePaiement + "," + TypeTiers +")";
             QSqlQuery InsertTypePaiementQuery (Ins2Pmtrequete,db->getDataBase());
-            if (DataBase::getInstance()->traiteErreurRequete(InsertTypePaiementQuery,Ins2Pmtrequete,tr("Impossible de mettre à jour la table LignesPaiements")))
+            if (DataBase::getInstance()->erreurRequete(InsertTypePaiementQuery,Ins2Pmtrequete,tr("Impossible de mettre à jour la table LignesPaiements")))
             {
                 DataBase::getInstance()->rollback();
                 return Impossible;
@@ -3149,7 +3149,7 @@ int dlg_paiementdirect::EnregistreRecette()
             QString ActeAInserer = ui->DetailupTableWidget->item(i,0)->text();
             QString DelSDatrequete = "DELETE FROM " NOM_TABLE_SALLEDATTENTE " where idActeAPayer = " + ActeAInserer;
             QSqlQuery DeleteSalDatQuery (DelSDatrequete,db->getDataBase());
-            if (DataBase::getInstance()->traiteErreurRequete(DeleteSalDatQuery,DelSDatrequete,tr("Impossible de supprimer le patient de la salle d'attente")))
+            if (DataBase::getInstance()->erreurRequete(DeleteSalDatQuery,DelSDatrequete,tr("Impossible de supprimer le patient de la salle d'attente")))
             {
                 DataBase::getInstance()->rollback();
                 return Impossible;
@@ -3200,7 +3200,7 @@ void dlg_paiementdirect::NettoieVerrousCompta()
 {
     QString NettoieVerrousComptaActesRequete = "delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(m_userConnected->id()) + " or PosePar is null";
     QSqlQuery NettoieVerrousComptaActesQuery (NettoieVerrousComptaActesRequete, db->getDataBase());
-    db->traiteErreurRequete(NettoieVerrousComptaActesQuery,NettoieVerrousComptaActesRequete,"");
+    db->erreurRequete(NettoieVerrousComptaActesQuery,NettoieVerrousComptaActesRequete,"");
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3492,7 +3492,7 @@ bool dlg_paiementdirect::VerifVerrouCompta(UpTableWidget *TableAVerifier, int Ra
                      " AND PosePar = idUser";
     //UpMessageBox::Watch(this,ChercheVerrou);
     QSqlQuery ChercheVerrouQuery (ChercheVerrou, db->getDataBase());
-    db->traiteErreurRequete(ChercheVerrouQuery, ChercheVerrou,"");
+    db->erreurRequete(ChercheVerrouQuery, ChercheVerrou,"");
     if (ChercheVerrouQuery.size() > 0)
     {
         ChercheVerrouQuery.first();

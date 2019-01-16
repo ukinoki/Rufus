@@ -32,7 +32,7 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     widgButtons = new WidgetButtonFrame(ui->ComupTableWidget);
     widgButtons->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
-    db = DataBase::getInstance()->getDataBase();
+    db = DataBase::getInstance();
     QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(layout());
     globallay->insertWidget(0,ui->textFrame);
     globallay->insertWidget(0,widgButtons->widgButtonParent());
@@ -376,8 +376,8 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
             b = "1";
             lbldef->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled
         }
-        QSqlQuery ("update " NOM_TABLE_COMMENTAIRESLUNETTES " set ParDefautComment = " + b +
-                   " where idCommentLunet = " + ui->ComupTableWidget->item(row,3)->text(),db);
+        db->StandardSQL ("update " NOM_TABLE_COMMENTAIRESLUNETTES " set ParDefautComment = " + b +
+                   " where idCommentLunet = " + ui->ComupTableWidget->item(row,3)->text());
     }
     else if (choix  == "CreerCom")
     {
@@ -875,8 +875,7 @@ void dlg_commentaires::InsertCommentaire(int row)
             " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->document()->toPlainText()) +
             "','" + Utils::correctquoteSQL(line->text().left(100)) +
             "'," + QString::number(gidUser) + ", null)";
-    QSqlQuery InsertComumentQuery (requete,db);
-    DataBase::getInstance()->traiteErreurRequete(InsertComumentQuery, requete, tr("Erreur d'enregistrement du commentaire dans ") + NOM_TABLE_COURRIERS);
+    db->StandardSQL(requete, tr("Erreur d'enregistrement du commentaire dans ") + NOM_TABLE_COURRIERS);
     Remplir_TableView();
 
     if (ui->ComupTableWidget->rowCount() == 0)
@@ -973,14 +972,13 @@ void dlg_commentaires::Remplir_TableView()
                 (proc->UserSuperviseur() != gidUser? " Or idUser = " + QString::number(proc->UserSuperviseur()) : "") +
                 ((proc->UserParent() != proc->UserSuperviseur())&&(proc->UserParent() != gidUser)? " Or idUser = " + QString::number(proc->UserParent()) : "") +
               " ORDER BY ResumeComment";
-
-    QSqlQuery RemplirTableViewQuery (Remplirtablerequete,db);
-    if (DataBase::getInstance()->traiteErreurRequete(RemplirTableViewQuery, Remplirtablerequete,""))
+    bool ok;
+    QList<QList<QVariant>> listcom = db->StandardSelectSQL(Remplirtablerequete, ok);
+    if (!ok)
         return;
-    ui->ComupTableWidget->setRowCount(RemplirTableViewQuery.size());
-    for (i = 0; i < RemplirTableViewQuery.size(); i++)
+    ui->ComupTableWidget->setRowCount(listcom.size());
+    for (i = 0; i < listcom.size(); i++)
     {
-        RemplirTableViewQuery.seek(i);
         pItem1  = new QTableWidgetItem() ;
         upLine0 = new UpLineEdit() ;
         pItem2  = new QTableWidgetItem() ;
@@ -989,7 +987,7 @@ void dlg_commentaires::Remplir_TableView()
         int col = 0;
         w = new QWidget(ui->ComupTableWidget);
         Check = new UpCheckBox(w);
-        Check->setChecked(RemplirTableViewQuery.value(1).toInt() == 1);
+        Check->setChecked(listcom.at(i).at(1).toInt() == 1);
         Check->setRowTable(i);
         Check->setFocusPolicy(Qt::NoFocus);
         connect(Check,   &QCheckBox::clicked,   [=] {EnableOKPushbutton();});
@@ -1001,12 +999,12 @@ void dlg_commentaires::Remplir_TableView()
         ui->ComupTableWidget->setCellWidget(i,col,w);
 
         col++; //1
-        upLine0->setText(RemplirTableViewQuery.value(0).toString());                          // resume
+        upLine0->setText(listcom.at(i).at(0).toString());                          // resume
         upLine0->setRowTable(i);
         upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
         upLine0->setFocusPolicy(Qt::NoFocus);
-        if (RemplirTableViewQuery.value(4).toInt() != gidUser)
+        if (listcom.at(i).at(4).toInt() != gidUser)
         {
             upLine0->setFont(disabledFont);
             upLine0->setPalette(palette);
@@ -1015,21 +1013,20 @@ void dlg_commentaires::Remplir_TableView()
         ui->ComupTableWidget->setCellWidget(i,col,upLine0);
 
         col++; //2
-        pItem1->setText(RemplirTableViewQuery.value(2).toString());                           // text
+        pItem1->setText(listcom.at(i).at(2).toString());                           // text
         ui->ComupTableWidget->setItem(i,col,pItem1);
         col++; //3
-        pItem2->setText(RemplirTableViewQuery.value(3).toString());                           // idCommentaire
+        pItem2->setText(listcom.at(i).at(3).toString());                           // idCommentaire
         ui->ComupTableWidget->setItem(i,col,pItem2);
         col++; //4
-        pItem3->setText(RemplirTableViewQuery.value(4).toString());                           // idUser
+        pItem3->setText(listcom.at(i).at(4).toString());                           // idUser
         ui->ComupTableWidget->setItem(i,col,pItem3);
-        col++; //5                                                                              DefautCheck
+        col++; //5                                                                 // DefautCheck
         lbl2 = new UpLabel(ui->ComupTableWidget);
         lbl2->setAlignment(Qt::AlignCenter);
-        if (RemplirTableViewQuery.value(1).toInt()==1)
+        if (listcom.at(i).at(1).toInt()==1)
             lbl2->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled
         ui->ComupTableWidget->setCellWidget(i,col,lbl2);
-
         ui->ComupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.3));
     }
     w = Q_NULLPTR;
@@ -1076,10 +1073,8 @@ void dlg_commentaires::SupprimmCommentaire(int row)
     if (msgbox->clickedButton()  == OKBouton)
     {
         int idCom = ui->ComupTableWidget->item(row,3)->text().toInt();
-        QString requete = "DELETE FROM  " NOM_TABLE_COMMENTAIRESLUNETTES " WHERE idcommentlunet = " + QString::number(idCom);
         Msg = tr("Impossible de supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "\n ... " + tr("et je ne sais pas pourquoi...");
-        QSqlQuery SupprimeComQuery (requete,db);
-        DataBase::getInstance()->traiteErreurRequete(SupprimeComQuery,requete, Msg);
+        db->SupprRecordFromTable(idCom, "idcommentlunet", NOM_TABLE_COMMENTAIRESLUNETTES, Msg);
         Remplir_TableView();
     }
     if (ui->ComupTableWidget->rowCount() == 0)
@@ -1098,8 +1093,7 @@ void dlg_commentaires::UpdateCommentaire(int row)
 {
     // recherche de l'enregistrement modifié
     // controle validate des champs
-    UpLineEdit *line = Q_NULLPTR;
-    line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(row,1));
+    UpLineEdit *line = static_cast<UpLineEdit *>(ui->ComupTableWidget->cellWidget(row,1));
     line->setText(Utils::trimcapitilize(line->text(), true, false, false));
 
     if (ChercheDoublon(line->text(),row))
@@ -1115,8 +1109,7 @@ void dlg_commentaires::UpdateCommentaire(int row)
             " SET TextComment = '" + Utils::correctquoteSQL(ui->upTextEdit->document()->toPlainText()) +
             "', ResumeComment = '" + Utils::correctquoteSQL(line->text().left(100)) +
             "' WHERE  idCommentLunet = " + idAmodifier;
-    QSqlQuery ModifDocQuery (req,db);
-    DataBase::getInstance()->traiteErreurRequete(ModifDocQuery, req, tr("Erreur de mise à jour du document dans ") +  NOM_TABLE_COURRIERS);
+    db->StandardSQL(req, tr("Erreur de mise à jour du document dans ") +  NOM_TABLE_COMMENTAIRESLUNETTES);
     Remplir_TableView();
 
     if (ui->ComupTableWidget->rowCount() == 0)

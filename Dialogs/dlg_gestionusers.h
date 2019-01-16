@@ -84,7 +84,7 @@ private:
 
     dlg_gestioncomptes      *Dlg_GestComptes;
     UpDialog                *gAsk;
-    QSqlDatabase            db;
+    DataBase                *db;
     QBrush                  gcolor;
     int                     gMode;
         enum gMode          {Creer, Modifier, PremierUsr};
@@ -106,7 +106,6 @@ private:
     bool                    ExisteEmployeur(int iduser);
     void                    RemplirTableWidget(int iduser);
     void                    ReconstruitListeLieuxExercice();
-    bool                    TraiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
     bool                    VerifFiche();
 
     bool                    setDataUser(int id);

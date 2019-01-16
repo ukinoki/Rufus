@@ -515,7 +515,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->Sauvegardeframe         ->setEnabled(DataBase::getInstance()->getMode() == DataBase::Poste);
     QString reqBkup = "select LundiBkup, MardiBkup, MercrediBkup, JeudiBkup, VendrediBkup, SamediBkup, DimancheBkup, HeureBkup, DirBkup from " NOM_TABLE_PARAMSYSTEME;
     QSqlQuery querBkup(reqBkup, db);
-    DataBase::getInstance()->traiteErreurRequete(querBkup, reqBkup);
+    DataBase::getInstance()->erreurRequete(querBkup, reqBkup);
     querBkup.first();
     ui->DirBackupuplineEdit->setText(querBkup.value(8).toString());
     if (querBkup.value(7).toTime().isValid())
@@ -766,7 +766,7 @@ void dlg_param::Slot_ChoixFontpushButtonClicked()
                                 + "', UserPoliceAttribut = '" + Dlg_Fonts->getFontAttribut()
                                 + "' where idUser = " + QString::number(proc->getUserConnected()->id());
         QSqlQuery fontquery (fontrequete,db);
-        DataBase::getInstance()->traiteErreurRequete(fontquery,fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
+        DataBase::getInstance()->erreurRequete(fontquery,fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
     }
     delete Dlg_Fonts;
 }
@@ -1277,7 +1277,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     QString::number(gidUser) +")";
         }
         QSqlQuery quer(req,db);
-        if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
+        if (!DataBase::getInstance()->erreurRequete(quer,req,""))
             gCotationsModifiees = true;
     }
     else
@@ -1296,7 +1296,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     QString req = "update " NOM_TABLE_COTATIONS " set montantpratique = " + montant +
                                   " where typeacte = '" + ui->ActesCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
                     QSqlQuery quer(req,db);
-                    if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
+                    if (!DataBase::getInstance()->erreurRequete(quer,req,""))
                         gCotationsModifiees = true;
                 }
         }
@@ -1373,7 +1373,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     QString::number(gidUser) +")";
         }
         QSqlQuery quer(req,db);
-        if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
+        if (!DataBase::getInstance()->erreurRequete(quer,req,""))
             gCotationsModifiees = true;
     }
     else
@@ -1399,7 +1399,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                        req = "update " NOM_TABLE_COTATIONS " set montantpratique = " + montant +
                            " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
                     QSqlQuery quer(req,db);
-                    if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
+                    if (!DataBase::getInstance()->erreurRequete(quer,req,""))
                         gCotationsModifiees = true;
                 }
         }
@@ -1430,7 +1430,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
                     " 2, " + QString::number(gidUser) +")";
         }
         QSqlQuery quer(req,db);
-        if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
+        if (!DataBase::getInstance()->erreurRequete(quer,req,""))
             gCotationsModifiees = true;
     }
     else
@@ -1449,7 +1449,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
                         req = "update " NOM_TABLE_COTATIONS " set montantOPTAM = " + montant + ", montantNonOPTAM = " + montant + ", montantpratique = " + montant +
                             " where typeacte = '" + ui->HorsNomenclatureupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
                     QSqlQuery quer(req,db);
-                    if (!DataBase::getInstance()->traiteErreurRequete(quer,req,""))
+                    if (!DataBase::getInstance()->erreurRequete(quer,req,""))
                         gCotationsModifiees = true;
                 }
         }
@@ -1464,7 +1464,7 @@ void dlg_param::SupprAppareil()
                   " where list.idAppareil = appcon.idappareil"
                   " and list.idappareil = " + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text();
     QSqlQuery appQuery(req,db);
-    if (DataBase::getInstance()->traiteErreurRequete(appQuery, req, ""))
+    if (DataBase::getInstance()->erreurRequete(appQuery, req, ""))
         return;
     if (appQuery.size()==0)
         return;
@@ -1954,7 +1954,7 @@ void dlg_param::Slot_DirPosteStockage()
         ui->PosteStockageupLineEdit->setText(dockdir.path());
         QString req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + dockdir.path() + "'";
         QSqlQuery quer(req, db);
-        DataBase::getInstance()->traiteErreurRequete(quer,req);
+        DataBase::getInstance()->erreurRequete(quer,req);
         proc->setDirImagerie();
     }
 }
@@ -2249,7 +2249,7 @@ void dlg_param::Slot_VerifTCP()
 {
     QString reqTCP = "select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME;
     QSqlQuery querTCP(reqTCP, db);
-    DataBase::getInstance()->traiteErreurRequete(querTCP, reqTCP);
+    DataBase::getInstance()->erreurRequete(querTCP, reqTCP);
     querTCP.first();
     ui->TCPlabel->setText("<font color=\"black\">" + tr("Serveur") + " </font>"
                         + "<font color=\"green\"><b>" + querTCP.value(0).toString() + "</b></font>"
@@ -2521,15 +2521,15 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
         idAdminDocs = usrquer.value(0).toInt();
         req = "update " NOM_TABLE_PARAMSYSTEME " set MDPAdmin = '" + nouv + "'";
         QSqlQuery chgmdpadmquery(req,db);
-        DataBase::getInstance()->traiteErreurRequete(chgmdpadmquery,req,"");
+        DataBase::getInstance()->erreurRequete(chgmdpadmquery,req,"");
         // Enregitrer le nouveau MDP de la base
         req = "update " NOM_TABLE_UTILISATEURS " set userMDP = '" + nouv + "' where idUser = " + QString::number(idAdminDocs);
         QSqlQuery chgmdpquery(req,db);
-        DataBase::getInstance()->traiteErreurRequete(chgmdpquery,req,"");
+        DataBase::getInstance()->erreurRequete(chgmdpquery,req,"");
         // Enregitrer le nouveau MDP de connexion à MySQL
         req = "set password for '" NOM_ADMINISTRATEURDOCS "'@'localhost' = '" + nouv + "'";
         QSqlQuery chgmdpBasequery(req, db);
-        DataBase::getInstance()->traiteErreurRequete(chgmdpBasequery,req, "");
+        DataBase::getInstance()->erreurRequete(chgmdpBasequery,req, "");
         QString AdressIP;
         foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
             if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
@@ -2541,10 +2541,10 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
             Domaine += listIP.at(i) + ".";
         req = "set password for '" NOM_ADMINISTRATEURDOCS "'@'" + Domaine + "%' = '" + nouv + "'";
         QSqlQuery chgmdpBaseReseauquery(req, db);
-        DataBase::getInstance()->traiteErreurRequete(chgmdpBaseReseauquery,req, "");
+        DataBase::getInstance()->erreurRequete(chgmdpBaseReseauquery,req, "");
         req = "set password for '" NOM_ADMINISTRATEURDOCS "SSL'@'%' = '" + nouv + "'";
         QSqlQuery chgmdpBaseDistantquery(req, db);
-        DataBase::getInstance()->traiteErreurRequete(chgmdpBaseDistantquery,req, "");
+        DataBase::getInstance()->erreurRequete(chgmdpBaseDistantquery,req, "");
         gAskMDP->done(0);
         msgbox.exec();
     }
@@ -2601,7 +2601,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
         Remplirtablerequete += " where codeccam like 'B%'";
     Remplirtablerequete +=  " order by codeccam";
     QSqlQuery ActesQuery (Remplirtablerequete,db);
-    if (DataBase::getInstance()->traiteErreurRequete(ActesQuery, Remplirtablerequete,""))
+    if (DataBase::getInstance()->erreurRequete(ActesQuery, Remplirtablerequete,""))
         return;
     ui->ActesCCAMupTableWidget->setRowCount(ActesQuery.size());
     ActesQuery.first();
@@ -2709,7 +2709,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     QString Assocrequete = "SELECT TYPEACTE, montantOPTAM, montantNonOptam, montantpratique from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + " order by typeacte";
     //qDebug() << Assocrequete;
     QSqlQuery AssocQuery (Assocrequete,db);
-    if (DataBase::getInstance()->traiteErreurRequete(AssocQuery, Assocrequete,""))
+    if (DataBase::getInstance()->erreurRequete(AssocQuery, Assocrequete,""))
         return;
     ui->AssocCCAMupTableWidget->setRowCount(AssocQuery.size());
     AssocQuery.first();
@@ -2767,7 +2767,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     Assocrequete = "SELECT DISTINCT TYPEACTE, montantoptam, montantnonoptam, montantpratique from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2"
                    " and typeacte not in (SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + ")";
     QSqlQuery Assoc2Query (Assocrequete,db);
-    if (DataBase::getInstance()->traiteErreurRequete(Assoc2Query, Assocrequete,""))
+    if (DataBase::getInstance()->erreurRequete(Assoc2Query, Assocrequete,""))
         return;
     Assoc2Query.first();
     for (int i=0; i<Assoc2Query.size(); i++)
@@ -2862,7 +2862,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
     ui->HorsNomenclatureupTableWidget->clearContents();
     QString Horsrequete = "SELECT TYPEACTE, montantpratique from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(gidUser);
     QSqlQuery HorsQuery (Horsrequete,db);
-    if (DataBase::getInstance()->traiteErreurRequete(HorsQuery, Horsrequete,""))
+    if (DataBase::getInstance()->erreurRequete(HorsQuery, Horsrequete,""))
         return;
     ui->HorsNomenclatureupTableWidget->setRowCount(HorsQuery.size());
     HorsQuery.first();
@@ -2893,7 +2893,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
     Horsrequete = "SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser <> " + QString::number(gidUser)+
             " and typeacte not in (SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(gidUser) + ")";
     QSqlQuery Hors2Query (Horsrequete,db);
-    if (DataBase::getInstance()->traiteErreurRequete(Hors2Query, Horsrequete,""))
+    if (DataBase::getInstance()->erreurRequete(Hors2Query, Horsrequete,""))
         return;
     Hors2Query.first();
     for (int i=0; i<Hors2Query.size(); i++)
@@ -2958,7 +2958,7 @@ void dlg_param::Remplir_Tables()
               " ORDER BY TitreExamen";
 
     QSqlQuery RemplirTableViewQuery (Remplirtablerequete,db);
-    if (DataBase::getInstance()->traiteErreurRequete(RemplirTableViewQuery, Remplirtablerequete,""))
+    if (DataBase::getInstance()->erreurRequete(RemplirTableViewQuery, Remplirtablerequete,""))
         return;
     ui->AppareilsConnectesupTableWidget->setRowCount(RemplirTableViewQuery.size());
     ui->MonoDocupTableWidget->setRowCount(RemplirTableViewQuery.size());

@@ -106,7 +106,7 @@ void DataBase::setUserConnected(User *usr)
     m_userConnected = usr;
 }
 
-bool DataBase::traiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage)
+bool DataBase::erreurRequete(QSqlQuery query, QString requete, QString ErrorMessage)
 {
     if (query.lastError().type() != QSqlError::NoError)
     {
@@ -149,7 +149,7 @@ bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
     QString lockrequete = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
     for (int i = 1; i < ListTables.size(); i++)
         lockrequete += "," + ListTables.at(i) + " " + ModeBlocage;
-    return !traiteErreurRequete(QSqlQuery(lockrequete, m_db ),lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
+    return !erreurRequete(QSqlQuery(lockrequete, m_db ),lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
 }
 
 void DataBase::commit()
@@ -157,7 +157,7 @@ void DataBase::commit()
     QSqlQuery ("COMMIT;", m_db );
     unlocktables();
     QString commitrequete = "SET AUTOCOMMIT = 1;";
-    traiteErreurRequete(QSqlQuery(commitrequete,m_db ), commitrequete, tr("Impossible de valider les mofifications"));
+    erreurRequete(QSqlQuery(commitrequete,m_db ), commitrequete, tr("Impossible de valider les mofifications"));
 }
 
 void DataBase::rollback()
@@ -165,7 +165,7 @@ void DataBase::rollback()
     QSqlQuery ("ROLLBACK;", m_db );
     unlocktables();
     QString rollbackrequete = "SET AUTOCOMMIT = 1;";
-    traiteErreurRequete(QSqlQuery(rollbackrequete, m_db ),rollbackrequete,"");
+    erreurRequete(QSqlQuery(rollbackrequete, m_db ),rollbackrequete,"");
 }
 
 bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
@@ -175,13 +175,13 @@ bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
     for (int i = 1; i < ListTables.size(); i++)
         lockrequete += "," + ListTables.at(i) + " " + ModeBlocage;
     QSqlQuery lockquery (lockrequete, m_db );
-    return !traiteErreurRequete(lockquery,lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
+    return !erreurRequete(lockquery,lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
 }
 
 void DataBase::unlocktables()
 {
     QString requete = "UNLOCK TABLES;";
-    traiteErreurRequete(QSqlQuery (requete, m_db ), requete,"");
+    erreurRequete(QSqlQuery (requete, m_db ), requete,"");
 }
 
 bool DataBase::testconnexionbase() // une requete simple pour vérifier que la connexion à la base fontionne toujours
@@ -195,7 +195,7 @@ int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, QString err
 {
     QString req = "select max(" + nomchamp + ") from " + nomtable;
     QSqlQuery query(req, getDataBase());
-    if( traiteErreurRequete(query, req, errormsg) || !query.first())
+    if( erreurRequete(query, req, errormsg) || !query.first())
         return -1;
     return query.value(0).toInt();
 }
@@ -292,7 +292,7 @@ bool DataBase::InsertSQLByBinds(QString nomtable,
 bool DataBase::StandardSQL(QString req , QString errormsg)
 {
     QSqlQuery query(req, getDataBase());
-    return !traiteErreurRequete(query, req, errormsg);
+    return !erreurRequete(query, req, errormsg);
 }
 
 QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg)
@@ -307,7 +307,7 @@ QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QStri
     QList<QList<QVariant>> listreponses;
     QSqlQuery query(req, getDataBase());
     QSqlRecord rec = query.record();
-    if( traiteErreurRequete(query, req, errormsg))
+    if( erreurRequete(query, req, errormsg))
     {
         OK = false;
         return listreponses;
@@ -401,7 +401,7 @@ QJsonObject DataBase::loadUserData(int idUser)
             // SL cette ligne est retirée parce qu'elle bloque l'affichage des utilisateurs désactivés dans dlg_gestionsusers
 
     QSqlQuery  query(req, getDataBase());
-    if( traiteErreurRequete(query, req, tr("Impossible de retrouver les données de l'utilisateur")) )
+    if( erreurRequete(query, req, tr("Impossible de retrouver les données de l'utilisateur")) )
         return userData;
 
     if( !query.first() )
@@ -469,7 +469,7 @@ QList<User*> DataBase::loadUsersAll()
                   " where userdesactive is null";
 
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return users;
 
     do
@@ -497,7 +497,7 @@ QJsonObject DataBase::loadUserDatabyLogin(QString login)
 
     QString req = "select iduser from " NOM_TABLE_UTILISATEURS " where UserLogin = '" + login + "'";
     QSqlQuery  query(req, getDataBase());
-    if( traiteErreurRequete(query, req, tr("Impossible de retrouver les données de l'utilisateur")) )
+    if( erreurRequete(query, req, tr("Impossible de retrouver les données de l'utilisateur")) )
         return userData;
 
     if( !query.first() )
@@ -514,7 +514,7 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
     QString req = "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin FROM " NOM_TABLE_CORRESPONDANTS " order by cornom, corprenom";
 
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return correspondants;
     do
     {
@@ -542,7 +542,7 @@ QList<Correspondant*> DataBase::loadCorrespondantsALL()                         
             " where cormedecin <> 1 or cormedecin is null"
             " order by metier, cornom, corprenom";
     QSqlQuery query(req,DataBase::getInstance()->getDataBase());
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return correspondants;
     do
     {
@@ -585,7 +585,7 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatientAll(int idpatient)
                   " compression, lienversfichier, formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
                   " where idpat = " + QString::number(idpatient);
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return docsexternes;
     do
     {
@@ -615,7 +615,7 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
                   " formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
                   " where idimpression = " + QString::number(idDoc);
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return docexterneData;
     if( !query.first() )
         return docexterneData;
@@ -668,7 +668,7 @@ QList<Compte*> DataBase::loadComptesAllUsers()
                   " FROM " NOM_TABLE_COMPTES " as cmpt "
                   " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque ";
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return comptes;
     do
     {
@@ -698,7 +698,7 @@ QList<Compte*> DataBase::loadComptesByUser(int idUser)
                   " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque "
                   " WHERE idUser = " + QString::number(idUser);
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return comptes;
     int idcptprefer=-1;
     QString chercheComptePrefereRequete =
@@ -764,7 +764,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
                         " FROM " NOM_TABLE_DEPENSES " dep left join " NOM_TABLE_FACTURES " fac on dep.idFacture = fac.idFacture"
                         " WHERE dep.idUser = " + QString::number(idUser);
     QSqlQuery query (req,getDataBase());
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return depenses;
 
     do
@@ -839,7 +839,7 @@ QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses,
             " and idUser = " + QString::number(iduser) +
             " order by DateDep";
     QSqlQuery query (req,getDataBase());
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return listdepenses;
     do
     {
@@ -865,7 +865,7 @@ QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int inte
                 + " and lignedateconsolidation > '" + date.addDays(-intervalle).toString("yyyy-MM-dd") + "'"
                 + " and lignedateconsolidation <= '" + date.toString("yyyy-MM-dd") + "'";
    QSqlQuery query (req,getDataBase());
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return archives;
     do
     {
@@ -897,7 +897,7 @@ QList<Banque*> DataBase::loadBanques()
     QList<Banque*> banques;
     QString req = "SELECT idBanque, idBanqueAbrege, NomBanque, CodeBanque FROM " NOM_TABLE_BANQUES;
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return banques;
     do
     {
@@ -920,7 +920,7 @@ QList<Tiers*> DataBase::loadTiersPayants()
     QList<Tiers*> listetiers;
     QString req = "SELECT idtIERS, Nomtiers, AdresseTiers, Codepostaltiers, Villetiers, Telephonetiers, FaxTiers from " NOM_TABLE_TIERS;
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return listetiers;
     do
     {
@@ -944,7 +944,7 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
     QList<TypeTiers*> types;
     QString req = "SELECT Tiers FROM " NOM_TABLE_LISTETIERS;
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return types;
     do
     {
@@ -969,7 +969,7 @@ QList<Cotation*> DataBase::loadCotations()
     QString  req = " select idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, Frequence from " NOM_TABLE_COTATIONS;
     QList<Cotation*> cotations;
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return cotations;
     do
     {
@@ -1002,7 +1002,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
           " where idUser = " + QString::number(iduser) + " and typeacte in (select codeccam from " NOM_TABLE_CCAM ")"
           " order by typeacte";
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req))
+    if( erreurRequete(query, req))
         return cotations;
     if (query.first())
     do
@@ -1028,7 +1028,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
           " and typeacte not in (select codeccam from  " NOM_TABLE_CCAM ")"
           " order by typeacte";
     QSqlQuery query1(req, getDataBase() );
-    if( traiteErreurRequete(query1, req) || !query1.first())
+    if( erreurRequete(query1, req) || !query1.first())
         return cotations;
     do
     {
@@ -1059,7 +1059,7 @@ QStringList DataBase::loadTypesCotations()
                   " select codeccam as code from " NOM_TABLE_CCAM
                   " order by code asc";
     QSqlQuery query(req, getDataBase());
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return listcotations;
     do
     {
@@ -1076,7 +1076,7 @@ QList<Motif*> DataBase::loadMotifs()
     QString  req = "SELECT idMotifsRDV, Motif, Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre FROM "  NOM_TABLE_MOTIFSRDV " ORDER BY NoOrdre";
     QList<Motif*> motifs;
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return motifs;
     do
     {
@@ -1120,7 +1120,7 @@ QList<Site*> DataBase::loadSites(QString req)
 {
     QList<Site*> etabs;
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return etabs;
 
     do
@@ -1153,7 +1153,7 @@ Villes* DataBase::loadVillesAll()
     QString req = "select ville_id, codePostal, ville "
                   "from " NOM_TABLE_VILLES;
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return villes;
 
     do
@@ -1182,7 +1182,7 @@ QList<Patient*> DataBase::loadPatientAll()
                   " ORDER BY PatNom, PatPrenom, PatDDN ";
 
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return patients;
     do
     {
@@ -1203,7 +1203,7 @@ Patient* DataBase::loadPatientById(int idPat)
     Patient *patient = new Patient();
     QString req = "select IdPat, PatNom, PatPrenom, PatDDN, Sexe from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idPat);
     QSqlQuery query(req, getDataBase() );
-    if( traiteErreurRequete(query, req) || !query.first())
+    if( erreurRequete(query, req) || !query.first())
         return patient;
     QJsonObject jData{};
     jData["id"] = query.value(0).toInt();
@@ -1311,7 +1311,7 @@ Acte* DataBase::loadActeById(int idActe)
         return acte;
     QString requete = createActeRequest(idActe, 0);
     QSqlQuery query(requete, getDataBase());
-    if( traiteErreurRequete(query, requete) || !query.first() )
+    if( erreurRequete(query, requete) || !query.first() )
         return acte;
 
     QJsonObject data = extractActeData(query);
@@ -1326,7 +1326,7 @@ QMap<int, Acte*> DataBase::loadActesByIdPat(int idPat)
 
     QString requete = createActeRequest(0, idPat);
     QSqlQuery query(requete, getDataBase());
-    if( traiteErreurRequete(query, requete) || !query.first() )
+    if( erreurRequete(query, requete) || !query.first() )
         return list;
 
     do
@@ -1348,7 +1348,7 @@ double DataBase::getActeMontant(int idActe)
                   " LEFT JOIN " NOM_TABLE_RECETTES " lr on lr.idRecette = lp.idRecette "
                   " WHERE idActe = " + QString::number(idActe);
     QSqlQuery query(req, getDataBase());
-    DataBase::getInstance()->traiteErreurRequete(query, req, "");
+    DataBase::getInstance()->erreurRequete(query, req, "");
     if( !query.first() )
         return montant;
     do

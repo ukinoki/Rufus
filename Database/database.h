@@ -92,7 +92,7 @@ public:
                                             // normalement effectuéé par DataBase::login() mais pas possible dans ce cas
                                             // parce que login() utilise la table des utilisateurs connectés qui n'a pas encore été remplie à ce stade
 
-    bool traiteErreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
+    bool erreurRequete(QSqlQuery query, QString requete, QString ErrorMessage = "");
 
     QString connectToDataBase(QString basename, QString login, QString password);
 

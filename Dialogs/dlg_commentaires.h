@@ -62,7 +62,7 @@ private:
     WidgetButtonFrame           *widgButtons;
 
     QGraphicsOpacityEffect      *gOp;
-    QSqlDatabase                db;
+    DataBase                    *db;
     QString                     textDocument, resumeDocument;
     QTimer                      *gTimerEfface;
     Procedures                  *proc;

@@ -680,7 +680,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
                         " and userdesactive is null";
                 //qDebug() << req;
                 QSqlQuery quer(req, db->getDataBase());
-                db->traiteErreurRequete(quer,req);
+                db->erreurRequete(quer,req);
                 if (quer.size() == 1)               // une seule réponse, on la récupère
                 {
                     quer       .first();
@@ -1582,7 +1582,7 @@ void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on
     QStandardItem *pitem0, *pitem1;
     QStandardItem *oitem0, *oitem1;
     QSqlQuery ChercheNomsComptesQuery (req, db->getDataBase());
-    if (!db->traiteErreurRequete(ChercheNomsComptesQuery,req, tr("Impossible de retrouver les comptes de l'utilisateur!")))
+    if (!db->erreurRequete(ChercheNomsComptesQuery,req, tr("Impossible de retrouver les comptes de l'utilisateur!")))
     {
         for (int i = 0; i < ChercheNomsComptesQuery.size(); i++)
         {
@@ -1909,11 +1909,11 @@ void Procedures::setPosteImportDocs(bool a)
     QString IpAdress("NULL");
     QString req = "USE `" NOM_BASE_CONSULTS "`;";
     QSqlQuery quer(req, db->getDataBase());
-    db->traiteErreurRequete(quer,req);
+    db->erreurRequete(quer,req);
 
     req = "DROP PROCEDURE IF EXISTS " NOM_POSTEIMPORTDOCS ";";
     QSqlQuery quer1(req, db->getDataBase());
-    db->traiteErreurRequete(quer1,req);
+    db->erreurRequete(quer1,req);
 
     if (a)
         IpAdress = QHostInfo::localHostName()  + ((gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() ==  "YES")? " - prioritaire" : "");
@@ -1922,7 +1922,7 @@ void Procedures::setPosteImportDocs(bool a)
           SELECT '" + IpAdress + "';\n\
           END ;";
     QSqlQuery quer2(req, db->getDataBase());
-    a = !db->traiteErreurRequete(quer2,req);
+    a = !db->erreurRequete(quer2,req);
     gisPosteImpotDocs = a;
 }
 
@@ -2147,7 +2147,7 @@ void Procedures::RestoreFontAppliAndGeometry()
     // On essaie de retrouver la police écran enregistrée par l'utilisateur, sinon, on prend celle par défaut
     QString fontrequete = "select UserPoliceEcran, UserPoliceAttribut from " NOM_TABLE_UTILISATEURS " where idUser = " + QString::number(db->getUserConnected()->id());
     QSqlQuery fontquery (fontrequete,db->getDataBase() );
-    db->traiteErreurRequete(fontquery,fontrequete,"");
+    db->erreurRequete(fontquery,fontrequete,"");
     fontquery.first();
     QString fonteFamily = fontquery.value(0).toString().split(",").at(0);
     bool trouvefont = false;
@@ -2490,7 +2490,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             {
                 //qDebug()<<s;
                 query.exec(s);
-                if (db->traiteErreurRequete(query, s, ""))
+                if (db->erreurRequete(query, s, ""))
                 {
                     e = false;
                     break;
@@ -2616,7 +2616,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
 
         QString req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + NomDirStockageImagerie + "'";
         QSqlQuery quer(req, db->getDataBase());
-        db->traiteErreurRequete(quer,req);
+        db->erreurRequete(quer,req);
         AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos);
         if (gAskBupRestore->exec()>0)
         {
@@ -2890,7 +2890,7 @@ bool Procedures::VerifBaseEtRessources()
             {
                 //Edit(s);
                 query.exec(s);
-                if (db->traiteErreurRequete(query, s, ""))
+                if (db->erreurRequete(query, s, ""))
                     a = false;
             }
             int result=0;
@@ -3025,11 +3025,11 @@ bool Procedures::Connexion_A_La_Base()
 
     //Etrange le parametrage ici
     QSqlQuery quer("set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';", db->getDataBase() );
-    db->traiteErreurRequete(quer,"set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';","");
+    db->erreurRequete(quer,"set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';","");
     QSqlQuery quer2("SET GLOBAL event_scheduler = 1 ;", db->getDataBase() );
-    db->traiteErreurRequete(quer2,"SET GLOBAL event_scheduler = 1 ;","");
+    db->erreurRequete(quer2,"SET GLOBAL event_scheduler = 1 ;","");
     QSqlQuery quer3("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;", db->getDataBase() );
-    db->traiteErreurRequete(quer3,"SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;","");
+    db->erreurRequete(quer3,"SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;","");
 
     // on recherche si rufusadmin est en fonction auquel cas on utilise les TCPsocket
     QString req = "select iduser from " NOM_TABLE_USERSCONNECTES " where iduser = (select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
@@ -3157,7 +3157,7 @@ Site* Procedures::DetermineLieuExercice()
     {
         QString lieuxreq = "select idLieuParDefaut from " NOM_TABLE_PARAMSYSTEME;
         QSqlQuery lxquer(lieuxreq,db->getDataBase() );
-        db->traiteErreurRequete(lxquer,lieuxreq);
+        db->erreurRequete(lxquer,lieuxreq);
         lxquer.first();
         if (lxquer.value(0).toInt()>=1)
             idLieuExercice = lxquer.value(0).toInt();
@@ -6803,7 +6803,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     " and FormuleOD = '" + CalculeFormule(MapMesure,"D") + "'" +
                     " and FormuleOG = '" + CalculeFormule(MapMesure,"G") + "'";
             QSqlQuery delquer(requete, db->getDataBase() );
-            db->traiteErreurRequete(delquer, requete, "");
+            db->erreurRequete(delquer, requete, "");
 
             requete = "INSERT INTO " NOM_TABLE_REFRACTION
                     " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
@@ -6827,7 +6827,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     CalculeFormule(MapMesure,"G") + "')";
 
             QSqlQuery InsertRefractionQuery (requete, db->getDataBase() );
-            db->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création de données fronto dans ") + NOM_TABLE_REFRACTION);
+            db->erreurRequete(InsertRefractionQuery,requete, tr("Erreur de création de données fronto dans ") + NOM_TABLE_REFRACTION);
         }
     }
     if (!MesureAutoref.isEmpty() && Mesure == "Autoref" && NouvMesureAutoref)
@@ -6860,7 +6860,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     " and idacte = " + QString::number(idActe) +
                     " and QuelleMesure = 'A'" ;
             QSqlQuery delquer(requete, db->getDataBase() );
-            db->traiteErreurRequete(delquer, requete, "");
+            db->erreurRequete(delquer, requete, "");
 
             requete = "INSERT INTO " NOM_TABLE_REFRACTION
                     " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
@@ -6882,10 +6882,10 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     CalculeFormule(MapMesure,"G") + "', " + PD + ")";
 
             QSqlQuery InsertRefractionQuery (requete, db->getDataBase() );
-            db->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_REFRACTION);
+            db->erreurRequete(InsertRefractionQuery,requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_REFRACTION);
             requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
             QSqlQuery selquer(requete, db->getDataBase() );
-            db->traiteErreurRequete(selquer,requete,"");
+            db->erreurRequete(selquer,requete,"");
             if (selquer.size()== 0)
             {
                 requete = "INSERT INTO " NOM_TABLE_DONNEES_OPHTA_PATIENTS
@@ -6906,7 +6906,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         PD + ")";
 
                 QSqlQuery InsertDOPQuery (requete, db->getDataBase() );
-                db->traiteErreurRequete(InsertDOPQuery,requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                db->erreurRequete(InsertDOPQuery,requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
             else
             {
@@ -6925,7 +6925,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         " where idpat = "   + QString::number(idPatient);
 
                 QSqlQuery UpdDOPQuery (requete, db->getDataBase() );
-                db->traiteErreurRequete(UpdDOPQuery,requete, tr("Erreur de mise à jour de données autoref dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                db->erreurRequete(UpdDOPQuery,requete, tr("Erreur de mise à jour de données autoref dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
         }
     }
@@ -6947,7 +6947,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
             //qDebug() << mK1OD << mK2OD << mAxeKOD << mK1OG << mK2OG << mAxeKOG;
             QString requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
             QSqlQuery selquer(requete, db->getDataBase() );
-            db->traiteErreurRequete(selquer,requete,"");
+            db->erreurRequete(selquer,requete,"");
             if (selquer.size()== 0)
             {
                 requete = "INSERT INTO " NOM_TABLE_DONNEES_OPHTA_PATIENTS
@@ -6963,7 +6963,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         mAxeKOG + ",'A')";
 
                 QSqlQuery InsertDOPQuery (requete, db->getDataBase() );
-                db->traiteErreurRequete(InsertDOPQuery,requete, tr("Erreur de création de données kératométrie  dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                db->erreurRequete(InsertDOPQuery,requete, tr("Erreur de création de données kératométrie  dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
             else
             {
@@ -6979,7 +6979,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         " where idpat = "+ QString::number(idPatient);
 
                 QSqlQuery UpdDOPQuery (requete, db->getDataBase() );
-                db->traiteErreurRequete(UpdDOPQuery,requete, tr("Erreur de modification de données de kératométrie dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                db->erreurRequete(UpdDOPQuery,requete, tr("Erreur de modification de données de kératométrie dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
         }
     }
@@ -7020,7 +7020,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     " and idacte = " + QString::number(idActe) +
                     " and QuelleMesure = 'R'" ;
             QSqlQuery delquer(requete, db->getDataBase() );
-            db->traiteErreurRequete(delquer, requete, "");
+            db->erreurRequete(delquer, requete, "");
             requete = "INSERT INTO " NOM_TABLE_REFRACTION
                     " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
                     " SphereOD, CylindreOD, AxeCylindreOD, AddVPOD, FormuleOD, AVLOD, AVPOD,"
@@ -7048,10 +7048,10 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     PD + ")";
 
             QSqlQuery InsertRefractionQuery (requete, db->getDataBase() );
-            db->traiteErreurRequete(InsertRefractionQuery,requete, tr("Erreur de création  de données de refraction dans ") + NOM_TABLE_REFRACTION);
+            db->erreurRequete(InsertRefractionQuery,requete, tr("Erreur de création  de données de refraction dans ") + NOM_TABLE_REFRACTION);
             requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'R'";
             QSqlQuery selquer(requete, db->getDataBase() );
-            db->traiteErreurRequete(selquer,requete,"");
+            db->erreurRequete(selquer,requete,"");
             if (selquer.size()== 0)
             {
                 requete = "INSERT INTO " NOM_TABLE_DONNEES_OPHTA_PATIENTS
@@ -7078,7 +7078,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         PD + ")";
 
                 QSqlQuery InsertDOPQuery (requete, db->getDataBase() );
-                db->traiteErreurRequete(InsertDOPQuery,requete, tr("Erreur création de données de refraction dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                db->erreurRequete(InsertDOPQuery,requete, tr("Erreur création de données de refraction dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
             else
             {
@@ -7101,7 +7101,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                         " where idpat = "   + QString::number(idPatient);
 
                 QSqlQuery UpdDOPQuery (requete, db->getDataBase() );
-                db->traiteErreurRequete(UpdDOPQuery,requete, tr("Erreur de mise à jour de données de refraction dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+                db->erreurRequete(UpdDOPQuery,requete, tr("Erreur de mise à jour de données de refraction dans ") + NOM_TABLE_DONNEES_OPHTA_PATIENTS);
             }
         }
     }

@@ -250,19 +250,18 @@ void dlg_bilanortho::ImprimeBOClicked()
     QString requete = " select Patnom, patprenom, actedate, creepar, idUser  from " NOM_TABLE_PATIENTS " pat," NOM_TABLE_ACTES " act"
             " where act.idacte = " + QString::number(idActe) + " and act.idpat = pat.idpat";
     //UpMessageBox::Watch(this,requete);
-    QSqlQuery cherchepatquery (requete,DataBase::getInstance()->getDataBase());
-    DataBase::getInstance()->traiteErreurRequete(cherchepatquery,requete,tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
-    if (cherchepatquery.size() == 0) return;
-    cherchepatquery.first();
-    User *userEntete = proc->setDataOtherUser(cherchepatquery.value(4).toInt());
+    bool ok;
+    QList<QVariant> patientdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
+    if (!ok || patientdata.size() == 0) return;
+    User *userEntete = proc->setDataOtherUser(patientdata.at(4).toInt());
     if (userEntete == nullptr)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
         return;
     }
-    QString date = cherchepatquery.value(2).toDate().toString(tr("d MMM yyyy"));
-    QString nom = cherchepatquery.value(0).toString().toUpper();
-    QString prenom = cherchepatquery.value(1).toString();
+    QString date = patientdata.at(2).toDate().toString(tr("d MMM yyyy"));
+    QString nom = patientdata.at(0).toString().toUpper();
+    QString prenom = patientdata.at(1).toString();
 
     QString Entete, Pied;
 
@@ -303,24 +302,21 @@ void dlg_bilanortho::ImprimeBOClicked()
     // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        QSqlQuery query = QSqlQuery(DataBase::getInstance()->getDataBase());
-        // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-        query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idUser, idpat, TypeDoc, sousTypedoc, Titre, TextEntete, TextCorps, TextPied, Dateimpression, UserEmetteur, ALD, EmisRecu, FormatDoc, idLieu)"
-                                                           " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre, :textEntete, :textCorps, :textPied, :dateimpression, :useremetteur, :ald, :emisrecu, :formatdoc, :idlieu)");
-        query.bindValue(":iduser", QString::number(proc->getUserConnected()->id()));
-        query.bindValue(":idpat", QString::number(gidpat));
-        query.bindValue(":typeDoc", "Orthoptie");
-        query.bindValue(":soustypedoc", "Bilan");
-        query.bindValue(":titre", "Bilan orthoptique");
-        query.bindValue(":textEntete", Entete);
-        query.bindValue(":textCorps", textHtml->toHtml());
-        query.bindValue(":textPied", Pied);
-        query.bindValue(":dateimpression", cherchepatquery.value(2).toDate().toString("yyyy-MM-dd"));
-        query.bindValue(":useremetteur", QString::number(proc->getUserConnected()->id()));
-        query.bindValue(":emisrecu", "0");
-        query.bindValue(":formatdoc", BILANORTHOPTIQUE);
-        query.bindValue(":idlieu", QString::number(proc->getUserConnected()->getSite()->id()));
-        if(!query.exec())
+        QHash<QString,QVariant> listbinds;
+        listbinds["idUser"] =           proc->getUserConnected()->id();
+        listbinds["idPat"] =            gidpat;
+        listbinds["TypeDoc"] =          "Orthoptie";
+        listbinds["SousTypeDoc"] =      "Bilan";
+        listbinds["Titre"] =            "Bilan orthoptique";
+        listbinds["TextEntete"] =       Entete;
+        listbinds["TextCorps"] =        textHtml->toHtml();
+        listbinds["TextPied"] =         Pied;
+        listbinds["Dateimpression"] =   patientdata.at(2).toDate().toString("yyyy-MM-dd");
+        listbinds["UserEmetteur"] =     proc->getUserConnected()->id();
+        listbinds["EmisRecu"] =         "0";
+        listbinds["FormatDoc"] =        BILANORTHOPTIQUE;
+        listbinds["idlieu"] =           proc->getUserConnected()->getSite()->id();
+        if(!DataBase::getInstance()->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
     }
     delete textHtml;
@@ -675,8 +671,9 @@ void dlg_bilanortho::closeEvent(QCloseEvent *event)
 void dlg_bilanortho::AfficheBilan(int idBilan)
 {
     QString chborequete = "select idBilanOrtho from " NOM_TABLE_BILANORTHO " where idBilanOrtho = " + QString::number(idBilan);
-    QSqlQuery chboquery(chborequete,DataBase::getInstance()->getDataBase());
-    if (chboquery.size() > 0)
+    bool ok;
+    QList<QVariant> BOid = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(chborequete, ok);
+    if (ok && BOid.size() > 0)
     {
         QString a;
         QString affichBOrequete =
@@ -697,28 +694,26 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
                 " from " NOM_TABLE_BILANORTHO     // 65,66,67,68
                 " where idBilanOrtho = " + QString::number(idBilan);
         //UpMessageBox::Watch(this,affichBOrequete);
-        QSqlQuery affichBOquery(affichBOrequete,DataBase::getInstance()->getDataBase());
-        DataBase::getInstance()->traiteErreurRequete(affichBOquery,affichBOrequete,"");
-        affichBOquery.first();
-        ui->MotiftextEdit->setText(affichBOquery.value(44).toString());
-        ui->AVODlineEdit->setText(affichBOquery.value(0).toString());
-        ui->AVOGlineEdit->setText(affichBOquery.value(1).toString());
-        ui->OcclAlterncomboBox->setCurrentText(affichBOquery.value(2).toString());
-        ui->WirtcomboBox->setCurrentText(affichBOquery.value(3).toString());
-        ui->AnimauxWirtcomboBox->setCurrentText(affichBOquery.value(45).toString());
-        ui->LangcomboBox->setCurrentText(affichBOquery.value(4).toString());
-        ui->TNOcomboBox->setCurrentText(affichBOquery.value(46).toString());
-        if (affichBOquery.value(5).toString() == "D")
+        QList<QVariant> BOdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);
+        ui->MotiftextEdit->setText(BOdata.at(44).toString());
+        ui->AVODlineEdit->setText(BOdata.at(0).toString());
+        ui->AVOGlineEdit->setText(BOdata.at(1).toString());
+        ui->OcclAlterncomboBox->setCurrentText(BOdata.at(2).toString());
+        ui->WirtcomboBox->setCurrentText(BOdata.at(3).toString());
+        ui->AnimauxWirtcomboBox->setCurrentText(BOdata.at(45).toString());
+        ui->LangcomboBox->setCurrentText(BOdata.at(4).toString());
+        ui->TNOcomboBox->setCurrentText(BOdata.at(46).toString());
+        if (BOdata.at(5).toString() == "D")
             ui->ODdirecteurradioButton->setChecked(true);
-        else if (affichBOquery.value(5).toString() == "G")
+        else if (BOdata.at(5).toString() == "G")
             ui->OGdirecteurradioButton->setChecked(true);
-        if (affichBOquery.value(6).toString() == "D")
+        if (BOdata.at(6).toString() == "D")
             ui->ODOrientationradioButton->setChecked(true);
-        else if (affichBOquery.value(6).toString() == "G")
+        else if (BOdata.at(6).toString() == "G")
             ui->OGOrientationradioButton->setChecked(true);
 
         // ECRAN ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        ui->EcranVLSCcomboBox->setCurrentText(affichBOquery.value(7).toString());
+        ui->EcranVLSCcomboBox->setCurrentText(BOdata.at(7).toString());
         a = ui->EcranVLSCcomboBox->currentText();
         ui->EcranVLSCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
         ui->fixSCVLcomboBox->setVisible(a == "Et" || a == "EEt" || a == "Xt" || a == "XXt");
@@ -740,11 +735,11 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
             typefix << tr("rest. rapide");
             ui->fixSCVLcomboBox->insertItems(0,typefix);
         }
-        a = affichBOquery.value(8).toString();
+        a = BOdata.at(8).toString();
         if (a == "") a = "-";
         ui->EcranVLSCDcomboBox->setCurrentText(a);
-        ui->fixSCVLcomboBox->setCurrentText(affichBOquery.value(9).toString());
-        ui->EcranVPSCcomboBox->setCurrentText(affichBOquery.value(10).toString());
+        ui->fixSCVLcomboBox->setCurrentText(BOdata.at(9).toString());
+        ui->EcranVPSCcomboBox->setCurrentText(BOdata.at(10).toString());
         a = ui->EcranVPSCcomboBox->currentText();
         ui->EcranVPSCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
         ui->fixSCVPcomboBox->setVisible(a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't");
@@ -766,11 +761,11 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
             typefix << tr("rest. rapide");
             ui->fixSCVPcomboBox->insertItems(0,typefix);
         }
-        a = affichBOquery.value(11).toString();
+        a = BOdata.at(11).toString();
         if (a == "") a = "-";
         ui->EcranVPSCDcomboBox->setCurrentText(a);
-        ui->fixSCVPcomboBox->setCurrentText(affichBOquery.value(12).toString());
-        ui->EcranVLASCcomboBox->setCurrentText(affichBOquery.value(13).toString());
+        ui->fixSCVPcomboBox->setCurrentText(BOdata.at(12).toString());
+        ui->EcranVLASCcomboBox->setCurrentText(BOdata.at(13).toString());
         a = ui->EcranVLASCcomboBox->currentText();
         ui->EcranVLASCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
         ui->fixASCVLcomboBox->setVisible(a == "Et" || a == "EEt" || a == "Xt" || a == "XXt");
@@ -792,11 +787,11 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
             typefix << tr("rest. rapide");
             ui->fixASCVLcomboBox->insertItems(0,typefix);
         }
-        a = affichBOquery.value(14).toString();
+        a = BOdata.at(14).toString();
         if (a == "") a = "-";
         ui->EcranVLASCDcomboBox->setCurrentText(a);
-        ui->fixASCVLcomboBox->setCurrentText(affichBOquery.value(15).toString());
-        ui->EcranVPASCcomboBox->setCurrentText(affichBOquery.value(16).toString());
+        ui->fixASCVLcomboBox->setCurrentText(BOdata.at(15).toString());
+        ui->EcranVPASCcomboBox->setCurrentText(BOdata.at(16).toString());
         a = ui->EcranVPASCcomboBox->currentText();
         ui->EcranVPASCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
         ui->fixASCVPcomboBox->setVisible(a == "E't" || a == "E'E't" || a == "X't" || a == "X'X't");
@@ -818,13 +813,13 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
             typefix << tr("rest. rapide");
             ui->fixASCVPcomboBox->insertItems(0,typefix);
         }
-        a = affichBOquery.value(17).toString();
+        a = BOdata.at(17).toString();
         if (a == "") a = "-";
         ui->EcranVPASCDcomboBox->setCurrentText(a);
-        ui->fixASCVPcomboBox->setCurrentText(affichBOquery.value(18).toString());
+        ui->fixASCVPcomboBox->setCurrentText(BOdata.at(18).toString());
 
         // HECRAN -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        ui->HEcranVLSCcomboBox->setCurrentText(affichBOquery.value(49).toString());
+        ui->HEcranVLSCcomboBox->setCurrentText(BOdata.at(49).toString());
         a = ui->HEcranVLSCcomboBox->currentText();
         ui->HEcranVLSCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
         ui->HfixSCVLcomboBox->setVisible(a == "Ht" || a == "HHt" || a == "ht" || a == "hht");
@@ -846,11 +841,11 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
             typefix << tr("rest. rapide");
             ui->HfixSCVLcomboBox->insertItems(0,typefix);
         }
-        a = affichBOquery.value(50).toString();
+        a = BOdata.at(50).toString();
         if (a == "") a = "-";
         ui->HEcranVLSCDcomboBox->setCurrentText(a);
-        ui->HfixSCVLcomboBox->setCurrentText(affichBOquery.value(51).toString());
-        ui->HEcranVPSCcomboBox->setCurrentText(affichBOquery.value(52).toString());
+        ui->HfixSCVLcomboBox->setCurrentText(BOdata.at(51).toString());
+        ui->HEcranVPSCcomboBox->setCurrentText(BOdata.at(52).toString());
         a = ui->HEcranVPSCcomboBox->currentText();
         ui->HEcranVPSCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
         ui->HfixSCVPcomboBox->setVisible(a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't");
@@ -872,11 +867,11 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
             typefix << tr("rest. rapide");
             ui->HfixSCVPcomboBox->insertItems(0,typefix);
         }
-        a = affichBOquery.value(53).toString();
+        a = BOdata.at(53).toString();
         if (a == "") a = "-";
         ui->HEcranVPSCDcomboBox->setCurrentText(a);
-        ui->HfixSCVPcomboBox->setCurrentText(affichBOquery.value(54).toString());
-        ui->HEcranVLASCcomboBox->setCurrentText(affichBOquery.value(55).toString());
+        ui->HfixSCVPcomboBox->setCurrentText(BOdata.at(54).toString());
+        ui->HEcranVLASCcomboBox->setCurrentText(BOdata.at(55).toString());
         a = ui->HEcranVLASCcomboBox->currentText();
         ui->HEcranVLASCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
         ui->HfixASCVLcomboBox->setVisible(a == "Ht" || a == "HHt" || a == "ht" || a == "hht");
@@ -898,11 +893,11 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
             typefix << tr("rest. rapide");
             ui->HfixASCVLcomboBox->insertItems(0,typefix);
         }
-        a = affichBOquery.value(56).toString();
+        a = BOdata.at(56).toString();
         if (a == "") a = "-";
         ui->HEcranVLASCDcomboBox->setCurrentText(a);
-        ui->HfixASCVLcomboBox->setCurrentText(affichBOquery.value(57).toString());
-        ui->HEcranVPASCcomboBox->setCurrentText(affichBOquery.value(58).toString());
+        ui->HfixASCVLcomboBox->setCurrentText(BOdata.at(57).toString());
+        ui->HEcranVPASCcomboBox->setCurrentText(BOdata.at(58).toString());
         a = ui->HEcranVPASCcomboBox->currentText();
         ui->HEcranVPASCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
         ui->HfixASCVPcomboBox->setVisible(a == "H't" || a == "H'H't" || a == "h't" || a == "h'h't");
@@ -924,13 +919,13 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
             typefix << tr("rest. rapide");
             ui->HfixASCVPcomboBox->insertItems(0,typefix);
         }
-        a = affichBOquery.value(59).toString();
+        a = BOdata.at(59).toString();
         if (a == "") a = "-";
         ui->HEcranVPASCDcomboBox->setCurrentText(a);
-        ui->HfixASCVPcomboBox->setCurrentText(affichBOquery.value(60).toString());
+        ui->HfixASCVPcomboBox->setCurrentText(BOdata.at(60).toString());
 
         // MADDOX -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        ui->MaddoxVLSCcomboBox->setCurrentText(affichBOquery.value(19).toString());
+        ui->MaddoxVLSCcomboBox->setCurrentText(BOdata.at(19).toString());
         a = ui->MaddoxVLSCcomboBox->currentText();
         ui->MaddoxVLSCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
         ui->MaddoxVLSCDcomboBox->clear();
@@ -943,10 +938,10 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
         else
             ui->MaddoxVLSCDcomboBox->insertItems(0,Dioptrieslist);
         ui->MaddoxVLSCDcomboBox->resize(w,22);
-        a = affichBOquery.value(20).toString();
+        a = BOdata.at(20).toString();
         if (a == "") a = "-";
         ui->MaddoxVLSCDcomboBox->setCurrentText(a);
-        ui->MaddoxVPSCcomboBox->setCurrentText(affichBOquery.value(21).toString());
+        ui->MaddoxVPSCcomboBox->setCurrentText(BOdata.at(21).toString());
         a = ui->MaddoxVPSCcomboBox->currentText();
         ui->MaddoxVPSCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
         ui->MaddoxVPSCDcomboBox->clear();
@@ -959,10 +954,10 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
         else
             ui->MaddoxVPSCDcomboBox->insertItems(0,Dioptrieslist);
         ui->MaddoxVPSCDcomboBox->resize(w,22);
-        a = affichBOquery.value(22).toString();
+        a = BOdata.at(22).toString();
         if (a == "") a = "-";
         ui->MaddoxVPSCDcomboBox->setCurrentText(a);
-        ui->MaddoxVLASCcomboBox->setCurrentText(affichBOquery.value(23).toString());
+        ui->MaddoxVLASCcomboBox->setCurrentText(BOdata.at(23).toString());
         a = ui->MaddoxVLASCcomboBox->currentText();
         ui->MaddoxVLASCDcomboBox->setVisible(a == "E" || a == "Et" || a == "EEt" || a == "X" || a == "Xt" || a == "XXt");
         ui->MaddoxVLASCDcomboBox->clear();
@@ -975,10 +970,10 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
         else
             ui->MaddoxVLASCDcomboBox->insertItems(0,Dioptrieslist);
         ui->MaddoxVLASCDcomboBox->resize(w,22);
-        a = affichBOquery.value(24).toString();
+        a = BOdata.at(24).toString();
         if (a == "") a = "-";
         ui->MaddoxVLASCDcomboBox->setCurrentText(a);
-        ui->MaddoxVPASCcomboBox->setCurrentText(affichBOquery.value(25).toString());
+        ui->MaddoxVPASCcomboBox->setCurrentText(BOdata.at(25).toString());
         a = ui->MaddoxVPASCcomboBox->currentText();
         ui->MaddoxVPASCDcomboBox->setVisible(a == "E'" || a == "E't" || a == "E'E't" || a == "X'" || a == "X't" || a == "X'X't");
         ui->MaddoxVPASCDcomboBox->clear();
@@ -991,12 +986,12 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
         else
             ui->MaddoxVPASCDcomboBox->insertItems(0,Dioptrieslist);
         ui->MaddoxVPASCDcomboBox->resize(w,22);
-        a = affichBOquery.value(26).toString();
+        a = BOdata.at(26).toString();
         if (a == "") a = "-";
         ui->MaddoxVPASCDcomboBox->setCurrentText(a);
 
         // HMADDOX -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-        ui->HMaddoxVLSCcomboBox->setCurrentText(affichBOquery.value(61).toString());
+        ui->HMaddoxVLSCcomboBox->setCurrentText(BOdata.at(61).toString());
         a = ui->HMaddoxVLSCcomboBox->currentText();
         ui->HMaddoxVLSCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
         ui->HMaddoxVLSCDcomboBox->clear();
@@ -1009,10 +1004,10 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
         else
             ui->HMaddoxVLSCDcomboBox->insertItems(0,HDioptrieslist);
         ui->HMaddoxVLSCDcomboBox->resize(w,22);
-        a = affichBOquery.value(62).toString();
+        a = BOdata.at(62).toString();
         if (a == "") a = "-";
         ui->HMaddoxVLSCDcomboBox->setCurrentText(a);
-        ui->HMaddoxVPSCcomboBox->setCurrentText(affichBOquery.value(63).toString());
+        ui->HMaddoxVPSCcomboBox->setCurrentText(BOdata.at(63).toString());
         a = ui->HMaddoxVPSCcomboBox->currentText();
         ui->HMaddoxVPSCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
         ui->HMaddoxVPSCDcomboBox->clear();
@@ -1025,10 +1020,10 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
         else
             ui->HMaddoxVPSCDcomboBox->insertItems(0,HDioptrieslist);
         ui->HMaddoxVPSCDcomboBox->resize(w,22);
-        a = affichBOquery.value(64).toString();
+        a = BOdata.at(64).toString();
         if (a == "") a = "-";
         ui->HMaddoxVPSCDcomboBox->setCurrentText(a);
-        ui->HMaddoxVLASCcomboBox->setCurrentText(affichBOquery.value(65).toString());
+        ui->HMaddoxVLASCcomboBox->setCurrentText(BOdata.at(65).toString());
         a = ui->HMaddoxVLASCcomboBox->currentText();
         ui->HMaddoxVLASCDcomboBox->setVisible(a == "H" || a == "Ht" || a == "HHt" || a == "h" || a == "ht" || a == "hht");
         ui->HMaddoxVLASCDcomboBox->clear();
@@ -1041,10 +1036,10 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
         else
             ui->HMaddoxVLASCDcomboBox->insertItems(0,HDioptrieslist);
         ui->HMaddoxVLASCDcomboBox->resize(w,22);
-        a = affichBOquery.value(66).toString();
+        a = BOdata.at(66).toString();
         if (a == "") a = "-";
         ui->HMaddoxVLASCDcomboBox->setCurrentText(a);
-        ui->HMaddoxVPASCcomboBox->setCurrentText(affichBOquery.value(67).toString());
+        ui->HMaddoxVPASCcomboBox->setCurrentText(BOdata.at(67).toString());
         a = ui->HMaddoxVPASCcomboBox->currentText();
         ui->HMaddoxVPASCDcomboBox->setVisible(a == "H'" || a == "H't" || a == "H'H't" || a == "h'" || a == "h't" || a == "h'h't");
         ui->HMaddoxVPASCDcomboBox->clear();
@@ -1057,43 +1052,43 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
         else
             ui->HMaddoxVPASCDcomboBox->insertItems(0,HDioptrieslist);
         ui->HMaddoxVPASCDcomboBox->resize(w,22);
-        a = affichBOquery.value(68).toString();
+        a = BOdata.at(68).toString();
         if (a == "") a = "-";
         ui->HMaddoxVPASCDcomboBox->setCurrentText(a);
 
-        ui->MotilitetextEdit->setText(affichBOquery.value(69).toString());
-        a = affichBOquery.value(28).toString();
+        ui->MotilitetextEdit->setText(BOdata.at(69).toString());
+        a = BOdata.at(28).toString();
         if (a == "") a = "-";
         ui->PPCcomboBox->setCurrentText(a);
-        ui->PPClineEdit->setText(affichBOquery.value(29).toString());
-        ui->SaccadeslineEdit->setText(affichBOquery.value(30).toString());
-        ui->PoursuitelineEdit->setText(affichBOquery.value(31).toString());
-        ui->Worth1lineEdit->setText(affichBOquery.value(32).toString());
-        ui->Worth2lineEdit->setText(affichBOquery.value(33).toString());
-        ui->Bagolini1lineEdit->setText(affichBOquery.value(34).toString());
-        ui->Bagolini2lineEdit->setText(affichBOquery.value(35).toString());
-        a = affichBOquery.value(36).toString();
+        ui->PPClineEdit->setText(BOdata.at(29).toString());
+        ui->SaccadeslineEdit->setText(BOdata.at(30).toString());
+        ui->PoursuitelineEdit->setText(BOdata.at(31).toString());
+        ui->Worth1lineEdit->setText(BOdata.at(32).toString());
+        ui->Worth2lineEdit->setText(BOdata.at(33).toString());
+        ui->Bagolini1lineEdit->setText(BOdata.at(34).toString());
+        ui->Bagolini2lineEdit->setText(BOdata.at(35).toString());
+        a = BOdata.at(36).toString();
         if (a == "") a = "-";
         ui->VergenceDLcomboBox->setCurrentText(a);
-        a = affichBOquery.value(37).toString();
+        a = BOdata.at(37).toString();
         if (a == "") a = "-";
         ui->VergenceCLcomboBox->setCurrentText(a);
-        a = affichBOquery.value(47).toString();
+        a = BOdata.at(47).toString();
         if (a == "") a = "-";
         ui->VergenceRestDLcomboBox->setCurrentText(a);
-        a = affichBOquery.value(38).toString();
+        a = BOdata.at(38).toString();
         if (a == "") a = "-";
         ui->VergenceDPcomboBox->setCurrentText(a);
-        a = affichBOquery.value(39).toString();
+        a = BOdata.at(39).toString();
         if (a == "") a = "-";
         ui->VergenceCPcomboBox->setCurrentText(a);
-        a = affichBOquery.value(48).toString();
+        a = BOdata.at(48).toString();
         if (a == "") a = "-";
         ui->VergenceRestDPcomboBox->setCurrentText(a);
-        ui->Degre1lineEdit->setText(affichBOquery.value(40).toString());
-        ui->Degre2lineEdit->setText(affichBOquery.value(41).toString());
-        ui->Degre3lineEdit->setText(affichBOquery.value(42).toString());
-        ui->ConclusiontextEdit->setText(affichBOquery.value(43).toString());
+        ui->Degre1lineEdit->setText(BOdata.at(40).toString());
+        ui->Degre2lineEdit->setText(BOdata.at(41).toString());
+        ui->Degre3lineEdit->setText(BOdata.at(42).toString());
+        ui->ConclusiontextEdit->setText(BOdata.at(43).toString());
     }
 }
 
