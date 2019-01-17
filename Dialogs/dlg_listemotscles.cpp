@@ -23,6 +23,7 @@ dlg_listemotscles::dlg_listemotscles(int idPat, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     idpat              = idPat;
     proc               = Procedures::I();
+    db                 = DataBase::getInstance();
 
     QVBoxLayout *globallay       = dynamic_cast<QVBoxLayout*>(layout());
     tabMC              = new QTableView();
@@ -136,15 +137,15 @@ void dlg_listemotscles::Slot_VerifMC()
     if (gAskDialog->mode()=="Creation")
     {
         QString req = "insert into " NOM_TABLE_MOTSCLES " (MotCle) values('" + Utils::correctquoteSQL(nouvMC) + "')";
-        QSqlQuery (req, DataBase::getInstance()->getDataBase());
+        db->StandardSQL(req);
     }
     else if (gAskDialog->mode()=="Modif")
     {
         QString req = "update " NOM_TABLE_MOTSCLES " set MotCle = '" + Utils::correctquoteSQL(nouvMC) + "' where MotCle = '"
                    + gmodele->itemFromIndex(gselection->currentIndex())->text() + "'";
-        QSqlQuery (req, DataBase::getInstance()->getDataBase());
+        db->StandardSQL(req);
     }
-    QSqlQuery ("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat), DataBase::getInstance()->getDataBase());
+    db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat));
     QStringList listidMc;
     for (int i=0; i< gmodele->rowCount(); i++)
         if(gmodele->item(i,0)->checkState() == Qt::Checked)
@@ -155,7 +156,7 @@ void dlg_listemotscles::Slot_VerifMC()
         req += "(" + QString::number(idpat) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
             req += ", (" + QString::number(idpat) + ", " + listidMc.at(j) + ")";
-        QSqlQuery (req,DataBase::getInstance()->getDataBase());
+        db->StandardSQL(req);
     }
     RemplirTableView();
     gAskDialog->accept();
@@ -176,7 +177,7 @@ void dlg_listemotscles::SupprMC()
     if (msgbox.clickedButton() == &OKBouton)
     {
         QString req = "delete from " NOM_TABLE_MOTSCLES " where idmotcle = " + gmodele->itemFromIndex(gselection->currentIndex())->accessibleDescription();
-        QSqlQuery (req, DataBase::getInstance()->getDataBase());
+        db->StandardSQL(req);
         RemplirTableView();
     }
 }
@@ -189,7 +190,7 @@ void dlg_listemotscles::Slot_Enablebuttons()
 
 void dlg_listemotscles::Slot_OK()
 {
-    QSqlQuery ("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat), DataBase::getInstance()->getDataBase());
+    db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat));
     QStringList listidMc;
     for (int i=0; i< gmodele->rowCount(); i++)
         if(gmodele->item(i,0)->checkState() == Qt::Checked)
@@ -200,7 +201,7 @@ void dlg_listemotscles::Slot_OK()
         req += "(" + QString::number(idpat) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
             req += ", (" + QString::number(idpat) + ", " + listidMc.at(j) + ")";
-        QSqlQuery (req,DataBase::getInstance()->getDataBase());
+        db->StandardSQL(req);
     }
     accept();
 }
@@ -217,61 +218,56 @@ QStringList dlg_listemotscles::listMCDepart()
 
 void dlg_listemotscles::RemplirTableView()
 {
-     QString req = "select idMotcle from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat);
-     QSqlQuery querMC(req,DataBase::getInstance()->getDataBase());
-     QStringList listidMC;
-     bool a = glistidMCdepart.contains("-1");
-     glistidMCdepart.clear();
-     if (querMC.size()>0)
-     {
-         querMC.first();
-         for (int i=0; i<querMC.size(); i++)
-         {
-             listidMC << querMC.value(0).toString();
-             if (a)
-                 glistidMCdepart << querMC.value(0).toString();
-             querMC.next();
-         }
-     }
-     req = "select idmotcle, motcle from " NOM_TABLE_MOTSCLES " order by motcle";
-     QSqlQuery quer(req,DataBase::getInstance()->getDataBase());
+    bool ok;
+    QString req = "select idMotcle from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat);
+    QList<QList<QVariant>> idmotclelist = db->StandardSelectSQL(req, ok);
+    QStringList listidMC;
+    bool a = glistidMCdepart.contains("-1");
+    glistidMCdepart.clear();
+    if (idmotclelist.size()>0)
+    {
+        for (int i=0; i<idmotclelist.size(); i++)
+        {
+            listidMC << idmotclelist.at(i).at(0).toString();
+            if (a)
+                glistidMCdepart << idmotclelist.at(i).at(0).toString();
+        }
+    }
+    req = "select idmotcle, motcle from " NOM_TABLE_MOTSCLES " order by motcle";
+    QList<QList<QVariant>> motclelist = db->StandardSelectSQL(req, ok);
+    QStandardItem       *pitem;
+    gmodele = dynamic_cast<QStandardItemModel*>(tabMC->model());
+    if (gmodele)
+        gmodele->clear();
+    else
+        gmodele = new QStandardItemModel;
+    gselection = new QItemSelectionModel(gmodele);
 
-     quer.first();
+    glistMC.clear();
+    pitem   = new QStandardItem(tr("Mot-clé"));
+    pitem->setEditable(false);
+    gmodele->setHorizontalHeaderItem(0,pitem);
 
-     QStandardItem       *pitem;
-     gmodele = dynamic_cast<QStandardItemModel*>(tabMC->model());
-     if (gmodele)
-         gmodele->clear();
-     else
-         gmodele = new QStandardItemModel;
-     gselection = new QItemSelectionModel(gmodele);
+    for (int i=0; i<motclelist.size(); i++)
+    {
+        pitem   = new QStandardItem(motclelist.at(i).at(1).toString());
+        pitem->setAccessibleDescription(motclelist.at(i).at(0).toString());
+        //pitem->setEditable(false);
+        pitem->setCheckable(true);
+        if (listidMC.contains(motclelist.at(i).at(0).toString()))
+            pitem->setCheckState(Qt::Checked);
+        else
+            pitem->setCheckState(Qt::Unchecked);
+        gmodele->appendRow(pitem);
+        glistMC << motclelist.at(i).at(1).toString();
+    }
+    tabMC->setModel(gmodele);
+    tabMC->setSelectionModel(gselection);
 
-     glistMC.clear();
-     pitem   = new QStandardItem(tr("Mot-clé"));
-     pitem->setEditable(false);
-     gmodele->setHorizontalHeaderItem(0,pitem);
-
-     for (int i=0; i<quer.size(); i++)
-     {
-         pitem   = new QStandardItem(quer.value(1).toString());
-         pitem->setAccessibleDescription(quer.value(0).toString());
-         //pitem->setEditable(false);
-         pitem->setCheckable(true);
-         if (listidMC.contains(quer.value(0).toString()))
-             pitem->setCheckState(Qt::Checked);
-         else
-             pitem->setCheckState(Qt::Unchecked);
-         gmodele->appendRow(pitem);
-         glistMC << quer.value(1).toString();
-         quer.next();
-     }
-     tabMC->setModel(gmodele);
-     tabMC->setSelectionModel(gselection);
-
-     QFontMetrics fm(qApp->font());
-     int hauteurligne = int(fm.height()*1.1);
-     for (int i=0; i<gmodele->rowCount(); i++)
-         tabMC->setRowHeight(i,hauteurligne);
-     tabMC->horizontalHeader()->setFixedHeight(hauteurligne);
-     tabMC->setColumnWidth(0,300);
+    QFontMetrics fm(qApp->font());
+    int hauteurligne = int(fm.height()*1.1);
+    for (int i=0; i<gmodele->rowCount(); i++)
+        tabMC->setRowHeight(i,hauteurligne);
+    tabMC->horizontalHeader()->setFixedHeight(hauteurligne);
+    tabMC->setColumnWidth(0,300);
 }

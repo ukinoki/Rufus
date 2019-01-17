@@ -66,7 +66,7 @@ private:
     Procedures              *proc;
     UpDialog                *gAskAppareil, *gAskMDP;
     User                    *gDataUser;
-    QSqlDatabase            db;
+    DataBase                *db;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
     QStringList             glistAppareils;
     QTimer                  *gTimerVerifPosteImportDocs, *gTimerVerifTCP;;

@@ -586,9 +586,9 @@ bool ImportDocsExternesThread::DefinitDossiers()
     if (db->getMode() == DataBase::Poste)
     {
         NomOnglet = tr("Monoposte");
-        QSqlQuery dirquer("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, db->getDataBase());
-        dirquer.first();
-        NomDirStockageImagerie = dirquer.value(0).toString();
+        bool ok;
+        QList<QVariant> dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, ok);
+        NomDirStockageImagerie = dirdata.at(0).toString();
     }
     if (db->getMode() == DataBase::ReseauLocal)
     {

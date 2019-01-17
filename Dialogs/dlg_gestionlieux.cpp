@@ -21,7 +21,7 @@ along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)  : UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionLieux", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    db              = DataBase::getInstance()->getDataBase();
+    db              = DataBase::getInstance();
     AjouteLayButtons(UpDialog::ButtonClose);
     connect(CloseButton, SIGNAL(clicked(bool)), this, SLOT(Slot_EnregLieux()));
 
@@ -99,7 +99,7 @@ void dlg_GestionLieux::Slot_AfficheDetails(QModelIndex idx, QModelIndex)
         }
     }
     Adressuplbl->setText(data);
-    widg->moinsBouton->setEnabled(QSqlQuery("select iduser from " NOM_TABLE_JOINTURESLIEUX " where idlieu = " + tabModel->itemData(tabModel->index(row,0)).value(0).toString(), db).size() == 0);
+    widg->moinsBouton->setEnabled(db->StandardSelectSQL("select iduser from " NOM_TABLE_JOINTURESLIEUX " where idlieu = " + tabModel->itemData(tabModel->index(row,0)).value(0).toString(), ok).size() == 0);
 }
 
 void dlg_GestionLieux::Slot_ChoixButtonFrame(int i)
@@ -152,7 +152,7 @@ void dlg_GestionLieux::Slot_EnregNouvLieu()
                         "'" + Utils::correctquoteSQL(Utils::trimcapitilize(ledittel->text())) + "', "
                         "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditfax->text())) + "')";
         //qDebug() << req;
-        QSqlQuery(req,db);
+        db->StandardSQL(req);
         delete tabModel;
         ReconstruitModel();
         gLieuDialog->accept();
@@ -265,19 +265,18 @@ void dlg_GestionLieux::ModifLieu()
     QString req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE
                   " where idLieu = " + QString::number(idLieuAModifier);
     //qDebug() << req;
-    QSqlQuery quer(req,db);
-    quer.first();
-    if (quer.value(1).toString() != "")
-        leditnom    ->setText(quer.value(1).toString());
+    QList<QVariant> lieudata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (lieudata.at(1).toString() != "")
+        leditnom    ->setText(lieudata.at(1).toString());
     else
         leditnom    ->setText(tr("non défini"));
-    leditadr1   ->setText(quer.value(2).toString());
-    leditadr2   ->setText(quer.value(3).toString());
-    leditadr3   ->setText(quer.value(4).toString());
-    leditcp     ->setText(quer.value(5).toString());
-    leditville  ->setText(quer.value(6).toString());
-    ledittel    ->setText(quer.value(7).toString());
-    leditfax    ->setText(quer.value(8).toString());
+    leditadr1   ->setText(lieudata.at(2).toString());
+    leditadr2   ->setText(lieudata.at(3).toString());
+    leditadr3   ->setText(lieudata.at(4).toString());
+    leditcp     ->setText(lieudata.at(5).toString());
+    leditville  ->setText(lieudata.at(6).toString());
+    ledittel    ->setText(lieudata.at(7).toString());
+    leditfax    ->setText(lieudata.at(8).toString());
     connect(gLieuDialog->OKButton, SIGNAL(clicked(bool)), this, SLOT(Slot_ModifLieu()));
     gLieuDialog->exec();
     delete  gLieuDialog;
@@ -299,7 +298,7 @@ void dlg_GestionLieux::Slot_ModifLieu()
                         "LieuFax = '"       + Utils::correctquoteSQL(Utils::trimcapitilize(leditfax->text())) + "' " +
                         "where idLieu = "   + QString::number(idLieuAModifier);
         //qDebug() << req;
-        QSqlQuery(req,db);
+        db->StandardSQL(req);
         delete tabModel;
         ReconstruitModel();
         gLieuDialog->accept();
@@ -314,7 +313,7 @@ void dlg_GestionLieux::SupprLieu()
     QString lieu = tabModel->itemData(tabModel->index(tabLM->currentIndex().row(),1)).value(0).toString();
     if (UpMessageBox::Question(this,tr("Suppression d'un lieu de soins"),tr("voulez vous vraiment supprimer") + "\n" + lieu + " ?") == UpSmallButton::STARTBUTTON)
     {
-        QSqlQuery("delete from " NOM_TABLE_LIEUXEXERCICE " where idlieu = " + QString::number(idLieuASupprimer), db);
+        db->SupprRecordFromTable(idLieuASupprimer, "idLieu", NOM_TABLE_LIEUXEXERCICE);
         ReconstruitModel();
         dlg_message(QStringList() << lieu + " supprimé", 3000);
         ReconstruitModel();
@@ -364,19 +363,20 @@ void dlg_GestionLieux::ReconstruitModel()
     QStandardItem *pitem7;
     QStandardItem *pitem8;
 
-    QSqlQuery quer("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE,db);
-    for (int i=0; i<quer.size(); i++)
+    QList<QList<QVariant>> listlieux = db->StandardSelectSQL("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE,ok);
+    if(!ok)
+        return;
+    for (int i=0; i<listlieux.size(); i++)
     {
-        quer.seek(i);
-        pitem0 = new QStandardItem(quer.value(0).toString());
-        pitem1 = new QStandardItem(quer.value(1).toString()==""? tr("non défini") : quer.value(1).toString());
-        pitem2 = new QStandardItem(quer.value(2).toString());
-        pitem3 = new QStandardItem(quer.value(3).toString());
-        pitem4 = new QStandardItem(quer.value(4).toString());
-        pitem5 = new QStandardItem(quer.value(5).toString());
-        pitem6 = new QStandardItem(quer.value(6).toString());
-        pitem7 = new QStandardItem(quer.value(7).toString());
-        pitem8 = new QStandardItem(quer.value(8).toString());
+        pitem0 = new QStandardItem(listlieux.at(i).at(0).toString());
+        pitem1 = new QStandardItem(listlieux.at(i).at(1).toString()==""? tr("non défini") : listlieux.at(i).at(1).toString());
+        pitem2 = new QStandardItem(listlieux.at(i).at(2).toString());
+        pitem3 = new QStandardItem(listlieux.at(i).at(3).toString());
+        pitem4 = new QStandardItem(listlieux.at(i).at(4).toString());
+        pitem5 = new QStandardItem(listlieux.at(i).at(5).toString());
+        pitem6 = new QStandardItem(listlieux.at(i).at(6).toString());
+        pitem7 = new QStandardItem(listlieux.at(i).at(7).toString());
+        pitem8 = new QStandardItem(listlieux.at(i).at(8).toString());
         tabModel->appendRow(QList<QStandardItem*>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5 << pitem6 << pitem7 << pitem8);
     }
 
@@ -412,8 +412,6 @@ void dlg_GestionLieux::ReconstruitModel()
     tabLM->setSelectionBehavior(QAbstractItemView::SelectRows);
     tabLM->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
-    tabLM->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-
     tabLM->setStyleSheet("QTableView {selection-color: rgb(0,0,0); selection-background-color: rgb(164, 205, 255);}");
 
     int larg = 0;
@@ -424,6 +422,5 @@ void dlg_GestionLieux::ReconstruitModel()
     int h = int(QFontMetrics(qApp->font()).height()*1.1);
     for (int i=0; i < tabModel->rowCount(); i++)
         tabLM->setRowHeight(i, h);
-    tabLM   ->setFixedWidth(larg+2);
 }
 

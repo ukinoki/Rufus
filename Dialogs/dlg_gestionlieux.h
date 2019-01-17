@@ -23,7 +23,6 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QStandardItemModel>
 #include <QTableView>
-#include <QSqlQuery>
 #include "database.h"
 #include "dlg_message.h"
 #include "macros.h"
@@ -52,7 +51,7 @@ private slots:
     void                    Slot_ModifLieu();
 
 private:
-    QSqlDatabase            db;
+    DataBase                *db;
     QTableView              *tabLM;
     UpDialog                *gLieuDialog;
     UpLabel                 *Adressuplbl;
@@ -73,6 +72,7 @@ private:
     void                    ModifLieuxDialog();
     void                    ReconstruitModel();
     bool                    ValidationFiche();
+    bool                    ok;
 };
 
 #endif // DLG_GESTIONLIEUX_H

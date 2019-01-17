@@ -1936,19 +1936,18 @@ void dlg_refraction::InscriptRefraction()
         MajDonneesOphtaPatient();
     if (gMode == Prescription && a)
     {
+        bool ok;
         QString req = "select max(idrefraction) from " NOM_TABLE_REFRACTION " where idpat = " + QString::number(gidPatient);
-        QSqlQuery quer(req,db->getDataBase());
-        if (quer.size()>0)
+        QList<QVariant> refractdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (ok && refractdata.size()>0)
         {
-            quer.first();
-            gidRefraction = quer.value(0).toInt();
+            gidRefraction = refractdata.at(0).toInt();
             req = "select max(idimpression) from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient);
-            QSqlQuery quer1(req,db->getDataBase());
-            if (quer1.size()>0)
+            QList<QVariant> imprdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+            if (ok && imprdata.size()>0)
             {
-                quer1.first();
-                int idimp = quer1.value(0).toInt();
-                QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set idRefraction = " + QString::number(gidRefraction) + " where idimpression = " + QString::number(idimp),db->getDataBase());
+                int idimp = imprdata.at(0).toInt();
+                db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set idRefraction = " + QString::number(gidRefraction) + " where idimpression = " + QString::number(idimp));
             }
         }
     }
@@ -1957,18 +1956,18 @@ void dlg_refraction::InscriptRefraction()
 QString dlg_refraction::InsertCommentaireObligatoire()
 {
     QString rep ("");
+    bool ok;
     QString req = "SELECT TextComment"
                   " FROM "  NOM_TABLE_COMMENTAIRESLUNETTES
                   " WHERE idUser = " + QString::number(gidUser) +
                   " and ParDefautComment = 1"
                   " ORDER BY ResumeComment";
-    QSqlQuery quer(req,db->getDataBase());
-    if (quer.size()>0)
-        for (int i=0; i<quer.size(); i++)
+    QList<QList<QVariant>> commentlist = db->StandardSelectSQL(req,ok);
+    if (ok && commentlist.size()>0)
+        for (int i=0; i<commentlist.size(); i++)
         {
-            quer.seek(i);
-            rep += quer.value(0).toString();
-            if (i<quer.size()-1)
+            rep += commentlist.at(i).at(0).toString();
+            if (i<commentlist.size()-1)
                 rep += "\n";
         }
     return rep;
@@ -1979,121 +1978,61 @@ QString dlg_refraction::InsertCommentaireObligatoire()
 //---------------------------------------------------------------------------------
 void dlg_refraction::InsertDonneesOphtaPatient()
 {
-   QString requete = "INSERT INTO " NOM_TABLE_DONNEES_OPHTA_PATIENTS
-              " (idPat, QuelleMesure, QuelleDistance, K1OD, K2OD, AxeKOD, K1OG, K2OG, AxeKOG, OrigineK, DateK, "
-              " SphereOD, CylindreOD, AxeCylindreOD, AVLOD, AddVPOD, AVPOD, DateRefOD, "
-              " SphereOG, CylindreOG, AxeCylindreOG, AVLOG, AddVPOG, AVPOG, DateRefOG) "
-              " VALUES "
-              " (:idPat, :QuelleMesure, :QuelleDistance, :K1OD, :K2OD, :AxeKOD, :K1OG, :K2OG, :AxeKOG, :OrigineK, :DateK, "
-              " :SphereOD, :CylindreOD, :AxeCylindreOD, :AVLOD, :AddVPOD, :AVPOD, :DateRefOD, "
-              " :SphereOG, :CylindreOG, :AxeCylindreOG, :AVLOG, :AddVPOG, :AVPOG, :DateRefOG) ";
-
-
-   gstringListe1.clear();
-   gstringListe2.clear();
-
-   gstringListe1 << ":idPat";
-   gstringListe2 << QString::number(gidPatient);
-   gstringListe1 << ":QuelleMesure";
-   gstringListe2 << QuelleMesure();
-   gstringListe1 << ":QuelleDistance";
-   gstringListe2 << QuelleDistance();
+   QHash<QString,QVariant> listbinds;
+   listbinds["idPat"]           = gidPatient;
+   listbinds["QuelleMesure"]    = QuelleMesure();
+   listbinds["QuelleDistance"]  = QuelleDistance();
    if ((ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0) && ui->ODCheckBox->isChecked()) // 16-07-2014
    {
-       gstringListe1 << ":K1OD";
-       gstringListe2 << QString::number(QLocale().toDouble(ui->K1OD->text()),'f',2);
-       gstringListe1 << ":K2OD";
-       gstringListe2 << QString::number(QLocale().toDouble(ui->K2OD->text()),'f',2);
-       gstringListe1 << ":AxeKOD";
-       gstringListe2 << ui->AxeKOD->text();
+       listbinds["K1OD"]        = QLocale().toDouble(ui->K1OD->text());
+       listbinds["K1OD"]        = QLocale().toDouble(ui->K2OD->text());
+       listbinds["AxeKOD"]      = ui->AxeKOD->text();
    }
    if ((ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0) && ui->OGCheckBox->isChecked())  // 16-07-2014
    {
-       gstringListe1 << ":K1OG";
-       gstringListe2 << QString::number(QLocale().toDouble(ui->K1OG->text()),'f',2);
-       gstringListe1 << ":K2OG";
-       gstringListe2 << QString::number(QLocale().toDouble(ui->K2OG->text()),'f',2);
-       gstringListe1 << ":AxeKOG";
-       gstringListe2 << ui->AxeKOG->text();
+       listbinds["K1OG"]        = QLocale().toDouble(ui->K1OG->text());
+       listbinds["K1OG"]        = QLocale().toDouble(ui->K2OG->text());
+       listbinds["AxeKOG"]      = ui->AxeKOG->text();
    }
    if (ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0 || // 16-07-2014
        ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0)   // 16-07-2014
    {
-       gstringListe1 << ":OrigineK";
-       gstringListe2 << QuelleMesure();
-       gstringListe1 << ":DateK";
-       gstringListe2 << ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+       listbinds["OrigineK"]     = QuelleMesure();
+       listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
    }
-
    if (ui->ODCheckBox->isChecked())
    {
-       gstringListe1 << ":SphereOD";
-       gstringListe2 << QString::number(ui->SphereOD->value());
+       listbinds["SphereOD"]     = ui->SphereOD->value();
        if (ui->CylindreOD->value() != 0.0)
        {
-           gstringListe1 << ":CylindreOD";
-           gstringListe2 << QString::number(ui->CylindreOD->value());
-           gstringListe1 << ":AxeCylindreOD";
-           gstringListe2 << QString::number(ui->AxeCylindreOD->value());
+           listbinds["CylindreOD"]      = ui->CylindreOD->value();
+           listbinds["AxeCylindreOD"]   = ui->AxeCylindreOD->value();
        }
        if (gMode == Refraction)
-       {
-           gstringListe1 << ":AVLOD";
-           gstringListe2 << AVLOD->text();
-       }
+           listbinds["AVLOD"]   = AVLOD->text();
        if (ui->AddVPOD->value() > 0  && gMode == Refraction)
-       {
-           gstringListe1 << ":AddVPOD";
-           gstringListe2 << QString::number(ui->AddVPOD->value());
-       }
+           listbinds["AddVPOD"] = ui->AddVPOD->value();
        if (gMode == Refraction  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
-       {
-           gstringListe1 << ":AVPOD";
-           gstringListe2 << AVPOD->text();
-       }
-       gstringListe1 << ":DateRefOD";
-       gstringListe2 << ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+           listbinds["AVPOD"]   = AVPOD->text();
+       listbinds["DateRefOD"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
    }
    if (ui->OGCheckBox->isChecked())
    {
-       gstringListe1 << ":SphereOG";
-       gstringListe2 << QString::number(ui->SphereOG->value());
+       listbinds["SphereOG"]     = ui->SphereOG->value();
        if (ui->CylindreOG->value() != 0.0)
        {
-           gstringListe1 << ":CylindreOG";
-           gstringListe2 << QString::number(ui->CylindreOG->value());
-           gstringListe1 << ":AxeCylindreOG";
-           gstringListe2 << QString::number(ui->AxeCylindreOG->value());
+           listbinds["CylindreOG"]      = ui->CylindreOG->value();
+           listbinds["AxeCylindreOG"]   = ui->AxeCylindreOG->value();
        }
        if (gMode == Refraction)
-       {
-           gstringListe1 << ":AVLOG";
-           gstringListe2 << AVLOG->text();
-       }
-       if (ui->AddVPOG->value() > 0 && gMode == Refraction)
-       {
-           gstringListe1 << ":AddVPOG";
-           gstringListe2 << QString::number(ui->AddVPOG->value());
-       }
+           listbinds["AVLOG"]   = AVLOG->text();
+       if (ui->AddVPOG->value() > 0  && gMode == Refraction)
+           listbinds["AddVPOG"] = ui->AddVPOG->value();
        if (gMode == Refraction  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
-       {
-           gstringListe1 << ":AVPOG";
-           gstringListe2 << AVPOG->text();
-       }
-       gstringListe1 << ":DateRefOG";
-       gstringListe2 << ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+           listbinds["AVPOG"]   = AVPOG->text();
+       listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
    }
-
-
-     QSqlQuery InsertDonneesOphtaQuery (db->getDataBase());
-   InsertDonneesOphtaQuery.prepare(requete);
-   for (int i = 0; i< gstringListe1.size(); i++)
-   {
-       InsertDonneesOphtaQuery.bindValue(gstringListe1.at(i), gstringListe2.at(i));
-   }
-   InsertDonneesOphtaQuery.exec();
-   if (DataBase::getInstance()->erreurRequete(InsertDonneesOphtaQuery,requete, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS))
-       return;
+   db->InsertSQLByBinds(NOM_TABLE_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS);
 }
 
 //---------------------------------------------------------------------------------
@@ -2116,182 +2055,84 @@ bool dlg_refraction::InsertRefraction()
               " :BasePrismeTextOG, :PressOnOG, :DepoliOG, :PlanOG, :RyserOG, :FormuleOG, "
               " :CommentaireOrdoLunettes, :QuelsVerres, :QuelOeil, :Monture, :VerreTeinte, :PrimKeyDocMed) ";
 
-    gstringListe1.clear();
-    gstringListe2.clear();
-
-    gstringListe1 << ":idPat";
-    gstringListe2 << QString::number(gidPatient);
-    gstringListe1 << ":idActe";
-    gstringListe2 << QString::number(gidActe);
-    gstringListe1 << ":DateRefraction";
-    gstringListe2 << ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
-    gstringListe1 << ":QuelleMesure";
-    gstringListe2 << QuelleMesure();
+    QHash<QString,QVariant> listbinds;
+    listbinds["idPat"]              = gidPatient;
+    listbinds["idActe"]             = gidActe;
+    listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+    listbinds["QuelleMesure"]       = QuelleMesure();
     if(QuelleMesure() != "A")
-    {
-        gstringListe1 << ":QuelleDistance";
-        gstringListe2 << QuelleDistance();
-    }
+        listbinds["QuelleDistance"]  = QuelleDistance();
     if(QuelleMesure() == "A" || QuelleMesure() == "R")
-    {
-        gstringListe1 << ":Cycloplegie";
-        if (ui->CycloplegieCheckBox->isChecked())
-            gstringListe2 << "1";
-        else
-            gstringListe2 << "0";
-    }
-    gstringListe1 << ":ODcoche";
-    if (ui->ODCheckBox->isChecked())
-        gstringListe2 << "1";
-    else
-        gstringListe2 << "0";
+        listbinds["Cycloplegie"]    = ui->CycloplegieCheckBox->isChecked()? 1 : 0;
+
+    listbinds["ODcoche"]            = ui->ODCheckBox->isChecked()? 1 : 0;
     if(ui->ODCheckBox->isChecked())
     {
-        gstringListe1 << ":SphereOD";
-        gstringListe2 << QString::number(ui->SphereOD->value());
+        listbinds["SphereOD"]       = ui->SphereOD->value();
         if (ui->CylindreOD->value() != 0.0)
         {
-            gstringListe1 << ":CylindreOD";
-            gstringListe2 << QString::number(ui->CylindreOD->value());
-            gstringListe1 << ":AxeCylindreOD";
-            gstringListe2 << QString::number(ui->AxeCylindreOD->value());
+            listbinds["CylindreOD"]      = ui->CylindreOD->value();
+            listbinds["AxeCylindreOD"]   = ui->AxeCylindreOD->value();
         }
     }
     if(AVLOD->isVisible())
-    {
-        gstringListe1 << ":AVLOD";
-        gstringListe2 << AVLOD->text();
-    }
+        listbinds["AVLOD"]   = AVLOD->text();
     if(ui->AddVPOD->isVisible())
-    {
-        gstringListe1 << ":AddVPOD";
-        gstringListe2 << QString::number(ui->AddVPOD->value());
-    }
+        listbinds["AddVPOD"] = ui->AddVPOD->value();
     if(AVPOD->isVisible())
-    {
-        gstringListe1 << ":AVPOD";
-        gstringListe2 << AVPOD->text().replace(",",".");
-    }
+        listbinds["AVPOD"]   = AVPOD->text();
     if(ui->PrismeOD->isVisible() && ui->PrismeOD->text().toDouble() > 0)
     {
-        gstringListe1 << ":PrismeOD";
-        gstringListe2 << QString::number(ui->PrismeOD->value());
-        gstringListe1 << ":BasePrismeOD";
-        gstringListe2 << QString::number(ui->BasePrismeOD->value());
-        gstringListe1 << ":BasePrismeTextOD";
-        gstringListe2 << ui->BasePrismeTextODComboBox->currentText();
-        gstringListe1 << ":PressOnOD";
-        if (ui->PressonODCheckBox->isChecked())
-            gstringListe2 << "1";
-        else
-            gstringListe2 << "0";
+        listbinds["PrismeOD"]           = ui->PrismeOD->value();
+        listbinds["BasePrismeOD"]       = ui->BasePrismeOD->value();
+        listbinds["BasePrismeTextOD"]   = ui->BasePrismeTextODComboBox->currentText();
+        listbinds["PressOnOD"]          = ui->PressonODCheckBox->isChecked()? 1 : 0;
     }
-    gstringListe1 << ":DepoliOD";
-    if (ui->DepoliODCheckBox->isChecked())
-        gstringListe2 << "1";
-    else
-        gstringListe2 << "0";
-    gstringListe1 << ":PlanOD";
-    if (ui->PlanODCheckBox->isChecked())
-        gstringListe2 << "1";
-    else
-        gstringListe2 << "0";
+    listbinds["DepoliOD"]               = ui->DepoliODCheckBox->isChecked()? 1 : 0;
+    listbinds["PlanOD"]                 = ui->PlanODCheckBox->isChecked()? 1 : 0;
     if(ui->RyserODCheckBox->isChecked())
-    {
-        gstringListe1 << ":RyserOD";
-        gstringListe2 << QString::number(ui->RyserSpinBox->value());
-    }
-    gstringListe1 << ":FormuleOD";
-    gstringListe2 << CalculFormule_OD();
+        listbinds["RyserOD"]            = ui->RyserSpinBox->value();
+    listbinds["FormuleOD"]              = CalculFormule_OD();
 
-    gstringListe1 << ":OGcoche";
-    if (ui->OGCheckBox->isChecked())
-        gstringListe2 << "1";
-    else
-        gstringListe2 << "0";
+    listbinds["OGcoche"]            = ui->OGCheckBox->isChecked()? 1 : 0;
     if(ui->OGCheckBox->isChecked())
     {
-        gstringListe1 << ":SphereOG";
-        gstringListe2 << QString::number(ui->SphereOG->value());
+        listbinds["SphereOG"]       = ui->SphereOG->value();
         if (ui->CylindreOG->value() != 0.0)
         {
-            gstringListe1 << ":CylindreOG";
-            gstringListe2 << QString::number(ui->CylindreOG->value());
-            gstringListe1 << ":AxeCylindreOG";
-            gstringListe2 << QString::number(ui->AxeCylindreOG->value());
+            listbinds["CylindreOG"]      = ui->CylindreOG->value();
+            listbinds["AxeCylindreOG"]   = ui->AxeCylindreOG->value();
         }
     }
     if(AVLOG->isVisible())
-    {
-        gstringListe1 << ":AVLOG";
-        gstringListe2 << AVLOG->text();
-    }
+        listbinds["AVLOG"]   = AVLOG->text();
     if(ui->AddVPOG->isVisible())
-    {
-        gstringListe1 << ":AddVPOG";
-        gstringListe2 << QString::number(ui->AddVPOG->value());
-    }
+        listbinds["AddVPOG"] = ui->AddVPOG->value();
     if(AVPOG->isVisible())
-    {
-        gstringListe1 << ":AVPOG";
-        gstringListe2 << AVPOG->text().replace(",",".");
-    }
+        listbinds["AVPOG"]   = AVPOG->text();
     if(ui->PrismeOG->isVisible() && ui->PrismeOG->text().toDouble() > 0)
     {
-        gstringListe1 << ":PrismeOG";
-        gstringListe2 << QString::number(ui->PrismeOG->value());
-        gstringListe1 << ":BasePrismeOG";
-        gstringListe2 << QString::number(ui->BasePrismeOG->value());
-        gstringListe1 << ":BasePrismeTextOG";
-        gstringListe2 << ui->BasePrismeTextOGComboBox->currentText();
-        gstringListe1 << ":PressOnOG";
-        if (ui->PressonOGCheckBox->isChecked())
-            gstringListe2 << "1";
-        else
-            gstringListe2 << "0";
+        listbinds["PrismeOG"]           = ui->PrismeOG->value();
+        listbinds["BasePrismeOG"]       = ui->BasePrismeOG->value();
+        listbinds["BasePrismeTextOG"]   = ui->BasePrismeTextOGComboBox->currentText();
+        listbinds["PressOnOG"]          = ui->PressonOGCheckBox->isChecked()? 1 : 0;
     }
-    gstringListe1 << ":DepoliOG";
-    if (ui->DepoliOGCheckBox->isChecked())
-        gstringListe2 << "1";
-    else
-        gstringListe2 << "0";
-    gstringListe1 << ":PlanOG";
-    if (ui->PlanOGCheckBox->isChecked())
-        gstringListe2 << "1";
-    else
-        gstringListe2 << "0";
+    listbinds["DepoliOG"]               = ui->DepoliOGCheckBox->isChecked()? 1 : 0;
+    listbinds["PlanOG"]                 = ui->PlanOGCheckBox->isChecked()? 1 : 0;
     if(ui->RyserOGCheckBox->isChecked())
-    {
-        gstringListe1 << ":RyserOG";
-        gstringListe2 << QString::number(ui->RyserSpinBox->value());
-    }
-    gstringListe1 << ":FormuleOG";
-    gstringListe2 << CalculFormule_OG();
-   if(QuelleMesure() == "O")
-   {
-       gstringListe1 << ":CommentaireOrdoLunettes";
-       gstringListe2 << CalculCommentaire();
-       gstringListe1 << ":QuelsVerres";
-       gstringListe2 << QuelsVerres();
-       gstringListe1 << ":QuelOeil";
-       gstringListe2 << QuelsYeux();
-       gstringListe1 << ":Monture";
-       gstringListe2 << QuelleMonture();
-       gstringListe1 << ":VerreTeinte";
-       if (ui->VerresTeintesCheckBox->isChecked())
-           gstringListe2 << "1";
-       else
-           gstringListe2 << "0";
-    }
-    gstringListe1 << ":PrimKeyDocMed";
-    gstringListe2 << QString::number(gidPatient);
+        listbinds["RyserOG"]            = ui->RyserSpinBox->value();
+    listbinds["FormuleOG"]              = CalculFormule_OG();
 
-    QSqlQuery InsertRefractionQuery (db->getDataBase());
-    InsertRefractionQuery.prepare(requete);
-    for (int i = 0; i< gstringListe1.size(); i++)
-        InsertRefractionQuery.bindValue(gstringListe1.at(i), gstringListe2.at(i));
-    InsertRefractionQuery.exec();
-    return !DataBase::getInstance()->erreurRequete(InsertRefractionQuery,requete, tr("Erreur de création dans ") + NOM_TABLE_REFRACTION);
+    if(QuelleMesure() == "O")
+    {
+        listbinds["CommentaireOrdoLunettes"]    = CalculCommentaire();
+        listbinds["QuelsVerres"]                = QuelsVerres();
+        listbinds["QuelOeil"]                   = QuelsYeux();
+        listbinds["Monture"]                    = QuelleMonture();
+        listbinds["VerreTeinte"]                = ui->VerresTeintesCheckBox->isChecked()? 1 : 0;
+    }
+    listbinds["PrimKeyDocMed"]              = gidPatient;
+    return db->InsertSQLByBinds(NOM_TABLE_REFRACTION, listbinds, tr("Erreur de création dans ") + NOM_TABLE_REFRACTION);
 }
 
 //---------------------------------------------------------------------------------
@@ -2306,6 +2147,7 @@ bool dlg_refraction::InsertRefraction()
 //---------------------------------------------------------------------------------
 int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun, QString Cycloplegie, QString IdRefraction, QString Affichage, QString OeilCoche, QString FormuleOD, QString FormuleOG)
 {
+    bool ok;
     QString a;
     QString requete = "SELECT  idRefraction, idPat, DateRefraction, QuelleMesure, QuelleDistance, "           // 0-1-2-3-4
             " Cycloplegie, ODcoche, SphereOD, CylindreOD, AxeCylindreOD, AVLOD, "                   // 5-6-7-8-9-10
@@ -2344,90 +2186,88 @@ int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun,
     // on ajoute un tri sur la date, du plus rescent au plus ancien.
     requete += " ORDER BY DateRefraction, idRefraction";
 
-    QSqlQuery LectureMesureQuery (requete,db->getDataBase());
-    if (DataBase::getInstance()->erreurRequete(LectureMesureQuery,requete,"Impossible d'accéder à la liste table des mesures!"))
+    QList<QList<QVariant>> mesureslist = db->StandardSelectSQL(requete, ok, tr("Impossible d'accéder à la liste table des mesures!"));
+    if (!ok || mesureslist.size()==0)
         return 0;
-    if (LectureMesureQuery.size() == 0) return 0;
-    LectureMesureQuery.last();
 
     if (Affichage != "")
     {
         if (Affichage != "QUNOEIL")
         {
-            if (LectureMesureQuery.value(3).toString() == "P")  gMode = Porte;                                              // QuelleMesure
-            if (LectureMesureQuery.value(3).toString() == "A")  gMode = Autoref;                                            // QuelleMesure
-            if (LectureMesureQuery.value(3).toString() == "R")  gMode = Refraction;                                         // QuelleMesure
-            if (LectureMesureQuery.value(3).toString() == "O")  gMode = Prescription;                                       // QuelleMesure
-            if (LectureMesureQuery.value(4).toString() == "L")   ui->VLRadioButton->setChecked(true);                       // QuelleDistance
-            if (LectureMesureQuery.value(4).toString() == "P")   ui->VPRadioButton->setChecked(true);                       // QuelleDistance
-            if (LectureMesureQuery.value(4).toString() == "2")   ui->V2RadioButton->setChecked(true);                       // QuelleDistance
-            ui->CycloplegieCheckBox->setChecked(LectureMesureQuery.value(5).toBool());                                      // Cycloplegie
+            if (mesureslist.last().at(3).toString() == "P")  gMode = Porte;                                              // QuelleMesure
+            if (mesureslist.last().at(3).toString() == "A")  gMode = Autoref;                                            // QuelleMesure
+            if (mesureslist.last().at(3).toString() == "R")  gMode = Refraction;                                         // QuelleMesure
+            if (mesureslist.last().at(3).toString() == "O")  gMode = Prescription;                                       // QuelleMesure
+            if (mesureslist.last().at(4).toString() == "L")   ui->VLRadioButton->setChecked(true);                       // QuelleDistance
+            if (mesureslist.last().at(4).toString() == "P")   ui->VPRadioButton->setChecked(true);                       // QuelleDistance
+            if (mesureslist.last().at(4).toString() == "2")   ui->V2RadioButton->setChecked(true);                       // QuelleDistance
+            ui->CycloplegieCheckBox->setChecked(mesureslist.last().at(5).toBool());                                      // Cycloplegie
 
-            ui->CommentairePrescriptionTextEdit->setPlainText(LectureMesureQuery.value(36).toString());                     // CommentaireOrdoLunettes
-            if (LectureMesureQuery.value(37).toString() == "L")   ui->VLPrescritRadioButton->setChecked(true);              // QuelsVerres
-            if (LectureMesureQuery.value(37).toString() == "P")   ui->VPPrescritRadioButton->setChecked(true);              // QuelsVerres
-            if (LectureMesureQuery.value(37).toString() == "2")   ui->V2PrescritRadioButton->setChecked(true);              // QuelsVerres
-            if (LectureMesureQuery.value(38).toString() == "D")   ui->OGPrescritCheckBox->setChecked(false);                // QuelsYeux
-            if (LectureMesureQuery.value(38).toString() == "G")   ui->ODPrescritCheckBox->setChecked(false);                // QuelsYeux
-            if (LectureMesureQuery.value(39).toString() == "2")   ui->DeuxMonturesPrescritRadioButton->setChecked(true);    // Monture
-            if (LectureMesureQuery.value(39).toString() == "1")   ui->UneMonturePrescritRadioButton->setChecked(true);      // Monture
-            ui->VerresTeintesCheckBox->setChecked(LectureMesureQuery.value(40).toBool());                                   // VerreTeinte
+            ui->CommentairePrescriptionTextEdit->setPlainText(mesureslist.last().at(36).toString());                     // CommentaireOrdoLunettes
+            if (mesureslist.last().at(37).toString() == "L")   ui->VLPrescritRadioButton->setChecked(true);              // QuelsVerres
+            if (mesureslist.last().at(37).toString() == "P")   ui->VPPrescritRadioButton->setChecked(true);              // QuelsVerres
+            if (mesureslist.last().at(37).toString() == "2")   ui->V2PrescritRadioButton->setChecked(true);              // QuelsVerres
+            if (mesureslist.last().at(38).toString() == "D")   ui->OGPrescritCheckBox->setChecked(false);                // QuelsYeux
+            if (mesureslist.last().at(38).toString() == "G")   ui->ODPrescritCheckBox->setChecked(false);                // QuelsYeux
+            if (mesureslist.last().at(39).toString() == "2")   ui->DeuxMonturesPrescritRadioButton->setChecked(true);    // Monture
+            if (mesureslist.last().at(39).toString() == "1")   ui->UneMonturePrescritRadioButton->setChecked(true);      // Monture
+            ui->VerresTeintesCheckBox->setChecked(mesureslist.last().at(40).toBool());                                   // VerreTeinte
         } // fin affiche non partiel
 
         // Remplissage des champs Oeil Droit
-        if (LectureMesureQuery.value(6).toInt() == 1)
+        if (mesureslist.last().at(6).toInt() == 1)
             ui->ODCheckBox->setChecked(true);                                                               // ODcoche
         if (ui->ODCheckBox->isChecked())
         {
-            Init_Value_DoubleSpin(ui->SphereOD,  LectureMesureQuery.value(7).toDouble());                       // SphereOD
-            Init_Value_DoubleSpin(ui->CylindreOD,LectureMesureQuery.value(8).toDouble());                       // CylindreOD
-            Init_Value_DoubleSpin(ui->AddVPOD,   LectureMesureQuery.value(11).toDouble());                      // AddVPOD
-            ui->AxeCylindreOD->setValue(LectureMesureQuery.value(9).toInt());                                // AxeCylindreOD
-            if (LectureMesureQuery.value(10).toString() != "")
-                AVLOD->setText(LectureMesureQuery.value(10).toString());                                    // AVLOD
-            if (LectureMesureQuery.value(12).toString() != "")
-                AVPOD->setText(LectureMesureQuery.value(12).toString());                                    // AVPOG
-            ui->PrismeOD->setValue(LectureMesureQuery.value(13).toDouble());                                    // PrismeOD
-            ui->BasePrismeOD->setValue(LectureMesureQuery.value(14).toInt());                                // BasePrismeOD
-            ui->PressonODCheckBox->setChecked(LectureMesureQuery.value(16).toBool());                           // PressOnOD
-            ui->DepoliODCheckBox->setChecked(LectureMesureQuery.value(17).toBool());                            // DepoliOD
-            ui->PlanODCheckBox->setChecked(LectureMesureQuery.value(18).toBool());                              // PlanOD
+            Init_Value_DoubleSpin(ui->SphereOD,  mesureslist.last().at(7).toDouble());                       // SphereOD
+            Init_Value_DoubleSpin(ui->CylindreOD,mesureslist.last().at(8).toDouble());                       // CylindreOD
+            Init_Value_DoubleSpin(ui->AddVPOD,   mesureslist.last().at(11).toDouble());                      // AddVPOD
+            ui->AxeCylindreOD->setValue(mesureslist.last().at(9).toInt());                                // AxeCylindreOD
+            if (mesureslist.last().at(10).toString() != "")
+                AVLOD->setText(mesureslist.last().at(10).toString());                                    // AVLOD
+            if (mesureslist.last().at(12).toString() != "")
+                AVPOD->setText(mesureslist.last().at(12).toString());                                    // AVPOG
+            ui->PrismeOD->setValue(mesureslist.last().at(13).toDouble());                                    // PrismeOD
+            ui->BasePrismeOD->setValue(mesureslist.last().at(14).toInt());                                // BasePrismeOD
+            ui->PressonODCheckBox->setChecked(mesureslist.last().at(16).toBool());                           // PressOnOD
+            ui->DepoliODCheckBox->setChecked(mesureslist.last().at(17).toBool());                            // DepoliOD
+            ui->PlanODCheckBox->setChecked(mesureslist.last().at(18).toBool());                              // PlanOD
             ui->RyserODCheckBox->setChecked(false);
-            if (LectureMesureQuery.value(19).toInt() > 0)
+            if (mesureslist.last().at(19).toInt() > 0)
             {
                 ui->RyserODCheckBox->setChecked(true);
-                ui->RyserSpinBox->setValue(LectureMesureQuery.value(19).toInt());                               // RyserOD
+                ui->RyserSpinBox->setValue(mesureslist.last().at(19).toInt());                               // RyserOD
             }
         } // fin Oeil droit coche
 
         // Remplissage des champs Oeil Gauche
-        if (LectureMesureQuery.value(21).toInt() == 1)
+        if (mesureslist.last().at(21).toInt() == 1)
             ui->OGCheckBox->setChecked(true);                                                               // ODcoche
         if (ui->OGCheckBox->isChecked())
         {
-            Init_Value_DoubleSpin(ui->SphereOG,   LectureMesureQuery.value(22).toDouble());                     // SphereOG
-            Init_Value_DoubleSpin(ui->CylindreOG, LectureMesureQuery.value(23).toDouble());                     // CylindreOG
-            Init_Value_DoubleSpin(ui->AddVPOG,    LectureMesureQuery.value(26).toDouble());                     // AddVPOG
-            ui->AxeCylindreOG->setValue(LectureMesureQuery.value(24).toInt());                               // AxeCylindreOG
-            if (LectureMesureQuery.value(25).toString() != "")
-                AVLOG->setText(LectureMesureQuery.value(25).toString());                                    // AVLOG
-            if (LectureMesureQuery.value(27).toString() != "")
-                AVPOG->setText(LectureMesureQuery.value(27).toString());                                    // AVPOG
-            ui->PrismeOG->setValue(LectureMesureQuery.value(28).toDouble());                                    // PrismeOG
-            ui->BasePrismeOG->setValue(LectureMesureQuery.value(29).toInt());                                // BasePrismeOG
-            ui->PressonOGCheckBox->setChecked(LectureMesureQuery.value(31).toBool());                           // PressOnOG
-            ui->DepoliOGCheckBox->setChecked(LectureMesureQuery.value(32).toBool());                            // DepoliOG
-            ui->PlanOGCheckBox->setChecked(LectureMesureQuery.value(33).toBool());                              // PlanOG
+            Init_Value_DoubleSpin(ui->SphereOG,   mesureslist.last().at(22).toDouble());                     // SphereOG
+            Init_Value_DoubleSpin(ui->CylindreOG, mesureslist.last().at(23).toDouble());                     // CylindreOG
+            Init_Value_DoubleSpin(ui->AddVPOG,    mesureslist.last().at(26).toDouble());                     // AddVPOG
+            ui->AxeCylindreOG->setValue(mesureslist.last().at(24).toInt());                               // AxeCylindreOG
+            if (mesureslist.last().at(25).toString() != "")
+                AVLOG->setText(mesureslist.last().at(25).toString());                                    // AVLOG
+            if (mesureslist.last().at(27).toString() != "")
+                AVPOG->setText(mesureslist.last().at(27).toString());                                    // AVPOG
+            ui->PrismeOG->setValue(mesureslist.last().at(28).toDouble());                                    // PrismeOG
+            ui->BasePrismeOG->setValue(mesureslist.last().at(29).toInt());                                // BasePrismeOG
+            ui->PressonOGCheckBox->setChecked(mesureslist.last().at(31).toBool());                           // PressOnOG
+            ui->DepoliOGCheckBox->setChecked(mesureslist.last().at(32).toBool());                            // DepoliOG
+            ui->PlanOGCheckBox->setChecked(mesureslist.last().at(33).toBool());                              // PlanOG
             ui->RyserOGCheckBox->setChecked(false);
-            if (LectureMesureQuery.value(34).toInt() > 0)
+            if (mesureslist.last().at(34).toInt() > 0)
             {
                 ui->RyserOGCheckBox->setChecked(true);
-                ui->RyserSpinBox->setValue(LectureMesureQuery.value(34).toInt());
+                ui->RyserSpinBox->setValue(mesureslist.last().at(34).toInt());
             }                                                                                               // RyserOG
 
         } // fin Oeil gauche coche
     }
-    int w = LectureMesureQuery.value(0).toInt();              // retourne idRefraction
+    int w = mesureslist.last().at(0).toInt();              // retourne idRefraction
     return w;
 }
 
@@ -2437,16 +2277,17 @@ int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun,
 //---------------------------------------------------------------------------------
 void dlg_refraction::MajDonneesOphtaPatient()
 {
-    // Recherche d'un enregistrement existant.
+    // Recherche d'un enregistrement existant
+    bool ok;
     QString MAJrequete = "SELECT   idPat FROM " NOM_TABLE_DONNEES_OPHTA_PATIENTS
               " WHERE   (idPat = " + QString::number(gidPatient) +
               " AND QuelleMesure = '" + QuelleMesure() + "')";
-    QSqlQuery MAJDonnesOphtaQuery (MAJrequete,db->getDataBase());
-    if(DataBase::getInstance()->erreurRequete(MAJDonnesOphtaQuery,MAJrequete,"Impossible de se connecter à la table des Donnees biométriques!"))
+    QList<QList<QVariant>> MAJDonneesOphtalist = db->StandardSelectSQL(MAJrequete, ok, tr("Impossible de se connecter à la table des Donnees biométriques!"));
+    if (!ok)
         return;
     else
     {
-        if (MAJDonnesOphtaQuery.size() > 0)
+        if (MAJDonneesOphtalist.size() > 0)
             UpdateDonneesOphtaPatient();    // Un enregistrement existe : On le met a jour
         else
             InsertDonneesOphtaPatient();    // On cree un entregistement pour ce patient
@@ -2598,6 +2439,7 @@ void    dlg_refraction::QuitteAddVP(UpDoubleSpinBox *obj)
 //---------------------------------------------------------------------------------
 void dlg_refraction::RechercheMesureEnCours()
 {
+    bool ok;
     int i = 0;
     QString Reponse ="";
 
@@ -2605,9 +2447,8 @@ void dlg_refraction::RechercheMesureEnCours()
     QString selrequete = "SELECT idActe FROM " NOM_TABLE_REFRACTION
               " WHERE IdPat = " + QString::number(gidPatient) + " and quellemesure <> 'null'" ;
     //proc->Edit(selrequete);
-    QSqlQuery RechercheMesureQuery1 (selrequete,db->getDataBase());
-    DataBase::getInstance()->erreurRequete(RechercheMesureQuery1,selrequete,"");
-    if (RechercheMesureQuery1.size() == 0)
+    QList<QList<QVariant>> mesurelist = db->StandardSelectSQL(selrequete, ok);
+    if (ok && mesurelist.size() == 0)
     {
         gMode = Porte;
         ui->ReprendrePushButton->setEnabled(false);
@@ -2627,51 +2468,42 @@ void dlg_refraction::RechercheMesureEnCours()
         selrequete = "SELECT idActe, QuelleMesure FROM " NOM_TABLE_REFRACTION   // recherche d'une mesure pour le jour en cours
                   " WHERE DateRefraction = '" + QDate::currentDate().toString("yyyy-MM-dd") +
                   "' AND   IdPat = " + QString::number(gidPatient) ;
-        QSqlQuery RechercheMesureQuery2 (selrequete,db->getDataBase());
-        DataBase::getInstance()->erreurRequete(RechercheMesureQuery2,selrequete,"");
-        if (RechercheMesureQuery2.size() == 0)  break;
-        RechercheMesureQuery2.first();
-        for (int i = 0; i<RechercheMesureQuery2.size();i++)
+        QList<QList<QVariant>> mesurelist2 = db->StandardSelectSQL(selrequete, ok);
+        if (mesurelist2.size() == 0)  break;
+        for (int i = 0; i<mesurelist2.size();i++)
         {
-            if (RechercheMesureQuery2.value(1).toString() == "O")
+            if (mesurelist2.at(i).at(1).toString() == "O")
             {
                 Reponse = "O";
-                i = RechercheMesureQuery2.size();
+                i = mesurelist2.size();
             }
-            RechercheMesureQuery2.next();
         }
         if (Reponse == "O")  break;
-        RechercheMesureQuery2.first();
-        for (int i = 0; i<RechercheMesureQuery2.size();i++)
+        for (int i = 0; i<mesurelist2.size();i++)
         {
-            if (RechercheMesureQuery2.value(1).toString() == "R")
+            if (mesurelist2.at(i).at(1).toString() == "R")
             {
                 Reponse = "R";
-                i = RechercheMesureQuery2.size();
+                i = mesurelist2.size();
             }
-            RechercheMesureQuery2.next();
         }
         if (Reponse == "R") break;
-        RechercheMesureQuery2.first();
-        for (int i = 0; i<RechercheMesureQuery2.size();i++)
+        for (int i = 0; i<mesurelist2.size();i++)
         {
-            if (RechercheMesureQuery2.value(1).toString() == "A")
+            if (mesurelist2.at(i).at(1).toString() == "A")
             {
                 Reponse = "A";
-                i = RechercheMesureQuery2.size();
+                i = mesurelist2.size();
             }
-            RechercheMesureQuery2.next();
         }
         if (Reponse == "A") break;
-        RechercheMesureQuery2.first();
-        for (int i = 0; i<RechercheMesureQuery2.size();i++)
+        for (int i = 0; i<mesurelist2.size();i++)
         {
-            if (RechercheMesureQuery2.value(1).toString() == "P")
+            if (mesurelist2.at(i).at(1).toString() == "P")
             {
                 Reponse = "P";
-                i = RechercheMesureQuery2.size();
+                i = mesurelist2.size();
             }
-            RechercheMesureQuery2.next();
         }
         if (Reponse == "P") break;
         i = 1;
@@ -2718,6 +2550,7 @@ void dlg_refraction::RechercheMesureEnCours()
 //------------------------------------------------------------------------------------------------------
 QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, QString TypLun)
  {
+    bool ok;
     QString     Resultat    ="";
     QString     ResultatOD  = "";
     QString     ResultatOG  = "";
@@ -2741,45 +2574,42 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
         requete +=  " AND QuelleDistance = '" + TypLun + "'";
     requete += " ORDER BY DateRefraction ASC ";
 
-    QSqlQuery RechercheResultatQuery(requete,db->getDataBase());
-    DataBase::getInstance()->erreurRequete(RechercheResultatQuery,requete,"");
-    if (RechercheResultatQuery.size() == 0) return "";                                        // Aucune mesure trouvee pour ces criteres
-    RechercheResultatQuery.last();
-    zdate = RechercheResultatQuery.value(2).toDate().toString(tr("dd-MM-yyyy"));                        // date YYYY-MM-DD
-    if (RechercheResultatQuery.value(0).toBool() && RechercheResultatQuery.value(1).toBool())      // OD coche et OG coche
-        Resultat = tr("dilaté") + ")" "\n\t" + zdate + "\t" + RechercheResultatQuery.value(3).toString() + Separateur + RechercheResultatQuery.value(4).toString();
+    QList<QList<QVariant>> resultlist = db->StandardSelectSQL(requete,ok);
+    if (!ok || resultlist.size() == 0)
+        return "";
+    zdate = resultlist.last().at(2).toDate().toString(tr("dd-MM-yyyy"));                        // date YYYY-MM-DD
+    if (resultlist.last().at(0).toBool() && resultlist.last().at(1).toBool())      // OD coche et OG coche
+        Resultat = tr("dilaté") + ")" "\n\t" + zdate + "\t" + resultlist.last().at(3).toString() + Separateur + resultlist.last().at(4).toString();
     else
     {
         // OD coche = true
-        if (RechercheResultatQuery.value(0).toBool())
+        if (resultlist.last().at(0).toBool())
         {
             DateOD      = zdate;
-            ResultatOD  =  RechercheResultatQuery.value(3).toString();
+            ResultatOD  =  resultlist.last().at(3).toString();
             requete     = requeteBase + " AND OGcoche =  true  ";
             requete     += " ORDER BY DateRefraction DESC ";
-            QSqlQuery RechercheResultatODQuery(requete,db->getDataBase());
-            DataBase::getInstance()->erreurRequete(RechercheResultatODQuery,requete,"");
-            if (RechercheResultatODQuery.isActive() && RechercheResultatODQuery.next())
+            QList<QVariant> resultdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+            if (ok && resultdata.size()>0)
             {
-                zdate      = RechercheResultatODQuery.value(2).toDate().toString(tr("dd-MM-yyyy"));
-                ResultatOG  =  RechercheResultatODQuery.value(4).toString();
+                zdate  = resultdata.at(2).toDate().toString(tr("dd-MM-yyyy"));
+                ResultatOD  =  resultdata.at(3).toString();
             }
         } // fin OD coche
         else
         {
             // OG coche = true
-            if (RechercheResultatQuery.value(1).toBool())
+            if (resultlist.last().at(1).toBool())
             {
                 DateOG      = zdate;
-                ResultatOG  = RechercheResultatQuery.value(4).toString();
+                ResultatOG  = resultlist.last().at(4).toString();
                 requete     = requeteBase + " AND ODcoche =  true  ";
                 requete     += " ORDER BY DateRefraction DESC ";
-                QSqlQuery RechercheResultatOGQuery(requete,db->getDataBase());
-                DataBase::getInstance()->erreurRequete(RechercheResultatOGQuery,requete,"");
-                if (RechercheResultatOGQuery.isActive() && RechercheResultatOGQuery.next())
+                QList<QVariant> resultdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+                if (ok && resultdata.size()>0)
                 {
-                    zdate  = RechercheResultatOGQuery.value(2).toDate().toString(tr("dd-MM-yyyy"));
-                    ResultatOD  =  RechercheResultatOGQuery.value(3).toString();
+                    zdate  = resultdata.at(2).toDate().toString(tr("dd-MM-yyyy"));
+                    ResultatOD  =  resultdata.at(3).toString();
                 }
             }
         }
@@ -2808,6 +2638,7 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
 //------------------------------------------------------------------------------------------------------
 QString dlg_refraction::RechercheVerres()
 {
+    bool ok;
     QString     ResultatVerres = "";
     QString     zdate, Formule, TypeMesure;
 
@@ -2816,27 +2647,25 @@ QString dlg_refraction::RechercheVerres()
                     " WHERE  idPat        =  "+ QString::number(gidPatient) +
                     " AND (QuelleMesure = 'P' OR QuelleMesure = 'O') "
                     " ORDER  BY DateRefraction DESC ";
-
-    QSqlQuery RechercheVerresQuery(requete,db->getDataBase());
-    DataBase::getInstance()->erreurRequete(RechercheVerresQuery,requete,"");
-    RechercheVerresQuery.first();
-    for (int i = 0; i < RechercheVerresQuery.size(); i++)
+    QList<QList<QVariant>> verreslist = db->StandardSelectSQL(requete,ok);
+    if (!ok || verreslist.size() == 0)
+        return "";
+    for (int i = 0; i < verreslist.size(); i++)
         {
-        if (RechercheVerresQuery.value(5).toString() == "O")
+        if (verreslist.at(i).at(5).toString() == "O")
             TypeMesure =  tr("Prescription");
         else
             TypeMesure =  tr("Verres portés");
-        zdate = RechercheVerresQuery.value(2).toString();                         // date YYYY-MM-DD
+        zdate = verreslist.at(i).at(2).toString();                         // date YYYY-MM-DD
         zdate = zdate.mid(8,2) + "-" + zdate.mid(5,2) + "-" + zdate.left(4);
         // calcul Formule
-        Formule = RechercheVerresQuery.value(3).toString();            // Formule OD
+        Formule = verreslist.at(i).at(3).toString();            // Formule OD
         if (Formule.length() > 0)
             Formule += " / ";
-        Formule += RechercheVerresQuery.value(4).toString();           // Formule OG
+        Formule += verreslist.at(i).at(4).toString();           // Formule OG
         if (ResultatVerres != "")
             ResultatVerres += "\n\n";
         ResultatVerres += "        " + zdate + " - " + TypeMesure + "\n\t" + Formule;
-        RechercheVerresQuery.next();
         }
     return ResultatVerres;
 }
@@ -4064,11 +3893,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
         UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss") + "'";
     }
     UpdateDOPrequete +=  " WHERE idPat = " + QString::number(gidPatient) + " AND QuelleMesure = '" + QuelleMesure() + "'";
-    QSqlQuery MAJDonneesOphtaQuery (db->getDataBase());
-    MAJDonneesOphtaQuery.prepare(UpdateDOPrequete);
-
-    MAJDonneesOphtaQuery.exec();
-    DataBase::getInstance()->erreurRequete(MAJDonneesOphtaQuery,UpdateDOPrequete, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+    db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS);
 }
 
 //---------------------------------------------------------------------------------------------------------
