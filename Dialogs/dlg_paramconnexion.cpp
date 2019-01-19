@@ -276,17 +276,16 @@ bool dlg_paramconnexion::TestConnexion()
         Client = DataBase::getInstance()->getServer();
     req = "show grants for '" + Login + (DataBase::getInstance()->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
 #endif
-
-    QSqlQuery grantsquery(req, DataBase::getInstance()->getDataBase());
-    if (grantsquery.size()==0)
+    bool ok;
+    QList<QVariant> grantsdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(req,ok);
+    if (!ok || grantsdata.size()==0)
     {
         UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
                             tr("Impossible de retrouver les droits de l'utilisateur ") + Login + "\n" +
                             tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
         return false;
     }
-    grantsquery.first();
-    QString reponse = grantsquery.value(0).toString();
+    QString reponse = grantsdata.at(0).toString();
     if (reponse.left(9) != "GRANT ALL")
     {
         UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
@@ -295,8 +294,6 @@ bool dlg_paramconnexion::TestConnexion()
                             + "\n" + tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
         return false;
     }
-
-
     return true;
 }
 

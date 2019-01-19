@@ -47,7 +47,7 @@ private:
     bool                OnlyDoctors;
     QString             gNomCor, gPrenomCor, Sexe;
     Procedures          *proc;
-    QSqlDatabase        db;
+    DataBase            *db;
     void                AfficheDossierAlOuverture();
     VilleCPWidget       *VilleCPwidg;
     bool                modif;

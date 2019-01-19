@@ -26,6 +26,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "upmessagebox.h"
 #include "utils.h"
+#include "database.h"
 
 namespace Ui {
 class dlg_identificationuser;
@@ -46,6 +47,7 @@ private slots:
     void                    Slot_RetourAnnul();
 
 private:
+    DataBase                *db;
     int                     ControleDonnees();
     int                     gidUser, gPort;
     //QTimer                  *gTimerControl;

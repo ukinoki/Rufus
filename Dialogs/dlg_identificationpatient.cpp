@@ -29,7 +29,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString CreationModificatio
     proc                = Procedures::I();
     gidPatient          = idPatAPasser;
     lCreatModifCopie    = CreationModification;
-    db                  = DataBase::getInstance()->getDataBase();
+    db                  = DataBase::getInstance();
     QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
     ReconstruireListMG  = false;
     QVBoxLayout *vlay       = new QVBoxLayout;
@@ -154,8 +154,7 @@ dlg_identificationpatient::~dlg_identificationpatient()
 void dlg_identificationpatient::ChoixMG()
 {
     OKButton->setEnabled(true);
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + ui->MGupComboBox->currentData().toString() + " where idpat = " + QString::number(gidPatient);
-    QSqlQuery (req,db);
+    db->StandardSQL("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + ui->MGupComboBox->currentData().toString() + " where idpat = " + QString::number(gidPatient));
 }
 
 void    dlg_identificationpatient::Slot_EnableOKpushButton()
@@ -189,9 +188,10 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
         proc->initListeCorrespondants();
         proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
         QString req = "select idcormedmg from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-        QSqlQuery quer(req,db);
-        if (quer.seek(0))
-            ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(quer.value(0).toInt()));
+        bool ok;
+        QList<QVariant> mgdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (ok && mgdata.size()>0)
+            ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(mgdata.at(0).toInt()));
         else
             ui->MGupComboBox->setCurrentIndex(-1);
     }
@@ -199,6 +199,7 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
 
 void    dlg_identificationpatient::Slot_OKpushButtonClicked()
 {
+    bool ok;
     QString PatNom, PatPrenom, PatDDN, PatCreePar, PatCreeLe;
     PatNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
     PatPrenom   = Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text(),true));
@@ -264,18 +265,17 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         // C - On vérifie ensuite si ce dossier existe déjà
         QString requete = "select idPat from " NOM_TABLE_PATIENTS
                 " where PatNom LIKE '" + PatNom + "%' and PatPrenom LIKE '" + PatPrenom + "%' and PatDDN = '" + PatDDN + "'";
-        QSqlQuery IdentPatientQuery (requete,db);
-        if (DataBase::getInstance()->erreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
+        QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok,  tr("Impossible d'interroger la table des patients!"));
+        if(!ok)
         {
             FermeFiche(Reject);
             return;
         }
 
-        if (IdentPatientQuery.size() > 0)
+        if (patdata.size() > 0)
         {
             UpMessageBox::Watch(this,tr("Ce dossier existe déjà!"));
-            IdentPatientQuery.first();
-            gidPatient = IdentPatientQuery.value(0).toInt();
+            gidPatient = patdata.at(0).toInt();
             AfficheDossierAlOuverture();
             disconnect (OKButton, SIGNAL(clicked()), this, SLOT (Slot_OKpushButtonClicked()));
             connect(OKButton, SIGNAL(clicked(bool)),this,SLOT(Slot_AnnulpushButtonClicked()));
@@ -295,25 +295,19 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                     " (PatNom, PatPrenom, PatDDN, PatCreele, PatCreePar, Sexe) "
                     " VALUES "
                     " ('" + PatNom + "', '" + PatPrenom + "', '" + PatDDN + "', NOW(), '" + PatCreePar +"' , '" + gSexePat +"');";
-        QSqlQuery InsertPatQuery (insrequete,db);
-        if (DataBase::getInstance()->erreurRequete(InsertPatQuery,insrequete,tr("Impossible de créer le dossier")))
+        if (!db->StandardSQL(insrequete, tr("Impossible de créer le dossier")))
         {
             FermeFiche(Reject);
         }
         // Récupération de l'idPatient créé ------------------------------------
         QString recuprequete = "SELECT  idPat FROM " NOM_TABLE_PATIENTS
                     " WHERE PatNom = '" + PatNom + "' AND PatPrenom = '" + PatPrenom + "' AND PatDDN = '" + PatDDN + "'";
-
-        QSqlQuery ChercheIdPatientQuery (recuprequete,db);
-        if (DataBase::getInstance()->erreurRequete(ChercheIdPatientQuery,recuprequete,tr("Impossible de sélectionner les enregistrements")))
-        {
+        QList<QVariant> patdat = db->getFirstRecordFromStandardSelectSQL(recuprequete, ok, tr("Impossible de sélectionner les enregistrements"));
+        if (!ok || patdat.size()==0)
             FermeFiche(Reject);
-        }
-        ChercheIdPatientQuery.first();
-        gidPatient = ChercheIdPatientQuery.value(0).toInt();              // retourne idPatient
+        gidPatient = patdat.at(0).toInt();              // retourne idPatient
         requete =   "INSERT INTO " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(gidPatient) + "')";
-        QSqlQuery CreeDonneeSocialePatientQuery (requete,db);
-        DataBase::getInstance()->erreurRequete(CreeDonneeSocialePatientQuery,requete,tr("Impossible de créer les données sociales"));
+        db->StandardSQL(requete, tr("Impossible de créer les données sociales"));
         FermeFiche(Accept);
     }
     else if (lCreatModifCopie == "Modification")
@@ -323,13 +317,12 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                 " where PatNom LIKE '" + Utils::correctquoteSQL(ui->NomlineEdit->text()) + "%' and PatPrenom LIKE '" +
                 Utils::correctquoteSQL(ui->PrenomlineEdit->text()) + "%' and PatDDN = '" +
                 ui->DDNdateEdit->date().toString("yyyy-MM-dd") + "'";
-        QSqlQuery IdentPatientQuery (requete,db);
-        if (DataBase::getInstance()->erreurRequete(IdentPatientQuery,requete, tr("Impossible d'interroger la table des patients!")))
+        QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok, tr("Impossible d'interroger la table des patients!"));
+        if(!ok)
             return;
-        if (IdentPatientQuery.size() > 0)
+        if (patdata.size() > 0)
         {
-            IdentPatientQuery.first();
-            if (IdentPatientQuery.value(0).toInt() != gidPatient)
+            if (patdata.at(0).toInt() != gidPatient)
             {
                 UpMessageBox::Watch(this,tr("Ce dossier existe déjà!"));
                 return;
@@ -357,10 +350,8 @@ void    dlg_identificationpatient::Slot_AnnulpushButtonClicked()
         msgbox.exec();
         if (msgbox.clickedButton() == &OKBouton)
         {
-            QString AnnulRequete = "delete from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(gidPatient);
-            QSqlQuery (AnnulRequete,db);
-            AnnulRequete = "delete from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idPat = " + QString::number(gidPatient);
-            QSqlQuery (AnnulRequete,db);
+            db->StandardSQL("delete from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(gidPatient));
+            db->StandardSQL("delete from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idPat = " + QString::number(gidPatient));
             FermeFiche(Reject);
         }
         else
@@ -397,20 +388,18 @@ bool dlg_identificationpatient::eventFilter(QObject *obj, QEvent *event)
 --------------------------------------------------------------------------------------------*/
 void dlg_identificationpatient::AfficheDossierAlOuverture()
 {
-   QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS
+    bool ok;
+    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS
             " WHERE idPat = '" + QString::number(gidPatient) + "'";
-    QSqlQuery AfficheDossierQuery (req,db);
-    if (DataBase::getInstance()->erreurRequete(AfficheDossierQuery,req, tr("Impossible de retrouver le dossier de ce patient")))
+    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver le dossier de ce patient!"));
+    if(!ok || patdata.size() == 0)           // Aucune mesure trouvee pour ces criteres
         return;
-    if (AfficheDossierQuery.size() == 0)           // Aucune mesure trouvee pour ces criteres
-        return;
-    AfficheDossierQuery.first();
 
-    gNomPatient = AfficheDossierQuery.value(1).toString();
-    gPrenomPatient = AfficheDossierQuery.value(2).toString();
+    gNomPatient = patdata.at(1).toString();
+    gPrenomPatient = patdata.at(2).toString();
     ui->NomlineEdit->setText(gNomPatient);
-    ui->PrenomlineEdit->setText(AfficheDossierQuery.value(2).toString());
-    ui->DDNdateEdit->setDate(AfficheDossierQuery.value(3).toDate());
+    ui->PrenomlineEdit->setText(patdata.at(2).toString());
+    ui->DDNdateEdit->setDate(patdata.at(3).toDate());
     // pour decocher les 2 radiobutton sexe il faut d'abord leur retirer la propriétét AutoExclusive
     ui->MradioButton->setAutoExclusive(false);
     ui->FradioButton->setAutoExclusive(false);
@@ -418,48 +407,47 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
     ui->FradioButton->setChecked(false);
     ui->MradioButton->setAutoExclusive(true);
     ui->FradioButton->setAutoExclusive(true);
-    Sexe = AfficheDossierQuery.value(4).toString();
+    Sexe = patdata.at(4).toString();
     if (Sexe == "M") ui->MradioButton->setChecked(true);
     if (Sexe == "F") ui->FradioButton->setChecked(true);
     ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(gidPatient));
 
 
-    ui->Createurlabel->setText(tr("Créé le ") + AfficheDossierQuery.value(5).toDate().toString(tr("d-M-yyyy")) + "\n" +
-                               tr("par ") + proc->getLogin(AfficheDossierQuery.value(6).toInt()));
+    ui->Createurlabel->setText(tr("Créé le ") + patdata.at(5).toDate().toString(tr("d-M-yyyy")) + "\n" +
+                               tr("par ") + proc->getLogin(patdata.at(6).toInt()));
 
     //2 - récupération des données sociales
 
     req = "SELECT idPat, PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille, PatTelephone, PatPortable, PatMail, PatNNI, PatALD, PatProfession, PatCMU FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS
             " WHERE idPat = '" + QString::number(gidPatient) + "'";
-    QSqlQuery DonneesSocialesQuery (req,db);
-    if (!DataBase::getInstance()->erreurRequete(DonneesSocialesQuery,req, tr("Impossible de retrouver les données sociales!")))
+    QList<QVariant> socdata = db->getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données sociales!"));
+    if (ok)
     {
-        if (DonneesSocialesQuery.size() > 0)
+        if (socdata.size() > 0)
         {
-            DonneesSocialesQuery.first();
-            ui->Adresse1lineEdit->setText(DonneesSocialesQuery.value(1).toString());
-            ui->Adresse2lineEdit->setText(DonneesSocialesQuery.value(2).toString());
-            ui->Adresse3lineEdit->setText(DonneesSocialesQuery.value(3).toString());
+            ui->Adresse1lineEdit->setText(socdata.at(1).toString());
+            ui->Adresse2lineEdit->setText(socdata.at(2).toString());
+            ui->Adresse3lineEdit->setText(socdata.at(3).toString());
             QString CP;
-            if (DonneesSocialesQuery.value(4).toString() == "")
+            if (socdata.at(4).toString() == "")
                 CP = proc->getCodePostalParDefaut();
             else
-                CP = DonneesSocialesQuery.value(4).toString();
+                CP = socdata.at(4).toString();
             CPlineEdit          ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
 
             CPlineEdit          ->setText(CP);
-            if (DonneesSocialesQuery.value(5).toString() == "")
+            if (socdata.at(5).toString() == "")
                 VillelineEdit   ->setText(proc->getVilleParDefaut());
             else
-                VillelineEdit   ->setText(DonneesSocialesQuery.value(5).toString());
-            ui->TellineEdit     ->setText(DonneesSocialesQuery.value(6).toString());
-            ui->PortablelineEdit->setText(DonneesSocialesQuery.value(7).toString());
-            ui->MaillineEdit    ->setText(DonneesSocialesQuery.value(8).toString());
-            if (DonneesSocialesQuery.value(9).toInt() > 0) ui->NNIlineEdit->setText(DonneesSocialesQuery.value(9).toString());
-            ui->ProfessionlineEdit->setText(DonneesSocialesQuery.value(11).toString());
-            ui->ALDcheckBox     ->setChecked(DonneesSocialesQuery.value(10).toInt() == 1);
-            ui->CMUcheckBox     ->setChecked(DonneesSocialesQuery.value(12).toInt() == 1);
+                VillelineEdit   ->setText(socdata.at(5).toString());
+            ui->TellineEdit     ->setText(socdata.at(6).toString());
+            ui->PortablelineEdit->setText(socdata.at(7).toString());
+            ui->MaillineEdit    ->setText(socdata.at(8).toString());
+            if (socdata.at(9).toInt() > 0) ui->NNIlineEdit->setText(socdata.at(9).toString());
+            ui->ProfessionlineEdit->setText(socdata.at(11).toString());
+            ui->ALDcheckBox     ->setChecked(socdata.at(10).toInt() == 1);
+            ui->CMUcheckBox     ->setChecked(socdata.at(12).toInt() == 1);
         }
         else
         {
@@ -481,13 +469,12 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
     req  = "select idCorMedMG FROM "
             NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
             " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery MGQuery (req,db);
-    if (!DataBase::getInstance()->erreurRequete(MGQuery,req, tr("Impossible de retrouver le médecin traitant!")))
+    QList<QVariant> mgdata = db->getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver le médecin traitant!"));
+    if (ok)
     {
-        if (MGQuery.size() > 0)
+        if (mgdata.size() > 0)
         {
-            MGQuery.first();
-            int idx = ui->MGupComboBox->findData(MGQuery.value(0).toInt());
+            int idx = ui->MGupComboBox->findData(mgdata.at(0).toInt());
             ui->MGupComboBox->setCurrentIndex(idx);
         }
     }
@@ -538,6 +525,7 @@ void dlg_identificationpatient::FermeFiche(enum CloseReason Cause)
 // ------------------------------------------------------------------------------------------
 void dlg_identificationpatient::MAJMG()
 {
+    bool ok;
     QString anc = ui->MGupComboBox->getValeurAvant();
     QString nou = Utils::trimcapitilize(ui->MGupComboBox->currentText(),true);
     ui->MGupComboBox->setCurrentText(nou);
@@ -568,14 +556,14 @@ void dlg_identificationpatient::MAJMG()
                     proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
                     QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-                    QSqlQuery quer(req, DataBase::getInstance()->getDataBase() );
-                    if (quer.size() == 0)
-                        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                                    " (idPat, idcorMedMG) VALUES (" + QString::number(gidPatient) + "," + QString::number(idcor) + ")";
+                    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+                    if (ok && patdata.size() == 0)
+                        req = "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                              " (idPat, idcorMedMG) VALUES (" + QString::number(gidPatient) + "," + QString::number(idcor) + ")";
                     else
                         req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcorMedMG = " + QString::number(idcor)
                             + " where idpat = " + QString::number(gidPatient);
-                    QSqlQuery (req, DataBase::getInstance()->getDataBase() );
+                    db->StandardSQL(req);
                 }
                 else
                     ui->MGupComboBox->setCurrentText(anc);
@@ -586,10 +574,7 @@ void dlg_identificationpatient::MAJMG()
             msgbox.close();
         }
         else if (ui->MGupComboBox->getValeurAvant() != "")
-        {
-            QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = null where idpat = " + QString::number(gidPatient);
-            QSqlQuery (req,db);
-        }
+            db->StandardSQL("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = null where idpat = " + QString::number(gidPatient));
     }
 }
 

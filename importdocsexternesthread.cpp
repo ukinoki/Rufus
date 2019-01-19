@@ -588,7 +588,8 @@ bool ImportDocsExternesThread::DefinitDossiers()
         NomOnglet = tr("Monoposte");
         bool ok;
         QList<QVariant> dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, ok);
-        NomDirStockageImagerie = dirdata.at(0).toString();
+        if (ok && dirdata.size()>0)
+            NomDirStockageImagerie = dirdata.at(0).toString();
     }
     if (db->getMode() == DataBase::ReseauLocal)
     {

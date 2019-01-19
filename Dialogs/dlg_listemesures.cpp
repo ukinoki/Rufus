@@ -27,7 +27,7 @@ dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, QWidget *parent
         gMode       = Supprimer;
     else if (mode == "RECUP")
         gMode       = Recuperer;
-    db          = DataBase::getInstance()->getDataBase();
+    db          = DataBase::getInstance();
 
     QVBoxLayout *globallay       = dynamic_cast<QVBoxLayout*>(layout());
     tabLM              = new QTableView(this);
@@ -147,19 +147,17 @@ void dlg_listemesures::Slot_Item_Liste_Clicked(QModelIndex mod)
 //----------------------------------------------------------------------------------
 void dlg_listemesures::DetruireLaMesure(int IdRefract)
 {
+    bool ok;
     QString requete = "select idPat, quellemesure from " NOM_TABLE_REFRACTION " WHERE  idRefraction = " + QString::number(IdRefract);
-    QSqlQuery quer(requete,db);
-    if (quer.size() > 0)
+    QList<QVariant> mesuredata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
+    if (ok && mesuredata.size() > 0)
     {
-        quer.first();
         requete = "DELETE  FROM " NOM_TABLE_DONNEES_OPHTA_PATIENTS " WHERE  QuelleMesure = '"
-                    + quer.value(1).toString() + "' and idpat = " + quer.value(0).toString();
-        QSqlQuery DetruireMesureQuery2 (requete,db);
-        DataBase::getInstance()->erreurRequete(DetruireMesureQuery2,requete, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
+                    + mesuredata.at(1).toString() + "' and idpat = " + mesuredata.at(0).toString();
+        db->StandardSQL(requete, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
     }
     requete = "DELETE  FROM " NOM_TABLE_REFRACTION " WHERE  idRefraction = " + QString::number(IdRefract);
-    QSqlQuery DetruireMesureQuery (requete,db);
-    DataBase::getInstance()->erreurRequete(DetruireMesureQuery,requete, tr("Impossible de suppimer cette mesure dans refractions!"));
+    db->StandardSQL(requete, tr("Impossible de suppimer cette mesure dans refractions!"));
 }
 
 QString dlg_listemesures::IdRefractAOuvrir()
@@ -184,6 +182,7 @@ int dlg_listemesures::Nombre_Mesure_Selected()
 //--------------------------------------------------------------------------------------
 void dlg_listemesures::RemplirTableView()
 {
+    bool ok;
     QString zw;
     if (gMode == Recuperer)
         OKButton->setEnabled(false);
@@ -193,10 +192,9 @@ void dlg_listemesures::RemplirTableView()
     QString requete = "SELECT  idRefraction, DateRefraction, QuelleMesure, FormuleOD, FormuleOG "
               " FROM "  NOM_TABLE_REFRACTION
               " WHERE  IdPat = " + QString::number(gidPatient);
-
-    QSqlQuery quer (requete,db);
-    if (DataBase::getInstance()->erreurRequete(quer,requete,tr("Impossible de trouver la table des refractions!")))
-            return;
+    QList<QList<QVariant>> refractlist = db->StandardSelectSQL(requete, ok, tr("Impossible de trouver la table des refractions!"));
+    if(!ok)
+        return;
 
     QStandardItem       *pitem0, *pitem1, *pitem2, *pitem3, *pitem4;
     gmodele = dynamic_cast<QStandardItemModel*>(tabLM->model());
@@ -217,25 +215,23 @@ void dlg_listemesures::RemplirTableView()
     pitem1  ->setEditable(false);
     pitem2  ->setEditable(false);
     pitem3  ->setEditable(false);
-    quer.first();
-    for (int i=0; i<quer.size(); i++)
+    for (int i=0; i<refractlist.size(); i++)
     {
-        pitem0  = new QStandardItem(quer.value(1).toDate().toString(tr("dd-MMM-yyyy")));
+        pitem0  = new QStandardItem(refractlist.at(i).at(1).toDate().toString(tr("dd-MMM-yyyy")));
         if (gMode == Recuperer)
             pitem0  ->setCheckable(true);
         QString Mesure = "";
-        if (quer.value(2).toString() == "P")   Mesure = tr("Porte");
-        if (quer.value(2).toString() == "A")   Mesure = tr("AutoRef");
-        if (quer.value(2).toString() == "R")   Mesure = tr("Réfraction");
-        if (quer.value(2).toString() == "O")   Mesure = tr("Ordonnance");
+        if (refractlist.at(i).at(2).toString() == "P")   Mesure = tr("Porte");
+        if (refractlist.at(i).at(2).toString() == "A")   Mesure = tr("AutoRef");
+        if (refractlist.at(i).at(2).toString() == "R")   Mesure = tr("Réfraction");
+        if (refractlist.at(i).at(2).toString() == "O")   Mesure = tr("Ordonnance");
         pitem1  = new QStandardItem(Mesure);
-        pitem2  = new QStandardItem(quer.value(3).toString());
-        pitem3  = new QStandardItem(quer.value(4).toString());
-        pitem4  = new QStandardItem(quer.value(0).toString());
+        pitem2  = new QStandardItem(refractlist.at(i).at(3).toString());
+        pitem3  = new QStandardItem(refractlist.at(i).at(4).toString());
+        pitem4  = new QStandardItem(refractlist.at(i).at(0).toString());
         QList<QStandardItem*> listitems;
         listitems << pitem0 << pitem1 << pitem2 << pitem3 << pitem4;
         gmodele ->appendRow(listitems);
-        quer    .next();
     }
     tabLM->setModel(gmodele);
 

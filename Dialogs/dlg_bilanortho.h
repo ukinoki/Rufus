@@ -42,6 +42,7 @@ private:
     void                    closeEvent(QCloseEvent *event);
     void                    AfficheBilan(int idBilan);
     Procedures              *proc;
+    DataBase                *db;
     QString                 CouleurTitres;
     QDate                   DateBO;
 

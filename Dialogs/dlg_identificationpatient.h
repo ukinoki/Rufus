@@ -48,7 +48,7 @@ private:
     QString                         lCreatModifCopie;
     QString                         gNomPatient, gPrenomPatient, Sexe;
     Procedures                      *proc;
-    QSqlDatabase                    db;
+    DataBase                        *db;
     QTimer                          *gTimer;
     UpSmallButton                   *VitaleButton;
     VilleCPWidget                   *VilleCPwidg;

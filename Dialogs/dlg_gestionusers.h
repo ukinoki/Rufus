@@ -24,6 +24,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTableWidgetItem>
 #include <QtSql>
 #include <QSqlDatabase>
+
 #include "database.h"
 #include "dlg_gestioncomptes.h"
 #include "dlg_gestionlieux.h"
@@ -31,11 +32,13 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptextedit.h"
 #include "widgetbuttonframe.h"
 #include "macros.h"
+#include "icons.h"
+#include "utils.h"
 #include "cls_user.h"
 #include "upheaderview.h"
 
 /* sert à gérer les comptes utilisateurs
- * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
+ * QUASI-IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
 
 namespace Ui {
 class dlg_gestionusers;
@@ -81,6 +84,8 @@ private:
     bool                    respsalarie;
     bool                    respliberal;
     bool                    soigntnonrplct;
+
+    bool                    ok;
 
     dlg_gestioncomptes      *Dlg_GestComptes;
     UpDialog                *gAsk;

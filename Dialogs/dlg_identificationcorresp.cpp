@@ -26,7 +26,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc                = Procedures::I();
-    db                  = DataBase::getInstance()->getDataBase();
+    db                  = DataBase::getInstance();
     gidCor              = idCorresp;
     lCreatModif         = CreationModification;
     OnlyDoctors         = quelesmedecins;
@@ -107,13 +107,13 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     CancelButton->setText(tr("Annuler"));
     setStageCount(1);
 
-    QSqlQuery quer("select distinct corautreprofession from " NOM_TABLE_CORRESPONDANTS " where corautreprofession is not NULL", db);
-    if (quer.size()>0)
+    bool ok;
+    QList<QList<QVariant>> proflist = db->StandardSelectSQL("select distinct corautreprofession from " NOM_TABLE_CORRESPONDANTS " where corautreprofession is not NULL", ok);
+    if (ok && proflist.size()>0)
     {
         QStringList listprof;
-        quer.first();
-        for (int i=0; i<quer.size(); i++)
-            listprof << quer.value(0).toString();
+        for (int i=0; i<proflist.size(); i++)
+            listprof << proflist.at(i).at(0).toString();
         QCompleter *profcpl = new QCompleter(listprof);
         profcpl             ->setCaseSensitivity(Qt::CaseInsensitive);
         profcpl             ->setCompletionMode(QCompleter::InlineCompletion);
@@ -197,24 +197,24 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     }
 
     // D - On vérifie ensuite si ce correspondant existe déjà
+    bool ok;
     QString requete = "select idcor, corspecialite, cormedecin from " NOM_TABLE_CORRESPONDANTS
             " where CorNom LIKE '" + CorNom + "%' and CorPrenom LIKE '" + CorPrenom + "%'";
-    QSqlQuery IdentCorQuery (requete,db);
-    if (DataBase::getInstance()->erreurRequete(IdentCorQuery,requete, "Impossible d'interroger la table des patients!"))
+    QList<QVariant>  cordata = db->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des patients!"));
+    if (!ok)
     {
         reject();
         return;
     }
 
-    if (IdentCorQuery.size() > 0)
+    if (cordata.size() > 0)
     {
-        IdentCorQuery.first();
-        if (IdentCorQuery.value(0).toInt() != gidCor)
+        if (cordata.at(0).toInt() != gidCor)
         {
             UpMessageBox::Watch(this,tr("Ce correspondant existe déjà!"));
-            gidCor = IdentCorQuery.value(0).toInt();
+            gidCor = cordata.at(0).toInt();
             if (OnlyDoctors)
-                OnlyDoctors = (IdentCorQuery.value(2).toInt()==1);
+                OnlyDoctors = (cordata.at(2).toInt()==1);
             OKButton->setEnabled(false);
             lCreatModif = "Modification";
             AfficheDossierAlOuverture();
@@ -254,13 +254,12 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
             insrequete += "',1, " + ui->SpecomboBox->currentData().toString() + ",null);";
         else if (ui->AutreradioButton->isChecked())
             insrequete += "',null,null,'" + Utils::correctquoteSQL(ui->AutreupLineEdit->text()) + "');";
-        QSqlQuery InsertCorQuery (insrequete,db);
-        if (DataBase::getInstance()->erreurRequete(InsertCorQuery,insrequete,tr("Impossible de créer le dossier")))
+        if (!db->StandardSQL(insrequete,tr("Impossible de créer le dossier")))
             reject();
         insrequete = "select max(idcor) from " NOM_TABLE_CORRESPONDANTS;
-        QSqlQuery CorQuery (insrequete,db);
-        if (CorQuery.seek(0))
-            gidCor = CorQuery.value(0).toInt();
+        QList<QVariant> cordata = db->getFirstRecordFromStandardSelectSQL(insrequete, ok);
+        if (ok && cordata.size()>0)
+            gidCor = cordata.at(0).toInt();
         proc->initListeCorrespondants();
         accept();
     }
@@ -289,8 +288,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
             Modifrequete += ", CorMedecin = 1, CorSpecialite = null, CorautreProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->AutreupLineEdit->text())) + "'";
         Modifrequete += " where idCor =" + QString::number(gidCor);
         //qDebug() <<  Modifrequete;
-        QSqlQuery ModifCorQuery (Modifrequete,db);
-        DataBase::getInstance()->erreurRequete(ModifCorQuery,Modifrequete,tr("Impossible de modifier le dossier"));
+        db->StandardSQL(Modifrequete, tr("Impossible de modifier le dossier"));
         if (CorNom != gNomCor || CorPrenom != gPrenomCor)
             modif = true;
         proc->initListeCorrespondants();
@@ -335,20 +333,18 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
     ui->AutreupLineEdit   ->setVisible(!OnlyDoctors);
     if (lCreatModif == "Modification")
     {
+        bool ok;
         QString requete = "SELECT idCor, CORNom, CORPrenom, CorSexe, CORAdresse1, CORAdresse2, CORAdresse3, CorVille, CorCodePostal,"
                           " CorTelephone, CorPortable, CorFax, CorMail, CorMedecin, CorSpecialite, CorAutreProfession FROM " NOM_TABLE_CORRESPONDANTS
                             " WHERE idCor = " + QString::number(gidCor);
         if (OnlyDoctors)
             requete += " and CorMedecin = 1";
-        QSqlQuery AfficheDossierQuery (requete,db);
-        if (DataBase::getInstance()->erreurRequete(AfficheDossierQuery,requete,tr("Impossible de retrouver le dossier de ce correspondant")))
+        QList<QVariant> cordata = db->getFirstRecordFromStandardSelectSQL(requete, ok, tr("Impossible de retrouver le dossier de ce correspondant"));
+        if (!ok || cordata.size() == 0)
             return;
-        if (AfficheDossierQuery.size() == 0)           // Aucune mesure trouvee pour ces criteres
-            return;
-        AfficheDossierQuery     .first();
         //UpMessageBox::Watch(this,requete);
-        gNomCor                 = AfficheDossierQuery.value(1).toString();
-        gPrenomCor              = AfficheDossierQuery.value(2).toString();
+        gNomCor                 = cordata.at(1).toString();
+        gPrenomCor              = cordata.at(2).toString();
         ui->NomlineEdit         ->setText(gNomCor);
         ui->PrenomlineEdit      ->setText(gPrenomCor);
         // pour decocher les 2 radiobutton sexe il faut d'abord leur retirer la propriétét AutoExclusive
@@ -358,34 +354,34 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
         ui->FradioButton        ->setChecked(false);
         ui->MradioButton        ->setAutoExclusive(true);
         ui->FradioButton        ->setAutoExclusive(true);
-        Sexe                    = AfficheDossierQuery.value(3).toString();
+        Sexe                    = cordata.at(3).toString();
         if (Sexe == "M") ui->MradioButton->setChecked(true);
         if (Sexe == "F") ui->FradioButton->setChecked(true);
         ui->idDossierlabel      ->setText(tr("Correspondant n° ") + QString::number(gidCor));
 
-        ui->Adresse1lineEdit    ->setText(AfficheDossierQuery.value(4).toString());
-        ui->Adresse2lineEdit    ->setText(AfficheDossierQuery.value(5).toString());
-        ui->Adresse3lineEdit    ->setText(AfficheDossierQuery.value(6).toString());
-        QString CP              = AfficheDossierQuery.value(8).toString();
+        ui->Adresse1lineEdit    ->setText(cordata.at(4).toString());
+        ui->Adresse2lineEdit    ->setText(cordata.at(5).toString());
+        ui->Adresse3lineEdit    ->setText(cordata.at(6).toString());
+        QString CP              = cordata.at(8).toString();
         CPlineEdit              ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
         CPlineEdit              ->setText(CP);
-        VillelineEdit           ->setText(AfficheDossierQuery.value(7).toString());
-        ui->TellineEdit         ->setText(AfficheDossierQuery.value(9).toString());
-        ui->PortablelineEdit    ->setText(AfficheDossierQuery.value(10).toString());
-        ui->MaillineEdit        ->setText(AfficheDossierQuery.value(12).toString());
-        if (!AfficheDossierQuery.value(14).isNull()
-                && AfficheDossierQuery.value(14).toInt() == 0)                                  //c'est un généraliste
+        VillelineEdit           ->setText(cordata.at(7).toString());
+        ui->TellineEdit         ->setText(cordata.at(9).toString());
+        ui->PortablelineEdit    ->setText(cordata.at(10).toString());
+        ui->MaillineEdit        ->setText(cordata.at(12).toString());
+        if (!cordata.at(14).isNull()
+                && cordata.at(14).toInt() == 0)                                  //c'est un généraliste
         {
             ui->MGradioButton   ->setChecked(true);
             ui->SpecomboBox     ->setVisible(false);
             ui->AutreupLineEdit ->setVisible(false);
         }
-        else if (AfficheDossierQuery.value(13).toInt() == 1)                                    // ce n'est pas un généralliste mais un spécialiste
+        else if (cordata.at(13).toInt() == 1)                                    // ce n'est pas un généralliste mais un spécialiste
         {
             ui->SperadioButton  ->setChecked(true);
             ui->SpecomboBox     ->setVisible(true);
-            int idx             = ui->SpecomboBox->findData(AfficheDossierQuery.value(14).toInt());
+            int idx             = ui->SpecomboBox->findData(cordata.at(14).toInt());
             ui->SpecomboBox     ->setCurrentIndex(idx);
             ui->AutreupLineEdit ->setVisible(false);
         }
@@ -394,7 +390,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
             ui->SpecomboBox     ->setVisible(false);
             ui->AutreradioButton->setChecked(true);
             ui->AutreupLineEdit ->setVisible(true);
-            ui->AutreupLineEdit ->setText(AfficheDossierQuery.value(15).toString());
+            ui->AutreupLineEdit ->setText(cordata.at(15).toString());
         }
     }
     else if (lCreatModif == "Creation")
@@ -406,16 +402,16 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
 
 void dlg_identificationcorresp::ReconstruitListeSpecialites()
 {
+    bool ok;
     ui->SpecomboBox->clear();
     QStringList ListSpec;
     QString req = "SELECT idspecialite, nomspecialite FROM " NOM_TABLE_SPECIALITES " order by nomspecialite";
-    QSqlQuery ListSpecQuery (req,db);
-    DataBase::getInstance()->erreurRequete(ListSpecQuery,req,"");
-    for (int i = 0; i < ListSpecQuery.size(); i++)
+    QList<QList<QVariant>> speclist = db->StandardSelectSQL(req,ok);
+    if (!ok) return;
+    for (int i = 0; i < speclist.size(); i++)
     {
-        ListSpecQuery.seek(i);
-        ListSpec << ListSpecQuery.value(1).toString();
-        ui->SpecomboBox->insertItem(i, ListSpecQuery.value(1).toString(), ListSpecQuery.value(0).toInt());
+        ListSpec << speclist.at(i).at(1).toString();
+        ui->SpecomboBox->insertItem(i, speclist.at(i).at(1).toString(), speclist.at(i).at(0).toInt());
     }
     QCompleter *speccompl   = new QCompleter(ListSpec);
     speccompl               ->setCaseSensitivity(Qt::CaseInsensitive);

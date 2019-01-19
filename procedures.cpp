@@ -264,14 +264,10 @@ QString Procedures::getDossierDocuments(QString Appareil, int mode)
     ------------------------------------------------------------------------------------------------------------------------------------*/
 int Procedures::GetflagMG()
 {
-    int flagMG = 0;
-    QSqlQuery quer("select MAJflagMG from " NOM_TABLE_FLAGS, db->getDataBase());
-    if (quer.size() > 0)
-    {
-        quer.first();
-        flagMG = quer.value(0).toInt();
-    }
-    return flagMG;
+    QList<QVariant> flagrcd = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
+    if (ok && flagrcd.size() > 0)
+        return flagrcd.at(0).toInt();
+    return 0;
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
@@ -279,14 +275,10 @@ int Procedures::GetflagMG()
     ------------------------------------------------------------------------------------------------------------------------------------*/
 int Procedures::GetflagSalDat()
 {
-    int flagSalDat = 0;
-    QSqlQuery quer("select MAJflagSalDat from " NOM_TABLE_FLAGS, db->getDataBase());
-    if (quer.size() > 0)
-    {
-        quer.first();
-        flagSalDat = quer.value(0).toInt();
-    }
-    return flagSalDat;
+    QList<QVariant> flagsaldatrcd = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
+    if (ok && flagsaldatrcd.size() > 0)
+        return flagsaldatrcd.at(0).toInt();
+    return 0;
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -301,16 +293,14 @@ void Procedures::MAJflagMG()
     {
         if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
-        QSqlQuery quer("select MAJflagMG from " NOM_TABLE_FLAGS, db->getDataBase());
+        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
-        if (db->getMode() == DataBase::Distant)
-            MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
         int a = 0;
-        if (quer.seek(0)) {
-            a = quer.value(0).toInt() + 1;
+        if (ok && flagdata.size()>0) {
+            a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMG = " + QString::number(a);
         }
-        QSqlQuery (MAJreq, db->getDataBase());
+        db->StandardSQL(MAJreq);
         db->unlocktables();
     }
 }
@@ -329,14 +319,14 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
         if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
         //qDebug() << "MAJTcpMsgEtFlagSalDat() lock OK";
-        QSqlQuery quer("select MAJflagSalDat from " NOM_TABLE_FLAGS, db->getDataBase());
+        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagSalDat) VALUES (1)";
         int a = 0;
-        if (quer.seek(0)) {
-            a = quer.value(0).toInt() + 1;
+        if (ok && flagdata.size()>0) {
+            a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagSalDat = " + QString::number(a);
         }
-        QSqlQuery (MAJreq, db->getDataBase());
+        db->StandardSQL(MAJreq);
         db->unlocktables();
     }
 }
@@ -351,14 +341,14 @@ void Procedures::MAJflagMessages()
     {
         if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
-        QSqlQuery quer("select MAJflagMessages from " NOM_TABLE_FLAGS, db->getDataBase());
+        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " NOM_TABLE_FLAGS, ok);
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMessages) VALUES (1)";
         int a = 0;
-        if (quer.seek(0)) {
-            a = quer.value(0).toInt() + 1;
+        if (ok && flagdata.size()>0) {
+            a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMessages = " + QString::number(a);
         }
-        QSqlQuery (MAJreq, db->getDataBase());
+        db->StandardSQL(MAJreq);
         db->unlocktables();
     }
 }
@@ -467,21 +457,24 @@ int pos2 = -1;
 bool Procedures::ImmediateBackup(bool full)
 {
     QString req = "select NomPosteConnecte from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte <> '" + QHostInfo::localHostName().left(60) + "'";
-    QSqlQuery postesquer(req, db->getDataBase());
-    if (postesquer.size() > 0)
+    QList<QVariant> ttipdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (ok && ttipdata.size() > 0)
     {
-        postesquer.first();
         UpMessageBox::Information(Q_NULLPTR, tr("Autres postes connectés!"),
                                      tr("Vous ne pouvez pas effectuer d'opération de sauvegarde/restauration sur la base de données"
                                      " si vous n'êtes pas le seul poste connecté.\n"
-                                     "Le poste ") + postesquer.value(0).toString() + tr(" est aussi connecté"));
+                                     "Le poste ") + ttipdata.at(0).toString() + tr(" est aussi connecté"));
         return false;
     }
 
-    QSqlQuery dirquer("select dirimagerie, DirBkup from " NOM_TABLE_PARAMSYSTEME, db->getDataBase() );
-    dirquer.first();
-    QString NomDirStockageImagerie = dirquer.value(0).toString();
-    QString NomDirDestination = dirquer.value(1).toString();
+    QString NomDirStockageImagerie ("");
+    QString NomDirDestination ("");
+    QList<QVariant> dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie, DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
+    if (ok && dirdata.size()>0)
+    {
+        NomDirStockageImagerie = dirdata.at(0).toString();
+        NomDirDestination = dirdata.at(1).toString();
+    }
     if(!QDir(NomDirDestination).exists() || NomDirDestination == "")
     {
         if (UpMessageBox::Question(Q_NULLPTR,
@@ -663,29 +656,21 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
             QString reqrp = "select userparent "
                             "from " NOM_TABLE_USERSCONNECTES
                             " where usersuperviseur = " + QString::number(user->id());
-            QSqlQuery querrp(reqrp, db->getDataBase());
-            if (querrp.size()>0)                // le user est connecté, on cherche qui il remplace - son parent
-            {
-                querrp.first();
-                idparent = querrp.value(0).toInt();
-            }
+            QList<QVariant> userdata = db->getFirstRecordFromStandardSelectSQL(reqrp, ok);
+            if (userdata.size()>0)                // le user est connecté, on cherche qui il remplace - son parent
+                idparent = userdata.at(0).toInt();
             else                                // le user n'est pas connecté on demande quel est son parent
             {
-                QSqlQuery soignquer("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(user->id()), db->getDataBase());
-                soignquer.first();
+                QList<QVariant> soigndata = db->getFirstRecordFromStandardSelectSQL("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(user->id()), ok);
                 QString req   = "select iduser, userlogin from " NOM_TABLE_UTILISATEURS
                         " where (userenreghonoraires = 1 or userenreghonoraires = 2)"
                         " and iduser <> " + QString::number(user->id()) +
-                        " and soignant = " + soignquer.value(0).toString() +
+                        " and soignant = " + soigndata.at(0).toString() +
                         " and userdesactive is null";
                 //qDebug() << req;
-                QSqlQuery quer(req, db->getDataBase());
-                db->erreurRequete(quer,req);
-                if (quer.size() == 1)               // une seule réponse, on la récupère
-                {
-                    quer       .first();
-                    idparent   = quer.value(0).toInt();
-                }
+                QList<QList<QVariant>> soignlist = db->StandardSelectSQL(req,ok);
+                if (soignlist.size() == 1)               // une seule réponse, on la récupère
+                    idparent   = soignlist.at(0).at(0).toInt();
                 else                                // plusieurs réponses possibles, on va demander qui est le parent de ce remplaçant....
                 {
                     gAskUser                = new UpDialog();
@@ -699,14 +684,13 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
 
                     QFontMetrics fm         = QFontMetrics(qApp->font());
                     int hauteurligne        = int(fm.height()*1.6);
-                    boxparent               ->setFixedHeight(((quer.size() + 1)*hauteurligne)+5);
+                    boxparent               ->setFixedHeight(((soignlist.size() + 1)*hauteurligne)+5);
                     QVBoxLayout *vbox       = new QVBoxLayout;
-                    for (int i=0; i<quer.size(); i++)
+                    for (int i=0; i<soignlist.size(); i++)
                     {
-                        quer        .seek(i);
                         QRadioButton *pradiobutt = new QRadioButton(boxparent);
-                        pradiobutt  ->setText(quer.value(1).toString());
-                        pradiobutt  ->setAccessibleName(quer.value(0).toString());
+                        pradiobutt  ->setText(soignlist.at(i).at(1).toString());
+                        pradiobutt  ->setAccessibleName(soignlist.at(i).at(0).toString());
                         pradiobutt  ->setChecked(i==0);
                         vbox        ->addWidget(pradiobutt);
                     }
@@ -989,7 +973,6 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                 else
                     imgs = "select idfacture from " NOM_TABLE_FACTURES " where idfacture = " + iditem + " and (pdf is not null or jpg is not null)";
                 //qDebug() << imgs;
-                bool ok = false;
                 QList<QList<QVariant>> listid = db->StandardSelectSQL(imgs, ok);
                 if (!ok)
                     UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'accéder à la table ") + (typedoc != FACTURE? NOM_TABLE_ECHANGEIMAGES : NOM_TABLE_FACTURES));
@@ -1023,7 +1006,6 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
             }
         }
         // On charge ensuite le contenu des champs longblob des tables concernées en mémoire pour les afficher
-        bool ok = false;
         QList<QList<QVariant>> listimpr;
         if (typedoc != FACTURE)
         {
@@ -1517,11 +1499,10 @@ Patient* Procedures::getPatientById(int id) //TODO : getPatientById à faire
 void Procedures::setDirImagerie()
 {
     DirStockageImages = "";
-    bool ok = true;
     QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
-    QList<QVariant> ListeDir = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ListeDir.size()>0)
-        DirStockageImagesServeur = ListeDir.at(0).toString();
+    QList<QVariant> dirdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (ok && dirdata.size()>0)
+        DirStockageImagesServeur = dirdata.at(0).toString();
     switch (db->getMode()) {
     case DataBase::Poste:
     {

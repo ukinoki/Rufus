@@ -262,14 +262,13 @@ void dlg_GestionLieux::ModifLieu()
 {
     ModifLieuxDialog();
     idLieuAModifier = tabModel->itemData(tabModel->index(tabLM->currentIndex().row(),0)).value(0).toInt();
+    leditnom    ->setText(tr("non défini"));
     QString req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE
                   " where idLieu = " + QString::number(idLieuAModifier);
     //qDebug() << req;
     QList<QVariant> lieudata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (lieudata.at(1).toString() != "")
+    if (ok && lieudata.size()>0)
         leditnom    ->setText(lieudata.at(1).toString());
-    else
-        leditnom    ->setText(tr("non défini"));
     leditadr1   ->setText(lieudata.at(2).toString());
     leditadr2   ->setText(lieudata.at(3).toString());
     leditadr3   ->setText(lieudata.at(4).toString());

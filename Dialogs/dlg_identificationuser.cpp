@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with Rufus. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "database.h"
 #include "dlg_identificationuser.h"
 #include "icons.h"
 #include "ui_dlg_identificationuser.h"
@@ -31,6 +30,7 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     ui(new Ui::dlg_identificationuser)
 {
     ui->setupUi(this);
+    db = DataBase::getInstance();
     setWindowTitle(tr("Rufus - Identification de l'utilisateur"));
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
@@ -134,6 +134,7 @@ bool dlg_identificationuser::eventFilter(QObject *obj, QEvent *event)
 --------------------------------------------------------------------------------------------------------------*/
 int dlg_identificationuser::ControleDonnees()
 {
+    bool ok;
     //TODO : SQL
     QString req;
     QString Login = ui->LoginlineEdit->text();
@@ -147,9 +148,9 @@ int dlg_identificationuser::ControleDonnees()
 //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
         QString error = "";
 #ifdef ALEX
-        error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
+        error = db->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
 #else
-        error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
+        error = db->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
 #endif
 
         if( error.size() )
@@ -168,11 +169,11 @@ int dlg_identificationuser::ControleDonnees()
         req = "show grants for 'rufusConnection'@'localhost'";
 #else
         QString Client;
-        if (DataBase::getInstance()->getBase() == "BDD_DISTANT")
+        if (db->getBase() == "BDD_DISTANT")
                 Client = "%";
-        else if (DataBase::getInstance()->getBase() == "BDD_LOCAL" && Utils::rgx_IPV4.exactMatch(DataBase::getInstance()->getServer()))
+        else if (db->getBase() == "BDD_LOCAL" && Utils::rgx_IPV4.exactMatch(db->getServer()))
         {
-            QStringList listIP = DataBase::getInstance()->getServer().split(".");
+            QStringList listIP = db->getServer().split(".");
             for (int i=0;i<listIP.size()-1;i++)
             {
                 Client += QString::number(listIP.at(i).toInt()) + ".";
@@ -181,13 +182,12 @@ int dlg_identificationuser::ControleDonnees()
             }
         }
         else
-            Client = DataBase::getInstance()->getServer();
-        req = "show grants for '" + Login + (DataBase::getInstance()->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
+            Client = db->getServer();
+        req = "show grants for '" + Login + (db->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
         //qDebug() << req;
 #endif
-
-        QSqlQuery grantsquery(req, DataBase::getInstance()->getDataBase());
-        if (grantsquery.size()==0)
+        QList<QVariant> grantsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (!ok || grantsdata.size()==0)
         {
             ui->IconServerOKupLabel->setPixmap(Icons::pxError());
             Utils::Pause(600);
@@ -196,8 +196,7 @@ int dlg_identificationuser::ControleDonnees()
                             tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
             return -2;
         }
-        grantsquery.first();
-        QString reponse = grantsquery.value(0).toString();
+        QString reponse = grantsdata.at(0).toString();
         if (reponse.left(9) != "GRANT ALL")
         {
             ui->IconServerOKupLabel->setPixmap(Icons::pxError());
@@ -213,10 +212,8 @@ int dlg_identificationuser::ControleDonnees()
         ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
         Utils::Pause(300);
         req = "SHOW TABLES FROM " NOM_BASE_CONSULTS " LIKE '%tilisateurs%'";
-        //qDebug() << req;
-        QSqlQuery VerifBaseQuery(req, DataBase::getInstance()->getDataBase());
-        //UpMessageBox::Watch(this,req + "\n" + QString::number(VerifBaseQuery.size()));
-        if (VerifBaseQuery.size()<2)
+        QList<QList<QVariant>> tablist = db->StandardSelectSQL(req, ok);
+        if (tablist.size()<2)
         {
             ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
             Utils::Pause(600);
@@ -231,7 +228,7 @@ int dlg_identificationuser::ControleDonnees()
         Utils::Pause(300);
     }
 
-    QJsonObject rep = DataBase::getInstance()->login(Login, Password);
+    QJsonObject rep = db->login(Login, Password);
     if (rep["code"] == -3)
     {
         ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
@@ -273,6 +270,6 @@ int dlg_identificationuser::ControleDonnees()
 
     ui->IconUserOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(600);
-    return DataBase::getInstance()->getUserConnected()->id();
+    return db->getUserConnected()->id();
 }
 

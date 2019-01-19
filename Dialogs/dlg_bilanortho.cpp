@@ -29,6 +29,7 @@ dlg_bilanortho::dlg_bilanortho(int idActeAPAsser, int idBilanOrtho, int idpat, Q
     idBilan     = idBilanOrtho;
     idActe      = idActeAPAsser;
     proc        = Procedures::I();
+    db          = DataBase::getInstance();
     gidpat      = idpat;
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionBilanOrtho").toByteArray());
 
@@ -251,7 +252,7 @@ void dlg_bilanortho::ImprimeBOClicked()
             " where act.idacte = " + QString::number(idActe) + " and act.idpat = pat.idpat";
     //UpMessageBox::Watch(this,requete);
     bool ok;
-    QList<QVariant> patientdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
+    QList<QVariant> patientdata = db->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
     if (!ok || patientdata.size() == 0) return;
     User *userEntete = proc->setDataOtherUser(patientdata.at(4).toInt());
     if (userEntete == nullptr)
@@ -316,7 +317,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds["EmisRecu"] =         "0";
         listbinds["FormatDoc"] =        BILANORTHOPTIQUE;
         listbinds["idlieu"] =           proc->getUserConnected()->getSite()->id();
-        if(!DataBase::getInstance()->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
+        if(!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
     }
     delete textHtml;
@@ -672,8 +673,10 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
 {
     QString chborequete = "select idBilanOrtho from " NOM_TABLE_BILANORTHO " where idBilanOrtho = " + QString::number(idBilan);
     bool ok;
-    QList<QVariant> BOid = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(chborequete, ok);
-    if (ok && BOid.size() > 0)
+    QList<QVariant> BOid = db->getFirstRecordFromStandardSelectSQL(chborequete, ok);
+    if(!ok || BOid.size()==0)
+        return;
+    else
     {
         QString a;
         QString affichBOrequete =
@@ -694,7 +697,7 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
                 " from " NOM_TABLE_BILANORTHO     // 65,66,67,68
                 " where idBilanOrtho = " + QString::number(idBilan);
         //UpMessageBox::Watch(this,affichBOrequete);
-        QList<QVariant> BOdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);
+        QList<QVariant> BOdata = db->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);
         ui->MotiftextEdit->setText(BOdata.at(44).toString());
         ui->AVODlineEdit->setText(BOdata.at(0).toString());
         ui->AVOGlineEdit->setText(BOdata.at(1).toString());

@@ -406,7 +406,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->MonoDocupTableWidget->verticalHeader()->setVisible(false);
     ui->MonoDocupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->MonoDocupTableWidget->setColumnCount(4);
-    ui->MonoDocupTableWidget->setColumnWidth(0,0);       //idDossiersDocs
+    ui->MonoDocupTableWidget->setColumnWidth(0,0);       // idDossiersDocs
     ui->MonoDocupTableWidget->setColumnWidth(1,220);     // NomDocuments + NomAppareil
     ui->MonoDocupTableWidget->setColumnWidth(2,300);     // DossierDocuments
     ui->MonoDocupTableWidget->setColumnWidth(3,30);      // bouton dossier
@@ -424,7 +424,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->LocalDocupTableWidget->verticalHeader()->setVisible(false);
     ui->LocalDocupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->LocalDocupTableWidget->setColumnCount(4);
-    ui->LocalDocupTableWidget->setColumnWidth(0,0);       //idDossiersDocs
+    ui->LocalDocupTableWidget->setColumnWidth(0,0);       // idDossiersDocs
     ui->LocalDocupTableWidget->setColumnWidth(1,220);     // NomDocuments + NomAppareil
     ui->LocalDocupTableWidget->setColumnWidth(2,300);     // DossierDocuments
     ui->LocalDocupTableWidget->setColumnWidth(3,30);      // bouton dossier
@@ -442,7 +442,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->DistantDocupTableWidget->verticalHeader()->setVisible(false);
     ui->DistantDocupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->DistantDocupTableWidget->setColumnCount(4);
-    ui->DistantDocupTableWidget->setColumnWidth(0,0);       //idDossiersDocs
+    ui->DistantDocupTableWidget->setColumnWidth(0,0);       // idDossiersDocs
     ui->DistantDocupTableWidget->setColumnWidth(1,220);     // NomDocuments + NomAppareil
     ui->DistantDocupTableWidget->setColumnWidth(2,300);     // DossierDocuments
     ui->DistantDocupTableWidget->setColumnWidth(3,30);      // bouton dossier
@@ -2057,7 +2057,8 @@ void dlg_param::ModifParamBackup()
     bool ok;
     QString NomDirStockageImagerie ("");
     QList<QVariant> dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, ok);
-    NomDirStockageImagerie = dirdata.at(0).toString();
+    if (ok && dirdata.size()>0)
+        NomDirStockageImagerie = dirdata.at(0).toString();
     bool NoDirBupDefined        = (ui->DirBackupuplineEdit->text() == "");
     bool IncorrectDirBupDefined = !QDir(ui->DirBackupuplineEdit->text()).exists() && !NoDirBupDefined;
     bool NoDayBupDefined        = true;

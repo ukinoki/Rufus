@@ -40,7 +40,7 @@ private:
     Procedures      *proc;
     void            DetruireLaMesure(int IdRefract);
     int             Nombre_Mesure_Selected();
-    QSqlDatabase    db;
+    DataBase        *db;
     void            RemplirTableView();
     QString         itemSelectionne;
 
