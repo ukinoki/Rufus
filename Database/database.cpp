@@ -300,9 +300,9 @@ QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QStri
     /*
     exemple:
         bool ok = true;
-        QList<QList<QVariant>> itemslist = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
+        QList<QList<QVariant>> recordslist = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
         if (!ok)                                // erreur;
-        if (itemslist.size()==0)                     // réponse vide
+        if (recordslist.size()==0)                     // réponse vide
      */
     QList<QList<QVariant>> listreponses;
     QSqlQuery query(req, getDataBase());
@@ -330,9 +330,9 @@ QList<QVariant> DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool
     /*
      exemple:
      bool ok = true;
-     QList<QVariant> itemdata = db->getFirstRecordFromStandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
+     QList<QVariant> recorddata = db->getFirstRecordFromStandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
      if (!ok)                                // erreur;
-     if (itemdata.size()==0)                 // réponse vide
+     if (recorddata.size()==0)                 // réponse vide
     */
     QList<QList<QVariant>> listreponses = StandardSelectSQL(req , OK, errormsg);
     if(listreponses.size()>0)

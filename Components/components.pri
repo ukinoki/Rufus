@@ -12,7 +12,6 @@ SOURCES += $$PWD/upcheckbox.cpp \
         $$PWD/uplineedit.cpp \
         $$PWD/upmessagebox.cpp \
         $$PWD/uppushbutton.cpp \
-        $$PWD/upqsqltablemodel.cpp \
         $$PWD/upradiobutton.cpp \
         $$PWD/upsmallbutton.cpp \
         $$PWD/upspinbox.cpp \
@@ -32,7 +31,6 @@ HEADERS += $$PWD/upcheckbox.h \
         $$PWD/uplineedit.h \
         $$PWD/upmessagebox.h \
         $$PWD/uppushbutton.h \
-        $$PWD/upqsqltablemodel.h \
         $$PWD/upradiobutton.h \
         $$PWD/upsmallbutton.h \
         $$PWD/upspinbox.h \
