@@ -39,19 +39,20 @@ public:
     static void Pause(int msec = 1000);
     static QString convertHTML(QString text);
 
-    static QString retirecaracteresaccentues(QString nom);
-    static QString trim(QString text, bool end=true, bool removereturnend = false);
-    static QString capitilize(QString text);
-    static QString trimcapitilize(QString, bool end = true, bool maj = true, bool lower = true);
-    static QMap<QString, double> dir_size(const QString DirPath);
-    static qint32  ArrayToInt(QByteArray source);
-    static QByteArray IntToArray(int source);
-    static QString getIpAdress();
-    static QString getMACAdress();
-    static QString correctquoteSQL(QString text);
-    static bool VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
-    static bool mkpath(QString path);
-    static double mmToInches(double mm);
+    static QString                  retirecaracteresaccentues(QString nom);
+    static QString                  trim(QString text, bool end=true, bool removereturnend = false);
+    static QString                  capitilize(QString text);
+    static QString                  trimcapitilize(QString, bool end = true, bool maj = true, bool lower = true);
+    static QMap<QString, double>    dir_size(const QString DirPath);
+    static QString                  getExpressionSize(double size);
+    static qint32                   ArrayToInt(QByteArray source);
+    static QByteArray               IntToArray(int source);
+    static QString                  getIpAdress();
+    static QString                  getMACAdress();
+    static QString                  correctquoteSQL(QString text);
+    static bool                     VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
+    static bool                     mkpath(QString path);
+    static double                   mmToInches(double mm);
 
 };
 

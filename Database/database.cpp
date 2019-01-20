@@ -1314,32 +1314,30 @@ QJsonObject DataBase::extractActeData(QSqlQuery query)
 
     return data;
 }
+
 Acte* DataBase::loadActeById(int idActe)
 {
     Acte *acte = new Acte(idActe, 0, 0);
-
     if( idActe == 0 )
         return acte;
     QString requete = createActeRequest(idActe, 0);
     QSqlQuery query(requete, getDataBase());
     if( erreurRequete(query, requete) || !query.first() )
         return acte;
-
     QJsonObject data = extractActeData(query);
     acte->setData(data);
     return acte;
 }
+
 QMap<int, Acte*> DataBase::loadActesByIdPat(int idPat)
 {
     QMap<int, Acte*> list;
     if( idPat == 0 )
         return list;
-
     QString requete = createActeRequest(0, idPat);
     QSqlQuery query(requete, getDataBase());
     if( erreurRequete(query, requete) || !query.first() )
         return list;
-
     do
     {
         QJsonObject data = extractActeData(query);
@@ -1347,9 +1345,9 @@ QMap<int, Acte*> DataBase::loadActesByIdPat(int idPat)
         acte->setData(data);
         list[acte->id()] = acte;
     } while( query.next() );
-
     return list;
 }
+
 double DataBase::getActeMontant(int idActe)
 {
     double montant = 0.0;

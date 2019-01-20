@@ -65,7 +65,7 @@ dlg_actesprecedents::~dlg_actesprecedents()
 
 /*!
  * \brief dlg_actesprecedents::Actualise
- * Cette function est appelée par Rufus.cpp
+ * Cette fonction est appelée par Rufus.cpp
  * quand un acte est créé ou supprimé
  */
 void dlg_actesprecedents::Actualise()
@@ -203,6 +203,11 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
     return dlg_actesprecedents::eventFilter(obj, event);
 }
 
+void dlg_actesprecedents::reloadActe(int idActeAAfficher)
+{
+    m_listeActes[idActeAAfficher] = DataBase::getInstance()->loadActeById(idActeAAfficher);
+}
+
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Afficher les champs ---------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
@@ -210,12 +215,10 @@ void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
 {
     itCurrentActe = m_listeActes.find(idActeAAfficher);
     if( itCurrentActe == m_listeActes.constEnd() )
-    {
-        //ERROR
-    }
-    //acte = itCurrentActe.value();//DataBase::getInstance()->loadActeById(idActeAAfficher);
+        return;
     ActesPrecsAfficheActe();
 }
+
 void dlg_actesprecedents::ActesPrecsAfficheActe()
 {
     acte = itCurrentActe.value();

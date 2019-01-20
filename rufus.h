@@ -113,6 +113,7 @@ private:
     UpLineEdit                      *MGlineEdit;
     UpLineEdit                      *AutresCorresp1LineEdit, *AutresCorresp2LineEdit;
     DataBase                        *db;
+    bool                            ok;
 
     pyxinterf                       *pyxi;     // CZ001
 

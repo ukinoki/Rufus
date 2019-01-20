@@ -59,6 +59,7 @@ public:
     void                    ActesPrecsAfficheActe(int idActeAAfficher); // Affiche l'acte défini par idActeAAfficher
     void                    ActesPrecsAfficheActe();
     int                     getActeAffiche();
+    void                    reloadActe(int idacte);
 
 private:
     void                    wheelEvent(QWheelEvent *event);

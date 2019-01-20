@@ -193,7 +193,6 @@ public:
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true);
     void                    DefinitScriptBackup(QString path, bool AvecImages= true, bool AvecVideos = true);
     bool                    ImmediateBackup(bool full=false);
-    QString                 getExpressionSize(double size);
     void                    ModifParamBackup();
     double                  CalcBaseSize();
 

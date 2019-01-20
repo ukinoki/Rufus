@@ -243,6 +243,26 @@ QMap<QString, double> Utils::dir_size(const QString DirPath)
     return DataDir;
 }
 
+/*!
+ * \brief Utils::getExpressionSize
+ * Cette fonction va renvoyer la taille d'un double en Mo, Go ou To
+ */
+QString Utils::getExpressionSize(double size)
+{
+    QString com = "Mo";
+    if (size>1024)
+    {
+        com = "Go";
+        size /= 1024;
+        if (size>1024)
+        {
+            com = "To";
+            size /= 1024;
+        }
+    }
+    return QString::number(size,'f',2) + com;
+}
+
 qint32 Utils::ArrayToInt(QByteArray source)
 {
     qint32 temp;

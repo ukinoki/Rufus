@@ -112,7 +112,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     CalcNbDossiers();
     MetAJourUserConnectes();
     gidPatient = 0;
-    bool ok =true;
     QList<QVariant> admindata= db->getFirstRecordFromStandardSelectSQL("select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "'", ok);
     if (admindata.size() == 0 || !ok)
         idAdministrateur = -1;
@@ -204,15 +203,13 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                     " SET Statut = '" ARRIVE "', idUserEnCoursExam = null, PosteExamen = null"
                     " WhERE idUser = " + QString::number(gidUser) +
                     " AND Left(Statut," + QString::number(length) + ") = '" ENCOURSEXAMEN "'";
-    QSqlQuery (req, db->getDataBase());
-
+    db->StandardSQL(req);
     // les slots
     Connect_Slots();
 
     //libération des verrous de la compta
     req = " delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(gidUser);
-    QSqlQuery lib(req, db->getDataBase() );
-    db->erreurRequete(lib,req,tr("impossible de libérer les verrous de la comptabilité"));
+    db->StandardSQL(req);
 
     if (gListePatientsModel->rowCount() == 0)
     {
@@ -364,9 +361,9 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
             return;
     }
     QString req = "Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(idpat);
-    QSqlQuery quer(req, db->getDataBase());
-    if (quer.size()>0)
-    {
+    QList<QVariant> impdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (ok && impdata.size()>0)
+     {
         Dlg_DocsExt = new dlg_docsexternes(idpat, UtiliseTCP, this);
         ui->OuvreDocsExternespushButton->setEnabled(true);
         if (Dlg_DocsExt->InitOK())
@@ -386,16 +383,13 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::MAJActesPrecs()
 {
-    //TODO : a revoir
-    /*
     QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
     for (int n = 0; n <  ListDialog.size(); n++)
+    {
+        ListDialog.at(n)->reloadActe(gidActe);
         if (ListDialog.at(n)->getActeAffiche() == gidActe)
-        {
             ListDialog.at(n)->ActesPrecsAfficheActe(gidActe);
-            break;
-        }
-    */
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -409,14 +403,14 @@ void Rufus::MAJDocsExternes()
     else if (gDataUser->isSoignant())
     {
         QString req = "Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient);
-        QSqlQuery quer(req, db->getDataBase());
-        if (quer.size()>0)
+        QList<QVariant> impdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (ok && impdata.size()>0)
         {
             Dlg_DocsExt = new dlg_docsexternes(gidPatient, UtiliseTCP, this);
             if (Dlg_DocsExt->InitOK())
                 Dlg_DocsExt->show();
         }
-        ui->OuvreDocsExternespushButton->setEnabled(quer.size()>0);
+        ui->OuvreDocsExternespushButton->setEnabled(impdata.size()>0);
     }
 }
 
@@ -904,35 +898,28 @@ void Rufus::AffichePatientsVusWidget()
 
 void Rufus::MAJPatientsVus()
 {
-    QTableWidget        *TableAMettreAJour;
     int                 i;
     QString             NomPrenom, zw, A;
     QFontMetrics        fm(qApp->font());
     // PATIENTS VUS AUJOURD'HUI ---------------------------------------------------------------------------------------------------
-    QString SalDatVusrequete;
-    QSqlQuery RemplirTableViewListJourQuery ( db->getDataBase() );
-
-    SalDatVusrequete =   "SELECT pat.IdPat, act.idacte, PatNom, PatPrenom, UserLogin, ActeDate, ActeCotation, ActeMontant, ActeHeure, TypePaiement, Tiers, usr.idUser FROM "
+    QString req =   "SELECT pat.IdPat, act.idacte, PatNom, PatPrenom, UserLogin, ActeDate, ActeCotation, ActeMontant, ActeHeure, TypePaiement, Tiers, usr.idUser FROM "
                            NOM_TABLE_PATIENTS " as pat, " NOM_TABLE_ACTES " as act, " NOM_TABLE_UTILISATEURS " as usr, " NOM_TABLE_TYPEPAIEMENTACTES " as typ"
                            " WHERE usr.idUser = act.idUser and act.idPat = pat.idPat and actedate = curdate()"
                            " and act.idPat not in (select idpat from " NOM_TABLE_SALLEDATTENTE ")"
                            " and act.idActe = typ.idActe"
                            " ORDER BY ActeHeure DESC";
+    QList<QList<QVariant>> patlist = db->StandardSelectSQL(req, ok, tr("Impossible de remplir la salle d'attente!"));
+    if (!ok)
+        return;
+    ui->PatientsVusupTableWidget->clearContents();
+    ui->PatientsVusupTableWidget->setRowCount(patlist.size());
 
-    TableAMettreAJour = ui->PatientsVusupTableWidget;
-
-    RemplirTableViewListJourQuery.exec(SalDatVusrequete);
-    db->erreurRequete(RemplirTableViewListJourQuery,SalDatVusrequete, tr("Impossible de remplir la salle d'attente!"));
-    RemplirTableViewListJourQuery.first();
-    TableAMettreAJour->clearContents();
-    TableAMettreAJour->setRowCount(RemplirTableViewListJourQuery.size());
-
-    for (i = 0; i < RemplirTableViewListJourQuery.size(); i++)
+    for (i = 0; i < patlist.size(); i++)
     {
         QMap<QString, QVariant> rsgnmt;
-        rsgnmt["idpat"] = RemplirTableViewListJourQuery.value(0).toInt();
-        rsgnmt["idsuperviseur"] = RemplirTableViewListJourQuery.value(11).toInt();
-        rsgnmt["loginsuperviseur"] = RemplirTableViewListJourQuery.value(4).toString();
+        rsgnmt["idpat"] = patlist.at(i).at(0).toInt();
+        rsgnmt["idsuperviseur"] = patlist.at(i).at(11).toInt();
+        rsgnmt["loginsuperviseur"] = patlist.at(i).at(4).toString();
 
         UpLabel *label0, *label1, *label2, *label3, *label4;
         label0 = new UpLabel;
@@ -953,25 +940,25 @@ void Rufus::MAJPatientsVus()
         label3->setData(rsgnmt);
         label4->setData(rsgnmt);
 
-        NomPrenom = RemplirTableViewListJourQuery.value(2).toString().toUpper()
-                + " " + RemplirTableViewListJourQuery.value(3).toString();
-        zw = RemplirTableViewListJourQuery.value(8).toTime().toString("HH:mm");
+        NomPrenom = patlist.at(i).at(2).toString().toUpper()
+                + " " + patlist.at(i).at(3).toString();
+        zw = patlist.at(i).at(8).toTime().toString("HH:mm");
         if (zw == "") zw = "hors RDV";
-        label0->setText(" " + zw);                                                                                // Heure acte
-        label1->setText(" " + NomPrenom);                                                                         // Nom + Prénom
-        QString P=RemplirTableViewListJourQuery.value(9).toString();
+        label0->setText(" " + zw);                                                          // Heure acte
+        label1->setText(" " + NomPrenom);                                                   // Nom + Prénom
+        QString P=patlist.at(i).at(9).toString();
         if (P == "E")           P = "Espèces";
         else if (P == "C")      P = "Chèque";
         else if (P == "I")      P = "Impayé";
         else if (P == "G")      P = "Gratuit";
         else if (P == "T")
         {
-            P = RemplirTableViewListJourQuery.value(10).toString();
+            P = patlist.at(i).at(10).toString();
             if (P == "CB")      P = "Carte";
         }
-        label2->setText(" " + P);                                                                                 // Mode de paiement
-        label3->setText(" " + RemplirTableViewListJourQuery.value(6).toString());                                 // Cotation
-        label4->setText(QLocale().toString(RemplirTableViewListJourQuery.value(7).toDouble(),'f',2) + " ");       // Montant
+        label2->setText(" " + P);                                                           // Mode de paiement
+        label3->setText(" " + patlist.at(i).at(6).toString());                              // Cotation
+        label4->setText(QLocale().toString(patlist.at(i).at(7).toDouble(),'f',2) + " ");    // Montant
 
         label0->setAlignment(Qt::AlignLeft);
         label1->setAlignment(Qt::AlignLeft);
@@ -994,14 +981,12 @@ void Rufus::MAJPatientsVus()
         connect (label3,        &UpLabel::dblclick,         this,                   [=] {if (gDataUser->isSoignant()) ChoixDossier(rsgnmt["idpat"].toInt());});
         connect (label4,        &UpLabel::dblclick,         this,                   [=] {if (gDataUser->isSoignant()) ChoixDossier(rsgnmt["idpat"].toInt());});
 
-        TableAMettreAJour->setCellWidget(i,0,label0);
-        TableAMettreAJour->setCellWidget(i,1,label1);
-        TableAMettreAJour->setCellWidget(i,2,label2);
-        TableAMettreAJour->setCellWidget(i,3,label3);
-        TableAMettreAJour->setCellWidget(i,4,label4);
-        TableAMettreAJour->setRowHeight(i,int(fm.height()*1.1));
-
-        RemplirTableViewListJourQuery.next();
+        ui->PatientsVusupTableWidget->setCellWidget(i,0,label0);
+        ui->PatientsVusupTableWidget->setCellWidget(i,1,label1);
+        ui->PatientsVusupTableWidget->setCellWidget(i,2,label2);
+        ui->PatientsVusupTableWidget->setCellWidget(i,3,label3);
+        ui->PatientsVusupTableWidget->setCellWidget(i,4,label4);
+        ui->PatientsVusupTableWidget->setRowHeight(i,int(fm.height()*1.1));
     }
 
 }
@@ -1021,32 +1006,33 @@ void Rufus::AfficheToolTip(int id)
     }
     QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatVille, PatDDN FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS " dos, " NOM_TABLE_PATIENTS " pat"
                   "  WHERE pat.idPat = " + QString::number(id) + " and pat.idpat = dos.idpat";
-    QSqlQuery quer (req, db->getDataBase() );
-    db->erreurRequete(quer,req,"");
+    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok)
+        return;
     QString Msg = "";
-    if (quer.first())
+    if (patdata.size()>0)
     {
-        if (quer.value(4).toString() != "")
-            Msg += Item::CalculAge(quer.value(4).toDate())["toString"].toString();
-        if (quer.value(3).toString() != "")
+        if (patdata.at(4).toString() != "")
+            Msg += Item::CalculAge(patdata.at(4).toDate())["toString"].toString();
+        if (patdata.at(3).toString() != "")
         {
             if (Msg!="") Msg = "\n" + Msg;
-            Msg = quer.value(3).toString() + Msg;
+            Msg = patdata.at(3).toString() + Msg;
         }
-        if (quer.value(2).toString() != "")
+        if (patdata.at(2).toString() != "")
         {
             if (Msg!="") Msg = "\n" + Msg;
-            Msg = quer.value(2).toString() + Msg;
+            Msg = patdata.at(2).toString() + Msg;
         }
-        if (quer.value(1).toString() != "")
+        if (patdata.at(1).toString() != "")
         {
             if (Msg!="") Msg = "\n" + Msg;
-            Msg = quer.value(1).toString() + Msg;
+            Msg = patdata.at(1).toString() + Msg;
         }
-        if (quer.value(0).toString() != "")
+        if (patdata.at(0).toString() != "")
         {
             if (Msg!="") Msg = "\n" + Msg;
-            Msg = quer.value(0).toString() + Msg;
+            Msg = patdata.at(0).toString() + Msg;
         }
         if (Msg!="") Msg += "\n";
         Msg += QString::number(id);
@@ -1141,9 +1127,10 @@ void Rufus::AppelPaiementDirect(QString Origin)
                 // On vérifie que chaque acte sélectionné n'est pas déjà en cours d'enregistrement sur un autre poste
                 QString req = "SELECT idActe FROM "  NOM_TABLE_VERROUCOMPTAACTES
                               " WHERE idActe = "  + ui->AccueilupTableWidget->item(debut+k,5)->text();
-                QSqlQuery ChercheVerrouQuery (req, db->getDataBase() );
-                db->erreurRequete(ChercheVerrouQuery, req,"");
-                if (ChercheVerrouQuery.size() == 0)
+                QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+                if (!ok)
+                    return;
+                if (actdata.size()==0)
                     ListidActeAPasser << ui->AccueilupTableWidget->item(debut+k,5)->text().toInt();
             }
             if (ListidActeAPasser.size() == 0)
@@ -1171,13 +1158,13 @@ void Rufus::AppelPaiementDirect(QString Origin)
         QString req = "SELECT UserLogin FROM " NOM_TABLE_VERROUCOMPTAACTES ", " NOM_TABLE_UTILISATEURS
                       " WHERE idActe = "  + QString::number(gidActe) +
                       " AND PosePar = idUser";
-        QSqlQuery ChercheVerrouQuery (req, db->getDataBase() );
-        db->erreurRequete(ChercheVerrouQuery, req,"");
-        if (ChercheVerrouQuery.size() > 0)
+        QList<QVariant> verroudata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (!ok)
+            return;
+        if (verroudata.size()>0)
         {
-            ChercheVerrouQuery.first();
             UpMessageBox::Watch(this,tr("Vous ne pouvez paz enregistrer le paiement de cet acte !"),
-                                tr("Il est déjà en cours d'enregistrement par ") + ChercheVerrouQuery.value(0).toString());
+                                tr("Il est déjà en cours d'enregistrement par ") + verroudata.at(0).toString());
             return;
         }
         // il s'agit d'un acte gratuit - on propose de le classer
@@ -1196,8 +1183,7 @@ void Rufus::AppelPaiementDirect(QString Origin)
             else
             {
                 QString enreggratuit = "INSERT INTO " NOM_TABLE_TYPEPAIEMENTACTES " (idActe, TypePaiement) VALUES (" + QString::number(gidActe) + ",'G')";
-                QSqlQuery InsertGratuitQuery (enreggratuit, db->getDataBase() );
-                db->erreurRequete(InsertGratuitQuery,enreggratuit,tr("Impossible d'enregister cet acte comme gratuit"));
+                db->StandardSQL(enreggratuit, tr("Impossible d'enregister cet acte comme gratuit"));
                 AfficheActeCompta();
             }
             return;
@@ -1207,10 +1193,10 @@ void Rufus::AppelPaiementDirect(QString Origin)
         QString Msg;
         QString requete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE
                     " WHERE idPat = " + QString::number(gidPatient);
-        QSqlQuery SalDatQuery(requete, db->getDataBase() );
-        db->erreurRequete(SalDatQuery,requete,tr("Impossible de trouver le dossier dans la salle d'attente!"));
-
-        if (SalDatQuery.size() == 0)
+        QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+        if (!ok)
+            return;
+        if (patdata.size()==0)
         {
 
             requete = "INSERT INTO " NOM_TABLE_SALLEDATTENTE
@@ -1232,8 +1218,7 @@ void Rufus::AppelPaiementDirect(QString Origin)
             Msg = tr("Impossible de modifier les statuts du dossier en salle d'attente!");
         }
         FlagMetAjourSalDat();
-        QSqlQuery ModifSalDatQuery(requete, db->getDataBase() );
-        db->erreurRequete(ModifSalDatQuery,requete,Msg);
+        db->StandardSQL(requete, Msg);
         ListidActeAPasser << gidActe;
     }
 
@@ -1245,9 +1230,10 @@ void Rufus::AppelPaiementDirect(QString Origin)
         QString Msg;
         QString req =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE
                 " WHERE idPat = " + QString::number(gidPatient);
-        QSqlQuery SalDatQuery(req, db->getDataBase() );
-        db->erreurRequete(SalDatQuery,req, tr("Impossible de trouver le dossier dans la salle d'attente!"));
-        if (SalDatQuery.size() == 0)
+        QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (!ok)
+            return;
+        if (patdata.size()==0)
         {
             req =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
                     " (idPat, idUser, Statut, HeureStatut, idUserEnCoursExam, PosteExamen)"
@@ -1265,8 +1251,7 @@ void Rufus::AppelPaiementDirect(QString Origin)
                     "' WHERE idPat = " + QString::number(gidPatient);
             Msg = tr("Impossible de modifier le statut du dossier");
         }
-        QSqlQuery ModifSalDatQuery (req, db->getDataBase() );
-        db->erreurRequete(ModifSalDatQuery,req,Msg);
+        db->StandardSQL(req, Msg);
         FlagMetAjourSalDat();
     }
     if (gidActe>0 && ui->tabDossier->isVisible())
@@ -1357,14 +1342,16 @@ void Rufus::ChangeTabBureau()
 void Rufus::ChoixMG()
 {
     QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-    QSqlQuery quer(req, db->getDataBase() );
-    if (quer.size() == 0)
+    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok)
+        return;
+    if (patdata.size()==0)
         req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
                 " (idPat, idCorMedMG) VALUES (" + QString::number(gidPatient) + "," + ui->MGupComboBox->currentData().toString() + ")";
     else
         req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + ui->MGupComboBox->currentData().toString() + " where idpat = " + QString::number(gidPatient);
     //qDebug() << req;
-    QSqlQuery (req, db->getDataBase() );
+    db->StandardSQL(req);
     OKModifierTerrain();
     ui->MGupComboBox->setImmediateToolTip(CalcToolTipCorrespondant(ui->MGupComboBox->currentData().toInt()));
 }
@@ -1374,13 +1361,15 @@ void Rufus::ChoixMG()
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::ChercheNomparID(QString id)  // ce mode de recherche se fait sans filtrage de la liste qui est vue dans son intégralité
 {
-    QSqlQuery quer("SELECT PatNom, PatPrenom FROM "  NOM_TABLE_PATIENTS " WHERE idPat = " + id,  db->getDataBase() );
-    if (quer.size()>0)
+    QString req = "SELECT PatNom, PatPrenom FROM "  NOM_TABLE_PATIENTS " WHERE idPat = " + id;
+    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok)
+        return;
+    if (patdata.size()>0)
     {
-        quer.first();
-        ui->CreerNomlineEdit->setText(quer.value(0).toString());
+        ui->CreerNomlineEdit->setText(patdata.at(0).toString());
         ui->CreerPrenomlineEdit->clear();
-        lblnom->setText(quer.value(0).toString().toUpper() + " " + quer.value(1).toString());
+        lblnom->setText(patdata.at(0).toString().toUpper() + " " + patdata.at(1).toString());
         ChercheNomFiltre(id.toInt());
     }
 }
@@ -1393,13 +1382,15 @@ void Rufus::ChoixCor(UpComboBox *box)
     else if (box==ui->AutresCorresp2upComboBox)
         idcor = "idcormedspe2";
     QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-    QSqlQuery quer(req, db->getDataBase() );
-    if (quer.size() == 0)
+    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok)
+        return;
+    if (patdata.size()==0)
         req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
                 " (idPat, " + idcor + ") VALUES (" + QString::number(gidPatient) + "," + box->currentData().toString() + ")";
     else
         req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + idcor + " = " + box->currentData().toString() + " where idpat = " + QString::number(gidPatient);
-    QSqlQuery (req, db->getDataBase() );
+    db->StandardSQL(req);
     OKModifierTerrain();
     box->setImmediateToolTip(CalcToolTipCorrespondant(box->currentData().toInt()));
 }
@@ -1478,8 +1469,7 @@ void Rufus::CourrierAFaireChecked()
 {
     QString cr = (ui->CourrierAFairecheckBox->isChecked()? "'T'" :"NULL");
     QString requete =   "UPDATE " NOM_TABLE_ACTES " SET ActeCourrieraFaire = " + cr + " WHERE idActe = " + QString::number(gidActe);
-    QSqlQuery UpdateCourrierAFaireQuery (requete, db->getDataBase() );
-    db->erreurRequete(UpdateCourrierAFaireQuery,requete,tr("Impossible d'écrire dans la table des Actes"));
+    db->StandardSQL(requete, tr("Impossible d'écrire dans la table des Actes"));
     MAJActesPrecs();
 }
 
@@ -1492,16 +1482,17 @@ void Rufus::CreerBilanOrtho()
     bool    ConversionEnBO  = false;
     if (ui->Acteframe->isVisible())
     {
-        QString chborequete = "select idbilanortho, ActeDate from " NOM_TABLE_BILANORTHO ", " NOM_TABLE_ACTES
+        QDate DateBl;
+        QString requete = "select idbilanortho, ActeDate from " NOM_TABLE_BILANORTHO ", " NOM_TABLE_ACTES
                 " where idActe = idbilanortho and idbilanortho = " + ui->idActelineEdit->text();
         //UpMessageBox::Watch(this,chborequete);
-        QSqlQuery chboquery(chborequete, db->getDataBase());
-        QDate DateBl;
-        nouveauBO = (chboquery.size()<1);
-        if (chboquery.size() > 0)
+        QList<QVariant> bodata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+        if (!ok)
+            return;
+        nouveauBO = (bodata.size()<1);
+        if (bodata.size() > 0)
         {
-            chboquery.first();
-            DateBl = chboquery.value(1).toDate();
+            DateBl = bodata.at(1).toDate();
             if (DateBl != QDate::currentDate())
             {
                 UpMessageBox msgbox;
@@ -1549,7 +1540,7 @@ void Rufus::CreerBilanOrtho()
         }
         if (!nouveauBO)
         {
-            Dlg_BlOrtho             = new dlg_bilanortho(ui->idActelineEdit->text().toInt(), chboquery.value(0).toInt(), gidPatient);
+            Dlg_BlOrtho             = new dlg_bilanortho(ui->idActelineEdit->text().toInt(), bodata.at(0).toInt(), gidPatient);
             UiDLg_BlOrtho           = Dlg_BlOrtho->ui;
             QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
             UiDLg_BlOrtho->OcclAlternlabel->setVisible(gDDNPatient.daysTo(DateBl) < 730);
@@ -2030,9 +2021,7 @@ void Rufus::ExporteDocs()
         return;
     if (PasDExportPourLeMoment)
         return;
-    bool ok;
     QString NomDirStockageImagerie = proc->DirImagerie();
-
 
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
@@ -2535,7 +2524,6 @@ void Rufus::ImportDocsExternes()
             QString req = "select distinct list.TitreExamen, list.NomAPPareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " appcon, " NOM_TABLE_LISTEAPPAREILS " list"
                   " where list.idappareil = appcon.idappareil and idLieu = " + QString::number( gDataUser->getSite()->id() );
             //qDebug()<< req;
-            bool ok;
             QList<QList<QVariant>> listdocs = db->StandardSelectSQL(req, ok);
             if (listdocs.size()>0)
                 ImportDocsExtThread->RapatrieDocumentsThread(listdocs);
@@ -4831,7 +4819,6 @@ void Rufus::SupprimerDocsEtFactures()
 {
     if (!PosteImport)
         return;
-    bool ok = true;
     QString NomDirStockageImagerie = proc->DirImagerie();
 
     /* Supprimer les documents en attente de suppression*/
@@ -5897,15 +5884,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     db->erreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                 }
                 if (objUpText == ui->ActeConclusiontextEdit || objUpText == ui->ActeMotiftextEdit || objUpText == ui->ActeTextetextEdit)
-                {
-                    QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
-                    for (int n = 0; n <  ListDialog.size(); n++)
-                        if (ListDialog.at(n)->getActeAffiche() == gidActe)
-                        {
-                            ListDialog.at(n)->ActesPrecsAfficheActe(gidActe);
-                            break;
-                        }
-                }
+                    MAJActesPrecs();
             }
         }
         else if (obj->inherits("UpLineEdit") && obj != MGlineEdit && obj != AutresCorresp1LineEdit && obj != AutresCorresp2LineEdit)
@@ -8616,7 +8595,7 @@ void Rufus::MAJMG(QObject *obj)
                     else
                         req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + Upline->getChampCorrespondant() + " = " + QString::number(idcor)
                             + " where idpat = " + QString::number(gidPatient);
-                    QSqlQuery (req, db->getDataBase() );
+                    db->StandardSQL(req);
                     ReconstruitCombosCorresp();             // par une modif introduite par la fiche identcorrespondant
                     FlagMetAjourMG();
                     cbox->setCurrentIndex(cbox->findData(idcor));
@@ -8636,7 +8615,7 @@ void Rufus::MAJMG(QObject *obj)
     else
     {
         req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + Upline->getChampCorrespondant() + " = null where idpat = " + QString::number(gidPatient);
-        QSqlQuery (req, db->getDataBase() );
+        db->StandardSQL(req);
         cbox->setCurrentIndex(-1);
         OKModifierTerrain();
     }
@@ -9144,8 +9123,7 @@ void    Rufus::Refraction()
 
             QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(Corps) +
                                      "' where idActe = " + ui->idActelineEdit->text();
-            QSqlQuery UpdateUpTextEditQuery (updaterequete, db->getDataBase() );
-            db->erreurRequete(UpdateUpTextEditQuery,updaterequete,"Impossible de mettre à jour le champ Texte !");
+            db->StandardSQL(updaterequete);
             ui->ActeTextetextEdit->setText(Corps);
             mod = Q_NULLPTR;
             delete mod;
@@ -9199,8 +9177,7 @@ void    Rufus::Refraction()
 
             QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(Corps) +
                                      "' where idActe = " + ui->idActelineEdit->text();
-            QSqlQuery UpdateUpTextEditQuery (updaterequete, db->getDataBase() );
-            db->erreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ conclusion !"));
+            db->StandardSQL(updaterequete);
             ui->ActeConclusiontextEdit->setFocus();
             ui->ActeConclusiontextEdit->moveCursor(QTextCursor::End);
             ui->ActeConclusiontextEdit->setText(Corps);
@@ -10108,13 +10085,11 @@ void Rufus::SupprimerActe()
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
     requete = "DELETE FROM " NOM_TABLE_REFRACTION " WHERE idActe  = " + QString::number(idASupprimer);
-    QSqlQuery DelRefractionQuery(requete, db->getDataBase() );
-    db->erreurRequete(DelRefractionQuery,requete,"");
+    db->StandardSQL(requete);
 
     // on supprime les éventuels bilans orthoptiques liés à cette consultation -----------------------------------------------------------
-    QString delborequete = "DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idBilanOrtho  = " + QString::number(idASupprimer);
-    QSqlQuery DelBOQuery(delborequete, db->getDataBase() );
-    db->erreurRequete(DelBOQuery,delborequete,"");
+    requete = "DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idBilanOrtho  = " + QString::number(idASupprimer);
+    db->StandardSQL(requete);
 
     /* on corrige la compta
     */
@@ -10149,8 +10124,7 @@ void Rufus::SupprimerActe()
                     if (RecetteQuery.value(0).toDouble() > listmontantsacorriger.at(j))
                         req = "update " NOM_TABLE_RECETTES " set Montant = " + QString::number(RecetteQuery.value(0).toDouble() - listmontantsacorriger.at(j)) +
                                 " where idRecette = " + QString::number(recetteACorriger);
-                    QSqlQuery quer(req, db->getDataBase() );
-                    db->erreurRequete(quer,req,"");
+                    db->StandardSQL(req);
                     RecetteQuery.next();
                 }
             }
@@ -10158,17 +10132,14 @@ void Rufus::SupprimerActe()
 
         // On actualise la table des lignes de paiement et la table des Type de paieement
         requete = "DELETE FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(idASupprimer);
-        QSqlQuery DelLignesPaiementsQuery(requete, db->getDataBase() );
-        db->erreurRequete(DelLignesPaiementsQuery,requete,"");
+        db->StandardSQL(requete);
         requete = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(idASupprimer);
-        QSqlQuery DelTypesPaiementsQuery(requete, db->getDataBase() );
-        db->erreurRequete(DelTypesPaiementsQuery,requete,"");
+        db->StandardSQL(requete);
     }
 
     // on supprime la consultation -------------------------------------------------------------------------------------------------
     requete = "DELETE FROM " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(idASupprimer);
-    QSqlQuery DelActesQuery(requete, db->getDataBase() );
-    if (db->erreurRequete(DelActesQuery,requete, tr("Impossible de supprimer cet acte!")))
+    if (!db->StandardSQL(requete))
         return;
 
     // On affiche la nouvelle consultation
@@ -10294,19 +10265,16 @@ void Rufus::SupprimerDossier(int idpat)
                     if (RecetteQuery.value(0).toDouble() > listmontantsacorriger.at(j))
                         req = "update " NOM_TABLE_RECETTES " set Montant = " + QString::number(RecetteQuery.value(0).toDouble() - listmontantsacorriger.at(j)) +
                                 " where idRecette = " + QString::number(recetteACorriger);
-                    QSqlQuery quer(req, db->getDataBase() );
-                    db->erreurRequete(quer,req,"");
+                    db->StandardSQL(req);
                     RecetteQuery.next();
                 }
             }
         }
         //4, On actualise la table des lignes de paiement el la table des Type de paieement
         requete = "DELETE FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe in (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE act.idPat = '" + QString::number(gidPatient) + "')";
-        QSqlQuery DelLignesPaiementsQuery(requete, db->getDataBase() );
-        db->erreurRequete(DelLignesPaiementsQuery,requete,"");
+        db->StandardSQL(requete);
         requete = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe in (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE act.idPat = '" + QString::number(gidPatient) + "')";
-        QSqlQuery DelTypesPaiementsQuery(requete, db->getDataBase() );
-        db->erreurRequete(DelTypesPaiementsQuery,requete,"");
+        db->StandardSQL(requete);
     }
 
     //5. On ferme l'onglet dossier
@@ -10315,69 +10283,57 @@ void Rufus::SupprimerDossier(int idpat)
 
     //6. On supprime les bilans orthoptiques correspondants à ce dossier
     requete =  "DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " NOM_TABLE_ACTES " where idPat = " + QString::number(gidPatient) + ")";
-    QSqlQuery       SupprimerblorthoQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(SupprimerblorthoQuery,requete, tr("Impossible de retrouver les bilans orthoptiques de ce patient")))
+    if (!db->StandardSQL(requete))
         return;
 
     //7. On supprime tous les actes correspondants à ce dossier
     requete =  "DELETE FROM " NOM_TABLE_ACTES " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery       SupprimerActeQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(SupprimerActeQuery,requete, tr("Impossible de retrouver les consultations de ce patient")))
+    if (!db->StandardSQL(requete))
         return;
 
     //8. On supprime le dossier dans la base Rufus
     requete =  "DELETE FROM " NOM_TABLE_PATIENTS " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery DelPatientQuery(requete, db->getDataBase() );
-    if (db->erreurRequete(DelPatientQuery,requete, tr("Impossible de supprimer ce dossier!")))
+    if (!db->StandardSQL(requete))
         return;
 
     //9. On supprime les documents émis
     requete =  "DELETE FROM " NOM_TABLE_IMPRESSIONS " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery DelPatientImpressionsQuery(requete, db->getDataBase() );
-    if (db->erreurRequete(DelPatientImpressionsQuery,requete, tr("Impossible de supprimer les impressoins de ce dossier!")))
+    if (!db->StandardSQL(requete))
         return;
 
     requete =  "DELETE FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery MAJSocialQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(MAJSocialQuery,requete, tr("Impossible de supprimer ce dossier de la table des données sociales!")))
+    if (!db->StandardSQL(requete))
         return;
 
     requete =  "DELETE FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery MAJMedicalQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(MAJMedicalQuery,requete, tr("Impossible de supprimer ce dossier de la table des données medicales!")))
+    if (!db->StandardSQL(requete))
         return;
 
     requete =  "DELETE FROM " NOM_TABLE_MOTSCLESJOINTURES " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery MAJMotsQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(MAJMotsQuery,requete, tr("Impossible de supprimer ce dossier de la table des mots clés!")))
+    if (!db->StandardSQL(requete))
         return;
 
     requete =  "DELETE FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery MAJSalDatQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(MAJSalDatQuery,requete, tr("Impossible de supprimer ce dossier de la salle d'attente!")))
+    if (!db->StandardSQL(requete))
         return;
     FlagMetAjourSalDat();
 
     //10. On supprime le dossier dans la base OPhtalmologie
     requete =  "DELETE FROM " NOM_TABLE_REFRACTION
             " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery DelRefractionQuery (requete, db->getDataBase() );
-    db->erreurRequete(DelRefractionQuery,requete, tr("Impossible de supprimer ce dossier de la table des réfractions!"));
+    db->StandardSQL(requete);
 
     requete =  "DELETE FROM " NOM_TABLE_DONNEES_OPHTA_PATIENTS
             " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery DelDonneesOphtaQuery (requete, db->getDataBase() );
-    db->erreurRequete(DelDonneesOphtaQuery,requete, tr("Impossible de supprimer ce dossier de la table des données ophtalmologiques!"));
+    db->StandardSQL(requete);
 
     requete =  "DELETE FROM " NOM_TABLE_BIOMETRIES
             " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery DelBiometrieQuery (requete, db->getDataBase() );
-    db->erreurRequete(DelBiometrieQuery,requete, tr("Impossible de supprimer ce dossier de la table des biométries!"));
+    db->StandardSQL(requete);
 
     requete =  "DELETE FROM " NOM_TABLE_TONOMETRIE
             " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery DelTonoQuery (requete, db->getDataBase() );
-    db->erreurRequete(DelTonoQuery,requete, tr("Impossible de supprimer ce dossier de la table des tonométries!"));
+    db->StandardSQL(requete);
 
 
     //10. On reconstruit le treeView Liste
@@ -10454,8 +10410,7 @@ void Rufus::Tonometrie()
 
             QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                     "' where idActe = " + ui->idActelineEdit->text();
-            QSqlQuery UpdateUpTextEditQuery (updaterequete, db->getDataBase() );
-            db->erreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
+            db->StandardSQL(updaterequete);
         }
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
@@ -10566,8 +10521,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
             else
             {
                 requete = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(gidActe);
-                QSqlQuery DelGratuitQuery (requete, db->getDataBase() );
-                db->erreurRequete(DelGratuitQuery,requete,"");
+                db->StandardSQL(requete);
                 AfficheActeCompta();
             }
         }
@@ -10576,8 +10530,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
     }
     //on modifie la table Actes avec le nouveau montant
     QString requete = "UPDATE " NOM_TABLE_ACTES " SET ActeMontant = " + QString::number(QLocale().toDouble(NouveauMontant)) + " WHERE idActe = " + QString::number(gidActe);
-    QSqlQuery UPDMontantActeQuery (requete, db->getDataBase() );
-    db->erreurRequete(UPDMontantActeQuery,requete,"");
+    db->StandardSQL(requete);
     MAJActesPrecs();
 
     int idx = ui->ActeCotationcomboBox->currentIndex();
@@ -10630,8 +10583,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
 
         QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
-        QSqlQuery UpdateUpTextEditQuery (updaterequete, db->getDataBase() );
-        db->erreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
+        db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         if (!proc->DonneesRefracteurFin().isEmpty() && !proc->DonneesRefracteurSubj().isEmpty())
@@ -10668,8 +10620,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
 
         QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
-        QSqlQuery UpdateUpTextEditQuery (updaterequete, db->getDataBase() );
-        db->erreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
+        db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         proc->InsertRefraction(gidPatient, gidActe, "Kerato");
@@ -10696,8 +10647,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
 
         QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
-        QSqlQuery UpdateUpTextEditQuery (updaterequete, db->getDataBase() );
-        db->erreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
+        db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }
@@ -10723,8 +10673,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
 
         QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
-        QSqlQuery UpdateUpTextEditQuery (updaterequete, db->getDataBase() );
-        db->erreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
+        db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }
