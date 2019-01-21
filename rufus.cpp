@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("18-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("21-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1060,7 +1060,7 @@ void Rufus::AfficheMenu(QMenu *menu)
         {
             bool c;
             QString req = "select idActe from " NOM_TABLE_ACTES " where ActeCourrierafaire = 'T' and idUser = " + QString::number(gDataUser->id());
-            c = (QSqlQuery(req, db->getDataBase()).size()>0);
+            c = (db->StandardSelectSQL(req, ok).size()>0);
             actionRechercheCourrier     ->setEnabled(a && c);
         }
 
@@ -1082,8 +1082,8 @@ void Rufus::AfficheMenu(QMenu *menu)
                if (listitems.size() > 0)
                {
                    int idpat = gListePatientsModel->itemFromIndex(listitems.at(0))->text().toInt();
-                   QSqlQuery quer("select idacte from " NOM_TABLE_ACTES " where idpat = " + QString::number(idpat), db->getDataBase() );
-                   actionSupprimerDossier->setVisible(quer.size() == 0);
+                   QString req = "select idacte from " NOM_TABLE_ACTES " where idpat = " + QString::number(idpat);
+                   actionSupprimerDossier->setVisible(db->StandardSelectSQL(req,ok).size() == 0);
                }
                 else
                    actionSupprimerDossier->setVisible(false);
@@ -1095,8 +1095,8 @@ void Rufus::AfficheMenu(QMenu *menu)
             }
         }
         else if (ui->tabWidget->currentWidget() == ui->tabDossier) {
-            QSqlQuery quer("select idacte from " NOM_TABLE_ACTES " where idpat = " + QString::number(gidPatient), db->getDataBase() );
-            actionSupprimerDossier->setVisible(quer.size() == 0 || gDataUser->getFonction() == tr("Médecin") || gDataUser->getFonction() == tr("Orthoptiste"));
+            QString req = "select idacte from " NOM_TABLE_ACTES " where idpat = " + QString::number(gidPatient);
+            actionSupprimerDossier->setVisible(db->StandardSelectSQL(req,ok).size() == 0 || gDataUser->isSoignant());
         }
     }
     if (menu == menuDocuments)
@@ -1564,33 +1564,16 @@ void Rufus::CreerBilanOrtho()
         QString RefractionOG    = "";
         Dlg_BlOrtho             ->setDateBO(QDate::currentDate());
 
-        QString RefODrequete    = "select max(idrefraction), formuleOD from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and quelleDistance = '2' and idPat = " + QString::number(gidPatient);
-        QSqlQuery RefODquery(RefODrequete, db->getDataBase());
-        RefODquery.last();
-        if (RefODquery.value(1).toString() != "")  // On ne peut pas utiliser if (query.size() > 0) dans ce cas car l'opérateur max retourne toujours un size() = 1, même quand il n'y a pas de réponse...
-            RefractionOD += RefODquery.value(1).toString();
-        else
-        {
-            QString RefODVLrequete = "select max(idrefraction), formuleOD from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and quelleDistance = 'L' and idPat = " + QString::number(gidPatient);
-            QSqlQuery RefODVLquery(RefODVLrequete, db->getDataBase());
-            RefODVLquery.last();
-            if (RefODVLquery.value(1).toString() != "")
-                RefractionOD += RefODVLquery.value(1).toString();
-        }
+        QString RefODrequete    = "select max(idrefraction), formuleOD from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gidPatient);
+        QList<QVariant> RefODdata = db->getFirstRecordFromStandardSelectSQL(RefODrequete, ok);
+        if (ok && RefODdata.size()>0)  // On ne peut pas utiliser if (query.size() > 0) dans ce cas car l'opérateur max retourne toujours un size() = 1, même quand il n'y a pas de réponse...
+            RefractionOD += RefODdata.at(1).toString();
 
-        QString RefOGrequete    = "select max(idrefraction), formuleOG from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and quelleDistance = '2' and idPat = " + QString::number(gidPatient);
-        QSqlQuery RefOGquery(RefOGrequete, db->getDataBase());
-        RefOGquery.last();
-        if (RefOGquery.value(1).toString() != "")
-            RefractionOG += RefOGquery.value(1).toString();
-        else
-        {
-            QString RefOGVLrequete = "select max(idrefraction), formuleOG from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and quelleDistance = 'L' and idPat = " + QString::number(gidPatient);
-            QSqlQuery RefOGVLquery(RefOGVLrequete, db->getDataBase());
-            RefOGVLquery.last();
-            if (RefOGVLquery.value(1).toString() != "")
-                RefractionOG += RefOGVLquery.value(1).toString();
-        }
+        QString RefOGrequete    = "select max(idrefraction), formuleOG from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gidPatient);
+        QList<QVariant> RefOGdata = db->getFirstRecordFromStandardSelectSQL(RefOGrequete, ok);
+        if (ok && RefOGdata.size()>0)
+            RefractionOG += RefOGdata.at(1).toString();
+
         if (RefractionOD != "")     UiDLg_BlOrtho->AVODlineEdit->setText(RefractionOD);
         if (RefractionOG != "")     UiDLg_BlOrtho->AVOGlineEdit->setText(RefractionOG);
         UiDLg_BlOrtho->OcclAlternlabel->setVisible(gDDNPatient.daysTo(QDate::currentDate()) < 730);
@@ -1640,8 +1623,7 @@ void Rufus::CreerBilanOrtho()
         }
         QString updaterequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(ui->ActeMotiftextEdit->toHtml()) +
                                 "' where idActe = " + ui->idActelineEdit->text();
-        QSqlQuery UpdateUpMotifTextEditQuery (updaterequete, db->getDataBase() );
-        db->erreurRequete(UpdateUpMotifTextEditQuery,updaterequete,tr("Impossible de mettre à jour le champ Motif !"));
+        db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Motif !"));
 
         // Compléter le Champ Texte et mettre à jour l'affichage de ActeTextetextEdit ----------------------------------------------------------------------------------
         texte = ui->ActeTextetextEdit->toHtml();
@@ -1665,8 +1647,7 @@ void Rufus::CreerBilanOrtho()
         }
         updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
-        QSqlQuery UpdateUpTextEditQuery (updaterequete, db->getDataBase() );
-        db->erreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texe !"));
+        db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texe !"));
 
         // Compléter le Champ Conclusion et mettre à jour l'affichage de ActeConclusiontextEdit ----------------------------------------------------------------------------------
         QString Concl = UiDLg_BlOrtho->ConclusiontextEdit->toPlainText();
@@ -1694,8 +1675,7 @@ void Rufus::CreerBilanOrtho()
             }
             updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->toHtml()) +
                     "' where idActe = " + ui->idActelineEdit->text();
-            QSqlQuery UpdateUpTextEditQuery (updaterequete, db->getDataBase() );
-            db->erreurRequete(UpdateUpTextEditQuery,updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
+            db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
         }
 
         //Mettre à jour la table bilanorrtho
@@ -1872,17 +1852,14 @@ void Rufus::CreerBilanOrtho()
 
         if (!db->createtransaction(QStringList() << NOM_TABLE_BILANORTHO))
            return;
-        QSqlQuery deleteblorthoquery(deleteblorthorequete, db->getDataBase() );
-        if (db->erreurRequete(deleteblorthoquery,deleteblorthorequete,"")){
+        if (!db->StandardSQL(deleteblorthorequete)){
             db->rollback(); return;}
-        QSqlQuery blorthoquery(bilanorthorequete, db->getDataBase() );
-        if (db->erreurRequete(blorthoquery,bilanorthorequete,"")){
+        if (!db->StandardSQL(bilanorthorequete)){
             db->rollback(); return;}
         db->commit();
 
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
-        MAJDocsExternes();  //CreerBilanOrtho()
     }
     else
         if (nouveauBO) SupprimerActe();
@@ -2041,8 +2018,8 @@ void Rufus::ExporteDocs()
         dlg_message(listmsg, 6000, false);        return;
     }
 
-    int total = QSqlQuery ("SELECT idimpression FROM " NOM_TABLE_IMPRESSIONS " where jpg is not null or pdf is not null", db->getDataBase()).size();
-    total +=    QSqlQuery ("SELECT idFacture FROM " NOM_TABLE_FACTURES " where jpg is not null or pdf is not null", db->getDataBase()).size();
+    int total = db->StandardSelectSQL("SELECT idimpression FROM " NOM_TABLE_IMPRESSIONS " where jpg is not null or pdf is not null",ok).size();
+    total +=    db->StandardSelectSQL("SELECT idFacture FROM " NOM_TABLE_FACTURES " where jpg is not null or pdf is not null", ok).size();
     if (total>100)
     {
         int min = total/180;
@@ -2086,41 +2063,41 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
         QString req = "SELECT idimpression, idpat, SousTypeDoc, Dateimpression, jpg, lienversfichier, typedoc FROM " NOM_TABLE_IMPRESSIONS " where jpg is not null";
         //qDebug() << req;
-        QSqlQuery exportjpgquer (req, db->getDataBase() );
-        for (int i=0; i<exportjpgquer.size(); i++)
-        {
-            exportjpgquer.seek(i);
-            /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
-            if (exportjpgquer.value(5).toString() != "")
+        QList<QList<QVariant>> listexportjpg = db->StandardSelectSQL(req, ok );
+        if (ok)
+            for (int i=0; i<listexportjpg.size(); i++)
             {
-                QString CheminFichier = NomDirStockageImagerie + NOMDIR_IMAGES + exportjpgquer.value(5).toString();
-                if (QFile(CheminFichier).exists())
+                /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
+                if (listexportjpg.at(i).at(5).toString() != "")
                 {
-                    QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set jpg = null where idimpression = " + exportjpgquer.value(0).toString(), db->getDataBase() );
-                    continue;
+                    QString CheminFichier = NomDirStockageImagerie + NOMDIR_IMAGES + listexportjpg.at(i).at(5).toString();
+                    if (QFile(CheminFichier).exists())
+                    {
+                        QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set jpg = null where idimpression = " + listexportjpg.at(i).at(0).toString(), db->getDataBase() );
+                        continue;
+                    }
                 }
-            }
-            QDate datetransfer    = exportjpgquer.value(3).toDate();
-            CheminOKTransfrDir    = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
-            if (!QDir(CheminOKTransfrDir).exists())
-                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
-                {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                    QStringList listmsg;
-                    listmsg << msg;
-                    dlg_message(listmsg, 3000, false);
-                    return;
-                }
-            QString NomFileDoc = exportjpgquer.value(1).toString() + "_" + exportjpgquer.value(6).toString() + "-"
-                                + exportjpgquer.value(2).toString().replace("/",".") + "_"
-                                + exportjpgquer.value(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
-                                + "-" + exportjpgquer.value(0).toString()  + ".jpg";
-            QString CheminOKTransfrDoc  = CheminOKTransfrDir + "/" + NomFileDoc + "." JPG;
-            QString CheminOKTransfrProv = CheminOKTransfrDir + "/" + NomFileDoc + "prov." JPG;
-            QByteArray ba = exportjpgquer.value(6).toByteArray();
-            QPixmap pix;
-            pix.loadFromData(ba);
-            /*
+                QDate datetransfer    = listexportjpg.at(i).at(3).toDate();
+                CheminOKTransfrDir    = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
+                if (!QDir(CheminOKTransfrDir).exists())
+                    if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+                    {
+                        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                        QStringList listmsg;
+                        listmsg << msg;
+                        dlg_message(listmsg, 3000, false);
+                        return;
+                    }
+                QString NomFileDoc = listexportjpg.at(i).at(1).toString() + "_" + listexportjpg.at(i).at(6).toString() + "-"
+                        + listexportjpg.at(i).at(2).toString().replace("/",".") + "_"
+                        + listexportjpg.at(i).at(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
+                        + "-" + listexportjpg.at(i).at(0).toString()  + ".jpg";
+                QString CheminOKTransfrDoc  = CheminOKTransfrDir + "/" + NomFileDoc + "." JPG;
+                QString CheminOKTransfrProv = CheminOKTransfrDir + "/" + NomFileDoc + "prov." JPG;
+                QByteArray ba = listexportjpg.at(i).at(6).toByteArray();
+                QPixmap pix;
+                pix.loadFromData(ba);
+                /*
              * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
              * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu...
              * QFile prov (CheminOKTransfrProv);
@@ -2130,27 +2107,119 @@ void Rufus::ExporteDocs()
                     out << ba;
                 }
             */
-            if (!pix.save(CheminOKTransfrProv, "jpeg"))
-            {
-                qDebug() << "erreur";
-                return;
+                if (!pix.save(CheminOKTransfrProv, "jpeg"))
+                {
+                    qDebug() << "erreur";
+                    return;
+                }
+                if (!proc->CompressFileJPG(CheminOKTransfrProv))
+                {
+                    db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
+                    continue;
+                }
+                QFile prov(CheminOKTransfrProv);
+                if (prov.open(QIODevice::ReadWrite))
+                {
+                    prov.copy(CheminOKTransfrDoc);
+                    prov.remove();
+                }
+                else
+                    return;
+                db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set jpg = null,"
+                                " lienversfichier = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc) +
+                                "' where idimpression = " + listexportjpg.at(i).at(0).toString() );
+                faits ++;
+                int nsec = debut.secsTo(QTime::currentTime());
+                int min = nsec/60;
+                int hour = min/60;
+                min = min - (hour*60);
+                nsec = nsec - (hour*3600) - (min*60);
+                listmsg.clear();
+                duree = QTime(hour,min,nsec).toString("HH:mm:ss");
+                listmsg << "JPG - " + NomFileDoc + " - " + QString::number(faits) + "/" + QString::number(total) + " - "  + duree;
+                QTime dieTime= QTime::currentTime().addMSecs(2);
+                while (QTime::currentTime() < dieTime)
+                    QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
+                dlg_message(listmsg, 10);
             }
-            if (!proc->CompressFileJPG(CheminOKTransfrProv))
+
+    //-----------------------------------------------------------------------------------------------------------------------------------------
+    //              LES PDF
+    //-----------------------------------------------------------------------------------------------------------------------------------------
+    QString reqpdf = "SELECT idimpression, idpat, SousTypeDoc, Dateimpression, pdf, lienversfichier, compression, typedoc FROM " NOM_TABLE_IMPRESSIONS " where pdf is not null";
+    QList<QList<QVariant>> listexportpdf = db->StandardSelectSQL(reqpdf, ok );
+    if (ok)
+        for (int i=0; i<listexportpdf.size(); i++)
+        {
+            if (listexportpdf.at(i).at(5).toString() != "")
             {
-                db->SupprRecordFromTable(exportjpgquer.value(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
+                QString CheminFichier = NomDirStockageImagerie + NOMDIR_IMAGES + listexportpdf.at(i).at(5).toString();
+                if (QFile(CheminFichier).exists())
+                {
+                    QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set pdf = null where idimpression = " + listexportpdf.at(i).at(0).toString(), db->getDataBase() );
+                    continue;
+                }
+            }
+            QDate datetransfer    = listexportpdf.at(i).at(3).toDate();
+            CheminOKTransfrDir      = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
+            if (!QDir(CheminOKTransfrDir).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+                {
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QStringList listmsg;
+                    listmsg << msg;
+                    dlg_message(listmsg, 3000, false);
+                    return;
+                }
+            QString NomFileDoc = listexportpdf.at(i).at(1).toString() + "_" + listexportpdf.at(i).at(7).toString() + "-"
+                    + listexportpdf.at(i).at(2).toString().replace("/",".") + "_"
+                    + listexportpdf.at(i).at(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
+                    + "-" + listexportpdf.at(i).at(0).toString()  + ".pdf";
+            QString CheminOKTransfrDoc = CheminOKTransfrDir + "/" + NomFileDoc;
+
+            QByteArray bapdf;
+            bapdf.append(listexportpdf.at(i).at(4).toByteArray());
+
+            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
+            if (!document || document->isLocked() || document == Q_NULLPTR)
+            {
+                QStringList listmsg;
+                listmsg << tr("Impossible de charger le document ") + NomFileDoc;
+                dlg_message(listmsg, 3000, false);
+                QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
+                QFile   echectrsfer(echectrsfername);
+                if (echectrsfer.open(QIODevice::Append))
+                {
+                    QTextStream out(&echectrsfer);
+                    out << NomFileDoc << "\n" ;
+                    echectrsfer.close();
+                    QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
+                    if (CD.open(QIODevice::Append))
+                    {
+                        QTextStream out(&CD);
+                        out << listexportpdf.at(i).at(4).toByteArray() ;
+                    }
+                }
+                QString delreq = "delete from  " NOM_TABLE_IMPRESSIONS " where idimpression = " + listexportpdf.at(i).at(0).toString();
+                //qDebug() << delreq;
+                QSqlQuery (delreq, db->getDataBase() );
+                delete document;
                 continue;
             }
-            QFile prov(CheminOKTransfrProv);
-            if (prov.open(QIODevice::ReadWrite))
-            {
-                prov.copy(CheminOKTransfrDoc);
-                prov.remove();
-            }
-            else
-                return;
-            QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set jpg = null,"
-                       " lienversfichier = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc) +
-                       "' where idimpression = " + exportjpgquer.value(0).toString(), db->getDataBase() );
+            Poppler::PDFConverter *doctosave = document->pdfConverter();
+            doctosave->setOutputFileName(CheminOKTransfrDoc);
+            doctosave->convert();
+
+            QFile CC(CheminOKTransfrDoc);
+            CC.open(QIODevice::ReadWrite);
+            CC.setPermissions(QFileDevice::ReadOther
+                              | QFileDevice::ReadGroup
+                              | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                              | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+            CC.close();
+            db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set pdf = null, compression = null,"
+                            " lienversfichier = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc)  + "'"
+                            " where idimpression = " + listexportpdf.at(i).at(0).toString());
             faits ++;
             int nsec = debut.secsTo(QTime::currentTime());
             int min = nsec/60;
@@ -2159,105 +2228,13 @@ void Rufus::ExporteDocs()
             nsec = nsec - (hour*3600) - (min*60);
             listmsg.clear();
             duree = QTime(hour,min,nsec).toString("HH:mm:ss");
-            listmsg << "JPG - " + NomFileDoc + " - " + QString::number(faits) + "/" + QString::number(total) + " - "  + duree;
+            listmsg << "PDF - " + NomFileDoc + " - " + QString::number(faits) + "/" + QString::number(total) + " - "  + duree;
             QTime dieTime= QTime::currentTime().addMSecs(2);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
             dlg_message(listmsg, 10);
         }
-
-    //-----------------------------------------------------------------------------------------------------------------------------------------
-    //              LES PDF
-    //-----------------------------------------------------------------------------------------------------------------------------------------
-    QString reqpdf = "SELECT idimpression, idpat, SousTypeDoc, Dateimpression, pdf, lienversfichier, compression, typedoc FROM " NOM_TABLE_IMPRESSIONS " where pdf is not null";
-    QSqlQuery exportpdfquer (reqpdf, db->getDataBase() );
-    for (int i=0; i<exportpdfquer.size(); i++)
-    {
-        exportpdfquer.seek(i);
-        if (exportpdfquer.value(5).toString() != "")
-        {
-            QString CheminFichier = NomDirStockageImagerie + NOMDIR_IMAGES + exportpdfquer.value(5).toString();
-            if (QFile(CheminFichier).exists())
-            {
-                QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set pdf = null where idimpression = " + exportpdfquer.value(0).toString(), db->getDataBase() );
-                continue;
-            }
-        }
-        QDate datetransfer    = exportpdfquer.value(3).toDate();
-        CheminOKTransfrDir      = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
-        if (!QDir(CheminOKTransfrDir).exists())
-            if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
-            {
-                QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                QStringList listmsg;
-                listmsg << msg;
-                dlg_message(listmsg, 3000, false);
-                return;
-            }
-        QString NomFileDoc = exportpdfquer.value(1).toString() + "_" + exportpdfquer.value(7).toString() + "-"
-                            + exportpdfquer.value(2).toString().replace("/",".") + "_"
-                            + exportpdfquer.value(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
-                            + "-" + exportpdfquer.value(0).toString()  + ".pdf";
-        QString CheminOKTransfrDoc = CheminOKTransfrDir + "/" + NomFileDoc;
-
-        QByteArray bapdf;
-        bapdf.append(exportpdfquer.value(4).toByteArray());
-
-        Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-        if (!document || document->isLocked() || document == Q_NULLPTR)
-        {
-            QStringList listmsg;
-            listmsg << tr("Impossible de charger le document ") + NomFileDoc;
-            dlg_message(listmsg, 3000, false);
-            QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
-            QFile   echectrsfer(echectrsfername);
-            if (echectrsfer.open(QIODevice::Append))
-            {
-                QTextStream out(&echectrsfer);
-                out << NomFileDoc << "\n" ;
-                echectrsfer.close();
-                QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
-                if (CD.open(QIODevice::Append))
-                {
-                    QTextStream out(&CD);
-                    out << exportpdfquer.value(4).toByteArray() ;
-                }
-            }
-            QString delreq = "delete from  " NOM_TABLE_IMPRESSIONS " where idimpression = " + exportpdfquer.value(0).toString();
-            //qDebug() << delreq;
-            QSqlQuery (delreq, db->getDataBase() );
-            delete document;
-            continue;
-        }
-        Poppler::PDFConverter *doctosave = document->pdfConverter();
-        doctosave->setOutputFileName(CheminOKTransfrDoc);
-        doctosave->convert();
-
-        QFile CC(CheminOKTransfrDoc);
-        CC.open(QIODevice::ReadWrite);
-        CC.setPermissions(QFileDevice::ReadOther
-                          | QFileDevice::ReadGroup
-                          | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                          | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-        CC.close();
-        QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set pdf = null, compression = null,"
-                   " lienversfichier = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc)  + "'"
-                   " where idimpression = " + exportpdfquer.value(0).toString(), db->getDataBase() );
-        faits ++;
-        int nsec = debut.secsTo(QTime::currentTime());
-        int min = nsec/60;
-        int hour = min/60;
-        min = min - (hour*60);
-        nsec = nsec - (hour*3600) - (min*60);
-        listmsg.clear();
-        duree = QTime(hour,min,nsec).toString("HH:mm:ss");
-        listmsg << "PDF - " + NomFileDoc + " - " + QString::number(faits) + "/" + QString::number(total) + " - "  + duree;
-        QTime dieTime= QTime::currentTime().addMSecs(2);
-        while (QTime::currentTime() < dieTime)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-        dlg_message(listmsg, 10);
-    }
-    int totdoc = exportjpgquer.size() + exportpdfquer.size();
+    int totdoc = listexportjpg.size() + listexportpdf.size();
     if (totdoc > 0)
     {
         listmsg <<  tr("export terminé") << QString::number(totdoc) + (totdoc>1? tr(" documents exportés en ") : tr(" document exporté en "))  + duree;
@@ -2290,67 +2267,67 @@ void Rufus::ExporteDocs()
     req = "SELECT idFacture, DateFacture, LienFichier, Intitule, Echeancier, idDepense, jpg FROM " NOM_TABLE_FACTURES
                   " where jpg is not null";
     //qDebug() << req;
-    QSqlQuery exportjpgfactquer (req, db->getDataBase() );
-    for (int i=0; i<exportjpgfactquer.size(); i++)
-    {
-        exportjpgfactquer.seek(i);
-        /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
-        if (exportjpgfactquer.value(2).toString() != "")
+    QList<QList<QVariant>> listexportjpgfact = db->StandardSelectSQL(req, ok);
+    if (ok)
+        for (int i=0; i<listexportjpgfact.size(); i++)
         {
-            QString CheminFichier = NomDirStockageImagerie + NOMDIR_FACTURES + exportjpgfactquer.value(2).toString();
-            if (QFile(CheminFichier).exists())
+            /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
+            if (listexportjpgfact.at(i).at(2).toString() != "")
             {
-                QSqlQuery ("update " NOM_TABLE_FACTURES " set jpg = null where idfacture = " + exportjpgfactquer.value(0).toString(), db->getDataBase() );
-                continue;
+                QString CheminFichier = NomDirStockageImagerie + NOMDIR_FACTURES + listexportjpgfact.at(i).at(2).toString();
+                if (QFile(CheminFichier).exists())
+                {
+                    QSqlQuery ("update " NOM_TABLE_FACTURES " set jpg = null where idfacture = " + listexportjpgfact.at(i).at(0).toString(), db->getDataBase() );
+                    continue;
+                }
             }
-        }
-        /* nommage d'un fichier facture
+            /* nommage d'un fichier facture
          * idFacture + "_" + "ECHEANCIER ou FACTURE" + "_" + Intitule + "_" + DateFacture + ( + "_" + iddepense si facture et pas échéancier)
          */
-        QDate datetransfer  = exportjpgfactquer.value(1).toDate();
-        QString user;
+            QDate datetransfer  = listexportjpgfact.at(i).at(1).toDate();
+            QString user;
 
-        QString NomFileDoc = exportjpgfactquer.value(0).toString() + "_"
-                + (exportjpgfactquer.value(4).toInt()==1? ECHEANCIER : FACTURE) + "-"
-                + exportjpgfactquer.value(3).toString().replace("/",".") + "_"
-                + datetransfer.toString("yyyyMMdd");
-        // on recherche le user à l'origine de cette facture
-        QList<QList<QVariant>> Listeusr;
-        if (exportjpgfactquer.value(4).toInt()==1)          // c'est un échéancier
-            req = "select dep.idUser, UserLogin from " NOM_TABLE_DEPENSES " dep, " NOM_TABLE_UTILISATEURS " usr"
-                  " where dep.idUser  = usr.idUser"
-                  " and idFacture = " + exportjpgfactquer.value(0).toString();
-        else                                                // c'est une facture, l'iduser est dans la table
-            req = "select dep.idUser, UserLogin from " NOM_TABLE_DEPENSES " dep, " NOM_TABLE_UTILISATEURS " usr"
-                  " where dep.idUser  = usr.idUser"
-                  " and idDep = " + exportjpgfactquer.value(5).toString();
-        Listeusr = db->StandardSelectSQL(req, ok);
-        if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
-        {
-            db->SupprRecordFromTable(exportjpgfactquer.value(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
-            continue;
-        }
-        user = Listeusr.at(0).at(1).toString();
-        if (exportjpgfactquer.value(4).toInt()!=1)
-            NomFileDoc += "-"+exportjpgfactquer.value(5).toString();
-
-        CheminOKTransfrDir  = CheminOKTransfrDir + "/" + user;
-        if (!QDir(CheminOKTransfrDir).exists())
-            if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+            QString NomFileDoc = listexportjpgfact.at(i).at(0).toString() + "_"
+                    + (listexportjpgfact.at(i).at(4).toInt()==1? ECHEANCIER : FACTURE) + "-"
+                    + listexportjpgfact.at(i).at(3).toString().replace("/",".") + "_"
+                    + datetransfer.toString("yyyyMMdd");
+            // on recherche le user à l'origine de cette facture
+            QList<QList<QVariant>> Listeusr;
+            if (listexportjpgfact.at(i).at(4).toInt()==1)          // c'est un échéancier
+                req = "select dep.idUser, UserLogin from " NOM_TABLE_DEPENSES " dep, " NOM_TABLE_UTILISATEURS " usr"
+                                                                                                              " where dep.idUser  = usr.idUser"
+                                                                                                              " and idFacture = " + listexportjpgfact.at(i).at(0).toString();
+            else                                                // c'est une facture, l'iduser est dans la table
+                req = "select dep.idUser, UserLogin from " NOM_TABLE_DEPENSES " dep, " NOM_TABLE_UTILISATEURS " usr"
+                                                                                                              " where dep.idUser  = usr.idUser"
+                                                                                                              " and idDep = " + listexportjpgfact.at(i).at(5).toString();
+            Listeusr = db->StandardSelectSQL(req, ok);
+            if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
             {
-                QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                QStringList listmsg;
-                listmsg << msg;
-                dlg_message(listmsg, 3000, false);
-                return;
+                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
+                continue;
             }
+            user = Listeusr.at(0).at(1).toString();
+            if (listexportjpgfact.at(i).at(4).toInt()!=1)
+                NomFileDoc += "-"+listexportjpgfact.at(i).at(5).toString();
 
-        QString CheminOKTransfrDoc  = CheminOKTransfrDir + "/" + NomFileDoc + "." JPG;
-        QString CheminOKTransfrProv = CheminOKTransfrDir + "/" + NomFileDoc + "prov." JPG;
-        QByteArray ba = exportjpgfactquer.value(6).toByteArray();
-        QPixmap pix;
-        pix.loadFromData(ba);
-        /*
+            CheminOKTransfrDir  = CheminOKTransfrDir + "/" + user;
+            if (!QDir(CheminOKTransfrDir).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+                {
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QStringList listmsg;
+                    listmsg << msg;
+                    dlg_message(listmsg, 3000, false);
+                    return;
+                }
+
+            QString CheminOKTransfrDoc  = CheminOKTransfrDir + "/" + NomFileDoc + "." JPG;
+            QString CheminOKTransfrProv = CheminOKTransfrDir + "/" + NomFileDoc + "prov." JPG;
+            QByteArray ba = listexportjpgfact.at(i).at(6).toByteArray();
+            QPixmap pix;
+            pix.loadFromData(ba);
+            /*
          * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
          * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu et je ne sais pas pourquoi
          * QFile prov (CheminOKTransfrProv);
@@ -2360,155 +2337,155 @@ void Rufus::ExporteDocs()
                 out << ba;
             }
         */
-        if (!pix.save(CheminOKTransfrProv, "jpeg"))
-        {
-            qDebug() << "erreur";
-            return;
+            if (!pix.save(CheminOKTransfrProv, "jpeg"))
+            {
+                qDebug() << "erreur";
+                return;
+            }
+            if (!proc->CompressFileJPG(CheminOKTransfrProv))
+            {
+                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
+                continue;
+            }
+            QFile prov(CheminOKTransfrProv);
+            if (prov.open(QIODevice::ReadWrite))
+            {
+                prov.copy(CheminOKTransfrDoc);
+                prov.remove();
+            }
+            else
+                return;
+            db->StandardSQL("update " NOM_TABLE_FACTURES " set jpg = null, LienFichier = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc) + "." JPG "'"
+                            " where idFacture = " + listexportjpgfact.at(i).at(0).toString());
+            faits ++;
+            int nsec = debut.secsTo(QTime::currentTime());
+            int min = nsec/60;
+            int hour = min/60;
+            min = min - (hour*60);
+            nsec = nsec - (hour*3600) - (min*60);
+            listmsg.clear();
+            duree = QTime(hour,min,nsec).toString("HH:mm:ss");
+            listmsg << "JPG - " + NomFileDoc + " - " + QString::number(faits) + "/" + QString::number(total) + " - "  + duree;
+            QTime dieTime= QTime::currentTime().addMSecs(2);
+            while (QTime::currentTime() < dieTime)
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
+            dlg_message(listmsg, 10);
         }
-        if (!proc->CompressFileJPG(CheminOKTransfrProv))
-        {
-            db->SupprRecordFromTable(exportjpgfactquer.value(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
-            continue;
-        }
-        QFile prov(CheminOKTransfrProv);
-        if (prov.open(QIODevice::ReadWrite))
-        {
-            prov.copy(CheminOKTransfrDoc);
-            prov.remove();
-        }
-        else
-            return;
-        QSqlQuery ("update " NOM_TABLE_FACTURES " set jpg = null, LienFichier = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc) + "." JPG "'"
-                   " where idFacture = " + exportjpgfactquer.value(0).toString(), db->getDataBase() );
-        faits ++;
-        int nsec = debut.secsTo(QTime::currentTime());
-        int min = nsec/60;
-        int hour = min/60;
-        min = min - (hour*60);
-        nsec = nsec - (hour*3600) - (min*60);
-        listmsg.clear();
-        duree = QTime(hour,min,nsec).toString("HH:mm:ss");
-        listmsg << "JPG - " + NomFileDoc + " - " + QString::number(faits) + "/" + QString::number(total) + " - "  + duree;
-        QTime dieTime= QTime::currentTime().addMSecs(2);
-        while (QTime::currentTime() < dieTime)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-        dlg_message(listmsg, 10);
-    }
 
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES PDF
     //-----------------------------------------------------------------------------------------------------------------------------------------
     reqpdf = "SELECT idFacture, DateFacture, LienFichier, Intitule, Echeancier, idDepense, pdf FROM " NOM_TABLE_FACTURES
                   " where pdf is not null";
-    QSqlQuery exportpdffactquer (reqpdf, db->getDataBase() );
-    for (int i=0; i<exportpdffactquer.size(); i++)
-    {
-        exportpdffactquer.seek(i);
-        if (exportpdffactquer.value(2).toString() != "")
+    QList<QList<QVariant>> listexportpdffact = db->StandardSelectSQL(reqpdf, ok );
+    if (ok)
+        for (int i=0; i<listexportpdffact.size(); i++)
         {
-            QString CheminFichier = NomDirStockageImagerie + NOMDIR_FACTURES + exportpdffactquer.value(2).toString();
-            if (QFile(CheminFichier).exists())
+            if (listexportpdffact.at(i).at(2).toString() != "")
             {
-                QSqlQuery ("update " NOM_TABLE_FACTURES " set pdf = null where idFacture = " + exportpdffactquer.value(0).toString(), db->getDataBase() );
-                continue;
-            }
-        }
-        QDate datetransfer  = exportpdffactquer.value(1).toDate();
-        QString user;
-
-        QString NomFileDoc = exportpdffactquer.value(0).toString() + "_"
-                + (exportpdffactquer.value(4).toInt()==1? ECHEANCIER : FACTURE) + "-"
-                + exportpdffactquer.value(3).toString().replace("/",".") + "_"
-                + datetransfer.toString("yyyyMMdd");
-        // on recherche le user à l'origine de cette facture
-        QList<QList<QVariant>> Listeusr;
-        if (exportpdffactquer.value(4).toInt()==1)          // c'est un échéancier
-            req = "select dep.idUser, UserLogin from " NOM_TABLE_DEPENSES " dep, " NOM_TABLE_UTILISATEURS " usr"
-                  " where dep.idUser  = usr.idUser"
-                  " and idFacture = " + exportpdffactquer.value(0).toString();
-        else                                                // c'est une facture, l'iduser est dans la table
-            req = "select dep.idUser, UserLogin from " NOM_TABLE_DEPENSES " dep, " NOM_TABLE_UTILISATEURS " usr"
-                  " where dep.idUser  = usr.idUser"
-                  " and idDep = " + exportpdffactquer.value(5).toString();
-        Listeusr = db->StandardSelectSQL(req, ok);
-        if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
-        {
-            db->SupprRecordFromTable(exportpdffactquer.value(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
-            continue;
-        }
-        user = Listeusr.at(0).at(1).toString();
-        if (exportpdffactquer.value(4).toInt()!=1)
-            NomFileDoc += "-"+exportpdffactquer.value(5).toString();
-
-        CheminOKTransfrDir  = CheminOKTransfrDir + "/" + user;
-        if (!QDir(CheminOKTransfrDir).exists())
-            if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
-            {
-                QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-                QStringList listmsg;
-                listmsg << msg;
-                dlg_message(listmsg, 3000, false);
-                return;
-            }
-        QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc + "." PDF;
-
-        QByteArray bapdf;
-        bapdf.append(exportpdffactquer.value(6).toByteArray());
-
-        Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-        if (!document || document->isLocked() || document == Q_NULLPTR)
-        {
-            QStringList listmsg;
-            listmsg << tr("Impossible de charger le document ") + NomFileDoc;
-            dlg_message(listmsg, 3000, false);
-            QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
-            QFile   echectrsfer(echectrsfername);
-            if (echectrsfer.open(QIODevice::Append))
-            {
-                QTextStream out(&echectrsfer);
-                out << NomFileDoc << "\n" ;
-                echectrsfer.close();
-                QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
-                if (CD.open(QIODevice::Append))
+                QString CheminFichier = NomDirStockageImagerie + NOMDIR_FACTURES + listexportpdffact.at(i).at(2).toString();
+                if (QFile(CheminFichier).exists())
                 {
-                    QTextStream out(&CD);
-                    out << exportpdffactquer.value(6).toByteArray() ;
+                    QSqlQuery ("update " NOM_TABLE_FACTURES " set pdf = null where idFacture = " + listexportpdffact.at(i).at(0).toString(), db->getDataBase() );
+                    continue;
                 }
             }
-            QString delreq = "delete from  " NOM_TABLE_FACTURES " where idFacture = " + exportpdffactquer.value(0).toString();
-            //qDebug() << delreq;
-            QSqlQuery (delreq, db->getDataBase() );
-            delete document;
-            continue;
-        }
-        Poppler::PDFConverter *doctosave = document->pdfConverter();
-        doctosave->setOutputFileName(CheminOKTransfrDoc);
-        doctosave->convert();
+            QDate datetransfer  = listexportpdffact.at(i).at(1).toDate();
+            QString user;
 
-        QFile CC(CheminOKTransfrDoc);
-        CC.open(QIODevice::ReadWrite);
-        CC.setPermissions(QFileDevice::ReadOther
-                          | QFileDevice::ReadGroup
-                          | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                          | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-        CC.close();
-        QSqlQuery ("update " NOM_TABLE_FACTURES " set pdf = null, LienFichier = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc)  + "." PDF "'"
-                   " where idFacture = " + exportpdffactquer.value(0).toString(), db->getDataBase() );
-        faits ++;
-        int nsec = debut.secsTo(QTime::currentTime());
-        int min = nsec/60;
-        int hour = min/60;
-        min = min - (hour*60);
-        nsec = nsec - (hour*3600) - (min*60);
-        listmsg.clear();
-        duree = QTime(hour,min,nsec).toString("HH:mm:ss");
-        listmsg << "PDF - " + NomFileDoc + " - " + QString::number(faits) + "/" + QString::number(total) + " - "  + duree;
-        QTime dieTime= QTime::currentTime().addMSecs(2);
-        while (QTime::currentTime() < dieTime)
-            QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-        dlg_message(listmsg, 10);
-    }
-    int totfac = exportjpgfactquer.size() + exportpdffactquer.size();
+            QString NomFileDoc = listexportpdffact.at(i).at(0).toString() + "_"
+                    + (listexportpdffact.at(i).at(4).toInt()==1? ECHEANCIER : FACTURE) + "-"
+                    + listexportpdffact.at(i).at(3).toString().replace("/",".") + "_"
+                    + datetransfer.toString("yyyyMMdd");
+            // on recherche le user à l'origine de cette facture
+            QList<QList<QVariant>> Listeusr;
+            if (listexportpdffact.at(i).at(4).toInt()==1)          // c'est un échéancier
+                req = "select dep.idUser, UserLogin from " NOM_TABLE_DEPENSES " dep, " NOM_TABLE_UTILISATEURS " usr"
+                                                                                                              " where dep.idUser  = usr.idUser"
+                                                                                                              " and idFacture = " + listexportpdffact.at(i).at(0).toString();
+            else                                                // c'est une facture, l'iduser est dans la table
+                req = "select dep.idUser, UserLogin from " NOM_TABLE_DEPENSES " dep, " NOM_TABLE_UTILISATEURS " usr"
+                                                                                                              " where dep.idUser  = usr.idUser"
+                                                                                                              " and idDep = " + listexportpdffact.at(i).at(5).toString();
+            Listeusr = db->StandardSelectSQL(req, ok);
+            if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
+            {
+                db->SupprRecordFromTable(listexportpdffact.at(i).at(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
+                continue;
+            }
+            user = Listeusr.at(0).at(1).toString();
+            if (listexportpdffact.at(i).at(4).toInt()!=1)
+                NomFileDoc += "-"+listexportpdffact.at(i).at(5).toString();
+
+            CheminOKTransfrDir  = CheminOKTransfrDir + "/" + user;
+            if (!QDir(CheminOKTransfrDir).exists())
+                if (!DirTrsferOK.mkdir(CheminOKTransfrDir))
+                {
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+                    QStringList listmsg;
+                    listmsg << msg;
+                    dlg_message(listmsg, 3000, false);
+                    return;
+                }
+            QString CheminOKTransfrDoc      = CheminOKTransfrDir + "/" + NomFileDoc + "." PDF;
+
+            QByteArray bapdf;
+            bapdf.append(listexportpdffact.at(i).at(6).toByteArray());
+
+            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
+            if (!document || document->isLocked() || document == Q_NULLPTR)
+            {
+                QStringList listmsg;
+                listmsg << tr("Impossible de charger le document ") + NomFileDoc;
+                dlg_message(listmsg, 3000, false);
+                QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
+                QFile   echectrsfer(echectrsfername);
+                if (echectrsfer.open(QIODevice::Append))
+                {
+                    QTextStream out(&echectrsfer);
+                    out << NomFileDoc << "\n" ;
+                    echectrsfer.close();
+                    QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
+                    if (CD.open(QIODevice::Append))
+                    {
+                        QTextStream out(&CD);
+                        out << listexportpdffact.at(i).at(6).toByteArray() ;
+                    }
+                }
+                QString delreq = "delete from  " NOM_TABLE_FACTURES " where idFacture = " + listexportpdffact.at(i).at(0).toString();
+                //qDebug() << delreq;
+                QSqlQuery (delreq, db->getDataBase() );
+                delete document;
+                continue;
+            }
+            Poppler::PDFConverter *doctosave = document->pdfConverter();
+            doctosave->setOutputFileName(CheminOKTransfrDoc);
+            doctosave->convert();
+
+            QFile CC(CheminOKTransfrDoc);
+            CC.open(QIODevice::ReadWrite);
+            CC.setPermissions(QFileDevice::ReadOther
+                              | QFileDevice::ReadGroup
+                              | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                              | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+            CC.close();
+            db->StandardSQL("update " NOM_TABLE_FACTURES " set pdf = null, LienFichier = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc)  + "." PDF "'"
+                            " where idFacture = " + listexportpdffact.at(i).at(0).toString());
+            faits ++;
+            int nsec = debut.secsTo(QTime::currentTime());
+            int min = nsec/60;
+            int hour = min/60;
+            min = min - (hour*60);
+            nsec = nsec - (hour*3600) - (min*60);
+            listmsg.clear();
+            duree = QTime(hour,min,nsec).toString("HH:mm:ss");
+            listmsg << "PDF - " + NomFileDoc + " - " + QString::number(faits) + "/" + QString::number(total) + " - "  + duree;
+            QTime dieTime= QTime::currentTime().addMSecs(2);
+            while (QTime::currentTime() < dieTime)
+                QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
+            dlg_message(listmsg, 10);
+        }
+    int totfac = listexportjpgfact.size() + listexportpdffact.size();
     if (totfac > 0)
     {
         listmsg <<  tr("export terminé") << QString::number(totfac) + (totfac>1? tr(" documents comptables exportés en ") :tr(" document comptable exporté en ")) + duree;
@@ -2525,19 +2502,19 @@ void Rufus::ImportDocsExternes()
                   " where list.idappareil = appcon.idappareil and idLieu = " + QString::number( gDataUser->getSite()->id() );
             //qDebug()<< req;
             QList<QList<QVariant>> listdocs = db->StandardSelectSQL(req, ok);
-            if (listdocs.size()>0)
+            if (ok && listdocs.size()>0)
                 ImportDocsExtThread->RapatrieDocumentsThread(listdocs);
         }
 }
 
 void Rufus::ImprimeDossier()
 {
-    QString listactreq = "select idActe, ActeDate, ActeMotif, ActeTexte, ActeConclusion, usernom, userprenom, usertitre from " NOM_TABLE_ACTES
-                         " as act left outer join " NOM_TABLE_UTILISATEURS " as usr on usr.iduser = act.iduser"
-                         " where idPat = " + QString::number(gidPatient);
+    QString req = "select idActe, ActeDate, ActeMotif, ActeTexte, ActeConclusion, usernom, userprenom, usertitre from " NOM_TABLE_ACTES
+                  " as act left outer join " NOM_TABLE_UTILISATEURS " as usr on usr.iduser = act.iduser"
+                  " where idPat = " + QString::number(gidPatient);
     //UpMessageBox::Watch(this,listactreq);
-    QSqlQuery listactquer (listactreq, db->getDataBase() );
-    if (listactquer.size()==0)
+    QList<QList<QVariant>> listact = db->StandardSelectSQL(req, ok);
+    if (listact.size()==0)
     {
         UpMessageBox::Watch(this,tr("Pas d'actes enregistré pour ce patient!"));
         return;
@@ -2553,14 +2530,13 @@ void Rufus::ImprimeDossier()
 
     // collecte des antécédents
     QString AtcdtsGenx = "", AtcdtsOphs = "", idCorMedMG = "";
-    QString req = "select RMPAtcdtsPersos, RMPAtcdtsOphs, idcorMedMG from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idPat = " + QString::number(gidPatient);
-    QSqlQuery atcdtsquer (req,  db->getDataBase() );
-    if (atcdtsquer.size()>0)
+    req = "select RMPAtcdtsPersos, RMPAtcdtsOphs, idcorMedMG from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idPat = " + QString::number(gidPatient);
+    QList<QVariant> atcdtsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (ok && atcdtsdata.size()>0)
     {
-        atcdtsquer.first();
-        AtcdtsGenx = atcdtsquer.value(0).toString();
-        AtcdtsOphs = atcdtsquer.value(1).toString();
-        idCorMedMG = atcdtsquer.value(2).toString();
+        AtcdtsGenx = atcdtsdata.at(0).toString();
+        AtcdtsOphs = atcdtsdata.at(1).toString();
+        idCorMedMG = atcdtsdata.at(2).toString();
     }
     if (AtcdtsOphs != "")
     {
@@ -2575,15 +2551,14 @@ void Rufus::ImprimeDossier()
     if (idCorMedMG != "")
     {
         req = "select CorNom, CorPrenom, CorVille from " NOM_TABLE_CORRESPONDANTS " where idCor = " + idCorMedMG;
-        QSqlQuery MGQuery (req, db->getDataBase() );
-        if (MGQuery.size()>0)
+        QList<QVariant> mgdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (ok && mgdata.size()>0)
         {
-            MGQuery.first();
-            if (MGQuery.value(0).toString() != "" || MGQuery.value(1).toString() != "")
+            if (mgdata.at(0).toString() != "" || mgdata.at(1).toString() != "")
             {
-                idCorMedMG = "Dr " + MGQuery.value(1).toString() + " " + MGQuery.value(0).toString();
-                if (MGQuery.value(2).toString() != "")
-                    idCorMedMG += " - " + MGQuery.value(2).toString();
+                idCorMedMG = "Dr " + mgdata.at(1).toString() + " " + mgdata.at(0).toString();
+                if (mgdata.at(2).toString() != "")
+                    idCorMedMG += " - " + mgdata.at(2).toString();
                 Reponse += "<p><td width=\"20\"></td><td width=\"640\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Médecin traitant: ") + "</font>" + idCorMedMG + "</td></p>";
             }
         }
@@ -2594,20 +2569,19 @@ void Rufus::ImprimeDossier()
     }
 
     bool reponsevide = true;
-    listactquer.first();
-    for (int i=0;i<listactquer.size();i++)
+    for (int i=0;i<listact.size();i++)
     {
-        if (listactquer.value(2).toString() != ""
-            || listactquer.value(3).toString() != ""
-            || listactquer.value(4).toString() != "")
+        if (listact.at(i).at(2).toString() != ""
+            || listact.at(i).at(3).toString() != ""
+            || listact.at(i).at(4).toString() != "")
         {
             reponsevide = false;
-            Reponse += "<p><td width=\"140\"><font color = \"" + proc->CouleurTitres + "\" ><u><b>" + listactquer.value(1).toDate().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
+            Reponse += "<p><td width=\"140\"><font color = \"" + proc->CouleurTitres + "\" ><u><b>" + listact.at(i).at(1).toDate().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
                     "<td width=\"400\">"
-                    + listactquer.value(7).toString() + " " + listactquer.value(6).toString() + " " + listactquer.value(5).toString() + "</td></p>";
-            if (listactquer.value(2).toString() != "")
+                    + listact.at(i).at(7).toString() + " " + listact.at(i).at(6).toString() + " " + listact.at(i).at(5).toString() + "</td></p>";
+            if (listact.at(i).at(2).toString() != "")
             {
-                textprov.setText(listactquer.value(2).toString());
+                textprov.setText(listact.at(i).at(2).toString());
                 // on retire la dernière ligne si elle est vide
                 QString texte = textprov.toHtml();
                 bool a = true;
@@ -2621,9 +2595,9 @@ void Rufus::ImprimeDossier()
                     else a = false;}
                 Reponse += "<p><td width=\"10\"></td><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\"" + tr("Motif:") + "</font>" + texte + "</td></p>";
             }
-            if (listactquer.value(3).toString() != "")
+            if (listact.at(i).at(3).toString() != "")
             {
-                textprov.setText(listactquer.value(3).toString());
+                textprov.setText(listact.at(i).at(3).toString());
                 // on retire la dernière ligne si elle est vide
                 QString texte = textprov.toHtml();
                 bool a = true;
@@ -2637,9 +2611,9 @@ void Rufus::ImprimeDossier()
                     else a = false;}
                 Reponse += "<p><td width=\"10\"></td><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Examen:") + "</font>" + texte + "</td></p>";
             }
-            if (listactquer.value(4).toString() != "")
+            if (listact.at(i).at(4).toString() != "")
             {
-                textprov.setText(listactquer.value(4).toString());
+                textprov.setText(listact.at(i).at(4).toString());
                 // on retire la dernière ligne si elle est vide
                 QString texte = textprov.toHtml();
                 bool a = true;
@@ -2651,13 +2625,12 @@ void Rufus::ImprimeDossier()
                     if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
                         texte.remove(debut,longARetirer);
                     else a = false;}
-                if (listactquer.value(2).toString() != "" || listactquer.value(3).toString() != "")
+                if (listact.at(i).at(2).toString() != "" || listact.at(i).at(3).toString() != "")
                     Reponse += "<p><td width=\"10\"></td><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Conclusion:") + "</font>" + texte + "</td></p>";
                 else
                     Reponse += "<p><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
             }
         }
-        listactquer.next();
     }
    if (reponsevide)
    {
@@ -2713,28 +2686,21 @@ void Rufus::ImprimeDossier()
                       AvecDupli, AvecPrevisu, AvecNumPage);
    if (aa)
    {
-       QSqlQuery query = QSqlQuery( db->getDataBase() );
-       query.prepare("insert into " NOM_TABLE_IMPRESSIONS " (idUser, idpat, TypeDoc, SousTypeDoc, Titre, TextEntete,"
-                                                          " TextCorps,"
-                                                          " TextPied, Dateimpression, UserEmetteur, EmisRecu, FormatDoc, idLieu)"
-                                                          " values(:iduser, :idpat, :typeDoc, :soustypedoc, :titre,"
-                                                          " :textEntete,"
-                                                          " :textCorps,"
-                                                          " :textPied, :dateimpression, :useremetteur, :emisrecu, :formatdoc, :idlieu)");
-       query.bindValue(":iduser", QString::number(gDataUser->id()));
-       query.bindValue(":idpat", QString::number(gidPatient));
-       query.bindValue(":typeDoc", COURRIER);
-       query.bindValue(":soustypedoc", "Impression dossier");
-       query.bindValue(":titre", "Impression dossier");
-       query.bindValue(":textEntete",Entete);
-       query.bindValue(":textCorps", Corps);
-       query.bindValue(":textPied", Pied);
-       query.bindValue(":dateimpression", QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss"));
-       query.bindValue(":useremetteur", QString::number(gDataUser->id()));
-       query.bindValue(":emisrecu", "0");
-       query.bindValue(":formatdoc", COURRIER);
-       query.bindValue(":idlieu", QString::number(gDataUser->getSite()->id()) );
-       if(!query.exec())
+       QHash<QString,QVariant> listbinds;
+       listbinds["iduser"] =            gDataUser->id();
+       listbinds["idpat"] =             gidPatient;
+       listbinds["typeDoc"] =           COURRIER;
+       listbinds["soustypedoc"] =       tr("Impression dossier");
+       listbinds["titre"] =             tr("Impression dossier");
+       listbinds["textEntete"] =        Entete;
+       listbinds["textCorps"] =         Corps;
+       listbinds["textPied"] =          Pied;
+       listbinds["dateimpression"] =    QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+       listbinds["useremetteur"] =      gDataUser->id();
+       listbinds["emisrecu"] =          "0";
+       listbinds["formatdoc"] =         COURRIER;
+       listbinds["idlieu"] =            gDataUser->getSite()->id();
+       if(!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
    }
@@ -2768,9 +2734,9 @@ void Rufus::DropPatient(QByteArray data)
 
 bool Rufus::InscritEnSalDat(int idpat)
 {
-    QString choixreq = " select idPat from " NOM_TABLE_SALLEDATTENTE " where idpat = " + QString::number(idpat);
-    QSqlQuery choixquery(choixreq, db->getDataBase() );
-    if (choixquery.size() > 0)
+    QString req = " select idPat from " NOM_TABLE_SALLEDATTENTE " where idpat = " + QString::number(idpat);
+    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (ok && patdata.size()>0)
     {
         UpMessageBox::Watch(this, tr("Patient déjà inscrit en salle d'attente"));
         return false;
@@ -2785,7 +2751,7 @@ bool Rufus::InscritEnSalDat(int idpat)
                 " (idPat, Statut, HeureArrivee, Motif, Message, HeureRDV, idUser)"
                 " VALUES (" + QString::number(idpat) + ",'" ARRIVE "','" + QTime::currentTime().toString("hh:mm") + "','" +
                             llist.at(0) + "','" + Utils::correctquoteSQL(llist.at(1)) + "','" + llist.at(2) + "', " + llist.at(3) + ")";
-        db->erreurRequete(QSqlQuery (Arriverequete, db->getDataBase()),Arriverequete,"");
+        db->StandardSQL(Arriverequete);
         FlagMetAjourSalDat();
         RecaleTableView(idpat);
     }
@@ -2867,13 +2833,13 @@ void Rufus::ChoixMenuContextuelMotsCles()
         QStringList listMC = ListMCDialog->listMCDepart();
         if (listMC.size()>0)
         {
-            QSqlQuery ("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(gidPatient),  db->getDataBase() );
+            db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(gidPatient));
             QString req = "insert into " NOM_TABLE_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
             req += "(" + QString::number(gidPatient) + ", " + listMC.at(0) + ")";
             for (int j=1; j<listMC.size(); j++)
                 req += ", (" + QString::number(gidPatient) + ", " + listMC.at(j) + ")";
-            QSqlQuery (req, db->getDataBase() );
-            QSqlQuery ("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idMotCle not in (select idmotcle from " NOM_TABLE_MOTSCLES ")",  db->getDataBase() );
+            db->StandardSQL(req);
+            db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idMotCle not in (select idmotcle from " NOM_TABLE_MOTSCLES ")");
         }
     }
     CalcMotsCles(gidPatient);
@@ -2883,18 +2849,17 @@ void Rufus::ChoixMenuContextuelMotsCles()
 
 void Rufus::RechercheParID()
 {
-    gAskRechParIDDialog     = new UpDialog();
-    gAskRechParIDDialog     ->setAttribute(Qt::WA_DeleteOnClose);
-    QVBoxLayout     *globallay  = dynamic_cast<QVBoxLayout*>(gAskRechParIDDialog->layout());
-    UpLabel         *idlabel    = new UpLabel(gAskRechParIDDialog, tr("id du patient"));
-    UpLineEdit      *idLine     = new UpLineEdit(gAskRechParIDDialog);
-    lblnom                      = new UpLabel(gAskRechParIDDialog);
-    idLine              ->setMaxLength(8);
-    idLine              ->setValidator((new QIntValidator(1,99999999)));
-    globallay           ->insertWidget(0,idlabel);
-    globallay           ->insertWidget(1,idLine);
-    globallay           ->insertWidget(2,lblnom);
-    gAskRechParIDDialog ->AjouteLayButtons();
+    gAskRechParIDDialog                 = new UpDialog();
+    gAskRechParIDDialog                 ->setAttribute(Qt::WA_DeleteOnClose);
+    UpLabel         *idlabel            = new UpLabel(gAskRechParIDDialog, tr("id du patient"));
+    UpLineEdit      *idLine             = new UpLineEdit(gAskRechParIDDialog);
+    lblnom                              = new UpLabel(gAskRechParIDDialog);
+    idLine                              ->setMaxLength(8);
+    idLine                              ->setValidator((new QIntValidator(1,99999999)));
+    gAskRechParIDDialog->dlglayout()    ->insertWidget(0,idlabel);
+    gAskRechParIDDialog->dlglayout()    ->insertWidget(1,idLine);
+    gAskRechParIDDialog->dlglayout()    ->insertWidget(2,lblnom);
+    gAskRechParIDDialog                 ->AjouteLayButtons();
     connect(idLine,                         &QLineEdit::textEdited,         [=] {ChercheNomparID(idLine->text());});
     connect(gAskRechParIDDialog->OKButton,  &QPushButton::clicked,          [=] {gAskRechParIDDialog->close();});
     gAskRechParIDDialog->exec();
@@ -2903,18 +2868,17 @@ void Rufus::RechercheParID()
 void Rufus::RechercheParMotCle()
 {
     QString req = "select idmotcle, motcle from " NOM_TABLE_MOTSCLES " order by motcle";
-    QSqlQuery quer(req, db->getDataBase() );
-    if (quer.size()==0)
+    QList<QList<QVariant>> listmotscle = db->StandardSelectSQL(req, ok);
+    if (!ok || listmotscle.size()==0)
     {
         UpMessageBox::Watch(this, tr("Aucun mot clé défini dans la base"), tr("Recherche impossible"));
         return;
     }
 
-    gAskRechParMotCleDialog     = new UpDialog();
-    QVBoxLayout     *globallay  = dynamic_cast<QVBoxLayout*>(gAskRechParMotCleDialog->layout());
-    QTableView      *tabMC      = new QTableView(gAskRechParMotCleDialog);
-    globallay               ->insertWidget(0,tabMC);
-    gAskRechParMotCleDialog ->AjouteLayButtons();
+    gAskRechParMotCleDialog                 = new UpDialog();
+    QTableView      *tabMC                  = new QTableView(gAskRechParMotCleDialog);
+    gAskRechParMotCleDialog->dlglayout()    ->insertWidget(0,tabMC);
+    gAskRechParMotCleDialog                 ->AjouteLayButtons();
     connect(gAskRechParMotCleDialog->OKButton,  &QPushButton::clicked,  [=] {AfficheDossiersRechercheParMotCle();});
 
     gAskRechParMotCleDialog ->setModal(true);
@@ -2934,14 +2898,12 @@ void Rufus::RechercheParMotCle()
 
     QStandardItem      *pitem;
     QStandardItemModel *modele =  new QStandardItemModel;
-    quer.first();
-    for (int i=0; i<quer.size(); i++)
+    for (int i=0; i<listmotscle.size(); i++)
     {
-        pitem   = new QStandardItem(quer.value(1).toString());
-        pitem   ->setAccessibleDescription(quer.value(0).toString());
+        pitem   = new QStandardItem(listmotscle.at(i).at(1).toString());
+        pitem   ->setAccessibleDescription(listmotscle.at(i).at(0).toString());
         pitem   ->setCheckable(true);
         modele  ->appendRow(pitem);
-        quer    .next();
     }
     tabMC       ->setModel(modele);
     for (int i=0; i<modele->rowCount(); i++)
@@ -2949,7 +2911,7 @@ void Rufus::RechercheParMotCle()
     tabMC       ->setColumnWidth(0,300);
     tabMC       ->setFixedWidth(tabMC->columnWidth(0)+2);
     gAskRechParMotCleDialog->setFixedWidth(tabMC->width()
-                        + globallay->contentsMargins().left()*2);
+                        + gAskRechParMotCleDialog->dlglayout()->contentsMargins().left()*2);
     gAskRechParMotCleDialog->exec();
     delete gAskRechParMotCleDialog;
 }
@@ -2979,16 +2941,15 @@ void Rufus::AfficheDossiersRechercheParMotCle()
     for (int i=1; i<listidMc.size(); i++)
         req += ", " +listidMc.at(i);
     req += ") order by patnom, patprenom";
-    QSqlQuery quer(req, db->getDataBase() );
-    if (quer.size()==0)
+    QList<QList<QVariant>> listpats = db->StandardSelectSQL(req, ok);
+    if (!ok || listpats.size()==0)
     {
         UpMessageBox::Watch(this, tr("Aucun patient retrouvé pour ces critères"));
         return;
     }
     gAskListPatients = new UpDialog();
-    QVBoxLayout     *globallay          = dynamic_cast<QVBoxLayout*>(gAskListPatients->layout());
     QTableView      *tabMC              = new QTableView(gAskListPatients);
-    globallay       ->insertWidget(0,tabMC);
+    gAskListPatients->dlglayout()       ->insertWidget(0,tabMC);
     gAskListPatients->AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
     gAskListPatients->PrintButton   ->setLuggage(listidMc);
     connect(gAskListPatients->OKButton,     &QPushButton::clicked,   [=] {gAskListPatients->accept();});
@@ -3012,19 +2973,17 @@ void Rufus::AfficheDossiersRechercheParMotCle()
 
     QStandardItem       *pitem, *pitem1, *pitem2;
     QStandardItemModel *modele =  new QStandardItemModel;
-    quer.first();
-    for (int i=0; i<quer.size(); i++)
+    for (int i=0; i<listpats.size(); i++)
     {
-        pitem   = new QStandardItem(quer.value(1).toString() + " " + quer.value(2).toString());
-        pitem1  = new QStandardItem(quer.value(3).toDate().toString(tr("dd-MMM-yyyy")));
-        pitem2  = new QStandardItem(quer.value(4).toString());
-        pitem   ->setAccessibleDescription(quer.value(0).toString());
-        pitem1  ->setAccessibleDescription(quer.value(0).toString());
-        pitem2  ->setAccessibleDescription(quer.value(0).toString());
+        pitem   = new QStandardItem(listpats.at(i).at(1).toString() + " " + listpats.at(i).at(2).toString());
+        pitem1  = new QStandardItem(listpats.at(i).at(3).toDate().toString(tr("dd-MMM-yyyy")));
+        pitem2  = new QStandardItem(listpats.at(i).at(4).toString());
+        pitem   ->setAccessibleDescription(listpats.at(i).at(0).toString());
+        pitem1  ->setAccessibleDescription(listpats.at(i).at(0).toString());
+        pitem2  ->setAccessibleDescription(listpats.at(i).at(0).toString());
         QList <QStandardItem*> listitems;
         listitems << pitem << pitem1 << pitem2;
         modele  ->appendRow(listitems);
-        quer    .next();
     }
     tabMC->setModel(modele);
     for (int i=0; i<modele->rowCount(); i++)
@@ -3034,7 +2993,7 @@ void Rufus::AfficheDossiersRechercheParMotCle()
     tabMC->setColumnWidth(2,250);
     tabMC->setFixedWidth(tabMC->columnWidth(0)+tabMC->columnWidth(1)+tabMC->columnWidth(2)+2);
     gAskListPatients->setFixedWidth(tabMC->width()
-                        + globallay->contentsMargins().left()*2);
+                        + gAskListPatients->dlglayout()->contentsMargins().left()*2);
     gAskListPatients->exec();
     delete gAskListPatients;
 }
@@ -3046,8 +3005,8 @@ void Rufus::AfficheCourriersAFaire()
                   " left outer join " NOM_TABLE_PATIENTS " pat"
                   " on act.idPat = pat.IDPAT"
                   " where ActeCourrierafaire = 'T' and act.iduser = " + QString::number(gDataUser->id()) + " order by patnom, patprenom";
-    QSqlQuery quer(req, db->getDataBase() );
-    if (quer.size()==0)
+    QList<QList<QVariant>> listcourriers = db->StandardSelectSQL(req, ok);
+    if (!ok || listcourriers.size()==0)
     {
         UpMessageBox::Watch(this, tr("Pas de courrier en attente"));
         return;
@@ -3084,18 +3043,16 @@ void Rufus::AfficheCourriersAFaire()
 
     QStandardItem       *pitem, *pitem1, *pitem2;
     QStandardItemModel *modele =  new QStandardItemModel;
-    quer.first();
-    for (int i=0; i<quer.size(); i++)
+    for (int i=0; i<listcourriers.size(); i++)
     {
-        pitem   = new QStandardItem(quer.value(2).toString().toUpper() + " " + quer.value(3).toString());       // Nom Prenom
-        pitem1  = new QStandardItem(quer.value(4).toDate().toString(tr("dd-MMM-yyyy")));                        // Date de l'acte
-        pitem2  = new QStandardItem(quer.value(1).toString());                                                  // idPat
-        pitem   ->setAccessibleDescription(quer.value(0).toString());                                           // idActe
-        pitem1  ->setAccessibleDescription(quer.value(0).toString());                                           // idActe
+        pitem   = new QStandardItem(listcourriers.at(i).at(2).toString().toUpper() + " " + listcourriers.at(i).at(3).toString());       // Nom Prenom
+        pitem1  = new QStandardItem(listcourriers.at(i).at(4).toDate().toString(tr("dd-MMM-yyyy")));                        // Date de l'acte
+        pitem2  = new QStandardItem(listcourriers.at(i).at(1).toString());                                                  // idPat
+        pitem   ->setAccessibleDescription(listcourriers.at(i).at(0).toString());                                           // idActe
+        pitem1  ->setAccessibleDescription(listcourriers.at(i).at(0).toString());                                           // idActe
         QList <QStandardItem*> listitems;
         listitems << pitem << pitem1 << pitem2;
         modele  ->appendRow(listitems);
-        quer    .next();
     }
     tabCourriers->setModel(modele);
     for (int i=0; i<modele->rowCount(); i++)
