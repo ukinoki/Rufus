@@ -1,18 +1,18 @@
 /* (C) 2018 LAINE SERGE
-This file is part of Rufus.
+This file is part of RufusAdmin or Rufus.
 
-Rufus is free software: you can redistribute it and/or modify
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
-Rufus is distributed in the hope that it will be useful,
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Rufus. If not, see <http://www.gnu.org/licenses/>.
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "tcpsocket.h"
@@ -132,7 +132,8 @@ void TcpSocket::erreurSocket()
 void TcpSocket::envoieMessage(QString msg)
 {
     currentmsg = msg;
-    QByteArray paquet   = currentmsg.toUtf8();
+    //qDebug() << msg << "void TcpSocket::envoieMessage(QString msg)";
+    QByteArray paquet   = msg.toUtf8();
     QByteArray size     = Utils::IntToArray(paquet.size());
     if(state() == QAbstractSocket::ConnectedState)
     {
@@ -140,20 +141,6 @@ void TcpSocket::envoieMessage(QString msg)
         write(paquet);              //envoie le message
         waitForBytesWritten(5000);
     }
-}
-
-void TcpSocket::envoieMessageA(QList<int> listidusr)
-{
-    QString listid;
-    for (int i=0; i<listidusr.size(); i++)
-    {
-        listid += QString::number(listidusr.at(i));
-        if (listidusr.at(i) < (listidusr.size()-1))
-            listid += ",";
-    }
-    QString msg = listid + TCPMSG_MsgBAL;
-    currentmsg = tr("courrier");
-    envoieMessage(msg);
 }
 
 

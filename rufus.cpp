@@ -1,18 +1,18 @@
-﻿/* (C) 2016 LAINE SERGE
-This file is part of Rufus.
+﻿/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
 
-Rufus is free software: you can redistribute it and/or modify
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
-Rufus is distributed in the hope that it will be useful,
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Rufus. If not, see <http://www.gnu.org/licenses/>.
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "gbl_datas.h"
@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("21-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("22-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -125,9 +125,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         currentmsg = "";
         erreurmsg  = "";
         TcPConnect = TcpSocket::getInstance();
-        UtiliseTCP = TcPConnect->TcpConnectToServer();
-        if (UtiliseTCP)
-            connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});
+        if(!TcPConnect->TcpConnectToServer())
+            UtiliseTCP = false;
+        else
+        {
+            connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});  // traitement des messages reçus
+        }
     }
     else
         db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseTCPServeur = null");
@@ -9905,15 +9908,12 @@ void Rufus::ResumeStatut()
     // version de Rufus et de la base
     gResumeStatut += "\n\n" + tr("Version de Rufus ") + "\t\t" + qApp->applicationVersion();
     gResumeStatut += "\n" + tr("Version de la base ") + "\t\t";
-    QString VerifBasereq = "select VersionBase from " NOM_TABLE_PARAMSYSTEME;
-    QSqlQuery VersionBaseQuery(VerifBasereq,db->getDataBase());
-    if (VersionBaseQuery.lastError().type() != QSqlError::NoError || VersionBaseQuery.size()==0)
+    QString req = "select VersionBase from " NOM_TABLE_PARAMSYSTEME;
+    QList<QVariant> versiondata = db->getFirstRecordFromStandardSelectSQL(req,ok);
+    if (!ok || versiondata.size()==0)
         gResumeStatut += tr("inconnue");
     else
-    {
-        VersionBaseQuery.first();
-        gResumeStatut +=  VersionBaseQuery.value(0).toString();
-    }
+        gResumeStatut +=  versiondata.at(0).toString();
     proc->emit ModifEdit(gResumeStatut);
 }
 
@@ -10138,38 +10138,40 @@ void Rufus::SupprimerDossier(int idpat)
     //1. On recherche le nom et le prenom du patient s'ils ne sont pas déterminés - c'est le cas quand il n'y a pas de dossier affiché
     if (ui->tabWidget->indexOf(ui->tabDossier) < 0)
     {
-        QSqlQuery quer0("select patnom, PatPrenom from " NOM_TABLE_PATIENTS " where idpat = " + QString::number(gidPatient),  db->getDataBase() );
-        if (quer0.size() == 0) return;
-        quer0.first();
-        gNomPatient = quer0.value(0).toString();
-        gPrenomPatient = quer0.value(1).toString();
+        QString req = "select patnom, PatPrenom from " NOM_TABLE_PATIENTS " where idpat = " + QString::number(gidPatient);
+        QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
+        if (!ok)
+            return;
+        if (patdata.size() == 0) return;
+        gNomPatient = patdata.at(0).toString();
+        gPrenomPatient = patdata.at(1).toString();
     }
 
     //2. On recherche les actes de ce dossier qui seraient en tiers payant et qui auraient déjà reçu des versements auquel cas, on ne peut pas supprimer les actes ni le dossier
     QString Messg = "";
     QString requete = " SELECT idRecette, Paye FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe in (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE act.idPat = '" + QString::number(gidPatient) + "')";
-    QSqlQuery ListeRecettesQuery (requete, db->getDataBase() );
-    db->erreurRequete(ListeRecettesQuery,requete,"");
-    ListeRecettesQuery.first();
-    for (int l = 0; l < ListeRecettesQuery.size(); l++)
+    QList<QList<QVariant>> reclist = db->StandardSelectSQL(requete,ok);
+    if (!ok)
+        return;
+    else
+    for (int l = 0; l < reclist.size(); l++)
     {
         // on vérifie pour chaque ligne s'il s'agit d'un virement ou d'une carte bleue ou d'un chèque enregistré
-        requete = "SELECT ModePaiement, NomTiers, idRemise FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + ListeRecettesQuery.value(0).toString();
-        QSqlQuery ModePaiementQuery (requete, db->getDataBase() );
-        db->erreurRequete(ModePaiementQuery,requete,"");
-        ModePaiementQuery.first();
-        if (ModePaiementQuery.value(0).toString() == "V")
+        requete = "SELECT ModePaiement, NomTiers, idRemise FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + reclist.at(l).at(0).toString();
+        QList<QVariant> pmydata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
+        if (!ok)
+            return;
+        if (pmydata.at(0).toString() == "V")
             Messg = tr("Je crains de ne pas pouvoir supprimer ce dossier\nIl y a des versements enregistrés.");
-        if (ModePaiementQuery.value(0).toString() == "V" && ModePaiementQuery.value(1).toString() == "CB")
+        if (pmydata.at(0).toString() == "V" && pmydata.at(1).toString() == "CB")
             Messg = tr("Je crains de ne pas pouvoir supprimer ce dossier\nIl y a des paiements par carte de crédit enregistrés.");
-        if (ModePaiementQuery.value(0).toString() == "C" && ModePaiementQuery.value(2).toInt() > 0)
+        if (pmydata.at(0).toString() == "C" && pmydata.at(2).toInt() > 0)
             Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés.");
-        if (ModePaiementQuery.value(0).toString() == "C" && ModePaiementQuery.value(2).toInt() == 0)
+        if (pmydata.at(0).toString() == "C" && pmydata.at(2).toInt() == 0)
             Messg = tr("Je crains de ne pas pouvoir supprimer ce dossier\nIl y a des paiements par chèque enregistrés."
                     "\nCe ou ces chèques ne sont pas encaissés."
                     "\nVous devez modifier l'écriture correspondante pour pouvoir supprimer l'acte.");
-        if (Messg != "") l = ListeRecettesQuery.size();
-        ListeRecettesQuery.next();
+        if (Messg != "") l = reclist.size();
     }
     if (Messg != "")
     {
@@ -10191,7 +10193,7 @@ void Rufus::SupprimerDossier(int idpat)
 
     /* on corrige la compta
     */
-    if (ListeRecettesQuery.size()>0)     // inutile de le faire pour les gratuits et les impayés ou les tiers non encore encaissés
+    if (reclist.size()>0)     // inutile de le faire pour les gratuits et les impayés ou les tiers non encore encaissés
         /* on corrige les lignes de recette correspondant à ce dossier -------------------------------------------------------------------------
         // ça ne peut concerner que des paiements en espèces -----------------------------------------------------------------------------------
         parce qu'on ne peut pas supprimer les dossiers pour lesquels des recettes ont été enregistrées avec d'autres formes de paiement
@@ -10200,30 +10202,27 @@ void Rufus::SupprimerDossier(int idpat)
     {
         QList<int>      listrecettesacorriger;
         QList<double>   listmontantsacorriger;
-        ListeRecettesQuery.first();
-        for (int l = 0; l < ListeRecettesQuery.size(); l++)
+        for (int l = 0; l < reclist.size(); l++)
         {
-            listrecettesacorriger << ListeRecettesQuery.value(0).toInt();
-            listmontantsacorriger << ListeRecettesQuery.value(1).toDouble();
-            ListeRecettesQuery.next();
+            listrecettesacorriger << reclist.at(l).at(0).toInt();
+            listmontantsacorriger << reclist.at(l).at(1).toDouble();
         }
         for (int j=0; j<listrecettesacorriger.size(); j++)
         {
             int recetteACorriger = listrecettesacorriger.at(j);
             requete = "SELECT Montant FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(recetteACorriger);
-            QSqlQuery RecetteQuery (requete, db->getDataBase() );
-            db->erreurRequete(RecetteQuery,requete,"");
-            if (RecetteQuery.size()>0)
+            QList<QList<QVariant>> reclist = db->StandardSelectSQL(requete,ok);
+            if (!ok)
+                return;
+            else if (ok && reclist.size()>0)
             {
-                RecetteQuery.first();
-                for (int k=0; k<RecetteQuery.size(); k++)
+                for (int k=0; k<reclist.size(); k++)
                 {
                     QString req = "delete from " NOM_TABLE_RECETTES " where idrecette = " + QString::number(recetteACorriger);
-                    if (RecetteQuery.value(0).toDouble() > listmontantsacorriger.at(j))
-                        req = "update " NOM_TABLE_RECETTES " set Montant = " + QString::number(RecetteQuery.value(0).toDouble() - listmontantsacorriger.at(j)) +
+                    if (reclist.at(k).at(0).toDouble() > listmontantsacorriger.at(j))
+                        req = "update " NOM_TABLE_RECETTES " set Montant = " + QString::number(reclist.at(k).at(0).toDouble() - listmontantsacorriger.at(j)) +
                                 " where idRecette = " + QString::number(recetteACorriger);
                     db->StandardSQL(req);
-                    RecetteQuery.next();
                 }
             }
         }
@@ -10381,31 +10380,31 @@ void Rufus::Tonometrie()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::TrouverDDN()
 {
-    QString requete = "SELECT idPat, PatNom, PatPrenom, PatDDN FROM " NOM_TABLE_PATIENTS
+    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN FROM " NOM_TABLE_PATIENTS
             " WHERE PatDDN = '" + ui->CreerDDNdateEdit->date().toString("yyyy-MM-dd") + "'";
-    QSqlQuery   TrouverDDNQuery (requete, db->getDataBase() );
-    if (!db->erreurRequete(TrouverDDNQuery,requete,tr("Impossible de retrouver un patient pour cette date de naissance")))
+    QList<QList<QVariant>> ddnlist = db->StandardSelectSQL(req,ok, tr("Impossible de retrouver un patient pour cette date de naissance"));
+    if (!ok)
+        return;
+    else
     {
         gListePatientsModel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
-    if (gListePatientsModel)
-        gListePatientsModel->clear();
-    else
-        gListePatientsModel = new QStandardItemModel;
+        if (gListePatientsModel)
+            gListePatientsModel->clear();
+        else
+            gListePatientsModel = new QStandardItemModel;
     }
-    gNombreDossiers = TrouverDDNQuery.size();
+    gNombreDossiers = ddnlist.size();
     if (gNombreDossiers > 0)
     {
-        TrouverDDNQuery.first();
         QStandardItem *pitem, *pitem0, *pitem1;
         for (int i=0;i<gNombreDossiers;i++)
         {
-            pitem   = new QStandardItem(TrouverDDNQuery.value(0).toString());                                                             // IdPatient
-            pitem0  = new QStandardItem(TrouverDDNQuery.value(1).toString().toUpper() + " " + TrouverDDNQuery.value(2).toString());  // Nom + Prénom
-            pitem1  = new QStandardItem(TrouverDDNQuery.value(3).toDate().toString(tr("dd-MM-yyyy")));                                        // date de naissance
+            pitem   = new QStandardItem(ddnlist.at(i).at(0).toString());                                                        // IdPatient
+            pitem0  = new QStandardItem(ddnlist.at(i).at(1).toString().toUpper() + " " + ddnlist.at(i).at(2).toString());       // Nom + Prénom
+            pitem1  = new QStandardItem(ddnlist.at(i).at(3).toDate().toString(tr("dd-MM-yyyy")));                               // date de naissance
             QList<QStandardItem *> pitemlist;
             pitemlist << pitem << pitem0 << pitem1;
             gListePatientsModel->appendRow(pitemlist);
-            TrouverDDNQuery.next();
         }
         QStandardItem *itnom = new QStandardItem();
         itnom->setText(tr("Nom"));
@@ -10440,6 +10439,7 @@ void Rufus::TrouverDDN()
 bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMontant)
 {
     // On vérifie que le montant entré n'est pas inférieur au montant déjà payé et on invalide dans ce cas
+    QString req;
     if (ui->PayelineEdit->isVisible() && QLocale().toDouble(NouveauMontant) < QLocale().toDouble(ui->PayelineEdit->text()))
     {
         QSound::play(NOM_ALARME);
@@ -10455,10 +10455,11 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
     if (QLocale().toDouble(NouveauMontant) > 0)
     {
         // si le montant entré est supérieur à O, on vérifie qu'il n'y a pas d'enregistrement gratuit pour cet acte et on le supprime au cas où, après confirmation
-        QString requete = "SELECT idActe, TypePaiement FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE TypePaiement = 'G' AND idActe = " + QString::number(gidActe);
-        QSqlQuery RechercheGratuitQuery (requete, db->getDataBase() );
-        db->erreurRequete(RechercheGratuitQuery,requete,"Slot_EditingFinshed()");
-        if (RechercheGratuitQuery.size() > 0)
+        req = "SELECT idActe, TypePaiement FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE TypePaiement = 'G' AND idActe = " + QString::number(gidActe);
+        QList<QVariant> idactdata = db->getFirstRecordFromStandardSelectSQL(req,ok, "ValideActeMontantLineEdit");
+        if (!ok)
+            return false;
+        if (idactdata.size() > 0)
         {
             QSound::play(NOM_ALARME);
             UpMessageBox msgbox;
@@ -10477,8 +10478,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
             }
             else
             {
-                requete = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(gidActe);
-                db->StandardSQL(requete);
+                db->StandardSQL("DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(gidActe));
                 AfficheActeCompta();
             }
         }
@@ -10486,8 +10486,8 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
             ui->ActeMontantlineEdit->setText(NouveauMontant);
     }
     //on modifie la table Actes avec le nouveau montant
-    QString requete = "UPDATE " NOM_TABLE_ACTES " SET ActeMontant = " + QString::number(QLocale().toDouble(NouveauMontant)) + " WHERE idActe = " + QString::number(gidActe);
-    db->StandardSQL(requete);
+    req = "UPDATE " NOM_TABLE_ACTES " SET ActeMontant = " + QString::number(QLocale().toDouble(NouveauMontant)) + " WHERE idActe = " + QString::number(gidActe);
+    db->StandardSQL(req);
     MAJActesPrecs();
 
     int idx = ui->ActeCotationcomboBox->currentIndex();
@@ -10649,7 +10649,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::LireLaCPS()
 {
-    QString requete, numPS;
+    QString req, numPS;
     pyxi = new pyxinterf(proc, this);
     QString nomFicPraticienPar = pyxi->Lecture_CPS();
     delete pyxi;
@@ -10664,13 +10664,13 @@ void Rufus::LireLaCPS()
         return;
         }
     // recherche utilisateur avec ce n°ADELI
-    requete =   "SELECT idUser FROM " NOM_TABLE_UTILISATEURS " WHERE UserNumPS = '" + numPS + "'" ;
-    QSqlQuery ChercheUserQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(ChercheUserQuery,requete, "Impossible d'ouvrir la table Utilisateurs"))
+    req =   "SELECT idUser FROM " NOM_TABLE_UTILISATEURS " WHERE UserNumPS = '" + numPS + "'" ;
+    QList<QVariant> idusrdata = db->getFirstRecordFromStandardSelectSQL(req,ok, tr("Impossible d'ouvrir la table Utilisateurs"));
+    if (!ok)
         return;
     else
         {
-        if (ChercheUserQuery.size() == 0)  // Aucune mesure trouvee pour ces criteres
+        if (idusrdata.size() == 0)  // Aucune mesure trouvee pour ces criteres
             {
             UpMessageBox::Watch(this,"Lecture de la CPS", "Lecture de la carte :\n" +
                                  settingPraticienPar.value("PS/Nom").toString() + " " +
@@ -10680,8 +10680,7 @@ void Rufus::LireLaCPS()
             return;
             }
         // A REVOIR : faire tout ce qu'il faut pour nouveau user ... mais quoi ???
-        ChercheUserQuery.last();
-        gDataUser->setId(ChercheUserQuery.value(0).toInt());
+        gDataUser->setId(idusrdata.at(0).toInt());
         setWindowTitle("Rufus - " + gDataUser->getLogin() + " - " + gDataUser->getFonction());
         }
 }
@@ -10880,7 +10879,7 @@ void Rufus::envoieMessage(QString msg)
 {
     if (!UtiliseTCP)
         return;
-    //qDebug() << msg + " - void Rufus::envoieMessage(QString msg)";
+    qDebug() << msg + " - void Rufus::envoieMessage(QString msg)";
     currentmsg = msg;
     QByteArray paquet   = currentmsg.toUtf8();
     QByteArray size     = Utils::IntToArray(paquet.size());

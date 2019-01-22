@@ -1,18 +1,18 @@
-/* (C) 2016 LAINE SERGE
-This file is part of Rufus.
+/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
 
-Rufus is free software: you can redistribute it and/or modify
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+the Free Software Foundation, either version 3 of the License,
+or any later version.
 
-Rufus is distributed in the hope that it will be useful,
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with Rufus. If not, see <http://www.gnu.org/licenses/>.
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "icons.h"
@@ -2014,58 +2014,9 @@ QStringList Procedures::DecomposeScriptSQL(QString nomficscript)
         queryStr = queryStr.replace(QRegularExpression("(^(\\n)*)",     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
         listinstruct << Atraiter;
     }
-    /*
-    QString txt;
-    for (int i=0; i<listinstruct.size();i++)
-        txt += listinstruct.at(i) + "\n--\n";
-    Edit(txt);
-    */
-
     return listinstruct;
 
-    /* POUR CREER DES PROCEDURES AVEC Qt
-    1. il faut refaire un Use 'DATABASE'
-    2. l'instruction de définition du DELIMITER ne doit pas être utilisée
-
-    Dans les faits
-    d'abord
-    QString req = "USE `Rufus`;";
-    QSQLquery (req, db->getDataBase());
-
-    puis
-    req = "DROP PROCEDURE IF EXISTS MAJ16;";
-    QSQLquery (req, db->getDataBase());
-
-    enfin
-    QString req = "DELIMITER |"
-        "CREATE PROCEDURE MAJ16()\n"
-            "BEGIN\n"
-            "DECLARE tot INT DEFAULT 1;\n"
-            "SELECT COUNT(*) INTO tot FROM\n"
-                "(SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS\n"
-                "WHERE TABLE_NAME='Impressions' AND COLUMN_NAME = 'TextOrigine') as chp;\n"
-            "IF tot=0\n"
-            "THEN\n"
-                "ALTER TABLE `Impressions`\n"
-                "ADD COLUMN `TextOrigine` blob NULL DEFAULT NULL AFTER `TextCorps`;\n"
-            "END IF;\n"
-            "END|;";
-     ne marche pas et doit être remplacé par
-     QString req =
-            "CREATE PROCEDURE MAJ16()\n"
-            "BEGIN\n"
-            "DECLARE tot INT DEFAULT 1;\n"
-            "SELECT COUNT(*) INTO tot FROM\n"
-                "(SELECT column_name FROM INFORMATION_SCHEMA.COLUMNS\n"
-                "WHERE TABLE_NAME='Impressions' AND COLUMN_NAME = 'TextOrigine') as chp;\n"
-            "IF tot=0\n"
-            "THEN\n"
-                "ALTER TABLE `Impressions`\n"
-                "ADD COLUMN `TextOrigine` blob NULL DEFAULT NULL AFTER `TextCorps`;\n"
-            "END IF;\n"
-            "END;";
-
-    */
+    /* POUR CREER DES PROCEDURES AVEC Qt - cf fichier créer des procédures mysql avec QSt dans /assets/diagrams */
 }
 
 bool Procedures::ReinitBase()
