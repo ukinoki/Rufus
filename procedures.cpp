@@ -293,9 +293,9 @@ void Procedures::MAJflagMG()
     {
         if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
-        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
         int a = 0;
+        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
         if (ok && flagdata.size()>0) {
             a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMG = " + QString::number(a);
@@ -319,9 +319,9 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
         if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
         //qDebug() << "MAJTcpMsgEtFlagSalDat() lock OK";
-        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagSalDat) VALUES (1)";
         int a = 0;
+        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
         if (ok && flagdata.size()>0) {
             a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagSalDat = " + QString::number(a);
@@ -341,9 +341,9 @@ void Procedures::MAJflagMessages()
     {
         if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
             return;
-        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " NOM_TABLE_FLAGS, ok);
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMessages) VALUES (1)";
         int a = 0;
+        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " NOM_TABLE_FLAGS, ok);
         if (ok && flagdata.size()>0) {
             a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMessages = " + QString::number(a);

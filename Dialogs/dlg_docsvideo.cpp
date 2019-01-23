@@ -267,9 +267,10 @@ void dlg_docsvideo::ValideFiche()
 
     QHash<QString,QVariant> listbinds;
     bool b = false;
+    bool ok;
         if (!db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS))
             return;
-    int idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS) + 1;
+    int idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok) + 1;
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
     listbinds["idImpression"] =     idimpr;

@@ -358,13 +358,14 @@ void dlg_docsscanner::ValideFiche()
     int idimpr (0);
     QHash<QString,QVariant> listbinds;
     bool b = false;
+    bool ok;
     QString lien;
 
     if (gMode == Document)      // c'est un document scanné
     {
         if (!db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS))
             return;
-        idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS) + 1;
+        idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok) + 1;
         QString NomFileDoc = QString::number(iditem) + "_"
                 + typeDocCombo->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
@@ -404,7 +405,7 @@ void dlg_docsscanner::ValideFiche()
     {
         if (!db->locktables(QStringList() << NOM_TABLE_FACTURES))
             return;
-        idimpr =  db->selectMaxFromTable("idFacture", NOM_TABLE_FACTURES) + 1;
+        idimpr =  db->selectMaxFromTable("idFacture", NOM_TABLE_FACTURES, ok) + 1;
         QString NomFileDoc = QString::number(idimpr) + "_"
                 + typeDocCombo->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement

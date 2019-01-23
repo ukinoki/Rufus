@@ -523,7 +523,7 @@ void dlg_depenses::EnregistreDepense()
                                                                        "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
-    db->locktables(QStringList() << NOM_TABLE_DEPENSES << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES);
+    db->locktables(QStringList() << NOM_TABLE_DEPENSES << NOM_TABLE_LIGNESCOMPTES);
 
     QHash<QString, QString> listsets;
     listsets.insert("DateDep",       ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
@@ -534,9 +534,9 @@ void dlg_depenses::EnregistreDepense()
     listsets.insert("FamFiscale",   FamFiscale);
     listsets.insert("ModePaiement", m);
     listsets.insert("Compte",       (m!="E"? idCompte : "null"));
-    DataBase:: getInstance()->InsertIntoTable(NOM_TABLE_DEPENSES, listsets);
+    db->InsertIntoTable(NOM_TABLE_DEPENSES, listsets);
 
-    idDep   = QString::number(db->selectMaxFromTable("idDep", NOM_TABLE_DEPENSES));
+    idDep   = QString::number(db->selectMaxFromTable("idDep", NOM_TABLE_DEPENSES, ok));
 
     // insertion de l'écriture dans la table lignescomptes quand il s'agit d'une opération bancaire
     if (m != "E")
@@ -552,7 +552,7 @@ void dlg_depenses::EnregistreDepense()
         listsets.insert("LigneMontant",         QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
         listsets.insert("LigneDebitCredit",     "0");
         listsets.insert("LigneTypeoperation",   Paiement);
-        DataBase:: getInstance()->InsertIntoTable(NOM_TABLE_LIGNESCOMPTES, listsets);
+        db->InsertIntoTable(NOM_TABLE_LIGNESCOMPTES, listsets);
     }
     db->unlocktables();
 

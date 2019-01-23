@@ -104,11 +104,12 @@ dlg_comptes::~dlg_comptes()
 
 void dlg_comptes::AnnulArchive()
 {
+    bool ok;
     if (!db->createtransaction(QStringList() <<  NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_COMPTES))
         return;
 
-    int max = db->selectMaxFromTable("idArchive", NOM_TABLE_ARCHIVESBANQUE);
-    if (max==-1)
+    int max = db->selectMaxFromTable("idArchive", NOM_TABLE_ARCHIVESBANQUE, ok);
+    if (!ok || max==0)
     {
         db->rollback();
         return;
@@ -128,7 +129,6 @@ void dlg_comptes::AnnulArchive()
 
     // recalculer le solde
     double NouveauSolde = QLocale().toDouble(ui->MontantSoldeBrutlabel->text());
-    bool ok = true;
     QList<QList<QVariant>> listsoldes = db->SelectRecordsFromTable(QStringList() << "LigneMontant" << "LigneDebitCredit",
                                                               NOM_TABLE_LIGNESCOMPTES, ok,
                                                               " where idcompte = " + QString::number(idCompte));
@@ -197,11 +197,12 @@ void dlg_comptes::Archiver()
     }
 
     QStringList listlock;
+    bool ok;
     listlock << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_COMPTES;
     if (!db->createtransaction(listlock))
         return;
-    int max = db->selectMaxFromTable("idArchive", NOM_TABLE_ARCHIVESBANQUE);
-    if (max==-1)
+    int max = db->selectMaxFromTable("idArchive", NOM_TABLE_ARCHIVESBANQUE, ok);
+    if (!ok)
     {
         db->rollback();
         return;

@@ -430,7 +430,7 @@ void dlg_gestioncomptes::ValidCompte()
         listsets.insert("partage"                , (gSociete? "1" : "null"));
         listsets.insert("desactive"              , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
         db->InsertIntoTable(NOM_TABLE_COMPTES, listsets);
-        idcompte = db->selectMaxFromTable("idcompte",NOM_TABLE_COMPTES);
+        idcompte = db->selectMaxFromTable("idcompte",NOM_TABLE_COMPTES, ok);
         if (!gAfficheLeSolde)
             UpMessageBox::Watch(this, tr("Le compte ") + ui->IntituleCompteuplineEdit->text() + tr(" a été enregistré."),
                                       tr("le solde a été fixé à 0,00 euros et devra être corrigé par le propriétaire du compte"));

@@ -122,8 +122,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     UtiliseTCP = (proc->UtiliseTCP() && db->getMode() != DataBase::Distant);
     if (UtiliseTCP)
     {
-        currentmsg = "";
-        erreurmsg  = "";
         TcPConnect = TcpSocket::getInstance();
         if(!TcPConnect->TcpConnectToServer())
             UtiliseTCP = false;
@@ -2076,7 +2074,7 @@ void Rufus::ExporteDocs()
                     QString CheminFichier = NomDirStockageImagerie + NOMDIR_IMAGES + listexportjpg.at(i).at(5).toString();
                     if (QFile(CheminFichier).exists())
                     {
-                        QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set jpg = null where idimpression = " + listexportjpg.at(i).at(0).toString(), db->getDataBase() );
+                        db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set jpg = null where idimpression = " + listexportjpg.at(i).at(0).toString());
                         continue;
                     }
                 }
@@ -2159,7 +2157,7 @@ void Rufus::ExporteDocs()
                 QString CheminFichier = NomDirStockageImagerie + NOMDIR_IMAGES + listexportpdf.at(i).at(5).toString();
                 if (QFile(CheminFichier).exists())
                 {
-                    QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set pdf = null where idimpression = " + listexportpdf.at(i).at(0).toString(), db->getDataBase() );
+                    db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set pdf = null where idimpression = " + listexportpdf.at(i).at(0).toString());
                     continue;
                 }
             }
@@ -2205,7 +2203,7 @@ void Rufus::ExporteDocs()
                 }
                 QString delreq = "delete from  " NOM_TABLE_IMPRESSIONS " where idimpression = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
-                QSqlQuery (delreq, db->getDataBase() );
+                db->StandardSQL(delreq);
                 delete document;
                 continue;
             }
@@ -2280,7 +2278,7 @@ void Rufus::ExporteDocs()
                 QString CheminFichier = NomDirStockageImagerie + NOMDIR_FACTURES + listexportjpgfact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
-                    QSqlQuery ("update " NOM_TABLE_FACTURES " set jpg = null where idfacture = " + listexportjpgfact.at(i).at(0).toString(), db->getDataBase() );
+                    db->StandardSQL("update " NOM_TABLE_FACTURES " set jpg = null where idfacture = " + listexportjpgfact.at(i).at(0).toString());
                     continue;
                 }
             }
@@ -2389,7 +2387,7 @@ void Rufus::ExporteDocs()
                 QString CheminFichier = NomDirStockageImagerie + NOMDIR_FACTURES + listexportpdffact.at(i).at(2).toString();
                 if (QFile(CheminFichier).exists())
                 {
-                    QSqlQuery ("update " NOM_TABLE_FACTURES " set pdf = null where idFacture = " + listexportpdffact.at(i).at(0).toString(), db->getDataBase() );
+                    db->StandardSQL("update " NOM_TABLE_FACTURES " set pdf = null where idFacture = " + listexportpdffact.at(i).at(0).toString());
                     continue;
                 }
             }
@@ -2457,7 +2455,7 @@ void Rufus::ExporteDocs()
                 }
                 QString delreq = "delete from  " NOM_TABLE_FACTURES " where idFacture = " + listexportpdffact.at(i).at(0).toString();
                 //qDebug() << delreq;
-                QSqlQuery (delreq, db->getDataBase() );
+                db->StandardSQL(delreq);
                 delete document;
                 continue;
             }
@@ -3117,15 +3115,11 @@ void Rufus::ImprimeListPatients(QVariant var)
     for (int i=1; i<listidMc.size(); i++)
         req1 += ", " +listidMc.at(i);
     req1 += ")";
-    QSqlQuery titrquer(req1, db->getDataBase() );
-    titrquer.first();
+    QList<QList<QVariant>> titrlist = db->StandardSelectSQL(req1,ok);
     QString titre = tr("recherche de patients sur ");
-    titre += titrquer.value(0).toString();
-    for (int i=1; i<titrquer.size(); i++)
-    {
-        titrquer.seek(i);
-        titre += ", " + titrquer.value(0).toString();
-    }
+    titre += titrlist.at(0).at(0).toString();
+    for (int i=1; i<titrlist.size(); i++)
+        titre += ", " + titrlist.at(i).at(0).toString();
     QString req = "select mcjoin.idPat, PatNom, PatPrenom, PatDDN, motcle"
                   " from " NOM_TABLE_MOTSCLESJOINTURES " as mcjoin"
                   " left outer join " NOM_TABLE_PATIENTS " pat"
@@ -3137,8 +3131,8 @@ void Rufus::ImprimeListPatients(QVariant var)
     for (int i=1; i<listidMc.size(); i++)
         req += ", " +listidMc.at(i);
     req += ") order by patnom, patprenom";
-    QSqlQuery quer(req, db->getDataBase() );
-    int     gtotalNbreDossiers    = quer.size();
+    QList<QList<QVariant>> patlist = db->StandardSelectSQL(req,ok);
+    int     gtotalNbreDossiers    = patlist.size();
     QDate   date = QDate::currentDate();;
 
     //création de l'entête
@@ -3168,17 +3162,15 @@ void Rufus::ImprimeListPatients(QVariant var)
                     "</table>";
 
     QString texte, lignepat;
-    quer.first();
-    for (int k = 0; k < quer.size(); k++)
+    for (int k = 0; k < patlist.size(); k++)
     {
         // Remplacement des variables par les valeurs lues.
         lignepat = ligne;
-        lignepat.replace("{{NOM PATIENT}}", quer.value(1).toString() + " " + quer.value(2).toString());
-        lignepat.replace("{{DDN}}", quer.value(3).toDate().toString(tr("dd-MMM-yyyy")));
-        lignepat.replace("{{MOTIF}}", quer.value(4).toString());
+        lignepat.replace("{{NOM PATIENT}}", patlist.at(k).at(1).toString() + " " + patlist.at(k).at(2).toString());
+        lignepat.replace("{{DDN}}", patlist.at(k).at(3).toDate().toString(tr("dd-MMM-yyyy")));
+        lignepat.replace("{{MOTIF}}", patlist.at(k).at(4).toString());
         texte += lignepat;
-        quer.next();
-    }
+     }
     QTextEdit *textEdit = new QTextEdit;
     textEdit->setHtml(texte);
 
@@ -3252,8 +3244,7 @@ void Rufus::MenuContextuelListePatients()
     connect (pAction_EmettreDoc,            &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Document");});
 
     QString req = "Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gdossierAOuvrir);
-    QSqlQuery quer(req, db->getDataBase() );
-    if (quer.size() > 0){
+    if (db->StandardSelectSQL(req,ok).size() > 0){
         QAction *pAction_ImprimeDoc = gmenuContextuel->addAction(tr("Réimprimer un document"));
         connect (pAction_ImprimeDoc,        &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("ImprimeAncienDoc");});
     }
@@ -3276,31 +3267,29 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
     if (choix == "Autre Dossier")
     {
         QString autrerequete = "select PatNom, PatPrenom from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(gdossierAOuvrir);
-        QSqlQuery autrequery (autrerequete,  db->getDataBase() );
-        if (db->erreurRequete(autrequery,autrerequete,""))
+        QList<QVariant> autredata = db->getFirstRecordFromStandardSelectSQL(autrerequete,ok);
+        if (!ok)
             return;
-        if (autrequery.size() == 0)
+        if (autredata.size() == 0)
         {
             UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ce patient"));
             return;
         }
         else
         {
-            autrequery.first();
-            QString patNom = autrequery.value(0).toString();
-            QString patPrenom = autrequery.value(1).toString();
+            QString patNom = autredata.at(0).toString();
+            QString patPrenom = autredata.at(1).toString();
             QString autreactes = "select idActe, ActeDate from " NOM_TABLE_ACTES " where idPat = " + QString::number(gdossierAOuvrir) + " ORDER BY ActeDate DESC";
-            QSqlQuery autreactequery (autreactes,  db->getDataBase() );
-            if (db->erreurRequete(autreactequery,autreactes,""))
+            QList<QVariant> actedata = db->getFirstRecordFromStandardSelectSQL(autreactes,ok);
+            if (!ok)
                return;
-            if (autreactequery.size() == 0)
+            if (actedata.size() == 0)
             {
                 UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ") + patPrenom + " " + patNom);
                 return;
             }
             else
             {
-                autreactequery  .first();
                 Dlg_ActesPrecs  = new dlg_actesprecedents(gdossierAOuvrir, false, this);
                 Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + patNom + " " + patPrenom);
                 Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
@@ -3498,7 +3487,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
         ChoixDossier(gdossierAOuvrir);
     else if (choix == "Retirer" || choix == "Fermer")
     {
-        QSqlQuery ("delete from " NOM_TABLE_SALLEDATTENTE " where idPat = " + QString::number(gdossierAOuvrir), db->getDataBase() );
+        db->SupprRecordFromTable(gdossierAOuvrir, "idPat", NOM_TABLE_SALLEDATTENTE);
         FlagMetAjourSalDat();
     }
     else if (choix == "Copie")
@@ -3531,9 +3520,10 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
         if (llist.isEmpty())
             return;
         QString saldatrequete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(gdossierAOuvrir);
-        QSqlQuery SalDatQuery(saldatrequete, db->getDataBase() );
-        db->erreurRequete(SalDatQuery,saldatrequete,"Impossible de trouver le dossier dans la salle d'attente!");
-        if (SalDatQuery.size() == 0)
+        QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(saldatrequete, ok,tr("Impossible de trouver le dossier dans la salle d'attente!"));
+        if (!ok)
+            return;
+        if (patdata.size() == 0)
         {
             saldatrequete =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
                     " (idPat, Statut, HeureArrivee, Motif, Message, HeureRDV, idUser)"
@@ -3550,8 +3540,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
                     " WHERE idPat = " + QString::number(gdossierAOuvrir);
         }
         //proc->Edit(saldatrequete);
-        QSqlQuery ModifSalDatQuery(saldatrequete, db->getDataBase() );
-        db->erreurRequete(ModifSalDatQuery,saldatrequete,"");
+        db->StandardSQL(saldatrequete);
         FlagMetAjourSalDat();
     }
 }
@@ -3561,7 +3550,6 @@ QStringList Rufus::MotifMessage(QString motif, QString Message, QTime heurerdv)
 {
     //créer une fiche avec tous les checkbox correspondant aux motifs de RDV : Cs, OCT, CV, BO, Biométrie, Urgence, Angio,...etc...
     gAsk            = new UpDialog(this);
-    QVBoxLayout     *globallayout   = dynamic_cast<QVBoxLayout*>(gAsk->layout());
     QVBoxLayout     *motiflayout    = new QVBoxLayout();
     UpLabel         *lbltitre       = new UpLabel(gAsk);
     UpLabel         *lblsoignt      = new UpLabel(gAsk);
@@ -3644,7 +3632,7 @@ QStringList Rufus::MotifMessage(QString motif, QString Message, QTime heurerdv)
     motiflayout->addWidget(grpBox);
     motiflayout->addWidget(lbltitre);
     motiflayout->addWidget(MsgText);
-    globallayout->insertLayout(0,motiflayout);
+    gAsk->dlglayout()->insertLayout(0,motiflayout);
 
     connect(gAsk->OKButton,   &QPushButton::clicked,  [=] {gAsk->accept();});
 
@@ -3652,7 +3640,7 @@ QStringList Rufus::MotifMessage(QString motif, QString Message, QTime heurerdv)
 
     gAsk->setModal(true);
     gAsk->setFixedWidth(320);
-    globallayout->setSizeConstraint(QLayout::SetFixedSize);
+    gAsk->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     MsgText->setText(Message);
     if (gAsk->exec()>0)
     {
@@ -3693,16 +3681,15 @@ void Rufus::MetAJourUserConnectes()
      proc->gsettingsIni->setValue("PositionsFiches/Rufus", saveGeometry());
 
      //TODO : SQL
-    QString lockrequete = "LOCK TABLES " NOM_TABLE_USERSCONNECTES " WRITE;";
-    QSqlQuery lockquery (lockrequete,  db->getDataBase() );
-    if (db->erreurRequete(lockquery,lockrequete,"Impossible de verrouiller " NOM_TABLE_USERSCONNECTES))
-        return;
     bool MAJsaldat =false;
     QString MAJConnexionRequete;
-    QSqlQuery usrquer("select iduser from " NOM_TABLE_USERSCONNECTES
+    QString req = "select iduser from " NOM_TABLE_USERSCONNECTES
                       " where NomPosteConnecte = '" + QHostInfo::localHostName().left(60) + "'"
-                      " and idUser = " + QString::number(gDataUser->id()),  db->getDataBase() );
-    if (usrquer.size()>0)
+                      " and idUser = " + QString::number(gDataUser->id());
+    QList<QVariant> usrdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok)
+        return;
+    if (usrdata.size()>0)
         MAJConnexionRequete = "UPDATE " NOM_TABLE_USERSCONNECTES " SET HeureDerniereConnexion = NOW(), "
                               " idUser = " + QString::number(gDataUser->id()) +
                               " where NomPosteConnecte = '" + QHostInfo::localHostName().left(60) + "'"
@@ -3720,9 +3707,7 @@ void Rufus::MetAJourUserConnectes()
                                Utils::getMACAdress() + " - " + gDataUser->getLogin() + "')";
     }
     //qDebug() << MAJConnexionRequete;
-    QSqlQuery MAJConnexionQuery (MAJConnexionRequete,  db->getDataBase() );
-    db->erreurRequete(MAJConnexionQuery, MAJConnexionRequete,"");
-    QSqlQuery("unlock tables", db->getDataBase() );
+    db->StandardSQL(MAJConnexionRequete);
     if (MAJsaldat)
         FlagMetAjourSalDat();
 }
@@ -3757,172 +3742,170 @@ void Rufus::OKModifierTerrain() // recalcule le ui->TerraintreeWidget et l'affic
               " FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " AS RMP"
               " left outer join " NOM_TABLE_CORRESPONDANTS " on idcormedMG = idcor"
               " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery DonneesMedicalesQuery (requete, db->getDataBase() );
-    if (!db->erreurRequete(DonneesMedicalesQuery,requete,tr("Impossible de retrouver les données médicales")))
-        if (DonneesMedicalesQuery.size() > 0)           // Il y a des renseignements medicaux
+    QList<QVariant>datadata = db->getFirstRecordFromStandardSelectSQL(requete,ok,tr("Impossible de retrouver les données médicales"));
+    if (ok && datadata.size() > 0)           // Il y a des renseignements medicaux
+    {
+        ui->TerraintreeWidget->setColumnCount(2);
+        ui->TerraintreeWidget->setColumnWidth(0,70);        //IdPat
+        ui->TerraintreeWidget->setColumnWidth(1,180 );     //
+        ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0);"
+                                             " selection-background-color: rgb(164, 205, 255);"
+                                             " background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));"
+                                             " border: 1px solid rgb(150,150,150); border-radius: 10px;}");
+        ui->TerraintreeWidget->setIconSize(QSize(25,25));
+        ui->TerraintreeWidget->header()->setVisible(false);
+        QTreeWidgetItem *pItem0, *pItem1, *pItem2, *pItem3, *pItem4, *pItem5;
+        pItem0 = new QTreeWidgetItem() ;
+        pItem0->setText(1,QString::number(gidPatient));                                                             // IdPatient
+        pItem0->setText(0,tr("ANTÉCÉDENTS GÉNÉRAUX"));
+        pItem0->setIcon(0,Icons::icStetho());
+        pItem0->setTextAlignment(1,Qt::AlignLeft);
+        pItem1 = new QTreeWidgetItem() ;
+        pItem1->setText(1,QString::number(gidPatient));                                                             // IdPatient
+        pItem1->setText(0,tr("TRAITEMENTS EN COURS"));
+        pItem1->setIcon(0,Icons::icMedoc());
+        pItem1->setTextAlignment(1,Qt::AlignLeft);
+        pItem2 = new QTreeWidgetItem();
+        pItem2->setText(1,QString::number(gidPatient));                                                             // IdPatient
+        pItem2->setText(0,tr("ATCDTS OPHTALMOLOGIQUES FAMILIAUX"));
+        pItem2->setIcon(0,Icons::icFamily());
+        pItem2->setTextAlignment(1,Qt::AlignLeft);
+        pItem3 = new QTreeWidgetItem();
+        pItem3->setText(1,QString::number(gidPatient));                                                             // IdPatient
+        pItem3->setIcon(0,Icons::icSmoking());
+        pItem3->setTextAlignment(1,Qt::AlignLeft);
+        pItem4 = new QTreeWidgetItem();
+        pItem4->setText(1,QString::number(gidPatient));                                                             // IdPatient
+        pItem4->setText(0,tr("AUTRES"));
+        pItem4->setIcon(0,Icons::icAlcool());
+        pItem4->setTextAlignment(1,Qt::AlignLeft);
+        pItem5 = new QTreeWidgetItem() ;
+        pItem5->setText(0,tr("MÉDECIN GÉNÉRALISTE"));
+        pItem5->setText(1,QString::number(gidPatient));                                                             // IdPatient
+        pItem5->setIcon(0,Icons::icDoctor());
+        pItem5->setTextAlignment(1,Qt::AlignLeft);
+
+        pItem0->setForeground(0,QBrush(QColor(Qt::red)));
+        pItem1->setForeground(0,QBrush(QColor(Qt::blue)));
+        pItem2->setForeground(0,QBrush(QColor(Qt::darkGreen)));
+        pItem3->setForeground(0,QBrush(QColor(Qt::darkMagenta)));
+        pItem4->setForeground(0,QBrush(QColor(Qt::darkYellow)));
+        pItem5->setForeground(0,QBrush(QColor(Qt::darkBlue)));
+
+        QString hash;
+        QStringList listhash;
+        QFontMetrics fm(qApp->font());
+        hash = Utils::trim(datadata.at(6).toString(), true, true);
+        if (hash != "")
         {
-            ui->TerraintreeWidget->setColumnCount(2);
-            ui->TerraintreeWidget->setColumnWidth(0,70);        //IdPat
-            ui->TerraintreeWidget->setColumnWidth(1,180 );     //
-            ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0);"
-                                                 " selection-background-color: rgb(164, 205, 255);"
-                                                 " background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));"
-                                                 " border: 1px solid rgb(150,150,150); border-radius: 10px;}");
-            ui->TerraintreeWidget->setIconSize(QSize(25,25));
-            ui->TerraintreeWidget->header()->setVisible(false);
-            QTreeWidgetItem *pItem0, *pItem1, *pItem2, *pItem3, *pItem4, *pItem5;
-            pItem0 = new QTreeWidgetItem() ;
-            pItem0->setText(1,QString::number(gidPatient));                                                             // IdPatient
-            pItem0->setText(0,tr("ANTÉCÉDENTS GÉNÉRAUX"));
-            pItem0->setIcon(0,Icons::icStetho());
-            pItem0->setTextAlignment(1,Qt::AlignLeft);
-            pItem1 = new QTreeWidgetItem() ;
-            pItem1->setText(1,QString::number(gidPatient));                                                             // IdPatient
-            pItem1->setText(0,tr("TRAITEMENTS EN COURS"));
-            pItem1->setIcon(0,Icons::icMedoc());
-            pItem1->setTextAlignment(1,Qt::AlignLeft);
-            pItem2 = new QTreeWidgetItem();
-            pItem2->setText(1,QString::number(gidPatient));                                                             // IdPatient
-            pItem2->setText(0,tr("ATCDTS OPHTALMOLOGIQUES FAMILIAUX"));
-            pItem2->setIcon(0,Icons::icFamily());
-            pItem2->setTextAlignment(1,Qt::AlignLeft);
-            pItem3 = new QTreeWidgetItem();
-            pItem3->setText(1,QString::number(gidPatient));                                                             // IdPatient
-            pItem3->setIcon(0,Icons::icSmoking());
-            pItem3->setTextAlignment(1,Qt::AlignLeft);
-            pItem4 = new QTreeWidgetItem();
-            pItem4->setText(1,QString::number(gidPatient));                                                             // IdPatient
-            pItem4->setText(0,tr("AUTRES"));
-            pItem4->setIcon(0,Icons::icAlcool());
-            pItem4->setTextAlignment(1,Qt::AlignLeft);
-            pItem5 = new QTreeWidgetItem() ;
-            pItem5->setText(0,tr("MÉDECIN GÉNÉRALISTE"));
-            pItem5->setText(1,QString::number(gidPatient));                                                             // IdPatient
-            pItem5->setIcon(0,Icons::icDoctor());
-            pItem5->setTextAlignment(1,Qt::AlignLeft);
-
-            pItem0->setForeground(0,QBrush(QColor(Qt::red)));
-            pItem1->setForeground(0,QBrush(QColor(Qt::blue)));
-            pItem2->setForeground(0,QBrush(QColor(Qt::darkGreen)));
-            pItem3->setForeground(0,QBrush(QColor(Qt::darkMagenta)));
-            pItem4->setForeground(0,QBrush(QColor(Qt::darkYellow)));
-            pItem5->setForeground(0,QBrush(QColor(Qt::darkBlue)));
-
-            DonneesMedicalesQuery.first();
-            QString hash;
-            QStringList listhash;
-            QFontMetrics fm(qApp->font());
-            hash = Utils::trim(DonneesMedicalesQuery.value(6).toString(), true, true);
-            if (hash != "")
+            a = true;
+            ui->TerraintreeWidget->addTopLevelItem(pItem0);
+            pItem0->setFirstColumnSpanned(true);
+            listhash = hash.split("\n");
+            pItem0->setExpanded(listhash.size() > 0);
+            for (int i=0;i<listhash.size();i++)
             {
-                a = true;
-                ui->TerraintreeWidget->addTopLevelItem(pItem0);
-                pItem0->setFirstColumnSpanned(true);
-                listhash = hash.split("\n");
-                pItem0->setExpanded(listhash.size() > 0);
-                for (int i=0;i<listhash.size();i++)
-                {
-                    QTreeWidgetItem *pit = new QTreeWidgetItem(pItem0);
-                    pit->setText(0,"");
-                    pit->setText(1,listhash.at(i));
-                    if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                        pit->setToolTip(1, listhash.at(i));
-                }
-            }
-            listhash.clear();
-            hash = Utils::trim(DonneesMedicalesQuery.value(7).toString(), true, true);
-            if (hash != "")
-            {
-                a = true;
-                ui->TerraintreeWidget->addTopLevelItem(pItem1);
-                pItem1->setFirstColumnSpanned(true);
-                listhash = hash.split("\n");
-                pItem1->setExpanded(listhash.size() > 0);
-                for (int i=0;i<listhash.size();i++)
-                {
-                    QTreeWidgetItem *pit = new QTreeWidgetItem(pItem1);
-                    pit->setText(0,"");
-                    pit->setText(1,listhash.at(i));
-                    if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                        pit->setToolTip(1, listhash.at(i));
-                }
-            }
-            listhash.clear();
-            hash = Utils::trim(DonneesMedicalesQuery.value(8).toString(), true, true);
-            if (hash != "")
-            {
-                a = true;
-                ui->TerraintreeWidget->addTopLevelItem(pItem2);
-                pItem2->setFirstColumnSpanned(true);
-                listhash = hash.split("\n");
-                pItem2->setExpanded(listhash.size() > 0);
-                for (int i=0;i<listhash.size();i++)
-                {
-                    QTreeWidgetItem *pit = new QTreeWidgetItem(pItem2);
-                    pit->setText(0,"");
-                    pit->setText(1,listhash.at(i));
-                    if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                        pit->setToolTip(1, listhash.at(i));
-                }
-            }
-            hash = Utils::trim(DonneesMedicalesQuery.value(10).toString(), true, true);
-            if (hash != "")
-            {
-                a = true;
-                if (hash == "0")
-                {
-                    pItem3->setForeground(0,QBrush(QColor(Qt::darkGreen)));
-                    pItem3->setText(0,tr("NON FUMEUR"));
-                }
-                else
-                    pItem3->setText(0,tr("TABAC : ") + hash + tr(" cig/j"));
-                ui->TerraintreeWidget->addTopLevelItem(pItem3);
-                pItem3->setFirstColumnSpanned(true);
-            }
-            listhash.clear();
-            hash = Utils::trim(DonneesMedicalesQuery.value(11).toString(), true, true);
-            if (hash != "")
-            {
-                a = true;
-                ui->TerraintreeWidget->addTopLevelItem(pItem4);
-                pItem4->setFirstColumnSpanned(true);
-                listhash = hash.split("\n");
-                pItem4->setExpanded(listhash.size() > 0);
-                for (int i=0;i<listhash.size();i++)
-                {
-                    QTreeWidgetItem *pit = new QTreeWidgetItem(pItem4);
-                    pit->setText(0,"");
-                    pit->setText(1,listhash.at(i));
-                    if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                        pit->setToolTip(1, listhash.at(i));
-                }
-            }
-            hash = DonneesMedicalesQuery.value(1).toString();
-            if (DonneesMedicalesQuery.value(1).toInt()>0)
-            {
-                QString tooltp ="";
-                if (DonneesMedicalesQuery.value(18).toString() != "")
-                    tooltp += DonneesMedicalesQuery.value(18).toString();
-                if (DonneesMedicalesQuery.value(19).toString() != "")
-                    tooltp += "\n" + DonneesMedicalesQuery.value(19).toString();
-                if (DonneesMedicalesQuery.value(20).toString() != "")
-                    tooltp += "\n" + DonneesMedicalesQuery.value(20).toString();
-                if (DonneesMedicalesQuery.value(21).toString() != "")
-                    tooltp += "\n" + DonneesMedicalesQuery.value(21).toString();
-                if (DonneesMedicalesQuery.value(22).toString() != "")
-                    tooltp += "\n" + DonneesMedicalesQuery.value(22).toString();
-                hash = "Dr " + DonneesMedicalesQuery.value(17).toString() + " " + DonneesMedicalesQuery.value(16).toString();
-                a = true;
-                ui->TerraintreeWidget->addTopLevelItem(pItem5);
-                pItem5->setFirstColumnSpanned(true);
-                pItem5->setExpanded(true);
-                QTreeWidgetItem *pit = new QTreeWidgetItem(pItem5);
+                QTreeWidgetItem *pit = new QTreeWidgetItem(pItem0);
                 pit->setText(0,"");
-                pit->setText(1,hash);
-                if (fm.width(hash) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                    pit->setToolTip(1, hash);
+                pit->setText(1,listhash.at(i));
+                if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                    pit->setToolTip(1, listhash.at(i));
             }
         }
+        listhash.clear();
+        hash = Utils::trim(datadata.at(7).toString(), true, true);
+        if (hash != "")
+        {
+            a = true;
+            ui->TerraintreeWidget->addTopLevelItem(pItem1);
+            pItem1->setFirstColumnSpanned(true);
+            listhash = hash.split("\n");
+            pItem1->setExpanded(listhash.size() > 0);
+            for (int i=0;i<listhash.size();i++)
+            {
+                QTreeWidgetItem *pit = new QTreeWidgetItem(pItem1);
+                pit->setText(0,"");
+                pit->setText(1,listhash.at(i));
+                if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                    pit->setToolTip(1, listhash.at(i));
+            }
+        }
+        listhash.clear();
+        hash = Utils::trim(datadata.at(8).toString(), true, true);
+        if (hash != "")
+        {
+            a = true;
+            ui->TerraintreeWidget->addTopLevelItem(pItem2);
+            pItem2->setFirstColumnSpanned(true);
+            listhash = hash.split("\n");
+            pItem2->setExpanded(listhash.size() > 0);
+            for (int i=0;i<listhash.size();i++)
+            {
+                QTreeWidgetItem *pit = new QTreeWidgetItem(pItem2);
+                pit->setText(0,"");
+                pit->setText(1,listhash.at(i));
+                if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                    pit->setToolTip(1, listhash.at(i));
+            }
+        }
+        hash = Utils::trim(datadata.at(10).toString(), true, true);
+        if (hash != "")
+        {
+            a = true;
+            if (hash == "0")
+            {
+                pItem3->setForeground(0,QBrush(QColor(Qt::darkGreen)));
+                pItem3->setText(0,tr("NON FUMEUR"));
+            }
+            else
+                pItem3->setText(0,tr("TABAC : ") + hash + tr(" cig/j"));
+            ui->TerraintreeWidget->addTopLevelItem(pItem3);
+            pItem3->setFirstColumnSpanned(true);
+        }
+        listhash.clear();
+        hash = Utils::trim(datadata.at(11).toString(), true, true);
+        if (hash != "")
+        {
+            a = true;
+            ui->TerraintreeWidget->addTopLevelItem(pItem4);
+            pItem4->setFirstColumnSpanned(true);
+            listhash = hash.split("\n");
+            pItem4->setExpanded(listhash.size() > 0);
+            for (int i=0;i<listhash.size();i++)
+            {
+                QTreeWidgetItem *pit = new QTreeWidgetItem(pItem4);
+                pit->setText(0,"");
+                pit->setText(1,listhash.at(i));
+                if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                    pit->setToolTip(1, listhash.at(i));
+            }
+        }
+        hash = datadata.at(1).toString();
+        if (datadata.at(1).toInt()>0)
+        {
+            QString tooltp ="";
+            if (datadata.at(18).toString() != "")
+                tooltp += datadata.at(18).toString();
+            if (datadata.at(19).toString() != "")
+                tooltp += "\n" + datadata.at(19).toString();
+            if (datadata.at(20).toString() != "")
+                tooltp += "\n" + datadata.at(20).toString();
+            if (datadata.at(21).toString() != "")
+                tooltp += "\n" + datadata.at(21).toString();
+            if (datadata.at(22).toString() != "")
+                tooltp += "\n" + datadata.at(22).toString();
+            hash = "Dr " + datadata.at(17).toString() + " " + datadata.at(16).toString();
+            a = true;
+            ui->TerraintreeWidget->addTopLevelItem(pItem5);
+            pItem5->setFirstColumnSpanned(true);
+            pItem5->setExpanded(true);
+            QTreeWidgetItem *pit = new QTreeWidgetItem(pItem5);
+            pit->setText(0,"");
+            pit->setText(1,hash);
+            if (fm.width(hash) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                pit->setToolTip(1, hash);
+        }
+    }
     ui->TerraintreeWidget->setVisible(a);
     ui->ModifTerrainwidget->setVisible(!a);
     ui->TabacLabel->setVisible(!a);
@@ -4043,10 +4026,8 @@ void Rufus::OuvrirParametres()
         req = req.left(req.lastIndexOf(")")+1);
         //proc->Edit(req);
         QString reqDel = "delete from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(gDataUser->id());
-        db->erreurRequete(
-                    QSqlQuery(reqDel,db->getDataBase()),
-                    reqDel);
-        db->erreurRequete(QSqlQuery(req, db->getDataBase()), req);
+        db->StandardSQL(reqDel);
+        db->StandardSQL(req);
         ReconstruitListesActes();
     }
     delete Dlg_Param;
@@ -4098,22 +4079,20 @@ void Rufus::RetrouveMontantActe()
                 " and iduser = " + QString::number(gDataUser->getIdUserParent()) +
                 " and codeccam like '" + Utils::correctquoteSQL(Cotation) + "%'";
         //qDebug() << req;
-        QSqlQuery ListCotationsQuery(req, db->getDataBase() );
-        db->erreurRequete(ListCotationsQuery,req,"");
-        if (ListCotationsQuery.size()>0)
+        QList<QVariant> cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (ok && cotdata.size()>0)
         {
-            ListCotationsQuery.first();
             QString MontantActe;
             if (gDataUser->getSecteur()>1 && !gCMUPatient)
-                MontantActe = QLocale().toString(ListCotationsQuery.value(1).toDouble(),'f',2);
+                MontantActe = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
             else
-                MontantActe = QLocale().toString(ListCotationsQuery.value(0).toDouble(),'f',2);
+                MontantActe = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
             if (MontantActe !=  ui->ActeMontantlineEdit->text())
             {
                 gActeMontant = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
                 ValideActeMontantLineEdit(MontantActe, gActeMontant);    // On vérifie que le montant entré n'est pas inférieur au montant déjà payé et on invalide dans ce cas
             }
-            if (ListCotationsQuery.value(0) != ListCotationsQuery.value(1))
+            if (cotdata.at(0) != cotdata.at(1))
             {
                 ui->BasculerMontantpushButton->setVisible(true);
                 ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
@@ -4122,16 +4101,14 @@ void Rufus::RetrouveMontantActe()
         else
         {
             QString req = "SELECT OPTAM, NoOPTAM FROM " NOM_TABLE_CCAM " where codeccam like '" + Utils::correctquoteSQL(Cotation) + "%'";
-            QSqlQuery ListCotationsQuery (req, db->getDataBase() );
-            db->erreurRequete(ListCotationsQuery,req,"");
-            if (ListCotationsQuery.size()>0)
+            QList<QVariant> cot2data = db->getFirstRecordFromStandardSelectSQL(req, ok);
+            if (ok && cot2data.size()>0)
             {
-                ListCotationsQuery.first();
                 QString MontantActe;
                 if (gDataUser->getSecteur()>1 && !gCMUPatient && !gDataUser->isOPTAM())
-                    MontantActe = QLocale().toString(ListCotationsQuery.value(1).toDouble(),'f',2);
+                    MontantActe = QLocale().toString(cot2data.at(1).toDouble(),'f',2);
                 else
-                    MontantActe = QLocale().toString(ListCotationsQuery.value(0).toDouble(),'f',2);
+                    MontantActe = QLocale().toString(cot2data.at(0).toDouble(),'f',2);
                 if (MontantActe !=  ui->ActeMontantlineEdit->text())
                 {
                     gActeMontant = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
@@ -4204,8 +4181,7 @@ void Rufus::RetrouveMontantActe()
     }*/
     //on modifie la table Actes avec la nouvelle cotation
     QString requete = "UPDATE " NOM_TABLE_ACTES " SET ActeCotation = '" + Cotation + "' WHERE idActe = " + QString::number(gidActe);
-    QSqlQuery UpdateCotationQuery (requete, db->getDataBase() );
-    db->erreurRequete(UpdateCotationQuery,requete,"");
+    db->StandardSQL(requete);
     ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->currentText()!="");
 }
 
@@ -4265,7 +4241,6 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     QDateEdit       *limitdate;
 
     gAsk->AjouteLayButtons(UpDialog::ButtonOK);
-    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(gAsk->layout());
 
     /* on prépare 2 layout verticaux et une ligne
      *  detslayout qui va comporter un groupbox où on choisit le destinataire
@@ -4282,13 +4257,12 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     if (id>-1)
     {
         QString req = "select patnom, patprenom from " NOM_TABLE_PATIENTS " where idpat = " + QString::number(id);
-        QSqlQuery quer(req, db->getDataBase() );
-        if (quer.size()>0)
+        QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (ok && patdata.size()>0)
         {
             checkpat       = new UpCheckBox(gAsk);
             checkpat        ->setObjectName("AboutPatupCheckBox");
-            quer.first();
-            checkpat        ->setText(tr("A propos de ") + quer.value(0).toString().toUpper() + " " + quer.value(1).toString());
+            checkpat        ->setText(tr("A propos de ") + patdata.at(0).toString().toUpper() + " " + patdata.at(1).toString());
             checkpat        ->setChecked(true);
             checkpat        ->setiD(id);
             msglayout       ->addWidget(checkpat);
@@ -4296,10 +4270,9 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     }
 
     QString req1 = "select idUser, UserLogin from " NOM_TABLE_UTILISATEURS " where UserDesactive is NULL and userlogin is not null";
-    QSqlQuery usrquer(req1, db->getDataBase() );
-    if (usrquer.size()>0)
+    QList<QList<QVariant>> usrlist = db->StandardSelectSQL(req1, ok);
+    if (ok && usrlist.size()>0)
     {
-        usrquer.first();
         UsrGroupBox = new QGroupBox(gAsk);
         UsrGroupBox->setTitle(tr("Destinataire"));
         UpCheckBox *Allusrchk = new UpCheckBox();
@@ -4312,19 +4285,17 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
         line->setFrameShape(QFrame::HLine);
         line->setFixedHeight(1);
         vbox->addWidget(line);
-        usrquer.first();
-        for (int i=0; i<usrquer.size(); i++)
+        for (int i=0; i<usrlist.size(); i++)
         {
             UpCheckBox *chk0 = new UpCheckBox();
-            chk0->setText(usrquer.value(1).toString());
-            chk0->setiD(usrquer.value(0).toInt());
+            chk0->setText(usrlist.at(i).at(1).toString());
+            chk0->setiD(usrlist.at(i).at(0).toInt());
             if (idMsg>-1)
-                chk0->setChecked(map["listdestinataires"].toStringList().contains(usrquer.value(0).toString()));
+                chk0->setChecked(map["listdestinataires"].toStringList().contains(usrlist.at(i).at(0).toString()));
             chk0->setRowTable(1);
             connect(chk0,  &QCheckBox::clicked,  [=] {OneusrChkBoxSendMsg(chk0->isChecked());});
             vbox->addWidget(chk0);
             chk0->setAutoExclusive(false);
-            usrquer.next();
         }
         UsrGroupBox->setLayout(vbox);
         destlayout ->addWidget(UsrGroupBox);
@@ -4382,11 +4353,11 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     Vline->setFixedWidth(1);
     totallayout->addWidget(Vline);
     totallayout->addLayout(msglayout);
-    globallay->insertLayout(0,totallayout);
+    gAsk->dlglayout()->insertLayout(0,totallayout);
 
     gAsk            ->setWindowTitle(tr("Envoyer un message"));
     gAsk            ->setFixedWidth(510);
-    globallay       ->setSizeConstraint(QLayout::SetFixedSize);
+    gAsk->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     if (map["null"].toBool())
     {
@@ -4459,25 +4430,18 @@ void Rufus::VerifSendMessage(int idMsg)
             }
         req += urge + ", ";
         req += "'" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") + "')";
-        QSqlQuery quer(req, db->getDataBase() );
         //qDebug() << req;
-        if (db->erreurRequete(quer,req,tr("Impossible d'enregistrer ce message")))
+        if (!db->StandardSQL(req,tr("Impossible d'enregistrer ce message")))
             db->rollback();
 
-        QString ChercheMaxrequete = "SELECT Max(idMessage) FROM " NOM_TABLE_MESSAGES;
-        QSqlQuery ChercheMaxidMsgQuery (ChercheMaxrequete, db->getDataBase() );
-        if (db->erreurRequete(ChercheMaxidMsgQuery, ChercheMaxrequete,""))
+        req = "SELECT Max(idMessage) FROM " NOM_TABLE_MESSAGES;
+        QList<QVariant> msgdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (!ok || msgdata.size()==0)
         {
             db->rollback();
             return;
         }
-        if (ChercheMaxidMsgQuery.size()==0)
-        {
-            db->rollback();
-            return;
-        }
-        ChercheMaxidMsgQuery.first();
-        int idmsg = ChercheMaxidMsgQuery.value(0).toInt();
+        int idmsg = msgdata.at(0).toInt();
         QList<int> listidusr;
         for (int j=0; j< gAsk->findChildren<UpCheckBox*>().size(); j++)
             if (gAsk->findChildren<UpCheckBox*>().at(j)->getRowTable() == 1)       // c'est le checkbox d'un user
@@ -4495,9 +4459,7 @@ void Rufus::VerifSendMessage(int idMsg)
             if (i<listidusr.size()-1)
                 req += ",";
         }
-        QSqlQuery isnquer(req, db->getDataBase() );
-
-        if (db->erreurRequete(isnquer, req, tr("Impossible d'enregistrer le message")))
+        if (!db->StandardSQL(req, tr("Impossible d'enregistrer le message")))
         {
             db->rollback();
             return;
@@ -4543,11 +4505,10 @@ void Rufus::VerifSendMessage(int idMsg)
             }
         req += urge;
         req += "where idmessage = " + QString::number(idMsg);
-        QSqlQuery quer(req, db->getDataBase() );
         //qDebug() << req;
-        if (db->erreurRequete(quer,req,tr("Impossible d'enregistrer ce message")))
+        if (!db->StandardSQL(req,tr("Impossible d'enregistrer ce message")))
             db->rollback();
-        QSqlQuery ("delete from " NOM_TABLE_MESSAGESJOINTURES " where idmessage = " + QString::number(idMsg), db->getDataBase() );
+        db->StandardSQL("delete from " NOM_TABLE_MESSAGESJOINTURES " where idmessage = " + QString::number(idMsg));
         QList<int> listidusr;
         for (int j=0; j< gAsk->findChildren<UpCheckBox*>().size(); j++)
             if (gAsk->findChildren<UpCheckBox*>().at(j)->getRowTable() == 1)       // c'est le checkbox d'un user
@@ -4565,8 +4526,7 @@ void Rufus::VerifSendMessage(int idMsg)
             if (i<listidusr.size()-1)
                 req += ",";
         }
-        QSqlQuery isnquer(req, db->getDataBase() );
-        if (db->erreurRequete(isnquer, req, tr("Impossible d'enregistrer le message")))
+        if (!db->StandardSQL(req, tr("Impossible d'enregistrer le message")))
         {
             db->rollback();
             return;
@@ -4629,14 +4589,15 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     QString req = "select saldat.Motif, HeureArrivee, HeureRDV, Couleur from " NOM_TABLE_SALLEDATTENTE " saldat left outer join " NOM_TABLE_MOTIFSRDV " rdv on saldat.motif = rdv.raccourci "
                   "where idpat = " + QString::number(idpat);
     //qDebug() << req;
-    QSqlQuery quer(req, db->getDataBase() );
-    if (quer.size()>0)
+    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok)
+        return;
+    if (patdata.size()>0)
     {
-        quer.first();
-        Msg = quer.value(0).toString();
-        if (quer.value(1).toTime().toString("HH:mm") != "")
+        Msg = patdata.at(0).toString();
+        if (patdata.at(1).toTime().toString("HH:mm") != "")
         {
-            QTime heureArriv = quer.value(1).toTime();
+            QTime heureArriv = patdata.at(1).toTime();
             if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
                 color = "color: green";
             else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)
@@ -4644,9 +4605,9 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
             else
                color = "color: red";
         }
-        if (quer.value(2).toTime().toString("HH:mm") != "")
+        if (patdata.at(2).toTime().toString("HH:mm") != "")
         {
-            QTime heureRDV = quer.value(2).toTime();
+            QTime heureRDV = patdata.at(2).toTime();
             if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
                 colorRDV = "color: green";
             else if (heureRDV.secsTo(QTime::currentTime())/60 < 30)
@@ -4670,8 +4631,8 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
         else
         {
             QString background = "background:#FFFFEE";
-            if (quer.value(3).toString() != "")
-                background = "background:#" + quer.value(3).toString();
+            if (patdata.at(3).toString() != "")
+                background = "background:#" + patdata.at(3).toString();
             lab0->setStyleSheet(background + "; color: black");
             lab1->setStyleSheet(background + "; color: black");
             lab2->setStyleSheet(background + "; color: black");
@@ -4698,15 +4659,16 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                 UpLabel *labi6   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
                 QString req = "select saldat.Motif, HeureArrivee, HeureRDV, Couleur from " NOM_TABLE_SALLEDATTENTE " saldat left outer join " NOM_TABLE_MOTIFSRDV " rdv on saldat.motif = rdv.raccourci "
                               "where idpat = " + QString::number(labi0->getData()["idpat"].toInt());
-                QSqlQuery queri(req, db->getDataBase() );
+                QList<QVariant> rdvdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
+                if(!ok)
+                    return;
                 QString color2, colorRDV2;
-                if (queri.size()>0)
+                if (rdvdata.size()>0)
                 {
-                    queri.first();
-                    Msgi = queri.value(0).toString();
-                    if (queri.value(1).toTime().toString("HH:mm") != "")
+                    Msgi = rdvdata.at(0).toString();
+                    if (rdvdata.at(1).toTime().toString("HH:mm") != "")
                     {
-                        QTime heureArriv = queri.value(1).toTime();
+                        QTime heureArriv = rdvdata.at(1).toTime();
                         if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
                             color2 = "color: green";
                         else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)
@@ -4714,9 +4676,9 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                         else
                            color2 = "color: red";
                     }
-                    if (queri.value(2).toTime().toString("HH:mm") != "")
+                    if (rdvdata.at(2).toTime().toString("HH:mm") != "")
                     {
-                        QTime heureRDV = queri.value(2).toTime();
+                        QTime heureRDV = rdvdata.at(2).toTime();
                         if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
                             colorRDV2 = "color: green";
                         else if (heureRDV.secsTo(QTime::currentTime())/60 < 30)
@@ -4737,7 +4699,7 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                 }
                 else
                 {
-                    background = "background:#" + queri.value(3).toString();
+                    background = "background:#" + rdvdata.at(3).toString();
                     labi0->setStyleSheet(background + "; color: black");
                     labi1->setStyleSheet(background + "; color: black");
                     labi2->setStyleSheet(background + "; color: black");
@@ -4877,8 +4839,8 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
         " iddestinataire = " + QString::number(gDataUser->id()) + "\n"
         " order by urge desc, CreeLe desc";
     //proc->Edit(req);
-    QSqlQuery querdest(req, db->getDataBase() );
-    if (querdest.size()>0)
+    QList<QList<QVariant>> destlist = db->StandardSelectSQL(req, ok);
+    if (ok && destlist.size()>0)
     {
         QScrollArea *Scroll = new QScrollArea();
         Scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -4892,9 +4854,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
         Scroll->setWidget(widg);
         tabw->addTab(Scroll, Icons::icPostit(), tr("Reçu"));
 
-        querdest.first();
-
-        for (int i=0; i<querdest.size(); i++)
+        for (int i=0; i<destlist.size(); i++)
         {
             /*
              * Par enregistrement:
@@ -4917,16 +4877,16 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             QHBoxLayout *titrelay = new QHBoxLayout();
             UpLabel *Titredoc = new UpLabel();
             Titredoc->setStyleSheet("color: green");
-            if (querdest.value(7).toInt()==1)
+            if (destlist.at(i).at(7).toInt()==1)
                 Titredoc->setStyleSheet("color: red");
-            QString txt = querdest.value(6).toDate().toString(tr("d-MMM-yy")) + " " + querdest.value(6).toTime().toString("h:mm");
-            if (querdest.value(1).toInt()>0)
-                txt += tr(" de ") + proc->getLogin(querdest.value(1).toInt());
+            QString txt = destlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + destlist.at(i).at(6).toTime().toString("h:mm");
+            if (destlist.at(i).at(1).toInt()>0)
+                txt += tr(" de ") + proc->getLogin(destlist.at(i).at(1).toInt());
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
-            Rdchk->setChecked(querdest.value(8).toInt()==1);
-            Rdchk->setiD(querdest.value(10).toInt());
+            Rdchk->setChecked(destlist.at(i).at(8).toInt()==1);
+            Rdchk->setiD(destlist.at(i).at(10).toInt());
             Rdchk->setText(tr("lu"));
             Rdchk->setFixedWidth(45);
             connect(Rdchk,  &QCheckBox::clicked,    [=] {MsgRead(Rdchk);});
@@ -4938,10 +4898,10 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             QVBoxLayout *Droplay = new QVBoxLayout();
             Droplay->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
-            if (querdest.value(1).toInt() != gDataUser->id())
+            if (destlist.at(i).at(1).toInt() != gDataUser->id())
             {
                 UpLabel *Respondlbl = new UpLabel();
-                Respondlbl->setId(querdest.value(0).toInt());
+                Respondlbl->setId(destlist.at(i).at(0).toInt());
                 Respondlbl->setPixmap(Icons::pxConversation().scaled(20,20)); //WARNING : icon scaled : pxConversation 20,20
                 Respondlbl->setImmediateToolTip(tr("Répondre"));
                 connect(Respondlbl,     QOverload<int>::of(&UpLabel::clicked), [=] {MsgResp(Respondlbl->getId());});
@@ -4950,7 +4910,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             }
 
             UpLabel *Dellbl = new UpLabel();
-            Dellbl->setId(querdest.value(10).toInt());
+            Dellbl->setId(destlist.at(i).at(10).toInt());
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
             Dellbl->setMinimumWidth(25);
@@ -4966,45 +4926,38 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             QVBoxLayout *SMlay = new QVBoxLayout();
             SMlay->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Expanding));
-            if (querdest.value(4).toInt()==1)                                                                           // le message est une tâche
+            if (destlist.at(i).at(4).toInt()==1)                                                                           // le message est une tâche
             {
                 QHBoxLayout *Tasklay = new QHBoxLayout();
                 UpLabel *Todolbl = new UpLabel();
-                Todolbl->setText(tr("A effectuer avant le ") + querdest.value(5).toDate().toString(tr("d-MMM-yy")));
-                if (querdest.value(9).toInt()!=1)
+                Todolbl->setText(tr("A effectuer avant le ") + destlist.at(i).at(5).toDate().toString(tr("d-MMM-yy")));
+                if (destlist.at(i).at(9).toInt()!=1)
                 {
-                    if (QDate::currentDate() >= querdest.value(5).toDate())
+                    if (QDate::currentDate() >= destlist.at(i).at(5).toDate())
                         Todolbl->setStyleSheet("color: red");
-                    else if (QDate::currentDate().addDays(3) > querdest.value(5).toDate())
+                    else if (QDate::currentDate().addDays(3) > destlist.at(i).at(5).toDate())
                         Todolbl->setStyleSheet("color: orange");
                 }
                 Tasklay->addWidget(Todolbl);
                 Tasklay->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
                 UpCheckBox *Dnchk = new UpCheckBox();
-                Dnchk->setChecked(querdest.value(9).toInt()==1);
-                Dnchk->setiD(querdest.value(10).toInt());
+                Dnchk->setChecked(destlist.at(i).at(9).toInt()==1);
+                Dnchk->setiD(destlist.at(i).at(10).toInt());
                 Dnchk->setText(tr("fait"));
                 Dnchk->setFixedWidth(45);
                 connect(Dnchk,  &QCheckBox::clicked,    [=] {MsgDone(Dnchk);});
                 Tasklay->addWidget(Dnchk);
                 SMlay->addLayout(Tasklay);
             }
-            if (querdest.value(3).toInt()>0)                                                                            // le message concerne un patient
+            if (destlist.at(i).at(3).toInt()>0)                                                                            // le message concerne un patient
             {
                 QHBoxLayout *aboutlay = new QHBoxLayout();
                 UpLabel *aboutdoc = new UpLabel();
-                QString nomprenom = "";
-                QString reqq = "select patprenom, patnom from " NOM_TABLE_PATIENTS " where idpat = " + QString::number(querdest.value(3).toInt());
-                QSqlQuery querr(reqq, db->getDataBase() );
-                if (querr.size()>0)
-                {
-                    querr.first();
-                    nomprenom = tr("à propos de ") + "<b>" + querr.value(0).toString() + " " + querr.value(1).toString() + "</b>";
-                }
+                QString nomprenom = Datas::I()->patients->getPatientById(destlist.at(i).at(3).toInt())->prenom() + " " + Datas::I()->patients->getPatientById(destlist.at(i).at(3).toInt())->nom();
                 if (nomprenom != "")
                 {
                     aboutdoc->setText(nomprenom);
-                    aboutdoc->setId(querdest.value(3).toInt());
+                    aboutdoc->setId(destlist.at(i).at(3).toInt());
                     aboutlay->addWidget(aboutdoc);
                     aboutlay->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
                     SMlay->addLayout(aboutlay);
@@ -5013,9 +4966,9 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             UpTextEdit *Msgtxt = new UpTextEdit();
             Msgtxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
-            if  (querdest.value(7).toInt() == 1)
+            if  (destlist.at(i).at(7).toInt() == 1)
                 Msgtxt->setStyleSheet("border: 2px solid rgb(251, 51, 61);border-radius: 5px; background-color:#FFFFFF;");
-            Msgtxt->setText(querdest.value(2).toString());
+            Msgtxt->setText(destlist.at(i).at(2).toString());
             QString txt1 = Msgtxt->toHtml();
             Msgtxt->setText(txt1);
             Msgtxt->setReadOnly(true);
@@ -5033,7 +4986,6 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             lay->addWidget(framerec);
             lay->setSpacing(3);
             reclay->setSpacing(3);
-            querdest.next();
         }
         lay->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Expanding));
     }
@@ -5055,8 +5007,8 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
     and asupprimer is null
     order by urge desc, CreeLe desc
     */
-    QSqlQuery queremet(req, db->getDataBase() );
-    if (queremet.size()>0)
+    QList<QList<QVariant>> emetlist = db->StandardSelectSQL(req, ok);
+    if (ok && emetlist.size()>0)
     {
         QScrollArea *Scroll = new QScrollArea();
         Scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -5070,9 +5022,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
         Scroll->setWidget(widg);
         tabw->addTab(Scroll, Icons::icMessage(), tr("Envoyé"));
 
-        queremet.first();
-
-        for (int i=0; i<queremet.size(); i++)
+        for (int i=0; i<emetlist.size(); i++)
         {
             QFrame *framerec = new QFrame();
             //framerec->setFrameShape(QFrame::Panel);
@@ -5080,15 +5030,15 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             QHBoxLayout *titrelay = new QHBoxLayout();
             UpLabel *Titredoc = new UpLabel();
             Titredoc->setStyleSheet("color: green");
-            if (queremet.value(7).toInt()==1)
+            if (emetlist.at(i).at(7).toInt()==1)
                 Titredoc->setStyleSheet("color: red");
-            QString txt = queremet.value(6).toDate().toString(tr("d-MMM-yy")) + " " + queremet.value(6).toTime().toString("h:mm");
-            if (queremet.value(1).toInt()>0)
-                txt += tr(" pour ") + proc->getLogin(queremet.value(1).toInt());
+            QString txt = emetlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + emetlist.at(i).at(6).toTime().toString("h:mm");
+            if (emetlist.at(i).at(1).toInt()>0)
+                txt += tr(" pour ") + proc->getLogin(emetlist.at(i).at(1).toInt());
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
-            Rdchk->setChecked(queremet.value(8).toInt()==1);
+            Rdchk->setChecked(emetlist.at(i).at(8).toInt()==1);
             Rdchk->setEnabled(false);
             Rdchk->setText(tr("lu"));
             Rdchk->setFixedWidth(45);
@@ -5101,7 +5051,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Droplay->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
             UpLabel *Modiflbl = new UpLabel();
-            Modiflbl->setId(queremet.value(0).toInt());
+            Modiflbl->setId(emetlist.at(i).at(0).toInt());
             Modiflbl->setPixmap(Icons::pxEditer().scaled(20,20)); //WARNING : icon scaled : pxEditer 20,20
             Modiflbl->setImmediateToolTip(tr("Modifier"));
             Modiflbl->setFixedWidth(25);
@@ -5109,7 +5059,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Droplay->addWidget(Modiflbl);
 
             UpLabel *Dellbl = new UpLabel();
-            Dellbl->setId(queremet.value(0).toInt());
+            Dellbl->setId(emetlist.at(i).at(0).toInt());
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
             connect(Dellbl,     QOverload<int>::of(&UpLabel::clicked),  [=] {SupprimerMessageEmis(Dellbl->getId());});
@@ -5123,41 +5073,34 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             QVBoxLayout *SMlay = new QVBoxLayout();
             SMlay->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Minimum,QSizePolicy::Expanding));
-            if (queremet.value(4).toInt()==1)                                                                           // le message est une tâche
+            if (emetlist.at(i).at(4).toInt()==1)                                                                           // le message est une tâche
             {
                 QHBoxLayout *Tasklay = new QHBoxLayout();
                 UpLabel *Todolbl = new UpLabel();
                 Tasklay->setSpacing(0);
-                Todolbl->setText(tr("A effectuer avant le ") + queremet.value(5).toDate().toString(tr("d-MMM-yy")));
-                if (queremet.value(9).toInt()!=1)
+                Todolbl->setText(tr("A effectuer avant le ") + emetlist.at(i).at(5).toDate().toString(tr("d-MMM-yy")));
+                if (emetlist.at(i).at(9).toInt()!=1)
                 {
-                    if (QDate::currentDate() >= queremet.value(5).toDate())
+                    if (QDate::currentDate() >= emetlist.at(i).at(5).toDate())
                         Todolbl->setStyleSheet("color: red");
-                    else if (QDate::currentDate().addDays(3) > queremet.value(5).toDate())
+                    else if (QDate::currentDate().addDays(3) > emetlist.at(i).at(5).toDate())
                         Todolbl->setStyleSheet("color: orange");
                 }
                 Tasklay->addWidget(Todolbl);
                 Tasklay->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding,QSizePolicy::Minimum));
                 UpCheckBox *Dnchk = new UpCheckBox();
-                Dnchk->setChecked(queremet.value(9).toInt()==1);
+                Dnchk->setChecked(emetlist.at(i).at(9).toInt()==1);
                 Dnchk->setEnabled(false);
                 Dnchk->setText(tr("fait"));
                 Dnchk->setFixedWidth(45);
                 Tasklay->addWidget(Dnchk);
                 SMlay->addLayout(Tasklay);
             }
-            if (queremet.value(3).toInt()>0)                                                                            // le message concerne un patient
+            if (emetlist.at(i).at(3).toInt()>0)                                                                            // le message concerne un patient
             {
                 QHBoxLayout *aboutlay = new QHBoxLayout();
                 UpLabel *aboutdoc = new UpLabel();
-                QString nomprenom = "";
-                QString reqq = "select patprenom, patnom from " NOM_TABLE_PATIENTS " where idpat = " + QString::number(queremet.value(3).toInt());
-                QSqlQuery querr(reqq, db->getDataBase() );
-                if (querr.size()>0)
-                {
-                    querr.first();
-                    nomprenom = tr("à propos de ") + "<b>" + querr.value(0).toString() + " " + querr.value(1).toString() + "</b>";
-                }
+                QString nomprenom = Datas::I()->patients->getPatientById(emetlist.at(i).at(3).toInt())->prenom() + " " + Datas::I()->patients->getPatientById(emetlist.at(i).at(3).toInt())->nom();
                 if (nomprenom != "")
                 {
                     aboutdoc->setText(nomprenom);
@@ -5169,7 +5112,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             UpTextEdit *Msgtxt = new UpTextEdit();
             Msgtxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFDD;");
-            Msgtxt->setText(queremet.value(2).toString());
+            Msgtxt->setText(emetlist.at(i).at(2).toString());
             QString txt1 = Msgtxt->toHtml();
             Msgtxt->setText(txt1);
             Msgtxt->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -5179,7 +5122,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Msgtxt->setFixedSize(380,int(Msgtxt->document()->size().height())+2);
             Msgtxt->setTableCorrespondant(NOM_TABLE_MESSAGES);
             Msgtxt->setChampCorrespondant("TexteMessage");
-            Msgtxt->setId(queremet.value(0).toInt());
+            Msgtxt->setId(emetlist.at(i).at(0).toInt());
             Msgtxt->installEventFilter(this);
             Msgtxt->setReadOnly(true);
 
@@ -5191,12 +5134,11 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             lay->addWidget(framerec);
             lay->setSpacing(3);
             reclay->setSpacing(3);
-            queremet.next();
         }
         lay->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Minimum,QSizePolicy::Expanding));
     }
 
-    if (querdest.size()==0 && queremet.size()==0)
+    if (destlist.size()==0 && emetlist.size()==0)
     {
         QScrollArea *Scroll = new QScrollArea();
         Scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -9954,26 +9896,24 @@ void Rufus::SupprimerActe()
     // On vérifie que cet acte n'a pas été payé par une opération bancaire déjà enregistrée sur le compte
     // on récupère les lignes de paiement
     QString Messg ="";
-    QString requete = "SELECT idRecette, Paye FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(gidActe);
-    QSqlQuery ListeRecettesQuery (requete, db->getDataBase() );
-    db->erreurRequete(ListeRecettesQuery,requete,"");
-    ListeRecettesQuery.first();
-    for (int l = 0; l < ListeRecettesQuery.size(); l++)
+    QString req = "SELECT idRecette, Paye FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(gidActe);
+    QList<QList<QVariant>> reclist = db->StandardSelectSQL(req,ok);
+    for (int i=0; i<reclist.size(); ++i)
     {
         // on vérifie pour chaque ligne s'il s'agit d'un virement, d'une carte bleue ou d'un chèque enregistré
-        requete = "SELECT ModePaiement, NomTiers, idRemise FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + ListeRecettesQuery.value(0).toString();
-        QSqlQuery ModePaiementQuery (requete, db->getDataBase() );
-        db->erreurRequete(ModePaiementQuery,requete,"");
-        ModePaiementQuery.first();
-        if (ModePaiementQuery.value(0).toString() == "V")                                                  Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des versements enregistrés.");
-        if (ModePaiementQuery.value(0).toString() == "V" && ModePaiementQuery.value(1).toString() == "CB") Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par carte de crédit enregistrés.");
-        if (ModePaiementQuery.value(0).toString() == "C" && ModePaiementQuery.value(2).toInt() > 0)        Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés.");
-        if (ModePaiementQuery.value(0).toString() == "C" && ModePaiementQuery.value(2).toInt() == 0)       Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés."
+        req = "SELECT ModePaiement, NomTiers, idRemise FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + reclist.at(i).at(0).toString();
+        QList<QVariant> pmtdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
+        if(ok && pmtdata.size()>0)
+        {
+        if (pmtdata.at(0).toString() == "V")                                                  Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des versements enregistrés.");
+        if (pmtdata.at(0).toString() == "V" && pmtdata.at(1).toString() == "CB") Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par carte de crédit enregistrés.");
+        if (pmtdata.at(0).toString() == "C" && pmtdata.at(2).toInt() > 0)        Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés.");
+        if (pmtdata.at(0).toString() == "C" && pmtdata.at(2).toInt() == 0)       Messg = tr("Je crains de ne pas pouvoir supprimer cet acte\nIl y a des paiements par chèque enregistrés."
                                                                                                                    "\nCe ou ces chèques ne sont pas encaissés."
                                                                                                                    "\nVous devez modifier l'écriture correspondante pour pouvoir supprimer l'acte.");
         if (Messg != "")
-            l = ListeRecettesQuery.size();
-        ListeRecettesQuery.next();
+            i = reclist.size();
+        }
     }
     if (Messg != "")
     {
@@ -9999,18 +9939,17 @@ void Rufus::SupprimerActe()
     idAAficher = 0;
     QDate dateacte;
 
-    requete = "SELECT idActe, ActeDate FROM " NOM_TABLE_ACTES " WHERE idPat = '" + QString::number(gidPatient) + "'";
-    QSqlQuery       SupprimerActeQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(SupprimerActeQuery,requete, tr("Impossible de retrouver les consultations de ce patient")))
+    req = "SELECT idActe, ActeDate FROM " NOM_TABLE_ACTES " WHERE idPat = '" + QString::number(gidPatient) + "'";
+    QList<QList<QVariant>> actlist = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les consultations de ce patient"));
+    if(!ok)
         return;
-    if (SupprimerActeQuery.size() == 0)
+    if (actlist.size() == 0)
     {
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'acte"));
         return;
     }
-    SupprimerActeQuery.last();
-    dateacte = SupprimerActeQuery.value(1).toDate();
-    if (SupprimerActeQuery.size() < 2)           // Aucune autre consultation trouvee pour ces criteres
+    dateacte = actlist.last().at(1).toDate();
+    if (actlist.size() < 2)           // Aucune autre consultation trouvee pour ces criteres
     {
         gidActe = 0;
         ui->Acteframe->setVisible(false);
@@ -10020,37 +9959,28 @@ void Rufus::SupprimerActe()
     }
     else
     {
-        SupprimerActeQuery.first();
-        for (int a = 0; a < SupprimerActeQuery.size(); a++)
-        {
-            if (SupprimerActeQuery.value(0).toInt() == gidActe) break;
-            SupprimerActeQuery.next();
-        }
-        if (SupprimerActeQuery.at() < SupprimerActeQuery.size() - 1)
-        {   //on est au milieu des actes -> on va rechercher l'idActe suivant
-            SupprimerActeQuery.next();
-            idAAficher = SupprimerActeQuery.value(0).toInt();
-        }
+        int a;
+        for (a = 0; a < actlist.size(); a++)
+            if (actlist.at(a).at(0).toInt() == gidActe) break;
+        if (a < actlist.size() - 1)
+            ++a;    //on est au milieu des actes -> on va rechercher l'idActe suivant
         else
-        {
-            //on est sur le dernier acte -> on va rechercher l'idActe précédant
-            SupprimerActeQuery.previous();
-            idAAficher = SupprimerActeQuery.value(0).toInt();
-        }
+            --a;    //on est sur le dernier acte -> on va rechercher l'idActe précédant
+        idAAficher = actlist.at(a).at(0).toInt();
         if (idAAficher == 0)  return;
     }
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
-    requete = "DELETE FROM " NOM_TABLE_REFRACTION " WHERE idActe  = " + QString::number(idASupprimer);
-    db->StandardSQL(requete);
+    req = "DELETE FROM " NOM_TABLE_REFRACTION " WHERE idActe  = " + QString::number(idASupprimer);
+    db->StandardSQL(req);
 
     // on supprime les éventuels bilans orthoptiques liés à cette consultation -----------------------------------------------------------
-    requete = "DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idBilanOrtho  = " + QString::number(idASupprimer);
-    db->StandardSQL(requete);
+    req = "DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idBilanOrtho  = " + QString::number(idASupprimer);
+    db->StandardSQL(req);
 
     /* on corrige la compta
     */
-    if (ListeRecettesQuery.size()>0)     // inutile de le faire pour les gratuits et les impayés ou les tiers non encore encaissés
+    if (reclist.size()>0)     // inutile de le faire pour les gratuits et les impayés ou les tiers non encore encaissés
         /* on corrige les lignes de recette correspondant à ce dossier -------------------------------------------------------------------------
         // ça ne peut concerner que des paiements en espèces -----------------------------------------------------------------------------------
         parce qu'on ne peut pas supprimer les dossiers pour lesquels des recettes ont été enregistrées avec d'autres formes de paiement
@@ -10059,44 +9989,36 @@ void Rufus::SupprimerActe()
     {
         QList<int>      listrecettesacorriger;
         QList<double>   listmontantsacorriger;
-        ListeRecettesQuery.first();
-        for (int l = 0; l < ListeRecettesQuery.size(); l++)
+        for (int l = 0; l < reclist.size(); l++)
         {
-            listrecettesacorriger << ListeRecettesQuery.value(0).toInt();
-            listmontantsacorriger << ListeRecettesQuery.value(1).toDouble();
-            ListeRecettesQuery.next();
+            listrecettesacorriger << reclist.at(l).at(0).toInt();
+            listmontantsacorriger << reclist.at(l).at(1).toDouble();
         }
         for (int j=0; j<listrecettesacorriger.size(); j++)
         {
             int recetteACorriger = listrecettesacorriger.at(j);
-            requete = "SELECT Montant FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(recetteACorriger);
-            QSqlQuery RecetteQuery (requete, db->getDataBase() );
-            db->erreurRequete(RecetteQuery,requete,"");
-            if (RecetteQuery.size()>0)
+            req = "SELECT Montant FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(recetteACorriger);
+            QList<QList<QVariant>> mntlist = db->StandardSelectSQL(req,ok);
+            for (int i=0; i<mntlist.size(); ++i)
             {
-                RecetteQuery.first();
-                for (int k=0; k<RecetteQuery.size(); k++)
-                {
-                    QString req = "delete from " NOM_TABLE_RECETTES " where idrecette = " + QString::number(recetteACorriger);
-                    if (RecetteQuery.value(0).toDouble() > listmontantsacorriger.at(j))
-                        req = "update " NOM_TABLE_RECETTES " set Montant = " + QString::number(RecetteQuery.value(0).toDouble() - listmontantsacorriger.at(j)) +
-                                " where idRecette = " + QString::number(recetteACorriger);
-                    db->StandardSQL(req);
-                    RecetteQuery.next();
-                }
+                QString req = "delete from " NOM_TABLE_RECETTES " where idrecette = " + QString::number(recetteACorriger);
+                if (mntlist.at(i).at(0).toDouble() > listmontantsacorriger.at(j))
+                    req = "update " NOM_TABLE_RECETTES " set Montant = " + QString::number(mntlist.at(i).at(0).toDouble() - listmontantsacorriger.at(j)) +
+                          " where idRecette = " + QString::number(recetteACorriger);
+                db->StandardSQL(req);
             }
         }
 
         // On actualise la table des lignes de paiement et la table des Type de paieement
-        requete = "DELETE FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(idASupprimer);
-        db->StandardSQL(requete);
-        requete = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(idASupprimer);
-        db->StandardSQL(requete);
+        req = "DELETE FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(idASupprimer);
+        db->StandardSQL(req);
+        req = "DELETE FROM " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(idASupprimer);
+        db->StandardSQL(req);
     }
 
     // on supprime la consultation -------------------------------------------------------------------------------------------------
-    requete = "DELETE FROM " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(idASupprimer);
-    if (!db->StandardSQL(requete))
+    req = "DELETE FROM " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(idASupprimer);
+    if (!db->StandardSQL(req))
         return;
 
     // On affiche la nouvelle consultation
@@ -10116,7 +10038,7 @@ void Rufus::SupprimerActe()
     }
     if (listactesprecs.size()>0)
     {
-        if (SupprimerActeQuery.size() < 3)
+        if (actlist.size() < 3)
         {
             listactesprecs.at(0)->close();
             listactesprecs.removeAt(0);
@@ -10880,15 +10802,7 @@ void Rufus::envoieMessage(QString msg)
     if (!UtiliseTCP)
         return;
     qDebug() << msg + " - void Rufus::envoieMessage(QString msg)";
-    currentmsg = msg;
-    QByteArray paquet   = currentmsg.toUtf8();
-    QByteArray size     = Utils::IntToArray(paquet.size());
-    if(TcPConnect->state() == QAbstractSocket::ConnectedState)
-    {
-        TcPConnect->write(size);                //envoie la taille du message
-        TcPConnect->write(paquet);              //envoie le message
-        TcPConnect->waitForBytesWritten(5000);
-    }
+    TcPConnect->envoieMessage(msg);
 }
 
 void Rufus::envoieMessageA(QList<int> listidusr)
@@ -10906,7 +10820,6 @@ void Rufus::envoieMessageA(QList<int> listidusr)
             listid += ",";
     }
     QString msg = listid + TCPMSG_Separator + "1" + TCPMSG_MsgBAL;
-    currentmsg = tr("courrier");
-    envoieMessage(msg);
+    TcPConnect->envoieMessage(msg);
 }
 

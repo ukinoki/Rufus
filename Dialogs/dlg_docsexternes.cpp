@@ -886,6 +886,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool        aa;
     bool        ALD             = (docmt->isALD());
     bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
+    bool        ok;
 
     User *userEntete = proc->setDataOtherUser(docmt->iduser());
     if (userEntete == Q_NULLPTR)
@@ -973,7 +974,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
                 m_ListDocs.removeDocExterne(docmt);
             }
             ActualiseDocsExternes();
-            int idimpr = db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS);
+            int idimpr = db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok);
             QModelIndex idx = getIndexFromId(gmodele, idimpr);
             ListDocsTreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
             ListDocsTreeView->setCurrentIndex(idx);

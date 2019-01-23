@@ -145,59 +145,69 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
 {
     unlocktables();
-    QSqlQuery ("SET AUTOCOMMIT = 0;", m_db );
-    QString lockrequete = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
+    StandardSQL("SET AUTOCOMMIT = 0;");
+    QString req = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
     for (int i = 1; i < ListTables.size(); i++)
-        lockrequete += "," + ListTables.at(i) + " " + ModeBlocage;
-    return !erreurRequete(QSqlQuery(lockrequete, m_db ),lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
+        req += "," + ListTables.at(i) + " " + ModeBlocage;
+    QSqlQuery query(req, m_db );
+    bool a = !erreurRequete(query,req, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
+    query.finish();
+    return a;
 }
 
 void DataBase::commit()
 {
-    QSqlQuery ("COMMIT;", m_db );
     unlocktables();
-    QString commitrequete = "SET AUTOCOMMIT = 1;";
-    erreurRequete(QSqlQuery(commitrequete,m_db ), commitrequete, tr("Impossible de valider les mofifications"));
+    StandardSQL("COMMIT;");
+    QString req = "SET AUTOCOMMIT = 1;";
+    QSqlQuery query(req, m_db );
+    erreurRequete(query,req, tr("Impossible de valider les mofifications"));
+    query.finish();
 }
 
 void DataBase::rollback()
 {
-    QSqlQuery ("ROLLBACK;", m_db );
     unlocktables();
-    QString rollbackrequete = "SET AUTOCOMMIT = 1;";
-    erreurRequete(QSqlQuery(rollbackrequete, m_db ),rollbackrequete,"");
+    StandardSQL("ROLLBACK;");
+    QString req = "SET AUTOCOMMIT = 1;";
+    QSqlQuery query(req, m_db );
+    erreurRequete(query,req, tr("Impossible de valider les mofifications"));
+    query.finish();
 }
 
 bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
 {
     unlocktables();
-    QString lockrequete = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
+    QString req = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
     for (int i = 1; i < ListTables.size(); i++)
-        lockrequete += "," + ListTables.at(i) + " " + ModeBlocage;
-    QSqlQuery lockquery (lockrequete, m_db );
-    return !erreurRequete(lockquery,lockrequete, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
+        req += "," + ListTables.at(i) + " " + ModeBlocage;
+    QSqlQuery query(req, m_db );
+    bool a = !erreurRequete(query,req, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
+    query.finish();
+    return a;
 }
 
 void DataBase::unlocktables()
 {
-    QString requete = "UNLOCK TABLES;";
-    erreurRequete(QSqlQuery (requete, m_db ), requete,"");
+    StandardSQL("UNLOCK TABLES;");
 }
 
 bool DataBase::testconnexionbase() // une requete simple pour vérifier que la connexion à la base fontionne toujours
 {
     QString req = "select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME;
-    QSqlQuery testbasequery(req, DataBase::getInstance()->getDataBase());
-    return (testbasequery.lastError().type()==QSqlError::NoError);
+    QSqlQuery query(req, m_db);
+    bool a = (query.lastError().type()==QSqlError::NoError);
+    query.finish();
+    return a;
 }
 
-int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, QString errormsg)
+int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, QString errormsg)
 {
     QString req = "select max(" + nomchamp + ") from " + nomtable;
-    QSqlQuery query(req, getDataBase());
-    if( erreurRequete(query, req, errormsg) || !query.first())
-        return -1;
-    return query.value(0).toInt();
+    QList<QVariant> data = getFirstRecordFromStandardSelectSQL(req, ok, errormsg);
+    if(!ok || data.size()==0)
+        return 0;
+    return data.at(0).toInt();
 }
 
 bool DataBase::SupprRecordFromTable(int id, QString nomChamp, QString nomtable, QString errormsg)
@@ -263,7 +273,7 @@ bool DataBase::InsertSQLByBinds(QString nomtable,
                                 QHash<QString, QVariant> sets,
                                 QString errormsg)
 {
-    QSqlQuery query = QSqlQuery(getDataBase());
+    QSqlQuery query = QSqlQuery(m_db);
     QString champs, champs2;
     QString valeurs;
     for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
@@ -281,18 +291,22 @@ bool DataBase::InsertSQLByBinds(QString nomtable,
         //qDebug() << "query.bindValue("":" + itset.key() + "," + itset.value().toString() + ")";
     }
     query.exec();
+    bool a = true;
     if (query.lastError().type() != QSqlError::NoError)
     {
         Logs::ERROR(errormsg, tr("\nErreur\n") + query.lastError().text());
-        return false;
+        a =  false;
     }
-    return true;
+    query.finish();
+    return a;
 }
 
 bool DataBase::StandardSQL(QString req , QString errormsg)
 {
     QSqlQuery query(req, getDataBase());
-    return !erreurRequete(query, req, errormsg);
+    bool a = !erreurRequete(query, req, errormsg);
+    query.finish();
+    return a;
 }
 
 QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg)
@@ -304,17 +318,21 @@ QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QStri
         if (!ok)                                // erreur;
         if (recordslist.size()==0)                     // réponse vide
      */
-    QList<QList<QVariant>> listreponses;
+    QList<QList<QVariant>> listreponses = QList<QList<QVariant>>();
     QSqlQuery query(req, getDataBase());
     QSqlRecord rec = query.record();
     if( erreurRequete(query, req, errormsg))
     {
         OK = false;
+        query.finish();
         return listreponses;
     }
     OK = true;
     if( !query.first())
+    {
+        query.finish();
         return listreponses;
+    }
     do
     {
         QList<QVariant> record;
@@ -322,6 +340,7 @@ QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QStri
             record << query.value(i);
         listreponses << record;
     } while (query.next());
+    query.finish();
     return listreponses;
 }
 
@@ -357,24 +376,24 @@ QJsonObject DataBase::login(QString login, QString password)
                   " LEFT JOIN " NOM_TABLE_USERSCONNECTES " uc on uc.idUSer = u.idUser "
                   " WHERE UserLogin = '" + login + "' "
                   " AND UserMDP = '" + password + "' ";
-    QSqlQuery query(req, getDataBase() );
-    if( query.lastError().type() != QSqlError::NoError )
+    QList<QVariant> usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
+    if(!ok)
     {
         jrep["code"] = -3;
         jrep["request"] = req;
         return jrep;
     }
 
-    if( !query.first() )
+    if(usrdata.size()==0)
     {
         jrep["code"] = -1;
         return jrep;
     }
 
-    if( !query.value(userOffset).isNull() &&query.value(userOffset).toString() != QHostInfo::localHostName().left(60) )
+    if( !usrdata.at(userOffset).isNull() && usrdata.at(userOffset).toString() != QHostInfo::localHostName().left(60) )
     {
         jrep["code"] = -6;
-        jrep["poste"] = query.value(userOffset).toString();
+        jrep["poste"] = usrdata.at(userOffset).toString();
         // cette erreur n'est pas exploitée parce que dans certaines structures, un même utilisateur peut travailler sur plusieurs postes
         //return jrep;
     }
@@ -382,10 +401,9 @@ QJsonObject DataBase::login(QString login, QString password)
     jrep["code"] = 0;
 
     QJsonObject userData{};
-    userData["id"] = query.value(0).toInt();
-    userData["nom"] = query.value(1).toString();
-    userData["prenom"] = query.value(2).toString();
-    query.finish();
+    userData["id"] = usrdata.at(0).toInt();
+    userData["nom"] = usrdata.at(1).toString();
+    userData["prenom"] = usrdata.at(2).toString();
 
     m_userConnected = new User(login, password, userData);
     m_userConnected->setData( loadUserData(m_userConnected->id()) );
@@ -411,46 +429,46 @@ QJsonObject DataBase::loadUserData(int idUser)
             //+ "  and userdesactive is null";
             // SL cette ligne est retirée parce qu'elle bloque l'affichage des utilisateurs désactivés dans dlg_gestionsusers
 
-    QSqlQuery  query(req, getDataBase());
-    if( erreurRequete(query, req, tr("Impossible de retrouver les données de l'utilisateur")) )
+    QList<QVariant> usrdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'utilisateur"));
+    if (!ok)
         return userData;
 
-    if( !query.first() )
+    if(usrdata.size()==0)
         return userData;
 
     userData["isAllLoaded"]                 = true;
     userData["id"]                          = idUser;
-    userData["droits"]                      = query.value(0).isNull() ? "" : query.value(0).toString();
-    userData["AGA"]                         = (query.value(1).toInt() == 1);
-    userData["login"]                       = query.value(2).isNull() ? "" : query.value(2).toString();
-    userData["fonction"]                    = query.value(3).isNull() ? "" : query.value(3).toString();
-    userData["titre"]                       = query.value(4).isNull() ? "" : query.value(4).toString();
-    userData["nom"]                         = query.value(5).isNull() ? "" : query.value(5).toString();
-    userData["prenom"]                      = query.value(6).isNull() ? "" : query.value(6).toString();
-    userData["mail"]                        = query.value(7).isNull() ? "" : query.value(7).toString();
-    userData["numPS"]                       = query.value(8).toInt();
-    userData["specialite"]                  = query.value(9).isNull() ? "" : query.value(9).toString();
-    userData["noSpecialite"]                = query.value(10).toInt();
-    userData["numCO"]                       = query.value(11).isNull() ? "" : query.value(11).toString();
-    userData["idCompteParDefaut"]           = query.value(12).toInt();
-    userData["enregHonoraires"]             = query.value(13).toInt();
-    userData["password"]                    = query.value(14).toString();
-    userData["portable"]                    = query.value(15).isNull() ? "" : query.value(15).toString();
-    userData["poste"]                       = query.value(16).toInt();
-    userData["web"]                         = query.value(17).isNull() ? "" : query.value(17).toString();
-    userData["memo"]                        = query.value(18).isNull() ? "" : query.value(18).toString();
-    userData["desactive"]                   = (query.value(19).toInt() == 1);
-    userData["policeEcran"]                 = query.value(20).isNull() ? "" : query.value(20).toString();
-    userData["policeAttribut"]              = query.value(21).isNull() ? "" : query.value(21).toString();
-    userData["secteur"]                     = query.value(22).toInt();
-    userData["OPTAM"]                       = (query.value(30).toInt() == 1);
-    userData["soignant"]                    = query.value(23).toInt();
-    userData["responsableActes"]            = query.value(24).toInt();
-    userData["cotation"]                    = (query.value(25).toInt() == 1);
-    userData["employeur"]                   = query.value(26).toInt();
-    userData["dateDerniereConnexion"]       = QDateTime(query.value(27).toDate(), query.value(27).toTime()).toMSecsSinceEpoch();
-    userData["medecin"]                     = query.value(29).toInt();
-    userData["idCompteEncaissHonoraires"]   = query.value(28).toInt();
+    userData["droits"]                      = usrdata.at(0).isNull() ? "" : usrdata.at(0).toString();
+    userData["AGA"]                         = (usrdata.at(1).toInt() == 1);
+    userData["login"]                       = usrdata.at(2).isNull() ? "" : usrdata.at(2).toString();
+    userData["fonction"]                    = usrdata.at(3).isNull() ? "" : usrdata.at(3).toString();
+    userData["titre"]                       = usrdata.at(4).isNull() ? "" : usrdata.at(4).toString();
+    userData["nom"]                         = usrdata.at(5).isNull() ? "" : usrdata.at(5).toString();
+    userData["prenom"]                      = usrdata.at(6).isNull() ? "" : usrdata.at(6).toString();
+    userData["mail"]                        = usrdata.at(7).isNull() ? "" : usrdata.at(7).toString();
+    userData["numPS"]                       = usrdata.at(8).toInt();
+    userData["specialite"]                  = usrdata.at(9).isNull() ? "" : usrdata.at(9).toString();
+    userData["noSpecialite"]                = usrdata.at(10).toInt();
+    userData["numCO"]                       = usrdata.at(11).isNull() ? "" : usrdata.at(11).toString();
+    userData["idCompteParDefaut"]           = usrdata.at(12).toInt();
+    userData["enregHonoraires"]             = usrdata.at(13).toInt();
+    userData["password"]                    = usrdata.at(14).toString();
+    userData["portable"]                    = usrdata.at(15).isNull() ? "" : usrdata.at(15).toString();
+    userData["poste"]                       = usrdata.at(16).toInt();
+    userData["web"]                         = usrdata.at(17).isNull() ? "" : usrdata.at(17).toString();
+    userData["memo"]                        = usrdata.at(18).isNull() ? "" : usrdata.at(18).toString();
+    userData["desactive"]                   = (usrdata.at(19).toInt() == 1);
+    userData["policeEcran"]                 = usrdata.at(20).isNull() ? "" : usrdata.at(20).toString();
+    userData["policeAttribut"]              = usrdata.at(21).isNull() ? "" : usrdata.at(21).toString();
+    userData["secteur"]                     = usrdata.at(22).toInt();
+    userData["OPTAM"]                       = (usrdata.at(30).toInt() == 1);
+    userData["soignant"]                    = usrdata.at(23).toInt();
+    userData["responsableActes"]            = usrdata.at(24).toInt();
+    userData["cotation"]                    = (usrdata.at(25).toInt() == 1);
+    userData["employeur"]                   = usrdata.at(26).toInt();
+    userData["dateDerniereConnexion"]       = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
+    userData["medecin"]                     = usrdata.at(29).toInt();
+    userData["idCompteEncaissHonoraires"]   = usrdata.at(28).toInt();
 
     if( userData["idCompteEncaissHonoraires"].isNull() )
     {
@@ -459,14 +477,12 @@ QJsonObject DataBase::loadUserData(int idUser)
     else
     {
         userData["idUserEncaissHonoraires"]    = idUser;
-        userData["nomCompteEncaissHonoraires"] = query.value(31).toString();
-        userData["nomUserEncaissHonoraires"]   = query.value(2).toString();
+        userData["nomCompteEncaissHonoraires"] = usrdata.at(31).toString();
+        userData["nomUserEncaissHonoraires"]   = usrdata.at(2).toString();
     }
 
-    if( !query.value(32).isNull() )
-        userData["nomCompteParDefaut"] = query.value(32).toString();
-
-    query.finish();
+    if( !usrdata.at(32).isNull() )
+        userData["nomCompteParDefaut"] = usrdata.at(32).toString();
     return userData;
 }
 QList<User*> DataBase::loadUsersAll()
@@ -478,27 +494,24 @@ QList<User*> DataBase::loadUsersAll()
                   " from " NOM_TABLE_UTILISATEURS " usr "
                   " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte "
                   " where userdesactive is null";
-
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> usrlist = StandardSelectSQL(req, ok);
+    if( !ok || usrlist.size()==0 )
         return users;
-
-    do
+    for (int i=0; i<usrlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = query.value(0).toInt();
-        jData["login"] = query.value(1).toString();
-        jData["soignant"] = query.value(2).toInt();
-        jData["responsableActes"] = query.value(3).toInt();
-        jData["enregHonoraires"] = query.value(4).toInt();
-        jData["idCompteEncaissHonoraires"] = query.value(5).toInt();
-        jData["cotation"] = (query.value(6).toInt() == 1);
-        jData["employeur"] = query.value(7).toInt();
-        jData["nomCompteAbrege"] = query.value(8).toString();
+        jData["id"] = usrlist.at(i).at(0).toInt();
+        jData["login"] = usrlist.at(i).at(1).toString();
+        jData["soignant"] = usrlist.at(i).at(2).toInt();
+        jData["responsableActes"] = usrlist.at(i).at(3).toInt();
+        jData["enregHonoraires"] = usrlist.at(i).at(4).toInt();
+        jData["idCompteEncaissHonoraires"] = usrlist.at(i).at(5).toInt();
+        jData["cotation"] = (usrlist.at(i).at(6).toInt() == 1);
+        jData["employeur"] = usrlist.at(i).at(7).toInt();
+        jData["nomCompteAbrege"] = usrlist.at(i).at(8).toString();
         User *usr = new User(jData);
         users << usr;
-    } while( query.next() );
-
+    }
     return users;
 }
 
@@ -507,13 +520,12 @@ QJsonObject DataBase::loadUserDatabyLogin(QString login)
     QJsonObject userData{};
 
     QString req = "select iduser from " NOM_TABLE_UTILISATEURS " where UserLogin = '" + login + "'";
-    QSqlQuery  query(req, getDataBase());
-    if( erreurRequete(query, req, tr("Impossible de retrouver les données de l'utilisateur")) )
+    QList<QVariant> usrdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'utilisateur"));
+    if (!ok)
         return userData;
-
-    if( !query.first() )
+    if(usrdata.size()==0)
         return userData;
-    return loadUserData(query.value(0).toInt());
+    return loadUserData(usrdata.at(0).toInt());
 }
 
 /*
@@ -524,20 +536,20 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
     QList<Correspondant*> correspondants;
     QString req = "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin FROM " NOM_TABLE_CORRESPONDANTS " order by cornom, corprenom";
 
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> corlist = StandardSelectSQL(req,ok);
+    if(!ok || corlist.size()==0)
         return correspondants;
-    do
+    for (int i=0; i<corlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = query.value(0).toInt();
-        jData["nom"] = query.value(1).toString();
-        jData["prenom"] = query.value(2).toString();
-        jData["sexe"] = query.value(3).toString();
-        jData["generaliste"] = (query.value(4).toInt()==1);
+        jData["id"] = corlist.at(i).at(0).toInt();
+        jData["nom"] = corlist.at(i).at(1).toString();
+        jData["prenom"] = corlist.at(i).at(2).toString();
+        jData["sexe"] = corlist.at(i).at(3).toString();
+        jData["generaliste"] = (corlist.at(i).at(4).toInt()==1);
         Correspondant *cor = new Correspondant(jData);
         correspondants << cor;
-    } while( query.next() );
+    }
     return correspondants;
 }
 
@@ -552,38 +564,38 @@ QList<Correspondant*> DataBase::loadCorrespondantsALL()                         
             " CorCodepostal, CorVille, CorTelephone, CorSexe, cormedecin FROM " NOM_TABLE_CORRESPONDANTS
             " where cormedecin <> 1 or cormedecin is null"
             " order by metier, cornom, corprenom";
-    QSqlQuery query(req,DataBase::getInstance()->getDataBase());
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> corlist = StandardSelectSQL(req,ok);
+    if(!ok || corlist.size()==0)
         return correspondants;
-    do
+    for (int i=0; i<corlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"]         = query.value(0).toInt();
-        jData["nom"]        = query.value(1).toString();
-        jData["prenom"]     = query.value(2).toString();
-        jData["metier"]     = query.value(3).toString();
-        jData["adresse1"]   = query.value(4).toString();
-        jData["adresse2"]   = query.value(5).toString();
-        jData["adresse3"]   = query.value(6).toString();
-        jData["codepostal"] = query.value(7).toString();
-        jData["ville"]      = query.value(8).toString();
-        jData["telephone"]  = query.value(9).toString();
-        jData["sexe"]       = query.value(10).toString();
-        jData["generaliste"] = (query.value(11).toInt()==1);
+        jData["id"]         = corlist.at(i).at(0).toInt();
+        jData["nom"]        = corlist.at(i).at(1).toString();
+        jData["prenom"]     = corlist.at(i).at(2).toString();
+        jData["metier"]     = corlist.at(i).at(3).toString();
+        jData["adresse1"]   = corlist.at(i).at(4).toString();
+        jData["adresse2"]   = corlist.at(i).at(5).toString();
+        jData["adresse3"]   = corlist.at(i).at(6).toString();
+        jData["codepostal"] = corlist.at(i).at(7).toString();
+        jData["ville"]      = corlist.at(i).at(8).toString();
+        jData["telephone"]  = corlist.at(i).at(9).toString();
+        jData["sexe"]       = corlist.at(i).at(10).toString();
+        jData["generaliste"] = (corlist.at(i).at(11).toInt()==1);
         Correspondant *cor = new Correspondant(jData);
         correspondants << cor;
-    } while( query.next() );
+    }
     return correspondants;
 }
 
 void DataBase::SupprCorrespondant(int idcor)
 {
     QString id = QString::number(idcor);
-    QSqlQuery       ("delete from " NOM_TABLE_CORRESPONDANTS " where idcor = " + id, DataBase::getInstance()->getDataBase());
-    QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg  = null where idcormedmg  = " + id, getDataBase());
-    QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe1 = null where idcormespe1 = " + id, getDataBase());
-    QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe2 = null where idcormespe2 = " + id, getDataBase());
-    QSqlQuery       ("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe3 = null where idcormespe3 = " + id, getDataBase());
+    StandardSQL("delete from " NOM_TABLE_CORRESPONDANTS " where idcor = " + id);
+    StandardSQL("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg  = null where idcormedmg  = " + id);
+    StandardSQL("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe1 = null where idcormespe1 = " + id);
+    StandardSQL("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe2 = null where idcormespe2 = " + id);
+    StandardSQL("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormespe3 = null where idcormespe3 = " + id);
 }
 
 /*
@@ -595,25 +607,25 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatientAll(int idpatient)
     QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression,"
                   " compression, lienversfichier, formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
                   " where idpat = " + QString::number(idpatient);
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> doclist = StandardSelectSQL(req,ok);
+    if(!ok || doclist.size()==0)
         return docsexternes;
-    do
+    for (int i=0; i<doclist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = query.value(0).toInt();
+        jData["id"] = doclist.at(i).at(0).toInt();
         jData["idpat"] = idpatient;
-        jData["typedoc"] = query.value(1).toString();
-        jData["soustypedoc"] = query.value(2).toString();
-        jData["titre"] = query.value(3).toString();
-        jData["dateimpression"] = QDateTime(query.value(4).toDate(), query.value(4).toTime()).toMSecsSinceEpoch();
-        jData["compression"] = query.value(5).toInt();
-        jData["lienversfichier"] = query.value(6).toString();
-        jData["formatdoc"] = query.value(7).toString();
-        jData["importance"] = query.value(8).toInt();
+        jData["typedoc"] = doclist.at(i).at(1).toString();
+        jData["soustypedoc"] = doclist.at(i).at(2).toString();
+        jData["titre"] = doclist.at(i).at(3).toString();
+        jData["dateimpression"] = QDateTime(doclist.at(i).at(4).toDate(), doclist.at(i).at(4).toTime()).toMSecsSinceEpoch();
+        jData["compression"] = doclist.at(i).at(5).toInt();
+        jData["lienversfichier"] = doclist.at(i).at(6).toString();
+        jData["formatdoc"] = doclist.at(i).at(7).toString();
+        jData["importance"] = doclist.at(i).at(8).toInt();
         DocExterne *doc = new DocExterne(jData);
         docsexternes << doc;
-    } while( query.next() );
+    }
     return docsexternes;
 }
 
@@ -625,42 +637,38 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
                   " Dateimpression, compression, lienversfichier, ALD, UserEmetteur,"
                   " formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
                   " where idimpression = " + QString::number(idDoc);
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
-        return docexterneData;
-    if( !query.first() )
+    QList<QVariant> docdata = getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok || docdata.size()==0)
         return docexterneData;
     docexterneData["isallloaded"] = true;
 
-    docexterneData["id"] = query.value(0).toInt();
-    docexterneData["iduser"] = query.value(1).toInt();
-    docexterneData["idpat"] = query.value(2).toInt();
-    docexterneData["typedoc"] = query.value(3).toString();
-    docexterneData["soustypedoc"] = query.value(4).toString();
+    docexterneData["id"] = docdata.at(0).toInt();
+    docexterneData["iduser"] = docdata.at(1).toInt();
+    docexterneData["idpat"] = docdata.at(2).toInt();
+    docexterneData["typedoc"] = docdata.at(3).toString();
+    docexterneData["soustypedoc"] = docdata.at(4).toString();
 
-    docexterneData["titre"] = query.value(5).toString();
-    docexterneData["textentete"] = query.value(6).toString();
-    docexterneData["textcorps"] = query.value(7).toString();
-    docexterneData["textorigine"] = query.value(8).toString();
-    docexterneData["textpied"] = query.value(9).toString();
+    docexterneData["titre"] = docdata.at(5).toString();
+    docexterneData["textentete"] = docdata.at(6).toString();
+    docexterneData["textcorps"] = docdata.at(7).toString();
+    docexterneData["textorigine"] = docdata.at(8).toString();
+    docexterneData["textpied"] = docdata.at(9).toString();
 
-    docexterneData["dateimpression"] = QDateTime(query.value(10).toDate(), query.value(10).toTime()).toMSecsSinceEpoch();
-    docexterneData["compression"] = query.value(11).toInt();
-    docexterneData["lienversfichier"] = query.value(12).toString();
-    docexterneData["ALD"] = (query.value(13).toInt()==1);
-    docexterneData["useremetteur"] = query.value(14).toString();
+    docexterneData["dateimpression"] = QDateTime(docdata.at(10).toDate(), docdata.at(10).toTime()).toMSecsSinceEpoch();
+    docexterneData["compression"] = docdata.at(11).toInt();
+    docexterneData["lienversfichier"] = docdata.at(12).toString();
+    docexterneData["ALD"] = (docdata.at(13).toInt()==1);
+    docexterneData["useremetteur"] = docdata.at(14).toString();
 
-    docexterneData["formatdoc"] = query.value(15).toString();
-    docexterneData["importance"] = query.value(16).toInt();
-    query.finish();
+    docexterneData["formatdoc"] = docdata.at(15).toString();
+    docexterneData["importance"] = docdata.at(16).toInt();
+
     return docexterneData;
-
 }
 
-void DataBase::SupprDocExterne(int iddoc)
+void DataBase::SupprDocExterne(DocExterne* doc)
 {
-    QString id = QString::number(iddoc);
-    QSqlQuery       ("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + id, DataBase::getInstance()->getDataBase());
+    SupprRecordFromTable(doc->id(), "idImpression", NOM_TABLE_IMPRESSIONS);
 }
 
 
@@ -678,67 +686,64 @@ QList<Compte*> DataBase::loadComptesAllUsers()
     QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
                   " FROM " NOM_TABLE_COMPTES " as cmpt "
                   " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque ";
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> cptlist = StandardSelectSQL(req,ok);
+    if(!ok || cptlist.size()==0)
         return comptes;
-    do
+    for (int i=0; i<cptlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = query.value(0).toInt();
-        jData["idbanque"] = query.value(1).toInt();
-        jData["iduser"] = query.value(2).toInt();
-        jData["IBAN"] = query.value(3).toString();
-        jData["IntituleCompte"] = query.value(4).toString();
-        jData["nom"] = query.value(5).toString();
-        jData["solde"] = query.value(6).toDouble();
-        jData["partage"] = (query.value(7).toInt() == 1);
-        jData["desactive"] = (query.value(8).toInt() == 1);
-        jData["NomBanque"] = query.value(9).toString();
+        jData["id"] = cptlist.at(i).at(0).toInt();
+        jData["idbanque"] = cptlist.at(i).at(1).toInt();
+        jData["iduser"] = cptlist.at(i).at(2).toInt();
+        jData["IBAN"] = cptlist.at(i).at(3).toString();
+        jData["IntituleCompte"] = cptlist.at(i).at(4).toString();
+        jData["nom"] = cptlist.at(i).at(5).toString();
+        jData["solde"] = cptlist.at(i).at(6).toDouble();
+        jData["partage"] = (cptlist.at(i).at(7).toInt() == 1);
+        jData["desactive"] = (cptlist.at(i).at(8).toInt() == 1);
+        jData["NomBanque"] = cptlist.at(i).at(9).toString();
         Compte *cpt = new Compte(jData);
         comptes << cpt;
-    } while( query.next() );
+    }
 
     return comptes;
 }
 
 QList<Compte*> DataBase::loadComptesByUser(int idUser)
 {
-    QList<Compte*> comptes;
-    QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
-                  " FROM " NOM_TABLE_COMPTES " as cmpt "
-                  " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque "
-                  " WHERE idUser = " + QString::number(idUser);
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
-        return comptes;
     int idcptprefer=-1;
-    QString chercheComptePrefereRequete =
+    QString req =
             " select idcomptepardefaut from " NOM_TABLE_UTILISATEURS
             " where iduser = " + QString::number(idUser);
-    QSqlQuery chercheComptePreferQuery (chercheComptePrefereRequete, getDataBase());
-    if (chercheComptePreferQuery.size()>0)
-    {
-        chercheComptePreferQuery.first();
-        idcptprefer= chercheComptePreferQuery.value(0).toInt();
-    }
+    QList<QVariant> cptdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(ok && cptdata.size()>0 )
+        idcptprefer= cptdata.at(0).toInt();
 
-    do
+    QList<Compte*> comptes;
+    req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
+          " FROM " NOM_TABLE_COMPTES " as cmpt "
+          " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque "
+          " WHERE idUser = " + QString::number(idUser);
+    QList<QList<QVariant>> cptlist = StandardSelectSQL(req,ok);
+    if(!ok || cptlist.size()==0)
+        return comptes;
+    for (int i=0; i<cptlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = query.value(0).toInt();
-        jData["idbanque"] = query.value(1).toInt();
-        jData["iduser"] = query.value(2).toInt();
-        jData["IBAN"] = query.value(3).toString();
-        jData["IntituleCompte"] = query.value(4).toString();
-        jData["nom"] = query.value(5).toString();
-        jData["solde"] = query.value(6).toDouble();
-        jData["partage"] = (query.value(7).toInt() == 1);
-        jData["desactive"] = (query.value(8).toInt() == 1);
-        jData["NomBanque"] = query.value(9).toString();
-        jData["prefere"] = (query.value(0).toInt() == idcptprefer);
+        jData["id"] = cptlist.at(i).at(0).toInt();
+        jData["idbanque"] = cptlist.at(i).at(1).toInt();
+        jData["iduser"] = cptlist.at(i).at(2).toInt();
+        jData["IBAN"] = cptlist.at(i).at(3).toString();
+        jData["IntituleCompte"] = cptlist.at(i).at(4).toString();
+        jData["nom"] = cptlist.at(i).at(5).toString();
+        jData["solde"] = cptlist.at(i).at(6).toDouble();
+        jData["partage"] = (cptlist.at(i).at(7).toInt() == 1);
+        jData["desactive"] = (cptlist.at(i).at(8).toInt() == 1);
+        jData["NomBanque"] = cptlist.at(i).at(9).toString();
+        jData["prefere"] = (cptlist.at(i).at(0).toInt() == idcptprefer);
         Compte *cpt = new Compte(jData);
         comptes << cpt;
-    } while( query.next() );
+    }
 
     return comptes;
 }
@@ -746,19 +751,8 @@ QList<Compte*> DataBase::loadComptesByUser(int idUser)
 int DataBase::getMaxLigneBanque()
 {
     int a(0), b(0);
-    QString req = "select max(idligne) from " NOM_TABLE_ARCHIVESBANQUE;
-    QSqlQuery quer(req, getDataBase());
-    if (quer.size()>0){
-        quer.first();
-        a = quer.value(0).toInt();
-    }
-    req = "select max(idligne) from " NOM_TABLE_LIGNESCOMPTES;
-    QSqlQuery quer2(req, getDataBase());
-    if (quer2.size()>0){
-        quer2.first();
-        if (quer2.value(0).toInt()>a)
-            b = quer2.value(0).toInt();
-    }
+    a = selectMaxFromTable("idligne", NOM_TABLE_ARCHIVESBANQUE, ok);
+    a = selectMaxFromTable("idligne", NOM_TABLE_LIGNESCOMPTES, ok);
     return (((a<b)?b:a)+1);
 }
 
@@ -774,65 +768,62 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
                         " NoCheque, dep.idFacture, LienFichier, Echeancier, Intitule"
                         " FROM " NOM_TABLE_DEPENSES " dep left join " NOM_TABLE_FACTURES " fac on dep.idFacture = fac.idFacture"
                         " WHERE dep.idUser = " + QString::number(idUser);
-    QSqlQuery query (req,getDataBase());
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> deplist = StandardSelectSQL(req,ok);
+    if(!ok || deplist.size()==0)
         return depenses;
-
-    do
+    for (int i=0; i<deplist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["iddepense"]      = query.value(0).toInt();
+        jData["iddepense"]      = deplist.at(i).at(0).toInt();
         jData["iduser"]         = idUser;
-        jData["date"]           = query.value(1).toDate().toString("yyyy-MM-dd");
-        jData["reffiscale"]     = query.value(2).toString();
-        jData["objet"]          = query.value(3).toString();
-        jData["montant"]        = query.value(4).toDouble();
-        jData["famfiscale"]     = query.value(5).toString();
-        jData["monnaie"]        = query.value(6).toString();
-        jData["idrecette"]      = query.value(7).toInt();
-        jData["modepaiement"]   = query.value(8).toString();
-        jData["compte"]         = query.value(9).toInt();
-        jData["nocheque"]       = query.value(10).toInt();
-        jData["idfacture"]      = query.value(11).toInt();
-        jData["lienfacture"]    = query.value(12).toString();
-        jData["echeancier"]     = (query.value(13).toInt()==1);
-        jData["objetecheancier"]= query.value(14).toString();
+        jData["date"]           = deplist.at(i).at(1).toDate().toString("yyyy-MM-dd");
+        jData["reffiscale"]     = deplist.at(i).at(2).toString();
+        jData["objet"]          = deplist.at(i).at(3).toString();
+        jData["montant"]        = deplist.at(i).at(4).toDouble();
+        jData["famfiscale"]     = deplist.at(i).at(5).toString();
+        jData["monnaie"]        = deplist.at(i).at(6).toString();
+        jData["idrecette"]      = deplist.at(i).at(7).toInt();
+        jData["modepaiement"]   = deplist.at(i).at(8).toString();
+        jData["compte"]         = deplist.at(i).at(9).toInt();
+        jData["nocheque"]       = deplist.at(i).at(10).toInt();
+        jData["idfacture"]      = deplist.at(i).at(11).toInt();
+        jData["lienfacture"]    = deplist.at(i).at(12).toString();
+        jData["echeancier"]     = (deplist.at(i).at(13).toInt()==1);
+        jData["objetecheancier"]= deplist.at(i).at(14).toString();
         Depense *dep = new Depense(jData);
         depenses << dep;
-    } while( query.next() );
+    }
 
     return depenses;
 }
 
 void DataBase::loadDepenseArchivee(Depense *dep)
 {
-    bool archivee = (QSqlQuery ("select idLigne from " NOM_TABLE_ARCHIVESBANQUE
-                                  " where idDep = " + QString::number(dep->id()),
-                       getDataBase())
-                       .size() > 0);
+    bool archivee = false;
+    QString req = "select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idDep = " + QString::number(dep->id());
+    QList<QVariant> arcdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    archivee = ok && arcdata.size() > 0;
     if (!archivee)  // pour les anciens enregistrements qui étaient archivés sans l'id...
     {
-        archivee = (QSqlQuery("select idligne from " NOM_TABLE_ARCHIVESBANQUE
-                                " where LigneDate = '" + dep->date().toString("yyyy-MM-dd")
-                                + "' and LigneLibelle = '" + Utils::correctquoteSQL(dep->objet())
-                                + "' and LigneMontant = " + QString::number(dep->montant()),
-                      getDataBase())
-                      .size() > 0);
+        req = "select idligne from " NOM_TABLE_ARCHIVESBANQUE
+              " where LigneDate = '" + dep->date().toString("yyyy-MM-dd") +
+              "' and LigneLibelle = '" + Utils::correctquoteSQL(dep->objet()) +
+              "' and LigneMontant = " + QString::number(dep->montant());
+        arcdata = getFirstRecordFromStandardSelectSQL(req,ok);
+        archivee = ok && arcdata.size() > 0;
     }
     dep->setArchivee(archivee);
 }
 
 QStringList DataBase::ListeRubriquesFiscales()
 {
-    QString req = "SELECT reffiscale from " NOM_TABLE_RUBRIQUES2035 " where FamFiscale is not null and famfiscale <> 'Prélèvement personnel'";
-    QSqlQuery query (req, getDataBase());
     QStringList ListeRubriques;
-    ListeRubriques << tr("Prélèvement personnel");
-    for (int i = 0; i < query.size(); i++)
-    {
-            query.seek(i);
-            ListeRubriques << query.value(0).toString();
-    }
+    QString req = "SELECT reffiscale from " NOM_TABLE_RUBRIQUES2035 " where FamFiscale is not null and famfiscale <> 'Prélèvement personnel'";
+    QList<QList<QVariant>> rublist = StandardSelectSQL(req,ok);
+    if(!ok || rublist.size()==0)
+        return ListeRubriques;
+    for (int i=0; i<rublist.size(); ++i)
+        ListeRubriques << rublist.at(i).at(0).toString();
     return ListeRubriques;
 }
 
@@ -849,18 +840,18 @@ QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses,
             "'and Montant = " + QString::number(montant) +
             " and idUser = " + QString::number(iduser) +
             " order by DateDep";
-    QSqlQuery query (req,getDataBase());
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> deplist = StandardSelectSQL(req,ok);
+    if(!ok || deplist.size()==0)
         return listdepenses;
-    do
+    for (int i=0; i<deplist.size(); ++i)
     {
-        QMap<int, Depense*>::const_iterator itDepense = m_listDepenses.find(query.value(0).toInt());
+        QMap<int, Depense*>::const_iterator itDepense = m_listDepenses.find(deplist.at(i).at(0).toInt());
         if (itDepense != m_listDepenses.constEnd())
         {
             Depense *dep = itDepense.value();
             listdepenses << dep;
         }
-    } while( query.next() );
+    }
     return listdepenses;
 }
 
@@ -875,28 +866,27 @@ QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int inte
                   " where idCompte = " + QString::number(compte->id())
                 + " and lignedateconsolidation > '" + date.addDays(-intervalle).toString("yyyy-MM-dd") + "'"
                 + " and lignedateconsolidation <= '" + date.toString("yyyy-MM-dd") + "'";
-   QSqlQuery query (req,getDataBase());
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> arclist = StandardSelectSQL(req,ok);
+    if(!ok || arclist.size()==0)
         return archives;
-    do
+    for (int i=0; i<arclist.size(); ++i)
     {
        QJsonObject jData{};
-        jData["idligne"]                = query.value(0).toInt();
-        jData["idcompte"]               = query.value(1).toInt();
-        jData["iddepense"]              = query.value(2).toInt();
-        jData["idrecette"]              = query.value(3).toInt();
-        jData["idrecettespeciale"]      = query.value(4).toInt();
-        jData["idremisecheque"]         = query.value(5).toInt();
-        jData["lignedate"]              = query.value(6).toDate().toString("yyyy-MM-dd");
-        jData["lignelibelle"]           = query.value(7).toString();
-        jData["montant"]                = (query.value(9).toInt()==1? query.value(8).toDouble() : query.value(8).toDouble()*-1);
-        jData["lignetypeoperation"]     = query.value(10).toString();
-        jData["lignedateconsolidation"] = query.value(11).toDate().toString("yyyy-MM-dd");
-        jData["idarchive"]              = query.value(12).toInt();
+        jData["idligne"]                = arclist.at(i).at(0).toInt();
+        jData["idcompte"]               = arclist.at(i).at(1).toInt();
+        jData["iddepense"]              = arclist.at(i).at(2).toInt();
+        jData["idrecette"]              = arclist.at(i).at(3).toInt();
+        jData["idrecettespeciale"]      = arclist.at(i).at(4).toInt();
+        jData["idremisecheque"]         = arclist.at(i).at(5).toInt();
+        jData["lignedate"]              = arclist.at(i).at(6).toDate().toString("yyyy-MM-dd");
+        jData["lignelibelle"]           = arclist.at(i).at(7).toString();
+        jData["montant"]                = (arclist.at(i).at(9).toInt()==1? arclist.at(i).at(8).toDouble() : arclist.at(i).at(8).toDouble()*-1);
+        jData["lignetypeoperation"]     = arclist.at(i).at(10).toString();
+        jData["lignedateconsolidation"] = arclist.at(i).at(11).toDate().toString("yyyy-MM-dd");
+        jData["idarchive"]              = arclist.at(i).at(12).toInt();
         Archive *arc = new Archive(jData);
         archives << arc;
-    } while( query.next() );
-
+    }
     return archives;
 }
 
@@ -907,19 +897,19 @@ QList<Banque*> DataBase::loadBanques()
 {
     QList<Banque*> banques;
     QString req = "SELECT idBanque, idBanqueAbrege, NomBanque, CodeBanque FROM " NOM_TABLE_BANQUES;
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> banqlist = StandardSelectSQL(req,ok);
+    if(!ok || banqlist.size()==0)
         return banques;
-    do
+    for (int i=0; i<banqlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = query.value(0).toInt();
-        jData["idbanqueabrege"] = query.value(1).toString();
-        jData["nombanque"] = query.value(2).toString();
-        jData["codebanque"] = query.value(3).toInt();
+        jData["id"] = banqlist.at(i).at(0).toInt();
+        jData["idbanqueabrege"] = banqlist.at(i).at(1).toString();
+        jData["nombanque"] = banqlist.at(i).at(2).toString();
+        jData["codebanque"] = banqlist.at(i).at(3).toInt();
         Banque *bq = new Banque(jData);
         banques << bq;
-    } while( query.next() );
+    }
     return banques;
 }
 
@@ -930,22 +920,22 @@ QList<Tiers*> DataBase::loadTiersPayants()
 {
     QList<Tiers*> listetiers;
     QString req = "SELECT idtIERS, Nomtiers, AdresseTiers, Codepostaltiers, Villetiers, Telephonetiers, FaxTiers from " NOM_TABLE_TIERS;
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> tierslist = StandardSelectSQL(req,ok);
+    if(!ok || tierslist.size()==0)
         return listetiers;
-    do
+    for (int i=0; i<tierslist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = query.value(0).toInt();
-        jData["nomtiers"] = query.value(1).toInt();
-        jData["adressetiers"] = query.value(2).toString();
-        jData["codepostaltiers"] = query.value(3).toString();
-        jData["villetiers"] = query.value(4).toString();
-        jData["telephonetiers"] = query.value(5).toString();
-        jData["faxtiers"] = query.value(5).toString();
+        jData["id"] = tierslist.at(i).at(0).toInt();
+        jData["nomtiers"] = tierslist.at(i).at(1).toInt();
+        jData["adressetiers"] = tierslist.at(i).at(2).toString();
+        jData["codepostaltiers"] = tierslist.at(i).at(3).toString();
+        jData["villetiers"] = tierslist.at(i).at(4).toString();
+        jData["telephonetiers"] = tierslist.at(i).at(5).toString();
+        jData["faxtiers"] = tierslist.at(i).at(5).toString();
         Tiers *tiers = new Tiers(jData);
         listetiers << tiers;
-    } while( query.next() );
+    }
 
     return listetiers;
 }
@@ -954,16 +944,16 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
 {
     QList<TypeTiers*> types;
     QString req = "SELECT Tiers FROM " NOM_TABLE_LISTETIERS;
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> tierslist = StandardSelectSQL(req,ok);
+    if(!ok || tierslist.size()==0)
         return types;
-    do
+    for (int i=0; i<tierslist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["typetiers"] = query.value(0).toString();
+        jData["typetiers"] = tierslist.at(i).at(0).toString();
         TypeTiers *type = new TypeTiers(jData);
         types << type;
-    } while( query.next() );
+    }
     return types;
 }
 
@@ -979,24 +969,24 @@ QList<Cotation*> DataBase::loadCotations()
 {
     QString  req = " select idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, Frequence from " NOM_TABLE_COTATIONS;
     QList<Cotation*> cotations;
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> cotlist = StandardSelectSQL(req,ok);
+    if(!ok || cotlist.size()==0)
         return cotations;
-    do
+    for (int i=0; i<cotlist.size(); ++i)
     {
         QJsonObject jcotation{};
-        jcotation["id"] = query.value(0).toInt();
-        jcotation["typeacte"] = query.value(1).toString();
-        jcotation["montantoptam"] = query.value(2).toDouble();
-        jcotation["montantnonoptam"] = query.value(3).toDouble();
-        jcotation["montantpratique"] = query.value(4).toDouble();
-        jcotation["ccam"] = (query.value(5).toInt()==1);
-        jcotation["iduser"] = query.value(6).toInt();
-        jcotation["frequence"] = query.value(7).toInt();
+        jcotation["id"] = cotlist.at(i).at(0).toInt();
+        jcotation["typeacte"] = cotlist.at(i).at(1).toString();
+        jcotation["montantoptam"] = cotlist.at(i).at(2).toDouble();
+        jcotation["montantnonoptam"] = cotlist.at(i).at(3).toDouble();
+        jcotation["montantpratique"] = cotlist.at(i).at(4).toDouble();
+        jcotation["ccam"] = (cotlist.at(i).at(5).toInt()==1);
+        jcotation["iduser"] = cotlist.at(i).at(6).toInt();
+        jcotation["frequence"] = cotlist.at(i).at(7).toInt();
         jcotation["descriptif"] = "";
         Cotation *cotation = new Cotation(jcotation);
         cotations << cotation;
-    } while( query.next() );
+    }
     return cotations;
 }
 
@@ -1012,53 +1002,51 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
           " FROM " NOM_TABLE_COTATIONS " cot left join " NOM_TABLE_CCAM " cc on cot.typeacte= cc.codeccam"
           " where idUser = " + QString::number(iduser) + " and typeacte in (select codeccam from " NOM_TABLE_CCAM ")"
           " order by typeacte";
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req))
+    QList<QList<QVariant>> cotlist = StandardSelectSQL(req,ok);
+    if(!ok)
         return cotations;
-    if (query.first())
-    do
+    for (int i=0; i<cotlist.size(); ++i)
     {
         ++k;
         QJsonObject jcotation{};
         jcotation["id"] = k;
-        jcotation["idcotation"] = query.value(0).toInt();
-        jcotation["typeacte"] = query.value(1).toString();
-        jcotation["montantoptam"] = query.value(2).toDouble();
-        jcotation["montantnonoptam"] = query.value(3).toDouble();
-        jcotation["montantpratique"] = query.value(4).toDouble();
-        jcotation["ccam"] = (query.value(5).toInt()==1);
+        jcotation["idcotation"] = cotlist.at(i).at(0).toInt();
+        jcotation["typeacte"] = cotlist.at(i).at(1).toString();
+        jcotation["montantoptam"] = cotlist.at(i).at(2).toDouble();
+        jcotation["montantnonoptam"] = cotlist.at(i).at(3).toDouble();
+        jcotation["montantpratique"] = cotlist.at(i).at(4).toDouble();
+        jcotation["ccam"] = (cotlist.at(i).at(5).toInt()==1);
         jcotation["iduser"] = iduser;
-        jcotation["frequence"] = query.value(6).toInt();
-        jcotation["descriptif"] = query.value(7).toString();
+        jcotation["frequence"] = cotlist.at(i).at(6).toInt();
+        jcotation["descriptif"] = cotlist.at(i).at(7).toString();
         Cotation *cotation = new Cotation(jcotation);
         cotations << cotation;
-    } while( query.next() );
+    }
     req = " SELECT idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, Frequence, null as nom"
           " FROM "  NOM_TABLE_COTATIONS
           " where idUser = " + QString::number(iduser) +
           " and typeacte not in (select codeccam from  " NOM_TABLE_CCAM ")"
           " order by typeacte";
-    QSqlQuery query1(req, getDataBase() );
-    if( erreurRequete(query1, req) || !query1.first())
+    cotlist = StandardSelectSQL(req,ok);
+    if(!ok || cotlist.size()==0)
         return cotations;
-    do
+    for (int i=0; i<cotlist.size(); ++i)
     {
         k++;
         QJsonObject jcotation{};
         jcotation["id"] = k;
-        jcotation["idcotation"] = query1.value(0).toInt();
-        jcotation["typeacte"] = query1.value(1).toString();
-        jcotation["montantoptam"] = query1.value(2).toDouble();
-        jcotation["montantnonoptam"] = query1.value(3).toDouble();
-        jcotation["montantpratique"] = query1.value(4).toDouble();
-        jcotation["ccam"] = (query1.value(5).toInt()==1);
+        jcotation["idcotation"] = cotlist.at(i).at(0).toInt();
+        jcotation["typeacte"] = cotlist.at(i).at(1).toString();
+        jcotation["montantoptam"] = cotlist.at(i).at(2).toDouble();
+        jcotation["montantnonoptam"] = cotlist.at(i).at(3).toDouble();
+        jcotation["montantpratique"] = cotlist.at(i).at(4).toDouble();
+        jcotation["ccam"] = (cotlist.at(i).at(5).toInt()==1);
         jcotation["iduser"] = iduser;
-        jcotation["frequence"] = query1.value(6).toInt();
-        jcotation["descriptif"] = query1.value(7).toString();
+        jcotation["frequence"] = cotlist.at(i).at(6).toInt();
+        jcotation["descriptif"] = cotlist.at(i).at(7).toString();
         Cotation *cotation = new Cotation(jcotation);
         cotations << cotation;
-    } while( query1.next() );
-
+    }
     return cotations;
 }
 
@@ -1069,13 +1057,11 @@ QStringList DataBase::loadTypesCotations()
                   " union "
                   " select codeccam as code from " NOM_TABLE_CCAM
                   " order by code asc";
-    QSqlQuery query(req, getDataBase());
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> cotlist = StandardSelectSQL(req,ok);
+    if(!ok || cotlist.size()==0)
         return listcotations;
-    do
-    {
-        listcotations << query.value(0).toString();
-    } while (query.next());
+    for (int i=0; i<cotlist.size(); ++i)
+        listcotations << cotlist.at(i).at(0).toString();
     return listcotations;
 }
 
@@ -1084,25 +1070,25 @@ QStringList DataBase::loadTypesCotations()
 */
 QList<Motif*> DataBase::loadMotifs()
 {
-    QString  req = "SELECT idMotifsRDV, Motif, Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre FROM "  NOM_TABLE_MOTIFSRDV " ORDER BY NoOrdre";
     QList<Motif*> motifs;
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QString  req = "SELECT idMotifsRDV, Motif, Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre FROM "  NOM_TABLE_MOTIFSRDV " ORDER BY NoOrdre";
+    QList<QList<QVariant>> mtflist = StandardSelectSQL(req,ok);
+    if(!ok || mtflist.size()==0)
         return motifs;
-    do
+    for (int i=0; i<mtflist.size(); ++i)
     {
         QJsonObject jmotif{};
-        jmotif["id"] = query.value(0).toInt();
-        jmotif["motif"] = query.value(1).toString();
-        jmotif["raccourci"] = query.value(2).toString();
-        jmotif["couleur"] = query.value(3).toString();
-        jmotif["duree"] = query.value(4).toInt();
-        jmotif["pardefaut"] = (query.value(5).toInt()==1);
-        jmotif["utiliser"] = (query.value(6).toInt()==1);
-        jmotif["noordre"] = query.value(7).toInt();
+        jmotif["id"] = mtflist.at(i).at(0).toInt();
+        jmotif["motif"] = mtflist.at(i).at(1).toString();
+        jmotif["raccourci"] = mtflist.at(i).at(2).toString();
+        jmotif["couleur"] = mtflist.at(i).at(3).toString();
+        jmotif["duree"] = mtflist.at(i).at(4).toInt();
+        jmotif["pardefaut"] = (mtflist.at(i).at(5).toInt()==1);
+        jmotif["utiliser"] = (mtflist.at(i).at(6).toInt()==1);
+        jmotif["noordre"] = mtflist.at(i).at(7).toInt();
         Motif *motif = new Motif(jmotif);
         motifs << motif;
-    } while( query.next() );
+    }
     return motifs;
 }
 
@@ -1130,25 +1116,24 @@ QList<Site*> DataBase::loadSitesByUser(int idUser)
 QList<Site*> DataBase::loadSites(QString req)
 {
     QList<Site*> etabs;
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> sitlist = StandardSelectSQL(req,ok);
+    if(!ok || sitlist.size()==0)
         return etabs;
-
-    do
+    for (int i=0; i<sitlist.size(); ++i)
     {
         QJsonObject jEtab{};
-        jEtab["idLieu"] = query.value(0).toInt();
-        jEtab["nomLieu"] = query.value(1).toString();
-        jEtab["adresse1"] = query.value(2).toString();
-        jEtab["adresse2"] = query.value(3).toString();
-        jEtab["adresse3"] = query.value(4).toString();
-        jEtab["codePostal"] = query.value(5).toInt();
-        jEtab["ville"] = query.value(6).toString();
-        jEtab["telephone"] = query.value(7).toString();
-        jEtab["fax"] = query.value(8).toString();
+        jEtab["idLieu"] = sitlist.at(i).at(0).toInt();
+        jEtab["nomLieu"] = sitlist.at(i).at(1).toString();
+        jEtab["adresse1"] = sitlist.at(i).at(2).toString();
+        jEtab["adresse2"] = sitlist.at(i).at(3).toString();
+        jEtab["adresse3"] = sitlist.at(i).at(4).toString();
+        jEtab["codePostal"] = sitlist.at(i).at(5).toInt();
+        jEtab["ville"] = sitlist.at(i).at(6).toString();
+        jEtab["telephone"] = sitlist.at(i).at(7).toString();
+        jEtab["fax"] = sitlist.at(i).at(8).toString();
         Site *etab = new Site(jEtab);
         etabs << etab;
-    } while( query.next() );
+    }
 
     return etabs;
 }
@@ -1163,19 +1148,18 @@ Villes* DataBase::loadVillesAll()
 
     QString req = "select ville_id, codePostal, ville "
                   "from " NOM_TABLE_VILLES;
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> villist = StandardSelectSQL(req,ok);
+    if(!ok || villist.size()==0)
         return villes;
-
-    do
+    for (int i=0; i<villist.size(); ++i)
     {
         QJsonObject jEtab{};
-        jEtab["ville_id"] = query.value(0).toInt();
-        jEtab["codePostal"] = query.value(1).toString();
-        jEtab["ville"] = query.value(2).toString();
+        jEtab["ville_id"] = villist.at(i).at(0).toInt();
+        jEtab["codePostal"] = villist.at(i).at(1).toString();
+        jEtab["ville"] = villist.at(i).at(2).toString();
         Ville *ville = new Ville(jEtab);
         villes->addVille(ville);
-    } while( query.next() );
+    }
 
     return villes;
 }
@@ -1192,36 +1176,35 @@ QList<Patient*> DataBase::loadPatientAll()
                   " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte "
                   " ORDER BY PatNom, PatPrenom, PatDDN ";
 
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QList<QVariant>> patlist = StandardSelectSQL(req,ok);
+    if(!ok || patlist.size()==0)
         return patients;
-    do
+    for (int i=0; i<patlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = query.value(0).toInt();
-        jData["nom"] = query.value(1).toString();
-        jData["prenom"] = query.value(2).toString();
-        jData["sexe"] = query.value(4).toString();
-        jData["dateDeNaissance"] = QDateTime(query.value(3).toDate()).toMSecsSinceEpoch();
+        jData["id"] = patlist.at(i).at(0).toInt();
+        jData["nom"] = patlist.at(i).at(1).toString();
+        jData["prenom"] = patlist.at(i).at(2).toString();
+        jData["sexe"] = patlist.at(i).at(4).toString();
+        jData["dateDeNaissance"] = QDateTime(patlist.at(i).at(3).toDate()).toMSecsSinceEpoch();
         Patient *patient = new Patient(jData);
         patients << patient;
-    } while( query.next() );
-
+    }
     return patients;
 }
 Patient* DataBase::loadPatientById(int idPat)
 {
     Patient *patient = new Patient();
     QString req = "select IdPat, PatNom, PatPrenom, PatDDN, Sexe from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idPat);
-    QSqlQuery query(req, getDataBase() );
-    if( erreurRequete(query, req) || !query.first())
+    QList<QVariant> patdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if( !ok || patdata.size()==0 )
         return patient;
     QJsonObject jData{};
-    jData["id"] = query.value(0).toInt();
-    jData["nom"] = query.value(1).toString();
-    jData["prenom"] = query.value(2).toString();
-    jData["sexe"] = query.value(4).toString();
-    jData["dateDeNaissance"] = QDateTime(query.value(3).toDate()).toMSecsSinceEpoch();
+    jData["id"] = patdata.at(0).toInt();
+    jData["nom"] = patdata.at(1).toString();
+    jData["prenom"] = patdata.at(2).toString();
+    jData["sexe"] = patdata.at(4).toString();
+    jData["dateDeNaissance"] = QDateTime(patdata.at(3).toDate()).toMSecsSinceEpoch();
     patient->setData(jData);
 
     return patient;
@@ -1233,11 +1216,13 @@ Patient* DataBase::loadPatientById(int idPat)
 //Pas normal, les mots de passes doivent etre chiffrés
 QString DataBase::getMDPAdmin()
 {
-    QSqlQuery mdpquer("select mdpadmin from " NOM_TABLE_PARAMSYSTEME, getDataBase() );
-    mdpquer.first();
-    if (mdpquer.value(0).toString() == "")
-        QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'", getDataBase() );
-    return (mdpquer.value(0).toString() != ""? mdpquer.value(0).toString() : NOM_MDPADMINISTRATEUR);
+    QString mdp ("");
+    QList<QVariant> mdpdata = getFirstRecordFromStandardSelectSQL("select mdpadmin from " NOM_TABLE_PARAMSYSTEME,ok);
+    if( !ok || mdpdata.size()==0 )
+        StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'");
+    else if (mdpdata.at(0) == "")
+        StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'");
+    return (mdpdata.at(0).toString() != ""? mdpdata.at(0).toString() : NOM_MDPADMINISTRATEUR);
 }
 
 
@@ -1274,43 +1259,43 @@ QString DataBase::createActeRequest(int idActe, int idPat)
 
     return requete;
 }
-QJsonObject DataBase::extractActeData(QSqlQuery query)
+QJsonObject DataBase::extractActeData(QList<QVariant> actdata)
 {
     QJsonObject data{};
-    data["id"] = query.value(0).toInt();
-    data["idPatient"] = query.value(1).toInt();
-    data["idUser"] = query.value(2).toInt();
-    data["date"] = QDateTime(query.value(3).toDate()).toMSecsSinceEpoch();
-    data["motif"] = query.value(4).toString();
-    data["texte"] = query.value(5).toString();
-    data["conclusion"] = query.value(6).toString();
-    data["courrierStatus"] = query.value(7).toString();
-    data["cotation"] = query.value(8).toString();
-    data["montant"] = query.value(9).toDouble();
-    data["monnaie"] = query.value(10).toString();
-    data["idCreatedBy"] = query.value(11).toInt();
-    data["idUserComptable"] = query.value(12).toInt();
-    data["idUserParent"] = query.value(13).toInt();
+    data["id"] = actdata.at(0).toInt();
+    data["idPatient"] = actdata.at(1).toInt();
+    data["idUser"] = actdata.at(2).toInt();
+    data["date"] = QDateTime(actdata.at(3).toDate()).toMSecsSinceEpoch();
+    data["motif"] = actdata.at(4).toString();
+    data["texte"] = actdata.at(5).toString();
+    data["conclusion"] = actdata.at(6).toString();
+    data["courrierStatus"] = actdata.at(7).toString();
+    data["cotation"] = actdata.at(8).toString();
+    data["montant"] = actdata.at(9).toDouble();
+    data["monnaie"] = actdata.at(10).toString();
+    data["idCreatedBy"] = actdata.at(11).toInt();
+    data["idUserComptable"] = actdata.at(12).toInt();
+    data["idUserParent"] = actdata.at(13).toInt();
 
-    if( query.value(14).isNull() )
+    if( actdata.at(14).isNull() )
         data["agePatient"] = -1;
     else
-        data["agePatient"] = QDateTime(query.value(14).toDate()).toMSecsSinceEpoch();
+        data["agePatient"] = QDateTime(actdata.at(14).toDate()).toMSecsSinceEpoch();
 
-    data["noActe"] = query.value(15).toInt();
-    data["idActeMin"] = query.value(16).toInt();
-    data["idActeMax"] = query.value(17).toInt();
-    data["nbActes"] = query.value(18).toInt();
+    data["noActe"] = actdata.at(15).toInt();
+    data["idActeMin"] = actdata.at(16).toInt();
+    data["idActeMax"] = actdata.at(17).toInt();
+    data["nbActes"] = actdata.at(18).toInt();
 
-    if( query.value(19).isNull() )
+    if( actdata.at(19).isNull() )
         data["paiementType"] = "";
     else
-        data["paiementType"] = query.value(19).toString();
+        data["paiementType"] = actdata.at(19).toString();
 
-    if( query.value(20).isNull() )
+    if( actdata.at(20).isNull() )
         data["paiementTiers"] = "";
     else
-        data["paiementTiers"] = query.value(20).toString();
+        data["paiementTiers"] = actdata.at(20).toString();
 
     return data;
 }
@@ -1320,11 +1305,11 @@ Acte* DataBase::loadActeById(int idActe)
     Acte *acte = new Acte(idActe, 0, 0);
     if( idActe == 0 )
         return acte;
-    QString requete = createActeRequest(idActe, 0);
-    QSqlQuery query(requete, getDataBase());
-    if( erreurRequete(query, requete) || !query.first() )
+    QString req = createActeRequest(idActe, 0);
+    QList<QVariant> actdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if( !ok || actdata.size()==0 )
         return acte;
-    QJsonObject data = extractActeData(query);
+    QJsonObject data = extractActeData(actdata);
     acte->setData(data);
     return acte;
 }
@@ -1334,17 +1319,17 @@ QMap<int, Acte*> DataBase::loadActesByIdPat(int idPat)
     QMap<int, Acte*> list;
     if( idPat == 0 )
         return list;
-    QString requete = createActeRequest(0, idPat);
-    QSqlQuery query(requete, getDataBase());
-    if( erreurRequete(query, requete) || !query.first() )
+    QString req = createActeRequest(0, idPat);
+    QList<QList<QVariant>> actlist = StandardSelectSQL(req,ok);
+    if(!ok || actlist.size()==0)
         return list;
-    do
+    for (int i=0; i<actlist.size(); ++i)
     {
-        QJsonObject data = extractActeData(query);
+        QJsonObject data = extractActeData(actlist.at(i));
         Acte *acte = new Acte();
         acte->setData(data);
         list[acte->id()] = acte;
-    } while( query.next() );
+    }
     return list;
 }
 
@@ -1356,17 +1341,15 @@ double DataBase::getActeMontant(int idActe)
                   " FROM " NOM_TABLE_LIGNESPAIEMENTS " lp "
                   " LEFT JOIN " NOM_TABLE_RECETTES " lr on lr.idRecette = lp.idRecette "
                   " WHERE idActe = " + QString::number(idActe);
-    QSqlQuery query(req, getDataBase());
-    DataBase::getInstance()->erreurRequete(query, req, "");
-    if( !query.first() )
+    QList<QList<QVariant>> mtntlist = StandardSelectSQL(req,ok);
+    if(!ok || mtntlist.size()==0)
         return montant;
-    do
+    for (int i=0; i<mtntlist.size(); ++i)
     {
-        if (query.value(1).toString() == "F")
-            montant += (query.value(0).toDouble() / 6.55957);
+        if (mtntlist.at(i).at(1).toString() == "F")
+            montant += (mtntlist.at(i).at(0).toDouble() / 6.55957);
         else
-            montant += query.value(0).toDouble();
-    } while( query.next() );
-
+            montant += mtntlist.at(i).at(0).toDouble();
+    }
     return montant;
 }

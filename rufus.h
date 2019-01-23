@@ -348,7 +348,6 @@ private:
 
     // TCPServer, TCPSocket
     bool                UtiliseTCP;
-    QString             currentmsg, erreurmsg;
     QStringList         gListSockets;
     TcpSocket           *TcPConnect;
     void                envoieMessage(QString msg);                     /* envoi d'un message au serveur pour être redispatché vers tous les clients */

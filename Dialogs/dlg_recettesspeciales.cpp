@@ -330,8 +330,8 @@ void dlg_recettesspeciales::EnregistreRecette()
         db->rollback();
         return;
     }
-
-    idRec       = QString::number(db->selectMaxFromTable("idrecette", NOM_TABLE_RECETTESSPECIALES));
+    bool ok;
+    idRec       = QString::number(db->selectMaxFromTable("idrecette", NOM_TABLE_RECETTESSPECIALES, ok));
 
     // insertion de l'écriture dans la table lignescomptes quand il s'agit d'un virement ou d'un dépôt d'espèces
     if (Paiement == NOM_VIREMENT || Paiement == NOM_ESPECES)

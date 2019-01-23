@@ -71,9 +71,9 @@ private:
     QString m_server;
     int m_port;
     bool m_useSSL;
+    bool ok;
 
     QSqlDatabase m_db;
-
 
 public:
     static DataBase *getInstance();
@@ -102,7 +102,7 @@ public:
     bool                    locktables(QStringList ListTables, QString ModeBlocage = "WRITE");
     void                    unlocktables();
     bool                    testconnexionbase();
-    int                     selectMaxFromTable(QString nomchamp, QString nomtable, QString errormsg="");
+    int                     selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, QString errormsg="");
     bool                    SupprRecordFromTable(int id, QString nomChamp, QString nomtable, QString errormsg="");
     QList<QList<QVariant>>  SelectRecordsFromTable(QStringList listselectChamp, QString nomtable, bool &OK, QString where = "", QString orderby="", bool distinct=false, QString errormsg="");
     bool                    UpdateTable(QString nomtable, QHash<QString, QString>, QString where, QString errormsg="");
@@ -131,7 +131,7 @@ public:
     */
     QList<DocExterne*> loadDoscExternesByPatientAll(int idpatient);
     QJsonObject loadDocExterneData(int idDoc);
-    void    SupprDocExterne(int iddoc);
+    void    SupprDocExterne(DocExterne* doc);
 
     /*
      * Compta
@@ -191,7 +191,7 @@ public:
     */
 private:
     QString createActeRequest(int idActe, int idPat);
-    QJsonObject extractActeData(QSqlQuery query);
+    QJsonObject extractActeData(QList<QVariant> actdata);
 public:
     Acte* loadActeById(int idActe);
     QMap<int, Acte*> loadActesByIdPat(int idPat);

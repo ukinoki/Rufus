@@ -154,6 +154,7 @@ void dlg_remisecheques::Slot_CorrigeRemise()
 
 void dlg_remisecheques::Slot_ImprimepushButton()
 {
+    bool ok;
     if (ui->ListeChequesupTableWidget->rowCount() == 0)
     {
         UpMessageBox msgbox;
@@ -217,7 +218,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         if (!db->createtransaction(QStringList() << NOM_TABLE_REMISECHEQUES))
             return;
         //On récupére l'idRemise
-        int idRemise = db->selectMaxFromTable("idRemCheq", NOM_TABLE_REMISECHEQUES) + 1;
+        int idRemise = db->selectMaxFromTable("idRemCheq", NOM_TABLE_REMISECHEQUES, ok) + 1;
         // on enregistre la remise dans la table remisecheques
         if (!db->StandardSQL(" INSERT INTO " NOM_TABLE_REMISECHEQUES " (idRemCheq, Montant, RCDate, idCompte) VALUES (" + QString::number(idRemise) +
                                 "," + QString::number(Total) + ", NOW(),'" + ui->ComptecomboBox->currentData().toString() +"')"))
