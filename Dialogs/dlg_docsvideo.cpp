@@ -268,8 +268,6 @@ void dlg_docsvideo::ValideFiche()
     QHash<QString,QVariant> listbinds;
     bool b = false;
     bool ok;
-        if (!db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS))
-            return;
     int idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok) + 1;
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
@@ -285,7 +283,6 @@ void dlg_docsvideo::ValideFiche()
     listbinds["lienversfichier"] =  NomFileVideoDoc;
     listbinds["FormatDoc"] =        VIDEO;
     b = db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds);
-    db->unlocktables();
     if(!b)
     {
         UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));

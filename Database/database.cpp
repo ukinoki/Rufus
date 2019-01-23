@@ -752,7 +752,7 @@ int DataBase::getMaxLigneBanque()
 {
     int a(0), b(0);
     a = selectMaxFromTable("idligne", NOM_TABLE_ARCHIVESBANQUE, ok);
-    a = selectMaxFromTable("idligne", NOM_TABLE_LIGNESCOMPTES, ok);
+    b = selectMaxFromTable("idligne", NOM_TABLE_LIGNESCOMPTES, ok);
     return (((a<b)?b:a)+1);
 }
 
@@ -818,10 +818,11 @@ void DataBase::loadDepenseArchivee(Depense *dep)
 QStringList DataBase::ListeRubriquesFiscales()
 {
     QStringList ListeRubriques;
-    QString req = "SELECT reffiscale from " NOM_TABLE_RUBRIQUES2035 " where FamFiscale is not null and famfiscale <> 'Prélèvement personnel'";
+    QString req = "SELECT reffiscale from " NOM_TABLE_RUBRIQUES2035 " where FamFiscale is not null and famfiscale <> 'Prélèvement personnel' order by reffiscale";
     QList<QList<QVariant>> rublist = StandardSelectSQL(req,ok);
     if(!ok || rublist.size()==0)
         return ListeRubriques;
+    ListeRubriques << "Prélèvement personnel";
     for (int i=0; i<rublist.size(); ++i)
         ListeRubriques << rublist.at(i).at(0).toString();
     return ListeRubriques;

@@ -439,9 +439,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                  * Si on est en accès distant, l'enregistrement se fait dans la table Impressions et le contenu du fichier est copié dans le champ blob de la table de la table
                  * _______________________________________________________________________________________________________________________________________________________
                 */
-                db->locktables(QStringList() << NOM_TABLE_IMPRESSIONS);
-                int idimpr(0);
-                idimpr = db->selectMaxFromTable("idimpression",  NOM_TABLE_IMPRESSIONS, ok)+1;
+                int idimpr = db->selectMaxFromTable("idimpression",  NOM_TABLE_IMPRESSIONS, ok)+1;
 
                 QString NomFileDoc = idPatient + "_"
                         + Typedoc + "_"
@@ -569,7 +567,6 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                         EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
                     }
                 }
-                db->unlocktables();
             }
         }
     }

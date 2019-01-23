@@ -238,7 +238,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
 
 
         // on enregistre les lignes de remises
-        db->createtransaction(QStringList() << NOM_TABLE_REMISECHEQUES << NOM_TABLE_RECETTESSPECIALES << NOM_TABLE_RECETTES << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_BANQUES << NOM_TABLE_USERSCONNECTES);
+        db->createtransaction(QStringList() << NOM_TABLE_REMISECHEQUES << NOM_TABLE_RECETTESSPECIALES << NOM_TABLE_RECETTES << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_BANQUES << NOM_TABLE_USERSCONNECTES << NOM_TABLE_ARCHIVESBANQUE);
 
         //  et on update tous les chèques déposés avec cet IdRemise dans la table chèques
         for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)

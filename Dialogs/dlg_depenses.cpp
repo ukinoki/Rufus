@@ -523,7 +523,7 @@ void dlg_depenses::EnregistreDepense()
                                                                        "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
-    db->locktables(QStringList() << NOM_TABLE_DEPENSES << NOM_TABLE_LIGNESCOMPTES);
+    db->locktables(QStringList() << NOM_TABLE_DEPENSES << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_ARCHIVESBANQUE);
 
     QHash<QString, QString> listsets;
     listsets.insert("DateDep",       ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));

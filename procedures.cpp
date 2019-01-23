@@ -291,8 +291,6 @@ void Procedures::MAJflagMG()
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
     if (!OKTCP || db->getMode() == DataBase::Distant)
     {
-        if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
-            return;
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
         int a = 0;
         QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
@@ -301,7 +299,6 @@ void Procedures::MAJflagMG()
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMG = " + QString::number(a);
         }
         db->StandardSQL(MAJreq);
-        db->unlocktables();
     }
 }
 
@@ -316,8 +313,6 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
     if (!OKTCP || db->getMode() == DataBase::Distant)
     {
         //qDebug() << "MAJTcpMsgEtFlagSalDat()";
-        if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
-            return;
         //qDebug() << "MAJTcpMsgEtFlagSalDat() lock OK";
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagSalDat) VALUES (1)";
         int a = 0;
@@ -327,7 +322,6 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagSalDat = " + QString::number(a);
         }
         db->StandardSQL(MAJreq);
-        db->unlocktables();
     }
 }
 
@@ -339,8 +333,6 @@ void Procedures::MAJflagMessages()
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
     if (!OKTCP || db->getMode() == DataBase::Distant)
     {
-        if (!db->locktables(QStringList(NOM_TABLE_FLAGS)))
-            return;
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMessages) VALUES (1)";
         int a = 0;
         QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " NOM_TABLE_FLAGS, ok);
@@ -349,7 +341,6 @@ void Procedures::MAJflagMessages()
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMessages = " + QString::number(a);
         }
         db->StandardSQL(MAJreq);
-        db->unlocktables();
     }
 }
 
@@ -1559,11 +1550,10 @@ void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on
     QString req = "select idCompte, nomcompteabrege, desactive, userlogin from " NOM_TABLE_COMPTES " cpt"
                   " left outer join " NOM_TABLE_UTILISATEURS " usr on  usr.iduser = cpt.iduser"
                   " where cpt.idUser = " + QString::number(usercpt);
-    //qDebug() << req;
     QStandardItem *pitem0, *pitem1;
     QStandardItem *oitem0, *oitem1;
     QList<QList<QVariant>> cptlist = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur!"));
-    if (!ok)
+    if (ok)
     {
         for (int i = 0; i < cptlist.size(); i++)
         {
@@ -2150,6 +2140,18 @@ double Procedures::CalcBaseSize()
     return basesize;
 }
 
+/*!
+ *  \brief AskBupRestore
+ *  la fiche qui permet de paramètrer une opération de sauvegarde ou de restauration
+ *  \param restore :            true = restauration - false = backup
+ *  \param pathorigin :         le dossier de stockage de l'imagerie sur le serveur
+ *  \param pathdestination :    le dossier où se trouve la backup
+ *  \param OKini :              le rufus.ini est sauvegardé
+ *  \param OKRssces :           les fichiers ressources sont sauvegardé
+ *  \param OKimages :           les fichiers images sont sauvegardés
+ *  \param OKvideos :           les fichiers videos sont sauvegardés
+ *
+ */
 void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdestination, bool OKini, bool OKRssces, bool OKimages, bool OKvideos)
 {
     QMap<QString,double>      DataDir;

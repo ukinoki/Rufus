@@ -93,7 +93,7 @@ dlg_paiement::dlg_paiement(QList<int> ListidActeAPasser, int Mode, Procedures *p
     }
 
     gDataUser                               = Datas::I()->users->getUserById(gidUserACrediter);
-    if (gDataUser != nullptr)
+    if (gDataUser != Q_NULLPTR)
     {
         gNomUser                            = gDataUser->getLogin();
         gidCompteBancaireParDefaut          = gDataUser->getIdCompteEncaissHonoraires();
@@ -101,7 +101,7 @@ dlg_paiement::dlg_paiement(QList<int> ListidActeAPasser, int Mode, Procedures *p
         glistComptesEncaissmt               = proc->getListeComptesEncaissmtUser();
         glistComptesEncaissmtAvecDesactive  = proc->getListeComptesEncaissmtUserAvecDesactive();
     }
-    if( gDataUser == nullptr || glistComptesEncaissmt->rowCount() == 0)
+    if( gDataUser == Q_NULLPTR || glistComptesEncaissmt->rowCount() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + proc->getLogin(gidUserACrediter));
         InitOK = false;

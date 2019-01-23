@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("22-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("23-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8436,16 +8436,12 @@ int Rufus::LectureMesure(QString lidPatient, QString lPatNom, QString lPatPrenom
     }
     requete += Addrequete;
 
-    QSqlQuery LectureMesureQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(LectureMesureQuery,requete, MessageErreur))
+    QList<QVariant> mesdata = db->getFirstRecordFromStandardSelectSQL(requete, ok, MessageErreur);
+    if (!ok)
         return -1;
-    LectureMesureQuery.first();
-    if (LectureMesureQuery.size() == 0)
-    { // Aucune mesure trouvee pour ces criteres
+    if (mesdata.size() == 0)        // Aucune mesure trouvee pour ces criteres
         return 0;
-    }
-
-    return LectureMesureQuery.value(0).toInt();              // retourne idPatient
+    return mesdata.at(0).toInt();   // retourne idPatient
 }
 
 // ------------------------------------------------------------------------------------------
@@ -8490,8 +8486,8 @@ void Rufus::MAJMG(QObject *obj)
                 else
                 {
                     req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-                    QSqlQuery quer(req, db->getDataBase() );
-                    if (quer.size() == 0)
+                    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+                    if (!ok || patdata.size() == 0)
                         req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
                                     " (idPat, " + cbox->getChampCorrespondant() + ") VALUES (" + QString::number(gidPatient) + "," + QString::number(idcor) + ")";
                     else
@@ -8626,20 +8622,19 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     }
     else
     {
-        QString autrerequete = "select PatNom, PatPrenom from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(gdossierAOuvrir);
-        QSqlQuery autrequery (autrerequete,  db->getDataBase() );
-        if (db->erreurRequete(autrequery,autrerequete,""))
+        QString req = "select PatNom, PatPrenom from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(gdossierAOuvrir);
+        QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (!ok)
             return;
-        if (autrequery.size() == 0)
+        if (patdata.size() == 0)
         {
             UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ce patient"));
             return;
         }
         else
         {
-            autrequery  .first();
-            nom         = autrequery.value(0).toString();
-            prenom      = autrequery.value(1).toString();
+            nom         = patdata.at(0).toString();
+            prenom      = patdata.at(1).toString();
             Dlg_Docs    = new dlg_documents(gdossierAOuvrir, nom, prenom, this);
         }
     }
@@ -8813,9 +8808,10 @@ void    Rufus::RecopierDossier(int idARecopier)
     FermeDlgAnnexes();
 
     QString req = "select patnom from " NOM_TABLE_PATIENTS " where idpat = " + QString::number(idARecopier);
-    QSqlQuery quer(req, db->getDataBase() );
-    if (db->erreurRequete(quer,req, tr("Impossible de retrouver le dossier d'origine"))) return;
-    if (quer.size() == 0)
+    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver le dossier d'origine"));
+    if (!ok)
+        return;
+    if (patdata.size() == 0)
     {
         UpMessageBox::Watch(this,tr("Dossier à recopier non trouvé"));
         return;
@@ -8919,54 +8915,50 @@ void Rufus::ReconstruitCombosCorresp()
     QString req = "SELECT idPat, idCorMedMG, idCorMedSpe1, idCorMedSpe2, idCorMedSpe3, idCorNonMed FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
               " WHERE idPat = " + QString::number(gidPatient);
     //qDebug() << requete;
-    QSqlQuery DonneesMedicalesQuery (req, db->getDataBase() );
-    if (!db->erreurRequete(DonneesMedicalesQuery,req,"Impossible de retrouver les correspondants"))
+    QList<QVariant> meddata = db->getFirstRecordFromStandardSelectSQL(req,ok, tr("Impossible de retrouver les correspondants"));
+    if (ok && meddata.size()>0)
     {
-        if (DonneesMedicalesQuery.size() > 0)
+        QString tooltp = "";
+        if (meddata.at(1).toInt()>0)
         {
-            DonneesMedicalesQuery.first();
-            QString tooltp = "";
-            if (DonneesMedicalesQuery.value(1).toInt()>0)
-            {
-                int id = DonneesMedicalesQuery.value(1).toInt();
-                ui->MGupComboBox->setCurrentIndex
-                        (ui->MGupComboBox->findData(id));
-                tooltp = CalcToolTipCorrespondant(id);
-            }
-            else
-                ui->MGupComboBox->setCurrentIndex(-1);
-            ui->MGupComboBox->setImmediateToolTip(tooltp);
-            tooltp = "";
-            if (DonneesMedicalesQuery.value(2).toInt()>0)
-            {
-                int id = DonneesMedicalesQuery.value(2).toInt();
-                ui->AutresCorresp1upComboBox->setCurrentIndex
-                        (ui->AutresCorresp1upComboBox->findData(id));
-                tooltp = CalcToolTipCorrespondant(id);
-            }
-            else
-                ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
-            ui->AutresCorresp1upComboBox->setImmediateToolTip(tooltp);
-            tooltp = "";
-            if (DonneesMedicalesQuery.value(3).toInt()>0)
-            {
-                int id = DonneesMedicalesQuery.value(3).toInt();
-                ui->AutresCorresp2upComboBox->setCurrentIndex
-                        (ui->AutresCorresp2upComboBox->findData(id));
-                tooltp = CalcToolTipCorrespondant(id);
-            }
-            else
-                ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
-            ui->AutresCorresp2upComboBox->setImmediateToolTip(tooltp);
+            int id = meddata.at(1).toInt();
+            ui->MGupComboBox->setCurrentIndex
+                    (ui->MGupComboBox->findData(id));
+            tooltp = CalcToolTipCorrespondant(id);
         }
         else
+            ui->MGupComboBox->setCurrentIndex(-1);
+        ui->MGupComboBox->setImmediateToolTip(tooltp);
+        tooltp = "";
+        if (meddata.at(2).toInt()>0)
         {
-            MGlineEdit->clear();
-            AutresCorresp1LineEdit->clear();
-            AutresCorresp2LineEdit->clear();
+            int id = meddata.at(2).toInt();
+            ui->AutresCorresp1upComboBox->setCurrentIndex
+                    (ui->AutresCorresp1upComboBox->findData(id));
+            tooltp = CalcToolTipCorrespondant(id);
         }
-        OKModifierTerrain();
+        else
+            ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
+        ui->AutresCorresp1upComboBox->setImmediateToolTip(tooltp);
+        tooltp = "";
+        if (meddata.at(3).toInt()>0)
+        {
+            int id = meddata.at(3).toInt();
+            ui->AutresCorresp2upComboBox->setCurrentIndex
+                    (ui->AutresCorresp2upComboBox->findData(id));
+            tooltp = CalcToolTipCorrespondant(id);
+        }
+        else
+            ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
+        ui->AutresCorresp2upComboBox->setImmediateToolTip(tooltp);
     }
+    else
+    {
+        MGlineEdit->clear();
+        AutresCorresp1LineEdit->clear();
+        AutresCorresp2LineEdit->clear();
+    }
+    OKModifierTerrain();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9110,108 +9102,106 @@ void Rufus::RegleRefracteur(QString TypeMesure)
         req += " and QuelleMesure = '" + TypeMesure + "'";
     req += " And quelledistance <> 'P' order by idrefraction desc";
     //qDebug() << req;
-    QSqlQuery quer (req, db->getDataBase() );
-    db->erreurRequete(quer,req);
-    if (quer.size()>0)
+    QList<QVariant> refdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
+    if (ok && refdata.size()>0)
     {
-        quer.first();
         QString prefix = "";
         // Les axes
-        if (quer.value(2).toDouble()!=0.0)
+        if (refdata.at(2).toDouble()!=0.0)
         {
-            if (quer.value(2).toInt()<10)
+            if (refdata.at(2).toInt()<10)
                 prefix = "  ";
-            else if (quer.value(2).toInt()<100)
+            else if (refdata.at(2).toInt()<100)
                 prefix = " ";
-            Mesure["AxeOD"] = prefix + quer.value(2).toString();
+            Mesure["AxeOD"] = prefix + refdata.at(2).toString();
         }
         prefix = "";
-        if (quer.value(6).toDouble()!=0.0)
+        if (refdata.at(6).toDouble()!=0.0)
         {
-            if (quer.value(6).toInt()<10)
+            if (refdata.at(6).toInt()<10)
                 prefix = "  ";
-            else if (quer.value(6).toInt()<100)
+            else if (refdata.at(6).toInt()<100)
                 prefix = " ";
-            Mesure["AxeOG"] = prefix + quer.value(6).toString();
+            Mesure["AxeOG"] = prefix + refdata.at(6).toString();
         }
 
         // Les spheres
         prefix = "";
-        if (quer.value(0).toDouble()>0)
+        if (refdata.at(0).toDouble()>0)
         {
-            if (quer.value(0).toDouble()<10)
+            if (refdata.at(0).toDouble()<10)
                 prefix = "+0";
             else
                 prefix = "+";
-            Mesure["SphereOD"] = prefix + QString::number(quer.value(0).toDouble(),'f',2);
+            Mesure["SphereOD"] = prefix + QString::number(refdata.at(0).toDouble(),'f',2);
         }
-        else if (quer.value(0).toDouble()<0)
+        else if (refdata.at(0).toDouble()<0)
         {
-            prefix = QString::number(quer.value(0).toDouble(),'f',2);
-            if (quer.value(0).toDouble()>-10)
+            prefix = QString::number(refdata.at(0).toDouble(),'f',2);
+            if (refdata.at(0).toDouble()>-10)
                 prefix.replace("-", "-0");
             Mesure["SphereOD"] = prefix;
         }
         prefix = "";
-        if (quer.value(4).toDouble()>0)
+        if (refdata.at(4).toDouble()>0)
         {
-            if (quer.value(4).toDouble()<10)
+            if (refdata.at(4).toDouble()<10)
                 prefix = "+0";
             else
                 prefix = "+";
-            Mesure["SphereOG"] = prefix + QString::number(quer.value(4).toDouble(),'f',2);
+            Mesure["SphereOG"] = prefix + QString::number(refdata.at(4).toDouble(),'f',2);
         }
-        else if (quer.value(4).toDouble()<0)
+        else if (refdata.at(4).toDouble()<0)
         {
-            prefix = QString::number(quer.value(4).toDouble(),'f',2);
-            if (quer.value(4).toDouble()>-10)
+            prefix = QString::number(refdata.at(4).toDouble(),'f',2);
+            if (refdata.at(4).toDouble()>-10)
                 prefix.replace("-", "-0");
             Mesure["SphereOG"] = prefix;
         }
 
         // Les cylindres
         prefix = "";
-        if (quer.value(1).toDouble()>0)
+        if (refdata.at(1).toDouble()>0)
         {
-            if (quer.value(1).toDouble()<10)
+            if (refdata.at(1).toDouble()<10)
                 prefix = "+0";
             else
                 prefix = "+";
-            Mesure["CylOD"] = prefix + QString::number(quer.value(1).toDouble(),'f',2);
+            Mesure["CylOD"] = prefix + QString::number(refdata.at(1).toDouble(),'f',2);
         }
-        else if (quer.value(1).toDouble()<0)
+        else if (refdata.at(1).toDouble()<0)
         {
-            prefix = QString::number(quer.value(1).toDouble(),'f',2);
-            if (quer.value(1).toDouble()>-10)
+            prefix = QString::number(refdata.at(1).toDouble(),'f',2);
+            if (refdata.at(1).toDouble()>-10)
                 prefix.replace("-", "-0");
             Mesure["CylOD"] = prefix;
         }
         prefix = "";
-        if (quer.value(5).toDouble()>0)
+        if (refdata.at(5).toDouble()>0)
         {
-            if (quer.value(5).toDouble()<10)
+            if (refdata.at(5).toDouble()<10)
                 prefix = "+0";
             else
                 prefix = "+0";
-            Mesure["CylOG"] = prefix + QString::number(quer.value(5).toDouble(),'f',2);
+            Mesure["CylOG"] = prefix + QString::number(refdata.at(5).toDouble(),'f',2);
         }
-        else if (quer.value(5).toDouble()<0)
+        else if (refdata.at(5).toDouble()<0)
         {
-            prefix = QString::number(quer.value(5).toDouble(),'f',2);
-            if (quer.value(5).toDouble()>-10)
+            prefix = QString::number(refdata.at(5).toDouble(),'f',2);
+            if (refdata.at(5).toDouble()>-10)
                 prefix.replace("-", "-0");
             Mesure["CylOG"] = prefix;
         }
 
         // Les additions
-        if (quer.value(3).toDouble()!=0.0)
-            Mesure["AddOD"] = "+0" + QString::number(quer.value(3).toDouble(),'f',2);
-        if (quer.value(7).toDouble()!=0.0)
-            Mesure["AddOG"] = "+0" + QString::number(quer.value(7).toDouble(),'f',2);
+        if (refdata.at(3).toDouble()!=0.0)
+            Mesure["AddOD"] = "+0" + QString::number(refdata.at(3).toDouble(),'f',2);
+        if (refdata.at(7).toDouble()!=0.0)
+            Mesure["AddOG"] = "+0" + QString::number(refdata.at(7).toDouble(),'f',2);
 
         // Les formules
-            Mesure["FormuleOD"] = quer.value(8).toString();
-            Mesure["FormuleOG"] = quer.value(9).toString();
+            Mesure["FormuleOD"] = refdata.at(8).toString();
+            Mesure["FormuleOG"] = refdata.at(9).toString();
         /*QString AB;
         if (TypeMesure == "R")
             AB = "Autoref";
@@ -9265,9 +9255,10 @@ bool Rufus::Remplir_ListePatients_TableView(QString requete, QString PatNom, QSt
     requete += " ORDER BY PatNom, PatPrenom, PatDDN ";
     if (db->getMode() == DataBase::Distant)
         requete += " LIMIT 1000";
-    QSqlQuery   RemplirTableViewQuery (requete, db->getDataBase() );
-    if (db->erreurRequete(RemplirTableViewQuery,requete,"")) return false;
-    gNombreDossiers = RemplirTableViewQuery.size();
+    QList<QList<QVariant>> patlist = db->StandardSelectSQL(requete, ok);
+    if (!ok)
+        return false;
+    gNombreDossiers = patlist.size();
 
 
     gListePatientsModel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
@@ -9278,16 +9269,14 @@ bool Rufus::Remplir_ListePatients_TableView(QString requete, QString PatNom, QSt
 
     if (gNombreDossiers > 0)
     {
-        RemplirTableViewQuery.first();
         for (int i=0;i<gNombreDossiers;i++)
         {
-            pitem   = new QStandardItem(RemplirTableViewQuery.value(0).toString());                                                             // IdPatient
-            pitem0  = new QStandardItem(RemplirTableViewQuery.value(1).toString().toUpper() + " " + RemplirTableViewQuery.value(2).toString());  // Nom + Prénom
-            pitem1  = new QStandardItem(RemplirTableViewQuery.value(3).toDate().toString(tr("dd-MM-yyyy")));                                        // date de naissance
+            pitem   = new QStandardItem(patlist.at(i).at(0).toString());                                                             // IdPatient
+            pitem0  = new QStandardItem(patlist.at(i).at(1).toString().toUpper() + " " + patlist.at(i).at(2).toString());  // Nom + Prénom
+            pitem1  = new QStandardItem(patlist.at(i).at(3).toDate().toString(tr("dd-MM-yyyy")));                                        // date de naissance
             QList<QStandardItem *> pitemlist;
             pitemlist << pitem << pitem0 << pitem1;
             gListePatientsModel->appendRow(pitemlist);
-            RemplirTableViewQuery.next();
         }
     }
     QStandardItem *itnom = new QStandardItem();
@@ -9334,24 +9323,22 @@ void Rufus::Remplir_SalDat()
 
     for (int i =0; i< ui->SalleDAttenteupTableWidget->rowCount();i++)
         ui->SalleDAttenteupTableWidget->removeRow(i);
-    QSqlQuery       RemplirTableViewUserQuery (SalDatrequete, db->getDataBase() );
-    db->erreurRequete(RemplirTableViewUserQuery,SalDatrequete, tr("Impossible de remplir la salle d'attente!"));
-    RemplirTableViewUserQuery.first();
+    QList<QList<QVariant>> attlist = db->StandardSelectSQL(SalDatrequete, ok , tr("Impossible de remplir la salle d'attente!"));
 
-    TableAMettreAJour   ->setRowCount(RemplirTableViewUserQuery.size());
+    TableAMettreAJour   ->setRowCount(attlist.size());
     gListeSuperviseursModel->clear();
     QStandardItem       *pitem0, *pitem1;
     QList<int>          listidusers;
-    for (i = 0; i < RemplirTableViewUserQuery.size(); i++)
+    for (i = 0; i < attlist.size(); i++)
     {
         QMap<QString, QVariant> rsgnmt;
-        rsgnmt["idpat"]             = RemplirTableViewUserQuery.value(0).toInt();
-        rsgnmt["motif"]             = RemplirTableViewUserQuery.value(11).toString();
-        rsgnmt["ddnpat"]            = RemplirTableViewUserQuery.value(10).toDate();
-        rsgnmt["idsuperviseur"]     = RemplirTableViewUserQuery.value(8).toInt();
-        rsgnmt["loginsuperviseur"]  = RemplirTableViewUserQuery.value(9).toString();
-        rsgnmt["urgence"]           = (RemplirTableViewUserQuery.value(5).toString()=="URG");
-        rsgnmt["message"]           = RemplirTableViewUserQuery.value(7).toString();
+        rsgnmt["idpat"]             = attlist.at(i).at(0).toInt();
+        rsgnmt["motif"]             = attlist.at(i).at(11).toString();
+        rsgnmt["ddnpat"]            = attlist.at(i).at(10).toDate();
+        rsgnmt["idsuperviseur"]     = attlist.at(i).at(8).toInt();
+        rsgnmt["loginsuperviseur"]  = attlist.at(i).at(9).toString();
+        rsgnmt["urgence"]           = (attlist.at(i).at(5).toString()=="URG");
+        rsgnmt["message"]           = attlist.at(i).at(7).toString();
 
         UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
         label0 = new UpLabel(TableAMettreAJour);
@@ -9392,19 +9379,19 @@ void Rufus::Remplir_SalDat()
         label5->setAlignment(Qt::AlignCenter);
         label6->setAlignment(Qt::AlignCenter);
 
-        QString Msg = RemplirTableViewUserQuery.value(5).toString();
-        NomPrenom = " " + RemplirTableViewUserQuery.value(1).toString().toUpper()
-                    + " " + RemplirTableViewUserQuery.value(2).toString();
+        QString Msg = attlist.at(i).at(5).toString();
+        NomPrenom = " " + attlist.at(i).at(1).toString().toUpper()
+                    + " " + attlist.at(i).at(2).toString();
         label0->setText(NomPrenom);                                                     // Nom + Prénom
-        label1->setText(RemplirTableViewUserQuery.value(4).toString());                 // Statut
-        label4->setText(RemplirTableViewUserQuery.value(5).toString());                 // Motif
-        if (RemplirTableViewUserQuery.value(7).toString()!="")
+        label1->setText(attlist.at(i).at(4).toString());                 // Statut
+        label4->setText(attlist.at(i).at(5).toString());                 // Motif
+        if (attlist.at(i).at(7).toString()!="")
             label2->setPixmap(Icons::pxApres().scaled(10,10)); //WARNING : icon scaled : pxApres 10,10
 
         QString color;
-        if (RemplirTableViewUserQuery.value(3).toTime().toString("HH:mm") != "")
+        if (attlist.at(i).at(3).toTime().toString("HH:mm") != "")
         {
-            QTime heureArriv = RemplirTableViewUserQuery.value(3).toTime();
+            QTime heureArriv = attlist.at(i).at(3).toTime();
             label5->setText(heureArriv.toString("HH:mm"));                              // Heure RDV
             if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
                 color = "color: green";
@@ -9413,20 +9400,20 @@ void Rufus::Remplir_SalDat()
             else
                color = "color: red";
         }
-        label6->setText(RemplirTableViewUserQuery.value(9).toString());                 // Superviseur
-        if (!listidusers.contains(RemplirTableViewUserQuery.value(8).toInt()))
+        label6->setText(attlist.at(i).at(9).toString());                 // Superviseur
+        if (!listidusers.contains(attlist.at(i).at(8).toInt()))
         {
-            listidusers << RemplirTableViewUserQuery.value(8).toInt();
-            pitem0 = new QStandardItem(RemplirTableViewUserQuery.value(8).toString());
-            pitem1 = new QStandardItem(RemplirTableViewUserQuery.value(9).toString());
+            listidusers << attlist.at(i).at(8).toInt();
+            pitem0 = new QStandardItem(attlist.at(i).at(8).toString());
+            pitem1 = new QStandardItem(attlist.at(i).at(9).toString());
             QList<QStandardItem*> listitems;
             listitems << pitem0 << pitem1;
             gListeSuperviseursModel    ->appendRow(listitems);
         }
         QString colorRDV;
-        if (RemplirTableViewUserQuery.value(6).toTime().toString("HH:mm") != "")
+        if (attlist.at(i).at(6).toTime().toString("HH:mm") != "")
         {
-            QTime heureRDV = RemplirTableViewUserQuery.value(6).toTime();
+            QTime heureRDV = attlist.at(i).at(6).toTime();
             label3->setText(heureRDV.toString("HH:mm"));                                // Heure arrivée
             if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
                 colorRDV = "color: green";
@@ -9506,9 +9493,7 @@ void Rufus::Remplir_SalDat()
         TableAMettreAJour->setCellWidget(i,5,label5);
         TableAMettreAJour->setCellWidget(i,6,label6);
         TableAMettreAJour->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.1));
-
-        RemplirTableViewUserQuery.next();
-    }
+   }
     while (gSalDatTab->count()>0)
         gSalDatTab->removeTab(0);
     int k =0;
@@ -9561,12 +9546,10 @@ void Rufus::Remplir_SalDat()
                          " order by UserLogin";
 
     //UpMessageBox::Watch(this,bureauxreq);
-    QSqlQuery   BureauxQuery (bureauxreq, db->getDataBase() );
-    db->erreurRequete(BureauxQuery,bureauxreq,"bureauxreq");
+    QList<QList<QVariant>> burlist = db->StandardSelectSQL(bureauxreq, ok , "bureauxreq");
 
     //UpMessageBox::Watch(this,userconnectreq + "\n- " + QString::number(userconnectQuery.size()) + " -\n- " + userconnectQuery.value(0).toString() + " -");
-    db->erreurRequete(BureauxQuery, bureauxreq,"");
-    if (BureauxQuery.size() >0)
+    if (burlist.size() >0)
     {
         ui->scrollArea->setWidgetResizable(true);
         QHBoxLayout *lay = new QHBoxLayout();
@@ -9576,16 +9559,15 @@ void Rufus::Remplir_SalDat()
         int a = 0;
         lay->setContentsMargins(a,a,a,a);
         lay->setSpacing(2);
-        BureauxQuery.first();
-        for (int i=0;i<BureauxQuery.size();i++)
+        for (int i=0;i<burlist.size();i++)
         {
-            QString UserLogin = BureauxQuery.value(1).toString();
-            QString PosteLog  = BureauxQuery.value(2).toString().remove(".local");
+            QString UserLogin = burlist.at(i).at(1).toString();
+            QString PosteLog  = burlist.at(i).at(2).toString().remove(".local");
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
             UserBureau->disconnect();; // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
             UserBureau->setObjectName(UserLogin + "BureauupTextEdit");
-            UserBureau->setIdUser(BureauxQuery.value(0).toInt());
+            UserBureau->setIdUser(burlist.at(i).at(0).toInt());
             ui->scrollArea->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
             UserBureau->setStyleSheet("background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 255, 200, 50));"
                                       "border: 1px solid gray;  border-radius: 10px;");
@@ -9600,9 +9582,9 @@ void Rufus::Remplir_SalDat()
             "</head>"
             "<body LANG=\"fr-FR\" DIR=\"LTR\">";
             html += "<p class=\"p10\"><b>" + PosteLog + "</b></p><p class=\"p2\"><b><span style=\"color:green;\">" + UserLogin + "</b></p>";
-            if (BureauxQuery.value(3).toString() != "")
+            if (burlist.at(i).at(3).toString() != "")
             {
-                UserBureau->setId(BureauxQuery.value(6).toInt());
+                UserBureau->setId(burlist.at(i).at(6).toInt());
                 if( UserBureau->getIdUser() == gDataUser->id() )
                     connect(UserBureau, &UpTextEdit::dblclick,  [=] {if (gDataUser->isSecretaire()) ChoixDossier(UserBureau->getId());});
                 else
@@ -9610,24 +9592,23 @@ void Rufus::Remplir_SalDat()
                     connect(UserBureau,         &QWidget::customContextMenuRequested,   [=] {MenuContextuelBureaux(UserBureau);});
                     connect(UserBureau,         &UpTextEdit::dblclick,                  [=] {AutreDossier(UserBureau->getId());});
                 }
-                html += "<p class=\"p2\">" +  BureauxQuery.value(3).toString() + " " + BureauxQuery.value(4).toString() + "</p>";      //Nom Prenom
+                html += "<p class=\"p2\">" +  burlist.at(i).at(3).toString() + " " + burlist.at(i).at(4).toString() + "</p>";      //Nom Prenom
                 QString color = "black";
-                if (BureauxQuery.value(5).toTime().toString("HH:mm") != "")
+                if (burlist.at(i).at(5).toTime().toString("HH:mm") != "")
                 {
-                    QTime heureArriv = BureauxQuery.value(5).toTime();
+                    QTime heureArriv = burlist.at(i).at(5).toTime();
                     if (heureArriv.secsTo(QTime::currentTime())/60 < 15)        color = "green";
                     else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)   color = "orange";
                     else                                                        color ="red";
                 }
-                //html += "<p class=\"p2\">" +  RemplirBureauxQuery.value(4).toTime().toString("HH:mm") + "</p>";                                      //heure arrivée
-                html += "<p class=\"p2\"><span style=\"color:" + color + ";\">" +  BureauxQuery.value(5).toTime().toString("HH:mm") + "</span></p>";                                      //heure arrivée
+                //html += "<p class=\"p2\">" +  Remplirburlist.at(i).at(4).toTime().toString("HH:mm") + "</p>";                                      //heure arrivée
+                html += "<p class=\"p2\"><span style=\"color:" + color + ";\">" +  burlist.at(i).at(5).toTime().toString("HH:mm") + "</span></p>";                                      //heure arrivée
             }
             else
                 html += "<p class=\"p2\">ZZzzz...</p>";
             html += "</body></html>";
             UserBureau->setHtml(html);
             lay->addWidget(UserBureau);
-            BureauxQuery.next();            
         }
     }
 
@@ -9647,26 +9628,24 @@ void Rufus::Remplir_SalDat()
     //qDebug() << PaiementsEnAttenterequete;
 
     TableAMettreAJour = ui->AccueilupTableWidget;
-    QSqlQuery RemplirTableViewPaiementQuery (PaiementsEnAttenterequete, db->getDataBase() );
-    db->erreurRequete(RemplirTableViewPaiementQuery,PaiementsEnAttenterequete, tr("Impossible de remplir la salle d'attente!"));
-    RemplirTableViewPaiementQuery.first();
+    QList<QList<QVariant>> acclist = db->StandardSelectSQL(PaiementsEnAttenterequete, ok , tr("Impossible de remplir la salle d'attente!"));
     TableAMettreAJour->clearContents();
-    TableAMettreAJour->setRowCount(RemplirTableViewPaiementQuery.size());
+    TableAMettreAJour->setRowCount(acclist.size());
     gListeParentsModel  = new QStandardItemModel;
     QStandardItem       *oitem0, *oitem1;
     QList<int>          listidparents;
 
-    for (i = 0; i < RemplirTableViewPaiementQuery.size(); i++)
+    for (i = 0; i < acclist.size(); i++)
     {
         QMap<QString, QVariant> rsgnmt;
-        rsgnmt["idpat"] = RemplirTableViewPaiementQuery.value(0).toInt();
-        rsgnmt["motif"] = RemplirTableViewPaiementQuery.value(13).toString();
-        rsgnmt["ddnpat"] = RemplirTableViewPaiementQuery.value(12).toDate();
-        rsgnmt["idsuperviseur"] = RemplirTableViewPaiementQuery.value(14).toInt();
-        rsgnmt["loginsuperviseur"] = RemplirTableViewPaiementQuery.value(3).toString();
-        rsgnmt["urgence"] = (RemplirTableViewPaiementQuery.value(11).toString()=="URG");
-        rsgnmt["message"] = RemplirTableViewPaiementQuery.value(8).toString();
-        rsgnmt["idComptable"] = RemplirTableViewPaiementQuery.value(15).toInt();
+        rsgnmt["idpat"] = acclist.at(i).at(0).toInt();
+        rsgnmt["motif"] = acclist.at(i).at(13).toString();
+        rsgnmt["ddnpat"] = acclist.at(i).at(12).toDate();
+        rsgnmt["idsuperviseur"] = acclist.at(i).at(14).toInt();
+        rsgnmt["loginsuperviseur"] = acclist.at(i).at(3).toString();
+        rsgnmt["urgence"] = (acclist.at(i).at(11).toString()=="URG");
+        rsgnmt["message"] = acclist.at(i).at(8).toString();
+        rsgnmt["idComptable"] = acclist.at(i).at(15).toInt();
 
         UpLabel *label0, *label1, *label2, *label3, *label4, *label5;
         label0 = new UpLabel;
@@ -9692,12 +9671,12 @@ void Rufus::Remplir_SalDat()
 
         QTableWidgetItem *pItem = new QTableWidgetItem;
 
-        label0->setId(RemplirTableViewPaiementQuery.value(0).toInt());                      // idPat
-        label1->setId(RemplirTableViewPaiementQuery.value(0).toInt());                      // idPat
-        label2->setId(RemplirTableViewPaiementQuery.value(0).toInt());                      // idPat
-        label3->setId(RemplirTableViewPaiementQuery.value(0).toInt());                      // idPat
-        label4->setId(RemplirTableViewPaiementQuery.value(0).toInt());                      // idPat
-        label5->setId(RemplirTableViewPaiementQuery.value(0).toInt());                      // idPat
+        label0->setId(acclist.at(i).at(0).toInt());                      // idPat
+        label1->setId(acclist.at(i).at(0).toInt());                      // idPat
+        label2->setId(acclist.at(i).at(0).toInt());                      // idPat
+        label3->setId(acclist.at(i).at(0).toInt());                      // idPat
+        label4->setId(acclist.at(i).at(0).toInt());                      // idPat
+        label5->setId(acclist.at(i).at(0).toInt());                      // idPat
 
         label0->setContextMenuPolicy(Qt::CustomContextMenu);
         label1->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -9706,23 +9685,23 @@ void Rufus::Remplir_SalDat()
         label4->setContextMenuPolicy(Qt::CustomContextMenu);
         label5->setContextMenuPolicy(Qt::CustomContextMenu);
 
-        NomPrenom = RemplirTableViewPaiementQuery.value(1).toString().toUpper()
-                + " " + RemplirTableViewPaiementQuery.value(2).toString();
-        zw = RemplirTableViewPaiementQuery.value(6).toTime().toString("HH:mm");
+        NomPrenom = acclist.at(i).at(1).toString().toUpper()
+                + " " + acclist.at(i).at(2).toString();
+        zw = acclist.at(i).at(6).toTime().toString("HH:mm");
         label0->setText(" " + zw);                                                                                // Heure acte
         label1->setText(" " + NomPrenom);                                                                         // Nom + Prénom
-        QString Soignant  = RemplirTableViewPaiementQuery.value(3).toString();
-        if (RemplirTableViewPaiementQuery.value(9).toString() != RemplirTableViewPaiementQuery.value(10).toString())
-            Soignant +=  " / " + proc->getLogin(RemplirTableViewPaiementQuery.value(10).toInt());
-        label2->setText(" " + RemplirTableViewPaiementQuery.value(3).toString());                                 // Soignant
-        label3->setText(" " + RemplirTableViewPaiementQuery.value(4).toString());                                 // Cotation
-        label4->setText(QLocale().toString(RemplirTableViewPaiementQuery.value(5).toDouble(),'f',2) + " ");       // Montant
-        label5->setText(RemplirTableViewPaiementQuery.value(10).toString());                                      // idParent
+        QString Soignant  = acclist.at(i).at(3).toString();
+        if (acclist.at(i).at(9).toString() != acclist.at(i).at(10).toString())
+            Soignant +=  " / " + proc->getLogin(acclist.at(i).at(10).toInt());
+        label2->setText(" " + acclist.at(i).at(3).toString());                                 // Soignant
+        label3->setText(" " + acclist.at(i).at(4).toString());                                 // Cotation
+        label4->setText(QLocale().toString(acclist.at(i).at(5).toDouble(),'f',2) + " ");       // Montant
+        label5->setText(acclist.at(i).at(10).toString());                                      // idParent
         QString typpaiement = "";
-        if (RemplirTableViewPaiementQuery.value(5).toDouble() == 0.0)
+        if (acclist.at(i).at(5).toDouble() == 0.0)
             typpaiement = "Gratuit";
         label4->setAlignment(Qt::AlignRight);
-        if (RemplirTableViewPaiementQuery.value(8).toString()!="")
+        if (acclist.at(i).at(8).toString()!="")
         {
             QString color = "color:green";
             label0->setStyleSheet(color);
@@ -9732,11 +9711,11 @@ void Rufus::Remplir_SalDat()
             label4->setStyleSheet(color);
             label5->setStyleSheet(color);
         }
-        if (!listidparents.contains(RemplirTableViewPaiementQuery.value(10).toInt()))
+        if (!listidparents.contains(acclist.at(i).at(10).toInt()))
         {
-            listidparents           << RemplirTableViewPaiementQuery.value(10).toInt();
-            oitem0                  = new QStandardItem(RemplirTableViewPaiementQuery.value(10).toString());
-            oitem1                  = new QStandardItem(proc->getLogin(RemplirTableViewPaiementQuery.value(10).toInt()));
+            listidparents           << acclist.at(i).at(10).toInt();
+            oitem0                  = new QStandardItem(acclist.at(i).at(10).toString());
+            oitem1                  = new QStandardItem(proc->getLogin(acclist.at(i).at(10).toInt()));
             QList<QStandardItem*>   listitems;
             listitems               << oitem0 << oitem1;
             gListeParentsModel      ->appendRow(listitems);
@@ -9759,12 +9738,10 @@ void Rufus::Remplir_SalDat()
         TableAMettreAJour   ->setCellWidget(i,2,label2);
         TableAMettreAJour   ->setCellWidget(i,3,label3);
         TableAMettreAJour   ->setCellWidget(i,4,label4);
-        pItem               ->setText(RemplirTableViewPaiementQuery.value(7).toString());
+        pItem               ->setText(acclist.at(i).at(7).toString());
         TableAMettreAJour   ->setItem(i,5,pItem);
         TableAMettreAJour   ->setCellWidget(i,6,label5);
         TableAMettreAJour   ->setRowHeight(i,int(fm.height()*1.1));
-
-        RemplirTableViewPaiementQuery.next();
     }
     while (gAccueilTab->count()>0)
         gAccueilTab->removeTab(0);
@@ -10801,7 +10778,7 @@ void Rufus::envoieMessage(QString msg)
 {
     if (!UtiliseTCP)
         return;
-    qDebug() << msg + " - void Rufus::envoieMessage(QString msg)";
+    //qDebug() << msg + " - void Rufus::envoieMessage(QString msg)";
     TcPConnect->envoieMessage(msg);
 }
 
