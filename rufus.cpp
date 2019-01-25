@@ -619,46 +619,35 @@ void Rufus::Moulinette()
     QString copierequete = "drop table if exists rufus.patients2;\n";
     copierequete += "create table rufus.patients2 like rufus.patients;\n";
     copierequete += "insert into rufus.patients2 (select * from " NOM_TABLE_PATIENTS ");";
-    QSqlQuery copiequery (copierequete, db->getDataBase() );
-    db->erreurRequete(copiequery,copierequete,"");
+    db->StandardSQL(copierequete);
 
     QStringList listNoms;
     copierequete = "select idPat, patNom from rufus.patients2;";
-    QSqlQuery copie(copierequete, db->getDataBase() );
-    int s = copie.size();
-    copie.first();
-    for (int i = 0; i < copie.size(); i++)
-    {
-        listNoms << copie.value(1).toString();
-        copie.next();
-    }
+    QList<QList<QVariant>> copielist = db->StandardSelectSQL(copierequete,ok);
+    int s = copielist.size();
+    for (int i = 0; i < copielist.size(); i++)
+        listNoms << copielist.at(i).at(1).toString();
     for (int k = 0; k < s ; k++)
     {
-        copie.seek(k);
-        QString idpat = copie.value(0).toString();
+        QString idpat = copielist.at(k).at(0).toString();
         idauhasard = rand() % (listNoms.size());
         QString AncNom (""), NouvNom;
         NouvNom = listNoms.at(idauhasard);
-        QSqlQuery quernom("select patnom, patprenom from " NOM_TABLE_PATIENTS " where idPat = " + idpat,  db->getDataBase() );
-        if (quernom.size()>0)
-        {
-            quernom.first();
-            AncNom = quernom.value(0).toString();
+        QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL("select patnom, patprenom from " NOM_TABLE_PATIENTS " where idPat = " + idpat, ok);
+        if (patdata.size()>0)
+            AncNom = patdata.at(0).toString();
             //proc->Message(quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s), 1);
             //qDebug() << quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s);
-        }
         copierequete = "update rufus.patients2 set patnom = '" + Utils::correctquoteSQL(listNoms.at(idauhasard)) + "' where idPat = " + idpat;
-        QSqlQuery modif (copierequete, db->getDataBase() );
-        db->erreurRequete(modif,copierequete,"");
+        db->StandardSQL(copierequete);
         listNoms.removeAt(idauhasard);
 
-        QSqlQuery modifactesquer("select idacte, actemotif, acteconclusion, actetexte from " NOM_TABLE_ACTES " where idpat = " + idpat,  db->getDataBase() );
-        for (int m=0; m<modifactesquer.size(); m++)
+        QList<QList<QVariant>> modifacteslist = db->StandardSelectSQL("select idacte, actemotif, acteconclusion, actetexte from " NOM_TABLE_ACTES " where idpat = " + idpat, ok);
+        for (int m=0; m<modifacteslist.size(); m++)
         {
-            modifactesquer.seek(m);
-            QString nouvmotif   = modifactesquer.value(1).toString();
-            QString nouvconcl   = modifactesquer.value(2).toString();
-            QString nouvtxt     = modifactesquer.value(3).toString();
+            QString nouvmotif   = modifacteslist.at(m).at(1).toString();
+            QString nouvconcl   = modifacteslist.at(m).at(2).toString();
+            QString nouvtxt     = modifacteslist.at(m).at(3).toString();
             //qDebug() << nouvtxt;
             bool b = false;
             if (nouvmotif.contains(AncNom, Qt::CaseInsensitive))
@@ -682,18 +671,17 @@ void Rufus::Moulinette()
                        " actemotif = '"         + Utils::correctquoteSQL(nouvmotif) + "',"
                        " actetexte = '"         + Utils::correctquoteSQL(nouvtxt)   + "',"
                        " acteconclusion = '"    + Utils::correctquoteSQL(nouvconcl) + "'"
-                       " where idacte = " + modifactesquer.value(0).toString();
+                       " where idacte = " + modifacteslist.at(m).at(0).toString();
                 //qDebug() << req1;
-                QSqlQuery (req1,  db->getDataBase() );
+                db->StandardSQL(req1);
             }
         }
-        QSqlQuery modifimprquer("select idimpression, textentete, textcorps, textorigine from " NOM_TABLE_IMPRESSIONS " where idpat = " + idpat,  db->getDataBase() );
-        for (int m=0; m<modifimprquer.size(); m++)
+        QList<QList<QVariant>> modifimprlist = db->StandardSelectSQL("select idimpression, textentete, textcorps, textorigine from " NOM_TABLE_IMPRESSIONS " where idpat = " + idpat, ok);
+        for (int m=0; m<modifimprlist.size(); m++)
         {
-            modifimprquer.seek(m);
-            QString nouventete   = modifimprquer.value(1).toString();
-            QString nouvcorps   = modifimprquer.value(2).toString();
-            QString nouvorigine     = modifimprquer.value(3).toString();
+            QString nouventete  = modifimprlist.at(m).at(1).toString();
+            QString nouvcorps   = modifimprlist.at(m).at(2).toString();
+            QString nouvorigine = modifimprlist.at(m).at(3).toString();
             bool b = false;
             if (nouventete.contains(AncNom, Qt::CaseInsensitive))
             {
@@ -716,139 +704,115 @@ void Rufus::Moulinette()
                        " textentete = '"         + Utils::correctquoteSQL(nouventete) + "',"
                        " textcorps = '"         + Utils::correctquoteSQL(nouvcorps)   + "',"
                        " textorigine = '"    + Utils::correctquoteSQL(nouvorigine) + "'"
-                       " where idimpression = " + modifimprquer.value(0).toString();
+                       " where idimpression = " + modifimprlist.at(m).at(0).toString();
                 //qDebug() << req1;
-                QSqlQuery (req1,  db->getDataBase() );
+                db->StandardSQL(req1);
             }
         }
     }
     copierequete = "delete from rufus.patients;\n";
     copierequete += "insert into rufus.patients (select * from rufus.patients2);\n";
     copierequete += "drop table if exists rufus.patients2;\n";
-    QSqlQuery (copierequete, db->getDataBase() );
+    db->StandardSQL(copierequete);
 
     UpMessageBox::Watch(this,"OK pour nom");
 
-        copierequete = "drop table if exists rufus.donneessocialespatients2;\n";
+    copierequete = "drop table if exists rufus.donneessocialespatients2;\n";
     copierequete += "create table rufus.donneessocialespatients2 like rufus.donneessocialespatients;\n";
     copierequete += "insert into rufus.donneessocialespatients2 (select * from rufus.donneessocialespatients);";
-    QSqlQuery copieAquery (copierequete, db->getDataBase() );
-    db->erreurRequete(copieAquery,copierequete,"");
+    db->StandardSQL(copierequete);
 
     QStringList listAdresses;
     copierequete = "select idPat, patAdresse1 from rufus.donneessocialespatients2 order by patAdresse1;";
-    QSqlQuery copieA (copierequete, db->getDataBase() );
-    copieA.first();
-    s = copieA.size();
-    for (int i = 0; i < copieA.size(); i++)
-    {
-        listAdresses << copieA.value(1).toString();
-        copieA.next();
-    }
+    QList<QList<QVariant>> copieAlist = db->StandardSelectSQL(copierequete,ok);
+    s = copieAlist.size();
+    for (int i = 0; i < copieAlist.size(); i++)
+        listAdresses << copieAlist.at(i).at(1).toString();
     for (int j = 0; j < s ; j++)
     {
-        copieA.seek(j);
-        QString idpat = copieA.value(0).toString();
+        QString idpat = copieAlist.at(j).at(0).toString();
         idauhasard = rand() % (listAdresses.size());
         copierequete = "update rufus.donneessocialespatients2 set patAdresse1 = '" + Utils::correctquoteSQL(listAdresses.at(idauhasard))
                 + "' where idPat = " + idpat;
-        QSqlQuery modif3 (copierequete, db->getDataBase() );
-        db->erreurRequete(modif3,copierequete,"");
+        db->StandardSQL(copierequete);
         listAdresses.removeAt(idauhasard);
     }
     listAdresses.clear();
     copierequete = "select idPat, patAdresse2 from rufus.donneessocialespatients2 order by patAdresse2;";
-    QSqlQuery copieA2 (copierequete, db->getDataBase() );
-    copieA2.first();
-    s = copieA2.size();
-    for (int i = 0; i < copieA2.size(); i++)
-    {
-        listAdresses << copieA2.value(1).toString();
-        copieA2.next();
-    }
+    QList<QList<QVariant>> copieA2list = db->StandardSelectSQL(copierequete,ok);
+    s = copieA2list.size();
+    for (int i = 0; i < copieA2list.size(); i++)
+        listAdresses << copieA2list.at(i).at(1).toString();
     for (int j = 0; j < s ; j++)
     {
-        copieA2.seek(j);
-        QString idpat = copieA2.value(0).toString();
+        QString idpat = copieA2list.at(j).at(0).toString();
         idauhasard = rand() % (listAdresses.size());
         copierequete = "update rufus.donneessocialespatients2 set patAdresse2 = '" + Utils::correctquoteSQL(listAdresses.at(idauhasard))
                 + "' where idPat = " + idpat;
-        QSqlQuery modif4 (copierequete, db->getDataBase() );
-        db->erreurRequete(modif4,copierequete,"");
+        db->StandardSQL(copierequete);
         listAdresses.removeAt(idauhasard);
     }
     copierequete = "delete from rufus.donneessocialespatients;\n";
     copierequete += "insert into rufus.donneessocialespatients (select * from rufus.donneessocialespatients2);\n";
     copierequete += "drop table if exists rufus.donneessocialespatients2;\n";
-    QSqlQuery (copierequete, db->getDataBase() );
+    db->StandardSQL(copierequete);
     UpMessageBox::Watch(this,"OK pour adresse1 et 2");
     Remplir_ListePatients_TableView(grequeteListe,"","");       // Moulinette()
 
     //Melange des noms des correspondants
-    QSqlQuery("update " NOM_TABLE_CORRESPONDANTS " set CorNom = 'Porteix' where CorNom = 'Porte'", db->getDataBase() );
-    QSqlQuery("update " NOM_TABLE_CORRESPONDANTS " set CorNom = 'Longeix' where CorNom = 'Long'", db->getDataBase() );
+    db->StandardSQL("update " NOM_TABLE_CORRESPONDANTS " set CorNom = 'Porteix' where CorNom = 'Porte'");
+    db->StandardSQL("update " NOM_TABLE_CORRESPONDANTS " set CorNom = 'Longeix' where CorNom = 'Long'");
     QString Corcopierequete = "select idCor, CorNom from " NOM_TABLE_CORRESPONDANTS;
-    QSqlQuery Corcopie(Corcopierequete, db->getDataBase() );
+    QList<QList<QVariant>> corlist = db->StandardSelectSQL(Corcopierequete, ok);
     QStringList listnomcor;
-    QSqlQuery nompatquery("select patnom from " NOM_TABLE_PATIENTS " where patnom not in (select Cornom from " NOM_TABLE_CORRESPONDANTS ") order by rand() limit " + QString::number(Corcopie.size()),  db->getDataBase() );
-    for (int e=0; e<Corcopie.size();e++)
-    {
-        nompatquery.seek(e);
-        listnomcor <<  nompatquery.value(0).toString();
-    }
+    QList<QList<QVariant>> patlist = db->StandardSelectSQL("select patnom from " NOM_TABLE_PATIENTS " where patnom not in (select Cornom from " NOM_TABLE_CORRESPONDANTS ") order by rand() limit " + QString::number(corlist.size()), ok);
+    for (int e=0; e<corlist.size();e++)
+        listnomcor <<  patlist.at(e).at(0).toString();
     QString Corimpr = "select idimpression, textcorps, textorigine from " NOM_TABLE_IMPRESSIONS " where textcorps is not null";
-    QSqlQuery Corimprquery(Corimpr,  db->getDataBase() );
+    QList<QList<QVariant>> corimprlist = db->StandardSelectSQL(Corimpr, ok);
     QString CorAct = "select idacte, actemotif, actetexte from " NOM_TABLE_ACTES;
-    QSqlQuery CorActquery(CorAct,  db->getDataBase() );
-    db->erreurRequete(CorActquery, CorAct,"");
-    for (int k = 0; k< Corcopie.size(); k++)
+    QList<QList<QVariant>> coractlist = db->StandardSelectSQL(CorAct,ok);
+    for (int k = 0; k< corlist.size(); k++)
     {
         QString AncNom, NouvNom, NouvAdresse, idCor;
-        Corcopie.seek(k);
-        idCor       = Corcopie.value(0).toString();
-        AncNom      = Corcopie.value(1).toString();
+        idCor       = corlist.at(k).at(0).toString();
+        AncNom      = corlist.at(k).at(1).toString();
         NouvNom     = listnomcor.at(k);
         Corcopierequete = "update " NOM_TABLE_CORRESPONDANTS " set Cornom = '" + Utils::correctquoteSQL(NouvNom) + "' where idCor = " + idCor;
-        QSqlQuery modifnom (Corcopierequete, db->getDataBase() );
-        db->erreurRequete(modifnom,Corcopierequete,"");
+        db->StandardSQL(Corcopierequete);
 
-
-        for (int p=0; p<Corimprquery.size(); p++)
+        for (int p=0; p<corimprlist.size(); p++)
         {
-            Corimprquery.seek(p);
-            if (Corimprquery.value(1).toString().contains(AncNom, Qt::CaseInsensitive))
+            if (corimprlist.at(p).at(1).toString().contains(AncNom, Qt::CaseInsensitive))
             {
                 //qDebug() << AncNom + " - " + QString::number(k) + "/" + QString::number(Corcopie.size()) + " // " + QString::number(p) + "/" + QString::number(Corimprquery.size());
-                QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set textcorps = '" + Utils::correctquoteSQL(Corimprquery.value(1).toString().replace(AncNom,NouvNom))
-                           + "' where idimpression = " + Corimprquery.value(0).toString(),  db->getDataBase() );
+                db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set textcorps = '" + Utils::correctquoteSQL(corimprlist.at(p).at(1).toString().replace(AncNom,NouvNom))
+                           + "' where idimpression = " + corimprlist.at(p).at(0).toString());
             }
-            if (Corimprquery.value(2).toString().contains(AncNom, Qt::CaseInsensitive))
+            if (corimprlist.at(p).at(2).toString().contains(AncNom, Qt::CaseInsensitive))
             {
-                QSqlQuery ("update " NOM_TABLE_IMPRESSIONS " set textorigine = '" + Utils::correctquoteSQL(Corimprquery.value(2).toString().replace(AncNom,NouvNom))
-                           + "' where idimpression = " + Corimprquery.value(0).toString(),  db->getDataBase() );
+                db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set textorigine = '" + Utils::correctquoteSQL(corimprlist.at(p).at(2).toString().replace(AncNom,NouvNom))
+                           + "' where idimpression = " + corimprlist.at(p).at(0).toString());
             }
         }
 
-        for (int q=0; q<CorActquery.size(); q++)
+        for (int q=0; q<coractlist.size(); q++)
         {
-            CorActquery.seek(q);
-            if (CorActquery.value(1).toString().contains(AncNom, Qt::CaseInsensitive))
+            if (coractlist.at(q).at(1).toString().contains(AncNom, Qt::CaseInsensitive))
             {
                 //qDebug() << AncNom + " - " + QString::number(k) + "/" + QString::number(Corcopie.size()) + " // " + QString::number(q) + "/" + QString::number(CorActquery.size());
-                QSqlQuery ("update " NOM_TABLE_ACTES " set actemotif = 'Courrier efffacé' where idacte = " + CorActquery.value(0).toString(),  db->getDataBase() );
+                db->StandardSQL("update " NOM_TABLE_ACTES " set actemotif = 'Courrier efffacé' where idacte = " + coractlist.at(q).at(0).toString());
             }
-            if (CorActquery.value(2).toString().contains(AncNom, Qt::CaseInsensitive))
+            if (coractlist.at(q).at(2).toString().contains(AncNom, Qt::CaseInsensitive))
             {
-                QSqlQuery("update " NOM_TABLE_ACTES " set actetexte = 'Courrier effacé' where idacte = " + CorActquery.value(0).toString(),  db->getDataBase() );
+                db->StandardSQL("update " NOM_TABLE_ACTES " set actetexte = 'Courrier effacé' where idacte = " + coractlist.at(q).at(0).toString());
             }
         }
 
-        QSqlQuery adresspatquery("select patadresse1 from " NOM_TABLE_DONNEESSOCIALESPATIENTS " order by rand() limit 1",  db->getDataBase() );
-        adresspatquery.first();
-        NouvAdresse = adresspatquery.value(0).toString();
+        QList<QVariant> adrdata = db->getFirstRecordFromStandardSelectSQL("select patadresse1 from " NOM_TABLE_DONNEESSOCIALESPATIENTS " order by rand() limit 1",ok);
+        NouvAdresse = adrdata.at(0).toString();
         Corcopierequete = "update rufus.correspondants set Coradresse1 = '" + Utils::correctquoteSQL(NouvAdresse) + "' where idCor = " + idCor;
-        QSqlQuery modif (Corcopierequete, db->getDataBase() );
-        db->erreurRequete(modif,Corcopierequete,"");
+        db->StandardSQL(Corcopierequete);
     }
     UpMessageBox::Watch(this,"OK pour Correspondants");
 }
@@ -5464,24 +5428,23 @@ void Rufus::VerifCorrespondants()
         // on resynchronise l'affichage du combobox au besoin
         if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
         {
-            QString req = "select idcormedmg from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-            QSqlQuery quer(req, db->getDataBase() );
-            if (quer.seek(0))
-                ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(quer.value(0).toInt()));
-            else
-                ui->MGupComboBox->setCurrentIndex(-1);
-            req = "select idcormedspe1 from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-            QSqlQuery quer1(req, db->getDataBase() );
-            if (quer1.seek(0))
-                ui->AutresCorresp1upComboBox->setCurrentIndex(ui->AutresCorresp1upComboBox->findData(quer1.value(0).toInt()));
-            else
-                ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
-            req = "select idcormedspe2 from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-            QSqlQuery quer2(req, db->getDataBase() );
-            if (quer2.seek(0))
-                ui->AutresCorresp2upComboBox->setCurrentIndex(ui->AutresCorresp2upComboBox->findData(quer2.value(0).toInt()));
-            else
-                ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
+            int idx (-1), idxsp1 (-1), idxsp2(-1);
+            QString req = "select idcormedmg, idcormedspe1, idcormedspe2 from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
+            QList<QVariant> cordata = db->getFirstRecordFromStandardSelectSQL(req,ok);
+            if (!ok)
+                return;
+            if (cordata.size()>0)
+            {
+                if (cordata.at(0) != QVariant())
+                    idx = ui->MGupComboBox->findData(cordata.at(0).toInt());
+                if (cordata.at(1) != QVariant())
+                    idxsp1 = ui->AutresCorresp1upComboBox->findData(cordata.at(1).toInt());
+                if (cordata.at(2) != QVariant())
+                    idxsp2 = ui->AutresCorresp1upComboBox->findData(cordata.at(2).toInt());
+            }
+            ui->MGupComboBox->setCurrentIndex(idx);
+            ui->AutresCorresp1upComboBox->setCurrentIndex(idxsp1);
+            ui->AutresCorresp2upComboBox->setCurrentIndex(idxsp2);
             OKModifierTerrain();
         }
     }
@@ -5740,8 +5703,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
 #endif
                     requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
                             + Utils::correctquoteSQL(Corps) + "' WHERE " + (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES? "idActe" : "idMessage") + "= " + QString::number(gidActe);
-                    QSqlQuery UpdateUpTextEditQuery (requetemodif, db->getDataBase() );
-                    db->erreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
+                    db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                 }
                 else
                 {
@@ -5754,8 +5716,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     else
                         requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
                                 + Utils::correctquoteSQL(objUpText->toPlainText()) + "' WHERE idPat = " + QString::number(gidPatient);
-                    QSqlQuery UpdateUpTextEditQuery (requetemodif, db->getDataBase() );
-                    db->erreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
+                    db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                 }
                 if (objUpText == ui->ActeConclusiontextEdit || objUpText == ui->ActeMotiftextEdit || objUpText == ui->ActeTextetextEdit)
                     MAJActesPrecs();
@@ -5775,8 +5736,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                 {
                     requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
                             + Utils::correctquoteSQL(objUpText->text()) + "' WHERE idActe = " + QString::number(gidPatient);
-                    QSqlQuery UpdateUpTextEditQuery (requetemodif, db->getDataBase() );
-                    db->erreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
+                    db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                 }
                 else
                 {
@@ -5788,15 +5748,13 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     {
                         requetemodif =   "INSERT INTO " + objUpText->getTableCorrespondant() + " (" + objUpText->getChampCorrespondant() + ",idPat)"
                                 + " VALUES ('" + Utils::correctquoteSQL(objUpText->text()) + "', " + QString::number(gidPatient) + ")";
-                        QSqlQuery UpdateUpTextEditQuery (requetemodif, db->getDataBase() );
-                        db->erreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
+                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                     }
                     else
                     {
                         requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
                                 + Utils::correctquoteSQL(objUpText->text()) + "' WHERE idPat = " + QString::number(gidPatient);
-                        QSqlQuery UpdateUpTextEditQuery (requetemodif, db->getDataBase() );
-                        db->erreurRequete(UpdateUpTextEditQuery,requetemodif,tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
+                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                     }
                     OKModifierTerrain();
                 }
@@ -5807,8 +5765,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             if (ui->ActeDatedateEdit->text() != gActeDate)
             {
                 QString requete =   "UPDATE " NOM_TABLE_ACTES " SET ActeDate = '" + ui->ActeDatedateEdit->date().toString("yyyy-MM-dd") + "' WHERE idActe = " + QString::number(gidActe);
-                QSqlQuery UpdateUpTextEditQuery (requete, db->getDataBase() );
-                if (db->erreurRequete(UpdateUpTextEditQuery,requete,tr("Impossible de mettre à jour la date de l'acte!")))
+                if (!db->StandardSQL(requete,tr("Impossible de mettre à jour la date de l'acte!")))
                     ui->ActeDatedateEdit->setDate(QDate::fromString(gActeDate,"dd/MM/yyyy"));
                 else
                 {
