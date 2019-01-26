@@ -26,8 +26,8 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
 {
     proc                = Procedures::I();
     gidPatient          = idpat;
-    patient             = DataBase::getInstance()->loadPatientById(gidPatient);
     db                  = DataBase::getInstance();
+    patient             = db->loadPatientById(gidPatient);
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -161,6 +161,8 @@ dlg_docsexternes::~dlg_docsexternes()
     delete proc;
     delete printer;
     Datas::I()->docsexternes->clearAll();
+    patient = Q_NULLPTR;
+    delete patient;
 }
 
 bool dlg_docsexternes::InitOK()

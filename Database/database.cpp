@@ -106,11 +106,11 @@ void DataBase::setUserConnected(User *usr)
     m_userConnected = usr;
 }
 
-bool DataBase::erreurRequete(QSqlQuery query, QString requete, QString ErrorMessage)
+bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage)
 {
-    if (query.lastError().type() != QSqlError::NoError)
+    if (erreur.type() != QSqlError::NoError)
     {
-        Logs::ERROR(ErrorMessage, tr("\nErreur\n") + query.lastError().text() +  tr("\nrequete = ") + requete);
+        Logs::ERROR(ErrorMessage, tr("\nErreur\n") + erreur.text() +  tr("\nrequete = ") + requete);
         return true;
     }
     return false;
@@ -149,10 +149,7 @@ bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
     QString req = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
     for (int i = 1; i < ListTables.size(); i++)
         req += "," + ListTables.at(i) + " " + ModeBlocage;
-    QSqlQuery query(req, m_db );
-    bool a = !erreurRequete(query,req, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
-    query.finish();
-    return a;
+    return StandardSQL(req);
 }
 
 void DataBase::commit()
@@ -160,9 +157,7 @@ void DataBase::commit()
     unlocktables();
     StandardSQL("COMMIT;");
     QString req = "SET AUTOCOMMIT = 1;";
-    QSqlQuery query(req, m_db );
-    erreurRequete(query,req, tr("Impossible de valider les mofifications"));
-    query.finish();
+    StandardSQL(req);
 }
 
 void DataBase::rollback()
@@ -170,9 +165,7 @@ void DataBase::rollback()
     unlocktables();
     StandardSQL("ROLLBACK;");
     QString req = "SET AUTOCOMMIT = 1;";
-    QSqlQuery query(req, m_db );
-    erreurRequete(query,req, tr("Impossible de valider les mofifications"));
-    query.finish();
+    StandardSQL(req);
 }
 
 bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
@@ -181,10 +174,7 @@ bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
     QString req = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
     for (int i = 1; i < ListTables.size(); i++)
         req += "," + ListTables.at(i) + " " + ModeBlocage;
-    QSqlQuery query(req, m_db );
-    bool a = !erreurRequete(query,req, tr("Impossible de bloquer les tables en mode ") + ModeBlocage);
-    query.finish();
-    return a;
+    return StandardSQL(req);
 }
 
 void DataBase::unlocktables()
@@ -195,10 +185,7 @@ void DataBase::unlocktables()
 bool DataBase::testconnexionbase() // une requete simple pour vérifier que la connexion à la base fontionne toujours
 {
     QString req = "select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME;
-    QSqlQuery query(req, m_db);
-    bool a = (query.lastError().type()==QSqlError::NoError);
-    query.finish();
-    return a;
+    return StandardSQL(req);
 }
 
 int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, QString errormsg)
@@ -304,7 +291,7 @@ bool DataBase::InsertSQLByBinds(QString nomtable,
 bool DataBase::StandardSQL(QString req , QString errormsg)
 {
     QSqlQuery query(req, getDataBase());
-    bool a = !erreurRequete(query, req, errormsg);
+    bool a = !erreurRequete(query.lastError(), req, errormsg);
     query.finish();
     return a;
 }
@@ -321,7 +308,7 @@ QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QStri
     QList<QList<QVariant>> listreponses = QList<QList<QVariant>>();
     QSqlQuery query(req, getDataBase());
     QSqlRecord rec = query.record();
-    if( erreurRequete(query, req, errormsg))
+    if( erreurRequete(query.lastError(), req, errormsg))
     {
         OK = false;
         query.finish();
@@ -1199,7 +1186,7 @@ Patient* DataBase::loadPatientById(int idPat)
     QString req = "select IdPat, PatNom, PatPrenom, PatDDN, Sexe from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idPat);
     QList<QVariant> patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
-        return patient;
+        return Q_NULLPTR;
     QJsonObject jData{};
     jData["id"] = patdata.at(0).toInt();
     jData["nom"] = patdata.at(1).toString();

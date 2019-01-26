@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("24-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("26-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -4917,7 +4917,11 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             {
                 QHBoxLayout *aboutlay = new QHBoxLayout();
                 UpLabel *aboutdoc = new UpLabel();
-                QString nomprenom = Datas::I()->patients->getPatientById(destlist.at(i).at(3).toInt())->prenom() + " " + Datas::I()->patients->getPatientById(destlist.at(i).at(3).toInt())->nom();
+                QString nomprenom ("");
+                Patient *pat = db->loadPatientById(destlist.at(i).at(3).toInt());
+                if (pat != Q_NULLPTR)
+                    nomprenom = pat->prenom() + " " + pat->nom();
+                delete pat;
                 if (nomprenom != "")
                 {
                     aboutdoc->setText(nomprenom);
@@ -5064,7 +5068,11 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             {
                 QHBoxLayout *aboutlay = new QHBoxLayout();
                 UpLabel *aboutdoc = new UpLabel();
-                QString nomprenom = Datas::I()->patients->getPatientById(emetlist.at(i).at(3).toInt())->prenom() + " " + Datas::I()->patients->getPatientById(emetlist.at(i).at(3).toInt())->nom();
+                QString nomprenom ("");
+                Patient *pat = db->loadPatientById(emetlist.at(i).at(3).toInt());
+                if (pat != Q_NULLPTR)
+                    nomprenom = pat->prenom() + " " + pat->nom();
+                delete pat;
                 if (nomprenom != "")
                 {
                     aboutdoc->setText(nomprenom);
@@ -5457,56 +5465,48 @@ void Rufus::VerifVerrouDossier()
      on fait la liste des utilisateurs qui n'ont pas remis à jour leur connexion depuis plus de 60 secondes,
      on retire les verrous qu'ils auraient pu poser et on les déconnecte*/
     QString VerifOldUserreq = "select idUser, NomPosteConnecte from  " NOM_TABLE_USERSCONNECTES " where time_to_sec(timediff(now(),heurederniereconnexion)) > 60";
-    QSqlQuery verifoldquery (VerifOldUserreq, db->getDataBase() );
-    //qDebug() << VerifOldUserreq;
-    db->erreurRequete(verifoldquery,VerifOldUserreq,"");
-
-    if (verifoldquery.size() > 0)
+    QList<QList<QVariant>> oldlist = db->StandardSelectSQL(VerifOldUserreq, ok);
+    if (ok && oldlist.size() > 0)
     {
-        verifoldquery.first();
-        for (int i=0; i<verifoldquery.size();i++)
+        for (int i=0; i<oldlist.size();i++)
         {
             //on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             QString blabla              = ENCOURSEXAMEN;
             int length                  = blabla.size();
-            int a                       = verifoldquery.value(0).toInt();
-            QString Poste               = verifoldquery.value(1).toString();
+            int a                       = oldlist.at(i).at(0).toInt();
+            QString Poste               = oldlist.at(i).at(1).toString();
             QString LibereVerrouRequete;
             LibereVerrouRequete = "UPDATE " NOM_TABLE_SALLEDATTENTE " SET Statut = '" ARRIVE "', idUserEnCoursExam = null, PosteExamen = null"
                                   " WhERE idUserEnCoursExam = " + QString::number(a) +
                                   " AND PosteExamen = '" + Poste +
                                   "' AND Left(Statut," + QString::number(length) + ") = '" ENCOURSEXAMEN "'";
-            QSqlQuery LibereVerrouRequeteQuery (LibereVerrouRequete, db->getDataBase() );
-            db->erreurRequete(LibereVerrouRequeteQuery,LibereVerrouRequete,"");
+            db->StandardSQL(LibereVerrouRequete);
             //qDebug() << LibereVerrouRequete;
             //on déverrouille les actes verrouillés en comptabilité par cet utilisateur
             LibereVerrouRequete = "delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(a);
-            QSqlQuery LibereVerrouComptaQuery (LibereVerrouRequete, db->getDataBase() );
-            db->erreurRequete(LibereVerrouComptaQuery,LibereVerrouRequete,"");
+            db->StandardSQL(LibereVerrouRequete);
             // on retire cet utilisateur de la table des utilisateurs connectés
             QString req = "delete from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte = '" + Poste + "' and idUser = " + QString::number(a);
-            QSqlQuery(req, db->getDataBase() );
+            db->StandardSQL(req);
             FlagMetAjourSalDat();
             proc->Message(tr("Le poste ") + Poste + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
-            verifoldquery.next();
         }
     }
 
     // on donne le statut "arrivé" aux patients en salle d'attente dont le iduserencourssexam n'est plus present sur ce poste examen dans la liste des users connectes
     QString req = "select iduserencoursexam, posteexamen, idpat from " NOM_TABLE_SALLEDATTENTE " where statut like '" ENCOURSEXAMEN "%'";
     //qDebug() << req;
-    QSqlQuery querr(req, db->getDataBase() );
-    for (int i=0; i<querr.size(); i++)
+    QList<QList<QVariant>> usrlist = db->StandardSelectSQL(req, ok);
+    for (int i=0; i<usrlist.size(); i++)
     {
-        querr.seek(i);
-        req = "select iduser, nomposteconnecte from " NOM_TABLE_USERSCONNECTES " where iduser = " + querr.value(0).toString()  + " and nomposteconnecte = '" + querr.value(1).toString() + "'";
+        req = "select iduser, nomposteconnecte from " NOM_TABLE_USERSCONNECTES " where iduser = " + usrlist.at(i).at(0).toString()  + " and nomposteconnecte = '" + usrlist.at(i).at(1).toString() + "'";
         //qDebug() << req;
-        QSqlQuery squer(req, db->getDataBase() );
-        if (squer.size()==0)
+        QList<QList<QVariant>> usr2list = db->StandardSelectSQL(req, ok);
+        if (usr2list.size()==0)
         {
-            req = "update " NOM_TABLE_SALLEDATTENTE " set Statut = '" ARRIVE "', posteexamen = null, iduserencoursexam = null where idpat = " + querr.value(2).toString();
+            req = "update " NOM_TABLE_SALLEDATTENTE " set Statut = '" ARRIVE "', posteexamen = null, iduserencoursexam = null where idpat = " + usrlist.at(i).at(2).toString();
             //qDebug() << req;
-            QSqlQuery(req,  db->getDataBase() );
+            db->StandardSQL(req);
         }
     }
 }
@@ -5558,8 +5558,8 @@ void Rufus::VerifImportateur()
         if (ImportateurDocs != IpAdr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'es pas prioritaire
         {
             QString req = "select nomposteconnecte from " NOM_TABLE_USERSCONNECTES " where nomposteconnecte = '" + ImportateurDocs.remove(" - prioritaire") + "'";
-            QSqlQuery quer(req, db->getDataBase() );
-            if (quer.size()==0)
+            QList<QList<QVariant>> postlist = db->StandardSelectSQL(req, ok);
+            if (postlist.size()==0)
             {
                 /*Si le poste défini comme importateur des docs externes n'est pas connecté,
                  on prend la place si
@@ -5709,8 +5709,8 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                 {
                     // on vérifie d'abord s'il existe un enregistrement pour ce patient dans la table correspondante, sinon, on le crée
                     QString verifrequete = "select idPat from " + objUpText->getTableCorrespondant() + " where idpat = " + QString::number(gidPatient);
-                    QSqlQuery verifquery(verifrequete, db->getDataBase() );
-                    if (verifquery.size() == 0)
+                    QList<QList<QVariant>> patlist = db->StandardSelectSQL(verifrequete, ok);
+                    if (patlist.size()==0)
                         requetemodif =   "INSERT INTO " + objUpText->getTableCorrespondant() + " (" + objUpText->getChampCorrespondant() + ",idPat)"
                                 + " VALUES ('" + Utils::correctquoteSQL(objUpText->toPlainText()) + "', " + QString::number(gidPatient) + ")";
                     else
@@ -5743,19 +5743,14 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     objUpText->setText(Utils::trimcapitilize(objUpText->text(),true));
                     // on vérifie d'abord s'il existe un enregistrement pour ce patient dans la table correspondante, sinon, on le crée
                     QString verifrequete = "select idPat from " + objUpText->getTableCorrespondant() + " where idpat = " + QString::number(gidPatient);
-                    QSqlQuery verifquery(verifrequete, db->getDataBase() );
-                    if (verifquery.size() == 0)
-                    {
+                    QList<QList<QVariant>> patlist = db->StandardSelectSQL(verifrequete, ok);
+                    if (patlist.size()==0)
                         requetemodif =   "INSERT INTO " + objUpText->getTableCorrespondant() + " (" + objUpText->getChampCorrespondant() + ",idPat)"
-                                + " VALUES ('" + Utils::correctquoteSQL(objUpText->text()) + "', " + QString::number(gidPatient) + ")";
-                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
-                    }
+                                       + " VALUES ('" + Utils::correctquoteSQL(objUpText->text()) + "', " + QString::number(gidPatient) + ")";
                     else
-                    {
                         requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
-                                + Utils::correctquoteSQL(objUpText->text()) + "' WHERE idPat = " + QString::number(gidPatient);
-                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
-                    }
+                                        + Utils::correctquoteSQL(objUpText->text()) + "' WHERE idPat = " + QString::number(gidPatient);
+                    db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
                     OKModifierTerrain();
                 }
             }
@@ -5942,9 +5937,8 @@ void Rufus::AfficheActe(int idActe)
 {
     QString req = "SELECT idActe, idPat, idUser, ActeDate, ActeMotif, ActeTexte, ActeConclusion, ActeCourrierAFaire, ActeCotation, ActeMontant, ActeMonnaie, CreePar from " NOM_TABLE_ACTES
             " WHERE idActe = '" + QString::number(idActe) + "'";
-    QSqlQuery AfficheActeQuery (req, db->getDataBase() );
-    if (db->erreurRequete(AfficheActeQuery,req,tr("Impossible de retrouver la dernière consultation"))
-        || AfficheActeQuery.size() == 0)                            // Aucune consultation trouvee pour ce  patient
+    QList<QList<QVariant>> actlist = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver la dernière consultation"));
+    if (!ok || actlist.size() == 0)                            // Aucune consultation trouvee pour ce  patient
     {
         nbActes = 0;
         noActe = 0;
@@ -5958,21 +5952,20 @@ void Rufus::AfficheActe(int idActe)
     {
         gidActe = idActe;
         //1.  Retrouver l'acte défini par son idActe et afficher les champs
-        AfficheActeQuery.last();
         ui->Acteframe->setVisible(true);
         ui->CreerActepushButton_2->setVisible(false);
         ui->CreerBOpushButton_2->setVisible(false);
 
-        ui->ActeDatedateEdit->setDate(AfficheActeQuery.value(3).toDate());
+        ui->ActeDatedateEdit->setDate(actlist.last().at(3).toDate());
         ui->ActeDatedateEdit->setEnabled(false);
-        ui->ActeMotiftextEdit->setText(AfficheActeQuery.value(4).toString());
-        ui->ActeTextetextEdit->setText(AfficheActeQuery.value(5).toString());
-        ui->ActeConclusiontextEdit->setText(AfficheActeQuery.value(6).toString());
-        ui->idActelineEdit->setText(AfficheActeQuery.value(0).toString());
-        ui->CourrierAFairecheckBox->setChecked(AfficheActeQuery.value(7).toString() == "T");
-        ui->ActeCotationcomboBox->setCurrentText(AfficheActeQuery.value(8).toString());
+        ui->ActeMotiftextEdit->setText(actlist.last().at(4).toString());
+        ui->ActeTextetextEdit->setText(actlist.last().at(5).toString());
+        ui->ActeConclusiontextEdit->setText(actlist.last().at(6).toString());
+        ui->idActelineEdit->setText(actlist.last().at(0).toString());
+        ui->CourrierAFairecheckBox->setChecked(actlist.last().at(7).toString() == "T");
+        ui->ActeCotationcomboBox->setCurrentText(actlist.last().at(8).toString());
         // on affiche tous les montants en euros, même ce qui a été payé en francs.
-        gMonnaie  = AfficheActeQuery.value(10).toString();
+        gMonnaie  = actlist.last().at(10).toString();
         double H = 1;
         if (gMonnaie == "F")
         {
@@ -5981,13 +5974,13 @@ void Rufus::AfficheActe(int idActe)
         }
         else
             ui->ActeMontantLabel->setText(tr("Montant (€)"));
-        ui->ActeMontantlineEdit->setText(QLocale().toString(AfficheActeQuery.value(9).toDouble()/H,'f',2));
-        int idx = ui->ActeCotationcomboBox->findText(AfficheActeQuery.value(8).toString());
+        ui->ActeMontantlineEdit->setText(QLocale().toString(actlist.last().at(9).toDouble()/H,'f',2));
+        int idx = ui->ActeCotationcomboBox->findText(actlist.last().at(8).toString());
         if (idx>0)
         {
             QStringList listMontantActe = ui->ActeCotationcomboBox->itemData(idx).toStringList();
             double MontantConv, MontantPrat, MontantActe;
-            MontantActe = AfficheActeQuery.value(9).toDouble()/H;
+            MontantActe = actlist.last().at(9).toDouble()/H;
             MontantConv = listMontantActe.at(0).toDouble();
             MontantPrat = listMontantActe.at(1).toDouble();
             ui->BasculerMontantpushButton->setVisible((MontantActe!=MontantConv) || (MontantActe!=MontantPrat) || (MontantConv!=MontantPrat));
@@ -6009,18 +6002,18 @@ void Rufus::AfficheActe(int idActe)
         gAgePatient = Age["annee"].toInt();
 
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
-        ui->CreeParlineEdit->setText(tr("Créé par ") + proc->getLogin(AfficheActeQuery.value(11).toInt())
-                                     + tr(" pour ") + proc->getLogin(AfficheActeQuery.value(2).toInt()));
+        ui->CreeParlineEdit->setText(tr("Créé par ") + proc->getLogin(actlist.last().at(11).toInt())
+                                     + tr(" pour ") + proc->getLogin(actlist.last().at(2).toInt()));
 
         //3. Mettre à jour le numéro d'acte
         req = "SELECT idActe FROM " NOM_TABLE_ACTES
                 " WHERE idPat = '" + QString::number(gidPatient) + "' ORDER BY ActeDate";
-        QSqlQuery ChercheNumActeQuery (req, db->getDataBase() );
-        if (!db->erreurRequete(ChercheNumActeQuery,req,tr("Impossible de retrouver les consultations de ce patient")))
+        QList<QList<QVariant>> act1list = db->StandardSelectSQL(req, ok , tr("Impossible de retrouver les consultations de ce patient"));
+        if (ok)
         {
-            if (ChercheNumActeQuery.size() > 0)           // Il y a des consultations
+            if (act1list.size() > 0)           // Il y a des consultations
             {
-                nbActes = ChercheNumActeQuery.size();
+                nbActes = act1list.size();
                 if (nbActes == 1)
                 {
                     ui->ActePrecedentpushButton->setEnabled(false);
@@ -6033,17 +6026,14 @@ void Rufus::AfficheActe(int idActe)
                 }
                 if (nbActes > 1)
                 {
-                    ChercheNumActeQuery.first();
                     for (int i = 0; i < nbActes; i++)
                     {
-                        if (ChercheNumActeQuery.value(0).toInt() == idActe)
+                        if (act1list.at(i).at(0).toInt() == idActe)
                         {
-                            noActe = ChercheNumActeQuery.at() + 1;
+                            noActe = i + 1;
                             break;
                         }
-                        else
-                            ChercheNumActeQuery.next();
-                    }
+                     }
                     if (noActe == 1)
                     {
                         ui->ActePrecedentpushButton->setEnabled(false);
@@ -6086,10 +6076,9 @@ void Rufus::AfficheActeCompta()
 {
     //1. on recherche d'abord s'il y a eu un paiement enregistré pour cette consultation
     QString req = "SELECT TypePaiement, Tiers From " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(gidActe);
-    QSqlQuery AfficheTypePaiementQuery (req, db->getDataBase() );
-    db->erreurRequete(AfficheTypePaiementQuery,req,"Impossible de retrouver les renseignements comptables");
+    QList<QVariant> pmtdata = db->getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les renseignements comptables"));
 
-    bool a = (AfficheTypePaiementQuery.size() == 0);
+    bool a = (pmtdata.size() == 0);
 
     ui->Comptaframe->setVisible(!a);
     ui->Cotationframe->setEnabled(a);
@@ -6099,58 +6088,51 @@ void Rufus::AfficheActeCompta()
     if (a)
     {
         QString req = "SELECT UserComptable From " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(gidActe);
-        QSqlQuery cptQuery (req, db->getDataBase() );
-        db->erreurRequete(cptQuery,req,"Impossible de retrouver les renseignements comptables");
-        cptQuery.first();
-        ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->lineEdit()->text()!="" && cptQuery.value(0).toInt()==gDataUser->getIdUserComptable());
+        QList<QVariant> cptdata = db->getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les renseignements comptables"));
+        if (ok && cptdata.size()>0)
+        ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->lineEdit()->text()!="" && cptdata.at(0).toInt()==gDataUser->getIdUserComptable());
         return;
     }
 
     //2. on recherche ensuite le type de paiement : espèces, chèque, tiers, cb, impayé, gratuit
 
-    AfficheTypePaiementQuery.first();
-    if (AfficheTypePaiementQuery.value(0).toString() == "T"  && AfficheTypePaiementQuery.value(1).toString() != "CB") ui->PaiementlineEdit->setText(AfficheTypePaiementQuery.value(1).toString());
+    if (pmtdata.at(0).toString() == "T"  && pmtdata.at(1).toString() != "CB") ui->PaiementlineEdit->setText(pmtdata.at(1).toString());
 
     QString lbl = "Paiement : ";
-    if (AfficheTypePaiementQuery.value(0).toString() == "C") ui->PaiementlineEdit->setText("chèque");
-    if (AfficheTypePaiementQuery.value(0).toString() == "E") ui->PaiementlineEdit->setText("espèces");
-    if (AfficheTypePaiementQuery.value(0).toString() == "B") ui->PaiementlineEdit->setText("carte de crédit");
-    if (AfficheTypePaiementQuery.value(0).toString() == "G") ui->PaiementlineEdit->setText("Acte gratuit");
-    if (AfficheTypePaiementQuery.value(0).toString() == "I") ui->PaiementlineEdit->setText("Impayé");
-    if (AfficheTypePaiementQuery.value(0).toString() == "T"
-            && AfficheTypePaiementQuery.value(1).toString() == "CB") ui->PaiementlineEdit->setText("carte de crédit");
-    if (AfficheTypePaiementQuery.value(0).toString() == "T"
-            && AfficheTypePaiementQuery.value(1).toString() != "CB") ui->PaiementlineEdit->setText(AfficheTypePaiementQuery.value(1).toString());
+    if (pmtdata.at(0).toString() == "C") ui->PaiementlineEdit->setText("chèque");
+    if (pmtdata.at(0).toString() == "E") ui->PaiementlineEdit->setText("espèces");
+    if (pmtdata.at(0).toString() == "B") ui->PaiementlineEdit->setText("carte de crédit");
+    if (pmtdata.at(0).toString() == "G") ui->PaiementlineEdit->setText("Acte gratuit");
+    if (pmtdata.at(0).toString() == "I") ui->PaiementlineEdit->setText("Impayé");
+    if (pmtdata.at(0).toString() == "T"
+            && pmtdata.at(1).toString() == "CB") ui->PaiementlineEdit->setText("carte de crédit");
+    if (pmtdata.at(0).toString() == "T"
+            && pmtdata.at(1).toString() != "CB") ui->PaiementlineEdit->setText(pmtdata.at(1).toString());
 
     // on calcule le montant payé pour l'acte
-    if (AfficheTypePaiementQuery.value(0).toString() != "G" || AfficheTypePaiementQuery.value(0).toString() != "I")
+    if (pmtdata.at(0).toString() != "G" || pmtdata.at(0).toString() != "I")
     {
         double TotalPaye = 0;
         // on récupère les lignes de paiement
         QString requete = " SELECT idRecette, Paye FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(gidActe);
-        QSqlQuery ListePaiementsQuery (requete, db->getDataBase() );
-        db->erreurRequete(ListePaiementsQuery, requete, "");
-        ListePaiementsQuery.first();
-        for (int l = 0; l < ListePaiementsQuery.size(); l++)
+        QList<QList<QVariant>> reclist = db->StandardSelectSQL(requete, ok);
+        for (int l = 0; l < reclist.size(); l++)
         {
-            requete = "SELECT Monnaie FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + ListePaiementsQuery.value(0).toString();
-            QSqlQuery MonnaieQuery (requete, db->getDataBase() );
-            db->erreurRequete(MonnaieQuery,requete,"");
-            MonnaieQuery.first();
-            if (MonnaieQuery.value(0).toString() == "F")
-                TotalPaye = TotalPaye + (ListePaiementsQuery.value(1).toDouble() / 6.55957);
+            requete = "SELECT Monnaie FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + reclist.at(l).at(0).toString();
+            QList<QVariant> mondata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
+            if (mondata.at(0).toString() == "F")
+                TotalPaye = TotalPaye + (reclist.at(l).at(1).toDouble() / 6.55957);
             else
-                TotalPaye = TotalPaye + ListePaiementsQuery.value(1).toDouble();
-            ListePaiementsQuery.next();
+                TotalPaye = TotalPaye + reclist.at(l).at(1).toDouble();
         }
         ui->PayelineEdit->setText(QLocale().toString(TotalPaye,'f',2));
     }
 
-    if (AfficheTypePaiementQuery.value(0).toString() == "B"
-        ||(AfficheTypePaiementQuery.value(0).toString() == "T"
-            && AfficheTypePaiementQuery.value(1).toString() == "CB")
-        || AfficheTypePaiementQuery.value(0).toString() == "C"
-        || AfficheTypePaiementQuery.value(0).toString() == "E")
+    if (pmtdata.at(0).toString() == "B"
+        ||(pmtdata.at(0).toString() == "T"
+            && pmtdata.at(1).toString() == "CB")
+        || pmtdata.at(0).toString() == "C"
+        || pmtdata.at(0).toString() == "E")
     {
         ui->PaiementLabel->setVisible(true);
         ui->PaiementLabel->setText("Paiement:");
@@ -6160,8 +6142,8 @@ void Rufus::AfficheActeCompta()
         ui->PaiementlineEdit->setGeometry(79,4,91,18);
         return;
     }
-    if (AfficheTypePaiementQuery.value(0).toString() == "G"
-        || AfficheTypePaiementQuery.value(0).toString() == "I")
+    if (pmtdata.at(0).toString() == "G"
+        || pmtdata.at(0).toString() == "I")
     {
         ui->PaiementLabel->setVisible(false);
         ui->PayeLabel->setVisible(false);
@@ -6170,8 +6152,8 @@ void Rufus::AfficheActeCompta()
         ui->PaiementlineEdit->setGeometry(8,4,164,18);
         return;
     }
-    if (AfficheTypePaiementQuery.value(0).toString() == "T"
-            && AfficheTypePaiementQuery.value(1).toString() != "CB")
+    if (pmtdata.at(0).toString() == "T"
+            && pmtdata.at(1).toString() != "CB")
     {
         ui->PaiementLabel->setText("Tiers");
         ui->PaiementLabel->setVisible(true);
@@ -6195,100 +6177,89 @@ void Rufus::AfficheDossier(int idPat, int idacte)
 
     QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS
               " WHERE idPat = '" + QString::number(idPat) + "'";
-    QSqlQuery AfficheDossierQuery (req, db->getDataBase() );
-    if (db->erreurRequete(AfficheDossierQuery,req,tr("Impossible de retrouver le dossier de ce patient")))
+    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req,ok,tr("Impossible de retrouver le dossier de ce patient"));
+    if (!ok || patdata.size() == 0)           // Aucune mesure trouvee pour ces criteres
         return;
-    if (AfficheDossierQuery.size() == 0)           // Aucune mesure trouvee pour ces criteres
-        return;
-    AfficheDossierQuery.first();
     gidPatient      = idPat;
     gdossierAOuvrir = idPat;
-    gNomPatient     = AfficheDossierQuery.value(1).toString();
-    gPrenomPatient  = AfficheDossierQuery.value(2).toString();
-    gDDNPatient     = AfficheDossierQuery.value(3).toDate();
-    gSexePat = AfficheDossierQuery.value(4).toString();
-    ui->DateCreationDossierlineEdit->setText(AfficheDossierQuery.value(5).toDate().toString(tr("d-M-yyyy")));
+    gNomPatient     = patdata.at(1).toString();
+    gPrenomPatient  = patdata.at(2).toString();
+    gDDNPatient     = patdata.at(3).toDate();
+    gSexePat = patdata.at(4).toString();
+    ui->DateCreationDossierlineEdit->setText(patdata.at(5).toDate().toString(tr("d-M-yyyy")));
     ui->idPatientlineEdit->setText(QString::number(idPat));
     QString label= gNomPatient + " " + gPrenomPatient;
 
-    ui->IdCreateurDossierlineEdit->setText(proc->getLogin(AfficheDossierQuery.value(6).toInt()));
+    ui->IdCreateurDossierlineEdit->setText(proc->getLogin(patdata.at(6).toInt()));
 
     //2 - récupération des données sociales
 
-    req = "SELECT idPat, PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille, PatTelephone, PatPortable, PatMail, PatNNI, PatALD, PatProfession, PatCMU FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS
-              " WHERE idPat = '" + QString::number(idPat) + "'";
-    QSqlQuery DonneesSocialesQuery (req, db->getDataBase() );
-    if (!db->erreurRequete(DonneesSocialesQuery,req,tr("Impossible de retrouver les données sociales!")))
-    {
-        if (DonneesSocialesQuery.size() > 0)
-            DonneesSocialesQuery.first();
-        else
-        {
-            // ui->NNIlineEdit->clear();            // CZ001
-            //ui->NNIlineEdit->setText(gNNIPat);      // CZ001
-        }
-    }
     QString html, img, Age;
     QMap<QString,QVariant>  AgeTotal = Item::CalculAge(gDDNPatient, gSexePat);
-    gCMUPatient = (DonneesSocialesQuery.value(12).toInt() == 1);
     img = AgeTotal["icone"].toString();
     Age = AgeTotal["toString"].toString();
     QIcon icon = Icons::getIconAge(img);
-
-    html =
-    "<html>"
-    "<head>"
-      "<style type=\"text/css\">"
-      "  p.p1 {font:16px; margin: 0px 0px 10px 100px;}"
-      "  p.p10 {font:16px; margin: 10px 0px 0px 100px;}"
-      "  p.p2 {margin: 0px 0px 0px 100px;}"
-      "  p.p3 {margin: 10px 0px 0px 100px;}"
-      "  p.p4 {margin: 10px 0px 10px 100px;}"
-      "  .image {position:absolute; top:100px; left:10px; float: left;}"
-      "</style>"
-    "</head>"
-    "<body LANG=\"fr-FR\" DIR=\"LTR\">";
-    if (img != "")
-        html += "<img class=\"image\" src=\"://" + img + ".png\" WIDTH=\"100\" HEIGHT=\"100\" BORDER=\"10\" />";                            //Icone
-    html += "<p class=\"p10\"><b>" + gNomPatient + " " + gPrenomPatient + "</b></p>";                                                       //Nom Prenom
-    html += "<p class=\"p1\"><b>" + Age + "</b> (" +gDDNPatient.toString(tr("d MMM yyyy")) + ")</p>";                                           //DDN
-    if (DonneesSocialesQuery.value(1).toString() != "")
-        html += "<p class=\"p2\">" + DonneesSocialesQuery.value(1).toString() + "</p>";                                                     //Adresse1
-    if (DonneesSocialesQuery.value(2).toString() != "")
-        html += "<p class=\"p2\">" + DonneesSocialesQuery.value(2).toString() + "</p>";                                                     //Adresse2
-    if (DonneesSocialesQuery.value(3).toString() != "")
-        html += "<p class=\"p2\">" + DonneesSocialesQuery.value(3).toString() + "</p>";                                                     //Adresse3
-    if (DonneesSocialesQuery.value(4).toString() != "")
+    req = "SELECT idPat, PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille, PatTelephone, PatPortable, PatMail, PatNNI, PatALD, PatProfession, PatCMU FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS
+              " WHERE idPat = '" + QString::number(idPat) + "'";
+    QList<QVariant> socdata = db->getFirstRecordFromStandardSelectSQL(req,ok,tr("Impossible de retrouver les données sociales!"));
+    if (ok && socdata.size()>0)
     {
-        html += "<p class=\"p2\">" + DonneesSocialesQuery.value(4).toString() + " " + DonneesSocialesQuery.value(5).toString() + "</p>";    //CP + ville
-    }
-    else
-        if (DonneesSocialesQuery.value(5).toString() != "")
-            html += "<p class=\"p2\">" + DonneesSocialesQuery.value(5).toString() + "</p>";                                                 //Ville
-    if (DonneesSocialesQuery.value(6).toString() != "")
-        html += "<p class=\"p3\">"+ tr("Tél.") + "\t" + DonneesSocialesQuery.value(6).toString() + "</p>";                                               //Tél
-    if (DonneesSocialesQuery.value(7).toString() != "")
-        html += "<p class=\"p2\">" + tr("Portable") + "\t" + DonneesSocialesQuery.value(7).toString() + "</p>";                                           //Portable
-    if (DonneesSocialesQuery.value(8).toString() != "")
-        html += "<p class=\"p3\">" + tr("Mail") + "\t" + DonneesSocialesQuery.value(8).toString() + "</p>";                                               //Mail
-    if (DonneesSocialesQuery.value(9).toInt() > 0)
-        html += "<p class=\"p2\">" + tr("NNI") + "\t" + DonneesSocialesQuery.value(9).toString() + "</p>";                                                //NNI
-    if (DonneesSocialesQuery.value(11).toString() != "")
-        html += "<p class=\"p3\">" + DonneesSocialesQuery.value(11).toString() + "</p>";                                                    //Profession
-    if (DonneesSocialesQuery.value(10).toInt() == 1 || DonneesSocialesQuery.value(12).toInt() == 1)
-    {
-        html += "<p class=\"p3\"><td width=\"60\">";
-        if (DonneesSocialesQuery.value(10).toInt() == 1)
-            html += "<font size = \"5\"><font color = \"red\"><b>ALD</b></font>";                                                           //ALD
-        if (DonneesSocialesQuery.value(12).toInt() == 1)
-            html += "</td><td width=\"60\"><font size = \"5\"><font color = \"blue\"><b>CMU</b></font>";                                    //CMU
-        html += "</td></p>";
-    }
+        gCMUPatient = (socdata.at(12).toInt() == 1);
+        html =
+                "<html>"
+                "<head>"
+                "<style type=\"text/css\">"
+                "  p.p1 {font:16px; margin: 0px 0px 10px 100px;}"
+                "  p.p10 {font:16px; margin: 10px 0px 0px 100px;}"
+                "  p.p2 {margin: 0px 0px 0px 100px;}"
+                "  p.p3 {margin: 10px 0px 0px 100px;}"
+                "  p.p4 {margin: 10px 0px 10px 100px;}"
+                "  .image {position:absolute; top:100px; left:10px; float: left;}"
+                "</style>"
+                "</head>"
+                "<body LANG=\"fr-FR\" DIR=\"LTR\">";
+        if (img != "")
+            html += "<img class=\"image\" src=\"://" + img + ".png\" WIDTH=\"100\" HEIGHT=\"100\" BORDER=\"10\" />";        //Icone
+        html += "<p class=\"p10\"><b>" + gNomPatient + " " + gPrenomPatient + "</b></p>";                                   //Nom Prenom
+        html += "<p class=\"p1\"><b>" + Age + "</b> (" +gDDNPatient.toString(tr("d MMM yyyy")) + ")</p>";                   //DDN
+        if (socdata.at(1).toString() != "")
+            html += "<p class=\"p2\">" + socdata.at(1).toString() + "</p>";                                                 //Adresse1
+        if (socdata.at(2).toString() != "")
+            html += "<p class=\"p2\">" + socdata.at(2).toString() + "</p>";                                                 //Adresse2
+        if (socdata.at(3).toString() != "")
+            html += "<p class=\"p2\">" + socdata.at(3).toString() + "</p>";                                                 //Adresse3
+        if (socdata.at(4).toString() != "")
+        {
+            html += "<p class=\"p2\">" + socdata.at(4).toString() + " " + socdata.at(5).toString() + "</p>";                //CP + ville
+        }
+        else
+            if (socdata.at(5).toString() != "")
+                html += "<p class=\"p2\">" + socdata.at(5).toString() + "</p>";                                             //Ville
+        if (socdata.at(6).toString() != "")
+            html += "<p class=\"p3\">"+ tr("Tél.") + "\t" + socdata.at(6).toString() + "</p>";                              //Tél
+        if (socdata.at(7).toString() != "")
+            html += "<p class=\"p2\">" + tr("Portable") + "\t" + socdata.at(7).toString() + "</p>";                         //Portable
+        if (socdata.at(8).toString() != "")
+            html += "<p class=\"p3\">" + tr("Mail") + "\t" + socdata.at(8).toString() + "</p>";                             //Mail
+        if (socdata.at(9).toInt() > 0)
+            html += "<p class=\"p2\">" + tr("NNI") + "\t" + socdata.at(9).toString() + "</p>";                              //NNI
+        if (socdata.at(11).toString() != "")
+            html += "<p class=\"p3\">" + socdata.at(11).toString() + "</p>";                                                //Profession
+        if (socdata.at(10).toInt() == 1 || socdata.at(12).toInt() == 1)
+        {
+            html += "<p class=\"p3\"><td width=\"60\">";
+            if (socdata.at(10).toInt() == 1)
+                html += "<font size = \"5\"><font color = \"red\"><b>ALD</b></font>";                                       //ALD
+            if (socdata.at(12).toInt() == 1)
+                html += "</td><td width=\"60\"><font size = \"5\"><font color = \"blue\"><b>CMU</b></font>";                //CMU
+            html += "</td></p>";
+        }
 
-    html += "</body></html>";
-    //proc->EcritDansUnFichier(QDir::homePath()+ NOMFIC_TEST, html);
+        html += "</body></html>";
+        //proc->EcritDansUnFichier(QDir::homePath()+ NOMFIC_TEST, html);
 
-    ui->IdentPatienttextEdit->setHtml(html);
+        ui->IdentPatienttextEdit->setHtml(html);
+    }
 
     //3 - récupération des données médicales
 
@@ -6296,22 +6267,21 @@ void Rufus::AfficheDossier(int idPat, int idacte)
               ", RMPAtcdtsOphs, Tabac, Autrestoxiques, Gencorresp, Important, Resume, RMPTtOphs FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
               " WHERE idPat = " + QString::number(idPat);
     //qDebug() << requete;
-    QSqlQuery DonneesMedicalesQuery (req, db->getDataBase() );
-    if (!db->erreurRequete(DonneesMedicalesQuery,req,"Impossible de retrouver les données médicales"))
+    QList<QVariant> meddata = db->getFirstRecordFromStandardSelectSQL(req,ok,tr("Impossible de retrouver les données médicales!"));
+    if (ok)
     {
-        if (DonneesMedicalesQuery.size() > 0)           // Il y a des renseignements medicaux
+        if (meddata.size() > 0)           // Il y a des renseignements medicaux
         {
-            DonneesMedicalesQuery.first();
-            ui->AtcdtsPersostextEdit->setText(DonneesMedicalesQuery.value(6).toString());
-            ui->TtGeneraltextEdit->setText(DonneesMedicalesQuery.value(7).toString());
-            ui->AtcdtsFamiliauxtextEdit->setText(DonneesMedicalesQuery.value(8).toString());
-            ui->AtcdtsOphstextEdit->setText(DonneesMedicalesQuery.value(9).toString());
-            ui->TabaclineEdit->setText(DonneesMedicalesQuery.value(10).toString());
-            ui->AutresToxiquestextEdit->setText(DonneesMedicalesQuery.value(11).toString());
+            ui->AtcdtsPersostextEdit->setText(meddata.at(6).toString());
+            ui->TtGeneraltextEdit->setText(meddata.at(7).toString());
+            ui->AtcdtsFamiliauxtextEdit->setText(meddata.at(8).toString());
+            ui->AtcdtsOphstextEdit->setText(meddata.at(9).toString());
+            ui->TabaclineEdit->setText(meddata.at(10).toString());
+            ui->AutresToxiquestextEdit->setText(meddata.at(11).toString());
             QString tooltp = "";
-            if (DonneesMedicalesQuery.value(1).toInt()>0)
+            if (meddata.at(1).toInt()>0)
             {
-                int id = DonneesMedicalesQuery.value(1).toInt();
+                int id = meddata.at(1).toInt();
                 ui->MGupComboBox->setCurrentIndex
                         (ui->MGupComboBox->findData(id));
                 tooltp = CalcToolTipCorrespondant(id);
@@ -6320,9 +6290,9 @@ void Rufus::AfficheDossier(int idPat, int idacte)
                 ui->MGupComboBox->setCurrentIndex(-1);
             ui->MGupComboBox->setImmediateToolTip(tooltp);
             tooltp = "";
-            if (DonneesMedicalesQuery.value(2).toInt()>0)
+            if (meddata.at(2).toInt()>0)
             {
-                int id = DonneesMedicalesQuery.value(2).toInt();
+                int id = meddata.at(2).toInt();
                 ui->AutresCorresp1upComboBox->setCurrentIndex
                         (ui->AutresCorresp1upComboBox->findData(id));
                 tooltp = CalcToolTipCorrespondant(id);
@@ -6331,9 +6301,9 @@ void Rufus::AfficheDossier(int idPat, int idacte)
                 ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
             ui->AutresCorresp1upComboBox->setImmediateToolTip(tooltp);
             tooltp = "";
-            if (DonneesMedicalesQuery.value(3).toInt()>0)
+            if (meddata.at(3).toInt()>0)
             {
-                int id = DonneesMedicalesQuery.value(3).toInt();
+                int id = meddata.at(3).toInt();
                 ui->AutresCorresp2upComboBox->setCurrentIndex
                         (ui->AutresCorresp2upComboBox->findData(id));
                 tooltp = CalcToolTipCorrespondant(id);
@@ -6341,9 +6311,9 @@ void Rufus::AfficheDossier(int idPat, int idacte)
             else
                 ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
             ui->AutresCorresp2upComboBox->setImmediateToolTip(tooltp);
-            ui->ImportanttextEdit->setText(DonneesMedicalesQuery.value(13).toString());
-            ui->ResumetextEdit->setText(DonneesMedicalesQuery.value(14).toString());
-            ui->TtOphtextEdit->setText(DonneesMedicalesQuery.value(15).toString());
+            ui->ImportanttextEdit->setText(meddata.at(13).toString());
+            ui->ResumetextEdit->setText(meddata.at(14).toString());
+            ui->TtOphtextEdit->setText(meddata.at(15).toString());
         }
         else
         {
@@ -6368,8 +6338,8 @@ void Rufus::AfficheDossier(int idPat, int idacte)
 
     QString recuprequete = "SELECT idActe FROM " NOM_TABLE_ACTES
             " WHERE idPat = '" + QString::number(idPat) + "' ORDER BY ActeDate";
-    QSqlQuery ActesQuery (recuprequete, db->getDataBase() );
-    if (db->erreurRequete(ActesQuery,recuprequete,tr("Impossible de retrouver les consultations de ce patient")))
+    QList<QList<QVariant>> actlist = db->StandardSelectSQL(recuprequete, ok, tr("Impossible de retrouver les consultations de ce patient"));
+    if (!ok)
     {
         ui->Acteframe->setVisible(false);
         ui->CreerActepushButton_2->setVisible(true);
@@ -6381,12 +6351,11 @@ void Rufus::AfficheDossier(int idPat, int idacte)
     else
     {
         OuvrirDocsExternes(gidPatient);  // depuis AfficheDossier
-        if (ActesQuery.size() > 0)           // Il y a des consultations
+        if (actlist.size() > 0)           // Il y a des consultations
         {
-            ActesQuery.last();
-            int a = (idacte == 0? ActesQuery.value(0).toInt() : idacte);
+            int a = (idacte == 0? actlist.last().at(0).toInt() : idacte);
             AfficheActe(a);
-            if (ActesQuery.size() > 1)
+            if (actlist.size() > 1)
                 OuvrirActesPrecedents();
             ui->ActeMotiftextEdit->setFocus();
         }
@@ -6412,29 +6381,30 @@ void Rufus::AfficheDossier(int idPat, int idacte)
     //5 - mise à jour du dossier en salle d'attente
     req =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE
                 " WHERE idPat = " + QString::number(gidPatient);
-    QSqlQuery SalDatQuery (req, db->getDataBase() );
-    db->erreurRequete(SalDatQuery,req,tr("Impossible de trouver la salle d'attente!"));
-
-    if (SalDatQuery.size() == 0)
+    QList<QVariant> attdata = db->getFirstRecordFromStandardSelectSQL(req,ok,tr("Impossible de retrouver la salle d'attente!"));
+    if (ok)
     {
-        req =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
+        if (attdata.size() == 0)
+        {
+            req =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
                     " (idPat, idUser, Statut, HeureStatut, idUserEnCoursExam, PosteExamen, HeureArrivee)"
                     " VALUES ('" + QString::number(gidPatient) + "','" + QString::number(gDataUser->getIdUserActeSuperviseur()) + "','" ENCOURSEXAMEN + gDataUser->getLogin() + "','" + QTime::currentTime().toString("hh:mm")
                     + "'," + QString::number(gDataUser->id()) + ", '" + QHostInfo::localHostName().left(60) + "','" + QTime::currentTime().toString("hh:mm") +"')";
-        Msg = tr("Impossible de mettre ce dossier en salle d'attente");
-    }
-    else
-    {
-        req =   "UPDATE " NOM_TABLE_SALLEDATTENTE
+            Msg = tr("Impossible de mettre ce dossier en salle d'attente");
+        }
+        else
+        {
+            req =   "UPDATE " NOM_TABLE_SALLEDATTENTE
                     " SET Statut = '" ENCOURSEXAMEN + gDataUser->getLogin() +
                     "', HeureStatut = '" + QTime::currentTime().toString("hh:mm") +
                     "', idUserEnCoursExam = " + QString::number(gDataUser->id()) +
                     ", PosteExamen = '" + QHostInfo::localHostName().left(60) +
                     "' WHERE idPat = '" + QString::number(gidPatient) + "'";
-        Msg = tr("Impossible de modifier le statut du dossier en salle d'attente!");
+            Msg = tr("Impossible de modifier le statut du dossier en salle d'attente!");
+        }
+        //UpMessageBox::Watch(this,req);
+        db->StandardSQL(req,Msg);
     }
-    //UpMessageBox::Watch(this,req);
-    db->StandardSQL(req,Msg);
 
     if (!ui->tabDossier->isVisible())
     {
@@ -6455,13 +6425,13 @@ void Rufus::AfficheDossier(int idPat, int idacte)
     if (gDataUser->id() > 1) return;
     QString Sexe = "";
     req ="select idpat from " NOM_TABLE_PATIENTS " where patPrenom = '" + gPrenomPatient + "' and sexe = '' and patPrenom <> 'Dominique' and patPrenom <> 'Claude'";
-    QSqlQuery quer(req, db->getDataBase() );
-    if (quer.size()>0)
+    QList<QList<QVariant>> patlist = db->StandardSelectSQL(req, ok);
+    if (patlist.size()>0)
     {
-        if (UpMessageBox::Question(this, tr("Il existe ") + QString::number(quer.size()) + " " + gPrenomPatient + tr(" dont le sexe n'est pas précisé."), tr("Les convertir?")) == UpSmallButton::STARTBUTTON)
+        if (UpMessageBox::Question(this, tr("Il existe ") + QString::number(patlist.size()) + " " + gPrenomPatient + tr(" dont le sexe n'est pas précisé."), tr("Les convertir?")) == UpSmallButton::STARTBUTTON)
         {
             UpMessageBox *msgbox = new UpMessageBox(this);
-            msgbox->setText(tr("Convertir ") + QString::number(quer.size()) + " " + gPrenomPatient + "...");
+            msgbox->setText(tr("Convertir ") + QString::number(patlist.size()) + " " + gPrenomPatient + "...");
             msgbox->setIcon(UpMessageBox::Warning);
             UpSmallButton *MBouton = new UpSmallButton();
             MBouton->setText(tr("Masculin"));
@@ -6544,15 +6514,12 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
                     " act WHERE idPat = " + QString::number(gidPatient) +
                     " AND act.idActe NOT IN (SELECT typ.idActe FROM " NOM_TABLE_TYPEPAIEMENTACTES " typ)";
 
-            QSqlQuery EnregDernierActeQuery (requete, db->getDataBase() );
-            db->erreurRequete(EnregDernierActeQuery,requete, "Impossible de trouver le dernier acte du patient pour le contrôler");
-
+            QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(requete,ok,tr("Impossible de retrouver  le dernier acte du patient pour le contrôler!"));
             // cette requête renvoie toujours une table non vide en QT même si elle est vide en mysql... d'où la suite
-            EnregDernierActeQuery.first();
-            if (EnregDernierActeQuery.value(0).toInt() > 0) // =il n'y a pas de paiement enregistré pour le dernier acte
+            if (actdata.size()>0 && actdata.at(0).toInt() > 0) // =il n'y a pas de paiement enregistré pour le dernier acte
             {
-                if (EnregDernierActeQuery.value(0).toInt() != gidActe)
-                    AfficheActe(EnregDernierActeQuery.value(0).toInt());
+                if (actdata.at(0).toInt() != gidActe)
+                    AfficheActe(actdata.at(0).toInt());
                 if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
                 {
                     msgbox.setText(tr("Vous avez entré un montant nul !"));

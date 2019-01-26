@@ -26,6 +26,8 @@ class conversionbase : public QObject
     Q_OBJECT
 public:
     explicit conversionbase(Procedures *proc, QString BaseAConvertir, QObject *parent = Q_NULLPTR);
+    DataBase    *db;
+    bool        ok;
 };
 
 #endif // CONVERSIONBASE_H
