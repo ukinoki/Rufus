@@ -190,6 +190,10 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 dlg_paiementdirect::~dlg_paiementdirect()
 {
     delete ui;
+    proc = Q_NULLPTR;
+    db   = Q_NULLPTR;
+    delete proc;
+    delete db;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

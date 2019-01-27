@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("26-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("27-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1242,6 +1242,25 @@ void Rufus::AppelPaiementTiers()
     {
         Dlg_PaimtTiers->setWindowTitle(tr("Gestion des tiers payants"));
         Dlg_PaimtTiers->show();
+    }
+}
+
+void Rufus::AppelPaiementTiers2()
+{
+    QList<dlg_paiementtiers *> PaimtList = findChildren<dlg_paiementtiers*>();
+    if (PaimtList.size()>0)
+        for (int i=0; i<PaimtList.size();i++)
+            if (PaimtList.at(i)->isVisible())
+            {
+                QSound::play(NOM_ALARME);
+                PaimtList.at(i)->raise();
+                return;
+            }
+    Dlg_PmtTiers = new dlg_paiementtiers(0, 0, this); //NOTE : New Paiement
+    if(Dlg_PmtTiers->getInitOK())
+    {
+        Dlg_PmtTiers->setWindowTitle(tr("Gestion des tiers payants"));
+        Dlg_PmtTiers->show();
     }
 }
 
@@ -7167,27 +7186,27 @@ void Rufus::CreerMenu()
     menuDocuments->addAction(actionCorrespondants);
 
     // Les menus --------------------------------------------------------------------------------------------------
-    connect (actionCreerDossier,                &QAction::triggered,        this,                   [=] {OuvrirNouveauDossier();});
-    connect (actionOuvrirDossier,               &QAction::triggered,        this,                   [=] {OuvrirListe();});
+    connect (actionCreerDossier,                &QAction::triggered,        this,                   &Rufus::OuvrirNouveauDossier);
+    connect (actionOuvrirDossier,               &QAction::triggered,        this,                   &Rufus::OuvrirListe);
     connect (actionSupprimerDossier,            &QAction::triggered,        this,                   [=] {SupprimerDossier();});
-    connect (actionRechercheParMotCle,          &QAction::triggered,        this,                   [=] {RechercheParMotCle();});
-    connect (actionRechercheParID,              &QAction::triggered,        this,                   [=] {RechercheParID();});
+    connect (actionRechercheParMotCle,          &QAction::triggered,        this,                   &Rufus::RechercheParMotCle);
+    connect (actionRechercheParID,              &QAction::triggered,        this,                   &Rufus::RechercheParID);
     connect (actionCreerActe,                   &QAction::triggered,        this,                   [=] {CreerActe(gidPatient);});
 
-    connect (actionParametres,                  &QAction::triggered,        this,                   [=] {OuvrirParametres();});
+    connect (actionParametres,                  &QAction::triggered,        this,                   &Rufus::OuvrirParametres);
     connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {
                                                                                                             if (gResumeStatut =="")
                                                                                                                 ResumeStatut();
                                                                                                             proc->Edit(gResumeStatut, tr("Information statut"), false, true );
                                                                                                         });
-    connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe();});
+    connect (actionSupprimerActe,               &QAction::triggered,        this,                   &Rufus::SupprimerActe);
     // Documents
-    connect (actionEmettreDocument,             &QAction::triggered,        this,                   [=] {OuvrirDocuments();});
-    connect (actionDossierPatient,              &QAction::triggered,        this,                   [=] {ImprimeDossier();});
-    connect (actionCorrespondants,              &QAction::triggered,        this,                   [=] {ListeCorrespondants();});
-    connect (actionEnregistrerDocScanner,       &QAction::triggered,        this,                   [=] {EnregistreDocScanner();});
-    connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=] {EnregistreVideo();});
-    connect (actionRechercheCourrier,           &QAction::triggered,        this,                   [=] {AfficheCourriersAFaire();});
+    connect (actionEmettreDocument,             &QAction::triggered,        this,                   &Rufus::OuvrirDocuments);
+    connect (actionDossierPatient,              &QAction::triggered,        this,                   &Rufus::ImprimeDossier);
+    connect (actionCorrespondants,              &QAction::triggered,        this,                   &Rufus::ListeCorrespondants);
+    connect (actionEnregistrerDocScanner,       &QAction::triggered,        this,                   &Rufus::EnregistreDocScanner);
+    connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   &Rufus::EnregistreVideo);
+    connect (actionRechercheCourrier,           &QAction::triggered,        this,                   &Rufus::AfficheCourriersAFaire);
     // Comptabilité
 
     connect (menuActe,                          &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuActe);});
@@ -7199,6 +7218,7 @@ void Rufus::CreerMenu()
 
     actionPaiementDirect            = new QAction(tr("Gestion des paiements directs"));
     actionPaiementTiers             = new QAction(tr("Gestion des tiers payants"));
+    actionPaiementTiers2            = new QAction(tr("Gestion des tiers payants2"));
     actionBilanRecettes             = new QAction(tr("Bilan des recettes"));
     actionRecettesSpeciales         = new QAction(tr("Enregistrement des recettes spéciales"));
     actionJournalDepenses           = new QAction(tr("Journal des dépenses"));
@@ -7208,6 +7228,7 @@ void Rufus::CreerMenu()
 
     menuComptabilite->addAction(actionPaiementDirect);
     menuComptabilite->addAction(actionPaiementTiers);
+    menuComptabilite->addAction(actionPaiementTiers2);
     menuComptabilite->addAction(actionBilanRecettes);
     menuComptabilite->addAction(actionRecettesSpeciales);
     menuComptabilite->addSeparator();
@@ -7217,13 +7238,14 @@ void Rufus::CreerMenu()
     menuComptabilite->addAction(actionRemiseCheques);
     menuComptabilite->addAction(actionImpayes);
 
-    connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   [=] {GestionComptes();});
+    connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   &Rufus::GestionComptes);
     connect (actionPaiementDirect,              &QAction::triggered,        this,                   [=] {AppelPaiementDirect();});
-    connect (actionPaiementTiers,               &QAction::triggered,        this,                   [=] {AppelPaiementTiers();});
-    connect (actionRecettesSpeciales,           &QAction::triggered,        this,                   [=] {RecettesSpeciales();});
-    connect (actionBilanRecettes,               &QAction::triggered,        this,                   [=] {BilanRecettes();});
-    connect (actionJournalDepenses,             &QAction::triggered,        this,                   [=] {OuvrirJournalDepenses();});
-    connect (actionRemiseCheques,               &QAction::triggered,        this,                   [=] {RemiseCheques();});
+    connect (actionPaiementTiers,               &QAction::triggered,        this,                   &Rufus::AppelPaiementTiers);
+    connect (actionPaiementTiers2,              &QAction::triggered,        this,                   &Rufus::AppelPaiementTiers2);
+    connect (actionRecettesSpeciales,           &QAction::triggered,        this,                   &Rufus::RecettesSpeciales);
+    connect (actionBilanRecettes,               &QAction::triggered,        this,                   &Rufus::BilanRecettes);
+    connect (actionJournalDepenses,             &QAction::triggered,        this,                   &Rufus::OuvrirJournalDepenses);
+    connect (actionRemiseCheques,               &QAction::triggered,        this,                   &Rufus::RemiseCheques);
 
     connect (menuComptabilite,                  &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuComptabilite);});
 
@@ -8151,7 +8173,8 @@ void Rufus::InitEventFilters()
 void Rufus::InitMenus()
 {
     bool a = (gDataUser->isLiberal() || gDataUser->isSecretaire());
-    actionPaiementTiers             ->setVisible(a || (gDataUser->isSalarie() && !gDataUser->isAssistant()));
+    actionPaiementTiers             ->setVisible(a);
+    actionPaiementTiers2            ->setVisible(a);
     actionPaiementDirect            ->setVisible(a || (gDataUser->isSalarie() && !gDataUser->isAssistant()) || gDataUser->isRemplacant());
     actionBilanRecettes             ->setVisible(a);
     actionRecettesSpeciales         ->setVisible(gDataUser->isComptable());

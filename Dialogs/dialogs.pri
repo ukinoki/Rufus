@@ -34,6 +34,7 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_remisecheques.cpp \
     $$PWD/dlg_salledattente.cpp \
     $$PWD/dlg_paiementdirect.cpp \
+    $$PWD/dlg_paiementtiers.cpp \
     $$PWD/dlg_bilanrecettes.cpp \
     $$PWD/dlg_gestioncotations.cpp
 
@@ -69,6 +70,7 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_remisecheques.h \
     $$PWD/dlg_salledattente.h \
     $$PWD/dlg_paiementdirect.h \
+    $$PWD/dlg_paiementtiers.h \
     $$PWD/dlg_bilanrecettes.h \
     $$PWD/dlg_gestioncotations.h
 
@@ -94,4 +96,5 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_remisecheques.ui \
     $$PWD/dlg_salledattente.ui \
     $$PWD/dlg_paiementdirect.ui \
+    $$PWD/dlg_paiementtiers.ui \
     $$PWD/dlg_gestioncotations.ui
