@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("27-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("28-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1256,7 +1256,7 @@ void Rufus::AppelPaiementTiers2()
                 PaimtList.at(i)->raise();
                 return;
             }
-    Dlg_PmtTiers = new dlg_paiementtiers(0, 0, this); //NOTE : New Paiement
+    Dlg_PmtTiers = new dlg_paiementtiers(this); //NOTE : New Paiement
     if(Dlg_PmtTiers->getInitOK())
     {
         Dlg_PmtTiers->setWindowTitle(tr("Gestion des tiers payants"));
@@ -4371,7 +4371,7 @@ void Rufus::VerifSendMessage(int idMsg)
         return;
     }
     QStringList locklist;
-    locklist <<  NOM_TABLE_MESSAGES << NOM_TABLE_MESSAGESJOINTURES;
+    locklist <<  NOM_TABLE_MESSAGES << NOM_TABLE_MESSAGESJOINTURES << NOM_TABLE_FLAGS;
     db->createtransaction(locklist);
     if (idMsg<0)  // Enregistrement d'un nouveau message
     {
@@ -4447,6 +4447,7 @@ void Rufus::VerifSendMessage(int idMsg)
             db->rollback();
             return;
         }
+        db->commit();
         envoieMessageA(listidusr);
     }
     else  //    modification d'un message existant
@@ -4514,9 +4515,9 @@ void Rufus::VerifSendMessage(int idMsg)
             db->rollback();
             return;
         }
+        db->commit();
     }
     proc->Message(tr("Message enregistré"),1000,false);
-    db->commit();
     gAsk->accept();
 }
 
@@ -7228,7 +7229,7 @@ void Rufus::CreerMenu()
 
     menuComptabilite->addAction(actionPaiementDirect);
     menuComptabilite->addAction(actionPaiementTiers);
-    menuComptabilite->addAction(actionPaiementTiers2);
+    //menuComptabilite->addAction(actionPaiementTiers2);
     menuComptabilite->addAction(actionBilanRecettes);
     menuComptabilite->addAction(actionRecettesSpeciales);
     menuComptabilite->addSeparator();

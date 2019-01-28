@@ -3157,25 +3157,11 @@ void dlg_documents::SupprimmDossier(int row)
         int iddos = ui->DossiersupTableWidget->item(row,2)->text().toInt();
         QStringList locklist;
         locklist << NOM_TABLE_METADOCUMENTS << NOM_TABLE_JOINTURESDOCS ;
-        if (!db->createtransaction(locklist))
-            return;
-        if (!db->SupprRecordFromTable(iddos,
+        if (db->SupprRecordFromTable(iddos,
                                       "idMetaDocument",
                                       NOM_TABLE_METADOCUMENTS,
                                       tr("Impossible de suppprimer le dossier") + "\n" + line->text().toUpper() + "!\n ... " + tr("et je ne sais pas pourquoi") + "...\nRufus"))
-        {
-            db->rollback();
-            return;
-        }
-        else
-        {
-            if (!db->SupprRecordFromTable(iddos, "idMetaDocument", NOM_TABLE_JOINTURESDOCS))
-            {
-                db->rollback();
-                return;
-            }
-        }
-        db->commit();
+        db->SupprRecordFromTable(iddos, "idMetaDocument", NOM_TABLE_JOINTURESDOCS);
         Remplir_TableWidget();
     }
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3203,8 +3189,7 @@ void dlg_documents::TriDocupTableWidget()
 // ----------------------------------------------------------------------------------
 // Modification du Document dans la base.
 // ----------------------------------------------------------------------------------
-void dlg_documents::
-UpdateDocument(int row)
+void dlg_documents::UpdateDocument(int row)
 {
     // recherche de l'enregistrement modifié
     // controle validate des champs

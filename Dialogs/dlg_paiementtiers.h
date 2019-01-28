@@ -35,7 +35,7 @@ class dlg_paiementtiers : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_paiementtiers(int PaiementAModifer=0, int idUser=0, QWidget *parent = Q_NULLPTR);
+    explicit dlg_paiementtiers(QWidget *parent = Q_NULLPTR);
     ~dlg_paiementtiers();
     Ui::dlg_paiementtiers    *ui;
     bool                getInitOK();
@@ -76,13 +76,10 @@ private:
     bool                    pasremplacant;
     bool                    soignant;
     */
-    bool                    AppeleParFichePaiement;
-    bool                    FermeALaFin;
     bool                    InitOK;
     bool                    TraiteparCloseFlag;
     bool                    ModifPaiementEnCours;
     bool                    ModifLigneRecettePossible;
-    //int                     gidUser;
     int                     gidUserACrediter;
     int                     idRecette;
     int                     gMode;
@@ -94,6 +91,7 @@ private:
     dlg_banque              *Dlg_Banq;
     Procedures              *proc;
     DataBase                *db;
+    bool                    ok;
     QBrush                  gtextureGris, gtextureNoir;
     QList<int>              gListidActe;
     QList<int>              ListeActesAModifier;
@@ -109,7 +107,6 @@ private:
     QMap<int, User*>        *m_listeParents;
 
     int                     gidCompteBancaireParDefaut;
-    QString                 ModeModif, ModePaiementDirectAModifier;
     QString                 gNomUser;
     QString                 ValeurAvantChangement, ValeurMaxi;
     QTimer                  *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;
@@ -117,7 +114,6 @@ private:
 
     void                closeEvent(QCloseEvent *event);
     bool                eventFilter(QObject *obj, QEvent *event)  ;
-    void                keyPressEvent ( QKeyEvent * event );
     void                CompleteDetailsTable(QTableWidget *TableSource, int Rangee, bool Coche = true);
     void                DefinitArchitectureTableView(QTableWidget *TableARemplir, int TypeTable = 0);
     int                 EnregistreRecette();

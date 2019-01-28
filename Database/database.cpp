@@ -144,28 +144,30 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
 bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
 {
-    unlocktables();
-    StandardSQL("SET AUTOCOMMIT = 0;");
+    bool a = true;
     QString req = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
     for (int i = 1; i < ListTables.size(); i++)
         req += "," + ListTables.at(i) + " " + ModeBlocage;
-    return StandardSQL(req);
+    a = StandardSQL(req);
+    if (a)
+        StandardSQL("SET AUTOCOMMIT = 0;"
+                    "START TRANSACTION;");
+    return a;
 }
 
 void DataBase::commit()
 {
-    unlocktables();
-    StandardSQL("COMMIT;");
-    QString req = "SET AUTOCOMMIT = 1;";
-    StandardSQL(req);
+    StandardSQL("COMMIT;"
+                "SET AUTOCOMMIT = 1;"
+                "UNLOCK TABLES;");
 }
 
 void DataBase::rollback()
 {
-    unlocktables();
-    StandardSQL("ROLLBACK;");
-    QString req = "SET AUTOCOMMIT = 1;";
-    StandardSQL(req);
+    StandardSQL("ROLLBACK;"
+                "SET AUTOCOMMIT = 1;"
+                "UNLOCK TABLES;");
+
 }
 
 bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)

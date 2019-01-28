@@ -138,15 +138,32 @@ void dlg_remisecheques::Slot_CorrigeRemise()
         return;
     QMap<QString, QVariant> MapRemise =  ui->RemisePrecsupComboBox->currentData().toMap();
     int idRemise = MapRemise["idRemise"].toInt();
-
-    // supprimer la remise dans la table Remises
-    db->SupprRecordFromTable(idRemise, "idRemcheq", NOM_TABLE_REMISECHEQUES);
-    // supprimer l'idRemise dans les lignes de la table lignesrecettes
-    db->StandardSQL("update " NOM_TABLE_RECETTES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
-    // supprimer l'idRemise dans les lignes de la table autresrecettes
-    db->StandardSQL("update " NOM_TABLE_RECETTESSPECIALES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
-    // supprimer la remise dans la table lignescomptes
-    db->SupprRecordFromTable(idRemise, "idremcheq", NOM_TABLE_LIGNESCOMPTES);
+    bool a = true;
+    while (a) {
+        a = db->createtransaction(QStringList()    << NOM_TABLE_REMISECHEQUES
+                                                << NOM_TABLE_RECETTESSPECIALES
+                                                << NOM_TABLE_RECETTES
+                                                << NOM_TABLE_LIGNESCOMPTES);
+        if (!a) break;
+        // supprimer la remise dans la table Remises
+        a = db->SupprRecordFromTable(idRemise, "idRemcheq", NOM_TABLE_REMISECHEQUES);
+        if (!a) break;
+        // supprimer l'idRemise dans les lignes de la table lignesrecettes
+        a = db->StandardSQL("update " NOM_TABLE_RECETTES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
+        if (!a) break;
+        // supprimer l'idRemise dans les lignes de la table autresrecettes
+        a = db->StandardSQL("update " NOM_TABLE_RECETTESSPECIALES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
+        if (!a) break;
+        // supprimer la remise dans la table lignescomptes
+        a = db->SupprRecordFromTable(idRemise, "idremcheq", NOM_TABLE_LIGNESCOMPTES);
+        break;
+    }
+    if (!a)
+    {
+        db->rollback();
+        UpMessageBox::Watch(this,tr("Suppression impossible"));
+    }
+    else db->commit();
 
     // revenir au mode nouvelle remise
     VoirNouvelleRemise();
@@ -215,7 +232,12 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         }
 
         // On verrouille les table RemisesCheques
-        if (!db->createtransaction(QStringList() << NOM_TABLE_REMISECHEQUES))
+        if (!db->createtransaction(QStringList()    << NOM_TABLE_REMISECHEQUES
+                                                    << NOM_TABLE_RECETTESSPECIALES
+                                                    << NOM_TABLE_RECETTES
+                                                    << NOM_TABLE_LIGNESCOMPTES
+                                                    << NOM_TABLE_BANQUES
+                                                    << NOM_TABLE_ARCHIVESBANQUE))
             return;
         //On récupére l'idRemise
         int idRemise = db->selectMaxFromTable("idRemCheq", NOM_TABLE_REMISECHEQUES, ok) + 1;
@@ -226,20 +248,16 @@ void dlg_remisecheques::Slot_ImprimepushButton()
             db->rollback();
             return;
         }
-        db->commit();
 
         // On imprime la remise
         if (!ImprimerRemise(idRemise))
         {
-            db->SupprRecordFromTable(idRemise, "idremcheq", NOM_TABLE_REMISECHEQUES);
+            db->rollback();
             UpMessageBox::Watch(this,tr("Impression annulée"));
             return;
         }
 
-
         // on enregistre les lignes de remises
-        db->createtransaction(QStringList() << NOM_TABLE_REMISECHEQUES << NOM_TABLE_RECETTESSPECIALES << NOM_TABLE_RECETTES << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_BANQUES << NOM_TABLE_USERSCONNECTES << NOM_TABLE_ARCHIVESBANQUE);
-
         //  et on update tous les chèques déposés avec cet IdRemise dans la table chèques
         for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
         {
