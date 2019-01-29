@@ -52,13 +52,13 @@ public:
         if (!DirRssces.exists(dirlog))
             DirRssces.mkdir(dirlog);
         QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
-        QString fileName(dirlog +"/logs_" + datelog + ".txt");
+        QString fileName(dirlog + "/" + datelog + "_errorlog.txt");
         QFile testfile(fileName);
         if( testfile.open(QIODevice::Append) )
         {
             QTextStream out(&testfile);
             QString timelog = QTime::currentTime().toString();
-            out << type << " : " << msg << (infoMsg==""? "" : " : " + infoMsg) << " : " << timelog << "\n";
+            out << timelog << " - " << type << " : " << msg << (infoMsg==""? "" : " : " + infoMsg) << "\n";
             testfile.close();
         }
         //else UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier\n") + fileName);
@@ -77,13 +77,13 @@ public:
         if (!DirRssces.exists(dirlog))
             DirRssces.mkdir(dirlog);
         QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
-        QString fileName(dirlog +"/logs_0skt_" + datelog + ".txt");
+        QString fileName(dirlog + "/" + datelog + "_tcpmsglog.txt");
         QFile testfile(fileName);
         if( testfile.open(QIODevice::Append) )
         {
             QTextStream out(&testfile);
             QString timelog = QTime::currentTime().toString();
-            out << type << " : " << msg << (infoMsg==""? "" : " : " + infoMsg) << " : " << timelog << "\n";
+            out << timelog << " - " << type << " : " << msg << (infoMsg==""? "" : " : " + infoMsg) << "\n";
             testfile.close();
         }
     }

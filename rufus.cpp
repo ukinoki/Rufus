@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("28-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("29-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -128,6 +128,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         else
         {
             connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});  // traitement des messages reçus
+            // envoi iduser
+            envoieMessage(QString::number(db->getUserConnected()->id()) + TCPMSG_idUser);
+            // envoi adresse IP, adresse MAC, nom d'hôte
+            envoieMessage(Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
         }
     }
     else

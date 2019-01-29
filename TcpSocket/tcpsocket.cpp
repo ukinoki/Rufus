@@ -58,10 +58,6 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     {
         connect(this,                 &QTcpSocket::readyRead,                                              this,   &TcpSocket::TraiteDonneesRecues);
         connect(this,                 QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),this,   &TcpSocket::erreurSocket);
-        // envoi iduser
-        envoieMessage(QString::number(db->getUserConnected()->id()) + TCPMSG_idUser);
-        // envoi adresse IP, adresse MAC, nom d'hôte
-        envoieMessage(Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
         return true;
     }
     else
@@ -139,7 +135,7 @@ void TcpSocket::envoieMessage(QString msg)
     {
         write(size);                //envoie la taille du message
         write(paquet);              //envoie le message
-        waitForBytesWritten(5000);
+        waitForBytesWritten(1000);
     }
 }
 
