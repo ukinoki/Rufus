@@ -94,6 +94,8 @@ private:
     void                SupprAppareil();
     bool                VerifDirStockageImagerie();
 
+    void                ConnectTimers(bool = true);
+
 private slots:
     void                Slot_AfficheToolTip(QTableWidgetItem*);
     void                Slot_EnableAppBoutons();
@@ -101,7 +103,6 @@ private slots:
     void                Slot_ChercheCCAM(QString);
     void                Slot_ChoixDossierStockageApp();
     void                Slot_ChoixButtonFrame(int);
-    void                Slot_ConnectTimers(bool = true);
     void                Slot_EnregDossierStockageApp(QString dir);
     void                Slot_ChoixFontpushButtonClicked();
     void                Slot_ClearCom(int);

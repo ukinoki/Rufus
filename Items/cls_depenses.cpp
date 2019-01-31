@@ -40,13 +40,7 @@ void Depenses::clearAll()
 {
     QList<Depense*> listdepenses;
     for( QMap<int, Depense*>::const_iterator itdep = m_Depenses->constBegin(); itdep != m_Depenses->constEnd(); ++itdep)
-    {
-        Depense *dep = const_cast<Depense*>(*itdep);
-        if (!listdepenses.contains(dep))
-                listdepenses << dep;
-    }
-    for (int i=listdepenses.size()-1; i==0; --i)
-        removeDepense(listdepenses.at(i));
+        delete itdep.value();
     m_Depenses->clear();
 }
 

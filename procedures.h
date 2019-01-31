@@ -255,7 +255,7 @@ signals:
     void                    UpdCorrespondants();
     void                    UpdDocsExternes();
     void                    ModifEdit(QString txt);
-    void                    ConnectTimers(bool);
+    void                    ConnectTimers();
     void                    DelImage();
     void                    CloseEditImage();
 

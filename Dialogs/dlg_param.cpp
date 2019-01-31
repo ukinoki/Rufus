@@ -390,7 +390,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     gTimerVerifPosteImportDocs = new QTimer(this);
     gTimerVerifPosteImportDocs->start(5000);
     connect (gTimerVerifPosteImportDocs,    SIGNAL(timeout()),              this,       SLOT(Slot_VerifPosteImportDocs()));
-    connect (proc,                          SIGNAL(ConnectTimers(bool)),    this,       SLOT(Slot_ConnectTimers(bool)));
+    connect (proc,                          &Procedures::ConnectTimers,     this,       [=] {ConnectTimers(proc->Connexion());});
 
     QList<QVariant> VersionBasedata = db->getFirstRecordFromStandardSelectSQL("select VersionBase from " NOM_TABLE_PARAMSYSTEME, ok);
      if (!ok || VersionBasedata.size()==0)
@@ -764,17 +764,21 @@ void dlg_param::Slot_ClearCom(int a)
     ui->PortTonometreupComboBox->setEnabled(ui->TonometreupComboBox->currentIndex()>0);
 }
 
-void dlg_param::Slot_ConnectTimers(bool a)
+void dlg_param::ConnectTimers(bool a)
 {
     if (a)
     {
-        gTimerVerifPosteImportDocs->start(5000);
+        gTimerVerifPosteImportDocs  ->start(5000);
+        gTimerVerifTCP              ->start(5000);
         connect (gTimerVerifPosteImportDocs,    SIGNAL(timeout()),  this,   SLOT(Slot_VerifPosteImportDocs()));
+        connect (gTimerVerifTCP,                SIGNAL(timeout()),  this,   SLOT(Slot_VerifTCP()));
     }
     else
     {
         disconnect (gTimerVerifPosteImportDocs, SIGNAL(timeout()),  this,   SLOT(Slot_VerifPosteImportDocs()));
-        gTimerVerifPosteImportDocs->stop();
+        disconnect (gTimerVerifTCP,             SIGNAL(timeout()),  this,   SLOT(Slot_VerifTCP()));
+        gTimerVerifPosteImportDocs  ->stop();
+        gTimerVerifTCP              ->stop();
     }
 }
 
@@ -1919,7 +1923,7 @@ void dlg_param::Slot_DirPosteStockage()
         }
         ui->PosteStockageupLineEdit->setText(dockdir.path());
         QString req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + dockdir.path() + "'";
-        db->StandardSQL(req);
+        db->StandardSQL(req, "void dlg_param::Slot_DirPosteStockage()");
         proc->setDirImagerie();
     }
 }
@@ -2210,6 +2214,7 @@ void dlg_param::Slot_RestaureBase()
     if (proc->RestaureBase())
     {
         UpMessageBox::Watch(this,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
+        db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
         exit(0);
     }
 }

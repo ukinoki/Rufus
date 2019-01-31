@@ -520,7 +520,7 @@ bool Procedures::ImmediateBackup(bool full)
 
     Message(tr("Sauvegarde en cours"),3000,false);
     connexion = false;
-    emit ConnectTimers(connexion);
+    emit ConnectTimers();
 
     bool result = true;
     if (OKbase)
@@ -572,7 +572,7 @@ bool Procedures::ImmediateBackup(bool full)
         }
     }
     connexion = true;
-    emit ConnectTimers(connexion);
+    emit ConnectTimers();
     UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde terminée"));
     return result;
 }
@@ -1895,13 +1895,19 @@ bool Procedures::isPosteImportDocs()
 }
 
 QString Procedures::PosteImportDocs()
-{
-    QString req = "CALL " NOM_BASE_CONSULTS "." NOM_POSTEIMPORTDOCS;
-    QList<QVariant> calldata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    //qDebug() << "nbre reponses = " + QString::number(calldata.size()) << NOM_POSTEIMPORTDOCS " = " + calldata.at(0).toString();
-    if (!ok || calldata.size()==0)
-        return "";
-    return calldata.at(0).toString();
+{   QString rep = "";
+    QString req = "SELECT name FROM mysql.proc p WHERE db = '" NOM_BASE_CONSULTS "' AND name = '" NOM_POSTEIMPORTDOCS "'";
+    QList<QVariant> imptdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (ok && imptdata.size()>0)
+    {
+        req = "CALL " NOM_BASE_CONSULTS "." NOM_POSTEIMPORTDOCS;
+        QList<QVariant> calldata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        //qDebug() << "nbre reponses = " + QString::number(calldata.size()) << NOM_POSTEIMPORTDOCS " = " + calldata.at(0).toString();
+        if (ok && calldata.size()>0)
+            rep = calldata.at(0).toString();
+    }
+    //qDebug() << "posteimportdocs = " + rep;
+    return rep;
 }
 
 bool Procedures::Verif_secure_file_priv()
@@ -2383,7 +2389,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (!echecfile)
         {
             connexion = false;
-            emit ConnectTimers(connexion);
+            emit ConnectTimers();
             //Suppression de toutes les tables
             VideDatabases();
             int a = 99;
@@ -2402,7 +2408,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             {
                 UpMessageBox::Information(Q_NULLPTR, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
                 connexion = true;
-                emit ConnectTimers(connexion);
+                emit ConnectTimers();
                 return true;
             }
         }
@@ -2515,12 +2521,12 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
 
         req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + NomDirStockageImagerie + "'";
-        db->StandardSQL(req);
+        db->StandardSQL(req, "bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifUserConnectes) - 1st");
         AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos);
         if (gAskBupRestore->exec()>0)
         {
             connexion = false;
-            emit ConnectTimers(connexion);
+            emit ConnectTimers();
             QList<UpCheckBox*> listchk = gAskBupRestore->findChildren<UpCheckBox*>();
             for (int i= 0; i<listchk.size(); i++)
             {
@@ -2615,8 +2621,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                     break;
                                 }
                                 else msg += tr("Restauration de la base") + " " + nombase + " OK\n";
-                                QString reqimg = "update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirStockageImagerie + "'";
-                                db->StandardSQL (reqimg);
                             }
                         }
                     }
@@ -2726,7 +2730,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             return true;
         }
         connexion = true;
-        emit ConnectTimers(connexion);
+        emit ConnectTimers();
     }
     return false;
 }
@@ -3372,7 +3376,7 @@ void Procedures::CreerUserFactice(User &user)
     req = "insert into " NOM_TABLE_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + id + ", " + QString::number(gidLieuExercice) + ")";
     db->StandardSQL(req);
     req = "update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + QString::number(gidLieuExercice);
-    db->StandardSQL(req);
+    db->StandardSQL(req, "void Procedures::CreerUserFactice(User &user)");
     db->unlocktables();;
 }
 
@@ -3468,6 +3472,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
         if( (msgbox.clickedButton() == &OKBouton) && RestaureBase(false,false,false))
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
+            db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
             exit(0);
         }
         if (msgbox.clickedButton() == &YesBouton)
@@ -3480,6 +3485,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             gdbOK = CreerPremierUser(gLoginUser(), gMDPUser());
             initListeUsers();
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
+            db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
             exit(0);
         }
     }
@@ -4149,6 +4155,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
                                       "puissent être prises en compte\n"));
+            db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
             exit(0);
         }
     }
@@ -4185,6 +4192,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
                                       "puissent être prises en compte\n"));
+            db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
             exit(0);
         }
     }
@@ -4214,7 +4222,7 @@ void Procedures::PremierParametrageMateriel()
     gsettingsIni->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
     gsettingsIni->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
     QString NomDirImg = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE;
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'");
+    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'", "void Procedures::PremierParametrageMateriel()");
     gsettingsIni->setValue("BDD_DISTANT/DossierImagerie", NomDirImg);
 }
 
@@ -4295,7 +4303,7 @@ void Procedures::PremierParametrageRessources()
     {
         QString NomDirImg = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE;
         QString reqimg = "update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'";
-        db->StandardSQL( reqimg );
+        db->StandardSQL( reqimg, "void Procedures::PremierParametrageRessources()");
     }
  }
 
@@ -4380,6 +4388,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
         else
             UpMessageBox::Watch(Q_NULLPTR,tr("Restauration impossible de la base"));
+        db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
         exit(0);
     }
     else if (msgbox->clickedButton()==&PremierDemarrageBouton)
@@ -4393,6 +4402,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
         else
             UpMessageBox::Watch(Q_NULLPTR,tr("Restauration impossible de la base"));
+        db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
         exit(0);
     }
     return reponse;

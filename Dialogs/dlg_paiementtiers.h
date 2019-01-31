@@ -129,7 +129,7 @@ private:
     void                RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
     void                RegleComptesComboBox(bool ActiveSeult = true);
     void                RemetToutAZero();
-    void                RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QSqlQuery TableQuery, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
+    void                RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QList<QVariant>> reclist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
     void                RemplitLesTables(int Mode);
     void                TrieListe(QTableWidget *TableATrier);
     bool                VerifCoherencePaiement();

@@ -133,7 +133,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     int idx = ui->AnneecomboBox->findText(year);
     ui->AnneecomboBox->disconnect();
     ui->AnneecomboBox->setCurrentIndex(idx==-1? ui->AnneecomboBox->count()-1 : idx);
-    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
+    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_depenses::RedessineBigTable);
     RedessineBigTable();
 
     connect (ui->GestionComptesupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::GestionComptes);
@@ -141,13 +141,13 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ModifierupPushButton,              &QPushButton::clicked,          this,   [=] {GererDepense(ModifierupPushButton);});
     connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   &dlg_depenses::accept);
     connect (ui->Rubriques2035comboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                this,   [=](int) {FiltreTable();});
+                                                                                this,   &dlg_depenses::FiltreTable);
     connect (ui->FactureupPushButton,           &QPushButton::clicked,          this,   [=] {EnregistreFacture(FACTURE);});
     connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=] {EnregistreFacture(ECHEANCIER);});
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
     connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                this,   [=](int) {ChoixPaiement();});
+                                                                                this,   &dlg_depenses::ChoixPaiement);
     connect (ui->ObjetlineEdit,                 &QLineEdit::textEdited,         this,   &dlg_depenses::EnableModifiepushButton);
     connect (ui->MontantlineEdit,               &QLineEdit::textEdited,         this,   &dlg_depenses::EnableModifiepushButton);
     connect (ui->DateDepdateEdit,               &QDateEdit::dateChanged,        this,   &dlg_depenses::EnableModifiepushButton);

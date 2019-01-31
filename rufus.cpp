@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("29-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("31-01-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5579,8 +5579,9 @@ void Rufus::VerifImportateur()
         else if (B=="NORM")
             IpAdr = QHostInfo::localHostName();
 
-        if (ImportateurDocs != IpAdr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'es pas prioritaire
+        if (ImportateurDocs != IpAdr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'est pas prioritaire
         {
+            // on vérifie que l'importateur est toujours connecté
             QString req = "select nomposteconnecte from " NOM_TABLE_USERSCONNECTES " where nomposteconnecte = '" + ImportateurDocs.remove(" - prioritaire") + "'";
             QList<QList<QVariant>> postlist = db->StandardSelectSQL(req, ok);
             if (postlist.size()==0)
@@ -6914,10 +6915,10 @@ void    Rufus::CreerActe(int idPat)
             return ;
     AfficheActe(maxactdata.at(0).toInt());
     QString req = "SELECT idActe FROM " NOM_TABLE_ACTES " WHERE idPat = " + QString::number(idPat);
-    QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(req,ok,tr("Impossible de compter le nombre d'actes"));
+    QList<QList<QVariant>> actlist = db->StandardSelectSQL(req,ok,tr("Impossible de compter le nombre d'actes"));
     if (!ok)
             return ;
-    else if (actdata.size()>1)
+    else if (actlist.size()>1)
     {
         QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
         for (int i = 0; i<listactesprecs.size();i++)

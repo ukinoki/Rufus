@@ -221,28 +221,33 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                     // si on fait l'inverse et qu'on met un tiret dans le nom de famille p.e.,
                     // la fonction plante dans ses découpages de QStringList et le programme avec
                     /*
+                     * avant 2019
                      * 368_Zammit-Sauveur-2017-06-14T17_39_21Z-eidon_20129-right-0-visible-2017-06-14T17_39_26Z--report.pdf
                      * 368_Zammit-Sauveur-2017-06-16T12_27_13Z-eidon_20129-right-0-af-2017-06-16T12_27_18Z--image.jpg
+                     * version 2019
+                     * 9303  - Caro_Fernando  - - 2019 - 01 - 31T12_13_04Z - eidon_20005 - right - 0 - visible - 2019 - 01 - 31T12_13_03Z - 2019 - 01 - 31_121345 - image.jpg
+                     * 15179 - Viottolo_Louis - - 2019 - 01 - 31T13_31_04Z - eidon_20005 - right - 0 - visible - 2019 - 01 - 31T13_31_03Z - 2019 - 01 - 31_133138 - image.jpg
+                     * 0     - 1              -2- 3    - 4  - 5            - 6           - 7     - 8 - 9       - 10   - 11 - 12           - 13   - 14 - 15        - 16
                     */
-                    if (nomdoc.split("-").size()<11)
+                    if (nomdoc.split("-").size()<17)
                     {
                         commentechec =  tr("nom invalide");
                         EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
                         continue;
                     }
                     QStringList listitems = nomdoc.split("-");
-                    datestring = listitems.at(listitems.size()-5);                  //année
-                    datestring += listitems.at(listitems.size()-4);                 //mois
-                    datestring += listitems.at(listitems.size()-3).split("T").at(0);//jour
-                    QString cote = ((listitems.at(listitems.size()-8)=="right")? tr("OD") : tr("OG"));
+                    datestring = listitems.at(listitems.size()-7);                  //année
+                    datestring += listitems.at(listitems.size()-6);                 //mois
+                    datestring += listitems.at(listitems.size()-5).split("T").at(0);//jour
+                    QString cote = ((listitems.at(listitems.size()-10)=="right")? tr("OD") : tr("OG"));
                     Titredoc    = "RNM - Eidon ";
                     Typedoc     = "RNM";
                     SousTypeDoc = "Eidon " + cote;
-                    if (listitems.at(listitems.size()-6) == "infrared")
+                    if (listitems.at(listitems.size()-8) == "infrared")
                         SousTypeDoc += " IR";
-                    else if (listitems.at(listitems.size()-6) == "af")
+                    else if (listitems.at(listitems.size()-8) == "af")
                         SousTypeDoc += " Autofluo";
-                    QString time = listitems.at(listitems.size()-3).split("T").at(1);
+                    QString time = listitems.at(listitems.size()-5).split("T").at(1);
                     time = time.split("Z").at(0);
                     datetimecreation   = datestring + "-"
                                        + time.split("_").at(0)
@@ -644,14 +649,14 @@ bool ImportDocsExternesThread::DefinitDossiers()
 
 void ImportDocsExternesThread::EchecImport(QString txt)
 {
-    QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(FichierImage).fileName() + "</b></font>" + tr(" dans la base de données");
+    QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(FichierOrigine).fileName() + "</b></font>" + tr(" dans la base de données");
     QStringList listmsg;
     listmsg << msg;
     emit emitmsg(listmsg, 3000, false);
 
-    QString CheminEchecTransfrDoc   = CheminEchecTransfrDir + "/" + QFileInfo(FichierImage).fileName();
-    FichierImage.copy(CheminEchecTransfrDoc);
-    FichierImage.remove();
+    QString CheminEchecTransfrDoc   = CheminEchecTransfrDir + "/" + QFileInfo(FichierOrigine).fileName();
+    FichierOrigine.copy(CheminEchecTransfrDoc);
+    FichierOrigine.remove();
     QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer + ".txt";
     QFile   echectrsfer(echectrsfername);
     if (echectrsfer.open(QIODevice::Append))

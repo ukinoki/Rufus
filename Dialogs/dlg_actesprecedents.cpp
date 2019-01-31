@@ -58,6 +58,8 @@ ui(new Ui::dlg_actesprecedents)
 
 dlg_actesprecedents::~dlg_actesprecedents()
 {
+    for (itCurrentActe = m_listeActes.constBegin(); itCurrentActe != m_listeActes.constEnd(); ++itCurrentActe)
+        delete itCurrentActe.value();
     delete ui;
     proc = Q_NULLPTR;
     delete proc;
@@ -73,6 +75,9 @@ void dlg_actesprecedents::Actualise()
     //TODO : utiliser actes de la classe Patient car il sera toujours à jours.
 
     //TODO modifier
+    for (itCurrentActe = m_listeActes.constBegin(); itCurrentActe != m_listeActes.constEnd(); ++itCurrentActe)
+        delete itCurrentActe.value();
+    m_listeActes.clear();
     m_listeActes = DataBase::getInstance()->loadActesByIdPat(gidPatient);
     if( m_listeActes.size() == 0 )
     {
