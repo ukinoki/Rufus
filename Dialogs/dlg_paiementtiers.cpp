@@ -836,52 +836,37 @@ void dlg_paiementtiers::Slot_ValidePaiement()
        break;
     }
     case VoirListePaiementsTiers:
-        /* Il s'agit de modifier un paiement dèjà enregistré.
-        Plusieurs cas de figure
-        .1 Il s'agit d'un acte pour lequel aucune recette n'a été enregistrée (acte enregistré en tiers et n'ayant pas encore été réglé ou acte gratuit ou impayé).
-        .2 Il s'agit d'un paiement direct pour lequel une recette a été enregistrée.
-        .3 Il s'agit d'un paiement par tiers  pour lequel une recette a été enregistrée.
-        */
+        /* Il s'agit de modifier un paiement par tiers  pour lequel une recette a été enregistrée. */
     {
         NettoieVerrousCompta();
         ModifPaiementEnCours = false;
         QString ModePaiement;
-
-     /* -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-     //      Cas n°1. il s'agit d'un acte pour lequel aucun versement n'a été enregistré pour le moment (paiement par tiers (CB, CPAM...etc...) sans paiement enregistré)
-     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-            QTableWidget*   TableOrigine    = Q_NULLPTR;
-            // On retrouve l'idRecette de LignesRecettes correspondant au paiement à modifier
-                TableOrigine = ui->ListeupTableWidget;
-            QList<QTableWidgetSelectionRange>  RangeeSelectionne = TableOrigine->selectedRanges();
-            int ab      = RangeeSelectionne.at(0).topRow();
-            idRecette   = TableOrigine->item(ab,0)->text().toInt();
-            requete = "SELECT idRecette FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(idRecette);
-            QList<QVariant> recdata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
-            if (recdata.size() == 0)
-            {
-                UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment"),
-                                     tr("Il est en cours de modification par un autre utilisateur."));
-                RemplitLesTables(gMode);
-                return;
-            }
-            requete = "SELECT idActe FROM " NOM_TABLE_LIGNESPAIEMENTS
-                    " WHERE idRecette = " + QString::number(idRecette) +
-                    " AND idActe IN (SELECT idActe FROM " NOM_TABLE_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userConnected->id()) + ")";
-            QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
-            if (actdata.size() == 0)
-            {
-                UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment."),
-                                     tr("Certains actes qui le composent sont actuellement verrouillés par d'autres utilisateurs."));
-                return;
-            }
-     /* -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-     //      Cas n°4  //il s'agit d'un paiement par tiers => virement, chèque ou espèces
-     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-                ModifPaiementTiers(idRecette);
+        // On retrouve l'idRecette de LignesRecettes correspondant au paiement à modifier
+        QList<QTableWidgetSelectionRange>  RangeeSelectionne = ui->ListeupTableWidget->selectedRanges();
+        int ab      = RangeeSelectionne.at(0).topRow();
+        idRecette   = ui->ListeupTableWidget->item(ab,0)->text().toInt();
+        requete = "SELECT idRecette FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(idRecette);
+        QList<QList<QVariant>> reclist = db->StandardSelectSQL(requete,ok);
+        if (reclist.size() == 0)
+        {
+            UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment"),
+                                tr("Il est en cours de modification par un autre utilisateur."));
+            RemplitLesTables(gMode);
+            return;
+        }
+        requete = "SELECT idActe FROM " NOM_TABLE_LIGNESPAIEMENTS
+                " WHERE idRecette = " + QString::number(idRecette) +
+                " AND idActe IN (SELECT idActe FROM " NOM_TABLE_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userConnected->id()) + ")";
+        QList<QList<QVariant>> actlist = db->StandardSelectSQL(requete,ok);
+        if (actlist.size() > 0)
+        {
+            UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment."),
+                                tr("Certains actes qui le composent sont actuellement verrouillés par d'autres utilisateurs."));
+            return;
+        }
+        ModifPaiementTiers(idRecette);
         break;
-    }
+        }
     default:
         break;
     }

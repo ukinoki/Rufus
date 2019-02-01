@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("31-01-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("02-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -147,6 +147,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerActualiseDocsExternes = new QTimer(this);     // actualise l'affichage des documents externes si un dossier est ouvert
     gTimerImportDocsExternes    = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à importer dans la base
     gTimerVerifMessages         = new QTimer(this);     // utilisé par les postes en accès distants ou les réseaux sans RufusAdmin pour vérifier l'arrivée de nouveaux messages
+    gTimerVerifConnexion        = new QTimer(this);     // utilisé par le TcpServer pour vérifier l'xistence de la connexion
     gTimerVerifVerrou           = new QTimer(this);     // utilisé par le TcpServer pour vérifier l'absence d'utilisateurs déconnectés dans la base
     gTimerSupprDocs             = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer
 
@@ -175,9 +176,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         gTimerVerifMessages         ->start(10000);// "toutes les 10 secondes"
         if (!UtiliseTCP)
         {
-                gTimerSalDat->start(1000);
+                gTimerSalDat        ->start(1000);
                 gTimerCorrespondants->start(30000);
         }
+        else
+                gTimerVerifConnexion->start(60000);
     }
 
     gTimerUserConnecte->start(10000);// "toutes les 10 secondes - remet à jour le statut connecté du poste dans la base - tables utilisateursconnectes"
@@ -200,6 +203,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     connect (gTimerUserConnecte,            &QTimer::timeout,   this,   &Rufus::MetAJourUserConnectes);
     connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
     connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
+    connect (gTimerVerifConnexion,          &QTimer::timeout,   this,   &Rufus::TesteConnexion);
 
     //Nettoyage des erreurs éventuelles de la salle d'attente
     QString blabla              = ENCOURSEXAMEN;
@@ -1404,6 +1408,8 @@ void Rufus::ConnectTimers(bool a)
                 gTimerSalDat            ->start(1000);
                 gTimerCorrespondants    ->start(30000);
             }
+            else
+                gTimerVerifConnexion    ->start(60000);
             gTimerVerifImportateurDocs  ->start(60000);
             gTimerExportDocs            ->start(10000);
             gTimerActualiseDocsExternes ->start(10000);
@@ -1427,6 +1433,9 @@ void Rufus::ConnectTimers(bool a)
             if (db->getMode() != DataBase::Distant)
                 connect(gTimerSupprDocs,                &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         }
+        else
+            connect (gTimerVerifConnexion,          &QTimer::timeout,   this,   &Rufus::TesteConnexion);
+
     }
     else
     {
@@ -1439,6 +1448,7 @@ void Rufus::ConnectTimers(bool a)
         gTimerVerifMessages         ->disconnect();
         gTimerUserConnecte          ->disconnect();
         gTimerVerifVerrou           ->disconnect();
+        gTimerVerifConnexion        ->disconnect();
         gTimerSupprDocs             ->disconnect();
         gTimerVerifImportateurDocs  ->stop();
         gTimerSalDat                ->stop();
@@ -1449,6 +1459,7 @@ void Rufus::ConnectTimers(bool a)
         gTimerVerifMessages         ->stop();
         gTimerUserConnecte          ->stop();
         gTimerVerifVerrou           ->stop();
+        gTimerVerifConnexion        ->stop();
         gTimerSupprDocs             ->stop();
     }
 }
@@ -9661,28 +9672,45 @@ void Rufus::Remplir_SalDat()
 void Rufus::ResumeStatut()
 {
     // le statut utilisateur
+    QString sep = "{!!}";
     gResumeStatut = proc->getSessionStatus() + "\n\n";
 
     // les socket
     if (UtiliseTCP)
     {
         QStringList::const_iterator itsocket;
-        QString Serveur = gListSockets.at(0);
-        // le 1er item de gListSockets est le serveur
-        gResumeStatut += tr("ServeurTCP") + "\n\t"
-                + Serveur.split(TCPMSG_Separator).at(2) + " - "
-                + Serveur.split(TCPMSG_Separator).at(0) + " - "
-                + Serveur.split(TCPMSG_Separator).at(1) + " --- "
-                + Datas::I()->users->getLoginById(Serveur.split(TCPMSG_Separator).at(3).toInt());
-
-        gListSockets.removeFirst();
-        gResumeStatut += "\n" + tr("Postes connectés") + "\n";
         for( itsocket = gListSockets.constBegin(); itsocket != gListSockets.constEnd(); ++itsocket )
         {
-            gResumeStatut += "\t" + itsocket->split(TCPMSG_Separator).at(2) + " - "
-                    + itsocket->split(TCPMSG_Separator).at(0) + " - "
-                    + itsocket->split(TCPMSG_Separator).at(1) + " --- "
-                    + Datas::I()->users->getLoginById(itsocket->split(TCPMSG_Separator).at(3).toInt()) + "\n";
+            QString statcp = *itsocket;
+            statcp.replace(TCPMSG_Separator, sep);
+            qDebug() << statcp;
+            if (itsocket == gListSockets.constBegin())
+            {
+                // le 1er item de gListSockets est le serveur
+                gResumeStatut += tr("ServeurTCP") + "\n\t";
+                if (statcp.split(sep).size()>3)
+                {
+                    gResumeStatut += statcp.split(sep).at(2) + " - "
+                            + statcp.split(sep).at(0) + " - "
+                            + statcp.split(sep).at(1) + " --- "
+                            + Datas::I()->users->getLoginById(statcp.split(sep).at(3).toInt());
+                }
+                else
+                    gResumeStatut += tr("inconnu");
+                gResumeStatut += "\n" + tr("Postes connectés") + "\n";
+            }
+            else
+            {
+                if (statcp.split(sep).size()>3)
+                {
+                    gResumeStatut += "\t" + statcp.split(sep).at(2) + " - "
+                            + statcp.split(sep).at(0) + " - "
+                            + statcp.split(sep).at(1) + " --- "
+                            + Datas::I()->users->getLoginById(statcp.split(sep).at(3).toInt()) + "\n";
+                }
+                else
+                    gResumeStatut += "\t" + tr("inconnu");
+            }
         }
     }
 
@@ -10598,6 +10626,11 @@ void Rufus::SaisieFSE()
     ui->ActeMontantlineEdit->setText(QLocale().toString(TotalAssure.toDouble(),'f',2));
 }
 // CZ001 - fin interface Pyxvital
+
+void Rufus::TesteConnexion()
+{
+    envoieMessage(TCPMSG_TestConnexion);
+}
 
 
 void Rufus::TraiteTCPMessage(QString msg)

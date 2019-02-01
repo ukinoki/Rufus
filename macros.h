@@ -121,6 +121,8 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TCPMSG_ListeSockets                         "ListeSockets"                                      /* fin du message informant le client que ce message contient la liste des TcpSockets */
 #define TCPMSG_EnvoieListSocket                     "EnvoieListe"                                       /* fin du message demandant l'envoi de la liste des sockets à un client */
 #define TCPMSG_Disconnect                           "Deconnexion"                                       /* fin du message demandant la deconnexion et la fermeture d'un socket */
+#define TCPMSG_TestConnexion                        "TestConnexion"                                     /* fin du message de test de la connexion */
+#define TCPMSG_OKConnexion                          "OKConnexion"                                       /* fin du message de confirmation de la connexion */
 
 // Constantes de statut salle d'attente  //+++++ATTENTION ces constantes servent dans des requêtes SQL - NE PAS METTRE DE CARACTERES SPECIAUX
 #define ARRIVE                                      "Arrivé"

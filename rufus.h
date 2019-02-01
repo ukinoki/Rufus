@@ -257,7 +257,7 @@ private:
     QStandardItemModel      *gListePatientsModel;
     QStandardItemModel      *gListeSuperviseursModel, *gListeParentsModel;
     QTabBar                 *gSalDatTab, *gAccueilTab;
-    QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
+    QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerVerifConnexion, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
 
@@ -356,6 +356,7 @@ private:
     void                envoieMessage(QString msg);                     /* envoi d'un message au serveur pour être redispatché vers tous les clients */
     void                envoieMessageA(QList<int> listidusr);           /* envoi d'un message à une liste d'utilisateurs */
     void                TraiteTCPMessage(QString msg);                  /* traitement des messages reçus par les clients */
+    void                TesteConnexion();
     QString             gResumeStatut;
 
     // Les menus
