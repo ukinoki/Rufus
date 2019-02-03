@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("02-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("03-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -118,13 +118,16 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     else
         idAdministrateur = admindata.at(0).toInt();
 
-
-    UtiliseTCP = (proc->UtiliseTCP() && db->getMode() != DataBase::Distant);
-    if (UtiliseTCP)
+    UtiliseTCP = false;
+    if (proc->isadminpresent())
     {
         TcPConnect = TcpSocket::getInstance();
-        if(!TcPConnect->TcpConnectToServer())
+        UtiliseTCP = TcPConnect->TcpConnectToServer();
+        if (!UtiliseTCP)
+        {
+            dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Fonctionnement sans Tcpsocket"), 5000, false);
             UtiliseTCP = false;
+        }
         else
         {
             connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});  // traitement des messages reçus
@@ -134,8 +137,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             envoieMessage(Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
         }
     }
-    else
-        db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseTCPServeur = null");
+    proc->setoktcp(UtiliseTCP);
 
     // 5 mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
@@ -2495,7 +2497,7 @@ void Rufus::ExporteDocs()
 void Rufus::ImportDocsExternes()
 {
     if (ImportDocsExtThread != Q_NULLPTR)
-        if (PosteImport)
+        if (isPosteImport())
         {
             QString req = "select distinct list.TitreExamen, list.NomAPPareil from " NOM_TABLE_APPAREILSCONNECTESCENTRE " appcon, " NOM_TABLE_LISTEAPPAREILS " list"
                   " where list.idappareil = appcon.idappareil and idLieu = " + QString::number( gDataUser->getSite()->id() );
@@ -3680,32 +3682,42 @@ void Rufus::MetAJourUserConnectes()
 
      //TODO : SQL
     bool MAJsaldat =false;
+    QString macadress =  Utils::getMACAdress() + " - " + gDataUser->getLogin();
+
     QString MAJConnexionRequete;
     QString req = "select iduser from " NOM_TABLE_USERSCONNECTES
-                      " where NomPosteConnecte = '" + QHostInfo::localHostName().left(60) + "'"
+                      " where MACAdressePosteConnecte = '" + macadress + "'"
                       " and idUser = " + QString::number(gDataUser->id());
-    QList<QVariant> usrdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    //qDebug() << req;
+    QList<QVariant> usrdata = db->getFirstRecordFromStandardSelectSQL(req, ok, "Rufus::MetAJourUserConnectes()");
     if (!ok)
         return;
     if (usrdata.size()>0)
         MAJConnexionRequete = "UPDATE " NOM_TABLE_USERSCONNECTES " SET HeureDerniereConnexion = NOW(), "
-                              " idUser = " + QString::number(gDataUser->id()) +
-                              " where NomPosteConnecte = '" + QHostInfo::localHostName().left(60) + "'"
+                              " idUser = " + QString::number(gDataUser->id()) + ","
+                              " NomPosteConnecte = '" + QHostInfo::localHostName().left(60) + "'"
+                              " where MACAdressePosteConnecte = '" + macadress + "'"
                               " and idUser = " + QString::number(gDataUser->id()) ;
     else
     {
         MAJsaldat = true;
-        MAJConnexionRequete = "insert into " NOM_TABLE_USERSCONNECTES "(HeureDerniereConnexion, idUser,UserSuperviseur,UserComptable,UserParent,NomPosteConnecte, MACAdressePosteConnecte)"
+        MAJConnexionRequete = "insert into " NOM_TABLE_USERSCONNECTES "(HeureDerniereConnexion, idUser, UserSuperviseur, UserComptable, UserParent, NomPosteConnecte, MACAdressePosteConnecte)"
                                " VALUES(NOW()," +
                                QString::number(gDataUser->id()) + "," +
                                QString::number(gDataUser->getIdUserActeSuperviseur()) + "," +
                                QString::number(gDataUser->getIdUserComptable()) + "," +
                                QString::number(gDataUser->getIdUserParent()) +",'" +
                                QHostInfo::localHostName().left(60) + "', '" +
-                               Utils::getMACAdress() + " - " + gDataUser->getLogin() + "')";
+                               macadress + "')";
     }
     //qDebug() << MAJConnexionRequete;
-    db->StandardSQL(MAJConnexionRequete);
+    db->StandardSQL(MAJConnexionRequete, "Rufus::MetAJourUserConnectes()");
+    if (isPosteImport() && proc->isadminpresent() && !UtiliseTCP)
+    {
+        proc->TestAdminPresent();
+        if (!proc->isadminpresent())
+            proc->setoktcp(false);
+    }
     if (MAJsaldat)
         FlagMetAjourSalDat();
 }
@@ -4738,7 +4750,7 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
 
 void Rufus::SupprimerDocsEtFactures()
 {
-    if (!PosteImport)
+    if (!isPosteImport())
         return;
     QString NomDirStockageImagerie = proc->DirImagerie();
 
@@ -5573,7 +5585,7 @@ void Rufus::VerifImportateur()
         return;
     }
 
-    bool statut = PosteImport;
+    bool statut = isPosteImport();
     QString ImportateurDocs       = proc->PosteImportDocs(); //le nom du poste importateur des docs externes
     if (ImportateurDocs.toUpper() == "NULL")
     {
@@ -5617,10 +5629,10 @@ void Rufus::VerifImportateur()
         }
     }
     PosteImport = (proc->PosteImportDocs().remove(" - prioritaire") == QHostInfo::localHostName());
-    bool chgtstatut = (statut != PosteImport);
+    bool chgtstatut = (statut != isPosteImport());
     if (chgtstatut)
     {
-        if (PosteImport)
+        if (isPosteImport())
         {
             connect(gTimerExportDocs,           &QTimer::timeout,   [=] {ExporteDocs();});
             if (ImportDocsExtThread == Q_NULLPTR)
@@ -7245,7 +7257,9 @@ void Rufus::CreerMenu()
 
     menuComptabilite->addAction(actionPaiementDirect);
     menuComptabilite->addAction(actionPaiementTiers);
-    //menuComptabilite->addAction(actionPaiementTiers2);
+//-------------------------------------------------------------------------------------------------------------------------------------
+//    menuComptabilite->addAction(actionPaiementTiers2);
+//-------------------------------------------------------------------------------------------------------------------------------------
     menuComptabilite->addAction(actionBilanRecettes);
     menuComptabilite->addAction(actionRecettesSpeciales);
     menuComptabilite->addSeparator();

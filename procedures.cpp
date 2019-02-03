@@ -256,7 +256,9 @@ QString Procedures::ConvertitEnHtml(QString Texte)
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::getDossierDocuments(QString Appareil, int mode)
 {
-    return gsettingsIni->value(db->getBaseFromInt( mode ) + "/DossiersDocuments/" + Appareil).toString();
+    QString cle = db->getBaseFromInt( mode ) + "/DossiersDocuments/" + Appareil;
+    QString dossier = gsettingsIni->value(cle).toString();
+    return dossier;
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------
@@ -289,7 +291,7 @@ void Procedures::MAJflagMG()
     /* envoi du message de MAJ de la liste des correspondants au serveur */
     emit UpdCorrespondants();
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
-    if (!OKTCP || db->getMode() == DataBase::Distant)
+    if (!OKTCP)
     {
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
         int a = 0;
@@ -310,7 +312,7 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
     /* envoi du message de MAJ de la salle d'attente au serveur */
     emit UpdSalDat();
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
-    if (!OKTCP || db->getMode() == DataBase::Distant)
+    if (!OKTCP)
     {
         //qDebug() << "MAJTcpMsgEtFlagSalDat()";
         //qDebug() << "MAJTcpMsgEtFlagSalDat() lock OK";
@@ -331,7 +333,7 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
 void Procedures::MAJflagMessages()
 {
     /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
-    if (!OKTCP || db->getMode() == DataBase::Distant)
+    if (!OKTCP)
     {
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMessages) VALUES (1)";
         int a = 0;
@@ -1928,12 +1930,23 @@ bool Procedures::Verif_secure_file_priv()
     return true;
 }
 
-bool Procedures::UtiliseTCP()
+void Procedures::TestAdminPresent()             // Vérifie si RufusAdmin est utilisé
 {
     QString req = "select iduser from " NOM_TABLE_USERSCONNECTES " where iduser = (select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
     QList<QVariant> tcpdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    OKTCP = tcpdata.size()>0;
-    return OKTCP;
+    OKAdmin = (ok && tcpdata.size()>0  && db->getMode() != DataBase::Distant);
+}
+
+bool Procedures::isadminpresent()
+{
+    return OKAdmin;
+}
+
+void Procedures::setoktcp(bool oktcp)
+{
+    OKTCP = oktcp;
+    if (!oktcp && !OKAdmin)
+        db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseTCPServeur = null");
 }
 
 QString Procedures::Var_secure_file_priv()
@@ -2923,12 +2936,8 @@ bool Procedures::Connexion_A_La_Base()
     db->StandardSQL("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;");
 
     // on recherche si rufusadmin est en fonction auquel cas on utilise les TCPsocket
-    int a (0);
     QString req = "select iduser from " NOM_TABLE_USERSCONNECTES " where iduser = (select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
-    QList<QVariant> usrdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && usrdata.size()>0)
-        a = usrdata.size();
-    OKTCP = (a>0  && db->getMode() != DataBase::Distant);
+    TestAdminPresent();
     return gdbOK;
 }
 

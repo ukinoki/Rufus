@@ -114,7 +114,7 @@ private:
 
     void                closeEvent(QCloseEvent *event);
     bool                eventFilter(QObject *obj, QEvent *event)  ;
-    void                CompleteDetailsTable(QTableWidget *TableSource, int Rangee, bool Coche = true);
+    void                CompleteDetailsTable(QTableWidget *TableOrigine, int Rangee, bool Coche = true);
     void                DefinitArchitectureTableView(QTableWidget *TableARemplir, int TypeTable = 0);
     int                 EnregistreRecette();
     int                 ResultEnregRecette;

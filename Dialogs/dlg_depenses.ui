@@ -727,6 +727,12 @@ un échéancier</string>
          <height>20</height>
         </size>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>20</height>
+        </size>
+       </property>
        <layout class="QHBoxLayout" name="horizontalLayout_8">
         <property name="spacing">
          <number>0</number>

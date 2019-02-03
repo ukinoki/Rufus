@@ -248,7 +248,9 @@ public:
 
     QString                 gLoginUser() { return m_userConnected->getLogin(); }
     QString                 gMDPUser() { return m_userConnected->getPassword(); }
-    bool                    UtiliseTCP();
+    void                    TestAdminPresent();
+    bool                    isadminpresent();
+    void                    setoktcp(bool  ok);
 
 signals:
     void                    UpdSalDat();
@@ -262,7 +264,7 @@ signals:
 private:
     bool                    initOK;
     bool                    connexion;
-    bool                    OKTCP;
+    bool                    OKTCP, OKAdmin;
     dlg_choixdate           *Dlg_ChxDate;
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_paramconnexion      *Dlg_ParamConnex;

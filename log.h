@@ -83,7 +83,7 @@ public:
         {
             QTextStream out(&testfile);
             QString timelog = QTime::currentTime().toString();
-            out << timelog << " - " << type << " : " << msg << (infoMsg==""? "" : " : " + infoMsg) << "\n";
+            out << timelog << " - " << type << "\n     -> " << msg.replace(TCPMSG_Separator, ":::") << (infoMsg==""? "" : " : " + infoMsg.replace(TCPMSG_Separator, ":::")) << "\n";
             testfile.close();
         }
     }
