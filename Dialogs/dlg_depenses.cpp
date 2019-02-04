@@ -1534,7 +1534,8 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                       " left join " NOM_TABLE_FACTURES " fac"
                       " on dep.idfacture = fac.idfacture"
                       " where Echeancier = 1"
-                      " and idUser = " + QString::number(gDataUser->id());
+                      " and idUser = " + QString::number(gDataUser->id()) +
+                      " order by Intitule";
         //qDebug() << req;
         bool ok = true;
         QList<QList<QVariant>> ListeEch = db->StandardSelectSQL(req, ok);

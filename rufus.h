@@ -355,9 +355,10 @@ private:
     TcpSocket           *TcPConnect;
     void                envoieMessage(QString msg);                     /* envoi d'un message au serveur pour être redispatché vers tous les clients */
     void                envoieMessageA(QList<int> listidusr);           /* envoi d'un message à une liste d'utilisateurs */
-    void                TraiteTCPMessage(QString msg);                  /* traitement des messages reçus par les clients */
     void                TesteConnexion();
     QString             gResumeStatut;
+private slots:
+    void                TraiteTCPMessage(QString msg);                  /* traitement des messages reçus par les clients */
 
     // Les menus
 private:

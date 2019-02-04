@@ -31,7 +31,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("03-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("04-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -9696,8 +9696,8 @@ void Rufus::ResumeStatut()
         for( itsocket = gListSockets.constBegin(); itsocket != gListSockets.constEnd(); ++itsocket )
         {
             QString statcp = *itsocket;
-            statcp.replace(TCPMSG_Separator, sep);
-            qDebug() << statcp;
+            statcp.replace(TCPMSG_Separator, sep); // juste opour que ce soit plus compréhensible en cas de'utilisation de qDebug()
+            //qDebug() << statcp;
             if (itsocket == gListSockets.constBegin())
             {
                 // le 1er item de gListSockets est le serveur
