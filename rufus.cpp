@@ -24,14 +24,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "styles.h"
 
 Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
-/*--------------------------------------------------------------------------------------------------------------
--- Création de la fiche ----------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------*/
 {
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("04-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("06-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -69,12 +66,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->setDirImagerie();                                                 // lit l'emplacement du dossier d'imagerie sur le serveur
     db = DataBase::getInstance();
 
-    //1. Restauration de la position de la fenetre et de la police d'écran
+    // 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
     setWindowIcon(Icons::icSunglasses());
 
-
-    //2 charge les data du user connecté
+    // 2 - charge les data du user connecté
     int gidUser = -1;
     if( db->getUserConnected() != Q_NULLPTR )
         gidUser = db->getUserConnected()->id();
@@ -102,7 +98,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     CreerMenu();
     InitMenus();
 
-
     //4 reconstruction des combobox
      proc->initListeCorrespondants();
     ReconstruitCombosCorresp();                 // initialisation de la liste
@@ -118,6 +113,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     else
         idAdministrateur = admindata.at(0).toInt();
 
+    // 5 - lancement du TCP
     UtiliseTCP = false;
     if (proc->isadminpresent())
     {
@@ -139,7 +135,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
     proc->setoktcp(UtiliseTCP);
 
-    // 5 mettre en place le TcpSocket et/ou les timer
+    // 6 - mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
     gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente, utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants, utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
@@ -207,7 +203,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
     connect (gTimerVerifConnexion,          &QTimer::timeout,   this,   &Rufus::TesteConnexion);
 
-    //Nettoyage des erreurs éventuelles de la salle d'attente
+    // 7 - Nettoyage des erreurs éventuelles de la salle d'attente
     QString blabla              = ENCOURSEXAMEN;
     int length                  = blabla.size();
     QString req = "UPDATE " NOM_TABLE_SALLEDATTENTE
@@ -218,7 +214,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     // les slots
     Connect_Slots();
 
-    //libération des verrous de la compta
+    // 8 - libération des verrous de la compta
     req = " delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(gidUser);
     db->StandardSQL(req);
 
@@ -241,9 +237,13 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         proc->initListeCotationsByUser(gDataUser->getIdUserParent());
         ReconstruitListesActes();
     }
+
+    // 9 - Mise à jour des salles d'attente
     Remplir_SalDat();
     if(UtiliseTCP)
         envoieMessage(TCPMSG_MAJSalAttente);
+
+    // 10 - Vérification de la messagerie
     VerifMessages();
 }
 

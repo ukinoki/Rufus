@@ -110,7 +110,7 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
             lab->resize(pix.width(),pix.height());
             lab->setPixmap(pix);
             if (aveczoom)
-                connect(lab, &UpLabel::clicked, this, [=] {emit zoom();});
+                connect(lab, &UpLabel::clicked, this, &UpTableWidget::zoom);
             delete pdfPage;
             setCellWidget(i,0,lab);
         }
@@ -126,7 +126,7 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
         UpLabel* lab     = new UpLabel(this);
         lab->setPixmap(pix);
         if (aveczoom)
-            connect(lab, &UpLabel::clicked, this, [=] {emit zoom();});
+            connect(lab, &UpLabel::clicked, this, &UpTableWidget::zoom);
         setRowCount(1);
         setRowHeight(0,pix.height());
         setCellWidget(0,0,lab);

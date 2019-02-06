@@ -1140,7 +1140,7 @@ void Procedures::EditHtml(QString txt)
     delete gAsk;
 }
 /*!
- * \brief Procedures::EditImage
+ * \brief Procedures::EditDocument
  * affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pourvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
  * argument QMap<QString,QVariant> doc contient 2 éléments
     . doc["ba"] = le QByteArray correspondant au contenu du fichier   = QFile(emplacementdufichier)->readAll())
@@ -1148,9 +1148,9 @@ void Procedures::EditHtml(QString txt)
  * argument label le label de l'image affiché dans un QLabel magenta en bas à gauche de l'image
  * argument titre le titre de la fiche
  * argument Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
- * si le bouton PrintButton est utilisé il permet d'imprimer l'image en appelant la fonction PrintImage(QMap<QString,QVariant> doc)
+ * si le bouton PrintButton est utilisé il permet d'imprimer l'image en appelant la fonction PrintDocument(QMap<QString,QVariant> doc)
  */
-void Procedures::EditImage(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button)
+void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button)
 {
     UpDialog    *gAsk       = new UpDialog();
     QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAsk->layout());
@@ -1167,11 +1167,11 @@ void Procedures::EditImage(QMap<QString,QVariant> doc, QString label, QString ti
 
     gAsk->AjouteLayButtons(Button);
     connect(gAsk->OKButton, &QPushButton::clicked, this, [=] {gAsk->accept();});
-    connect(this, &Procedures::CloseEditImage, gAsk, [=] {gAsk->accept();});
+    connect(this, &Procedures::CloseEditDocument, gAsk, [=] {gAsk->accept();});
     if (Button.testFlag(UpDialog::ButtonPrint))
     {
         gAsk->PrintButton->setLuggage(doc);
-        connect(gAsk->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), [=](QVariant) {PrintImage(doc);});
+        connect(gAsk->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), [=](QVariant) {PrintDocument(doc);});
     }
     if (Button.testFlag(UpDialog::ButtonSuppr))
         connect(gAsk->SupprButton, &QPushButton::clicked, this, [=] {emit DelImage();});
@@ -1243,33 +1243,37 @@ void Procedures::EditImage(QMap<QString,QVariant> doc, QString label, QString ti
 }
 
 /*!
- * \brief Procedures::PrintImage
+ * \brief Procedures::PrintDocument
  * imprime le contenu d'un fichier image de type pdf ou jpg
  * argument QMap<QString,QVariant> doc contient 2 éléments
     . ba = le QByteArray contenant les données
     . type = jpg ou pdf
  */
-bool Procedures::PrintImage(QMap<QString,QVariant> doc)
+bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
 {
-    bool AvecPrevisu = true;
+    bool AvecPrevisu = false;
     QByteArray ba = doc.value("ba").toByteArray();
-    if (doc.value("type").toString() == PDF)     // le document est un pdf ou un document texte
+    if (doc.value("type").toString() == PDF)     // le document est un pdf
     {
         Poppler::Document* document = Poppler::Document::loadFromData(ba);
-        if (!document || document->isLocked()) {
+        if (!document || document->isLocked() || document == Q_NULLPTR)
+        {
             UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
             delete document;
             return false;
         }
-        if (document == Q_NULLPTR) {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de charger le document"));
-            delete document;
-            return false;
-        }
-
         document->setRenderHint(Poppler::Document::TextAntialiasing);
-        int numpages = document->numPages();
-        for (int i=0; i<numpages ;i++)
+//        if (AvecPrevisu)
+//        {
+//            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer);
+//            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {PrintPdf(printer, document, ok);});
+//            dialog->exec();
+//            delete dialog;
+//            delete document;
+//            return ok;
+//        }
+//        else
+        for (int i=0; i<document->numPages() ;i++)
         {
             Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
             if (pdfPage == Q_NULLPTR) {
@@ -1284,21 +1288,36 @@ bool Procedures::PrintImage(QMap<QString,QVariant> doc)
                 return false;
             }
             // ... use image ...
-            if (i == 0)
+            if (i==0)
             {
                 if (AvecPrevisu)
                 {
                     QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer);
                     connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer, image);});
-                    dialog->exec();
-                    delete dialog;
+                    if (dialog->exec() != QDialog::Rejected)
+                        delete dialog;
+                    else {
+                        delete dialog;
+                        delete pdfPage;
+                        delete document;
+                        return false;
+                    }
                 }
                 else
                 {
                     QPrintDialog *dialog = new QPrintDialog(printer);
                     if (dialog->exec() != QDialog::Rejected)
+                    {
+                        printer = dialog->printer();
                         Print(printer, image);
-                    delete dialog;
+                        delete dialog;
+                    }
+                    else {
+                        delete dialog;
+                        delete pdfPage;
+                        delete document;
+                        return false;
+                    }
                 }
             }
             else
@@ -1307,7 +1326,7 @@ bool Procedures::PrintImage(QMap<QString,QVariant> doc)
         }
         delete document;
     }
-    if (doc.value("type").toString() == JPG)     // le document est un jpg
+    else if (doc.value("type").toString() == JPG)     // le document est un jpg
     {
         QPixmap pix;
         pix.loadFromData(ba);
@@ -1335,6 +1354,28 @@ void Procedures::Print(QPrinter *Imprimante, QImage image)
     QPainter PrintingPreView(Imprimante);
     QPixmap pix = QPixmap::fromImage(image).scaledToWidth(int(rect.width()),Qt::SmoothTransformation);
     PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
+}
+void Procedures::PrintPdf(QPrinter *Imprimante, Poppler::Document* document, bool &printok)
+{
+    for (int i=0; i<document->numPages() ;i++)
+    {
+        Poppler::Page* pdfPage = document->page(i);  // Document starts at page 0
+        if (pdfPage == Q_NULLPTR) {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
+            printok = false;
+            break;
+        }
+        QImage image = pdfPage->renderToImage(600,600);
+        if (image.isNull()) {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Impossible de retrouver les pages du document"));
+            printok = false;
+            break;
+        }
+        // ... use image ...
+        Print(Imprimante, image);
+        delete pdfPage;
+    }
+    printok = true;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

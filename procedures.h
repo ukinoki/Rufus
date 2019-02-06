@@ -104,8 +104,8 @@ public:
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
-    void                    EditImage(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
-    bool                    PrintImage(QMap<QString, QVariant> doc);
+    void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
+    bool                    PrintDocument(QMap<QString, QVariant> doc);
     bool                    FicheChoixConnexion();
     QString                 getDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
     int                     GetflagMG();
@@ -259,7 +259,7 @@ signals:
     void                    ModifEdit(QString txt);
     void                    ConnectTimers();
     void                    DelImage();
-    void                    CloseEditImage();
+    void                    CloseEditDocument();
 
 private:
     bool                    initOK;
@@ -285,6 +285,7 @@ private:
     QPrinter                *printer;
     QRectF                  rect;
     void                    Print(QPrinter*, QImage image);
+    void                    PrintPdf(QPrinter*, Poppler::Document* document, bool &printok);
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(User &user);

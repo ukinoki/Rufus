@@ -233,9 +233,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                     */
 
                     QRegExp re("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}_[0-9]{2}_[0-9]{2}Z-");
-                    int idxdate;
                     if (nomdoc.contains(re))
                     {
+                        int idxdate;
                         Titredoc    = "RNM - Eidon ";
                         Typedoc     = "RNM";
                         idxdate = nomdoc.indexOf(re);
@@ -250,11 +250,12 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                             EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
                             continue;
                         }
-                        cote = ((details.at(1)=="right")? tr("OD") : tr("OG"));
+                        if (details.split("-").size()>0)
+                            cote = ((details.split("-").at(1)=="right")? tr("OD") : tr("OG"));
                         SousTypeDoc = "Eidon " + cote;
-                        if (details.size()>3)
+                        if (details.split("-").size()>3)
                         {
-                            QString typecliche = details.at(3);
+                            QString typecliche = details.split("-").at(3);
                             if (typecliche == "infrared")
                                 SousTypeDoc += " IR";
                             else if (typecliche == "af")
@@ -423,7 +424,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QList<QVariant> > l
                     if (nomdoc.split("-").at(0).toInt()>0)
                         idPatient           = nomdoc.split("-").at(0);
                     else
-                        idPatient           = nomdoc.split("-").at(8);
+                        idPatient           = nomdoc.split("-").at(2);
                 }
                 else if (Appareil == "OPTOS Daytona series")   {
                     idPatient           = nomdoc.split("-").at(0);

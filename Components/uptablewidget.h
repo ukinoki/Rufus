@@ -54,7 +54,7 @@ protected:
 signals:
     void            dropsignal(QByteArray);
     void            zoom();             // ce signal génère l'affichage de le table dans une fenêtre spécifique en taille maxi
-                                        // utilisé pour affiché une image, un document pdf ou une video en grande taille
+                                        // utilisé pour afficher une image, un document pdf ou une video en grande taille
 };
 
 #endif // UPTABLEWIDGET_H

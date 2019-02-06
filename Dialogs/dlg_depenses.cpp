@@ -156,7 +156,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (SupprimerupPushButton,             &QPushButton::clicked,          this,   &dlg_depenses::SupprimerDepense);
     connect (ui->UserscomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {ChangeUser(ui->UserscomboBox->currentIndex());});
-    connect (ui->VisuDocupTableWidget,          SIGNAL(zoom()),                 this,   SLOT(ZoomDoc()));
+    connect (ui->VisuDocupTableWidget,          &UpTableWidget::zoom,           this,   &dlg_depenses::ZoomDoc);
     connect (ui->VisuFacturecheckBox,           &QCheckBox::clicked,            this,   [=] {AfficheFacture(m_depenseencours);});
     connect (EnregupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::ModifierDepense);
     connect (AnnulupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::AnnulEnreg);
@@ -847,7 +847,7 @@ void dlg_depenses::CalculTotalDepenses()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::GestionComptes()
 {
-    Dlg_Cmpt          = new dlg_comptes();
+    Dlg_Cmpt = new dlg_comptes();
     if (Dlg_Cmpt->getInitOK())
         Dlg_Cmpt->exec();
 }
@@ -857,7 +857,7 @@ void dlg_depenses::ZoomDoc()
     disconnect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
     connect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
     QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
-    proc->EditImage(doc,
+    proc->EditDocument(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
                     (m_depenseencours->isecheancier()? tr("Echéancier") : tr("Facture")),
                     UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK);
@@ -877,7 +877,7 @@ void dlg_depenses::EffaceFacture()
          * on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier
          */
     /* on ferme la fiche d'édition de la facture*/
-    proc->emit CloseEditImage();
+    proc->emit CloseEditDocument();
     SupprimeFacture(m_depenseencours);
     /* on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier*/
     ui->VisuDocupTableWidget->clear();
