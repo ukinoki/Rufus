@@ -216,17 +216,19 @@ void dlg_docsvideo::ValideFiche()
     if (editdate->date() == QDate::currentDate())
     {
         editdate->setFocus();
-        UpMessageBox *msgbox = new UpMessageBox(this);
-        msgbox->setText(tr("Confirmez la date d'aujourd'hui pour ce document."));
-        msgbox->setIcon(UpMessageBox::Warning);
-        UpSmallButton *OKDateBouton = new UpSmallButton(tr("Je confirme"),msgbox);
-        UpSmallButton *AnnulBouton = new UpSmallButton(tr("Annuler"), msgbox);
-        msgbox->addButton(AnnulBouton, UpSmallButton::CANCELBUTTON);
-        msgbox->addButton(OKDateBouton, UpSmallButton::STARTBUTTON);
-        msgbox->exec();
-        if (msgbox->clickedButton() != OKDateBouton)
+        UpMessageBox msgbox;
+        msgbox.setText(tr("Confirmez la date d'aujourd'hui pour cette video"));
+        msgbox.setIcon(UpMessageBox::Warning);
+        UpSmallButton OKDateBouton;
+        OKDateBouton.setText("Je confirme");
+        UpSmallButton AnnulBouton;
+        AnnulBouton.setText(tr("Annuler"));
+        msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(&OKDateBouton, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() != &OKDateBouton)
             return;
-    }
+        }
 
     // enregistrement du document ----------------------------------------------------------------------------------------------------------------------------------------------
     QTextEdit txtedit;

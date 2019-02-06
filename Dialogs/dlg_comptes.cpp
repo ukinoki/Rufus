@@ -532,20 +532,22 @@ void dlg_comptes::VoirArchives()
 
 void dlg_comptes::SupprimerEcriture(QString msg)
 {
-    UpMessageBox *msgbox = new UpMessageBox(this);
-    msgbox->setText(tr("Suppression d'une écriture!"));
-    msgbox->setInformativeText(tr("Vous avez choisi de supprimer l'écriture") + "\n"
+    UpMessageBox msgbox;
+    msgbox.setText(tr("Suppression d'une écriture!"));
+    msgbox.setInformativeText(tr("Vous avez choisi de supprimer l'écriture") + "\n"
                               + msg + "\n\n" +
                               tr("Cette suppression est définitive mais ne supprimera pas l'opération de recette/dépense correspondante.") + "\n" +
                               tr("Supprimer une écriture du compte bancaire sert en général à équilibrer le compte pour le rendre conforme au relevé") + ".\n" +
                               tr("Confirmez vous la suppression?") + "\n\n");
-    msgbox->setIcon(UpMessageBox::Warning);
-    UpSmallButton *OKBouton = new UpSmallButton(tr("Supprimer"));
-    UpSmallButton *NoBouton = new UpSmallButton(tr("Annuler"));
-    msgbox->addButton(NoBouton, UpSmallButton::CANCELBUTTON);
-    msgbox->addButton(OKBouton, UpSmallButton::STARTBUTTON);
-    msgbox->exec();
-    if (msgbox->clickedButton() == OKBouton)
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpSmallButton OKBouton;
+    OKBouton.setText(tr("Supprimer"));
+    UpSmallButton NoBouton;
+    NoBouton.setText(tr("Annuler"));
+    msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    if (msgbox.clickedButton() == &OKBouton)
     {
         db->StandardSQL("delete from " NOM_TABLE_LIGNESCOMPTES " where idligne = " + QString::number(gidLigneASupprimer));
         RemplitLaTable(idCompte);

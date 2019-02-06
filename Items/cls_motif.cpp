@@ -80,15 +80,9 @@ Motif* Motifs::getMotifById(int id)
 
 void Motifs::clearAll()
 {
-    QList<Motif*> listmotfs;
-    for( QMap<int, Motif*>::const_iterator itmotf = m_motifs->constBegin(); itmotf != m_motifs->constEnd(); ++itmotf)
-    {
-        Motif *motf = const_cast<Motif*>(*itmotf);
-        if (!listmotfs.contains(motf))
-                listmotfs << motf;
-    }
-    for (int i=listmotfs.size()-1; i==0; --i)
-        removeMotif(listmotfs.at(i));
+    QList<Motif*> listmotifs;
+    for( QMap<int, Motif*>::const_iterator itmtf = m_motifs->constBegin(); itmtf != m_motifs->constEnd(); ++itmtf)
+        delete itmtf.value();
     m_motifs->clear();
 }
 
@@ -100,3 +94,4 @@ void Motifs::removeMotif(Motif *motf)
     m_motifs->remove(motf->id());
     delete motf;
 }
+

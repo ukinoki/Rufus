@@ -249,7 +249,7 @@
     </layout>
    </item>
    <item>
-    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="17,20,0,1,1">
+    <layout class="QVBoxLayout" name="verticalLayout_2" stretch="17,17,0,17">
      <property name="spacing">
       <number>4</number>
      </property>
@@ -270,7 +270,7 @@
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>330</height>
+         <height>305</height>
         </size>
        </property>
        <property name="autoFillBackground">
@@ -538,7 +538,7 @@
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_3">
+         <spacer name="verticalSpacer">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
@@ -567,7 +567,7 @@
          <height>16777215</height>
         </size>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,50,1">
+       <layout class="QVBoxLayout" name="verticalLayout_5" stretch="0,50,1">
         <property name="spacing">
          <number>0</number>
         </property>
@@ -691,14 +691,14 @@ un échéancier</string>
          </widget>
         </item>
         <item>
-         <spacer name="verticalSpacer_4">
+         <spacer name="verticalSpacer_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>20</width>
-            <height>0</height>
+            <height>10</height>
            </size>
           </property>
          </spacer>
@@ -707,7 +707,7 @@ un échéancier</string>
       </widget>
      </item>
      <item>
-      <spacer name="verticalSpacer">
+      <spacer name="verticalSpacer_3">
        <property name="orientation">
         <enum>Qt::Vertical</enum>
        </property>
@@ -720,98 +720,17 @@ un échéancier</string>
       </spacer>
      </item>
      <item>
-      <widget class="QWidget" name="widget" native="true">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>20</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>20</height>
-        </size>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_8">
-        <property name="spacing">
-         <number>0</number>
-        </property>
-        <property name="leftMargin">
-         <number>0</number>
-        </property>
-        <property name="topMargin">
-         <number>0</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <item>
-         <spacer name="horizontalSpacer_13">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>52</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="VisuFacturecheckBox">
-          <property name="minimumSize">
-           <size>
-            <width>205</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="maximumSize">
-           <size>
-            <width>16777215</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Prévisualiser les dépenses</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_7">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>51</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
       <widget class="QFrame" name="frame_2">
        <property name="minimumSize">
         <size>
          <width>303</width>
-         <height>90</height>
+         <height>110</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>340</width>
-         <height>90</height>
+         <height>110</height>
         </size>
        </property>
        <property name="frameShape">
@@ -836,6 +755,87 @@ un échéancier</string>
         <property name="bottomMargin">
          <number>0</number>
         </property>
+        <item>
+         <widget class="QWidget" name="widget" native="true">
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>20</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>20</height>
+           </size>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <spacer name="horizontalSpacer_13">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>52</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="VisuFacturecheckBox">
+             <property name="minimumSize">
+              <size>
+               <width>205</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>20</height>
+              </size>
+             </property>
+             <property name="text">
+              <string>Prévisualiser les dépenses</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>51</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
         <item>
          <widget class="UpPushButton" name="GestionComptesupPushButton">
           <property name="minimumSize">

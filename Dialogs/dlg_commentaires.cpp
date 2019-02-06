@@ -1058,19 +1058,19 @@ void dlg_commentaires::SupprimmCommentaire(int row)
 
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "?";
-    UpMessageBox *msgbox = new UpMessageBox(this);
-    msgbox->setText("Euuhh... " + proc->getUserConnected()->getLogin() + "?");
-    msgbox->setInformativeText(Msg);
-    msgbox->setIcon(UpMessageBox::Warning);
-    UpSmallButton *OKBouton = new UpSmallButton();
-    OKBouton->setImmediateToolTip(tr("Supprimer le commentaire"));
-    UpSmallButton *NoBouton = new UpSmallButton();
-    NoBouton->setImmediateToolTip(tr("Annuler"));
-    msgbox->addButton(NoBouton,UpSmallButton::CANCELBUTTON);
-    msgbox->addButton(OKBouton, UpSmallButton::STARTBUTTON);
-    msgbox->setDefaultButton(NoBouton);
-    msgbox->exec();
-    if (msgbox->clickedButton()  == OKBouton)
+    UpMessageBox msgbox;
+    msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin() + "?");
+    msgbox.setInformativeText(Msg);
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpSmallButton OKBouton;
+    OKBouton.setImmediateToolTip(tr("Supprimer le commentaire"));
+    UpSmallButton NoBouton;
+    NoBouton.setImmediateToolTip(tr("Annuler"));
+    msgbox.addButton(&NoBouton,UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+    msgbox.setDefaultButton(&NoBouton);
+    msgbox.exec();
+    if (msgbox.clickedButton()  == &OKBouton)
     {
         int idCom = ui->ComupTableWidget->item(row,3)->text().toInt();
         Msg = tr("Impossible de supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "\n ... " + tr("et je ne sais pas pourquoi...");

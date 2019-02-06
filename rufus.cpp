@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("06-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("07-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -6478,24 +6478,24 @@ void Rufus::AfficheDossier(int idPat, int idacte)
     {
         if (UpMessageBox::Question(this, tr("Il existe ") + QString::number(patlist.size()) + " " + gPrenomPatient + tr(" dont le sexe n'est pas précisé."), tr("Les convertir?")) == UpSmallButton::STARTBUTTON)
         {
-            UpMessageBox *msgbox = new UpMessageBox(this);
-            msgbox->setText(tr("Convertir ") + QString::number(patlist.size()) + " " + gPrenomPatient + "...");
-            msgbox->setIcon(UpMessageBox::Warning);
-            UpSmallButton *MBouton = new UpSmallButton();
-            MBouton->setText(tr("Masculin"));
-            UpSmallButton *FBouton = new UpSmallButton();
-            FBouton->setText(tr("Féminin"));
-            UpSmallButton *AnnulBouton = new UpSmallButton();
-            AnnulBouton->setText(tr("Annuler"));
-            msgbox->addButton(AnnulBouton, UpSmallButton::CANCELBUTTON);
-            msgbox->addButton(MBouton, UpSmallButton::COPYBUTTON);
-            msgbox->addButton(FBouton, UpSmallButton::STARTBUTTON);
-            MBouton->setIcon(Icons::icMan());
-            FBouton->setIcon(Icons::icWoman());
-            msgbox->exec();
-            if (msgbox->clickedButton() == MBouton)
+            UpMessageBox msgbox;
+            msgbox.setText(tr("Convertir ") + QString::number(patlist.size()) + " " + gPrenomPatient + "...");
+            msgbox.setIcon(UpMessageBox::Warning);
+            UpSmallButton MBouton;
+            MBouton.setText(tr("Masculin"));
+            UpSmallButton FBouton;
+            FBouton.setText(tr("Féminin"));
+            UpSmallButton AnnulBouton;
+            AnnulBouton.setText(tr("Annuler"));
+            msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
+            msgbox.addButton(&MBouton, UpSmallButton::COPYBUTTON);
+            msgbox.addButton(&FBouton, UpSmallButton::STARTBUTTON);
+            MBouton.setIcon(Icons::icMan());
+            FBouton.setIcon(Icons::icWoman());
+            msgbox.exec();
+            if (msgbox.clickedButton() == &MBouton)
                 Sexe = "M";
-            else if (msgbox->clickedButton() == FBouton)
+            else if (msgbox.clickedButton() == &FBouton)
                 Sexe = "F";
             if (Sexe != ""){
                 db->StandardSQL("update " NOM_TABLE_PATIENTS " set sexe = '" + Sexe + "' where PatPrenom = '" + gPrenomPatient + "' and sexe = ''");
@@ -6505,7 +6505,6 @@ void Rufus::AfficheDossier(int idPat, int idacte)
                 UpMessageBox::Information(this, tr("Il reste ") + QString::number(patlist.size()) + tr(" dossiers pour lesquels le sexe n'est pas précisé"),"");
                 AfficheDossier(gidPatient);
             }
-            delete msgbox;
         }
     }
 }
