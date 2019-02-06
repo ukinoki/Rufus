@@ -73,6 +73,7 @@ void User::setData(QJsonObject data)
     setDataInt(data, "idCompteEncaissHonoraires", m_idCompteEncaissHonoraires);
     setDataInt(data, "enregHonoraires", m_enregHonoraires);
     setDataInt(data, "secteur", m_secteur);
+    setDataInt(data, "usercptdefaut", m_iduserComptePardefaut);
 
     setDataBool(data, "AGA", m_AGA);
     setDataBool(data, "desactive", m_desactive);
@@ -157,6 +158,7 @@ QString User::getPortable() const { return m_portable; }
 
 QString User::getNomCompteParDefaut() const { return m_nomCompteParDefaut; }
 QString User::getNomCompteAbrege() const { return m_nomCompteEncaissHonoraires; }
+int User::getidUserCompteParDefaut() const { return m_iduserComptePardefaut; }
 
 
 /*!

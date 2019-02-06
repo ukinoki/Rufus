@@ -57,6 +57,7 @@ private:
     QString m_nomUserEncaissHonoraires;
     QString m_nomCompteEncaissHonoraires;
     QString m_nomCompteParDefaut;
+    int m_iduserComptePardefaut; //!< id du user propriétaire du compte bancaire par défaut
 
     int m_soignant;
     int m_responsableActes; //!< 1 : responsable
@@ -142,6 +143,7 @@ public:
     void setIdUserParent(int idUserParent);
     int getIdUserComptable() const;
     void setIdUserComptable(int idUserComptable);
+    int getidUserCompteParDefaut() const;
 
     int getSecteur() const;
     int getIdCompteParDefaut() const;

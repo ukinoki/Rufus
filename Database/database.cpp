@@ -409,7 +409,7 @@ QJsonObject DataBase::loadUserData(int idUser)
             " UserPortable, UserPoste, UserWeb, UserMemo, UserDesactive,"                               // 15,16,17,18,19
             " UserPoliceEcran, UserPoliceAttribut, UserSecteur, Soignant, ResponsableActes,"            // 20,21,22,23,24
             " UserCCAM, UserEmployeur, DateDerniereConnexion, idCompteEncaissHonoraires, Medecin,"      // 25,26,27,28,29
-            " OPTAM, cpt.nomcompteabrege, cpt2.nomcompteabrege "                                        // 30,31,32
+            " OPTAM, cpt.nomcompteabrege, cpt2.nomcompteabrege, cpt2.iduser as usercptdefaut"           // 30,31,32,33
             " from " NOM_TABLE_UTILISATEURS " usr "
             " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte"
             " left outer join " NOM_TABLE_COMPTES " cpt2 on usr.idCompteParDefaut = cpt2.idCompte"
@@ -458,7 +458,6 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData["dateDerniereConnexion"]       = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
     userData["medecin"]                     = usrdata.at(29).toInt();
     userData["idCompteEncaissHonoraires"]   = usrdata.at(28).toInt();
-
     if( userData["idCompteEncaissHonoraires"].isNull() )
     {
         userData["idUserEncaissHonoraires"] = -1;
@@ -471,7 +470,10 @@ QJsonObject DataBase::loadUserData(int idUser)
     }
 
     if( !usrdata.at(32).isNull() )
-        userData["nomCompteParDefaut"] = usrdata.at(32).toString();
+    {
+        userData["nomCompteParDefaut"]  = usrdata.at(32).toString();
+        userData["usercptdefaut"]       = usrdata.at(33).toInt();
+    }
     return userData;
 }
 QList<User*> DataBase::loadUsersAll()

@@ -93,7 +93,7 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         laybuttons      ->addWidget(CloseButton);
     }
     UpdateTabOrder();
-    setStageCount(0.7);
+    setStageCount(1);
 }
 
 QVBoxLayout* UpDialog::dlglayout()

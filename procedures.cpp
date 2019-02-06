@@ -1478,7 +1478,7 @@ QString Procedures::getSessionStatus()
             txtstatut += tr("sans comptabilité");
     }
     if (respliberal||respsalarie)
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + m_userConnected->getNomCompteEncaissHonoraires() + "  " + tr("de") + " " + m_userConnected->getLoginComptable();
+        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + m_userConnected->getNomCompteEncaissHonoraires() + " " + tr("de") + " " + m_userConnected->getLoginComptable();
     else if (retrocession)
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
@@ -1497,7 +1497,13 @@ QString Procedures::getSessionStatus()
         txtstatut += "\n" + tr("OPTAM :\t\t\t") + (m_userConnected->isOPTAM() ? "Oui": "Non");
     }
     if (respliberal || soccomptable)
-        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getNomCompteParDefaut() + "  " + tr("de") + " " + getLogin(m_userConnected->getIdCompteParDefaut());
+    {
+        QString cptabledefaut ("");
+        if (m_userConnected->getidUserCompteParDefaut()>0)
+            cptabledefaut = tr("de") + " " + getLogin(m_userConnected->getidUserCompteParDefaut());
+        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getNomCompteParDefaut() + " "
+                          + cptabledefaut;
+    }
     if (respliberal)
         txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (m_userConnected->getAGA() ? tr("Oui") : tr("Sans"));
     return txtstatut;
@@ -3253,7 +3259,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
 
     //1. On vérifie si ce login existe dans le serveur et si c'est le cas, on détruit toutes les instances de ce login
     //TODO : !!! un peu brutal
-    QString req = "select user, host from mysql.user where user = '" + Login + "%'";
+    QString req = "select user, host from mysql.user where user like '" + Login + "%'";
     QList<QList<QVariant>> usrlist = db->StandardSelectSQL(req, ok);
     if (ok && usrlist.size()>0)
         for (int i=0; i<usrlist.size(); i++)
@@ -3262,11 +3268,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     //2. On crée 3 comptes SQL avec ce login et ce MDP: local en localshost, réseau local (p.e. 192.168.1.%) et distant en %-SSL et login avec SSL à la fin
     //TODO : pas de compte SQL, uniquement interne au système Rufus pour des questions de sécurités, sinon, n'importe qui peux attaquer la base directement.
     // Serge Oui c'est une grosse erreur de conception mais tant que le logiciel ne sera pas modifié, il est impossible d'installler le programme sans en passer par là
-    QString AdressIP, MasqueReseauLocal;
-    foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-             AdressIP = address.toString();
-    }
+    QString AdressIP (Utils::getIpAdress()), MasqueReseauLocal;
     QStringList listIP = AdressIP.split(".");
     for (int i=0;i<listIP.size()-1;i++)
         MasqueReseauLocal += QString::number(listIP.at(i).toInt()) + ".";
@@ -3340,7 +3342,6 @@ void Procedures::CreerUserFactice(User &user)
     user.setData(userData);
     QString id = userData["id"].toString();
 
-    db->locktables(QStringList() << NOM_TABLE_COMPTES << NOM_TABLE_UTILISATEURS << NOM_TABLE_BANQUES << NOM_TABLE_LIEUXEXERCICE << NOM_TABLE_JOINTURESLIEUX );
     int idbanq = 0;
     QString req = "select idbanque, idbanqueabrege, nombanque from " NOM_TABLE_BANQUES " where idbanqueabrege = 'PaPRS'";
     QList<QVariant> bqdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
@@ -3427,7 +3428,6 @@ void Procedures::CreerUserFactice(User &user)
     db->StandardSQL(req);
     req = "update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + QString::number(gidLieuExercice);
     db->StandardSQL(req, "void Procedures::CreerUserFactice(User &user)");
-    db->unlocktables();;
 }
 
 
