@@ -7500,13 +7500,13 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
         }
     }
 
-    if (mode == "Creation")
+    else if (mode == "Creation")
     {
         Dlg_IdentPatient->ui->NomlineEdit->setEnabled(false);
         Dlg_IdentPatient->ui->PrenomlineEdit->setEnabled(false);
         Dlg_IdentPatient->ui->DDNdateEdit->setEnabled(false);
     }
-    if (mode == "Modification")
+    else if (mode == "Modification")
     {
         Dlg_IdentPatient->ui->DDNdateEdit->setEnabled(false);
         Dlg_IdentPatient->ui->ModifierDDNupPushButton->setVisible(true);
@@ -7683,7 +7683,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
 
         //B MODE CREATION
         //*************************************************************************
-        if (mode == "Creation")
+        else if (mode == "Creation")
         {
             //1 - Mise à jour patients
             if (gSexePat != "")
@@ -7718,9 +7718,19 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
             //2 - Mise à jour de medecin traitant
             int e = Dlg_IdentPatient->ui->MGupComboBox->currentData().toInt();
             ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(e));
-            requete =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                    " (idPat, idCorMedMG) VALUES(" + QString::number(idPat) + "," + QString::number(e) + ")";
-            db->StandardSQL(requete, tr("Impossible d'enregistrer le médecin traitant"));
+            QString req = "select idcorMedMG from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(idPat);
+            QList<QVariant> cordata = db->getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver le médecin traitant"));
+            if (ok)
+            {
+                if (cordata.size() == 0)
+                    requete = "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                            " (idPat, idCorMedMG) VALUES(" + QString::number(idPat) + "," + QString::number(e) + ")";
+                else
+                    requete = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                            " set idcorMedMG = " + QString::number(e) +
+                            " where idpat = " + QString::number(idPat);
+                db->StandardSQL(requete, tr("Impossible d'enregistrer le médecin traitant"));
+            }
 
             delete  Dlg_IdentPatient;
             return true;
@@ -7730,7 +7740,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
 
         //A MODE COPIE
         //*************************************************************************
-        if (mode == "Copie")
+        else if (mode == "Copie")
         {
             idPat = Dlg_IdentPatient->gidPatient;
             //            Mise à jour patients
