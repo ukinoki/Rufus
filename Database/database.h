@@ -42,6 +42,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_cotation.h"
 #include "cls_depense.h"
 #include "cls_docexterne.h"
+#include "cls_document.h"
 #include "cls_motif.h"
 #include "cls_patient.h"
 #include "cls_tiers.h"
@@ -132,6 +133,20 @@ public:
     QList<DocExterne*> loadDoscExternesByPatientAll(int idpatient);
     QJsonObject loadDocExterneData(int idDoc);
     void    SupprDocExterne(DocExterne* doc);
+
+    /*
+     * Documents émis
+    */
+    QList<Document*> loadDocuments();
+    QJsonObject loadDocumentData(int idDoc);
+    void    SupprDocument(Document *doc);
+
+    /*
+     * MetaDocuments
+    */
+    QList<MetaDocument*> loadMetaDocuments();
+    QJsonObject loadMetaDocumentData(int idDoc);
+    void    SupprMetaDocument(Document *doc);
 
     /*
      * Compta

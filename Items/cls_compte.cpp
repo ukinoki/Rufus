@@ -105,28 +105,14 @@ void Comptes::clearAll()
     QList<Compte*> listcpts;
     QMap<int, Compte*>::const_iterator itcpt;
     for( itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt)
-    {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
-        if (!listcpts.contains(cpt))
-                listcpts << cpt;
-    }
-    for( itcpt = m_comptesAll->constBegin(); itcpt != m_comptesAll->constEnd(); ++itcpt)
-    {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
-        if (!listcpts.contains(cpt))
-                listcpts << cpt;
-    }
-    for( itcpt = m_comptesAllusers->constBegin(); itcpt != m_comptesAllusers->constEnd(); ++itcpt)
-    {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
-        if (!listcpts.contains(cpt))
-                listcpts << cpt;
-    }
-    for (int i=listcpts.size()-1; i==0; --i)
-        removeCompte(listcpts.at(i));
+        delete itcpt.value();
     m_comptes->clear();
-    m_comptesAllusers->clear();
+    for( itcpt = m_comptesAll->constBegin(); itcpt != m_comptesAll->constEnd(); ++itcpt)
+        delete itcpt.value();
     m_comptesAll->clear();
+    for( itcpt = m_comptesAllusers->constBegin(); itcpt != m_comptesAllusers->constEnd(); ++itcpt)
+        delete itcpt.value();
+    m_comptesAllusers->clear();
 }
 
 void Comptes::removeCompte(Compte* cpt)

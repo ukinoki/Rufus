@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("07-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("10-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -98,8 +98,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     CreerMenu();
     InitMenus();
 
-    //4 reconstruction des combobox
-     proc->initListeCorrespondants();
+    //4 reconstruction des combobox des correspondants et de la liste des documents
+    proc->initListeCorrespondants();
+    proc->initListeDocuments();
     ReconstruitCombosCorresp();                 // initialisation de la liste
 
     grequeteListe   = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe FROM " NOM_TABLE_PATIENTS;
@@ -118,6 +119,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (proc->isadminpresent())
     {
         TcPConnect = TcpSocket::getInstance();
+        dlg_message(QStringList() << tr("Connexion au serveur TCP"));
         UtiliseTCP = TcPConnect->TcpConnectToServer();
         if (!UtiliseTCP)
         {
@@ -126,6 +128,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
         else
         {
+            dlg_message(QStringList() << tr("Connexion TCP OK"), 3000, false);
             connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});  // traitement des messages reçus
             // envoi iduser
             envoieMessage(QString::number(db->getUserConnected()->id()) + TCPMSG_idUser);
@@ -153,7 +156,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerPatientsVus   ->setInterval(20000);
     // Lancement des timers de gestion des documents
     gTimerVerifImportateurDocs      ->start(60000);
-    // Lancement du timer de vérification des verrous - +++ à lancer après le timer gTimerVerifGestDocs puisqu'il l'utilise
+    // Lancement du timer de vérification des verrous - +++ à lancer après le timer gTimerVerifImportateurDocs puisqu'il l'utilise
     gTimerVerifVerrou               ->start(60000);// "toutes les 60 secondes"
 
 
@@ -314,7 +317,7 @@ void Rufus::Connect_Slots()
     connect (ui->MotsClesupSmallButton,                             &QPushButton::clicked,                              this,   [=] {ChoixMenuContextuelMotsCles();});
     connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              this,   [=] {OuvrirNouveauDossier();});
     connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              this,   [=] {OuvrirActesPrecspushButtonClicked();});
-    connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              this,   [=] {OuvrirDocsExternes(gidPatient);});
+    connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              this,   &Rufus::ActualiseDocsExternes);
     connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {OuvrirDocuments();});
     connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelListePatients();});
     connect (ui->PatientsListeTableView,                            &QTableView::doubleClicked,                         this,   [=] {ChoixDossier(gListePatientsModel->itemFromIndex(ui->PatientsListeTableView->selectionModel()->selectedIndexes().at(0))->text().toInt());});
@@ -324,7 +327,7 @@ void Rufus::Connect_Slots()
     connect (ui->PatientsVusupTableWidget,                          &QTableView::activated,                             this,   [=] {gTimerPatientsVus->start();});
     connect (ui->PremierActepushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(0);});
     connect (ui->RefractionpushButton,                              &QPushButton::clicked,                              this,   [=] {Refraction();});
-    connect (ui->SalleDAttentepushButton,                           &QPushButton::clicked,                              this,   [=] {SalleDAttente();});
+    connect (ui->SalleDAttentepushButton,                           &QPushButton::clicked,                              this,   &Rufus::SalleDAttente);
     connect (ui->SalleDAttenteupTableWidget,                        &UpTableWidget::dropsignal,                         this,   [=] {DropPatient(ui->SalleDAttenteupTableWidget->dropData());});
     connect (ui->SupprimeActepushButton,                            &QPushButton::clicked,                              this,   [=] {SupprimerActe();});
     connect (ui->TonometriepushButton,                              &QPushButton::clicked,                              this,   [=] {Tonometrie();});
@@ -363,9 +366,9 @@ void Rufus::Connect_Slots()
     ui->MoulinettepushButton->setVisible(false);
 }
 
-void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
+void Rufus::OuvrirDocsExternes(int idpat, bool depuismenucontextuel)
 {
-    if (!depuismenu)  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
+    if (!depuismenucontextuel)  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
     {
         QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
         if (ListDialogDocs.size()>0)
@@ -380,12 +383,12 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenu)
         if (Dlg_DocsExt->InitOK())
         {
             Dlg_DocsExt->show();
-            if (depuismenu)
+            if (depuismenucontextuel)
                 Dlg_DocsExt->setModal(true); //quand la fiche est ouverte depuis le menu contectuel de la liste des patients
         }
     }
     else
-        if (!depuismenu)
+        if (!depuismenucontextuel)
             ui->OuvreDocsExternespushButton->setEnabled(false);
 }
 
@@ -2745,7 +2748,7 @@ bool Rufus::InscritEnSalDat(int idpat)
     else
     {
         //créer une fiche avec la liste des checkbox
-        QStringList llist = MotifMessage();
+        QStringList llist = MotifRDV();
         if (llist.isEmpty())
             return false;
         QString Arriverequete =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
@@ -3516,7 +3519,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
         Motif = static_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
         QTime heurerdv = QTime::fromString(static_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
 
-        QStringList llist = MotifMessage(Motif, Message, heurerdv);
+        QStringList llist = MotifRDV(Motif, Message, heurerdv);
         if (llist.isEmpty())
             return;
         QString saldatrequete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(gdossierAOuvrir);
@@ -3546,7 +3549,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
 }
 
 
-QStringList Rufus::MotifMessage(QString motif, QString Message, QTime heurerdv)
+QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
 {
     //créer une fiche avec tous les checkbox correspondant aux motifs de RDV : Cs, OCT, CV, BO, Biométrie, Urgence, Angio,...etc...
     gAsk            = new UpDialog(this);
@@ -4201,6 +4204,7 @@ void Rufus::SalleDAttente()
     if (AutorDepartConsult(true))
     {
         ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
+        ui->tabWidget->setCurrentWidget(ui->tabList);
         FermeDlgAnnexes();
         OuvrirListe();
     }
@@ -5634,7 +5638,7 @@ void Rufus::VerifImportateur()
     {
         if (isPosteImport())
         {
-            connect(gTimerExportDocs,           &QTimer::timeout,   [=] {ExporteDocs();});
+            connect(gTimerExportDocs,           &QTimer::timeout,   this,   &Rufus::ExporteDocs);
             if (ImportDocsExtThread == Q_NULLPTR)
                 if (proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
                 {
@@ -5650,8 +5654,9 @@ void Rufus::VerifImportateur()
 void Rufus::ActualiseDocsExternes()
 {
     /* Cette fonction sert à actualiser l'affichage des documents externes en cas de changement*/
-    if (ui->tabWidget->currentWidget() == ui->tabDossier)
-        OuvrirDocsExternes(gidPatient);   // depuis le timer gTimerVerifGestDocs
+    if (ui->tabWidget->indexOf(ui->tabDossier)<1)
+        return;
+    OuvrirDocsExternes(gidPatient);   // depuis le timer gTimerVerifGestDocs ou le bouton ui->OuvreDocsExternspushButton
 }
 
 //-------------------------------------------------------------------------------------
@@ -7384,7 +7389,7 @@ bool Rufus::FermeDossier()
     {
         QString requete =   "DELETE FROM " NOM_TABLE_SALLEDATTENTE
                 " WHERE idPat = '" + QString::number(gidPatient) + "'";
-        db->StandardSQL(requete, tr("Impossible de supprimer ce patient de la salle d'attente!"));
+        a = db->StandardSQL(requete, tr("Impossible de supprimer ce patient de la salle d'attente!"));
     }
     else if (msgbox.clickedButton() == &OKBouton)                                                   // Garder le dossier en salle d'attente
     {
@@ -7398,7 +7403,7 @@ bool Rufus::FermeDossier()
             Message = motifdata.at(1).toString();
             if (Motif=="")
             {
-                llist = MotifMessage(Motif, Message);
+                llist = MotifRDV(Motif, Message);
                 if (llist.isEmpty())
                     return false;
                 Motif   = llist.at(0);
@@ -7436,7 +7441,10 @@ bool Rufus::FermeDossier()
             a = InscritEnSalDat(gidPatient);
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
-    if (a) {gidPatient = 0; gidActe = 0;}
+    if (a) {
+        gidPatient = 0;
+        gidActe = 0;
+    }
     FlagMetAjourSalDat();
     return a;
 }
@@ -8516,7 +8524,7 @@ bool Rufus::NavigationConsult(int i)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::OuvrirActesPrecedents()
 {
-    Dlg_ActesPrecs      = new dlg_actesprecedents(gidPatient, true, this);
+    Dlg_ActesPrecs = new dlg_actesprecedents(gidPatient, true, this);
     Dlg_ActesPrecs->setWindowTitle(tr("Consultations précédentes de ") + gNomPatient + " " + gPrenomPatient);
     Dlg_ActesPrecs->show();
     Dlg_ActesPrecs->setWindowIcon(Icons::icLoupe());

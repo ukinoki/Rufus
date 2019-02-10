@@ -80,13 +80,7 @@ void TiersPayants::clearAll()
 {
     QList<Tiers*> listtierss;
     for( QMap<int, Tiers*>::const_iterator ittrs = m_tierspayants->constBegin(); ittrs != m_tierspayants->constEnd(); ++ittrs)
-    {
-        Tiers *tiers = const_cast<Tiers*>(*ittrs);
-        if (!listtierss.contains(tiers))
-                listtierss << tiers;
-    }
-    for (int i=listtierss.size()-1; i==0; --i)
-        removeTiers(listtierss.at(i));
+        delete ittrs.value();
     m_tierspayants->clear();
 }
 

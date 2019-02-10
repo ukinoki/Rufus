@@ -100,13 +100,7 @@ void DocsExternes::clearAll()
 {
     QList<DocExterne*> listdocs;
     for( QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->constBegin(); itdoc != m_docsexternes->constEnd(); ++itdoc)
-    {
-        DocExterne *doc = const_cast<DocExterne*>(*itdoc);
-        if (!listdocs.contains(doc))
-                listdocs << doc;
-    }
-    for (int i=listdocs.size()-1; i==0; --i)
-        removeDocExterne(listdocs.at(i));
+        delete itdoc.value();
     m_docsexternes->clear();
 }
 

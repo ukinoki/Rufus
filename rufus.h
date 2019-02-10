@@ -323,10 +323,10 @@ private:
     void                MAJMG(QObject*);
     void                MonteUneLigne();
     void                Monte20Lignes();
-    QStringList         MotifMessage(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
+    QStringList         MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(int i);
     void                OuvrirActesPrecedents();
-    void                OuvrirDocsExternes(int idpat, bool depuismenu = false);
+    void                OuvrirDocsExternes(int idpat, bool depuismenucontextuel = false);
     void                OuvrirDocuments(bool AffichDocsExternes = true);
     void                OuvrirListe();
     void                OuvrirNouveauDossier();

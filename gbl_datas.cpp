@@ -23,6 +23,8 @@ Datas::Datas()
     typestiers      = new TypesTiers();
     users           = new Users();
     docsexternes    = new DocsExternes();
+    documents       = new Documents();
+    metadocuments   = new MetaDocuments();
 }
 
 

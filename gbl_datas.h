@@ -13,6 +13,7 @@
 #include <cls_patients.h>
 #include "cls_tiers.h"
 #include <cls_users.h>
+#include "cls_document.h"
 
 class Datas : public QObject
 {
@@ -36,7 +37,9 @@ public:
     TiersPayants *tiers;                //!< tous les tiers payants
     TypesTiers *typestiers;             //!< tous les types tiers payants
     PaiementsDirects *paiementsdirects; //!< tous les paiements en attente d'enregistrement
-    DocsExternes *docsexternes;         //!< Les documents
+    DocsExternes *docsexternes;         //!< Les documents externes
+    Documents *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
+    MetaDocuments *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
 
 signals:
 

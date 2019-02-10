@@ -101,13 +101,7 @@ void Cotations::clearAll()
 {
     QList<Cotation*> listcots;
     for( QMap<int, Cotation*>::const_iterator itcot = m_cotations->constBegin(); itcot != m_cotations->constEnd(); ++itcot)
-    {
-        Cotation *cot = const_cast<Cotation*>(*itcot);
-        if (!listcots.contains(cot))
-                listcots << cot;
-    }
-    for (int i=listcots.size()-1; i==0; --i)
-        removeCotation(listcots.at(i));
+        delete itcot.value();
     m_cotations->clear();
 }
 

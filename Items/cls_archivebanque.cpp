@@ -86,13 +86,7 @@ void Archives::clearAll()
 {
     QList<Archive*> listarchs;
     for( QMap<int, Archive*>::const_iterator itbq = m_archives->constBegin(); itbq != m_archives->constEnd(); ++itbq)
-    {
-        Archive *arch = const_cast<Archive*>(*itbq);
-        if (!listarchs.contains(arch))
-                listarchs << arch;
-    }
-    for (int i=listarchs.size()-1; i==0; --i)
-        removeArchive(listarchs.at(i));
+        delete itbq.value();
     m_archives->clear();
 }
 

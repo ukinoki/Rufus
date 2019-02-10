@@ -66,13 +66,7 @@ void Banques::clearAll()
 {
     QList<Banque*> listbanqs;
     for( QMap<int, Banque*>::const_iterator itbq = m_banques->constBegin(); itbq != m_banques->constEnd(); ++itbq)
-    {
-        Banque *banq = const_cast<Banque*>(*itbq);
-        if (!listbanqs.contains(banq))
-                listbanqs << banq;
-    }
-    for (int i=listbanqs.size()-1; i==0; --i)
-        removeBanque(listbanqs.at(i));
+        delete itbq.value();
     m_banques->clear();
 }
 

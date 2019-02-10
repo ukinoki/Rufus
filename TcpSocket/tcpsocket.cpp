@@ -54,7 +54,7 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     if (state() == QAbstractSocket::ConnectedState || state() == QAbstractSocket::ConnectingState)
         disconnectFromHost();
     connectToHost(ipadrserver,PortTCPServer);//});      // On se connecte au serveur
-    if (waitForConnected(5000))
+    if (waitForConnected())
     {
         connect(this,                 &QTcpSocket::readyRead,                                              this,   &TcpSocket::TraiteDonneesRecues);
         connect(this,                 QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),this,   &TcpSocket::erreurSocket);

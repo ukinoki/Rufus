@@ -38,13 +38,7 @@ void Correspondants::clearAll()
 {
     QList<Correspondant*> listcors;
     for( QMap<int, Correspondant*>::const_iterator itcor = m_Correspondants->constBegin(); itcor != m_Correspondants->constEnd(); ++itcor)
-    {
-        Correspondant *cor = const_cast<Correspondant*>(*itcor);
-        if (!listcors.contains(cor))
-                listcors << cor;
-    }
-    for (int i=listcors.size()-1; i==0; --i)
-        removeCorrespondant(listcors.at(i));
+        delete itcor.value();
     m_Correspondants->clear();
 }
 

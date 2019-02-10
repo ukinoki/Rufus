@@ -70,6 +70,7 @@ along with Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_cotation.h"
 #include "cls_depense.h"
 #include "cls_depenses.h"
+#include "cls_document.h"
 #include "cls_motif.h"
 #include "cls_patient.h"
 #include "cls_user.h"
@@ -221,6 +222,7 @@ public:
     void                    initListeCorrespondantsAll();
     void                    initListeCotationsByUser(int iduser);
     void                    initListeDepenses(int iduser);
+    void                    initListeDocuments();
     void                    initListeMotifs();
     void                    initListeTiers();
     void                    initTypesTiers();
