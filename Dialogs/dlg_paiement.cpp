@@ -37,9 +37,9 @@ dlg_paiement::dlg_paiement(QList<int> ListidActeAPasser, int Mode, Procedures *p
     proc            = procAPasser;
     db              = DataBase::getInstance();
     gListidActe     = ListidActeAPasser;
-    m_userConnected  = proc->getUserConnected();
+    m_userConnected  = db->getUserConnected();
     gidUserACrediter = -1;
-    //ui->UserscomboBox->setEnabled(proc->getUserConnected().isSecretaire());
+    //ui->UserscomboBox->setEnabled(db->getUserConnected().isSecretaire());
     QFont font = qApp->font();
     font.setBold(true);
     font.setItalic(true);

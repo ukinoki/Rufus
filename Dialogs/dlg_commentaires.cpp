@@ -27,7 +27,7 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc        = Procedures::I();
-    gidUser     = proc->getUserConnected()->id();
+    gidUser     = db->getUserConnected()->id();
 
     widgButtons = new WidgetButtonFrame(ui->ComupTableWidget);
     widgButtons->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
@@ -40,7 +40,7 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     globallay   ->setSizeConstraint(QLayout::SetFixedSize);
     CancelButton->disconnect();
 
-    setWindowTitle(tr("Liste des commentaires prédéfinis de ") + proc->getUserConnected()->getLogin());
+    setWindowTitle(tr("Liste des commentaires prédéfinis de ") + db->getUserConnected()->getLogin());
 
     // Initialisation des slots.
     connect (OKButton,                  &QPushButton::clicked,                  [=] {Validation();});
@@ -257,7 +257,7 @@ void dlg_commentaires::dblClicktextEdit()
         if (a)
         {
             int idUser = ui->ComupTableWidget->item(line->getRowTable(),4)->text().toInt();
-            if (idUser == proc->getUserConnected()->id())
+            if (idUser == db->getUserConnected()->id())
                 ConfigMode(Modification,line->getRowTable());
         }
     }
@@ -1059,7 +1059,7 @@ void dlg_commentaires::SupprimmCommentaire(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton OKBouton;

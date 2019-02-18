@@ -70,7 +70,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
         InitOK = false;
         return;
     }
-    m_userConnected           = proc->getUserConnected();
+    m_userConnected           = db->getUserConnected();
 
     gOrdreTri = Chronologique;
     ui->ListeupTableWidget->horizontalHeader()->setSectionsClickable(true);

@@ -30,15 +30,15 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     gPrenomPat          = PrenomPatient;
 
     proc                = Procedures::I();
-    gidUser             = proc->getUserConnected()->id();
-    gidUserSuperviseur  = proc->getUserConnected()->getIdUserActeSuperviseur();
+    gidUser             = db->getUserConnected()->id();
+    gidUserSuperviseur  = db->getUserConnected()->getIdUserActeSuperviseur();
     db                  = DataBase::getInstance();
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     setWindowTitle(tr("Liste des documents prédéfinis"));
-    ui->PrescriptioncheckBox->setVisible(proc->getUserConnected()->isSoignant());
+    ui->PrescriptioncheckBox->setVisible(db->getUserConnected()->isSoignant());
     widgButtonsDocs     = new WidgetButtonFrame(ui->DocupTableWidget);
     widgButtonsDocs     ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
     widgButtonsDocs     ->layButtons()->insertWidget(0, ui->ChercheupLineEdit);
@@ -395,7 +395,7 @@ void dlg_documents::dblClicktextEdit()
             }
         }
         int idUser = ui->DocupTableWidget->item(row,5)->text().toInt();
-        if (idUser == proc->getUserConnected()->id())
+        if (idUser == db->getUserConnected()->id())
             ConfigMode(ModificationDOC,row);
     }
 }
@@ -715,7 +715,7 @@ void dlg_documents::MenuContextuel(QWidget *widg)
                 pAction_PublicDoc           = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Public"));
             else
                 pAction_PublicDoc           = gmenuContextuel->addAction(tr("Public"));
-            if (proc->getUserConnected()->isMedecin() || proc->getUserConnected()->isOrthoptist())
+            if (db->getUserConnected()->isMedecin() || db->getUserConnected()->isOrthoptist())
             {
                 if (ui->DocupTableWidget->item(line->getRowTable(),6)->text().toInt() == 1)
                     pAction_PrescripDoc         = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Prescription"));
@@ -728,7 +728,7 @@ void dlg_documents::MenuContextuel(QWidget *widg)
                 pAction_EditableDoc         = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Editable"));
             else
                 pAction_EditableDoc         = gmenuContextuel->addAction(tr("Editable"));
-            if (proc->getUserConnected()->isMedecin() || proc->getUserConnected()->isOrthoptist())
+            if (db->getUserConnected()->isMedecin() || db->getUserConnected()->isOrthoptist())
             {
                 if (ui->DocupTableWidget->item(line->getRowTable(),11)->text().toInt() != 1)
                     pAction_AdminDoc        = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Document administratif"));
@@ -1234,7 +1234,7 @@ void dlg_documents::Validation()
         }
         if (c == 0)
         {
-            UpMessageBox::Watch(this,"Euuhh... " + proc->getUserConnected()->getLogin() + ", " + tr("il doit y avoir une erreur..."), tr("Vous n'avez sélectionné aucun document."));
+            UpMessageBox::Watch(this,"Euuhh... " + db->getUserConnected()->getLogin() + ", " + tr("il doit y avoir une erreur..."), tr("Vous n'avez sélectionné aucun document."));
             break;
         }
 
@@ -1977,7 +1977,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->PrescriptioncheckBox    ->setEnabled(true);
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
         ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
-        if (!proc->getUserConnected()->isMedecin() && !proc->getUserConnected()->isOrthoptist())
+        if (!db->getUserConnected()->isMedecin() && !db->getUserConnected()->isOrthoptist())
         {
             ui->PrescriptioncheckBox->setChecked(false);
             ui->DocAdministratifcheckBox->setChecked(true);
@@ -2125,7 +2125,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->upTextEdit->setEnabled(true);
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
         ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
-        if (!proc->getUserConnected()->isMedecin() && !proc->getUserConnected()->isOrthoptist())
+        if (!db->getUserConnected()->isMedecin() && !db->getUserConnected()->isOrthoptist())
         {
             ui->PrescriptioncheckBox->setChecked(false);
             ui->DocAdministratifcheckBox->setChecked(true);
@@ -2221,7 +2221,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
     }
-    if (!proc->getUserConnected()->isMedecin() && !proc->getUserConnected()->isOrthoptist())
+    if (!db->getUserConnected()->isMedecin() && !db->getUserConnected()->isOrthoptist())
     {
         ui->PrescriptioncheckBox->setVisible(false);
         ui->DocAdministratifcheckBox->setVisible(false);
@@ -2571,8 +2571,8 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     glisttxt.clear();
 
     int idusr = (proc->UserSuperviseur()<1? Datas::I()->users->superviseurs()->first()->id() : proc->UserSuperviseur());
-    User *userEntete = proc->setDataOtherUser(idusr);
-    if (userEntete == nullptr)
+    User *userEntete = Datas::I()->users->getUserById(idusr, true);
+    if (userEntete == Q_NULLPTR)
         return;
 
     QString req = "select patDDN, Sexe "
@@ -3108,7 +3108,7 @@ void dlg_documents::SupprimmDocument(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + line->text().toUpper() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton NoBouton(tr("Annuler"));
@@ -3144,7 +3144,7 @@ void dlg_documents::SupprimmDossier(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + line->text().toUpper() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton OKBouton(tr("Supprimer le dosssier"));

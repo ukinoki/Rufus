@@ -1053,7 +1053,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     //création de l'entête
     QString EnTete;
     if (iduser == -1) return false;
-    User *userEntete = proc->setDataOtherUser(iduser);
+    User *userEntete = Datas::I()->users->getUserById(iduser, true);
     if(userEntete == Q_NULLPTR)
         return false;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
@@ -1066,7 +1066,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     EnTete.replace("{{DDN}}"               , "<font color = \"" + proc->CouleurTitres + "\">Remise de chèques n° " + QString::number(idRemise) + "</font>");
 
     // création du pied
-    QString Pied = proc->ImpressionPied();
+    QString Pied = proc->ImpressionPied(userEntete);
     if (Pied == "") return false;
 
     // creation du corps

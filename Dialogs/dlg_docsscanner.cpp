@@ -383,7 +383,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds["lienversfichier"] =  lien;
             listbinds["EmisRecu"] =         "1";
             listbinds["FormatDoc"] =        DOCUMENTRECU;
-            listbinds["idLieu"] =           proc->getUserConnected()->getSite()->id();
+            listbinds["idLieu"] =           db->getUserConnected()->getSite()->id();
         }
         else
         {
@@ -397,7 +397,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds[suffixe] =            ba;
             listbinds["EmisRecu"] =         "1";
             listbinds["FormatDoc"] =        DOCUMENTRECU;
-            listbinds["idLieu"] =           proc->getUserConnected()->getSite()->id();
+            listbinds["idLieu"] =           db->getUserConnected()->getSite()->id();
         }
         b = db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds);
     }

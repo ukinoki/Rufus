@@ -25,7 +25,7 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
     EnCours         = false;
     db              = DataBase::getInstance();
     Acces           = (db->getMode()!=DataBase::Distant? Local : Distant);
-    idLieuExercice  = proc->getUserConnected()->getSite()->id();
+    idLieuExercice  = db->getUserConnected()->getSite()->id();
     thread          .start();
 }
 

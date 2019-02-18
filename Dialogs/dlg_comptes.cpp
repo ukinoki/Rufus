@@ -33,14 +33,14 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
-    if (proc->getUserConnected()->getComptes() == Q_NULLPTR)
+    if (db->getUserConnected()->getComptes() == Q_NULLPTR)
     {
         comptesusr = new Comptes();
-        comptesusr->addCompte( db->loadComptesByUser(proc->getUserConnected()->id()) );
-        proc->getUserConnected()->setComptes(comptesusr);
+        comptesusr->addCompte( db->loadComptesByUser(db->getUserConnected()->id()) );
+        db->getUserConnected()->setComptes(comptesusr);
     }
     else
-        comptesusr = proc->getUserConnected()->getComptes();
+        comptesusr = db->getUserConnected()->getComptes();
 
 
     if (comptesusr->comptesAll()->size() == 0)

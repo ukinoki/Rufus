@@ -310,7 +310,7 @@ private:
     void                FlagMetAjourMG();
     void                FlagMetAjourSalDat();
     bool                IdentificationPatient(QString CreationModification, int idPat);
-    bool                Imprimer_Document(QString idUser, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
+    bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
     void                InitWidgets();
     void                InitEventFilters();

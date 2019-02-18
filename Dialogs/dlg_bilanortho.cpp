@@ -225,8 +225,8 @@ dlg_bilanortho::~dlg_bilanortho()
 
 void dlg_bilanortho::EnableAnimauxWirtcomboBox(QString PionWirt)
 {
-    bool *b = new bool;
-    int a = PionWirt.toInt(b);
+    bool b;
+    int a = PionWirt.toInt(&b);
     if (b)
     {
         if (a > 0 && a < 5)
@@ -239,7 +239,6 @@ void dlg_bilanortho::EnableAnimauxWirtcomboBox(QString PionWirt)
     }
     else
         ui->AnimauxWirtcomboBox->setCurrentText("-");
-    delete b;
 }
 
 void dlg_bilanortho::ImprimeBOClicked()
@@ -254,8 +253,8 @@ void dlg_bilanortho::ImprimeBOClicked()
     bool ok;
     QList<QVariant> patientdata = db->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
     if (!ok || patientdata.size() == 0) return;
-    User *userEntete = proc->setDataOtherUser(patientdata.at(4).toInt());
-    if (userEntete == nullptr)
+    User *userEntete = Datas::I()->users->getUserById(patientdata.at(4).toInt(), true);
+    if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
         return;
@@ -271,13 +270,13 @@ void dlg_bilanortho::ImprimeBOClicked()
     if (Entete == "") return;
     Entete.replace("{{TITRE1}}"            , "");
     Entete.replace("{{TITRE}}"             , "<font color = \"" + proc->CouleurTitres + "\">" + tr("BILAN ORTHOPTIQUE DU ") + date + "</font>");
-    Entete.replace("{{PRENOM PATIENT}}"       , prenom);
+    Entete.replace("{{PRENOM PATIENT}}"    , prenom);
     Entete.replace("{{NOM PATIENT}}"       , nom);
     Entete.replace("{{DDN}}"               , "");
     Entete.replace("{{DATE}}"              , userEntete->getSite()->ville() + ", le " + QDate::currentDate().toString(tr("d MMM yyyy")));
 
     // création du pied
-    Pied = proc->ImpressionPied();
+    Pied = proc->ImpressionPied(userEntete);
     if (Pied == "") return;
 
     // creation du corps du bilan
@@ -304,7 +303,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     if (aa)
     {
         QHash<QString,QVariant> listbinds;
-        listbinds["idUser"] =           proc->getUserConnected()->id();
+        listbinds["idUser"] =           db->getUserConnected()->id();
         listbinds["idPat"] =            gidpat;
         listbinds["TypeDoc"] =          "Orthoptie";
         listbinds["SousTypeDoc"] =      "Bilan";
@@ -313,10 +312,10 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds["TextCorps"] =        textHtml->toHtml();
         listbinds["TextPied"] =         Pied;
         listbinds["Dateimpression"] =   patientdata.at(2).toDate().toString("yyyy-MM-dd");
-        listbinds["UserEmetteur"] =     proc->getUserConnected()->id();
+        listbinds["UserEmetteur"] =     db->getUserConnected()->id();
         listbinds["EmisRecu"] =         "0";
         listbinds["FormatDoc"] =        BILANORTHOPTIQUE;
-        listbinds["idlieu"] =           proc->getUserConnected()->getSite()->id();
+        listbinds["idlieu"] =           db->getUserConnected()->getSite()->id();
         if(!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
     }
@@ -1121,7 +1120,7 @@ QString dlg_bilanortho::calcReponsehTml()
     // l'occlusion alternée ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     QString OcclAltern = ui->OcclAlterncomboBox->currentText();
     if (OcclAltern != "-")
-        Reponse += "<p><font color = \"" + CouleurTitres + "\">" + tr("Occlusion alternée ") + "</font>" + OcclAltern + "</p>";
+        Reponse += "<p><td width=\"400\"><font color = \"" + CouleurTitres + "\">" + tr("Occlusion alternée ") + "</font>" + OcclAltern + "</td></p>";
 
     // la vision stereoscopique - Wirt, Lang, TNO  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     QString Wirt = ui->WirtcomboBox->currentText();
@@ -1728,6 +1727,11 @@ QString dlg_bilanortho::calcReponsehTml()
         else if (Synopt1 !="" && Synopt2 !="" && Synopt3 != "")
             Reponse += "<td width=\"80\"><font color = \"" + CouleurTitres + "\">" + tr("1er degré") + "<br>" + tr("2ème degré") + "<br>" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt1 + "<br>" + Synopt2 + "<br>" + Synopt3 + "</td></p>";
     }
+    QStringList listrep = Reponse.split(QRegExp("<td width=\"[0-9]{1,3}\">"));
+    if (listrep.size()>1)
+        Reponse.insert(Reponse.indexOf(listrep.at(1)),   "<a name=\"BODEBUT\"></a>");         // on met le premier caractère en ancre
+    Reponse.insert(Reponse.lastIndexOf("</td>")-1,       "<a name=\"BOFIN\"></a>");           // on met le dernier caractère en ancre
+    qDebug() << Reponse;
     return Reponse;
 }
 

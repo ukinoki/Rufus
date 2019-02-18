@@ -125,8 +125,7 @@ public:
     QString                 RecupPartie(QString ficModele, QString partie);
     QString                 ImpressionCorps(QString text, bool ALD = false);
     QMap<QString,QString>   ImpressionEntete(QDate date, User* user);
-    User*                   setDataOtherUser (int id);
-    QString                 ImpressionPied(bool lunettes = false, bool ALD = false);
+    QString                 ImpressionPied(User* user, bool lunettes = false, bool ALD = false);
     bool                    Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied,
                                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                                      bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
@@ -172,7 +171,6 @@ public:
     int                     idLieuExercice();
     int                     UserSuperviseur(); //TODO : DELETE
     int                     UserParent(); //TODO : DELETE
-    bool                    ChargeDataUser(int iduser);
     QString                 getSessionStatus();
     //--------------------------------------------------------------------------------------------------------
 
@@ -202,7 +200,6 @@ public:
     bool                    ApercuAvantImpression();
     QString                 getCodePostalParDefaut();
     void                    setCodePostalParDefaut(QString CPParDefaut);
-    User*                   getUserConnected();
     Patient*                getPatientById(int id);
     void                    setDirImagerie();
     QString                 DirImagerie();
@@ -271,8 +268,7 @@ private:
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_paramconnexion      *Dlg_ParamConnex;
     QFont                   gAppFont;
-    User *m_userConnected = nullptr; //user connected //TODO : DEPLACER DANS DATAS
-    User *OtherUser = nullptr; //TODO créer QMap<int, User> iduser, user
+    User *m_userConnected = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
     QStandardItemModel      *ListeComptesEncaissUser;
     QStandardItemModel      *ListeComptesEncaissUserAvecDesactive;
 

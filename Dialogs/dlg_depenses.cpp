@@ -27,14 +27,14 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     proc        = Procedures::I();
     db          = DataBase::getInstance();
-    ui->UserscomboBox->setEnabled(proc->getUserConnected()->isSecretaire() );
+    ui->UserscomboBox->setEnabled(db->getUserConnected()->isSecretaire() );
     AccesDistant = (db->getMode()==DataBase::Distant);
     m_listUserLiberaux = Datas::I()->users->liberaux();
     gDataUser = Q_NULLPTR;
 
     int index = 0;
     bool foundUser = false;
-    int currentIdUser = proc->getUserConnected()->id(); //Utilisateur connecte
+    int currentIdUser = db->getUserConnected()->id(); //Utilisateur connecte
     for( QMap<int, User*>::const_iterator itUser = m_listUserLiberaux->constBegin(); itUser != m_listUserLiberaux->constEnd(); ++itUser )
     {
         User *user = const_cast<User*>(itUser.value());
@@ -275,7 +275,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     ModifierupPushButton    ->setVisible(gMode == Lire);
     gBigTable               ->setEnabled(gMode == Lire);
 
-    ui->UserscomboBox        ->setEnabled(proc->getUserConnected()->isSecretaire() && gMode==Lire);
+    ui->UserscomboBox        ->setEnabled(db->getUserConnected()->isSecretaire() && gMode==Lire);
 
 
     switch (gMode) {

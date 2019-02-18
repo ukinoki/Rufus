@@ -26,8 +26,8 @@ dlg_salledattente::dlg_salledattente(int idPatAPasser, int idActeAPasser, QStrin
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc                = Procedures::I();
     gidPatient          = idPatAPasser;
-    gidUser             = proc->getUserConnected()->id();
-    gidUserSuperviseur  = proc->getUserConnected()->getIdUserActeSuperviseur();
+    gidUser             = db->getUserConnected()->id();
+    gidUserSuperviseur  = db->getUserConnected()->getIdUserActeSuperviseur();
     gTitre              = Titre;
     gidActe             = idActeAPasser;
     db                  = DataBase::getInstance();
@@ -118,7 +118,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         QList<QList<QVariant>> ListActes = db->StandardSelectSQL(req,ok);
         if (ListActes.at(0).at(1).toInt() == -1)
             db->StandardSQL("update " NOM_TABLE_ACTES " set idUser = " + QString::number(proc->UserSuperviseur()) +
-                       ", UserComptable = " + QString::number(proc->getUserConnected()->getIdUserComptable()) +
+                       ", UserComptable = " + QString::number(db->getUserConnected()->getIdUserComptable()) +
                        ", UserParent = " + QString::number(proc->UserParent()) + " where idacte = " + ListActes.at(0).at(0).toString());
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();

@@ -40,6 +40,7 @@ public:
 private:
     dlg_identificationcorresp   *Dlg_IdentCorresp;
     Procedures              *proc;
+    DataBase                *db;
     QTreeView               *treeCor;
 
     QVBoxLayout             *globallayout;

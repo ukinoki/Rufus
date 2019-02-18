@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include "procedures.h"
+#include "gbl_datas.h"
 
 class conversionbase : public QObject
 {

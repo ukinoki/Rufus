@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("16-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("18-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -200,7 +200,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             connect(gTimerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
     }
-
     connect (gTimerUserConnecte,            &QTimer::timeout,   this,   &Rufus::MetAJourUserConnectes);
     connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
     connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
@@ -2625,7 +2624,7 @@ void Rufus::ImprimeDossier()
    bool     AvecNumPage = true;
 
    //création de l'entête
-   User *userEntete = proc->setDataOtherUser(gDataUser->getIdUserParent());
+   User *userEntete = Datas::I()->users->getUserById(gDataUser->getIdUserParent(), true);
    if (!userEntete)
    {
        UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -2642,7 +2641,7 @@ void Rufus::ImprimeDossier()
 
 
    // création du pied
-   Pied = proc->ImpressionPied();
+   Pied = proc->ImpressionPied(userEntete);
    if (Pied == "") return;
 
    // creation du corps de l'impression
@@ -3116,7 +3115,7 @@ void Rufus::ImprimeListPatients(QVariant var)
 
     //création de l'entête
     QString EnTete;
-    User *userEntete = proc->setDataOtherUser(gDataUser->getIdUserParent());
+    User *userEntete = Datas::I()->users->getUserById(gDataUser->getIdUserParent(), true);
     if (userEntete == nullptr)
         return;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
@@ -3128,7 +3127,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     EnTete.replace("{{DDN}}"               , "<font color = \"" + proc->CouleurTitres + "\">" + QString::number(gtotalNbreDossiers)
                    + " " + (gtotalNbreDossiers>1? tr("dossiers") : tr("dosssier")) + "</font>");
     // création du pied
-    QString Pied = proc->ImpressionPied();
+    QString Pied = proc->ImpressionPied(userEntete);
     if (Pied == "") return;
 
     // creation du corps
@@ -7854,7 +7853,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
 /*-----------------------------------------------------------------------------------------------------------------
 -- Ouvrir la fiche documents ------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool   Rufus::Imprimer_Document(QString idUser, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
+bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                  bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
 {
     QString     Corps, Pied;;
@@ -7866,7 +7865,7 @@ bool   Rufus::Imprimer_Document(QString idUser, QString titre, QString Entete, Q
     Entete.replace("{{NOM PATIENT}}"   , (Prescription? nom.toUpper() : ""));
 
     //création du pied
-    Pied = proc->ImpressionPied(false, ALD);
+    Pied = proc->ImpressionPied(user, false, ALD);
     if (Pied == "") return false;
 
     // creation du corps
@@ -7905,7 +7904,7 @@ bool   Rufus::Imprimer_Document(QString idUser, QString titre, QString Entete, Q
 
         QHash<QString,QVariant> listbinds;
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-        listbinds["idUser"]  = idUser;
+        listbinds["idUser"]  = user->id();
         listbinds["idpat"] = idpat;
         listbinds["TypeDoc"] = (Prescription? "Prescription" : "Courrier");
         listbinds["SousTypeDoc"] = titre;
@@ -8540,7 +8539,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     if (Dlg_Docs->exec() > 0)
     {
         int idUserEntete = Dlg_Docs->gidUserEntete;
-        User *userEntete = proc->setDataOtherUser(idUserEntete);
+        User *userEntete = Datas::I()->users->getUserById(idUserEntete, true);
         if (userEntete == nullptr)
             return;
 
@@ -8574,7 +8573,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
             Entete.replace("{{TITRE}}"         , "");
             Entete.replace("{{DDN}}"           , "");
             proc                    ->setNomImprimante(imprimante);
-            aa                      = Imprimer_Document(QString::number(idUserEntete), Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            aa                      = Imprimer_Document(userEntete, Titre, Entete, TxtDocument, DateDoc, nom, prenom, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
             if (!aa)
                 break;
             imprimante = proc->getNomImprimante();

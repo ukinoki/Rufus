@@ -187,7 +187,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         paction_ImportantNorm->setIcon(icon);
     else if (imptce == 2)
         paction_ImportantMax->setIcon(icon);
-    if (proc->getUserConnected()->isMedecin())
+    if (db->getUserConnected()->isMedecin())
     {
         menu->addAction(paction_ImportantMin);
         menu->addAction(paction_ImportantNorm);
@@ -220,7 +220,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, false, false);});
 
         // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
-        if (proc->getUserConnected()->isMedecin()
+        if (db->getUserConnected()->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
         {   // si le document a été émis aujourd'hui, on propose de le modifier - dans ce cas, on va créer une copie qu'on va modifier et on détruira le document d'origine à la fin
             if (QDate::currentDate() == docmt->date().date())
@@ -237,7 +237,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 #endif
     QAction *paction_Poubelle   = new QAction(Icons::icPoubelle(), tr("Supprimer"));
     connect (paction_Poubelle,  &QAction::triggered,    this,  [=] {SupprimeDoc(docmt);});
-    if (proc->getUserConnected()->isMedecin())
+    if (db->getUserConnected()->isMedecin())
         menu->addAction(paction_Poubelle);
 
     menu->exec(cursor().pos());
@@ -842,7 +842,7 @@ void dlg_docsexternes::ImprimeDoc()
         msgbox.setIcon(UpMessageBox::Print);
 
         msgbox.addButton(&AnnulBouton,UpSmallButton::CANCELBUTTON);
-        if (proc->getUserConnected()->isMedecin()
+        if (db->getUserConnected()->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))   // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
         {
             if (QDate::currentDate() == docmt->date().date())           // si le document a été émis aujourd'hui, on propose de le modifier
@@ -890,7 +890,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
     bool        ok;
 
-    User *userEntete = proc->setDataOtherUser(docmt->iduser());
+    User *userEntete = Datas::I()->users->getUserById(docmt->iduser(), true);
     if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -909,7 +909,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     Entete.replace("{{NOM PATIENT}}"   , (Prescription? patient->nom().toUpper() : ""));
 
     //création du pied
-    Pied = proc->ImpressionPied(docmt->format() == PRESCRIPTIONLUNETTES, ALD);
+    Pied = proc->ImpressionPied(userEntete, docmt->format() == PRESCRIPTIONLUNETTES, ALD);
 
     // creation du corps de l'ordonnance
     QString txtautiliser    = (docmt->textorigine() == ""?              docmt->textcorps()              : docmt->textorigine());
@@ -1188,7 +1188,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
     if (docmt == Q_NULLPTR)
         return;
     QString idimpr = QString::number(docmt->id());
-    if (!proc->getUserConnected()->isSoignant())         //le user n'est pas un soignant
+    if (!db->getUserConnected()->isSoignant())         //le user n'est pas un soignant
     {
         if (docmt->useremetteur() != DataBase::getInstance()->getUserConnected()->id())
         {
@@ -1201,7 +1201,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         UpMessageBox msgbox;
         UpSmallButton OKBouton(tr("Supprimer"));
         UpSmallButton NoBouton(tr("Annuler"));
-        msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin());
+        msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin());
         msgbox.setInformativeText(tr("Etes vous certain de vouloir supprimer ce document?"));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(&NoBouton,UpSmallButton::CANCELBUTTON);

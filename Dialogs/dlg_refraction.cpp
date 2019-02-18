@@ -29,7 +29,7 @@ dlg_refraction::dlg_refraction(int idPatAPasser, QString NomPatient, QString Pre
     gidPatient      = idPatAPasser;
     gNomPatient     = NomPatient;
     gPrenomPatient  = PrenomPatient;
-    gidUser         = proc->getUserConnected()->id();
+    gidUser         = db->getUserConnected()->id();
     gidActe         = idActeAPasser;
     gAgePatient     = AgeAPasser;
 
@@ -1773,7 +1773,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    User *userEntete = proc->setDataOtherUser(proc->getUserConnected()->getIdUserActeSuperviseur());
+    User *userEntete = Datas::I()->users->getUserById(db->getUserConnected()->getIdUserActeSuperviseur(), true);
     Entete = proc->ImpressionEntete(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
@@ -1783,7 +1783,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     Entete.replace("{{DDN}}"               , "");
 
     // création du pied
-    Pied = proc->ImpressionPied(true);
+    Pied = proc->ImpressionPied(userEntete, true);
     if (Pied == "") return false;
 
     // creation du corps de l'ordonnance
@@ -1814,7 +1814,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds["ald"] =              QVariant(QVariant::String);
         listbinds["emisrecu"] =         "0";
         listbinds["formatdoc"] =        PRESCRIPTIONLUNETTES;
-        listbinds["idlieu"] =           proc->getUserConnected()->getSite()->id();
+        listbinds["idlieu"] =           db->getUserConnected()->getSite()->id();
         if(!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
             UpMessageBox::Watch(this, tr("Impossible d'enregistrer ce document dans la base!"));
     }
@@ -3315,11 +3315,11 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
             case 4:
-                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + proc->getUserConnected()->getLogin() + "</td>";
+                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + db->getUserConnected()->getLogin() + "</td>";
                 gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             case 5:
-                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + proc->getUserConnected()->getLogin() + "</td>";
+                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->getLogin() + "</td>";
                 gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             default:

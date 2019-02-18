@@ -795,7 +795,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
 /*---------------------------------------------------------------------------------
     Retourne le pied du document à imprimer
 -----------------------------------------------------------------------------------*/
-QString Procedures::ImpressionPied(bool lunettes, bool ALD)
+QString Procedures::ImpressionPied(User *user, bool lunettes, bool ALD)
 {
     QString Pied;
     if (ALD)
@@ -814,7 +814,7 @@ QString Procedures::ImpressionPied(bool lunettes, bool ALD)
         baPied.resize(filePied_len + 1);
         baPied.data()[filePied_len] = 0;
         qFilePied.close ();
-        if( OtherUser->getAGA() )
+        if( user->getAGA() )
             baPied.replace("{{AGA}}","Membre d'une association de gestion agréée - Le règlement des honoraires par chèque est accepté");
         else
             baPied.replace("{{AGA}}","");
@@ -1510,11 +1510,6 @@ QString Procedures::getSessionStatus()
     if (respliberal)
         txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (m_userConnected->getAGA() ? tr("Oui") : tr("Sans"));
     return txtstatut;
-}
-
-User* Procedures::getUserConnected()
-{
-    return m_userConnected;
 }
 
 /*!
@@ -3016,50 +3011,6 @@ bool Procedures::Connexion_A_La_Base()
     TestAdminPresent();
     return gdbOK;
 }
-
-bool Procedures::ChargeDataUser(int iduser)
-{
-    //NOTE : Etrange
-    QJsonObject jsonUser = db->loadUserData(iduser);
-    if( jsonUser.isEmpty() )
-        return false;
-
-    jsonUser["userSuperviseur"]        = UserSuperviseur(); // -1 = indéterminé (personnel non soignant) -2 = tout le monde
-    jsonUser["idUserComptable"]        = m_userConnected->getIdUserComptable();
-    jsonUser["idParent"]               = UserParent();
-
-    if( jsonUser["idUserComptable"].toInt() == -2 )
-    {
-        jsonUser["idCompteParDefaut"]          = -1;
-        jsonUser["idCompteEncaissHonoraires"]  = -1;
-        jsonUser["nomCompteEncaissHonoraires"] = "pas de compte";
-    }
-    else if( iduser != UserParent() )
-    {
-        QJsonObject jsonUserParent = db->loadUserData(m_userConnected->getIdUserParent());
-        if( !jsonUserParent.isEmpty() )
-        {
-            jsonUser["idCompteParDefaut"]          = jsonUserParent["idCompteParDefaut"];
-            jsonUser["idCompteEncaissHonoraires"]  = jsonUserParent["idCompteEncaissHonoraires"];
-            jsonUser["nomCompteEncaissHonoraires"] = jsonUserParent["nomCompteEncaissHonoraires"];
-            jsonUser["secteur"]                    = jsonUserParent["secteur"];
-            jsonUser["OPTAM"]                      = jsonUserParent["OPTAM"];
-        }
-    }
-
-    if( m_userConnected == Q_NULLPTR )
-        m_userConnected = new User();
-    m_userConnected->setData( jsonUser );
-    RestoreFontAppliAndGeometry();
-    return true;
-}
-
-User *Procedures::setDataOtherUser(int id)
-{
-    OtherUser = Datas::I()->users->getUserById(id, true);
-    return OtherUser;
-}
-
 
 /*-----------------------------------------------------------------------------------------------------------------
     -- Détermination du lieu exercice pour la session en cours -------------------------------------------------------------

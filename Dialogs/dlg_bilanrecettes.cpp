@@ -273,11 +273,11 @@ void dlg_bilanrecettes::ImprimeEtat()
 
     //création de l'entête
     if (gMode==SUPERVISEUR)
-        userEntete = proc->setDataOtherUser(gSupervBox->currentData().toInt());
+        userEntete = Datas::I()->users->getUserById(gSupervBox->currentData().toInt(), true);
     else
-        userEntete = proc->setDataOtherUser(gidUser->id());
+        userEntete = Datas::I()->users->getUserById(gidUser->id(), true);
 
-    if(userEntete == nullptr)
+    if(userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
@@ -298,7 +298,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     Entete.replace("{{DDN}}"               , (gMode == SUPERVISEUR? TotalMontantlbl->text() : ""));
 
     // création du pied
-    Pied = proc->ImpressionPied();
+    Pied = proc->ImpressionPied(userEntete);
     if (Pied == "") return;
 
     // creation du corps de la remise

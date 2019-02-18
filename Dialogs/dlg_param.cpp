@@ -31,7 +31,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     gidUser         = idUser;
 
     gModifPoste     = false;
-    gDataUser       = proc->getUserConnected();
+    gDataUser       = db->getUserConnected();
 
     gNouvMDP        = "nouv";
     gAncMDP         = "anc";
@@ -735,7 +735,7 @@ void dlg_param::Slot_ChoixFontpushButtonClicked()
     {
         QString fontrequete = "update " NOM_TABLE_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->getFont().toString()
                                 + "', UserPoliceAttribut = '" + Dlg_Fonts->getFontAttribut()
-                                + "' where idUser = " + QString::number(proc->getUserConnected()->id());
+                                + "' where idUser = " + QString::number(db->getUserConnected()->id());
         db->StandardSQL(fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
     }
     delete Dlg_Fonts;
@@ -818,7 +818,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedUser = Utils::VerifMDP(proc->getUserConnected()->getPassword(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
+            MDPVerifiedUser = Utils::VerifMDP(db->getUserConnected()->getPassword(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
             if (MDPVerifiedUser)
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
@@ -1031,8 +1031,8 @@ void dlg_param::Slot_GestDataPersoUser()
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
     if(DonneesUserModifiees)
     {
-        proc->ChargeDataUser(gidUser);
-        gDataUser = proc->getUserConnected();
+        db->getUserConnected()->setData(db->loadUserData(gidUser));
+        gDataUser = db->getUserConnected();
         AfficheParamUser();
     }
     if (!MDPVerifiedUser)
@@ -1048,8 +1048,8 @@ void dlg_param::Slot_GestUser()
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
     if(DonneesUserModifiees)
     {
-        proc->ChargeDataUser(gidUser);
-        gDataUser = proc->getUserConnected();
+        db->getUserConnected()->setData(db->loadUserData(gidUser));
+        gDataUser = db->getUserConnected();
         AfficheParamUser();
     }
     delete Dlg_GestUsr;

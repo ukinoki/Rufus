@@ -221,13 +221,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_ESPECES             "Espèces"
 #define NOM_CARTECREDIT         "Carte de crédit"
 
-//comentaires html
+// ancres et comentaires html
 #define HTMLCOMMENT_LINUX           "<!LINUX>"
 #define HTMLCOMMENT_MAC             "<!MAC>"
-#define HTMLCOMMENT_REFRACTIONDEBUT "<!refraction_debut>"
-#define HTMLCOMMENT_REFRACTIONFIN   "<!refraction_fin>"
-#define HTMLCOMMENT_KERATODEBUT     "<!kerato_debut>"
-#define HTMLCOMMENT_KRTATOFIN       "<!kerato_fin>"
+#define HTMLANCHOR_BODEBUT          "<BOdebut>"
+#define HTMLANCHOR_BOFIN            "<BOfin>"
 
 
 #endif // MACROS_H

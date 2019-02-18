@@ -25,6 +25,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     proc            = Procedures::I();
+    db              = DataBase::getInstance();
     globallayout    = dynamic_cast<QVBoxLayout*>(layout());
     gmodele         = new QStandardItemModel;
     ListeModifiee   = false;
@@ -148,7 +149,7 @@ void dlg_listecorrespondants::SupprCorresp()
             gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->text() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + proc->getUserConnected()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton NoBouton(tr("Annuler"));
