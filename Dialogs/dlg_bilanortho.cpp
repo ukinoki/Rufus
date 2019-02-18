@@ -1134,7 +1134,6 @@ QString dlg_bilanortho::calcReponsehTml()
         Wirt = "<td width=\"30\"><font color = \"" + CouleurTitres + "\">Wirt</font></td><td width=\"45\">pion " + Wirt + "</td>";
         if (ui->AnimauxWirtcomboBox->isEnabled() && ui->AnimauxWirtcomboBox->currentText() != "-")
             Wirt += "<td width=\"90\"><font color = \"" + CouleurTitres + "\">" + tr("animaux ") + "</font>" + ui->AnimauxWirtcomboBox->currentText() + "</td>";
-
     }
     if (Lang != "-")
         Lang = "<td width=\"110\"><font color = \"" + CouleurTitres + "\">Lang </font>" + Lang + "</td>";

@@ -37,7 +37,6 @@ dlg_refraction::dlg_refraction(int idPatAPasser, QString NomPatient, QString Pre
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     InitDivers();
-    //  Connection des actions associees a chaque objet du formulaire et aux menus
     Init_variables();
     Connect_Slots();
 
@@ -1716,8 +1715,8 @@ void dlg_refraction::FermeFiche(QString ModeSortie)
         close();
         return;
     }
-    if (ModeSortie == "OK")  ResumeObservation();
-    if (ModeSortie == "Imprime")
+    else if (ModeSortie == "OK")  ResumeObservation();
+    else if (ModeSortie == "Imprime")
     {
         if    (
               (ui->V2PrescritRadioButton->isChecked())
@@ -1932,23 +1931,21 @@ void dlg_refraction::Init_Value_DoubleSpin(QDoubleSpinBox *DoubleSpinBox, double
 void dlg_refraction::InscriptRefraction()
 {
     bool a = InsertRefraction();
+    QString req = "select max(idrefraction) from " NOM_TABLE_REFRACTION " where idpat = " + QString::number(gidPatient);
+    QList<QVariant> refractdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (ok && refractdata.size()>0)
+        gidRefraction = refractdata.at(0).toInt();
     if ((gMode == Autoref || gMode == Refraction) && a)
         MajDonneesOphtaPatient();
     if (gMode == Prescription && a)
     {
         bool ok;
-        QString req = "select max(idrefraction) from " NOM_TABLE_REFRACTION " where idpat = " + QString::number(gidPatient);
-        QList<QVariant> refractdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-        if (ok && refractdata.size()>0)
+        req = "select max(idimpression) from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient);
+        QList<QVariant> imprdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        if (ok && imprdata.size()>0)
         {
-            gidRefraction = refractdata.at(0).toInt();
-            req = "select max(idimpression) from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient);
-            QList<QVariant> imprdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-            if (ok && imprdata.size()>0)
-            {
-                int idimp = imprdata.at(0).toInt();
-                db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set idRefraction = " + QString::number(gidRefraction) + " where idimpression = " + QString::number(idimp));
-            }
+            int idimp = imprdata.at(0).toInt();
+            db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set idRefraction = " + QString::number(gidRefraction) + " where idimpression = " + QString::number(idimp));
         }
     }
 }
@@ -2040,21 +2037,6 @@ void dlg_refraction::InsertDonneesOphtaPatient()
 //---------------------------------------------------------------------------------
 bool dlg_refraction::InsertRefraction()
 {
-    QString requete = "INSERT INTO " NOM_TABLE_REFRACTION
-              " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance, Cycloplegie, ODcoche,"
-              " SphereOD, CylindreOD, AxeCylindreOD, AVLOD, AddVPOD, AVPOD, PrismeOD, BasePrismeOD,"
-              " BasePrismeTextOD, PressOnOD, DepoliOD, PlanOD, RyserOD, FormuleOD,"
-              " OGcoche, SphereOG, CylindreOG, AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "
-              " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "
-              " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte, PrimKeyDocMed) "
-              " VALUES "
-              " (:idPat, :idActe, :DateRefraction, :QuelleMesure, :QuelleDistance, :Cycloplegie,:ODcoche,"
-              " :SphereOD, :CylindreOD, :AxeCylindreOD, :AVLOD, :AddVPOD, :AVPOD, :PrismeOD, :BasePrismeOD,"
-              " :BasePrismeTextOD, :PressOnOD, :DepoliOD, :PlanOD, :RyserOD, :FormuleOD, "
-              " :OGcoche, :SphereOG, :CylindreOG, :AxeCylindreOG, :AVLOG, :AddVPOG, :AVPOG, :PrismeOG, :BasePrismeOG, "
-              " :BasePrismeTextOG, :PressOnOG, :DepoliOG, :PlanOG, :RyserOG, :FormuleOG, "
-              " :CommentaireOrdoLunettes, :QuelsVerres, :QuelOeil, :Monture, :VerreTeinte, :PrimKeyDocMed) ";
-
     QHash<QString,QVariant> listbinds;
     listbinds["idPat"]              = gidPatient;
     listbinds["idActe"]             = gidActe;
@@ -2681,6 +2663,8 @@ void dlg_refraction::ResumeObservation()
     QString ResultatOG, ResultatVLOG, ResultatVPOG, ResultatPrismeOG;
     QString ResultatPrisme, ResultatRyser;
     double  ResultatGlobalSphereOD,  ResultatGlobalSphereOG;
+    QString DelimiterDebut  = "<a name=\"debut" + QString::number(gidRefraction) + "\"></a>";
+    QString DelimiterFin    = "<a name=\"fin" + QString::number(gidRefraction) + "\"></a>";
     // QString TagAncre, numIDref; // 07-07-2014 08-08-2014
 
     int IDistance = 0;
@@ -2736,57 +2720,70 @@ void dlg_refraction::ResumeObservation()
                 VerreSpecialOG = tr("dépoli");
         }
 
-        gResultatP = "";
-
+        // détermination OD
+        if (VerreSpecialOD !="non")
+            ResultatOD = VerreSpecialOD;
+        else
         {
-            // détermination OD
-            if (ui->CylindreOD->value() != 0.0 && ui->SphereOD->value() != 0.0)
-                ResultatVLOD = Valeur(ui->SphereOD->text()) + " (" + Valeur(ui->CylindreOD->text()) + " à " + ui->AxeCylindreOD->text() + ")";
-            if (ui->CylindreOD->value() == 0.0 && ui->SphereOD->value() != 0.0)
-                ResultatVLOD = Valeur(ui->SphereOD->text());
-            if (ui->CylindreOD->value() != 0.0 && ui->SphereOD->value() == 0.0)
-                ResultatVLOD = Valeur(ui->CylindreOD->text()) + tr(" à ") + ui->AxeCylindreOD->text() ;
-            if (ui->CylindreOD->value() == 0.0 && ui->SphereOD->value() == 0.0)
-                ResultatVLOD = tr("plan");
-
+            if (ui->SphereOD->value() != 0.0)
+                ResultatVLOD = Valeur(ui->SphereOD->text())
+                             + (ui->CylindreOD->value() != 0.0? " (" + Valeur(ui->CylindreOD->text()) + " à " + ui->AxeCylindreOD->text() + ")" : "");
+            else
+                ResultatVLOD = (ui->CylindreOD->value() != 0.0? Valeur(ui->CylindreOD->text()) + tr(" à ") + ui->AxeCylindreOD->text() : tr("plan"));
+            ResultatOD = ResultatVLOD;
             if (ui->AddVPOD->value() > 0)
+            {
                 ResultatVPOD = Valeur(ui->AddVPOD->text());
+                ResultatOD += " add." + ResultatVPOD + tr(" VP");
+            }
             else
             {
                 ResultatVPOD = tr("plan");
-                if (ResultatVLOD == tr("plan")) VerreSpecialOD = tr("plan");
+                if (ResultatVLOD == tr("plan"))
+                {
+                    VerreSpecialOD = tr("plan");
+                    ResultatOD = tr("plan");
+                }
             }
-
-            ResultatOD = ResultatVLOD + " add." + ResultatVPOD + tr(" VP");
             if (((!ui->ODCheckBox->isChecked() && (gMode != Prescription)) && VerreSpecialOD == "non") || (!ui->ODPrescritCheckBox->isChecked() && (gMode == Prescription)))
                 ResultatOD = "Rien";
-            if (VerreSpecialOD !="non") ResultatOD = VerreSpecialOD;
+        }
 
-            // détermination OG
-            if (ui->CylindreOG->value() != 0.0 && ui->SphereOG->value() != 0.0)
-                ResultatVLOG = Valeur(ui->SphereOG->text()) + " (" + Valeur(ui->CylindreOG->text()) + " à " + ui->AxeCylindreOG->text() + ")";
-            if (ui->CylindreOG->value() == 0.0 && ui->SphereOG->value() != 0.0)
-                ResultatVLOG = Valeur(ui->SphereOG->text());
-            if (ui->CylindreOG->value() != 0.0 && ui->SphereOG->value() == 0.0)
-                ResultatVLOG = Valeur(ui->CylindreOG->text()) + tr(" à ") + ui->AxeCylindreOG->text() ;
-            if (ui->CylindreOG->value() == 0.0 && ui->SphereOG->value() == 0.0)
-                ResultatVLOG = tr("plan");
-
-            if (ui->AddVPOG->value() > 0)
-                ResultatVPOG = Valeur(ui->AddVPOG->text());
+        // détermination OG
+        if (VerreSpecialOG !="non")
+            ResultatOG = VerreSpecialOG;
+        else
+        {
+            if (ui->SphereOG->value() != 0.0)
+                ResultatVLOG = Valeur(ui->SphereOG->text())
+                             + (ui->CylindreOG->value() != 0.0? " (" + Valeur(ui->CylindreOG->text()) + " à " + ui->AxeCylindreOG->text() + ")" : "");
             else
-            {ResultatVPOG = tr("plan");
-                if (ResultatVLOG == tr("plan")) VerreSpecialOG = tr("plan");}
-            ResultatOG = ResultatVLOG + " add." + ResultatVPOG + tr(" VP");
+                ResultatVLOG = (ui->CylindreOG->value() != 0.0? Valeur(ui->CylindreOG->text()) + tr(" à ") + ui->AxeCylindreOG->text() : tr("plan"));
+            ResultatOG = ResultatVLOG;
+            if (ui->AddVPOG->value() > 0)
+            {
+                ResultatVPOG = Valeur(ui->AddVPOG->text());
+                ResultatOG += " add." + ResultatVPOG + tr(" VP");
+            }
+            else
+            {
+                ResultatVPOG = tr("plan");
+                if (ResultatVLOG == tr("plan"))
+                {
+                    VerreSpecialOG = tr("plan");
+                    ResultatOG = tr("plan");
+                }
+            }
             if (((!ui->OGCheckBox->isChecked() && (gMode != Prescription)) && VerreSpecialOG == "non") || (!ui->OGPrescritCheckBox->isChecked() && (gMode == Prescription)))
                 ResultatOG = "Rien";
-            if (VerreSpecialOG !="non") ResultatOG = VerreSpecialOG;
         }
+
+        gResultatP = "";
 
         // Détermination de gResultatP
         switch (IDistance)
-        {   case 1: //Verres bifocaux
-
+        {
+        case 1: // Mesure ou prescription de verres multifocaux
             if (ResultatOD == ResultatOG)
             {
                 if (ResultatVPOD != tr("plan") || VerreSpecialOD != "non")
@@ -2794,58 +2791,70 @@ void dlg_refraction::ResumeObservation()
                 else
                     gResultatP = ResultatVLOD + tr(" VL ODG");
             }
+            else
+            {
+                if (VerreSpecialOD != "non")
+                {
+                    if (VerreSpecialOG != "non")
+                        gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
+                    else
+                    {
+                        if (ResultatOG == "Rien")
+                            gResultatP = VerreSpecialOD + tr(" OD");
+                        else
+                            gResultatP = VerreSpecialOD + " / " + ResultatOG + (ui->AddVPOG->value() == 0.0? tr(" VL") : "");
+                    }
+                }
+                else if (ResultatOD != "Rien")
+                {
+                    if (ui->AddVPOD->value() == 0.0)
+                    {
+                        if (VerreSpecialOG != "non")
+                            gResultatP = ResultatVLOD + " / " + VerreSpecialOG + tr(" VL");
+                        else if (ResultatOG == "Rien")
+                            gResultatP = ResultatVLOD + tr(" OD VL");
+                        else if (ui->AddVPOG->value() == 0.0)
+                            gResultatP = ResultatVLOD + " / " + ResultatVLOG + tr(" VL");
+                        else
+                            gResultatP = ResultatVLOD + " / " + ResultatOG;
+                    }
+                    else
+                    {
+                        if (VerreSpecialOG != "non")
+                            gResultatP = ResultatOD + " / " + VerreSpecialOG;
+                        else if (ResultatOG == "Rien")
+                            gResultatP = ResultatOD + tr(" OD");
+                        else
+                        {
+                            if (ui->AddVPOG->value() == 0.0)
+                                gResultatP = ResultatOD + " / " + ResultatVLOG;
+                            else
+                            {
+                                if (ResultatVPOD == ResultatVPOG)
+                                    gResultatP = ResultatVLOD + " / " + ResultatOG + tr(" ODG");
+                                else
+                                    gResultatP = ResultatOD + " / " + ResultatOG;
+                            }
+                        }
+                    }
+                }
+                else if (ResultatOD == "Rien")
+                {
+                    if (VerreSpecialOG != "non")
+                         gResultatP = VerreSpecialOG + tr(" OG");
+                    else if (ResultatOG != "Rien")
+                    {
+                     if (ui->AddVPOG->value() == 0.0)
+                         gResultatP = ResultatVLOG + tr(" OG VL");
+                     else
+                         gResultatP = ResultatOG + tr(" OG");
+                    }
+                }
 
-            if (gResultatP == "" && (VerreSpecialOD != "non" && VerreSpecialOG != "non"))
-                gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
-
-            if (gResultatP == "" && (VerreSpecialOD != "non" && ResultatOG == "Rien"))
-                gResultatP = VerreSpecialOD + tr(" OD");
-
-            if (gResultatP == "" && (VerreSpecialOD != "non" && ui->AddVPOG->value() == 0.0) && ResultatOG != "Rien")
-                gResultatP = VerreSpecialOD + " / " + ResultatVLOG + tr(" VL");
-
-            if (gResultatP == "" && (VerreSpecialOD != "non" && ui->AddVPOG->value() > 0.0) && ResultatOG != "Rien")
-                gResultatP = VerreSpecialOD + " / " + ResultatOG;
-
-            if (gResultatP == "" && ResultatOD != "Rien" && ui->AddVPOD->value() == 0.0 && VerreSpecialOG != "non")
-                gResultatP = ResultatVLOD + " / " + VerreSpecialOG + tr(" VL");
-
-            if (gResultatP == "" && ResultatOD != "Rien" && ui->AddVPOD->value() == 0.0  && ResultatOG == "Rien")
-                gResultatP = ResultatVLOD + tr(" OD VL");
-
-            if (gResultatP == "" && ResultatOD != "Rien" && (ui->AddVPOD->value() == 0.0 && ui->AddVPOG->value() == 0.0) && ResultatOG != "Rien")
-                gResultatP = ResultatVLOD + " / " + ResultatVLOG + tr(" VL");
-
-            if (gResultatP == "" && ResultatOD != "Rien" && (ui->AddVPOD->value() == 0.0 && ui->AddVPOG->value() > 0.0) && ResultatOG != "Rien")
-                gResultatP = ResultatVLOD + " / " + ResultatOG;
-
-            if (gResultatP == "" && ResultatOD != "Rien" && ui->AddVPOD->value() > 0.0 && VerreSpecialOG != "non")
-                gResultatP = ResultatOD + " / " + VerreSpecialOG;
-
-            if (gResultatP == "" && ResultatOD != "Rien" && ui->AddVPOD->value() > 0.0  && ResultatOG == "Rien")
-                gResultatP = ResultatOD + tr(" OD");
-
-            if (gResultatP == "" && ResultatOD != "Rien" && ui->AddVPOD->value() > 0.0 && ui->AddVPOG->value() == 0.0 && ResultatOG != "Rien")
-                gResultatP = ResultatOD + " / " + ResultatVLOG;
-
-            if (gResultatP == "" && ResultatOD != "Rien" && ui->AddVPOD->value() > 0.0 && ui->AddVPOG->value() > 0.0 && ResultatOG != "Rien")
-            {if (ResultatVPOD == ResultatVPOG)
-                    gResultatP = ResultatVLOD + " / " + ResultatOG + tr(" ODG");
-                else
-                    gResultatP = ResultatOD + " / " + ResultatOG;}
-
-            if (gResultatP == "" && (ResultatOD == "Rien" && VerreSpecialOG != "non"))
-                gResultatP = VerreSpecialOG + tr(" OG");
-
-            if (gResultatP == "" && (ResultatOD == "Rien" &&  ui->AddVPOG->value() == 0.0) && ResultatOG != "Rien")
-                gResultatP = ResultatVLOG + tr(" OG VL");
-
-            if (gResultatP == "" && (ResultatOD == "Rien" &&  ui->AddVPOG->value() > 0.0) && ResultatOG != "Rien")
-                gResultatP = ResultatOG + tr(" OG");
-
+            }
             break;
 
-        case 2: //Verres de loin
+        case 2: // Mesure ou prescription de verres de loin
             if (ResultatOD == ResultatOG)
             {
                 if (VerreSpecialOD != "non")
@@ -2853,72 +2862,79 @@ void dlg_refraction::ResumeObservation()
                 else
                     gResultatP = ResultatVLOD + tr(" VL ODG");
             }
-            if (gResultatP == "" && VerreSpecialOD != "non" && VerreSpecialOG != "non")
-                gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
-
-            if (gResultatP == "" && VerreSpecialOD != "non" && ResultatOG == "Rien")
-                gResultatP = VerreSpecialOD + tr(" OD");
-
-            if (gResultatP == "" && VerreSpecialOD != "non" && ResultatOG != "Rien" && VerreSpecialOG == "non")
-                gResultatP = VerreSpecialOD + " / " + ResultatVLOG + tr(" VL");
-
-            if (gResultatP == "" && ResultatOD != "Rien" && VerreSpecialOD == "non" && VerreSpecialOG != "non")
-                gResultatP = ResultatVLOD + " / " + VerreSpecialOG + tr(" VL");
-
-            if (gResultatP == "" && ResultatOD != "Rien" && VerreSpecialOD == "non" && ResultatOG == "Rien")
-                gResultatP = ResultatVLOD + tr(" OD VL");
-
-            if (gResultatP == "" && ResultatOD != "Rien" && VerreSpecialOD == "non" && ResultatOG != "Rien" && VerreSpecialOG == "non")
-                gResultatP = ResultatVLOD + " / " + ResultatVLOG + tr(" VL");
-
-            if (gResultatP == "" && ResultatOD == "Rien" && VerreSpecialOD == "non" && VerreSpecialOG != "non")
-                gResultatP = VerreSpecialOG + tr(" VL");
-
-            if (gResultatP == "" && ResultatOD == "Rien" && VerreSpecialOD == "non" && ResultatOG == "Rien")
-                gResultatP = ResultatVLOG + tr(" OG VL");
-
-            if (gResultatP == "" && ResultatOD == "Rien" && VerreSpecialOD == "non" && ResultatOG != "Rien" && VerreSpecialOG == "non")
-                gResultatP = ResultatVLOG + tr(" OG VL");
-
+            else
+            {
+                if (VerreSpecialOD != "non")
+                {
+                    if (VerreSpecialOG != "non")
+                        gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
+                    else if (ResultatOG == "Rien")
+                        gResultatP = VerreSpecialOD + tr(" OD");
+                    else
+                        gResultatP = VerreSpecialOD + " / " + ResultatVLOG + tr(" VL");
+                }
+                else if (ResultatOD != "Rien")
+                {
+                    if (VerreSpecialOG != "non")
+                        gResultatP = ResultatVLOD + " / " + VerreSpecialOG + tr(" VL");
+                    else if (ResultatOG == "Rien")
+                        gResultatP = ResultatVLOD + tr(" OD VL");
+                    else
+                        gResultatP = ResultatVLOD + " / " + ResultatVLOG + tr(" VL");
+                }
+                else
+                {
+                    if (VerreSpecialOG != "non")
+                        gResultatP = VerreSpecialOG + tr(" VL");
+                    else if (ResultatOG != "Rien")
+                        gResultatP = ResultatVLOG + tr(" OG VL");
+                }
+            }
             break;
 
-        case 3: // Verres de près
+        case 3: // Mesure ou prescription de verres de près
             switch (IMesure) {
             case 1:                                     // Calcul des verres de près en mode porte
                 if (ResultatOD == ResultatOG)
-                {if (VerreSpecialOD != "non")
+                {
+                    if (VerreSpecialOD != "non")
                         gResultatP = VerreSpecialOD + tr(" ODG");
                     else
-                        gResultatP = ResultatVLOD +  tr(" VP ODG");}
-
-                if (gResultatP == "" && VerreSpecialOD != "non" && VerreSpecialOG != "non")
-                    gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
-
-                if (gResultatP == "" && VerreSpecialOD != "non" && ResultatOG == "Rien")
-                    gResultatP = VerreSpecialOD +  tr(" OD");
-
-                if (gResultatP == "" && VerreSpecialOD != "non" && ResultatOG != "Rien" && VerreSpecialOG == "non")
-                    gResultatP = VerreSpecialOD + " / " + ResultatVLOG +  tr(" VP");
-
-                if (gResultatP == "" && ResultatOD != "Rien" && VerreSpecialOD == "non" && VerreSpecialOG != "non")
-                    gResultatP = ResultatVLOD + " / " + VerreSpecialOG +  tr(" VP");
-
-                if (gResultatP == "" && ResultatOD != "Rien" && VerreSpecialOD == "non" && ResultatOG == "Rien")
-                    gResultatP = ResultatVLOD +  tr(" OD VP");
-
-                if (gResultatP == "" && ResultatOD != "Rien" && VerreSpecialOD == "non" && ResultatOG != "Rien" && VerreSpecialOG == "non")
-                    gResultatP = ResultatVLOD + " / " + ResultatVLOG +  tr(" VP");
-
-                if (gResultatP == "" && ResultatOD == "Rien" && VerreSpecialOD == "non" && VerreSpecialOG != "non")
-                    gResultatP = VerreSpecialOG +  tr(" VP");
-
-                if (gResultatP == "" && ResultatOD == "Rien" && VerreSpecialOD == "non" && ResultatOG == "Rien")
-                    gResultatP = ResultatVLOG +  tr(" OG VP");
-
-                if (gResultatP == "" && ResultatOD == "Rien" && VerreSpecialOD == "non" && ResultatOG != "Rien" && VerreSpecialOG == "non")
-                    gResultatP = ResultatVLOG +  tr(" OG VP");
+                        gResultatP = ResultatVLOD +  tr(" VP ODG");
+                }
+                else
+                {
+                    if (VerreSpecialOD != "non")
+                    {
+                        if (VerreSpecialOG != "non")
+                            gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
+                        else if (ResultatOG == "Rien")
+                            gResultatP = VerreSpecialOD +  tr(" OD");
+                        else
+                            gResultatP = VerreSpecialOD + " / " + ResultatVLOG +  tr(" VP");
+                    }
+                    else  if (ResultatOD != "Rien")
+                    {
+                        if (VerreSpecialOG != "non")
+                            gResultatP = ResultatVLOD + " / " + VerreSpecialOG +  tr(" VP");
+                        else if (ResultatOG == "Rien")
+                            gResultatP = ResultatVLOD +  tr(" OD VP");
+                        else
+                            gResultatP = ResultatVLOD + " / " + ResultatVLOG +  tr(" VP");
+                    }
+                    else
+                    {
+                        if (VerreSpecialOG != "non")
+                            gResultatP = VerreSpecialOG +  tr(" VP");
+                        else if (ResultatOG == "Rien")
+                            gResultatP = ResultatVLOG +  tr(" OG VP");
+                        else
+                            gResultatP = ResultatVLOG +  tr(" OG VP");
+                    }
+                }
                 break;
-            case 6:                                     // Calcul des verres de près en mode impression
+
+            case 6: // Calcul des verres de près en mode impression
                 ResultatGlobalSphereOD = QString::number((ui->SphereOD->value() + ui->AddVPOD->value()) ,'f',2).toDouble();
                 ResultatGlobalSphereOG = QString::number((ui->SphereOG->value() + ui->AddVPOG->value()) ,'f',2).toDouble();
                 ResultatVLOD = Valeur(QString::number(ResultatGlobalSphereOD,'f',2));
@@ -2947,37 +2963,42 @@ void dlg_refraction::ResumeObservation()
                 if (VerreSpecialOG !="non") ResultatOG = VerreSpecialOG;
 
                 if (ResultatOD == ResultatOG)
-                {if (VerreSpecialOD != "non")
+                {
+                    if (VerreSpecialOD != "non")
                         gResultatP = VerreSpecialOD + tr(" ODG");
                     else
-                        gResultatP = ResultatVLOD + tr(" VP ODG");}
-
-                if (gResultatP == "" && VerreSpecialOD != "non" && VerreSpecialOG != "non")
-                    gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
-
-                if (gResultatP == "" && VerreSpecialOD != "non" && ResultatOG == "Rien")
-                    gResultatP = VerreSpecialOD + tr(" OD");
-
-                if (gResultatP == "" && VerreSpecialOD != "non" && ResultatOG != "Rien" && VerreSpecialOG == "non")
-                    gResultatP = VerreSpecialOD + " / " + ResultatVLOG + tr(" VP");
-
-                if (gResultatP == "" && ResultatOD != "Rien" && VerreSpecialOD == "non" && VerreSpecialOG != "non")
-                    gResultatP = ResultatVLOD + " / " + VerreSpecialOG +  tr(" VP");
-
-                if (gResultatP == "" && ResultatOD != "Rien" && VerreSpecialOD == "non" && ResultatOG == "Rien")
-                    gResultatP = ResultatVLOD +  tr(" OD VP");
-
-                if (gResultatP == "" && ResultatOD != "Rien" && VerreSpecialOD == "non" && ResultatOG != "Rien" && VerreSpecialOG == "non")
-                    gResultatP = ResultatVLOD + " / " + ResultatVLOG +  tr(" VP");
-
-                if (gResultatP == "" && ResultatOD == "Rien" && VerreSpecialOD == "non" && VerreSpecialOG != "non")
-                    gResultatP = VerreSpecialOG +  tr(" VP");
-
-                if (gResultatP == "" && ResultatOD == "Rien" && VerreSpecialOD == "non" && ResultatOG == "Rien")
-                    gResultatP = ResultatVLOG +  tr(" OG VP");
-
-                if (gResultatP == "" && ResultatOD == "Rien" && VerreSpecialOD == "non" && ResultatOG != "Rien" && VerreSpecialOG == "non")
-                    gResultatP = ResultatVLOG +  tr(" OG VP");
+                        gResultatP = ResultatVLOD + tr(" VP ODG");
+                }
+                else
+                {
+                    if (VerreSpecialOD != "non")
+                    {
+                        if (VerreSpecialOG != "non")
+                            gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
+                        else if (ResultatOG == "Rien")
+                            gResultatP = VerreSpecialOD + tr(" OD");
+                        else
+                            gResultatP = VerreSpecialOD + " / " + ResultatVLOG + tr(" VP");
+                    }
+                    else  if (ResultatOD != "Rien")
+                    {
+                        if (VerreSpecialOG != "non")
+                            gResultatP = ResultatVLOD + " / " + VerreSpecialOG +  tr(" VP");
+                        else if (ResultatOG == "Rien")
+                            gResultatP = ResultatVLOD +  tr(" OD VP");
+                        else
+                            gResultatP = ResultatVLOD + " / " + ResultatVLOG +  tr(" VP");
+                    }
+                    else
+                    {
+                        if (VerreSpecialOG != "non")
+                            gResultatP = VerreSpecialOG +  tr(" VP");
+                        else if (ResultatOG == "Rien")
+                            gResultatP = ResultatVLOG +  tr(" OG VP");
+                        else
+                            gResultatP = ResultatVLOG +  tr(" OG VP");
+                    }
+                }
                 break;
             default:
                 break;
@@ -3069,10 +3090,12 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
         case 1:
-            gResultatPO =  "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>Porte:</b></font></td><td>" + gResultatP + "</td>" + ResultatPrisme + ResultatRyser;
+            gResultatPO =  "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Porte:</b></font></td><td>" + gResultatP + "</td>" + ResultatPrisme + ResultatRyser;
+            gResultatPO.insert(gResultatPO.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         case 6:
-            gResultatPR =  "<td width=\"30\"><font color = " + proc->CouleurTitres + "><b>VP:</b></font></td><td>" + gResultatP + " " + ui->CommentairePrescriptionTextEdit->toPlainText() + "</td>" + ResultatPrisme + ResultatRyser;
+            gResultatPR =  "<td width=\"30\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>VP:</b></font></td><td>" + gResultatP + " " + ui->CommentairePrescriptionTextEdit->toPlainText() + "</td>" + ResultatPrisme + ResultatRyser;
+            gResultatPR.insert(gResultatPR.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         default:
             break;
@@ -3141,10 +3164,12 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
         case 2:
-            gResultatAnondil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>(non dilaté)</td>" + kerato;
+            gResultatAnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>(non dilaté)</td>" + kerato;
+            gResultatAnondil.insert(gResultatAnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         case 3:
-            gResultatAdil    = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">(dilaté)</font></td>" + kerato;
+            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">(dilaté)</font></td>" + kerato;
+            gResultatAdil.insert(gResultatAdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         default:
             break;
@@ -3227,63 +3252,75 @@ void dlg_refraction::ResumeObservation()
         // Détermination de gResultatR
         switch (IDistance)
         {
-        case 1: //Vision de loin et de près
-            if (gResultatR == "" && ResultatOD != "Rien" && ui->AddVPOD->value() == 0.0  && ResultatOG == "Rien")
-                gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD");
-
-            if (gResultatR == "" && ResultatOD != "Rien" && (ui->AddVPOD->value() == 0.0 && ui->AddVPOG->value() == 0.0) && ResultatOG != "Rien")
-                gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                        + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
-
-            if (gResultatR == "" && ResultatOD != "Rien" && (ui->AddVPOD->value() == 0.0 && ui->AddVPOG->value() > 0.0) && ResultatOG != "Rien")
-                gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                        + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
-
-            if (gResultatR == "" && ResultatOD != "Rien" && ui->AddVPOD->value() > 0  && ResultatOG == "Rien")
-                gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD");
-
-            if (gResultatR == "" && ResultatOD != "Rien" && ui->AddVPOD->value() > 0 && ui->AddVPOG->value() == 0.0 && ResultatOG != "Rien")
-                gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                        + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
-
-            if (gResultatR == "" && ResultatOD != "Rien" && ui->AddVPOD->value() > 0 && ui->AddVPOG->value() > 0 && ResultatOG != "Rien")
-                gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                        + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
-
-            if (gResultatR == "" && (ResultatOD == "Rien" &&  ui->AddVPOG->value() == 0.0) && ResultatOG != "Rien")
-                gResultatR = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG");
-
-            if (gResultatR == "" && (ResultatOD == "Rien" &&  ui->AddVPOG->value() > 0) && ResultatOG != "Rien")
-                gResultatR = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG");
+        case 1: // Refraction de loin et de près
+            if (ResultatOD != "Rien")
+            {
+                if (ui->AddVPOD->value() == 0.0)
+                {
+                    if (ResultatOG == "Rien")
+                        gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD");
+                    else
+                    {
+                        if (ui->AddVPOG->value() == 0.0)
+                            gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
+                                    +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
+                        else
+                            gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
+                                    +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
+                    }
+                }
+                else
+                {
+                    if (ResultatOG == "Rien")
+                        gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD");
+                    else
+                    {
+                        if (ui->AddVPOG->value() == 0.0)
+                            gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
+                                    +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
+                        else
+                            gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
+                                    +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
+                    }
+                }
+            }
+            else if (ResultatOG != "Rien")
+            {
+                if (ui->AddVPOG->value() == 0.0)
+                    gResultatR = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG");
+                else
+                    gResultatR = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG");
+            }
             break;
-
-        case 2: //Verres de loin ou cycloplégie
-            if (gResultatR == "" && ResultatOD != "Rien" && ResultatOG == "Rien")
-                gResultatR = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + AVLOD->text() + "</b></font> " + tr("OD");
-
-            if (gResultatR == "" && ResultatOD != "Rien" && ResultatOG != "Rien")
-                gResultatR = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + AVLOD->text() + "</b></font> " + tr("OD") + "</td></p>"
-                        +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                        + ResultatVLOG + " " + "<font color = " + colorVLOG + "><b>" + AVLOG->text() + "</b></font> " + tr("OG") + "</td>";
-
-            if (gResultatR == "" && ResultatOD == "Rien" && ResultatOG != "Rien")
+        case 2: // Réfraction de loin ou sous cycloplégie
+            if (ResultatOD != "Rien")
+            {
+                if (ResultatOG == "Rien")
+                    gResultatR = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + AVLOD->text() + "</b></font> " + tr("OD");
+                else
+                    gResultatR = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + AVLOD->text() + "</b></font> " + tr("OD") + "</td></p>"
+                            +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
+                            + ResultatVLOG + " " + "<font color = " + colorVLOG + "><b>" + AVLOG->text() + "</b></font> " + tr("OG") + "</td>";
+            }
+            else if (ResultatOG != "Rien")
                 gResultatR = ResultatVLOG + "<font color = " + colorVLOG + "><b>" + AVLOG->text() + "</b></font> " + tr("OG");
             break;
-
         default:
             break;
         }
         switch (IMesure)
         {
             case 4:
-                gResultatRnondil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + proc->getUserConnected()->getLogin() + "</td>";
+                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + proc->getUserConnected()->getLogin() + "</td>";
+                gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             case 5:
-                gResultatRdil = "<td width=\"60\"><font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + proc->getUserConnected()->getLogin() + "</td>";
+                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + proc->getUserConnected()->getLogin() + "</td>";
+                gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             default:
             break;
@@ -3809,6 +3846,14 @@ void dlg_refraction::ResumeRefraction()
     proc->Edit(ResultatRefraction, tr("Historique réfractions ") + gPrenomPatient + " " + gNomPatient, false);
 }
 
+QString dlg_refraction::ResultatPrescription()
+{
+    return gResultatPR;
+}
+QString dlg_refraction::ResultatObservation()
+{
+    return gResultatObservation;
+}
 //---------------------------------------------------------------------------------
 // Maj d'un enregistrement dans DonneesOphtaPatient
 //---------------------------------------------------------------------------------

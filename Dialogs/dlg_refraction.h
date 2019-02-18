@@ -44,7 +44,7 @@ public:
     dlg_listemesures        *Dlg_ListeMes;
     dlg_commentaires        *Dlg_Comments;
 
-    QString                 gResultatPR, gResultatObservation;
+    QString                 ResultatPrescription(), ResultatObservation();
     int                     getidRefraction();
 
 private slots:
@@ -107,9 +107,9 @@ private:
     double                  gAxeCylindreOG;
     double                  gAddVPOG;
     int                     gFlagBugValidEnter; // Modif 17/04
-    QLocale                 gFrench;
     QMenu                   *qQmenuSup;
     QString                 gResultatP, gResultatPO, gResultatAnondil, gResultatA, gResultatAdil, gResultatR, gResultatRdil, gResultatRnondil, gResultatCommPreDef, gResultatCommResumOrdo;
+    QString                 gResultatPR, gResultatObservation;
     bool                    EscapeFlag;
     bool                    FermeComment;
     UpLineEdit              *AVPOD, *AVLOD;

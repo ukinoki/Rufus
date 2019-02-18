@@ -570,7 +570,7 @@ bool Procedures::ImmediateBackup(bool full)
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
             Message(Msg, 3000);
             QProcess::execute("cp -R " + NomDirStockageImagerie + NOMDIR_VIDEOS + " " + dest);
-            Message(tr("Fichiers d'imagerie restaurés!"), 3000, false);
+            Message(tr("Fichiers video restaurés!"), 3000, false);
         }
     }
     connexion = true;
@@ -908,7 +908,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
      * result["type"] est un QString qui donne le type de document, jpg ou pdf
      * result["ba"] est un QByteArray qui stocke le contenu du fichier
     */
-    DocExterne *docmt;
+    DocExterne *docmt = Q_NULLPTR;
     Depense *dep;
     QString iditem;
     QString date ("");
@@ -973,15 +973,18 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                 {
                     if (typedoc != FACTURE)
                     {
-                        db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
-                                                             " where idimpression = " + iditem +
-                                                             " and facture is null");
-                        QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
-                                      "VALUES (" +
-                                      iditem + ", " +
-                                      " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
-                                      QString::number(docmt->compression()) + ")";
-                        db->StandardSQL(req);
+                        if (docmt != Q_NULLPTR)
+                        {
+                            db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
+                                            " where idimpression = " + iditem +
+                                            " and facture is null");
+                            QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression)"
+                                          " VALUES (" +
+                                          iditem + ", " +
+                                          " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + NOMDIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
+                                          QString::number(docmt->compression()) + ")";
+                            db->StandardSQL(req);
+                        }
                     }
                     else
                     {

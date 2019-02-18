@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("10-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("16-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -89,7 +89,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
 
     qApp->setStyleSheet(Styles::StyleAppli());
-    proc->Message(gDataUser->getStatus(), 6000);
+    proc->Message(gDataUser->getStatus(), 3000);
 
     //3 Initialisation de tout
     InitVariables();
@@ -248,7 +248,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     // 10 - Vérification de la messagerie
     VerifMessages();
-}
+
+    // 11 - Affichage des boutons bilan orthhoptique
+    ui->CreerBOpushButton   ->setVisible(gDataUser->isOrthoptist());
+    ui->CreerBOpushButton_2 ->setVisible(gDataUser->isOrthoptist());
+ }
 
 Rufus::~Rufus()
 {
@@ -1296,7 +1300,8 @@ void Rufus::BasculerMontantActe()
         MontantActe = QLocale().toDouble(ui->ActeMontantlineEdit->text());
         MontantConv = listMontantActe.at(0).toDouble();
         MontantPrat = listMontantActe.at(1).toDouble();
-        if (MontantActe!=MontantPrat)
+
+        if (fabs(MontantActe)!=fabs(MontantPrat))
         {
             ui->ActeMontantlineEdit->setText(QLocale().toString(MontantPrat,'f',2));
             ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
@@ -1483,7 +1488,6 @@ void Rufus::CourrierAFaireChecked()
 void Rufus::CreerBilanOrtho()
 {
     bool    nouveauBO       = true;
-    bool    ConversionEnBO  = false;
     if (ui->Acteframe->isVisible())
     {
         QDate DateBl;
@@ -1494,7 +1498,7 @@ void Rufus::CreerBilanOrtho()
         if (!ok)
             return;
         nouveauBO = (bodata.size()<1);
-        if (bodata.size() > 0)
+        if (!nouveauBO)
         {
             DateBl = bodata.at(1).toDate();
             if (DateBl != QDate::currentDate())
@@ -1516,35 +1520,12 @@ void Rufus::CreerBilanOrtho()
                 msgbox.close();
             }
         }
-        else
-        {
-            if (ui->ActeDatedateEdit->date() == QDate::currentDate())
-            {
-                UpMessageBox msgbox;
-                UpSmallButton NoBouton(tr("Annuler"));
-                UpSmallButton OKBouton(tr("Convertir en\nbilan orthoptique"));
-                msgbox.setText("Euuhh... " + gDataUser->getLogin());
-                msgbox.setInformativeText(tr("Voulez-vous transformer l'acte en cours en bilan orthoptique?\nToutes les données saisies seront perdues!"));
-                msgbox.setIcon(UpMessageBox::Warning);
-                msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
-                msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
-                msgbox.exec();
-                nouveauBO = (msgbox.clickedButton() == &OKBouton);
-                if (nouveauBO)
-                {
-                    ui->ActeMotiftextEdit->clear();
-                    ui->ActeTextetextEdit->clear();
-                    ui->ActeConclusiontextEdit->clear();
-                    ConversionEnBO = true;
-                }
-                msgbox.close();
-                if (!nouveauBO) return;
-            }
+        else if (ui->ActeDatedateEdit->date() == QDate::currentDate() && db->loadActeById(gidActe)->idCreatedBy() == gDataUser->id())
+            nouveauBO = false;
 
-        }
         if (!nouveauBO)
         {
-            Dlg_BlOrtho             = new dlg_bilanortho(ui->idActelineEdit->text().toInt(), bodata.at(0).toInt(), gidPatient);
+            Dlg_BlOrtho             = new dlg_bilanortho(gidActe, bodata.at(0).toInt(), gidPatient);
             UiDLg_BlOrtho           = Dlg_BlOrtho->ui;
             QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
             UiDLg_BlOrtho->OcclAlternlabel->setVisible(gDDNPatient.daysTo(DateBl) < 730);
@@ -1556,10 +1537,9 @@ void Rufus::CreerBilanOrtho()
     }
     if (nouveauBO)
     {
-        if (ui->Acteframe->isVisible() && !ConversionEnBO)
+        if (ui->Acteframe->isVisible())
             if (!AutorDepartConsult(false)) return;
-        if (!ConversionEnBO)
-            CreerActe(gidPatient);
+        CreerActe(gidPatient);
         Dlg_BlOrtho             = new dlg_bilanortho(ui->idActelineEdit->text().toInt(), 0, gidPatient);
         UiDLg_BlOrtho           = Dlg_BlOrtho->ui;
         QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
@@ -1568,15 +1548,11 @@ void Rufus::CreerBilanOrtho()
         QString RefractionOG    = "";
         Dlg_BlOrtho             ->setDateBO(QDate::currentDate());
 
-        QString RefODrequete    = "select max(idrefraction), formuleOD from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gidPatient);
+        QString RefODrequete    = "select max(idrefraction), formuleOD, formuleOG, idActe from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gidPatient);
         QList<QVariant> RefODdata = db->getFirstRecordFromStandardSelectSQL(RefODrequete, ok);
         if (ok && RefODdata.size()>0)  // On ne peut pas utiliser if (query.size() > 0) dans ce cas car l'opérateur max retourne toujours un size() = 1, même quand il n'y a pas de réponse...
-            RefractionOD += RefODdata.at(1).toString();
-
-        QString RefOGrequete    = "select max(idrefraction), formuleOG from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gidPatient);
-        QList<QVariant> RefOGdata = db->getFirstRecordFromStandardSelectSQL(RefOGrequete, ok);
-        if (ok && RefOGdata.size()>0)
-            RefractionOG += RefOGdata.at(1).toString();
+            RefractionOD = RefODdata.at(1).toString();
+            RefractionOG = RefODdata.at(2).toString();
 
         if (RefractionOD != "")     UiDLg_BlOrtho->AVODlineEdit->setText(RefractionOD);
         if (RefractionOG != "")     UiDLg_BlOrtho->AVOGlineEdit->setText(RefractionOG);
@@ -5742,18 +5718,14 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     QString Corps = objUpText->toHtml();
                     Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
                     Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
-#ifdef Q_OS_LINUX
-                    if (Corps.contains("<!MAC>"))
-                        Corps.replace("<!MAC>","<!LINUX>");
-                    else if (!Corps.contains("<!LINUX>"))
-                        Corps.append("<!LINUX>");
-#endif
-#ifdef Q_OS_MAC
-                    if (Corps.contains("<!LINUX>"))
-                        Corps.replace("<!LINUX>","<!MAC>");
-                    else if (!Corps.contains("<!MAC>"))
-                        Corps.append("<!MAC>");
-#endif
+                    Corps.remove(HTMLCOMMENT_LINUX);
+                    Corps.remove(HTMLCOMMENT_MAC);
+        #ifdef Q_OS_LINUX
+                    Corps.append(HTMLCOMMENT_LINUX);
+        #endif
+        #ifdef Q_OS_MAC
+                    Corps.append(HTMLCOMMENT_MAC);
+        #endif
                     requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
                             + Utils::correctquoteSQL(Corps) + "' WHERE " + (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES? "idActe" : "idMessage") + "= " + QString::number(gidActe);
                     db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
@@ -6036,10 +6008,12 @@ void Rufus::AfficheActe(int idActe)
             MontantActe = actlist.last().at(9).toDouble()/H;
             MontantConv = listMontantActe.at(0).toDouble();
             MontantPrat = listMontantActe.at(1).toDouble();
-            ui->BasculerMontantpushButton->setVisible((MontantActe!=MontantConv) || (MontantActe!=MontantPrat) || (MontantConv!=MontantPrat));
+            ui->BasculerMontantpushButton->setVisible((fabs(MontantActe)!=fabs(MontantConv))
+                                                      || (fabs(MontantActe)!=fabs(MontantPrat))
+                                                      || (fabs(MontantConv)!=fabs(MontantPrat)));
             if (ui->BasculerMontantpushButton->isVisible())
             {
-                if (MontantActe!=MontantPrat)
+                if (fabs(MontantActe)!=fabs(MontantPrat))
                     ui->BasculerMontantpushButton->setImmediateToolTip("Revenir au tarif habituellement pratiqué");
                 else
                     ui->BasculerMontantpushButton->setImmediateToolTip("Revenir au tarif conventionnel");
@@ -6572,7 +6546,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             {
                 if (actdata.at(0).toInt() != gidActe)
                     AfficheActe(actdata.at(0).toInt());
-                if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
+                if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
                 {
                     msgbox.setText(tr("Vous avez entré un montant nul !"));
                     msgbox.setInformativeText(tr("Enregistrer cette consultation comme gratuite?"));
@@ -8903,15 +8877,20 @@ void    Rufus::Refraction()
     proc->setFicheRefractionOuverte(false);
     if (result > 0)
     {
-        if (Dlg_Refraction->gResultatObservation != "")  // Ce n'est pas une prescription de verres correcteurs
+        if (Dlg_Refraction->ResultatObservation() != "")  // Ce n'est pas une prescription de verres correcteurs
         {
-            for (int i= 0; i<Dlg_Refraction->gResultatObservation.size();i++)
-                if (Dlg_Refraction->gResultatObservation.at(i).unicode() == 10) Dlg_Refraction->gResultatObservation.replace(Dlg_Refraction->gResultatObservation.at(i),"<br>");
-            // si le dernier caractère n'est pas un retour à la ligne, on en rajoute un
+            for (int i= 0; i<Dlg_Refraction->ResultatObservation().size();i++)
+                if (Dlg_Refraction->ResultatObservation().at(i).unicode() == 10) Dlg_Refraction->ResultatObservation().replace(Dlg_Refraction->ResultatObservation().at(i),"<br>");
+
+            UpTextEdit mod("");
             QString texte = ui->ActeTextetextEdit->toHtml();
+            qDebug() << "html = " << texte;
+            qDebug() << "resultat = " << Dlg_Refraction->ResultatObservation();
             bool a = true;
+            if (ui->ActeTextetextEdit->toPlainText().size() == 0)
+                texte = "";
             while (a) {
-                     // il faut retirer la dernière ligne du html qui contient le retour à la ligne
+                     // il faut retirer les retour à la ligne inutiles en fin de texte
                 int debut = texte.lastIndexOf("<p");
                 int fin   = texte.lastIndexOf("</p>");
                 int longARetirer = fin - debut + 4;
@@ -8919,43 +8898,41 @@ void    Rufus::Refraction()
                     texte.remove(debut,longARetirer);
                 else a = false;
             }
-            QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Dlg_Refraction->gResultatObservation  + "</p>"
-                    + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
-            if (ui->ActeTextetextEdit->toPlainText().size() == 0)
-                texte = ARajouterEnText;
-            else
-                texte += ARajouterEnText;
-            UpTextEdit *mod = new UpTextEdit;
-            mod->setText(texte);
-            QString Corps = mod->toHtml();
-            Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-            Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
+            QString ARajouterEnText =
+                    "<p style = \"margin-top:0px; margin-bottom:0px;\">"
+                  + Dlg_Refraction->ResultatObservation()
+                  + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
+            texte += ARajouterEnText;
+            mod.setText(texte);
+            texte = mod.toHtml();
+            texte.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">",
+                          "<p style=\" margin-top:0px; margin-bottom:0px;\">");
+            texte.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
 #ifdef Q_OS_LINUX
-            Corps.append("<!LINUX>");
+            texte.append(HTMLCOMMENT_LINUX);
 #endif
 #ifdef Q_OS_MAC
-            Corps.append("<!MAC>");
+            texte.append(HTMLCOMMENT_MAC);
 #endif
+            qDebug() << texte;
 
-            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(Corps) +
+            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
                                      "' where idActe = " + ui->idActelineEdit->text();
             db->StandardSQL(updaterequete);
-            ui->ActeTextetextEdit->setText(Corps);
-            mod = Q_NULLPTR;
-            delete mod;
+            ui->ActeTextetextEdit->setHtml(texte);
 
             ui->ActeTextetextEdit->setFocus();
             ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         }
-        if (Dlg_Refraction->gResultatPR != "")  // C'est une prescription de verres correcteurs
+        else if (Dlg_Refraction->ResultatPrescription() != "")  // C'est une prescription de verres correcteurs
         {
             // mettre à jour docsexterns
             MAJDocsExternes(); //Refraction()
 
             // si le dernier caractère n'est pas un retour à la ligne, on en rajoute un
             QString Date = "";
-            for (int i= 0; i<Dlg_Refraction->gResultatPR.size();i++)
-                if (Dlg_Refraction->gResultatPR.at(i).unicode() == 10) Dlg_Refraction->gResultatPR.replace(Dlg_Refraction->gResultatPR.at(i),"<br>");
+            for (int i= 0; i<Dlg_Refraction->ResultatPrescription().size();i++)
+                if (Dlg_Refraction->ResultatPrescription().at(i).unicode() == 10) Dlg_Refraction->ResultatPrescription().replace(Dlg_Refraction->ResultatPrescription().at(i),"<br>");
             QString conclusion = ui->ActeConclusiontextEdit->toHtml();
             bool a = true;
             while (a) {
@@ -8972,23 +8949,25 @@ void    Rufus::Refraction()
                 Date = "<td width=\"80\">le " + QDate::currentDate().toString("d.M.yyyy") + "</td>";
                 larg = "470";
             }
-            QString ARajouterEnConcl =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Date + Dlg_Refraction->gResultatPR  + "</p>"
+            QString ARajouterEnConcl =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Date + Dlg_Refraction->ResultatPrescription()  + "</p>"
                                          + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\">";
             if (ui->ActeConclusiontextEdit->toPlainText().size() == 0)
                 conclusion = ARajouterEnConcl;
             else
                 conclusion += ARajouterEnConcl;
-            UpTextEdit *mod = new UpTextEdit;
-            mod->setText(conclusion);
-            QString Corps = mod->toHtml();
+            UpTextEdit mod;
+            mod.setText(conclusion);
+            QString Corps = mod.toHtml();
             Corps.remove("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>");
             Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
             Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
+            Corps.remove(HTMLCOMMENT_LINUX);
+            Corps.remove(HTMLCOMMENT_MAC);
 #ifdef Q_OS_LINUX
-            Corps.append("<!LINUX>");
+            Corps.append(HTMLCOMMENT_LINUX);
 #endif
 #ifdef Q_OS_MAC
-            Corps.append("<!MAC>");
+            Corps.append(HTMLCOMMENT_MAC);
 #endif
 
             QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(Corps) +
@@ -8997,9 +8976,6 @@ void    Rufus::Refraction()
             ui->ActeConclusiontextEdit->setFocus();
             ui->ActeConclusiontextEdit->moveCursor(QTextCursor::End);
             ui->ActeConclusiontextEdit->setText(Corps);
-
-            mod = Q_NULLPTR;
-            delete mod;
        }
     }
     delete Dlg_Refraction;
@@ -10182,7 +10158,6 @@ void Rufus::Tonometrie()
                     Tono = "<td width=\"60\"><font color = \"" + proc->CouleurTitres + "\"><b>" + tr("TO:") +"</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + gDataUser->getLogin() + "</td>";
             }
 
-            // si le dernier caractère n'est pas un retour à la ligne, on en rajoute un
             QString texte = ui->ActeTextetextEdit->toHtml();
             bool a = true;
             while (a) {
@@ -10336,10 +10311,12 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
         MontantActe = QLocale().toDouble(NouveauMontant);
         MontantConv = listMontantActe.at(0).toDouble();
         MontantPrat = listMontantActe.at(1).toDouble();
-        ui->BasculerMontantpushButton->setVisible((MontantActe!=MontantConv) || (MontantActe!=MontantPrat) || (MontantConv!=MontantPrat));
+        ui->BasculerMontantpushButton->setVisible((fabs(MontantActe)!=fabs(MontantConv))
+                                                  || (fabs(MontantActe)!=fabs(MontantPrat))
+                                                  || (fabs(MontantConv)!=fabs(MontantPrat)));
         if (ui->BasculerMontantpushButton->isVisible())
         {
-            if (MontantActe!=MontantPrat)
+            if (fabs(MontantActe)!=fabs(MontantPrat))
                 ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif habituellement pratiqué"));
             else
                 ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));

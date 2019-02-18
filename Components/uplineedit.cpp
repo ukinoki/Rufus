@@ -29,7 +29,8 @@ UpLineEdit::UpLineEdit(QWidget *parent) : QLineEdit(parent)
     Champ           = "";
     Table           = "";
     installEventFilter(this);
-    connect(this, &QLineEdit::textEdited, this, &UpLineEdit::ReemitTextEdited);
+    connect(this, &QLineEdit::textEdited,       this, &UpLineEdit::ReemitTextEdited);
+    // connect(this, &QLineEdit::inputRejected,    this, [=] {QSound::play(NOM_ALARME);}); le signal inpuRejected n'est pas reconnu par osx...
     setContextMenuPolicy(Qt::NoContextMenu);
 }
 

@@ -281,8 +281,8 @@ void dlg_gestionusers::CreerUser()
     Line2                       ->setObjectName(gMDPupLineEdit);
     Line3                       ->setObjectName(gConfirmMDPupLineEdit);
     Line                        ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
-    Line2                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
-    Line3                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
+    Line2                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_8));
+    Line3                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_8));
     Line                        ->setAlignment(Qt::AlignCenter);
     Line2                       ->setAlignment(Qt::AlignCenter);
     Line3                       ->setAlignment(Qt::AlignCenter);
@@ -304,7 +304,7 @@ void dlg_gestionusers::CreerUser()
     lay                         ->setSpacing(2);
 
     label                       ->setText(tr("Choisissez un login pour le nouvel utilisateur\n- maxi 15 caractères -\n- pas de caractères spéciaux ou accentués -"));
-    label2                      ->setText(tr("Choisissez un mot de passe\n- maxi 8 caractères -\n- pas de caractères spéciaux ou accentués -"));
+    label2                      ->setText(tr("Choisissez un mot de passe\n- mini 5 maxi 8 caractères -\n- pas de caractères spéciaux ou accentués -"));
     label3                      ->setText(tr("Confirmez le mot de passe"));
 
     gAsk                        ->AjouteLayButtons(UpDialog::ButtonOK);
@@ -1106,7 +1106,7 @@ void dlg_gestionusers::CalcListitemsCompteActescomboBox(int iduser)
                   " where ban.idbanque = comp.idbanque \n"
                   " and (iduser = " + user + " or partage = 1)"
                   " and desactive is null";
-    QList<QList<QVariant>> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver le comptes de l'utilisateur"));
+    QList<QList<QVariant>> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur"));
     if (!ok)
         return;
     ui->CompteActescomboBox->clear();
@@ -1127,7 +1127,7 @@ void dlg_gestionusers::CalcListitemsCompteComptacomboBox(int iduser, bool soccom
                   " and desactive is null";
     if (!soccomptable)
         req +=    " and partage is null";
-    QList<QList<QVariant>> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver le comptes de l'utilisateur"));
+    QList<QList<QVariant>> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur"));
     if (!ok)
         return;
     ui->CompteComptacomboBox->clear();
@@ -1368,32 +1368,6 @@ void   dlg_gestionusers::DefinitLesVariables()
     soigntnonrplct = responsable && !retrocession;
 }
 
-QString dlg_gestionusers::Edit(QString txt, QString titre)
-{
-    QString         rep("");
-    UpDialog        *gAsk           = new UpDialog();
-    UpTextEdit* gTxtEdit            = new UpTextEdit(gAsk);
-    int x = qApp->desktop()->availableGeometry().width();
-    int y = qApp->desktop()->availableGeometry().height();
-
-    gAsk->setModal(true);
-    gTxtEdit->setText(txt);
-
-    gAsk->setMaximumWidth(x);
-    gAsk->setMaximumHeight(y);
-    gAsk->setWindowTitle(titre);
-
-    gAsk->dlglayout()->insertWidget(0,gTxtEdit);
-
-    gAsk->AjouteLayButtons();
-    connect(gAsk->OKButton,SIGNAL(clicked(bool)),gAsk,SLOT(accept()));
-
-    if (gAsk->exec()>0)
-        rep = gTxtEdit->toHtml();
-    delete gAsk;
-    return rep;
-}
-
 bool dlg_gestionusers::ExisteEmployeur(int iduser)
 {
     return (db->StandardSelectSQL("select iduser from " NOM_TABLE_UTILISATEURS
@@ -1402,7 +1376,7 @@ bool dlg_gestionusers::ExisteEmployeur(int iduser)
 }
 bool dlg_gestionusers::setDataUser(int id)
 {
-    QJsonObject data = DataBase::getInstance()->loadUserData(id); //TODO : !!! Chargement du lieu
+    QJsonObject data = db->loadUserData(id); //TODO : !!! Chargement du lieu
     if( data.isEmpty() )
         return false;
     OtherUser = new User( data );

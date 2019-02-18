@@ -698,7 +698,7 @@ QJsonObject DataBase::loadDocumentData(int idDoc)
 {
     QJsonObject documentData{};
     QString req = "Select idDocument, TextDocument, ResumeDocument, ConclusionDocument, idUser,"
-                  " DocPublic, Prescription, Editable, Medical from " NOM_TABLE_COURRIERS;
+                  " DocPublic, Prescription, Editable, Medical from " NOM_TABLE_COURRIERS
                   " where idDocument = " + QString::number(idDoc);
     QList<QVariant> docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)

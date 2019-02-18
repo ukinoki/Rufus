@@ -53,7 +53,12 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     disconnect();
     if (state() == QAbstractSocket::ConnectedState || state() == QAbstractSocket::ConnectingState)
         disconnectFromHost();
-    connectToHost(ipadrserver,PortTCPServer);//});      // On se connecte au serveur
+    connect(this,     &QTcpSocket::hostFound, this,   [=] {
+                                                            qDebug() << "Serveur trouvé";
+                                                            dlg_message(QStringList() << "Serveur OK",3000);
+                                                            Logs::MSGSOCKET("Serveur trouvé");
+                                                          });
+    connectToHost(ipadrserver,PortTCPServer);     // On se connecte au serveur
     if (waitForConnected())
     {
         connect(this,                 &QTcpSocket::readyRead,                                              this,   &TcpSocket::TraiteDonneesRecues);

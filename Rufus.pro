@@ -54,7 +54,6 @@ SOURCES += main.cpp\
         rufus.cpp \
     procedures.cpp \
     pyxinterf.cpp \
-    qlinedelegate.cpp \
     textprinter.cpp \
     conversionbase.cpp \
     serialthread.cpp \
@@ -66,13 +65,11 @@ SOURCES += main.cpp\
 HEADERS += rufus.h \
     procedures.h \
     pyxinterf.h \
-    qlinedelegate.h \
     textprinter.h \
     conversionbase.h \
     serialthread.h \
     importdocsexternesthread.h \
     qlabeldelegate.h \
-    functordatauser.h \
     macros.h \
     utils.h \
     icons.h \

@@ -304,11 +304,11 @@ if (text.contains("<!DOCTYPE HTML PUBLIC"))
     {
     QString txt = text;
 #ifdef Q_OS_LINUX
-        if (!text.contains("<!LINUX>"))
+        if (!text.contains(HTMLCOMMENT_LINUX))
             txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
 #endif
 #ifdef Q_OS_MACOS
-        if (text.contains("<!LINUX>"))
+        if (text.contains(HTMLCOMMENT_LINUX))
             txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size" + QString::number(qApp->font().pointSize()) + "pt");
 #endif
         QTextEdit::setText(txt);
