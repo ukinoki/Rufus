@@ -1487,61 +1487,66 @@ void Rufus::CourrierAFaireChecked()
 void Rufus::CreerBilanOrtho()
 {
     bool    nouveauBO       = true;
-    QTextEdit               txtEdit;
+    bool    creeracte       = true;
     if (ui->Acteframe->isVisible())
     {
         QDate DateBl;
-        QString requete = "select idbilanortho, ActeDate from " NOM_TABLE_BILANORTHO ", " NOM_TABLE_ACTES
-                " where idActe = idbilanortho and idbilanortho = " + QString::number(gidActe);
-        //UpMessageBox::Watch(this,chborequete);
+        QString requete = "select idbilanortho from " NOM_TABLE_BILANORTHO
+                " where idbilanortho = " + QString::number(gidActe);
         QList<QVariant> bodata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         if (!ok)
             return;
         nouveauBO = (bodata.size()<1);
         if (!nouveauBO)
         {
-            DateBl = bodata.at(1).toDate();
+            DateBl = db->loadActeById(gidActe)->date();
             if (DateBl != QDate::currentDate())
             {
                 UpMessageBox msgbox;
-                UpSmallButton OKBouton(tr("Reprendre"));
-                UpSmallButton NoBouton(tr("Créer un nouveau\nbilan orthoptique"));
+                UpSmallButton ReprendreBOBouton(tr("Reprendre"));
+                UpSmallButton NouveauBOBouton(tr("Créer un nouveau\nbilan orthoptique"));
                 UpSmallButton AnnulBouton(tr("Annuler"));
                 msgbox.setText("Euuhh... " + gDataUser->getLogin());
                 msgbox.setInformativeText(tr("Voulez-vous reprendre le bilan affiché\nou créer un nouveau bilan à la date d'aujourd'hui?"));
                 msgbox.setIcon(UpMessageBox::Quest);
                 msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
-                msgbox.addButton(&NoBouton, UpSmallButton::COPYBUTTON);
-                msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+                msgbox.addButton(&NouveauBOBouton, UpSmallButton::COPYBUTTON);
+                msgbox.addButton(&ReprendreBOBouton, UpSmallButton::STARTBUTTON);
                 msgbox.exec();
-                if (msgbox.clickedButton() != &OKBouton && msgbox.clickedButton() != &NoBouton)
+                if (msgbox.clickedButton() != &ReprendreBOBouton && msgbox.clickedButton() != &NouveauBOBouton)
                     return;
-                nouveauBO = (msgbox.clickedButton() == &NoBouton);
+                nouveauBO = (msgbox.clickedButton() == &NouveauBOBouton);
+                creeracte = (msgbox.clickedButton() == &NouveauBOBouton);
                 msgbox.close();
             }
+            else if (!Datas::I()->users->getUserById(db->loadActeById(gidActe)->idCreatedBy())->isOrthoptist())
+            {
+                nouveauBO = true;
+                creeracte = false;
+            }
         }
-        else if (ui->ActeDatedateEdit->date() == QDate::currentDate()
-                 && ( db->loadActeById(gidActe)->idCreatedBy() == gDataUser->id()
-                   || Datas::I()->users->getUserById(db->loadActeById(gidActe)->idCreatedBy())->isOrthoptist()))
-            nouveauBO = false;
+        else
+            creeracte = !Datas::I()->users->getUserById(db->loadActeById(gidActe)->idCreatedBy())->isOrthoptist();
 
         if (!nouveauBO)
         {
-            Dlg_BlOrtho             = new dlg_bilanortho(gidActe, bodata.at(0).toInt(), gidPatient);
+            Dlg_BlOrtho             = new dlg_bilanortho(gidActe, nouveauBO);
             QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
             Dlg_BlOrtho->ui->OcclAlternlabel->setVisible(gDDNPatient.daysTo(DateBl) < 730);
             Dlg_BlOrtho->ui->OcclAlterncomboBox->setVisible(gDDNPatient.daysTo(DateBl) < 730);
             Dlg_BlOrtho             ->setWindowTitle(Titre);
             Dlg_BlOrtho             ->setDateBO(QDate::fromString(ui->ActeDatedateEdit->text(),"dd/MM/yyyy"));
-            nouveauBO               = false;
         }
     }
     if (nouveauBO)
     {
-        if (ui->Acteframe->isVisible())
-            if (!AutorDepartConsult(false)) return;
-        CreerActe(gidPatient);
-        Dlg_BlOrtho             = new dlg_bilanortho(gidActe, 0, gidPatient);
+        if (creeracte)
+        {
+            if (ui->Acteframe->isVisible())
+                if (!AutorDepartConsult(false)) return;
+            CreerActe(gidPatient);
+        }
+        Dlg_BlOrtho             = new dlg_bilanortho(gidActe, nouveauBO);
         QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
         Dlg_BlOrtho             ->setWindowTitle(Titre);
         QString RefractionOD    = "";
@@ -1550,7 +1555,7 @@ void Rufus::CreerBilanOrtho()
 
         QString RefODrequete    = "select max(idrefraction), formuleOD, formuleOG, idActe from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gidPatient);
         QList<QVariant> RefODdata = db->getFirstRecordFromStandardSelectSQL(RefODrequete, ok);
-        if (ok && RefODdata.size()>0)  // On ne peut pas utiliser if (query.size() > 0) dans ce cas car l'opérateur max retourne toujours un size() = 1, même quand il n'y a pas de réponse...
+        if (ok && RefODdata.size()>0)
             RefractionOD = RefODdata.at(1).toString();
             RefractionOG = RefODdata.at(2).toString();
 
@@ -1561,14 +1566,6 @@ void Rufus::CreerBilanOrtho()
     }
     if (Dlg_BlOrtho->exec()> 0)
     {
-        if (!nouveauBO)
-        {
-            ui->ActeMotiftextEdit->setText("");
-            ui->ActeTextetextEdit->setText("");
-            ui->ActeConclusiontextEdit->setText("");
-        }
-        QString Reponse = Dlg_BlOrtho->calcReponsehTml();
-
         // Compléter le champ Motif et mettre à jour l'affichage de ActeMotiftextEdit --------------------------------------------------------------------------------
         QString texte = ui->ActeMotiftextEdit->toHtml();
         QString Motif= Dlg_BlOrtho->ui->MotiftextEdit->toPlainText();
@@ -1579,46 +1576,26 @@ void Rufus::CreerBilanOrtho()
             Motif = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\"><td width=\"70\"><a name=\"BODEBUT\"></a><font color = \""
                     + proc->CouleurTitres + "\">" + tr("Motif:") + "</font></td><td width=\"300\">" + Motif + "</td></p>";
         }
-
-        while (texte.contains("BODEBUT"))
-        {
-            int idx = texte.indexOf("BODEBUT");
-            QString ftext= texte.left(idx);
-            idx = ftext.lastIndexOf("<p style");
-            ftext= texte.left(idx);
-            QString rtext= texte.mid(idx);
-            idx = rtext.indexOf("</p>");
-            rtext = texte.mid(idx+4);
-            texte = ftext + rtext;
-        }
-        Utils::convertHTML(texte);
+        Utils::supprimeAncre(texte,"BODEBUT");
+        Utils::retirelignevidehtml(texte);
         texte += Motif;
+        Utils::nettoieHTML(texte);
         ui->ActeMotiftextEdit->setText(texte);
-
-        QString updaterequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(ui->ActeMotiftextEdit->toHtml()) +
+        QString updaterequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(texte) +
                                 "' where idActe = " + QString::number(gidActe);
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Motif !"));
         ui->ActeMotiftextEdit->setText(ui->ActeMotiftextEdit->toHtml());
 
         // Compléter le Champ Texte et mettre à jour l'affichage de ActeTextetextEdit ----------------------------------------------------------------------------------
         texte = ui->ActeTextetextEdit->toHtml();
-        while (texte.contains("BODEBUT"))
-        {
-            int idx = texte.indexOf("BODEBUT");
-            QString ftext= texte.left(idx);
-            idx = ftext.lastIndexOf("<p style");
-            ftext= texte.left(idx);
-            idx = texte.indexOf("BOFIN");
-            QString rtext= texte.mid(idx);
-            idx = rtext.indexOf("</p>");
-            rtext = texte.mid(idx+4);
-            texte = ftext + rtext;
-        }
-        Utils::convertHTML(texte);
+        bool avecacuite = !texte.contains("<a name=\"debut");
+        QString Reponse = Dlg_BlOrtho->calcReponsehTml(avecacuite);
+        Utils::supprimeAncre(texte,"BODEBUT","BOFIN");
+        Utils::retirelignevidehtml(texte);
         texte += Reponse;
-        ui->ActeTextetextEdit->setText(texte);
-
-        updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
+        Utils::nettoieHTML(texte, true);
+        ui->ActeTextetextEdit->setHtml(texte);
+        updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texe !"));
 
@@ -1628,21 +1605,12 @@ void Rufus::CreerBilanOrtho()
         {
             Concl       = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\"><a name=\"BODEBUT\"></a>" + Concl + "</p>";
             texte       = ui->ActeConclusiontextEdit->toHtml();
-            while (texte.contains("BODEBUT"))
-            {
-                int idx = texte.indexOf("BODEBUT");
-                QString ftext= texte.left(idx);
-                idx = ftext.lastIndexOf("<p style");
-                ftext= texte.left(idx);
-                QString rtext= texte.mid(idx);
-                idx = rtext.indexOf("</p>");
-                rtext = texte.mid(idx+4);
-                texte = ftext + rtext;
-            }
-            Utils::convertHTML(texte);
+            Utils::supprimeAncre(texte,"BODEBUT");
+            Utils::retirelignevidehtml(texte);
             texte += Concl;
+            Utils::nettoieHTML(texte);
             ui->ActeConclusiontextEdit->setText(texte);
-            updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->toHtml()) +
+            updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(texte) +
                     "' where idActe = " + ui->idActelineEdit->text();
             db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
         }
@@ -8831,9 +8799,6 @@ void    Rufus::Refraction()
                 if (Dlg_Refraction->ResultatObservation().at(i).unicode() == 10) Dlg_Refraction->ResultatObservation().replace(Dlg_Refraction->ResultatObservation().at(i),"<br>");
 
             QString texte = ui->ActeTextetextEdit->toHtml();
-            qDebug() << "html = " << texte;
-            qDebug() << "resultat = " << Dlg_Refraction->ResultatObservation();
-
             Utils::retirelignevidehtml(texte);
             QString ARajouterEnText =
                     "<p style = \"margin-top:0px; margin-bottom:0px;\">"
@@ -8841,8 +8806,6 @@ void    Rufus::Refraction()
                   + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
             texte += ARajouterEnText;
             Utils::nettoieHTML(texte);
-            qDebug() << texte;
-
             QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
                                      "' where idActe = " + ui->idActelineEdit->text();
             db->StandardSQL(updaterequete);

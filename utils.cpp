@@ -213,6 +213,18 @@ void Utils::convertHTML(QString &text)
 }
 
 /*!
+ *  \brief convertPlainText
+ *  convertir un QString en plaintext
+ *  on écrit le QString dans un QtextEdit et on récupère le plaintext avec QTextEdit::toPlainText()
+ */
+void Utils::convertPlainText(QString &text)
+{
+    UpTextEdit textprov;
+    textprov.setText( text );
+    text = textprov.toPlainText();
+}
+
+/*!
  *  \brief nettoieHTML
  *  nettoyer tous les trucs inutiles dans un html généré par QT
  * \param supprimeLesParagraphesVidesDuMilieu - comme son nom l'indique
@@ -220,10 +232,19 @@ void Utils::convertHTML(QString &text)
  */
 void Utils::nettoieHTML(QString &text, bool supprimeLesParagraphesVidesDuMilieu)
 {
+    QRegExp reg1 = QRegExp("<p style=\"-qt-paragraph-type:empty; "
+                           "margin-top:[0-9]{1,2}px; margin-bottom:[0-9]{1,2}px; "
+                           "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
+                           "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\"><br /></p>");
+
+    QRegExp reg2 = QRegExp("<p style=\" margin-top:0px; margin-bottom:0px; "
+                           "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
+                           "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\">");
+
     convertHTML(text);
     if (supprimeLesParagraphesVidesDuMilieu)
-        text.remove("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>");
-    text.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
+        text.remove(reg1);
+    text.replace(reg2,"<p style=\" margin-top:0px; margin-bottom:0px;\">");
     text.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
     text.remove(HTMLCOMMENT_LINUX);
     text.remove(HTMLCOMMENT_MAC);
@@ -250,6 +271,23 @@ void Utils::retirelignevidehtml(QString &txthtml)
         if (txthtml.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
             txthtml.remove(debut,longARetirer);
         else a = false;
+    }
+}
+
+void Utils::supprimeAncre(QString &text, QString ancredebut, QString ancrefin)
+{
+    while (text.contains(ancredebut))
+    {
+        int idx = text.lastIndexOf(ancredebut);
+        QString ftext= text.left(idx);
+        idx = ftext.lastIndexOf("<table");
+        ftext= text.left(idx);
+        if (ancrefin != "")
+            idx = text.lastIndexOf(ancrefin);
+        QString rtext= text.mid(idx);
+        idx = rtext.indexOf("</table>");
+        rtext = rtext.mid(idx+8);
+        text = ftext + rtext;
     }
 }
 

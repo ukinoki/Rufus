@@ -19,18 +19,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_bilanortho.h"
 #include "ui_dlg_bilanortho.h"
 
-dlg_bilanortho::dlg_bilanortho(int idActeAPAsser, int idBilanOrtho, int idpat, QWidget *parent) :
+dlg_bilanortho::dlg_bilanortho(int idActeAPAsser, bool nouveaubilan, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_bilanortho)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    idBilan     = idBilanOrtho;
     idActe      = idActeAPAsser;
     proc        = Procedures::I();
     db          = DataBase::getInstance();
-    gidpat      = idpat;
+    gidpat      = db->loadActeById(idActe)->idPatient();
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionBilanOrtho").toByteArray());
 
     XELlist << "-";
@@ -215,7 +214,7 @@ dlg_bilanortho::dlg_bilanortho(int idActeAPAsser, int idBilanOrtho, int idpat, Q
     ui->OrientationgroupBox->setFont(qApp->font());
     ui->OeilDirecteurgroupBox->setFont(qApp->font());
 
-    if (idBilan > 0)    AfficheBilan(idBilan);
+    if (!nouveaubilan)    AfficheBilan(idActe);
 }
 
 dlg_bilanortho::~dlg_bilanortho()
@@ -1094,20 +1093,15 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
     }
 }
 
-QString dlg_bilanortho::calcReponsehTml()
+QString dlg_bilanortho::calcReponsehTml(bool avecAcuite)
 {
-    QString Reponse =        "<html><head><meta name=\"qrichtext\" content=\"1\" />"
-                             "<style type=\"text/css\">"
-                             "p {margin-top:0px; margin-bottom:0px;margin-left: 0px}, li { white-space: pre-wrap; }"
-                             "</style>"
-                             "</head><body>";
-    Reponse.clear();
+    QString Reponse;
     QString a;
 
     //Acuité visuelle ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     QString AVOD = ui->AVODlineEdit->text();
     QString AVOG = ui->AVOGlineEdit->text();
-    if (AVOD + AVOG != "")
+    if (AVOD + AVOG != "" && avecAcuite)
     {
         Reponse += "<p><td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Acuité visuelle") + "</font></td>";
         if (AVOD != "" && AVOG == "")
