@@ -934,18 +934,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        bool a = true;
-        while (a) {
-            // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-            int debut = Corps.lastIndexOf("<p");
-            int fin   = Corps.lastIndexOf("</p>");
-            int longARetirer = fin - debut + 4;
-            if (Corps.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                Corps.remove(debut,longARetirer);
-            else a = false;
-        }
-        Corps.replace("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-        Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
+        Utils::nettoieHTML(Corps);
 
         QHash<QString,QVariant> listbinds;
         listbinds["iduser"] = docmt->iduser();

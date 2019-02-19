@@ -26,11 +26,11 @@ dlg_salledattente::dlg_salledattente(int idPatAPasser, int idActeAPasser, QStrin
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc                = Procedures::I();
     gidPatient          = idPatAPasser;
+    db                  = DataBase::getInstance();
     gidUser             = db->getUserConnected()->id();
     gidUserSuperviseur  = db->getUserConnected()->getIdUserActeSuperviseur();
     gTitre              = Titre;
     gidActe             = idActeAPasser;
-    db                  = DataBase::getInstance();
     ui->MessagetextEdit->setText(gTitre);
     ui->MessagetextEdit->document()->setTextWidth(width()-dlglayout()->contentsMargins().left()*2-2);
     ui->MessagetextEdit->setFixedSize(int(width()-dlglayout()->contentsMargins().left()*2), int(ui->MessagetextEdit->document()->size().height()+2));

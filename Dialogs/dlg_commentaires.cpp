@@ -27,12 +27,12 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc        = Procedures::I();
+    db          = DataBase::getInstance();
     gidUser     = db->getUserConnected()->id();
 
     widgButtons = new WidgetButtonFrame(ui->ComupTableWidget);
     widgButtons->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
-    db = DataBase::getInstance();
     QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(layout());
     globallay->insertWidget(0,ui->textFrame);
     globallay->insertWidget(0,widgButtons->widgButtonParent());

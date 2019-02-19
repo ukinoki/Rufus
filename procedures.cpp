@@ -243,14 +243,6 @@ QMap<QString, QDate> Procedures::ChoixDate(QWidget *parent)
     return DateMap;
 }
 
-QString Procedures::ConvertitEnHtml(QString Texte)
-{
-    QTextEdit textHtml;
-    textHtml.setText(Texte);
-    Texte = textHtml.toHtml();
-    return Texte;
-}
-
 /*--------------------------------------------------------------------------------------------------------------------------------------
     -- renvoie la valeur du dossier documents pour le type d'appareil concerné -----------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------------------*/
@@ -587,8 +579,7 @@ QString Procedures::ImpressionCorps(QString text, bool ALD)
 {
     QString Corps;
     QString nomModeleCorpsImpression;
-
-    text = ConvertitEnHtml(text);
+    Utils::convertHTML(text);
     if (ALD)
         nomModeleCorpsImpression = QDir::homePath() + NOMFIC_CORPSORDOALD;
     else
@@ -3270,22 +3261,18 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->StandardSQL ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserNom, UserLogin) values (100, '" NOM_ADMINISTRATEURDOCS "','" NOM_ADMINISTRATEURDOCS "')");
 
     // On crée l'utilisateur dans la table utilisateurs
-
-    User *newUser = new User(Login, MDP);
-    db->StandardSQL ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserLogin, UserMDP) VALUES (1,'" + Login + "', '" + MDP + "')");
-    //TODO : User : affect User
     gidCentre               = 1;
     gUseCotation            = true;
-    CreerUserFactice(*newUser);
-    newUser->setData( db->loadUserData(newUser->id()) );
-    newUser->setIdUserActeSuperviseur(1);
-    newUser->setIdUserComptable(1);
-    newUser->setIdUserParent(1);
-    db->setUserConnected( newUser );
+    CreerUserFactice(1, Login, MDP);
+    db->setUserConnected( new User(Login, MDP, db->loadUserData(1)) );
+    m_userConnected = db->getUserConnected();
+    m_userConnected->setIdUserActeSuperviseur(1);
+    m_userConnected->setIdUserComptable(1);
+    m_userConnected->setIdUserParent(1);
 
     if (UpMessageBox::Question(Q_NULLPTR, tr("Un compte utilisateur a été cré"),
                                tr("Un compte utilisateur factice a été créé\n") + "\n" +
-                               newUser->getTitre() + " "  + newUser->getPrenom() + " " + newUser->getNom() + ", " + newUser->getFonction()
+                               m_userConnected->getTitre() + " "  + m_userConnected->getPrenom() + " " + m_userConnected->getNom() + ", " + m_userConnected->getFonction()
                                + "\n\n" +
                                tr("avec le login ") + Login + " " + tr("et le mot de passe que vous avez fourni") + "\n" +
                                tr("Voulez-vous conserver ces données pour le moment ou les modifier?") + "\n" +
@@ -3312,15 +3299,10 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
 /*-----------------------------------------------------------------------------------------------------------------
     -- Création d'un utilisateur factice ----------------------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-void Procedures::CreerUserFactice(User &user)
+void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
 {
     //TODO : Revoir
-    QJsonObject userData{};
-    userData["id"] = "1";
-    userData["nom"] = "Snow";
-    userData["prenom"] = Utils::trimcapitilize(user.getLogin());
-    user.setData(userData);
-    QString id = userData["id"].toString();
+    db->StandardSQL ("insert into " NOM_TABLE_UTILISATEURS " (idUser, UserLogin, UserMDP) VALUES (" + QString::number(idusr) + ",'" + login + "', '" + mdp + "')");
 
     int idbanq = 0;
     QString req = "select idbanque, idbanqueabrege, nombanque from " NOM_TABLE_BANQUES " where idbanqueabrege = 'PaPRS'";
@@ -3356,7 +3338,7 @@ void Procedures::CreerUserFactice(User &user)
 
     req  = "insert into " NOM_TABLE_COMPTES
            " (idBanque, idUser, IBAN, IntituleCompte, NomCompteAbrege, SoldeSurDernierReleve)"
-           " VALUES (" + QString::number(idbanq) + "," + id + ", '" + iban + "', '" + user.getLogin() + "', 'PaPRS" + QString::number(al) + "', 2333.67)";
+           " VALUES (" + QString::number(idbanq) + "," + QString::number(idusr) + ", '" + iban + "', '" + login + "', 'PaPRS" + QString::number(al) + "', 2333.67)";
     //qDebug() << req;
     db->StandardSQL(req);
     QString idcpt ("");
@@ -3366,8 +3348,8 @@ void Procedures::CreerUserFactice(User &user)
         idcpt = cptdata.at(0).toString();
 
     req = "update " NOM_TABLE_UTILISATEURS
-            " set userNom = '" + userData["nom"].toString() + "',\n"
-            " userPrenom = '" + userData["prenom"].toString() +"',\n"
+            " set userNom = 'Snow',\n"
+            " userPrenom = '" + Utils::trimcapitilize(login) +"',\n"
             " UserPoliceEcran = '" POLICEPARDEFAUT "',\n"
             " UserPoliceAttribut = 'Regular',\n"
             " UserTitre = '" + tr("Docteur") + "',\n"
@@ -3387,7 +3369,7 @@ void Procedures::CreerUserFactice(User &user)
             " USerAGA = 1,\n"
             " USerSecteur = 1,\n"
             " OPTAM = 1\n"
-            " where idUser = " + id;
+            " where idUser = " + QString::number(idusr);
     //Edit(req);
     db->StandardSQL(req);
     req = "insert into " NOM_TABLE_LIEUXEXERCICE "(NomLieu, LieuAdresse1, LieuAdresse2, LieuCodePostal, LieuVille, LieuTelephone)  values ("
@@ -3404,7 +3386,7 @@ void Procedures::CreerUserFactice(User &user)
     QList<QList<QVariant>> lieuxlist = db->StandardSelectSQL(req, ok);
     if (ok && lieuxlist.size()>0)
         gidLieuExercice = lieuxlist.at(0).at(0).toInt(); //TODO : ICI
-    req = "insert into " NOM_TABLE_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + id + ", " + QString::number(gidLieuExercice) + ")";
+    req = "insert into " NOM_TABLE_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + QString::number(idusr) + ", " + QString::number(gidLieuExercice) + ")";
     db->StandardSQL(req);
     req = "update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + QString::number(gidLieuExercice);
     db->StandardSQL(req, "void Procedures::CreerUserFactice(User &user)");
@@ -3488,24 +3470,24 @@ bool Procedures::IdentificationUser(bool ChgUsr)
     {
         UpMessageBox     msgbox;
         UpSmallButton    AnnulBouton(tr("Annuler"));
-        UpSmallButton    OKBouton(tr("Restaurer la base depuis une sauvegarde"));
-        UpSmallButton    YesBouton(tr("Nouvelle base patients vierge"));
+        UpSmallButton    RestaureBaseBouton(tr("Restaurer la base depuis une sauvegarde"));
+        UpSmallButton    BaseViergeBouton(tr("Nouvelle base patients vierge"));
         msgbox.setText(tr("Base de données endommagée!"));
         msgbox.setInformativeText(tr("La base de données semble endommagée.\n"
                                   "Voulez-vous la reconstruire à partir"
                                   " d'une sauvegarde ou recréer une base vierge?\n\n"));
         msgbox.setIcon(UpMessageBox::Info);
         msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
-        msgbox.addButton(&YesBouton, UpSmallButton::STARTBUTTON);
-        msgbox.addButton(&OKBouton, UpSmallButton::COPYBUTTON);
+        msgbox.addButton(&BaseViergeBouton, UpSmallButton::STARTBUTTON);
+        msgbox.addButton(&RestaureBaseBouton, UpSmallButton::COPYBUTTON);
         msgbox.exec();
-        if( (msgbox.clickedButton() == &OKBouton) && RestaureBase(false,false,false))
+        if( (msgbox.clickedButton() == &RestaureBaseBouton) && RestaureBase(false,false,false))
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
             db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
             exit(0);
         }
-        if (msgbox.clickedButton() == &YesBouton)
+        if (msgbox.clickedButton() == &BaseViergeBouton)
         {
             Utils::mkpath(QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES);
             if (!RestaureBase(true, true))
@@ -3795,8 +3777,8 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
             // determination de comptabilité - cotation
             if( m_userConnected->getIdUserParent() == User::ROLE_INDETERMINE )
             {
-                User *userSup = Datas::I()->users->getUserById( m_userConnected->getIdUserActeSuperviseur() );
-                if( userSup != Q_NULLPTR && userSup->isRemplacant() )
+                if( Datas::I()->users->getUserById( m_userConnected->getIdUserActeSuperviseur()) != Q_NULLPTR
+                 && Datas::I()->users->getUserById( m_userConnected->getIdUserActeSuperviseur())->isRemplacant() )
                 {
                     // le superviseur est remplaçant, on essaie de savoir s'il a un parent
                     QList<User*> listUserFound;
@@ -3806,7 +3788,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         User *us = const_cast<User*>(itUser.value());
                         if( us->id() == m_userConnected->id() )
                             continue;
-                        if( us->id() == userSup->id() )
+                        if( us->id() == m_userConnected->getIdUserActeSuperviseur() )
                             continue;
                         if( !us->isLiberal() && !us->isSalarie() )
                             continue;
@@ -3814,16 +3796,14 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         listUserFound << us;
                     }
                     if (listUserFound.size() == 1)
-                    {
                         m_userConnected->setIdUserParent( listUserFound.first()->id() );
-                    }
                     else if( !listUserFound.isEmpty() )
                     {
                         // on va demander qui est le soignant parent de ce remplaçant....
                         gAskUser                = new UpDialog();
                         gAskUser                ->AjouteLayButtons();
-                        gAskUser                ->setAccessibleName(QString::number(userSup->id()));
-                        gAskUser->mData = userSup;
+                        gAskUser                ->setAccessibleName(QString::number(m_userConnected->getIdUserActeSuperviseur()));
+                        gAskUser->mData         = Datas::I()->users->getUserById( m_userConnected->getIdUserActeSuperviseur());
                         QVBoxLayout *boxlay     = new QVBoxLayout;
                         gAskUser->dlglayout()   ->insertLayout(0,boxlay);
                         QGroupBox*boxparent     = new QGroupBox(gAskUser);
@@ -3866,17 +3846,16 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 else
                     m_userConnected->setIdUserParent( m_userConnected->getIdUserActeSuperviseur() );
             }
-            User *uParent = Datas::I()->users->getUserById(m_userConnected->getIdUserParent());
-            if( uParent != Q_NULLPTR )
+            if( Datas::I()->users->getUserById(m_userConnected->getIdUserParent()) != Q_NULLPTR )
             {
                 // determination de l'utilisation de la cotation
-                gUseCotation = uParent->isCotation();
+                gUseCotation = Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->isCotation();
                 // determination de l'utilisation de la comptabilité
-                avecLaComptaProv = !uParent->isSansCompta();
-                if( uParent->isLiberal() )
-                    m_userConnected->setIdUserComptable(uParent->id());
-                else if( uParent->isSalarie() )
-                    m_userConnected->setIdUserComptable(uParent->getEmployeur());
+                avecLaComptaProv = !Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->isSansCompta();
+                if( Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->isLiberal() )
+                    m_userConnected->setIdUserComptable(Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->id());
+                else if( Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->isSalarie() )
+                    m_userConnected->setIdUserComptable(Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->getEmployeur());
                 else
                     m_userConnected->setIdUserComptable(User::ROLE_NON_RENSEIGNE);
             }
@@ -4471,8 +4450,8 @@ bool Procedures::VerifParamConnexion(bool OKAccesDistant, QString)
         gsettingsIni->setValue(Base + "/Active",    "YES");
         gsettingsIni->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
-        User *newUser = new User(Dlg_ParamConnex->ui->LoginlineEdit->text(), Dlg_ParamConnex->ui->MDPlineEdit->text());
-        m_userConnected = newUser;
+        db->login(Dlg_ParamConnex->ui->LoginlineEdit->text(), Dlg_ParamConnex->ui->MDPlineEdit->text());
+        m_userConnected = db->getUserConnected();
 
         gdbOK = true;
         delete Dlg_ParamConnex;

@@ -76,33 +76,6 @@ void Utils::Pause(int msec)
 }
 
 /*!
- *  \brief convertHTML
- *
- *  Methode qui permet de convertir un QString en html
- *  on écrit le QString dans un QtextEdit et on récupère le html avec QTextEdit::toHtml()
- *
- */
-QString Utils::convertHTML(QString text)
-{
-    UpTextEdit textprov;
-    textprov.setText( text );
-    // on retire la dernière ligne si elle est vide
-    QString texte = textprov.toHtml();
-    bool a = true;
-    while (a)
-    {
-        // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-        int debut = texte.lastIndexOf("<p");
-        int fin   = texte.lastIndexOf("</p>");
-        int longARetirer = fin - debut + 4;
-        if( (a = (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))) )
-            texte.remove(debut,longARetirer);
-    }
-
-    return texte;
-}
-
-/*!
  * \brief Utils::trim
  * Cette fonction va supprimer :
  * - les " ", "-" et "'" en début et fin du texte
@@ -226,6 +199,59 @@ QString Utils::retirecaracteresaccentues(QString nom)
     return nom;
 }
 
+/*!
+ *  \brief convertHTML
+ *  convertir un QString en html
+ *  on écrit le QString dans un QtextEdit et on récupère le html avec QTextEdit::toHtml()
+ */
+void Utils::convertHTML(QString &text)
+{
+    UpTextEdit textprov;
+    textprov.setText( text );
+    text = textprov.toHtml();
+    retirelignevidehtml(text);
+}
+
+/*!
+ *  \brief nettoieHTML
+ *  nettoyer tous les trucs inutiles dans un html généré par QT
+ * \param supprimeLesParagraphesVidesDuMilieu - comme son nom l'indique
+ *  placer les marqueurs Linux ou Mac
+ */
+void Utils::nettoieHTML(QString &text, bool supprimeLesParagraphesVidesDuMilieu)
+{
+    convertHTML(text);
+    if (supprimeLesParagraphesVidesDuMilieu)
+        text.remove("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>");
+    text.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
+    text.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
+    text.remove(HTMLCOMMENT_LINUX);
+    text.remove(HTMLCOMMENT_MAC);
+#ifdef Q_OS_LINUX
+    text.append(HTMLCOMMENT_LINUX);
+#endif
+#ifdef Q_OS_MAC
+    text.append(HTMLCOMMENT_MAC);
+#endif
+}
+
+/*!
+ * \brief Utils::retirelignevidehtml(QString txthtml)
+ * retirer les paragraphes vierges à la fin d'un texte en html
+ * \param &txthtml
+ */
+void Utils::retirelignevidehtml(QString &txthtml)
+{
+    bool a = true;
+    while (a) {
+        int debut = txthtml.lastIndexOf("<p");
+        int fin   = txthtml.lastIndexOf("</p>");
+        int longARetirer = fin - debut + 4;
+        if (txthtml.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
+            txthtml.remove(debut,longARetirer);
+        else a = false;
+    }
+}
 
 /*!
  * \brief Utils::dir_size

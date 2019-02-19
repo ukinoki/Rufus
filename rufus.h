@@ -91,7 +91,6 @@ private:
 
     dlg_actesprecedents             *Dlg_ActesPrecs;
     dlg_bilanortho                  *Dlg_BlOrtho;
-    Ui_dlg_bilanortho               *UiDLg_BlOrtho;
     dlg_comptes                     *Dlg_Cmpt;
     dlg_depenses                    *Dlg_Deps;
     dlg_docsexternes                *Dlg_DocsExt;

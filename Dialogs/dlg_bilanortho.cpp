@@ -1101,6 +1101,7 @@ QString dlg_bilanortho::calcReponsehTml()
                              "p {margin-top:0px; margin-bottom:0px;margin-left: 0px}, li { white-space: pre-wrap; }"
                              "</style>"
                              "</head><body>";
+    Reponse.clear();
     QString a;
 
     //Acuité visuelle ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1731,7 +1732,7 @@ QString dlg_bilanortho::calcReponsehTml()
     if (listrep.size()>1)
         Reponse.insert(Reponse.indexOf(listrep.at(1)),   "<a name=\"BODEBUT\"></a>");         // on met le premier caractère en ancre
     Reponse.insert(Reponse.lastIndexOf("</td>")-1,       "<a name=\"BOFIN\"></a>");           // on met le dernier caractère en ancre
-    qDebug() << Reponse;
+
     return Reponse;
 }
 

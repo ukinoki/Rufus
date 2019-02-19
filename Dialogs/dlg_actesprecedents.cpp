@@ -248,14 +248,16 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         textHTML = "";
         if( acte->motif().size() )
         {
-            QString texte = Utils::convertHTML(acte->motif());
+            QString texte = acte->motif();
+            Utils::convertHTML(texte);
             textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\"><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("MOTIF") + "</font></td></p>";
             textHTML += "<p style = \"margin-top:0px; margin-bottom:10px;\"><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
         }
 
         if( acte->texte().size() )
         {
-            QString texte = Utils::convertHTML(acte->texte());
+            QString texte = acte->texte();
+            Utils::convertHTML(texte);
             textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("EXAMEN") + "</font></td></p>";
             textHTML += "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
         }
@@ -264,7 +266,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 
         if( acte->conclusion().size() )
         {
-            QString texte = Utils::convertHTML(acte->conclusion());
+            QString texte = acte->conclusion();
             if( acte->motif().size() || acte->texte().size() )
                 textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("CONCLUSION") + "</font></td></p>";
             textHTML += "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";

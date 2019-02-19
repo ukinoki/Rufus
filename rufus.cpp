@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("18-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("19-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1487,11 +1487,12 @@ void Rufus::CourrierAFaireChecked()
 void Rufus::CreerBilanOrtho()
 {
     bool    nouveauBO       = true;
+    QTextEdit               txtEdit;
     if (ui->Acteframe->isVisible())
     {
         QDate DateBl;
         QString requete = "select idbilanortho, ActeDate from " NOM_TABLE_BILANORTHO ", " NOM_TABLE_ACTES
-                " where idActe = idbilanortho and idbilanortho = " + ui->idActelineEdit->text();
+                " where idActe = idbilanortho and idbilanortho = " + QString::number(gidActe);
         //UpMessageBox::Watch(this,chborequete);
         QList<QVariant> bodata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         if (!ok)
@@ -1519,16 +1520,17 @@ void Rufus::CreerBilanOrtho()
                 msgbox.close();
             }
         }
-        else if (ui->ActeDatedateEdit->date() == QDate::currentDate() && db->loadActeById(gidActe)->idCreatedBy() == gDataUser->id())
+        else if (ui->ActeDatedateEdit->date() == QDate::currentDate()
+                 && ( db->loadActeById(gidActe)->idCreatedBy() == gDataUser->id()
+                   || Datas::I()->users->getUserById(db->loadActeById(gidActe)->idCreatedBy())->isOrthoptist()))
             nouveauBO = false;
 
         if (!nouveauBO)
         {
             Dlg_BlOrtho             = new dlg_bilanortho(gidActe, bodata.at(0).toInt(), gidPatient);
-            UiDLg_BlOrtho           = Dlg_BlOrtho->ui;
             QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
-            UiDLg_BlOrtho->OcclAlternlabel->setVisible(gDDNPatient.daysTo(DateBl) < 730);
-            UiDLg_BlOrtho->OcclAlterncomboBox->setVisible(gDDNPatient.daysTo(DateBl) < 730);
+            Dlg_BlOrtho->ui->OcclAlternlabel->setVisible(gDDNPatient.daysTo(DateBl) < 730);
+            Dlg_BlOrtho->ui->OcclAlterncomboBox->setVisible(gDDNPatient.daysTo(DateBl) < 730);
             Dlg_BlOrtho             ->setWindowTitle(Titre);
             Dlg_BlOrtho             ->setDateBO(QDate::fromString(ui->ActeDatedateEdit->text(),"dd/MM/yyyy"));
             nouveauBO               = false;
@@ -1539,8 +1541,7 @@ void Rufus::CreerBilanOrtho()
         if (ui->Acteframe->isVisible())
             if (!AutorDepartConsult(false)) return;
         CreerActe(gidPatient);
-        Dlg_BlOrtho             = new dlg_bilanortho(ui->idActelineEdit->text().toInt(), 0, gidPatient);
-        UiDLg_BlOrtho           = Dlg_BlOrtho->ui;
+        Dlg_BlOrtho             = new dlg_bilanortho(gidActe, 0, gidPatient);
         QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
         Dlg_BlOrtho             ->setWindowTitle(Titre);
         QString RefractionOD    = "";
@@ -1553,10 +1554,10 @@ void Rufus::CreerBilanOrtho()
             RefractionOD = RefODdata.at(1).toString();
             RefractionOG = RefODdata.at(2).toString();
 
-        if (RefractionOD != "")     UiDLg_BlOrtho->AVODlineEdit->setText(RefractionOD);
-        if (RefractionOG != "")     UiDLg_BlOrtho->AVOGlineEdit->setText(RefractionOG);
-        UiDLg_BlOrtho->OcclAlternlabel->setVisible(gDDNPatient.daysTo(QDate::currentDate()) < 730);
-        UiDLg_BlOrtho->OcclAlterncomboBox->setVisible(gDDNPatient.daysTo(QDate::currentDate()) < 730);
+        if (RefractionOD != "")     Dlg_BlOrtho->ui->AVODlineEdit->setText(RefractionOD);
+        if (RefractionOG != "")     Dlg_BlOrtho->ui->AVOGlineEdit->setText(RefractionOG);
+        Dlg_BlOrtho->ui->OcclAlternlabel->setVisible(gDDNPatient.daysTo(QDate::currentDate()) < 730);
+        Dlg_BlOrtho->ui->OcclAlterncomboBox->setVisible(gDDNPatient.daysTo(QDate::currentDate()) < 730);
     }
     if (Dlg_BlOrtho->exec()> 0)
     {
@@ -1570,88 +1571,77 @@ void Rufus::CreerBilanOrtho()
 
         // Compléter le champ Motif et mettre à jour l'affichage de ActeMotiftextEdit --------------------------------------------------------------------------------
         QString texte = ui->ActeMotiftextEdit->toHtml();
-        QString plaintext = ui->ActeMotiftextEdit->toPlainText();
-        QString Motif= UiDLg_BlOrtho->MotiftextEdit->toPlainText();
+        QString Motif= Dlg_BlOrtho->ui->MotiftextEdit->toPlainText();
         if (Motif != "")
         {
             for (int i= 0; i<Motif.size();i++)
                 if (Motif.at(i).unicode() == 10) Motif.replace(Motif.at(i),"<br>");
-            Motif = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\"><td width=\"70\"><font color = \""
+            Motif = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\"><td width=\"70\"><a name=\"BODEBUT\"></a><font color = \""
                     + proc->CouleurTitres + "\">" + tr("Motif:") + "</font></td><td width=\"300\">" + Motif + "</td></p>";
         }
 
-        if (plaintext.size() == 0)
-            ui->ActeMotiftextEdit->setText("<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\">" + tr("Bilan orthoptique") + "</p>" + Motif);
-        else
+        while (texte.contains("BODEBUT"))
         {
-            bool a = true;
-            while (a) {
-                // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-                int debut = texte.lastIndexOf("<p");
-                int fin   = texte.lastIndexOf("</p>");
-                int longARetirer = fin - debut + 4;
-                if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                    texte.remove(debut,longARetirer);
-                else a = false;
-            }
-            //Motif
-            QString Motif = UiDLg_BlOrtho->MotiftextEdit->toPlainText();
-            texte += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\">" + tr("Bilan orthoptique") + "</p>";
-            texte += Motif;
-            ui->ActeMotiftextEdit->setText(texte);
+            int idx = texte.indexOf("BODEBUT");
+            QString ftext= texte.left(idx);
+            idx = ftext.lastIndexOf("<p style");
+            ftext= texte.left(idx);
+            QString rtext= texte.mid(idx);
+            idx = rtext.indexOf("</p>");
+            rtext = texte.mid(idx+4);
+            texte = ftext + rtext;
         }
+        Utils::convertHTML(texte);
+        texte += Motif;
+        ui->ActeMotiftextEdit->setText(texte);
+
         QString updaterequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(ui->ActeMotiftextEdit->toHtml()) +
-                                "' where idActe = " + ui->idActelineEdit->text();
+                                "' where idActe = " + QString::number(gidActe);
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Motif !"));
+        ui->ActeMotiftextEdit->setText(ui->ActeMotiftextEdit->toHtml());
 
         // Compléter le Champ Texte et mettre à jour l'affichage de ActeTextetextEdit ----------------------------------------------------------------------------------
         texte = ui->ActeTextetextEdit->toHtml();
-        plaintext = ui->ActeTextetextEdit->toPlainText();
-        if (plaintext.size() == 0)
-            ui->ActeTextetextEdit->setText(Reponse);
-        else
+        while (texte.contains("BODEBUT"))
         {
-            bool a = true;
-            while (a) {
-                // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-                int debut = texte.lastIndexOf("<p");
-                int fin   = texte.lastIndexOf("</p>");
-                int longARetirer = fin - debut + 4;
-                if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                    texte.remove(debut,longARetirer);
-                else a = false;
-            }
-            texte += Reponse;
-            ui->ActeTextetextEdit->setText(texte);
+            int idx = texte.indexOf("BODEBUT");
+            QString ftext= texte.left(idx);
+            idx = ftext.lastIndexOf("<p style");
+            ftext= texte.left(idx);
+            idx = texte.indexOf("BOFIN");
+            QString rtext= texte.mid(idx);
+            idx = rtext.indexOf("</p>");
+            rtext = texte.mid(idx+4);
+            texte = ftext + rtext;
         }
+        Utils::convertHTML(texte);
+        texte += Reponse;
+        ui->ActeTextetextEdit->setText(texte);
+
         updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texe !"));
 
         // Compléter le Champ Conclusion et mettre à jour l'affichage de ActeConclusiontextEdit ----------------------------------------------------------------------------------
-        QString Concl = UiDLg_BlOrtho->ConclusiontextEdit->toPlainText();
+        QString Concl = Dlg_BlOrtho->ui->ConclusiontextEdit->toPlainText();
         if (Concl != "")
         {
-            Concl       = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\">" + Concl + "</p>";
+            Concl       = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\"><a name=\"BODEBUT\"></a>" + Concl + "</p>";
             texte       = ui->ActeConclusiontextEdit->toHtml();
-            plaintext   = ui->ActeConclusiontextEdit->toPlainText();
-            if (plaintext.size() == 0)
-                ui->ActeConclusiontextEdit->setText(Concl);
-            else
+            while (texte.contains("BODEBUT"))
             {
-                bool a = true;
-                while (a) {
-                    // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-                    int debut = texte.lastIndexOf("<p");
-                    int fin   = texte.lastIndexOf("</p>");
-                    int longARetirer = fin - debut + 4;
-                    if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                        texte.remove(debut,longARetirer);
-                    else a = false;
-                }
-                texte += Concl;
-                ui->ActeConclusiontextEdit->setText(texte);
+                int idx = texte.indexOf("BODEBUT");
+                QString ftext= texte.left(idx);
+                idx = ftext.lastIndexOf("<p style");
+                ftext= texte.left(idx);
+                QString rtext= texte.mid(idx);
+                idx = rtext.indexOf("</p>");
+                rtext = texte.mid(idx+4);
+                texte = ftext + rtext;
             }
+            Utils::convertHTML(texte);
+            texte += Concl;
+            ui->ActeConclusiontextEdit->setText(texte);
             updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->toHtml()) +
                     "' where idActe = " + ui->idActelineEdit->text();
             db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
@@ -1675,156 +1665,156 @@ void Rufus::CreerBilanOrtho()
                 ", HEcranVPASCD, HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC"     // 60,61,62,63,64
                 ", HMaddoxVPSCD, HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD"      // 65,66,67,68,69
                 ") \nVALUES \n(";
-        bilanorthorequete += ui->idActelineEdit->text();                                                                        //0
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MotiftextEdit->toHtml()) + "'\n";                   //1
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->AVODlineEdit->text()) + "'\n";                      //2
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->AVOGlineEdit->text()) + "'\n";                      //3
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->OcclAlterncomboBox->currentText()) + "'\n";         //4
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->WirtcomboBox->currentText()) + "'\n";               //5
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->AnimauxWirtcomboBox->currentText()) + "'\n";        //6
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->LangcomboBox->currentText()) + "'\n";               //7 Lang
-        if (UiDLg_BlOrtho->ODdirecteurradioButton->isChecked())                                                                 //8 ODirecteur
+        bilanorthorequete += QString::number(gidActe);                                                                        //0
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MotiftextEdit->toHtml()) + "'\n";                   //1
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVODlineEdit->text()) + "'\n";                      //2
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVOGlineEdit->text()) + "'\n";                      //3
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->OcclAlterncomboBox->currentText()) + "'\n";         //4
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->WirtcomboBox->currentText()) + "'\n";               //5
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AnimauxWirtcomboBox->currentText()) + "'\n";        //6
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->LangcomboBox->currentText()) + "'\n";               //7 Lang
+        if (Dlg_BlOrtho->ui->ODdirecteurradioButton->isChecked())                                                                 //8 ODirecteur
             bilanorthorequete += ", 'D'";
-        else if (UiDLg_BlOrtho->OGdirecteurradioButton->isChecked())
+        else if (Dlg_BlOrtho->ui->OGdirecteurradioButton->isChecked())
             bilanorthorequete += ", 'G'";
         else
             bilanorthorequete += ", ''";
-        if (UiDLg_BlOrtho->ODOrientationradioButton->isChecked())                                                               //9 Orientation
+        if (Dlg_BlOrtho->ui->ODOrientationradioButton->isChecked())                                                               //9 Orientation
             bilanorthorequete += ", 'D'";
-        else if (UiDLg_BlOrtho->OGOrientationradioButton->isChecked())
+        else if (Dlg_BlOrtho->ui->OGOrientationradioButton->isChecked())
             bilanorthorequete += ", 'G'";
         else
             bilanorthorequete += ", ''";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVLSCcomboBox->currentText()) + "'\n";          //10 EcranVLSC
-        if (UiDLg_BlOrtho->EcranVLSCDcomboBox->currentText() != "-")                                                            //11 EcranVLSCD
-            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVLSCDcomboBox->currentText()) + "\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVLSCcomboBox->currentText()) + "'\n";          //10 EcranVLSC
+        if (Dlg_BlOrtho->ui->EcranVLSCDcomboBox->currentText() != "-")                                                            //11 EcranVLSCD
+            bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVLSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (UiDLg_BlOrtho->fixSCVLcomboBox->currentText() != "-")                                                               //12 EcranfixresVLSC
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->fixSCVLcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->fixSCVLcomboBox->currentText() != "-")                                                               //12 EcranfixresVLSC
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->fixSCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVPSCcomboBox->currentText()) + "'\n";          //13 EcranVPSC
-        if (UiDLg_BlOrtho->EcranVPSCDcomboBox->currentText() != "-")                                                            //14 ECranVPSCD
-            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVPSCDcomboBox->currentText()) + "\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVPSCcomboBox->currentText()) + "'\n";          //13 EcranVPSC
+        if (Dlg_BlOrtho->ui->EcranVPSCDcomboBox->currentText() != "-")                                                            //14 ECranVPSCD
+            bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVPSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (UiDLg_BlOrtho->fixSCVPcomboBox->currentText() != "-")                                                               //15 EcranfixresVPSC
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->fixSCVPcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->fixSCVPcomboBox->currentText() != "-")                                                               //15 EcranfixresVPSC
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->fixSCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVLASCcomboBox->currentText()) + "'\n";         //16 EcranVLASC
-        if (UiDLg_BlOrtho->EcranVLASCDcomboBox->currentText() != "-")                                                           //17 EcranVLASCD
-            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVLASCDcomboBox->currentText()) + "\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVLASCcomboBox->currentText()) + "'\n";         //16 EcranVLASC
+        if (Dlg_BlOrtho->ui->EcranVLASCDcomboBox->currentText() != "-")                                                           //17 EcranVLASCD
+            bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVLASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (UiDLg_BlOrtho->fixASCVLcomboBox->currentText() != "-")                                                              //18 EcranfixresVLASC
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->fixASCVLcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->fixASCVLcomboBox->currentText() != "-")                                                              //18 EcranfixresVLASC
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->fixASCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVPASCcomboBox->currentText()) + "'\n";         //19 EcranVPASC
-        if (UiDLg_BlOrtho->EcranVPASCDcomboBox->currentText() != "-")                                                           //20 EcranVPASCD
-            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->EcranVPASCDcomboBox->currentText()) + "\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVPASCcomboBox->currentText()) + "'\n";         //19 EcranVPASC
+        if (Dlg_BlOrtho->ui->EcranVPASCDcomboBox->currentText() != "-")                                                           //20 EcranVPASCD
+            bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->EcranVPASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (UiDLg_BlOrtho->fixASCVPcomboBox->currentText() != "-")                                                              //21 EcranfixresVPASC
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->fixASCVPcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->fixASCVPcomboBox->currentText() != "-")                                                              //21 EcranfixresVPASC
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->fixASCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVLSCcomboBox->currentText()) + "'\n";
-        if (UiDLg_BlOrtho->MaddoxVLSCDcomboBox->currentText() != "-")
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVLSCDcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MaddoxVLSCcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->MaddoxVLSCDcomboBox->currentText() != "-")
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MaddoxVLSCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVPSCcomboBox->currentText()) + "'\n";
-        if (UiDLg_BlOrtho->MaddoxVPSCDcomboBox->currentText() != "-")
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVPSCDcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MaddoxVPSCcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->MaddoxVPSCDcomboBox->currentText() != "-")
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MaddoxVPSCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVLASCcomboBox->currentText()) + "'\n";
-        if (UiDLg_BlOrtho->MaddoxVLASCDcomboBox->currentText() != "-")
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVLASCDcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MaddoxVLASCcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->MaddoxVLASCDcomboBox->currentText() != "-")
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MaddoxVLASCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVPASCcomboBox->currentText()) + "'\n";
-        if (UiDLg_BlOrtho->MaddoxVPASCDcomboBox->currentText() != "-")
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MaddoxVPASCDcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MaddoxVPASCcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->MaddoxVPASCDcomboBox->currentText() != "-")
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MaddoxVPASCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->MotilitetextEdit->toHtml()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->PPCcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->PPClineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->SaccadeslineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->PoursuitelineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Worth1lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Worth2lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Bagolini1lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Bagolini2lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceDLcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceCLcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceDPcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceCPcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Degre1lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Degre2lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->Degre3lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->ConclusiontextEdit->toHtml()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->TNOcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceRestDLcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->VergenceRestDPcomboBox->currentText()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVLSCcomboBox->currentText()) + "'\n";         //50 HEcranVLSC
-        if (UiDLg_BlOrtho->HEcranVLSCDcomboBox->currentText() != "-")                                                           //51 HEcranVLSCD
-            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVLSCDcomboBox->currentText()) + "\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MotilitetextEdit->toHtml()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->PPCcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->PPClineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->SaccadeslineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->PoursuitelineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Worth1lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Worth2lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Bagolini1lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Bagolini2lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->VergenceDLcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->VergenceCLcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->VergenceDPcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->VergenceCPcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Degre1lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Degre2lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Degre3lineEdit->text()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->ConclusiontextEdit->toHtml()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->TNOcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->VergenceRestDLcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->VergenceRestDPcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HEcranVLSCcomboBox->currentText()) + "'\n";         //50 HEcranVLSC
+        if (Dlg_BlOrtho->ui->HEcranVLSCDcomboBox->currentText() != "-")                                                           //51 HEcranVLSCD
+            bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HEcranVLSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (UiDLg_BlOrtho->HfixSCVLcomboBox->currentText() != "-")                                                              //52 HEcranfixresVLSC
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HfixSCVLcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->HfixSCVLcomboBox->currentText() != "-")                                                              //52 HEcranfixresVLSC
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HfixSCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVPSCcomboBox->currentText()) + "'\n";         //53 HEcranVPSC
-        if (UiDLg_BlOrtho->HEcranVPSCDcomboBox->currentText() != "-")                                                           //54 HECranVPSCD
-            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVPSCDcomboBox->currentText()) + "\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HEcranVPSCcomboBox->currentText()) + "'\n";         //53 HEcranVPSC
+        if (Dlg_BlOrtho->ui->HEcranVPSCDcomboBox->currentText() != "-")                                                           //54 HECranVPSCD
+            bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HEcranVPSCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (UiDLg_BlOrtho->HfixSCVPcomboBox->currentText() != "-")                                                              //55 HEcranfixresVPSC
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HfixSCVPcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->HfixSCVPcomboBox->currentText() != "-")                                                              //55 HEcranfixresVPSC
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HfixSCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVLASCcomboBox->currentText()) + "'\n";        //56 HEcranVLASC
-        if (UiDLg_BlOrtho->HEcranVLASCDcomboBox->currentText() != "-")                                                          //57 HEcranVLASCD
-            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVLASCDcomboBox->currentText()) + "\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HEcranVLASCcomboBox->currentText()) + "'\n";        //56 HEcranVLASC
+        if (Dlg_BlOrtho->ui->HEcranVLASCDcomboBox->currentText() != "-")                                                          //57 HEcranVLASCD
+            bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HEcranVLASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (UiDLg_BlOrtho->HfixASCVLcomboBox->currentText() != "-")                                                             //58 HEcranfixresVLASC
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HfixASCVLcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->HfixASCVLcomboBox->currentText() != "-")                                                             //58 HEcranfixresVLASC
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HfixASCVLcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVPASCcomboBox->currentText()) + "'\n";        //59 HEcranVPASC
-        if (UiDLg_BlOrtho->HEcranVPASCDcomboBox->currentText() != "-")                                                          //60 HEcranVPASCD
-            bilanorthorequete += ", " + Utils::correctquoteSQL(UiDLg_BlOrtho->HEcranVPASCDcomboBox->currentText()) + "\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HEcranVPASCcomboBox->currentText()) + "'\n";        //59 HEcranVPASC
+        if (Dlg_BlOrtho->ui->HEcranVPASCDcomboBox->currentText() != "-")                                                          //60 HEcranVPASCD
+            bilanorthorequete += ", " + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HEcranVPASCDcomboBox->currentText()) + "\n";
         else
             bilanorthorequete += ", null";
-        if (UiDLg_BlOrtho->HfixASCVPcomboBox->currentText() != "-")                                                             //61 HEcranfixresVPASC
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HfixASCVPcomboBox->currentText()) + "'\n";
+        if (Dlg_BlOrtho->ui->HfixASCVPcomboBox->currentText() != "-")                                                             //61 HEcranfixresVPASC
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HfixASCVPcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVLSCcomboBox->currentText()) + "'\n";        //62 HMaddoxVLSC
-        if (UiDLg_BlOrtho->HMaddoxVLSCDcomboBox->currentText() != "-")                                                          //63 HMaddoxVLSCD
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVLSCDcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HMaddoxVLSCcomboBox->currentText()) + "'\n";        //62 HMaddoxVLSC
+        if (Dlg_BlOrtho->ui->HMaddoxVLSCDcomboBox->currentText() != "-")                                                          //63 HMaddoxVLSCD
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HMaddoxVLSCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVPSCcomboBox->currentText()) + "'\n";        //64 HMaddoxVPSC
-        if (UiDLg_BlOrtho->HMaddoxVPSCDcomboBox->currentText() != "-")                                                          //65 HMaddoxVPSCD
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVPSCDcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HMaddoxVPSCcomboBox->currentText()) + "'\n";        //64 HMaddoxVPSC
+        if (Dlg_BlOrtho->ui->HMaddoxVPSCDcomboBox->currentText() != "-")                                                          //65 HMaddoxVPSCD
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HMaddoxVPSCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVLASCcomboBox->currentText()) + "'\n";       //66 HMaddoxVLASC
-        if (UiDLg_BlOrtho->HMaddoxVLASCDcomboBox->currentText() != "-")                                                         //67 HMaddoxVLASCD
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVLASCDcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HMaddoxVLASCcomboBox->currentText()) + "'\n";       //66 HMaddoxVLASC
+        if (Dlg_BlOrtho->ui->HMaddoxVLASCDcomboBox->currentText() != "-")                                                         //67 HMaddoxVLASCD
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HMaddoxVLASCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVPASCcomboBox->currentText()) + "'\n";       //68 HMaddoxVPASC
-        if (UiDLg_BlOrtho->HMaddoxVPASCDcomboBox->currentText() != "-")                                                         //69 HMaddoxVPASCD
-            bilanorthorequete += ", '" + Utils::correctquoteSQL(UiDLg_BlOrtho->HMaddoxVPASCDcomboBox->currentText()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HMaddoxVPASCcomboBox->currentText()) + "'\n";       //68 HMaddoxVPASC
+        if (Dlg_BlOrtho->ui->HMaddoxVPASCDcomboBox->currentText() != "-")                                                         //69 HMaddoxVPASCD
+            bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->HMaddoxVPASCDcomboBox->currentText()) + "'\n";
         else
             bilanorthorequete += ", null";
         bilanorthorequete += ");";
@@ -2560,50 +2550,20 @@ void Rufus::ImprimeDossier()
                     + listact.at(i).at(7).toString() + " " + listact.at(i).at(6).toString() + " " + listact.at(i).at(5).toString() + "</td></p>";
             if (listact.at(i).at(2).toString() != "")
             {
-                textprov.setText(listact.at(i).at(2).toString());
-                // on retire la dernière ligne si elle est vide
-                QString texte = textprov.toHtml();
-                bool a = true;
-                while (a) {
-                         // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-                    int debut = texte.lastIndexOf("<p");
-                    int fin   = texte.lastIndexOf("</p>");
-                    int longARetirer = fin - debut + 4;
-                    if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                        texte.remove(debut,longARetirer);
-                    else a = false;}
+                QString texte = listact.at(i).at(2).toString();
+                Utils::convertHTML(texte);
                 Reponse += "<p><td width=\"10\"></td><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\"" + tr("Motif:") + "</font>" + texte + "</td></p>";
             }
             if (listact.at(i).at(3).toString() != "")
             {
-                textprov.setText(listact.at(i).at(3).toString());
-                // on retire la dernière ligne si elle est vide
-                QString texte = textprov.toHtml();
-                bool a = true;
-                while (a) {
-                         // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-                    int debut = texte.lastIndexOf("<p");
-                    int fin   = texte.lastIndexOf("</p>");
-                    int longARetirer = fin - debut + 4;
-                    if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                        texte.remove(debut,longARetirer);
-                    else a = false;}
+                QString texte = listact.at(i).at(3).toString();
+                Utils::convertHTML(texte);
                 Reponse += "<p><td width=\"10\"></td><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Examen:") + "</font>" + texte + "</td></p>";
             }
             if (listact.at(i).at(4).toString() != "")
             {
-                textprov.setText(listact.at(i).at(4).toString());
-                // on retire la dernière ligne si elle est vide
-                QString texte = textprov.toHtml();
-                bool a = true;
-                while (a) {
-                         // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-                    int debut = texte.lastIndexOf("<p");
-                    int fin   = texte.lastIndexOf("</p>");
-                    int longARetirer = fin - debut + 4;
-                    if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                        texte.remove(debut,longARetirer);
-                    else a = false;}
+                QString texte = listact.at(i).at(4).toString();
+                Utils::convertHTML(texte);
                 if (listact.at(i).at(2).toString() != "" || listact.at(i).at(3).toString() != "")
                     Reponse += "<p><td width=\"10\"></td><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Conclusion:") + "</font>" + texte + "</td></p>";
                 else
@@ -7883,18 +7843,7 @@ bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QStr
     // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        bool a = true;
-        while (a) {
-                 // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-            int debut = Corps.lastIndexOf("<p");
-            int fin   = Corps.lastIndexOf("</p>");
-            int longARetirer = fin - debut + 4;
-            if (Corps.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                Corps.remove(debut,longARetirer);
-            else a = false;
-        }
-        Corps.replace("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-        Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
+        Utils::nettoieHTML(Corps);
 
         int idpat = 0;
         if (ui->tabWidget->currentWidget() == ui->tabDossier)
@@ -8881,38 +8830,17 @@ void    Rufus::Refraction()
             for (int i= 0; i<Dlg_Refraction->ResultatObservation().size();i++)
                 if (Dlg_Refraction->ResultatObservation().at(i).unicode() == 10) Dlg_Refraction->ResultatObservation().replace(Dlg_Refraction->ResultatObservation().at(i),"<br>");
 
-            UpTextEdit mod("");
             QString texte = ui->ActeTextetextEdit->toHtml();
             qDebug() << "html = " << texte;
             qDebug() << "resultat = " << Dlg_Refraction->ResultatObservation();
-            bool a = true;
-            if (ui->ActeTextetextEdit->toPlainText().size() == 0)
-                texte = "";
-            while (a) {
-                     // il faut retirer les retour à la ligne inutiles en fin de texte
-                int debut = texte.lastIndexOf("<p");
-                int fin   = texte.lastIndexOf("</p>");
-                int longARetirer = fin - debut + 4;
-                if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                    texte.remove(debut,longARetirer);
-                else a = false;
-            }
+
+            Utils::retirelignevidehtml(texte);
             QString ARajouterEnText =
                     "<p style = \"margin-top:0px; margin-bottom:0px;\">"
                   + Dlg_Refraction->ResultatObservation()
                   + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
             texte += ARajouterEnText;
-            mod.setText(texte);
-            texte = mod.toHtml();
-            texte.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">",
-                          "<p style=\" margin-top:0px; margin-bottom:0px;\">");
-            texte.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
-#ifdef Q_OS_LINUX
-            texte.append(HTMLCOMMENT_LINUX);
-#endif
-#ifdef Q_OS_MAC
-            texte.append(HTMLCOMMENT_MAC);
-#endif
+            Utils::nettoieHTML(texte);
             qDebug() << texte;
 
             QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
@@ -8933,15 +8861,7 @@ void    Rufus::Refraction()
             for (int i= 0; i<Dlg_Refraction->ResultatPrescription().size();i++)
                 if (Dlg_Refraction->ResultatPrescription().at(i).unicode() == 10) Dlg_Refraction->ResultatPrescription().replace(Dlg_Refraction->ResultatPrescription().at(i),"<br>");
             QString conclusion = ui->ActeConclusiontextEdit->toHtml();
-            bool a = true;
-            while (a) {
-                int debut = conclusion.lastIndexOf("<p");
-                int fin   = conclusion.lastIndexOf("</p>");
-                int longARetirer = fin - debut + 4;
-                if (conclusion.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                    conclusion.remove(debut,longARetirer);
-                else a = false;
-            }
+            Utils::retirelignevidehtml(conclusion);
             QString larg = "550";
             if (ui->ActeDatedateEdit->date() != QDate::currentDate())
             {
@@ -8950,31 +8870,16 @@ void    Rufus::Refraction()
             }
             QString ARajouterEnConcl =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Date + Dlg_Refraction->ResultatPrescription()  + "</p>"
                                          + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\">";
-            if (ui->ActeConclusiontextEdit->toPlainText().size() == 0)
-                conclusion = ARajouterEnConcl;
-            else
-                conclusion += ARajouterEnConcl;
-            UpTextEdit mod;
-            mod.setText(conclusion);
-            QString Corps = mod.toHtml();
-            Corps.remove("<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p>");
-            Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
-            Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
-            Corps.remove(HTMLCOMMENT_LINUX);
-            Corps.remove(HTMLCOMMENT_MAC);
-#ifdef Q_OS_LINUX
-            Corps.append(HTMLCOMMENT_LINUX);
-#endif
-#ifdef Q_OS_MAC
-            Corps.append(HTMLCOMMENT_MAC);
-#endif
 
-            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(Corps) +
+            conclusion += ARajouterEnConcl;
+            Utils::nettoieHTML(conclusion, true);
+
+            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(conclusion) +
                                      "' where idActe = " + ui->idActelineEdit->text();
             db->StandardSQL(updaterequete);
             ui->ActeConclusiontextEdit->setFocus();
             ui->ActeConclusiontextEdit->moveCursor(QTextCursor::End);
-            ui->ActeConclusiontextEdit->setText(Corps);
+            ui->ActeConclusiontextEdit->setText(conclusion);
        }
     }
     delete Dlg_Refraction;
@@ -10158,25 +10063,15 @@ void Rufus::Tonometrie()
             }
 
             QString texte = ui->ActeTextetextEdit->toHtml();
-            bool a = true;
-            while (a) {
-                     // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-                int debut = texte.lastIndexOf("<p");
-                int fin   = texte.lastIndexOf("</p>");
-                int longARetirer = fin - debut + 4;
-                if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                    texte.remove(debut,longARetirer);
-                else a = false;
-            }
+            Utils::retirelignevidehtml(texte);
             QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Tono  + "</p>"
                     + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
-            if (ui->ActeTextetextEdit->toPlainText().size() == 0)
-                texte = ARajouterEnText;
-            else
-                texte += ARajouterEnText;
+
+            texte += ARajouterEnText;
+            Utils::nettoieHTML(texte);
             ui->ActeTextetextEdit->setText(texte);
 
-            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
+            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
                     "' where idActe = " + ui->idActelineEdit->text();
             db->StandardSQL(updaterequete);
         }
@@ -10336,23 +10231,12 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     {
         QString ARajouterEnText= proc->HtmlRefracteur();
         QString texte = ui->ActeTextetextEdit->toHtml();
-        bool a = true;
-        while (a) {
-            // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-            int debut = texte.lastIndexOf("<p");
-            int fin   = texte.lastIndexOf("</p>");
-            int longARetirer = fin - debut + 4;
-            if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                texte.remove(debut,longARetirer);
-            else a = false;
-        }
-        if (ui->ActeTextetextEdit->toPlainText().size() == 0)
-            texte = ARajouterEnText;
-        else
-            texte += ARajouterEnText;
+        Utils::retirelignevidehtml(texte);
+        texte += ARajouterEnText;
+        Utils::nettoieHTML(texte);
         ui->ActeTextetextEdit->setText(texte);
 
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
@@ -10373,23 +10257,12 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     {
         QString ARajouterEnText= proc->HtmlKerato();
         QString texte = ui->ActeTextetextEdit->toHtml();
-        bool a = true;
-        while (a) {
-            // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-            int debut = texte.lastIndexOf("<p");
-            int fin   = texte.lastIndexOf("</p>");
-            int longARetirer = fin - debut + 4;
-            if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                texte.remove(debut,longARetirer);
-            else a = false;
-        }
-        if (ui->ActeTextetextEdit->toPlainText().size() == 0)
-            texte = ARajouterEnText;
-        else
-            texte += ARajouterEnText;
+        Utils::retirelignevidehtml(texte);
+        texte += ARajouterEnText;
+        Utils::nettoieHTML(texte);
         ui->ActeTextetextEdit->setText(texte);
 
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
@@ -10400,23 +10273,12 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     {
         QString ARajouterEnText= proc->HtmlTono();
         QString texte = ui->ActeTextetextEdit->toHtml();
-        bool a = true;
-        while (a) {
-            // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-            int debut = texte.lastIndexOf("<p");
-            int fin   = texte.lastIndexOf("</p>");
-            int longARetirer = fin - debut + 4;
-            if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                texte.remove(debut,longARetirer);
-            else a = false;
-        }
-        if (ui->ActeTextetextEdit->toPlainText().size() == 0)
-            texte = ARajouterEnText;
-        else
-            texte += ARajouterEnText;
+        Utils::retirelignevidehtml(texte);
+        texte += ARajouterEnText;
+        Utils::nettoieHTML(texte);
         ui->ActeTextetextEdit->setText(texte);
 
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
@@ -10426,23 +10288,12 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     {
         QString ARajouterEnText= proc->HtmlPachy();
         QString texte = ui->ActeTextetextEdit->toHtml();
-        bool a = true;
-        while (a) {
-            // il faut retirer la dernière ligne du html qui contient le retour à la ligne
-            int debut = texte.lastIndexOf("<p");
-            int fin   = texte.lastIndexOf("</p>");
-            int longARetirer = fin - debut + 4;
-            if (texte.mid(debut,longARetirer).contains("-qt-paragraph-type:empty;"))
-                texte.remove(debut,longARetirer);
-            else a = false;
-        }
-        if (ui->ActeTextetextEdit->toPlainText().size() == 0)
-            texte = ARajouterEnText;
-        else
-            texte += ARajouterEnText;
+        Utils::retirelignevidehtml(texte);
+        texte += ARajouterEnText;
+        Utils::nettoieHTML(texte);
         ui->ActeTextetextEdit->setText(texte);
 
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->toHtml()) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();

@@ -30,9 +30,9 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     gPrenomPat          = PrenomPatient;
 
     proc                = Procedures::I();
+    db                  = DataBase::getInstance();
     gidUser             = db->getUserConnected()->id();
     gidUserSuperviseur  = db->getUserConnected()->getIdUserActeSuperviseur();
-    db                  = DataBase::getInstance();
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);

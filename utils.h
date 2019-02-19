@@ -55,9 +55,11 @@ public:
 
 
     static void Pause(int msec = 1000);
-    static QString convertHTML(QString text);
+    static void convertHTML(QString &text);
+    static void nettoieHTML(QString &text, bool supprimeLesParagraphesVidesDuMilieu = false);
 
     static QString                  retirecaracteresaccentues(QString nom);
+    static void                     retirelignevidehtml(QString &txthtml);
     static QString                  trim(QString text, bool end=true, bool removereturnend = false);
     static QString                  capitilize(QString text);
     static QString                  trimcapitilize(QString, bool end = true, bool maj = true, bool lower = true);

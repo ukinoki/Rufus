@@ -100,7 +100,6 @@ public:
     void                    ab(int i = 1);
 
     QMap<QString,QVariant>  CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher = true);
-    QString                 ConvertitEnHtml(QString Texte);
     bool                    CompressFileJPG(QString nomfile, QDate datetransfert = QDate::currentDate());
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
@@ -286,7 +285,7 @@ private:
     void                    PrintPdf(QPrinter*, Poppler::Document* document, bool &printok);
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
-    void                    CreerUserFactice(User &user);
+    void                    CreerUserFactice(int idusr, QString login, QString mdp);
     QStringList             ChoisirUnLogin();
     QString                 gLogin, gConfirmMDP, gNouvMDP;
 private slots:

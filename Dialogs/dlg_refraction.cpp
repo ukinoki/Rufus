@@ -26,6 +26,7 @@ dlg_refraction::dlg_refraction(int idPatAPasser, QString NomPatient, QString Pre
 {
     ui->setupUi(this);
     proc            = Procedures::I();
+    db              = DataBase::getInstance();
     gidPatient      = idPatAPasser;
     gNomPatient     = NomPatient;
     gPrenomPatient  = PrenomPatient;
@@ -33,7 +34,6 @@ dlg_refraction::dlg_refraction(int idPatAPasser, QString NomPatient, QString Pre
     gidActe         = idActeAPasser;
     gAgePatient     = AgeAPasser;
 
-    db = DataBase::getInstance();
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     InitDivers();
