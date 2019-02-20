@@ -1079,9 +1079,42 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
     return result;
 }
 
+void Procedures::DisplayWebPage(QUrl webpage)
+{
+    QString         rep("");
+    QString         geometry("PositionsFiches/PositionDisplayWebPage");
+    UpDialog        *gAsk           = new UpDialog();
+    QWebEngineView  *WebView        = new QWebEngineView(gAsk);
+    UpSmallButton   *QwButt         = new UpSmallButton(gAsk);
+
+    int x = qApp->desktop()->availableGeometry().width();
+    int y = qApp->desktop()->availableGeometry().height();
+
+    gAsk->setModal(true);
+    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
+    gAsk->setMaximumWidth(x);
+    gAsk->setMaximumHeight(y);
+
+    QwButt->setUpButtonStyle(UpSmallButton::QWANTBUTTON);
+    gAsk->dlglayout()->insertWidget(0,WebView);
+    gAsk->AjouteLayButtons();
+    gAsk->AjouteWidgetLayButtons(QwButt,false);
+
+    connect(WebView,        &QWebEngineView::urlChanged,    this,   [=] {gAsk->setWindowTitle(WebView->title());});
+    connect(QwButt,         &QPushButton::clicked,          this,   [=] {WebView->setUrl(QUrl("https://www.qwant.com"));});
+    connect(gAsk->OKButton, SIGNAL(clicked(bool)),          gAsk,   SLOT(accept()));
+    gAsk->restoreGeometry(gsettingsIni->value(geometry).toByteArray());
+    WebView->setUrl(webpage);
+    gAsk->exec();
+
+    gsettingsIni->setValue(geometry,gAsk->saveGeometry());
+    delete gAsk;
+}
+
 QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal)
 {
     QString         rep("");
+    QString         geometry("PositionsFiches/PositionEdit");
     UpDialog        *gAsk           = new UpDialog();
     UpTextEdit      *TxtEdit        = new UpTextEdit(gAsk);
     int x = qApp->desktop()->availableGeometry().width();
@@ -1103,11 +1136,11 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     connect(gAsk->OKButton, SIGNAL(clicked(bool)),  gAsk,       SLOT(accept()));
     if (ConnectAuSignal)
         connect(this,       &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
-    gAsk->restoreGeometry(gsettingsIni->value("PositionsFiches/PositionEdit").toByteArray());
+    gAsk->restoreGeometry(gsettingsIni->value(geometry).toByteArray());
 
     if (gAsk->exec()>0)
         rep = TxtEdit->toHtml();
-    gsettingsIni->setValue("PositionsFiches/PositionEdit",gAsk->saveGeometry());
+    gsettingsIni->setValue(geometry,gAsk->saveGeometry());
     delete gAsk;
     return rep;
 }
@@ -1133,9 +1166,10 @@ void Procedures::EditHtml(QString txt)
     gAsk->exec();
     delete gAsk;
 }
+
 /*!
  * \brief Procedures::EditDocument
- * affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pourvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
+ * affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pouvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
  * argument QMap<QString,QVariant> doc contient 2 éléments
     . doc["ba"] = le QByteArray correspondant au contenu du fichier   = QFile(emplacementdufichier)->readAll())
     . doc["type"] = "jpg" ou "pdf" correspondant au type du fichier   = QFileInfo(emplacementdufichier)->suffix();

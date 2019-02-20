@@ -57,7 +57,7 @@ public:
     static void Pause(int msec = 1000);
     static void convertHTML(QString &text);
     static void convertPlainText(QString &text);
-    static void nettoieHTML(QString &text, bool supprimeLesParagraphesVidesDuMilieu = false);
+    static void nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu = false);
     static void retirelignevidehtml(QString &txthtml);
     static void supprimeAncre(QString &text, QString ancredebut, QString ancrefin = "");
 

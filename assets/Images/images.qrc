@@ -183,5 +183,6 @@
         <file>camera.png</file>
         <file>movie.png</file>
         <file>stamp.png</file>
+        <file>qwant.png</file>
     </qresource>
 </RCC>

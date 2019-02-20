@@ -113,6 +113,7 @@ public:
     static QPixmap pxPoubelle() { return foundPX("pxPoubelle", "://trash.png"); }
 
     static QPixmap pxQuestion() { return foundPX("pxQuestion", "://question.png"); }
+    static QPixmap pxQwant() { return foundPX("pxQwant", "://qwant.png"); }
 
     static QPixmap pxReception() { return foundPX("pxReception", "://reception_icon.png"); }
     static QPixmap pxRefracteur() { return foundPX("pxRefracteur", "://phoropter.png"); }
@@ -242,6 +243,7 @@ public:
     static QIcon icPoubelle(QSize size = QSize()) { return foundIC("icPoubelle", pxPoubelle(), size); } //25
 
     static QIcon icQuestion() { return foundIC("icQuestion", pxQuestion(), QSize(25,25)); }
+    static QIcon icQwant() { return foundIC("icQwant", pxQwant(), QSize(30,30)); }
 
     static QIcon icReception(QSize size = QSize()) { return foundIC("icReception", pxReception(), size); }
     static QIcon icRecopier(QSize size = QSize()) { return foundIC("icRecopier", "://copy_v2.png", size); }

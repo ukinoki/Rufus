@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include "icons.h"
 #include "macros.h"
+#include "utils.h"
 
 class UpTextEdit : public QTextEdit
 {
@@ -48,6 +49,8 @@ public:
     void        setTableCorrespondant(QString tablecorrespondant);
     QString     getTableCorrespondant() const;
     void        setText(const QString &text);
+    QString     appendHtml(QString &appendtext, QString ancredebut = "", QString ancrefin = "",  bool supprimeLesLignesVidesDuMilieu = false);
+
 private:
     void        mouseDoubleClickEvent( QMouseEvent * event ) Q_DECL_OVERRIDE;
     bool        eventFilter(QObject *obj, QEvent *event) Q_DECL_OVERRIDE;

@@ -300,19 +300,32 @@ QString UpTextEdit::getTableCorrespondant() const
 
 void UpTextEdit::setText(const QString &text)
 {
-if (text.contains("<!DOCTYPE HTML PUBLIC"))
+    if (text.contains("<!DOCTYPE HTML PUBLIC"))
     {
-    QString txt = text;
+        QString txt = text;
 #ifdef Q_OS_LINUX
         if (!text.contains(HTMLCOMMENT_LINUX))
             txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
 #endif
 #ifdef Q_OS_MACOS
         if (text.contains(HTMLCOMMENT_LINUX))
-            txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size" + QString::number(qApp->font().pointSize()) + "pt");
+            txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
 #endif
         QTextEdit::setText(txt);
     }
     else
         QTextEdit::setText(text);
 }
+
+QString UpTextEdit::appendHtml(QString &appendtext, QString ancredebut, QString ancrefin, bool supprimeLesLignesVidesDuMilieu)
+{
+    QString texte = toHtml();
+    if (ancredebut != "")
+        Utils::supprimeAncre(texte,ancredebut,ancrefin);
+    Utils::retirelignevidehtml(texte);
+    texte += appendtext;
+    Utils::nettoieHTML(texte, supprimeLesLignesVidesDuMilieu);
+    setHtml(texte);
+    return texte;
+}
+

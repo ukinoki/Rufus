@@ -203,6 +203,7 @@ QString Utils::retirecaracteresaccentues(QString nom)
  *  \brief convertHTML
  *  convertir un QString en html
  *  on écrit le QString dans un QtextEdit et on récupère le html avec QTextEdit::toHtml()
+ *  on retire les lignes vides de la fin
  */
 void Utils::convertHTML(QString &text)
 {
@@ -216,33 +217,35 @@ void Utils::convertHTML(QString &text)
  *  \brief convertPlainText
  *  convertir un QString en plaintext
  *  on écrit le QString dans un QtextEdit et on récupère le plaintext avec QTextEdit::toPlainText()
+ *  on retire les lignes vides de la fin
  */
 void Utils::convertPlainText(QString &text)
 {
     UpTextEdit textprov;
     textprov.setText( text );
     text = textprov.toPlainText();
+    while (text.at(text.size()-1).unicode() == 10)
+        text.remove(text.size()-1,1);
 }
 
 /*!
  *  \brief nettoieHTML
  *  nettoyer tous les trucs inutiles dans un html généré par QT
- * \param supprimeLesParagraphesVidesDuMilieu - comme son nom l'indique
+ * \param supprimeLesLignesVidesDuMilieu - comme son nom l'indique
  *  placer les marqueurs Linux ou Mac
  */
-void Utils::nettoieHTML(QString &text, bool supprimeLesParagraphesVidesDuMilieu)
+void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
 {
     QRegExp reg1 = QRegExp("<p style=\"-qt-paragraph-type:empty; "
                            "margin-top:[0-9]{1,2}px; margin-bottom:[0-9]{1,2}px; "
                            "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
                            "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\"><br /></p>");
-
+    //reg1 = QRegExp("<p style=\"-qt-paragraph-type:empty;([\\.]*)<br /></p>");
     QRegExp reg2 = QRegExp("<p style=\" margin-top:0px; margin-bottom:0px; "
                            "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
                            "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\">");
-
     convertHTML(text);
-    if (supprimeLesParagraphesVidesDuMilieu)
+    if (supprimeLesLignesVidesDuMilieu)
         text.remove(reg1);
     text.replace(reg2,"<p style=\" margin-top:0px; margin-bottom:0px;\">");
     text.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");

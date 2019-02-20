@@ -1165,7 +1165,7 @@ QString dlg_bilanortho::calcReponsehTml(bool avecAcuite)
             Reponse += "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Oeil directeur ") + "</font></td><td width=\"80\">" + ODirecteur + "</td>";
         if (Orientation != "-")
             Reponse += "<td width=\"90\"><font color = \"" + CouleurTitres + "\">" + tr("Orientation ") + "</font></td><td width=\"80\">" + Orientation + "</td>";
-        Reponse += "<p>";
+        Reponse += "</p>";
     }
 
     //ECRAN ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("19-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("20-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -341,7 +341,8 @@ void Rufus::Connect_Slots()
     connect (ui->ActeCotationcomboBox,                              QOverload<int>::of(&QComboBox::currentIndexChanged),this,   [=] {RetrouveMontantActe();});
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   [=] {ActeMontantModifie();});
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   [=] {BasculerMontantActe();});
-    connect (ui->CCAMlinklabel,                                     &QLabel::linkActivated,                             this,   [=] {QDesktopServices::openUrl(QUrl(LIEN_CCAM));});
+    connect (ui->CCAMlinklabel,                                     &QLabel::linkActivated,                             this,   [=] {proc->DisplayWebPage(QUrl(LIEN_CCAM));});
+                                                                                                                                    //QDesktopServices::openUrl(QUrl(LIEN_CCAM));});
     connect (ui->ModifierCotationActepushButton,                    &QPushButton::clicked,                              this,   [=] {ModfiCotationActe();});
     // Les tabs --------------------------------------------------------------------------------------------------
     connect (ui->tabWidget,                                         &QTabWidget::currentChanged,                        this,   [=] {ChangeTabBureau();});
@@ -1566,53 +1567,33 @@ void Rufus::CreerBilanOrtho()
     }
     if (Dlg_BlOrtho->exec()> 0)
     {
+        QString updaterequete;
         // Compléter le champ Motif et mettre à jour l'affichage de ActeMotiftextEdit --------------------------------------------------------------------------------
-        QString texte = ui->ActeMotiftextEdit->toHtml();
         QString Motif= Dlg_BlOrtho->ui->MotiftextEdit->toPlainText();
         if (Motif != "")
         {
-            for (int i= 0; i<Motif.size();i++)
-                if (Motif.at(i).unicode() == 10) Motif.replace(Motif.at(i),"<br>");
             Motif = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\"><td width=\"70\"><a name=\"BODEBUT\"></a><font color = \""
                     + proc->CouleurTitres + "\">" + tr("Motif:") + "</font></td><td width=\"300\">" + Motif + "</td></p>";
+            updaterequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(ui->ActeMotiftextEdit->appendHtml(Motif, "BODEBUT", "", true)) +
+                            "' where idActe = " + QString::number(gidActe);
+            db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Motif !"));
         }
-        Utils::supprimeAncre(texte,"BODEBUT");
-        Utils::retirelignevidehtml(texte);
-        texte += Motif;
-        Utils::nettoieHTML(texte);
-        ui->ActeMotiftextEdit->setText(texte);
-        QString updaterequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(texte) +
-                                "' where idActe = " + QString::number(gidActe);
-        db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Motif !"));
-        ui->ActeMotiftextEdit->setText(ui->ActeMotiftextEdit->toHtml());
 
         // Compléter le Champ Texte et mettre à jour l'affichage de ActeTextetextEdit ----------------------------------------------------------------------------------
-        texte = ui->ActeTextetextEdit->toHtml();
-        bool avecacuite = !texte.contains("<a name=\"debut");
+        bool avecacuite = !ui->ActeTextetextEdit->toHtml().contains("<a name=\"debut");
         QString Reponse = Dlg_BlOrtho->calcReponsehTml(avecacuite);
-        Utils::supprimeAncre(texte,"BODEBUT","BOFIN");
-        Utils::retirelignevidehtml(texte);
-        texte += Reponse;
-        Utils::nettoieHTML(texte, true);
-        ui->ActeTextetextEdit->setHtml(texte);
-        updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
-                "' where idActe = " + ui->idActelineEdit->text();
-        db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texe !"));
+        updaterequete   =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(Reponse, "BODEBUT", "BOFIN", true)) +
+                           "' where idActe = " + ui->idActelineEdit->text();
+        db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
 
         // Compléter le Champ Conclusion et mettre à jour l'affichage de ActeConclusiontextEdit ----------------------------------------------------------------------------------
         QString Concl = Dlg_BlOrtho->ui->ConclusiontextEdit->toPlainText();
         if (Concl != "")
         {
             Concl       = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\"><a name=\"BODEBUT\"></a>" + Concl + "</p>";
-            texte       = ui->ActeConclusiontextEdit->toHtml();
-            Utils::supprimeAncre(texte,"BODEBUT");
-            Utils::retirelignevidehtml(texte);
-            texte += Concl;
-            Utils::nettoieHTML(texte);
-            ui->ActeConclusiontextEdit->setText(texte);
-            updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(texte) +
+            updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->appendHtml(Concl,"BODEBUT", "", true)) +
                     "' where idActe = " + ui->idActelineEdit->text();
-            db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
+            db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Conclusion!"));
         }
 
         //Mettre à jour la table bilanorrtho
@@ -8798,19 +8779,13 @@ void    Rufus::Refraction()
             for (int i= 0; i<Dlg_Refraction->ResultatObservation().size();i++)
                 if (Dlg_Refraction->ResultatObservation().at(i).unicode() == 10) Dlg_Refraction->ResultatObservation().replace(Dlg_Refraction->ResultatObservation().at(i),"<br>");
 
-            QString texte = ui->ActeTextetextEdit->toHtml();
-            Utils::retirelignevidehtml(texte);
             QString ARajouterEnText =
                     "<p style = \"margin-top:0px; margin-bottom:0px;\">"
                   + Dlg_Refraction->ResultatObservation()
                   + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
-            texte += ARajouterEnText;
-            Utils::nettoieHTML(texte);
-            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
+            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
                                      "' where idActe = " + ui->idActelineEdit->text();
             db->StandardSQL(updaterequete);
-            ui->ActeTextetextEdit->setHtml(texte);
-
             ui->ActeTextetextEdit->setFocus();
             ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         }
@@ -8823,8 +8798,6 @@ void    Rufus::Refraction()
             QString Date = "";
             for (int i= 0; i<Dlg_Refraction->ResultatPrescription().size();i++)
                 if (Dlg_Refraction->ResultatPrescription().at(i).unicode() == 10) Dlg_Refraction->ResultatPrescription().replace(Dlg_Refraction->ResultatPrescription().at(i),"<br>");
-            QString conclusion = ui->ActeConclusiontextEdit->toHtml();
-            Utils::retirelignevidehtml(conclusion);
             QString larg = "550";
             if (ui->ActeDatedateEdit->date() != QDate::currentDate())
             {
@@ -8834,15 +8807,11 @@ void    Rufus::Refraction()
             QString ARajouterEnConcl =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Date + Dlg_Refraction->ResultatPrescription()  + "</p>"
                                          + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\">";
 
-            conclusion += ARajouterEnConcl;
-            Utils::nettoieHTML(conclusion, true);
-
-            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(conclusion) +
+            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->appendHtml(ARajouterEnConcl,"","",true)) +
                                      "' where idActe = " + ui->idActelineEdit->text();
             db->StandardSQL(updaterequete);
             ui->ActeConclusiontextEdit->setFocus();
             ui->ActeConclusiontextEdit->moveCursor(QTextCursor::End);
-            ui->ActeConclusiontextEdit->setText(conclusion);
        }
     }
     delete Dlg_Refraction;
@@ -10025,17 +9994,11 @@ void Rufus::Tonometrie()
                     Tono = "<td width=\"60\"><font color = \"" + proc->CouleurTitres + "\"><b>" + tr("TO:") +"</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + gDataUser->getLogin() + "</td>";
             }
 
-            QString texte = ui->ActeTextetextEdit->toHtml();
-            Utils::retirelignevidehtml(texte);
             QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Tono  + "</p>"
                     + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
 
-            texte += ARajouterEnText;
-            Utils::nettoieHTML(texte);
-            ui->ActeTextetextEdit->setText(texte);
-
-            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
-                    "' where idActe = " + ui->idActelineEdit->text();
+            QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
+                    "' where idActe = " + QString::number(gidActe);
             db->StandardSQL(updaterequete);
         }
         ui->ActeTextetextEdit->setFocus();
@@ -10193,13 +10156,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     if (TypeMesure == "Refracteur")
     {
         QString ARajouterEnText= proc->HtmlRefracteur();
-        QString texte = ui->ActeTextetextEdit->toHtml();
-        Utils::retirelignevidehtml(texte);
-        texte += ARajouterEnText;
-        Utils::nettoieHTML(texte);
-        ui->ActeTextetextEdit->setText(texte);
-
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
@@ -10219,13 +10176,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     else if (TypeMesure == "Kerato")
     {
         QString ARajouterEnText= proc->HtmlKerato();
-        QString texte = ui->ActeTextetextEdit->toHtml();
-        Utils::retirelignevidehtml(texte);
-        texte += ARajouterEnText;
-        Utils::nettoieHTML(texte);
-        ui->ActeTextetextEdit->setText(texte);
-
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
@@ -10235,13 +10186,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     else if (TypeMesure == "Tono")
     {
         QString ARajouterEnText= proc->HtmlTono();
-        QString texte = ui->ActeTextetextEdit->toHtml();
-        Utils::retirelignevidehtml(texte);
-        texte += ARajouterEnText;
-        Utils::nettoieHTML(texte);
-        ui->ActeTextetextEdit->setText(texte);
-
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
@@ -10250,13 +10195,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     else if (TypeMesure == "Pachy")
     {
         QString ARajouterEnText= proc->HtmlPachy();
-        QString texte = ui->ActeTextetextEdit->toHtml();
-        Utils::retirelignevidehtml(texte);
-        texte += ARajouterEnText;
-        Utils::nettoieHTML(texte);
-        ui->ActeTextetextEdit->setText(texte);
-
-        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(texte) +
+        QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
                 "' where idActe = " + ui->idActelineEdit->text();
         db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
