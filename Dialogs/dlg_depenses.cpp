@@ -24,6 +24,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    setWindowIcon(Icons::icCreditCard());
 
     proc        = Procedures::I();
     db          = DataBase::getInstance();

@@ -1101,6 +1101,7 @@ void Procedures::DisplayWebPage(QUrl webpage)
     gAsk->AjouteWidgetLayButtons(QwButt,false);
 
     connect(WebView,        &QWebEngineView::urlChanged,    this,   [=] {gAsk->setWindowTitle(WebView->title());});
+    connect(WebView,        &QWebEngineView::iconChanged,   this,   [=] {gAsk->setWindowIcon(WebView->icon());});
     connect(QwButt,         &QPushButton::clicked,          this,   [=] {WebView->setUrl(QUrl("https://www.qwant.com"));});
     connect(gAsk->OKButton, SIGNAL(clicked(bool)),          gAsk,   SLOT(accept()));
     gAsk->restoreGeometry(gsettingsIni->value(geometry).toByteArray());

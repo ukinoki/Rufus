@@ -90,6 +90,7 @@ public:
 
     static QPixmap pxCheck() { return foundPX("pxCheck", "://check.png"); }
     static QPixmap pxConversation() { return foundPX("pxMessage", "://answer.png"); }
+    static QPixmap pxCreditCard() { return foundPX("pxCard", "://credit_cards.png"); }
 
     static QPixmap pxDetente() { return foundPX("pxDetente", "://beach.png"); }
     static QPixmap pxDeverouiller() { return foundPX("pxDeverouiller", "://Unlock.png"); }
@@ -191,6 +192,7 @@ public:
     static QIcon icComputer() { return foundIC("icComputer", "://Computer.png", QSize(45,45)); }
     static QIcon icContact() { return foundIC("icContact", "://contact.png"); }
     static QIcon icCPS() { return foundIC("icCPS", ""); } //FIXME : !!! manque icon CPS
+    static QIcon icCreditCard() { return foundIC("icCredit",  pxCreditCard(), QSize(25,25));}
     static QIcon icCreer() { return foundIC("icCreer", "://toolbar_new_folder.png"); }
 
     static QIcon icDate() { return foundIC("icDate", "://calendar2.png"); }
@@ -243,7 +245,7 @@ public:
     static QIcon icPoubelle(QSize size = QSize()) { return foundIC("icPoubelle", pxPoubelle(), size); } //25
 
     static QIcon icQuestion() { return foundIC("icQuestion", pxQuestion(), QSize(25,25)); }
-    static QIcon icQwant() { return foundIC("icQwant", pxQwant(), QSize(30,30)); }
+    static QIcon icQwant() { return foundIC("icQwant", pxQwant(), QSize(25,25)); }
 
     static QIcon icReception(QSize size = QSize()) { return foundIC("icReception", pxReception(), size); }
     static QIcon icRecopier(QSize size = QSize()) { return foundIC("icRecopier", "://copy_v2.png", size); }
