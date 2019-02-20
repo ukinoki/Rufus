@@ -141,8 +141,8 @@ void TypesTiers::removeTypeTiers(TypeTiers* typetiers)
 }
 void TypesTiers::clearAll()
 {
-    for (int i=m_typestiers->size()-1; i==0; --i)
-        removeTypeTiers(m_typestiers->at(i));
+    while (m_typestiers->size() >0)
+        removeTypeTiers(m_typestiers->at(0));
     m_typestiers->clear();
 }
 

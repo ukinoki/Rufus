@@ -77,6 +77,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_user.h"
 #include "cls_users.h"
 #include "database.h"
+#include "gbl_datas.h"
 
 class Procedures : public QObject
 {
@@ -115,15 +116,11 @@ public:
     void                    MAJflagMG();
     void                    MAJTcpMsgEtFlagSalDat();
     void                    MAJflagMessages();
-    int                     getMAXligneBanque();
     void                    EnChantier(bool avecMsg = false);
     void                    Message(QStringList listmsg, int pause = 1000, bool bottom = true);
     void                    Message(QString mess, int pause = 1000, bool bottom = true);
 
     void                    ModifTailleFont(QObject *obj, int siz, QFont font=qApp->font());
-    int                     Nombre_Mesure_Selected(QTreeWidget *Tree);
-    int                     Nombre_Mesure_Selected(QTableWidget *Table, int col);
-    QString                 RecupPartie(QString ficModele, QString partie);
     QString                 ImpressionCorps(QString text, bool ALD = false);
     QMap<QString,QString>   ImpressionEntete(QDate date, User* user);
     QString                 ImpressionPied(User* user, bool lunettes = false, bool ALD = false);
@@ -181,7 +178,6 @@ public:
 
     bool                    Connexion_A_La_Base();
     QStringList             DecomposeScriptSQL(QString nomficscript);
-    void                    InfoBase();
     bool                    ReinitBase();
     bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifUserConnectes = true);
     bool                    VerifBaseEtRessources();
@@ -211,7 +207,6 @@ public:
     QStandardItemModel*     getListeComptesEncaissmtUserAvecDesactive();
     void                    setListeComptesEncaissmtUser(int);
     Villes*                 getVilles();
-    QString                 getLogin(int idUser);
 
     void                    initListeUsers();
     void                    initListeBanques();
@@ -288,16 +283,14 @@ private:
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
-    QStringList             ChoisirUnLogin();
     QString                 gLogin, gConfirmMDP, gNouvMDP;
+
 private slots:
-    void                    Slot_VerifLogin();
     void                    Slot_CalcTimeBupRestore();
 private:
     bool                    PremierDemarrage();
     void                    PremierParametrageMateriel();
     void                    PremierParametrageRessources();
-    void                    Test();
 
 public slots:
     void                    Slot_printPreview(QPrinter *printer);   // CZ 27082015
@@ -322,7 +315,6 @@ public slots:
     bool                    ReglePortAutoref();
     bool                    ReglePortFronto();
     bool                    ReglePortRefracteur();
-    QString                 PrefixePlus(QString);                          // convertit en QString signé + ou - les valeurs QDouble de dioptries
 
 signals:
     void                    NouvMesureRefraction();
@@ -353,9 +345,6 @@ public:
     QMap<QString,QVariant>  DonneesRefracteurSubj();                // accesseur pour MesureRefracteurSubjectif
     QMap<QString,QVariant>  DonneesRefracteurFin();                 // accesseur pour MesureRefracteurFinal
     QString                 HtmlRefracteur();                       // accesseur pour le html de mesure refracteur à afficher;
-    QString                 CalculeFormule(
-                                QMap<QString,QVariant>  Donnees,
-                                QString Cote);                      // comme son nom l'indique
     void                    InsertRefraction(
                                 int idPatient,
                                 int idActe,

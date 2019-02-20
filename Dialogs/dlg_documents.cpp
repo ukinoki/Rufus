@@ -1786,7 +1786,7 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
                 a = true;
                 QString b = "vous";
                 if (listdocs.at(i).at(1).toInt() != gidUser)
-                    b = proc->getLogin(listdocs.at(i).at(1).toInt());
+                    b = Datas::I()->users->getUserById(listdocs.at(i).at(1).toInt())->getLogin();
                 UpMessageBox::Watch(this,tr("Il existe déjà un") + " " + nom + " " + tr("portant ce nom créé par ") + b);
                 break;
             }

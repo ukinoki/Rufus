@@ -2858,7 +2858,7 @@ int dlg_paiementdirect::EnregistreRecette()
             if (ui->VirementradioButton->isChecked())
             {
                 QString InsertComptrequete = "INSERT INTO " NOM_TABLE_LIGNESCOMPTES "(idLigne, idCompte, idRec, LigneDate, LigneLibelle,  LigneMontant, LigneDebitCredit, LigneTypeOperation) VALUES ("
-                        + QString::number(proc->getMAXligneBanque()) + "," + idCompte + "," + QString::number(gidRecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
+                        + QString::number(db->getMaxLigneBanque()) + "," + idCompte + "," + QString::number(gidRecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
                         + "', 'Virement créditeur " + Utils::correctquoteSQL(ui->TierscomboBox->currentText()) + "',"
                         + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) + ",1,'Virement créditeur')";
                 if (!db->StandardSQL(InsertComptrequete))

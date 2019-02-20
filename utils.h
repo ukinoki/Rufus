@@ -23,10 +23,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QHostInfo>
+
 #include "uplineedit.h"
 #include "uplabel.h"
+#include "uptextedit.h"
 #include "upmessagebox.h"
+
 #include <QInputDialog>
+#include <QCoreApplication>
+#include <QEventLoop>
+#include <QTime>
 
 class Utils
 {
@@ -76,6 +82,9 @@ public:
     static bool                     mkpath(QString path);
     static double                   mmToInches(double mm);
 
+    static QString                 CalculeFormule(QMap<QString,QVariant>  Donnees,
+                                                  QString Cote);                      // comme son nom l'indique
+    static QString                  PrefixePlus(QString);                          // convertit en QString signé + ou - les valeurs QDouble de dioptries
 };
 
 #endif // UTILS_H

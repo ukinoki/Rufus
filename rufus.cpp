@@ -4780,7 +4780,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Titredoc->setStyleSheet("color: red");
             QString txt = destlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + destlist.at(i).at(6).toTime().toString("h:mm");
             if (destlist.at(i).at(1).toInt()>0)
-                txt += tr(" de ") + proc->getLogin(destlist.at(i).at(1).toInt());
+                txt += tr(" de ") + Datas::I()->users->getUserById(destlist.at(i).at(1).toInt())->getLogin();
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
@@ -4937,7 +4937,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Titredoc->setStyleSheet("color: red");
             QString txt = emetlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + emetlist.at(i).at(6).toTime().toString("h:mm");
             if (emetlist.at(i).at(1).toInt()>0)
-                txt += tr(" pour ") + proc->getLogin(emetlist.at(i).at(1).toInt());
+                txt += tr(" pour ") + Datas::I()->users->getUserById(emetlist.at(i).at(1).toInt())->getLogin();
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
@@ -5937,8 +5937,8 @@ void Rufus::AfficheActe(int idActe)
         gAgePatient = Age["annee"].toInt();
 
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
-        ui->CreeParlineEdit->setText(tr("Créé par ") + proc->getLogin(actlist.last().at(11).toInt())
-                                     + tr(" pour ") + proc->getLogin(actlist.last().at(2).toInt()));
+        ui->CreeParlineEdit->setText(tr("Créé par ") + Datas::I()->users->getUserById(actlist.last().at(11).toInt())->getLogin()
+                                     + tr(" pour ") + Datas::I()->users->getUserById(actlist.last().at(2).toInt())->getLogin());
 
         //3. Mettre à jour le numéro d'acte
         req = "SELECT idActe FROM " NOM_TABLE_ACTES
@@ -6125,7 +6125,7 @@ void Rufus::AfficheDossier(int idPat, int idacte)
     ui->idPatientlineEdit->setText(QString::number(idPat));
     QString label= gNomPatient + " " + gPrenomPatient;
 
-    ui->IdCreateurDossierlineEdit->setText(proc->getLogin(patdata.at(6).toInt()));
+    ui->IdCreateurDossierlineEdit->setText(Datas::I()->users->getUserById(patdata.at(6).toInt())->getLogin());
 
     //2 - récupération des données sociales
 
@@ -9426,7 +9426,7 @@ void Rufus::Remplir_SalDat()
         label1->setText(" " + NomPrenom);                                                                         // Nom + Prénom
         QString Soignant  = acclist.at(i).at(3).toString();
         if (acclist.at(i).at(9).toString() != acclist.at(i).at(10).toString())
-            Soignant +=  " / " + proc->getLogin(acclist.at(i).at(10).toInt());
+            Soignant +=  " / " + Datas::I()->users->getUserById(acclist.at(i).at(10).toInt())->getLogin();
         label2->setText(" " + acclist.at(i).at(3).toString());                                 // Soignant
         label3->setText(" " + acclist.at(i).at(4).toString());                                 // Cotation
         label4->setText(QLocale().toString(acclist.at(i).at(5).toDouble(),'f',2) + " ");       // Montant
@@ -9449,7 +9449,7 @@ void Rufus::Remplir_SalDat()
         {
             listidparents           << acclist.at(i).at(10).toInt();
             oitem0                  = new QStandardItem(acclist.at(i).at(10).toString());
-            oitem1                  = new QStandardItem(proc->getLogin(acclist.at(i).at(10).toInt()));
+            oitem1                  = new QStandardItem(Datas::I()->users->getUserById(acclist.at(i).at(10).toInt())->getLogin());
             QList<QStandardItem*>   listitems;
             listitems               << oitem0 << oitem1;
             gListeParentsModel      ->appendRow(listitems);

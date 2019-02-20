@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upcheckbox.h"
 #include "dlg_banque.h"
 #include "ui_dlg_banque.h"
+#include "gbl_datas.h"
 
 namespace Ui {
 class dlg_paiement;

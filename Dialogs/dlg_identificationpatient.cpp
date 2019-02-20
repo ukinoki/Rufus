@@ -414,7 +414,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
 
 
     ui->Createurlabel->setText(tr("Créé le ") + patdata.at(5).toDate().toString(tr("d-M-yyyy")) + "\n" +
-                               tr("par ") + proc->getLogin(patdata.at(6).toInt()));
+                               tr("par ") + Datas::I()->users->getUserById(patdata.at(6).toInt())->getLogin());
 
     //2 - récupération des données sociales
 

@@ -123,10 +123,6 @@ Procedures::Procedures(QObject *parent) :
 
 }
 
-void Procedures::Test()
-{
-}
-
 void Procedures::ab(int i)
 {
     QString mess;
@@ -389,52 +385,6 @@ void Procedures::ModifTailleFont(QObject *obj, int siz, QFont font)
     }
 }
 
-
-// ----------------------------------------------------------------------------------
-// Retourne le nombre de lignes comm selectionnees
-// ----------------------------------------------------------------------------------
-int Procedures::Nombre_Mesure_Selected(QTreeWidget *Tree)
-{
-    int nbCommSelected = 0;
-    for (int i =0 ; i < Tree->topLevelItemCount(); i++)
-    {
-        if (Tree->topLevelItem(i)->checkState(0) == Qt::Checked)
-             nbCommSelected ++;
-        if (Tree->topLevelItem(i)->childCount() > 0)
-            for (int j = 0; j < Tree->topLevelItem(i)->childCount(); j++)
-                if (Tree->topLevelItem(i)->child(j)->checkState(0) == Qt::Checked)
-                    nbCommSelected ++;
-    }
-    return nbCommSelected;
-}
-
-// ----------------------------------------------------------------------------------
-// Retourne le nombre de lignes comm selectionnees
-// ----------------------------------------------------------------------------------
-int Procedures::Nombre_Mesure_Selected(QTableWidget *Table, int col)
-{
-    int nbCommSelected = 0;
-    for (int i =0 ; i < Table->rowCount(); i++)
-    {
-        if (Table->item(i,col)->checkState() == Qt::Checked)
-             nbCommSelected ++;
-    }
-    return nbCommSelected;
-}
-
-/*---------------------------------------------------------------------------------
-    Retourne  la String de la partie du document passée en paramètre
------------------------------------------------------------------------------------*/
-QString Procedures::RecupPartie(QString ficModele, QString partie)
-{
-int pos1 = -1;
-int pos2 = -1;
-    pos1 = ficModele.indexOf("<!--"+partie+"-->") + partie.length()+ 8;
-    pos2 = ficModele.indexOf("<!--Fin"+partie+"-->") ;
-    if (pos2 > pos1)
-        return(ficModele.mid(pos1 , pos2 - pos1));
-    else return "";
-}
 
 /*---------------------------------------------------------------------------------
     Effectue une sauvegarde immédiate de la base
@@ -1099,11 +1049,11 @@ void Procedures::DisplayWebPage(QUrl webpage)
     gAsk->dlglayout()->insertWidget(0,WebView);
     gAsk->AjouteLayButtons();
     gAsk->AjouteWidgetLayButtons(QwButt,false);
-
-    connect(WebView,        &QWebEngineView::urlChanged,    this,   [=] {gAsk->setWindowTitle(WebView->title());});
-    connect(WebView,        &QWebEngineView::iconChanged,   this,   [=] {gAsk->setWindowIcon(WebView->icon());});
+    connect(WebView,        &QWebEngineView::loadFinished,    this,   [=] {gAsk->setWindowTitle(WebView->page()->title());
+                                                                         gAsk->setWindowIcon(WebView->page()->icon());});
+    //connect(WebView,        &QWebEngineView::iconChanged,   this,   [=] {gAsk->setWindowIcon(WebView->icon());});
     connect(QwButt,         &QPushButton::clicked,          this,   [=] {WebView->setUrl(QUrl("https://www.qwant.com"));});
-    connect(gAsk->OKButton, SIGNAL(clicked(bool)),          gAsk,   SLOT(accept()));
+    connect(gAsk->OKButton, &UpPushButton::clicked,         gAsk,   &UpDialog::accept);
     gAsk->restoreGeometry(gsettingsIni->value(geometry).toByteArray());
     WebView->setUrl(webpage);
     gAsk->exec();
@@ -1500,7 +1450,7 @@ QString Procedures::getSessionStatus()
         if (liberal)
             txtstatut += tr("libéral");
         else if (pasliberal)
-            txtstatut += tr("salarié") + " - " + tr("Employeur : ") + getLogin(m_userConnected->getEmployeur());
+            txtstatut += tr("salarié") + " - " + tr("Employeur : ") + Datas::I()->users->getUserById(m_userConnected->getEmployeur())->getLogin();
         else if (retrocession)
             txtstatut += tr("remplaçant");
         else if (pasdecompta)
@@ -1529,7 +1479,7 @@ QString Procedures::getSessionStatus()
     {
         QString cptabledefaut ("");
         if (m_userConnected->getidUserCompteParDefaut()>0)
-            cptabledefaut = tr("de") + " " + getLogin(m_userConnected->getidUserCompteParDefaut());
+            cptabledefaut = tr("de") + " " + Datas::I()->users->getUserById(m_userConnected->getidUserCompteParDefaut())->getLogin();
         txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getNomCompteParDefaut() + " "
                           + cptabledefaut;
     }
@@ -1673,12 +1623,6 @@ QStandardItemModel* Procedures::getListeComptesEncaissmtUserAvecDesactive()
     return ListeComptesEncaissUserAvecDesactive;
 }
 
-
-
-QString Procedures::getLogin(int idUser) //TODO : A FAIRE DISPARAITRE
-{
-    return Datas::I()->users->getLoginById( idUser );
-}
 
 /*!
  * \brief Procedures::initListeUsers
@@ -1903,22 +1847,6 @@ QString Procedures::getMDPAdmin()
         if (mdpdata.at(0).toString() == "")
             db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'");
     return (mdpdata.at(0).toString() != ""? mdpdata.at(0).toString() : NOM_MDPADMINISTRATEUR);
-}
-
-//TODO : compta
-int Procedures::getMAXligneBanque()
-{
-    int a(0), b(0);
-    QString req = "select max(idligne) from " NOM_TABLE_ARCHIVESBANQUE;
-    QList<QVariant> maxdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && maxdata.size()>0)
-        a = maxdata.at(0).toInt();
-    req = "select max(idligne) from " NOM_TABLE_LIGNESCOMPTES;
-    QList<QVariant> max2data = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && max2data.size()>0)
-        if (max2data.at(0).toInt()>a)
-            b = max2data.at(0).toInt();
-    return ((a<b? b : a) + 1);
 }
 
 void Procedures::setNomImprimante(QString NomImprimante)
@@ -3128,125 +3056,6 @@ Site* Procedures::DetermineLieuExercice()
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
-        -- Création d'un utilisateur -------------------------------------------------------------
-        -----------------------------------------------------------------------------------------------------------------*/
-QStringList Procedures::ChoisirUnLogin()
-{
-    gLogin                      = "LOG";
-    gNouvMDP                    = "NMDP";
-    gConfirmMDP                 = "AMDP";
-    QStringList list;
-    gAskLogin                   = new UpDialog();
-    QVBoxLayout *lay            = new QVBoxLayout();
-    UpLabel *label              = new UpLabel();
-    UpLabel *label2             = new UpLabel();
-    UpLabel *label3             = new UpLabel();
-    UpLineEdit *Line            = new UpLineEdit();
-    UpLineEdit *Line2           = new UpLineEdit();
-    UpLineEdit *Line3           = new UpLineEdit();
-
-    gAskLogin                   ->setModal(true);
-    gAskLogin                   ->setFixedSize(300,300);
-    gAskLogin                   ->setWindowTitle("");
-
-    Line                        ->setObjectName(gLogin);
-    Line2                       ->setObjectName(gNouvMDP);
-    Line3                       ->setObjectName(gConfirmMDP);
-    Line                        ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
-    Line2                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
-    Line3                       ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15));
-    Line                        ->setAlignment(Qt::AlignCenter);
-    Line2                       ->setAlignment(Qt::AlignCenter);
-    Line3                       ->setAlignment(Qt::AlignCenter);
-    Line                        ->setMaxLength(15);
-    Line2                       ->setMaxLength(8);
-    Line3                       ->setMaxLength(8);
-    Line                        ->setFixedHeight(20);
-    Line2                       ->setFixedHeight(20);
-    Line3                       ->setFixedHeight(20);
-    Line2                       ->setEchoMode(QLineEdit::Password);
-    Line3                       ->setEchoMode(QLineEdit::Password);
-    label                       ->setMinimumHeight(46);
-    label2                      ->setMinimumHeight(46);
-    label3                      ->setFixedHeight(16);
-    label                       ->setAlignment(Qt::AlignCenter);
-    label2                      ->setAlignment(Qt::AlignCenter);
-    label3                      ->setAlignment(Qt::AlignCenter);
-
-    lay                         ->setSpacing(2);
-
-    label                       ->setText(tr("Choisissez un login pour le nouvel utilisateur\n- maxi 15 caractères -\n- pas de caractères spéciaux ou accentués -"));
-    label2                      ->setText(tr("Choisissez un mot de passe\n- maxi 8 caractères -\n- pas de caractères spéciaux ou accentués -"));
-    label3                      ->setText(tr("Confirmez le mot de passe"));
-
-    gAskLogin                        ->AjouteLayButtons(UpDialog::ButtonOK);
-    connect(gAskLogin->OKButton,     SIGNAL(clicked(bool)),  this,   SLOT(Slot_VerifLogin()));
-
-    lay                         ->addWidget(label);
-    lay                         ->addWidget(Line);
-    lay                         ->addWidget(label2);
-    lay                         ->addWidget(Line2);
-    lay                         ->addWidget(label3);
-    lay                         ->addWidget(Line3);
-    lay                         ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
-    lay->setContentsMargins(5,5,5,5);
-    lay->setSpacing(5);
-
-    gAskLogin->dlglayout()      ->insertLayout(0,lay);
-    gAskLogin->dlglayout()      ->setSizeConstraint(QLayout::SetFixedSize);
-
-    Line                        ->setFocus();
-
-    if (gAskLogin->exec() == 0)
-        list << "" << "";
-    else
-        list << Line->text() << Line2->text();
-    delete gAskLogin;
-    return list;
-}
-
-void Procedures::Slot_VerifLogin()
-{
-    if (!gAskLogin) return;
-    QString msg = "";
-    UpLineEdit *Loginline       = gAskLogin->findChild<UpLineEdit*>(gLogin);
-    UpLineEdit *MDPline         = gAskLogin->findChild<UpLineEdit*>(gNouvMDP);
-    UpLineEdit *ConfirmMDPline  = gAskLogin->findChild<UpLineEdit*>(gConfirmMDP);
-    QString login               = Loginline->text();
-    QString MDP                 = MDPline->text();
-
-    if (Loginline->text() == "")
-    {
-        msg = tr("Vous avez oublié d'indiquer le login");
-        Loginline->setFocus();
-    }
-    if (MDPline->text() == "")
-    {
-        msg = tr("Vous avez oublié d'indiquer le mot de passe");
-        MDPline->setFocus();
-    }
-    if (!Utils::rgx_AlphaNumeric_5_15.exactMatch(MDPline->text()))
-    {
-        msg = tr("Le mot de passe n'est pas conforme.") + "\n" +
-              tr("Au moins 5 caractères - uniquement des chifres ou des lettres - max. 5 caractères.");
-        MDPline->setFocus();
-    }
-    if (MDPline->text() != ConfirmMDPline->text())
-    {
-        msg = tr("Les mots de passe ne correspondent pas");
-        MDPline->setFocus();
-    }
-    if (msg != "")
-    {
-        QSound::play(NOM_ALARME);
-        UpMessageBox::Watch(Q_NULLPTR,msg);
-        return;
-    }
-    gAskLogin->accept();
-}
-
-
-/*-----------------------------------------------------------------------------------------------------------------
     -- Création d'un utilisateur -------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::CreerPremierUser(QString Login, QString MDP)
@@ -3843,7 +3652,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         gAskUser->dlglayout()   ->insertLayout(0,boxlay);
                         QGroupBox*boxparent     = new QGroupBox(gAskUser);
                         boxparent               ->setAccessibleName("Parent");
-                        QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + getLogin(m_userConnected->getIdUserActeSuperviseur()) + "?";
+                        QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + Datas::I()->users->getUserById(m_userConnected->getIdUserActeSuperviseur())->getLogin() + "?";
                         boxparent               ->setTitle(lblUsrParent);
                         boxparent               ->setVisible(false);
                         boxlay                  ->addWidget(boxparent);
@@ -4620,19 +4429,6 @@ void Procedures::VideDatabases()
     db->StandardSQL ("drop database if exists " NOM_BASE_OPHTA );
     db->StandardSQL ("drop database if exists " NOM_BASE_CONSULTS );
     db->StandardSQL ("drop database if exists " NOM_BASE_IMAGES );
-}
-
-QString Procedures::PrefixePlus(QString Dioptr)                          // convertit en QString signé + ou - les valeurs de dioptries issues des appareils de mesure
-{
-    double i = Dioptr.toDouble();
-    if (Dioptr != "")
-        return (i>0 ?
-                    "+" + QLocale().toString(Dioptr.toDouble(),'f',2)
-                    :
-                    QLocale().toString(Dioptr.toDouble(),'f',2)
-                    );
-    else
-        return "";
 }
 
 /* ------------------------------------------------------------------------------------------------------------------------------------------
@@ -5450,18 +5246,18 @@ void Procedures::setHtmlRefracteur()
     if(!MesureRefracteurSubjectif.isEmpty())
     {
         // - 1 - détermination des verres
-        QString mSphereOD   = PrefixePlus(MesureRefracteurSubjectif["SphereOD"].toString());
-        QString mCylOD      = PrefixePlus(MesureRefracteurSubjectif["CylOD"].toString());
+        QString mSphereOD   = Utils::PrefixePlus(MesureRefracteurSubjectif["SphereOD"].toString());
+        QString mCylOD      = Utils::PrefixePlus(MesureRefracteurSubjectif["CylOD"].toString());
         QString mAxeOD      = QString::number(MesureRefracteurSubjectif["AxeOD"].toInt());
-        QString mAddOD      = PrefixePlus(MesureRefracteurSubjectif["AddOD"].toString());
+        QString mAddOD      = Utils::PrefixePlus(MesureRefracteurSubjectif["AddOD"].toString());
         QString mAVLOD ("");
         if (MesureRefracteurSubjectif["AVLOD"].toDouble()>0)
             mAVLOD      = QLocale().toString(MesureRefracteurSubjectif["AVLOD"].toDouble()*10) + "/10";
         QString mAVPOD      = MesureRefracteurSubjectif["AVPOD"].toString();
-        QString mSphereOG   = PrefixePlus(MesureRefracteurSubjectif["SphereOG"].toString());
-        QString mCylOG      = PrefixePlus(MesureRefracteurSubjectif["CylOG"].toString());
+        QString mSphereOG   = Utils::PrefixePlus(MesureRefracteurSubjectif["SphereOG"].toString());
+        QString mCylOG      = Utils::PrefixePlus(MesureRefracteurSubjectif["CylOG"].toString());
         QString mAxeOG      = QString::number(MesureRefracteurSubjectif["AxeOG"].toInt());
-        QString mAddOG      = PrefixePlus(MesureRefracteurSubjectif["AddOG"].toString());
+        QString mAddOG      = Utils::PrefixePlus(MesureRefracteurSubjectif["AddOG"].toString());
         QString mAVLOG ("");
         if (MesureRefracteurSubjectif["AVLOG"].toDouble()>0)
             mAVLOG      = QLocale().toString(MesureRefracteurSubjectif["AVLOG"].toDouble()*10) + "/10";
@@ -5751,13 +5547,13 @@ void Procedures::setDonneesFronto(QString Mesure)
         mCylOD               = mesureOD.mid(6,6);
         mAxeOD               = mesureOD.mid(12,3);
         if (Mesure.indexOf("AR")>0)
-            mAddOD           = PrefixePlus(Mesure.mid(Mesure.indexOf("AR")+2,4));
+            mAddOD           = Utils::PrefixePlus(Mesure.mid(Mesure.indexOf("AR")+2,4));
         // OEIL GAUCHE ---------------------------------------------------------------------------
         mSphereOG            = mesureOG.mid(0,6);
         mCylOG               = mesureOG.mid(6,6);
         mAxeOG               = mesureOG.mid(12,3);
         if (Mesure.indexOf("AL")>0)
-            mAddOG           = PrefixePlus(Mesure.mid(Mesure.indexOf("AL")+2,4));
+            mAddOG           = Utils::PrefixePlus(Mesure.mid(Mesure.indexOf("AL")+2,4));
         //les autres champs ne sont pas utilisés pour le moment -------------------------------
     }
     else if (gsettingsIni->value("Param_Poste/Fronto").toString()=="VISIONIX VL1000"
@@ -5821,14 +5617,14 @@ QMap<QString,QVariant>  Procedures::DonneesFronto()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlFronto()
 {
-    QString mSphereOD   = PrefixePlus(MesureFronto["SphereOD"].toString());
-    QString mCylOD      = PrefixePlus(MesureFronto["CylOD"].toString());
+    QString mSphereOD   = Utils::PrefixePlus(MesureFronto["SphereOD"].toString());
+    QString mCylOD      = Utils::PrefixePlus(MesureFronto["CylOD"].toString());
     QString mAxeOD      = QString::number(MesureFronto["AxeOD"].toInt());
-    QString mAddOD      = PrefixePlus(MesureFronto["AddOD"].toString());
-    QString mSphereOG   = PrefixePlus(MesureFronto["SphereOG"].toString());
-    QString mCylOG      = PrefixePlus(MesureFronto["CylOG"].toString());
+    QString mAddOD      = Utils::PrefixePlus(MesureFronto["AddOD"].toString());
+    QString mSphereOG   = Utils::PrefixePlus(MesureFronto["SphereOG"].toString());
+    QString mCylOG      = Utils::PrefixePlus(MesureFronto["CylOG"].toString());
     QString mAxeOG      = QString::number(MesureFronto["AxeOG"].toInt());
-    QString mAddOG      = PrefixePlus(MesureFronto["AddOG"].toString());
+    QString mAddOG      = Utils::PrefixePlus(MesureFronto["AddOG"].toString());
 
     QString ResultatOD, ResultatVLOD, ResultatVPOD;
     QString ResultatOG, ResultatVLOG, ResultatVPOG;
@@ -6432,11 +6228,11 @@ QMap<QString,QVariant>  Procedures::DonneesKerato()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlAutoref()
 {
-    QString mSphereOD   = PrefixePlus(MesureAutoref["SphereOD"].toString());
-    QString mCylOD      = PrefixePlus(MesureAutoref["CylOD"].toString());
+    QString mSphereOD   = Utils::PrefixePlus(MesureAutoref["SphereOD"].toString());
+    QString mCylOD      = Utils::PrefixePlus(MesureAutoref["CylOD"].toString());
     QString mAxeOD      = QString::number(MesureAutoref["AxeOD"].toInt());
-    QString mSphereOG   = PrefixePlus(MesureAutoref["SphereOG"].toString());
-    QString mCylOG      = PrefixePlus(MesureAutoref["CylOG"].toString());
+    QString mSphereOG   = Utils::PrefixePlus(MesureAutoref["SphereOG"].toString());
+    QString mCylOG      = Utils::PrefixePlus(MesureAutoref["CylOG"].toString());
     QString mAxeOG      = QString::number(MesureAutoref["AxeOG"].toInt());
 
     QString ResultatOD("");
@@ -6505,13 +6301,13 @@ void Procedures::setHtmlKerato(QMap<QString,QVariant>  MKer)
     QString mAxeKOD     = QString::number(MKer["AxeKOD"].toInt());
     QString mDioptrK1OD = QLocale().toString(MKer["DioptrK1OD"].toDouble(),'f',1);
     QString mDioptrK2OD = QLocale().toString(MKer["DioptrK2OD"].toDouble(),'f',1);
-    QString mDioptrKOD  = PrefixePlus(MKer["DioptrKOD"].toString());
+    QString mDioptrKOD  = Utils::PrefixePlus(MKer["DioptrKOD"].toString());
     QString mK1OG       = QLocale().toString(MKer["K1OG"].toDouble(),'f',2);
     QString mK2OG       = QLocale().toString(MKer["K2OG"].toDouble(),'f',2);
     QString mAxeKOG     = QString::number(MKer["AxeKOG"].toInt());
     QString mDioptrK1OG = QLocale().toString(MKer["DioptrK1OG"].toDouble(),'f',1);
     QString mDioptrK2OG = QLocale().toString(MKer["DioptrK2OG"].toDouble(),'f',1);
-    QString mDioptrKOG  = PrefixePlus(MKer["DioptrKOG"].toString());
+    QString mDioptrKOG  = Utils::PrefixePlus(MKer["DioptrKOG"].toString());
     QString kerato = "";
 
     if (QLocale().toDouble(mK1OD)>0)
@@ -6662,41 +6458,6 @@ void Procedures::setTypeMesureRefraction(QString mesure)
 //---------------------------------------------------------------------------------
 // Calcul de la formule de refraction
 //---------------------------------------------------------------------------------
-QString Procedures::CalculeFormule(QMap<QString,QVariant> Mesure,  QString Cote)
-{
-        QString mSphere;
-        QString mCyl;
-        QString mAxe;
-        QString mAdd;
-        if (Cote == "D")
-        {
-            mSphere   = PrefixePlus(Mesure["SphereOD"].toString());
-            mCyl      = PrefixePlus(Mesure["CylOD"].toString());
-            mAxe      = QString::number(Mesure["AxeOD"].toInt());
-            mAdd      = PrefixePlus(Mesure["AddOD"].toString());
-        }
-        else if (Cote == "G")
-        {
-            mSphere   = PrefixePlus(Mesure["SphereOG"].toString());
-            mCyl      = PrefixePlus(Mesure["CylOG"].toString());
-            mAxe      = QString::number(Mesure["AxeOG"].toInt());
-            mAdd      = PrefixePlus(Mesure["AddOG"].toString());
-        }
-        else return "";
-        QString Resultat;
-        if (QLocale().toDouble(mCyl) != 0.00 && QLocale().toDouble(mSphere) != 0.00)
-            Resultat = mSphere + " (" + mCyl + tr(" à ") + mAxe + "°)" ;
-        if (QLocale().toDouble(mCyl) == 0.00 && QLocale().toDouble(mSphere) != 0.00)
-            Resultat = mSphere ;
-        if (QLocale().toDouble(mCyl) != 0.00 && QLocale().toDouble(mSphere) == 0.00)
-            Resultat = mCyl + tr(" à ") + mAxe + "°" ;
-        if (QLocale().toDouble(mCyl) == 0.00 && QLocale().toDouble(mSphere) == 0.00)
-            Resultat = tr("plan");
-        if (QLocale().toDouble(mAdd) > 0.00)
-            Resultat += " add." + mAdd + " VP" ;
-        return Resultat;
-}
-
 void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
 {
     QString                 zQuelleMesure;
@@ -6718,21 +6479,21 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
             QString mCylOD, mCylOG;
             QString mAxeOD, mAxeOG;
             QString mAddOD, mAddOG;
-            mSphereOD       = PrefixePlus(MapMesure["SphereOD"].toString());
-            mCylOD          = PrefixePlus(MapMesure["CylOD"].toString());
+            mSphereOD       = Utils::PrefixePlus(MapMesure["SphereOD"].toString());
+            mCylOD          = Utils::PrefixePlus(MapMesure["CylOD"].toString());
             mAxeOD          = QString::number(MapMesure["AxeOD"].toInt());
-            mAddOD          = PrefixePlus(MapMesure["AddOD"].toString());
-            mSphereOG       = PrefixePlus(MapMesure["SphereOG"].toString());
-            mCylOG          = PrefixePlus(MapMesure["CylOG"].toString());
+            mAddOD          = Utils::PrefixePlus(MapMesure["AddOD"].toString());
+            mSphereOG       = Utils::PrefixePlus(MapMesure["SphereOG"].toString());
+            mCylOG          = Utils::PrefixePlus(MapMesure["CylOG"].toString());
             mAxeOG          = QString::number(MapMesure["AxeOG"].toInt());
-            mAddOG          = PrefixePlus(MapMesure["AddOG"].toString());
+            mAddOG          = Utils::PrefixePlus(MapMesure["AddOG"].toString());
             zQuelleMesure = "P";
             QString requete = "delete from " NOM_TABLE_REFRACTION
                     " where idPat = " + QString::number(idPatient) +
                     " and idacte = " + QString::number(idActe) +
                     " and QuelleMesure = 'P'" +
-                    " and FormuleOD = '" + CalculeFormule(MapMesure,"D") + "'" +
-                    " and FormuleOG = '" + CalculeFormule(MapMesure,"G") + "'";
+                    " and FormuleOD = '" + Utils::CalculeFormule(MapMesure,"D") + "'" +
+                    " and FormuleOG = '" + Utils::CalculeFormule(MapMesure,"G") + "'";
             db->StandardSQL(requete);
 
             requete = "INSERT INTO " NOM_TABLE_REFRACTION
@@ -6749,12 +6510,12 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     QString::number(QLocale().toDouble(mCylOD))     + "," +
                     mAxeOD     + "," +
                     (QLocale().toDouble(mAddOD)>0? QString::number(QLocale().toDouble(mAddOD)) : "null") + ",'" +
-                    CalculeFormule(MapMesure,"D") + "'," +
+                    Utils::CalculeFormule(MapMesure,"D") + "'," +
                     QString::number(QLocale().toDouble(mSphereOG))  + "," +
                     QString::number(QLocale().toDouble(mCylOG))     + "," +
                     mAxeOG     + "," +
                     (QLocale().toDouble(mAddOG)>0? QString::number(QLocale().toDouble(mAddOG)) : "null") + ",'" +
-                    CalculeFormule(MapMesure,"G") + "')";
+                    Utils::CalculeFormule(MapMesure,"G") + "')";
 
             db->StandardSQL (requete, tr("Erreur de création de données fronto dans ") + NOM_TABLE_REFRACTION);
         }
@@ -6774,11 +6535,11 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
             QString mCylOD, mCylOG;
             QString mAxeOD, mAxeOG;
             QString PD;
-            mSphereOD       = PrefixePlus(MapMesure["SphereOD"].toString());
-            mCylOD          = PrefixePlus(MapMesure["CylOD"].toString());
+            mSphereOD       = Utils::PrefixePlus(MapMesure["SphereOD"].toString());
+            mCylOD          = Utils::PrefixePlus(MapMesure["CylOD"].toString());
             mAxeOD          = QString::number(MapMesure["AxeOD"].toInt());
-            mSphereOG       = PrefixePlus(MapMesure["SphereOG"].toString());
-            mCylOG          = PrefixePlus(MapMesure["CylOG"].toString());
+            mSphereOG       = Utils::PrefixePlus(MapMesure["SphereOG"].toString());
+            mCylOG          = Utils::PrefixePlus(MapMesure["CylOG"].toString());
             mAxeOG          = QString::number(MapMesure["AxeOG"].toInt());
             PD              = MapMesure["PD"].toString();
             if (PD == "")
@@ -6803,11 +6564,11 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     QString::number(QLocale().toDouble(mSphereOD))  + "," +
                     QString::number(QLocale().toDouble(mCylOD))     + "," +
                     mAxeOD     + ",'" +
-                    CalculeFormule(MapMesure,"D") + "'," +
+                    Utils::CalculeFormule(MapMesure,"D") + "'," +
                     QString::number(QLocale().toDouble(mSphereOG))  + "," +
                     QString::number(QLocale().toDouble(mCylOG))     + "," +
                     mAxeOG     + ",'" +
-                    CalculeFormule(MapMesure,"G") + "', " + PD + ")";
+                    Utils::CalculeFormule(MapMesure,"G") + "', " + PD + ")";
 
             db->StandardSQL (requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_REFRACTION);
             requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
@@ -6924,16 +6685,16 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
             QString mAVLOD, mAVLOG;
             QString mAVPOD, mAVPOG;
             QString PD;
-            mSphereOD       = PrefixePlus(MapMesure["SphereOD"].toString());
-            mCylOD          = PrefixePlus(MapMesure["CylOD"].toString());
+            mSphereOD       = Utils::PrefixePlus(MapMesure["SphereOD"].toString());
+            mCylOD          = Utils::PrefixePlus(MapMesure["CylOD"].toString());
             mAxeOD          = QString::number(MapMesure["AxeOD"].toInt());
-            mAddOD          = PrefixePlus(MapMesure["AddOD"].toString());
+            mAddOD          = Utils::PrefixePlus(MapMesure["AddOD"].toString());
             mAVLOD          = QLocale().toString(MapMesure["AVLOD"].toDouble()*10) + "/10";
             mAVPOD          = MapMesure["AVPOD"].toString();
-            mSphereOG       = PrefixePlus(MapMesure["SphereOG"].toString());
-            mCylOG          = PrefixePlus(MapMesure["CylOG"].toString());
+            mSphereOG       = Utils::PrefixePlus(MapMesure["SphereOG"].toString());
+            mCylOG          = Utils::PrefixePlus(MapMesure["CylOG"].toString());
             mAxeOG          = QString::number(MapMesure["AxeOG"].toInt());
-            mAddOG          = PrefixePlus(MapMesure["AddOG"].toString());
+            mAddOG          = Utils::PrefixePlus(MapMesure["AddOG"].toString());
             mAVLOD          = QLocale().toString(MapMesure["AVLOG"].toDouble()*10) + "/10";
             mAVPOG          = MapMesure["AVPOG"].toString();
             PD              = MapMesure["PD"].toString();
@@ -6959,14 +6720,14 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
                     QString::number(QLocale().toDouble(mCylOD))     + "," +
                     mAxeOD     + "," +
                     (QLocale().toDouble(mAddOD)>0? QString::number(QLocale().toDouble(mAddOD)) : "null") + ",'" +
-                    CalculeFormule(MapMesure,"D") + "','" +
+                    Utils::CalculeFormule(MapMesure,"D") + "','" +
                     mAVLOD + "','" +
                     mAVPOD + "'," +
                     QString::number(QLocale().toDouble(mSphereOG))  + "," +
                     QString::number(QLocale().toDouble(mCylOG))     + "," +
                     mAxeOG     + "," +
                     (QLocale().toDouble(mAddOG)>0? QString::number(QLocale().toDouble(mAddOG)) : "null") + ",'" +
-                    CalculeFormule(MapMesure,"G") + "','" +
+                    Utils::CalculeFormule(MapMesure,"G") + "','" +
                     mAVLOG + "','" +
                     mAVPOG + "'," +
                     PD + ")";

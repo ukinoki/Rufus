@@ -280,8 +280,8 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 
     //2. retrouver le créateur de l'acte
     //idUser = ActesPrecsQuery.value(2).toInt();
-    ui->CreateurConsultlineEdit->setText(tr("Créé par ") + proc->getLogin(acte->idCreatedBy() ) +
-                                         tr(" pour ") + proc->getLogin(acte->idUser())); //Avant idPatient
+    ui->CreateurConsultlineEdit->setText(tr("Créé par ") + Datas::I()->users->getUserById(acte->idCreatedBy())->getLogin() +
+                                         tr(" pour ") + Datas::I()->users->getUserById(acte->idUser())->getLogin()); //Avant idPatient
 
     //3. Mettre à jour le numéro d'acte
     if( acte->nbActes() > 1 )

@@ -103,7 +103,7 @@ dlg_paiement::dlg_paiement(QList<int> ListidActeAPasser, int Mode, Procedures *p
     }
     if( gDataUser == Q_NULLPTR || glistComptesEncaissmt->rowCount() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + proc->getLogin(gidUserACrediter));
+        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + Datas::I()->users->getUserById(gidUserACrediter)->getLogin());
         InitOK = false;
         return;
     }
@@ -2026,7 +2026,7 @@ int dlg_paiement::EnregistreRecette()
             if (ui->VirementradioButton->isChecked())
             {
                 QString InsertComptrequete = "INSERT INTO " NOM_TABLE_LIGNESCOMPTES "(idLigne, idCompte, idRec, LigneDate, LigneLibelle,  LigneMontant, LigneDebitCredit, LigneTypeOperation) VALUES ("
-                        + QString::number(proc->getMAXligneBanque()) + "," + idCompte + "," + QString::number(idRecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
+                        + QString::number(db->getMaxLigneBanque()) + "," + idCompte + "," + QString::number(idRecette) + ", '" + ui->dateEdit->date().toString("yyyy-MM-dd")
                         + "', 'Virement créditeur " + Utils::correctquoteSQL(ui->TierscomboBox->currentText()) + "',"
                         + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) + ",1,'Virement créditeur')";
                 QSqlQuery CompleteLigneCompteQuery (InsertComptrequete,db->getDataBase());
