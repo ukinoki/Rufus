@@ -1577,7 +1577,6 @@ bool dlg_refraction::DeplaceVers(QWidget *widg, QString FinOuDebut)
     {
         if (ui->VLRadioButton->isChecked() == true)     {ui->VLRadioButton->setFocus();     return true;}
         if (ui->VPRadioButton->isChecked() == true)     {ui->VPRadioButton->setFocus();     return true;}
-        if (ui->V2RadioButton->isChecked() == true)     {ui->V2RadioButton->setFocus();     return true;}
         ui->V2RadioButton->setFocus();
         ui->V2RadioButton->setChecked(true);
         Slot_QuelleDistance_Clicked();
@@ -1798,7 +1797,6 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     // stockage de l'ordonnance dans la base de donnees - table impressions
     if (a)
     {
-        // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
         QHash<QString,QVariant> listbinds;
         listbinds["iduser"] =           gidUser;
         listbinds["idpat"] =            gidPatient;

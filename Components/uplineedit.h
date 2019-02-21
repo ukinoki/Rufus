@@ -38,6 +38,8 @@ public:
     int         getId();
     int         getColumnTable() const;
     void        setColumnTable(int val);
+    void        setData(QVariant data);
+    QVariant    getData();
     void        setPeutEtreVide(bool);
     bool        getPeutEtreVide();
     void        setValeurAvant(QString valprec);
@@ -56,6 +58,7 @@ private:
     bool        CanDepart, PeutEtreVide;
     int         RowTable, ColumnTable, id;
     QString     ValeurAvant, ValeurApres, Champ, Table;
+    QVariant    linedata;
     void        ReemitTextEdited();
     void        AfficheToolTip();
 

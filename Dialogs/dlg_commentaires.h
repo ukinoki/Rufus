@@ -50,18 +50,16 @@ protected:
 private:
     void                        ChoixMenuContextuel(QString);
 
-    void                        New_Com();
     void                        Del_Com();
     void                        Modif_Com();
     bool                        gModifSurvol;
     bool                        gModeSurvol;
-    double                      gOpacity;
     int                         gidUser;
     int                         gMode;
     enum gMode                  {Selection, Modification, Creation};
     WidgetButtonFrame           *widgButtons;
 
-    QGraphicsOpacityEffect      *gOp;
+    QGraphicsOpacityEffect      gOp;
     DataBase                    *db;
     QString                     textDocument, resumeDocument;
     QTimer                      *gTimerEfface;
@@ -69,6 +67,7 @@ private:
 
     bool                        eventFilter(QObject *, QEvent *);
     void                        keyPressEvent   (QKeyEvent * event );
+    QString                     CalcToolTip(QString ab);
     bool                        ChercheDoublon(QString str, int row);
     void                        ConfigMode(int mode, int row = 0);
     void                        EffaceWidget(QWidget* widg, bool AvecOuSansPause = true);
@@ -83,7 +82,6 @@ private:
     //anciens slots
     void                        Annulation();
     void                        ChoixButtonFrame(int);
-    void                        ComCellEnter(int row);
     void                        MenuContextuel(UpLineEdit *line);
     void                        dblClicktextEdit();
     void                        EnableOKPushbutton();

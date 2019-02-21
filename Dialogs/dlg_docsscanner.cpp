@@ -109,7 +109,7 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(toolbar,    &UpToolBar::TBSignal, [=] {NavigueVers(toolbar->action);});
+    connect(toolbar,    &UpToolBar::TBSignal, this, [=] {NavigueVers(toolbar->action);});
 
     uptable     ->setColumnCount(1);
     uptable     ->horizontalHeader()->setVisible(false);
@@ -155,8 +155,8 @@ dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidge
     dlglayout()   ->insertWidget(0,uptable);
 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
-    connect(OKButton,           &QPushButton::clicked, [=] {ValideFiche();});
-    connect(dirsearchbutton,    &QPushButton::clicked, [=] {ChangeFile();});
+    connect(OKButton,           &QPushButton::clicked, this,   &dlg_docsscanner::ValideFiche);
+    connect(dirsearchbutton,    &QPushButton::clicked, this,   &dlg_docsscanner::ChangeFile);
 
     buttonslayout()->insertLayout(0,rsgnmtVlay);
 

@@ -18,22 +18,35 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptoolbar.h"
 #include "icons.h"
 
-UpToolBar::UpToolBar(QWidget *parent) : QToolBar(parent)
+UpToolBar::UpToolBar(bool AvecFinDebut, bool AvecReload, QWidget *parent) : QToolBar(parent)
 {
-    debut   = new QAction(Icons::icPageAvant(),tr("Début"),this);
+    if (AvecFinDebut)
+    {
+        debut   = new QAction(Icons::icPageAvant(),tr("Début"),this);
+        fin     = new QAction(Icons::icPageApres(),tr("Fin"),this);
+        connect(debut,  &QAction::triggered,  [=] {TBChoix(debut);});
+        connect(fin,    &QAction::triggered,  [=] {TBChoix(fin);});
+    }
     prec    = new QAction(Icons::icAvant(),tr("Précédent"),this);
     suiv    = new QAction(Icons::icApres(),tr("Suivant"),this);
-    fin     = new QAction(Icons::icPageApres(),tr("Fin"),this);
 
-    connect(debut,  &QAction::triggered,  [=] {TBChoix(debut);});
     connect(prec,   &QAction::triggered,  [=] {TBChoix(prec);});
     connect(suiv,   &QAction::triggered,  [=] {TBChoix(suiv);});
-    connect(fin,    &QAction::triggered,  [=] {TBChoix(fin);});
 
-    addAction(debut);
+    if (AvecFinDebut)
+        addAction(debut);
     addAction(prec);
     addAction(suiv);
-    addAction(fin);
+    if (AvecFinDebut)
+        addAction(fin);
+
+    if (AvecReload)
+    {
+        reload  = new QAction(Icons::icPageRefresh(),tr("Recharger"),this);
+        connect(reload, &QAction::triggered,  [=] {TBChoix(reload);});
+        addSeparator();
+        addAction(reload);
+    }
 
     setFixedHeight(46);
     setIconSize(QSize(35,35));
@@ -67,6 +80,11 @@ QAction* UpToolBar::Next()
 QAction* UpToolBar::Prec()
 {
     return prec;
+}
+
+QAction* UpToolBar::Reload()
+{
+    return reload;
 }
 
 

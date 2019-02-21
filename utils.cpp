@@ -220,6 +220,8 @@ void Utils::convertPlainText(QString &text)
     text = textprov.toPlainText();
     while (text.at(text.size()-1).unicode() == 10)
         text.remove(text.size()-1,1);
+//    while (text.endsWith("\n"))
+//        text = text.left(text.size()-1);
 }
 
 /*!

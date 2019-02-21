@@ -62,7 +62,7 @@ dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(toolbar,    &UpToolBar::TBSignal, [=] {NavigueVers(toolbar->action);});
+    connect(toolbar,    &UpToolBar::TBSignal,   this, [=] {NavigueVers(toolbar->action);});
 
     toolbar     ->setMinimumHeight(30);
     dirsearchbutton->setFixedHeight(30);
@@ -108,8 +108,8 @@ dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     setStageCount(2);
-    connect(OKButton,           &QPushButton::clicked, [=] {ValideFiche();});
-    connect(dirsearchbutton,    &QPushButton::clicked, [=] {ChangeFile();});
+    connect(OKButton,           &QPushButton::clicked, this,   &dlg_docsvideo::ValideFiche);
+    connect(dirsearchbutton,    &QPushButton::clicked, this,   &dlg_docsvideo::ChangeFile);
 
     buttonslayout()->insertLayout(0,rsgnmtVlay);
 

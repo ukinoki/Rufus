@@ -28,6 +28,7 @@ UpLineEdit::UpLineEdit(QWidget *parent) : QLineEdit(parent)
     ValeurApres     = "";
     Champ           = "";
     Table           = "";
+    linedata        = QVariant();
     installEventFilter(this);
     connect(this, &QLineEdit::textEdited,       this, &UpLineEdit::ReemitTextEdited);
     // connect(this, &QLineEdit::inputRejected,    this, [=] {QSound::play(NOM_ALARME);}); le signal inpuRejected n'est pas reconnu par osx...
@@ -97,6 +98,16 @@ void UpLineEdit::setCanDepart(bool OK)
 bool UpLineEdit::getCanDepart() const
 {
     return CanDepart;
+}
+
+void UpLineEdit::setData(QVariant data)
+{
+    linedata = data;
+}
+
+QVariant UpLineEdit::getData()
+{
+    return linedata;
 }
 
 void UpLineEdit::setPeutEtreVide(bool OK)

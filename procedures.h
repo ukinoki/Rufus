@@ -64,6 +64,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationuser.h"
 #include "dlg_message.h"
 #include "uptextedit.h"
+#include "uptoolbar.h"
 #include "upmessagebox.h"
 
 #include "cls_correspondant.h"

@@ -1036,6 +1036,8 @@ void Procedures::DisplayWebPage(QUrl webpage)
     UpDialog        *gAsk           = new UpDialog();
     QWebEngineView  *WebView        = new QWebEngineView(gAsk);
     UpSmallButton   *QwButt         = new UpSmallButton(gAsk);
+    UpSmallButton   *HomeButt       = new UpSmallButton(gAsk);
+    UpToolBar       *toolbar        = new UpToolBar(false, true);
 
     int x = qApp->desktop()->availableGeometry().width();
     int y = qApp->desktop()->availableGeometry().height();
@@ -1045,14 +1047,22 @@ void Procedures::DisplayWebPage(QUrl webpage)
     gAsk->setMaximumWidth(x);
     gAsk->setMaximumHeight(y);
 
-    QwButt->setUpButtonStyle(UpSmallButton::QWANTBUTTON);
+    QwButt  ->setUpButtonStyle(UpSmallButton::QWANTBUTTON);
+    HomeButt->setUpButtonStyle(UpSmallButton::HOMEBUTTON);
     gAsk->dlglayout()->insertWidget(0,WebView);
     gAsk->AjouteLayButtons();
+    gAsk->AjouteWidgetLayButtons(toolbar,false);
+    gAsk->AjouteWidgetLayButtons(HomeButt,false);
     gAsk->AjouteWidgetLayButtons(QwButt,false);
-    connect(WebView,        &QWebEngineView::loadFinished,    this,   [=] {gAsk->setWindowTitle(WebView->page()->title());
-                                                                         gAsk->setWindowIcon(WebView->page()->icon());});
-    //connect(WebView,        &QWebEngineView::iconChanged,   this,   [=] {gAsk->setWindowIcon(WebView->icon());});
-    connect(QwButt,         &QPushButton::clicked,          this,   [=] {WebView->setUrl(QUrl("https://www.qwant.com"));});
+    connect(WebView,        &QWebEngineView::loadFinished,  this,   [=] { gAsk->setWindowTitle(WebView->page()->title());
+                                                                          gAsk->setWindowIcon(WebView->page()->icon());});
+    connect(HomeButt,       &QPushButton::clicked,          this,   [=] { WebView->setUrl(QUrl(LIEN_CCAM));});
+    connect(QwButt,         &QPushButton::clicked,          this,   [=] { WebView->setUrl(QUrl("https://www.qwant.com"));});
+    connect(toolbar,        &UpToolBar::TBSignal,           this,   [=] { if (toolbar->action == "Précédent")   WebView->back();
+                                                                     else if (toolbar->action == "Suivant")     WebView->forward();
+                                                                     else if (toolbar->action == "Recharger")   WebView->reload();
+                                                                     });
+
     connect(gAsk->OKButton, &UpPushButton::clicked,         gAsk,   &UpDialog::accept);
     gAsk->restoreGeometry(gsettingsIni->value(geometry).toByteArray());
     WebView->setUrl(webpage);

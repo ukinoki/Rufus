@@ -64,6 +64,7 @@ void UpSmallButton::setUpButtonStyle(enum StyleBouton Style)
     case COPYBUTTON:            setIcon( Icons::icRecopier() );     break;
     case DONOTRECORDBUTTON:     setIcon( Icons::icDoNotRecord() );  break;
     case EDITBUTTON:            setIcon( Icons::icEditer() );       break;
+    case HOMEBUTTON:            setIcon( Icons::icPageHome() );     break;
     case LOUPEBUTTON:           setIcon( Icons::icLoupe() );        break;
     case OUPSBUTTON:            setIcon( Icons::icOups() );         break;
     case PRINTBUTTON:           setIcon( Icons::icImprimer() );     break;

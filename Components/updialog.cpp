@@ -43,7 +43,7 @@ void UpDialog::AjouteLay()
     laybuttons      = new QHBoxLayout();
     laybuttons      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
     laybuttons      ->setContentsMargins(0,10,0,10);
-    laybuttons      ->setSpacing(20);
+    laybuttons      ->setSpacing(10);
     widgbuttons     ->setLayout(laybuttons);
     dlglayout()     ->addWidget(widgbuttons);
 }
@@ -101,9 +101,9 @@ QVBoxLayout* UpDialog::dlglayout()
     QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(this->layout());
     if (globallay == Q_NULLPTR)
     {
-        globallay = new QVBoxLayout(this);
-        globallay       ->setContentsMargins(10,10,10,10);
-        globallay       ->setSpacing(0);
+        globallay   = new QVBoxLayout(this);
+        globallay   ->setContentsMargins(10,10,10,10);
+        globallay   ->setSpacing(0);
     }
     return globallay;
 }

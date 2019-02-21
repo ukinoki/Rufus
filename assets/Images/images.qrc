@@ -184,5 +184,7 @@
         <file>movie.png</file>
         <file>stamp.png</file>
         <file>qwant.png</file>
+        <file>button_blue_refresh.png</file>
+        <file>home.png</file>
     </qresource>
 </RCC>
