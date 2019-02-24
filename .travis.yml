@@ -19,8 +19,8 @@ install:
   - sudo apt-get install libopenjpeg-dev libopenjp2-7-dev libnss3-dev libpoppler-glib-dev libpoppler-qt5-dev libopenjpeg2
   - wget https://poppler.freedesktop.org/poppler-data-0.4.9.tar.gz && tar -xf poppler-data-0.4.9.tar.gz
   - pushd poppler-data-0.4.9 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7 && sudo make install && popd
-  - wget https://poppler.freedesktop.org/poppler-0.71.0.tar.xz && tar -xf poppler-0.71.0.tar.xz  
-  - pushd poppler-0.71.0 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7 && sudo make install && popd 
+  - wget https://poppler.freedesktop.org/poppler-0.74.0.tar.xz && tar -xf poppler-0.74.0.tar.xz  
+  - pushd poppler-0.74.0 && cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7 && sudo make install && popd 
   
 script:
   - qmake -unix PREFIX=/usr Rufus_travis.pro
