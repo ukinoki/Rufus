@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("21-02-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("24-02-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -7604,6 +7604,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
             else
                 requete += ", PatCMU = null";
             requete += " WHERE idPat = " + QString::number(idPat);
+
             db->StandardSQL(requete, tr("Impossible d'écrire dans la table des données sociales"));
             //2 - Mise à jour de medecin traitant
             int e = Dlg_IdentPatient->ui->MGupComboBox->currentData().toInt();
@@ -9959,7 +9960,7 @@ void Rufus::Tonometrie()
     if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
     int idPatAPasser = gidPatient;
 
-    Dlg_AutresMes           = new dlg_autresmesures(&idPatAPasser, dlg_autresmesures::TONO);
+    Dlg_AutresMes           = new dlg_autresmesures(idPatAPasser, dlg_autresmesures::TONO);
     QString TOD, TOG, Methode, TODcolor, TOGcolor;
     Dlg_AutresMes->setWindowTitle(tr("Tonométrie - ") + gNomPatient + " " + gPrenomPatient);
 

@@ -30,7 +30,6 @@ dlg_identificationpatient::dlg_identificationpatient(QString CreationModificatio
     gidPatient          = idPatAPasser;
     lCreatModifCopie    = CreationModification;
     db                  = DataBase::getInstance();
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
     ReconstruireListMG  = false;
     QVBoxLayout *vlay       = new QVBoxLayout;
     vlay                    ->setContentsMargins(0,10,0,10);
@@ -39,7 +38,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString CreationModificatio
     vlay                    ->insertWidget(0,ui->idPatientlabel);
     vlay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    globallay               ->insertWidget(0,ui->Principalframe);
+    dlglayout()             ->insertWidget(0,ui->Principalframe);
     VitaleButton            = new UpSmallButton();
     VitaleButton            ->setIcon(Icons::icVitale());
     VitaleButton            ->setFixedHeight(100);
@@ -50,7 +49,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString CreationModificatio
     CancelButton            ->setText(tr("Annuler"));
     setStageCount(2);
     buttonslayout()         ->insertLayout(0, vlay);
-    globallay               ->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()             ->setSizeConstraint(QLayout::SetFixedSize);
 
     ui->DDNdateEdit     ->setDateRange(QDate::currentDate().addYears(-105),QDate::currentDate());
     QFont font = qApp->font();
@@ -70,7 +69,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString CreationModificatio
     proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
     ui->MGupComboBox    ->setCurrentIndex(-1);
 
-    VilleCPwidg         = new VilleCPWidget(proc->getVilles(), ui->Principalframe, NOM_ALARME);
+    VilleCPwidg         = new VilleCPWidget(proc->getVilles(), ui->Principalframe);
     CPlineEdit          = VilleCPwidg->ui->CPlineEdit;
     VillelineEdit       = VilleCPwidg->ui->VillelineEdit;
     VilleCPwidg         ->move(10,254);
@@ -124,6 +123,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString CreationModificatio
     connect (ui->TellineEdit,               SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
     connect (ui->PortablelineEdit,          SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
     connect (ui->MaillineEdit,              SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
+    connect (ui->NNIlineEdit,               SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
     connect (ui->ProfessionlineEdit,        SIGNAL(textEdited(QString)),                this,   SLOT (Slot_EnableOKpushButton()));
     connect (ui->MradioButton,              SIGNAL(clicked()),                          this,   SLOT (Slot_EnableOKpushButton()));
     connect (ui->FradioButton,              SIGNAL(clicked()),                          this,   SLOT (Slot_EnableOKpushButton()));

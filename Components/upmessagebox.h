@@ -53,7 +53,7 @@ private:
     QSize           CalcSize(QString);
     UpLabel         *lblIcon, *Textedt, *InfoTextedt;
     QHBoxLayout     *infolayout;
-    QVBoxLayout     *textlayout, *globallayout;
+    QVBoxLayout     *textlayout;
     UpSmallButton   *ReponsSmallButton;
     UpPushButton    *ReponsPushButton;
     void            Repons(QPushButton *butt);

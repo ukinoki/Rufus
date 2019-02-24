@@ -30,7 +30,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     gidCor              = idCorresp;
     lCreatModif         = CreationModification;
     OnlyDoctors         = quelesmedecins;
-    VilleCPwidg     = new VilleCPWidget(proc->getVilles(), ui->Principalframe, NOM_ALARME);
+    VilleCPwidg     = new VilleCPWidget(proc->getVilles(), ui->Principalframe);
     CPlineEdit      = VilleCPwidg->ui->CPlineEdit;
     VillelineEdit   = VilleCPwidg->ui->VillelineEdit;
     VilleCPwidg     ->move(10,224);

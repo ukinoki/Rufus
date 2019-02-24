@@ -242,7 +242,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->PortTonometreupComboBox     ->setCurrentText(proc->gsettingsIni->value("Param_Poste/PortTonometre").toString());
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
-       VilleCPDefautWidg   = new VilleCPWidget(proc->getVilles(), ui->VilleDefautframe, NOM_ALARME);
+       VilleCPDefautWidg   = new VilleCPWidget(proc->getVilles(), ui->VilleDefautframe);
        CPDefautlineEdit    = VilleCPDefautWidg->ui->CPlineEdit;
        VilleDefautlineEdit = VilleCPDefautWidg->ui->VillelineEdit;
        VilleCPDefautWidg   ->move(15,10);
@@ -1152,7 +1152,6 @@ void dlg_param::NouvAppareil()
     gAskAppareil->move(QPoint(x()+width()/2,y()+height()/2));
     gAskAppareil->setFixedWidth(400);
     gAskAppareil->setWindowTitle(tr("Choisissez un appareil"));
-    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(gAskAppareil->layout());
     QHBoxLayout *lay = new QHBoxLayout;
     UpLabel *label = new UpLabel();
     label->setText("Nom de l'appareil");
@@ -1165,8 +1164,8 @@ void dlg_param::NouvAppareil()
     upCombo->setChampCorrespondant("NomAppareil");
     upCombo->showPopup();
     lay->addWidget(upCombo);
-    globallay->insertLayout(0,lay);
-    globallay->setSizeConstraint(QLayout::SetFixedSize);
+    gAskAppareil->dlglayout()->insertLayout(0,lay);
+    gAskAppareil->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     gAskAppareil->AjouteLayButtons(UpDialog::ButtonOK);
     connect(gAskAppareil->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreAppareil()));
     gAskAppareil->exec();
@@ -1791,35 +1790,34 @@ void dlg_param::Slot_ModifMDPAdmin()
     gAskMDP    = new UpDialog(this);
     gAskMDP    ->setModal(true);
     gAskMDP    ->move(QPoint(x()+width()/2,y()+height()/2));
-    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(gAskMDP->layout());
 
     UpLineEdit *ConfirmMDP = new UpLineEdit(gAskMDP);
     ConfirmMDP->setEchoMode(QLineEdit::Password);
     ConfirmMDP->setObjectName(gConfirmMDP);
     ConfirmMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_15,this));
     ConfirmMDP->setAlignment(Qt::AlignCenter);
-    globallay->insertWidget(0,ConfirmMDP);
+    gAskMDP->dlglayout()->insertWidget(0,ConfirmMDP);
     UpLabel *labelConfirmMDP = new UpLabel();
     labelConfirmMDP->setText(tr("Confirmez le nouveau mot de passe"));
-    globallay->insertWidget(0,labelConfirmMDP);
+    gAskMDP->dlglayout()->insertWidget(0,labelConfirmMDP);
     UpLineEdit *NouvMDP = new UpLineEdit(gAskMDP);
     NouvMDP->setEchoMode(QLineEdit::Password);
     NouvMDP->setObjectName(gNouvMDP);
     NouvMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_15,this));
     NouvMDP->setAlignment(Qt::AlignCenter);
-    globallay->insertWidget(0,NouvMDP);
+    gAskMDP->dlglayout()->insertWidget(0,NouvMDP);
     UpLabel *labelNewMDP = new UpLabel();
     labelNewMDP->setText(tr("Entrez le nouveau mot de passe"));
-    globallay->insertWidget(0,labelNewMDP);
+    gAskMDP->dlglayout()->insertWidget(0,labelNewMDP);
     UpLineEdit *AncMDP = new UpLineEdit(gAskMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
     AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_15,this));
     AncMDP->setObjectName(gAncMDP);
-    globallay->insertWidget(0,AncMDP);
+    gAskMDP->dlglayout()->insertWidget(0,AncMDP);
     UpLabel *labelOldMDP = new UpLabel();
     labelOldMDP->setText(tr("Entrez votre mot de passe"));
-    globallay->insertWidget(0,labelOldMDP);
+    gAskMDP->dlglayout()->insertWidget(0,labelOldMDP);
     AncMDP->setFocus();
 
     gAskMDP->AjouteLayButtons(UpDialog::ButtonOK);
@@ -1829,7 +1827,7 @@ void dlg_param::Slot_ModifMDPAdmin()
         gAskMDP->setTabOrder(ListTab.at(i), ListTab.at(i+1));
     gAskMDP    ->setWindowTitle(tr("Mot de passe administrateur"));
     connect(gAskMDP->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreNouvMDPAdmin()));
-    globallay->setSizeConstraint(QLayout::SetFixedSize);
+    gAskMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     gAskMDP->exec();
 }

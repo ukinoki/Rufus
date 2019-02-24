@@ -594,15 +594,10 @@ void dlg_commentaires::ConfigMode(int mode, int row)
 {
     gMode = mode;
 
-    if (gMode != Selection) {
+    if (gMode != Selection)
         gTimerEfface->disconnect();
-        ui->upTextEdit->setGraphicsEffect(new QGraphicsOpacityEffect());
-    }
-    else
-    {
-        gOp.setOpacity(1);
-        ui->upTextEdit->setGraphicsEffect(&gOp);
-    }
+    gOp.setOpacity(1);
+    ui->upTextEdit->setGraphicsEffect(&gOp);
     ui->upTextEdit->setVisible               (gMode != Selection);
 
     if (mode == Selection)

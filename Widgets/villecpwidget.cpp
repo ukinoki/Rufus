@@ -234,7 +234,6 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listData, QString fieldName, QS
 {
     UpDialog *gAsk                 = new UpDialog();
     gAsk                           ->setModal(true);
-    QVBoxLayout *globallay         = dynamic_cast<QVBoxLayout*>(gAsk->layout());
     QListView *list                = new QListView(gAsk);
     VilleListModel *listModel      = new VilleListModel(listData,fieldName);
 
@@ -251,8 +250,8 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listData, QString fieldName, QS
     list->setModel(listModel);
     list->setItemDelegate(deleglabl);
 
-    globallay->insertWidget(0,list);
-    globallay->setSizeConstraint(QLayout::SetFixedSize);
+    gAsk->dlglayout()->insertWidget(0,list);
+    gAsk->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     gAsk->OKButton->setEnabled(false);
 
     QString newValue;

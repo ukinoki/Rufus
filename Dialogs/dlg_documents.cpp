@@ -1081,8 +1081,6 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
     }
     else if (choix  == "Inserer")   {
         UpDialog        *ListChamps     = new UpDialog(this);
-        QVBoxLayout     *globallayout   = dynamic_cast<QVBoxLayout*>(ListChamps->layout());
-
         UpTableWidget   *tabChamps      = new UpTableWidget();
         QFontMetrics    fm(qApp->font());
 
@@ -1122,15 +1120,15 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
 
         ListChamps->AjouteLayButtons(UpDialog::ButtonOK);
         ListChamps->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
-        globallayout->insertWidget(0,tabChamps);
+        ListChamps->dlglayout()->insertWidget(0,tabChamps);
 
         ListChamps->setModal(true);
         ListChamps->move(QPoint(x()+width()/2,y()+height()/2));
 
         connect(ListChamps->OKButton,   &QPushButton::clicked,          [=] {ListChamps->accept();});
-        ListChamps->setFixedWidth(tabChamps->width() + globallayout->contentsMargins().left()*2);
+        ListChamps->setFixedWidth(tabChamps->width() + ListChamps->dlglayout()->contentsMargins().left()*2);
         connect(tabChamps,              &QTableWidget::doubleClicked,   [=] {ListChamps->accept();});
-        globallayout->setSizeConstraint(QLayout::SetFixedSize);
+        ListChamps->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
         if (ListChamps->exec()>0)   {
             if (tabChamps->selectedItems().size()>0)
@@ -1291,7 +1289,6 @@ void dlg_documents::Validation()
             gAsk->setWindowTitle(tr("Complétez la fiche"));
 
             QVBoxLayout *layWidg = new QVBoxLayout();
-            QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAsk->layout());
             for (int m=0; m<listQuestions.size();m++)
             {
                 QHBoxLayout *lay = new QHBoxLayout();
@@ -1383,14 +1380,14 @@ void dlg_documents::Validation()
                 Combo->setAccessibleDescription(listusers);
                 lay->addWidget(Combo);
             }
-            globallay   ->setContentsMargins(5,5,5,5);
+            gAsk->dlglayout()   ->setContentsMargins(5,5,5,5);
             layWidg     ->setContentsMargins(0,0,0,0);
             layWidg     ->setSpacing(10);
-            globallay   ->setSpacing(5);
-            globallay   ->insertLayout(0,layWidg);
+            gAsk->dlglayout()   ->setSpacing(5);
+            gAsk->dlglayout()   ->insertLayout(0,layWidg);
 
             gAsk->AjouteLayButtons();
-            globallay->setSizeConstraint(QLayout::SetFixedSize);
+            gAsk->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
             connect(gAsk->OKButton,     &QPushButton::clicked,   [=] {VerifCoherencegAsk();});
 
             if (gAsk->exec() == 0)
@@ -1730,13 +1727,12 @@ int dlg_documents::AskDialog(QString titre)
 {
     gAskDialog                  = new UpDialog(this);
     gAskDialog                  ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
-    QVBoxLayout *globallay      = dynamic_cast<QVBoxLayout*>(gAskDialog->layout());
     UpLineEdit  *Line           = new UpLineEdit(gAskDialog);
     UpLabel     *label          = new UpLabel(gAskDialog);
 
-    globallay->setSpacing(4);
-    globallay->insertWidget(0,Line);
-    globallay->insertWidget(0,label);
+    gAskDialog->dlglayout()->setSpacing(4);
+    gAskDialog->dlglayout()->insertWidget(0,Line);
+    gAskDialog->dlglayout()->insertWidget(0,label);
 
     gAskDialog->setModal(true);
     gAskDialog->setSizeGripEnabled(false);
@@ -2826,7 +2822,6 @@ void dlg_documents::ChoixCorrespondant(QList<QList<QVariant>> listcor)
     gAskCorresp                 = new UpDialog(this);
     gAskCorresp                 ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
     gAskCorresp                 ->AjouteLayButtons();
-    QVBoxLayout *globallay      = dynamic_cast<QVBoxLayout*>(gAskCorresp->layout());
     QTableView  *tblCorresp     = new QTableView(gAskCorresp);
     QStandardItemModel *gmodele = new QStandardItemModel;
     QStandardItem *pitem;
@@ -2867,11 +2862,11 @@ void dlg_documents::ChoixCorrespondant(QList<QList<QVariant>> listcor)
     tblCorresp  ->setFixedWidth(largfinal);
     label       ->setFixedWidth(largfinal);
     label       ->setFixedHeight(hauteurligne + 2);
-    globallay   ->insertWidget(0,tblCorresp);
-    globallay   ->insertWidget(0,label);
+    gAskCorresp->dlglayout()   ->insertWidget(0,tblCorresp);
+    gAskCorresp->dlglayout()   ->insertWidget(0,label);
 
     gAskCorresp ->setModal(true);
-    globallay   ->setSizeConstraint(QLayout::SetFixedSize);
+    gAskCorresp->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
 
     connect(gAskCorresp->OKButton,   &QPushButton::clicked, [=] {ListidCor();});
 

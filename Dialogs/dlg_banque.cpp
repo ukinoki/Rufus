@@ -219,11 +219,15 @@ void dlg_banque::SupprBanque()
     if (listcomptes.size()>0)
     {
         UpMessageBox::Watch(this, tr("Impossible de supprimer la banque ") + lbl->text(), tr("Elle est utilisée par d'autres utilisateurs"));
+        lbl = Q_NULLPTR;
+        delete lbl;
         return;
     }
     db->SupprRecordFromTable(idBanque,"idBanque",NOM_TABLE_BANQUES);
     RemplirTableView();
     AfficheBanque();
+    lbl = Q_NULLPTR;
+    delete lbl;
 }
 
 void dlg_banque::MAJBanques()

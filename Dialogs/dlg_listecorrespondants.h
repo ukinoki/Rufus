@@ -43,7 +43,6 @@ private:
     DataBase                *db;
     QTreeView               *treeCor;
 
-    QVBoxLayout             *globallayout;
     UpLineEdit              *ChercheUplineEdit;
     UpLabel                 *label;
     QStandardItemModel      *gmodele;

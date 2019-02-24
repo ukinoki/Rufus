@@ -17,15 +17,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_autresmesures.h"
 
-dlg_autresmesures::dlg_autresmesures(int *idPatAPasser, enum mode mod,  QWidget *parent) :
+dlg_autresmesures::dlg_autresmesures(int idPatAPasser, enum mode mod,  QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionTono", parent)
 {
     proc        = Procedures::I();
-    gidPatient  = *idPatAPasser;
+    gidPatient  = idPatAPasser;
     db          = DataBase::getInstance()->getDataBase();
     mode        = mod;
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    dynamic_cast<QVBoxLayout*>(layout())->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     connect (OKButton,   &QPushButton::clicked,   [=] {OKButtonClicked();});
@@ -33,7 +33,7 @@ dlg_autresmesures::dlg_autresmesures(int *idPatAPasser, enum mode mod,  QWidget 
     {
         widgto      = new WidgTono(this);
         widgto      ->setFixedSize(275,95);
-        dynamic_cast<QVBoxLayout*>(layout())->insertWidget(0,widgto);
+        dlglayout()->insertWidget(0,widgto);
         widgto->ui->AirRadioButton->setChecked(true);
         widgto->ui->TOODSpinBox->installEventFilter(this);
         widgto->ui->TOOGSpinBox->installEventFilter(this);
@@ -68,7 +68,7 @@ bool dlg_autresmesures::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 {
     if (event->type() == QEvent::KeyPress)
     {
-        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        keyEvent = static_cast<QKeyEvent*>(event);
         // Fleche Gauche - -----------------------------------------
         if(keyEvent->key()==Qt::Key_Left)
             if (!obj->inherits("QPushButton")) return QWidget::focusPreviousChild();

@@ -88,11 +88,10 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
             TreeWidget->setCurrentItem(item->child(0));
     }
     TreeWidget->expandAll();
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
-    globallay->insertWidget(0,frame);
-    globallay->insertWidget(0,lbl);
-    globallay->insertWidget(0,TreeWidget);
-    globallay->setSpacing(5);
+    dlglayout()->insertWidget(0,frame);
+    dlglayout()->insertWidget(0,lbl);
+    dlglayout()->insertWidget(0,TreeWidget);
+    dlglayout()->setSpacing(5);
 }
 
 dlg_fontdialog::~dlg_fontdialog()

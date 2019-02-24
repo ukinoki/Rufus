@@ -114,6 +114,8 @@ private:
     bool                    FermeComment;
     UpLineEdit              *AVPOD, *AVLOD;
     UpLineEdit              *AVPOG, *AVLOG;
+    QKeyEvent               *keyEvent = Q_NULLPTR;
+    QWidget                 *widg = Q_NULLPTR;
 
     bool                    Imprimer_Ordonnance();
 
@@ -134,7 +136,7 @@ private:
 
     bool                    ControleCoherence();
     double                  ConvDouble(QString textdouble);
-    bool                    DeplaceVers(QWidget *w, QString FinOuDebut = "");
+    bool                    DeplaceVers(QWidget *widget, QString FinOuDebut = "");
     int                     DetruireLaMesure(int IdRefract);
     void                    FermeFiche(QString ModeSortie);
     void                    InitDivers();

@@ -29,10 +29,10 @@ dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, QWidget *parent
         gMode       = Recuperer;
     db          = DataBase::getInstance();
 
-    QVBoxLayout *globallay       = dynamic_cast<QVBoxLayout*>(layout());
+
     tabLM              = new QTableView(this);
 
-    globallay->insertWidget(0,tabLM);
+    dlglayout()->insertWidget(0,tabLM);
 
     setModal(true);
     setSizeGripEnabled(false);
@@ -74,19 +74,13 @@ dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, QWidget *parent
             larg += tabLM->columnWidth(i);
     tabLM->setFixedWidth(larg+2);
     setFixedWidth(tabLM->width()
-                        + globallay->contentsMargins().left()*2);
+                        + dlglayout()->contentsMargins().left()*2);
     QFontMetrics fm(qApp->font());
     int hauteurligne = int(fm.height()*1.1);
     tabLM->setMinimumHeight(hauteurligne*20);
     tabLM->setSizeIncrement(0,hauteurligne);
     tabLM->setMouseTracking(true);
-
-    // UTF-8 Encodage pour compatibilité Windows-Mac
-    // BUG QT 5 QTextCodec::setCodecForCStrings(QTextCodec::codecForName("UTF-8"));
-    // BUG QT 5 QTextCodec::setCodecForTr(QTextCodec::codecForName("UTF-8"));
-    // BUG QT 5 QTextCodec::setCodecForLocale(QTextCodec::codecForName("UTF-8"));
-
-    dynamic_cast<QVBoxLayout*>(layout())->insertWidget(0,tabLM);
+    dlglayout()->insertWidget(0,tabLM);
     connect (tabLM,   SIGNAL(clicked(QModelIndex)),  this, SLOT (Slot_Item_Liste_Clicked(QModelIndex)) );
 }
 
@@ -201,7 +195,7 @@ void dlg_listemesures::RemplirTableView()
     if (gmodele)
         gmodele->clear();
     else
-        gmodele = new QStandardItemModel;
+        gmodele = new QStandardItemModel(this);
 
     pitem0  = new QStandardItem(tr("Date"));
     gmodele ->setHorizontalHeaderItem(0,pitem0);

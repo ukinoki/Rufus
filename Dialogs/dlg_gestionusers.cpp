@@ -40,7 +40,6 @@ dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, bool mdpverified, QWi
     gConfirmMDPupLineEdit   = "ConfirmMDPupLineEdit";
     gcolor                  = QBrush(QColor(Qt::magenta));
 
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
     AjouteLayButtons(UpDialog::ButtonClose);
 
     widgButtons = new WidgetButtonFrame(ui->ListUserstableWidget);
@@ -52,7 +51,7 @@ dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, bool mdpverified, QWi
     int marge   = 10;
     play        ->setContentsMargins(marge,marge,marge,marge);
     play        ->setSpacing(marge);
-    globallay   ->insertLayout(0,play);
+    dlglayout() ->insertLayout(0,play);
 
     ReconstruitListeLieuxExercice();
 
@@ -138,7 +137,7 @@ dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, bool mdpverified, QWi
 
     Slot_RegleAffichage();
 
-    globallay->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     ui->NoComptaupRadioButton       ->setCheckable(false);
     ui->CotationupRadioButton       ->setChecked(true);
@@ -270,7 +269,6 @@ void dlg_gestionusers::CreerUser()
     UpLineEdit *Line            = new UpLineEdit();
     UpLineEdit *Line2           = new UpLineEdit();
     UpLineEdit *Line3           = new UpLineEdit();
-    QVBoxLayout *globallay      = dynamic_cast<QVBoxLayout*>(gAsk->layout());
 
     gAsk                        ->setModal(true);
     gAsk                        ->move(QPoint(x()+width()/2,y()+height()/2));
@@ -320,8 +318,8 @@ void dlg_gestionusers::CreerUser()
     lay->setContentsMargins(5,5,5,5);
     lay->setSpacing(5);
 
-    globallay                   ->insertLayout(0,lay);
-    globallay                   ->setSizeConstraint(QLayout::SetFixedSize);
+    gAsk->dlglayout()           ->insertLayout(0,lay);
+    gAsk->dlglayout()           ->setSizeConstraint(QLayout::SetFixedSize);
 
     Line                        ->setFocus();
     gAsk->exec();
@@ -907,35 +905,34 @@ void dlg_gestionusers::Slot_ModifMDP()
     gAskMDP    = new UpDialog(this);
     gAskMDP    ->setModal(true);
     gAskMDP    ->move(QPoint(x()+width()/2,y()+height()/2));
-    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(gAskMDP->layout());
 
     UpLineEdit *ConfirmMDP = new UpLineEdit(gAskMDP);
     ConfirmMDP->setEchoMode(QLineEdit::Password);
     ConfirmMDP->setObjectName(gConfirmMDP);
     ConfirmMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ConfirmMDP->setAlignment(Qt::AlignCenter);
-    globallay->insertWidget(0,ConfirmMDP);
+    gAskMDP->dlglayout()->insertWidget(0,ConfirmMDP);
     UpLabel *labelConfirmMDP = new UpLabel();
     labelConfirmMDP->setText(tr("Confirmez le nouveau mot de passe"));
-    globallay->insertWidget(0,labelConfirmMDP);
+    gAskMDP->dlglayout()->insertWidget(0,labelConfirmMDP);
     UpLineEdit *NouvMDP = new UpLineEdit(gAskMDP);
     NouvMDP->setEchoMode(QLineEdit::Password);
     NouvMDP->setObjectName(gNouvMDP);
     NouvMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     NouvMDP->setAlignment(Qt::AlignCenter);
-    globallay->insertWidget(0,NouvMDP);
+    gAskMDP->dlglayout()->insertWidget(0,NouvMDP);
     UpLabel *labelNewMDP = new UpLabel();
     labelNewMDP->setText(tr("Entrez le nouveau mot de passe"));
-    globallay->insertWidget(0,labelNewMDP);
+    gAskMDP->dlglayout()->insertWidget(0,labelNewMDP);
     UpLineEdit *AncMDP = new UpLineEdit(gAskMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
     AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     AncMDP->setObjectName(gAncMDP);
-    globallay->insertWidget(0,AncMDP);
+    gAskMDP->dlglayout()->insertWidget(0,AncMDP);
     UpLabel *labelOldMDP = new UpLabel();
     labelOldMDP->setText(tr("Ancien mot de passe"));
-    globallay->insertWidget(0,labelOldMDP);
+    gAskMDP->dlglayout()->insertWidget(0,labelOldMDP);
     AncMDP->setFocus();
 
     gAskMDP->AjouteLayButtons(UpDialog::ButtonOK);
@@ -945,7 +942,7 @@ void dlg_gestionusers::Slot_ModifMDP()
         gAskMDP->setTabOrder(ListTab.at(i), ListTab.at(i+1));
     gAskMDP    ->setWindowTitle(tr("Mot de passe utilisateur"));
     connect(gAskMDP->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreNouvMDP()));
-    globallay->setSizeConstraint(QLayout::SetFixedSize);
+    gAskMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     gAskMDP->exec();
 }

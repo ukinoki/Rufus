@@ -36,7 +36,7 @@ class VilleCPWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit VilleCPWidget(Villes *villes, QWidget *parent = Q_NULLPTR, QString Son = "");
+    explicit VilleCPWidget(Villes *villes, QWidget *parent = Q_NULLPTR, QString Son = NOM_ALARME);
     ~VilleCPWidget();
     Ui::VilleCPWidget       *ui;
 

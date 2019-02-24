@@ -26,8 +26,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
 
     proc            = Procedures::I();
     db              = DataBase::getInstance();
-    globallayout    = dynamic_cast<QVBoxLayout*>(layout());
-    gmodele         = new QStandardItemModel;
+    gmodele         = new QStandardItemModel(this);
     ListeModifiee   = false;
 
     setModal(true);
@@ -61,7 +60,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     widgButtons->layButtons()->insertWidget(0,ChercheUplineEdit);
     AjouteLayButtons(UpDialog::ButtonOK);
 
-    globallayout->insertWidget(0,widgButtons->widgButtonParent());
+    dlglayout()->insertWidget(0,widgButtons->widgButtonParent());
 
     connect(OKButton,           SIGNAL(clicked(bool)),                  this,   SLOT(reject()));
     connect(ChercheUplineEdit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);

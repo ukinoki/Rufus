@@ -50,7 +50,6 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     ui->MDPlineEdit     ->installEventFilter(this);
 
     gChgUsr             = ChgUser;
-    //gTimerControl       = new QTimer(this);
     ui->LoginlineEdit   ->setFocus();
 
 

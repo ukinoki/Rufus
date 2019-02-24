@@ -185,9 +185,13 @@ void dlg_comptes::Archiver()
                     QLabel *Lbl = dynamic_cast<QLabel*>(gBigTable->cellWidget(i,0));
                     if (Lbl)
                         ListeActesAArchiver << Lbl->text().toInt();
+                    Lbl = Q_NULLPTR;
+                    delete Lbl;
                 }
             }
         }
+        Wdg = Q_NULLPTR;
+        delete Wdg;
     }
 
     if (ListeActesAArchiver.size() == 0)
@@ -254,6 +258,8 @@ void dlg_comptes::AnnulConsolidations()
             for (int n = 0; n <  allCheck.size(); n++)
                 allCheck.at(n)->setCheckState(Qt::Unchecked);
         }
+        Wdg = Q_NULLPTR;
+        delete Wdg;
     }
     db->StandardSQL("update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = null");
     CalculeTotal();
@@ -285,6 +291,8 @@ void dlg_comptes::RenvoieRangee(bool Coche, UpCheckBox* Check)
     requete += " where idligne = " + lbl->text();
     db->StandardSQL(requete);
     CalculeTotal();
+    lbl = Q_NULLPTR;
+    delete lbl;
 }
 
 void dlg_comptes::RedessineFicheArchives()
@@ -447,7 +455,6 @@ void dlg_comptes::VoirArchives()
     gTableArchives  = new UpTableWidget();
     glistArchCombo  = new QComboBox();
     glbltitre       = new UpLabel();
-    QVBoxLayout     *globallay      = dynamic_cast<QVBoxLayout*>(gArchives->layout());
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     gloupButton     = new UpSmallButton();
     gFlecheHtButton = new UpSmallButton();
@@ -487,41 +494,53 @@ void dlg_comptes::VoirArchives()
     gModeArchives = PARARCHIVE;
     RedessineFicheArchives();
 
-    globallay   ->insertWidget(0,gTableArchives);
-    globallay   ->insertLayout(0, titreLay);
+    gArchives->dlglayout()   ->insertWidget(0,gTableArchives);
+    gArchives->dlglayout()   ->insertLayout(0, titreLay);
 
     gArchives->AjouteLayButtons(UpDialog::ButtonOK);
     connect(gArchives->OKButton,     &QPushButton::clicked,              gArchives, [=] {gArchives->close();});
     gArchives->setModal(true);
-    globallay->setStretch(0,1);
-    globallay->setStretch(1,15);
+    gArchives->dlglayout()->setStretch(0,1);
+    gArchives->dlglayout()->setStretch(1,15);
 
     QList<Archive*> listarchives = db->loadArchiveByDate(dateencours, CompteEnCours, intervalledate);
     dateencours = dateencours.addDays(-intervalledate);
     archivescptencours = new Archives();
     archivescptencours->addArchive(listarchives);
+
+    // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
+    QStandardItemModel *model = new QStandardItemModel();
     for (QMap<int, Archive*>::const_iterator itarc = archivescptencours->archives()->constBegin(); itarc != archivescptencours->archives()->constEnd(); ++itarc)
     {
+        QList<QStandardItem *> items;
         Archive* arc = const_cast<Archive*>(itarc.value());
-        if (glistArchCombo->findData(arc->idarchive()) == -1)
-            glistArchCombo->addItem(tr("Consolidation") + " " + QString::number(arc->idarchive()) + " "
-                                  + tr("du") + " " + arc->lignedateconsolidation().toString("d MMM yyyy"), arc->idarchive());
+        QString titre = tr("Consolidation") + " " + QString::number(arc->idarchive()) + " "
+                + tr("du") + " " + arc->lignedateconsolidation().toString("d MMM yyyy");
+        items << new QStandardItem(titre)
+              << new QStandardItem(QString::number(arc->idarchive()));
+        if (model->findItems(titre).size()==0)
+            model->appendRow(items);
     }
+    model->sort(1);
+    glistArchCombo->clear();
+    for(int i=0; i<model->rowCount(); i++)
+        glistArchCombo->addItem(model->item(i,0)->text(), model->item(i,1)->text().toInt());
+
     connect(gloupButton,             &QPushButton::clicked,       this,  [=]
-    {
-        if (gModeArchives == PARARCHIVE)    gModeArchives = TOUT;
-        else                                gModeArchives = PARARCHIVE;
-        RedessineFicheArchives();
-        RemplirTableArchives();
-    });
+                {
+                    if (gModeArchives == PARARCHIVE)    gModeArchives = TOUT;
+                    else                                gModeArchives = PARARCHIVE;
+                    RedessineFicheArchives();
+                    RemplirTableArchives();
+                });
     connect(glistArchCombo,          QOverload<int>::of(&QComboBox::currentIndexChanged) ,this,  &dlg_comptes::RemplirTableArchives);
     connect(gFlecheHtButton,         &QPushButton::clicked ,this,   [=]
-    {
-        QList<Archive*> listarchives = db->loadArchiveByDate(dateencours, CompteEnCours, intervalledate);
-        dateencours = dateencours.addDays(-intervalledate);
-        archivescptencours->addArchive(listarchives);
-        RemplirTableArchives();
-    });
+                {
+                    QList<Archive*> listarchives = db->loadArchiveByDate(dateencours, CompteEnCours, intervalledate);
+                    dateencours = dateencours.addDays(-intervalledate);
+                    archivescptencours->addArchive(listarchives);
+                    RemplirTableArchives();
+                });
     glistArchCombo->setMaxVisibleItems(20);
     glistArchCombo->setFocusPolicy(Qt::StrongFocus);
     glistArchCombo->setCurrentIndex(glistArchCombo->count()-1);
@@ -573,8 +592,12 @@ void dlg_comptes::CalculeTotal()
                     for (int n = 0; n <  allCheck.size(); n++)
                         if (allCheck.at(n)->isChecked())
                             TotalConsolide += QLocale().toDouble(Lbl->text());
-                }
+               }
+                Wdg = Q_NULLPTR;
+                delete Wdg;
             }
+            Lbl = Q_NULLPTR;
+            delete Lbl;
             QLabel *Lbl2 = dynamic_cast<QLabel*>(gBigTable->cellWidget(k,5));
             if (Lbl2)
             {
@@ -587,7 +610,11 @@ void dlg_comptes::CalculeTotal()
                         if (allCheck.at(n)->isChecked())
                             TotalConsolide += QLocale().toDouble(Lbl2->text());
                 }
+                Wdg = Q_NULLPTR;
+                delete Wdg;
             }
+            Lbl2 = Q_NULLPTR;
+            delete Lbl2;
         }
     ui->MontantSoldeBrutlabel->setText(QLocale().toString(Total,'f',2) + " ");
     ui->MontantSoldeConsolidelabel->setText(QLocale().toString(TotalConsolide,'f',2) + " ");
@@ -634,7 +661,7 @@ bool dlg_comptes::eventFilter(QObject *obj, QEvent *event)
     if (obj == gBigTable)
         if (event->type() == QEvent::KeyPress)            // l'apppui sur space fait changer d'état le checkbox
         {
-            QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+            QKeyEvent *keyEvent= static_cast<QKeyEvent*>(event);
             if (keyEvent->key() == Qt::Key_Space)
             {
                 QList<QTableWidgetSelectionRange>  RangeeSelectionne = gBigTable->selectedRanges();
@@ -651,8 +678,12 @@ bool dlg_comptes::eventFilter(QObject *obj, QEvent *event)
                             CalculeTotal();
                         }
                     }
+                    Wdg = Q_NULLPTR;
+                    delete Wdg;
                 }
             }
+            keyEvent = Q_NULLPTR;
+            delete keyEvent;
         }
     return QWidget::eventFilter(obj, event);
 }

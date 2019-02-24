@@ -25,9 +25,7 @@ dlg_listemotscles::dlg_listemotscles(int idPat, QWidget *parent) :
     proc               = Procedures::I();
     db                 = DataBase::getInstance();
 
-    QVBoxLayout *globallay       = dynamic_cast<QVBoxLayout*>(layout());
     tabMC              = new QTableView();
-
 
     RemplirTableView();
     tabMC->verticalHeader()->setVisible(false);
@@ -45,10 +43,10 @@ dlg_listemotscles::dlg_listemotscles(int idPat, QWidget *parent) :
     widgButtons = new WidgetButtonFrame(tabMC);
     widgButtons->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
-    globallay->insertWidget(0,widgButtons->widgButtonParent());
+    dlglayout()->insertWidget(0,widgButtons->widgButtonParent());
 
     AjouteLayButtons();
-    setFixedWidth(tabMC->width() + globallay->contentsMargins().left()*2);
+    setFixedWidth(tabMC->width() + dlglayout()->contentsMargins().left()*2);
     setModal(true);
     setSizeGripEnabled(false);
     setWindowTitle(tr("Liste des mots-clés"));
@@ -86,7 +84,6 @@ void dlg_listemotscles::Slot_ChoixButtonFrame(int i)
 void dlg_listemotscles::CreationModifMC(enum gMode mode)
 {
     gAskDialog                      = new UpDialog(this);
-    QVBoxLayout *globallay          = dynamic_cast<QVBoxLayout*>(gAskDialog->layout());
     QWidget     *widg               = new QWidget(gAskDialog);
     UpLineEdit  *Line               = new UpLineEdit(gAskDialog);
     QCompleter  *MCListCompleter    = new QCompleter(glistMC);
@@ -95,8 +92,8 @@ void dlg_listemotscles::CreationModifMC(enum gMode mode)
     widg->layout()  ->setContentsMargins(0,10,0,0);
     widg->layout()  ->addWidget(Line);
     Line            ->setFixedSize(300,21);
-    globallay       ->insertWidget(0,widg);
-    globallay       ->setSizeConstraint(QLayout::SetFixedSize);
+    gAskDialog->dlglayout()  ->insertWidget(0,widg);
+    gAskDialog->dlglayout()  ->setSizeConstraint(QLayout::SetFixedSize);
 
     gAskDialog      ->AjouteLayButtons();
     gAskDialog      ->setWindowTitle(tr("Entrez un nouveau mot-clé"));
@@ -240,7 +237,7 @@ void dlg_listemotscles::RemplirTableView()
     if (gmodele)
         gmodele->clear();
     else
-        gmodele = new QStandardItemModel;
+        gmodele = new QStandardItemModel(this);
     gselection = new QItemSelectionModel(gmodele);
 
     glistMC.clear();

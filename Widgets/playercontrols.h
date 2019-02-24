@@ -40,7 +40,7 @@ class PlayerControls : public QWidget
     Q_OBJECT
 
 public:
-    PlayerControls(QMediaPlayer *plyr, QWidget *parent = 0);
+    PlayerControls(QMediaPlayer *plyr, QWidget *parent = Q_NULLPTR);
     void        setPlayer(QMediaPlayer*);
     int         State();
 

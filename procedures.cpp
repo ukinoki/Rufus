@@ -609,9 +609,8 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
                 {
                     gAskUser                = new UpDialog();
                     gAskUser                ->AjouteLayButtons();
-                    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAskUser->layout());
                     QGroupBox*boxparent     = new QGroupBox();
-                    globallay               ->insertWidget(0,boxparent);
+                    gAskUser->dlglayout()   ->insertWidget(0,boxparent);
                     boxparent               ->setAccessibleName("Parent");
                     QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + user->getLogin() + "?";
                     boxparent               ->setTitle(lblUsrParent);
@@ -631,7 +630,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
                     vbox     ->setContentsMargins(8,0,8,0);
                     boxparent->setLayout(vbox);
                     gAskUser ->setModal(true);
-                    globallay->setSizeConstraint(QLayout::SetFixedSize);
+                    gAskUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
                     connect(gAskUser->OKButton, &QPushButton::clicked, gAskUser, &UpDialog::accept);
 
@@ -1055,7 +1054,7 @@ void Procedures::DisplayWebPage(QUrl webpage)
     gAsk->AjouteWidgetLayButtons(HomeButt,false);
     gAsk->AjouteWidgetLayButtons(QwButt,false);
     connect(WebView,        &QWebEngineView::loadFinished,  this,   [=] { gAsk->setWindowTitle(WebView->page()->title());
-                                                                          gAsk->setWindowIcon(WebView->page()->icon());});
+                                                                          gAsk->setWindowIcon(WebView->page()->icon()); });
     connect(HomeButt,       &QPushButton::clicked,          this,   [=] { WebView->setUrl(QUrl(LIEN_CCAM));});
     connect(QwButt,         &QPushButton::clicked,          this,   [=] { WebView->setUrl(QUrl("https://www.qwant.com"));});
     connect(toolbar,        &UpToolBar::TBSignal,           this,   [=] { if (toolbar->action == "Précédent")   WebView->back();
@@ -1109,7 +1108,6 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
 void Procedures::EditHtml(QString txt)
 {
     UpDialog        *gAsk           = new UpDialog();
-    QVBoxLayout     *globallay      = dynamic_cast<QVBoxLayout*>(gAsk->layout());
     QLabel *lbl                     = new QLabel(gAsk);
 
     gAsk->setModal(true);
@@ -1119,7 +1117,7 @@ void Procedures::EditHtml(QString txt)
     lbl->setTextFormat(Qt::PlainText);
     lbl->setText(txt);
 
-    globallay->insertWidget(0,lbl);
+    gAsk->dlglayout()->insertWidget(0,lbl);
 
     gAsk->AjouteLayButtons();
     connect(gAsk->OKButton,SIGNAL(clicked(bool)),gAsk,SLOT(accept()));
@@ -1142,7 +1140,6 @@ void Procedures::EditHtml(QString txt)
 void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button)
 {
     UpDialog    *gAsk       = new UpDialog();
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(gAsk->layout());
     uptable                 = new UpTableWidget(gAsk);
     inflabel                = new UpLabel(uptable);
     listimage               = uptable->AfficheDoc(doc);
@@ -1150,7 +1147,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     gAsk->setModal(true);
     gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     gAsk->setWindowTitle(titre);
-    globallay->insertWidget(0,uptable);
+    gAsk->dlglayout()->insertWidget(0,uptable);
     uptable->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
     uptable->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
@@ -2342,7 +2339,6 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
 
     connect(BDDchk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
 
-    //globallay->setSizeConstraint(QLayout::SetFixedSize);
     gAskBupRestore->setFixedWidth(400);
     gAskBupRestore->AjouteLayButtons(UpDialog::ButtonOK);
     connect(gAskBupRestore->OKButton,    SIGNAL(clicked(bool)), gAskBupRestore, SLOT(accept()));

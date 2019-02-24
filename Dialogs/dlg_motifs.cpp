@@ -26,8 +26,6 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     m_motifs = Datas::I()->motifs->motifs();
 
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
-
     widgButtons             = new WidgetButtonFrame(ui->MotifsupTableWidget);
     widgButtons             ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
 
@@ -86,9 +84,9 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     hlay                    ->insertWidget(0,widgButtons->widgButtonParent());
     hlay                    ->addLayout(vlay);
 
-    globallay               ->insertLayout(0,hlay);
+    dlglayout()             ->insertLayout(0,hlay);
     int r,t,l,b;
-    globallay               ->getContentsMargins(&r,&t,&l,&b);
+    dlglayout()             ->getContentsMargins(&r,&t,&l,&b);
     setFixedWidth(ui->MotifsupTableWidget->width() + hlay->spacing() + ui->Detailsframe->width() + r + l);
 
     ui->MotifupLineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));

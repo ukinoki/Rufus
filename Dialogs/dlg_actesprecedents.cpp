@@ -203,6 +203,8 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
             else
                 Button->setIcon(Icons::icFerme());
         }
+        Button = Q_NULLPTR;
+        delete Button;
         return false;
     }
     return dlg_actesprecedents::eventFilter(obj, event);
@@ -239,11 +241,10 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 
     if( acte->motif().size() || acte->texte().size() || acte->conclusion().size() )
     {
-        User *user = Datas::I()->users->getUserById(acte->idUser());
         QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
                           "<td width=\"130\"><font color = \"" + proc->CouleurTitres + "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
                           "<td width=\"60\">" + Item::CalculAge(acte->agePatient(), acte->date())["toString"].toString() + "</td>"
-                          "<td width=\"400\">" + user->getPrenom() + " " + user->getNom() + "</td></p>";
+                          "<td width=\"400\">" + Datas::I()->users->getUserById(acte->idUser())->getPrenom() + " " + Datas::I()->users->getUserById(acte->idUser())->getNom() + "</td></p>";
         ui->EnteteupLabel->setText(textHTML);
         textHTML = "";
         if( acte->motif().size() )

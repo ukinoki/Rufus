@@ -33,7 +33,6 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
 
     gidUser     = db->getUserConnected();
 
-    QVBoxLayout *globallay  = dynamic_cast<QVBoxLayout*>(layout());
     TotalMontantlbl         = new UpLabel();
     TotalReclbl             = new UpLabel();
     TotalApportlbl          = new UpLabel();
@@ -43,6 +42,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     QHBoxLayout *hboxinf    = new QHBoxLayout();
     QVBoxLayout *box        = new QVBoxLayout();
     gSupervBox              = new UpComboBox();
+    gSupervBox              ->setFixedWidth(130);
 
     TotalReclbl->setAlignment(Qt::AlignRight);
     GdTotalReclbl->setAlignment(Qt::AlignRight);
@@ -113,9 +113,9 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     DefinitArchitetureTable();
     RemplitLaTable();
     FiltreTable(-1);
-    globallay->insertLayout(0,glblbox);
-    globallay->insertWidget(0,gBigTable);
-    globallay->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()->insertLayout(0,glblbox);
+    dlglayout()->insertWidget(0,gBigTable);
+    dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     connect(CloseButton,        &QPushButton::clicked,                                  this, [=] {accept();});
     connect(PrintButton,        &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
     connect(ChxPeriodButt,      &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
@@ -269,7 +269,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     bool AvecDupli   = false;
     bool AvecPrevisu = true;
     bool AvecNumPage = false;
-    User *userEntete;
+    User *userEntete = Q_NULLPTR;
 
     //création de l'entête
     if (gMode==SUPERVISEUR)
@@ -280,6 +280,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     if(userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
+        delete userEntete;
         return;
     }
     Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
@@ -394,6 +395,8 @@ void dlg_bilanrecettes::ImprimeEtat()
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     delete Etat_textEdit;
+    userEntete = Q_NULLPTR;
+    delete userEntete;
 }
 
 void dlg_bilanrecettes::CalcSuperviseursEtComptables()

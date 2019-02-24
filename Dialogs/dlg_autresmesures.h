@@ -34,7 +34,7 @@ public:
     ~dlg_autresmesures();
     int mode;
     enum mode {TONO, PACHY};
-    explicit dlg_autresmesures(int *idPatAPasser, enum mode mod = TONO, QWidget *parent = Q_NULLPTR);
+    explicit dlg_autresmesures(int idPatAPasser, enum mode mod = TONO, QWidget *parent = Q_NULLPTR);
     WidgTono            *widgto;
 
 private:
@@ -45,6 +45,7 @@ private:
     int                 gidPatient;
     QSqlDatabase        db;
     void                OKButtonClicked();
+    QKeyEvent           *keyEvent;
 };
 
 #endif // DLG_AUTRESMESURES_H
