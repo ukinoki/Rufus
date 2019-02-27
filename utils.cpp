@@ -25,15 +25,15 @@ QRegExp const Utils::rgx_AlphaNumeric = QRegExp("[A-Za-z0-9]*");
 QRegExp const Utils::rgx_AlphaNumeric_3_15 = QRegExp("[A-Za-z0-9]{3,15}$");
 QRegExp const Utils::rgx_AlphaNumeric_5_15 = QRegExp("[A-Za-z0-9]{5,15}$");
 QRegExp const Utils::rgx_AlphaNumeric_5_8  = QRegExp("[A-Za-z0-9]{5,8}$");
+QRegExp const Utils::rgx_MajusculeSeul = QRegExp("[A-Z]*");
 QRegExp const Utils::rgx_IPV4 = QRegExp("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
 QRegExp const Utils::rgx_IPV4_mask = QRegExp("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
                               "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
                               "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
                               "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])");
 
-QRegExp const Utils::rgx_mail = QRegExp("[A-Za-z0-9_-]+.[A-Za-z0-9_-]+@[A-Za-z0-9_-]+.[A-Za-z0-9_-]+");
-                              //QRegExp("^[a-zA-Z][\\w\\.-]*[a-zA-Z0-9]@[a-zA-Z0-9][\\w\\.-]*[a-zA-Z0-9]\\.[a-zA-Z][a-zA-Z\\.]*[a-zA-Z]$");
-                              //QRegExp("^[0-9a-zA-Z]+([0-9a-zA-Z]*[-._+])*[0-9a-zA-Z]+@[0-9a-zA-Z]+([-.][0-9a-zA-Z]+)*([0-9a-zA-Z]*[.])[a-zA-Z]{2,6}$");
+QRegExp const Utils::rgx_mail = QRegExp("^[A-Za-z0-9_-]+(.[A-Za-z0-9_-]+)+@[A-Za1-z0-9_-]+.[A-Za-z0-9_-]{2,6}");
+QRegExp const Utils::rgx_mailexactmatch = QRegExp("^[A-Za-z0-9_-]+(.[A-Za-z0-9_-]+)+@[A-Za1-z0-9_-]+.[A-Za-z0-9_-]{2,6}$");
 
 QRegExp const Utils::rgx_adresse = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°, -]*");
 QRegExp const Utils::rgx_intitulecompta = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°, -/%]*");
@@ -102,7 +102,7 @@ QString Utils::trim(QString text, bool end, bool removereturnend)
                 break;
         }
 
-    if( removereturnend )                   // enlève les retours à la ligne de la fin de la fin
+    if( removereturnend )                   // enlève les retours à la ligne de la fin
         while( textC.size() )
         {
             int lastIndex = textC.size() - 1;

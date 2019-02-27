@@ -123,8 +123,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     ui->MontantlineEdit->setValidator(val);
     ui->CommissionlineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     ui->CommissionlineEdit->setValidator(val);
-    QRegExp val2 = QRegExp("[A-Z]*");
-    ui->BanqueChequecomboBox->setValidator(new QRegExpValidator(val2));
+    ui->BanqueChequecomboBox->setValidator(new QRegExpValidator(Utils::rgx_MajusculeSeul));
     ui->BanqueChequecomboBox->lineEdit()->setMaxLength(10);
     ui->TierscomboBox->lineEdit()->setMaxLength(30);
 

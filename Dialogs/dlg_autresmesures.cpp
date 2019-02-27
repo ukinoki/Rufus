@@ -68,7 +68,7 @@ bool dlg_autresmesures::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 {
     if (event->type() == QEvent::KeyPress)
     {
-        keyEvent = static_cast<QKeyEvent*>(event);
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // Fleche Gauche - -----------------------------------------
         if(keyEvent->key()==Qt::Key_Left)
             if (!obj->inherits("QPushButton")) return QWidget::focusPreviousChild();

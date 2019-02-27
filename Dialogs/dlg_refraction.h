@@ -114,8 +114,6 @@ private:
     bool                    FermeComment;
     UpLineEdit              *AVPOD, *AVLOD;
     UpLineEdit              *AVPOG, *AVLOG;
-    QKeyEvent               *keyEvent = Q_NULLPTR;
-    QWidget                 *widg = Q_NULLPTR;
 
     bool                    Imprimer_Ordonnance();
 

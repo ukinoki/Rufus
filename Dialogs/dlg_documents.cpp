@@ -1246,7 +1246,6 @@ void dlg_documents::Validation()
                 if (Check->isChecked())
                 {
                     QString text = ui->DocupTableWidget->item(i,2)->text();
-                    //QString questdate = "([(][(][\\S ]*//(DATE|TEXTE)[)][)])";
                     QString quest = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°, -]*//(DATE|TEXTE|COTE|HEURE|MONTANT)[)][)])";
                     QRegExp reg;
                     reg.setPattern(quest);

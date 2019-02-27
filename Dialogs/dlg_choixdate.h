@@ -36,7 +36,6 @@ private:
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                AfficheDates(QWidget *widg);
     void                ModifDate(QWidget *widg);
-    QKeyEvent           *keyEvent;
 };
 
 #endif // DLG_CHOIXDATE_H

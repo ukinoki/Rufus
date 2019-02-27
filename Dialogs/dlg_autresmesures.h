@@ -45,7 +45,6 @@ private:
     int                 gidPatient;
     QSqlDatabase        db;
     void                OKButtonClicked();
-    QKeyEvent           *keyEvent;
 };
 
 #endif // DLG_AUTRESMESURES_H

@@ -676,16 +676,27 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 {
     if (event->type() == QEvent::FocusIn )
     {
-        if (obj->inherits("UpLineEdit"))
-            static_cast<UpLineEdit*>(obj)->selectAll();
-        if (obj->inherits("UpDoubleSpinBox"))   {
-            static_cast<UpDoubleSpinBox*>(obj)->setPrefix("");
-            static_cast<UpDoubleSpinBox*>(obj)->selectAll();
+        if (obj->inherits("UpLineEdit"))        {
+            UpLineEdit* objUpLine = static_cast<UpLineEdit*>(obj);
+            objUpLine->selectAll();
+            objUpLine = Q_NULLPTR;
         }
-        if (obj->inherits("UpComboBox"))
-            static_cast<UpComboBox*>(obj)->setCurrentIndex(static_cast<UpComboBox*>(obj)->findText(static_cast<UpComboBox*>(obj)->currentText()));
-        if (obj->inherits("UpSpinBox"))
-            static_cast<UpSpinBox*>(obj)->selectAll();
+        if (obj->inherits("UpDoubleSpinBox"))   {
+            UpDoubleSpinBox* objUpdSpin = static_cast<UpDoubleSpinBox*>(obj);
+            objUpdSpin->setPrefix("");
+            objUpdSpin->selectAll();
+            objUpdSpin = Q_NULLPTR;
+        }
+        if (obj->inherits("UpComboBox"))   {
+            UpComboBox* objUpCombo = static_cast<UpComboBox*>(obj);
+            objUpCombo->setCurrentIndex(objUpCombo->findText(objUpCombo->currentText()));
+            objUpCombo = Q_NULLPTR;
+        }
+        if (obj->inherits("UpSpinBox"))   {
+            UpSpinBox* objUpSpin = static_cast<UpSpinBox*>(obj);
+            objUpSpin->selectAll();
+            objUpSpin = Q_NULLPTR;
+        }
     }
 
     if (event->type() == QEvent::FocusOut )
@@ -700,19 +711,23 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 
     if (event->type() == QEvent::KeyPress )
     {
-        keyEvent    = static_cast<QKeyEvent*>(event);
-        widg        = dynamic_cast<QWidget *>(obj);
-        if (widg == Q_NULLPTR)
-            return false;
-         gFlagBugValidEnter = 0;
+        QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
+        QWidget *widg = static_cast<QWidget *>(obj);
+        gFlagBugValidEnter = 0;
         if (keyEvent->key() == Qt::Key_Escape)
+        {
             if (obj->inherits("UpLineEdit"))
-                static_cast<UpLineEdit*>(obj)->setText(static_cast<UpLineEdit*>(obj)->getValeurAvant());
+            {
+                UpLineEdit* objUpLine = static_cast<UpLineEdit*>(obj);
+                objUpLine->setText(objUpLine->getValeurAvant());
+                objUpLine = Q_NULLPTR;
+            }
+        }
 
         if (keyEvent->key() == Qt::Key_Left  && !ui->CommentaireGroupBox->isAncestorOf(widg))
-        {
-            // quand le focus entre sur un qGroupBox rempli de radioButton, il doit se porter sur le radiobutton qui est coché
-            QGroupBox *boxdep = Q_NULLPTR;
+        {        // quand le focus entre sur un qGroupBox rempli de radioButton, il doit se porter sur le radiobutton qui est coché
+            QGroupBox *boxdep;
+            boxdep = Q_NULLPTR ;
             QList<QGroupBox *> listbox = findChildren<QGroupBox *>();
             for (int i=0; i<listbox.size(); i++)
             {
@@ -722,15 +737,13 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                     i = listbox.size();
                 }
             }
-
             if (obj == ui->AddVPOG) QuitteAddVP(ui->AddVPOG);
             if (obj == ui->AddVPOD) QuitteAddVP(ui->AddVPOD);
             if (!(obj == ui->DateDateEdit
                   && ui->DateDateEdit->currentSection() != QDateTimeEdit::DaySection))
                 focusPreviousChild();
-
             QRadioButton *radio = dynamic_cast<QRadioButton *>(focusWidget());
-            if (radio!=Q_NULLPTR)
+            if (radio != Q_NULLPTR)
                 if (!radio->isChecked())
                 {
                     for (int i=0; i<listbox.size(); i++)
@@ -743,17 +756,12 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                             i = listbox.size();
                         }
                 }
-            radio = Q_NULLPTR;
-            delete radio;
-            boxdep = Q_NULLPTR;
-            delete boxdep;
-            return true;
         }
 
-        else if (keyEvent->key() == Qt::Key_Right  && !ui->CommentaireGroupBox->isAncestorOf(widg))
-        {
-            // quand le focus entre sur un qGroupBox rempli de radioButton, il doit se porter sur le radiobutton qui est coché
-            QGroupBox *boxdep = Q_NULLPTR;
+        if (keyEvent->key() == Qt::Key_Right  && !ui->CommentaireGroupBox->isAncestorOf(widg))
+        {        // quand le focus entre sur un qGroupBox rempli de radioButton, il doit se porter sur le radiobutton qui est coché
+            QGroupBox *boxdep;
+            boxdep = Q_NULLPTR;
             QList<QGroupBox *> listbox = findChildren<QGroupBox *>();
             for (int i=0; i<listbox.size(); i++)
                 if (listbox.at(i)->isAncestorOf(widg))
@@ -767,7 +775,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                   && ui->DateDateEdit->currentSection() != QDateTimeEdit::YearSection))
                 focusNextChild();
             QRadioButton *radio = dynamic_cast<QRadioButton *>(focusWidget());
-            if (radio!=Q_NULLPTR)
+            if (radio != Q_NULLPTR )
                 if (!radio->isChecked())
                 {
                     for (int i=0; i<listbox.size(); i++)
@@ -781,14 +789,9 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                             i = listbox.size();
                         }
                 }
-            radio = Q_NULLPTR;
-            delete radio;
-            boxdep = Q_NULLPTR;
-            delete boxdep;
-            return true;
-         }
+        }
 
-        else if ((keyEvent->key() == Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)  && !ui->CommentaireGroupBox->isAncestorOf(widg))            // Return - Idem Flèche Droite - On boucle dans la box en cours ---------------------------
+        if ((keyEvent->key() == Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)  && !ui->CommentaireGroupBox->isAncestorOf(widg))            // Return - Idem Flèche Droite - On boucle dans la box en cours ---------------------------
         {
             if (keyEvent->modifiers() == Qt::MetaModifier)
             {
@@ -796,15 +799,15 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                 return true;
             }
             gFlagBugValidEnter = 1; // on évite ainsi le second appel à ValidVerrres qui va être émis pas la touche flèche simulée
-            QKeyEvent newevent = QKeyEvent (QEvent::KeyPress, Qt::Key_Right , Qt::NoModifier);
-            QCoreApplication::postEvent (obj, &newevent);
-            return QWidget::eventFilter(obj, &newevent);
+            QKeyEvent *newevent = new QKeyEvent ( QEvent::KeyPress, Qt::Key_Right , Qt::NoModifier);
+            QCoreApplication::postEvent (obj, newevent);
+            return QWidget::eventFilter(obj, newevent);
         }
 
-        else if (keyEvent->key() == Qt::Key_Tab && keyEvent->modifiers() == Qt::ShiftModifier)            // SHIFT TAB - On boucle sur les box ------------------------------------------------------------
+        if (keyEvent->key() == Qt::Key_Tab && keyEvent->modifiers() == Qt::ShiftModifier)            // SHIFT TAB - On boucle sur les box ------------------------------------------------------------
         {
             if (obj == ui->AddVPOG) QuitteAddVP(ui->AddVPOG);
-            else if (obj == ui->AddVPOD) QuitteAddVP(ui->AddVPOD);
+            if (obj == ui->AddVPOD) QuitteAddVP(ui->AddVPOD);
             if (ui->MesureGroupBox->isAncestorOf(widg))
             {
                 if (gMode == Porte && ui->PrismeGroupBox->isVisible())                                    return DeplaceVers(ui->PrismeGroupBox,"Fin");
@@ -812,18 +815,18 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                 if (gMode == Refraction && !ui->QuelleDistanceGroupBox->isVisible())                      return DeplaceVers(ui->QuelleMesureGroupBox);
                 if (gMode == Autoref)                                                                     return DeplaceVers(ui->KeratometrieGroupBox,"Fin");
                 if (gMode == Prescription)                                                                return DeplaceVers(ui->QuelleMontureGroupBox);
-                return false;
+                return true;
             }
-            else if (ui->QuelleMesureGroupBox->isAncestorOf(widg))               return DeplaceVers(ui->MesureGroupBox,"Fin");
-            else if (ui->QuelleDistanceGroupBox->isAncestorOf(widg))             return DeplaceVers(ui->QuelleMesureGroupBox);
-            else if (ui->KeratometrieGroupBox->isAncestorOf(widg))               return DeplaceVers(ui->QuelleMesureGroupBox);
-            else if (ui->PrismeGroupBox->isAncestorOf(widg))
+            if (ui->QuelleMesureGroupBox->isAncestorOf(widg))               return DeplaceVers(ui->MesureGroupBox,"Fin");
+            if (ui->QuelleDistanceGroupBox->isAncestorOf(widg))             return DeplaceVers(ui->QuelleMesureGroupBox);
+            if (ui->KeratometrieGroupBox->isAncestorOf(widg))               return DeplaceVers(ui->QuelleMesureGroupBox);
+            if (ui->PrismeGroupBox->isAncestorOf(widg))
             {
                 if (ui->QuelleDistanceGroupBox->isEnabled())
                      return DeplaceVers(ui->QuelleDistanceGroupBox);
                 else return DeplaceVers(ui->QuelleMesureGroupBox);
             }
-            else if (ui->QuelsVerresGroupBox->isAncestorOf(widg))
+            if (ui->QuelsVerresGroupBox->isAncestorOf(widg))
             {
                 if (ui->PrismeGroupBox->isVisible())
                     DeplaceVers(ui->PrismeGroupBox,"Fin");
@@ -832,14 +835,14 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                     if (gMode == Porte) return DeplaceVers(ui->QuelleDistanceGroupBox);
                     else return DeplaceVers(ui->QuelleMesureGroupBox);
                 }
-                return false;
+                return true;
             }
-            else if (ui->QuelOeilGroupBox->isAncestorOf(widg))                   return DeplaceVers(ui->QuelsVerresGroupBox);
-            else if (ui->QuelleMontureGroupBox->isAncestorOf(widg))              return DeplaceVers(ui->QuelOeilGroupBox);
-            else if (obj == ui->DateDateEdit)                                    return DeplaceVers(ui->QuelleMontureGroupBox);
+            if (ui->QuelOeilGroupBox->isAncestorOf(widg))                   return DeplaceVers(ui->QuelsVerresGroupBox);
+            if (ui->QuelleMontureGroupBox->isAncestorOf(widg))              return DeplaceVers(ui->QuelOeilGroupBox);
+            if (obj == ui->DateDateEdit)                                    return DeplaceVers(ui->QuelleMontureGroupBox);
         }
 
-        else if (keyEvent->key()==Qt::Key_Tab && keyEvent->modifiers() == Qt::NoModifier)            // TAB - On boucle sur les box ------------------------------------------------------------
+        if (keyEvent->key()==Qt::Key_Tab && keyEvent->modifiers() == Qt::NoModifier)            // TAB - On boucle sur les box ------------------------------------------------------------
         {
             if (obj == ui->AddVPOG) QuitteAddVP(ui->AddVPOG);
             if (obj == ui->AddVPOD) QuitteAddVP(ui->AddVPOD);
@@ -855,7 +858,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                         return DeplaceVers(ui->PrismeGroupBox,"Debut");
                     return DeplaceVers(ui->QuelsVerresGroupBox);
                 }
-                return false;
+                return true;
             }
             if (ui->QuelleDistanceGroupBox->isAncestorOf(widg))
             {
@@ -876,7 +879,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             if (obj == ui->DateDateEdit)                                    return DeplaceVers(ui->MesureGroupBox,"Debut");
         }
 
-        else if(keyEvent->key()==Qt::Key_Up)
+        if(keyEvent->key()==Qt::Key_Up)
         {
             if (obj == ui->K1OG)            {if (ui->K1OD->isVisible())     ui->K1OD->setFocus();           return true;}
             if (obj == ui->K2OG)            {if (ui->K2OD->isVisible())     ui->K2OD->setFocus();           return true;}
@@ -884,7 +887,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             if (obj == ui->OGPrescritCheckBox)              {ui->ODPrescritCheckBox->setFocus();            return true;}
             if (obj == ui->DeuxMonturesPrescritRadioButton) {ui->UneMonturePrescritRadioButton->setFocus(); return true;}
         }
-        else if(keyEvent->key()==Qt::Key_Down)
+        if(keyEvent->key()==Qt::Key_Down)
         {
             if (obj == ui->K1OD)            {if (ui->K1OG->isVisible())     ui->K1OG->setFocus();           return true;}
             if (obj == ui->K2OD)            {if (ui->K2OG->isVisible())     ui->K2OG->setFocus();           return true;}

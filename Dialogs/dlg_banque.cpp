@@ -112,8 +112,7 @@ dlg_banque::dlg_banque(QWidget *parent, QString nouvbanqueabrege) :
     connect(ui->OKModifupSmallButton,       &QPushButton::clicked,    this,   &dlg_banque::ValideModifBanque);
 
     ui->NomBanqueupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx));
-    QRegExp val             = QRegExp("[A-Z]*");
-    ui->NomAbregeupLineEdit ->setValidator(new QRegExpValidator(val));
+    ui->NomAbregeupLineEdit ->setValidator(new QRegExpValidator(Utils::rgx_MajusculeSeul));
 }
 
 dlg_banque::~dlg_banque()

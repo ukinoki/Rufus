@@ -76,6 +76,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
         setTabOrder(listtab.at(i), listtab.at(i+1));
 
     installEventFilter(this);
+    ui->MaillineEdit->installEventFilter(this);
     ui->NomlineEdit->setFocus();
 
     connect (OKButton,                  SIGNAL(clicked()),                  this,           SLOT (Slot_OKpushButtonClicked()));
@@ -138,11 +139,10 @@ void    dlg_identificationcorresp::Slot_EnableOKpushButton()
 void dlg_identificationcorresp::Slot_Majuscule()
 {
     QLineEdit* Line = static_cast<QLineEdit*>(sender());
-    if (Line->text() != Utils::trimcapitilize(Line->text()))
-    {
-        Line->setText(Utils::trimcapitilize(Line->text(),false));
-        OKButton->setEnabled(true);
-    }
+    Line->setText(Utils::trimcapitilize(Line->text(),false));
+    OKButton->setEnabled(true);
+    Line = Q_NULLPTR;
+    delete Line;
 }
 
 void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
@@ -313,6 +313,20 @@ void dlg_identificationcorresp::Slot_RegleAffichage()
 -------------------------------------------------------------------------------------*/
 bool dlg_identificationcorresp::eventFilter(QObject *obj, QEvent *event)
 {
+    if (event->type() == QEvent::FocusOut)
+    {
+        if (obj == ui->MaillineEdit)
+        {
+            ui->MaillineEdit->setText(Utils::trim(ui->MaillineEdit->text()));
+            if (ui->MaillineEdit->text()!="")
+                if (!Utils::rgx_mailexactmatch.exactMatch(ui->MaillineEdit->text()))
+                {
+                    UpMessageBox::Watch(this, tr("Adresse mail invalide"));
+                    ui->MaillineEdit->setFocus();
+                    return true;
+                }
+        }
+    }
     if (event->type() == QEvent::KeyPress && !obj->inherits("QPushButton") )
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);

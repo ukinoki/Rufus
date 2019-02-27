@@ -42,11 +42,13 @@ public:
     static QRegExp const rgx_AlphaNumeric_3_15;
     static QRegExp const rgx_AlphaNumeric_5_8;
     static QRegExp const rgx_AlphaNumeric_5_15;
+    static QRegExp const rgx_MajusculeSeul;
 
     static QRegExp const rgx_IPV4;
     static QRegExp const rgx_IPV4_mask;
 
     static QRegExp const rgx_mail;
+    static QRegExp const rgx_mailexactmatch;
 
     static QRegExp const rgx_adresse;
     static QRegExp const rgx_intitulecompta;
