@@ -61,8 +61,6 @@ dlg_actesprecedents::~dlg_actesprecedents()
     for (itCurrentActe = m_listeActes.constBegin(); itCurrentActe != m_listeActes.constEnd(); ++itCurrentActe)
         delete itCurrentActe.value();
     delete ui;
-    proc = Q_NULLPTR;
-    delete proc;
 }
 
 /*!
@@ -203,8 +201,6 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
             else
                 Button->setIcon(Icons::icFerme());
         }
-        Button = Q_NULLPTR;
-        delete Button;
         return false;
     }
     return dlg_actesprecedents::eventFilter(obj, event);

@@ -174,7 +174,6 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     Remplir_TableWidget();
     if (ui->DocupTableWidget->rowCount() == 0)  ConfigMode(CreationDOC);    else ConfigMode(Selection);
     ui->ChercheupLineEdit->setFocus();
-    ui->lineEdit->setVisible(false);
 
     gChampsMap[TITRUSER]        = tr("Titre, nom et prénom de l'utilisateur");
     gChampsMap[NOMPAT]          = tr("Nom du patient");
@@ -588,7 +587,7 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
                     ui->DocupTableWidget->item(Check->getRowTable(),10)->setText("0" + nomdoc);
             }
         }
-        if (ui->ChercheupLineEdit->text() =="")
+        if (ui->ChercheupLineEdit->text() == "")
             glistid.clear();
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
@@ -1717,6 +1716,26 @@ void dlg_documents::keyPressEvent(QKeyEvent * event )
         Annulation();
         break;
     }
+    case Qt::Key_F5:
+    {
+        int row = -1;
+        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+        {
+            UpLineEdit *line = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
+            if (line->hasSelectedText()) { row = line->getRowTable(); break; }
+        }
+        if (row > -1)
+        {
+            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(row,0));
+            if (Widg)
+            {
+                UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
+                Check->setChecked(!Check->isChecked());
+                EnableOKPushButton(Check);
+            }
+        }
+        break;
+    }
     default:
         break;
     }
@@ -1912,7 +1931,8 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->DocAdministratifcheckBox    ->setChecked(false);
         ui->DocAdministratifcheckBox    ->setEnabled(false);
         ui->DocAdministratifcheckBox    ->setToolTip("");
-        ui->Expliclabel                 ->setText(tr("SELECTION - Cochez les dossiers ou les documents que vous voulez imprimer"));
+        ui->Expliclabel                 ->setText(tr("SELECTION - Cochez les dossiers ou les documents que vous voulez imprimer")
+                                                     + "\n" + tr("clic souris ou touche F5 pour sélectionner/déselectionner"));
         widgButtonsDocs->modifBouton    ->setEnabled(false);
         widgButtonsDossiers->modifBouton->setEnabled(false);
         ui->PrescriptioncheckBox        ->setEnabled(false);

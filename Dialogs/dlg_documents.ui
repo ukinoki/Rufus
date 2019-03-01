@@ -236,7 +236,7 @@
     <rect>
      <x>20</x>
      <y>330</y>
-     <width>631</width>
+     <width>511</width>
      <height>41</height>
     </rect>
    </property>
@@ -310,16 +310,6 @@ la sélection</string>
    </property>
    <property name="autoDefault">
     <bool>false</bool>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="lineEdit">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>340</y>
-     <width>341</width>
-     <height>21</height>
-    </rect>
    </property>
   </widget>
   <widget class="QCheckBox" name="DupliOrdocheckBox">

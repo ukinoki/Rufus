@@ -99,7 +99,8 @@ void dlg_GestionLieux::Slot_AfficheDetails(QModelIndex idx, QModelIndex)
         }
     }
     Adressuplbl->setText(data);
-    widg->moinsBouton->setEnabled(db->StandardSelectSQL("select iduser from " NOM_TABLE_JOINTURESLIEUX " where idlieu = " + tabModel->itemData(tabModel->index(row,0)).value(0).toString(), ok).size() == 0);
+    widg->moinsBouton->setEnabled(db->StandardSelectSQL("select iduser from " NOM_TABLE_JOINTURESLIEUX " where idlieu = " + tabModel->itemData(tabModel->index(row,0)).value(0).toString(), ok).size() == 0
+                                  && tabModel->itemData(tabModel->index(row,0)).value(0).toInt() != idlieuserveur);
 }
 
 void dlg_GestionLieux::Slot_ChoixButtonFrame(int i)
@@ -351,6 +352,7 @@ bool dlg_GestionLieux::ValidationFiche()
 void dlg_GestionLieux::ReconstruitModel()
 {
     tabModel = new QStandardItemModel();
+    tabModel->deleteLater();
 
     QStandardItem *pitem0;
     QStandardItem *pitem1;
@@ -421,5 +423,10 @@ void dlg_GestionLieux::ReconstruitModel()
     int h = int(QFontMetrics(qApp->font()).height()*1.1);
     for (int i=0; i < tabModel->rowCount(); i++)
         tabLM->setRowHeight(i, h);
+    bool ok;
+    idlieuserveur = -1;
+    QList<QVariant> serveurLieudata = db->getFirstRecordFromStandardSelectSQL("select idlieupardefaut from " NOM_TABLE_PARAMSYSTEME, ok);
+    if (ok && serveurLieudata.size()>0)
+        idlieuserveur = serveurLieudata.at(0).toInt();
 }
 

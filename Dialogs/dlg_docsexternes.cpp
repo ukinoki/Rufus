@@ -157,11 +157,8 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
 
 dlg_docsexternes::~dlg_docsexternes()
 {
-    proc = Q_NULLPTR;
-    delete proc;
     delete printer;
     Datas::I()->docsexternes->clearAll();
-    patient = Q_NULLPTR;
     delete patient;
 }
 
@@ -586,7 +583,7 @@ void dlg_docsexternes::BasculeTriListe(int a)
         gmodele = gmodeleTriParType;
     }
 
-    QItemSelectionModel *m = ListDocsTreeView->selectionModel();
+    QItemSelectionModel *m = ListDocsTreeView->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
     ListDocsTreeView->setModel(gmodele);
     delete m;
 

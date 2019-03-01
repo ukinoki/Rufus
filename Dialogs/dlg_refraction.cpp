@@ -1882,7 +1882,7 @@ void dlg_refraction::InitDivers()
     AVPOD->setValidator(new QRegExpValidator(reg,this));
     AVPOG->setValidator(new QRegExpValidator(reg,this));
 
-    reg = QRegExp(tr("(zeroPL|PLnonO|PLO|VBLM|CLD 50cm|CLD 1m|0,5/10|0\\.5/10|1/10|1,6/10|1\\.6/10|2/10|2\\.5/10|2,5/10|3/10|4/10|5/10|6/10|7/10|8/10|9/10|10/10|12/10)"));
+    reg = QRegExp(tr("(zeroPL|PLnonO|PLO|VBLM|CLD 50cm|CLD 1m|0,5/10|0\\.5/10|1/10|1,6/10|1\\.6/10|2/10|2\\.5/10|2,5/10|3/10|4/10|5/10|6/10|6\\.3/10|6,3/10|7/10|8/10|9/10|10/10|12/10|16/10)"));
     AVLOD->setValidator(new QRegExpValidator(reg,this));
     AVLOG->setValidator(new QRegExpValidator(reg,this));
 
@@ -1893,7 +1893,7 @@ void dlg_refraction::InitDivers()
 
     QStringList listVP, listVL;
     listVP << "1.5" << "2" << "3" << "4" << "5" << "6" << "8" << "10" << "14" << "28" << "<28";
-    listVL << "12/10" << "10/10" << "9/10" << "8/10" << "7/10" << "6/10" << "5/10" << "4/10" << "3/10" << "2.5/10" << "2/10" << "1.6/10" << "1/10" << "0.5/10" << tr("CLD 1m") << tr("CLD 50cm") << tr("VBLM") << tr("PLO") << tr("PLnonO") << tr("zeroPL");
+    listVL << "16/10" << "12/10" << "10/10" << "9/10" << "8/10" << "7/10" << "6.3/10"  << "6/10" << "5/10" << "4/10" << "3/10" << "2.5/10" << "2/10" << "1.6/10" << "1/10" << "0.5/10" << tr("CLD 1m") << tr("CLD 50cm") << tr("VBLM") << tr("PLO") << tr("PLnonO") << tr("zeroPL");
     ui->AVPODupComboBox->insertItems(0,listVP);
     ui->AVPOGupComboBox->insertItems(0,listVP);
     ui->AVLODupComboBox->insertItems(0,listVL);

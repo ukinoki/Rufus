@@ -78,7 +78,8 @@ private:
     void                AfficheParamUser();
     void                EnableWidgContent(QWidget *widg, bool = true);
     void                ModifScriptBackup();
-    void                ReconstruitListeLieuxExercice();
+    void                ReconstruitListeLieuxExerciceUser(User *user);
+    void                ReconstruitListeLieuxExerciceAllusers();
     void                Remplir_TableActesCCAM(bool ophtaseul = true);
     void                Remplir_TableAssocCCAM();
     void                Remplir_TableHorsNomenclature();

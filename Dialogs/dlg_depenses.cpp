@@ -175,8 +175,6 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 dlg_depenses::~dlg_depenses()
 {
     delete ui;
-    proc = Q_NULLPTR;
-    delete proc;
     Datas::I()->depenses->clearAll();
 }
 

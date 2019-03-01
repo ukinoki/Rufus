@@ -140,8 +140,6 @@ void dlg_banque::AfficheBanque()
                                                                     "where idBanque = " + listbanques.at(0).at(2).toString());
     if (listcomptes.size()>0)
         widgButtons->moinsBouton->setEnabled(false);
-    lbl = Q_NULLPTR;
-    delete lbl;
 }
 
 void dlg_banque::AnnuleModifBanque()
@@ -218,15 +216,11 @@ void dlg_banque::SupprBanque()
     if (listcomptes.size()>0)
     {
         UpMessageBox::Watch(this, tr("Impossible de supprimer la banque ") + lbl->text(), tr("Elle est utilisée par d'autres utilisateurs"));
-        lbl = Q_NULLPTR;
-        delete lbl;
         return;
     }
     db->SupprRecordFromTable(idBanque,"idBanque",NOM_TABLE_BANQUES);
     RemplirTableView();
     AfficheBanque();
-    lbl = Q_NULLPTR;
-    delete lbl;
 }
 
 void dlg_banque::MAJBanques()
@@ -348,8 +342,6 @@ void dlg_banque::ValideModifBanque()
             break;
         }
     }
-    lbl = Q_NULLPTR;
-    delete lbl;
     AfficheBanque();
     RemetEnNorm();
 }

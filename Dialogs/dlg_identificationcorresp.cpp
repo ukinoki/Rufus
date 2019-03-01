@@ -141,8 +141,6 @@ void dlg_identificationcorresp::Slot_Majuscule()
     QLineEdit* Line = static_cast<QLineEdit*>(sender());
     Line->setText(Utils::trimcapitilize(Line->text(),false));
     OKButton->setEnabled(true);
-    Line = Q_NULLPTR;
-    delete Line;
 }
 
 void    dlg_identificationcorresp::Slot_OKpushButtonClicked()

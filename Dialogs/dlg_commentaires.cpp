@@ -85,8 +85,6 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
 
 dlg_commentaires::~dlg_commentaires()
 {
-    proc = Q_NULLPTR;
-    delete proc;
     delete ui;
 }
 
@@ -146,8 +144,6 @@ void dlg_commentaires::Annulation()
             ConfigMode(Selection);
             LineSelect(row);
         }
-        line = Q_NULLPTR;
-        delete line;
     }
     else
         reject();
@@ -249,8 +245,6 @@ void dlg_commentaires::dblClicktextEdit()
             if (idUser == db->getUserConnected()->id())
                 ConfigMode(Modification,line->getRowTable());
         }
-        line = Q_NULLPTR;
-        delete line;
     }
 }
 
@@ -279,8 +273,6 @@ void dlg_commentaires::EnableOKPushbutton()
             else
                 OKButton->setEnabled(true);
         }
-        line = Q_NULLPTR;
-        delete line;
     }
     else
         OKButton->setEnabled(true);
@@ -322,8 +314,6 @@ void dlg_commentaires::MenuContextuel(UpLineEdit *line)
         connect (pAction_CreerCommentaire,      &QAction::triggered,    [=] {ChoixMenuContextuel("CreerCom");});
         connect (pAction_ParDefautCom,          &QAction::triggered,    [=] {ChoixMenuContextuel("ParDefautCom");});
     }
-    line = Q_NULLPTR;
-    delete line;
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
 }
@@ -366,8 +356,6 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
                 b = "1";
                 lbldef->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled
             }
-            lbldef = Q_NULLPTR;
-            delete lbldef;
             db->StandardSQL ("update " NOM_TABLE_COMMENTAIRESLUNETTES " set ParDefautComment = " + b +
                              " where idCommentLunet = " + ui->ComupTableWidget->item(row,2)->text());
         }
@@ -377,8 +365,6 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
         row = ui->ComupTableWidget->rowAt(pos.y());
         ConfigMode(Creation,row);
     }
-    line = Q_NULLPTR;
-    delete line;
 }
 
 // ----------------------------------------------------------------------------------
@@ -394,8 +380,6 @@ void dlg_commentaires::Modif_Com()
         if (line->hasSelectedText()) {a= true; break;}
     }
     int row = line->getRowTable();
-    line = Q_NULLPTR;
-    delete line;
     if (a)
         ConfigMode(Modification,row);
 }
@@ -417,8 +401,6 @@ void dlg_commentaires::Validation()
             if (line->isEnabled()) {a = true; break;}
         }
         int row = line->getRowTable();
-        line = Q_NULLPTR;
-        delete line;
         if (a)
             InsertCommentaire(row);
     }
@@ -430,8 +412,6 @@ void dlg_commentaires::Validation()
             if (line->isEnabled()) {a = true; break;}
         }
         int row = line->getRowTable();
-        line = Q_NULLPTR;
-        delete line;
         if (a)
             UpdateCommentaire(row);
     }
@@ -455,12 +435,6 @@ void dlg_commentaires::Validation()
                 }
             }
         }
-        line = Q_NULLPTR;
-        delete line;
-        Widg = Q_NULLPTR;
-        delete Widg;
-        Check = Q_NULLPTR;
-        delete Check;
         accept();
     }
 }
@@ -531,12 +505,6 @@ bool dlg_commentaires::eventFilter(QObject *obj, QEvent *event)
                     }
                 }
             }
-            keyEvent = Q_NULLPTR;
-            delete keyEvent;
-            table    = Q_NULLPTR;
-            delete table;
-            line = Q_NULLPTR;
-            delete line;
         }
     return QWidget::eventFilter(obj, event);
 }
@@ -577,8 +545,6 @@ bool dlg_commentaires::ChercheDoublon(QString str, int row)
                     UpMessageBox::Watch(this, tr("Il existe déjà un commentaire portant ce nom créé par ") + b);
                     break;
                 }
-            line = Q_NULLPTR;
-            delete line;
         }
         break;
     default:
@@ -627,11 +593,7 @@ void dlg_commentaires::ConfigMode(int mode, int row)
                 UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
                 Check->setEnabled(true);
                 if (Check->isChecked()) nbCheck ++;
-                Check = Q_NULLPTR;
-                delete Check;
             }
-            Widg = Q_NULLPTR;
-            delete Widg;
         }
         OKButton->setEnabled(true);
     }
@@ -656,8 +618,6 @@ void dlg_commentaires::ConfigMode(int mode, int row)
         CancelButton->setUpButtonStyle(UpSmallButton::BACKBUTTON);
         CancelButton->setImmediateToolTip(tr("Revenir au mode\nsélection de commentaire"));
         OKButton->setImmediateToolTip(tr("Enregistrer"));
-        line = Q_NULLPTR;
-        delete line;
     }
     else if (mode == Creation)
     {
@@ -712,21 +672,6 @@ void dlg_commentaires::ConfigMode(int mode, int row)
         OKButton->setEnabled(false);
         OKButton->setImmediateToolTip(tr("Enregistrer\nle commentaire"));
         upLine0->setFocus();
-
-        w = Q_NULLPTR;
-        l = Q_NULLPTR;
-        delete w;
-        delete l;
-        pItem1 = Q_NULLPTR;
-        pItem2 = Q_NULLPTR;
-        delete pItem1;
-        delete pItem2;
-        Check = Q_NULLPTR;
-        upLine0 = Q_NULLPTR;
-        lbl = Q_NULLPTR;
-        delete Check;
-        delete upLine0;
-        delete lbl;
     }
 }
 
@@ -755,9 +700,6 @@ void dlg_commentaires::DisableLines()
             line->disconnect();
         }
     }
-    Widg    = Q_NULLPTR; delete Widg;
-    Check   = Q_NULLPTR; delete Check;
-    line    = Q_NULLPTR; delete line;
 }
 
 // -------------------------------------------------------------------------------------------
@@ -789,9 +731,6 @@ void dlg_commentaires::EnableLines()
             connect(line,       &UpLineEdit::mouseRelease,              [=] {LineSelect(line->getRowTable());});
         }
     }
-    Widg    = Q_NULLPTR; delete Widg;
-    Check   = Q_NULLPTR; delete Check;
-    line    = Q_NULLPTR; delete line;
 }
 
 // ----------------------------------------------------------------------------------
@@ -845,8 +784,6 @@ void dlg_commentaires::InsertCommentaire(int row)
     if (ChercheDoublon(line->text(),row))
     {
         LineSelect(row);
-        line = Q_NULLPTR;
-        delete line;
         return;
     }
 
@@ -876,8 +813,6 @@ void dlg_commentaires::InsertCommentaire(int row)
              }
          }
     }
-    line = Q_NULLPTR;
-    delete line;
  }
 
 // ----------------------------------------------------------------------------------
@@ -893,8 +828,6 @@ void dlg_commentaires::LineSelect(int row)
     line = dynamic_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1));
     if (!line)
     {
-        line = Q_NULLPTR;
-        delete line;
         return;
     }
 
@@ -914,8 +847,6 @@ void dlg_commentaires::LineSelect(int row)
         widgButtons->moinsBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == gidUser);
     }
     line->selectAll();
-    line = Q_NULLPTR;
-    delete line;
 }
 
 // ----------------------------------------------------------------------------------
@@ -1060,8 +991,6 @@ void dlg_commentaires::UpdateCommentaire(int row)
     if (ChercheDoublon(line->text(),row))
     {
         LineSelect(row);
-        line = Q_NULLPTR;
-        delete line;
         return;
     }
 
@@ -1097,6 +1026,4 @@ void dlg_commentaires::UpdateCommentaire(int row)
             }
         }
     }
-    line = Q_NULLPTR;
-    delete line;
 }

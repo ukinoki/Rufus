@@ -185,13 +185,9 @@ void dlg_comptes::Archiver()
                     QLabel *Lbl = dynamic_cast<QLabel*>(gBigTable->cellWidget(i,0));
                     if (Lbl)
                         ListeActesAArchiver << Lbl->text().toInt();
-                    Lbl = Q_NULLPTR;
-                    delete Lbl;
                 }
             }
         }
-        Wdg = Q_NULLPTR;
-        delete Wdg;
     }
 
     if (ListeActesAArchiver.size() == 0)
@@ -258,8 +254,6 @@ void dlg_comptes::AnnulConsolidations()
             for (int n = 0; n <  allCheck.size(); n++)
                 allCheck.at(n)->setCheckState(Qt::Unchecked);
         }
-        Wdg = Q_NULLPTR;
-        delete Wdg;
     }
     db->StandardSQL("update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = null");
     CalculeTotal();
@@ -291,8 +285,6 @@ void dlg_comptes::RenvoieRangee(bool Coche, UpCheckBox* Check)
     requete += " where idligne = " + lbl->text();
     db->StandardSQL(requete);
     CalculeTotal();
-    lbl = Q_NULLPTR;
-    delete lbl;
 }
 
 void dlg_comptes::RedessineFicheArchives()
@@ -546,6 +538,8 @@ void dlg_comptes::VoirArchives()
     glistArchCombo->setCurrentIndex(glistArchCombo->count()-1);
     gArchives->exec();
     dateencours = QDate::currentDate();
+    delete gArchives;
+    archivescptencours->clearAll();
     delete archivescptencours;
 }
 
@@ -593,11 +587,7 @@ void dlg_comptes::CalculeTotal()
                         if (allCheck.at(n)->isChecked())
                             TotalConsolide += QLocale().toDouble(Lbl->text());
                }
-                Wdg = Q_NULLPTR;
-                delete Wdg;
             }
-            Lbl = Q_NULLPTR;
-            delete Lbl;
             QLabel *Lbl2 = dynamic_cast<QLabel*>(gBigTable->cellWidget(k,5));
             if (Lbl2)
             {
@@ -610,11 +600,7 @@ void dlg_comptes::CalculeTotal()
                         if (allCheck.at(n)->isChecked())
                             TotalConsolide += QLocale().toDouble(Lbl2->text());
                 }
-                Wdg = Q_NULLPTR;
-                delete Wdg;
             }
-            Lbl2 = Q_NULLPTR;
-            delete Lbl2;
         }
     ui->MontantSoldeBrutlabel->setText(QLocale().toString(Total,'f',2) + " ");
     ui->MontantSoldeConsolidelabel->setText(QLocale().toString(TotalConsolide,'f',2) + " ");
@@ -678,12 +664,8 @@ bool dlg_comptes::eventFilter(QObject *obj, QEvent *event)
                             CalculeTotal();
                         }
                     }
-                    Wdg = Q_NULLPTR;
-                    delete Wdg;
                 }
             }
-            keyEvent = Q_NULLPTR;
-            delete keyEvent;
         }
     return QWidget::eventFilter(obj, event);
 }

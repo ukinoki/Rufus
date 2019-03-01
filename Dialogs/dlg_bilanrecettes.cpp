@@ -280,7 +280,6 @@ void dlg_bilanrecettes::ImprimeEtat()
     if(userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
-        delete userEntete;
         return;
     }
     Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
@@ -395,8 +394,6 @@ void dlg_bilanrecettes::ImprimeEtat()
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     delete Etat_textEdit;
-    userEntete = Q_NULLPTR;
-    delete userEntete;
 }
 
 void dlg_bilanrecettes::CalcSuperviseursEtComptables()

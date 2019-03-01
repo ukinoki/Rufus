@@ -1063,11 +1063,11 @@ void dlg_param::Slot_GestLieux()
 {
     dlg_GestionLieux *gestLieux = new dlg_GestionLieux();
     gestLieux->exec();
-    AfficheParamUser();
+    ReconstruitListeLieuxExerciceAllusers();
     delete gestLieux;
 }
 
-void dlg_param::ReconstruitListeLieuxExercice()
+void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
 {
     /*-------------------- GESTION DES LIEUX D'EXERCICE-------------------------------------------------------*/
     ui->AdressupTableWidget->clear();
@@ -1095,7 +1095,7 @@ void dlg_param::ReconstruitListeLieuxExercice()
     upheader->reDim(0,0,2);
 
     QString req ="select j.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone from " NOM_TABLE_LIEUXEXERCICE
-                       " j inner join " NOM_TABLE_JOINTURESLIEUX " p on j.idLieu = p.idLieu where iduser = " + QString::number(gDataUser->id());
+                       " j inner join " NOM_TABLE_JOINTURESLIEUX " p on j.idLieu = p.idLieu where iduser = " + QString::number(user->id());
     bool ok;
     QList<QList<QVariant>> adrlist = db->StandardSelectSQL(req, ok);
     ui->AdressupTableWidget->setRowCount(adrlist.size());
@@ -1132,17 +1132,30 @@ void dlg_param::ReconstruitListeLieuxExercice()
         pitem3->setToolTip(data);
         ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
     }
-    req ="select idLieu, NomLieu, LieuVille from " NOM_TABLE_LIEUXEXERCICE;
-    QList<QList<QVariant>> servlist = db->StandardSelectSQL(req, ok);
-    if (ok)
-    for (int i=0; i<servlist.size(); ++i)
-        ui->EmplacementServeurupComboBox->addItem(servlist.at(i).at(1).toString() + " " + servlist.at(i).at(2).toString(), servlist.at(i).at(0));
-    QList<QVariant> DefautLieudata = db->getFirstRecordFromStandardSelectSQL("select idlieupardefaut from " NOM_TABLE_PARAMSYSTEME, ok);
-    if (ok && DefautLieudata.size()>0)
-        ui->EmplacementServeurupComboBox->setCurrentIndex(ui->EmplacementServeurupComboBox->findData(DefautLieudata.at(0)));
-    else
-        ui->EmplacementServeurupComboBox->setCurrentIndex(0);
+    ReconstruitListeLieuxExerciceAllusers();
     /*-------------------- GESTION DES LIEUX D'EXRCICE-------------------------------------------------------*/
+}
+
+void dlg_param::ReconstruitListeLieuxExerciceAllusers()
+{
+    disconnect(ui->EmplacementServeurupComboBox,       SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_EnregistreEmplacementServeur(int)));
+    QString req ="select idLieu, NomLieu, LieuVille from " NOM_TABLE_LIEUXEXERCICE;
+    bool ok;
+    QList<QList<QVariant>> servlist = db->StandardSelectSQL(req, ok);
+    if (ok && servlist.size()>0)
+    {
+        for (int i=0; i<servlist.size(); ++i)
+            ui->EmplacementServeurupComboBox->addItem(servlist.at(i).at(1).toString() + " " + servlist.at(i).at(2).toString(), servlist.at(i).at(0));
+        QList<QVariant> DefautLieudata = db->getFirstRecordFromStandardSelectSQL("select idlieupardefaut from " NOM_TABLE_PARAMSYSTEME, ok);
+        if (ok && DefautLieudata.size()>0)
+            ui->EmplacementServeurupComboBox->setCurrentIndex(ui->EmplacementServeurupComboBox->findData(DefautLieudata.at(0)));
+        else
+        {
+            ui->EmplacementServeurupComboBox->setCurrentIndex(0);
+            Slot_EnregistreEmplacementServeur(0);
+        }
+    }
+    connect(ui->EmplacementServeurupComboBox,       SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_EnregistreEmplacementServeur(int)));
 }
 
 void dlg_param::NouvAppareil()
@@ -2355,7 +2368,7 @@ void dlg_param::AfficheParamUser()
     }
     else
         ui->Cotationswidget->setVisible(false);
-    ReconstruitListeLieuxExercice();
+    ReconstruitListeLieuxExerciceUser(gDataUser);
 }
 
 void dlg_param::ConnectSlots()
@@ -2368,7 +2381,6 @@ void dlg_param::ConnectSlots()
     connect(ui->DistantServcheckBox,                SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EnableFrameServeur(bool)));
     connect(ui->GestUserpushButton,                 SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestUser()));
     connect(ui->GestLieuxpushButton,                SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestLieux()));
-    connect(ui->EmplacementServeurupComboBox,       SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_EnregistreEmplacementServeur(int)));
     connect(ui->ModifDataUserpushButton,            SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestDataPersoUser()));
     connect(ui->GestionBanquespushButton,           SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestionBanques()));
     connect(ui->OupspushButton,                     SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ResetImprimante()));

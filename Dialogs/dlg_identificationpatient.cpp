@@ -169,8 +169,6 @@ void dlg_identificationpatient::Slot_Majuscule()
     QLineEdit* Line = static_cast<QLineEdit*>(sender());
     Line->setText(Utils::trimcapitilize(Line->text()));
     OKButton->setEnabled(true);
-    Line = Q_NULLPTR;
-    delete Line;
 }
 
 void    dlg_identificationpatient::Slot_ModifDDN()
