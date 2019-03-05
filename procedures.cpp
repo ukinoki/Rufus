@@ -461,6 +461,9 @@ bool Procedures::ImmediateBackup(bool full)
     }
     if (!OKbase && !OKImages && !OKVideos)
         return false;
+    Utils::cleanfolder(NomDirStockageImagerie + NOMDIR_IMAGES);
+    Utils::cleanfolder(NomDirStockageImagerie + NOMDIR_FACTURES);
+    Utils::cleanfolder(NomDirStockageImagerie + NOMDIR_VIDEOS);
 
     Message(tr("Sauvegarde en cours"),3000,false);
     connexion = false;
@@ -516,6 +519,13 @@ bool Procedures::ImmediateBackup(bool full)
         }
     }
     connexion = true;
+    if (OKImages)
+    {
+        Utils::cleanfolder(NomDirDestination + NOMDIR_IMAGES);
+        Utils::cleanfolder(NomDirDestination + NOMDIR_FACTURES);
+    }
+    if (OKVideos)
+        Utils::cleanfolder(NomDirDestination + NOMDIR_VIDEOS);
     emit ConnectTimers();
     UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde terminée"));
     return result;
@@ -1028,8 +1038,10 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
     return result;
 }
 
-void Procedures::DisplayWebPage(QUrl webpage)
+/* abandonné parce QWebEngine pèse beaucoup trop lourd */
+void Procedures::DisplayWebPage(QUrl)
 {
+    /*
     QString         rep("");
     QString         geometry("PositionsFiches/PositionDisplayWebPage");
     UpDialog        *gAsk           = new UpDialog();
@@ -1069,6 +1081,7 @@ void Procedures::DisplayWebPage(QUrl webpage)
 
     gsettingsIni->setValue(geometry,gAsk->saveGeometry());
     delete gAsk;
+    */
 }
 
 QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal)
@@ -3436,20 +3449,26 @@ void Procedures::DefinitScriptBackup(QString path, bool AvecImages, bool AvecVid
     scriptbackup += "find $BACKUP_DIR/* -mtime +$RETENTION -delete";
     // copie les fichiers ressources
     scriptbackup += "\n";
-    scriptbackup +=  "cp -R $DIR_RESSOURCES $BACKUP_DIR/$DATE/Ressources";
+    scriptbackup += "cp -R $DIR_RESSOURCES $BACKUP_DIR/$DATE/Ressources";
     // copie les fichiers image
     if (AvecImages)
     {
         scriptbackup += "\n";
-        scriptbackup +=  "cp -R $DIR_IMAGES $BACKUP_DIR/$DATE/Images";
+        scriptbackup += "mkdir -p $BACKUP_DIR/Images";
         scriptbackup += "\n";
-        scriptbackup +=  "cp -R $DIR_FACTURES $BACKUP_DIR/$DATE/Factures";
+        scriptbackup += "mkdir -p $BACKUP_DIR/Factures";
+        scriptbackup += "\n";
+        scriptbackup += "cp -R -f $DIR_IMAGES $BACKUP_DIR";
+        scriptbackup += "\n";
+        scriptbackup += "cp -R -f $DIR_FACTURES $BACKUP_DIR";
     }
     // copie les fichiers video
     if (AvecVideos)
     {
         scriptbackup += "\n";
-        scriptbackup +=  "cp -R $DIR_VIDEOS $BACKUP_DIR/$DATE/Videos";
+        scriptbackup += "mkdir -p $BACKUP_DIR/Videos";
+        scriptbackup += "\n";
+        scriptbackup += "cp -R -f $DIR_VIDEOS $BACKUP_DIR";
     }
     // copie Rufus.ini
     scriptbackup += "\n";

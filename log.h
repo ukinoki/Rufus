@@ -87,6 +87,23 @@ public:
             testfile.close();
         }
     }
+    static bool LogToFile(QString NomFichier, QByteArray TexteFichier)
+    {
+        //syntaxe = LogToFile(QDir::homePath()+ "/Documents/test.txt", texte);
+        QDir DirRssces;
+        if (!DirRssces.exists(QDir::homePath() + "/Documents/Rufus/Ressources"))
+            DirRssces.mkdir(QDir::homePath() + "/Documents/Rufus/Ressources");
+        QFile testfile(NomFichier);
+        if (!testfile.open(QIODevice::ReadWrite))
+        {
+            UpMessageBox::Watch(Q_NULLPTR, QObject::tr("Impossible d'ouvrir le fichier\n") + NomFichier);
+            return false;
+        }
+        QTextStream out(&testfile);
+        out << TexteFichier;
+        return true;
+    }
+
 };
 
 

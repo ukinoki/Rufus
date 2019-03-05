@@ -186,8 +186,7 @@ QList<QStandardItem*> dlg_listecorrespondants::ListeMetiers()
         if (!list.contains(metier))
         {
             list << metier;
-            metieritem  = new QStandardItem();
-            metieritem  ->setText(metier);
+            metieritem  = new QStandardItem(metier);
             metieritem  ->setForeground(QBrush(QColor(Qt::red)));
             metieritem  ->setEditable(false);
             metieritem  ->setEnabled(false);
@@ -207,7 +206,10 @@ void dlg_listecorrespondants::ReconstruitListeCorrespondants(QString filtre)
 
     QList<QStandardItem*> listmetiers = ListeMetiers();
     for (int i=0; i<listmetiers.size(); i++)
+    {
         gmodele->appendRow(listmetiers.at(i));
+        qDebug() << gmodele->item(i)->text();
+    }
 
     QMap<int, Correspondant *>::const_iterator itcor;
     for( itcor = Correspondants->constBegin(); itcor != Correspondants->constEnd(); ++itcor )

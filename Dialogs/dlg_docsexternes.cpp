@@ -648,32 +648,17 @@ void dlg_docsexternes::FiltrerListe(UpCheckBox *chk)
     RemplirTreeView();                              // après FiltrerListe()
 }
 
-bool dlg_docsexternes::EcritDansUnFichier(QString NomFichier, QByteArray TexteFichier)
-{
-    //syntaxe = EcritDansUnFichier(QDir::homePath()+ "/Documents/test.txt", texte);
-    QDir DirRssces;
-    if (!DirRssces.exists(QDir::homePath() + "/Documents/Rufus/Ressources"))
-        DirRssces.mkdir(QDir::homePath() + "/Documents/Rufus/Ressources");
-    QFile testfile(NomFichier);
-    if (!testfile.open(QIODevice::ReadWrite))
-    {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier\n") + NomFichier);
-        return false;
-    }
-    QTextStream out(&testfile);
-    out << TexteFichier;
-    return true;
-}
-
 QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imagerie, bool afficher)
 {
     /* Cette fonction sert à stocker dans un QByteArray le contenu des documents d'imagerie ou des courriers émis par le logiciel pour pouvoir les afficher
-     * la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
+
+   * la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
      *      imagerie = false -> Le document est un document texte (ordo, certificat...etc).
      *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
      *                          Ces champs vont être utilisés pour l'impression vers un fichier pdf.
      *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
      *      imagerie = true ->  le document est un document d'imagerie stocké sur un fichier. On va le transférer dans la table echangeimages et le transformer en bytearray
+
    * la fonction est applée par ImprimeDoc() - on utilise la table echangeimages
      *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
      *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base de la table echangeimages

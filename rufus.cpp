@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("01-03-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("05-03-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -341,8 +341,7 @@ void Rufus::Connect_Slots()
     connect (ui->ActeCotationcomboBox,                              QOverload<int>::of(&QComboBox::currentIndexChanged),this,   [=] {RetrouveMontantActe();});
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   [=] {ActeMontantModifie();});
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   [=] {BasculerMontantActe();});
-    connect (ui->CCAMlinklabel,                                     &QLabel::linkActivated,                             this,   [=] {proc->DisplayWebPage(QUrl(LIEN_CCAM));});
-                                                                                                                                    //QDesktopServices::openUrl(QUrl(LIEN_CCAM));});
+    connect (ui->CCAMlinklabel,                                     &QLabel::linkActivated,                             this,   [=] {QDesktopServices::openUrl(QUrl(LIEN_CCAM));});
     connect (ui->ModifierCotationActepushButton,                    &QPushButton::clicked,                              this,   [=] {ModfiCotationActe();});
     // Les tabs --------------------------------------------------------------------------------------------------
     connect (ui->tabWidget,                                         &QTabWidget::currentChanged,                        this,   [=] {ChangeTabBureau();});
@@ -6191,7 +6190,6 @@ void Rufus::AfficheDossier(int idPat, int idacte)
         }
 
         html += "</body></html>";
-        //proc->EcritDansUnFichier(QDir::homePath()+ NOMFIC_TEST, html);
 
         ui->IdentPatienttextEdit->setHtml(html);
     }
@@ -7094,8 +7092,10 @@ void Rufus::CreerMenu()
 
     menuDocuments->addMenu(menuEmettre);
     menuDocuments->addAction(actionEnregistrerDocScanner);
+#ifdef Q_OS_MACX
     if (db->getMode() != DataBase::Distant)
         menuDocuments->addAction(actionEnregistrerVideo);
+#endif
     menuDocuments->addSeparator();
     menuDocuments->addAction(actionRechercheCourrier);
     menuDocuments->addAction(actionCorrespondants);
@@ -7550,7 +7550,6 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
                 }
 
                 html += "</body></html>";
-                //proc->EcritDansUnFichier(QDir::homePath()+ "/Documents/test.txt", html);
                 ui->IdentPatienttextEdit->setHtml(html);
 
                 ui->tabWidget->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),icon);

@@ -598,6 +598,10 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatientAll(int idpatient)
     QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression,"
                   " compression, lienversfichier, formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
                   " where idpat = " + QString::number(idpatient);
+#ifdef Q_OS_LINUX
+    req += " and formatdoc <> '" VIDEO "'";
+#endif
+
     QList<QList<QVariant>> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
         return docsexternes;

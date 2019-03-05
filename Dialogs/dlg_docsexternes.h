@@ -98,7 +98,6 @@ private:
     QString                 CalcTitre(DocExterne *docmt);
     int                     CompteNbreDocs();
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
-    bool                    EcritDansUnFichier(QString NomFichier, QByteArray TexteFichier);
     void                    EnregistreVideo();
 
     void                    FiltrerListe(UpCheckBox *chk);

@@ -82,9 +82,10 @@ public:
     static QString                  correctquoteSQL(QString text);
     static bool                     VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
     static bool                     mkpath(QString path);
+    static void                     cleanfolder(QString path);
     static double                   mmToInches(double mm);
 
-    static QString                 CalculeFormule(QMap<QString,QVariant>  Donnees,
+    static QString                  CalculeFormule(QMap<QString,QVariant>  Donnees,
                                                   QString Cote);                      // comme son nom l'indique
     static QString                  PrefixePlus(QString);                          // convertit en QString signé + ou - les valeurs QDouble de dioptries
 };

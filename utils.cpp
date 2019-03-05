@@ -438,6 +438,29 @@ bool Utils::mkpath(QString path)
     return Dir.mkpath(path);
 }
 
+/*!
+ * \brief Utils::cleanfilder
+ * élimine les sous-dossiers vides d'un dossier
+ */
+void Utils::cleanfolder(const QString DirPath)
+{
+    QDir dir(DirPath);
+    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    QFileInfoList list = dir.entryInfoList();
+
+    if (list.size()==0)
+    {
+        dir.rmdir(DirPath);
+        qDebug() << "dossier vide effacé" << DirPath;
+    }
+    else for(int i = 0; i < list.size(); ++i)
+    {
+        QFileInfo fileInfo = list.at(i);
+        if (fileInfo.isDir())
+            cleanfolder(fileInfo.absoluteFilePath());
+    }
+}
+
 double Utils::mmToInches(double mm )  { return mm * 0.039370147; }
 
 

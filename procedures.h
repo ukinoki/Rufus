@@ -48,7 +48,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTableWidget>
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
-#include <QWebEngineView>
+
+// #include <QWebEngineView>    /* abandonné parce QWebEngine pèse beaucoup trop lourd
+
 
 #include "uppushbutton.h"
 #include "upcheckbox.h"
@@ -105,7 +107,7 @@ public:
     QMap<QString,QVariant>  CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher = true);
     bool                    CompressFileJPG(QString nomfile, QDate datetransfert = QDate::currentDate());
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
-    void                    DisplayWebPage(QUrl webpage);
+    void                    DisplayWebPage(QUrl);    /* abandonné parce QWebEngine pèse beaucoup trop lourd */
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);

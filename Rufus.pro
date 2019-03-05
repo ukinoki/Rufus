@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
-QT       += sql core gui network printsupport xml serialport multimedia multimediawidgets webenginewidgets
+QT       += sql core gui network printsupport xml serialport multimedia multimediawidgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
