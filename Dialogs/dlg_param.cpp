@@ -1807,8 +1807,9 @@ void dlg_param::Slot_ModifMDPAdmin()
     UpLineEdit *ConfirmMDP = new UpLineEdit(gAskMDP);
     ConfirmMDP->setEchoMode(QLineEdit::Password);
     ConfirmMDP->setObjectName(gConfirmMDP);
-    ConfirmMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_15,this));
+    ConfirmMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
     ConfirmMDP->setAlignment(Qt::AlignCenter);
+    ConfirmMDP->setMaxLength(12);
     gAskMDP->dlglayout()->insertWidget(0,ConfirmMDP);
     UpLabel *labelConfirmMDP = new UpLabel();
     labelConfirmMDP->setText(tr("Confirmez le nouveau mot de passe"));
@@ -1816,8 +1817,9 @@ void dlg_param::Slot_ModifMDPAdmin()
     UpLineEdit *NouvMDP = new UpLineEdit(gAskMDP);
     NouvMDP->setEchoMode(QLineEdit::Password);
     NouvMDP->setObjectName(gNouvMDP);
-    NouvMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_15,this));
+    NouvMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
     NouvMDP->setAlignment(Qt::AlignCenter);
+    NouvMDP->setMaxLength(12);
     gAskMDP->dlglayout()->insertWidget(0,NouvMDP);
     UpLabel *labelNewMDP = new UpLabel();
     labelNewMDP->setText(tr("Entrez le nouveau mot de passe"));
@@ -1825,8 +1827,9 @@ void dlg_param::Slot_ModifMDPAdmin()
     UpLineEdit *AncMDP = new UpLineEdit(gAskMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
-    AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_15,this));
+    AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_12,this));
     AncMDP->setObjectName(gAncMDP);
+    AncMDP->setMaxLength(12);
     gAskMDP->dlglayout()->insertWidget(0,AncMDP);
     UpLabel *labelOldMDP = new UpLabel();
     labelOldMDP->setText(tr("Entrez votre mot de passe"));
@@ -2477,10 +2480,10 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
             msgbox.exec();
             return;
         }
-        if (!Utils::rgx_AlphaNumeric_3_15.exactMatch(nouv) || nouv == "")
+        if (!Utils::rgx_AlphaNumeric_5_12.exactMatch(nouv) || nouv == "")
         {
             QSound::play(NOM_ALARME);
-            msgbox.setInformativeText(tr("Le nouveau mot de passe n'est pas conforme\n(au moins 3 caractères - chiffres ou lettres non accentuées -\n"));
+            msgbox.setInformativeText(tr("Le nouveau mot de passe n'est pas conforme\n(au moins 5 caractères - chiffres ou lettres non accentuées -\n"));
             gAskMDP->findChild<UpLineEdit*>(gNouvMDP)->setFocus();
             msgbox.exec();
             return;

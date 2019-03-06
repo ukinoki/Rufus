@@ -396,6 +396,7 @@ void dlg_gestionusers::Slot_EnregistreNouvMDP()
         db->StandardSQL("set password for '" + OtherUser->getLogin() + "'@'" + Domaine + "%' = '" + nouv + "'");
         db->StandardSQL("set password for '" + OtherUser->getLogin() + "SSL'@'%' = '" + nouv + "'");
         ui->MDPuplineEdit->setText(nouv);
+        OtherUser->setPassword(nouv);
         gAskMDP->done(0);
         msgbox.exec();
     }
@@ -929,7 +930,7 @@ void dlg_gestionusers::Slot_ModifMDP()
     UpLineEdit *AncMDP = new UpLineEdit(gAskMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
-    AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
+    AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_12,this));
     AncMDP->setObjectName(gAncMDP);
     AncMDP->setMaxLength(12);
     gAskMDP->dlglayout()->insertWidget(0,AncMDP);

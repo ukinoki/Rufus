@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 QRegExp const Utils::rgx_rx = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ -]*");
 QRegExp const Utils::rgx_AlphaNumeric = QRegExp("[A-Za-z0-9]*");
-QRegExp const Utils::rgx_AlphaNumeric_3_15 = QRegExp("[A-Za-z0-9]{3,15}$");
+QRegExp const Utils::rgx_AlphaNumeric_3_12 = QRegExp("[A-Za-z0-9]{3,12}$");
 QRegExp const Utils::rgx_AlphaNumeric_5_15 = QRegExp("[A-Za-z0-9]{5,15}$");
 QRegExp const Utils::rgx_AlphaNumeric_5_12  = QRegExp("[A-Za-z0-9]{5,12}$");
 QRegExp const Utils::rgx_MajusculeSeul = QRegExp("[A-Z]*");

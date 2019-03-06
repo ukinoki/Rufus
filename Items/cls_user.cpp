@@ -104,6 +104,7 @@ void User::setData(QJsonObject data)
 
 QString User::getLogin() const { return m_login; }
 QString User::getPassword() const { return m_password; }
+void User::setPassword(QString psswd) { m_password = psswd; }
 
 int User::id() const
 {

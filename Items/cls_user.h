@@ -130,6 +130,7 @@ public:
 
     QString getLogin() const;
     QString getPassword() const;
+    void setPassword(QString psswd);
 
     int id() const;
     void setId( int value );
