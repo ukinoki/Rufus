@@ -103,7 +103,6 @@ public:
         out << TexteFichier;
         return true;
     }
-
 };
 
 

@@ -68,12 +68,18 @@
      <rect>
       <x>140</x>
       <y>46</y>
-      <width>113</width>
+      <width>150</width>
       <height>21</height>
      </rect>
     </property>
     <property name="contextMenuPolicy">
      <enum>Qt::NoContextMenu</enum>
+    </property>
+    <property name="inputMask">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>12</number>
     </property>
     <property name="echoMode">
      <enum>QLineEdit::Password</enum>
@@ -87,12 +93,18 @@
      <rect>
       <x>140</x>
       <y>16</y>
-      <width>113</width>
+      <width>150</width>
       <height>21</height>
      </rect>
     </property>
     <property name="contextMenuPolicy">
      <enum>Qt::NoContextMenu</enum>
+    </property>
+    <property name="inputMask">
+     <string/>
+    </property>
+    <property name="maxLength">
+     <number>15</number>
     </property>
     <property name="alignment">
      <set>Qt::AlignCenter</set>

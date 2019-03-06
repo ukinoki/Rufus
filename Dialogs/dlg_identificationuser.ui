@@ -148,7 +148,7 @@
     <set>Qt::ImhHiddenText|Qt::ImhLatinOnly|Qt::ImhLowercaseOnly|Qt::ImhUppercaseOnly</set>
    </property>
    <property name="maxLength">
-    <number>8</number>
+    <number>12</number>
    </property>
    <property name="alignment">
     <set>Qt::AlignCenter</set>

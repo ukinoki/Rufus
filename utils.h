@@ -40,7 +40,7 @@ public:
     static QRegExp const rgx_rx;
     static QRegExp const rgx_AlphaNumeric;
     static QRegExp const rgx_AlphaNumeric_3_15;
-    static QRegExp const rgx_AlphaNumeric_5_8;
+    static QRegExp const rgx_AlphaNumeric_5_12;
     static QRegExp const rgx_AlphaNumeric_5_15;
     static QRegExp const rgx_MajusculeSeul;
 

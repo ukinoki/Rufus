@@ -34,8 +34,8 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     setWindowTitle(tr("Rufus - Identification de l'utilisateur"));
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric,this));
-    ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric,this));
+    ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
+    ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
     ui->MDPlineEdit     ->setEchoMode(QLineEdit::Password);
 
     connect (ui->OKpushButton,      &QPushButton::clicked,  this,   &dlg_identificationuser::Slot_RetourOK);
@@ -54,8 +54,8 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
 
 
 #ifdef ALEX //mare de mettre le login et password tout le temps
-    ui->LoginlineEdit->setText("serge");
-    ui->MDPlineEdit->setText("gaxt78iy");
+    ui->LoginlineEdit->setText("");
+    ui->MDPlineEdit->setText("");
 #endif
 
 }

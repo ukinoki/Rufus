@@ -44,6 +44,8 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     gServeur                = "";
     gTimer                  = new QTimer(this);
     gTimer                  ->start(500);
+    ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
+    ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
 
     connect(ui->AnnuluppushButton,      SIGNAL(clicked(bool)),          this,   SLOT(reject()));
     connect(ui->HelpupPushButton,       SIGNAL(clicked(bool)),          this,   SLOT(Slot_HelpMsg()));
