@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("06-03-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("09-03-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1553,11 +1553,13 @@ void Rufus::CreerBilanOrtho()
         QString RefractionOG    = "";
         Dlg_BlOrtho             ->setDateBO(QDate::currentDate());
 
-        QString RefODrequete    = "select max(idrefraction), formuleOD, formuleOG, idActe from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gidPatient);
-        QList<QVariant> RefODdata = db->getFirstRecordFromStandardSelectSQL(RefODrequete, ok);
-        if (ok && RefODdata.size()>0)
-            RefractionOD = RefODdata.at(1).toString();
-            RefractionOG = RefODdata.at(2).toString();
+        QString Refrequete    = "select max(idrefraction), formuleOD, formuleOG, idActe from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gidPatient);
+        QList<QVariant> Refdata = db->getFirstRecordFromStandardSelectSQL(Refrequete, ok);
+        if (ok && Refdata.size()>0)
+        {
+            RefractionOD = Refdata.at(1).toString();
+            RefractionOG = Refdata.at(2).toString();
+        }
 
         if (RefractionOD != "")     Dlg_BlOrtho->ui->AVODlineEdit->setText(RefractionOD);
         if (RefractionOG != "")     Dlg_BlOrtho->ui->AVOGlineEdit->setText(RefractionOG);
@@ -6455,7 +6457,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
                 if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
                 {
                     msgbox.setText(tr("Vous avez entré un montant nul !"));
-                    msgbox.setInformativeText(tr("Enregistrer cette consultation comme gratuite?"));
+                    msgbox.setInformativeText(tr("Enregistrer cet acte comme gratuit?"));
                     msgbox.setIcon(UpMessageBox::Warning);
                     UpSmallButton OKBouton(tr("Consultation gratuite"));
                     UpSmallButton NoBouton(tr("Non"));
@@ -7892,6 +7894,8 @@ void Rufus::InitWidgets()
     MGlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
     AutresCorresp1LineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
     AutresCorresp2LineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->CreerNomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
+    ui->CreerPrenomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
     ui->tabWidget->setTabText(0,tr("Liste des patients"));
 
     ui->ActeMontantlineEdit->setAlignment(Qt::AlignRight);
@@ -8512,8 +8516,6 @@ void    Rufus::OuvrirListe()
     ui->LListepushButton->setEnabled(false);
     ui->LNouvDossierpushButton->setEnabled(true);
     ui->LRecopierpushButton->setEnabled(ui->PatientsListeTableView->model()->rowCount() > 0);
-    ui->CreerNomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
-    ui->CreerPrenomlineEdit->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
 
     gSexePat = "";      // CZ001
     gNNIPat  = "";      // CZ001
@@ -8644,16 +8646,7 @@ void    Rufus::ReconstruitListesActes()
     // il faut d'abord reconstruire la table des cotations
     ui->ActeCotationcomboBox->clear();
 
-    /*QStandardItemModel *model = new QStandardItemModel();
-    // toute la manip qui suit sert à remetre les correspondants par ordre aplhabétique (dans le QMap, ils sont triés par id croissant) - si  vous trouvez plus simple, ne vous génez pas
-    for(QMap<int, Cotation *>::const_iterator itcot = Datas::I()->cotations->cotationsbyuser()->constBegin(); itcot != Datas::I()->cotations->cotationsbyuser()->constEnd(); ++itcot )
-    {
-        Cotation *cot = const_cast<Cotation*>(*itcor);
-        QList<QStandardItem *> items;
-        items << new QStandardItem(QString::number(cot->id())) << new QStandardItem(QString::number(cor->id()));
-        model->appendRow(items);
-    }
-    model->sort(0);*/
+    ui->ActeCotationcomboBox->addItem(tr("Acte gratuit"),QStringList() << "0.00" << "0.00" << tr("Acte gratuit"));
     for (QMap<int, Cotation*>::const_iterator itcot = Datas::I()->cotations->cotationsbyuser()->constBegin();
          itcot != Datas::I()->cotations->cotationsbyuser()->constEnd();
          ++itcot)
@@ -8665,12 +8658,11 @@ void    Rufus::ReconstruitListesActes()
         ui->ActeCotationcomboBox->addItem(cot->typeacte(),list);
     }
 
-    QCompleter *comp = new QCompleter(db->loadTypesCotations());
-    //comp->setCompletionMode(QCompleter::InlineCompletion);
+    QCompleter *comp = new QCompleter(QStringList() << tr("Acte gratuit") << db->loadTypesCotations());
     comp->setCaseSensitivity(Qt::CaseInsensitive);
     comp->popup()->setFont(ui->ActeMontantlineEdit->font());
     comp->setMaxVisibleItems(5);
-    connect(comp,  QOverload<const QString &>::of(&QCompleter::activated), [=] {RetrouveMontantActe();});
+    connect(comp,  QOverload<const QString &>::of(&QCompleter::activated), this, [=] {RetrouveMontantActe();});
     ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
 }
 
