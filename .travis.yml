@@ -30,9 +30,8 @@ script:
   - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
   - unset LD_LIBRARY_PATH
   - export VERSION=$(git rev-parse --short HEAD)
-  - ./linuxdeployqt-continuous-x86_64.AppImage /home/travis/build/Ukinoki/Rufus.AppDir/Rufus -appimage
+  - ./linuxdeployqt-continuous-x86_64.AppImage /home/travis/build/Ukinoki/Rufus.AppDir/rufus.desktop -appimage -extra-plugins=iconengines,platformthemes/libqgtk3.so
 
- 
 after_success:
   - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
   - rm ./linuxdeployqt-continuous-x86_64.AppImage
