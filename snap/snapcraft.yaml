@@ -66,6 +66,7 @@ parts:
 
  rufus:
     after: [desktop-qt5, gcc7, poppler-data, poppler]
+    source: .
     plugin: qmake
     project-files: [snapcraft.pro]
     organize:
