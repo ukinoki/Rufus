@@ -65,7 +65,7 @@ parts:
       - libjpeg-dev
 
  rufus:
-    after: [desktop-qt5, gcc7, poppler-data, poppler]
+    after: [gcc7, poppler-data, poppler]
     source: .
     plugin: qmake
     project-files: [snapcraft.pro]
