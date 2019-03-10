@@ -22,6 +22,7 @@ parts:
     configflags: [-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7]
     build-packages:
       - cmake
+      - gcc
 
  poppler:
     after: [poppler-data]
@@ -30,6 +31,7 @@ parts:
     source-type: tar
     configflags: [-DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=/usr/bin/g++-7]
     build-packages:
+      - gcc
       - cmake
       - libyelp-dev                    
       - libopenjp2-7-dev
