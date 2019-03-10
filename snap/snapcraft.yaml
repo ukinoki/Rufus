@@ -5,7 +5,7 @@ description: Logiciel de gestion de cabinet d'Ophtalmologie.
 type: app
 grade: devel
 confinement: classic
-base: core16
+base: core18
 
 apps:
  rufus:
@@ -15,27 +15,7 @@ apps:
  
 parts:
     
- gcc7:
-    plugin: nil
-    build-packages:
-      - libmpc-dev
-      - libcloog-ppl-dev
-    override-pull: |
-      echo "deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu xenial main" | \
-            sudo tee /etc/apt/sources.list.d/ubuntu-toolchain-r.list
-      sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 60C317803A41BA51845E371A1E9377A2BA9EF27F
-      sudo apt-get update \
-        -o Dir::Etc::sourcelist="sources.list.d/ubuntu-toolchain-r.list" \
-        -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
-      snapcraftctl pull
-    override-build: |
-      sudo apt install gcc-7 g++-7 -o Debug::pkgProblemResolver=yes --no-install-recommends -y
-      sudo apt-mark auto gcc-7 g++-7
-      sudo rm -f /etc/apt/sources.list.d/ubuntu-toolchain-r.list
-      snapcraftctl build
-
  poppler-data:
-    after: [gcc7]
     plugin: cmake
     source: https://poppler.freedesktop.org/poppler-data-0.4.9.tar.gz
     source-type: tar
@@ -44,7 +24,7 @@ parts:
       - cmake
 
  poppler:
-    after: [gcc7, poppler-data]
+    after: [poppler-data]
     plugin: cmake
     source: https://poppler.freedesktop.org/poppler-0.74.0.tar.xz
     source-type: tar
@@ -65,13 +45,14 @@ parts:
       - libjpeg-dev
 
  rufus:
-    after: [gcc7, poppler-data, poppler]
+    after: [poppler-data, poppler]
     source: .
     plugin: qmake
     project-files: [snapcraft.pro]
     organize:
         opt/rufus/bin: bin
     build-packages:
+      - gcc
       - libqt5sql5-mysql
       - dirmngr
       - build-essential
