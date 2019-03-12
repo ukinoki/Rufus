@@ -672,7 +672,6 @@ void dlg_documents::MenuContextuel(QWidget *widg)
     QAction *pAction_Blockleft;
     QAction *pAction_Copier;
     QAction *pAction_Cut;
-    QAction *pAction_Coller;
     QAction *pAction_InsInterroDate;
     QAction *pAction_InsInterroCote;
     QAction *pAction_InsInterroHeure;
@@ -804,19 +803,21 @@ void dlg_documents::MenuContextuel(QWidget *widg)
                 || qApp->clipboard()->mimeData()->hasUrls()
                 || qApp->clipboard()->mimeData()->hasImage()
                 || qApp->clipboard()->mimeData()->hasHtml())
-        pAction_Coller              = gmenuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
+        {
+            QAction *pAction_Coller = gmenuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
+            connect (pAction_Coller,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Coller");});
+        }
 
-        connect (pAction_InsertChamp,       &QAction::triggered,    [=] {ChoixMenuContextuel("Inserer");});
-        connect (pAction_InsInterroDate,    &QAction::triggered,    [=] {ChoixMenuContextuel("Date");});
-        connect (pAction_InsInterroCote,    &QAction::triggered,    [=] {ChoixMenuContextuel("Cote");});
-        connect (pAction_InsInterroHeure,   &QAction::triggered,    [=] {ChoixMenuContextuel("Heure");});
-        connect (pAction_InsInterroMontant, &QAction::triggered,    [=] {ChoixMenuContextuel("Montant");});
-        connect (pAction_InsInterroText,    &QAction::triggered,    [=] {ChoixMenuContextuel("Texte");});
-        connect (pAction_Blockcentr,        &QAction::triggered,    [=] {ChoixMenuContextuel("Centre");});
-        connect (pAction_Blockright,        &QAction::triggered,    [=] {ChoixMenuContextuel("Droite");});
-        connect (pAction_Blockleft,         &QAction::triggered,    [=] {ChoixMenuContextuel("Gauche");});
-        connect (pAction_Blockjust,         &QAction::triggered,    [=] {ChoixMenuContextuel("Justifie");});
-        connect (pAction_Coller,            &QAction::triggered,    [=] {ChoixMenuContextuel("Coller");});
+        connect (pAction_InsertChamp,       &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Inserer");});
+        connect (pAction_InsInterroDate,    &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Date");});
+        connect (pAction_InsInterroCote,    &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Cote");});
+        connect (pAction_InsInterroHeure,   &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Heure");});
+        connect (pAction_InsInterroMontant, &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Montant");});
+        connect (pAction_InsInterroText,    &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Texte");});
+        connect (pAction_Blockcentr,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Centre");});
+        connect (pAction_Blockright,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Droite");});
+        connect (pAction_Blockleft,         &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Gauche");});
+        connect (pAction_Blockjust,         &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Justifie");});
     }
 
     // ouvrir le menu

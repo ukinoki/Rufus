@@ -122,7 +122,7 @@ QWidget* UpDialog::widgetbuttons()
  * \brief UpDialog::setStageCount(double nbstages)
  * permet de fixer grossièrement le hauteur du widget contenant les buttons
  * de manière à connaître cette valeur à l'avance, avant l'affichage de la fiche
- * si que des upsmallbutton sans texte nbstages = 0.6
+ * si que des upsmallbutton sans texte nbstages = 0.7
  * avec des upsmallbuttons et du texte nbstages = 1
  * et plus si des widgets de plus grande taille dans le widget de buttons
  * à déterminer à chaque fois pifométriquement

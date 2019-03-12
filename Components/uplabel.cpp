@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uplabel.h"
 
-UpLabel::UpLabel(QWidget *parent, QString txt) : QLabel(txt, parent)
+UpLabel::UpLabel(QWidget *parent, QString txt) : QLabel(txt, parent)  //je ne sais plus pourquoi j'ai mis le parent avant le texte mais il y une raison à un moment donné du code...
 {
     id          = -1;
     row         = -1;

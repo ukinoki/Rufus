@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("09-03-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("12-03-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2430,13 +2430,136 @@ void Rufus::ImprimeDossier()
 {
     QString req = "select idActe, ActeDate, ActeMotif, ActeTexte, ActeConclusion, usernom, userprenom, usertitre from " NOM_TABLE_ACTES
                   " as act left outer join " NOM_TABLE_UTILISATEURS " as usr on usr.iduser = act.iduser"
-                  " where idPat = " + QString::number(gidPatient);
+                  " where idPat = " + QString::number(gidPatient) +
+                  " order by ActeDate";
     //UpMessageBox::Watch(this,listactreq);
     QList<QList<QVariant>> listact = db->StandardSelectSQL(req, ok);
     if (listact.size()==0)
     {
         UpMessageBox::Watch(this,tr("Pas d'actes enregistré pour ce patient!"));
         return;
+    }
+
+    int debut = 0;
+    int fin = listact.size();
+
+    if (listact.size()>1)
+    {
+        auto fixdateacte = [] (UpComboBox *debutbox, UpComboBox *finbox, int idacte)
+        {
+            debutbox    ->setCurrentIndex(debutbox  ->findData(idacte));
+            finbox      ->setCurrentIndex(finbox    ->findData(idacte));
+        };
+        auto recalclistitems = [] (UpComboBox *box, QList<QList<QVariant>> listactes, QDate date, bool verslehaut)
+        {
+            QDate dateencours = QDate::fromString(box->currentText(),"dd-MMM-yyyy");
+            box->clear();
+            QList<QList<QVariant>>::const_iterator itactes;
+            for( itactes = listactes.constBegin(); itactes != listactes.constEnd(); ++itactes )
+            {
+                QString dateacte = itactes->at(1).toDate().toString("dd-MMM-yyyy");
+                if (verslehaut)
+                {
+                    if (itactes->at(1).toDate() >= date)
+                        box->addItem(dateacte, itactes->at(0));
+                }
+                else
+                {
+                    if (itactes->at(1).toDate() <= date)
+                        box->addItem(dateacte, itactes->at(0));
+                }
+            }
+            if (verslehaut)
+            {
+                if (dateencours >= date && box->findText(dateencours.toString("dd-MMM-yyyy"))>-1)
+                    box->setCurrentIndex(box->findText(dateencours.toString("dd-MMM-yyyy")));
+                else
+                    box->setCurrentIndex(box->count()-1);
+            }
+            else
+            {
+                if (dateencours <= date && box->findText(dateencours.toString("dd-MMM-yyyy"))>-1)
+                    box->setCurrentIndex(box->findText(dateencours.toString("dd-MMM-yyyy")));
+                else
+                    box->setCurrentIndex(0);
+            }
+        };
+        auto recalcallitems = [] (UpComboBox *debutbox, UpComboBox *finbox, QList<QList<QVariant>> listactes)
+        {
+            // remplissage des combobox de date des actes
+            QList<QList<QVariant>>::const_iterator itactes;
+            for( itactes = listactes.constBegin(); itactes != listactes.constEnd(); ++itactes )
+            {
+                QString dateacte = itactes->at(1).toDate().toString("dd-MMM-yyyy");
+                debutbox    ->addItem(dateacte, itactes->at(0));
+                finbox      ->addItem(dateacte, itactes->at(0));
+            }
+            debutbox    ->setCurrentIndex(0);
+            finbox      ->setCurrentIndex(finbox->count()-1);
+        };
+
+        gAsk            = new UpDialog(this);
+        int w = 120;
+        QHBoxLayout     *debutlayout    = new QHBoxLayout();
+        UpLabel         *lbldebut       = new UpLabel;
+        UpComboBox      *combodebut     = new UpComboBox;
+        lbldebut        ->setText(tr("depuis le"));
+        combodebut      ->setFixedWidth(w);
+        debutlayout     ->addWidget(lbldebut);
+        debutlayout     ->addSpacerItem(new QSpacerItem(30,0,QSizePolicy::Expanding));
+        debutlayout     ->addWidget(combodebut);
+        QHBoxLayout     *finlayout      = new QHBoxLayout();
+        UpLabel         *lblfin         = new UpLabel;
+        UpComboBox      *combofin       = new UpComboBox;
+        lblfin          ->setText(tr("jusqu'au"));
+        combofin        ->setFixedWidth(w);
+        finlayout       ->addWidget(lblfin);
+        finlayout       ->addSpacerItem(new QSpacerItem(30,0,QSizePolicy::Expanding));
+        finlayout       ->addWidget(combofin);
+        UpPushButton    *Dossierbutton  = new UpPushButton(tr("tout le dossier"));
+        UpPushButton    *Actebutton     = new UpPushButton(tr("acte en cours"));
+        gAsk->dlglayout()->insertLayout(0,debutlayout);
+        gAsk->dlglayout()->insertLayout(1,finlayout);
+        gAsk->dlglayout()->insertWidget(2,Dossierbutton);
+        gAsk->dlglayout()->insertWidget(3,Actebutton);
+        gAsk->AjouteLayButtons(UpDialog::ButtonOK);
+        gAsk->setStageCount(0.7);
+
+        gAsk->setWindowTitle("");
+        //gAsk->setFixedWidth(520);
+        gAsk->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+
+        combodebut      ->setEditable(false);
+        combofin        ->setEditable(false);
+        // remplissage des combobox de date des actes
+        recalcallitems (combodebut, combofin, listact);
+
+        connect(gAsk->OKButton, &QPushButton::clicked,              gAsk, &UpDialog::accept);
+        connect(Actebutton,     &QPushButton::clicked,              gAsk, [=] {fixdateacte(combodebut, combofin, gidActe);});
+        connect(Dossierbutton,  &QPushButton::clicked,              gAsk, [=] {recalcallitems (combodebut, combofin, listact);});
+        connect(combodebut,     QOverload<int>::of(&QComboBox::activated),    gAsk, [=] {recalclistitems(combofin,
+                                                                                               listact,
+                                                                                               QDate::fromString(combodebut->currentText(),"dd-MMM-yyyy"),
+                                                                                               true);});
+        connect(combofin,       QOverload<int>::of(&QComboBox::activated),    gAsk, [=] {recalclistitems(combodebut,
+                                                                                               listact,
+                                                                                               QDate::fromString(combofin->currentText(),"dd-MMM-yyyy"),
+                                                                                               false);});
+        int result = gAsk->exec();
+        if (result==0)
+        {
+            delete gAsk;
+            return;
+        }
+        for( int i=0; i<listact.size(); i++ )
+        {
+            int idacte = listact.at(i).at(0).toInt();
+            if (idacte == combodebut->currentData().toInt())
+                debut = i;
+            if (idacte == combofin->currentData().toInt())
+                fin = i+1;
+        }
+        delete gAsk;
     }
 
     QString Reponse =        "<html><head><meta name=\"qrichtext\" content=\"1\" />"
@@ -2488,7 +2611,7 @@ void Rufus::ImprimeDossier()
     }
 
     bool reponsevide = true;
-    for (int i=0;i<listact.size();i++)
+    for (int i=debut; i<fin; i++)
     {
         if (listact.at(i).at(2).toString() != ""
             || listact.at(i).at(3).toString() != ""
