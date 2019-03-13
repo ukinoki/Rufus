@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("12-03-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("13-03-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2525,8 +2525,7 @@ void Rufus::ImprimeDossier()
         gAsk->AjouteLayButtons(UpDialog::ButtonOK);
         gAsk->setStageCount(0.7);
 
-        gAsk->setWindowTitle("");
-        //gAsk->setFixedWidth(520);
+        gAsk->setWindowTitle(tr("Impression dossier"));
         gAsk->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
         combodebut      ->setEditable(false);
@@ -2561,10 +2560,10 @@ void Rufus::ImprimeDossier()
         }
         delete gAsk;
     }
-
+    int taillefont  = 9;
     QString Reponse =        "<html><head><meta name=\"qrichtext\" content=\"1\" />"
                              "<style type=\"text/css\">"
-                             "p {margin-top:0px; margin-bottom:0px;margin-left: 0px; font-size:9pt}, li { white-space: pre-wrap; }"
+                             "p {margin-top:0px; margin-bottom:0px;margin-left: 0px; font-size:" + QString::number(taillefont) + "pt}, li { white-space: pre-wrap; }"
                              "</style>"
                              "</head><body>";
 
@@ -2687,7 +2686,9 @@ void Rufus::ImprimeDossier()
            "</div></p>"
            "</body></html>";
 
-   Reponse.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt");
+   Reponse.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(taillefont) + "pt");
+   QString largeurformule = LARGEUR_FORMULE;
+   Reponse.replace("<td width=\"" LARGEUR_FORMULE "\">","<td width=\"" + QString::number(largeurformule.toInt() - 40) + "\">");
    Corps.replace("{{TEXTE ORDO}}",Reponse);
 
    QTextEdit *Etat_textEdit = new QTextEdit;

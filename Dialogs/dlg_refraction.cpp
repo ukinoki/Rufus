@@ -3338,7 +3338,7 @@ void dlg_refraction::ResumeObservation()
                 gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             case 5:
-                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->getLogin() + "</td>";
+                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->getLogin() + "</td>";
                 gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             default:

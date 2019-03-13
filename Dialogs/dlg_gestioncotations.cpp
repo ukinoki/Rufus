@@ -166,7 +166,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (gMode == Creation)
         {
-            req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = " + ui->CodeActeupLineEdit->text() + " and CCAM = 2 and idUser = " + QString::number(gidUser);
+            req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = '" + ui->CodeActeupLineEdit->text() + "' and CCAM = 2 and idUser = " + QString::number(gidUser);
             bool ok;
             QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && actdata.size()>0)
@@ -207,7 +207,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (gMode == Creation)
         {
-            req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = " + ui->CodeActeupLineEdit->text() + " and CCAM = 3 and idUser = " + QString::number(gidUser);
+            req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = '" + ui->CodeActeupLineEdit->text() + "' and CCAM = 3 and idUser = " + QString::number(gidUser);
             bool ok;
             QList<QVariant> cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && cotdata.size()>0)

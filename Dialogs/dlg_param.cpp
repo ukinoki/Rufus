@@ -1602,7 +1602,8 @@ void dlg_param::Slot_EnregistreAppareil()
 
 void dlg_param::Slot_EnregistreEmplacementServeur(int idx)
 {
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set idlieupardefaut = " + ui->EmplacementServeurupComboBox->itemData(idx).toString());
+    if (ui->EmplacementServeurupComboBox->itemData(idx).toString() != "")
+        db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set idlieupardefaut = " + ui->EmplacementServeurupComboBox->itemData(idx).toString());
 }
 
 void dlg_param::NouvAssocCCAM()

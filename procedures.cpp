@@ -765,7 +765,7 @@ QString Procedures::ImpressionPied(User *user, bool lunettes, bool ALD)
         baPied.data()[filePied_len] = 0;
         qFilePied.close ();
         if( user->getAGA() )
-            baPied.replace("{{AGA}}","Membre d'une association de gestion agréée - Le règlement des honoraires par chèque est accepté");
+            baPied.replace("{{AGA}}","Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté");
         else
             baPied.replace("{{AGA}}","");
         Pied = baPied;
