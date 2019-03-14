@@ -81,7 +81,7 @@ void User::setData(QJsonObject data)
     setDataInt(data, "responsableActes", m_responsableActes);
     setDataInt(data, "userenreghonoraires", m_userenreghonoraires);
     setDataInt(data, "userccam", m_userccam);
-    setDataInt(data, "numPS", m_numPS);
+    setDataLongLongInt(data, "numPS", m_numPS);
     setDataInt(data, "noSpecialite", m_noSpecialite);
     setDataInt(data, "idCompteParDefaut", m_idCompteParDefaut);
     setDataInt(data, "poste", m_poste);
@@ -122,7 +122,7 @@ int User::getEnregHonoraires() const { return m_enregHonoraires; }
 QString User::getTitre() const { return m_titre; }
 int User::getNoSpecialite() const { return m_noSpecialite; }
 QString User::getSpecialite() const { return m_specialite; }
-int User::getNumPS() const { return m_numPS; }
+qlonglong User::getNumPS() const { return m_numPS; }
 QString User::getNumCO() const { return m_numCO; }
 bool User::getAGA() const { return m_AGA; }
 int User::getEmployeur() const { return m_employeur; }

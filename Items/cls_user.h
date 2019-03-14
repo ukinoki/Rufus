@@ -82,7 +82,7 @@ private:
                             //!< 3 : assistant
     int m_userenreghonoraires;
     int m_userccam;
-    int m_numPS;
+    qlonglong m_numPS;
     int m_noSpecialite;
     int m_idCompteParDefaut;
     int m_poste;
@@ -145,7 +145,7 @@ public:
     QString getTitre() const;
     int getNoSpecialite() const;
     QString getSpecialite() const;
-    int getNumPS() const;
+    qlonglong getNumPS() const;
     QString getNumCO() const;
     bool getAGA() const;
     int getEmployeur() const;

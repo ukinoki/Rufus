@@ -40,6 +40,7 @@ protected:
 
     void setDataString(QJsonObject data, QString key, QString &prop, bool useTrim=false);
     void setDataInt(QJsonObject data, QString key, int &prop);
+    void setDataLongLongInt(QJsonObject data, QString key, qlonglong &prop);
     void setDataDouble(QJsonObject data, QString key, double &prop);
     void setDataBool(QJsonObject data, QString key, bool &prop);
     void setDataDateTime(QJsonObject data, QString key, QDateTime &prop);

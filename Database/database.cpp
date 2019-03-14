@@ -435,7 +435,7 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData["nom"]                         = usrdata.at(5).isNull() ? "" : usrdata.at(5).toString();
     userData["prenom"]                      = usrdata.at(6).isNull() ? "" : usrdata.at(6).toString();
     userData["mail"]                        = usrdata.at(7).isNull() ? "" : usrdata.at(7).toString();
-    userData["numPS"]                       = usrdata.at(8).toInt();
+    userData["numPS"]                       = usrdata.at(8).toLongLong();
     userData["specialite"]                  = usrdata.at(9).isNull() ? "" : usrdata.at(9).toString();
     userData["noSpecialite"]                = usrdata.at(10).toInt();
     userData["numCO"]                       = usrdata.at(11).isNull() ? "" : usrdata.at(11).toString();
