@@ -38,7 +38,7 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     if (ipadrserver == "")
     {
         bool ok = true;
-        QList<QList<QVariant>> listadress = db->StandardSelectSQL("select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME, ok);
+        QList<QVariantList> listadress = db->StandardSelectSQL("select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME, ok);
         ipadrserver    = listadress.at(0).at(0).toString();
     }
     if (ipadrserver == "")

@@ -108,7 +108,7 @@ private:
     void                        RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
     void                        RegleComptesComboBox(bool ActiveSeult = true);
     void                        RemetToutAZero();
-    void                        RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QList<QVariant>> Tablelist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
+    void                        RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QVariantList> Tablelist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
     void                        RemplitLesTables();
     void                        ResizePaiementGroupBox();
     void                        RetireVerrouCompta(int ActeADeverrouiller);

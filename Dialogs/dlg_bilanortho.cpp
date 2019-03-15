@@ -250,7 +250,7 @@ void dlg_bilanortho::ImprimeBOClicked()
             " where act.idacte = " + QString::number(idActe) + " and act.idpat = pat.idpat";
     //UpMessageBox::Watch(this,requete);
     bool ok;
-    QList<QVariant> patientdata = db->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
+    QVariantList patientdata = db->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
     if (!ok || patientdata.size() == 0) return;
     User *userEntete = Datas::I()->users->getUserById(patientdata.at(4).toInt(), true);
     if (userEntete == Q_NULLPTR)
@@ -671,7 +671,7 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
 {
     QString chborequete = "select idBilanOrtho from " NOM_TABLE_BILANORTHO " where idBilanOrtho = " + QString::number(idBilan);
     bool ok;
-    QList<QVariant> BOid = db->getFirstRecordFromStandardSelectSQL(chborequete, ok);
+    QVariantList BOid = db->getFirstRecordFromStandardSelectSQL(chborequete, ok);
     if(!ok || BOid.size()==0)
         return;
     else
@@ -695,7 +695,7 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
                 " from " NOM_TABLE_BILANORTHO     // 65,66,67,68
                 " where idBilanOrtho = " + QString::number(idBilan);
         //UpMessageBox::Watch(this,affichBOrequete);
-        QList<QVariant> BOdata = db->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);
+        QVariantList BOdata = db->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);
         ui->MotiftextEdit->setText(BOdata.at(44).toString());
         ui->AVODlineEdit->setText(BOdata.at(0).toString());
         ui->AVOGlineEdit->setText(BOdata.at(1).toString());

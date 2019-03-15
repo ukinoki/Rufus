@@ -34,7 +34,7 @@ class ImportDocsExternesThread : public QObject
     Q_OBJECT
 public:
     explicit ImportDocsExternesThread(Procedures *proced);
-    void                        RapatrieDocumentsThread(QList<QList<QVariant>> listdocs);
+    void                        RapatrieDocumentsThread(QList<QVariantList> listdocs);
 
 signals:
     void                        emitmsg(QStringList listmsg, int pause, bool bottom);

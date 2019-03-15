@@ -213,7 +213,7 @@ void dlg_gestionusers::Slot_Annulation()
         db->SupprRecordFromTable(DataUser()->id(), "idUser", NOM_TABLE_UTILISATEURS);
         db->SupprRecordFromTable(DataUser()->id(), "idUser", NOM_TABLE_COMPTES);
         int b = -1;
-        QList<QVariant> userdata = db->getFirstRecordFromStandardSelectSQL("select idUser from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(gidUserDepart),ok);
+        QVariantList userdata = db->getFirstRecordFromStandardSelectSQL("select idUser from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(gidUserDepart),ok);
         if (ok && userdata.size()>0)
             b = gidUserDepart;
         RemplirTableWidget(b);
@@ -890,7 +890,7 @@ void dlg_gestionusers::Slot_GestLieux()
     ReconstruitListeLieuxExercice();
     delete gestLieux;
     int idUser = ui->ListUserstableWidget->item(ui->ListUserstableWidget->selectedItems().at(0)->row(),0)->text().toInt();
-    QList<QList<QVariant>> listlieux = db->StandardSelectSQL("select idlieu from " NOM_TABLE_JOINTURESLIEUX " where iduser = " + QString::number(idUser), ok);
+    QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " NOM_TABLE_JOINTURESLIEUX " where iduser = " + QString::number(idUser), ok);
     QList<int> idlieuxlist;
     for (int k=0; k< listlieux.size(); k++)
         idlieuxlist << listlieux.at(k).at(0).toInt();
@@ -1059,7 +1059,7 @@ void dlg_gestionusers::SupprUser()
     msgbox.exec();
     if (msgbox.clickedpushbutton()==&AnnulBouton)
     {
-        QList<QList<QVariant>> listcpt = db->StandardSelectSQL("select idcompte from " NOM_TABLE_COMPTES " where iduser = " + QString::number(idUser), ok);
+        QList<QVariantList> listcpt = db->StandardSelectSQL("select idcompte from " NOM_TABLE_COMPTES " where iduser = " + QString::number(idUser), ok);
         if(listcpt.size()>0)
         {
             for (int i=0; i<listcpt.size();i++)
@@ -1078,7 +1078,7 @@ void dlg_gestionusers::SupprUser()
         db->StandardSQL("delete from " NOM_TABLE_JOINTURESLIEUX " where iduser not in (select iduser from " NOM_TABLE_UTILISATEURS ")");
 
         QString req = "select user, host from mysql.user where user like '" + ui->ListUserstableWidget->selectedItems().at(1)->text() + "%'";
-        QList<QList<QVariant>> listusr = db->StandardSelectSQL(req, ok);
+        QList<QVariantList> listusr = db->StandardSelectSQL(req, ok);
         if (listusr.size()>0)
             for (int i=0; i<listusr.size(); i++)
                 db->StandardSQL("drop user '" + listusr.at(i).at(0).toString() + "'@'" + listusr.at(i).at(1).toString() + "'");
@@ -1107,13 +1107,13 @@ void dlg_gestionusers::CalcListitemsCompteActescomboBox(int iduser)
                   " where ban.idbanque = comp.idbanque \n"
                   " and (iduser = " + user + " or partage = 1)"
                   " and desactive is null";
-    QList<QList<QVariant>> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur"));
+    QList<QVariantList> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur"));
     if (!ok)
         return;
     ui->CompteActescomboBox->clear();
     for (int i=0; i<listcpt.size(); i++)
         ui->CompteActescomboBox->insertItem(0, listcpt.at(i).at(1).toString() + " - " + listcpt.at(i).at(2).toString(), listcpt.at(i).at(0).toInt());
-    QList<QVariant> idcptlst = db->getFirstRecordFromStandardSelectSQL("select idCompteEncaissHonoraires from " NOM_TABLE_UTILISATEURS
+    QVariantList idcptlst = db->getFirstRecordFromStandardSelectSQL("select idCompteEncaissHonoraires from " NOM_TABLE_UTILISATEURS
                                                                        " where iduser = " + user + " and idCompteEncaissHonoraires is not null", ok);
     if (ok && idcptlst.size()>0)
         ui->CompteActescomboBox->setCurrentIndex(ui->CompteActescomboBox->findData(idcptlst.at(0)));
@@ -1128,13 +1128,13 @@ void dlg_gestionusers::CalcListitemsCompteComptacomboBox(int iduser, bool soccom
                   " and desactive is null";
     if (!soccomptable)
         req +=    " and partage is null";
-    QList<QList<QVariant>> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur"));
+    QList<QVariantList> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur"));
     if (!ok)
         return;
     ui->CompteComptacomboBox->clear();
     for (int i=0; i<listcpt.size(); i++)
         ui->CompteComptacomboBox->insertItem(0, listcpt.at(i).at(1).toString() + " - " + listcpt.at(i).at(2).toString(), listcpt.at(i).at(0).toInt());
-    QList<QVariant> idcptlst = db->getFirstRecordFromStandardSelectSQL("select idcomptepardefaut from " NOM_TABLE_UTILISATEURS
+    QVariantList idcptlst = db->getFirstRecordFromStandardSelectSQL("select idcomptepardefaut from " NOM_TABLE_UTILISATEURS
                                                                        " where iduser = " + user + " and idcomptepardefaut is not null", ok);
     if (ok && idcptlst.size()>0)
         ui->CompteComptacomboBox->setCurrentIndex(ui->CompteComptacomboBox->findData(idcptlst.at(0)));
@@ -1151,13 +1151,13 @@ void dlg_gestionusers::CalcListitemsEmployeurcomboBox(int iduser)
                   " and iduser <> " + user +
                   " and userdesactive is null";
     //qDebug() << req;
-    QList<QList<QVariant>> listusr = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver la liste des employeurs"));
+    QList<QVariantList> listusr = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver la liste des employeurs"));
     if (!ok)
         return;
     ui->EmployeurcomboBox->clear();
     for (int i=0; i<listusr.size(); i++)
         ui->EmployeurcomboBox->insertItem(0, (listusr.at(i).at(1).toString() != ""? listusr.at(i).at(1).toString() + " " + listusr.at(i).at(2).toString() : listusr.at(i).at(2).toString()), listusr.at(i).at(0).toInt());
-    QList<QVariant> idusrlst = db->getFirstRecordFromStandardSelectSQL("select UserEmployeur from " NOM_TABLE_UTILISATEURS " where iduser = " + user, ok);
+    QVariantList idusrlst = db->getFirstRecordFromStandardSelectSQL("select UserEmployeur from " NOM_TABLE_UTILISATEURS " where iduser = " + user, ok);
     if (ok && idusrlst.size()>0)
         ui->EmployeurcomboBox->setCurrentIndex(ui->EmployeurcomboBox->findData(idusrlst.at(0)));
 }
@@ -1233,7 +1233,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     ui->NomuplineEdit               ->setText(DataUser()->getNom());
     ui->PrenomuplineEdit            ->setText(DataUser()->getPrenom());
 
-    QList<QList<QVariant>> listlieux = db->StandardSelectSQL("select idlieu from " NOM_TABLE_JOINTURESLIEUX " where iduser = " + QString::number(idUser), ok);
+    QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " NOM_TABLE_JOINTURESLIEUX " where iduser = " + QString::number(idUser), ok);
     QList<int> idlieuxlist;
     for (int k=0; k< listlieux.size(); k++)
         idlieuxlist << listlieux.at(k).at(0).toInt();
@@ -1415,7 +1415,7 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
     upheader->setModel(mod);
     upheader->reDim(0,0,3);
 
-    QList<QList<QVariant>> listadress = db->StandardSelectSQL("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
+    QList<QVariantList> listadress = db->StandardSelectSQL("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
                                                               " LieuCodePostal, LieuVille, LieuTelephone from " NOM_TABLE_LIEUXEXERCICE, ok);
     ui->AdressupTableWidget->setRowCount(listadress.size());
     for (int i=0; i< listadress.size(); i++)
@@ -1486,13 +1486,13 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
     ui->ListUserstableWidget->verticalHeader()->setVisible(false);
     ui->ListUserstableWidget->setHorizontalHeaderLabels(QStringList()<<""<<"Login");
     ui->ListUserstableWidget->setGridStyle(Qt::NoPen);
-    QList<QList<QVariant>> usrlst = db->StandardSelectSQL("select IdUser, UserLogin from " NOM_TABLE_UTILISATEURS " where userlogin <> '" NOM_ADMINISTRATEURDOCS "'",ok);
+    QList<QVariantList> usrlst = db->StandardSelectSQL("select IdUser, UserLogin from " NOM_TABLE_UTILISATEURS " where userlogin <> '" NOM_ADMINISTRATEURDOCS "'",ok);
     ui->ListUserstableWidget->setRowCount(usrlst.size());
     for (int i=0; i<usrlst.size(); i++)
     {
         pitem0 = new QTableWidgetItem;
         pitem1 = new QTableWidgetItem;
-        QList<QList<QVariant>> actlst = db->StandardSelectSQL("select count(idActe) from Rufus.Actes where idUser = " + usrlst.at(i).at(0).toString() + " or creepar = " + usrlst.at(i).at(0).toString(), ok);
+        QList<QVariantList> actlst = db->StandardSelectSQL("select count(idActe) from Rufus.Actes where idUser = " + usrlst.at(i).at(0).toString() + " or creepar = " + usrlst.at(i).at(0).toString(), ok);
         if (actlst.size()>0)
         {
             int nbactes = actlst.at(0).at(0).toInt();

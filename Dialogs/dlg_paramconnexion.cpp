@@ -279,7 +279,7 @@ bool dlg_paramconnexion::TestConnexion()
     req = "show grants for '" + Login + (DataBase::getInstance()->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
 #endif
     bool ok;
-    QList<QVariant> grantsdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(req,ok);
+    QVariantList grantsdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(req,ok);
     if (!ok || grantsdata.size()==0)
     {
         UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),

@@ -109,7 +109,7 @@ void dlg_gestioncotations::Initialise()
     if (gMode == Creation)
     {
         bool ok;
-        QList<QList<QVariant>> listtypacte = db->StandardSelectSQL(req, ok);
+        QList<QVariantList> listtypacte = db->StandardSelectSQL(req, ok);
         if (ok && listtypacte.size()>0)
         {
             for (int i=0; i<listtypacte.size(); i++)
@@ -124,7 +124,7 @@ void dlg_gestioncotations::Initialise()
         ui->CodeActeupLineEdit->setText(gCodeActe);
         req = " select montantoptam, montantnonoptam, montantpratique from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
         bool ok;
-        QList<QVariant> listcot = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        QVariantList listcot = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (ok && listcot.size()>0)
         {
             ui->TarifOPTAMupLineEdit    ->setText(QLocale().toString(listcot.at(0).toDouble(),'f',2));
@@ -168,7 +168,7 @@ bool dlg_gestioncotations::VerifFiche()
         {
             req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = '" + ui->CodeActeupLineEdit->text() + "' and CCAM = 2 and idUser = " + QString::number(gidUser);
             bool ok;
-            QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+            QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && actdata.size()>0)
             {
                 a = false;
@@ -209,7 +209,7 @@ bool dlg_gestioncotations::VerifFiche()
         {
             req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = '" + ui->CodeActeupLineEdit->text() + "' and CCAM = 3 and idUser = " + QString::number(gidUser);
             bool ok;
-            QList<QVariant> cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+            QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && cotdata.size()>0)
             {
                 a = false;

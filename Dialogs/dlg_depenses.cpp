@@ -517,7 +517,7 @@ void dlg_depenses::EnregistreDepense()
     else if (Paiement == tr("TIP"))             m = "T";
 
     bool ok = true;
-    QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
+    QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
                                                                        NOM_TABLE_RUBRIQUES2035, ok,
                                                                        "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
@@ -1104,7 +1104,7 @@ void dlg_depenses::ModifierDepense()
     else if (Paiement == tr("Prélèvement"))     m = "P";
     else if (Paiement == tr("TIP"))             m = "T";
     bool ok = true;
-    QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
+    QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "Famfiscale",
                                                                        NOM_TABLE_RUBRIQUES2035, ok,
                                                                        "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
@@ -1148,7 +1148,7 @@ void dlg_depenses::ModifierDepense()
         if (Paiement == tr("Virement")) Paiement = tr("Virement débiteur");
 
         // on recherche si l'écriture existe dans lignescomptes et si c'est le cas, on la modifie
-        QList<QList<QVariant>> listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idLigne",
+        QList<QVariantList> listlignescomptes = db->SelectRecordsFromTable(QStringList() << "idLigne",
                                                                               NOM_TABLE_LIGNESCOMPTES, ok,
                                                                               "where idDep = " + idDep);
         if (listlignescomptes.size() > 0)                // l'écriture existe et on la modifie
@@ -1166,7 +1166,7 @@ void dlg_depenses::ModifierDepense()
         }
         else           // on n'a pas trouvé la ligne, on la recherche dans les archives
         {
-            QList<QList<QVariant>> listlignesarchives = db->SelectRecordsFromTable(QStringList() << "idLigne",
+            QList<QVariantList> listlignesarchives = db->SelectRecordsFromTable(QStringList() << "idLigne",
                                                                                    NOM_TABLE_ARCHIVESBANQUE, ok,
                                                                                    "where idDep = " + idDep);
             if (listlignesarchives.size() > 0)                // l'écriture existe et on la modifie
@@ -1473,8 +1473,8 @@ void dlg_depenses::ReconstruitListeRubriques(int idx)
                   " on dep.RefFiscale = rub.Reffiscale"
                   " where idUser = " + QString::number(gDataUser->id()) +
                   " ORDER BY reffiscale";
-    QList<QList<QVariant>> ListeRubriques = db->StandardSelectSQL(req, ok);
-    ListeRubriques.insert(0, (QList<QVariant>() << tr("<Aucun>") << -1));
+    QList<QVariantList> ListeRubriques = db->StandardSelectSQL(req, ok);
+    ListeRubriques.insert(0, (QVariantList() << tr("<Aucun>") << -1));
     for (int i = 0; i < ListeRubriques.size(); i++)
         ui->Rubriques2035comboBox->insertItem(i,ListeRubriques.at(i).at(0).toString(), ListeRubriques.at(i).at(1));
     ui->Rubriques2035comboBox->setCurrentIndex(idx);
@@ -1537,7 +1537,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                       " order by Intitule";
         //qDebug() << req;
         bool ok = true;
-        QList<QList<QVariant>> ListeEch = db->StandardSelectSQL(req, ok);
+        QList<QVariantList> ListeEch = db->StandardSelectSQL(req, ok);
         if (ListeEch.size()>0)
         {
             gAskDialog                      = new UpDialog(this);

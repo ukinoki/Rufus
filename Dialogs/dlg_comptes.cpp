@@ -129,7 +129,7 @@ void dlg_comptes::AnnulArchive()
 
     // recalculer le solde
     double NouveauSolde = QLocale().toDouble(ui->MontantSoldeBrutlabel->text());
-    QList<QList<QVariant>> listsoldes = db->SelectRecordsFromTable(QStringList() << "LigneMontant" << "LigneDebitCredit",
+    QList<QVariantList> listsoldes = db->SelectRecordsFromTable(QStringList() << "LigneMontant" << "LigneDebitCredit",
                                                               NOM_TABLE_LIGNESCOMPTES, ok,
                                                               " where idcompte = " + QString::number(idCompte));
     if (listsoldes.size() == 0)
@@ -613,7 +613,7 @@ void dlg_comptes::ChangeCompte(int idx)
     CompteEnCours = comptesusr->getCompteById(idCompte);
     // on doit refaire la requête parce que le sole s'il est null est passé en 0 par loadcomptesbyUser()
     bool ok = true;
-    QList<QList<QVariant>> listsoldes = db->SelectRecordsFromTable(QStringList() << "SoldeSurDernierReleve",
+    QList<QVariantList> listsoldes = db->SelectRecordsFromTable(QStringList() << "SoldeSurDernierReleve",
                                                                    NOM_TABLE_COMPTES, ok,
                                                                    "where idcompte = " + QString::number(idCompte));
     if (listsoldes.size() > 0)
@@ -740,7 +740,7 @@ void dlg_comptes::DefinitArchitetureTable()
 void dlg_comptes::RemplitLaTable(int idCompteAVoir)
 {
     bool ok = true;
-    QList<QList<QVariant>> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "idLigne" << "idCompte" << "idDep" << "idRec" << "LigneDate" << "LigneLibelle"
+    QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "idLigne" << "idCompte" << "idDep" << "idRec" << "LigneDate" << "LigneLibelle"
                                                                        << "LigneMontant" << "LigneDebitCredit" << "LigneTypeOperation" << "LigneConsolide",
                                                                        NOM_TABLE_LIGNESCOMPTES, ok,
                                                                        "where idCompte = " + QString::number(idCompteAVoir),
@@ -766,7 +766,7 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
     CalculeTotal();
  }
 
-void dlg_comptes::InsertLigneSurLaTable(QList<QVariant> ligne, int row)
+void dlg_comptes::InsertLigneSurLaTable(QVariantList ligne, int row)
 {
     UpLabel *      lbl0;
     UpLabel *      lbl1;

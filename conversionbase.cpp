@@ -35,7 +35,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                   "' and schema_name <> '" NOM_BASE_CONSULTS
                   "' and schema_name <> '" NOM_BASE_COMPTA
                   "' and schema_name <> '" NOM_BASE_OPHTA "'";
-    QList<QList<QVariant>> lgclist = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> lgclist = db->StandardSelectSQL(req,ok);
     if (lgclist.size()==0)
     {
         UpMessageBox::Watch(Q_NULLPTR,"pas de base ophtalogic retrouvée");
@@ -82,7 +82,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                " order by numéropatient) as imp\n"
                " left outer join (select numéropatient, nompatient, prénom from " + NomBase + ".patient) as pat\n"
                " on imp.numéropatient = pat.numéropatient";
-        QList<QList<QVariant>> ordolist = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> ordolist = db->StandardSelectSQL(req,ok);
         QString prenom, nom, Entete, Corps, Pied;
         QString Typeprescription, Prescription;
         bool ALDQ;
@@ -176,7 +176,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
               ", AVPrèsGauche, PD, PuissanceDroit, PuissanceGauche, BaseDroit"                                  //15,16,17,18,19
               ", BaseGauche, NuméroConsultation "                                                               //20,21
               " from " + NomBase + ".examenréfraction";
-        QList<QList<QVariant>> reflist = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> reflist = db->StandardSelectSQL(req,ok);
         for (int i = 0; i<reflist.size();i++)
         {
             DateCreation    = QDate::fromString(reflist.at(i).at(1).toString().left(10),"yyyy-MM-dd");
@@ -222,7 +222,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
               " Adresse, CPostal, Ville, Téléphone, NuméroSS, ALD, Profession,"
               " TraitGen,TraitOph, AntécédentsObs, ANtécédentsFam"
               " from " + NomBase + ".patient order by numéropatient";
-        QList<QList<QVariant>> patlist = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> patlist = db->StandardSelectSQL(req,ok);
         //proc->Edit(req);
         max = patlist.size();
         proc->Message("importation des données patients",1000);
@@ -293,7 +293,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         proc->Message("importation des actes - date, motif et diagnostic",1000);
         req = "select NuméroConsultation, numéroPatient, DateConsultation, Motif, Diagnostic, HeureConsultation"
               " from " + NomBase + ".examensymdiagmotif order by numéroconsultation";
-        QList<QList<QVariant>> actlist = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> actlist = db->StandardSelectSQL(req,ok);
         //proc->Edit(req);
         max = actlist.size();
         for (int i=0; i<max; i++)
@@ -319,7 +319,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         proc->Message("importation des actes - texte des consultations",1000);
         req = "select NuméroConsultation, numéroPatient, Abrégé, DateConsultation, TexteConsultation, TotalActesE, HeureConsultation"
               " from " + NomBase + ".consultations order by numéroconsultation";
-        QList<QList<QVariant>> cslist = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> cslist = db->StandardSelectSQL(req,ok);
         max = cslist.size();
         //max = 4;
         for (int i=0; i<max; i++)
@@ -402,7 +402,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
            txtCs.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
 
             req = "select idActe from " NOM_TABLE_ACTES " where idActe = " + idActe;
-            QList<QVariant> csdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
+            QVariantList csdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
             if (csdata.size()>0)
             {
                 req = "update " NOM_TABLE_ACTES " set Actetexte = '" + Utils::correctquoteSQL(txtCs) + "', idUser = " + idUser + ", ActeMontant = " + cslist.at(i).at(5).toString() + ", CreePar = " + idUser +
@@ -433,7 +433,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         // Cotations
         proc->Message("importation des actes - cotations",1000);
         req = "select Numéroconsultation, acte from "  + NomBase + ".actespatients order by numéroconsultation";
-        QList<QList<QVariant>> cotlist = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> cotlist = db->StandardSelectSQL(req,ok);
         for (int i=0; i< cotlist.size(); i++)
         {
             req = "update " NOM_TABLE_ACTES " set actecotation = '" + Utils::correctquoteSQL(cotlist.at(i).at(1).toString().left(20)) +
@@ -446,7 +446,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         // Paiements
         proc->Message("paiements - espèces pour tout le monde",1000);
         req = "select idActe, actemontant, idUser, actedate from " NOM_TABLE_ACTES;
-        QList<QList<QVariant>> pmtlist = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> pmtlist = db->StandardSelectSQL(req,ok);
         for (int i=0; i< pmtlist.size(); i++)
         {
             DateCreation    = QDate::fromString(pmtlist.at(i).at(3).toString().left(10),"yyyy-MM-dd");
@@ -472,7 +472,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         // Correspondants
         proc->Message("médecins correspondants",1000);
         req = "select NuméroConfrère, Nom, Prénom, Adresse, CPostal, Ville, Téléphone, Fax, Spécialité from " + NomBase + ".Confrères";
-        QList<QList<QVariant>> corlist = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> corlist = db->StandardSelectSQL(req,ok);
         for (int i=0; i< corlist.size(); i++)
         {
             req = "insert into " NOM_TABLE_CORRESPONDANTS " (idCor, CorNom, CorPrenom, CorAdresse1, CorCodePostal, CorVille, CorTelephone, CorFax, CorMedecin, CorSpecialite) values (" +

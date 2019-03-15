@@ -201,7 +201,7 @@ void dlg_paiementtiers::Slot_AfficheDDN(QTableWidgetItem *titem)
             int ro = titem->row();
             QString req = "Select PATDDN from " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act  where pat.idpat = act .idpat and act.idacte = "
                     + ui->ListeupTableWidget->item(ro,0)->text();
-            QList<QVariant> ddndata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+            QVariantList ddndata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && ddndata.size()>0)
                 QToolTip::showText(cursor().pos(),ddndata.at(0).toDate().toString(tr("dd-MM-yyyy")));
         }
@@ -846,7 +846,7 @@ void dlg_paiementtiers::Slot_ValidePaiement()
         int ab      = RangeeSelectionne.at(0).topRow();
         idRecette   = ui->ListeupTableWidget->item(ab,0)->text().toInt();
         requete = "SELECT idRecette FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(idRecette);
-        QList<QList<QVariant>> reclist = db->StandardSelectSQL(requete,ok);
+        QList<QVariantList> reclist = db->StandardSelectSQL(requete,ok);
         if (reclist.size() == 0)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment"),
@@ -857,7 +857,7 @@ void dlg_paiementtiers::Slot_ValidePaiement()
         requete = "SELECT idActe FROM " NOM_TABLE_LIGNESPAIEMENTS
                 " WHERE idRecette = " + QString::number(idRecette) +
                 " AND idActe IN (SELECT idActe FROM " NOM_TABLE_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userConnected->id()) + ")";
-        QList<QList<QVariant>> actlist = db->StandardSelectSQL(requete,ok);
+        QList<QVariantList> actlist = db->StandardSelectSQL(requete,ok);
         if (actlist.size() > 0)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment."),
@@ -1262,7 +1262,7 @@ int dlg_paiementtiers::EnregistreRecette()
                     QString ChercheNomPat = "SELECT PatNom FROM " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act"
                                             " WHERE pat.idPat = act.idPat"
                                             " AND act.idActe = " + ui->DetailupTableWidget->item(0,0)->text();
-                    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(ChercheNomPat, ok);
+                    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(ChercheNomPat, ok);
                     if (!ok || patdata.size()==0)
                     {
                         db->rollback();
@@ -1288,7 +1288,7 @@ int dlg_paiementtiers::EnregistreRecette()
 
 
             QString ChercheMaxrequete = "SELECT Max(idRecette) FROM " NOM_TABLE_RECETTES;
-            QList<QVariant> maxrecdata = db->getFirstRecordFromStandardSelectSQL(ChercheMaxrequete, ok);
+            QVariantList maxrecdata = db->getFirstRecordFromStandardSelectSQL(ChercheMaxrequete, ok);
             if (!ok || maxrecdata.size()==0)
             {
                 db->rollback();
@@ -1315,7 +1315,7 @@ int dlg_paiementtiers::EnregistreRecette()
             if (QLocale().toDouble(ui->CommissionlineEdit->text()) > 0)
             {
                 QString SelectMaxrequete = "select max(iddep) + 1 from " NOM_TABLE_DEPENSES;
-                QList<QVariant> maxdepdata = db->getFirstRecordFromStandardSelectSQL(ChercheMaxrequete, ok);
+                QVariantList maxdepdata = db->getFirstRecordFromStandardSelectSQL(ChercheMaxrequete, ok);
                 if (!ok || maxdepdata.size()==0)
                 {
                     db->rollback();
@@ -1336,7 +1336,7 @@ int dlg_paiementtiers::EnregistreRecette()
                 InsertDeprequete +=  "', 'Commission " + Utils::correctquoteSQL(ui->TierscomboBox->currentText());             // Objet
                 InsertDeprequete +=  "', " +  QString::number(QLocale().toDouble(ui->CommissionlineEdit->text()));              // Montant
                 QString chercheFamFiscale = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '" + Utils::correctquoteSQL(intitule2035) +"'";
-                QList<QVariant> famfiscdata = db->getFirstRecordFromStandardSelectSQL(chercheFamFiscale, ok);
+                QVariantList famfiscdata = db->getFirstRecordFromStandardSelectSQL(chercheFamFiscale, ok);
                 if (!ok || famfiscdata.size()==0)
                 {
                     db->rollback();
@@ -1636,13 +1636,13 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
                     " ORDER BY ActeDate DESC, PatNom, PatPrenom";
 
         //UpMessageBox::Watch(this,requete);
-        QList<QList<QVariant>> detpmtlist = db->StandardSelectSQL(requete,ok);
+        QList<QVariantList> detpmtlist = db->StandardSelectSQL(requete,ok);
         RemplirTableWidget(ui->DetailupTableWidget,"Actes",detpmtlist,false,Qt::Unchecked);
 
         // Remplir les infos sur la recette concernée
         requete =   "SELECT idRecette, idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, CompteVirement, BanqueCheque, TiersPayant, NomTiers, Commission, Monnaie, idRemise, EnAttente, EnregistrePar, TypeRecette FROM " NOM_TABLE_RECETTES
                     " WHERE idRecette = " + TextidRecette;
-        QList<QVariant> recdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+        QVariantList recdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         ui->dateEdit->setDate(recdata.at(2).toDate());
         QRadioButton *RadioAClicker = Q_NULLPTR;
         QString mp = recdata.at(5).toString();
@@ -1693,7 +1693,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
 
     // on fait la liste des actes et des montants payés de la recette à modifier
     QString Retrouverequete = "SELECT idActe, Paye FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idRecette = " + QString::number(idRecette);
-    QList<QList<QVariant>> actlist = db->StandardSelectSQL(Retrouverequete,ok);
+    QList<QVariantList> actlist = db->StandardSelectSQL(Retrouverequete,ok);
     for (int i = 0; i < actlist.size(); i++)
     {
         ListeActesAModifier     << actlist.at(i).at(0).toInt();
@@ -1707,7 +1707,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                                      " EnregistrePar, TypeRecette, datediff(DateEnregistrement,NOW()) as Delai"             // 15, 16, 17
                                      " FROM " NOM_TABLE_RECETTES
                                      " WHERE idRecette = " + QString::number(idRecette);
-    QList<QVariant> recdata = db->getFirstRecordFromStandardSelectSQL(RetrouveRecetterequete,ok);
+    QVariantList recdata = db->getFirstRecordFromStandardSelectSQL(RetrouveRecetterequete,ok);
     if (!ok || recdata.size() == 0)
         return;
     // Remplir les infos sur la recette concernée
@@ -1760,13 +1760,13 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                   " LigneTypeOperation, LigneConsolide"                                     // 10, 11
                   " FROM " NOM_TABLE_LIGNESCOMPTES
                   " WHERE idRec = " + QString::number(idRecette) + " and LigneDebitCredit = 1";
-        QList<QVariant> consdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+        QVariantList consdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         if (ok && consdata.size() > 0)
             Consolide = (consdata.at(11).toInt() == 1);
         if (!Consolide)
         {
             requete = "SELECT idLigne FROM " NOM_TABLE_ARCHIVESBANQUE " WHERE idRec = " + QString::number(idRecette);
-            QList<QVariant> ligndata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+            QVariantList ligndata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
             if (ok && ligndata.size() > 0)
                 Consolide = true;
         }
@@ -1890,7 +1890,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                                                   " LigneLibelle, LigneMontant, LigneDebitCredit, LigneTypeOperation, LigneConsolide"
                                                   " FROM " NOM_TABLE_LIGNESCOMPTES
                                                   " WHERE idRec = " + QString::number(idRecette) + " and idDep > 0";
-                      QList<QVariant> commdata = db->getFirstRecordFromStandardSelectSQL(CommCompterequete, ok);
+                      QVariantList commdata = db->getFirstRecordFromStandardSelectSQL(CommCompterequete, ok);
                       if (ok && commdata.size() > 0)
                       {
                           LigneCommissionCompteAModifier << commdata.at(0).toString();                                      //idLigne
@@ -1919,7 +1919,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                                                " ModePaiement, Compte, NoCheque from " NOM_TABLE_DEPENSES
                                                " where idDep = " + commdata.at(2).toString();
 
-                      QList<QVariant> depdata = db->getFirstRecordFromStandardSelectSQL(Depenserequete, ok);
+                      QVariantList depdata = db->getFirstRecordFromStandardSelectSQL(Depenserequete, ok);
                       if (ok && depdata.size() > 0)
                       {
                           LigneDepenseAModifier << depdata.at(0).toString();                                            //idDep
@@ -2040,7 +2040,7 @@ void dlg_paiementtiers::NettoieVerrousListeActesAAfficher() //TODO pasfini
                     " WHERE act.idActe = "  + QString::number(gListidActe.at(i)) +
                     " AND ver.idActe = act.idActe"
                     " AND PosePar = uti.idUser";
-            QList<QVariant> usrdata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, ok);
+            QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, ok);
          }
     }
 }
@@ -2061,7 +2061,7 @@ void dlg_paiementtiers::PoseVerrouCompta(int ActeAVerrouiller)
 {
     QString req = "select idActe from " NOM_TABLE_VERROUCOMPTAACTES " where idActe = " + QString::number(ActeAVerrouiller);
     //UpMessageBox::Watch(this,verrourequete);
-    QList<QVariant> verroudata = db->getFirstRecordFromStandardSelectSQL(req,ok);
+    QVariantList verroudata = db->getFirstRecordFromStandardSelectSQL(req,ok);
     if (ok && verroudata.size() == 0)
     {
         QString VerrouilleEnreg= "INSERT INTO " NOM_TABLE_VERROUCOMPTAACTES
@@ -2091,7 +2091,7 @@ void dlg_paiementtiers::ReconstruitListeBanques()
 
     ui->BanqueChequecomboBox->clear();
     QString req = "SELECT idBanqueAbrege FROM " NOM_TABLE_BANQUES " ORDER by idBanqueAbrege";
-    QList<QList<QVariant>> banqlist = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> banqlist = db->StandardSelectSQL(req,ok);
     if (!ok)
         return;
     for (int i = 0; i < banqlist.size(); i++)
@@ -2108,7 +2108,7 @@ void dlg_paiementtiers::ReconstruitListeTiers()
 
     ui->TierscomboBox->clear();
     QString requete = "SELECT NomTiers FROM " NOM_TABLE_TIERS;
-    QList<QList<QVariant>> tierslist = db->StandardSelectSQL(requete,ok);
+    QList<QVariantList> tierslist = db->StandardSelectSQL(requete,ok);
     if (!ok)
         return;
     for (int i = 0; i < tierslist.size(); i++)
@@ -2340,7 +2340,7 @@ void dlg_paiementtiers::RemetToutAZero()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Remplir les TableWidget ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementtiers::RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QList<QVariant>> reclist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas)
+void dlg_paiementtiers::RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QVariantList> reclist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas)
 {
     QTableWidgetItem    *pItem1, *pItem2, *pItem3, *pItem4, *pItem5, *pItem6, *pItem7;
     QString             A;
@@ -2682,7 +2682,7 @@ void dlg_paiementtiers::RemplitLesTables(int Mode)
         requete +=  " order by acteDate desc, PatNom, PatPrenom";
         //UpMessageBox::Watch(this,requete);
 
-        QList<QList<QVariant>> actlist = db->StandardSelectSQL(requete,ok);
+        QList<QVariantList> actlist = db->StandardSelectSQL(requete,ok);
         RemplirTableWidget(ui->ListeupTableWidget,"Actes", actlist, true, Qt::Unchecked);
         ui->DetailupTableWidget->setRowCount(0);
         ui->DetailupTableWidget->setColumnCount(0);
@@ -2723,7 +2723,7 @@ void dlg_paiementtiers::RemplitLesTables(int Mode)
                     " order by acteDate desc, PatNom, PatPrenom";
 
             //UpMessageBox::Watch(this,requete);
-            QList<QList<QVariant>> detlist = db->StandardSelectSQL(requete,ok);
+            QList<QVariantList> detlist = db->StandardSelectSQL(requete,ok);
             RemplirTableWidget(ui->DetailupTableWidget,"Actes", detlist, true, Qt::Checked);
         }
         break;
@@ -2744,7 +2744,7 @@ void dlg_paiementtiers::RemplitLesTables(int Mode)
                 " ORDER BY DatePaiement DESC, NomTiers";
 
         //UpMessageBox::Watch(this,requete);
-        QList<QList<QVariant>> detpmtlist = db->StandardSelectSQL(requete,ok);
+        QList<QVariantList> detpmtlist = db->StandardSelectSQL(requete,ok);
         RemplirTableWidget(ui->ListeupTableWidget,"Paiements", detpmtlist, false, Qt::Unchecked);
 
         ui->DetailupTableWidget->setRowCount(0);
@@ -3010,7 +3010,7 @@ bool dlg_paiementtiers::VerifVerrouCompta(QTableWidget *TableAVerifier, int Rang
                      " WHERE idActe = "  + TableAVerifier->item(Rangee,0)->text() +
                      " AND PosePar = idUser";
     //UpMessageBox::Watch(this,ChercheVerrou);
-    QList<QVariant> usrdata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou,ok);
+    QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou,ok);
     if (ok && usrdata.size() > 0)
     {
         ui->VerrouilleParlabel->setText(tr("Acte Verrouillé par ") + usrdata.at(0).toString());

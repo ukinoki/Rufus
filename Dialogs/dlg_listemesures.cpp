@@ -143,7 +143,7 @@ void dlg_listemesures::DetruireLaMesure(int IdRefract)
 {
     bool ok;
     QString requete = "select idPat, quellemesure from " NOM_TABLE_REFRACTION " WHERE  idRefraction = " + QString::number(IdRefract);
-    QList<QVariant> mesuredata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
+    QVariantList mesuredata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
     if (ok && mesuredata.size() > 0)
     {
         requete = "DELETE  FROM " NOM_TABLE_DONNEES_OPHTA_PATIENTS " WHERE  QuelleMesure = '"
@@ -186,7 +186,7 @@ void dlg_listemesures::RemplirTableView()
     QString requete = "SELECT  idRefraction, DateRefraction, QuelleMesure, FormuleOD, FormuleOG "
               " FROM "  NOM_TABLE_REFRACTION
               " WHERE  IdPat = " + QString::number(gidPatient);
-    QList<QList<QVariant>> refractlist = db->StandardSelectSQL(requete, ok, tr("Impossible de trouver la table des refractions!"));
+    QList<QVariantList> refractlist = db->StandardSelectSQL(requete, ok, tr("Impossible de trouver la table des refractions!"));
     if(!ok)
         return;
 

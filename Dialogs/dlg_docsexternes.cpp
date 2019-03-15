@@ -702,7 +702,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
             }
         }
         bool ok = false;
-        QList<QList<QVariant>> listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr
+        QList<QVariantList> listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr
                                                                 , ok
                                                                 , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
         if (!ok)
@@ -715,7 +715,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
         }
         if (listimpr.size()==0)
             return result;
-        QList<QVariant> impr = listimpr.at(0);
+        QVariantList impr = listimpr.at(0);
         if (impr.at(0).toByteArray().size()>0)                                                 // c'est un pdf
         {
             if (impr.at(2).toString()=="1")
@@ -772,7 +772,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
 int dlg_docsexternes::CompteNbreDocs()
 {
     bool ok = true;
-    QList<QList<QVariant>> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
+    QList<QVariantList> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
     if (!ok) return 0;
     return list.size();
 }

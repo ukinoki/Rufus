@@ -193,7 +193,7 @@ bool DataBase::testconnexionbase() // une requete simple pour vérifier que la c
 int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, QString errormsg)
 {
     QString req = "select max(" + nomchamp + ") from " + nomtable;
-    QList<QVariant> data = getFirstRecordFromStandardSelectSQL(req, ok, errormsg);
+    QVariantList data = getFirstRecordFromStandardSelectSQL(req, ok, errormsg);
     if(!ok || data.size()==0)
         return 0;
     return data.at(0).toInt();
@@ -205,7 +205,7 @@ bool DataBase::SupprRecordFromTable(int id, QString nomChamp, QString nomtable, 
     return StandardSQL(req, errormsg);
 }
 
-QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectChamp,
+QList<QVariantList> DataBase::SelectRecordsFromTable(QStringList listselectChamp,
                                                         QString nomtable,
                                                         bool &OK,
                                                         QString where,
@@ -213,7 +213,7 @@ QList<QList<QVariant>> DataBase::SelectRecordsFromTable(QStringList listselectCh
                                                         bool distinct,
                                                         QString errormsg)
 {
-    QList<QList<QVariant>> listreponses;
+    QList<QVariantList> listreponses;
     QString Distinct = (distinct? "distinct " : "");
     QString selectchamp;
     for (int i=0; i<listselectChamp.size(); ++i)
@@ -298,16 +298,16 @@ bool DataBase::StandardSQL(QString req , QString errormsg)
     return a;
 }
 
-QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg)
+QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString errormsg)
 {
     /*
     exemple:
         bool ok = true;
-        QList<QList<QVariant>> recordslist = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
+        QList<QVariantList> recordslist = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
         if (!ok)                                // erreur;
         if (recordslist.size()==0)                     // réponse vide
      */
-    QList<QList<QVariant>> listreponses = QList<QList<QVariant>>();
+    QList<QVariantList> listreponses = QList<QVariantList>();
     QSqlQuery query(req, getDataBase());
     QSqlRecord rec = query.record();
     if( erreurRequete(query.lastError(), req, errormsg))
@@ -324,7 +324,7 @@ QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QStri
     }
     do
     {
-        QList<QVariant> record;
+        QVariantList record;
         for (int i=0; i<rec.count(); ++i)
             record << query.value(i);
         listreponses << record;
@@ -333,20 +333,20 @@ QList<QList<QVariant>> DataBase::StandardSelectSQL(QString req , bool &OK, QStri
     return listreponses;
 }
 
-QList<QVariant> DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &OK, QString errormsg)
+QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &OK, QString errormsg)
 {
     /*
      exemple:
      bool ok = true;
-     QList<QVariant> recorddata = db->getFirstRecordFromStandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
+     QVariantList recorddata = db->getFirstRecordFromStandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
      if (!ok)                                // erreur;
      if (recorddata.size()==0)                 // réponse vide
     */
-    QList<QList<QVariant>> listreponses = StandardSelectSQL(req , OK, errormsg);
+    QList<QVariantList> listreponses = StandardSelectSQL(req , OK, errormsg);
     if(listreponses.size()>0)
         return listreponses.at(0);
     else
-        return QList<QVariant>();
+        return QVariantList();
 }
 
 
@@ -365,7 +365,7 @@ QJsonObject DataBase::login(QString login, QString password)
                   " LEFT JOIN " NOM_TABLE_USERSCONNECTES " uc on uc.idUSer = u.idUser "
                   " WHERE UserLogin = '" + login + "' "
                   " AND UserMDP = '" + password + "' ";
-    QList<QVariant> usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok)
     {
         jrep["code"] = -3;
@@ -418,7 +418,7 @@ QJsonObject DataBase::loadUserData(int idUser)
             //+ "  and userdesactive is null";
             // SL cette ligne est retirée parce qu'elle bloque l'affichage des utilisateurs désactivés dans dlg_gestionsusers
 
-    QList<QVariant> usrdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'utilisateur"));
+    QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'utilisateur"));
     if (!ok)
         return userData;
 
@@ -485,7 +485,7 @@ QList<User*> DataBase::loadUsersAll()
                   " from " NOM_TABLE_UTILISATEURS " usr "
                   " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte "
                   " where userdesactive is null";
-    QList<QList<QVariant>> usrlist = StandardSelectSQL(req, ok);
+    QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
     if( !ok || usrlist.size()==0 )
         return users;
     for (int i=0; i<usrlist.size(); ++i)
@@ -511,7 +511,7 @@ QJsonObject DataBase::loadUserDatabyLogin(QString login)
     QJsonObject userData{};
 
     QString req = "select iduser from " NOM_TABLE_UTILISATEURS " where UserLogin = '" + login + "'";
-    QList<QVariant> usrdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'utilisateur"));
+    QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'utilisateur"));
     if (!ok)
         return userData;
     if(usrdata.size()==0)
@@ -527,7 +527,7 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
     QList<Correspondant*> correspondants;
     QString req = "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin FROM " NOM_TABLE_CORRESPONDANTS " order by cornom, corprenom";
 
-    QList<QList<QVariant>> corlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> corlist = StandardSelectSQL(req,ok);
     if(!ok || corlist.size()==0)
         return correspondants;
     for (int i=0; i<corlist.size(); ++i)
@@ -555,7 +555,7 @@ QList<Correspondant*> DataBase::loadCorrespondantsALL()                         
             " CorCodepostal, CorVille, CorTelephone, CorSexe, cormedecin FROM " NOM_TABLE_CORRESPONDANTS
             " where cormedecin <> 1 or cormedecin is null"
             " order by metier, cornom, corprenom";
-    QList<QList<QVariant>> corlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> corlist = StandardSelectSQL(req,ok);
     if(!ok || corlist.size()==0)
         return correspondants;
     for (int i=0; i<corlist.size(); ++i)
@@ -602,7 +602,7 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatientAll(int idpatient)
     req += " and formatdoc <> '" VIDEO "'";
 #endif
 
-    QList<QList<QVariant>> doclist = StandardSelectSQL(req,ok);
+    QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
         return docsexternes;
     for (int i=0; i<doclist.size(); ++i)
@@ -632,7 +632,7 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
                   " Dateimpression, compression, lienversfichier, ALD, UserEmetteur,"
                   " formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
                   " where idimpression = " + QString::number(idDoc);
-    QList<QVariant> docdata = getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)
         return docexterneData;
     docexterneData["isallloaded"] = true;
@@ -677,7 +677,7 @@ QList<Document*> DataBase::loadDocuments()
                   " DocPublic, Prescription, Editable, Medical from " NOM_TABLE_COURRIERS
                   " WHERE (idUser = " + QString::number(getUserConnected()->id()) + " Or (DocPublic = 1 and iduser <> " + QString::number(getUserConnected()->id()) + "))"
                   " ORDER BY ResumeDocument";
-    QList<QList<QVariant>> doclist = StandardSelectSQL(req,ok);
+    QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
         return documents;
     for (int i=0; i<doclist.size(); ++i)
@@ -704,7 +704,7 @@ QJsonObject DataBase::loadDocumentData(int idDoc)
     QString req = "Select idDocument, TextDocument, ResumeDocument, ConclusionDocument, idUser,"
                   " DocPublic, Prescription, Editable, Medical from " NOM_TABLE_COURRIERS
                   " where idDocument = " + QString::number(idDoc);
-    QList<QVariant> docdata = getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)
         return documentData;
     documentData["iddocument"] = docdata.at(0).toInt();
@@ -745,7 +745,7 @@ QList<MetaDocument*> DataBase::loadMetaDocuments()
                        " and joi.idDocument = doc.iddocument\n"
                        " and doc.docpublic is null)\n";
                 req += " ORDER BY ResumeMetaDocument;";
-    QList<QList<QVariant>> doclist = StandardSelectSQL(req,ok);
+    QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
         return metadocuments;
     for (int i=0; i<doclist.size(); ++i)
@@ -768,7 +768,7 @@ QJsonObject DataBase::loadMetaDocumentData(int idDoc)
     QString req = "SELECT ResumeMetaDocument, idMetaDocument, idUser, Public, TextMetaDocument"
                   " FROM "  NOM_TABLE_METADOCUMENTS
                   " where idMetaDocument = " + QString::number(idDoc);
-    QList<QVariant> docdata = getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)
         return documentData;
     documentData["idmetadocument"] = docdata.at(1).toInt();
@@ -800,7 +800,7 @@ QList<Compte*> DataBase::loadComptesAllUsers()
     QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
                   " FROM " NOM_TABLE_COMPTES " as cmpt "
                   " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque ";
-    QList<QList<QVariant>> cptlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> cptlist = StandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
         return comptes;
     for (int i=0; i<cptlist.size(); ++i)
@@ -829,7 +829,7 @@ QList<Compte*> DataBase::loadComptesByUser(int idUser)
     QString req =
             " select idcomptepardefaut from " NOM_TABLE_UTILISATEURS
             " where iduser = " + QString::number(idUser);
-    QList<QVariant> cptdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    QVariantList cptdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if(ok && cptdata.size()>0 )
         idcptprefer= cptdata.at(0).toInt();
 
@@ -838,7 +838,7 @@ QList<Compte*> DataBase::loadComptesByUser(int idUser)
           " FROM " NOM_TABLE_COMPTES " as cmpt "
           " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque "
           " WHERE idUser = " + QString::number(idUser);
-    QList<QList<QVariant>> cptlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> cptlist = StandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
         return comptes;
     for (int i=0; i<cptlist.size(); ++i)
@@ -882,7 +882,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
                         " NoCheque, dep.idFacture, LienFichier, Echeancier, Intitule"
                         " FROM " NOM_TABLE_DEPENSES " dep left join " NOM_TABLE_FACTURES " fac on dep.idFacture = fac.idFacture"
                         " WHERE dep.idUser = " + QString::number(idUser);
-    QList<QList<QVariant>> deplist = StandardSelectSQL(req,ok);
+    QList<QVariantList> deplist = StandardSelectSQL(req,ok);
     if(!ok || deplist.size()==0)
         return depenses;
     for (int i=0; i<deplist.size(); ++i)
@@ -915,7 +915,7 @@ void DataBase::loadDepenseArchivee(Depense *dep)
 {
     bool archivee = false;
     QString req = "select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idDep = " + QString::number(dep->id());
-    QList<QVariant> arcdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    QVariantList arcdata = getFirstRecordFromStandardSelectSQL(req,ok);
     archivee = ok && arcdata.size() > 0;
     if (!archivee)  // pour les anciens enregistrements qui étaient archivés sans l'id...
     {
@@ -933,7 +933,7 @@ QStringList DataBase::ListeRubriquesFiscales()
 {
     QStringList ListeRubriques;
     QString req = "SELECT reffiscale from " NOM_TABLE_RUBRIQUES2035 " where FamFiscale is not null and famfiscale <> 'Prélèvement personnel' order by reffiscale";
-    QList<QList<QVariant>> rublist = StandardSelectSQL(req,ok);
+    QList<QVariantList> rublist = StandardSelectSQL(req,ok);
     if(!ok || rublist.size()==0)
         return ListeRubriques;
     ListeRubriques << "Prélèvement personnel";
@@ -955,7 +955,7 @@ QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses,
             "'and Montant = " + QString::number(montant) +
             " and idUser = " + QString::number(iduser) +
             " order by DateDep";
-    QList<QList<QVariant>> deplist = StandardSelectSQL(req,ok);
+    QList<QVariantList> deplist = StandardSelectSQL(req,ok);
     if(!ok || deplist.size()==0)
         return listdepenses;
     for (int i=0; i<deplist.size(); ++i)
@@ -981,7 +981,7 @@ QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int inte
                   " where idCompte = " + QString::number(compte->id())
                 + " and lignedateconsolidation > '" + date.addDays(-intervalle).toString("yyyy-MM-dd") + "'"
                 + " and lignedateconsolidation <= '" + date.toString("yyyy-MM-dd") + "'";
-    QList<QList<QVariant>> arclist = StandardSelectSQL(req,ok);
+    QList<QVariantList> arclist = StandardSelectSQL(req,ok);
     if(!ok || arclist.size()==0)
         return archives;
     for (int i=0; i<arclist.size(); ++i)
@@ -1012,7 +1012,7 @@ QList<Banque*> DataBase::loadBanques()
 {
     QList<Banque*> banques;
     QString req = "SELECT idBanque, idBanqueAbrege, NomBanque, CodeBanque FROM " NOM_TABLE_BANQUES;
-    QList<QList<QVariant>> banqlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> banqlist = StandardSelectSQL(req,ok);
     if(!ok || banqlist.size()==0)
         return banques;
     for (int i=0; i<banqlist.size(); ++i)
@@ -1035,7 +1035,7 @@ QList<Tiers*> DataBase::loadTiersPayants()
 {
     QList<Tiers*> listetiers;
     QString req = "SELECT idtIERS, Nomtiers, AdresseTiers, Codepostaltiers, Villetiers, Telephonetiers, FaxTiers from " NOM_TABLE_TIERS;
-    QList<QList<QVariant>> tierslist = StandardSelectSQL(req,ok);
+    QList<QVariantList> tierslist = StandardSelectSQL(req,ok);
     if(!ok || tierslist.size()==0)
         return listetiers;
     for (int i=0; i<tierslist.size(); ++i)
@@ -1059,7 +1059,7 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
 {
     QList<TypeTiers*> types;
     QString req = "SELECT Tiers FROM " NOM_TABLE_LISTETIERS;
-    QList<QList<QVariant>> tierslist = StandardSelectSQL(req,ok);
+    QList<QVariantList> tierslist = StandardSelectSQL(req,ok);
     if(!ok || tierslist.size()==0)
         return types;
     for (int i=0; i<tierslist.size(); ++i)
@@ -1084,7 +1084,7 @@ QList<Cotation*> DataBase::loadCotations()
 {
     QString  req = " select idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, Frequence from " NOM_TABLE_COTATIONS;
     QList<Cotation*> cotations;
-    QList<QList<QVariant>> cotlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
     if(!ok || cotlist.size()==0)
         return cotations;
     for (int i=0; i<cotlist.size(); ++i)
@@ -1117,7 +1117,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
           " FROM " NOM_TABLE_COTATIONS " cot left join " NOM_TABLE_CCAM " cc on cot.typeacte= cc.codeccam"
           " where idUser = " + QString::number(iduser) + " and typeacte in (select codeccam from " NOM_TABLE_CCAM ")"
           " order by typeacte";
-    QList<QList<QVariant>> cotlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
     if(!ok)
         return cotations;
     for (int i=0; i<cotlist.size(); ++i)
@@ -1172,7 +1172,7 @@ QStringList DataBase::loadTypesCotations()
                   " union "
                   " select codeccam as code from " NOM_TABLE_CCAM
                   " order by code asc";
-    QList<QList<QVariant>> cotlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
     if(!ok || cotlist.size()==0)
         return listcotations;
     for (int i=0; i<cotlist.size(); ++i)
@@ -1187,7 +1187,7 @@ QList<Motif*> DataBase::loadMotifs()
 {
     QList<Motif*> motifs;
     QString  req = "SELECT idMotifsRDV, Motif, Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre FROM "  NOM_TABLE_MOTIFSRDV " ORDER BY NoOrdre";
-    QList<QList<QVariant>> mtflist = StandardSelectSQL(req,ok);
+    QList<QVariantList> mtflist = StandardSelectSQL(req,ok);
     if(!ok || mtflist.size()==0)
         return motifs;
     for (int i=0; i<mtflist.size(); ++i)
@@ -1231,7 +1231,7 @@ QList<Site*> DataBase::loadSitesByUser(int idUser)
 QList<Site*> DataBase::loadSites(QString req)
 {
     QList<Site*> etabs;
-    QList<QList<QVariant>> sitlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> sitlist = StandardSelectSQL(req,ok);
     if(!ok || sitlist.size()==0)
         return etabs;
     for (int i=0; i<sitlist.size(); ++i)
@@ -1263,7 +1263,7 @@ Villes* DataBase::loadVillesAll()
 
     QString req = "select ville_id, codePostal, ville "
                   "from " NOM_TABLE_VILLES;
-    QList<QList<QVariant>> villist = StandardSelectSQL(req,ok);
+    QList<QVariantList> villist = StandardSelectSQL(req,ok);
     if(!ok || villist.size()==0)
         return villes;
     for (int i=0; i<villist.size(); ++i)
@@ -1291,7 +1291,7 @@ QList<Patient*> DataBase::loadPatientAll()
                   " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte "
                   " ORDER BY PatNom, PatPrenom, PatDDN ";
 
-    QList<QList<QVariant>> patlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> patlist = StandardSelectSQL(req,ok);
     if(!ok || patlist.size()==0)
         return patients;
     for (int i=0; i<patlist.size(); ++i)
@@ -1311,7 +1311,7 @@ Patient* DataBase::loadPatientById(int idPat)
 {
     Patient *patient = new Patient();
     QString req = "select IdPat, PatNom, PatPrenom, PatDDN, Sexe from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idPat);
-    QList<QVariant> patdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
         return Q_NULLPTR;
     QJsonObject jData{};
@@ -1332,7 +1332,7 @@ Patient* DataBase::loadPatientById(int idPat)
 QString DataBase::getMDPAdmin()
 {
     QString mdp ("");
-    QList<QVariant> mdpdata = getFirstRecordFromStandardSelectSQL("select mdpadmin from " NOM_TABLE_PARAMSYSTEME,ok);
+    QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select mdpadmin from " NOM_TABLE_PARAMSYSTEME,ok);
     if( !ok || mdpdata.size()==0 )
         StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'");
     else if (mdpdata.at(0) == "")
@@ -1374,7 +1374,7 @@ QString DataBase::createActeRequest(int idActe, int idPat)
 
     return requete;
 }
-QJsonObject DataBase::extractActeData(QList<QVariant> actdata)
+QJsonObject DataBase::extractActeData(QVariantList actdata)
 {
     QJsonObject data{};
     data["id"] = actdata.at(0).toInt();
@@ -1421,7 +1421,7 @@ Acte* DataBase::loadActeById(int idActe)
     if( idActe == 0 )
         return acte;
     QString req = createActeRequest(idActe, 0);
-    QList<QVariant> actdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    QVariantList actdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || actdata.size()==0 )
         return acte;
     QJsonObject data = extractActeData(actdata);
@@ -1435,7 +1435,7 @@ QMap<int, Acte*> DataBase::loadActesByIdPat(int idPat)
     if( idPat == 0 )
         return list;
     QString req = createActeRequest(0, idPat);
-    QList<QList<QVariant>> actlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> actlist = StandardSelectSQL(req,ok);
     if(!ok || actlist.size()==0)
         return list;
     for (int i=0; i<actlist.size(); ++i)
@@ -1456,7 +1456,7 @@ double DataBase::getActeMontant(int idActe)
                   " FROM " NOM_TABLE_LIGNESPAIEMENTS " lp "
                   " LEFT JOIN " NOM_TABLE_RECETTES " lr on lr.idRecette = lp.idRecette "
                   " WHERE idActe = " + QString::number(idActe);
-    QList<QList<QVariant>> mtntlist = StandardSelectSQL(req,ok);
+    QList<QVariantList> mtntlist = StandardSelectSQL(req,ok);
     if(!ok || mtntlist.size()==0)
         return montant;
     for (int i=0; i<mtntlist.size(); ++i)

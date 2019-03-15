@@ -254,7 +254,7 @@ QString Procedures::getDossierDocuments(QString Appareil, int mode)
     ------------------------------------------------------------------------------------------------------------------------------------*/
 int Procedures::GetflagMG()
 {
-    QList<QVariant> flagrcd = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
+    QVariantList flagrcd = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
     if (ok && flagrcd.size() > 0)
         return flagrcd.at(0).toInt();
     return 0;
@@ -265,7 +265,7 @@ int Procedures::GetflagMG()
     ------------------------------------------------------------------------------------------------------------------------------------*/
 int Procedures::GetflagSalDat()
 {
-    QList<QVariant> flagsaldatrcd = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
+    QVariantList flagsaldatrcd = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
     if (ok && flagsaldatrcd.size() > 0)
         return flagsaldatrcd.at(0).toInt();
     return 0;
@@ -283,7 +283,7 @@ void Procedures::MAJflagMG()
     {
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
         int a = 0;
-        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
+        QVariantList flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
         if (ok && flagdata.size()>0) {
             a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMG = " + QString::number(a);
@@ -306,7 +306,7 @@ void Procedures::MAJTcpMsgEtFlagSalDat()
         //qDebug() << "MAJTcpMsgEtFlagSalDat() lock OK";
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagSalDat) VALUES (1)";
         int a = 0;
-        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
+        QVariantList flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
         if (ok && flagdata.size()>0) {
             a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagSalDat = " + QString::number(a);
@@ -325,7 +325,7 @@ void Procedures::MAJflagMessages()
     {
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMessages) VALUES (1)";
         int a = 0;
-        QList<QVariant> flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " NOM_TABLE_FLAGS, ok);
+        QVariantList flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " NOM_TABLE_FLAGS, ok);
         if (ok && flagdata.size()>0) {
             a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMessages = " + QString::number(a);
@@ -392,7 +392,7 @@ void Procedures::ModifTailleFont(QObject *obj, int siz, QFont font)
 bool Procedures::ImmediateBackup(bool full)
 {
     QString req = "select NomPosteConnecte from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte <> '" + QHostInfo::localHostName().left(60) + "'";
-    QList<QVariant> ttipdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList ttipdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && ttipdata.size() > 0)
     {
         UpMessageBox::Information(Q_NULLPTR, tr("Autres postes connectés!"),
@@ -404,7 +404,7 @@ bool Procedures::ImmediateBackup(bool full)
 
     QString NomDirStockageImagerie ("");
     QString NomDirDestination ("");
-    QList<QVariant> dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie, DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
+    QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie, DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
     if (ok && dirdata.size()>0)
     {
         NomDirStockageImagerie = dirdata.at(0).toString();
@@ -600,19 +600,19 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
             QString reqrp = "select userparent "
                             "from " NOM_TABLE_USERSCONNECTES
                             " where usersuperviseur = " + QString::number(user->id());
-            QList<QVariant> userdata = db->getFirstRecordFromStandardSelectSQL(reqrp, ok);
+            QVariantList userdata = db->getFirstRecordFromStandardSelectSQL(reqrp, ok);
             if (userdata.size()>0)                // le user est connecté, on cherche qui il remplace - son parent
                 idparent = userdata.at(0).toInt();
             else                                // le user n'est pas connecté on demande quel est son parent
             {
-                QList<QVariant> soigndata = db->getFirstRecordFromStandardSelectSQL("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(user->id()), ok);
+                QVariantList soigndata = db->getFirstRecordFromStandardSelectSQL("select soignant from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(user->id()), ok);
                 QString req   = "select iduser, userlogin from " NOM_TABLE_UTILISATEURS
                         " where (userenreghonoraires = 1 or userenreghonoraires = 2)"
                         " and iduser <> " + QString::number(user->id()) +
                         " and soignant = " + soigndata.at(0).toString() +
                         " and userdesactive is null";
                 //qDebug() << req;
-                QList<QList<QVariant>> soignlist = db->StandardSelectSQL(req,ok);
+                QList<QVariantList> soignlist = db->StandardSelectSQL(req,ok);
                 if (soignlist.size() == 1)               // une seule réponse, on la récupère
                     idparent   = soignlist.at(0).at(0).toInt();
                 else                                // plusieurs réponses possibles, on va demander qui est le parent de ce remplaçant....
@@ -916,7 +916,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                 else
                     imgs = "select idfacture from " NOM_TABLE_FACTURES " where idfacture = " + iditem + " and (pdf is not null or jpg is not null)";
                 //qDebug() << imgs;
-                QList<QList<QVariant>> listid = db->StandardSelectSQL(imgs, ok);
+                QList<QVariantList> listid = db->StandardSelectSQL(imgs, ok);
                 if (!ok)
                     UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'accéder à la table ") + (typedoc != FACTURE? NOM_TABLE_ECHANGEIMAGES : NOM_TABLE_FACTURES));
                 if (listid.size()==0)
@@ -952,7 +952,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
             }
         }
         // On charge ensuite le contenu des champs longblob des tables concernées en mémoire pour les afficher
-        QList<QList<QVariant>> listimpr;
+        QList<QVariantList> listimpr;
         if (typedoc != FACTURE)
         {
             listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = null"
@@ -984,7 +984,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
 
         if (listimpr.size()==0)
             return result;
-        QList<QVariant> impr = listimpr.at(0);
+        QVariantList impr = listimpr.at(0);
         if (impr.at(0).toByteArray().size()>0)            // c'est le champ SQL pdf de la requête qui est exploré et s'il n'est pas vide, c'est un pdf
         {
             if (typedoc != FACTURE)
@@ -1534,7 +1534,7 @@ void Procedures::setDirImagerie()
 {
     DirStockageImages = "";
     QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
-    QList<QVariant> dirdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && dirdata.size()>0)
         DirStockageImagesServeur = dirdata.at(0).toString();
     switch (db->getMode()) {
@@ -1595,7 +1595,7 @@ void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on
                   " where cpt.idUser = " + QString::number(usercpt);
     QStandardItem *pitem0, *pitem1;
     QStandardItem *oitem0, *oitem1;
-    QList<QList<QVariant>> cptlist = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur!"));
+    QList<QVariantList> cptlist = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur!"));
     if (ok)
     {
         for (int i = 0; i < cptlist.size(); i++)
@@ -1862,7 +1862,7 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
 QString Procedures::getMDPAdmin()
 {
     QString req = "select mdpadmin from " NOM_TABLE_PARAMSYSTEME;
-    QList<QVariant> mdpdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && mdpdata.size()>0)
         if (mdpdata.at(0).toString() == "")
             db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'");
@@ -1944,11 +1944,11 @@ bool Procedures::isPosteImportDocs()
 QString Procedures::PosteImportDocs()
 {   QString rep = "";
     QString req = "SELECT name FROM mysql.proc p WHERE db = '" NOM_BASE_CONSULTS "' AND name = '" NOM_POSTEIMPORTDOCS "'";
-    QList<QVariant> imptdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList imptdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && imptdata.size()>0)
     {
         req = "CALL " NOM_BASE_CONSULTS "." NOM_POSTEIMPORTDOCS;
-        QList<QVariant> calldata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        QVariantList calldata = db->getFirstRecordFromStandardSelectSQL(req, ok);
         //qDebug() << "nbre reponses = " + QString::number(calldata.size()) << NOM_POSTEIMPORTDOCS " = " + calldata.at(0).toString();
         if (ok && calldata.size()>0)
             rep = calldata.at(0).toString();
@@ -1978,7 +1978,7 @@ bool Procedures::Verif_secure_file_priv()
 void Procedures::TestAdminPresent()             // Vérifie si RufusAdmin est utilisé
 {
     QString req = "select iduser from " NOM_TABLE_USERSCONNECTES " where iduser = (select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
-    QList<QVariant> tcpdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList tcpdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     OKAdmin = (ok && tcpdata.size()>0  && db->getMode() != DataBase::Distant);
 }
 
@@ -1997,7 +1997,7 @@ void Procedures::setoktcp(bool oktcp)
 QString Procedures::Var_secure_file_priv()
 {
     QString msg = QString();
-    QList<QVariant> vardata = db->getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", ok);
+    QVariantList vardata = db->getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", ok);
     if (ok && vardata.size()>0)
         msg = vardata.at(1).toString();
     if (msg == "NULL")
@@ -2076,7 +2076,7 @@ QStringList Procedures::DecomposeScriptSQL(QString nomficscript)
 bool Procedures::ReinitBase()
 {
     QString req = "select NomPosteConnecte from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte <> '" + QHostInfo::localHostName().left(60) + "'";
-    QList<QVariant> nompostedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList nompostedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && nompostedata.size()>0)
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Autres postes connectés!"),
@@ -2124,7 +2124,7 @@ void Procedures::RestoreFontAppliAndGeometry()
     // On essaie de retrouver la police écran enregistrée par l'utilisateur, sinon, on prend celle par défaut
     QString fonteFamily("");
     QString req = "select UserPoliceEcran, UserPoliceAttribut from " NOM_TABLE_UTILISATEURS " where idUser = " + QString::number(db->getUserConnected()->id());
-    QList<QVariant> fontdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList fontdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && fontdata.size()>0)
         fonteFamily = fontdata.at(0).toString().split(",").at(0);
     bool trouvefont = false;
@@ -2198,7 +2198,7 @@ double Procedures::CalcBaseSize()
                       " or table_schema = 'rufus'"
                       " GROUP BY table_schema)"
                       " as bdd";
-    QList<QVariant> basedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList basedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && basedata.size()>0)
         basesize = basedata.at(0).toDouble();
     return basesize;
@@ -2477,7 +2477,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (VerifUserConnectes)
         {
             QString req = "select NomPosteConnecte from " NOM_TABLE_USERSCONNECTES " where NomPosteConnecte <> '" + QHostInfo::localHostName().left(60) + "'";
-            QList<QVariant> nompostedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+            QVariantList nompostedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (!ok)
                 return false;
             if (nompostedata.size()>0)
@@ -2544,7 +2544,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
 
         QString NomDirStockageImagerie = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGES;
         QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
-        QList<QVariant> dirdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (ok && dirdata.size()>0)
         {
             NomDirStockageImagerie = dirdata.at(0).toString();
@@ -2798,7 +2798,7 @@ bool Procedures::VerifBaseEtRessources()
     int Versionencours  = 9; //correspond aux premières versions de MAJ de la base
     int Version         = VERSION_BASE;
     QString req         = "select VersionBase from " NOM_TABLE_PARAMSYSTEME;
-    QList<QVariant> versiondata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList versiondata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     bool b              = (!ok || versiondata.size() == 0);
     if (!b)
     {
@@ -3094,7 +3094,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     //1. On vérifie si ce login existe dans le serveur et si c'est le cas, on détruit toutes les instances de ce login
     //TODO : !!! un peu brutal
     QString req = "select user, host from mysql.user where user like '" + Login + "%'";
-    QList<QList<QVariant>> usrlist = db->StandardSelectSQL(req, ok);
+    QList<QVariantList> usrlist = db->StandardSelectSQL(req, ok);
     if (ok && usrlist.size()>0)
         for (int i=0; i<usrlist.size(); i++)
             db->StandardSQL("drop user '" + usrlist.at(i).at(0).toString() + "'@'" + usrlist.at(i).at(1).toString() + "'");
@@ -3169,13 +3169,13 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
 
     int idbanq = 0;
     QString req = "select idbanque, idbanqueabrege, nombanque from " NOM_TABLE_BANQUES " where idbanqueabrege = 'PaPRS'";
-    QList<QVariant> bqdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList bqdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && bqdata.size()>0)
         idbanq = bqdata.at(0).toInt();
     else
     {
         db->StandardSQL("insert into " NOM_TABLE_BANQUES " (idbanqueAbrege, Nombanque) values ('PaPRS','Panama Papers')");
-        QList<QVariant> bqdata = db->getFirstRecordFromStandardSelectSQL("select idbanque from " NOM_TABLE_BANQUES " where idbanqueabrege = 'PaPRS'", ok);
+        QVariantList bqdata = db->getFirstRecordFromStandardSelectSQL("select idbanque from " NOM_TABLE_BANQUES " where idbanqueabrege = 'PaPRS'", ok);
         if (ok && bqdata.size()>0)
             idbanq = bqdata.at(0).toInt();
     }
@@ -3206,7 +3206,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     db->StandardSQL(req);
     QString idcpt ("");
     req = "select max(idcompte) from " NOM_TABLE_COMPTES;
-    QList<QVariant> cptdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList cptdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && cptdata.size()>0)
         idcpt = cptdata.at(0).toString();
 
@@ -3246,7 +3246,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     db->StandardSQL(req);
     req = "select idLieu from " NOM_TABLE_LIEUXEXERCICE;
     int gidLieuExercice = 0;
-    QList<QList<QVariant>> lieuxlist = db->StandardSelectSQL(req, ok);
+    QList<QVariantList> lieuxlist = db->StandardSelectSQL(req, ok);
     if (ok && lieuxlist.size()>0)
         gidLieuExercice = lieuxlist.at(0).at(0).toInt(); //TODO : ICI
     req = "insert into " NOM_TABLE_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + QString::number(idusr) + ", " + QString::number(gidLieuExercice) + ")";
@@ -3315,7 +3315,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             if( m_userConnected->getIdUserParent() > 0 )
                 m_userConnected->setUserParent(Datas::I()->users->getUserById(m_userConnected->getIdUserParent()));
 
-            QList<QList<QVariant>> lieuxlist = db->StandardSelectSQL("select Numcentre from " NOM_TABLE_PARAMSYSTEME, ok);
+            QList<QVariantList> lieuxlist = db->StandardSelectSQL("select Numcentre from " NOM_TABLE_PARAMSYSTEME, ok);
             if (ok && lieuxlist.size()>0)
                 gidCentre = lieuxlist.at(0).at(0).toInt();
             a = true;
@@ -3382,7 +3382,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
 void Procedures::DefinitScriptBackup(QString path, bool AvecImages, bool AvecVideos)
 {
     QString NomDirDestination ("");
-    QList<QVariant> dirdata = db->getFirstRecordFromStandardSelectSQL("select DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
+    QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL("select DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
     if (ok && dirdata.size()>0)
         NomDirDestination = dirdata.at(0).toString();
     // élaboration du script de backup
@@ -4386,7 +4386,7 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
     msgbox.setIcon(QMessageBox::Information);
     msgbox.addButton(&OKBouton, QMessageBox::AcceptRole);
     QString req = "SHOW TABLES FROM " NOM_BASE_CONSULTS " LIKE 'utilisateurs'";
-    QList<QVariant> verifbasedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList verifbasedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || verifbasedata.size()==0)
     {
         msgbox.setText(tr("Erreur sur la base patients"));
@@ -4400,11 +4400,11 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
     req =   "SELECT idUser FROM " NOM_TABLE_UTILISATEURS
             " WHERE UserLogin = '" + Utils::correctquoteSQL(Login) +
             "' AND UserMDP = '" + Utils::correctquoteSQL(MDP) + "'" ;
-    QList<QVariant> idusrdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList idusrdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || idusrdata.size()==0)
     {
         req =   "SELECT UserLogin FROM " NOM_TABLE_UTILISATEURS;
-        QList<QList<QVariant>> usrlist = db->StandardSelectSQL(req, ok);
+        QList<QVariantList> usrlist = db->StandardSelectSQL(req, ok);
         if (!ok || usrlist.size()==0)
         {
             msgbox.setText(tr("Erreur sur la base patients"));
@@ -6597,7 +6597,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
 
             db->StandardSQL (requete, tr("Erreur de création de données autoref dans ") + NOM_TABLE_REFRACTION);
             requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
-            QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
             if (!ok)
                 return;
             if (patdata.size()==0)
@@ -6658,7 +6658,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
             QString mAxeKOG     = QString::number(MapMesure["AxeKOG"].toInt());
             //qDebug() << mK1OD << mK2OD << mAxeKOD << mK1OG << mK2OG << mAxeKOG;
             QString requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
-            QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
             if (!ok)
                 return;
             if (patdata.size()==0)
@@ -6759,7 +6759,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
 
             db->StandardSQL(requete, tr("Erreur de création  de données de refraction dans ") + NOM_TABLE_REFRACTION);
             requete = "select idPat from " NOM_TABLE_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'R'";
-            QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
             if (!ok)
                 return;
             if (patdata.size()==0)

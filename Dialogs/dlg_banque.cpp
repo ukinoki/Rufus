@@ -125,17 +125,17 @@ void dlg_banque::AfficheBanque()
     UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
     int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
     bool ok = true;
-    QList<QList<QVariant>> listbanques = db->SelectRecordsFromTable(QStringList() << "NomBanque" << "idBanqueAbrege" << "idbanque",
+    QList<QVariantList> listbanques = db->SelectRecordsFromTable(QStringList() << "NomBanque" << "idBanqueAbrege" << "idbanque",
                                                                     NOM_TABLE_BANQUES, ok,
                                                                     "where idBanque = " + QString::number(idBanque));
     if (listbanques.size()>0)
     {
-        QList<QVariant> banque = listbanques.at(0);
+        QVariantList banque = listbanques.at(0);
         ui->NomBanqueupLineEdit->setText(banque.at(0).toString());
         ui->NomAbregeupLineEdit->setText(banque.at(1).toString());
     }
     widgButtons->moinsBouton->setEnabled(true);
-    QList<QList<QVariant>> listcomptes = db->SelectRecordsFromTable(QStringList() << "idBanque",
+    QList<QVariantList> listcomptes = db->SelectRecordsFromTable(QStringList() << "idBanque",
                                                                     NOM_TABLE_COMPTES, ok,
                                                                     "where idBanque = " + listbanques.at(0).at(2).toString());
     if (listcomptes.size()>0)
@@ -210,7 +210,7 @@ void dlg_banque::SupprBanque()
     if (msgbox.clickedButton() != &OKBouton)
        return;
     bool ok = true;
-    QList<QList<QVariant>> listcomptes = db->SelectRecordsFromTable(QStringList() << "idBanque",
+    QList<QVariantList> listcomptes = db->SelectRecordsFromTable(QStringList() << "idBanque",
                                                                     NOM_TABLE_COMPTES, ok,
                                                                     "where idBanque = " + QString::number(idBanque));
     if (listcomptes.size()>0)
@@ -265,7 +265,7 @@ void dlg_banque::ValideModifBanque()
             }
         }
         bool ok = true;
-        QList<QList<QVariant>> listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege", NOM_TABLE_BANQUES, ok);
+        QList<QVariantList> listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege", NOM_TABLE_BANQUES, ok);
         if (listabreges.size()>0)
             for (int i=0; i<listabreges.size(); i++)
                 if (listabreges.at(i).at(0).toString() == ui->NomAbregeupLineEdit->text())
@@ -301,7 +301,7 @@ void dlg_banque::ValideModifBanque()
         UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
         int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
         bool ok = true;
-        QList<QList<QVariant>> listabreges = db->SelectRecordsFromTable(QStringList() << "nombanque",
+        QList<QVariantList> listabreges = db->SelectRecordsFromTable(QStringList() << "nombanque",
                                                                                              NOM_TABLE_BANQUES, ok,
                                                                                              "where idbanque <> " + QString::number(idBanque));
         if (listabreges.size()>0)
@@ -361,7 +361,7 @@ void dlg_banque::RemplirTableView()
     QTableWidgetItem    *pitem0;
     UpLabel             *label1;
     bool ok = true;
-    QList<QList<QVariant>> listbanques = db->SelectRecordsFromTable(QStringList() << "idbanque" << "nombanque",
+    QList<QVariantList> listbanques = db->SelectRecordsFromTable(QStringList() << "idbanque" << "nombanque",
                                                                                          NOM_TABLE_BANQUES, ok,
                                                                                          "",
                                                                                          "order by nomBanque");

@@ -573,7 +573,7 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
                   " where idRemise = " + QString::number(idRemise) +
                   " order by Tireurcheque";
     bool ok = true;
-    QList<QList<QVariant>> listremises = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> listremises = db->StandardSelectSQL(req,ok);
     ui->ListeChequesupTableWidget->setRowCount(listremises.size());
     if (listremises.size()>0) {
         QTableWidgetItem *pItem0    = new QTableWidgetItem() ;
@@ -585,7 +585,7 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
         UpCheckBox *check           = new UpCheckBox() ;
         for (int i = 0; i < listremises.size(); i++)
         {
-            QList<QVariant> remise = listremises.at(i);
+            QVariantList remise = listremises.at(i);
             pItem0 = new QTableWidgetItem() ;
             pItem1 = new QTableWidgetItem() ;
             pItem2 = new QTableWidgetItem() ;
@@ -627,7 +627,7 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
         ui->TotallineEdit->setText(QString::number(ui->ListeChequesupTableWidget->rowCount()) + tr(" chèques -> ") + QLocale().toString(Total,'f',2) + tr(" euros"));
     }
     req = "select idligne from " NOM_TABLE_ARCHIVESBANQUE " where idremcheq = " + MapRemise["idRemise"].toString();
-    QList<QList<QVariant>> listlignes = db->StandardSelectSQL(req, ok);
+    QList<QVariantList> listlignes = db->StandardSelectSQL(req, ok);
     ui->RemisesPrecsPushButton->setEnabled(listlignes.size()==0 && ok);
 }
 
@@ -657,7 +657,7 @@ void dlg_remisecheques::Slot_ToolTip(int A, int B)
                 requete = "SELECT PatNom, PatPrenom, ActeCotation, ActeDate From " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act WHERE act.idActe in (SELECT idActe FROM "
                         NOM_TABLE_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat.idPat = act.idPat";
             bool ok = true;
-            QList<QList<QVariant>> listtips = db->StandardSelectSQL(requete,ok);
+            QList<QVariantList> listtips = db->StandardSelectSQL(requete,ok);
             QString ABC;
             for (int i = 0; i < listtips.size();i++)
             {
@@ -721,7 +721,7 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     }
 
     bool ok = true;
-    QList<QList<QVariant>> listremisesprecedentes = db->StandardSelectSQL("select idRemCheq, RCDate, Montant, idcompte from " NOM_TABLE_REMISECHEQUES
+    QList<QVariantList> listremisesprecedentes = db->StandardSelectSQL("select idRemCheq, RCDate, Montant, idcompte from " NOM_TABLE_REMISECHEQUES
                                                                           " where idcompte in (" + idlist + ") order by idremcheq desc",ok);
     if (listremisesprecedentes.size() == 0)
     {
@@ -732,7 +732,7 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     ui->RemisePrecsupComboBox->clear();
     for (int i=0; i<listremisesprecedentes.size(); i++)
     {
-        QList<QVariant> remise = listremisesprecedentes.at(i);
+        QVariantList remise = listremisesprecedentes.at(i);
         QMap<QString,QVariant>  MapRemise;
         MapRemise["idRemise"] = remise.at(0);
         MapRemise["idCompte"] = remise.at(3);
@@ -854,7 +854,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         req +=  " ORDER BY TireurCheque";
         //qDebug() << req;
         bool ok = true;
-        QList<QList<QVariant>> listchequesaremettre = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> listchequesaremettre = db->StandardSelectSQL(req,ok);
 
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " NOM_TABLE_RECETTES " pai"
@@ -870,7 +870,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
                 " AND Paiement = 'C'"
                 " ORDER BY TireurCheque";
         //qDebug() << req; // durée = 0,4s en moyenne
-        QList<QList<QVariant>> listchequesenattente = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> listchequesenattente = db->StandardSelectSQL(req,ok);
 
 
         if (listchequesaremettre.size() == 0 && listchequesenattente.size() == 0)
@@ -900,7 +900,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
 
         for (int i = 0; i < listchequesaremettre.size(); i++)
         {
-            QList<QVariant> chequearemettre = listchequesaremettre.at(i);
+            QVariantList chequearemettre = listchequesaremettre.at(i);
             pItem1 = new QTableWidgetItem() ;
             pItem2 = new QTableWidgetItem() ;
             pItem3 = new QTableWidgetItem() ;
@@ -950,7 +950,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
 
         for (int i = 0; i < listchequesenattente.size(); i++)
         {
-            QList<QVariant> chequeenattente = listchequesenattente.at(i);
+            QVariantList chequeenattente = listchequesenattente.at(i);
             pItem1 = new QTableWidgetItem() ;
             pItem2 = new QTableWidgetItem() ;
             pItem3 = new QTableWidgetItem() ;
@@ -1138,7 +1138,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
                         " ORDER BY TireurCheque";
         //qDebug() << req;
         bool ok = true;
-        QList<QList<QVariant>> listidrecettes = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> listidrecettes = db->StandardSelectSQL(req,ok);
         if (listidrecettes.size()>0)
         {
             m_comptablesavecchequesenattente->insert(user->id(), user);

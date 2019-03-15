@@ -217,7 +217,7 @@ void dlg_listemotscles::RemplirTableView()
 {
     bool ok;
     QString req = "select idMotcle from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat);
-    QList<QList<QVariant>> idmotclelist = db->StandardSelectSQL(req, ok);
+    QList<QVariantList> idmotclelist = db->StandardSelectSQL(req, ok);
     QStringList listidMC;
     bool a = glistidMCdepart.contains("-1");
     glistidMCdepart.clear();
@@ -231,7 +231,7 @@ void dlg_listemotscles::RemplirTableView()
         }
     }
     req = "select idmotcle, motcle from " NOM_TABLE_MOTSCLES " order by motcle";
-    QList<QList<QVariant>> motclelist = db->StandardSelectSQL(req, ok);
+    QList<QVariantList> motclelist = db->StandardSelectSQL(req, ok);
     QStandardItem       *pitem;
     gmodele = dynamic_cast<QStandardItemModel*>(tabMC->model());
     if (gmodele)

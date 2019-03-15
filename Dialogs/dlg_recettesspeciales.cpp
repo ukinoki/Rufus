@@ -59,7 +59,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
     bool OK = true;
-    QList<QList<QVariant>> listbanq = db->StandardSelectSQL("SELECT idBanqueAbrege, idBanque FROM " NOM_TABLE_BANQUES " ORDER by idBanqueAbrege",OK);
+    QList<QVariantList> listbanq = db->StandardSelectSQL("SELECT idBanqueAbrege, idBanque FROM " NOM_TABLE_BANQUES " ORDER by idBanqueAbrege",OK);
     for (int i=0; i<listbanq.size(); i++)
         ui->BanqChequpComboBox->addItem(listbanq.at(i).at(0).toString(),listbanq.at(i).at(1).toInt());
 
@@ -261,7 +261,7 @@ void dlg_recettesspeciales::EnregistreRecette()
 
     // vérifier que cette recette n'a pas été déjà saisie
     bool OK = true;
-    QList<QList<QVariant>> listrec =
+    QList<QVariantList> listrec =
             db->StandardSelectSQL("select DateRecette from " NOM_TABLE_RECETTESSPECIALES
                                   " where DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
                                   "'and Libelle = '"  + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
@@ -469,14 +469,14 @@ void dlg_recettesspeciales::SupprimerRecette()
     if (gBigTable->selectedRanges().size() == 0) return;
     // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte
     bool OK = true;
-    QList<QList<QVariant>> listidrecspec = db->StandardSelectSQL(" select idRecSpec from " NOM_TABLE_ARCHIVESBANQUE " where idRecSpec = " + QString::number(idRecEnCours),OK);
+    QList<QVariantList> listidrecspec = db->StandardSelectSQL(" select idRecSpec from " NOM_TABLE_ARCHIVESBANQUE " where idRecSpec = " + QString::number(idRecEnCours),OK);
     if (listidrecspec.size() > 0)
     {
         UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
         return;
     }
 
-    QList<QList<QVariant>> listremises = db->StandardSelectSQL(" select idRemise from " NOM_TABLE_RECETTESSPECIALES " where idRecette = " + QString::number(idRecEnCours),OK);
+    QList<QVariantList> listremises = db->StandardSelectSQL(" select idRemise from " NOM_TABLE_RECETTESSPECIALES " where idRecette = " + QString::number(idRecEnCours),OK);
     if (listremises.size() > 0)
         if (listremises.at(0).at(0).toInt()>0)
         {
@@ -487,14 +487,14 @@ void dlg_recettesspeciales::SupprimerRecette()
     QDate   Dateop;
     QString Libelle;
     double  montant;
-    QList<QList<QVariant>> listrecettes = db->StandardSelectSQL("select DateRecette, Libelle, Montant from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + QString::number(idRecEnCours),OK);
+    QList<QVariantList> listrecettes = db->StandardSelectSQL("select DateRecette, Libelle, Montant from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + QString::number(idRecEnCours),OK);
     if (listrecettes.size() > 0)
     {
         Dateop  = listrecettes.at(0).at(0).toDate();
         Libelle = listrecettes.at(0).at(1).toString();
         montant = listrecettes.at(0).at(2).toDouble();
         bool ok = true;
-        QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idligne from " NOM_TABLE_ARCHIVESBANQUE " where LigneDate = '" + Dateop.toString("yyyy-MM-dd")
+        QList<QVariantList> listlignes = db->StandardSelectSQL("select idligne from " NOM_TABLE_ARCHIVESBANQUE " where LigneDate = '" + Dateop.toString("yyyy-MM-dd")
                 + "' and LigneLibelle = '" + Utils::correctquoteSQL(Libelle) + "' and LigneMontant = " + QString::number(montant), ok);
         if (listlignes.size()> 0)
         {
@@ -598,10 +598,10 @@ void dlg_recettesspeciales::MetAJourFiche()
 
         //TODO : SQL
         bool OK = true;
-        QList<QList<QVariant>> listrecettes =
+        QList<QVariantList> listrecettes =
                 db->StandardSelectSQL("select DateRecette, Libelle, Montant, Paiement, idremise, TypeRecette, CompteVirement, BanqueCheque, TireurCheque"
                                       " from " NOM_TABLE_RECETTESSPECIALES " where idRecette = " + QString::number(idRecEnCours),OK);
-        QList<QVariant> recette = listrecettes.at(0);
+        QVariantList recette = listrecettes.at(0);
 
         ui->ObjetlineEdit->setText(recette.at(1).toString());
         ui->DateRecdateEdit->setDate(recette.at(0).toDate());
@@ -678,7 +678,7 @@ void dlg_recettesspeciales::MetAJourFiche()
                 // on recherche si l'écriture existe dans archivesbanques et si c'est le cas, on ne peut pas modifier le montant
             {
                 bool ok = true;
-                QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idrecspec = " + QString::number(idRecEnCours),ok);
+                QList<QVariantList> listlignes = db->StandardSelectSQL("select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idrecspec = " + QString::number(idRecEnCours),ok);
                 modifiable = (listlignes.size() == 0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
@@ -691,7 +691,7 @@ void dlg_recettesspeciales::MetAJourFiche()
                 // on recherche si le chéque a été déposé et si c'est le cas, on ne peut pas modifier le montant
             {
                 bool ok = true;
-                QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idRemise from " NOM_TABLE_RECETTESSPECIALES " where idrecspec = " + QString::number(idRecEnCours),ok);
+                QList<QVariantList> listlignes = db->StandardSelectSQL("select idRemise from " NOM_TABLE_RECETTESSPECIALES " where idrecspec = " + QString::number(idRecEnCours),ok);
                 modifiable = !(listlignes.at(0).at(0).toInt()>0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
@@ -728,7 +728,7 @@ void dlg_recettesspeciales::ModifierRecette()
         return;
     // on reconstruit les renseignements de la recette à modifier
     bool ok = true;
-    QList<QList<QVariant>> listpaiements = db->StandardSelectSQL("select paiement, comptevirement, banquecheque, idremise from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + idRec,ok);
+    QList<QVariantList> listpaiements = db->StandardSelectSQL("select paiement, comptevirement, banquecheque, idremise from " NOM_TABLE_RECETTESSPECIALES " where idrecette = " + idRec,ok);
     if (listpaiements.size()==0)
     {
         EnregistreRecette();
@@ -757,7 +757,7 @@ void dlg_recettesspeciales::ModifierRecette()
     else if (ancpaiement == "V")
     {
         bool ok = true;
-        QList<QList<QVariant>> listlignes = db->StandardSelectSQL("select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idrecspec = " + idRec,ok);
+        QList<QVariantList> listlignes = db->StandardSelectSQL("select idLigne from " NOM_TABLE_ARCHIVESBANQUE " where idrecspec = " + idRec,ok);
         if (listlignes.size()>0)
         {
             // le virement a été enregistré en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecettes et archivesbanques
@@ -909,7 +909,7 @@ void dlg_recettesspeciales::DefinitArchitectureBigTable()
 void dlg_recettesspeciales::ReconstruitListeAnnees()
 {
     bool ok = true;
-    QList<QList<QVariant>> listannees =
+    QList<QVariantList> listannees =
             db->StandardSelectSQL("SELECT distinct Annee from (SELECT year(DateRecette) as Annee FROM " NOM_TABLE_RECETTESSPECIALES
                                   " WHERE idUser = " + QString::number(gDataUser->id()) + ") as ghf order by Annee",ok);
     QStringList ListeAnnees;
@@ -940,7 +940,7 @@ void dlg_recettesspeciales::RemplitBigTable()
     Recrequete += " ORDER BY DateRecette, Libelle";
     //proc->Edit(Recrequete);
     bool ok = true;
-    QList<QList<QVariant>> listrecettes = db->StandardSelectSQL(Recrequete,ok);
+    QList<QVariantList> listrecettes = db->StandardSelectSQL(Recrequete,ok);
 
     if (listrecettes.size()==1 && listrecettes.at(0).at(0)==QVariant())
         return;
@@ -949,7 +949,7 @@ void dlg_recettesspeciales::RemplitBigTable()
     for (int i = 0; i < listrecettes.size(); i++)
         {
             int col = 0;
-            QList<QVariant> recette = listrecettes.at(i);
+            QVariantList recette = listrecettes.at(i);
             int id = recette.at(i).toInt();
 
             label0 = new UpLabel;

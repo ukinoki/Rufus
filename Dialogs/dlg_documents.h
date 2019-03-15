@@ -80,7 +80,7 @@ private:
     int                         AskDialog(QString titre);
     void                        CheckPublicEditablAdmin(QCheckBox *check);
     bool                        ChercheDoublon(QString, int row);
-    void                        ChoixCorrespondant(QList<QList<QVariant>> listcor);
+    void                        ChoixCorrespondant(QList<QVariantList> listcor);
     void                        CocheLesDocs(int iddoss, bool A);
     void                        ConfigMode(int mode, int row = 0);
     void                        dblClicktextEdit();

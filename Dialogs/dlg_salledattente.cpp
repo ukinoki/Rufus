@@ -55,7 +55,7 @@ dlg_salledattente::dlg_salledattente(int idPatAPasser, int idActeAPasser, QStrin
             " AND usr.idUser = connectusr.idUser";
     //proc->Edit( Usersrequete);
     bool ok;
-    QList<QList<QVariant>> ListUsers = db->StandardSelectSQL(Usersrequete,ok);
+    QList<QVariantList> ListUsers = db->StandardSelectSQL(Usersrequete,ok);
     if (!ok)
         return;
     if (ListUsers.size() == 0)
@@ -115,7 +115,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     {
         ActeSal = QString::number(gidActe);
         QString req = "select idacte, iduser from " NOM_TABLE_ACTES " where idacte = " + ActeSal;
-        QList<QList<QVariant>> ListActes = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> ListActes = db->StandardSelectSQL(req,ok);
         if (ListActes.at(0).at(1).toInt() == -1)
             db->StandardSQL("update " NOM_TABLE_ACTES " set idUser = " + QString::number(proc->UserSuperviseur()) +
                        ", UserComptable = " + QString::number(db->getUserConnected()->getIdUserComptable()) +
@@ -125,7 +125,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     }
 
     QString saldatrequete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(gidPatient);
-    QList<QList<QVariant>> ListPatients = db->StandardSelectSQL(saldatrequete,ok,tr("Impossible de trouver le dossier dans la salle d'attente!"));
+    QList<QVariantList> ListPatients = db->StandardSelectSQL(saldatrequete,ok,tr("Impossible de trouver le dossier dans la salle d'attente!"));
     QString MsgErreur;
     if (ListPatients.size() == 0)
     {

@@ -109,7 +109,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     setStageCount(1);
 
     bool ok;
-    QList<QList<QVariant>> proflist = db->StandardSelectSQL("select distinct corautreprofession from " NOM_TABLE_CORRESPONDANTS " where corautreprofession is not NULL", ok);
+    QList<QVariantList> proflist = db->StandardSelectSQL("select distinct corautreprofession from " NOM_TABLE_CORRESPONDANTS " where corautreprofession is not NULL", ok);
     if (ok && proflist.size()>0)
     {
         QStringList listprof;
@@ -198,7 +198,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     bool ok;
     QString requete = "select idcor, corspecialite, cormedecin from " NOM_TABLE_CORRESPONDANTS
             " where CorNom LIKE '" + CorNom + "%' and CorPrenom LIKE '" + CorPrenom + "%'";
-    QList<QVariant>  cordata = db->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des patients!"));
+    QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des patients!"));
     if (!ok)
     {
         reject();
@@ -255,7 +255,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         if (!db->StandardSQL(insrequete,tr("Impossible de créer le dossier")))
             reject();
         insrequete = "select max(idcor) from " NOM_TABLE_CORRESPONDANTS;
-        QList<QVariant> cordata = db->getFirstRecordFromStandardSelectSQL(insrequete, ok);
+        QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(insrequete, ok);
         if (ok && cordata.size()>0)
             gidCor = cordata.at(0).toInt();
         proc->initListeCorrespondants();
@@ -351,7 +351,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
                             " WHERE idCor = " + QString::number(gidCor);
         if (OnlyDoctors)
             requete += " and CorMedecin = 1";
-        QList<QVariant> cordata = db->getFirstRecordFromStandardSelectSQL(requete, ok, tr("Impossible de retrouver le dossier de ce correspondant"));
+        QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(requete, ok, tr("Impossible de retrouver le dossier de ce correspondant"));
         if (!ok || cordata.size() == 0)
             return;
         //UpMessageBox::Watch(this,requete);
@@ -418,7 +418,7 @@ void dlg_identificationcorresp::ReconstruitListeSpecialites()
     ui->SpecomboBox->clear();
     QStringList ListSpec;
     QString req = "SELECT idspecialite, nomspecialite FROM " NOM_TABLE_SPECIALITES " order by nomspecialite";
-    QList<QList<QVariant>> speclist = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> speclist = db->StandardSelectSQL(req,ok);
     if (!ok) return;
     for (int i = 0; i < speclist.size(); i++)
     {

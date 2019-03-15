@@ -480,7 +480,7 @@ void dlg_documents::DocCellEnter(UpLineEdit *line)
                 " where iddocument in (select iddocument from " NOM_TABLE_JOINTURESDOCS
                 " where idmetadocument = " + QString::number(idMetaDoc) + ")";
         //UpMessageBox::Watch(this,req);
-        QList<QList<QVariant>> listdocs = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
         QString resume = "";
         if (listdocs.size()>0)
         {
@@ -1789,7 +1789,7 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
         return false;
     }
     bool a = false;
-    QList<QList<QVariant>> listdocs;
+    QList<QVariantList> listdocs;
     bool ok;
     listdocs = db->StandardSelectSQL(req,ok);
     if (listdocs.size() > 0)
@@ -1818,7 +1818,7 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
     bool ok;
     QString idDossier = QString::number(iddoss);
     QString req = "select idDocument from " NOM_TABLE_JOINTURESDOCS " where idMetaDocument = " + idDossier;
-    QList<QList<QVariant>> listdocmts = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> listdocmts = db->StandardSelectSQL(req,ok);
     if (listdocmts.size() > 0)
     {
         QStringList listiddocs;
@@ -1849,7 +1849,7 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
                                     {
                                         req = "select idDocument from " NOM_TABLE_JOINTURESDOCS
                                                 " where idMetaDocument = " + ui->DossiersupTableWidget->item(j,2)->text();
-                                        QList<QList<QVariant>> listdocmts2 = db->StandardSelectSQL(req,ok);
+                                        QList<QVariantList> listdocmts2 = db->StandardSelectSQL(req,ok);
                                         if (listdocmts2.size() > 0)
                                         {
                                             QStringList listid;
@@ -2480,7 +2480,7 @@ void dlg_documents::InsertDossier(int row)
         QString idmetadoc;
         requete = "select idmetadocument from " NOM_TABLE_METADOCUMENTS " where ResumeMetadocument = '" + Utils::correctquoteSQL(line->text().left(100)) + "'";
         bool ok;
-        QList<QList<QVariant>> listdocmts = db->StandardSelectSQL(requete,ok);
+        QList<QVariantList> listdocmts = db->StandardSelectSQL(requete,ok);
         if (listdocmts.size()>0)
         {
             idmetadoc = listdocmts.at(0).at(0).toString();
@@ -2595,7 +2595,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
                   " from " NOM_TABLE_PATIENTS
                   " where idPat = " + QString::number(gidPatient);
     bool ok;
-    QList<QList<QVariant>> listpat = db->StandardSelectSQL(req,ok,tr("Impossible de retrouver la date de naissance de ce patient"));
+    QList<QVariantList> listpat = db->StandardSelectSQL(req,ok,tr("Impossible de retrouver la date de naissance de ce patient"));
     if (!ok)
         texte.replace("{{DDN}}"                 ,"xx xx xxxx");
     QString Sexe                        = listpat.at(0).at(1).toString();
@@ -2606,7 +2606,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     req = "select idcormedmg, cornom, corprenom, corsexe "
           " from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp, " NOM_TABLE_CORRESPONDANTS " cor "
           " where idPat = " + QString::number(gidPatient) + " and rmp.idcormedmg = cor.idcor";
-    QList<QList<QVariant>> listdatapat = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> listdatapat = db->StandardSelectSQL(req,ok);
 
     texte.replace("{{" + DATEDOC + "}}"         , QDate::currentDate().toString(tr("d MMMM yyyy")));
     texte.replace("{{" + NOMPAT + "}},"         , gNomPat + ",");
@@ -2662,10 +2662,10 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     {
         req = "select K1OD, K2OD, AxeKOD, DioptrieK1OD, DioptrieK2OD, DioptrieKOD, K1OG, K2OG, AxeKOG, DioptrieK1OG, DioptrieK2OG, DioptrieKOG from " NOM_TABLE_DONNEES_OPHTA_PATIENTS
               " where idpat = " + QString::number(gidPatient) + " and (K1OD <> 'null' or K1OG <> 'null')";
-        QList<QList<QVariant>> listker = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> listker = db->StandardSelectSQL(req,ok);
         if (listker.size()>0)
         {
-            QList<QVariant> ker = listker.last();
+            QVariantList ker = listker.last();
             QString kerato = "";
             if (ker.at(0).toDouble()>0)
             {
@@ -2694,10 +2694,10 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     {
         req = "select FormuleOD, FormuleOG from " NOM_TABLE_REFRACTION
               " where idpat = " + QString::number(gidPatient) + " and (FormuleOD <> 'null' or FormuleOG <> 'null') and QuelleMesure = 'R'";
-        QList<QList<QVariant>> listref = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> listref = db->StandardSelectSQL(req,ok);
         if (listref.size()>0)
         {
-            QList<QVariant> ref = listref.last();
+            QVariantList ref = listref.last();
             QString refract = "";
             if (ref.at(0).toString() != "")
                 refract += "<font color = " + proc->CouleurTitres + "><b>" + tr("OD:") + "</b></font> " + ref.at(0).toString();
@@ -2724,7 +2724,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
               "select idcormedspe2, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
               " where idPat = " + QString::number(gidPatient) + " and rmp.idcormedspe2 = cor.idcor";
         //qDebug() << req;
-        QList<QList<QVariant>> listcor = db->StandardSelectSQL(req,ok);
+        QList<QVariantList> listcor = db->StandardSelectSQL(req,ok);
         if (listcor.size()==0)
             texte.replace(reg,tr("PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT"));
         else if (listcor.size()==1)
@@ -2788,7 +2788,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
                         req += QString::number(glistidCor.at(i)) + ")";
                 }
                 //qDebug() << req;
-                QList<QList<QVariant>> listtxt = db->StandardSelectSQL(req,ok);
+                QList<QVariantList> listtxt = db->StandardSelectSQL(req,ok);
                 for (int j=0; j<listtxt.size(); j++)
                 {
                     QString txtdef = texte;
@@ -2836,7 +2836,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
         glisttxt << texte;
 }
 
-void dlg_documents::ChoixCorrespondant(QList<QList<QVariant>> listcor)
+void dlg_documents::ChoixCorrespondant(QList<QVariantList> listcor)
 {
     glistidCor.clear();
     gAskCorresp                 = new UpDialog(this);
@@ -2939,7 +2939,7 @@ void dlg_documents::Remplir_TableWidget()
     req += " and ResumeDocument LIKE '" + Utils::correctquoteSQL(ui->ChercheupLineEdit->text()) + "%'";
     req += " ORDER BY ResumeDocument";
     bool ok;
-    QList<QList<QVariant>> listdocs = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
     if (!ok)
         return;
     ui->DocupTableWidget->setRowCount(listdocs.size());
@@ -3052,7 +3052,7 @@ void dlg_documents::Remplir_TableWidget()
            " and doc.docpublic is null)\n";
     req += " ORDER BY ResumeMetaDocument;";
     //UpMessageBox::Watch(this,RemplirtableDossiersrequete);
-    QList<QList<QVariant>> listdossiers = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> listdossiers = db->StandardSelectSQL(req,ok);
     if (!ok)
         return;
 
@@ -3351,7 +3351,7 @@ bool dlg_documents::VerifDocumentPublic(int row, bool msg)
     QString req = "select idmetadocument, resumemetadocument from " NOM_TABLE_METADOCUMENTS
                   " where idmetadocument in (select idmetadocument from " NOM_TABLE_JOINTURESDOCS " where iddocument = " + QString::number(iddoc) +
                   ") and public =1";
-    QList<QList<QVariant>> listdossiers = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> listdossiers = db->StandardSelectSQL(req,ok);
     if (listdossiers.size()>0)
     {
         if (msg)
@@ -3380,7 +3380,7 @@ void dlg_documents::VerifDossiers()
             {
                 QString req = "select idDocument from " NOM_TABLE_JOINTURESDOCS
                               " where idMetaDocument = " + ui->DossiersupTableWidget->item(j,2)->text();
-                QList<QList<QVariant>> listdocs = db->StandardSelectSQL(req,ok);
+                QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
                 if (listdocs.size() > 0)
                 {
                     QStringList listid;
@@ -3416,7 +3416,7 @@ bool dlg_documents::VerifDossierPublic(int row, bool msg)
     QString req = "select iddocument, resumedocument from " NOM_TABLE_COURRIERS
                   " where iddocument in (select iddocument from " NOM_TABLE_JOINTURESDOCS " where idmetadocument = " + QString::number(iddossier) +
                   ") and docpublic is null";
-    QList<QList<QVariant>> listdocs = db->StandardSelectSQL(req,ok);
+    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
     if (listdocs.size()>0)
     {
         if (msg)

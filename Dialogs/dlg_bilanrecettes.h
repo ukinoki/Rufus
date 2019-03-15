@@ -39,7 +39,7 @@ private:
     Procedures                  *proc;
     QDate                       Debut, Fin;
     DataBase                    *db;
-    QList<QList<QVariant>>      gBilan;
+    QList<QVariantList>         gBilan;
     QCheckBox                   *gSupervcheckBox;
     QGroupBox                   *ClassmtupGrpBox;
     QHBoxLayout                 *glblbox, *hboxsup;
@@ -53,7 +53,7 @@ private:
     UpRadioButton               *ComptableRadio;
     UpRadioButton               *SupervRadio;
     User                        *gidUser;
-    QList<QList<QVariant>>      CalcBilan();
+    QList<QVariantList>         CalcBilan();
     double                      TotalMontant;
     double                      TotalRecu;
     double                      TotalRecEsp;

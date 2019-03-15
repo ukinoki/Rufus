@@ -134,7 +134,7 @@ bool dlg_bilanrecettes::getInitOK()
     return InitOK;
 }
 
-QList<QList<QVariant> > dlg_bilanrecettes::CalcBilan()
+QList<QVariantList> dlg_bilanrecettes::CalcBilan()
 {
     QMap<QString, QDate> DateMap = proc->ChoixDate();
     if (!DateMap.isEmpty())
@@ -641,7 +641,7 @@ void dlg_bilanrecettes::ExportTable()
 void dlg_bilanrecettes::NouvPeriode()
 {
     QDate debutavant, finavant;
-    QList<QList<QVariant>> bilanavant;
+    QList<QVariantList> bilanavant;
     CalcBilan();
     if (!InitOK)
     {
@@ -678,7 +678,7 @@ void dlg_bilanrecettes::RemplitLaTable()
     for (int i = 0; i < gBilan.size(); i++)
     {
         int col = 0;
-        QList<QVariant> rec = gBilan.at(i);
+        QVariantList rec = gBilan.at(i);
 
         A = rec.at(0).toString();                                                             // idActe - col = 0
         pItem0 = new QTableWidgetItem();

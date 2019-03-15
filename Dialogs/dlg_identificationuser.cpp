@@ -185,7 +185,7 @@ int dlg_identificationuser::ControleDonnees()
         req = "show grants for '" + Login + (db->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
         //qDebug() << req;
 #endif
-        QList<QVariant> grantsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        QVariantList grantsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (!ok || grantsdata.size()==0)
         {
             ui->IconServerOKupLabel->setPixmap(Icons::pxError());
@@ -211,7 +211,7 @@ int dlg_identificationuser::ControleDonnees()
         ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
         Utils::Pause(300);
         req = "SHOW TABLES FROM " NOM_BASE_CONSULTS " LIKE '%tilisateurs%'";
-        QList<QList<QVariant>> tablist = db->StandardSelectSQL(req, ok);
+        QList<QVariantList> tablist = db->StandardSelectSQL(req, ok);
         if (tablist.size()<2)
         {
             ui->IconBaseOKupLabel->setPixmap(Icons::pxError());

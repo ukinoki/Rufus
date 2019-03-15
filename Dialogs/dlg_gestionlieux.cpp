@@ -267,7 +267,7 @@ void dlg_GestionLieux::ModifLieu()
     QString req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE
                   " where idLieu = " + QString::number(idLieuAModifier);
     //qDebug() << req;
-    QList<QVariant> lieudata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    QVariantList lieudata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && lieudata.size()>0)
         leditnom    ->setText(lieudata.at(1).toString());
     leditadr1   ->setText(lieudata.at(2).toString());
@@ -364,7 +364,7 @@ void dlg_GestionLieux::ReconstruitModel()
     QStandardItem *pitem7;
     QStandardItem *pitem8;
 
-    QList<QList<QVariant>> listlieux = db->StandardSelectSQL("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE,ok);
+    QList<QVariantList> listlieux = db->StandardSelectSQL("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE,ok);
     if(!ok)
         return;
     for (int i=0; i<listlieux.size(); i++)
@@ -425,7 +425,7 @@ void dlg_GestionLieux::ReconstruitModel()
         tabLM->setRowHeight(i, h);
     bool ok;
     idlieuserveur = -1;
-    QList<QVariant> serveurLieudata = db->getFirstRecordFromStandardSelectSQL("select idlieupardefaut from " NOM_TABLE_PARAMSYSTEME, ok);
+    QVariantList serveurLieudata = db->getFirstRecordFromStandardSelectSQL("select idlieupardefaut from " NOM_TABLE_PARAMSYSTEME, ok);
     if (ok && serveurLieudata.size()>0)
         idlieuserveur = serveurLieudata.at(0).toInt();
 }

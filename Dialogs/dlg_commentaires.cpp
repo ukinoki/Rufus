@@ -883,7 +883,7 @@ void dlg_commentaires::Remplir_TableView()
                 ((proc->UserParent() != proc->UserSuperviseur())&&(proc->UserParent() != gidUser)? " Or idUser = " + QString::number(proc->UserParent()) : "") +
               " ORDER BY ResumeComment";
     bool ok;
-    QList<QList<QVariant>> listcom = db->StandardSelectSQL(Remplirtablerequete, ok);
+    QList<QVariantList> listcom = db->StandardSelectSQL(Remplirtablerequete, ok);
     if (!ok)
         return;
     ui->ComupTableWidget->setRowCount(listcom.size());

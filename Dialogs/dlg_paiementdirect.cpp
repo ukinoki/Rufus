@@ -363,7 +363,7 @@ void dlg_paiementdirect::Annuler()
         for (int i = 0; i < ListeActesAModifier.size(); i++)
         {
             requete = "select idacte FROM " NOM_TABLE_TYPEPAIEMENTACTES " where idActe = " + QString::number(ListeActesAModifier.at(i));
-            QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+            QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
             if (ok && actdata.size() == 0)
             {
                 requete = "INSERT INTO " NOM_TABLE_TYPEPAIEMENTACTES " (idActe,TypePaiement) VALUES "
@@ -694,7 +694,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
         int ab      = ui->SalleDAttenteupTableWidget->selectedRanges().at(0).topRow();
         gidRecette  = ui->SalleDAttenteupTableWidget->item(ab,0)->text().toInt();
         requete = "SELECT idRecette FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(gidRecette);
-        QList<QVariant> recdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+        QVariantList recdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         if (ok && recdata.size() == 0)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment"),
@@ -706,7 +706,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
         requete = "SELECT idActe FROM " NOM_TABLE_LIGNESPAIEMENTS
                 " WHERE idRecette = " + QString::number(gidRecette) +
                 " AND idActe IN (SELECT idActe FROM " NOM_TABLE_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userConnected->id()) + ")";
-        QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+        QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         if (ok && actdata.size() > 0)
         {
             UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment."),
@@ -733,7 +733,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
                   " NomTiers, Commission, Monnaie, idRemise, EnAttente,"
                   " EnregistrePar, TypeRecette, datediff(DateEnregistrement,NOW()) as Delai"
                   " FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + QString::number(gidRecette);
-        QList<QVariant> recettedata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
+        QVariantList recettedata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
         if (!ok || recettedata.size()==0)
             return;
         //qDebug() << requete;
@@ -826,7 +826,7 @@ void dlg_paiementdirect::Slot_ModifiePaiement()
         for (int i = 0; i < ListeActesAModifier.size(); i++)
         {
             requete = "SELECT idActe FROM " NOM_TABLE_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(ListeActesAModifier.at(i));
-            QList<QList<QVariant>> actlist = db->StandardSelectSQL(requete, ok);
+            QList<QVariantList> actlist = db->StandardSelectSQL(requete, ok);
             if (actlist.size() > 1)
                 GratuitImpayeVisible = false;
             if (actlist.size() == 1)
@@ -1438,7 +1438,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                           " WHERE lig.idRecette = rec.idRecette\n"
                           " AND lig.idActe = " + TextidActe + "\n"
                           " ORDER BY DatePaiement DESC, NomTiers";
-            QList<QList<QVariant>> reclist = db->StandardSelectSQL(requete, ok);
+            QList<QVariantList> reclist = db->StandardSelectSQL(requete, ok);
             RemplirTableWidget(ui->SalleDAttenteupTableWidget,"Paiements",reclist,false,Qt::Unchecked);
             if (reclist.size() == 0)
             {
@@ -1489,7 +1489,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         // on détermine si le paiement cliqué est un tiers payant ou un paiement direct
         QString TextidRecette   = TableOrigine->item(Rangee,0)->text();
         requete =   "SELECT TiersPayant FROM " NOM_TABLE_RECETTES " WHERE idRecette = " + TextidRecette;
-        QList<QVariant> tiersdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+        QVariantList tiersdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         if (!ok)
             return;
         if (tiersdata.size() > 0)
@@ -1531,14 +1531,14 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                         " ORDER BY ActeDate DESC, PatNom, PatPrenom";
 
             //UpMessageBox::Watch(this,requete);
-            QList<QList<QVariant>> pmtlist = db->StandardSelectSQL(requete, ok);
+            QList<QVariantList> pmtlist = db->StandardSelectSQL(requete, ok);
 
             RemplirTableWidget(ui->DetailupTableWidget,"Actes",pmtlist,false,Qt::Unchecked);
 
             // Remplir les infos sur la recette concernée
             requete =   "SELECT idRecette, idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, CompteVirement, BanqueCheque, TiersPayant, NomTiers, Commission, Monnaie, idRemise, EnAttente, EnregistrePar, TypeRecette FROM " NOM_TABLE_RECETTES
                         " WHERE idRecette = " + TextidRecette;
-            QList<QVariant> recdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
+            QVariantList recdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
             if (!ok || recdata.size()==0)
                 return;
             ui->dateEdit->setDate(recdata.at(2).toDate());
@@ -1870,7 +1870,7 @@ void dlg_paiementdirect::PoseVerrouCompta(int ActeAVerrouiller)
     QString verrourequete = "select idActe from " NOM_TABLE_VERROUCOMPTAACTES " where idActe = " + QString::number(ActeAVerrouiller);
     qDebug() << verrourequete;
     //UpMessageBox::Watch(this,verrourequete);
-    QList<QVariant> actdata = db->getFirstRecordFromStandardSelectSQL(verrourequete, ok);
+    QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(verrourequete, ok);
     if (!ok)
         return;
     if (actdata.size() == 0)
@@ -1940,7 +1940,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 {
                     QString req = "SELECT PatNom FROM " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act"
                                   " WHERE pat.idPat = act.idPat and idActe = " + ui->DetailupTableWidget->item(0,0)->text();
-                    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+                    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
                     if (ok && patdata.size()>0)
                         ui->TireurChequelineEdit->setText(patdata.at(0).toString());
                 }
@@ -2247,7 +2247,7 @@ void dlg_paiementdirect::RemplitLesTables()
 
         //proc->Edit(requete);
         bool ok;
-        QList<QList<QVariant>> actlist = db->StandardSelectSQL(requete, ok);
+        QList<QVariantList> actlist = db->StandardSelectSQL(requete, ok);
         RemplirTableWidget(ui->ListeupTableWidget, "Actes", actlist, true, Qt::Unchecked);
         if (ui->ListeupTableWidget->rowCount() > 0)
             connect (ui->ListeupTableWidget,    SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
@@ -2332,7 +2332,7 @@ void dlg_paiementdirect::RemplitLesTables()
 
         //UpMessageBox::Watch(this,requete);
         bool ok;
-        QList<QList<QVariant>> actlist = db->StandardSelectSQL(requete, ok);
+        QList<QVariantList> actlist = db->StandardSelectSQL(requete, ok);
         RemplirTableWidget(ui->ListeupTableWidget,"Actes", actlist, false, Qt::Unchecked);
         if (ui->ListeupTableWidget->rowCount() > 0)
         {
@@ -2355,7 +2355,7 @@ void dlg_paiementdirect::RemplitLesTables()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Remplir les TableWidget ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QList<QVariant> > Tablelist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas)
+void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QVariantList> Tablelist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas)
 {
     QTableWidgetItem    *pItem1, *pItem2, *pItem3, *pItem4, *pItem5, *pItem6, *pItem7, *pItem8, *pItem9;
     QDoubleValidator *val;
@@ -2819,7 +2819,7 @@ int dlg_paiementdirect::EnregistreRecette()
                     QString ChercheNomPat = "SELECT PatNom FROM " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act"
                                             " WHERE pat.idPat = act.idPat"
                                             " AND act.idActe = " + ui->DetailupTableWidget->item(0,0)->text();
-                    QList<QVariant> patdata = db->getFirstRecordFromStandardSelectSQL(ChercheNomPat, ok);
+                    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(ChercheNomPat, ok);
                     if (!ok)
                     {
                         db->rollback();
@@ -2844,7 +2844,7 @@ int dlg_paiementdirect::EnregistreRecette()
             }
 
             QString ChercheMaxrequete = "SELECT Max(idRecette) FROM " NOM_TABLE_RECETTES;
-            QList<QVariant> recdata = db->getFirstRecordFromStandardSelectSQL(ChercheMaxrequete, ok);
+            QVariantList recdata = db->getFirstRecordFromStandardSelectSQL(ChercheMaxrequete, ok);
             if (!ok)
             {
                 db->rollback();
@@ -2871,7 +2871,7 @@ int dlg_paiementdirect::EnregistreRecette()
             if (QLocale().toDouble(ui->CommissionlineEdit->text()) > 0)
             {
                 QString SelectMaxrequete = "select max(iddep) + 1 from " NOM_TABLE_DEPENSES;
-                QList<QVariant> maxdata = db->getFirstRecordFromStandardSelectSQL(SelectMaxrequete, ok);
+                QVariantList maxdata = db->getFirstRecordFromStandardSelectSQL(SelectMaxrequete, ok);
                 if (!ok)
                 {
                     db->rollback();
@@ -2892,7 +2892,7 @@ int dlg_paiementdirect::EnregistreRecette()
                 InsertDeprequete +=  "', 'Commission " + Utils::correctquoteSQL(ui->TierscomboBox->currentText());             // Objet
                 InsertDeprequete +=  "', " +  QString::number(QLocale().toDouble(ui->CommissionlineEdit->text()));              // Montant
                 QString chercheFamFiscale = "select Famfiscale from " NOM_TABLE_RUBRIQUES2035 " where reffiscale = '" + Utils::correctquoteSQL(intitule2035) +"'";
-                QList<QVariant> famfiscdata = db->getFirstRecordFromStandardSelectSQL(InsertDeprequete, ok);
+                QVariantList famfiscdata = db->getFirstRecordFromStandardSelectSQL(InsertDeprequete, ok);
                 if (!ok)
                 {
                     db->rollback();
@@ -3436,7 +3436,7 @@ bool dlg_paiementdirect::VerifVerrouCompta(UpTableWidget *TableAVerifier, int Ra
                      " WHERE idActe = "  + TableAVerifier->item(Rangee,0)->text() +
                      " AND PosePar = idUser";
     //UpMessageBox::Watch(this,ChercheVerrou);
-    QList<QVariant> verroudata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, ok);
+    QVariantList verroudata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, ok);
     if (ok && verroudata.size() > 0)
     {
         ui->VerrouilleParlabel->setText(tr("Acte Verrouillé par ") + verroudata.at(0).toString());
