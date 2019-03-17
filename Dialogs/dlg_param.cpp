@@ -2071,10 +2071,9 @@ void dlg_param::ModifParamAutoBackup()
             NoDayBupDefined = false;
             break;
         }
-    if (NoDirBupDefined && NoDayBupDefined)
-        return;
     if (NoDayBupDefined || NoDirBupDefined || IncorrectDirBupDefined)
     {
+        ui->EffacePrgSauvupPushButton->setEnabled(false);
         proc->EffaceScriptsBackup();
         return;
     }
@@ -2102,6 +2101,7 @@ void dlg_param::ModifParamAutoBackup()
     if (ui->DimancheradioButton->isChecked())
         days.setFlag(Procedures::Dimanche);
     proc->ParamAutoBackup(NomDirDestination, NomDirStockageImagerie, ui->HeureBackuptimeEdit->time(), days);
+    ui->EffacePrgSauvupPushButton->setEnabled(true);
 }
 
 void dlg_param::Slot_RestaureBase()
@@ -2327,6 +2327,19 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
     {
         ui->ModifBaselabel->setVisible(db->getMode() != DataBase::Poste);
         ui->ModifBaselabel->setEnabled(true);
+        if (db->getMode() == DataBase::Poste)
+        {
+            bool DirBupDefined = !QDir(ui->DirBackupuplineEdit->text()).exists();
+            bool DayBupDefined = false;
+            QList<QRadioButton*> listbut= ui->JourSauvegardegroupBox->findChildren<QRadioButton*>();
+            for (int i=0; i<listbut.size(); i++)
+                if (listbut.at(i)->isChecked())
+                {
+                    DayBupDefined = true;
+                    break;
+                }
+            ui->EffacePrgSauvupPushButton->setEnabled(DayBupDefined && DirBupDefined);
+        }
     }
 }
 

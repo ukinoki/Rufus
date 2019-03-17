@@ -4,6 +4,12 @@ DROP DATABASE IF EXISTS  `Images`;
 CREATE DATABASE IF NOT EXISTS `Images` DEFAULT CHARSET = utf8;
 USE `Images`;
 
+-- programmation de l'effacement du contenu de la table ImagesEchange
+DROP EVENT IF EXISTS VideImagesEchange;
+CREATE EVENT VideImagesEchange
+    ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23  00:00:00'
+    DO DELETE FROM `EchangeImages`;
+
 DROP TABLE IF EXISTS `EchangeImages`;
 CREATE TABLE `EchangeImages` (
 `idImpression` INT NOT NULL,
@@ -255,6 +261,11 @@ DROP DATABASE IF EXISTS  `ComptaMedicale`;
 CREATE DATABASE  IF NOT EXISTS `ComptaMedicale` DEFAULT CHARSET = utf8;
 USE `ComptaMedicale`;
 
+-- programmation de l'effacement des pdf et jpg contenus dans Factures
+DROP EVENT IF EXISTS VideFactures;
+CREATE EVENT VideFactures
+    ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23  00:00:00'
+    DO UPDATE Factures SET jpg = null, pdf = null;
 
 DROP TABLE IF EXISTS `archivesbanques`;
 CREATE TABLE `archivesbanques` (
@@ -976,10 +987,6 @@ CREATE USER IF NOT EXISTS 'dumprufus'@'localhost' IDENTIFIED BY 'bob';
 GRANT SELECT , SHOW DATABASES , LOCK TABLES , EVENT, SHOW VIEW ON * . * TO 'dumprufus'@'localhost' IDENTIFIED BY 'bob';
 ALTER USER 'dumprufus'@'localhost' IDENTIFIED BY 'bob' WITH MAX_QUERIES_PER_HOUR 0 MAX_CONNECTIONS_PER_HOUR 0 MAX_UPDATES_PER_HOUR 0 MAX_USER_CONNECTIONS 0 ;
 
-DROP EVENT IF EXISTS VideImagesEchange;
-CREATE EVENT VideImagesEchange
-ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 02:00:00'
-DO DELETE FROM Images.EchangeImages;
 
 
 

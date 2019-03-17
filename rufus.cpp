@@ -248,9 +248,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     // 10 - Vérification de la messagerie
     VerifMessages();
 
-    // 11 - Affichage des boutons bilan orthhoptique
+    // 11 - Affichage des boutons bilan orthoptique
     ui->CreerBOpushButton   ->setVisible(gDataUser->isOrthoptist());
     ui->CreerBOpushButton_2 ->setVisible(gDataUser->isOrthoptist());
+
+    //12 - mise à jour du programmateur de sauvegardes
+    proc->InitBackupAuto();
  }
 
 Rufus::~Rufus()

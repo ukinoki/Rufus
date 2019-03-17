@@ -120,7 +120,6 @@ Procedures::Procedures(QObject *parent) :
                 Utils::mmToInches(margemm) * printer->logicalDpiY(),
                 -Utils::mmToInches(margemm) * printer->logicalDpiX(),
                 -Utils::mmToInches(margemm) * printer->logicalDpiY());
-    InitBackupAuto();
 }
 
 void Procedures::ab(int i)
@@ -1015,7 +1014,6 @@ void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QT
     dumpProcess.start(load);
     dumpProcess.waitForFinished();
 #endif
-
     //programmation de l'effacement du contenu de la table ImagesEchange
     db->StandardSQL("Use " NOM_BASE_IMAGES);
     db->StandardSQL("DROP EVENT IF EXISTS VideImagesEchange");
@@ -1030,7 +1028,6 @@ void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QT
             "ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 " + timebackup.addSecs(-60).toString("HH:mm:ss") + "' "
             "DO UPDATE " NOM_TABLE_FACTURES " SET jpg = null, pdf = null";
     db->StandardSQL(req);
-
 }
 
 bool Procedures::VerifParamBackup(QString dirdestination, QTime time, Days days)
