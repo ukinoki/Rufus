@@ -2453,8 +2453,18 @@ un serveur hébergé sur le réseau local</string>
                  </property>
                 </widget>
                </item>
+               <item row="0" column="1">
+                <widget class="QLabel" name="DirBackuplabel">
+                 <property name="contextMenuPolicy">
+                  <enum>Qt::NoContextMenu</enum>
+                 </property>
+                 <property name="text">
+                  <string>Emplacement</string>
+                 </property>
+                </widget>
+               </item>
                <item row="2" column="1" colspan="3">
-                <widget class="QGroupBox" name="JourSauvegardegroupBox">
+                <widget class="QFrame" name="JourSauvegardeframe">
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
@@ -2473,8 +2483,11 @@ un serveur hébergé sur le réseau local</string>
                  <property name="contextMenuPolicy">
                   <enum>Qt::NoContextMenu</enum>
                  </property>
-                 <property name="title">
-                  <string/>
+                 <property name="frameShape">
+                  <enum>QFrame::Box</enum>
+                 </property>
+                 <property name="frameShadow">
+                  <enum>QFrame::Sunken</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_7">
                   <item>
@@ -2590,16 +2603,6 @@ un serveur hébergé sur le réseau local</string>
                    </widget>
                   </item>
                  </layout>
-                </widget>
-               </item>
-               <item row="0" column="1">
-                <widget class="QLabel" name="DirBackuplabel">
-                 <property name="contextMenuPolicy">
-                  <enum>Qt::NoContextMenu</enum>
-                 </property>
-                 <property name="text">
-                  <string>Emplacement</string>
-                 </property>
                 </widget>
                </item>
               </layout>
@@ -3227,7 +3230,7 @@ des organismes bancaires</string>
   <tabstop>FrontoupComboBox</tabstop>
   <tabstop>AutorefupComboBox</tabstop>
   <tabstop>RefracteurupComboBox</tabstop>
-  <tabstop>JourSauvegardegroupBox</tabstop>
+  <tabstop>JourSauvegardeframe</tabstop>
   <tabstop>LundiradioButton</tabstop>
   <tabstop>MardiradioButton</tabstop>
   <tabstop>MercrediradioButton</tabstop>

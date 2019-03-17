@@ -1953,12 +1953,13 @@ void dlg_param::Slot_DirPosteStockage()
 
 void dlg_param::Slot_EffacePrgSauvegarde()
 {
-    QList<QRadioButton*> listbutton2 = ui->JourSauvegardegroupBox->findChildren<QRadioButton*>();
+    QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
     for (int i=0; i<listbutton2.size(); i++)
        listbutton2.at(i)->setChecked(false);
     ui->DirBackupuplineEdit->setText("");
     ui->HeureBackuptimeEdit->setTime(QTime(0,0));
     proc->EffaceAutoBackup();
+    ui->EffacePrgSauvupPushButton->setEnabled(false);
 }
 
 bool dlg_param::VerifDirStockageImagerie()
@@ -2064,7 +2065,7 @@ void dlg_param::ModifParamAutoBackup()
     bool NoDirBupDefined        = (ui->DirBackupuplineEdit->text() == "");
     bool IncorrectDirBupDefined = !QDir(ui->DirBackupuplineEdit->text()).exists() && !NoDirBupDefined;
     bool NoDayBupDefined        = true;
-    QList<QRadioButton*> listbut= ui->JourSauvegardegroupBox->findChildren<QRadioButton*>();
+    QList<QRadioButton*> listbut= ui->JourSauvegardeframe->findChildren<QRadioButton*>();
     for (int i=0; i<listbut.size(); i++)
         if (listbut.at(i)->isChecked())
         {
@@ -2302,7 +2303,7 @@ void dlg_param::ConnectSlots()
      QList<QSpinBox*> listspin = ui->PosteParamtab->findChildren<QSpinBox*>();
     for (int i=0; i<listspin.size(); i++)
         connect(listspin.at(i),                     SIGNAL(valueChanged(int)),          this,   SLOT(Slot_EnableOKModifPosteButton()));
-    QList<QRadioButton*> listbutton2 = ui->JourSauvegardegroupBox->findChildren<QRadioButton*>();
+    QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
     for (int i=0; i<listbutton2.size(); i++)
         connect(listbutton2.at(i),                  SIGNAL(clicked(bool)),              this,   SLOT(Slot_ModifDateBackup()));
     connect(ui->HeureBackuptimeEdit,                SIGNAL(timeChanged(QTime)),         this,   SLOT(Slot_ModifDateBackup()));
@@ -2326,12 +2327,11 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
     if (widg == ui->Sauvegardeframe)
     {
         ui->ModifBaselabel->setVisible(db->getMode() != DataBase::Poste);
-        ui->ModifBaselabel->setEnabled(true);
         if (db->getMode() == DataBase::Poste)
         {
             bool DirBupDefined = !QDir(ui->DirBackupuplineEdit->text()).exists();
             bool DayBupDefined = false;
-            QList<QRadioButton*> listbut= ui->JourSauvegardegroupBox->findChildren<QRadioButton*>();
+            QList<QRadioButton*> listbut= ui->JourSauvegardeframe->findChildren<QRadioButton*>();
             for (int i=0; i<listbut.size(); i++)
                 if (listbut.at(i)->isChecked())
                 {
@@ -2340,6 +2340,8 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
                 }
             ui->EffacePrgSauvupPushButton->setEnabled(DayBupDefined && DirBupDefined);
         }
+        else
+            ui->ModifBaselabel->setEnabled(true);
     }
 }
 

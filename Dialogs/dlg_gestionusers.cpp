@@ -1492,7 +1492,7 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
     {
         pitem0 = new QTableWidgetItem;
         pitem1 = new QTableWidgetItem;
-        QList<QVariantList> actlst = db->StandardSelectSQL("select count(idActe) from Rufus.Actes where idUser = " + usrlst.at(i).at(0).toString() + " or creepar = " + usrlst.at(i).at(0).toString(), ok);
+        QList<QVariantList> actlst = db->StandardSelectSQL("select count(idActe) from " NOM_TABLE_ACTES " where idUser = " + usrlst.at(i).at(0).toString() + " or creepar = " + usrlst.at(i).at(0).toString(), ok);
         if (actlst.size()>0)
         {
             int nbactes = actlst.at(0).at(0).toInt();
