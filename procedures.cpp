@@ -659,10 +659,21 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
 }
 
 
-void Procedures::BackupWakeUp(QString NomDirDestination, QString NomDirStockageImagerie, QTime timebkup, Days days)
+void Procedures::BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days)
 {
+
     if (QTime::currentTime().toString("HH:mm:ss") == timebkup.toString("HH:mm")+ ":00")
     {
+        int day = QDate::currentDate().dayOfWeek();
+        Day daybkup = Lundi;
+        if (day==2)      daybkup = Mardi;
+        else if (day==3) daybkup = Mercredi;
+        else if (day==4) daybkup = Jeudi;
+        else if (day==5) daybkup = Vendredi;
+        else if (day==6) daybkup = Samedi;
+        else if (day==7) daybkup = Dimanche;
+        if (!days.testFlag(daybkup))
+            return;
         bool verifposteconnectes = VerifAutresPostesConnectes(false);
         if (verifposteconnectes)
         {
@@ -807,16 +818,14 @@ bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool 
     }
     if (dirSauv == "")
     {
-        if(!QDir(NomDirDestination).exists() || NomDirDestination == "")
-        {
-            QString dirSauv = QFileDialog::getExistingDirectory(Q_NULLPTR,tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base") + "\n" +
-                                                                          tr("Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
-            if (dirSauv.contains(" "))
-                UpMessageBox::Watch(Q_NULLPTR, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
-            if (dirSauv == "" || dirSauv.contains(" "))
-                return false;
-            NomDirDestination = dirSauv;
-        }
+        QString dirSauv = QFileDialog::getExistingDirectory(Q_NULLPTR,
+                                                            tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base") + "\n" + tr("Le nom de dossier ne doit pas contenir d'espace"),
+                                                            (QDir(NomDirDestination).exists()? NomDirDestination : QDir::homePath()));
+        if (dirSauv.contains(" "))
+            UpMessageBox::Watch(Q_NULLPTR, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+        if (dirSauv == "" || dirSauv.contains(" "))
+            return false;
+        NomDirDestination = dirSauv;
     }
     else
         NomDirDestination = dirSauv;
@@ -918,23 +927,23 @@ void Procedures::EffaceScriptsBackup()
         QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
 }
 
-void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime time, Days days)
+void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime timebackup, Days days)
 {
-    if (!VerifParamBackup(dirdestination, time, days))
+    if (!VerifParamBackup(dirdestination, timebackup, days))
     {
         EffaceScriptsBackup();
         return;
     }
     DefinitScriptBackup(dirdestination, dirimagerie);
-#ifdef Q_OS_LINUX
+//#ifdef Q_OS_LINUX
     gTimerBackup.stop();
     gTimerBackup.start(1000);
-    connect(&gTimerBackup, &QTimer::timeout, this, [=] {BackupWakeUp(dirdestination, dirimagerie, timebackup, days);});
-#endif
+    connect(&gTimerBackup, &QTimer::timeout, this, [=] {BackupWakeUp(dirdestination, timebackup, days);});
+//#endif
 #ifdef Q_OS_MACX
     // elaboration de rufus.bup.plist
-    QString heure   = time.toString("H");
-    QString minute  = time.toString("m");
+    QString heure   = timebackup.toString("H");
+    QString minute  = timebackup.toString("m");
     QString jourprg;
     QString a = (days>1? "\t": "");
     if (days>1)
@@ -1011,14 +1020,14 @@ void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QT
     db->StandardSQL("Use " NOM_BASE_IMAGES);
     db->StandardSQL("DROP EVENT IF EXISTS VideImagesEchange");
     QString req =   "CREATE EVENT VideImagesEchange "
-            "ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 " + time.addSecs(-60).toString("HH:mm:ss") + "' "
+            "ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 " + timebackup.addSecs(-60).toString("HH:mm:ss") + "' "
             "DO DELETE FROM " NOM_TABLE_ECHANGEIMAGES;
     db->StandardSQL(req);
     //programmation de l'effacement des pdf et jpg contenus dans Factures
     db->StandardSQL("Use " NOM_BASE_COMPTA);
     db->StandardSQL("DROP EVENT IF EXISTS VideFactures");
     req =   "CREATE EVENT VideFactures "
-            "ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 " + time.addSecs(-60).toString("HH:mm:ss") + "' "
+            "ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 " + timebackup.addSecs(-60).toString("HH:mm:ss") + "' "
             "DO UPDATE " NOM_TABLE_FACTURES " SET jpg = null, pdf = null";
     db->StandardSQL(req);
 
@@ -1032,6 +1041,7 @@ bool Procedures::VerifParamBackup(QString dirdestination, QTime time, Days days)
         return false;
     if (days<1)
         return false;
+    return true;
 }
 //--------------------------------------------------------------------------------------------------------
 // fin sauvegardes

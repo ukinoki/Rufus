@@ -154,18 +154,18 @@ public:
                 Vendredi    = 0x10,
                 Samedi      = 0x20,
                 Dimanche    = 0x40
-                };
+              };
     Q_DECLARE_FLAGS(Days, Day)
     QTimer                  gTimerBackup;
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true);
     bool                    Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie = "", bool OKImages = false, bool OKVideos = false);
-    void                    BackupWakeUp(QString NomDirDestination, QString NomDirStockageImagerie, QTime timebkup, Days days);                     // déclenche le backup à l'heure programmée
+    void                    BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days);                     // déclenche le backup à l'heure programmée
     void                    DefinitScriptBackup(QString NomDirDestination, QString NomDirStockageImagerie, bool AvecImages= true, bool AvecVideos = true);
     void                    EffaceAutoBackup();
     void                    EffaceScriptsBackup();
     bool                    ImmediateBackup(QString dirSauv = "", bool verifposteconnecte = true, bool full=false);
     void                    InitBackupAuto();
-    void                    ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime time, Days days);
+    void                    ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime timebackup, Days days);
     bool                    VerifParamBackup(QString dirdestination, QTime time, Days days);
 
     //bool                    VerifParamBackup();
