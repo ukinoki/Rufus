@@ -445,6 +445,8 @@ bool Utils::mkpath(QString path)
 void Utils::cleanfolder(const QString DirPath)
 {
     QDir dir(DirPath);
+    if (!dir.exists())
+        return;
     dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     QFileInfoList list = dir.entryInfoList();
 

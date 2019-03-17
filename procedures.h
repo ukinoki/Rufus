@@ -143,11 +143,40 @@ public:
     int                     VerifUserBase(QString Login, QString MDP);      // Vérifie que l'utilisateur existe dans la base
     bool                    IdentificationUser(bool ChgtUtilisateur = false);
 
+    //--------------------------------------------------------------------------------------------------------
+    // les sauvegardes
+    //--------------------------------------------------------------------------------------------------------
+    enum Day {
+                Lundi       = 0x1,
+                Mardi       = 0x2,
+                Mercredi    = 0x4,
+                Jeudi       = 0x8,
+                Vendredi    = 0x10,
+                Samedi      = 0x20,
+                Dimanche    = 0x40
+                };
+    Q_DECLARE_FLAGS(Days, Day)
+    QTimer                  gTimerBackup;
+    void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true);
+    bool                    Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie = "", bool OKImages = false, bool OKVideos = false);
+    void                    BackupWakeUp(QString NomDirDestination, QString NomDirStockageImagerie, QTime timebkup, Days days);                     // déclenche le backup à l'heure programmée
+    void                    DefinitScriptBackup(QString NomDirDestination, QString NomDirStockageImagerie, bool AvecImages= true, bool AvecVideos = true);
+    void                    EffaceAutoBackup();
+    void                    EffaceScriptsBackup();
+    bool                    ImmediateBackup(QString dirSauv = "", bool verifposteconnecte = true, bool full=false);
+    void                    InitBackupAuto();
+    void                    ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime time, Days days);
+    bool                    VerifParamBackup(QString dirdestination, QTime time, Days days);
 
+    //bool                    VerifParamBackup();
+    //--------------------------------------------------------------------------------------------------------
+    // fin sauvegardes
+    //--------------------------------------------------------------------------------------------------------
+
+private:
     //--------------------------------------------------------------------------------------------------------
     // definition du superviseur, de l'utilisateur qui enregistre la commpta et de l'utilistaion de la compta
     //--------------------------------------------------------------------------------------------------------
-private:
     //TODO : ICI info pour le rôle
     int                     gidCentre;
     bool                    gUseCotation;
@@ -189,10 +218,6 @@ public:
     UpDialog                *gAskBupRestore;
     UpLabel                 *labelResume, *labelVolumeLibre, *inflabel;
     QList<QImage>           listimage;
-    void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true);
-    void                    DefinitScriptBackup(QString path, bool AvecImages= true, bool AvecVideos = true);
-    bool                    ImmediateBackup(bool full=false);
-    void                    ModifParamBackup();
     double                  CalcBaseSize();
 
     // Les accesseurs
@@ -239,6 +264,7 @@ public:
 
     void                    setPosteImportDocs(bool a = true);
     QString                 PosteImportDocs();
+    bool                    VerifAutresPostesConnectes(bool msg = true);
     bool                    Verif_secure_file_priv();
     QString                 Var_secure_file_priv();
 
@@ -397,5 +423,6 @@ private slots:
     void                    Slot_ReponsePortSerie_Fronto(const QString &s);
     void                    Slot_ReponsePortSerie_Refracteur(const QString &s);
 };
+Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::Days)
 
 #endif // PROCEDURES_H

@@ -69,7 +69,7 @@ private:
     DataBase                *db;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
     QStringList             glistAppareils;
-    QTimer                  *gTimerVerifPosteImportDocs, *gTimerVerifTCP;;
+    QTimer                  gTimerVerifPosteImportDocs, gTimerVerifTCP;
     WidgetButtonFrame       *widgHN, *widgAssocCCAM, *widgAppareils;
     QWidget*                widgCCAM;
 
@@ -94,6 +94,8 @@ private:
     void                NouvAppareil();
     void                SupprAppareil();
     bool                VerifDirStockageImagerie();
+    void                VerifPosteImportDocs();
+    void                VerifTCP();
 
     void                ConnectTimers(bool = true);
 
@@ -132,8 +134,6 @@ private slots:
 
     void                Slot_RestaureBase();
     void                Slot_ReinitBase();
-    void                Slot_VerifPosteImportDocs();
-    void                Slot_VerifTCP();
 
 signals:
     void                click(QWidget *obj);
@@ -145,36 +145,42 @@ signals:
       La sauvegarde ne peut se programmer que sur le serveur et pas ailleurs. Il faut donc installer une instance de Rufus sur le serveur même si elle ne sert qu'à ça.
       Les éléments du cadre ui->Sauvegardeframe sont donc désactivés si on n'est pas en mode Poste, autrement dit, sur le serveur.
 
-      Les paramètres de programmation de la sauvegarde sont sauvegardés dans
-      . Rufus.ini qui ne sert en l'occurence qu'à gérer l'affichage des paramètres de sauvegarde
-
       La sauvegarde se fait par un script qui lance le prg mysqldump de sauvegarde des données.
       Ce script définit l'emplacement de la sauvegarde, le nom de la sauvegarde et détruit les sauvegardes datant de plus de 14 jours
-      . pour Mac c'est le script RufusBackupScript.sh situé dans /Users/nomdutlisateur/Documents/Rufus
-      La programmation de la sauvegarde se fait par un autre script qui va déterminer les jours de la semaine et l'heure de la sauvegarde.
-      . Pour Mac, c'est le fichier xml rufus.bup.plist situé dans /Users/nomutilisateur/Library/LaunchAgents. Ce fichier est chargé au démarrage par le launchd Apple.
+      . C'est le script RufusBackupScript.sh situé dans /Users/nomdutlisateur/Documents/Rufus
+      Sous MacOS, la programmation de l'éxécution de ce script se fait par un fichier xml qui va déterminer les jours de la semaine et l'heure de la sauvegarde.
+      . c'est le fichier xml rufus.bup.plist situé dans /Users/nomutilisateur/Library/LaunchAgents.
+      . Ce fichier est chargé au démarrage de la machine par le launchd Apple.
+      . Il est donc éxécuté même quand Rufus ne tourne pas
+      Sous Linux, c'est un système de timer qui lance la sauvegarde et le programme dooit donc tourner pour que la sauvegare se fasse (pas trouvé le moyen de modifier la crontab depuis Qt - pas trop cherché non plus)
 
-      Au chargement de la classe dlg_param, les données de Rufus.ini sont récupérées pour régler l'affichage des données dans  ui->Sauvegardeframe.
+      Au chargement de la classe dlg_param, les données de programmation sont récupérées à partir de la table ParametresSysteme pour régler l'affichage des données dans  ui->Sauvegardeframe.
 
       Une modification de l'emplacement de sauvegarde se fait par un clic sur le bouton ui->DirBackuppushButton qui va lancer le slot Slot_ModifDirBachup()
       Un changement d'heure ou de jour lance le slot Slot_ModifScriptList().
       Le bouton ui->EffacePrgSauvupPushButton réinitialise la programmation en déclenchant le slot Slot_EffacePrgSauvegarde()
-          Ce slot annule les données de programmation dans rufus.ini,`
-            réinitialise l'affichage dans ui->Sauvegardeframe,`
-            supprime le script de sauvegarde RufusBackupScript.sh
-            et le script de programmation rufus.bup.plist
-            et, sur Mac, décharge ce fichier du launchd
-      En cas de modification des parametres de sauvegarde, si ces paramètres sont complets, la fonction ModifParamBackup():
+          Ce slot réinitialise l'affichage dans ui->Sauvegardeframe,
+            et appelle la fonction Procedures::EffaceAutoBackup() qui va`
+                supprimer le script de sauvegarde RufusBackupScript.sh
+                sur Mac, supprimer le script de programmation rufus.bup.plist et le décharger du launchd
+                sur Linux, stoppe le timer de sauvegarde
+      En cas de modification des parametres de sauvegarde, si ces paramètres sont complets, la fonction ModifParamAutoBackup():
             * vérifie que la paramètrage de la sauvegarde est complet
-            * va créer le fichier RufusScriptBackup.sh (fonction proc->DefinitScriptBackup(NomDirStockageImagerie)) et enregistrer l'emplacement de sauvegarde dans rufus.ini
-            * va  modifier le fichier xml rufus.bup.plist, recharger ce fichier dans le launchd et enregistrer les données de programmation dans le rufus.ini.
+            * appelle la fonction Procedures::ParamAutoBackup() qui va
+                * créer le fichier RufusScriptBackup.sh (fonction Procedures::DefinitScriptBackup()
+                * sur Mac, modifier le fichier xml rufus.bup.plist et recharger ce fichier.
+                * sur Linux, lance le timer de sauvegarde
+      Une sauvegarde immédiate est effectuée par un clic sur le bouton ui->ImmediatBackupupPushButton qui lance la fonction Slot_ImmediateBackup()
+      Après vérification de l'absence d'autres utilisateurs connectés, cette fonction lance la fonction Procedures::ImmediateBackup()
+      Cette fonction redéfinit un script de sauvegarde temporaire après une boîte de dialogue de sélection des éléments à sauvegarder
+      puis elle rétablit le script original s'il y en avait un.
      */
 private slots:
     void                    Slot_ModifDirBackup();
     void                    Slot_ModifDateBackup();
     void                    Slot_EffacePrgSauvegarde();
 private:
-    void                    ModifParamBackup();
+    void                    ModifParamAutoBackup();
     bool                    gModifBackup;
 };
 #endif // DLG_PARAM_H

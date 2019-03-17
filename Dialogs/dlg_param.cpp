@@ -384,12 +384,10 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
         ui->NonPrioritaireImportDocscheckBox->setChecked(true);
         proc->gsettingsIni->setValue("BDD_LOCAL/PrioritaireGestionDocs","NORM");
     }
-    gTimerVerifTCP = new QTimer(this);
-    gTimerVerifTCP->start(5000);
-    connect (gTimerVerifTCP,    SIGNAL(timeout()),                          this,       SLOT(Slot_VerifTCP()));
-    gTimerVerifPosteImportDocs = new QTimer(this);
-    gTimerVerifPosteImportDocs->start(5000);
-    connect (gTimerVerifPosteImportDocs,    SIGNAL(timeout()),              this,       SLOT(Slot_VerifPosteImportDocs()));
+    gTimerVerifTCP.start(5000);
+    connect (&gTimerVerifTCP,               &QTimer::timeout,           this,   &dlg_param::VerifTCP);
+    gTimerVerifPosteImportDocs.start(500);
+    connect (&gTimerVerifPosteImportDocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
     connect (proc,                          &Procedures::ConnectTimers,     this,       [=] {ConnectTimers(proc->Connexion());});
 
     QVariantList VersionBasedata = db->getFirstRecordFromStandardSelectSQL("select VersionBase from " NOM_TABLE_PARAMSYSTEME, ok);
@@ -768,17 +766,17 @@ void dlg_param::ConnectTimers(bool a)
 {
     if (a)
     {
-        gTimerVerifPosteImportDocs  ->start(5000);
-        gTimerVerifTCP              ->start(5000);
-        connect (gTimerVerifPosteImportDocs,    SIGNAL(timeout()),  this,   SLOT(Slot_VerifPosteImportDocs()));
-        connect (gTimerVerifTCP,                SIGNAL(timeout()),  this,   SLOT(Slot_VerifTCP()));
+        gTimerVerifPosteImportDocs  .start(5000);
+        gTimerVerifTCP              .start(5000);
+        connect (&gTimerVerifPosteImportDocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
+        connect (&gTimerVerifTCP,               &QTimer::timeout,           this,   &dlg_param::VerifTCP);
     }
     else
     {
-        disconnect (gTimerVerifPosteImportDocs, SIGNAL(timeout()),  this,   SLOT(Slot_VerifPosteImportDocs()));
-        disconnect (gTimerVerifTCP,             SIGNAL(timeout()),  this,   SLOT(Slot_VerifTCP()));
-        gTimerVerifPosteImportDocs  ->stop();
-        gTimerVerifTCP              ->stop();
+        gTimerVerifPosteImportDocs  .disconnect();
+        gTimerVerifTCP              .disconnect();
+        gTimerVerifPosteImportDocs  .stop();
+        gTimerVerifTCP              .stop();
     }
 }
 
@@ -1187,25 +1185,21 @@ void dlg_param::NouvAppareil()
 
 void dlg_param::Slot_ImmediateBackup()
 {
-    bool ok;
-    QString NomDirDestination ("");
-    QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL("select DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
-    if (ok && dirdata.size()>0)
-        NomDirDestination = dirdata.at(0).toString();
-    if(!QDir(NomDirDestination).exists() || NomDirDestination == "")
+    if (!proc->VerifAutresPostesConnectes())
+        return;
+    QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
+    QString dirSauv         = QFileDialog::getExistingDirectory(this,
+                                                                tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
+                                                                   "Le nom de dossier ne doit pas contenir d'espace"),
+                                                                (QDir(dirsauvorigin).exists()? dirsauvorigin : QDir::homePath()),
+                                                                QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+    if (dirSauv.contains(" "))
     {
-        if (UpMessageBox::Question(this,
-                                   tr("Pas de destination"),
-                                   NomDirDestination == ""?
-                                   tr("Vous n'avez pas spécifié de dossier de destination\npour la sauvegarde\nVoulez-vous le faire maintenant?") :
-                                   tr("Le dossier de destination de sauvegarde") + "\n" +  NomDirDestination + "\n" + tr("nest pas valide\nVoulez-vous choisir un autre dossier?"),
-                                   UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                                   QStringList() << tr("Annuler") << tr("Choisir un dossier"))
-            == UpSmallButton::STARTBUTTON)
-            Slot_ModifDirBackup();
-        else return;
+        UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+        return;
     }
-    proc->ImmediateBackup();
+    if (dirSauv != "")
+        proc->ImmediateBackup(dirSauv, false);
 }
 
 void dlg_param::Slot_MAJActesCCAM(QString txt)
@@ -1865,22 +1859,36 @@ void dlg_param::Slot_ModifDirBackup()
     QString dirSauv         = QFileDialog::getExistingDirectory(this,tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
                                                                 "Le nom de dossier ne doit pas contenir d'espace"), QDir::homePath());
     if (dirSauv.contains(" "))
-    {
         UpMessageBox::Watch(this, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+    if (dirsauvorigin == dirSauv || dirSauv.contains(" "))
         return;
-    }
+
     ui->DirBackupuplineEdit ->setText(dirSauv);
-    if (dirsauvorigin != dirSauv)
-    {
-        QString req = "update " NOM_TABLE_PARAMSYSTEME " set DirBkup = '" + dirSauv + "'";
-        db->StandardSQL(req);
-        ModifParamBackup();
-    }
+    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set DirBkup = '" + dirSauv + "'");
+    ModifParamAutoBackup();
 }
 
-void dlg_param::Slot_ModifDateBackup()
+void dlg_param::Slot_ModifDateBackup()    //Modification de la date ou de l'heure et date du backup
 {
-    ModifParamBackup();
+    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set HeureBkup = '"    + ui->HeureBackuptimeEdit->time().toString("HH:mm") + "'");
+
+    QString LundiBkup       = (ui->LundiradioButton->isChecked()?   "1" : "NULL");
+    QString MardiBkup       = (ui->MardiradioButton->isChecked()?   "1" : "NULL");
+    QString MercrediBkup    = (ui->MercrediradioButton->isChecked()?"1" : "NULL");
+    QString JeudiBkup       = (ui->JeudiradioButton->isChecked()?   "1" : "NULL");
+    QString VendrediBkup    = (ui->VendrediradioButton->isChecked()?"1" : "NULL");
+    QString SamediBkup      = (ui->SamediradioButton->isChecked()?  "1" : "NULL");
+    QString DimancheBkup    = (ui->DimancheradioButton->isChecked()?"1" : "NULL");
+
+    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set LundiBkup = "      + LundiBkup +
+                                                        ", MardiBkup = "      + MardiBkup +
+                                                        ", MercrediBkup = "   + MercrediBkup +
+                                                        ", JeudiBkup = "      + JeudiBkup +
+                                                        ", VendrediBkup = "   + VendrediBkup +
+                                                        ", SamediBkup = "     + SamediBkup +
+                                                        ", DimancheBkup = "   + DimancheBkup);
+
+    ModifParamAutoBackup();
 }
 
 void dlg_param::Slot_DirLocalStockage()
@@ -1945,37 +1953,12 @@ void dlg_param::Slot_DirPosteStockage()
 
 void dlg_param::Slot_EffacePrgSauvegarde()
 {
-    QString Base = db->getBase();
-    if (Base == "")
-        return;
-    MDPVerifiedAdmin = Utils::VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), MDPVerifiedAdmin);
-    if (!MDPVerifiedAdmin)
-        return;
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardegroupBox->findChildren<QRadioButton*>();
     for (int i=0; i<listbutton2.size(); i++)
        listbutton2.at(i)->setChecked(false);
     ui->DirBackupuplineEdit->setText("");
     ui->HeureBackuptimeEdit->setTime(QTime(0,0));
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set HeureBkup = '',"
-                                                     " DirBkup = '',"
-                                                     " LundiBkup = NULL,"
-                                                     " MardiBkup = NULL,"
-                                                     " MercrediBkup = NULL,"
-                                                     " JeudiBkup = NULL,"
-                                                     " VendrediBkup = NULL,"
-                                                     " SamediBkup = NULL,"
-                                                     " DimancheBkup = NULL");
-#ifdef Q_OS_MACX
-    QString unload  = "bash -c \"/bin/launchctl unload \"" + QDir::homePath();
-    unload += SCRIPTPLISTFILE "\"\"";
-    QProcess dumpProcess(parent());
-    dumpProcess.start(unload);
-    dumpProcess.waitForFinished();
-    if (QFile::exists(QDir::homePath() + SCRIPTBACKUPFILE))
-        QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
-    if (QFile::exists(QDir::homePath() + SCRIPTPLISTFILE))
-        QFile::remove(QDir::homePath() + SCRIPTPLISTFILE);
-#endif
+    proc->EffaceAutoBackup();
 }
 
 bool dlg_param::VerifDirStockageImagerie()
@@ -2069,7 +2052,7 @@ bool dlg_param::VerifDirStockageImagerie()
     return true;
 }
 
-void dlg_param::ModifParamBackup()
+void dlg_param::ModifParamAutoBackup()
 {
     if (db->getMode() != DataBase::Poste)
         return;
@@ -2077,7 +2060,7 @@ void dlg_param::ModifParamBackup()
     QString NomDirStockageImagerie ("");
     QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, ok);
     if (ok && dirdata.size()>0)
-        NomDirStockageImagerie = dirdata.at(0).toString();
+        NomDirStockageImagerie  = dirdata.at(0).toString();
     bool NoDirBupDefined        = (ui->DirBackupuplineEdit->text() == "");
     bool IncorrectDirBupDefined = !QDir(ui->DirBackupuplineEdit->text()).exists() && !NoDirBupDefined;
     bool NoDayBupDefined        = true;
@@ -2092,136 +2075,33 @@ void dlg_param::ModifParamBackup()
         return;
     if (NoDayBupDefined || NoDirBupDefined || IncorrectDirBupDefined)
     {
-#ifdef Q_OS_MACX
-        QString unload  = "bash -c \"/bin/launchctl unload \"" + QDir::homePath();
-        unload += SCRIPTPLISTFILE "\"\"";
-        QProcess dumpProcess(parent());
-        dumpProcess.start(unload);
-        dumpProcess.waitForFinished();
-        if (QFile::exists(QDir::homePath() + SCRIPTBACKUPFILE))
-            QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
-        if (QFile::exists(QDir::homePath() + SCRIPTPLISTFILE))
-            QFile::remove(QDir::homePath() + SCRIPTPLISTFILE);
-#endif
+        proc->EffaceScriptsBackup();
         return;
     }
 
     // ENREGISTREMENT DES PARAMETRES DE SAUVEGARDE
-    proc->DefinitScriptBackup(NomDirStockageImagerie);
-
-    //2. Heure et date du backup
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set HeureBkup = '"    + ui->HeureBackuptimeEdit->time().toString("HH:mm") + "'");
-
-    QString LundiBkup       = (ui->LundiradioButton->isChecked()?   "1" : "NULL");
-    QString MardiBkup       = (ui->MardiradioButton->isChecked()?   "1" : "NULL");
-    QString MercrediBkup    = (ui->MercrediradioButton->isChecked()?"1" : "NULL");
-    QString JeudiBkup       = (ui->JeudiradioButton->isChecked()?   "1" : "NULL");
-    QString VendrediBkup    = (ui->VendrediradioButton->isChecked()?"1" : "NULL");
-    QString SamediBkup      = (ui->SamediradioButton->isChecked()?  "1" : "NULL");
-    QString DimancheBkup    = (ui->DimancheradioButton->isChecked()?"1" : "NULL");
-
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set LundiBkup = "      + LundiBkup +
-                                                        ", MardiBkup = "      + MardiBkup +
-                                                        ", MercrediBkup = "   + MercrediBkup +
-                                                        ", JeudiBkup = "      + JeudiBkup +
-                                                        ", VendrediBkup = "   + VendrediBkup +
-                                                        ", SamediBkup = "     + SamediBkup +
-                                                        ", DimancheBkup = "   + DimancheBkup);
-
-#ifdef Q_OS_MACX
-    // elaboration de rufus.bup.plist
-    QString heure   = ui->HeureBackuptimeEdit->time().toString("H");
-    QString minute  = ui->HeureBackuptimeEdit->time().toString("m");
-    QString jourprg;
-    int njours = 0;
-    QList<QRadioButton*> listbutton2 = ui->JourSauvegardegroupBox->findChildren<QRadioButton*>();
-    for (int i=0; i<listbutton2.size(); i++)
-       if (listbutton2.at(i)->isChecked()) njours ++;
-    QString a = (njours>1? "\t": "");
-    if (njours>1)
-        jourprg += "\t\t<array>\n";
-
-    QString debutjour =
-        a + "\t\t<dict>\n" +
-        a + "\t\t\t<key>Weekday</key>\n" +
-        a + "\t\t\t<integer>";
-    QString finjour =
-        "</integer>\n" +
-        a + "\t\t\t<key>Hour</key>\n" +
-        a + "\t\t\t<integer>"+ heure + "</integer>\n" +
-        a + "\t\t\t<key>Minute</key>\n" +
-        a + "\t\t\t<integer>" + minute + "</integer>\n" +
-        a + "\t\t</dict>\n";
+    QString NomDirDestination;
+    dirdata = db->getFirstRecordFromStandardSelectSQL("select DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
+    if (ok && dirdata.size()>0)
+        NomDirDestination = dirdata.at(0).toString();
+    if (!QDir(NomDirDestination).exists())
+        return;
+    Procedures::Days days;
     if (ui->LundiradioButton->isChecked())
-        jourprg += debutjour + "1" + finjour;
+        days.setFlag(Procedures::Lundi);
     if (ui->MardiradioButton->isChecked())
-        jourprg += debutjour + "2" + finjour;
+        days.setFlag(Procedures::Mardi);
     if (ui->MercrediradioButton->isChecked())
-        jourprg += debutjour + "3" + finjour;
+        days.setFlag(Procedures::Mercredi);
     if (ui->JeudiradioButton->isChecked())
-        jourprg += debutjour + "4" + finjour;
+        days.setFlag(Procedures::Jeudi);
     if (ui->VendrediradioButton->isChecked())
-        jourprg += debutjour + "5" + finjour;
+        days.setFlag(Procedures::Vendredi);
     if (ui->SamediradioButton->isChecked())
-        jourprg += debutjour + "6" + finjour;
+        days.setFlag(Procedures::Samedi);
     if (ui->DimancheradioButton->isChecked())
-        jourprg += debutjour + "7" + finjour;
-    if (njours>1)
-        jourprg += "\t\t</array>\n";
-
-    QString plist = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-                    "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
-                    "<plist version=\"1.0\">\n"
-                        "\t<dict>\n"
-                            "\t\t<key>Label</key>\n"
-                            "\t\t<string>rufus.backup</string>\n"
-                            "\t\t<key>disabled</key>\n"
-                            "\t\t<false/>\n"
-                            "\t\t<key>ProgramArguments</key>\n"
-                            "\t\t<array>\n"
-                                "\t\t\t<string>bash</string>\n"
-                                "\t\t\t<string>" + QDir::homePath() + SCRIPTBACKUPFILE + "</string>\n"
-                            "\t\t</array>\n"
-                            "\t\t<key>StartCalendarInterval</key>\n"
-                            + jourprg +
-                        "\t</dict>\n"
-                    "</plist>\n";
-    if (QFile::exists(QDir::homePath() + SCRIPTPLISTFILE))
-        QFile::remove(QDir::homePath() + SCRIPTPLISTFILE);
-    QFile fplist(QDir::homePath() + SCRIPTPLISTFILE);
-    if (fplist.open(QIODevice::ReadWrite))
-    {
-        QTextStream out(&fplist);
-        out << plist;
-        fplist.close();
-    }
-
-    // relance du launchd
-    QString unload  = "bash -c \"/bin/launchctl unload \"" + QDir::homePath();
-    unload += SCRIPTPLISTFILE "\"\"";
-    QString load    = "bash -c \"/bin/launchctl load \""   + QDir::homePath();
-    load += SCRIPTPLISTFILE "\"\"";
-    QProcess dumpProcess(parent());
-    dumpProcess.start(unload);
-    dumpProcess.waitForFinished();
-    dumpProcess.start(load);
-    dumpProcess.waitForFinished();
-#endif
-
-    //programmation de l'effacement du contenu de la table ImagesEchange
-    db->StandardSQL("Use " NOM_BASE_IMAGES);
-    db->StandardSQL("DROP EVENT IF EXISTS VideImagesEchange");
-    QString req =   "CREATE EVENT VideImagesEchange "
-            "ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 " + ui->HeureBackuptimeEdit->time().addSecs(-60).toString("HH:mm:ss") + "' "
-            "DO DELETE FROM " NOM_TABLE_ECHANGEIMAGES;
-    db->StandardSQL(req);
-    //programmation de l'effacement des pdf et jpg contenus dans Factures
-    db->StandardSQL("Use " NOM_BASE_COMPTA);
-    db->StandardSQL("DROP EVENT IF EXISTS VideFactures");
-    req =   "CREATE EVENT VideFactures "
-            "ON SCHEDULE EVERY 1 DAY STARTS '2018-03-23 " + ui->HeureBackuptimeEdit->time().addSecs(-60).toString("HH:mm:ss") + "' "
-            "DO UPDATE " NOM_TABLE_FACTURES " SET jpg = null, pdf = null";
-    db->StandardSQL(req);
+        days.setFlag(Procedures::Dimanche);
+    proc->ParamAutoBackup(NomDirDestination, NomDirStockageImagerie, ui->HeureBackuptimeEdit->time(), days);
 }
 
 void dlg_param::Slot_RestaureBase()
@@ -2239,7 +2119,7 @@ void dlg_param::Slot_ReinitBase()
     proc->ReinitBase();
 }
 
-void dlg_param::Slot_VerifTCP()
+void dlg_param::VerifTCP()
 {
     bool ok;
     QVariantList serverdata = db->getFirstRecordFromStandardSelectSQL("select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME, ok);
@@ -2251,7 +2131,7 @@ void dlg_param::Slot_VerifTCP()
                         + "<font color=\"green\"><b> " NOM_PORT_TCPSERVEUR "</b></font>");
 }
 
-void dlg_param::Slot_VerifPosteImportDocs()
+void dlg_param::VerifPosteImportDocs()
 {
     QString A = proc->PosteImportDocs();
     ui->LockParamGeneralupLabel->setEnabled(!A.contains(" - " NOM_ADMINISTRATEURDOCS));
