@@ -869,9 +869,9 @@ void Procedures::InitBackupAuto()
     if (db->getMode() != DataBase::Poste)
         return;
     Days days;
-    QString dirdestination;
-    QString dirimagerie;
-    QTime timebackup;
+    QString dirdestination ("");
+    QString dirimagerie("");
+    QTime timebackup = QTime(0,0,0);
 
     QString reqBkup = "select LundiBkup, MardiBkup, MercrediBkup, JeudiBkup, VendrediBkup, SamediBkup, DimancheBkup, HeureBkup, DirBkup, DirImagerie from " NOM_TABLE_PARAMSYSTEME;
     QVariantList Bkupdata = db->getFirstRecordFromStandardSelectSQL(reqBkup, ok);
@@ -887,7 +887,6 @@ void Procedures::InitBackupAuto()
         if (Bkupdata.at(5).toInt()==1) days.setFlag(Procedures::Samedi);
         if (Bkupdata.at(6).toInt()==1) days.setFlag(Procedures::Dimanche);
     }
-    if (VerifParamBackup(dirdestination, timebackup, days))
         ParamAutoBackup(dirdestination, dirimagerie, timebackup, days);
 }
 
