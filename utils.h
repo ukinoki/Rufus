@@ -88,6 +88,8 @@ public:
     static QString                  CalculeFormule(QMap<QString,QVariant>  Donnees,
                                                   QString Cote);                      // comme son nom l'indique
     static QString                  PrefixePlus(QString);                          // convertit en QString signé + ou - les valeurs QDouble de dioptries
+    static QStringList              DecomposeScriptSQL(QString nomficscript);
+
 };
 
 #endif // UTILS_H

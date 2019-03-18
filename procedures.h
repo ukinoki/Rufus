@@ -161,6 +161,7 @@ public:
     bool                    Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie = "", bool OKImages = false, bool OKVideos = false);
     void                    BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days);                     // déclenche le backup à l'heure programmée
     void                    DefinitScriptBackup(QString NomDirDestination, QString NomDirStockageImagerie, bool AvecImages= true, bool AvecVideos = true);
+    void                    DefinitScriptRestore(QStringList ListNomFiles);
     void                    EffaceAutoBackup();
     void                    EffaceScriptsBackup();
     bool                    ImmediateBackup(QString dirSauv = "", bool verifposteconnecte = true, bool full=false);
@@ -209,7 +210,6 @@ public:
     bool                    VerifRessources(QString Nomfile = "");
 
     bool                    Connexion_A_La_Base();
-    QStringList             DecomposeScriptSQL(QString nomficscript);
     bool                    ReinitBase();
     bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifUserConnectes = true);
     bool                    VerifBaseEtRessources();

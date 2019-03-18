@@ -517,3 +517,84 @@ QString Utils::PrefixePlus(QString Dioptr)                          // convertit
         return "";
 }
 
+/*!
+ * \brief Procedures::DecomposeScriptSQL(QString nomficscript)
+ * Cette fonction va décomposer un script SQL en une suite d'instructions SQL utilisables par Qt
+ * \param l'emplacement du fichier à traiter
+ * \return une QStringList avec la liste des instructions
+ * +++ ne marche pas toujours mais suffisant pour un script de sauvegarde de BDD généré par mysqldump
+ *  QStringList listinstruct = DecomposeScriptSQL(QDir::homePath() + "/Documents/Rufus/Ressources/basevierge.sql");
+    bool e = true;
+        foreach(const QString &s, listinstruct)
+        if (!db->StandardSQL(s))
+        {
+            e = false;
+            break;
+        }
+        a = (e? 0:99);
+        DumpFile.remove();
+        if (a==0)
+        {
+            ...
+        }
+ */
+QStringList Utils::DecomposeScriptSQL(QString nomficscript)
+{
+    QStringList listinstruct;
+    QFile file(nomficscript);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        listinstruct << "";
+        return QStringList();
+    }
+    QString queryStr(file.readAll());
+    file.close();
+    // On retire tous les commentaires, les tabulations, les espaces ou les retours à la ligne multiples
+    //        queryStr = queryStr.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)", QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
+    queryStr = queryStr.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/)",   QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
+    queryStr = queryStr.replace(QRegularExpression("(^;\\n)",                   QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
+    queryStr = queryStr.replace(QRegularExpression("(--.*\\n)",                 QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
+    queryStr = queryStr.replace(QRegularExpression("( +)",                      QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), " ");
+    queryStr = queryStr.replace(QRegularExpression("((\\t)+)",                  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), " ");
+    queryStr = queryStr.replace(QRegularExpression("(^ *)",                     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
+    queryStr = queryStr.replace(QRegularExpression("((\\n)+)",                  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
+    //Retire les espaces en début et fin de string
+    queryStr = queryStr.trimmed();
+
+    QString matched, delimiter, Atraiter;
+    QRegularExpression re("^(\\s|\\n)*DELIMITER\\s*(.|\\n)*END\\s*.\\n"); //isole les créations de procédure SQL dans le script
+
+    while (queryStr.size()>0 && queryStr.contains(";"))
+    {
+        //Edit(queryStr);
+        QRegularExpressionMatch match = re.match(queryStr);
+        if (match.hasMatch())  // --> c'est une procédure à créer
+        {
+            matched     = match.capturedTexts().at(0);
+            Atraiter    = matched.trimmed();
+            //Edit(Atraiter);
+            delimiter   = Atraiter.data()[Atraiter.size()-1];
+            //Edit(delimiter);
+            Atraiter.replace(QRegularExpression("DELIMITER\\s*"),"");
+            Atraiter.replace(delimiter,"");
+            Atraiter = Atraiter.replace(QRegularExpression("(^ *)",     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
+            Atraiter = Atraiter.replace(QRegularExpression("(^(\\n)+)", QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
+            Atraiter = Atraiter.replace(QRegularExpression("((\\n)+)",  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
+            //Edit(Atraiter);
+            queryStr.replace(0,matched.size(),"");
+        }
+        else                    // -- c'est une requête SQL
+        {
+            matched = queryStr.split(";\n", QString::SkipEmptyParts).at(0);
+            Atraiter = matched.trimmed()+ ";";
+            queryStr.replace(0,matched.size()+2,"");
+            queryStr = queryStr.replace(QRegularExpression("((\\n)+)",  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
+        }
+        queryStr = queryStr.replace(QRegularExpression("(^(\\n)*)",     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
+        listinstruct << Atraiter;
+    }
+    return listinstruct;
+
+    /* POUR CREER DES PROCEDURES AVEC Qt - cf fichier créer des procédures mysql avec QSt dans /assets/diagrams */
+}
+

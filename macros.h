@@ -155,8 +155,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOMFIC_PDF                                  "/Documents/Rufus/Ressources/pdf.pdf"
 #define NOMFIC_TEST                                 "/Documents/Rufus/Ressources/test.txt"
 #define NOMFIC_INI                                  "/Documents/Rufus/Rufus.ini"
-#define SCRIPTBACKUPFILE    "/Documents/Rufus/RufusScriptBackup.sh"
-#define SCRIPTPLISTFILE     "/Library/LaunchAgents/rufus.bup.plist"
+#define SCRIPTBACKUPFILE                            "/Documents/Rufus/RufusScriptBackup.sh"
+#define SCRIPTRESTOREFILE                           "/Documents/Rufus/RufusScriptRestore.sh"
+#define SCRIPTPLISTFILE                             "/Library/LaunchAgents/rufus.bup.plist"
 
 // Variables mysql
 #define MAX_ALLOWED_PACKET                          "16"

@@ -797,6 +797,49 @@ void Procedures::DefinitScriptBackup(QString NomDirDestination,QString NomDirSto
     }
 }
 
+void Procedures::DefinitScriptRestore(QStringList ListNomFiles)
+{
+    /*
+#!/bin/bash
+MYSQL_USER="Admin"
+MYSQL_PASSWORD="bob"
+MYSQL_PORT="3306"
+MYSQL=/usr/local/mysql/bin/mysql
+$MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File1"
+$MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File2"
+$MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
+...etc...
+    */
+    // élaboration du script de restore
+    QString scriptrestore = "#!/bin/bash";
+    scriptrestore += "\n";
+    QString cheminmysql;
+#ifdef Q_OS_MACX
+    cheminmysql = "/usr/local/mysql/bin";           // Depuis HighSierra on ne peut plus utiliser + Dir.absolutePath() + NOMDIR_LIBS2 - le script ne veut pas utiliser le client mysql du package (???)
+#endif
+#ifdef Q_OS_LINUX
+    cheminmysql = "/usr/bin";
+#endif
+    scriptrestore += "MYSQL=" + cheminmysql;
+    scriptrestore += "/mysql";
+    scriptrestore += "\n";
+    for (int i=0; i<ListNomFiles.size(); i++)
+    if (QFile(ListNomFiles.at(i)).exists())
+    {
+        scriptrestore += "$MYSQL -u " + gLoginUser() +  " -p" +  gMDPUser() + " -h localhost -P " + QString::number(db->getInstance()->getDataBase().port()) + " < " + ListNomFiles.at(i);
+        scriptrestore += "\n";
+    }
+    if (QFile::exists(QDir::homePath() + SCRIPTRESTOREFILE))
+        QFile::remove(QDir::homePath() + SCRIPTRESTOREFILE);
+    QFile fbackup(QDir::homePath() + SCRIPTRESTOREFILE);
+    if (fbackup.open(QIODevice::ReadWrite))
+    {
+        QTextStream out(&fbackup);
+        out << scriptrestore ;
+        fbackup.close();
+    }
+}
+
 /*!
  *  \brief ImmediateBackup()
  *  lance une sauvegarde immédiate de la base
@@ -2518,73 +2561,6 @@ QString Procedures::Var_secure_file_priv()
     return msg;
 }
 
-/*!
- * \brief Procedures::DecomposeScriptSQL(QString nomficscript)
- * Cette fonction va décomposer un script SQL en une suite d'instructions SQL utilisables par Qt
- * \param l'emplacement du fichier à traiter
- * \return une QStringList avec la liste des instructions
- * +++ ne marche pas toujours mais suffisant pour un script de sauvegarde de BDD généré par mysqldump
- */
-QStringList Procedures::DecomposeScriptSQL(QString nomficscript)
-{
-    QStringList listinstruct;
-    QFile file(nomficscript);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        listinstruct << "";
-        return QStringList();
-    }
-    QString queryStr(file.readAll());
-    file.close();
-    // On retire tous les commentaires, les tabulations, les espaces ou les retours à la ligne multiples
-    //        queryStr = queryStr.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)", QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/)",   QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("(^;\\n)",                   QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("(--.*\\n)",                 QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
-    queryStr = queryStr.replace(QRegularExpression("( +)",                      QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), " ");
-    queryStr = queryStr.replace(QRegularExpression("((\\t)+)",                  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), " ");
-    queryStr = queryStr.replace(QRegularExpression("(^ *)",                     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("((\\n)+)",                  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
-    //Retire les espaces en début et fin de string
-    queryStr = queryStr.trimmed();
-
-    QString matched, delimiter, Atraiter;
-    QRegularExpression re("^(\\s|\\n)*DELIMITER\\s*(.|\\n)*END\\s*.\\n"); //isole les créations de procédure SQL dans le script
-
-    while (queryStr.size()>0 && queryStr.contains(";"))
-    {
-        //Edit(queryStr);
-        QRegularExpressionMatch match = re.match(queryStr);
-        if (match.hasMatch())  // --> c'est une procédure à créer
-        {
-            matched     = match.capturedTexts().at(0);
-            Atraiter    = matched.trimmed();
-            //Edit(Atraiter);
-            delimiter   = Atraiter.data()[Atraiter.size()-1];
-            //Edit(delimiter);
-            Atraiter.replace(QRegularExpression("DELIMITER\\s*"),"");
-            Atraiter.replace(delimiter,"");
-            Atraiter = Atraiter.replace(QRegularExpression("(^ *)",     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-            Atraiter = Atraiter.replace(QRegularExpression("(^(\\n)+)", QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-            Atraiter = Atraiter.replace(QRegularExpression("((\\n)+)",  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
-            //Edit(Atraiter);
-            queryStr.replace(0,matched.size(),"");
-        }
-        else                    // -- c'est une requête SQL
-        {
-            matched = queryStr.split(";\n", QString::SkipEmptyParts).at(0);
-            Atraiter = matched.trimmed()+ ";";
-            queryStr.replace(0,matched.size()+2,"");
-            queryStr = queryStr.replace(QRegularExpression("((\\n)+)",  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
-        }
-        queryStr = queryStr.replace(QRegularExpression("(^(\\n)*)",     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-        listinstruct << Atraiter;
-    }
-    return listinstruct;
-
-    /* POUR CREER DES PROCEDURES AVEC Qt - cf fichier créer des procédures mysql avec QSt dans /assets/diagrams */
-}
-
 bool Procedures::ReinitBase()
 {
     if (!VerifAutresPostesConnectes())
@@ -2800,16 +2776,13 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             //Suppression de toutes les tables
             VideDatabases();
             int a = 99;
-
-            QStringList listinstruct = DecomposeScriptSQL(QDir::homePath() + "/Documents/Rufus/Ressources/basevierge.sql");
-            bool e = true;
-            foreach(const QString &s, listinstruct)
-                if (!db->StandardSQL(s))
-                {
-                    e = false;
-                    break;
-                }
-            a = (e? 0:99);
+            DefinitScriptRestore(QStringList() << QDir::homePath() + "/Documents/Rufus/Ressources/basevierge.sql");
+            QString msg = "sh " + QDir::homePath() + SCRIPTRESTOREFILE;
+            QProcess dumpProcess(parent());
+            dumpProcess.start(msg);
+            dumpProcess.waitForFinished(1000000000);
+            if (dumpProcess.exitStatus() == QProcess::NormalExit)
+               a = dumpProcess.exitCode();
             DumpFile.remove();
             if (a==0)
             {
@@ -2820,6 +2793,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             }
         }
         UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'éxécuter la restauration!") + "\n" + tr("Le fichier ") + "basevierge.sql" + tr(" ne semble pas conforme!"));
+        DumpFile.remove();
         return false;
     }
     else
@@ -2961,8 +2935,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             msg += tr("Base non restaurée");
                             break;
                         }
-                        //        if (!SauvegardeBase())
-                        //            return;
+
                         bool echecfile = true;
                         QString NomDumpFile;
                         QStringList filters;
@@ -2992,44 +2965,20 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             VideDatabases();
                             int a = 99;
                             //Restauration à partir du dossier sélectionné
-                            for (int j=0; j<listnomsfilestorestore.size(); j++)
-                            {
-                                Msg = (tr("Restauration de la base Rufus à partir de ") + listnomsfilestorestore.at(j) + "\n"
-                                               + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-                                Message(Msg, 3000);
-                                NomDumpFile = listnomsfilestorestore.at(j);
-                                QProcess dumpProcess(parent());
-                                //qDebug() << "host " + db->getDataBase().hostName();
-                                //qDebug() << "port " + QString::number(db->getDataBase().port());
-                                QStringList args;
-                                args << "-u " + db->getDataBase().userName();
-                                args << "-p"  + db->getDataBase().password();
-                                args << "-h " + db->getDataBase().hostName();
-                                args << "-P " + QString::number(db->getDataBase().port());
-                                args << "<";
-                                args << listnomsfilestorestore.at(j) + "\"";
-                                QDir Dir(QCoreApplication::applicationDirPath());
-                                Dir.cdUp();
-                                QString DirApp = Dir.absolutePath();
-                                QString program   = "bash -c \"" + DirApp + NOMDIR_LIBS2;
-                                program += "/mysql";
-                                QString argstring = program;
-                                for (int i=0; i<args.size();i++)    argstring += " " + args.at(i);
-                                //Edit(argstring);
-                                dumpProcess.start(argstring);
-                                dumpProcess.waitForFinished();
-                                if (dumpProcess.exitStatus() == QProcess::NormalExit)
-                                    a = dumpProcess.exitCode();
-                                QString nombase = listfichiers.at(j);
-                                nombase.remove(".sql");
-                                if (a>0)
-                                {
-                                    msg += tr("Erreur de restauration de la base") + " " + nombase;
-                                    break;
-                                }
-                                else msg += tr("Restauration de la base") + " " + nombase + " OK\n";
-                            }
-                        }
+                            DefinitScriptRestore(listnomsfilestorestore);
+                            QString msg = "sh " + QDir::homePath() + SCRIPTRESTOREFILE;
+                            QProcess dumpProcess(parent());
+                            dumpProcess.start(msg);
+                            dumpProcess.waitForFinished(1000000000);
+                             if (dumpProcess.exitStatus() == QProcess::NormalExit)
+                                a = dumpProcess.exitCode();
+                            if (a == 0)
+                                msg = tr("Sauvegarde effectuée avec succès");
+                            else
+                                msg = tr("Incident pendant la sauvegarde");
+                            Message(msg,3000,false);
+                            QFile::remove(QDir::homePath() + SCRIPTRESTOREFILE);
+                       }
                     }
                 }
             }
@@ -3187,7 +3136,7 @@ bool Procedures::VerifBaseEtRessources()
             QString NomDumpFile = QDir::homePath() + "/Documents/Rufus/Ressources/majbase" + QString::number(Version) + ".sql";
             DumpFile.copy(NomDumpFile);
             QFile base(NomDumpFile);
-            QStringList listinstruct = DecomposeScriptSQL(NomDumpFile);
+            QStringList listinstruct = Utils::DecomposeScriptSQL(NomDumpFile);
             bool a = true;
             foreach(const QString &s, listinstruct)
             {
