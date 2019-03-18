@@ -2773,16 +2773,19 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         {
             connexion = false;
             emit ConnectTimers();
-            //Suppression de toutes les tables
-            VideDatabases();
             int a = 99;
-            DefinitScriptRestore(QStringList() << QDir::homePath() + "/Documents/Rufus/Ressources/basevierge.sql");
-            QString msg = "sh " + QDir::homePath() + SCRIPTRESTOREFILE;
-            QProcess dumpProcess(parent());
-            dumpProcess.start(msg);
-            dumpProcess.waitForFinished(1000000000);
-            if (dumpProcess.exitStatus() == QProcess::NormalExit)
-               a = dumpProcess.exitCode();
+            // +++ la fonction DefinitScriptRestore() qu'on pourrait vouloir utiliser dans ce cas là avec le fichier basevierge.sql ne fonctionne pas avec ce fichier
+            // et je ne sais pas pourquoi
+            // et j'en ai marre de chercher pourquoi
+            QStringList listinstruct = Utils::DecomposeScriptSQL(QDir::homePath() + NOMDIR_RUFUS NOMDIR_RESSOURCES "/basevierge.sql");
+            bool e = true;
+            foreach(const QString &s, listinstruct)
+                if (!db->StandardSQL(s))
+                {
+                    e = false;
+                    break;
+                }
+            a = (e? 0:99);
             DumpFile.remove();
             if (a==0)
             {
@@ -4513,8 +4516,7 @@ bool Procedures::VerifParamConnexion(bool OKAccesDistant, QString)
         gsettingsIni->setValue(Base + "/Active",    "YES");
         gsettingsIni->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
-        db->login(Dlg_ParamConnex->ui->LoginlineEdit->text(), Dlg_ParamConnex->ui->MDPlineEdit->text());
-        m_userConnected = db->getUserConnected();
+        m_userConnected = new User(Dlg_ParamConnex->ui->LoginlineEdit->text(),Dlg_ParamConnex->ui->MDPlineEdit->text());
 
         gdbOK = true;
         delete Dlg_ParamConnex;
