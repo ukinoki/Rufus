@@ -5040,7 +5040,7 @@ void Procedures::RegleRefracteur()
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
         if (!MesureAutoref.isEmpty())
         {
-            debugformule(MesureAutoref, "Autoref");
+            //debugformule(MesureAutoref, "Autoref");
             Mesure = MesureAutoref;
             MesureAutoref.clear();
             if (Mesure["AxeOD"].toInt()<10)
@@ -5076,7 +5076,7 @@ void Procedures::RegleRefracteur()
         }
         if (!MesureFronto.isEmpty())
         {
-            debugformule(MesureFronto, "Fronto");
+            //debugformule(MesureFronto, "Fronto");
             Mesure = MesureFronto;
             MesureFronto.clear();
             if (Mesure["AxeOD"].toInt()<10)

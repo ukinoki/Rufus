@@ -523,7 +523,7 @@ QString Utils::PrefixePlus(QString Dioptr)                          // convertit
  * \param l'emplacement du fichier à traiter
  * \return une QStringList avec la liste des instructions
  * +++ ne marche pas toujours mais suffisant pour un script de sauvegarde de BDD généré par mysqldump
- *  QStringList listinstruct = DecomposeScriptSQL(QDir::homePath() + "/Documents/Rufus/Ressources/basevierge.sql");
+ *  QStringList listinstruct = DecomposeScriptSQL(QDir::homePath() + "/Documents/Rufus/Ressources/dump.sql");
     bool e = true;
         foreach(const QString &s, listinstruct)
         if (!db->StandardSQL(s))
@@ -532,7 +532,6 @@ QString Utils::PrefixePlus(QString Dioptr)                          // convertit
             break;
         }
         a = (e? 0:99);
-        DumpFile.remove();
         if (a==0)
         {
             ...
