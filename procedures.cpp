@@ -5040,6 +5040,7 @@ void Procedures::RegleRefracteur()
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
         if (!MesureAutoref.isEmpty())
         {
+            debugformule(MesureAutoref, "Autoref");
             Mesure = MesureAutoref;
             MesureAutoref.clear();
             if (Mesure["AxeOD"].toInt()<10)
@@ -5075,6 +5076,7 @@ void Procedures::RegleRefracteur()
         }
         if (!MesureFronto.isEmpty())
         {
+            debugformule(MesureFronto, "Fronto");
             Mesure = MesureFronto;
             MesureFronto.clear();
             if (Mesure["AxeOD"].toInt()<10)
@@ -5120,16 +5122,42 @@ void Procedures::RegleRefracteur()
         PortRefracteur()->clear();
         PortRefracteur()->write(Data);
         PortRefracteur()->waitForBytesWritten(1000);
-        //qDebug() << QString(Data);
+        qDebug() << QString(Data);
     }
+}
+void Procedures::debugformule(QMap<QString, QVariant> Data, QString type)
+{
+    auto calcvaleur = [] (QString Mesure)
+    {
+        if (Mesure.at(1) == "0" and Mesure.at(2).isNumber())
+            Mesure.replace(1,1,"");
+        return Mesure;
+    };
+    auto calcdouble = [] (QString Mesure)
+    {
+        if (Mesure.at(1) == "0" and Mesure.at(2).isNumber())
+            Mesure.replace(1,1,"");
+        if (Mesure.at(0) == "+")
+            Mesure.replace(0,1,"");
+        return Mesure.toDouble();
+    };
+    QString Formule = "OD : " + calcvaleur(Data["SphereOD"].toString());
+    if (calcdouble(Data["CylOD"].toString()) != 0.0)
+        Formule += "(" + calcvaleur(Data["CylOD"].toString()) + " à " + Data["AxeOD"].toString() + "°)";
+    Formule +=  " add." + calcvaleur(Data["AddOD"].toString()) +  " VP";
+    qDebug() << type;
+    qDebug() << Formule;
+    Formule = "OG : " + calcvaleur(Data["SphereOG"].toString());
+    if (calcdouble(Data["CylOG"].toString()) != 0.0)
+        Formule += "(" + calcvaleur(Data["CylOG"].toString()) + " à " + Data["AxeOG"].toString() + "°)";
+    Formule +=  " add." + calcvaleur(Data["AddOG"].toString()) +  " VP";
+    qDebug() << Formule;
 }
 
 void Procedures::SetDataAEnvoyerAuRefracteur(QMap<QString, QVariant> DataFronto, QMap<QString, QVariant> DataAutoref)
 {
-//    qDebug() << "Fronto" << DataFronto["SphereOD"].toString() << DataFronto["CylOD"].toString() << DataFronto["AxeOD"].toString() << DataFronto["AddOD"].toString()
-//            << DataFronto["SphereOG"].toString() << DataFronto["CylOG"].toString() << DataFronto["AxeOG"].toString() << DataFronto["AddOG"].toString();
-//    qDebug() << "Autoref" << DataAutoref["SphereOD"].toString() << DataAutoref["CylOD"].toString() << DataAutoref["AxeOD"].toString() << DataAutoref["AddOD"].toString()
-//            << DataAutoref["SphereOG"].toString() << DataAutoref["CylOG"].toString() << DataAutoref["AxeOG"].toString() << DataAutoref["AddOG"].toString();
+    //debugformule(DataFronto, "Fronto");
+    //debugformule(DataAutoref, "Autoref");
     ClearMesures();
     MesureAutoref       = DataAutoref;
     MesureFronto        = DataFronto;

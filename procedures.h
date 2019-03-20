@@ -386,6 +386,8 @@ private:
     QString                 MesureRef;                              // le type de mesure effectuée: Fronto, Autoref ou Refracteur
     void                    ClearMesures();
     void                    ClearHtmlMesures();
+    void                    debugformule(QMap<QString,QVariant>  Data, QString type);
+                                                                    // qdebug de la formule à partir du QMap<QString,QVariant>  Data des données de refraction
     //LE FRONTO ----------------------------------------------------
     QMap<QString,QVariant>  MesureFronto;
     QString                 HtmlMesureFronto;

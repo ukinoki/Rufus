@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("19-03-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("20-03-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8878,14 +8878,17 @@ void Rufus::ReconstruitCombosCorresp()
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::Refraction()
 {
-    if (ui->tabWidget->currentIndex() != 1) return;
+    if (findChildren<dlg_refraction*>().size()>0)
+        return;
+    if (ui->tabWidget->currentIndex() != 1)
+        return;
     int idPatAPasser        = gidPatient;
     QString NomPatient      = gNomPatient;
     QString PrenomPatient   = gPrenomPatient;
     int idActeAPasser       = gidActe;
     int AgeAPasser          = gAgePatient;
 
-    Dlg_Refraction     = new dlg_refraction(idPatAPasser, NomPatient, PrenomPatient, idActeAPasser, AgeAPasser);
+    Dlg_Refraction     = new dlg_refraction(idPatAPasser, NomPatient, PrenomPatient, idActeAPasser, AgeAPasser, this);
     Dlg_Refraction->setWindowTitle("Refraction - " + gNomPatient + " " + gPrenomPatient);
     Dlg_Refraction->setWindowIcon(Icons::icLunettes());
     proc->setFicheRefractionOuverte(true);
