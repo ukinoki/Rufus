@@ -42,22 +42,22 @@ dlg_refraction::dlg_refraction(int idPatAPasser, QString NomPatient, QString Pre
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionRefraction").toByteArray());
     // Recherche si Mesure en cours et affichage.
-    if (proc->TypeMesureRefraction() != "")
+    if (proc->TypeMesureRefraction() != Procedures::None)
     {
-        if (proc->TypeMesureRefraction() == "Refracteur")
+        if (proc->TypeMesureRefraction() == Procedures::Subjectif || proc->TypeMesureRefraction() == Procedures::Final)
         {
             AfficheMesureRefracteur();
-            proc->setTypeMesureRefraction("");
+            proc->setTypeMesureRefraction(Procedures::None);
         }
-        else if (proc->TypeMesureRefraction() == "Fronto")
+        else if (proc->TypeMesureRefraction() == Procedures::Fronto)
         {
             AfficheMesureFronto();
-            proc->setTypeMesureRefraction("");
+            proc->setTypeMesureRefraction(Procedures::None);
         }
-        else if (proc->TypeMesureRefraction() == "Autoref")
+        else if (proc->TypeMesureRefraction() == Procedures::Autoref)
         {
             AfficheMesureAutoref();
-            proc->setTypeMesureRefraction("");
+            proc->setTypeMesureRefraction(Procedures::None);
         }
     }
     else
@@ -497,7 +497,7 @@ void dlg_refraction::Slot_Refraction_ValueChanged()
 //3. Les pushButton ----------------------------------------------------------------------------------------------
 void dlg_refraction::Slot_AnnulPushButton_Clicked()
 {
-    FermeFiche("Annul");
+    FermeFiche(Annul);
 }
 
 void dlg_refraction::Slot_Commentaires()
@@ -603,7 +603,7 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
         IdRefract = (LectureMesure("JOUR","P","","","","","",CalculFormule_OD(),CalculFormule_OG()));
         if (IdRefract == 0) // il n'y en a pas - on suit la procédure normale
             InscriptRefraction();
-        FermeFiche("OK");
+        FermeFiche(OK);
     }
 
     else if (gMode == Autoref || gMode == Refraction)
@@ -616,10 +616,10 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
             // suppression de la mesure dans table Refraction
             DetruireLaMesure(IDMesure);
         InscriptRefraction();
-        FermeFiche("OK");
+        FermeFiche(OK);
     }
     else if (gMode == Prescription)
-        FermeFiche("Imprime");
+        FermeFiche(Imprime);
 }
 
 void dlg_refraction::Slot_OupsButtonClicked()
@@ -647,14 +647,13 @@ void dlg_refraction::Slot_PrescriptionRadionButton_clicked()
 
 void dlg_refraction::Slot_NouvMesureRefraction()
 {
-    //proc->Edit(proc->TypeMesureRefraction().split("//").at(0) + "\n" + proc->TypeMesureRefraction().split("//").at(1));
-    if (proc->TypeMesureRefraction() == "Refracteur")
+    if (proc->TypeMesureRefraction() == Procedures::Subjectif || proc->TypeMesureRefraction() == Procedures::Final)
         AfficheMesureRefracteur();
-    if (proc->TypeMesureRefraction() == "Fronto")
+    if (proc->TypeMesureRefraction() == Procedures::Fronto)
         AfficheMesureFronto();
-    if (proc->TypeMesureRefraction().split("//").at(0) == "Autoref")
+    if (proc->TypeMesureRefraction() == Procedures::Autoref)
         AfficheMesureAutoref();
-    proc->setTypeMesureRefraction("");
+    proc->setTypeMesureRefraction(Procedures::None);
 }
 
 void dlg_refraction::Slot_ReprendreButtonClicked()
@@ -926,7 +925,7 @@ void dlg_refraction::keyPressEvent ( QKeyEvent * event )
     case Qt::Key_Escape:
     {
         EscapeFlag = false;
-        FermeFiche("Annul");
+        FermeFiche(Annul);
         break;
     }
     default:
@@ -1718,23 +1717,18 @@ int dlg_refraction::DetruireLaMesure(int IdRefract)
 //--------------------------------------------------------------------------------
 // Click sur OK ou ANNULER >> Fermer la fiche refraction
 //--------------------------------------------------------------------------------
-void dlg_refraction::FermeFiche(QString ModeSortie)
+void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
 {
     EscapeFlag = false;
-    if (ModeSortie == "Annul")
+    if (mode == Annul )
     {
-        FermeComment = false;
         QList<UpDoubleSpinBox *> dblSpinList = findChildren<UpDoubleSpinBox *>();
         for (int i=1; i<dblSpinList.size(); i++)
             dblSpinList.at(i)->setAutorCorrigeDioptr(false);
-        QList<QDialog *> ListDialog = findChildren<QDialog *>();
-        for (int n = 0; n <  ListDialog.size(); n++)
-            ListDialog.at(n)->close();
-        close();
-        return;
     }
-    else if (ModeSortie == "OK")  ResumeObservation();
-    else if (ModeSortie == "Imprime")
+    else if (mode == OK)
+        ResumeObservation();
+    else if (mode == Imprime)
     {
         if    (
               (ui->V2PrescritRadioButton->isChecked())
@@ -1771,7 +1765,7 @@ void dlg_refraction::FermeFiche(QString ModeSortie)
     QList<QDialog *> ListDialog = this->findChildren<QDialog *>();
     for (int n = 0; n <  ListDialog.size(); n++)
         ListDialog.at(n)->close();
-    FermeComment = true;
+    FermeComment = (mode!=Annul);
     close();
 }
 

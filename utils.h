@@ -76,6 +76,7 @@ public:
     static QMap<QString, double>    dir_size(const QString DirPath);
     static QString                  getExpressionSize(double size);
     static qint32                   ArrayToInt(QByteArray source);
+    static int                      MaxInt()    {return std::numeric_limits<int>::max();}
     static QByteArray               IntToArray(int source);
     static QString                  getIpAdress();
     static QString                  getMACAdress();

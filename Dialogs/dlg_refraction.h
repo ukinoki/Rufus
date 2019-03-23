@@ -96,6 +96,11 @@ private:
     int                     gMode;
     int                     gidRefraction;
     enum gMode              {Porte, Autoref, Refraction, Prescription};
+    enum ModeSortie {
+                Annul       ,
+                Imprime     ,
+                OK
+                };
     bool                    ok;
     bool                    gAfficheDetail;
     double                  gSphereOD;
@@ -136,7 +141,7 @@ private:
     double                  ConvDouble(QString textdouble);
     bool                    DeplaceVers(QWidget *widget, QString FinOuDebut = "");
     int                     DetruireLaMesure(int IdRefract);
-    void                    FermeFiche(QString ModeSortie);
+    void                    FermeFiche(enum ModeSortie);
     void                    InitDivers();
     void                    InitEventFilters();
     void                    Init_Value_DoubleSpin(QDoubleSpinBox *DoubleSpinBox, double ValeurDouble);

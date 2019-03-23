@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "playercontrols.h"
 
-PlayerControls::PlayerControls(QMediaPlayer *plyr, QWidget *parent)
+PlayerControls::PlayerControls(QWidget *parent)
     : QWidget(parent)
     , playButton(Q_NULLPTR)
     , stopButton(Q_NULLPTR)
@@ -34,29 +34,41 @@ PlayerControls::PlayerControls(QMediaPlayer *plyr, QWidget *parent)
     recfileButton->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
 
     slider      = new QSlider(Qt::Horizontal,this);
+    slider      ->setFixedWidth(250);
     slider      ->setEnabled(true);
+    slider      ->setRange(0, Utils::MaxInt());
     labelDuration    = new QLabel(this);
 
     QBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(0);
     layout->addWidget(stopButton);
     layout->addWidget(playButton);
+    layout->addWidget(recfileButton);
     layout->addWidget(slider);
     layout->addWidget(labelDuration);
-    layout->addWidget(recfileButton);
     setLayout(layout);
 
-    setPlayer(plyr);
-    connect(slider,         SIGNAL(sliderMoved(int)),           this, SLOT(playSeek(int)));
-    connect(player,         SIGNAL(positionChanged(qint64)),    this, SLOT(positionChanged(qint64)));
+    player = Q_NULLPTR;
+
     connect(playButton,     SIGNAL(clicked()),                  this, SLOT(playClicked()));
     connect(stopButton,     SIGNAL(clicked()),                  this, SLOT(stopClicked()));
     connect(recfileButton,  SIGNAL(clicked(bool)),              this, SLOT(recvideo()));
 }
 
+PlayerControls::~PlayerControls()
+{
+    delete player;
+}
+
 void PlayerControls::setPlayer(QMediaPlayer *md)
 {
+    if (md == Q_NULLPTR)
+        return;
+    player->disconnect();
+    slider->disconnect();
     player = md;
+    connect(player,         SIGNAL(positionChanged(qint64)),    this, SLOT(positionChanged(qint64)));
+    connect(slider,         SIGNAL(sliderMoved(int)),           this, SLOT(playSeek(int)));
 }
 
 void PlayerControls::playClicked()
@@ -91,21 +103,16 @@ void PlayerControls::stopClicked()
     }
 }
 
-void PlayerControls::playSeek(int seconds)
+void PlayerControls::playSeek(int progress)
 {
-    player->setPosition(seconds);
+    player->setPosition(qint64((double(progress)/Utils::MaxInt())*player->duration()));
 }
 
 void PlayerControls::positionChanged(qint64 progress)
 {
-    if (progress > player->duration()-10)
-    {
-        progress = 0;
-        player->setPosition(progress);
-    }
     if (!slider->isSliderDown())
-        slider->setValue(progress);
-    updateDurationInfo(progress / 1000);
+        slider->setValue(int(progress*(double(Utils::MaxInt())/player->duration())));
+    updateDurationInfo(progress);
 }
 
 void PlayerControls::recvideo()
@@ -113,14 +120,15 @@ void PlayerControls::recvideo()
     emit recfile();
 }
 
-void PlayerControls::updateDurationInfo(qint64 currentInfo)
+void PlayerControls::updateDurationInfo(qint64 progress)
 {
-    duration = player->duration() / 1000;
-    slider->setRange(0, player->duration());
+    qint64 duration = player->duration();
     QString tStr;
-    if (currentInfo) {
-        QTime currentTime(  (currentInfo / 3600) % 60,  (currentInfo / 60) % 60,    currentInfo % 60,   (currentInfo * 1000) % 1000);
-        QTime totalTime(    (duration / 3600) % 60,     (duration / 60) % 60,       duration % 60,      (duration * 1000) % 1000);
+    if (progress>-1) {
+        progress = progress/1000;
+        duration = duration/1000;
+        QTime currentTime(  (progress / 3600) % 60,  (progress / 60) % 60,    progress % 60);
+        QTime totalTime(    (duration / 3600) % 60,  (duration / 60) % 60,    duration % 60);
         QString format = (duration > 3600? "hh:mm:ss" : "mm:ss");
         tStr = currentTime.toString(format) + " / " + totalTime.toString(format);
     }

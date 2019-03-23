@@ -270,8 +270,6 @@ public:
 
     bool                    Connexion();
 
-    QString                 gLoginUser() { return m_userConnected->getLogin(); }
-    QString                 gMDPUser() { return m_userConnected->getPassword(); }
     void                    TestAdminPresent();
     bool                    isadminpresent();
     void                    setoktcp(bool  ok);
@@ -327,7 +325,7 @@ public slots:
 /* ------------------------------------------------------------------------------------------------------------------------------------------
      GESTION DES PORTS SERIES -------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
-    private:
+private:
     bool                    gAutorefParametre, gRefracteurParametre, gFrontoParametre, gTonoParametre;
     QString                 gPortAutoref, gPortFronto, gPortRefracteur, gPortTono;
     QSerialPort             *lPortAutoref, *lPortRefracteur, *lPortTono, *lPortFronto;
@@ -349,17 +347,25 @@ signals:
     void                    NouvMesureRefraction();
 
 public:
+    enum TypeMesure {
+                None,
+                All,
+                Fronto,
+                Autoref,
+                Kerato,
+                Subjectif,
+                Final,
+                Tono,
+                Pachy
+                };
+
     SerialThread            *ThreadFronto, *ThreadRefracteur, *ThreadAutoref;
     QSerialPort*            PortAutoref();
     QSerialPort*            PortFronto();
     QSerialPort*            PortRefracteur();
     QSerialPort*            PortTono();
-    QString                 NomPortAutoref();
-    QString                 NomPortRefracteur();
-    QString                 NomPortFronto();
-    QString                 NomPortTono();
-    QString                 TypeMesureRefraction();                     // accesseur pour le type de mesure effectuée: Fronto, Autoref ou Refracteur
-    void                    setTypeMesureRefraction(QString);           // détermine le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    TypeMesure              TypeMesureRefraction();                     // accesseur pour le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    void                    setTypeMesureRefraction(TypeMesure = None); // détermine le type de mesure effectuée: Fronto, Autoref ou Refracteur
     //LE FRONTO ----------------------------------------------------
     QMap<QString,QVariant>  DonneesFronto();                        // accesseur pour MesureFronto
     QString                 HtmlFronto();                           // accesseur pour le html de mesure fronto à afficher;
@@ -377,13 +383,13 @@ public:
     void                    InsertRefraction(
                                 int idPatient,
                                 int idActe,
-                                QString Mesure = "All");            // enregistre la mesure de réfraction
+                                TypeMesure = All);                  // enregistre la mesure de réfraction
     void                    SetDataAEnvoyerAuRefracteur(QMap<QString, QVariant> DataFronto, QMap<QString,QVariant> DataAutoref);
 
 
 private:
     QString                 gMesureSerie;
-    QString                 MesureRef;                              // le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    TypeMesure              MesureRef;                              // le type de mesure effectuée: Fronto, Autoref ou Refracteur
     void                    ClearMesures();
     void                    ClearHtmlMesures();
     void                    debugformule(QMap<QString,QVariant>  Data, QString type);

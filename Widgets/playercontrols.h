@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolButton>
 #include <QComboBox>
 #include <QAudio>
+#include "utils.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -40,7 +41,8 @@ class PlayerControls : public QWidget
     Q_OBJECT
 
 public:
-    PlayerControls(QMediaPlayer *plyr, QWidget *parent = Q_NULLPTR);
+    PlayerControls(QWidget *parent = Q_NULLPTR);
+    ~PlayerControls();
     void        setPlayer(QMediaPlayer*);
     int         State();
 
@@ -54,7 +56,7 @@ private slots:
     void playSeek(int);
     void recvideo();
     void positionChanged(qint64 progress);
-    void updateDurationInfo(qint64 currentInfo);
+    void updateDurationInfo(qint64 progress);
 
 private:
     QMediaPlayer    *player;
@@ -63,7 +65,6 @@ private:
     QAbstractButton *recfileButton;
     QSlider         *slider;
     QLabel          *labelDuration;
-    qint64          duration;
     int             state;
 };
 

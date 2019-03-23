@@ -107,7 +107,7 @@ Procedures::Procedures(QObject *parent) :
     gnomImprimante  = "";
 
     Ouverture_Ports_Series();
-    MesureRef               = "";
+    MesureRef               = None;
     dlgrefractionouverte    = false;
     ListeComptesEncaissUser                 = new QStandardItemModel();
     ListeComptesEncaissUserAvecDesactive    = new QStandardItemModel();
@@ -826,7 +826,7 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
     for (int i=0; i<ListNomFiles.size(); i++)
     if (QFile(ListNomFiles.at(i)).exists())
     {
-        scriptrestore += "$MYSQL -u " + gLoginUser() +  " -p" +  gMDPUser() + " -h localhost -P " + QString::number(db->getInstance()->getDataBase().port()) + " < " + ListNomFiles.at(i);
+        scriptrestore += "$MYSQL -u " + m_userConnected->getLogin() +  " -p" +  m_userConnected->getPassword() + " -h localhost -P " + QString::number(db->getInstance()->getDataBase().port()) + " < " + ListNomFiles.at(i);
         scriptrestore += "\n";
     }
     if (QFile::exists(QDir::homePath() + SCRIPTRESTOREFILE))
@@ -3659,7 +3659,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
                 exit(0);
             // Création de l'utilisateur
             //TODO : ICI
-            gdbOK = CreerPremierUser(gLoginUser(), gMDPUser());
+            gdbOK = CreerPremierUser(m_userConnected->getLogin(), m_userConnected->getPassword());
             initListeUsers();
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
             db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
@@ -4192,7 +4192,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     {
         if (VerifParamConnexion())
         {
-            int idusr = VerifUserBase(gLoginUser(),gMDPUser());
+            int idusr = VerifUserBase(m_userConnected->getLogin(),m_userConnected->getPassword());
             gdbOK = (idusr > -1);
             if (!gdbOK)
                 return false;
@@ -4201,7 +4201,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             PremierParametrageRessources();
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne,\n"
-                                       "le login ") + gLoginUser() + tr(" est reconnu et le programme va démarrer\n"));
+                                       "le login ") + m_userConnected->getLogin() + tr(" est reconnu et le programme va démarrer\n"));
             if( DefinitRoleUser() ) //NOTE : User Role : 1er demarrage
             {
                 m_userConnected->setTypeCompta(avecLaComptaProv ? (gUseCotation ? 0 : 4) : (gUseCotation ? 2 : 1));
@@ -4222,7 +4222,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
                 return false;
             PremierParametrageMateriel();
             PremierParametrageRessources();
-            int idusr = VerifUserBase(gLoginUser(),gMDPUser());
+            int idusr = VerifUserBase(m_userConnected->getLogin(),m_userConnected->getPassword());
             gdbOK = (idusr > -1);
             if (!gdbOK)
                 return false;
@@ -4261,8 +4261,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
                 db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurLocal = '" + gsettingsIni->value("BDD_LOCAL/Serveur").toString() + "'");
 
             // Création de l'utilisateur
-            gdbOK = CreerPremierUser(gLoginUser(), gMDPUser());
-            db->login(gLoginUser(), gMDPUser());
+            gdbOK = CreerPremierUser(m_userConnected->getLogin(), m_userConnected->getPassword());
+            db->login(m_userConnected->getLogin(), m_userConnected->getPassword());
             initListeUsers();
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
@@ -4442,7 +4442,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         reponse = VerifParamConnexion();
         if (reponse)
         {
-            int idusr = VerifUserBase(gLoginUser(), gMDPUser());
+            int idusr = VerifUserBase(m_userConnected->getLogin(), m_userConnected->getPassword());
             gdbOK = (idusr > -1);
             if (!gdbOK)
             {
@@ -5016,7 +5016,7 @@ void Procedures::Slot_ReponsePortSerie_Refracteur(const QString &s)
         UpMessageBox::Watch(Q_NULLPTR,tr("pas de données reçues du refracteur"));
         return;
     }
-    setTypeMesureRefraction("Refracteur");
+    setTypeMesureRefraction(Subjectif);
     setHtmlRefracteur();
 //    if (MesureRefracteurFinal.isEmpty())
 //    {
@@ -5129,16 +5129,19 @@ void Procedures::debugformule(QMap<QString, QVariant> Data, QString type)
 {
     auto calcvaleur = [] (QString Mesure)
     {
-        if (Mesure.at(1) == "0" and Mesure.at(2).isNumber())
-            Mesure.replace(1,1,"");
+        if (Mesure.size()>2)
+            if (Mesure.at(1) == "0" and Mesure.at(2).isNumber())
+                Mesure.replace(1,1,"");
         return Mesure;
     };
     auto calcdouble = [] (QString Mesure)
     {
-        if (Mesure.at(1) == "0" and Mesure.at(2).isNumber())
-            Mesure.replace(1,1,"");
-        if (Mesure.at(0) == "+")
-            Mesure.replace(0,1,"");
+        if (Mesure.size()>2)
+            if (Mesure.at(1) == "0" and Mesure.at(2).isNumber())
+                Mesure.replace(1,1,"");
+        if (Mesure.size()>1)
+            if (Mesure.at(0) == "+")
+                Mesure.replace(0,1,"");
         return Mesure.toDouble();
     };
     QString Formule = "OD : " + calcvaleur(Data["SphereOD"].toString());
@@ -5156,8 +5159,8 @@ void Procedures::debugformule(QMap<QString, QVariant> Data, QString type)
 
 void Procedures::SetDataAEnvoyerAuRefracteur(QMap<QString, QVariant> DataFronto, QMap<QString, QVariant> DataAutoref)
 {
-    //debugformule(DataFronto, "Fronto");
-    //debugformule(DataAutoref, "Autoref");
+    debugformule(DataFronto, "Fronto");
+    debugformule(DataAutoref, "Autoref");
     ClearMesures();
     MesureAutoref       = DataAutoref;
     MesureFronto        = DataFronto;
@@ -5754,7 +5757,7 @@ void Procedures::Slot_ReponsePortSerie_Fronto(const QString &s)
         }
     }
     setHtmlFronto();
-    setTypeMesureRefraction("Fronto");
+    setTypeMesureRefraction(Fronto);
     emit NouvMesureRefraction();
 }
 
@@ -6063,17 +6066,17 @@ void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
              || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
                 setHtmlKerato(MesureKerato);
-                setTypeMesureRefraction("Kerato");
+                setTypeMesureRefraction(Kerato);
                 emit NouvMesureRefraction();
             }
             if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
                 setHtmlTono();
-                setTypeMesureRefraction("Tono");
+                setTypeMesureRefraction(Tono);
                 emit NouvMesureRefraction();
 
                 setHtmlPachy();
-                setTypeMesureRefraction("Pachy");
+                setTypeMesureRefraction(Pachy);
                 emit NouvMesureRefraction();
             }
             //Dans un premier temps, le PC envoie la séquence SOH puis "C**" puis STX puis "RS" puis ETB puis EOT
@@ -6093,7 +6096,7 @@ void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
         }
     }
     setHtmlAutoref();
-    setTypeMesureRefraction("Autoref");
+    setTypeMesureRefraction(Autoref);
     emit NouvMesureRefraction();
 }
 
@@ -6674,32 +6677,12 @@ QSerialPort* Procedures::PortTono()
     return lPortTono;
 }
 
-QString Procedures::NomPortAutoref()
-{
-    return gPortAutoref;
-}
-
-QString Procedures::NomPortFronto()
-{
-    return gPortFronto;
-}
-
-QString Procedures::NomPortRefracteur()
-{
-    return gPortRefracteur;
-}
-
-QString Procedures::NomPortTono()
-{
-    return gPortTono;
-}
-
-QString Procedures::TypeMesureRefraction()
+Procedures::TypeMesure Procedures::TypeMesureRefraction()
 {
     return MesureRef;
 }
 
-void Procedures::setTypeMesureRefraction(QString mesure)
+void Procedures::setTypeMesureRefraction(TypeMesure mesure)
 {
     MesureRef = mesure;
 }
@@ -6707,11 +6690,11 @@ void Procedures::setTypeMesureRefraction(QString mesure)
 //---------------------------------------------------------------------------------
 // Calcul de la formule de refraction
 //---------------------------------------------------------------------------------
-void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
+void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
 {
     QString                 zQuelleMesure;
     QMap<QString,QVariant>  MapMesure;
-    if (!MesureFronto.isEmpty() && Mesure == "Fronto" && NouvMesureFronto)
+    if (!MesureFronto.isEmpty() && Mesure == Fronto && NouvMesureFronto)
     {
         MapMesure = MesureFronto;
         bool a =
@@ -6769,7 +6752,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
             db->StandardSQL (requete, tr("Erreur de création de données fronto dans ") + NOM_TABLE_REFRACTION);
         }
     }
-    if (!MesureAutoref.isEmpty() && Mesure == "Autoref" && NouvMesureAutoref)
+    if (!MesureAutoref.isEmpty() && Mesure == Autoref && NouvMesureAutoref)
     {
         MapMesure = MesureAutoref;
         bool a =
@@ -6865,7 +6848,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
             }
         }
     }
-    if (!MesureKerato.isEmpty() && Mesure == "Kerato")
+    if (!MesureKerato.isEmpty() && Mesure == Kerato)
     {
         MapMesure = MesureKerato;
         bool a =
@@ -6918,7 +6901,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, QString Mesure)
             }
         }
     }
-    if (!MesureRefracteurSubjectif.isEmpty() && Mesure == "Subjectif")
+    if (!MesureRefracteurSubjectif.isEmpty() && Mesure == Subjectif)
     {
         MapMesure = MesureRefracteurSubjectif;
         bool a =

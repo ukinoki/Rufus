@@ -85,7 +85,6 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
     ListDocsTreeView    ->setIndentation(6);
     ListDocsTreeView    ->header()->setVisible(false);
 
-    player              = new QMediaPlayer;
 
     QHBoxLayout *lay    = new QHBoxLayout();
     lay                 ->addWidget(ListDocsTreeView,2);
@@ -95,6 +94,9 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
     lay                 ->setSpacing(10);
     dlglayout()         ->insertLayout(0,lay);
 
+    playctrl            = new PlayerControls(this);
+    AjouteWidgetLayButtons(playctrl, false);
+    buttonslayout()->insertSpacerItem(0, new QSpacerItem(20,20,QSizePolicy::Fixed, QSizePolicy::Fixed));
     AllDocsupCheckBox           = new UpCheckBox(tr("Tous"));
     OnlyImportantDocsupCheckBox = new UpCheckBox(tr("Importants"));
     AllDocsupCheckBox           ->setImmediateToolTip(tr("Afficher tous les documents\ny compris les documents d'importance minime"));
@@ -103,8 +105,6 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
     AjouteWidgetLayButtons(OnlyImportantDocsupCheckBox, false);
     AllDocsupCheckBox->setChecked(true);
 
-    playctrl            = new PlayerControls(player, this);
-    AjouteWidgetLayButtons(playctrl, false);
     sw                  = new UpSwitch(this);
     AjouteWidgetLayButtons(sw, false);
     AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
@@ -396,10 +396,11 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         GraphicView             ->setVisible(true);
         videoItem               = new QGraphicsVideoItem;
         Scene                   ->addItem(videoItem);
+        player                  = new QMediaPlayer;
         player                  ->setMedia(QUrl::fromLocalFile(filename));
+        playctrl                ->setPlayer(player);
         videoItem               ->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
         player                  ->setVideoOutput(videoItem);
-        playctrl                ->setPlayer(player);
         playctrl                ->setVisible(true);
         PrintButton             ->setVisible(false);
         x = videoItem->size().width();

@@ -41,12 +41,10 @@ public:
     QMap<int, User *> *liberaux() const;
     QMap<int, User *> *comptables() const;
 
-
     Users();
     bool addUser(User *usr);
     User* getUserById(int id, bool loadDetails=false, bool addToList = true);
     QString getLoginById(int id);
-
 };
 
 #endif // CLS_USERS_H

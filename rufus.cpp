@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("20-03-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("22-03-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -10274,8 +10274,8 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     for (int i= 0; i<findChildren<QDialog*>().size(); i++)
         if (findChildren<QDialog*>().at(i)->inherits("dlg_refraction"))
             return;
-    QString TypeMesure = proc->TypeMesureRefraction();
-    if (TypeMesure == "Refracteur")
+    Procedures::TypeMesure TypeMesure = proc->TypeMesureRefraction();
+    if (TypeMesure == Procedures::Final || TypeMesure == Procedures::Subjectif)
     {
         QString ARajouterEnText= proc->HtmlRefracteur();
         QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
@@ -10284,18 +10284,18 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         if (!proc->DonneesRefracteurFin().isEmpty() && !proc->DonneesRefracteurSubj().isEmpty())
-            proc->InsertRefraction(gidPatient, gidActe, "Subjectif");
+            proc->InsertRefraction(gidPatient, gidActe, Procedures::Subjectif);
         Refraction();
     }
-    else if (TypeMesure == "Autoref")
+    else if (TypeMesure == Procedures::Autoref)
     {
-        proc->InsertRefraction(gidPatient, gidActe, "Autoref");
+        proc->InsertRefraction(gidPatient, gidActe, Procedures::Autoref);
     }
-    else if (TypeMesure == "Fronto")
+    else if (TypeMesure == Procedures::Fronto)
     {
-        proc->InsertRefraction(gidPatient, gidActe, "Fronto");
+        proc->InsertRefraction(gidPatient, gidActe, Procedures::Fronto);
     }
-    else if (TypeMesure == "Kerato")
+    else if (TypeMesure == Procedures::Kerato)
     {
         QString ARajouterEnText= proc->HtmlKerato();
         QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
@@ -10303,9 +10303,9 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
         db->StandardSQL(updaterequete);
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
-        proc->InsertRefraction(gidPatient, gidActe, "Kerato");
+        proc->InsertRefraction(gidPatient, gidActe, Procedures::Kerato);
     }
-    else if (TypeMesure == "Tono")
+    else if (TypeMesure == Procedures::Tono)
     {
         QString ARajouterEnText= proc->HtmlTono();
         QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
@@ -10314,7 +10314,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }
-    else if (TypeMesure == "Pachy")
+    else if (TypeMesure == Procedures::Pachy)
     {
         QString ARajouterEnText= proc->HtmlPachy();
         QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
@@ -10325,7 +10325,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     }
     else
     {
-        proc->setTypeMesureRefraction("");
+        proc->setTypeMesureRefraction();
         Refraction();
     }
 }
