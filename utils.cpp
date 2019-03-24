@@ -299,6 +299,7 @@ void Utils::supprimeAncre(QString &text, QString ancredebut, QString ancrefin)
 QSize Utils::CalcSize(QString txt, QFont fm)
 {
     double correction = (txt.contains("<b>")? 1.2 : 1); //le 1.2 est là pour tenir compte des éventuels caractères gras
+    correction = 1.2;
     convertPlainText(txt);
     QStringList lmsg            = txt.split("\n");
     int         w               = 0;

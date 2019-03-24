@@ -914,7 +914,12 @@ void dlg_recettesspeciales::ReconstruitListeAnnees()
                                   " WHERE idUser = " + QString::number(gDataUser->id()) + ") as ghf order by Annee",ok);
     QStringList ListeAnnees;
     for (int i = 0; i < listannees.size(); i++)
-            ListeAnnees << listannees.at(i).at(0).toString();
+    {
+        //qDebug() << listannees.at(i).at(0).toString();
+        ListeAnnees << listannees.at(i).at(0).toString();
+    }
+    if (listannees.size()==0)
+        ListeAnnees << QDate::currentDate().toString("yyyy");
     ui->AnneecomboBox->disconnect();
     ui->AnneecomboBox->clear();
     ui->AnneecomboBox->insertItems(0,ListeAnnees);
@@ -938,10 +943,12 @@ void dlg_recettesspeciales::RemplitBigTable()
     if (ui->AnneecomboBox->currentText() != "")
         Recrequete += " AND year(DateRecette) = " + ui->AnneecomboBox->currentText();
     Recrequete += " ORDER BY DateRecette, Libelle";
-    //proc->Edit(Recrequete);
+    //qDebug() << Recrequete;
     bool ok = true;
     QList<QVariantList> listrecettes = db->StandardSelectSQL(Recrequete,ok);
 
+    if (listrecettes.size()==0)
+        return;
     if (listrecettes.size()==1 && listrecettes.at(0).at(0)==QVariant())
         return;
     gBigTable->setRowCount(listrecettes.size());
@@ -950,7 +957,7 @@ void dlg_recettesspeciales::RemplitBigTable()
         {
             int col = 0;
             QVariantList recette = listrecettes.at(i);
-            int id = recette.at(i).toInt();
+            int id = recette.at(0).toInt();
 
             label0 = new UpLabel;
             label1 = new UpLabel;
