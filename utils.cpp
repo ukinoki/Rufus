@@ -291,6 +291,29 @@ void Utils::supprimeAncre(QString &text, QString ancredebut, QString ancrefin)
 }
 
 /*!
+ * \brief Utils::CalcSize(QString txt)
+ * calcule la taille du texte passé en paramètres dans la police passée en paramètre
+ * \param QString txt
+ * \param QFint font
+ */
+QSize Utils::CalcSize(QString txt, QFont fm)
+{
+    double correction = (txt.contains("<b>")? 1.2 : 1); //le 1.2 est là pour tenir compte des éventuels caractères gras
+    convertPlainText(txt);
+    QStringList lmsg            = txt.split("\n");
+    int         w               = 0;
+    double      hauteurligne    = QFontMetrics(fm).height()*1.2;
+    int         nlignes         = lmsg.size();
+    for (int k=0; k<nlignes; k++)
+    {
+        int x   = int(QFontMetrics(fm).width(lmsg.at(k))*correction);
+        w       = (x>w? x : w);
+        //qDebug() << lmsg.at(k) + " - ligne = " + QString::number(k+1) + " - largeur = " + QString::number(w);
+    }
+    return QSize(w,int(hauteurligne*nlignes));
+}
+
+/*!
  * \brief Utils::dir_size
  * Cette fonction va renvoyer le nombre de fichiers contenu dans un dossier ainsi que le volume du dossier
  * utilisé pour le calcul du volume d'une opération de sauvegarde-restauration p.e.

@@ -69,6 +69,7 @@ public:
     static void retirelignevidehtml(QString &txthtml);
     static void supprimeAncre(QString &text, QString ancredebut, QString ancrefin = "");
 
+    static QSize                    CalcSize(QString txt, QFont fm = qApp->font());
     static QString                  retirecaracteresaccentues(QString nom);
     static QString                  trim(QString text, bool end=true, bool removereturnend = false);
     static QString                  capitilize(QString text);

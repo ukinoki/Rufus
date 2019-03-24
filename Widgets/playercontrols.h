@@ -57,6 +57,7 @@ private slots:
     void recvideo();
     void positionChanged(qint64 progress);
     void updateDurationInfo(qint64 progress);
+    QString format(QMediaPlayer *plyr);
 
 private:
     QMediaPlayer    *player;

@@ -38,14 +38,15 @@ PlayerControls::PlayerControls(QWidget *parent)
     slider      ->setEnabled(true);
     slider      ->setRange(0, Utils::MaxInt());
     labelDuration    = new QLabel(this);
+    labelDuration   ->setAlignment(Qt::AlignRight);
 
     QBoxLayout *layout = new QHBoxLayout;
     layout->setMargin(0);
     layout->addWidget(stopButton);
     layout->addWidget(playButton);
-    layout->addWidget(recfileButton);
     layout->addWidget(slider);
     layout->addWidget(labelDuration);
+    layout->addWidget(recfileButton);
     setLayout(layout);
 
     player = Q_NULLPTR;
@@ -60,6 +61,11 @@ PlayerControls::~PlayerControls()
     delete player;
 }
 
+QString PlayerControls::format(QMediaPlayer *plyr)
+{
+    return (plyr->duration()/1000 > 3600? "hh:mm:ss" : "mm:ss");
+}
+
 void PlayerControls::setPlayer(QMediaPlayer *md)
 {
     if (md == Q_NULLPTR)
@@ -69,6 +75,7 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
     player = md;
     connect(player,         SIGNAL(positionChanged(qint64)),    this, SLOT(positionChanged(qint64)));
     connect(slider,         SIGNAL(sliderMoved(int)),           this, SLOT(playSeek(int)));
+    labelDuration->setFixedSize(Utils::CalcSize(QTime(0,0,0).toString(format(player)) + " / " + QTime(0,0,0).toString(format(player))));
 }
 
 void PlayerControls::playClicked()
@@ -113,10 +120,13 @@ void PlayerControls::positionChanged(qint64 progress)
     if (!slider->isSliderDown())
         slider->setValue(int(progress*(double(Utils::MaxInt())/player->duration())));
     updateDurationInfo(progress);
+    if (progress == player->duration())
+        stopClicked();
 }
 
 void PlayerControls::recvideo()
 {
+    stopClicked();
     emit recfile();
 }
 
@@ -129,8 +139,7 @@ void PlayerControls::updateDurationInfo(qint64 progress)
         duration = duration/1000;
         QTime currentTime(  (progress / 3600) % 60,  (progress / 60) % 60,    progress % 60);
         QTime totalTime(    (duration / 3600) % 60,  (duration / 60) % 60,    duration % 60);
-        QString format = (duration > 3600? "hh:mm:ss" : "mm:ss");
-        tStr = currentTime.toString(format) + " / " + totalTime.toString(format);
+        tStr = currentTime.toString(format(player)) + " / " + totalTime.toString(format(player));
     }
     labelDuration->setText(tStr);
 }

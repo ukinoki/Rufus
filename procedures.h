@@ -386,7 +386,6 @@ public:
                                 TypeMesure = All);                  // enregistre la mesure de réfraction
     void                    SetDataAEnvoyerAuRefracteur(QMap<QString, QVariant> DataFronto, QMap<QString,QVariant> DataAutoref);
 
-
 private:
     QString                 gMesureSerie;
     TypeMesure              MesureRef;                              // le type de mesure effectuée: Fronto, Autoref ou Refracteur
