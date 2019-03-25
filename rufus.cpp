@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("24-03-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("25-03-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2526,7 +2526,7 @@ void Rufus::ImprimeDossier()
         gAsk->dlglayout()->insertWidget(2,Dossierbutton);
         gAsk->dlglayout()->insertWidget(3,Actebutton);
         gAsk->AjouteLayButtons(UpDialog::ButtonOK);
-        gAsk->setStageCount(0.7);
+        //gAsk->setStageCount(0.7);
 
         gAsk->setWindowTitle(tr("Impression dossier"));
         gAsk->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -3037,7 +3037,6 @@ void Rufus::AfficheCourriersAFaire()
     lbl->setText(tr("Double clic ou clic droit\nsur un dossier pour l'ouvrir"));
     lbl->setAlignment(Qt::AlignCenter);
     gAskListPatients->AjouteWidgetLayButtons(lbl, false);
-    gAskListPatients->setStageCount(1.2);
 
     gAskListPatients->setModal(true);
     gAskListPatients->setSizeGripEnabled(false);

@@ -218,10 +218,8 @@ void Utils::convertPlainText(QString &text)
     UpTextEdit textprov;
     textprov.setText( text );
     text = textprov.toPlainText();
-    while (text.at(text.size()-1).unicode() == 10)
-        text.remove(text.size()-1,1);
-//    while (text.endsWith("\n"))
-//        text = text.left(text.size()-1);
+    while (text.endsWith("\n"))
+        text = text.left(text.size()-1);
 }
 
 /*!
@@ -298,12 +296,11 @@ void Utils::supprimeAncre(QString &text, QString ancredebut, QString ancrefin)
  */
 QSize Utils::CalcSize(QString txt, QFont fm)
 {
-    double correction = (txt.contains("<b>")? 1.2 : 1); //le 1.2 est là pour tenir compte des éventuels caractères gras
-    correction = 1.2;
+    double correction = (txt.contains("<b>")? 1.2 : 1.1); //le 1.2 est là pour tenir compte des éventuels caractères gras
     convertPlainText(txt);
     QStringList lmsg            = txt.split("\n");
     int         w               = 0;
-    double      hauteurligne    = QFontMetrics(fm).height()*1.2;
+    double      hauteurligne    = QFontMetrics(fm).height()*correction;
     int         nlignes         = lmsg.size();
     for (int k=0; k<nlignes; k++)
     {

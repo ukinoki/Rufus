@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QSettings>
 #include "upsmallbutton.h"
+#include "uppushbutton.h"
 #include "macros.h"
 
 class UpDialog : public QDialog
@@ -62,7 +63,7 @@ public:
     void            AjouteLayButtons(Buttons Button=ButtonOK);
     void            AjouteWidgetLayButtons(QWidget *widg, bool ALaFin = true);
     void            setMode(QString);
-    void            TuneSize();
+    void            TuneSize(bool fix = true);
     QString         mode();
     QVBoxLayout*    dlglayout();
     QHBoxLayout*    buttonslayout();

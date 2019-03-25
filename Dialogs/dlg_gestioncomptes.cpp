@@ -59,7 +59,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *DataUser,
     AjouteWidgetLayButtons(NouvBanqupPushButton);
     AjouteLayButtons(UpDialog::ButtonClose);
     CloseButton             ->setText(tr("Fermer"));
-    setStageCount(1);
+    //setStageCount(1);
 
     connect(CloseButton,                    &QPushButton::clicked,      this, &dlg_gestioncomptes::Fermer);
     connect(ui->OKModifupSmallButton,       &QPushButton::clicked,      this, &dlg_gestioncomptes::ValidCompte);

@@ -697,10 +697,10 @@ void dlg_documents::MenuContextuel(QWidget *widg)
             else
                 pAction_PublicDossier       = gmenuContextuel->addAction(tr("Public")) ;
 
-            connect (pAction_ModifDossier,  &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierDossier");});
-            connect (pAction_SupprDossier,  &QAction::triggered,    [=] {ChoixMenuContextuel("SupprimerDossier");});
-            connect (pAction_CreerDossier,  &QAction::triggered,    [=] {ChoixMenuContextuel("CreerDossier");});
-            connect (pAction_PublicDossier, &QAction::triggered,    [=] {ChoixMenuContextuel("PublicDossier");});
+            connect (pAction_ModifDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuel("ModifierDossier");});
+            connect (pAction_SupprDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuel("SupprimerDossier");});
+            connect (pAction_CreerDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuel("CreerDossier");});
+            connect (pAction_PublicDossier, &QAction::triggered,    this, [=] {ChoixMenuContextuel("PublicDossier");});
         }
         else if (ui->DocupTableWidget->isAncestorOf(line))
         {
@@ -739,11 +739,11 @@ void dlg_documents::MenuContextuel(QWidget *widg)
             pAction_PublicDoc   ->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
             pAction_EditableDoc ->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
 
-            connect (pAction_ModifDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierDoc");});
-            connect (pAction_SupprDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("SupprimerDoc");});
-            connect (pAction_CreerDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("CreerDoc");});
-            connect (pAction_PublicDoc,     &QAction::triggered,    [=] {ChoixMenuContextuel("PublicDoc");});
-            connect (pAction_EditableDoc,   &QAction::triggered,    [=] {ChoixMenuContextuel("EditDoc");});
+            connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("ModifierDoc");});
+            connect (pAction_SupprDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("SupprimerDoc");});
+            connect (pAction_CreerDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("CreerDoc");});
+            connect (pAction_PublicDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuel("PublicDoc");});
+            connect (pAction_EditableDoc,   &QAction::triggered,    this, [=] {ChoixMenuContextuel("EditDoc");});
         }
     }
 
@@ -781,11 +781,11 @@ void dlg_documents::MenuContextuel(QWidget *widg)
             pAction_Fontunderline   = gmenuContextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
             pAction_Fontnormal      = gmenuContextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
 
-            connect (pAction_ModifPolice,       &QAction::triggered,    [=] {ChoixMenuContextuel("Police");});
-            connect (pAction_Fontbold,          &QAction::triggered,    [=] {ChoixMenuContextuel("Gras");});
-            connect (pAction_Fontitalic,        &QAction::triggered,    [=] {ChoixMenuContextuel("Italique");});
-            connect (pAction_Fontunderline,     &QAction::triggered,    [=] {ChoixMenuContextuel("Souligne");});
-            connect (pAction_Fontnormal,        &QAction::triggered,    [=] {ChoixMenuContextuel("Normal");});
+            connect (pAction_ModifPolice,       &QAction::triggered,    this, [=] {ChoixMenuContextuel("Police");});
+            connect (pAction_Fontbold,          &QAction::triggered,    this, [=] {ChoixMenuContextuel("Gras");});
+            connect (pAction_Fontitalic,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Italique");});
+            connect (pAction_Fontunderline,     &QAction::triggered,    this, [=] {ChoixMenuContextuel("Souligne");});
+            connect (pAction_Fontnormal,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Normal");});
             gmenuContextuel->addSeparator();
         }
         pAction_Blockleft       = gmenuContextuel->addAction(Icons::icBlockLeft(),          tr("Aligné à gauche"));
@@ -796,8 +796,8 @@ void dlg_documents::MenuContextuel(QWidget *widg)
         if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
             pAction_Copier          = gmenuContextuel->addAction(Icons::icCopy(),   tr("Copier"));
             pAction_Cut             = gmenuContextuel->addAction(Icons::icCut(),    tr("Couper"));
-            connect (pAction_Copier,            &QAction::triggered,    [=] {ChoixMenuContextuel("Copier");});
-            connect (pAction_Cut,               &QAction::triggered,    [=] {ChoixMenuContextuel("Couper");});
+            connect (pAction_Copier,            &QAction::triggered,    this, [=] {ChoixMenuContextuel("Copier");});
+            connect (pAction_Cut,               &QAction::triggered,    this, [=] {ChoixMenuContextuel("Couper");});
         }
         if (qApp->clipboard()->mimeData()->hasText()
                 || qApp->clipboard()->mimeData()->hasUrls()
@@ -1748,6 +1748,11 @@ int dlg_documents::AskDialog(QString titre)
     gAskDialog                  ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
     UpLineEdit  *Line           = new UpLineEdit(gAskDialog);
     UpLabel     *label          = new UpLabel(gAskDialog);
+    QString question            = tr("Entrez la question que vous voulez poser.");
+
+    label   ->setText(question);
+    label   ->setFixedSize(Utils::CalcSize(question));
+    Line    ->setFixedSize(Utils::CalcSize(question));
 
     gAskDialog->dlglayout()->setSpacing(4);
     gAskDialog->dlglayout()->insertWidget(0,Line);
@@ -1755,14 +1760,14 @@ int dlg_documents::AskDialog(QString titre)
 
     gAskDialog->setModal(true);
     gAskDialog->setSizeGripEnabled(false);
-    gAskDialog->setFixedSize(270,100);
+    //gAskDialog->setFixedSize(270,100);
     gAskDialog->move(QPoint(x()+width()/2,y()+height()/2));
     gAskDialog->setWindowTitle(titre);
     gAskDialog->AjouteLayButtons();
+    gAskDialog->TuneSize();
 
     connect(gAskDialog->OKButton,   &QPushButton::clicked,   [=] {gAskDialog->accept();});
 
-    label->setText(tr("Entrez la question que vous voulez poser."));
     Line->setValidator(new QRegExpValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
     return gAskDialog->exec();

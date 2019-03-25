@@ -126,6 +126,7 @@ QWidget* UpDialog::widgetbuttons()
  * avec des upsmallbuttons et du texte nbstages = 1
  * et plus si des widgets de plus grande taille dans le widget de buttons
  * à déterminer à chaque fois pifométriquement
+ * je sais, c'est du bricolage
  */
 void UpDialog::setStageCount(double nbstages)
 {
@@ -156,6 +157,8 @@ void UpDialog::AjouteWidgetLayButtons(QWidget *widg, bool ALaFin)
             but    ->setShortcut(QKeySequence("Meta+Return"));
         UpdateTabOrder();
     }
+    if (laybuttons->findChildren<UpPushButton *>().size()>1)
+        setStageCount(1);
 }
 
 void UpDialog::setMode(QString mode)
@@ -180,12 +183,36 @@ void UpDialog::setEnregPosition(bool a)
     EnregPosition = a;
 }
 
-void UpDialog::TuneSize()
+void UpDialog::TuneSize(bool fix)
 {
     int larg    = 0;
     int haut    = 0;
     int r,t,l,b;
-    layout()               ->getContentsMargins(&r,&t,&l,&b);
+    double stages = 0.0;
+    QList<QWidget*> listwidg = widgbuttons->findChildren<QWidget*>();
+    if (listwidg.size()>0)
+    {
+        for (int i=0; i<listwidg.size(); i++)
+        {
+            if (dynamic_cast<UpSmallButton*>(listwidg.at(i)) == Q_NULLPTR && dynamic_cast<UpPushButton*>(listwidg.at(i)))
+            {
+                stages = 0.0;
+                break;
+            }
+            if (dynamic_cast<UpPushButton*>(listwidg.at(i)) != Q_NULLPTR)
+                stages = 1;
+            if (dynamic_cast<UpSmallButton*>(listwidg.at(i)) != Q_NULLPTR && stages < 1)
+            {
+                if (dynamic_cast<UpSmallButton*>(listwidg.at(i))->text() =="")
+                    stages = 0.7;
+                else
+                    stages = 1;
+            }
+        }
+    }
+    if (stages > 0.0)
+        setStageCount(stages);
+    layout()    ->getContentsMargins(&r,&t,&l,&b);
     larg        = larg + r + l;
     haut        = haut + t + b;
     for (int i=0; i< layout()->count(); i++)
@@ -195,6 +222,9 @@ void UpDialog::TuneSize()
         haut += layout()->itemAt(i)->sizeHint().height();
     }
     haut += (layout()->count()-1) * layout()->spacing();
-    resize(larg, haut);
+    if (fix)
+        setFixedSize(larg,haut);
+    else
+        resize(larg, haut);
 }
 
