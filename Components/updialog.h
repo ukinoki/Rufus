@@ -39,7 +39,8 @@ public:
                 ButtonSuppr             = 0x4,
                 ButtonCancel            = 0x8,
                 ButtonClose             = 0x10,
-                ButtonEdit              = 0x20
+                ButtonEdit              = 0x20,
+                ButtonRecord            = 0x40
                 };
     Q_DECLARE_FLAGS(Buttons, Button)
 
@@ -58,7 +59,7 @@ private:
     double          stageheight = 35;
 
 public:
-    UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton;
+    UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton;
     void            setEnregPosition(bool);
     void            AjouteLayButtons(Buttons Button=ButtonOK);
     void            AjouteWidgetLayButtons(QWidget *widg, bool ALaFin = true);

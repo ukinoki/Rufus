@@ -30,9 +30,6 @@ PlayerControls::PlayerControls(QWidget *parent)
     stopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
     stopButton->setEnabled(false);
 
-    recfileButton = new QToolButton(this);
-    recfileButton->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
-
     slider      = new QSlider(Qt::Horizontal,this);
     slider      ->setFixedWidth(250);
     slider      ->setEnabled(true);
@@ -46,14 +43,12 @@ PlayerControls::PlayerControls(QWidget *parent)
     layout->addWidget(playButton);
     layout->addWidget(slider);
     layout->addWidget(labelDuration);
-    layout->addWidget(recfileButton);
     setLayout(layout);
 
     player = Q_NULLPTR;
 
     connect(playButton,     SIGNAL(clicked()),                  this, SLOT(playClicked()));
     connect(stopButton,     SIGNAL(clicked()),                  this, SLOT(stopClicked()));
-    connect(recfileButton,  SIGNAL(clicked(bool)),              this, SLOT(recvideo()));
 }
 
 PlayerControls::~PlayerControls()
@@ -122,12 +117,6 @@ void PlayerControls::positionChanged(qint64 progress)
     updateDurationInfo(progress);
     if (progress == player->duration())
         stopClicked();
-}
-
-void PlayerControls::recvideo()
-{
-    stopClicked();
-    emit recfile();
 }
 
 void PlayerControls::updateDurationInfo(qint64 progress)

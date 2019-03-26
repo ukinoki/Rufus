@@ -48,13 +48,11 @@ public:
 
 signals:
     void ctrl();
-    void recfile();
 
 private slots:
     void playClicked();
     void stopClicked();
     void playSeek(int);
-    void recvideo();
     void positionChanged(qint64 progress);
     void updateDurationInfo(qint64 progress);
     QString format(QMediaPlayer *plyr);
@@ -63,7 +61,6 @@ private:
     QMediaPlayer    *player;
     QAbstractButton *playButton;
     QAbstractButton *stopButton;
-    QAbstractButton *recfileButton;
     QSlider         *slider;
     QLabel          *labelDuration;
     int             state;

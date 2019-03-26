@@ -51,6 +51,12 @@ void UpDialog::AjouteLayButtons(Buttons Button)
 {
     // le Button Cancel est toujours le plus à gauche
     // Close le plus à droite et OK juste avant Close
+    if (Button.testFlag(UpDialog::ButtonRecord))
+    {
+        RecordButton    = new UpSmallButton();
+        RecordButton    ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
+        laybuttons      ->addWidget(RecordButton);
+    }
     if (Button.testFlag(UpDialog::ButtonCancel))
     {
         CancelButton    = new UpSmallButton();

@@ -107,7 +107,7 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
 
     sw                  = new UpSwitch(this);
     AjouteWidgetLayButtons(sw, false);
-    AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
+    AjouteLayButtons(UpDialog::ButtonRecord | UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
     //setStageCount(1);
 
 
@@ -137,7 +137,6 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
     connect (AllDocsupCheckBox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(AllDocsupCheckBox);});
     connect (OnlyImportantDocsupCheckBox,   &QCheckBox::toggled,            this,   [=] {FiltrerListe(OnlyImportantDocsupCheckBox);});
     connect (playctrl,                      &PlayerControls::ctrl,          this,   [=] {PlayerCtrl(playctrl->State());});
-    connect (playctrl,                      &PlayerControls::recfile,       this,   &dlg_docsexternes::EnregistreVideo);
     connect (proc,                          &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
     connect (PrintButton,                   &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
 
@@ -352,6 +351,8 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     PrintButton                 ->setVisible(true);
     PrintButton                 ->setEnabled(true);
     SupprButton                 ->setEnabled(true);
+    RecordButton                ->setVisible((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && DataBase::getInstance()->getMode() != DataBase::Distant);
+    RecordButton                ->disconnect();
     QPixmap pix;
     glistPix    .clear();
     ScrollTable ->clear();
@@ -403,6 +404,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         player                  ->setVideoOutput(videoItem);
         playctrl                ->setVisible(true);
         PrintButton             ->setVisible(false);
+        connect (RecordButton,  &QPushButton::clicked,   this,   &dlg_docsexternes::EnregistreVideo);
         x = videoItem->size().width();
         y = videoItem->size().height();
         idealproportion = x/y;
