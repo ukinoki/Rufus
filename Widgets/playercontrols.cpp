@@ -49,6 +49,7 @@ PlayerControls::PlayerControls(QWidget *parent)
 
     connect(playButton,     SIGNAL(clicked()),                  this, SLOT(playClicked()));
     connect(stopButton,     SIGNAL(clicked()),                  this, SLOT(stopClicked()));
+    setFixedWidth(450);
 }
 
 PlayerControls::~PlayerControls()

@@ -419,6 +419,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         bool pict = (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU);
         QMap<QString,QVariant> doc = CalcImage(docmt->id(), pict, true);
         QByteArray bapdf = doc.value("ba").toByteArray();
+        connect (RecordButton,  &QPushButton::clicked,   this,  [=] {EnregistreImage(docmt);});
         if (doc.value("Type").toString() == JPG)     // le document est un JPG
         {
             inflabel->setParent(GraphicView);
@@ -621,6 +622,25 @@ int dlg_docsexternes::ActualiseDocsExternes()
         RemplirTreeView();
     }
     return m_ListDocs.docsexternes()->size();
+}
+
+void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
+{
+    QString filename = proc->DirImagerie() + NOMDIR_IMAGES + docmt->lienversfichier();
+    QFile img(filename);
+    if (!img.open(QIODevice::ReadOnly))
+    {
+        UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
+        return;
+    }
+    QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
+    dialog.setFileMode(QFileDialog::Directory);
+    dialog.setViewMode(QFileDialog::List);
+    if (dialog.exec()>0)
+    {
+        QDir dockdir = dialog.directory();
+        img.copy(dockdir.path() + "/" + patient->prenom() + " " + patient->nom() + " "+ docmt->soustypedoc() + "." + QFileInfo(img).suffix());
+    }
 }
 
 void dlg_docsexternes::EnregistreVideo()
