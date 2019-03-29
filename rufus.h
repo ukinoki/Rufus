@@ -367,7 +367,7 @@ private:
         QAction         *actionParametres, *actionSupprimerActe, *actionSupprimerDossier, *actionRechercheParMotCle, *actionRechercheParID;
         QAction         *actionDossierPatient, *actionCorrespondants, *actionEnregistrerDocScanner, *actionEnregistrerVideo, *actionRechercheCourrier;
         QAction         *actionGestionComptesBancaires, *actionPaiementDirect, *actionPaiementTiers, *actionPaiementTiers2, *actionRecettesSpeciales, *actionResumeStatut;
-        QAction         *actionBilanRecettes, *actionJournalDepenses, *actionRemiseCheques, *actionImpayes;
+        QAction         *actionBilanRecettes, *actionJournalDepenses, *actionRemiseCheques;
         QAction         *actionQuit;
 };
 

@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("27-03-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("28-03-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1037,7 +1037,6 @@ void Rufus::AfficheMenu(QMenu *menu)
         actionBilanRecettes->setEnabled(a);
         actionRemiseCheques->setEnabled(a);
         actionRecettesSpeciales->setEnabled(a);
-        actionImpayes->setEnabled(a);
         actionParametres->setEnabled(a);
         actionRechercheCourrier->setVisible(gDataUser->isSoignant() && a);
         if (gDataUser->isSoignant())
@@ -7267,7 +7266,6 @@ void Rufus::CreerMenu()
     actionJournalDepenses           = new QAction(tr("Journal des dépenses"));
     actionGestionComptesBancaires   = new QAction(tr("Gestion des comptes bancaires"));
     actionRemiseCheques             = new QAction(tr("Effectuer une remise de chèques"));
-    actionImpayes                   = new QAction(tr("Impayés"));
 
     menuComptabilite->addAction(actionPaiementDirect);
     menuComptabilite->addAction(actionPaiementTiers);
@@ -7281,7 +7279,6 @@ void Rufus::CreerMenu()
     menuComptabilite->addSeparator();
     menuComptabilite->addAction(actionGestionComptesBancaires);
     menuComptabilite->addAction(actionRemiseCheques);
-    menuComptabilite->addAction(actionImpayes);
 
     connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   &Rufus::GestionComptes);
     connect (actionPaiementDirect,              &QAction::triggered,        this,                   [=] {AppelPaiementDirect();});
@@ -8230,7 +8227,6 @@ void Rufus::InitMenus()
     actionJournalDepenses           ->setVisible(a);
     actionGestionComptesBancaires   ->setVisible(gDataUser->isComptable());
     actionRemiseCheques             ->setVisible(a);
-    actionImpayes                   ->setVisible(a);
     menuComptabilite                ->setVisible(a || (gDataUser->isSalarie() && !gDataUser->isAssistant()) || gDataUser->isRemplacant());
     actionEnregistrerVideo          ->setVisible(db->getMode() != DataBase::Distant);
 }
