@@ -21,7 +21,7 @@ TcpSocket* TcpSocket::instance = Q_NULLPTR;
 
 TcpSocket* TcpSocket::getInstance()
 {
-    if( !instance )
+    if (instance == Q_NULLPTR)
         instance = new TcpSocket();
     return instance;
 }
@@ -59,14 +59,19 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
                                                             Logs::MSGSOCKET("Serveur trouvé");
                                                           });
     connectToHost(ipadrserver,PortTCPServer);     // On se connecte au serveur
-    if (waitForConnected())
+    if (waitForConnected(30000))
     {
         connect(this,                 &QTcpSocket::readyRead,                                              this,   &TcpSocket::TraiteDonneesRecues);
         connect(this,                 QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),this,   &TcpSocket::erreurSocket);
         return true;
     }
     else
+    {
+        disconnect();
+        disconnectFromHost();
+        instance = Q_NULLPTR;
         return false;
+    }
 }
 
 void TcpSocket::TraiteDonneesRecues()

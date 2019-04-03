@@ -190,7 +190,7 @@ bool dlg_gestioncotations::VerifFiche()
         {
             req = "update " NOM_TABLE_COTATIONS " set "
                   " MontantOPTAM = "    + QString::number(QLocale().toDouble(ui->TarifOPTAMupLineEdit->text())) + ", " +
-                  " MontantOPTAM = "    + QString::number(QLocale().toDouble(ui->TarifNonOPTAMupLineEdit->text())) + ", " +
+                  " MontantNonOPTAM = " + QString::number(QLocale().toDouble(ui->TarifNonOPTAMupLineEdit->text())) + ", " +
                   " MontantPratique = " + QString::number(QLocale().toDouble(ui->TarifPratiqueupLineEdit->text())) +
                   " where"
                   " idUser = "          + QString::number(gidUser) +

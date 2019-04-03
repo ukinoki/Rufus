@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("28-03-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("03-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -119,29 +119,46 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (proc->isadminpresent())
     {
         TcPConnect = TcpSocket::getInstance();
-        dlg_message(QStringList() << tr("Connexion au serveur TCP"));
-        UtiliseTCP = TcPConnect->TcpConnectToServer();
-        if (!UtiliseTCP)
+        QVariantList serverdata = db->getFirstRecordFromStandardSelectSQL("select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME, ok);
+        if(!ok || serverdata.size()==0)
         {
-            dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Fonctionnement sans Tcpsocket"), 5000, false);
-            UtiliseTCP = false;
+            dlg_message(QStringList() << tr("Aucun serveur TCP enregistré"));
         }
         else
         {
-            dlg_message(QStringList() << tr("Connexion TCP OK"), 3000, false);
-            connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});  // traitement des messages reçus
-            // envoi iduser
-            envoieMessage(QString::number(db->getUserConnected()->id()) + TCPMSG_idUser);
-            // envoi adresse IP, adresse MAC, nom d'hôte
-            envoieMessage(Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
+            Utils::Pause(100);
+            dlg_message(QStringList() << tr("Connexion au serveur TCP ") + serverdata.at(0).toString(), false);
+            Utils::Pause(100);
+            UtiliseTCP = TcPConnect->TcpConnectToServer();
+            if (!UtiliseTCP)
+            {
+                // on réessaie une 2ème fois (parfois le serveur met du temps à se réveiller)
+                delete TcPConnect;
+                Utils::Pause(100);
+                dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Nouvelle tentative de connexion au serveur ") + serverdata.at(0).toString(), 5000, false);
+                Utils::Pause(2000);
+                TcPConnect = TcpSocket::getInstance();
+                UtiliseTCP = TcPConnect->TcpConnectToServer();
+            }
+            if (!UtiliseTCP)
+                dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Fonctionnement sans Tcpsocket"), 5000, false);
+            else
+            {
+                dlg_message(QStringList() << tr("Connexion TCP OK"), 3000, false);
+                connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});  // traitement des messages reçus
+                // envoi iduser
+                envoieMessage(QString::number(db->getUserConnected()->id()) + TCPMSG_idUser);
+                // envoi adresse IP, adresse MAC, nom d'hôte
+                envoieMessage(Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
+            }
         }
     }
     proc->setoktcp(UtiliseTCP);
 
     // 6 - mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
-    gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente, utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
-    gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants, utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
+    gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente                                                          utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
+    gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants                                                 utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerUserConnecte          = new QTimer(this);     // mise à jour de la connexion à la base de données
     gTimerVerifImportateurDocs  = new QTimer(this);     // vérifie que le poste importateur des documents externes est toujours là
     gTimerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base

@@ -1634,18 +1634,11 @@ void dlg_param::ModifAssocCCAM()
 {
     QString CodeActe = "";
     QString TypeTabl = "Assoc";
-    if (ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
-    {
-        int row = ui->ActesCCAMupTableWidget->selectedRanges().at(0).topRow();
-        CodeActe = ui->ActesCCAMupTableWidget->item(row,1)->text();
-        TypeTabl = "CCAM";
-    }
-    if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
-    {
-        int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
-        CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
-        TypeTabl = "Assoc";
-    }
+    if (ui->AssocCCAMupTableWidget->selectedRanges().size()==0)
+        return;
+    int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
+    CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
+    TypeTabl = "Assoc";
     Dlg_CrrCot = new dlg_gestioncotations(TypeTabl, "Modification", CodeActe);
     Dlg_CrrCot->setWindowTitle(tr("Modification des actes"));
     Dlg_CrrCot->Initialise();

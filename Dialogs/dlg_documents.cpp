@@ -2073,6 +2073,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->DocupTableWidget->setCellWidget(row,0,w);
         UpLineEdit *upLine0 = new UpLineEdit;
         upLine0->setText(tr("Nouveau document"));                          // resume
+        upLine0->setMaxLength(50);
         upLine0->setRowTable(row);
         upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
@@ -2204,6 +2205,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->DossiersupTableWidget->setCellWidget(row,0,w);
         UpLineEdit *upLine0 = new UpLineEdit;
         upLine0->setText(tr("Nouveau dossier"));                          // resume
+        upLine0->setMaxLength(80);
         upLine0->setRowTable(row);
         upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
@@ -2975,6 +2977,7 @@ void dlg_documents::Remplir_TableWidget()
         ui->DocupTableWidget->setCellWidget(i,col,w);
         col++; //1
         upLine0->setText(listdocs.at(i).at(0).toString());                          // resume
+        upLine0->setMaxLength(50);
         upLine0->setRowTable(i);
         upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
@@ -3084,6 +3087,7 @@ void dlg_documents::Remplir_TableWidget()
 
         col++; //1
         upLine0->setText(listdossiers.at(i).at(0).toString());                           // resume
+        upLine0->setMaxLength(80);
         upLine0->setRowTable(i);
         upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");

@@ -28,7 +28,7 @@ class TcpSocket : public QTcpSocket
 {
     Q_OBJECT
 public:
-    static TcpSocket* getInstance();
+    static TcpSocket*   getInstance();
     bool                TcpConnectToServer(QString ipadrserver = "");   /* Crée la connexion avec le TcpServer sur le réseau */
     void                envoieMessage(QString msg);                     /* envoi d'un message au serveur pour être redispatché vers tous les clients */
 
