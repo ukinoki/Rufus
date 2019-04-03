@@ -100,7 +100,7 @@ QTPLUGIN += QSQLMYSQL
 DISTFILES += \
     _Diagrams/ImpressionsRufus.vpp \
     _Diagrams/readme.txt \
-    _Diagrams/Recuperation_CCAM-howto.txt
-    _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf
+    _Diagrams/Recuperation_CCAM-howto.txt \
+    _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf \
     Rufus.AppDir/Rufus.desktop \
     Rufus.AppDir/rufus.png
