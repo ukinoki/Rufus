@@ -113,8 +113,8 @@ LIBS += -L/usr/local/lib -lpoppler-qt5
 DISTFILES += \
     _Diagrams/ImpressionsRufus.vpp \
     _Diagrams/readme.txt \
-    _Diagrams/Gestion des documents sous Rufus.pdf
-    _Diagrams/Recuperation_CCAM-howto.txt
+    _Diagrams/Gestion des documents sous Rufus.pdf \
+    _Diagrams/Recuperation_CCAM-howto.txt \
     _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf
 ALEX {
     DEFINES += ALEX
