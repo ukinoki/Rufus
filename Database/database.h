@@ -166,7 +166,6 @@ public:
     /*
      * Cotations
     */
-    QList<Cotation*> loadCotations();
     QStringList loadTypesCotations();
     QList<Cotation*> loadCotationsByUser(int iduser);
 

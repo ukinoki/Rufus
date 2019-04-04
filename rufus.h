@@ -64,6 +64,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "tcpsocket.h"
 
 #include "importdocsexternesthread.h"
+#include "log.h"
 
 #include "conversionbase.h"
 #include "pyxinterf.h"

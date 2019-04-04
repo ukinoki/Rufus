@@ -28,7 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
 * \file Log.h
-* \brief Cette classe permet d'écrire des logs visuels eet dans des fichiers physiques
+* \brief Cette classe permet d'écrire des logs visuels et dans des fichiers physiques
 * \author Alexanre.D
 * \version 0.1
 * \date 12 juin 2018

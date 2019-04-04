@@ -1080,43 +1080,16 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
 /*
  * Cotations
 */
-QList<Cotation*> DataBase::loadCotations()
-{
-    QString  req = " select idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, Frequence from " NOM_TABLE_COTATIONS;
-    QList<Cotation*> cotations;
-    QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
-    if(!ok || cotlist.size()==0)
-        return cotations;
-    for (int i=0; i<cotlist.size(); ++i)
-    {
-        QJsonObject jcotation{};
-        jcotation["id"] = cotlist.at(i).at(0).toInt();
-        jcotation["typeacte"] = cotlist.at(i).at(1).toString();
-        jcotation["montantoptam"] = cotlist.at(i).at(2).toDouble();
-        jcotation["montantnonoptam"] = cotlist.at(i).at(3).toDouble();
-        jcotation["montantpratique"] = cotlist.at(i).at(4).toDouble();
-        jcotation["ccam"] = (cotlist.at(i).at(5).toInt()==1);
-        jcotation["iduser"] = cotlist.at(i).at(6).toInt();
-        jcotation["frequence"] = cotlist.at(i).at(7).toInt();
-        jcotation["descriptif"] = "";
-        Cotation *cotation = new Cotation(jcotation);
-        cotations << cotation;
-    }
-    return cotations;
-}
-
-/*
- * Cotations
-*/
 QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
 {
     int k = 0;
 
     QList<Cotation*> cotations;
-    QString  req = "SELECT idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, Frequence, nom"
+    QString  req = "SELECT idcotation, Typeacte, OPTAM, noOPTAM, MontantPratique, CCAM, Frequence, nom"
           " FROM " NOM_TABLE_COTATIONS " cot left join " NOM_TABLE_CCAM " cc on cot.typeacte= cc.codeccam"
           " where idUser = " + QString::number(iduser) + " and typeacte in (select codeccam from " NOM_TABLE_CCAM ")"
           " order by typeacte";
+    //qDebug() << req;
     QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
     if(!ok)
         return cotations;

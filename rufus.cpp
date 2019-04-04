@@ -126,12 +126,14 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
         else
         {
+            QByteArray ba;
             Utils::Pause(100);
             dlg_message(QStringList() << tr("Connexion au serveur TCP ") + serverdata.at(0).toString(), false);
             Utils::Pause(100);
             UtiliseTCP = TcPConnect->TcpConnectToServer();
             if (!UtiliseTCP)
             {
+                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", "Echec 1ere connexion - " + ba.append(QTime::currentTime().toString("hh:mm::ss")) );
                 // on réessaie une 2ème fois (parfois le serveur met du temps à se réveiller)
                 delete TcPConnect;
                 Utils::Pause(100);
@@ -141,7 +143,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 UtiliseTCP = TcPConnect->TcpConnectToServer();
             }
             if (!UtiliseTCP)
+            {
+                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", "Echec 2ème connexion - " + ba.append(QTime::currentTime().toString("hh:mm::ss")) );
                 dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Fonctionnement sans Tcpsocket"), 5000, false);
+            }
             else
             {
                 dlg_message(QStringList() << tr("Connexion TCP OK"), 3000, false);
@@ -385,7 +390,7 @@ void Rufus::Connect_Slots()
     if (proc->PortFronto()!=Q_NULLPTR || proc->PortAutoref()!=Q_NULLPTR || proc->PortRefracteur()!=Q_NULLPTR)
         connect(proc,                                               &Procedures::NouvMesureRefraction,                  this,   [=] {NouvelleMesureRefraction();});
 
-    connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   [=] {Moulinette();});
+    connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Moulinette);
     ui->MoulinettepushButton->setVisible(false);
 }
 
@@ -416,7 +421,7 @@ void Rufus::OuvrirDocsExternes(int idpat, bool depuismenucontextuel)
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
--- // mettre à jour dlg_actesprecedents aund le contenu de l'acte affiché a été modifié  --------------------------
+-- // mettre à jour dlg_actesprecedents quand le contenu de l'acte affiché a été modifié  --------------------------
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::MAJActesPrecs()
 {
@@ -457,8 +462,43 @@ void Rufus::MAJDocsExternes()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::Moulinette()
 {
-    envoieMessage("testtesttest");
-    return;
+
+    // MODIFICATION DES TABLES CCAM ============================================================================================================================================================
+    bool ok;
+    QString req = "select codeccam from rufus.ccam";
+    QList<QVariantList> listcodes = db->StandardSelectSQL(req, ok);
+    for (int i=0; i< listcodes.size(); i++)
+    {
+        qDebug() << i+1 << " - " << listcodes.at(i).at(0);
+        QString code = listcodes.at(i).at(0).toString();
+        req = "select max(date) from rufus.r_pu_base where codeccam = '" + code + "'";
+        //qDebug() << req;
+        QDate date = db->StandardSelectSQL(req , ok).at(0).at(0).toDate();
+        req = "select max(montant), min(montant) from rufus.r_pu_base"
+              " where codeccam = '" + code + "' and date = '" + date.toString("yyyy-MM-dd") + "'";
+        //qDebug() << req;
+        QVariantList opt = db->StandardSelectSQL(req, ok).at(0);
+        req = "update rufus.ccam set"
+              " OPTAM = " + QString::number(opt.at(0).toDouble(), 'f', 2) + ","
+              " noOPTAM = " + QString::number(opt.at(1).toDouble(), 'f', 2) +
+              " where codeccam = '" + code + "'";
+        //qDebug() << req;
+        db->StandardSQL(req);
+     }
+    /*    QString req= "select codeCCAM, modificateur, montant from ccam.ccamd";
+    QSqlQuery quer(req, db->getDataBase() );
+    for (int i=0; i< quer.size(); i++)
+    {
+        quer.seek(i);
+        if (quer.value(1).toInt()==1)
+            req = "update ccam.ccamd set OPTAM = " + quer.value(2).toString().replace(",",".") + " where codeCCAM = '" + quer.value(0).toString() + "'";
+        else if (quer.value(1).toInt()==2)
+            req = "update ccam.ccamd set NoOPTAM = " + quer.value(2).toString().replace(",",".") + " where codeCCAM = '" + quer.value(0).toString() + "'";
+        //proc->Edit(req);
+        QSqlQuery(req, db->getDataBase() );
+    }
+    */
+
     /*QString req, str;
     QTextEdit txt;
     req = "select idimpression, Titre from " NOM_TABLE_IMPRESSIONS " where soustypedoc = null and typedoc = 'DocRecu'";
@@ -599,21 +639,6 @@ void Rufus::Moulinette()
     }
     */
 
-    /*
-    // MODIFICATION DES TABLES CCAM ============================================================================================================================================================
-    QString req= "select codeCCAM, modificateur, montant from ccam.ccamd";
-    QSqlQuery quer(req, db->getDataBase() );
-    for (int i=0; i< quer.size(); i++)
-    {
-        quer.seek(i);
-        if (quer.value(1).toInt()==1)
-            req = "update ccam.ccamd set OPTAM = " + quer.value(2).toString().replace(",",".") + " where codeCCAM = '" + quer.value(0).toString() + "'";
-        else if (quer.value(1).toInt()==2)
-            req = "update ccam.ccamd set NoOPTAM = " + quer.value(2).toString().replace(",",".") + " where codeCCAM = '" + quer.value(0).toString() + "'";
-        //proc->Edit(req);
-        QSqlQuery(req, db->getDataBase() );
-    }
-    */
 
     /*
     // CORRECTION DE LA BASE VILLES - ELIMINATION DES TIRETS ============================================================================================================================================================
@@ -646,7 +671,7 @@ void Rufus::Moulinette()
     proc->Edit("OK pour villes");*/
 
 
-    // CREATION D'UNE BASE FACTICE ============================================================================================================================================================
+/*    // CREATION D'UNE BASE FACTICE ============================================================================================================================================================
     //Mélange les noms, et 1ère ligne d'adresse dans la base
     if (UpMessageBox::Question(this,tr("ATTENTION"),tr("Cette fonction sert à générer une base factice pour la démonstration du logiciel") + "<br />"
                                + tr("Si vous cliquez sur OK, tous les enregistrements de la base seront mélangés et les données seront donc irrémédiablement perdues")) != UpSmallButton::STARTBUTTON)
@@ -851,6 +876,7 @@ void Rufus::Moulinette()
         db->StandardSQL(Corcopierequete);
     }
     UpMessageBox::Watch(this,"OK pour Correspondants");
+    */
 }
 
 void Rufus::ActeMontantModifie()

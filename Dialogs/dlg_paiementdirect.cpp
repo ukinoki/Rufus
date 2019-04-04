@@ -1868,8 +1868,7 @@ void dlg_paiementdirect::ReconstruitListeBanques()
 void dlg_paiementdirect::PoseVerrouCompta(int ActeAVerrouiller)
 {
     QString verrourequete = "select idActe from " NOM_TABLE_VERROUCOMPTAACTES " where idActe = " + QString::number(ActeAVerrouiller);
-    qDebug() << verrourequete;
-    //UpMessageBox::Watch(this,verrourequete);
+    //qDebug() << verrourequete;
     QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(verrourequete, ok);
     if (!ok)
         return;

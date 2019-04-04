@@ -208,7 +208,7 @@ void dlg_listecorrespondants::ReconstruitListeCorrespondants(QString filtre)
     for (int i=0; i<listmetiers.size(); i++)
     {
         gmodele->appendRow(listmetiers.at(i));
-        qDebug() << gmodele->item(i)->text();
+        //qDebug() << gmodele->item(i)->text();
     }
 
     QMap<int, Correspondant *>::const_iterator itcor;

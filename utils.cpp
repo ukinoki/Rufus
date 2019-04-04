@@ -474,7 +474,7 @@ void Utils::cleanfolder(const QString DirPath)
     if (list.size()==0)
     {
         dir.rmdir(DirPath);
-        qDebug() << "dossier vide effacé" << DirPath;
+        //qDebug() << "dossier vide effacé" << DirPath;
     }
     else for(int i = 0; i < list.size(); ++i)
     {
