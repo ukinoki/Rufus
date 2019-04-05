@@ -122,14 +122,19 @@ void dlg_gestioncotations::Initialise()
     else
     {
         ui->CodeActeupLineEdit->setText(gCodeActe);
-        req = " select montantoptam, montantnonoptam, montantpratique from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
+        if (gCodeActe!=CCAM)
+            req = " select montantoptam, montantnonoptam, montantpratique from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
+        else
+            req = " select optam, nonoptam, montantpratique from " NOM_TABLE_COTATIONS " cot left join " NOM_TABLE_CCAM " cc on cot.typeacte= cc.codeccam"
+                  " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
         bool ok;
         QVariantList listcot = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (ok && listcot.size()>0)
         {
             ui->TarifOPTAMupLineEdit    ->setText(QLocale().toString(listcot.at(0).toDouble(),'f',2));
             ui->TarifNonOPTAMupLineEdit ->setText(QLocale().toString(listcot.at(1).toDouble(),'f',2));
-            ui->TarifPratiqueupLineEdit ->setText(QLocale().toString(listcot.at(2).toDouble(),'f',2));
+            ui->TarifOPTAMupLineEdit    ->setEnabled(gCodeActe!=CCAM);
+            ui->TarifNonOPTAMupLineEdit ->setEnabled(gCodeActe!=CCAM);
         }
     }
 }

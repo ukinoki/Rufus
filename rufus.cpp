@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("03-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("05-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -118,22 +118,26 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     UtiliseTCP = false;
     if (proc->isadminpresent())
     {
-        TcPConnect = TcpSocket::getInstance();
+        QByteArray ba;
+        QString log;
         QVariantList serverdata = db->getFirstRecordFromStandardSelectSQL("select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME, ok);
-        if(!ok || serverdata.size()==0)
+        if(!ok || serverdata.size()==0 || serverdata.at(0).toString() == "")
         {
-            dlg_message(QStringList() << tr("Aucun serveur TCP enregistré"));
+            log = tr("Aucun serveur TCP enregistré");
+            Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", ba.append(log + " - " +QTime::currentTime().toString("hh:mm::ss")) );
+            dlg_message(QStringList() << log, false);
         }
         else
         {
-            QByteArray ba;
             Utils::Pause(100);
             dlg_message(QStringList() << tr("Connexion au serveur TCP ") + serverdata.at(0).toString(), false);
             Utils::Pause(100);
+            TcPConnect = TcpSocket::getInstance();
             UtiliseTCP = TcPConnect->TcpConnectToServer();
             if (!UtiliseTCP)
             {
-                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", "Echec 1ere connexion - " + ba.append(QTime::currentTime().toString("hh:mm::ss")) );
+                log = tr("Echec 1ere connexion");
+                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", ba.append(log + " - " + QTime::currentTime().toString("hh:mm::ss")) );
                 // on réessaie une 2ème fois (parfois le serveur met du temps à se réveiller)
                 delete TcPConnect;
                 Utils::Pause(100);
@@ -144,7 +148,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             }
             if (!UtiliseTCP)
             {
-                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", "Echec 2ème connexion - " + ba.append(QTime::currentTime().toString("hh:mm::ss")) );
+                log = tr("Echec 2ème connexion");
+                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", ba.append(log + " - " + QTime::currentTime().toString("hh:mm::ss")) );
                 dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Fonctionnement sans Tcpsocket"), 5000, false);
             }
             else

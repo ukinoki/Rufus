@@ -55,7 +55,6 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
         disconnectFromHost();
     connect(this,     &QTcpSocket::hostFound, this,   [=] {
                                                             qDebug() << "Serveur trouvé";
-                                                            dlg_message(QStringList() << "Serveur OK",3000);
                                                             Logs::MSGSOCKET("Serveur trouvé");
                                                           });
     connectToHost(ipadrserver,PortTCPServer);     // On se connecte au serveur
