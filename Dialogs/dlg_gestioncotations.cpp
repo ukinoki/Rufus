@@ -136,7 +136,6 @@ dlg_gestioncotations::dlg_gestioncotations(dlg_gestioncotations::TypeActe type, 
 
     QString req = "select distinct typeacte from " NOM_TABLE_COTATIONS " where CCAM = ";
     req += (gTypeActe == Association? "2" : "3");
-
     if (gMode == Creation)
     {
         bool ok;
