@@ -54,25 +54,29 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
 
     widgHN = new WidgetButtonFrame(ui->HorsNomenclatureupTableWidget);
     widgHN->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    connect(widgHN, SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
+    connect(widgHN,         SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
 
     widgAssocCCAM = new WidgetButtonFrame(ui->AssocCCAMupTableWidget);
     widgAssocCCAM->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    connect(widgAssocCCAM, SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
+    connect(widgAssocCCAM,  SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
+
     widgAssocCCAM->layButtons()->insertWidget(0, ui->ChercheCCAMlabel);
     widgAssocCCAM->layButtons()->insertWidget(0, ui->ChercheCCAMupLineEdit);
 
     QHBoxLayout *EnteteCCAMlay  = new QHBoxLayout();
     QHBoxLayout *Margelay       = new QHBoxLayout();
     QHBoxLayout *Marge2lay      = new QHBoxLayout();
-    QHBoxLayout *CCAMlay        = new QHBoxLayout();
+    QHBoxLayout *Marge0lay      = new QHBoxLayout();
+    QVBoxLayout *CCAMlay        = new QVBoxLayout();
     QVBoxLayout *AssocCCAMlay   = new QVBoxLayout();
     QVBoxLayout *HorsCCAMlay    = new QVBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
     int marge   = 10;
-    Cotationslay    ->setContentsMargins(marge,marge,marge,marge);
     Cotationslay    ->setSpacing(marge);
     marge = 0;
+    Cotationslay    ->setContentsMargins(marge,marge,marge,marge);
+    Marge0lay       ->setContentsMargins(marge,marge,marge,marge);
+    Marge0lay       ->setSpacing(marge);
     Margelay        ->setContentsMargins(marge,marge,marge,marge);
     Margelay        ->setSpacing(marge);
     Marge2lay       ->setContentsMargins(marge,marge,marge,marge);
@@ -83,21 +87,24 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     EnteteCCAMlay   ->setSpacing(marge);
 
     EnteteCCAMlay   ->addWidget(ui->ActesCCAMlabel);
+    EnteteCCAMlay   ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
     EnteteCCAMlay   ->addWidget(ui->OphtaSeulcheckBox);
 
-    CCAMlay         ->addWidget(ui->ShowCCAMlabel);
+    CCAMlay         ->addLayout(EnteteCCAMlay);
     CCAMlay         ->addWidget(ui->ActesCCAMupTableWidget);
-    CCAMlay         ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    CCAMlay         ->setStretch(0,0);
+    CCAMlay         ->setStretch(1,15);
 
-    Cotationslay    ->addLayout(EnteteCCAMlay);
-    Cotationslay    ->addLayout(CCAMlay);
+    Marge0lay       ->addWidget(ui->ShowCCAMlabel);
+    Marge0lay       ->addLayout(CCAMlay);
+    Marge0lay       ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    AssocCCAMlay     ->addWidget(ui->line_6);
+    Cotationslay    ->addLayout(Marge0lay);
+
     AssocCCAMlay     ->addWidget(ui->AssocCCAMlabel);
     AssocCCAMlay     ->addWidget(widgAssocCCAM->widgButtonParent());
-    AssocCCAMlay     ->setStretch(0,1);
-    AssocCCAMlay     ->setStretch(1,1);
-    AssocCCAMlay     ->setStretch(2,5);
+    AssocCCAMlay     ->setStretch(0,0);
+    AssocCCAMlay     ->setStretch(1,15);
 
     Marge2lay       ->addWidget(ui->Marge2Widget);
     Marge2lay       ->addLayout(AssocCCAMlay);
@@ -108,12 +115,9 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
 
     Cotationslay    ->addLayout(Marge2lay);
 
-    HorsCCAMlay     ->addWidget(ui->line_5);
     HorsCCAMlay     ->addWidget(ui->HorsNomenclaturelabel);
     HorsCCAMlay     ->addWidget(widgHN->widgButtonParent());
-    HorsCCAMlay     ->setStretch(0,1);
-    HorsCCAMlay     ->setStretch(1,1);
-    HorsCCAMlay     ->setStretch(2,5);
+    HorsCCAMlay     ->setStretch(0,15);
 
     Margelay        ->addWidget(ui->MargeWidget);
     Margelay        ->addLayout(HorsCCAMlay);
@@ -121,13 +125,11 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
 
     Cotationslay    ->addLayout(Margelay);
 
-    Cotationslay    ->setStretch(0,1);      // EnteteCCAMlay
-    Cotationslay    ->setStretch(1,11);     // CCAMlay
-    Cotationslay    ->setStretch(2,5);      // Marge2lay
-    Cotationslay    ->setStretch(3,5);      // Margelay
-    ui->Cotationswidget  ->setLayout(Cotationslay);
-    //ui->UserLayout->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    Cotationslay    ->setStretch(0,8);      // Marge0lay - les actes en CCAM
+    Cotationslay    ->setStretch(1,7);      // Marge2lay - les associations
+    Cotationslay    ->setStretch(2,5);      // Margelay - les actes hors nomenclature
 
+    ui->Cotationswidget  ->setLayout(Cotationslay);
 
     ui->UserParamtab    ->setLayout(ui->UserLayout);
     ui->GeneralParamtab ->setLayout(ui->GeneralLayout);
@@ -276,13 +278,13 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->PortableuplineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
     ui->EmplacementLocaluplineEdit  ->setValidator(new QRegExpValidator(Utils::rgx_IPV4_mask,this));
 
-    ui->ActesCCAMupTableWidget          ->setEnabled(true);
-    ui->AssocCCAMupTableWidget          ->setEnabled(true);
-    ui->HorsNomenclatureupTableWidget   ->setEnabled(true);
+    ui->AssocCCAMupTableWidget          ->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->HorsNomenclatureupTableWidget   ->setSelectionBehavior(QAbstractItemView::SelectRows);
     widgAssocCCAM                       ->setEnabled(false);
     widgHN                              ->setEnabled(false);
     ui->ActesCCAMlabel                  ->setEnabled(false);
     ui->OphtaSeulcheckBox               ->setEnabled(false);
+
     ui->LoginuplineEdit                 ->setEnabled(false);
     ui->MDPuplineEdit                   ->setEnabled(false);
     ui->idUseruplineEdit                ->setEnabled(false);
@@ -516,15 +518,21 @@ void dlg_param::Slot_AfficheToolTip(QTableWidgetItem *id)
         QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(id->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
     else if (sender() == ui->AssocCCAMupTableWidget)
     {
+        QString tip = id->text();
         UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(id->row(),2));
         if (line != Q_NULLPTR)
-            QToolTip::showText(cursor().pos(),line->getData().toString(), ui->AssocCCAMupTableWidget, rect, 2000);
+            if (line->getData().toString() != "")
+                tip += "\n" + line->getData().toString();
+        QToolTip::showText(cursor().pos(),tip, ui->AssocCCAMupTableWidget, rect, 2000);
     }
     else if (sender() == ui->HorsNomenclatureupTableWidget)
     {
+        QString tip = id->text();
         UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(id->row(),2));
         if (line != Q_NULLPTR)
-            QToolTip::showText(cursor().pos(),line->getData().toString(), ui->HorsNomenclatureupTableWidget, rect, 2000);
+            if (line->getData().toString() != "")
+                tip += "\n" + line->getData().toString();
+        QToolTip::showText(cursor().pos(),tip, ui->HorsNomenclatureupTableWidget, rect, 2000);
     }
 }
 
@@ -841,70 +849,10 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
 
         ui->ChoixFontupPushButton   ->setEnabled(a);
         ui->ModifDataUserpushButton ->setEnabled(a);
-        ui->OphtaSeulcheckBox       ->setEnabled(a);
-        ui->ActesCCAMupTableWidget  ->setEnabled(a);
-        for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
-            if (check) check->setEnabled(a);
-            if (ui->ActesCCAMupTableWidget->columnCount()==6)
-            {
-                UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(i,5));
-                if (lbl)
-                    lbl->setEnabled(a);
-            }
-        }
 
-        ui->AssocCCAMupTableWidget->setEnabled(a && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
-        for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
-            if (check) check->setEnabled(a);
-            UpLineEdit *lbl1 = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
-            if (lbl1)
-                lbl1->setEnabled(a);
-            if (ui->AssocCCAMupTableWidget->columnCount()==5)
-            {
-                UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
-                if (lbl)
-                    lbl->setEnabled(a);
-            }
-        }
-        if (a)
-        {
-            ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-            ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        }
-        else
-        {
-            ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-            ui->AssocCCAMupTableWidget->clearSelection();
-        }
-
-        ui->HorsNomenclatureupTableWidget->setEnabled(a && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
-        for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
-            if (check) check->setEnabled(a);
-            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
-            if (lbl)
-                lbl->setEnabled(a);
-        }
-        if (a)
-        {
-            ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-            ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        }
-        else
-        {
-            ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-            ui->HorsNomenclatureupTableWidget->clearSelection();
-        }
-
-        if (a) ui->ActesCCAMupTableWidget->setFocus();
-        ui->ChercheCCAMupLineEdit->setEnabled(true);
-        widgAssocCCAM   ->setEnabled(a && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
-        widgHN          ->setEnabled(a && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        EnableActesCCAM(a);
+        EnableAssocCCAM(a);
+        EnableHorsNomenclature(a);
     }
 
     else if (obj == ui->LockParamGeneralupLabel)
@@ -1619,23 +1567,7 @@ void dlg_param::NouvAssocCCAM()
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
-        for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
-            if (check) check->setEnabled(true);
-            UpLineEdit *lbl1 = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
-            if (lbl1)
-                lbl1->setEnabled(true);
-            if (ui->AssocCCAMupTableWidget->columnCount()==5)
-            {
-                UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
-                if (lbl)
-                    lbl->setEnabled(true);
-            }
-        }
-        ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-        ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        EnableAssocCCAM();
         gCotationsModifiees = true;
     }
     delete Dlg_CrrCot;
@@ -1652,23 +1584,7 @@ void dlg_param::ModifAssocCCAM()
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
-        for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
-            if (check) check->setEnabled(true);
-            UpLineEdit *lbl1 = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
-            if (lbl1)
-                lbl1->setEnabled(true);
-            if (ui->AssocCCAMupTableWidget->columnCount()==5)
-            {
-                UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
-                if (lbl)
-                    lbl->setEnabled(true);
-            }
-        }
-        ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-        ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        EnableAssocCCAM();
         gCotationsModifiees = true;
     }
     delete Dlg_CrrCot;
@@ -1698,23 +1614,7 @@ void dlg_param::SupprAssocCCAM()
     {
         db->StandardSQL("delete from " NOM_TABLE_COTATIONS " where typeacte = '" + CodeActe + "'");
         Remplir_TableAssocCCAM();
-        for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
-            if (check) check->setEnabled(true);
-            UpLineEdit *lbl1 = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
-            if (lbl1)
-                lbl1->setEnabled(true);
-            if (ui->AssocCCAMupTableWidget->columnCount()==5)
-            {
-                UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
-                if (lbl)
-                    lbl->setEnabled(true);
-            }
-        }
-        ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-        ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        EnableAssocCCAM();
         gCotationsModifiees = true;
     }
 }
@@ -1725,18 +1625,7 @@ void dlg_param::NouvHorsNomenclature()
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
-        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
-        for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
-            if (check) check->setEnabled(true);
-            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
-            if (lbl)
-                lbl->setEnabled(true);
-        }
-        ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-        ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        EnableHorsNomenclature();
         gCotationsModifiees = true;
     }
     delete Dlg_CrrCot;
@@ -1750,18 +1639,7 @@ void dlg_param::ModifHorsNomenclature()
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
-        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
-        for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
-            if (check) check->setEnabled(true);
-            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
-            if (lbl)
-                lbl->setEnabled(true);
-        }
-        ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-        ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        EnableHorsNomenclature();
         gCotationsModifiees = true;
     }
     delete Dlg_CrrCot;
@@ -1775,18 +1653,7 @@ void dlg_param::SupprHorsNomenclature()
     {
         db->StandardSQL("delete from " NOM_TABLE_COTATIONS " where typeacte = '" + CodeActe + "'");
         Remplir_TableHorsNomenclature();
-        ui->HorsNomenclatureupTableWidget->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
-        for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
-            if (check) check->setEnabled(true);
-            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
-            if (lbl)
-                lbl->setEnabled(true);
-        }
-        ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
-        ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
-        widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        EnableHorsNomenclature();
         gCotationsModifiees = true;
     }
 }
@@ -2319,6 +2186,69 @@ bool dlg_param::DataUserModifiees()
     return DonneesUserModifiees;
 }
 
+void dlg_param::EnableActesCCAM(bool enable)
+{
+    ui->OphtaSeulcheckBox   ->setEnabled(enable);
+    bool autormodif         = enable && (gDataUser->getIdUserParent() == gidUser);            // les remplaçants ne peuvent pas modifier les actes
+    for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
+    {
+        UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
+        if (check) check->setEnabled(autormodif);
+        if (ui->ActesCCAMupTableWidget->columnCount()==6)
+        {
+            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(i,5));
+            if (lbl)
+                lbl->setEnabled(autormodif);
+        }
+    }
+}
+
+void dlg_param::EnableAssocCCAM(bool enable)
+{
+    bool autormodif = enable && gDataUser->getIdUserParent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
+    for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
+    {
+        UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
+        if (check) check->setEnabled(autormodif);
+        UpLineEdit *lbl1 = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
+        if (lbl1)
+            lbl1->setEnabled(autormodif);
+        if (ui->AssocCCAMupTableWidget->columnCount()==5)
+        {
+            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
+            if (lbl)
+                lbl->setEnabled(autormodif);
+        }
+    }
+    ui->AssocCCAMupTableWidget->setSelectionMode(autormodif? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
+    if (!autormodif)
+        ui->AssocCCAMupTableWidget->clearSelection();
+    ui->AssocCCAMupTableWidget  ->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->AssocCCAMupTableWidget  ->setSelectionBehavior(QAbstractItemView::SelectRows);
+    widgAssocCCAM               ->setEnabled(autormodif);
+    widgAssocCCAM->modifBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
+    widgAssocCCAM->moinsBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
+}
+
+void dlg_param::EnableHorsNomenclature(bool enable)
+{
+    bool autormodif = enable && gDataUser->getIdUserParent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
+    for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
+    {
+        UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
+        if (check) check->setEnabled(autormodif);
+        UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
+        if (lbl)
+            lbl->setEnabled(autormodif);
+    }
+    ui->HorsNomenclatureupTableWidget->setSelectionMode(autormodif? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
+    if (!autormodif)
+        ui->HorsNomenclatureupTableWidget->clearSelection();
+    widgHN              ->setEnabled(autormodif);
+    widgHN->modifBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
+    widgHN->moinsBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
+}
+
 void dlg_param::EnableWidgContent(QWidget *widg, bool a)
 {
     QList<QWidget*> listwidg = widg->findChildren<QWidget*>();
@@ -2507,7 +2437,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
         ui->ActesCCAMupTableWidget->setItem(i,3,pItem2);
         pItem3->setText(Acteslist.at(i).at(0).toString());                             // descriptif
         ui->ActesCCAMupTableWidget->setItem(i,4,pItem3);
-        ui->ActesCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.3));
+        ui->ActesCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
     QString reqactes = "select typeacte, montantpratique from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(gidUser);
     QList<QVariantList> Actesusrlist = db->StandardSelectSQL(reqactes, ok);
@@ -2640,7 +2570,7 @@ void dlg_param::Remplir_TableAssocCCAM()
             connect(lbl3,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
             ui->AssocCCAMupTableWidget->setCellWidget(i,4,lbl3);
         }
-        ui->AssocCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.3));
+        ui->AssocCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
     Assocrequete = "SELECT DISTINCT TYPEACTE, montantoptam, montantnonoptam, montantpratique, Tip from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2"
                    " and typeacte not in (SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + ")";
@@ -2698,7 +2628,7 @@ void dlg_param::Remplir_TableAssocCCAM()
             connect(lbl3,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
             ui->AssocCCAMupTableWidget->setCellWidget(row,4,lbl3);
         }
-        ui->AssocCCAMupTableWidget->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.3));
+        ui->AssocCCAMupTableWidget->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.1));
         row ++;
     }
 }
@@ -2765,7 +2695,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
         lbl1->setEnabled(false);
         connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJHorsNomenclature(QString)));
         ui->HorsNomenclatureupTableWidget->setCellWidget(i,2,lbl1);
-        ui->HorsNomenclatureupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.3));
+        ui->HorsNomenclatureupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
     Horsrequete = "SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser <> " + QString::number(gidUser)+
             " and typeacte not in (SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(gidUser) + ")";
@@ -2794,7 +2724,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
         lbl1->setEnabled(false);
         connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJHorsNomenclature(QString)));
         ui->HorsNomenclatureupTableWidget->setCellWidget(row,2,lbl1);
-        ui->HorsNomenclatureupTableWidget->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.3));
+        ui->HorsNomenclatureupTableWidget->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.1));
     }
 }
 

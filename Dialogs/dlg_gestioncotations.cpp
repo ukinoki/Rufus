@@ -119,13 +119,20 @@ dlg_gestioncotations::dlg_gestioncotations(dlg_gestioncotations::TypeActe type, 
     tarifpratiquewidg           ->setVisible((gTypeActe==Association && gSecteurUser>1) || gTypeActe==HorsNomenclature);
 
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    OKButton                    ->setEnabled(false);
     dlglayout()->setSpacing(5);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     setWindowTitle(gTypeActe == Association? "Association de codes CCAM ou  autres types d'acte" : "Acte hors nomenclature");
 
-    connect(OKButton,       &QPushButton::clicked,  this, [=] {if (VerifFiche()) accept();});
-    connect(CancelButton,   &QPushButton::clicked,  this, [=] {reject();});
+    connect(OKButton,           &QPushButton::clicked,  this,   [=] {if (VerifFiche()) accept();});
+    connect(CancelButton,       &QPushButton::clicked,  this,   [=] {reject();});
+
+    connect(codeline,           &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(tarifoptamline,     &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(tarifnooptamline,   &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(tarifpratiqueline,  &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(tipline,            &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
 
     QString req = "select distinct typeacte from " NOM_TABLE_COTATIONS " where CCAM = ";
     req += (gTypeActe == Association? "2" : "3");
