@@ -49,20 +49,12 @@ public:
 class Cotations
 {
 private:
-    QMap<int, Cotation*> *m_cotations;          //!< la liste des cotations
-    QMap<int, Cotation*> *m_cotationsbyuser;    //!< la liste des cotations pratiquées par un utilisateur
+    QMap<int, Cotation*> *m_cotations;    //!< la liste des cotations pratiquées par un utilisateur
 
 public:
     explicit Cotations();
-
     QMap<int, Cotation *> *cotations() const;
-    QMap<int, Cotation *> *cotationsbyuser() const;
-
-    void addCotation(Cotation *cotation);
     void addCotationByUser(Cotation *cotation);
-    void addCotation(QList<Cotation*> listcotations);
-    void removeCotation(Cotation* cotation);
-    Cotation* getCotationById(int id);
     void clearAll();
 };
 

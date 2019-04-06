@@ -1085,7 +1085,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
     int k = 0;
 
     QList<Cotation*> cotations;
-    QString  req = "SELECT idcotation, Typeacte, OPTAM, noOPTAM, MontantPratique, CCAM, Frequence, nom"
+    QString  req = "SELECT idcotation, Typeacte, OPTAM, nonOPTAM, MontantPratique, CCAM, Frequence, nom"
           " FROM " NOM_TABLE_COTATIONS " cot left join " NOM_TABLE_CCAM " cc on cot.typeacte= cc.codeccam"
           " where idUser = " + QString::number(iduser) + " and typeacte in (select codeccam from " NOM_TABLE_CCAM ")"
           " order by typeacte";
@@ -1110,7 +1110,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
         Cotation *cotation = new Cotation(jcotation);
         cotations << cotation;
     }
-    req = " SELECT idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, Frequence, null as nom"
+    req = " SELECT idcotation, Typeacte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, Frequence, tip"
           " FROM "  NOM_TABLE_COTATIONS
           " where idUser = " + QString::number(iduser) +
           " and typeacte not in (select codeccam from  " NOM_TABLE_CCAM ")"
@@ -1141,7 +1141,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(int iduser)
 QStringList DataBase::loadTypesCotations()
 {
     QStringList listcotations;
-    QString req = "select typeacte as code from " NOM_TABLE_COTATIONS
+    QString req = "select distinct typeacte as code from " NOM_TABLE_COTATIONS
                   " union "
                   " select codeccam as code from " NOM_TABLE_CCAM
                   " order by code asc";

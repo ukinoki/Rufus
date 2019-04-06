@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("05-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("06-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -262,10 +262,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->initListeTiers();
     proc->initTypesTiers();
     if (gDataUser->isSoignant())
-    {
-        proc->initListeCotationsByUser(gDataUser->getIdUserParent());
         ReconstruitListesActes();
-    }
 
     // 9 - Mise à jour des salles d'attente
     Remplir_SalDat();
@@ -485,7 +482,7 @@ void Rufus::Moulinette()
         QVariantList opt = db->StandardSelectSQL(req, ok).at(0);
         req = "update rufus.ccam set"
               " OPTAM = " + QString::number(opt.at(0).toDouble(), 'f', 2) + ","
-              " noOPTAM = " + QString::number(opt.at(1).toDouble(), 'f', 2) +
+              " nonOPTAM = " + QString::number(opt.at(1).toDouble(), 'f', 2) +
               " where codeccam = '" + code + "'";
         //qDebug() << req;
         db->StandardSQL(req);
@@ -498,7 +495,7 @@ void Rufus::Moulinette()
         if (quer.value(1).toInt()==1)
             req = "update ccam.ccamd set OPTAM = " + quer.value(2).toString().replace(",",".") + " where codeCCAM = '" + quer.value(0).toString() + "'";
         else if (quer.value(1).toInt()==2)
-            req = "update ccam.ccamd set NoOPTAM = " + quer.value(2).toString().replace(",",".") + " where codeCCAM = '" + quer.value(0).toString() + "'";
+            req = "update ccam.ccamd set NonOPTAM = " + quer.value(2).toString().replace(",",".") + " where codeCCAM = '" + quer.value(0).toString() + "'";
         //proc->Edit(req);
         QSqlQuery(req, db->getDataBase() );
     }
@@ -4026,7 +4023,7 @@ void Rufus::OuvrirParametres()
     }
     if (Dlg_Param->CotationsModifiees())
     {
-        QString req = "insert into " NOM_TABLE_COTATIONS " (typeacte, MontantOPTAM, MontantNonOPTAM, montantpratique, CCAM, iduser) values \n";
+        QString req = "insert into " NOM_TABLE_COTATIONS " (typeacte, MontantOPTAM, MontantNonOPTAM, montantpratique, CCAM, iduser, tip) values \n";
         for (int i=0; i<Dlg_Param->ui->ActesCCAMupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = dynamic_cast<UpCheckBox*>(Dlg_Param->ui->ActesCCAMupTableWidget->cellWidget(i,0));
@@ -4048,7 +4045,7 @@ void Rufus::OuvrirParametres()
                     }
                     QString mtprat = (gDataUser->getSecteur() >1 ? montantprat : mtconv);
                     QString montantpratique = QString::number(QLocale().toDouble(mtprat));
-                    req += "('" + codeCCAM +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 1, " + QString::number(gDataUser->id()) + "),\n";
+                    req += "('" + codeCCAM +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 1, " + QString::number(gDataUser->id()) + ", null),\n";
                 }
         }
         for (int i=0; i<Dlg_Param->ui->AssocCCAMupTableWidget->rowCount(); i++)
@@ -4057,11 +4054,14 @@ void Rufus::OuvrirParametres()
             if (check != Q_NULLPTR)
                 if (check->isChecked())
                 {
-                    QString codeCCAM, montantOPTAM(""), montantNonOPTAM(""), montantprat("");
+                    QString codeCCAM, montantOPTAM(""), montantNonOPTAM(""), montantprat(""), tip ("");
                     codeCCAM        = Dlg_Param->ui->AssocCCAMupTableWidget->item(i,1)->text();
                     UpLineEdit *lineOPTAM = dynamic_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,2));
                     if (lineOPTAM != Q_NULLPTR)
+                    {
                         montantOPTAM    = QString::number(QLocale().toDouble(lineOPTAM->text()));
+                        tip             = lineOPTAM->getData().toString();
+                    }
                     UpLineEdit *lineNonOPTAM = dynamic_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,3));
                     if (lineNonOPTAM != Q_NULLPTR)
                         montantNonOPTAM    = QString::number(QLocale().toDouble(lineNonOPTAM->text()));
@@ -4076,7 +4076,7 @@ void Rufus::OuvrirParametres()
                     }
                     QString mtprat = (gDataUser->getSecteur() >1? montantprat : mtconv);
                     QString montantpratique = QString::number(QLocale().toDouble(mtprat));
-                    req += "('" + codeCCAM +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 2, " + QString::number(gDataUser->id()) + "),\n";
+                    req += "('" + codeCCAM +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 2, " + QString::number(gDataUser->id()) + ", '" + tip + "'),\n";
                 }
         }
         for (int i=0; i<Dlg_Param->ui->HorsNomenclatureupTableWidget->rowCount(); i++)
@@ -4085,13 +4085,16 @@ void Rufus::OuvrirParametres()
             if (check != Q_NULLPTR)
                 if (check->isChecked())
                 {
-                    QString codeCCAM, mtconv(""), montantconv;
+                    QString codeCCAM, mtconv(""), montantconv, tip("");
                     codeCCAM = Dlg_Param->ui->HorsNomenclatureupTableWidget->item(i,1)->text();
                     UpLineEdit *lineconv = dynamic_cast<UpLineEdit*>(Dlg_Param->ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
                     if (lineconv != Q_NULLPTR)
-                        mtconv = lineconv->text();
+                    {
+                        mtconv  = lineconv->text();
+                        tip     = lineconv->getData().toString();
+                    }
                     montantconv = QString::number(QLocale().toDouble(mtconv));
-                    req += "('" + codeCCAM +  "', " + montantconv + "," + montantconv + "," + montantconv + ", 3, " + QString::number(gDataUser->id()) + "), \n";
+                    req += "('" + codeCCAM +  "', " + montantconv + "," + montantconv + "," + montantconv + ", 3, " + QString::number(gDataUser->id()) + ", '" + tip + "'), \n";
                 }
         }
         req = req.left(req.lastIndexOf(")")+1);
@@ -4143,7 +4146,7 @@ void Rufus::RetrouveMontantActe()
     }
     else
     {
-        QString tarifconventionne = (gDataUser->isOPTAM() ? "OPTAM" : "NoOPTAM");
+        QString tarifconventionne = (gDataUser->isOPTAM() ? "OPTAM" : "NonOPTAM");
         QString req =
                 "SELECT " + tarifconventionne + ", montantpratique FROM " NOM_TABLE_COTATIONS " cot, " NOM_TABLE_CCAM " cc"
                 " where Typeacte = codeccam"
@@ -4171,7 +4174,7 @@ void Rufus::RetrouveMontantActe()
         }
         else
         {
-            QString req = "SELECT OPTAM, NoOPTAM FROM " NOM_TABLE_CCAM " where codeccam like '" + Utils::correctquoteSQL(Cotation) + "%'";
+            QString req = "SELECT OPTAM, NonOPTAM FROM " NOM_TABLE_CCAM " where codeccam like '" + Utils::correctquoteSQL(Cotation) + "%'";
             QVariantList cot2data = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && cot2data.size()>0)
             {
@@ -4204,7 +4207,7 @@ void Rufus::RetrouveMontantActe()
         msgbox.exec();
         if (msgbox.clickedButton()==OKBouton)
         {
-            QString req = "select codeccam, OPTAM, NoOPTAM from " NOM_TABLE_CCAM " where codeccam = " + ui->ActeCotationcomboBox->currentText().toUpper();
+            QString req = "select codeccam, OPTAM, NonOPTAM from " NOM_TABLE_CCAM " where codeccam = " + ui->ActeCotationcomboBox->currentText().toUpper();
             QSqlQuery quer(req, db->getDataBase() );
             if (quer.size() == 0)
             {
@@ -8810,15 +8813,15 @@ void    Rufus::ReconstruitListesActes()
             . le texte de l'item -> la cotation de l'acte
             . en data, une QStringList contenant dans l'ordre le montant (optam ou non), le montant pratiqué, le descriptif de l'acte CCAM
     */
-
+    proc->initListeCotationsByUser(gDataUser->getIdUserParent());
     QString req;
     QString champ = (gDataUser->isOPTAM()? "montantoptam" : "montantnonoptam");
     // il faut d'abord reconstruire la table des cotations
     ui->ActeCotationcomboBox->clear();
 
     ui->ActeCotationcomboBox->addItem(tr("Acte gratuit"),QStringList() << "0.00" << "0.00" << tr("Acte gratuit"));
-    for (QMap<int, Cotation*>::const_iterator itcot = Datas::I()->cotations->cotationsbyuser()->constBegin();
-         itcot != Datas::I()->cotations->cotationsbyuser()->constEnd();
+    for (QMap<int, Cotation*>::const_iterator itcot = Datas::I()->cotations->cotations()->constBegin();
+         itcot != Datas::I()->cotations->cotations()->constEnd();
          ++itcot)
     {
         Cotation *cot = const_cast<Cotation*>(itcot.value());

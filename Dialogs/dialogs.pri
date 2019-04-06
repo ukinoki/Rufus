@@ -96,5 +96,4 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_remisecheques.ui \
     $$PWD/dlg_salledattente.ui \
     $$PWD/dlg_paiementdirect.ui \
-    $$PWD/dlg_paiementtiers.ui \
-    $$PWD/dlg_gestioncotations.ui
+    $$PWD/dlg_paiementtiers.ui

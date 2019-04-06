@@ -2317,7 +2317,7 @@ void Procedures::initListeCorrespondantsAll()
  */
 void Procedures::initListeCotationsByUser(int iduser)
 {
-    Datas::I()->cotations->cotationsbyuser()->clear();
+    Datas::I()->cotations->clearAll();
     QList<Cotation*> listcotations = db->loadCotationsByUser(iduser);
     QList<Cotation*>::const_iterator itcotations;
     for( itcotations = listcotations.constBegin(); itcotations != listcotations.constEnd(); ++itcotations )

@@ -27,15 +27,15 @@
 	3. Choisir le fichier à importer
 	4. Choisir un nom de table (RACTE pour R_ACTE et RPUBASE pour R_PU_BASE), cocher create new table, cocher drop table if exists 
 	5. Garder les formats par défaut
-	6. Une fois la table créée, modifier les formats par un alter table: date = date codeccam = varchar(7), nom = varchar(256)
+	6. Une fois la table créée, modifier les formats par un alter table: date = date codeccam = varchar(7), nom = varchar(512)
 	Z. Supprimer la table ccam
 	7. Exécuter le requête "create table rufus.ccam as (SELECT distinct codeccam , nom FROM rufus.RACTE);" pour éliminer tous les doublons de RACTE
-	8. Rajouter les champs OPTAM et NoOPTAM, format decimal(7,2)
-	9. Rajouter un champ d'index primaire idcccam, autoincrémenté, int pour ccamprov
+	8. Rajouter les champs OPTAM et NonOPTAM, format decimal(7,2)
+	9. Rajouter un champ d'index primaire idcccam, Primary key, autoincrémenté, int pour ccamprov
 	10. Supprimer la table R_ACTE
 
 6. Calculer et attribuer les montants OPTAM et NonOPTAM
-	1. Compléter les montants dans la base ccamprov
+	1. Compléter les montants dans la base ccam
 	utiliser le scriot
 
     		bool ok;
@@ -51,10 +51,11 @@
         		QVariantList opt = db->StandardSelectSQL(req, ok).at(0);
         		req = 	"update rufus.ccam set"
               			" OPTAM = " + QString::number(opt.at(0).toDouble(), 'f', 2) + ","
-              			" NoOPTAM = " + QString::number(opt.at(1).toDouble(), 'f', 2) +
+              			" NonOPTAM = " + QString::number(opt.at(1).toDouble(), 'f', 2) +
               			" where codeccam = '" + code + "'";
         		db->StandardSQL(req);
      		}
 
-	2. corriger les montants des associations dans la table cotations
+	2. corriger les montants des associations dans la table cotations depuis Rufus
+	3. Supprimer la table R_PU_BASE
 

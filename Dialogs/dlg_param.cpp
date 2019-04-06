@@ -512,7 +512,20 @@ void dlg_param::Slot_AfficheToolTip(QTableWidgetItem *id)
 {
     QPoint pos = cursor().pos();
     QRect rect = QRect(pos,QSize(10,10));
-    QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(id->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
+    if (sender() == ui->ActesCCAMupTableWidget)
+        QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(id->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
+    else if (sender() == ui->AssocCCAMupTableWidget)
+    {
+        UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(id->row(),2));
+        if (line != Q_NULLPTR)
+            QToolTip::showText(cursor().pos(),line->getData().toString(), ui->AssocCCAMupTableWidget, rect, 2000);
+    }
+    else if (sender() == ui->HorsNomenclatureupTableWidget)
+    {
+        UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(id->row(),2));
+        if (line != Q_NULLPTR)
+            QToolTip::showText(cursor().pos(),line->getData().toString(), ui->HorsNomenclatureupTableWidget, rect, 2000);
+    }
 }
 
 void dlg_param::Slot_FermepushButtonClicked()
@@ -1602,10 +1615,7 @@ void dlg_param::Slot_EnregistreEmplacementServeur(int idx)
 
 void dlg_param::NouvAssocCCAM()
 {
-    Dlg_CrrCot = new dlg_gestioncotations("Assoc", "Creation", "");
-    Dlg_CrrCot->setWindowTitle(tr("Modification des actes"));
-    Dlg_CrrCot->Initialise();
-    Dlg_CrrCot->setModal(true);
+    Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
@@ -1626,6 +1636,7 @@ void dlg_param::NouvAssocCCAM()
         ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        gCotationsModifiees = true;
     }
     delete Dlg_CrrCot;
 }
@@ -1633,16 +1644,11 @@ void dlg_param::NouvAssocCCAM()
 void dlg_param::ModifAssocCCAM()
 {
     QString CodeActe = "";
-    QString TypeTabl = "Assoc";
     if (ui->AssocCCAMupTableWidget->selectedRanges().size()==0)
         return;
     int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
     CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
-    TypeTabl = "Assoc";
-    Dlg_CrrCot = new dlg_gestioncotations(TypeTabl, "Modification", CodeActe);
-    Dlg_CrrCot->setWindowTitle(tr("Modification des actes"));
-    Dlg_CrrCot->Initialise();
-    Dlg_CrrCot->setModal(true);
+    Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Modification, CodeActe);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableAssocCCAM();
@@ -1663,6 +1669,7 @@ void dlg_param::ModifAssocCCAM()
         ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        gCotationsModifiees = true;
     }
     delete Dlg_CrrCot;
 }
@@ -1708,15 +1715,13 @@ void dlg_param::SupprAssocCCAM()
         ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->AssocCCAMupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgAssocCCAM          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        gCotationsModifiees = true;
     }
 }
 
 void dlg_param::NouvHorsNomenclature()
 {
-    Dlg_CrrCot = new dlg_gestioncotations("HorsNomenclature", "Creation", "");
-    Dlg_CrrCot->setWindowTitle(tr("Modification des actes"));
-    Dlg_CrrCot->Initialise();
-    Dlg_CrrCot->setModal(true);
+    Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Creation);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
@@ -1732,6 +1737,7 @@ void dlg_param::NouvHorsNomenclature()
         ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        gCotationsModifiees = true;
     }
     delete Dlg_CrrCot;
 }
@@ -1740,10 +1746,7 @@ void dlg_param::ModifHorsNomenclature()
 {
     int row = ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow();
     QString CodeActe = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
-    Dlg_CrrCot = new dlg_gestioncotations("HorsNomenclature", "Modification", CodeActe);
-    Dlg_CrrCot->setWindowTitle(tr("Modification des actes"));
-    Dlg_CrrCot->Initialise();
-    Dlg_CrrCot->setModal(true);
+    Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Modification, CodeActe);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableHorsNomenclature();
@@ -1759,6 +1762,7 @@ void dlg_param::ModifHorsNomenclature()
         ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        gCotationsModifiees = true;
     }
     delete Dlg_CrrCot;
 }
@@ -1783,6 +1787,7 @@ void dlg_param::SupprHorsNomenclature()
         ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::SingleSelection);
         ui->HorsNomenclatureupTableWidget->setSelectionBehavior(QAbstractItemView::SelectRows);
         widgHN          ->setEnabled(true && (gDataUser->getIdUserParent() == gidUser));  // les remplaçants ne peuvent pas modifier les actes
+        gCotationsModifiees = true;
     }
 }
 
@@ -2276,6 +2281,8 @@ void dlg_param::ConnectSlots()
     connect(ui->FrontoupComboBox,                   SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
     connect(ui->RefracteurupComboBox,               SIGNAL(currentIndexChanged(int)),       this,   SLOT(Slot_ClearCom(int)));
     connect(ui->ActesCCAMupTableWidget,             SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
+    connect(ui->AssocCCAMupTableWidget,             SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
+    connect(ui->HorsNomenclatureupTableWidget,      SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
     connect(ui->ChercheCCAMupLineEdit,              SIGNAL(textEdited(QString)),            this,   SLOT(Slot_ChercheCCAM(QString)));
     connect(ui->ParamMotifspushButton,              SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ParamMotifs()));
     connect(this,                                   SIGNAL(click(QWidget*)),                this,   SLOT(Slot_EnableModif(QWidget*)));
@@ -2470,7 +2477,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
     QTableWidgetItem    *pItem3;
     UpCheckBox          *check;
     ui->ActesCCAMupTableWidget->clearContents();
-    QString Remplirtablerequete = "SELECT nom, codeccam, OPTAM, NoOPTAM from "  NOM_TABLE_CCAM;
+    QString Remplirtablerequete = "SELECT nom, codeccam, OPTAM, NonOPTAM from "  NOM_TABLE_CCAM;
     if (ophtaseul)
         Remplirtablerequete += " where codeccam like 'B%'";
     Remplirtablerequete +=  " order by codeccam";
@@ -2545,11 +2552,11 @@ void dlg_param::Remplir_TableAssocCCAM()
     ui->AssocCCAMupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->AssocCCAMupTableWidget->verticalHeader()->setVisible(false);
     ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->AssocCCAMupTableWidget->setMouseTracking(false);
+    ui->AssocCCAMupTableWidget->setMouseTracking(true);
     int ncol = (gDataUser->getSecteur() > 1 ? 5 : 4);
     ui->AssocCCAMupTableWidget->setColumnCount(ncol);
     ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
-    ui->AssocCCAMupTableWidget->setColumnWidth(1,135);           //code CCAM
+    ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
     ui->AssocCCAMupTableWidget->setColumnWidth(2,65);           //OPTAM
     ui->AssocCCAMupTableWidget->setColumnWidth(3,65);           //NonOPTAM
     ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
@@ -2578,7 +2585,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
     ui->AssocCCAMupTableWidget->clearContents();
-    QString Assocrequete = "SELECT TYPEACTE, montantOPTAM, montantNonOptam, montantpratique from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + " order by typeacte";
+    QString Assocrequete = "SELECT TYPEACTE, montantOPTAM, montantNonOptam, montantpratique, tip from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + " order by typeacte";
     //qDebug() << Assocrequete;
     QList<QVariantList> Assoclist = db->StandardSelectSQL(Assocrequete, ok);
     if (!ok)
@@ -2599,6 +2606,7 @@ void dlg_param::Remplir_TableAssocCCAM()
 
         UpLineEdit *lbl1 = new UpLineEdit();
         lbl1->setText(QLocale().toString(Assoclist.at(i).at(1).toDouble(),'f',2));      // montant OPTAM
+        lbl1->setData(Assoclist.at(i).at(4));                                           // Tip
         lbl1->setAlignment(Qt::AlignRight);
         lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
         lbl1->setRowTable(i);
@@ -2634,7 +2642,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         }
         ui->AssocCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.3));
     }
-    Assocrequete = "SELECT DISTINCT TYPEACTE, montantoptam, montantnonoptam, montantpratique from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2"
+    Assocrequete = "SELECT DISTINCT TYPEACTE, montantoptam, montantnonoptam, montantpratique, Tip from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2"
                    " and typeacte not in (SELECT TYPEACTE from "  NOM_TABLE_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + ")";
     QList<QVariantList> Assoc2list = db->StandardSelectSQL(Assocrequete, ok);
     if (!ok)
@@ -2656,6 +2664,7 @@ void dlg_param::Remplir_TableAssocCCAM()
 
         UpLineEdit *lbl1 = new UpLineEdit();
         lbl1->setText(QLocale().toString(Assoc2list.at(i).at(1).toDouble(),'f',2));      // montant OPTAM
+        lbl1->setData(Assoc2list.at(i).at(4));                                           // Tip
         lbl1->setAlignment(Qt::AlignRight);
         lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
         lbl1->setRowTable(i);
@@ -2706,7 +2715,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
     ui->HorsNomenclatureupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->HorsNomenclatureupTableWidget->verticalHeader()->setVisible(false);
     ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->HorsNomenclatureupTableWidget->setMouseTracking(false);
+    ui->HorsNomenclatureupTableWidget->setMouseTracking(true);
 
     ui->HorsNomenclatureupTableWidget->setColumnCount(3);
     ui->HorsNomenclatureupTableWidget->setColumnWidth(0,20);           //checkbox
@@ -2729,7 +2738,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
     ui->HorsNomenclatureupTableWidget->clearContents();
-    QString Horsrequete = "SELECT TYPEACTE, montantpratique from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(gidUser);
+    QString Horsrequete = "SELECT TYPEACTE, montantpratique, Tip from "  NOM_TABLE_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(gidUser);
     QList<QVariantList> Horslist = db->StandardSelectSQL(Horsrequete, ok);
     if (!ok)
         return;
@@ -2748,6 +2757,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
         ui->HorsNomenclatureupTableWidget->setItem(i,1,pItem0);
         UpLineEdit *lbl1 = new UpLineEdit();
         lbl1->setText(QLocale().toString(Horslist.at(i).at(1).toDouble(),'f',2));      // montant
+        lbl1->setData(Horslist.at(i).at(2));                                           // Tip
         lbl1->setAlignment(Qt::AlignRight);
         lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
         lbl1->setRowTable(i);

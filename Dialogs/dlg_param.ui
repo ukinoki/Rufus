@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -3179,6 +3179,11 @@ des organismes bancaires</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
@@ -3192,11 +3197,6 @@ des organismes bancaires</string>
    <class>UpLabel</class>
    <extends>QLabel</extends>
    <header>uplabel.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpComboBox</class>

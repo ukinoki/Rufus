@@ -21,28 +21,32 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "updialog.h"
 #include "procedures.h"
 
-namespace Ui {
-class dlg_gestioncotations;
-}
-
 class dlg_gestioncotations : public UpDialog
 {
     Q_OBJECT
 
 public:
-    explicit dlg_gestioncotations(QString Typeacte, QString Mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
+    enum Mode   {
+        Creation,
+        Modification
+    };
+    enum TypeActe   {
+        Association,
+        HorsNomenclature
+    };
+    explicit dlg_gestioncotations(TypeActe, enum Mode mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncotations();
-    void        Initialise();
 
 private:
-    Ui::dlg_gestioncotations *ui;
     DataBase    *db;
-    int         gMode;      enum gMode      {Creation, Modification};
-    int         gTypeActe;  enum gTypeActe  {CCAM, AssocCCAM, HorsNomenclature};
+    Mode        gMode;
+    TypeActe    gTypeActe;
     int         gidUser, gSecteurUser;
     QString     gCodeActe;
     QStringList glistActes;
     bool        VerifFiche();
+    UpLineEdit  *codeline, *tarifoptamline, *tarifnooptamline, *tarifpratiqueline, *tipline;
+    QWidget     *codewidg, *tarifoptamwidg, *tarifnooptamwidg, *tarifpratiquewidg, *tipwidg;
 };
 
 #endif // DLG_GESTIONCOTATIONS_H

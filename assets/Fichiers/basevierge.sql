@@ -624,7 +624,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,51,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,52,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);
@@ -686,7 +686,7 @@ CREATE TABLE `ccam` (
   `codeccam` varchar(7) DEFAULT NULL,
   `nom` varchar(512) DEFAULT NULL,
   `optam` decimal(7,2) DEFAULT NULL,
-  `nooptam` decimal(7,2) DEFAULT NULL,
+  `nonoptam` decimal(7,2) DEFAULT NULL,
   PRIMARY KEY (`idccam`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8702 DEFAULT CHARSET=utf8;
 
@@ -727,6 +727,7 @@ CREATE TABLE `cotations` (
   `CCAM` int(1) DEFAULT NULL COMMENT '1=CCAM\n2=Association\n3=HorsCCAM',
   `idUser` int(11) DEFAULT NULL,
   `Frequence` int(11) DEFAULT NULL,
+  `Tip` VARCHAR(75) DEFAULT NULL,
   PRIMARY KEY (`idcotation`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8;
 
