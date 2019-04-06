@@ -16,7 +16,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_gestioncotations.h"
-#include "ui_dlg_gestioncotations.h"
 
 dlg_gestioncotations::dlg_gestioncotations(dlg_gestioncotations::TypeActe type, dlg_gestioncotations::Mode mode, QString CodeActe, QWidget *parent) :
     UpDialog(parent)
