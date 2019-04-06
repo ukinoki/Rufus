@@ -2975,11 +2975,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             dumpProcess.waitForFinished(1000000000);
                              if (dumpProcess.exitStatus() == QProcess::NormalExit)
                                 a = dumpProcess.exitCode();
-                            if (a == 0)
-                                msg = tr("Sauvegarde effectuée avec succès");
-                            else
-                                msg = tr("Incident pendant la sauvegarde");
-                            Message(msg,3000,false);
+                            if (a != 0)
+                                Message(tr("Incident pendant la sauvegarde"),3000,false);
                             QFile::remove(QDir::homePath() + SCRIPTRESTOREFILE);
                        }
                     }
