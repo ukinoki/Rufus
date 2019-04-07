@@ -251,7 +251,6 @@ private:
     QString                 gActeMontant;
     QString                 gActeDate;
     QString                 grequeteListe, grequeteSalDat;
-    QString                 gMonnaie;
     QString                 gSexePat, gNNIPat;
     QString                 gDirSauv;
     QStandardItemModel      *gListePatientsModel;
@@ -261,7 +260,9 @@ private:
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
 
-    User                    *gDataUser;
+    Acte                    *gActeEnCours;
+    User                    *gUserEnCours;
+    Patient                 *gPatientEnCours;
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
     UpLabel                 *gAskinflabel;
@@ -298,13 +299,14 @@ private:
     bool                ChargeDataUser();
     void                ChercheNomFiltre(int idpat = 0);
     void                ChoixDossier(int idpat = 0, int idacte = 0);
-    void                CreerActe(int idPat);
+    void                CreerActe(Patient *pat = Q_NULLPTR);
     void                ChercherDepuisListe();
     void                CreerDossier();
     void                CreerMenu();
     void                DescendUneLigne();
     void                Descend20Lignes();
     int                 EnregistreNouveauCorresp(QString Cor, QString Nom);
+    void                ExporteActe();
     void                FermeDlgAnnexes();
     bool                FermeDossier();
     void                FlagMetAjourMG();
@@ -366,7 +368,7 @@ private:
         QMenu           *menuAide;
         QAction         *actionCreerDossier, *actionCreerActe, *actionOuvrirDossier, *actionEmettreDocument, *actionRecopierDossier;
         QAction         *actionParametres, *actionSupprimerActe, *actionSupprimerDossier, *actionRechercheParMotCle, *actionRechercheParID;
-        QAction         *actionDossierPatient, *actionCorrespondants, *actionEnregistrerDocScanner, *actionEnregistrerVideo, *actionRechercheCourrier;
+        QAction         *actionDossierPatient, *actionCorrespondants, *actionEnregistrerDocScanner, *actionEnregistrerVideo, *actionRechercheCourrier, *actionExportActe;
         QAction         *actionGestionComptesBancaires, *actionPaiementDirect, *actionPaiementTiers, *actionPaiementTiers2, *actionRecettesSpeciales, *actionResumeStatut;
         QAction         *actionBilanRecettes, *actionJournalDepenses, *actionRemiseCheques;
         QAction         *actionQuit;

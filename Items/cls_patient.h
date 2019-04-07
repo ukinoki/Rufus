@@ -37,8 +37,10 @@ private: //Données du patient
     QString m_nom;                  //!< Nom du patient
     QString m_prenom;               //!< Prénom du patient
     QString m_sexe;                 //!< Sexe du patient
+    QDate m_datecreation;           //!< Date de creation du dossier
+    int m_idcreateur;               //!< id du user qui a créé le dossier
 
-    QDateTime m_dateDeNaissance;    //!< Date de naissance du patient
+    QDate m_dateDeNaissance;        //!< Date de naissance du patient
 
 
 
@@ -51,15 +53,16 @@ public:
     //GETTER | SETTER
     bool isAllLoaded() const;
 
-    int id() const;
+    int     id() const;
     QString nom() const;
     QString prenom() const;
     QString sexe() const;
+    QDate   datecreationdossier() const;
+    QDate   datedenaissance() const;
+    int     idcreateur() const;
 
     void setActes(QMap<int, Acte *> *actes);
     QMap<int, Acte *> *actes() const;
-
-
 
     explicit Patient(QJsonObject data = {}, QObject *parent = nullptr);
 

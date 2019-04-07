@@ -39,7 +39,18 @@ QString Patient::sexe() const
 {
     return m_sexe;
 }
-
+QDate Patient::datedenaissance() const
+{
+    return m_dateDeNaissance;
+}
+QDate Patient::datecreationdossier() const
+{
+    return m_datecreation;
+}
+int Patient::idcreateur() const
+{
+    return m_idcreateur;
+}
 
 QMap<int, Acte *> *Patient::actes() const
 {
@@ -70,8 +81,9 @@ void Patient::setData(QJsonObject data)
     setDataString(data, "nom", m_nom);
     setDataString(data, "prenom", m_prenom);
     setDataString(data, "sexe", m_sexe);
-
-    setDataDateTime(data, "dateDeNaissance", m_dateDeNaissance);
+    setDataDate(data, "datecreation", m_datecreation);
+    setDataInt(data, "idcreateur", m_idcreateur);
+    setDataDate(data, "dateDeNaissance", m_dateDeNaissance);
 }
 
 /*!

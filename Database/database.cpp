@@ -1283,7 +1283,7 @@ QList<Patient*> DataBase::loadPatientAll()
 Patient* DataBase::loadPatientById(int idPat)
 {
     Patient *patient = new Patient();
-    QString req = "select IdPat, PatNom, PatPrenom, PatDDN, Sexe from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idPat);
+    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idPat);
     QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
         return Q_NULLPTR;
@@ -1292,7 +1292,9 @@ Patient* DataBase::loadPatientById(int idPat)
     jData["nom"] = patdata.at(1).toString();
     jData["prenom"] = patdata.at(2).toString();
     jData["sexe"] = patdata.at(4).toString();
-    jData["dateDeNaissance"] = QDateTime(patdata.at(3).toDate()).toMSecsSinceEpoch();
+    jData["dateDeNaissance"] = patdata.at(3).toDate().toString("yyyy-MM-dd");
+    jData["datecreation"] = patdata.at(5).toDate().toString("yyyy-MM-dd");
+    jData["idcreateur"] = patdata.at(6).toInt();
     patient->setData(jData);
 
     return patient;
@@ -1391,12 +1393,10 @@ QJsonObject DataBase::extractActeData(QVariantList actdata)
 Acte* DataBase::loadActeById(int idActe)
 {
     Acte *acte = new Acte(idActe, 0, 0);
-    if( idActe == 0 )
-        return acte;
     QString req = createActeRequest(idActe, 0);
     QVariantList actdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || actdata.size()==0 )
-        return acte;
+        return Q_NULLPTR;
     QJsonObject data = extractActeData(actdata);
     acte->setData(data);
     return acte;
