@@ -132,6 +132,7 @@ public:
                                      bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
                                      bool AvecChoixImprimante = true);
     void                    Imprimer_Etat(QWidget *Formu, QPlainTextEdit *Etat);
+    bool                    Imprime_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
     bool                    VerifIni(QString msg = "",
                                      QString msgInfo = "",
                                      bool DetruitIni = true,

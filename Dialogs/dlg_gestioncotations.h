@@ -34,7 +34,7 @@ public:
         Association,
         HorsNomenclature
     };
-    explicit dlg_gestioncotations(TypeActe, enum Mode mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
+    explicit dlg_gestioncotations(enum TypeActe type, enum Mode mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncotations();
 
 private:

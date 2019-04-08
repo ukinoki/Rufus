@@ -111,7 +111,7 @@ void dlg_listecorrespondants::ChoixButtonFrame(int i)
 void dlg_listecorrespondants::EnregistreNouveauCorresp()
 {
     bool onlydoctors    = false;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp("Creation", onlydoctors, 0);
+    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, 0);
     if (Dlg_IdentCorresp->exec()>0)
     {
         ListeModifiee = true;
@@ -127,7 +127,7 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
 void dlg_listecorrespondants::ModifCorresp(int idcor)
 {
     bool onlydoctors    = false;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp("Modification", onlydoctors, idcor);
+    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, idcor);
     if (Dlg_IdentCorresp->exec()>0)
     {
         ListeModifiee = true;

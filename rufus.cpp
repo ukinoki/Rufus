@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("07-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("08-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2479,8 +2479,7 @@ void Rufus::ImportDocsExternes()
 
 void Rufus::ImprimeDossier()
 {
-    QString req = "select idActe, ActeDate, ActeMotif, ActeTexte, ActeConclusion, usernom, userprenom, usertitre from " NOM_TABLE_ACTES
-                  " as act left outer join " NOM_TABLE_UTILISATEURS " as usr on usr.iduser = act.iduser"
+    QString req = "select idActe, ActeDate from " NOM_TABLE_ACTES
                   " where idPat = " + QString::number(gidPatient) +
                   " order by ActeDate";
     //UpMessageBox::Watch(this,listactreq);
@@ -2491,17 +2490,14 @@ void Rufus::ImprimeDossier()
         return;
     }
 
-    int debut = 0;
-    int fin = listact.size();
-
     if (listact.size()>1)
     {
-        auto fixdateacte = [] (UpComboBox *debutbox, UpComboBox *finbox, int idacte)
+        auto fixdateacte        = [] (UpComboBox *debutbox, UpComboBox *finbox, int idacte)
         {
             debutbox    ->setCurrentIndex(debutbox  ->findData(idacte));
             finbox      ->setCurrentIndex(finbox    ->findData(idacte));
         };
-        auto recalclistitems = [] (UpComboBox *box, QList<QVariantList> listactes, QDate date, bool verslehaut)
+        auto recalclistitems    = [] (UpComboBox *box, QList<QVariantList> listactes, QDate date, bool verslehaut)
         {
             QDate dateencours = QDate::fromString(box->currentText(),"dd-MMM-yyyy");
             box->clear();
@@ -2535,7 +2531,7 @@ void Rufus::ImprimeDossier()
                     box->setCurrentIndex(0);
             }
         };
-        auto recalcallitems = [] (UpComboBox *debutbox, UpComboBox *finbox, QList<QVariantList> listactes)
+        auto recalcallitems     = [] (UpComboBox *debutbox, UpComboBox *finbox, QList<QVariantList> listactes)
         {
             // remplissage des combobox de date des actes
             QList<QVariantList>::const_iterator itactes;
@@ -2601,17 +2597,26 @@ void Rufus::ImprimeDossier()
             delete gAsk;
             return;
         }
+        QList<int> listidactes;
         for( int i=0; i<listact.size(); i++ )
         {
             int idacte = listact.at(i).at(0).toInt();
-            if (idacte == combodebut->currentData().toInt())
-                debut = i;
-            if (idacte == combofin->currentData().toInt())
-                fin = i+1;
+            if (idacte >= combodebut->currentData().toInt() && idacte <= combofin->currentData().toInt())
+                listidactes << listact.at(i).at(0).toInt();
         }
         delete gAsk;
+        if (listidactes.size() > 0)
+        {
+            bool toutledossier = (listidactes.size() == listact.size());
+            ImprimeListActes(listidactes, toutledossier);
+        }
     }
-    int taillefont  = 9;
+    MAJDocsExternes();
+}
+
+void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool queLePdfSurLeBureau)
+{
+    int taillefont  = 8;
     QString Reponse =        "<html><head><meta name=\"qrichtext\" content=\"1\" />"
                              "<style type=\"text/css\">"
                              "p {margin-top:0px; margin-bottom:0px;margin-left: 0px; font-size:" + QString::number(taillefont) + "pt}, li { white-space: pre-wrap; }"
@@ -2622,7 +2627,7 @@ void Rufus::ImprimeDossier()
 
     // collecte des antécédents
     QString AtcdtsGenx = "", AtcdtsOphs = "", idCorMedMG = "";
-    req = "select RMPAtcdtsPersos, RMPAtcdtsOphs, idcorMedMG from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idPat = " + QString::number(gidPatient);
+    QString req = "select RMPAtcdtsPersos, RMPAtcdtsOphs, idcorMedMG from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idPat = " + QString::number(gidPatient);
     QVariantList atcdtsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && atcdtsdata.size()>0)
     {
@@ -2661,33 +2666,41 @@ void Rufus::ImprimeDossier()
     }
 
     bool reponsevide = true;
-    for (int i=debut; i<fin; i++)
+    QString datedebut, datefin;
+    for (int i=0; i<listidactes.size(); i++)
     {
-        if (listact.at(i).at(2).toString() != ""
-            || listact.at(i).at(3).toString() != ""
-            || listact.at(i).at(4).toString() != "")
+        Acte* act = db->loadActeById(listidactes.at(i));
+        if (act == Q_NULLPTR)
+                continue;
+        if (i == 0)
+            datedebut = act->date().toString(tr("d MMM yyyy"));
+        if (i == listidactes.size()-1)
+            datefin = act->date().toString(tr("d MMM yyyy"));
+        if (act->motif() != ""
+            || act->texte() != ""
+            || act->conclusion() != "")
         {
             reponsevide = false;
-            Reponse += "<p><td width=\"140\"><font color = \"" + proc->CouleurTitres + "\" ><u><b>" + listact.at(i).at(1).toDate().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
+            Reponse += "<p><td width=\"140\"><font color = \"" + proc->CouleurTitres + "\" ><u><b>" + act->date().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
                     "<td width=\"400\">"
-                    + listact.at(i).at(7).toString() + " " + listact.at(i).at(6).toString() + " " + listact.at(i).at(5).toString() + "</td></p>";
-            if (listact.at(i).at(2).toString() != "")
+                    + Datas::I()->users->getUserById(act->idUser())->getTitre() + " " + Datas::I()->users->getUserById(act->idUser())->getPrenom() + " " + Datas::I()->users->getUserById(act->idUser())->getNom() + "</td></p>";
+            if (act->motif() != "")
             {
-                QString texte = listact.at(i).at(2).toString();
+                QString texte = act->motif();
                 Utils::convertHTML(texte);
                 Reponse += "<p><td width=\"10\"></td><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\"" + tr("Motif:") + "</font>" + texte + "</td></p>";
             }
-            if (listact.at(i).at(3).toString() != "")
+            if (act->texte() != "")
             {
-                QString texte = listact.at(i).at(3).toString();
+                QString texte = act->texte();
                 Utils::convertHTML(texte);
                 Reponse += "<p><td width=\"10\"></td><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Examen:") + "</font>" + texte + "</td></p>";
             }
-            if (listact.at(i).at(4).toString() != "")
+            if (act->conclusion() != "")
             {
-                QString texte = listact.at(i).at(4).toString();
+                QString texte = act->conclusion();
                 Utils::convertHTML(texte);
-                if (listact.at(i).at(2).toString() != "" || listact.at(i).at(3).toString() != "")
+                if (act->motif() != "" || act->texte() != "")
                     Reponse += "<p><td width=\"10\"></td><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Conclusion:") + "</font>" + texte + "</td></p>";
                 else
                     Reponse += "<p><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
@@ -2717,10 +2730,17 @@ void Rufus::ImprimeDossier()
    Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
    if (Entete == "") return;
    Entete.replace("{{TITRE1}}"             , "");
-   Entete.replace("{{TITRE}}"              , "<font color = \"" + proc->CouleurTitres + "\">" + tr("COMPTE RENDU DE DOSSIER") + "</font>");
-   Entete.replace("{{PRENOM PATIENT}}"     , gPrenomPatient);
-   Entete.replace("{{NOM PATIENT}}"        , gNomPatient.toUpper());
-   Entete.replace("{{DDN}}"                , "(" + gDDNPatient.toString(tr("d MMM yyyy")) + ")");
+   QString comment;
+   if (toutledossier)
+       comment = tr("COMPTE RENDU DE DOSSIER");
+   else if (listidactes.size() > 1)
+       comment = tr("Actes du") + " " + datedebut + tr("au") + " " + datefin;
+   else
+       comment = tr("Acte du") + " " + datedebut;
+   Entete.replace("{{TITRE}}"              , "<font color = \"" + proc->CouleurTitres + "\">" + comment + "</font>");
+   Entete.replace("{{PRENOM PATIENT}}"     , gPatientEnCours->prenom());
+   Entete.replace("{{NOM PATIENT}}"        , gPatientEnCours->nom().toUpper());
+   Entete.replace("{{DDN}}"                , "(" + gPatientEnCours->datedenaissance().toString(tr("d MMM yyyy")) + ")");
 
 
    // création du pied
@@ -2744,18 +2764,26 @@ void Rufus::ImprimeDossier()
 
    QTextEdit *Etat_textEdit = new QTextEdit;
    Etat_textEdit->setHtml(Corps);
-
-   bool aa =proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
-                      proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                      AvecDupli, AvecPrevisu, AvecNumPage);
+   bool aa = false;
+   if (queLePdfSurLeBureau)
+   {
+       QString nomdossier = gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + (listidactes.size()>1? tr("du") + " " + datedebut + tr("au") + " " + datefin : datedebut);
+       aa = proc->Imprime_pdf(Etat_textEdit, Entete, Pied,
+                             (listidactes.size()>1? tr("Actes") : tr("Acte")) + ".pdf",
+                             nomdossier);
+   }
+   else
+       aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
+                              proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                              AvecDupli, AvecPrevisu, AvecNumPage);
    if (aa)
    {
        QHash<QString,QVariant> listbinds;
        listbinds["iduser"] =            gUserEnCours->id();
-       listbinds["idpat"] =             gidPatient;
+       listbinds["idpat"] =             gPatientEnCours->id();
        listbinds["typeDoc"] =           COURRIER;
-       listbinds["soustypedoc"] =       tr("Impression dossier");
-       listbinds["titre"] =             tr("Impression dossier");
+       listbinds["soustypedoc"] =       (queLePdfSurLeBureau? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
+       listbinds["titre"] =             (queLePdfSurLeBureau? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
        listbinds["textEntete"] =        Entete;
        listbinds["textCorps"] =         Corps;
        listbinds["textPied"] =          Pied;
@@ -2768,7 +2796,6 @@ void Rufus::ImprimeDossier()
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
    }
-   MAJDocsExternes();
    delete Etat_textEdit;
 }
 
@@ -2829,7 +2856,7 @@ void Rufus::ListeCorrespondants()
     {
         UpMessageBox::Watch(this, tr("pas de correspondant enregistré") );
         bool onlydoctors    = false;
-        Dlg_IdentCorresp    = new dlg_identificationcorresp("Creation", onlydoctors, 0);
+        Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, 0);
         if (Dlg_IdentCorresp->exec()>0)
         {
             ReconstruitCombosCorresp();         // par une modif introduite par la fiche identcorrespondant
@@ -2874,7 +2901,7 @@ void Rufus::MenuContextuelIdentPatient()
 
 void Rufus::ChoixMenuContextuelIdentPatient()
 {
-    IdentificationPatient("Modification",gidPatient);  // aussi appelé depuis le bouton ModifIdentificationupSmallButton
+    IdentificationPatient(dlg_identificationpatient::Modification,gidPatient);  // aussi appelé depuis le bouton ModifIdentificationupSmallButton
 }
 
 void Rufus::MenuContextuelMotsCles()
@@ -3364,7 +3391,7 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
     else if (choix == "Copie")
         RecopierDossier(gdossierAOuvrir);
     else if (choix == "Modifier")
-        IdentificationPatient("Modification",gdossierAOuvrir);  //depuis menu contextuel de la table liste
+        IdentificationPatient(dlg_identificationpatient::Modification,gdossierAOuvrir);  //depuis menu contextuel de la table liste
     else if (choix == "Document")
         OuvrirDocuments(false);
     else if (choix == "ImprimeAncienDoc")
@@ -3399,7 +3426,7 @@ void Rufus::ChoixMenuContextuelMedecin()
 {
     int id = ui->MGupComboBox->currentData().toInt();
     int idxMG = ui->MGupComboBox->currentIndex();
-    Dlg_IdentCorresp          = new dlg_identificationcorresp("Modification",true,id);
+    Dlg_IdentCorresp          = new dlg_identificationcorresp(dlg_identificationcorresp::Modification,true,id);
     if (Dlg_IdentCorresp->exec()>0)
     {
         FlagMetAjourMG();
@@ -3440,7 +3467,7 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
     else if (choix == "Modifier2")
         id = ui->AutresCorresp2upComboBox->currentData().toInt();
     if (id==-1) return;
-    Dlg_IdentCorresp          = new dlg_identificationcorresp("Modification", false, id);
+    Dlg_IdentCorresp          = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, false, id);
     if (Dlg_IdentCorresp->exec()>0)
     {
         int idCor = Dlg_IdentCorresp->gidCor;
@@ -3543,7 +3570,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
     else if (choix == "Payer")
         AppelPaiementDirect("AttentePaiement");
     else if (choix == "Modifier")
-        IdentificationPatient("Modification",gdossierAOuvrir);  //appelé depuis le menu contextuel de la table salle d'attente
+        IdentificationPatient(dlg_identificationpatient::Modification, gdossierAOuvrir);  //appelé depuis le menu contextuel de la table salle d'attente
 
     else if (choix == "Ouvrir")
         ChoixDossier(gdossierAOuvrir);
@@ -7163,7 +7190,7 @@ void    Rufus::CreerDossier()
         QString requete =   "INSERT INTO " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(gidPatient) + "')";
         db->StandardSQL(requete,tr("Impossible de créer les données sociales"));
 
-        if (!IdentificationPatient("Creation",gidPatient)) return;
+        if (!IdentificationPatient(dlg_identificationpatient::Creation, gidPatient)) return;
         Remplir_ListePatients_TableView(grequeteListe, gNomPatient, gPrenomPatient);
 
         // Si le User est un soignant, on crée d'emblée une consultation et on l'affiche
@@ -7392,7 +7419,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 {
     int idcor = -1;
     bool onlydoctors = (Cor == "MG");
-    Dlg_IdentCorresp        = new dlg_identificationcorresp("Creation", onlydoctors, 0);
+    Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, 0);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(Nom);
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     if (Cor == "MG")
@@ -7412,8 +7439,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::ExporteActe()
 {
-    qDebug() << gActeEnCours->id();
-    proc->EnChantier();
+    ImprimeListActes(QList<int>() << gActeEnCours->id(), false, true);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -7539,13 +7565,13 @@ void Rufus::FlagMetAjourSalDat()
 // Modifier nom et prénom directement dans la fiche
 // ------------------------------------------------------------------------------------------
 
-bool Rufus::IdentificationPatient(QString mode, int idPat)
+bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, int idPat)
 {
     int idPatAPasser = idPat;
     QString NomPat, PrenomPat, DDNPat;
 
     Dlg_IdentPatient           = new dlg_identificationpatient(mode, idPatAPasser, this);
-    if (mode == "Copie")
+    if (mode == dlg_identificationpatient::Copie)
     {
         QString req = "SELECT pat.idPat, PatNom, PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille, PatTelephone FROM "
                 NOM_TABLE_PATIENTS " pat, " NOM_TABLE_DONNEESSOCIALESPATIENTS " don"
@@ -7575,13 +7601,13 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
         }
     }
 
-    else if (mode == "Creation")
+    else if (mode == dlg_identificationpatient::Creation)
     {
         Dlg_IdentPatient->ui->NomlineEdit->setEnabled(false);
         Dlg_IdentPatient->ui->PrenomlineEdit->setEnabled(false);
         Dlg_IdentPatient->ui->DDNdateEdit->setEnabled(false);
     }
-    else if (mode == "Modification")
+    else if (mode == dlg_identificationpatient::Modification)
     {
         Dlg_IdentPatient->ui->DDNdateEdit->setEnabled(false);
         Dlg_IdentPatient->ui->ModifierDDNupPushButton->setVisible(true);
@@ -7607,7 +7633,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
 
         //A MODE MODIFICATION
         //*************************************************************************
-        if (mode == "Modification")
+        if (mode == dlg_identificationpatient::Modification)
         {
             //            Mise à jour patients
             QString req;
@@ -7757,7 +7783,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
 
         //B MODE CREATION
         //*************************************************************************
-        else if (mode == "Creation")
+        else if (mode == dlg_identificationpatient::Creation)
         {
             //1 - Mise à jour patients
             if (gSexePat != "")
@@ -7815,7 +7841,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
 
         //A MODE COPIE
         //*************************************************************************
-        else if (mode == "Copie")
+        else if (mode == dlg_identificationpatient::Copie)
         {
             idPat = Dlg_IdentPatient->gidPatient;
             //            Mise à jour patients
@@ -7929,7 +7955,7 @@ bool Rufus::IdentificationPatient(QString mode, int idPat)
         gSexePat = "";
         if (Dlg_IdentPatient->ui->MradioButton->isChecked()) gSexePat = "M";
         if (Dlg_IdentPatient->ui->FradioButton->isChecked()) gSexePat = "F";
-        if (mode == "Copie" && Dlg_IdentPatient->gidPatient > 0)  // il n'y a pas eu de copie parce que le dossssier existait déjà
+        if (mode == dlg_identificationpatient::Copie && Dlg_IdentPatient->gidPatient > 0)  // il n'y a pas eu de copie parce que le dossssier existait déjà
         {
             ui->CreerNomlineEdit->setText(NomPat);
             ui->CreerPrenomlineEdit->setText(PrenomPat);
@@ -8796,7 +8822,7 @@ void    Rufus::RecopierDossier(int idARecopier)
         return;
     }
     gidARecopier = idARecopier;
-    IdentificationPatient("Copie",0);
+    IdentificationPatient(dlg_identificationpatient::Copie, 0);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

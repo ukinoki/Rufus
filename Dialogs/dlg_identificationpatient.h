@@ -35,7 +35,12 @@ class dlg_identificationpatient : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_identificationpatient(QString CreationModification, int idPatAPasser, QWidget *parent = Q_NULLPTR);
+    enum Mode   {
+        Copie,
+        Creation,
+        Modification
+    };
+    explicit dlg_identificationpatient(enum Mode mode, int idPatAPasser, QWidget *parent = Q_NULLPTR);
     ~dlg_identificationpatient();
     Ui::dlg_identificationpatient   *ui;
     int                             gidPatient;
@@ -45,7 +50,7 @@ public:
 private:
     dlg_identificationcorresp       *Dlg_IdentCorresp;
     bool                            gAutorDepart, gControleMGCombo;
-    QString                         lCreatModifCopie;
+    Mode                            gMode;
     QString                         gNomPatient, gPrenomPatient, Sexe;
     Procedures                      *proc;
     DataBase                        *db;

@@ -166,6 +166,7 @@ private:
     void        VerifImportateur();                             /* vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
     void        ImprimeDossier();
     void        ImprimeListPatients(QVariant var);
+    void        ImprimeListActes(QList<int> listidactes, bool toutledossier = true, bool queLePdfSurLeBureau = false);
     void        LireLaCV();       // CZ001
     void        LireLaCPS();      // CZ001
     void        MajusculeCreerNom();
@@ -311,7 +312,7 @@ private:
     bool                FermeDossier();
     void                FlagMetAjourMG();
     void                FlagMetAjourSalDat();
-    bool                IdentificationPatient(QString CreationModification, int idPat);
+    bool                IdentificationPatient(dlg_identificationpatient::Mode mode, int idPat);
     bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
     void                InitWidgets();

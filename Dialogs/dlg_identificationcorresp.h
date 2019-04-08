@@ -34,7 +34,11 @@ class dlg_identificationcorresp : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_identificationcorresp(QString CreationModification, bool quelesmedecins, int idCorresp, QWidget *parent = Q_NULLPTR);
+    enum Mode   {
+        Creation,
+        Modification
+    };
+    explicit dlg_identificationcorresp(enum Mode mode, bool quelesmedecins, int idCorresp, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationcorresp *ui;
     ~dlg_identificationcorresp();
     int                 gidCor;
@@ -42,6 +46,7 @@ public:
     bool                IdentModified();
 
 private:
+    Mode                gMode;
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     QString             lCreatModif;
     bool                OnlyDoctors;

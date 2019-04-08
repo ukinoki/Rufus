@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_identificationcorresp.h"
 
-dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModification, bool quelesmedecins, int idCorresp, QWidget *parent) :
+dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedecins, int idCorresp, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionIdentCorrespondant", parent),
     ui(new Ui::dlg_identificationcorresp)
 {
@@ -28,7 +28,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     proc                = Procedures::I();
     db                  = DataBase::getInstance();
     gidCor              = idCorresp;
-    lCreatModif         = CreationModification;
+    gMode               = mode;
     OnlyDoctors         = quelesmedecins;
     VilleCPwidg     = new VilleCPWidget(proc->getVilles(), ui->Principalframe);
     CPlineEdit      = VilleCPwidg->ui->CPlineEdit;
@@ -53,7 +53,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(QString CreationModificatio
     connect(VilleCPwidg, &VilleCPWidget::villecpmodified, this, &dlg_identificationcorresp::Slot_EnableOKpushButton);
 
     AfficheDossierAlOuverture();
-    if (lCreatModif == "Creation")
+    if (gMode == Creation)
     {
         ui->SpecomboBox     ->setVisible(false);
         ui->AutreupLineEdit ->setVisible(false);
@@ -214,7 +214,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
             if (OnlyDoctors)
                 OnlyDoctors = (cordata.at(2).toInt()==1);
             OKButton->setEnabled(false);
-            lCreatModif = "Modification";
+            gMode = Modification;
             AfficheDossierAlOuverture();
             disconnect (OKButton, SIGNAL(clicked()), this, SLOT (Slot_OKpushButtonClicked()));
             connect(OKButton, SIGNAL(clicked(bool)),this,SLOT(accept()));
@@ -226,7 +226,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         }
     }
 
-    if (lCreatModif == "Creation")
+    if (gMode == Creation)
     {
         // D - le dossier n'existe pas, on le crée
         QString gSexeCor = "";
@@ -261,7 +261,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         proc->initListeCorrespondants();
         accept();
     }
-    if (lCreatModif == "Modification")
+    if (gMode == Modification)
     {
         // D - Il n'existe pas de dossier similaire, on le modifie
         QString gSexeCor = "";
@@ -343,7 +343,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
 {
     ui->AutreradioButton->setVisible(!OnlyDoctors);
     ui->AutreupLineEdit   ->setVisible(!OnlyDoctors);
-    if (lCreatModif == "Modification")
+    if (gMode == Modification)
     {
         bool ok;
         QString requete = "SELECT idCor, CORNom, CORPrenom, CorSexe, CORAdresse1, CORAdresse2, CORAdresse3, CorVille, CorCodePostal,"
@@ -405,7 +405,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
             ui->AutreupLineEdit ->setText(cordata.at(15).toString());
         }
     }
-    else if (lCreatModif == "Creation")
+    else if (gMode == Creation)
     {
         CPlineEdit              ->setText(proc->getCodePostalParDefaut());
         VillelineEdit           ->setText(proc->getVilleParDefaut());

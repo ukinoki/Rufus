@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_identificationpatient.h"
 
-dlg_identificationpatient::dlg_identificationpatient(QString CreationModification, int idPatAPasser, QWidget *parent) :
+dlg_identificationpatient::dlg_identificationpatient(Mode mode, int idPatAPasser, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionIdentificationPatient", parent),
     ui(new Ui::dlg_identificationpatient)
 {
@@ -28,7 +28,7 @@ dlg_identificationpatient::dlg_identificationpatient(QString CreationModificatio
 
     proc                = Procedures::I();
     gidPatient          = idPatAPasser;
-    lCreatModifCopie    = CreationModification;
+    gMode               = mode;
     db                  = DataBase::getInstance();
     ReconstruireListMG  = false;
     QVBoxLayout *vlay       = new QVBoxLayout;
@@ -228,7 +228,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             return;
         }
     }
-    if (lCreatModifCopie == "Copie")
+    if (gMode == Copie)
     {
         // A - On vérifie qu'une date de naissance a été enregistrée, différente de la date par défaut
         if (ui->DDNdateEdit->date() == QDate(2000,1,1))
@@ -308,7 +308,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         db->StandardSQL(requete, tr("Impossible de créer les données sociales"));
         FermeFiche(Accept);
     }
-    else if (lCreatModifCopie == "Modification")
+    else if (gMode == Modification)
     {
         // on vérifie si le dossier existe déjà avec les mêmes nom, prénom et DDN
         QString requete = "select idPat from " NOM_TABLE_PATIENTS
@@ -335,7 +335,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
 void    dlg_identificationpatient::Slot_AnnulpushButtonClicked()
 {
     gControleMGCombo = false;
-    if (lCreatModifCopie == "Creation")
+    if (gMode == Creation)
     {
         UpMessageBox msgbox;
         UpSmallButton OKBouton(tr("Annuler la création"));
@@ -494,7 +494,7 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
 {
     int idcor = -1;
     bool onlydoctors = true;
-    Dlg_IdentCorresp        = new dlg_identificationcorresp("Creation",onlydoctors,0);
+    Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation,onlydoctors,0);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(ui->MGupComboBox->currentText());
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
