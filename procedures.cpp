@@ -1381,6 +1381,24 @@ bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int
 bool Procedures::Imprime_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier)
 {
     bool a = false;
+    QString nomdirdossiers = NOMDIR_RUFUS NOMDIR_CRDOSSIERS;
+    if (!Utils::mkpath(QDir::homePath() + nomdirdossiers))
+    {
+        UpMessageBox::Watch(Q_NULLPTR,  tr("Impossible de créer le dossier") + "\n" + QDir::homePath() + nomdirdossiers);
+        return a;
+    }
+    QString nomficpdf = nomdirdossiers + "/";
+    if (nomdossier != "")
+    {
+        QString NomDirDest = QDir::homePath() + nomdirdossiers + "/" + nomdossier;
+        QDir DirDest(NomDirDest);
+        if (DirDest.exists())
+            DirDest.rmdir(NomDirDest);
+        DirDest.mkdir(NomDirDest);
+        nomficpdf += nomdossier + "/" + nomfichier;
+    }
+    else
+        nomficpdf += nomfichier;
 
     TextPrinter *TexteAImprimer = new TextPrinter();
     Pied.replace("{{DUPLI}}","");
@@ -1391,24 +1409,12 @@ bool Procedures::Imprime_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QStr
     TexteAImprimer->setFooterText(Pied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
 
-    QString nomficpdf = "/Desktop";
-    if (nomdossier != "")
-    {
-        QString NomDirDest = QDir::homePath() + "/Desktop/" + nomdossier;
-        QDir DirDest(NomDirDest);
-        if (DirDest.exists())
-            DirDest.rmdir(NomDirDest);
-        DirDest.mkdir(NomDirDest);
-        nomficpdf += "/" + nomdossier + "/" + nomfichier;
-    }
-    else
-        nomficpdf += "/" + nomfichier;
 
     TexteAImprimer->print(Etat->document(), nomficpdf, "", false, true);
     // le paramètre true de la fonction print() génère la création du fichier pdf nomficpdf et pas son impression
     QFile filepdf(QDir::homePath() + nomficpdf);
     if (!filepdf.open( QIODevice::ReadOnly ))
-        UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + nomficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
+        UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + QDir::homePath() + nomficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
     else
         a = true;
     filepdf.close ();

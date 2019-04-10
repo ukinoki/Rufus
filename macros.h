@@ -139,6 +139,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOMDIR_ORIGINAUX                            "/Originaux"
 #define NOMDIR_FACTURESSANSLIEN                     "/FacturesSansLien"
 #define NOMDIR_DOSSIERECHANGE                       "/DossierEchange"
+#define NOMDIR_CRDOSSIERS                           "/CRDossiers"
 #define NOMDIR_IMAGERIE                             "/Imagerie"
 #define NOMDIR_IMAGES                               "/Images"
 #define NOMDIR_VIDEOS                               "/Videos"

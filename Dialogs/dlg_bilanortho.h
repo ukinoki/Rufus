@@ -32,7 +32,7 @@ public:
     explicit dlg_bilanortho(int idActeAPAsser, bool nouveaubilan, QWidget *parent = Q_NULLPTR);
     ~dlg_bilanortho();
     Ui::dlg_bilanortho      *ui;
-    QString                 calcReponsehTml(bool avecAcuite = true);
+    QString                 calcReponsehTml(QString textorigin ="");
     void                    setDateBO(QDate dateBO);
 
 private:
@@ -41,12 +41,12 @@ private:
     int                     idActe, gidpat;
     void                    closeEvent(QCloseEvent *event);
     void                    AfficheBilan(int idBilan);
+    void                    ExtraitRefraction(QString textorigin, QString &ReponseaModifier);
     Procedures              *proc;
     DataBase                *db;
     QString                 CouleurTitres;
     QDate                   DateBO;
 
-    // anciens slots
     void                    AfficheCombobox(int i, QWidget *widg);
     void                    ImprimeBOClicked();
     void                    EnableAnimauxWirtcomboBox(QString PionWirt);

@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("08-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("10-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -471,7 +471,7 @@ void Rufus::Moulinette()
     QList<QVariantList> listcodes = db->StandardSelectSQL(req, ok);
     for (int i=0; i< listcodes.size(); i++)
     {
-        qDebug() << i+1 << " - " << listcodes.at(i).at(0);
+        //qDebug() << i+1 << " - " << listcodes.at(i).at(0);
         QString code = listcodes.at(i).at(0).toString();
         req = "select max(date) from rufus.r_pu_base where codeccam = '" + code + "'";
         //qDebug() << req;
@@ -1539,9 +1539,9 @@ void Rufus::CreerBilanOrtho()
 {
     bool    nouveauBO       = true;
     bool    creeracte       = true;
+    QDate DateBl;
     if (ui->Acteframe->isVisible())
     {
-        QDate DateBl;
         QString requete = "select idbilanortho from " NOM_TABLE_BILANORTHO
                 " where idbilanortho = " + QString::number(gidActe);
         QVariantList bodata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
@@ -1578,18 +1578,20 @@ void Rufus::CreerBilanOrtho()
         }
         else
             creeracte = !Datas::I()->users->getUserById(db->loadActeById(gidActe)->idCreatedBy())->isOrthoptist();
-
-        if (!nouveauBO)
-        {
-            Dlg_BlOrtho             = new dlg_bilanortho(gidActe, nouveauBO);
-            QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
-            Dlg_BlOrtho->ui->OcclAlternlabel->setVisible(gDDNPatient.daysTo(DateBl) < 730);
-            Dlg_BlOrtho->ui->OcclAlterncomboBox->setVisible(gDDNPatient.daysTo(DateBl) < 730);
-            Dlg_BlOrtho             ->setWindowTitle(Titre);
-            Dlg_BlOrtho             ->setDateBO(QDate::fromString(ui->ActeDatedateEdit->text(),"dd/MM/yyyy"));
-        }
     }
-    if (nouveauBO)
+
+    if (!nouveauBO)
+    {
+        Dlg_BlOrtho             = new dlg_bilanortho(gidActe, nouveauBO);
+        QString Titre           = tr("Bilan orthoptique - ") + gPrenomPatient + " " + gNomPatient;
+        Dlg_BlOrtho->ui->OcclAlternlabel    ->setVisible(gDDNPatient.daysTo(DateBl) < 730);
+        Dlg_BlOrtho->ui->OcclAlterncomboBox ->setVisible(gDDNPatient.daysTo(DateBl) < 730);
+        Dlg_BlOrtho->ui->MotiftextEdit      ->setHtml(ui->ActeMotiftextEdit->toHtml());
+        Dlg_BlOrtho->ui->ConclusiontextEdit ->setHtml(ui->ActeConclusiontextEdit->toHtml());
+        Dlg_BlOrtho             ->setWindowTitle(Titre);
+        Dlg_BlOrtho             ->setDateBO(QDate::fromString(ui->ActeDatedateEdit->text(),"dd/MM/yyyy"));
+    }
+    else
     {
         if (creeracte)
         {
@@ -1604,7 +1606,7 @@ void Rufus::CreerBilanOrtho()
         QString RefractionOG    = "";
         Dlg_BlOrtho             ->setDateBO(QDate::currentDate());
 
-        QString Refrequete    = "select max(idrefraction), formuleOD, formuleOG, idActe from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gidPatient);
+        QString Refrequete    = "select idrefraction, formuleOD, formuleOG, idActe from " NOM_TABLE_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(gPatientEnCours->id()) + " order by idrefraction desc";
         QVariantList Refdata = db->getFirstRecordFromStandardSelectSQL(Refrequete, ok);
         if (ok && Refdata.size()>0)
         {
@@ -1620,35 +1622,36 @@ void Rufus::CreerBilanOrtho()
     if (Dlg_BlOrtho->exec()> 0)
     {
         QString updaterequete;
-        // Compléter le champ Motif et mettre à jour l'affichage de ActeMotiftextEdit --------------------------------------------------------------------------------
-        QString Motif= Dlg_BlOrtho->ui->MotiftextEdit->toPlainText();
-        if (Motif != "")
-        {
-            Motif = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\"><td width=\"70\"><a name=\"BODEBUT\"></a><font color = \""
-                    + proc->CouleurTitres + "\">" + tr("Motif:") + "</font></td><td width=\"300\">" + Motif + "</td></p>";
-            updaterequete = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(ui->ActeMotiftextEdit->appendHtml(Motif, "BODEBUT", "", true)) +
-                            "' where idActe = " + QString::number(gidActe);
-            db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Motif !"));
-        }
+        QString const paragraph         = "<p style = \"margin-top:0px; margin-bottom:0px;\">";
+        QString const debutdelimiter    = "<a name=\"BODEBUT\"></a>";
+        QString const findelimiter      = "<a name=\"BOFIN\"></a>";
 
-        // Compléter le Champ Texte et mettre à jour l'affichage de ActeTextetextEdit ----------------------------------------------------------------------------------
-        bool avecacuite = !ui->ActeTextetextEdit->toHtml().contains("<a name=\"debut");
-        QString Reponse = Dlg_BlOrtho->calcReponsehTml(avecacuite);
-        updaterequete   =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(Reponse, "BODEBUT", "BOFIN", true)) +
-                           "' where idActe = " + ui->idActelineEdit->text();
+        // Compléter le champ Motif et mettre à jour l'affichage de ActeMotiftextEdit
+        QString Motif                   = Dlg_BlOrtho->ui->MotiftextEdit->toPlainText();
+        Motif                           .insert(Motif.length()-2, findelimiter);
+        Motif                           = paragraph + "<td width=\"70\">" + debutdelimiter + Motif + "</a></p>";
+        ui->ActeMotiftextEdit           ->setText(Motif);
+        updaterequete                   = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(ui->ActeMotiftextEdit->toHtml()) +
+                                          "' where idActe = " + QString::number(gActeEnCours->id());
+        db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Motif !"));
+
+        // Compléter le Champ Texte et mettre à jour l'affichage de ActeTextetextEdit
+        QString Reponse                 = Dlg_BlOrtho->calcReponsehTml(ui->ActeTextetextEdit->toHtml());
+        ui->ActeTextetextEdit           ->setHtml(Reponse);
+        updaterequete                   = "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(Reponse) +
+                                          "' where idActe = " + QString::number(gActeEnCours->id());
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
 
-        // Compléter le Champ Conclusion et mettre à jour l'affichage de ActeConclusiontextEdit ----------------------------------------------------------------------------------
-        QString Concl = Dlg_BlOrtho->ui->ConclusiontextEdit->toPlainText();
-        if (Concl != "")
-        {
-            Concl       = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px\"><a name=\"BODEBUT\"></a>" + Concl + "</p>";
-            updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->appendHtml(Concl,"BODEBUT", "", true)) +
-                    "' where idActe = " + ui->idActelineEdit->text();
-            db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Conclusion!"));
-        }
+        // Compléter le Champ Conclusion et mettre à jour l'affichage de ActeConclusiontextEdit
+        QString Concl                   = Dlg_BlOrtho->ui->ConclusiontextEdit->toPlainText();
+        Concl                           .insert(Concl.length()-2, findelimiter);
+        Concl                           = paragraph + debutdelimiter + Concl + "</p>";
+        ui->ActeConclusiontextEdit      ->setText(Concl);
+        updaterequete                   = "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->toHtml()) +
+                                          "' where idActe = " + QString::number(gActeEnCours->id());
+        db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Conclusion!"));
 
-        //Mettre à jour la table bilanorrtho
+        //Mettre à jour la table bilanortho
         QString deleteblorthorequete = "delete from " NOM_TABLE_BILANORTHO " where idBilanOrtho = " + ui->idActelineEdit->text();
         QString bilanorthorequete = "insert into " NOM_TABLE_BILANORTHO
                 " (idBilanOrtho, Motif, AVOD, AVOG, OcclAltern"                                 // 0,1,2,3,4
@@ -1666,15 +1669,15 @@ void Rufus::CreerBilanOrtho()
                 ", HEcranVPASCD, HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC"     // 60,61,62,63,64
                 ", HMaddoxVPSCD, HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD"      // 65,66,67,68,69
                 ") \nVALUES \n(";
-        bilanorthorequete += QString::number(gidActe);                                                                        //0
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->MotiftextEdit->toHtml()) + "'\n";                   //1
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVODlineEdit->text()) + "'\n";                      //2
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVOGlineEdit->text()) + "'\n";                      //3
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->OcclAlterncomboBox->currentText()) + "'\n";         //4
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->WirtcomboBox->currentText()) + "'\n";               //5
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AnimauxWirtcomboBox->currentText()) + "'\n";        //6
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->LangcomboBox->currentText()) + "'\n";               //7 Lang
-        if (Dlg_BlOrtho->ui->ODdirecteurradioButton->isChecked())                                                                 //8 ODirecteur
+        bilanorthorequete += QString::number(gidActe);                                                                          //0 idActe
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Motif) + "'\n";                           //1 Motif
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVODlineEdit->text()) + "'\n";                     //2
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVOGlineEdit->text()) + "'\n";                     //3
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->OcclAlterncomboBox->currentText()) + "'\n";        //4
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->WirtcomboBox->currentText()) + "'\n";              //5
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AnimauxWirtcomboBox->currentText()) + "'\n";       //6
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->LangcomboBox->currentText()) + "'\n";              //7 Lang
+        if (Dlg_BlOrtho->ui->ODdirecteurradioButton->isChecked())                                                               //8 ODirecteur
             bilanorthorequete += ", 'D'";
         else if (Dlg_BlOrtho->ui->OGdirecteurradioButton->isChecked())
             bilanorthorequete += ", 'G'";
@@ -1758,7 +1761,7 @@ void Rufus::CreerBilanOrtho()
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Degre1lineEdit->text()) + "'\n";
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Degre2lineEdit->text()) + "'\n";
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->Degre3lineEdit->text()) + "'\n";
-        bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->ConclusiontextEdit->toHtml()) + "'\n";
+        bilanorthorequete += ", '" + Utils::correctquoteSQL(Concl) + "'\n";
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->TNOcomboBox->currentText()) + "'\n";
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->VergenceRestDLcomboBox->currentText()) + "'\n";
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->VergenceRestDPcomboBox->currentText()) + "'\n";
@@ -8983,7 +8986,7 @@ void    Rufus::Refraction()
         {
             for (int i= 0; i<Dlg_Refraction->ResultatObservation().size();i++)
                 if (Dlg_Refraction->ResultatObservation().at(i).unicode() == 10) Dlg_Refraction->ResultatObservation().replace(Dlg_Refraction->ResultatObservation().at(i),"<br>");
-
+            //qDebug() << Dlg_Refraction->ResultatObservation();
             QString ARajouterEnText =
                     "<p style = \"margin-top:0px; margin-bottom:0px;\">"
                   + Dlg_Refraction->ResultatObservation()
@@ -8991,6 +8994,7 @@ void    Rufus::Refraction()
             QString updaterequete =  "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(ui->ActeTextetextEdit->appendHtml(ARajouterEnText)) +
                                      "' where idActe = " + ui->idActelineEdit->text();
             db->StandardSQL(updaterequete);
+            //qDebug() << ui->ActeTextetextEdit->toHtml();
             ui->ActeTextetextEdit->setFocus();
             ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         }
