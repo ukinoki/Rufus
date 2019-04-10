@@ -77,25 +77,25 @@ private:
     QSqlDatabase m_db;
 
 public:
-    static DataBase *getInstance();
+    static DataBase*        getInstance();
 
-    void init(QSettings const &setting, int mode);
-    void initFromFirstConnexion(QString mode, QString Server, int Port, bool SSL);
+    void                    init(QSettings const &setting, int mode);
+    void                    initFromFirstConnexion(QString mode, QString Server, int Port, bool SSL);
 
-    int getMode() const;
-    QString getBase() const;
-    QString getBaseFromInt( int mode ) const;
-    QString getServer() const;
-    QSqlDatabase getDataBase() const;
-    void getInformations();
-    User* getUserConnected() const;
-    void setUserConnected(User*);           // utilisé uniquement lors du premier démarrage pour définir le premier user
-                                            // normalement effectuéé par DataBase::login() mais pas possible dans ce cas
-                                            // parce que login() utilise la table des utilisateurs connectés qui n'a pas encore été remplie à ce stade
+    int                     getMode() const;
+    QString                 getBase() const;
+    QString                 getBaseFromInt( int mode ) const;
+    QString                 getServer() const;
+    QSqlDatabase            getDataBase() const;
+    void                    getInformations();
+    User*                   getUserConnected() const;
+    void                    setUserConnected(User*);    // utilisé uniquement lors du premier démarrage pour définir le premier user
+                                                        // normalement effectuéé par DataBase::login() mais pas possible dans ce cas
+                                                        // parce que login() utilise la table des utilisateurs connectés qui n'a pas encore été remplie à ce stade
 
     bool                    erreurRequete(QSqlError type, QString requete, QString ErrorMessage = "");
 
-    QString connectToDataBase(QString basename, QString login, QString password);
+    QString                 connectToDataBase(QString basename, QString login, QString password);
 
     bool                    createtransaction(QStringList ListTables, QString ModeBlocage = "WRITE");
     void                    commit();
@@ -111,105 +111,106 @@ public:
     bool                    InsertSQLByBinds(QString nomtable,  QHash<QString, QVariant>, QString errormsg="");
     bool                    StandardSQL(QString req , QString errormsg="");
     QList<QVariantList>     StandardSelectSQL(QString req, bool &ok, QString errormsg="");  // la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides
-    QVariantList           getFirstRecordFromStandardSelectSQL(QString req, bool &ok, QString errormsg="");  // la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides
+    QVariantList            getFirstRecordFromStandardSelectSQL(QString req, bool &ok, QString errormsg="");  // la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides
     /*
      * Users
     */
-    QJsonObject login(QString login, QString password);
-    QJsonObject loadUserData(int idUser);
-    QJsonObject loadUserDatabyLogin(QString login);
-    QList<User*> loadUsersAll();
+    QJsonObject             login(QString login, QString password);
+    QJsonObject             loadUserData(int idUser);
+    QJsonObject             loadUserDatabyLogin(QString login);
+    QList<User*>            loadUsersAll();
 
     /*
      * Correspondants
     */
-    QList<Correspondant *> loadCorrespondants();
-    void    SupprCorrespondant(int idcor);
-    QList<Correspondant*> loadCorrespondantsALL();
+    QList<Correspondant *>  loadCorrespondants();
+    void                    SupprCorrespondant(int idcor);
+    QList<Correspondant*>   loadCorrespondantsALL();
 
     /*
      * DocsExternes
     */
-    QList<DocExterne*> loadDoscExternesByPatientAll(int idpatient);
-    QJsonObject loadDocExterneData(int idDoc);
-    void    SupprDocExterne(DocExterne* doc);
+    QList<DocExterne*>      loadDoscExternesByPatientAll(int idpatient);
+    QJsonObject             loadDocExterneData(int idDoc);
+    void                    SupprDocExterne(DocExterne* doc);
 
     /*
      * Documents émis
     */
-    QList<Document*> loadDocuments();
-    QJsonObject loadDocumentData(int idDoc);
-    void    SupprDocument(Document *doc);
+    QList<Document*>        loadDocuments();
+    QJsonObject             loadDocumentData(int idDoc);
+    void                    SupprDocument(Document *doc);
 
     /*
      * MetaDocuments
     */
-    QList<MetaDocument*> loadMetaDocuments();
-    QJsonObject loadMetaDocumentData(int idDoc);
-    void    SupprMetaDocument(Document *doc);
+    QList<MetaDocument*>    loadMetaDocuments();
+    QJsonObject             loadMetaDocumentData(int idDoc);
+    void                    SupprMetaDocument(Document *doc);
 
     /*
      * Compta
     */
-    QList<Compte*>  loadComptesAllUsers();
-    QList<Compte*>  loadComptesByUser(int idUser);
-    QList<Depense*> loadDepensesByUser(int idUser);
-    void            loadDepenseArchivee(Depense *dep);
-    QStringList     ListeRubriquesFiscales();
-    QList<Depense*> VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur = Egal);
-    int             getMaxLigneBanque();
-    QList<Archive*> loadArchiveByDate(QDate date, Compte *compte, int intervalle); //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
-    QList<Banque*>  loadBanques();
-    QList<Tiers*>   loadTiersPayants();
-    QList<TypeTiers*>  loadTypesTiers();
+    QList<Compte*>          loadComptesAllUsers();
+    QList<Compte*>          loadComptesByUser(int idUser);
+    QList<Depense*>         loadDepensesByUser(int idUser);
+    void                    loadDepenseArchivee(Depense *dep);
+    QStringList             ListeRubriquesFiscales();
+    QList<Depense*>         VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur = Egal);
+    int                     getMaxLigneBanque();
+    QList<Archive*>         loadArchiveByDate(QDate date, Compte *compte, int intervalle); //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
+    QList<Banque*>          loadBanques();
+    QList<Tiers*>           loadTiersPayants();
+    QList<TypeTiers*>       loadTypesTiers();
 
     /*
      * Cotations
     */
-    QStringList loadTypesCotations();
-    QList<Cotation*> loadCotationsByUser(int iduser);
+    QStringList             loadTypesCotations();
+    QList<Cotation*>        loadCotationsByUser(int iduser);
 
     /*
      * Motifs
     */
-    QList<Motif*> loadMotifs();
+    QList<Motif*>           loadMotifs();
 
     /*
      * Sites
     */
-    QList<Site*> loadSitesByUser(int idUser);
-    QList<Site*> loadSitesAll();
+    QList<Site*>            loadSitesByUser(int idUser);
+    QList<Site*>            loadSitesAll();
 private:
-    QList<Site*> loadSites(QString req);
+    QList<Site*>            loadSites(QString req);
 
 public:
     /*
      * Villes
     */
-    Villes* loadVillesAll();
+    Villes*                 loadVillesAll();
 
     /*
      * Gestion des Patients
     */
-    QList<Patient*> loadPatientAll();
-    Patient*        loadPatientById(int idPat);
+    void                    loadSocialDataPatient(Patient* patient, bool &ok);
+    void                    loadMedicalDataPatient(Patient* patient, bool &ok);
+    Patient*                loadPatientById(int idPat);
 
     /*
      * Mots de passe
     */
     //Pas normal, les mots de passes doivent etre chiffrés
-    QString getMDPAdmin();
+    QString                 getMDPAdmin();
 
     /*
      * Actes
     */
 private:
-    QString createActeRequest(int idActe, int idPat);
-    QJsonObject extractActeData(QVariantList actdata);
+    QString                 createActeRequest(int idActe, int idPat);
+    QJsonObject             extractActeData(QVariantList actdata);
 public:
-    Acte* loadActeById(int idActe);
-    QMap<int, Acte*> loadActesByIdPat(int idPat);
-    double getActeMontant(int idActe);
+    Acte*                   loadActeById(int idActe);
+    QMap<int, Acte*>        loadActesByIdPat(int idPat);
+    double                  getActeMontant(int idActe);
 
 
 signals:

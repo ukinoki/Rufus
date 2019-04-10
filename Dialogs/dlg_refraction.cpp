@@ -3177,11 +3177,11 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
         case 2:
-            gResultatAnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>(non dilaté)</td>" + kerato;
+            gResultatAnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>" + tr("(non dilaté)") + "</td>" + kerato;
             gResultatAnondil.insert(gResultatAnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         case 3:
-            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">(dilaté)</font></td>" + kerato;
+            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">" + tr("(dilaté)") + "</font></td>" + kerato;
             gResultatAdil.insert(gResultatAdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         default:

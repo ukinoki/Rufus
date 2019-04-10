@@ -175,7 +175,7 @@ private:
     void        ModifierTerrain();
     void        Moulinette();
     void        NouvelleMesureRefraction();                     // les connexions aux appareils de mesure
-    void        OKModifierTerrain();
+    void        OKModifierTerrain(bool recalclesdonnees = true);
     void        OuvrirActesPrecspushButtonClicked();
     void        OuvrirJournalDepenses();
     void        OuvrirParametres();

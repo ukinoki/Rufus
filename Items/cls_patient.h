@@ -43,6 +43,34 @@ private: //Données du patient
     QDate m_dateDeNaissance;        //!< Date de naissance du patient
 
 
+    QString m_adresse1;             //!< 1ere ligne d'adresse du patient
+    QString m_adresse2;             //!< 2eme ligne d'adresse du patient
+    QString m_adresse3;             //!< 3eme ligne d'adresse du patient
+    QString m_codepostal;           //!< code postal du patient
+    QString m_ville;                //!< ville du patient
+    QString m_telephone;            //!< telephone du patient
+    QString m_portable;             //!< no portable du patient
+    QString m_mail;                 //!< maildu patient
+    qlonglong m_NNI;                //!< numero national d'identité du patient
+    bool m_ALD;                     //!< le patient est en ALD
+    bool m_CMU;                     //!< le patient bénéficie de la CMU
+    QString m_profession;           //!< profession du patient
+
+    int m_idmg;                     //!< l'id du MG correspondant
+    int m_idspe1;                   //!< l'id du 1er spécialiste correspondant
+    int m_idspe2;                   //!< l'id du 2eme spécialiste correspondant
+    int m_idspe3;                   //!< l'id du 3eme spécialiste correspondant
+    int m_idcornonmg;               //!< l'id d'un correspondant non médecin
+    QString m_atcdtspersos;         //!< les antécédents généraux
+    QString m_atcdtsfamiliaux;      //!< les antécédents familiaux
+    QString m_atcdtsophtalmos;      //!< les antécédents ophtalmos
+    QString m_traitementgen;        //!< le traitement général
+    QString m_traitementoph;        //!< le traitement ophtalmo
+    QString m_tabac;                //!< consommation de tabac /j
+    QString m_toxiques;             //!< autres toxiques
+    QString m_gencorresp;           //!< nom du generaliste correspondant (plus utilisé)
+    QString m_important;            //!< points importants du dossier
+    QString m_resume;               //!< resumé du dossier
 
 private:
     bool m_isAllLoaded = false;
@@ -61,13 +89,51 @@ public:
     QDate   datedenaissance() const;
     int     idcreateur() const;
 
+    // Social data
+    QString adresse1() const;
+    QString adresse2() const;
+    QString adresse3() const;
+    QString codepostal() const;
+    QString ville() const;
+    QString telephone() const;
+    QString portable() const;
+    QString mail() const;
+    qlonglong NNI() const;
+    bool isald() const;
+    bool iscmu() const;
+    QString profession() const;
+
+    // Medical data
+    int idmg() const;
+    int idspe1() const;
+    int idspe2() const;
+    int idspe3()const;
+    int idcornonmg() const;
+    QString atcdtspersos();
+    QString atcdtsfamiliaux();
+    QString atcdtsophtalmos();
+    QString traitementgen();
+    QString traitementoph();
+    QString tabac();
+    QString toxiques();
+    QString gencorresp();
+    QString important();
+    QString resume();
+
     void setActes(QMap<int, Acte *> *actes);
     QMap<int, Acte *> *actes() const;
 
     explicit Patient(QJsonObject data = {}, QObject *parent = nullptr);
 
     void setData(QJsonObject data);
+    void addSocialData(QJsonObject data);
+    void addMedicalData(QJsonObject data);
     void addActe(Acte *acte);
+
+    // Medical data
+    void    setmg(int id) {m_idmg = id;}
+    void    setspe1(int id) {m_idspe1 = id;}
+    void    setspe2(int id) {m_idspe2 = id;}
 
 };
 

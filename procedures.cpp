@@ -2457,6 +2457,55 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
         box->addItem(model->item(i)->text(), model->item(i,1)->text());
 }
 
+void Procedures::setMg(Patient* pat, int idmg)
+{
+    QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(pat->id());
+    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok)
+        return;
+    if (patdata.size()==0)
+        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                " (idPat, idCorMedMG) VALUES (" + QString::number(pat->id()) + "," + QString::number(idmg) + ")";
+    else
+        req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + QString::number(idmg) + " where idpat = " + QString::number(pat->id());
+    //qDebug() << req;
+    db->StandardSQL(req);
+    pat->setmg(idmg);
+}
+
+void Procedures::setspe1(Patient *pat, int idspe1)
+{
+    QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(pat->id());
+    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok)
+        return;
+    if (patdata.size()==0)
+        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                " (idPat, idCorMedSpe1) VALUES (" + QString::number(pat->id()) + "," + QString::number(idspe1) + ")";
+    else
+        req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = " + QString::number(idspe1) + " where idpat = " + QString::number(pat->id());
+    //qDebug() << req;
+    db->StandardSQL(req);
+    pat->setspe1(idspe1);
+}
+
+void Procedures::setspe2(Patient *pat, int idspe2)
+{
+    QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(pat->id());
+    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (!ok)
+        return;
+    if (patdata.size()==0)
+        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                " (idPat, idCorMedSpe2) VALUES (" + QString::number(pat->id()) + "," + QString::number(idspe2) + ")";
+    else
+        req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = " + QString::number(idspe2) + " where idpat = " + QString::number(pat->id());
+    //qDebug() << req;
+    db->StandardSQL(req);
+    pat->setspe2(idspe2);
+}
+
+
 //Pas normal, les mots de passes doivent etre chiffrés
 QString Procedures::getMDPAdmin()
 {

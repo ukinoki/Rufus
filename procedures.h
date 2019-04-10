@@ -252,6 +252,9 @@ public:
     bool                    isPosteImportDocs();
 
     void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes
+    void                    setMg(Patient* pat, int idmg);
+    void                    setspe1(Patient* pat, int idspe1);
+    void                    setspe2(Patient* pat, int idspe2);
 
     QString                 getMDPAdmin();
     void                    setNomImprimante(QString NomImprimante);

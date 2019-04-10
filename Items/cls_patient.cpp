@@ -18,39 +18,45 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_patient.h"
 
 //GETTER | SETTER
-bool Patient::isAllLoaded() const
-{
-    return m_isAllLoaded;
-}
+bool Patient::isAllLoaded() const           { return m_isAllLoaded; }
+int Patient::id() const                     { return m_id; }
+QString Patient::nom() const                { return m_nom; }
+QString Patient::prenom() const             { return m_prenom; }
+QString Patient::sexe() const               { return m_sexe; }
+QDate Patient::datedenaissance() const      { return m_dateDeNaissance; }
+QDate Patient::datecreationdossier() const  { return m_datecreation; }
+int Patient::idcreateur() const             { return m_idcreateur; }
 
-int Patient::id() const
-{
-    return m_id;
-}
-QString Patient::nom() const
-{
-    return m_nom;
-}
-QString Patient::prenom() const
-{
-    return m_prenom;
-}
-QString Patient::sexe() const
-{
-    return m_sexe;
-}
-QDate Patient::datedenaissance() const
-{
-    return m_dateDeNaissance;
-}
-QDate Patient::datecreationdossier() const
-{
-    return m_datecreation;
-}
-int Patient::idcreateur() const
-{
-    return m_idcreateur;
-}
+// Social data
+QString Patient::adresse1() const           { return m_adresse1; }
+QString Patient::adresse2() const           { return m_adresse2; }
+QString Patient::adresse3() const           { return m_adresse3; }
+QString Patient::codepostal() const         { return m_codepostal; }
+QString Patient::ville() const              { return m_ville; }
+QString Patient::telephone() const          { return m_telephone; }
+QString Patient::portable() const           { return m_portable; }
+QString Patient::mail() const               { return m_mail; }
+qlonglong Patient::NNI() const              { return m_NNI; }
+bool Patient::isald() const                 { return m_ALD; }
+bool Patient::iscmu() const                 { return m_CMU; }
+QString Patient::profession() const         { return m_profession; }
+
+// Medical data
+int Patient::idmg() const                   { return m_idmg; }
+int Patient::idspe1() const                 { return m_idspe1; }
+int Patient::idspe2() const                 { return m_idspe2; }
+int Patient::idspe3()const                  { return m_idspe3; }
+int Patient::idcornonmg() const             { return m_idcornonmg; }
+QString Patient::atcdtspersos()             { return m_atcdtspersos; }
+QString Patient::atcdtsfamiliaux()          { return m_atcdtsfamiliaux; }
+QString Patient::atcdtsophtalmos()          { return m_atcdtsophtalmos; }
+QString Patient::traitementgen()            { return m_traitementgen; }
+QString Patient::traitementoph()            { return m_traitementoph; }
+QString Patient::tabac()                    { return m_tabac; }
+QString Patient::toxiques()                 { return m_toxiques; }
+QString Patient::gencorresp()               { return m_gencorresp; }
+QString Patient::important()                { return m_important; }
+QString Patient::resume()                   { return m_resume; }
 
 QMap<int, Acte *> *Patient::actes() const
 {
@@ -84,6 +90,45 @@ void Patient::setData(QJsonObject data)
     setDataDate(data, "datecreation", m_datecreation);
     setDataInt(data, "idcreateur", m_idcreateur);
     setDataDate(data, "dateDeNaissance", m_dateDeNaissance);
+}
+
+void Patient::addSocialData(QJsonObject data)
+{
+    if( data.isEmpty() )
+        return;
+    setDataString(data, "adresse1", m_adresse1);
+    setDataString(data, "adresse2", m_adresse2);
+    setDataString(data, "adresse3", m_adresse3);
+    setDataString(data, "codepostal", m_codepostal);
+    setDataString(data, "ville", m_ville);
+    setDataString(data, "telephone", m_telephone);
+    setDataString(data, "portable", m_portable);
+    setDataString(data, "mail", m_mail);
+    setDataLongLongInt(data, "NNI", m_NNI);
+    setDataBool(data, "ALD", m_ALD);
+    setDataBool(data, "CMU", m_CMU);
+    setDataString(data, "profession", m_profession);
+}
+
+void Patient::addMedicalData(QJsonObject data)
+{
+    if( data.isEmpty() )
+        return;
+    setDataInt(data, "idMG", m_idmg);
+    setDataInt(data, "idSpe1", m_idspe1);
+    setDataInt(data, "idSpe2", m_idspe2);
+    setDataInt(data, "idSpe3", m_idspe3);
+    setDataInt(data, "idCornonMG", m_idcornonmg);
+    setDataString(data, "AtcdtsPerso", m_atcdtspersos);
+    setDataString(data, "TtGeneral", m_traitementgen);
+    setDataString(data, "AtcdtsFamiliaux", m_atcdtsfamiliaux);
+    setDataString(data, "AtcdstOph", m_atcdtsophtalmos);
+    setDataString(data, "Tabac", m_tabac);
+    setDataString(data, "Toxiques", m_toxiques);
+    setDataString(data, "GenCorresp", m_gencorresp);
+    setDataString(data, "Important", m_important);
+    setDataString(data, "Resume", m_resume);
+    setDataString(data, "TtOph", m_traitementoph);
 }
 
 /*!

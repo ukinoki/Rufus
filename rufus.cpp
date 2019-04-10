@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("10-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("11-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1393,18 +1393,8 @@ void Rufus::ChangeTabBureau()
 
 void Rufus::ChoixMG()
 {
-    QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (!ok)
-        return;
-    if (patdata.size()==0)
-        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                " (idPat, idCorMedMG) VALUES (" + QString::number(gidPatient) + "," + ui->MGupComboBox->currentData().toString() + ")";
-    else
-        req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + ui->MGupComboBox->currentData().toString() + " where idpat = " + QString::number(gidPatient);
-    //qDebug() << req;
-    db->StandardSQL(req);
-    OKModifierTerrain();
+    proc->setMg(gPatientEnCours, ui->MGupComboBox->currentData().toInt());
+    OKModifierTerrain(false);
     ui->MGupComboBox->setImmediateToolTip(CalcToolTipCorrespondant(ui->MGupComboBox->currentData().toInt()));
 }
 
@@ -2630,38 +2620,25 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
 
     // collecte des antécédents
     QString AtcdtsGenx = "", AtcdtsOphs = "", idCorMedMG = "";
-    QString req = "select RMPAtcdtsPersos, RMPAtcdtsOphs, idcorMedMG from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idPat = " + QString::number(gidPatient);
-    QVariantList atcdtsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && atcdtsdata.size()>0)
-    {
-        AtcdtsGenx = atcdtsdata.at(0).toString();
-        AtcdtsOphs = atcdtsdata.at(1).toString();
-        idCorMedMG = atcdtsdata.at(2).toString();
-    }
+    AtcdtsGenx = gPatientEnCours->atcdtspersos();
+    AtcdtsOphs = gPatientEnCours->atcdtsophtalmos();
+    Correspondant *cor = Datas::I()->correspondants->getCorrespondantById(gPatientEnCours->idmg());
     if (AtcdtsOphs != "")
     {
-        textprov.setText(AtcdtsOphs);
-        Reponse += "<p><td width=\"20\"></td><td width=\"480\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Antécédents ophtalmologiques: ") + "</font>" + textprov.toHtml() + "</td></p>";
+        Utils::convertHTML(AtcdtsOphs);
+        Reponse += "<p><td width=\"480\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Antécédents ophtalmologiques: ") + "</font>" + AtcdtsOphs + "</td></p>";
     }
     if (AtcdtsGenx != "")
     {
-        textprov.setText(AtcdtsGenx);
-        Reponse += "<p><td width=\"20\"></td><td width=\"480\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Antécédents généraux: ") + "</font>" + textprov.toHtml() + "</td></p>";
+        Utils::convertHTML(AtcdtsGenx);
+        Reponse += "<p><td width=\"480\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Antécédents généraux: ") + "</font>" + AtcdtsGenx + "</td></p>";
     }
-    if (idCorMedMG != "")
+    if (cor != Q_NULLPTR)
     {
-        req = "select CorNom, CorPrenom, CorVille from " NOM_TABLE_CORRESPONDANTS " where idCor = " + idCorMedMG;
-        QVariantList mgdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-        if (ok && mgdata.size()>0)
-        {
-            if (mgdata.at(0).toString() != "" || mgdata.at(1).toString() != "")
-            {
-                idCorMedMG = "Dr " + mgdata.at(1).toString() + " " + mgdata.at(0).toString();
-                if (mgdata.at(2).toString() != "")
-                    idCorMedMG += " - " + mgdata.at(2).toString();
-                Reponse += "<p><td width=\"20\"></td><td width=\"640\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Médecin traitant: ") + "</font>" + idCorMedMG + "</td></p>";
-            }
-        }
+        QString correspondant = "Dr " + cor->prenom() + " " + cor->nom();
+        if (cor->ville() != "")
+            correspondant += " - " + cor->ville();
+        Reponse += "<p><td width=\"640\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Médecin traitant: ") + "</font>" + correspondant + "</td></p>";
     }
     if (AtcdtsOphs != "" || AtcdtsGenx != "" || idCorMedMG != "")
     {
@@ -3832,171 +3809,166 @@ void Rufus::ModifierTerrain()
     connect (ui->OKModifTerrainupSmallButton,   &QPushButton::clicked,  this,   [=] {OKModifierTerrain();});
 }
 
-void Rufus::OKModifierTerrain() // recalcule le ui->TerraintreeWidget et l'affiche
+void Rufus::OKModifierTerrain(bool recalclesdonnees) // recalcule le ui->TerraintreeWidget et l'affiche
 {
-    //TODO : SQL
+    bool ok;
+    if (recalclesdonnees)
+        db->loadMedicalDataPatient(gPatientEnCours, ok);
     ui->TerraintreeWidget->clear();
     bool a = false;
+    ui->TerraintreeWidget->setColumnCount(2);
+    ui->TerraintreeWidget->setColumnWidth(0,70);        //IdPat
+    ui->TerraintreeWidget->setColumnWidth(1,180 );     //
+    ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0);"
+                                         " selection-background-color: rgb(164, 205, 255);"
+                                         " background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));"
+                                         " border: 1px solid rgb(150,150,150); border-radius: 10px;}");
+    ui->TerraintreeWidget->setIconSize(QSize(25,25));
+    ui->TerraintreeWidget->header()->setVisible(false);
+    QTreeWidgetItem *pItem0, *pItem1, *pItem2, *pItem3, *pItem4, *pItem5;
+    pItem0 = new QTreeWidgetItem() ;
+    pItem0->setText(1,QString::number(gidPatient));                                                             // IdPatient
+    pItem0->setText(0,tr("ANTÉCÉDENTS GÉNÉRAUX"));
+    pItem0->setIcon(0,Icons::icStetho());
+    pItem0->setTextAlignment(1,Qt::AlignLeft);
+    pItem1 = new QTreeWidgetItem() ;
+    pItem1->setText(1,QString::number(gidPatient));                                                             // IdPatient
+    pItem1->setText(0,tr("TRAITEMENTS EN COURS"));
+    pItem1->setIcon(0,Icons::icMedoc());
+    pItem1->setTextAlignment(1,Qt::AlignLeft);
+    pItem2 = new QTreeWidgetItem();
+    pItem2->setText(1,QString::number(gidPatient));                                                             // IdPatient
+    pItem2->setText(0,tr("ATCDTS OPHTALMOLOGIQUES FAMILIAUX"));
+    pItem2->setIcon(0,Icons::icFamily());
+    pItem2->setTextAlignment(1,Qt::AlignLeft);
+    pItem3 = new QTreeWidgetItem();
+    pItem3->setText(1,QString::number(gidPatient));                                                             // IdPatient
+    pItem3->setIcon(0,Icons::icSmoking());
+    pItem3->setTextAlignment(1,Qt::AlignLeft);
+    pItem4 = new QTreeWidgetItem();
+    pItem4->setText(1,QString::number(gidPatient));                                                             // IdPatient
+    pItem4->setText(0,tr("AUTRES"));
+    pItem4->setIcon(0,Icons::icAlcool());
+    pItem4->setTextAlignment(1,Qt::AlignLeft);
+    pItem5 = new QTreeWidgetItem() ;
+    pItem5->setText(0,tr("MÉDECIN GÉNÉRALISTE"));
+    pItem5->setText(1,QString::number(gidPatient));                                                             // IdPatient
+    pItem5->setIcon(0,Icons::icDoctor());
+    pItem5->setTextAlignment(1,Qt::AlignLeft);
 
-    QString requete = "SELECT idPat, idCorMedMG, idCorMedSpe1, idCorMedSpe2, idCorMedSpe3, idCorNonMed, RMPAtcdtsPersos, RMPTtGeneral, RMPAtcdtsFamiliaux"
-              ", RMPAtcdtsOphs, Tabac, Autrestoxiques, Gencorresp, Important, Resume, RMPTtOphs,"
-              " CorNom, CorPrenom,CorAdresse1,CorAdresse2,CorAdresse3,CorVille,CorTelephone"
-              " FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " AS RMP"
-              " left outer join " NOM_TABLE_CORRESPONDANTS " on idcormedMG = idcor"
-              " WHERE idPat = " + QString::number(gidPatient);
-    QVariantList datadata = db->getFirstRecordFromStandardSelectSQL(requete,ok,tr("Impossible de retrouver les données médicales"));
-    if (ok && datadata.size() > 0)           // Il y a des renseignements medicaux
+    pItem0->setForeground(0,QBrush(QColor(Qt::red)));
+    pItem1->setForeground(0,QBrush(QColor(Qt::blue)));
+    pItem2->setForeground(0,QBrush(QColor(Qt::darkGreen)));
+    pItem3->setForeground(0,QBrush(QColor(Qt::darkMagenta)));
+    pItem4->setForeground(0,QBrush(QColor(Qt::darkYellow)));
+    pItem5->setForeground(0,QBrush(QColor(Qt::darkBlue)));
+
+    QString hash;
+    QStringList listhash;
+    QFontMetrics fm(qApp->font());
+    hash = Utils::trim(gPatientEnCours->atcdtspersos(), true, true);
+    if (hash != "")
     {
-        ui->TerraintreeWidget->setColumnCount(2);
-        ui->TerraintreeWidget->setColumnWidth(0,70);        //IdPat
-        ui->TerraintreeWidget->setColumnWidth(1,180 );     //
-        ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0);"
-                                             " selection-background-color: rgb(164, 205, 255);"
-                                             " background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));"
-                                             " border: 1px solid rgb(150,150,150); border-radius: 10px;}");
-        ui->TerraintreeWidget->setIconSize(QSize(25,25));
-        ui->TerraintreeWidget->header()->setVisible(false);
-        QTreeWidgetItem *pItem0, *pItem1, *pItem2, *pItem3, *pItem4, *pItem5;
-        pItem0 = new QTreeWidgetItem() ;
-        pItem0->setText(1,QString::number(gidPatient));                                                             // IdPatient
-        pItem0->setText(0,tr("ANTÉCÉDENTS GÉNÉRAUX"));
-        pItem0->setIcon(0,Icons::icStetho());
-        pItem0->setTextAlignment(1,Qt::AlignLeft);
-        pItem1 = new QTreeWidgetItem() ;
-        pItem1->setText(1,QString::number(gidPatient));                                                             // IdPatient
-        pItem1->setText(0,tr("TRAITEMENTS EN COURS"));
-        pItem1->setIcon(0,Icons::icMedoc());
-        pItem1->setTextAlignment(1,Qt::AlignLeft);
-        pItem2 = new QTreeWidgetItem();
-        pItem2->setText(1,QString::number(gidPatient));                                                             // IdPatient
-        pItem2->setText(0,tr("ATCDTS OPHTALMOLOGIQUES FAMILIAUX"));
-        pItem2->setIcon(0,Icons::icFamily());
-        pItem2->setTextAlignment(1,Qt::AlignLeft);
-        pItem3 = new QTreeWidgetItem();
-        pItem3->setText(1,QString::number(gidPatient));                                                             // IdPatient
-        pItem3->setIcon(0,Icons::icSmoking());
-        pItem3->setTextAlignment(1,Qt::AlignLeft);
-        pItem4 = new QTreeWidgetItem();
-        pItem4->setText(1,QString::number(gidPatient));                                                             // IdPatient
-        pItem4->setText(0,tr("AUTRES"));
-        pItem4->setIcon(0,Icons::icAlcool());
-        pItem4->setTextAlignment(1,Qt::AlignLeft);
-        pItem5 = new QTreeWidgetItem() ;
-        pItem5->setText(0,tr("MÉDECIN GÉNÉRALISTE"));
-        pItem5->setText(1,QString::number(gidPatient));                                                             // IdPatient
-        pItem5->setIcon(0,Icons::icDoctor());
-        pItem5->setTextAlignment(1,Qt::AlignLeft);
-
-        pItem0->setForeground(0,QBrush(QColor(Qt::red)));
-        pItem1->setForeground(0,QBrush(QColor(Qt::blue)));
-        pItem2->setForeground(0,QBrush(QColor(Qt::darkGreen)));
-        pItem3->setForeground(0,QBrush(QColor(Qt::darkMagenta)));
-        pItem4->setForeground(0,QBrush(QColor(Qt::darkYellow)));
-        pItem5->setForeground(0,QBrush(QColor(Qt::darkBlue)));
-
-        QString hash;
-        QStringList listhash;
-        QFontMetrics fm(qApp->font());
-        hash = Utils::trim(datadata.at(6).toString(), true, true);
-        if (hash != "")
+        a = true;
+        ui->TerraintreeWidget->addTopLevelItem(pItem0);
+        pItem0->setFirstColumnSpanned(true);
+        listhash = hash.split("\n");
+        pItem0->setExpanded(listhash.size() > 0);
+        for (int i=0;i<listhash.size();i++)
         {
-            a = true;
-            ui->TerraintreeWidget->addTopLevelItem(pItem0);
-            pItem0->setFirstColumnSpanned(true);
-            listhash = hash.split("\n");
-            pItem0->setExpanded(listhash.size() > 0);
-            for (int i=0;i<listhash.size();i++)
-            {
-                QTreeWidgetItem *pit = new QTreeWidgetItem(pItem0);
-                pit->setText(0,"");
-                pit->setText(1,listhash.at(i));
-                if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                    pit->setToolTip(1, listhash.at(i));
-            }
+            QTreeWidgetItem *pit = new QTreeWidgetItem(pItem0);
+            pit->setText(0,"");
+            pit->setText(1,listhash.at(i));
+            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                pit->setToolTip(1, listhash.at(i));
         }
-        listhash.clear();
-        hash = Utils::trim(datadata.at(7).toString(), true, true);
-        if (hash != "")
+    }
+    listhash.clear();
+    hash = Utils::trim(gPatientEnCours->traitementgen(), true, true);
+    if (hash != "")
+    {
+        a = true;
+        ui->TerraintreeWidget->addTopLevelItem(pItem1);
+        pItem1->setFirstColumnSpanned(true);
+        listhash = hash.split("\n");
+        pItem1->setExpanded(listhash.size() > 0);
+        for (int i=0;i<listhash.size();i++)
         {
-            a = true;
-            ui->TerraintreeWidget->addTopLevelItem(pItem1);
-            pItem1->setFirstColumnSpanned(true);
-            listhash = hash.split("\n");
-            pItem1->setExpanded(listhash.size() > 0);
-            for (int i=0;i<listhash.size();i++)
-            {
-                QTreeWidgetItem *pit = new QTreeWidgetItem(pItem1);
-                pit->setText(0,"");
-                pit->setText(1,listhash.at(i));
-                if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                    pit->setToolTip(1, listhash.at(i));
-            }
+            QTreeWidgetItem *pit = new QTreeWidgetItem(pItem1);
+            pit->setText(0,"");
+            pit->setText(1,listhash.at(i));
+            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                pit->setToolTip(1, listhash.at(i));
         }
-        listhash.clear();
-        hash = Utils::trim(datadata.at(8).toString(), true, true);
-        if (hash != "")
+    }
+    listhash.clear();
+    hash = Utils::trim(gPatientEnCours->atcdtsfamiliaux(), true, true);
+    if (hash != "")
+    {
+        a = true;
+        ui->TerraintreeWidget->addTopLevelItem(pItem2);
+        pItem2->setFirstColumnSpanned(true);
+        listhash = hash.split("\n");
+        pItem2->setExpanded(listhash.size() > 0);
+        for (int i=0;i<listhash.size();i++)
         {
-            a = true;
-            ui->TerraintreeWidget->addTopLevelItem(pItem2);
-            pItem2->setFirstColumnSpanned(true);
-            listhash = hash.split("\n");
-            pItem2->setExpanded(listhash.size() > 0);
-            for (int i=0;i<listhash.size();i++)
-            {
-                QTreeWidgetItem *pit = new QTreeWidgetItem(pItem2);
-                pit->setText(0,"");
-                pit->setText(1,listhash.at(i));
-                if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                    pit->setToolTip(1, listhash.at(i));
-            }
+            QTreeWidgetItem *pit = new QTreeWidgetItem(pItem2);
+            pit->setText(0,"");
+            pit->setText(1,listhash.at(i));
+            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                pit->setToolTip(1, listhash.at(i));
         }
-        hash = Utils::trim(datadata.at(10).toString(), true, true);
-        if (hash != "")
+    }
+    listhash.clear();
+    hash = Utils::trim(gPatientEnCours->tabac(), true, true);
+    if (hash != "")
+    {
+        a = true;
+        if (hash == "0")
         {
-            a = true;
-            if (hash == "0")
-            {
-                pItem3->setForeground(0,QBrush(QColor(Qt::darkGreen)));
-                pItem3->setText(0,tr("NON FUMEUR"));
-            }
-            else
-                pItem3->setText(0,tr("TABAC : ") + hash + tr(" cig/j"));
-            ui->TerraintreeWidget->addTopLevelItem(pItem3);
-            pItem3->setFirstColumnSpanned(true);
+            pItem3->setForeground(0,QBrush(QColor(Qt::darkGreen)));
+            pItem3->setText(0,tr("NON FUMEUR"));
         }
-        listhash.clear();
-        hash = Utils::trim(datadata.at(11).toString(), true, true);
-        if (hash != "")
+        else
+            pItem3->setText(0,tr("TABAC : ") + hash + tr(" cig/j"));
+        ui->TerraintreeWidget->addTopLevelItem(pItem3);
+        pItem3->setFirstColumnSpanned(true);
+    }
+    listhash.clear();
+    hash = Utils::trim(gPatientEnCours->toxiques(), true, true);
+    if (hash != "")
+    {
+        a = true;
+        ui->TerraintreeWidget->addTopLevelItem(pItem4);
+        pItem4->setFirstColumnSpanned(true);
+        listhash = hash.split("\n");
+        pItem4->setExpanded(listhash.size() > 0);
+        for (int i=0;i<listhash.size();i++)
         {
-            a = true;
-            ui->TerraintreeWidget->addTopLevelItem(pItem4);
-            pItem4->setFirstColumnSpanned(true);
-            listhash = hash.split("\n");
-            pItem4->setExpanded(listhash.size() > 0);
-            for (int i=0;i<listhash.size();i++)
-            {
-                QTreeWidgetItem *pit = new QTreeWidgetItem(pItem4);
-                pit->setText(0,"");
-                pit->setText(1,listhash.at(i));
-                if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                    pit->setToolTip(1, listhash.at(i));
-            }
+            QTreeWidgetItem *pit = new QTreeWidgetItem(pItem4);
+            pit->setText(0,"");
+            pit->setText(1,listhash.at(i));
+            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                pit->setToolTip(1, listhash.at(i));
         }
-        hash = datadata.at(1).toString();
-        if (datadata.at(1).toInt()>0)
+    }
+    if (gPatientEnCours->idmg()>0)
+    {
+        QString tooltp ="";
+        Correspondant * cor = Datas::I()->correspondants->getCorrespondantById(gPatientEnCours->idmg());
+        if (cor != Q_NULLPTR)
         {
-            QString tooltp ="";
-            if (datadata.at(18).toString() != "")
-                tooltp += datadata.at(18).toString();
-            if (datadata.at(19).toString() != "")
-                tooltp += "\n" + datadata.at(19).toString();
-            if (datadata.at(20).toString() != "")
-                tooltp += "\n" + datadata.at(20).toString();
-            if (datadata.at(21).toString() != "")
-                tooltp += "\n" + datadata.at(21).toString();
-            if (datadata.at(22).toString() != "")
-                tooltp += "\n" + datadata.at(22).toString();
-            hash = "Dr " + datadata.at(17).toString() + " " + datadata.at(16).toString();
+            if (cor->adresse1() != "")
+                tooltp += cor->adresse1();
+            if (cor->adresse2() != "")
+                tooltp += "\n" + cor->adresse2();
+            if (cor->adresse3() != "")
+                tooltp += "\n" + cor->adresse3();
+            if (cor->ville() != "")
+                tooltp += "\n" + cor->ville();
+            if (cor->telephone() != "")
+                tooltp += "\n" + cor->telephone();
+            hash = "Dr " + cor->prenom() + " " + cor->nom();
             a = true;
             ui->TerraintreeWidget->addTopLevelItem(pItem5);
             pItem5->setFirstColumnSpanned(true);
@@ -5895,6 +5867,8 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                         requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
                                         + Utils::correctquoteSQL(objUpText->text()) + "' WHERE idPat = " + QString::number(gidPatient);
                     db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
+                    bool ok;
+                    db->loadMedicalDataPatient(gPatientEnCours, ok);
                     OKModifierTerrain();
                 }
             }
@@ -6341,12 +6315,11 @@ void Rufus::AfficheDossier(int idPat, int idacte)
     img = AgeTotal["icone"].toString();
     Age = AgeTotal["toString"].toString();
     QIcon icon = Icons::getIconAge(img);
-    QString req = "SELECT idPat, PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille, PatTelephone, PatPortable, PatMail, PatNNI, PatALD, PatProfession, PatCMU FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS
-              " WHERE idPat = '" + QString::number(idPat) + "'";
-    QVariantList socdata = db->getFirstRecordFromStandardSelectSQL(req,ok,tr("Impossible de retrouver les données sociales!"));
-    if (ok && socdata.size()>0)
+    bool ok;
+    db->loadSocialDataPatient(gPatientEnCours, ok);
+    if (ok)
     {
-        gCMUPatient = (socdata.at(12).toInt() == 1);
+        gCMUPatient = gPatientEnCours->iscmu();
         html =
                 "<html>"
                 "<head>"
@@ -6364,114 +6337,104 @@ void Rufus::AfficheDossier(int idPat, int idacte)
             html += "<img class=\"image\" src=\"://" + img + ".png\" WIDTH=\"100\" HEIGHT=\"100\" BORDER=\"10\" />";        //Icone
         html += "<p class=\"p10\"><b>" + gNomPatient + " " + gPrenomPatient + "</b></p>";                                   //Nom Prenom
         html += "<p class=\"p1\"><b>" + Age + "</b> (" +gDDNPatient.toString(tr("d MMM yyyy")) + ")</p>";                   //DDN
-        if (socdata.at(1).toString() != "")
-            html += "<p class=\"p2\">" + socdata.at(1).toString() + "</p>";                                                 //Adresse1
-        if (socdata.at(2).toString() != "")
-            html += "<p class=\"p2\">" + socdata.at(2).toString() + "</p>";                                                 //Adresse2
-        if (socdata.at(3).toString() != "")
-            html += "<p class=\"p2\">" + socdata.at(3).toString() + "</p>";                                                 //Adresse3
-        if (socdata.at(4).toString() != "")
+        if (gPatientEnCours->adresse1() != "")
+            html += "<p class=\"p2\">" + gPatientEnCours->adresse1() + "</p>";                                              //Adresse1
+        if (gPatientEnCours->adresse2() != "")
+            html += "<p class=\"p2\">" + gPatientEnCours->adresse2() + "</p>";                                              //Adresse2
+        if (gPatientEnCours->adresse3() != "")
+            html += "<p class=\"p2\">" + gPatientEnCours->adresse3() + "</p>";                                              //Adresse3
+        if (gPatientEnCours->codepostal() != "")
         {
-            html += "<p class=\"p2\">" + socdata.at(4).toString() + " " + socdata.at(5).toString() + "</p>";                //CP + ville
+            html += "<p class=\"p2\">" + gPatientEnCours->codepostal() + " " + gPatientEnCours->ville() + "</p>";           //CP + ville
         }
         else
-            if (socdata.at(5).toString() != "")
-                html += "<p class=\"p2\">" + socdata.at(5).toString() + "</p>";                                             //Ville
-        if (socdata.at(6).toString() != "")
-            html += "<p class=\"p3\">"+ tr("Tél.") + "\t" + socdata.at(6).toString() + "</p>";                              //Tél
-        if (socdata.at(7).toString() != "")
-            html += "<p class=\"p2\">" + tr("Portable") + "\t" + socdata.at(7).toString() + "</p>";                         //Portable
-        if (socdata.at(8).toString() != "")
-            html += "<p class=\"p3\">" + tr("Mail") + "\t" + socdata.at(8).toString() + "</p>";                             //Mail
-        if (socdata.at(9).toInt() > 0)
-            html += "<p class=\"p2\">" + tr("NNI") + "\t" + socdata.at(9).toString() + "</p>";                              //NNI
-        if (socdata.at(11).toString() != "")
-            html += "<p class=\"p3\">" + socdata.at(11).toString() + "</p>";                                                //Profession
-        if (socdata.at(10).toInt() == 1 || socdata.at(12).toInt() == 1)
+            if (gPatientEnCours->ville() != "")
+                html += "<p class=\"p2\">" + gPatientEnCours->ville() + "</p>";                                             //Ville
+        if (gPatientEnCours->telephone() != "")
+            html += "<p class=\"p3\">"+ tr("Tél.") + "\t" +gPatientEnCours->telephone() + "</p>";                           //Tél
+        if (gPatientEnCours->portable() != "")
+            html += "<p class=\"p2\">" + tr("Portable") + "\t" + gPatientEnCours->portable() + "</p>";                      //Portable
+        if (gPatientEnCours->mail() != "")
+            html += "<p class=\"p3\">" + tr("Mail") + "\t" + gPatientEnCours->mail() + "</p>";                              //Mail
+        if (gPatientEnCours->NNI() > 0)
+            html += "<p class=\"p2\">" + tr("NNI") + "\t" + QString::number(gPatientEnCours->NNI()) + "</p>";               //NNI
+        if (gPatientEnCours->profession() != "")
+            html += "<p class=\"p3\">" + gPatientEnCours->profession() + "</p>";                                            //Profession
+        if (gPatientEnCours->isald() || gPatientEnCours->iscmu())
         {
             html += "<p class=\"p3\"><td width=\"60\">";
-            if (socdata.at(10).toInt() == 1)
+            if (gPatientEnCours->isald())
                 html += "<font size = \"5\"><font color = \"red\"><b>ALD</b></font>";                                       //ALD
-            if (socdata.at(12).toInt() == 1)
+            if (gPatientEnCours->iscmu())
                 html += "</td><td width=\"60\"><font size = \"5\"><font color = \"blue\"><b>CMU</b></font>";                //CMU
             html += "</td></p>";
         }
-
         html += "</body></html>";
-
         ui->IdentPatienttextEdit->setHtml(html);
     }
+    else
+        return;
 
     //3 - récupération des données médicales
 
-    req = "SELECT idPat, idCorMedMG, idCorMedSpe1, idCorMedSpe2, idCorMedSpe3, idCorNonMed, RMPAtcdtsPersos, RMPTtGeneral, RMPAtcdtsFamiliaux"
-              ", RMPAtcdtsOphs, Tabac, Autrestoxiques, Gencorresp, Important, Resume, RMPTtOphs FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-              " WHERE idPat = " + QString::number(idPat);
-    //qDebug() << requete;
-    QVariantList meddata = db->getFirstRecordFromStandardSelectSQL(req,ok,tr("Impossible de retrouver les données médicales!"));
+    ui->AtcdtsPersostextEdit->clear();
+    ui->TtGeneraltextEdit->clear();
+    ui->AtcdtsFamiliauxtextEdit->clear();
+    ui->AtcdtsOphstextEdit->clear();
+    ui->TabaclineEdit->clear();
+    ui->AutresToxiquestextEdit->clear();
+    MGlineEdit->clear();
+    AutresCorresp1LineEdit->clear();
+    AutresCorresp2LineEdit->clear();
+    ui->ImportanttextEdit->clear();
+    ui->ResumetextEdit->clear();
+    ui->TtOphtextEdit->clear();
+    db->loadMedicalDataPatient(gPatientEnCours, ok);
     if (ok)
     {
-        if (meddata.size() > 0)           // Il y a des renseignements medicaux
+        ui->AtcdtsPersostextEdit->setText(gPatientEnCours->atcdtspersos());
+        ui->TtGeneraltextEdit->setText(gPatientEnCours->traitementgen());
+        ui->AtcdtsFamiliauxtextEdit->setText(gPatientEnCours->atcdtsfamiliaux());
+        ui->AtcdtsOphstextEdit->setText(gPatientEnCours->atcdtsophtalmos());
+        ui->TabaclineEdit->setText(gPatientEnCours->tabac());
+        ui->AutresToxiquestextEdit->setText(gPatientEnCours->toxiques());
+        QString tooltp = "";
+        if (gPatientEnCours->idmg()>0)
         {
-            ui->AtcdtsPersostextEdit->setText(meddata.at(6).toString());
-            ui->TtGeneraltextEdit->setText(meddata.at(7).toString());
-            ui->AtcdtsFamiliauxtextEdit->setText(meddata.at(8).toString());
-            ui->AtcdtsOphstextEdit->setText(meddata.at(9).toString());
-            ui->TabaclineEdit->setText(meddata.at(10).toString());
-            ui->AutresToxiquestextEdit->setText(meddata.at(11).toString());
-            QString tooltp = "";
-            if (meddata.at(1).toInt()>0)
-            {
-                int id = meddata.at(1).toInt();
-                ui->MGupComboBox->setCurrentIndex
-                        (ui->MGupComboBox->findData(id));
-                tooltp = CalcToolTipCorrespondant(id);
-            }
-            else
-                ui->MGupComboBox->setCurrentIndex(-1);
-            ui->MGupComboBox->setImmediateToolTip(tooltp);
-            tooltp = "";
-            if (meddata.at(2).toInt()>0)
-            {
-                int id = meddata.at(2).toInt();
-                ui->AutresCorresp1upComboBox->setCurrentIndex
-                        (ui->AutresCorresp1upComboBox->findData(id));
-                tooltp = CalcToolTipCorrespondant(id);
-            }
-            else
-                ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
-            ui->AutresCorresp1upComboBox->setImmediateToolTip(tooltp);
-            tooltp = "";
-            if (meddata.at(3).toInt()>0)
-            {
-                int id = meddata.at(3).toInt();
-                ui->AutresCorresp2upComboBox->setCurrentIndex
-                        (ui->AutresCorresp2upComboBox->findData(id));
-                tooltp = CalcToolTipCorrespondant(id);
-            }
-            else
-                ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
-            ui->AutresCorresp2upComboBox->setImmediateToolTip(tooltp);
-            ui->ImportanttextEdit->setText(meddata.at(13).toString());
-            ui->ResumetextEdit->setText(meddata.at(14).toString());
-            ui->TtOphtextEdit->setText(meddata.at(15).toString());
+            int id = gPatientEnCours->idmg();
+            ui->MGupComboBox->setCurrentIndex
+                    (ui->MGupComboBox->findData(id));
+            tooltp = CalcToolTipCorrespondant(id);
         }
         else
+            ui->MGupComboBox->setCurrentIndex(-1);
+        ui->MGupComboBox->setImmediateToolTip(tooltp);
+        tooltp = "";
+        if (gPatientEnCours->idspe1()>0)
         {
-            ui->AtcdtsPersostextEdit->clear();
-            ui->TtGeneraltextEdit->clear();
-            ui->AtcdtsFamiliauxtextEdit->clear();
-            ui->AtcdtsOphstextEdit->clear();
-            ui->TabaclineEdit->clear();
-            ui->AutresToxiquestextEdit->clear();
-            MGlineEdit->clear();
-            AutresCorresp1LineEdit->clear();
-            AutresCorresp2LineEdit->clear();
-            ui->ImportanttextEdit->clear();
-            ui->ResumetextEdit->clear();
-            ui->TtOphtextEdit->clear();
+            int id = gPatientEnCours->idspe1();
+            ui->AutresCorresp1upComboBox->setCurrentIndex
+                    (ui->AutresCorresp1upComboBox->findData(id));
+            tooltp = CalcToolTipCorrespondant(id);
         }
-        OKModifierTerrain();
+        else
+            ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
+        ui->AutresCorresp1upComboBox->setImmediateToolTip(tooltp);
+        tooltp = "";
+        if (gPatientEnCours->idspe2()>0)
+        {
+            int id = gPatientEnCours->idspe2();
+            ui->AutresCorresp2upComboBox->setCurrentIndex
+                    (ui->AutresCorresp2upComboBox->findData(id));
+            tooltp = CalcToolTipCorrespondant(id);
+        }
+        else
+            ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
+        ui->AutresCorresp2upComboBox->setImmediateToolTip(tooltp);
+        ui->ImportanttextEdit->setText(gPatientEnCours->important());
+        ui->ResumetextEdit->setText(gPatientEnCours->resume());
+        ui->TtOphtextEdit->setText(gPatientEnCours->traitementoph());
+        OKModifierTerrain(false);
     }
     FermeDlgAnnexes();
 
@@ -6520,8 +6483,8 @@ void Rufus::AfficheDossier(int idPat, int idacte)
     }
 
     //5 - mise à jour du dossier en salle d'attente
-    req =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE
-                " WHERE idPat = " + QString::number(gidPatient);
+    QString req =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE
+                " WHERE idPat = " + QString::number(gPatientEnCours->id());
     QVariantList attdata = db->getFirstRecordFromStandardSelectSQL(req,ok,tr("Impossible de retrouver la salle d'attente!"));
     if (ok)
     {
@@ -6529,7 +6492,7 @@ void Rufus::AfficheDossier(int idPat, int idacte)
         {
             req =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
                     " (idPat, idUser, Statut, HeureStatut, idUserEnCoursExam, PosteExamen, HeureArrivee)"
-                    " VALUES ('" + QString::number(gidPatient) + "','" + QString::number(gUserEnCours->getIdUserActeSuperviseur()) + "','" ENCOURSEXAMEN + gUserEnCours->getLogin() + "','" + QTime::currentTime().toString("hh:mm")
+                    " VALUES ('" + QString::number(gPatientEnCours->id()) + "','" + QString::number(gUserEnCours->getIdUserActeSuperviseur()) + "','" ENCOURSEXAMEN + gUserEnCours->getLogin() + "','" + QTime::currentTime().toString("hh:mm")
                     + "'," + QString::number(gUserEnCours->id()) + ", '" + QHostInfo::localHostName().left(60) + "','" + QTime::currentTime().toString("hh:mm") +"')";
             Msg = tr("Impossible de mettre ce dossier en salle d'attente");
         }
@@ -6540,7 +6503,7 @@ void Rufus::AfficheDossier(int idPat, int idacte)
                     "', HeureStatut = '" + QTime::currentTime().toString("hh:mm") +
                     "', idUserEnCoursExam = " + QString::number(gUserEnCours->id()) +
                     ", PosteExamen = '" + QHostInfo::localHostName().left(60) +
-                    "' WHERE idPat = '" + QString::number(gidPatient) + "'";
+                    "' WHERE idPat = '" + QString::number(gPatientEnCours->id()) + "'";
             Msg = tr("Impossible de modifier le statut du dossier en salle d'attente!");
         }
         //UpMessageBox::Watch(this,req);
@@ -6565,14 +6528,14 @@ void Rufus::AfficheDossier(int idPat, int idacte)
 
     if (gUserEnCours->id() > 1) return;
     QString Sexe = "";
-    req ="select idpat from " NOM_TABLE_PATIENTS " where patPrenom = '" + gPrenomPatient + "' and sexe = '' and patPrenom <> 'Dominique' and patPrenom <> 'Claude'";
+    req ="select idpat from " NOM_TABLE_PATIENTS " where patPrenom = '" + gPatientEnCours->prenom() + "' and sexe = '' and patPrenom <> 'Dominique' and patPrenom <> 'Claude'";
     QList<QVariantList> patlist = db->StandardSelectSQL(req, ok);
     if (patlist.size()>0)
     {
-        if (UpMessageBox::Question(this, tr("Il existe ") + QString::number(patlist.size()) + " " + gPrenomPatient + tr(" dont le sexe n'est pas précisé."), tr("Les convertir?")) == UpSmallButton::STARTBUTTON)
+        if (UpMessageBox::Question(this, tr("Il existe ") + QString::number(patlist.size()) + " " + gPatientEnCours->prenom() + tr(" dont le sexe n'est pas précisé."), tr("Les convertir?")) == UpSmallButton::STARTBUTTON)
         {
             UpMessageBox msgbox;
-            msgbox.setText(tr("Convertir ") + QString::number(patlist.size()) + " " + gPrenomPatient + "...");
+            msgbox.setText(tr("Convertir ") + QString::number(patlist.size()) + " " + gPatientEnCours->prenom() + "...");
             msgbox.setIcon(UpMessageBox::Warning);
             UpSmallButton MBouton;
             MBouton.setText(tr("Masculin"));
@@ -6596,7 +6559,7 @@ void Rufus::AfficheDossier(int idPat, int idacte)
                 QList<QVariantList> patlist = db->StandardSelectSQL(req,ok);
                 if (ok && patlist.size()>0)
                 UpMessageBox::Information(this, tr("Il reste ") + QString::number(patlist.size()) + tr(" dossiers pour lesquels le sexe n'est pas précisé"),"");
-                AfficheDossier(gidPatient);
+                AfficheDossier(gPatientEnCours->id());
             }
         }
     }
@@ -7553,7 +7516,9 @@ void Rufus::FlagMetAjourMG()
     proc->MAJflagMG();
     // on resynchronise l'affichage du combobox au besoin
     if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
+    {
         OKModifierTerrain();
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8498,15 +8463,12 @@ void Rufus::MAJMG(QObject *obj)
                     cbox->setCurrentText(anc);
                 else
                 {
-                    req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
-                    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-                    if (!ok || patdata.size() == 0)
-                        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                                    " (idPat, " + cbox->getChampCorrespondant() + ") VALUES (" + QString::number(gidPatient) + "," + QString::number(idcor) + ")";
-                    else
-                        req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + Upline->getChampCorrespondant() + " = " + QString::number(idcor)
-                            + " where idpat = " + QString::number(gidPatient);
-                    db->StandardSQL(req);
+                    if (cbox == ui->MGupComboBox)
+                        proc->setMg(gPatientEnCours, idcor);
+                    else if (cbox == ui->AutresCorresp1upComboBox)
+                        proc->setspe1(gPatientEnCours, idcor);
+                    else if (cbox == ui->AutresCorresp2upComboBox)
+                        proc->setspe2(gPatientEnCours, idcor);
                     ReconstruitCombosCorresp();             // par une modif introduite par la fiche identcorrespondant
                     FlagMetAjourMG();
                     cbox->setCurrentIndex(cbox->findData(idcor));
@@ -8920,8 +8882,7 @@ void Rufus::ReconstruitCombosCorresp()
         if (meddata.at(1).toInt()>0)
         {
             int id = meddata.at(1).toInt();
-            ui->MGupComboBox->setCurrentIndex
-                    (ui->MGupComboBox->findData(id));
+            ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(id));
             tooltp = CalcToolTipCorrespondant(id);
         }
         else

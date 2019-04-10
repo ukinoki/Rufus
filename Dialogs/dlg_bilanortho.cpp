@@ -1103,9 +1103,7 @@ void dlg_bilanortho::ExtraitRefraction(QString textorigin, QString &ReponseaModi
     if (textorigin.contains(debuttable))  // on va récupérer les données précédentes de réfraction
     {
         QStringList listid;
-        //qDebug() << textorigin;
-        int idx = textorigin.length();
-        idx = 0;
+        int idx = 0;
         while (textorigin.contains(debuttable))
         {
             idx = textorigin.indexOf(debuttable);

@@ -1256,30 +1256,61 @@ Villes* DataBase::loadVillesAll()
 /*
  * Gestion des Patients
 */
-QList<Patient*> DataBase::loadPatientAll()
+void DataBase::loadSocialDataPatient(Patient* patient, bool &ok)
 {
-    QList<Patient*> patients;
-    QString req = "select IdPat, PatNom, PatPrenom, PatDDN, Sexe, "          //0,1,2,3,4                                   //7,8
-                  " from " NOM_TABLE_PATIENTS " usr "
-                  " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte "
-                  " ORDER BY PatNom, PatPrenom, PatDDN ";
+    QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille,"
+                  " PatTelephone, PatPortable, PatMail, PatNNI, PatALD,"
+                  " PatCMU, PatProfession FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS
+                  " WHERE idPat = " + QString::number(patient->id());
 
-    QList<QVariantList> patlist = StandardSelectSQL(req,ok);
+    QVariantList patlist = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok || patlist.size()==0)
-        return patients;
-    for (int i=0; i<patlist.size(); ++i)
-    {
-        QJsonObject jData{};
-        jData["id"] = patlist.at(i).at(0).toInt();
-        jData["nom"] = patlist.at(i).at(1).toString();
-        jData["prenom"] = patlist.at(i).at(2).toString();
-        jData["sexe"] = patlist.at(i).at(4).toString();
-        jData["dateDeNaissance"] = QDateTime(patlist.at(i).at(3).toDate()).toMSecsSinceEpoch();
-        Patient *patient = new Patient(jData);
-        patients << patient;
-    }
-    return patients;
+        return;
+    QJsonObject jData{};
+    jData["adresse1"]   = patlist.at(0).toString();
+    jData["adresse2"]   = patlist.at(1).toString();
+    jData["adresse3"]   = patlist.at(2).toString();
+    jData["codepostal"] = patlist.at(3).toString();
+    jData["ville"]      = patlist.at(4).toString();
+    jData["telephone"]  = patlist.at(5).toString();
+    jData["portable"]   = patlist.at(6).toString();
+    jData["mail"]       = patlist.at(7).toString();
+    jData["NNI"]        = patlist.at(4).toLongLong();
+    jData["ALD"]        = (patlist.at(9).toInt() == 1);
+    jData["CMU"]        = (patlist.at(10).toInt() == 1);
+    jData["profession"] = patlist.at(11).toString();
+    patient->addSocialData(jData);
 }
+
+void DataBase::loadMedicalDataPatient(Patient* patient, bool &ok)
+{
+    QString req = "select idCorMedMG, idCorMedSpe1, idCorMedSpe2, idCorMedSpe3, idCorNonMed,"
+                  " RMPAtcdtsPersos, RMPTtGeneral, RMPAtcdtsFamiliaux, RMPAtcdtsOphs, Tabac,"
+                  " Autrestoxiques, Gencorresp, Important, Resume, RMPTtOphs FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                  " WHERE idPat = " + QString::number(patient->id());
+
+    QVariantList patlist = getFirstRecordFromStandardSelectSQL(req, ok);
+    if(!ok || patlist.size()==0)
+        return;
+    QJsonObject jData{};
+    jData["idMG"]               = patlist.at(0).toInt();
+    jData["idSpe1"]             = patlist.at(1).toInt();
+    jData["idSpe2"]             = patlist.at(2).toInt();
+    jData["idSpe3"]             = patlist.at(3).toInt();
+    jData["idCornonMG"]         = patlist.at(4).toInt();
+    jData["AtcdtsPerso"]        = patlist.at(5).toString();
+    jData["TtGeneral"]          = patlist.at(6).toString();
+    jData["AtcdtsFamiliaux"]    = patlist.at(7).toString();
+    jData["AtcdstOph"]          = patlist.at(8).toString();
+    jData["Tabac"]              = patlist.at(9).toString();
+    jData["Toxiques"]           = patlist.at(10).toString();
+    jData["GenCorresp"]         = patlist.at(11).toString();
+    jData["Important"]          = patlist.at(12).toString();
+    jData["Resume"]             = patlist.at(13).toString();
+    jData["TtOph"]              = patlist.at(14).toString();
+    patient->addMedicalData(jData);
+}
+
 Patient* DataBase::loadPatientById(int idPat)
 {
     Patient *patient = new Patient();
