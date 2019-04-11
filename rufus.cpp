@@ -2618,21 +2618,68 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
 
     UpTextEdit textprov;
 
+    QString Age;
+    QMap<QString,QVariant>  AgeTotal = Item::CalculAge(gPatientEnCours->datedenaissance(), gPatientEnCours->sexe());
+    Age = AgeTotal["toString"].toString();
+    Reponse += "<p><font color = \"" + proc->CouleurTitres + "\"><b>" + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + "</font> - " + Age + "</b> (" +gDDNPatient.toString(tr("d MMM yyyy")) + ")</p>";                   //DDN
+    if (gPatientEnCours->adresse1() != "")
+        Reponse += "<p>" + gPatientEnCours->adresse1() + "</p>";                                              //Adresse1
+    if (gPatientEnCours->adresse2() != "")
+        Reponse += "<p>" + gPatientEnCours->adresse2() + "</p>";                                              //Adresse2
+    if (gPatientEnCours->adresse3() != "")
+        Reponse += "<p>" + gPatientEnCours->adresse3() + "</p>";                                              //Adresse3
+    if (gPatientEnCours->codepostal() != "")
+    {
+        Reponse += "<p>" + gPatientEnCours->codepostal() + " " + gPatientEnCours->ville() + "</p>";           //CP + ville
+    }
+    else
+        if (gPatientEnCours->ville() != "")
+            Reponse += "<p>" + gPatientEnCours->ville() + "</p>";                                             //Ville
+    if (gPatientEnCours->telephone() != "")
+        Reponse += "<p>" + tr("Tél.") + "\t" +gPatientEnCours->telephone() + "</p>";                          //Tél
+    if (gPatientEnCours->portable() != "")
+        Reponse += "<p>" + tr("Portable") + "\t" + gPatientEnCours->portable() + "</p>";                      //Portable
+    if (gPatientEnCours->mail() != "")
+        Reponse += "<p>" + tr("Mail") + "\t" + gPatientEnCours->mail() + "</p>";                              //Mail
+    if (gPatientEnCours->NNI() > 0)
+        Reponse += "<p>" + tr("NNI") + "\t" + QString::number(gPatientEnCours->NNI()) + "</p>";               //NNI
+    if (gPatientEnCours->profession() != "")
+        Reponse += "<p>" + gPatientEnCours->profession() + "</p>";                                            //Profession
+
     // collecte des antécédents
-    QString AtcdtsGenx = "", AtcdtsOphs = "", idCorMedMG = "";
-    AtcdtsGenx = gPatientEnCours->atcdtspersos();
-    AtcdtsOphs = gPatientEnCours->atcdtsophtalmos();
-    Correspondant *cor = Datas::I()->correspondants->getCorrespondantById(gPatientEnCours->idmg());
-    if (AtcdtsOphs != "")
+    QString AtcdtsOphs = gPatientEnCours->atcdtsophtalmos();
+    QString testatcdtsophs = AtcdtsOphs;
+    Utils::convertPlainText(testatcdtsophs);
+    if (testatcdtsophs != "")
     {
         Utils::convertHTML(AtcdtsOphs);
         Reponse += "<p><td width=\"480\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Antécédents ophtalmologiques: ") + "</font>" + AtcdtsOphs + "</td></p>";
     }
-    if (AtcdtsGenx != "")
+    QString TtOph = gPatientEnCours->traitementoph();
+    QString testttoph = TtOph;
+    Utils::convertPlainText(testttoph);
+    if (testttoph != "")
+    {
+        Utils::convertHTML(TtOph);
+        Reponse += "<p><td width=\"480\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Traitements ophtalmologiques: ") + "</font>" + TtOph + "</td></p>";
+    }
+    QString AtcdtsGenx = gPatientEnCours->atcdtspersos();
+    QString testatcdtsgen = AtcdtsGenx;
+    Utils::convertPlainText(testatcdtsgen);
+    if (testatcdtsgen != "")
     {
         Utils::convertHTML(AtcdtsGenx);
         Reponse += "<p><td width=\"480\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Antécédents généraux: ") + "</font>" + AtcdtsGenx + "</td></p>";
     }
+    QString TtGen = gPatientEnCours->traitementgen();
+    QString testttgen = TtGen;
+    Utils::convertPlainText(testttgen);
+    if (testttgen != "")
+    {
+        Utils::convertHTML(TtGen);
+        Reponse += "<p><td width=\"480\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Traitements généraux: ") + "</font>" + TtGen + "</td></p>";
+    }
+    Correspondant *cor = Datas::I()->correspondants->getCorrespondantById(gPatientEnCours->idmg());
     if (cor != Q_NULLPTR)
     {
         QString correspondant = "Dr " + cor->prenom() + " " + cor->nom();
@@ -2640,10 +2687,8 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
             correspondant += " - " + cor->ville();
         Reponse += "<p><td width=\"640\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Médecin traitant: ") + "</font>" + correspondant + "</td></p>";
     }
-    if (AtcdtsOphs != "" || AtcdtsGenx != "" || idCorMedMG != "")
-    {
+    if (testatcdtsgen != "" || testttgen != "" || testttoph != "" || testatcdtsophs != "" || cor != Q_NULLPTR)
         Reponse += "<br>";
-    }
 
     bool reponsevide = true;
     QString datedebut, datefin;
@@ -5837,6 +5882,11 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                 if (objUpText == ui->ActeConclusiontextEdit || objUpText == ui->ActeMotiftextEdit || objUpText == ui->ActeTextetextEdit)
                     MAJActesPrecs();
             }
+            if (objUpText->getTableCorrespondant() == NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS)
+            {
+                bool ok;
+                db->loadMedicalDataPatient(gPatientEnCours, ok);
+            }
         }
         else if (obj->inherits("UpLineEdit") && obj != MGlineEdit && obj != AutresCorresp1LineEdit && obj != AutresCorresp2LineEdit)
         {  
@@ -6330,7 +6380,7 @@ void Rufus::AfficheDossier(int idPat, int idacte)
                 "  p.p3 {margin: 10px 0px 0px 100px;}"
                 "  p.p4 {margin: 10px 0px 10px 100px;}"
                 "  .image {position:absolute; top:100px; left:10px; float: left;}"
-                "</style>"
+                 "</style>"
                 "</head>"
                 "<body LANG=\"fr-FR\" DIR=\"LTR\">";
         if (img != "")
@@ -6355,7 +6405,7 @@ void Rufus::AfficheDossier(int idPat, int idacte)
         if (gPatientEnCours->portable() != "")
             html += "<p class=\"p2\">" + tr("Portable") + "\t" + gPatientEnCours->portable() + "</p>";                      //Portable
         if (gPatientEnCours->mail() != "")
-            html += "<p class=\"p3\">" + tr("Mail") + "\t" + gPatientEnCours->mail() + "</p>";                              //Mail
+            html += "<p class=\"p2\">" + tr("Mail") + "\t" + gPatientEnCours->mail() + "</p>";                              //Mail
         if (gPatientEnCours->NNI() > 0)
             html += "<p class=\"p2\">" + tr("NNI") + "\t" + QString::number(gPatientEnCours->NNI()) + "</p>";               //NNI
         if (gPatientEnCours->profession() != "")
@@ -7406,6 +7456,16 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 void Rufus::ExporteActe()
 {
     ImprimeListActes(QList<int>() << gActeEnCours->id(), false, true);
+    QString nomdossier = gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy");
+    QString req = "select typedoc, soustypedoc, lienversfichier from " NOM_TABLE_IMPRESSIONS
+                  " where idpat = " +QString::number(gPatientEnCours->id()) +
+                  " and DATE(dateimpression) = '" + gActeEnCours->date().toString("yyyy-MM-dd") + "' "
+                  " and formatdoc = '" IMAGERIE "'";
+    QList<QVariantList> listimages = db->StandardSelectSQL(req, ok);
+    if (ok && listimages.size()>0)
+    {
+         UpMessageBox::Watch(this, QString::number(listimages.size()) + " documents trouvés");
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -7666,6 +7726,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, int idPa
             //          Mise à jour de l'affichage si le dossier modifié est le dossier en cours
             if (idPat == gidPatient)
             {
+                db->loadSocialDataPatient(gPatientEnCours,ok);
                 gNomPatient     = NomPat;
                 gPrenomPatient  = PrenomPat;
                 gDDNPatient     = Dlg_IdentPatient->ui->DDNdateEdit->date();
@@ -7871,6 +7932,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, int idPa
 
             gPatientEnCours = db->loadPatientById(idPat);
             gidPatient = idPat;
+            db->loadSocialDataPatient(gPatientEnCours,ok);
             // Si le User est un soignant, on crée d'emblée une consultation et on l'affiche
             if( gUserEnCours->isSoignant() )
             {

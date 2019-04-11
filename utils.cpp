@@ -218,8 +218,7 @@ void Utils::convertPlainText(QString &text)
     UpTextEdit textprov;
     textprov.setText( text );
     text = textprov.toPlainText();
-    while (text.endsWith("\n"))
-        text = text.left(text.size()-1);
+    text  = trim(text, true, true);
 }
 
 /*!

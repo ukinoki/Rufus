@@ -2802,7 +2802,7 @@ background-color:rgb(255, 255, 255)</string>
         <property name="lineWidth">
          <number>0</number>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_6" stretch="5,8,1,1">
+        <layout class="QVBoxLayout" name="verticalLayout_6" stretch="4,8,1,1">
          <property name="spacing">
           <number>1</number>
          </property>
@@ -2823,7 +2823,7 @@ background-color:rgb(255, 255, 255)</string>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>230</height>
+             <height>270</height>
             </size>
            </property>
            <property name="focusPolicy">
@@ -2851,7 +2851,7 @@ background-color:rgb(255, 255, 255)</string>
             <number>1</number>
            </property>
            <property name="verticalScrollBarPolicy">
-            <enum>Qt::ScrollBarAlwaysOff</enum>
+            <enum>Qt::ScrollBarAsNeeded</enum>
            </property>
            <property name="horizontalScrollBarPolicy">
             <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -2866,7 +2866,7 @@ background-color:rgb(255, 255, 255)</string>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>450</height>
+             <height>16777215</height>
             </size>
            </property>
            <property name="frameShape">
@@ -2902,7 +2902,7 @@ background-color:rgb(255, 255, 255)</string>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>208</height>
+                <height>0</height>
                </size>
               </property>
               <column>
@@ -3148,6 +3148,12 @@ background-color:rgb(255, 255, 255)</string>
          </item>
          <item>
           <widget class="QFrame" name="InfoCorrespondantsframe">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>100</height>
+            </size>
+           </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
@@ -3311,7 +3317,7 @@ correspondants</string>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>53</height>
+             <height>56</height>
             </size>
            </property>
            <property name="styleSheet">
