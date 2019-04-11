@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("11-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("12-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -7456,16 +7456,27 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 void Rufus::ExporteActe()
 {
     ImprimeListActes(QList<int>() << gActeEnCours->id(), false, true);
-    QString nomdossier = gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy");
-    QString req = "select typedoc, soustypedoc, lienversfichier from " NOM_TABLE_IMPRESSIONS
+    QString nomdossier = QDir::homePath() + NOMDIR_RUFUS NOMDIR_CRDOSSIERS "/" + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy");
+    QString req = "select idimpression from " NOM_TABLE_IMPRESSIONS
                   " where idpat = " +QString::number(gPatientEnCours->id()) +
                   " and DATE(dateimpression) = '" + gActeEnCours->date().toString("yyyy-MM-dd") + "' "
                   " and formatdoc = '" IMAGERIE "'";
     QList<QVariantList> listimages = db->StandardSelectSQL(req, ok);
-    if (ok && listimages.size()>0)
-    {
-         UpMessageBox::Watch(this, QString::number(listimages.size()) + " documents trouvés");
-    }
+    if (db->getMode() != DataBase::Distant)
+        if (ok && listimages.size()>0)
+            for (int i=0; i<listimages.size(); i++)
+            {
+                DocExterne *docmt = Datas::I()->docsexternes->getDocumentById(listimages.at(i).at(0).toInt());
+                QString fileorigin = proc->DirImagerie() + NOMDIR_IMAGES + docmt->lienversfichier();
+                QString filedest = gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + docmt->typedoc() + " " + docmt->soustypedoc() + " " + QString::number(i);
+                QFile origin(fileorigin);
+                QFile(fileorigin).copy(nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix());
+            }
+    UpMessageBox::Watch(this,
+                        "Export d'acte effectué",
+                        "Le dossier /" + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy") + "\n"
+                        "a été créé dans le dossier " + QDir::homePath() + NOMDIR_RUFUS NOMDIR_CRDOSSIERS + "\n"
+                        "Ce dossier contient le contenu de l'acte en cours et les éventuels documents d'imagerie");
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
