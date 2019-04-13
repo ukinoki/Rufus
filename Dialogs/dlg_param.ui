@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -1009,7 +1009,7 @@
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>true</bool>
@@ -1502,7 +1502,7 @@ un serveur hébergé sur le réseau local</string>
              <enum>Qt::NoContextMenu</enum>
             </property>
             <property name="text">
-             <string>Emplacement du dossier de copie des originaux des ficiers image importés depuis ce poste</string>
+             <string>Emplacement du dossier de copie des originaux des fichiers image importés depuis ce poste</string>
             </property>
            </widget>
            <widget class="QPushButton" name="DistantStockageupPushButton">
@@ -3159,14 +3159,19 @@ des organismes bancaires</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uptablewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpSmallButton</class>
@@ -3187,11 +3192,6 @@ des organismes bancaires</string>
    <class>UpRadioButton</class>
    <extends>QRadioButton</extends>
    <header>upradiobutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpTableWidget</class>
-   <extends>QTableWidget</extends>
-   <header location="global">uptablewidget.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

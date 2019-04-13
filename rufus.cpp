@@ -2793,7 +2793,9 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
    if (queLePdf)
    {
        aa = proc->Imprime_pdf(Etat_textEdit, Entete, Pied,
-                             (listidactes.size()>1? tr("Actes") : tr("Acte")) + ".pdf",
+                             (listidactes.size() > 1?
+                                  tr("Actes") + " - " + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf":
+                                  tr("Acte") + " - " + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy")) + ".pdf",
                              nomdossier);
    }
    else
@@ -7531,8 +7533,8 @@ void Rufus::ExporteActe()
             msg = "\n" + tr("Ce dossier contient le contenu de l'acte en cours et ") + QString::number(nb) + tr(" documents d'imagerie");
         UpMessageBox::Watch(this,
                         tr("Export d'acte effectué"),
-                        tr("Le dossier ") + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy") + "\n" +
-                        tr("a été créé sur le bureau") + msg);
+                        tr("Le dossier ") + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy") +
+                        tr(" a été créé sur le bureau") + msg );
     }
     MAJDocsExternes();
 }

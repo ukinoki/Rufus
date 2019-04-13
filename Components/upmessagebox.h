@@ -51,7 +51,7 @@ public:
     void            setDefaultButton(QPushButton*);
 
 private:
-    UpLabel         *lblIcon, *Textedt, *InfoTextedt;
+    UpLabel         *lblIcon, *Textedt, *InfoLabel;
     QHBoxLayout     *infolayout;
     QVBoxLayout     *textlayout;
     UpSmallButton   *ReponsSmallButton;

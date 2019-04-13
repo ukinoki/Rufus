@@ -2894,7 +2894,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 UpMessageBox::Information(Q_NULLPTR, tr("Autres postes connectés!"),
                                              tr("Vous ne pouvez pas effectuer d'opération de sauvegarde/restauration sur la base de données"
                                                 " si vous n'êtes pas le seul poste connecté.\n"
-                                                "Le poste ") + nompostedata.at(0).toString() + tr("est aussi connecté"));
+                                                "Le poste ") + nompostedata.at(0).toString() + " " + tr("est aussi connecté"));
                 return false;
             }
         }
