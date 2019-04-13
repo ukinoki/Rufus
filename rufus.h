@@ -166,7 +166,7 @@ private:
     void        VerifImportateur();                             /* vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
     void        ImprimeDossier();
     void        ImprimeListPatients(QVariant var);
-    void        ImprimeListActes(QList<int> listidactes, bool toutledossier = true, bool queLePdfSurLeBureau = false);
+    void        ImprimeListActes(QList<int> listidactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();       // CZ001
     void        LireLaCPS();      // CZ001
     void        MajusculeCreerNom();

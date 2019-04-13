@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("12-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("13-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -2607,7 +2607,7 @@ void Rufus::ImprimeDossier()
     MAJDocsExternes();
 }
 
-void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool queLePdfSurLeBureau)
+void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool queLePdf, QString nomdossier)
 {
     int taillefont  = 8;
     QString Reponse =        "<html><head><meta name=\"qrichtext\" content=\"1\" />"
@@ -2790,9 +2790,8 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
    QTextEdit *Etat_textEdit = new QTextEdit;
    Etat_textEdit->setHtml(Corps);
    bool aa = false;
-   if (queLePdfSurLeBureau)
+   if (queLePdf)
    {
-       QString nomdossier = gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + (listidactes.size()>1? tr("du") + " " + datedebut + tr("au") + " " + datefin : datedebut);
        aa = proc->Imprime_pdf(Etat_textEdit, Entete, Pied,
                              (listidactes.size()>1? tr("Actes") : tr("Acte")) + ".pdf",
                              nomdossier);
@@ -2807,8 +2806,8 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
        listbinds["iduser"] =            gUserEnCours->id();
        listbinds["idpat"] =             gPatientEnCours->id();
        listbinds["typeDoc"] =           COURRIER;
-       listbinds["soustypedoc"] =       (queLePdfSurLeBureau? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
-       listbinds["titre"] =             (queLePdfSurLeBureau? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
+       listbinds["soustypedoc"] =       (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
+       listbinds["titre"] =             (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
        listbinds["textEntete"] =        Entete;
        listbinds["textCorps"] =         Corps;
        listbinds["textPied"] =          Pied;
@@ -7455,28 +7454,87 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::ExporteActe()
 {
-    ImprimeListActes(QList<int>() << gActeEnCours->id(), false, true);
-    QString nomdossier = QDir::homePath() + NOMDIR_RUFUS NOMDIR_CRDOSSIERS "/" + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy");
+    QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy");
+    ImprimeListActes(QList<int>() << gActeEnCours->id(), false, true, nomdossier);
     QString req = "select idimpression from " NOM_TABLE_IMPRESSIONS
                   " where idpat = " +QString::number(gPatientEnCours->id()) +
                   " and DATE(dateimpression) = '" + gActeEnCours->date().toString("yyyy-MM-dd") + "' "
                   " and formatdoc = '" IMAGERIE "'";
     QList<QVariantList> listimages = db->StandardSelectSQL(req, ok);
-    if (db->getMode() != DataBase::Distant)
-        if (ok && listimages.size()>0)
-            for (int i=0; i<listimages.size(); i++)
+    if (ok && listimages.size()>0)
+    {
+        for (int i=0; i<listimages.size(); i++)
+        {
+            DocExterne *docmt = Datas::I()->docsexternes->getDocumentById(listimages.at(i).at(0).toInt());
+            QString filedest = gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + docmt->typedoc() + " " + docmt->soustypedoc() + " " + QString::number(i);
             {
-                DocExterne *docmt = Datas::I()->docsexternes->getDocumentById(listimages.at(i).at(0).toInt());
-                QString fileorigin = proc->DirImagerie() + NOMDIR_IMAGES + docmt->lienversfichier();
-                QString filedest = gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + docmt->typedoc() + " " + docmt->soustypedoc() + " " + QString::number(i);
-                QFile origin(fileorigin);
-                QFile(fileorigin).copy(nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix());
+                if (db->getMode() != DataBase::Distant)
+                {
+                    QString fileorigin = proc->DirImagerie() + NOMDIR_IMAGES + docmt->lienversfichier();
+                    QFile origin(fileorigin);
+                    origin.copy(nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix());
+                }
+                else
+                {
+                    QByteArray ba;
+                    QString filesufx;
+                    if (docmt->lienversfichier().contains("."))
+                    {
+                        QStringList lst = docmt->lienversfichier().split(".");
+                        filesufx        = lst.at(lst.size()-1);
+                    }
+                    QString sfx = (filesufx == PDF? PDF : JPG);
+                    db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES
+                                    " where idimpression = " + QString::number(docmt->id()) +
+                                    " and facture is null");
+                    QString req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression)"
+                                  " VALUES (" +
+                                    QString::number(docmt->id()) + ", " +
+                                    " LOAD_FILE('" + Utils::correctquoteSQL(proc->DirImagerieServeur() + NOMDIR_IMAGES + Utils::correctquoteSQL(docmt->lienversfichier())) + "'), " +
+                                    QString::number(docmt->compression()) + ")";
+                    db->StandardSQL(req);
+
+                    // On charge ensuite le contenu des champs longblob des tables concernées en mémoire pour les afficher
+                    req = "select " + sfx + " from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + QString::number(docmt->id()) + " and facture is null";
+                    QVariantList impr = db->getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
+                    if (!ok || impr.size() == 0)
+                        return;
+                    ba.append(impr.at(0).toByteArray());
+                    filedest = nomdossier + "/" + filedest + "." + sfx;
+                    if (sfx == JPG)
+                    {
+                        QImage image;
+                        if (!image.loadFromData(ba))
+                            return;
+                        QPixmap pixmap;
+                        pixmap = pixmap.fromImage(image);
+                        pixmap.save(filedest, "jpeg");
+                    }
+                    else if (sfx == PDF)
+                    {
+                        Poppler::Document* document = Poppler::Document::loadFromData(ba);
+                        Poppler::PDFConverter *pdfConv = document->pdfConverter();
+                        pdfConv->setOutputFileName(filedest);
+                        pdfConv->setPDFOptions(pdfConv->pdfOptions()|Poppler::PDFConverter::WithChanges);
+                        pdfConv->convert();
+                        delete pdfConv;
+                        delete document;
+                    }
+                }
             }
-    UpMessageBox::Watch(this,
-                        "Export d'acte effectué",
-                        "Le dossier /" + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy") + "\n"
-                        "a été créé dans le dossier " + QDir::homePath() + NOMDIR_RUFUS NOMDIR_CRDOSSIERS + "\n"
-                        "Ce dossier contient le contenu de l'acte en cours et les éventuels documents d'imagerie");
+        }
+        int nb = listimages.size();
+        QString msg = "";
+        if (nb == 1)
+            msg = "\n" + tr("Ce dossier contient le contenu de l'acte en cours et un document d'imagerie");
+        else if (nb > 1)
+            msg = "\n" + tr("Ce dossier contient le contenu de l'acte en cours et ") + QString::number(nb) + tr(" documents d'imagerie");
+        UpMessageBox::Watch(this,
+                        tr("Export d'acte effectué"),
+                        tr("Le dossier ") + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy") + "\n" +
+                        tr("a été créé sur le bureau") + msg);
+    }
+    MAJDocsExternes();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

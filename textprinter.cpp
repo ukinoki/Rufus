@@ -281,7 +281,7 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
     {
         QString printerName = printer_->printerName();              // nécessaire parce que l'impression du pdf réinitialise le nom de l'imprimante
         printer_->setOutputFormat(QPrinter::PdfFormat);
-        printer_->setOutputFileName(QDir::homePath() + ficpdf);
+        printer_->setOutputFileName(ficpdf);
         tempdoc_ = document->clone();
         Slot_print(printer_);
         printer_->setOutputFormat(QPrinter::NativeFormat);
@@ -300,7 +300,7 @@ void TextPrinter::exportPdf(const QTextDocument *document, const QString &captio
     QString dialogcaption = caption.isEmpty() ? "Export PDF" : caption;
     QString exportname;
     if (QFile::exists(filename))
-        exportname = QDir::homePath() + "/Documents/" + filename;
+        exportname = QStandardPaths::standardLocations(QStandardPaths::DocumentsLocation).at((0)) + "/" + filename;
     else
         exportname = QFileDialog::getSaveFileName(parent_, dialogcaption, filename, "*.pdf");
     if (exportname.isEmpty()) return;
@@ -339,7 +339,7 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
         if (ficpdf != "")
         {
             printer_->setOutputFormat(QPrinter::PdfFormat);
-            printer_->setOutputFileName(QDir::homePath() + ficpdf);
+            printer_->setOutputFileName(ficpdf);
             tempdoc_ = document->clone();
             Slot_print(printer_);
             printer_->setOutputFormat(QPrinter::NativeFormat);

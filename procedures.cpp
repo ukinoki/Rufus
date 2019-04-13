@@ -1351,12 +1351,12 @@ bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
     bool a = false;
     if (AvecPrevisu)
-        a = TexteAImprimer->preview(Etat->document(), NOMFIC_PDF, "");
+        a = TexteAImprimer->preview(Etat->document(), QDir::homePath() + NOMFIC_PDF, "");
     else
     {
         if (!AvecChoixImprimante)
             TexteAImprimer->setPrinterName(gnomImprimante);
-        a = TexteAImprimer->print(Etat->document(), NOMFIC_PDF, "", AvecChoixImprimante);
+        a = TexteAImprimer->print(Etat->document(), QDir::homePath() + NOMFIC_PDF, "", AvecChoixImprimante);
     }
     if (a)
         if (AvecDupli)
@@ -1381,24 +1381,13 @@ bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int
 bool Procedures::Imprime_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier)
 {
     bool a = false;
-    QString nomdirdossiers = NOMDIR_RUFUS NOMDIR_CRDOSSIERS;
-    if (!Utils::mkpath(QDir::homePath() + nomdirdossiers))
-    {
-        UpMessageBox::Watch(Q_NULLPTR,  tr("Impossible de créer le dossier") + "\n" + QDir::homePath() + nomdirdossiers);
-        return a;
-    }
-    QString nomficpdf = nomdirdossiers + "/";
-    if (nomdossier != "")
-    {
-        QString NomDirDest = QDir::homePath() + nomdirdossiers + "/" + nomdossier;
-        QDir DirDest(NomDirDest);
-        if (DirDest.exists())
-            DirDest.rmdir(NomDirDest);
-        DirDest.mkdir(NomDirDest);
-        nomficpdf += nomdossier + "/" + nomfichier;
-    }
-    else
-        nomficpdf += nomfichier;
+    if (nomdossier == "")
+        nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
+    QDir DirDest(nomdossier);
+    if (DirDest.exists())
+        DirDest.rmdir(nomdossier);
+    Utils::mkpath(nomdossier);
+    QString nomficpdf = nomdossier + "/" + nomfichier;
 
     TextPrinter *TexteAImprimer = new TextPrinter();
     Pied.replace("{{DUPLI}}","");
@@ -1412,9 +1401,9 @@ bool Procedures::Imprime_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QStr
 
     TexteAImprimer->print(Etat->document(), nomficpdf, "", false, true);
     // le paramètre true de la fonction print() génère la création du fichier pdf nomficpdf et pas son impression
-    QFile filepdf(QDir::homePath() + nomficpdf);
+    QFile filepdf(nomficpdf);
     if (!filepdf.open( QIODevice::ReadOnly ))
-        UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + QDir::homePath() + nomficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
+        UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + nomficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
     else
         a = true;
     filepdf.close ();
@@ -1554,7 +1543,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
         QList<QVariantList> listimpr;
         if (typedoc != FACTURE)
         {
-            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = null"
+            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + iditem + " and facture is null"
                                                                   , ok
                                                                   , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
             if (!ok)
@@ -1623,9 +1612,9 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
         TexteAImprimer->setHeaderSize(docmt->isALD()? TailleEnTeteALD() : TailleEnTete());
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(TailleTopMarge());
-        TexteAImprimer->print(Etat_textEdit->document(), NOMFIC_PDF, "", false, true);
-        // le paramètre true de la fonction print() génère la création du fichier pdf NOMFIC_PDF et pas son impression
         QString ficpdf = QDir::homePath() + NOMFIC_PDF;
+        TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
+        // le paramètre true de la fonction print() génère la création du fichier pdf NOMFIC_PDF et pas son impression
         QFile filepdf(ficpdf);
         if (!filepdf.open( QIODevice::ReadOnly ))
             UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));

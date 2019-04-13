@@ -777,9 +777,9 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
         TexteAImprimer->setHeaderSize(TailleEnTete);
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(proc->TailleTopMarge());
-        TexteAImprimer->print(Etat_textEdit->document(), NOMFIC_PDF, "", false, true);
-        // le paramètre true de la fonction print() génère la création du fichier pdf NOMFIC_PDF et pas son impression
         QString ficpdf = QDir::homePath() + NOMFIC_PDF;
+        TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
+        // le paramètre true de la fonction print() génère la création du fichier pdf NOMFIC_PDF et pas son impression
         QFile filepdf(ficpdf);
         if (!filepdf.open( QIODevice::ReadOnly ))
             UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
