@@ -92,6 +92,8 @@ public:
     static QString                  PrefixePlus(QString);                          // convertit en QString signé + ou - les valeurs QDouble de dioptries
     static QStringList              DecomposeScriptSQL(QString nomficscript);
 
+    static QString                  ConvertitModePaiement(QString mode);            // convertit en clair les abréviations utilisées dans la compta pour les modes de paiement (B= carte de crédit, E = Espèces...etc...)
+
 };
 
 #endif // UTILS_H

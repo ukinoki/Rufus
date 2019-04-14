@@ -35,7 +35,8 @@ private: //Données de la dépense
     int m_iddepense;            //!< id de la dépense
     int m_iduser;               //!< id du user qui a fait la dépense (ce user est comptable)
     QDate m_datedepepense;      //!< date le la dépense
-    QString m_referencefiscale; //!< la référence fiscale 2035 de la dépense
+    QString m_rubriquefiscale;  //!< la rubriquee fiscale 2035 de la dépense
+    int m_idrubriquefiscale;    //!< l'id de la rubrique fiscale 2035 de la dépense
     QString m_objetdepense;     //!< l'objet de la dépense
     double m_montant;           //!> le montant de la dépense
     QString m_famillefiscale;   //!< la famille de la référence fiscale de la dépense
@@ -58,7 +59,8 @@ public:
     int     id() const;
     int     iduser() const;
     QDate   date() const;
-    QString reffiscale() const;
+    QString rubriquefiscale() const;
+    int     idrubriquefiscale() const;
     QString objet() const;
     double  montant() const;
     QString famillefiscale() const;

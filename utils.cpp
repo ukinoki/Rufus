@@ -459,7 +459,7 @@ bool Utils::mkpath(QString path)
 }
 
 /*!
- * \brief Utils::cleanfilder
+ * \brief Utils::cleanfolder
  * élimine les sous-dossiers vides d'un dossier
  */
 void Utils::cleanfolder(const QString DirPath)
@@ -615,5 +615,16 @@ QStringList Utils::DecomposeScriptSQL(QString nomficscript)
     return listinstruct;
 
     /* POUR CREER DES PROCEDURES AVEC Qt - cf fichier créer des procédures mysql avec QSt dans /assets/diagrams */
+}
+
+QString Utils::ConvertitModePaiement(QString mode)
+{
+    if (mode == "E")       mode = QObject::tr("Espèces");
+    else if (mode == "B")  mode = QObject::tr("Carte de crédit");
+    else if (mode == "T")  mode = QObject::tr("TIP");
+    else if (mode == "V")  mode = QObject::tr("Virement");
+    else if (mode == "P")  mode = QObject::tr("Prélèvement");
+    else if (mode == "C")  mode = QObject::tr("Chèque");
+    return mode;
 }
 

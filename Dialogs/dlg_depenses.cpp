@@ -184,23 +184,44 @@ void dlg_depenses::ExportTable()
     QString sep = "\t";                                                                                                            // séparateur
     if (UpMessageBox::Question(this,
                                tr("Exportation de la table des dépenses"),
-                               tr("Voulez-vous exporter la table des dépenses?\n(Format CSV, langue anglais(USA), champs séparés par tabulation)"))
+                               tr("Voulez-vous exporter la table des dépenses?\n(Jeu de caractères Unicode (UTF8), Format CSV, langue anglais(USA), champs séparés par tabulation)"))
             != UpSmallButton::STARTBUTTON)
         return;
-    ExportEtat.append(tr("Date") + sep + tr("Dépense") + sep + tr("Montant") + sep + tr("Mode de paiement") + sep + tr("Rubrique 2035") + sep + tr("Famille fiscale") + "\n");
+    ExportEtat.append(tr("Date") + sep + tr("Dépense") + sep + tr("id Rubrique 2035") + sep + tr("Montant") + sep + tr("Mode de paiement") + sep  + tr("Rubrique 2035") + sep + tr("Famille fiscale") + "\n");
     for (int i=0;i< gBigTable->rowCount(); i++)
     {
         if (!gBigTable->isRowHidden(i))
         {
-            QString date = QDate::fromString(gBigTable->item(i,7)->text(), "yyyy-MM-dd").toString("dd/MM/yyyy");
-            ExportEtat.append(date + sep);                                                                              // Date - col = 7
-            ExportEtat.append(static_cast<UpLabel*>(gBigTable->cellWidget(i,2))->text() + sep);                         // Libelle - col = 2
-            double montant = QLocale().toDouble(static_cast<UpLabel*>(gBigTable->cellWidget(i,3))->text().remove(" "));
-            ExportEtat.append(QString::number(montant) + sep);                                                          // Montant - col = 3
-            ExportEtat.append(static_cast<UpLabel*>(gBigTable->cellWidget(i,4))->text() + sep);                         // Mode de paiement - col = 4
-            ExportEtat.append(static_cast<UpLabel*>(gBigTable->cellWidget(i,5))->text() + sep);                         // Rubrique 2035 - col = 5
-            ExportEtat.append(static_cast<UpLabel*>(gBigTable->cellWidget(i,6))->text());                               // Famille fiscale - col = 6
-            ExportEtat.append("\n");
+            Depense *dep = getDepenseFromRow(i);
+            if (dep->rubriquefiscale() != "Amortissements")
+            {
+                ExportEtat.append(dep->date().toString("dd/MM/yyyy") + sep);                                                // Date - col = 7
+                ExportEtat.append(dep->objet() + sep);                                                                      // Libelle - col = 2
+                ExportEtat.append(QString::number(dep->idrubriquefiscale()) + sep);                                         // id Rubrique 2035
+                ExportEtat.append(QString::number(dep->montant()) + sep);                                                   // Montant - col = 3
+                ExportEtat.append(Utils::ConvertitModePaiement(dep->modepaiement()) + sep);                                 // Mode de paiement - col = 4
+                ExportEtat.append(dep->rubriquefiscale() + sep);                                                            // Rubrique 2035 - col = 5
+                ExportEtat.append(dep->famillefiscale());                                                                   // Famille fiscale - col = 6
+                ExportEtat.append("\n");
+            }
+        }
+    }
+    for (int i=0;i< gBigTable->rowCount(); i++)
+    {
+        if (!gBigTable->isRowHidden(i))
+        {
+            Depense *dep = getDepenseFromRow(i);
+            if (dep->rubriquefiscale() == "Amortissements")
+            {
+                ExportEtat.append(dep->date().toString("dd/MM/yyyy") + sep);                                                // Date - col = 7
+                ExportEtat.append(dep->objet() + sep);                                                                      // Libelle - col = 2
+                ExportEtat.append(QString::number(dep->idrubriquefiscale()) + sep);                                         // id Rubrique 2035
+                ExportEtat.append(QString::number(dep->montant()) + sep);                                                   // Montant - col = 3
+                ExportEtat.append(Utils::ConvertitModePaiement(dep->modepaiement()) + sep);                                 // Mode de paiement - col = 4
+                ExportEtat.append(dep->rubriquefiscale() + sep);                                                            // Rubrique 2035 - col = 5
+                ExportEtat.append(dep->famillefiscale());                                                                   // Famille fiscale - col = 6
+                ExportEtat.append("\n");
+            }
         }
     }
     QString ExportFileName = QDir::homePath() + NOMDIR_RUFUS + "/"
@@ -209,7 +230,7 @@ void dlg_depenses::ExportTable()
                             + ".csv";
     QFile   ExportFile(ExportFileName);
     bool exportOK = true;
-    QString msg = tr("Nom du fichier d'export") + "\n" + ExportFileName;
+    QString msg = tr("Nom du fichier d'export") + "\n" + ExportFileName + "\nLes amortissements ont été placés en fin de fichier";
     ExportFile.remove();
     if (ExportFile.open(QIODevice::Append))
     {
@@ -980,7 +1001,7 @@ void dlg_depenses::MetAJourFiche()
         ui->PaiementcomboBox    ->setCurrentText(A);
         ui->ComptesupComboBox   ->setCurrentIndex(ui->ComptesupComboBox->findText(B));
         ui->ComptesupComboBox   ->setVisible(B != "");
-        ui->RefFiscalecomboBox  ->setCurrentText(m_depenseencours->reffiscale());
+        ui->RefFiscalecomboBox  ->setCurrentText(m_depenseencours->rubriquefiscale());
         AfficheFacture(m_depenseencours);
         if (m_depenseencours->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
         {
@@ -1256,7 +1277,7 @@ void dlg_depenses::ModifierDepense()
         }
         A += " " + B + " " + C;
         static_cast<UpLabel*>(gBigTable->cellWidget(row,4))->setText(" " + A);
-        static_cast<UpLabel*>(gBigTable->cellWidget(row,5))->setText(" " + dep->reffiscale());                                  // Ref fiscale - col = 5
+        static_cast<UpLabel*>(gBigTable->cellWidget(row,5))->setText(" " + dep->rubriquefiscale());                                  // Ref fiscale - col = 5
         static_cast<UpLabel*>(gBigTable->cellWidget(row,6))->setText(" " + dep->famillefiscale());                              // Famille fiscale - col = 6
         A = dep->date().toString("yyyy-MM-dd");
         gBigTable->item(row,7)->setText(dep->date().toString("yyyy-MM-dd"));                                                    // ClassementparDate - col = 7
@@ -1707,24 +1728,22 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     A = dep->modepaiement();                                                                    // Mode de paiement - col = 4
     QString B = "";
     QString C = "";
-    if (A == "E")           A = tr("Espèces");
-    else
+    QString mode = Utils::ConvertitModePaiement(A);
+    if (A != "E")
     {
         QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll()->find(dep->comptebancaire());
         if( cptFind != gDataUser->getComptes()->comptesAll()->constEnd() )
             B = cptFind.value()->nom();
-        if (A == "B")       A = tr("Carte de crédit");
-        else if (A == "T")  A = tr("TIP");
-        else if (A == "V")  A = tr("Virement");
-        else if (A == "P")  A = tr("Prélèvement");
-        else if (A == "C") {A = tr("Chèque");   if (dep->nocheque() > 0) C += " " + QString::number(dep->nocheque());}
+        if (A == "C")
+            if (dep->nocheque() > 0)
+                C += " " + QString::number(dep->nocheque());
     }
-    A += " " + B + " " + C;
-    label4->setText(" " + A);
+    mode += " " + B + C;
+    label4->setText(" " + mode);
     gBigTable->setCellWidget(row,col,label4);
     col++;
 
-    A = dep->reffiscale();                                                                      // Rubrique2035 - col = 5
+    A = dep->rubriquefiscale();                                                                      // Rubrique2035 - col = 5
     label5->setText(" " + A);
     gBigTable->setCellWidget(row,col,label5);
     col++;

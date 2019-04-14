@@ -877,10 +877,13 @@ int DataBase::getMaxLigneBanque()
 QList<Depense*> DataBase::loadDepensesByUser(int idUser)
 {
     QList<Depense*> depenses;
-    QString req = "SELECT idDep, DateDep , RefFiscale, Objet, Montant,"
-                        " FamFiscale, Monnaie, idRec, ModePaiement, Compte,"
-                        " NoCheque, dep.idFacture, LienFichier, Echeancier, Intitule"
-                        " FROM " NOM_TABLE_DEPENSES " dep left join " NOM_TABLE_FACTURES " fac on dep.idFacture = fac.idFacture"
+    QString req = "SELECT idDep, DateDep , dep.RefFiscale, Objet, Montant,"
+                        " dep.FamFiscale, Monnaie, idRec, ModePaiement, Compte,"
+                        " NoCheque, dep.idFacture, LienFichier, Echeancier, Intitule,"
+                        " idRubrique"
+                        " FROM " NOM_TABLE_DEPENSES " dep"
+                        " left join " NOM_TABLE_FACTURES " fac on dep.idFacture = fac.idFacture"
+                        " left join " NOM_TABLE_RUBRIQUES2035 " rub on dep.RefFiscale = rub.RefFiscale"
                         " WHERE dep.idUser = " + QString::number(idUser);
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
     if(!ok || deplist.size()==0)
@@ -904,6 +907,8 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
         jData["lienfacture"]    = deplist.at(i).at(12).toString();
         jData["echeancier"]     = (deplist.at(i).at(13).toInt()==1);
         jData["objetecheancier"]= deplist.at(i).at(14).toString();
+        jData["objetecheancier"]= deplist.at(i).at(14).toString();
+        jData["idrubrique"]     = deplist.at(i).at(15).toInt();
         Depense *dep = new Depense(jData);
         depenses << dep;
     }

@@ -21,7 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 int         Depense::id() const                 { return  m_iddepense;}
 int         Depense::iduser() const             { return  m_iduser;}
 QDate       Depense::date() const               { return  m_datedepepense;}
-QString     Depense::reffiscale() const         { return  m_referencefiscale;}
+QString     Depense::rubriquefiscale() const    { return  m_rubriquefiscale;}
+int         Depense::idrubriquefiscale() const  { return m_idrubriquefiscale;}
 QString     Depense::objet() const              { return  m_objetdepense;}
 double      Depense::montant() const            { return  m_montant;}
 QString     Depense::famillefiscale() const     { return  m_famillefiscale;}
@@ -63,7 +64,7 @@ void Depense::setData(QJsonObject data)
     setDataInt(data, "iddepense", m_iddepense);
     setDataInt(data, "iduser", m_iduser);
     setDataDate(data, "date", m_datedepepense);
-    setDataString(data, "reffiscale", m_referencefiscale);
+    setDataString(data, "reffiscale", m_rubriquefiscale);
     setDataString(data, "objet", m_objetdepense);
     setDataDouble(data, "montant", m_montant);
     setDataString(data, "famfiscale", m_famillefiscale);
@@ -76,6 +77,7 @@ void Depense::setData(QJsonObject data)
     setDataString(data, "lienfacture", m_lienfacture);
     setDataBool(data, "echeancier", m_echeancier);
     setDataString(data, "objetecheancier", m_objetecheancier);
+    setDataInt(data, "idrubrique", m_idrubriquefiscale);
 }
 
 

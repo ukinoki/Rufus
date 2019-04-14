@@ -595,7 +595,7 @@ void dlg_bilanrecettes::ExportTable()
     QString sep = "\t";                                                                                                             // séparateur
     if (UpMessageBox::Question(this,
                                tr("Exportation de la table des recettes"),
-                               tr("Voulez-vous exporter la table des recettes?\n(Format CSV, langue anglais(USA), champs séparés par tabulation)"))
+                               tr("Voulez-vous exporter la table des recettes?\n(Jeu de caractères Unicode (UTF8), Format CSV, langue anglais(USA), champs séparés par tabulation)"))
             != UpSmallButton::STARTBUTTON)
         return;
     ExportEtat.append(tr("Date") + sep + tr("Nom") + sep + tr("Type acte") + sep + tr("Montant") + sep + tr("Mode de paiement") + sep + tr("Reçu") + sep + tr("Divers et autres recettes") + sep + tr("Apport praticien") + "\n");
