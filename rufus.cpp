@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("14-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("16-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -257,10 +257,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     closeFlag = false;
 
     setTitre();
-    proc->initListeBanques();
-    proc->initListeMotifs();
-    proc->initListeTiers();
-    proc->initTypesTiers();
+    Datas::I()->banques->initListe();
+    Datas::I()->tiers->initListe();
+    Datas::I()->typestiers->initListe();
+    Datas::I()->motifs->initListe();
     if (gUserEnCours->isSoignant())
         ReconstruitListesActes();
 

@@ -44,6 +44,8 @@ void Correspondants::clearAll()
 
 void Correspondants::removeCorrespondant(Correspondant *cor)
 {
+    if (cor == Q_NULLPTR)
+        return;
     QMap<int, Correspondant*>::const_iterator itcor;
     m_Correspondants->find(cor->id());
     if( itcor == m_Correspondants->constEnd() )

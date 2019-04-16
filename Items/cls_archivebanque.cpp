@@ -92,6 +92,8 @@ void Archives::clearAll()
 
 void Archives::removeArchive(Archive *arch)
 {
+    if (arch == Q_NULLPTR)
+        return;
     QMap<int, Archive*>::const_iterator itarch = m_archives->find(arch->id());
     if( itarch == m_archives->constEnd() )
         return;

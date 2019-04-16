@@ -49,22 +49,4 @@ public:
     int noordre() const;
 };
 
-
-class Motifs
-{
-private:
-    QMap<int, Motif*> *m_motifs; //!< la liste des Motifs
-
-public:
-    explicit Motifs();
-
-    QMap<int, Motif *> *motifs() const;
-
-    void addMotif(Motif *Motif);
-    void addMotif(QList<Motif*> listMotifs);
-    void removeMotif(Motif* Motif);
-    Motif* getMotifById(int id);
-    void clearAll();
-};
-
 #endif // CLS_MOTIF_H

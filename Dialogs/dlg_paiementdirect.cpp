@@ -3350,7 +3350,6 @@ bool dlg_paiementdirect::VerifCoherencePaiement()
                 Dlg_Banq = new dlg_banque(this, Banq.toUpper());
                 if (Dlg_Banq->exec()>0)
                 {
-                    proc->initListeBanques();
                     ReconstruitListeBanques();
                     ui->BanqueChequecomboBox->setCurrentText(Banq);
                     A = true;

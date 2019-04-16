@@ -511,17 +511,6 @@ void dlg_motifs::CreeMotif()
     OKButton->setEnabled(true);
 }
 
-void dlg_motifs::MAJMotifs()
-{
-    Datas::I()->motifs->clearAll();
-    QList<Motif*> listMotifs = DataBase::getInstance()->loadMotifs();
-    for(QList<Motif*>::const_iterator itmtf = listMotifs.constBegin(); itmtf != listMotifs.constEnd(); ++itmtf )
-    {
-        Motif *mt = const_cast<Motif*>(*itmtf);
-        Datas::I()->motifs->addMotif( mt );
-    }
-}
-
 void dlg_motifs::Slot_EnregistreMotifs()
 {
     //verifier la cohérence
@@ -559,7 +548,7 @@ void dlg_motifs::Slot_EnregistreMotifs()
         req += QString::number(j+1) + ")";
     }
     DataBase::getInstance()->StandardSQL(req);
-    MAJMotifs();
+    Datas::I()->motifs->initListe();
     accept();
 }
 

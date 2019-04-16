@@ -19,16 +19,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define GBL_DATAS_H
 
 #include <QObject>
-#include "cls_banque.h"
+#include "cls_banques.h"
 #include "cls_compte.h"
 #include <cls_correspondants.h>
 #include "cls_cotation.h"
 #include <cls_depenses.h>
 #include "cls_docsexternes.h"
-#include "cls_motif.h"
+#include "cls_motifs.h"
 #include "cls_paiementsdirects.h"
 #include <cls_patients.h>
-#include "cls_tiers.h"
+#include "cls_typestiers.h"
+#include "cls_tierspayants.h"
 #include <cls_users.h>
 #include "cls_document.h"
 

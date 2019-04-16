@@ -212,6 +212,9 @@ border-radius: 5px;
       <height>21</height>
      </rect>
     </property>
+    <property name="maxLength">
+     <number>45</number>
+    </property>
    </widget>
   </widget>
  </widget>

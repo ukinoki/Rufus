@@ -49,7 +49,6 @@ public:
 private:
     Ui::dlg_motifs      *ui;
     void                DeplaceVersRow(int id, int anc, int nouv);
-    void                MAJMotifs();               // met à jour la liste des motifs
     void                RecalculeLesRows();
     void                RemplirTableWidget();
     UpCheckBox*         UpchkFromTableW(QTableWidget*, int row, int col);

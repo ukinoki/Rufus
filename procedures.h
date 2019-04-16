@@ -238,16 +238,12 @@ public:
     Villes*                 getVilles();
 
     void                    initListeUsers();
-    void                    initListeBanques();
     void                    initListeComptes();
     void                    initListeCorrespondants();
     void                    initListeCorrespondantsAll();
     void                    initListeCotationsByUser(int iduser);
     void                    initListeDepenses(int iduser);
     void                    initListeDocuments();
-    void                    initListeMotifs();
-    void                    initListeTiers();
-    void                    initTypesTiers();
 
     bool                    isPosteImportDocs();
 

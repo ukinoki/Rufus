@@ -53,24 +53,6 @@ public:
     QString faxtiers() const;
 };
 
-
-class TiersPayants
-{
-private:
-    QMap<int, Tiers*> *m_tierspayants; //!< la liste des tiers payants
-
-public:
-    explicit TiersPayants();
-
-    QMap<int, Tiers *> *tierspayants() const;
-
-    void addTiers(Tiers *Tiers);
-    void addTiers(QList<Tiers*> listTierss);
-    void removeTiers(Tiers* Tiers);
-    Tiers* getTiersById(int id);
-    void clearAll();
-};
-
 class TypeTiers : public Item
 {
 private:
@@ -80,22 +62,6 @@ public:
     void setData(QJsonObject data);
 
     QString typetiers() const;
-};
-
-class TypesTiers
-{
-private:
-    QList<TypeTiers *> *m_typestiers; //!< la liste des types de tiers payants
-
-public:
-    explicit TypesTiers();
-
-    QList<TypeTiers *> *typestiers() const;
-
-    void addTypeTiers(TypeTiers *Tiers);
-    void addTypeTiers(QList<TypeTiers*> listTierss);
-    void removeTypeTiers(TypeTiers* Tiers);
-    void clearAll();
 };
 
 

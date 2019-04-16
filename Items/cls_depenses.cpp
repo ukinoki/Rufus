@@ -81,8 +81,10 @@ Depense* Depenses::getDepenseById(int id)
     return Depense.value();
 }
 
-void    Depenses::removeDepense(Depense *dep)
+void Depenses::removeDepense(Depense *dep)
 {
+    if (dep == Q_NULLPTR)
+        return;
     QMap<int, Depense*>::const_iterator Depense = m_Depenses->find(dep->id());
     if( Depense == m_Depenses->constEnd() )
         return;
