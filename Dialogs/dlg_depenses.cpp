@@ -377,7 +377,7 @@ bool dlg_depenses::initializeUserSelected()
 {
     int id = ui->UserscomboBox->currentData().toInt();
     gDataUser = m_listUserLiberaux->find(id).value();
-    proc->initListeDepenses(gDataUser->id());
+    Datas::I()->depenses->initListeByUser(gDataUser->id());
     if (gDataUser->getComptes() == Q_NULLPTR)
     {
         Comptes *comptes = new Comptes();

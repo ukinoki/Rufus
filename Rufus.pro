@@ -88,6 +88,7 @@ include(Components/components.pri)
 include(Database/database.pri)
 include(Dialogs/dialogs.pri)
 include(Items/items.pri)
+include(ItemsLists/itemslists.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
 
@@ -115,7 +116,8 @@ DISTFILES += \
     _Diagrams/readme.txt \
     _Diagrams/Gestion des documents sous Rufus.pdf \
     _Diagrams/Recuperation_CCAM-howto.txt \
-    _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf
+    _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf \
+    assets/A faire.odt
 ALEX {
     DEFINES += ALEX
 }

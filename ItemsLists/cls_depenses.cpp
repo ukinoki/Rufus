@@ -91,3 +91,21 @@ void Depenses::remove(Depense *dep)
     m_Depenses->remove(dep->id());
     delete dep;
 }
+
+/*!
+ * \brief Depenseses::initListeByUser
+ * Charge l'ensemble des cotations pour le user
+ * et les ajoute à la classe Correspondants
+ */
+void Depenses::initListeByUser(int iduser)
+{
+    clearAll();
+    QList<Depense*> listdepenses = DataBase::getInstance()->loadDepensesByUser(iduser);
+    QList<Depense*>::const_iterator itdepenses;
+    for( itdepenses = listdepenses.constBegin(); itdepenses != listdepenses.constEnd(); ++itdepenses )
+    {
+        Depense *dep = const_cast<Depense*>(*itdepenses);
+        add(dep);
+    }
+}
+

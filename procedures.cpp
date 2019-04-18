@@ -1447,7 +1447,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
      * result["ba"] est un QByteArray qui stocke le contenu du fichier
     */
     DocExterne *docmt = Q_NULLPTR;
-    Depense *dep;
+    Depense *dep = Q_NULLPTR;
     QString iditem;
     QString date ("");
     QString sstitre;
@@ -1547,7 +1547,9 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                                                                   , ok
                                                                   , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
             if (!ok)
+            {
                 return result;
+            }
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans impressions
             {
                 listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_IMPRESSIONS " where idimpression = " + iditem
@@ -1561,7 +1563,9 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                                                                   , ok
                                                                   , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
             if (!ok)
+            {
                 return result;
+            }
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans factures
             {
                 listimpr = db->StandardSelectSQL("select pdf, jpg  from " NOM_TABLE_FACTURES " where idfacture = " + iditem
@@ -1571,7 +1575,9 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
         }
 
         if (listimpr.size()==0)
+        {
             return result;
+        }
         QVariantList impr = listimpr.at(0);
         if (impr.at(0).toByteArray().size()>0)            // c'est le champ SQL pdf de la requête qui est exploré et s'il n'est pas vide, c'est un pdf
         {
@@ -2293,18 +2299,6 @@ void Procedures::initListeCotationsByUser(int iduser)
     {
         Cotation *cot = const_cast<Cotation*>(*itcotations);
         Datas::I()->cotations->addCotationByUser(cot);
-    }
-}
-
-void Procedures::initListeDepenses(int iduser)
-{
-    Datas::I()->depenses->clearAll();
-    QList<Depense*> listdepenses = db->loadDepensesByUser(iduser);
-    QList<Depense*>::const_iterator itdepenses;
-    for( itdepenses = listdepenses.constBegin(); itdepenses != listdepenses.constEnd(); ++itdepenses )
-    {
-        Depense *dep = const_cast<Depense*>(*itdepenses);
-        Datas::I()->depenses->add(dep);
     }
 }
 

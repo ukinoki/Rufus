@@ -157,6 +157,7 @@ dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) 
 dlg_docsexternes::~dlg_docsexternes()
 {
     delete printer;
+    m_ListDocs.clearAll();
     Datas::I()->docsexternes->clearAll();
     delete patient;
 }

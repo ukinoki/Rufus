@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include "cls_depense.h"
+#include "database.h"
 
 class Depenses : public QObject
 {
@@ -36,6 +37,7 @@ public:
     Depense*    getById(int id);
     void        clearAll();
     void        remove(Depense *dep);
+    void        initListeByUser(int iduser);
 };
 
 #endif // CLS_DEPENSES_H

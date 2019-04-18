@@ -78,6 +78,7 @@ include(Components/components.pri)
 include(Database/database.pri)
 include(Dialogs/dialogs.pri)
 include(Items/items.pri)
+include(ItemsLists/itemslists.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
 
