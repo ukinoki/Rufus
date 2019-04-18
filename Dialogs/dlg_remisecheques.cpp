@@ -543,7 +543,7 @@ void dlg_remisecheques::ChangeCompte()
 
 void dlg_remisecheques::Slot_ChangeUser()
 {
-    gUser = Datas::I()->users->getUserById(ui->UserComboBox->currentData().toInt());
+    gUser = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
     if (!VoirNouvelleRemise())
         if (!VoirRemisesPrecs())
         {
@@ -1053,7 +1053,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     //création de l'entête
     QString EnTete;
     if (iduser == -1) return false;
-    User *userEntete = Datas::I()->users->getUserById(iduser, true);
+    User *userEntete = Datas::I()->users->getById(iduser, true);
     if(userEntete == Q_NULLPTR)
         return false;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
@@ -1163,7 +1163,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
     {
         ui->UserComboBox->setCurrentIndex(0);
         int idusr = ui->UserComboBox->currentData().toInt();
-        gUser = Datas::I()->users->getUserById(idusr);
+        gUser = Datas::I()->users->getById(idusr);
         gUser->setData(db->loadUserData(idusr));
     }
 }

@@ -32,8 +32,8 @@ public:
 
     Patients();
 
-    bool addPatient(Patient *patient);
-    Patient* getPatientById(int id);
+    bool add(Patient *patient);
+    Patient* getById(int id);
 };
 
 #endif // CLS_PATIENTS_H

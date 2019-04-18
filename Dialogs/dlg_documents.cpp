@@ -1806,7 +1806,7 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
                 a = true;
                 QString b = "vous";
                 if (listdocs.at(i).at(1).toInt() != gidUser)
-                    b = Datas::I()->users->getUserById(listdocs.at(i).at(1).toInt())->getLogin();
+                    b = Datas::I()->users->getById(listdocs.at(i).at(1).toInt())->getLogin();
                 UpMessageBox::Watch(this,tr("Il existe déjà un") + " " + nom + " " + tr("portant ce nom créé par ") + b);
                 break;
             }
@@ -2594,7 +2594,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     glisttxt.clear();
 
     int idusr = (proc->UserSuperviseur()<1? Datas::I()->users->superviseurs()->first()->id() : proc->UserSuperviseur());
-    User *userEntete = Datas::I()->users->getUserById(idusr, true);
+    User *userEntete = Datas::I()->users->getById(idusr, true);
     if (userEntete == Q_NULLPTR)
         return;
 

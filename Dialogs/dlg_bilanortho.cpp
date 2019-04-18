@@ -252,7 +252,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     bool ok;
     QVariantList patientdata = db->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
     if (!ok || patientdata.size() == 0) return;
-    User *userEntete = Datas::I()->users->getUserById(patientdata.at(4).toInt(), true);
+    User *userEntete = Datas::I()->users->getById(patientdata.at(4).toInt(), true);
     if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));

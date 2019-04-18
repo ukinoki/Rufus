@@ -1560,14 +1560,14 @@ void Rufus::CreerBilanOrtho()
                 creeracte = (msgbox.clickedButton() == &NouveauBOBouton);
                 msgbox.close();
             }
-            else if (!Datas::I()->users->getUserById(db->loadActeById(gidActe)->idCreatedBy())->isOrthoptist())
+            else if (!Datas::I()->users->getById(db->loadActeById(gidActe)->idCreatedBy())->isOrthoptist())
             {
                 nouveauBO = true;
                 creeracte = false;
             }
         }
         else
-            creeracte = !Datas::I()->users->getUserById(db->loadActeById(gidActe)->idCreatedBy())->isOrthoptist();
+            creeracte = !Datas::I()->users->getById(db->loadActeById(gidActe)->idCreatedBy())->isOrthoptist();
     }
 
     if (!nouveauBO)
@@ -2679,7 +2679,7 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
         Utils::convertHTML(TtGen);
         Reponse += "<p><td width=\"480\"><font color = \"" + proc->CouleurTitres + "\">" + tr("Traitements généraux: ") + "</font>" + TtGen + "</td></p>";
     }
-    Correspondant *cor = Datas::I()->correspondants->getCorrespondantById(gPatientEnCours->idmg());
+    Correspondant *cor = Datas::I()->correspondants->getById(gPatientEnCours->idmg());
     if (cor != Q_NULLPTR)
     {
         QString correspondant = "Dr " + cor->prenom() + " " + cor->nom();
@@ -2708,7 +2708,7 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
             reponsevide = false;
             Reponse += "<p><td width=\"140\"><font color = \"" + proc->CouleurTitres + "\" ><u><b>" + act->date().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
                     "<td width=\"400\">"
-                    + Datas::I()->users->getUserById(act->idUser())->getTitre() + " " + Datas::I()->users->getUserById(act->idUser())->getPrenom() + " " + Datas::I()->users->getUserById(act->idUser())->getNom() + "</td></p>";
+                    + Datas::I()->users->getById(act->idUser())->getTitre() + " " + Datas::I()->users->getById(act->idUser())->getPrenom() + " " + Datas::I()->users->getById(act->idUser())->getNom() + "</td></p>";
             if (act->motif() != "")
             {
                 QString texte = act->motif();
@@ -2745,7 +2745,7 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
    bool     AvecNumPage = true;
 
    //création de l'entête
-   User *userEntete = Datas::I()->users->getUserById(gUserEnCours->getIdUserParent(), true);
+   User *userEntete = Datas::I()->users->getById(gUserEnCours->getIdUserParent(), true);
    if (!userEntete)
    {
        UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -2878,7 +2878,7 @@ bool Rufus::InscritEnSalDat(int idpat)
 
 void Rufus::ListeCorrespondants()
 {
-    if (Datas::I()->correspondants->getCorrespondants()->size()==0)
+    if (Datas::I()->correspondants->correspondants()->size()==0)
     {
         UpMessageBox::Watch(this, tr("pas de correspondant enregistré") );
         bool onlydoctors    = false;
@@ -3252,7 +3252,7 @@ void Rufus::ImprimeListPatients(QVariant var)
 
     //création de l'entête
     QString EnTete;
-    User *userEntete = Datas::I()->users->getUserById(gUserEnCours->getIdUserParent(), true);
+    User *userEntete = Datas::I()->users->getById(gUserEnCours->getIdUserParent(), true);
     if (userEntete == nullptr)
         return;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
@@ -4001,7 +4001,7 @@ void Rufus::OKModifierTerrain(bool recalclesdonnees) // recalcule le ui->Terrain
     if (gPatientEnCours->idmg()>0)
     {
         QString tooltp ="";
-        Correspondant * cor = Datas::I()->correspondants->getCorrespondantById(gPatientEnCours->idmg());
+        Correspondant * cor = Datas::I()->correspondants->getById(gPatientEnCours->idmg());
         if (cor != Q_NULLPTR)
         {
             if (cor->adresse1() != "")
@@ -5009,7 +5009,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Titredoc->setStyleSheet("color: red");
             QString txt = destlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + destlist.at(i).at(6).toTime().toString("h:mm");
             if (destlist.at(i).at(1).toInt()>0)
-                txt += tr(" de ") + Datas::I()->users->getUserById(destlist.at(i).at(1).toInt())->getLogin();
+                txt += tr(" de ") + Datas::I()->users->getById(destlist.at(i).at(1).toInt())->getLogin();
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
@@ -5166,7 +5166,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Titredoc->setStyleSheet("color: red");
             QString txt = emetlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + emetlist.at(i).at(6).toTime().toString("h:mm");
             if (emetlist.at(i).at(1).toInt()>0)
-                txt += tr(" pour ") + Datas::I()->users->getUserById(emetlist.at(i).at(1).toInt())->getLogin();
+                txt += tr(" pour ") + Datas::I()->users->getById(emetlist.at(i).at(1).toInt())->getLogin();
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
@@ -6171,8 +6171,8 @@ void Rufus::AfficheActe(int idActe)
         gAgePatient                 = Age["annee"].toInt();
 
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
-        ui->CreeParlineEdit         ->setText(tr("Créé par ") + Datas::I()->users->getUserById(gActeEnCours->idCreatedBy())->getLogin()
-                                     + tr(" pour ") + Datas::I()->users->getUserById(gActeEnCours->idUser())->getLogin());
+        ui->CreeParlineEdit         ->setText(tr("Créé par ") + Datas::I()->users->getById(gActeEnCours->idCreatedBy())->getLogin()
+                                     + tr(" pour ") + Datas::I()->users->getById(gActeEnCours->idUser())->getLogin());
 
         //3. Mettre à jour le numéro d'acte
         QString req = "SELECT idActe FROM " NOM_TABLE_ACTES " WHERE idPat = '" + QString::number(gidPatient) + "' ORDER BY ActeDate";
@@ -6357,7 +6357,7 @@ void Rufus::AfficheDossier(int idPat, int idacte)
     ui->idPatientlineEdit->setText(QString::number(idPat));
     QString label= gNomPatient + " " + gPrenomPatient;
 
-    ui->IdCreateurDossierlineEdit->setText(Datas::I()->users->getUserById(gPatientEnCours->idcreateur())->getLogin());
+    ui->IdCreateurDossierlineEdit->setText(Datas::I()->users->getById(gPatientEnCours->idcreateur())->getLogin());
 
     //2 - récupération des données sociales
 
@@ -7467,7 +7467,7 @@ void Rufus::ExporteActe()
     {
         for (int i=0; i<listimages.size(); i++)
         {
-            DocExterne *docmt = Datas::I()->docsexternes->getDocumentById(listimages.at(i).at(0).toInt());
+            DocExterne *docmt = Datas::I()->docsexternes->getById(listimages.at(i).at(0).toInt());
             QString filedest = gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + docmt->typedoc() + " " + docmt->soustypedoc() + " " + QString::number(i);
             {
                 if (db->getMode() != DataBase::Distant)
@@ -8749,7 +8749,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     if (Dlg_Docs->exec() > 0)
     {
         int idUserEntete = Dlg_Docs->gidUserEntete;
-        User *userEntete = Datas::I()->users->getUserById(idUserEntete, true);
+        User *userEntete = Datas::I()->users->getById(idUserEntete, true);
         if (userEntete == nullptr)
             return;
 
@@ -9729,7 +9729,7 @@ void Rufus::Remplir_SalDat()
         label1->setText(" " + NomPrenom);                                                                         // Nom + Prénom
         QString Soignant  = acclist.at(i).at(3).toString();
         if (acclist.at(i).at(9).toString() != acclist.at(i).at(10).toString())
-            Soignant +=  " / " + Datas::I()->users->getUserById(acclist.at(i).at(10).toInt())->getLogin();
+            Soignant +=  " / " + Datas::I()->users->getById(acclist.at(i).at(10).toInt())->getLogin();
         label2->setText(" " + acclist.at(i).at(3).toString());                                 // Soignant
         label3->setText(" " + acclist.at(i).at(4).toString());                                 // Cotation
         label4->setText(QLocale().toString(acclist.at(i).at(5).toDouble(),'f',2) + " ");       // Montant
@@ -9752,7 +9752,7 @@ void Rufus::Remplir_SalDat()
         {
             listidparents           << acclist.at(i).at(10).toInt();
             oitem0                  = new QStandardItem(acclist.at(i).at(10).toString());
-            oitem1                  = new QStandardItem(Datas::I()->users->getUserById(acclist.at(i).at(10).toInt())->getLogin());
+            oitem1                  = new QStandardItem(Datas::I()->users->getById(acclist.at(i).at(10).toInt())->getLogin());
             QList<QStandardItem*>   listitems;
             listitems               << oitem0 << oitem1;
             gListeParentsModel      ->appendRow(listitems);

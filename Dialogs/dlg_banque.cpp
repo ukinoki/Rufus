@@ -217,7 +217,7 @@ void dlg_banque::SupprBanque()
         UpMessageBox::Watch(this, tr("Impossible de supprimer la banque ") + lbl->text(), tr("Elle est utilisée par d'autres utilisateurs"));
         return;
     }
-    Datas::I()->banques->removeBanque(Datas::I()->banques->getBanqueById(idBanque));
+    Datas::I()->banques->remove(Datas::I()->banques->getById(idBanque));
     db->SupprRecordFromTable(idBanque,"idBanque",NOM_TABLE_BANQUES);
     RemplirTableView();
     AfficheBanque();

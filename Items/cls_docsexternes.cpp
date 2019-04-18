@@ -29,12 +29,12 @@ QMap<int, DocExterne *> *DocsExternes::docsexternes()
 }
 
 /*!
- * \brief docsexternes::getDocExterneById
+ * \brief docsexternes::getById
  * \param id l'idimpr du Document recherché
  * \return nullptr si aucun Document trouvée
  * \return DocExterne* le Document correspondant à l'id
  */
-DocExterne* DocsExternes::getDocumentById(int id, bool loadDetails, bool addToList)
+DocExterne* DocsExternes::getById(int id, bool loadDetails, bool addToList)
 {
     QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->find(id);
     DocExterne *result;
@@ -57,7 +57,7 @@ DocExterne* DocsExternes::getDocumentById(int id, bool loadDetails, bool addToLi
             result->setData(jsonDocExterne);
     }
     if( addToList )
-        addDocExterne( result );
+        add( result );
     return result;
 }
 
@@ -71,13 +71,13 @@ void DocsExternes::setNouveauDocumentFalse()
     m_nouveaudocument = false;
 }
 
-DocExterne* DocsExternes::reloadDocument(DocExterne* docmt)
+DocExterne* DocsExternes::reload(DocExterne* docmt)
 {
     docmt->setAllLoaded(false);
-    return getDocumentById(docmt->id());
+    return getById(docmt->id());
 }
 
-bool DocsExternes::addDocExterne(DocExterne *doc)
+bool DocsExternes::add(DocExterne *doc)
 {
     if( doc == Q_NULLPTR)
         return false;
@@ -88,12 +88,12 @@ bool DocsExternes::addDocExterne(DocExterne *doc)
     return true;
 }
 
-void DocsExternes::addListDocsExternes(QList<DocExterne*> listdocs)
+void DocsExternes::addList(QList<DocExterne*> listdocs)
 {
     for(QList<DocExterne*>::const_iterator it = listdocs.constBegin(); it != listdocs.constEnd(); ++it )
     {
         DocExterne *doc = const_cast<DocExterne*>(*it);
-        addDocExterne(doc);
+        add(doc);
     }
 }
 
@@ -105,7 +105,7 @@ void DocsExternes::clearAll()
     m_docsexternes->clear();
 }
 
-void DocsExternes::removeDocExterne(DocExterne *doc)
+void DocsExternes::remove(DocExterne *doc)
 {
     if (doc == Q_NULLPTR)
         return;

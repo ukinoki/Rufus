@@ -541,7 +541,7 @@ bool dlg_commentaires::ChercheDoublon(QString str, int row)
                     QString b = "vous";
                     int iduser = ui->ComupTableWidget->item(i,3)->text().toInt();
                     if (iduser != gidUser)
-                        b = Datas::I()->users->getUserById(iduser)->getLogin();
+                        b = Datas::I()->users->getById(iduser)->getLogin();
                     UpMessageBox::Watch(this, tr("Il existe déjà un commentaire portant ce nom créé par ") + b);
                     break;
                 }

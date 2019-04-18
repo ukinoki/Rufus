@@ -161,7 +161,7 @@ void dlg_listecorrespondants::SupprCorresp()
         int idCor   = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt();
         DataBase::getInstance()->SupprCorrespondant(idCor);
         ListeModifiee = true;
-        Datas::I()->correspondants->removeCorrespondant(Datas::I()->correspondants->getCorrespondantById(idCor));
+        Datas::I()->correspondants->remove(Datas::I()->correspondants->getById(idCor));
         ReconstruitListeCorrespondants();
     }
 }
@@ -175,7 +175,7 @@ QList<QStandardItem*> dlg_listecorrespondants::ListeMetiers()
 {
     QList<QStandardItem*> listmetiers;
     QStringList list;
-    QMap<int, Correspondant *> *Correspondants = Datas::I()->correspondants->getCorrespondants();
+    QMap<int, Correspondant *> *Correspondants = Datas::I()->correspondants->correspondants();
     QMap<int, Correspondant *>::const_iterator itcorrespondants;
     QStandardItem *metieritem;
     QString metier  = "";
@@ -201,7 +201,7 @@ void dlg_listecorrespondants::ReconstruitListeCorrespondants(QString filtre)
     treeCor->disconnect();
     gmodele->clear();
 
-    QMap<int, Correspondant *> *Correspondants = Datas::I()->correspondants->getCorrespondants();
+    QMap<int, Correspondant *> *Correspondants = Datas::I()->correspondants->correspondants();
     QStandardItem *pitem;
 
     QList<QStandardItem*> listmetiers = ListeMetiers();

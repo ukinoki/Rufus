@@ -27,13 +27,13 @@ class Correspondants
 
 public:
     //GETTER
-    QMap<int, Correspondant *> *getCorrespondants()     const;
+    QMap<int, Correspondant *> *correspondants()     const;
 
     Correspondants();
 
-    bool addCorrespondant(Correspondant *cor);
-    Correspondant* getCorrespondantById(int id);
-    void removeCorrespondant(Correspondant* cor);
+    bool add(Correspondant *cor);
+    Correspondant* getById(int id);
+    void remove(Correspondant* cor);
     void clearAll();
 };
 

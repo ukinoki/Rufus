@@ -28,14 +28,14 @@ public:
 
 public:
     //GETTER
-    QMap<int, Depense *> *getDepenses()     const;
+    QMap<int, Depense *> *depenses()     const;
 
     Depenses(QObject *parent = Q_NULLPTR);
 
-    bool        addDepense(Depense *Depense);
-    Depense*    getDepenseById(int id);
+    bool        add(Depense *Depense);
+    Depense*    getById(int id);
     void        clearAll();
-    void        removeDepense(Depense *dep);
+    void        remove(Depense *dep);
 };
 
 #endif // CLS_DEPENSES_H

@@ -60,7 +60,7 @@ public:
     void addDocument(QList<Document*> listDocuments);
     void removeDocument(Document* Document);
     void clearAll();
-    Document* getDocumentById(int id);
+    Document* getById(int id);
 };
 
 class MetaDocument : public Item

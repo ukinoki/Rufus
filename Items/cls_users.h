@@ -42,8 +42,8 @@ public:
     QMap<int, User *> *comptables() const;
 
     Users();
-    bool addUser(User *usr);
-    User* getUserById(int id, bool loadDetails=false, bool addToList = true);
+    bool add(User *usr);
+    User* getById(int id, bool loadDetails=false, bool addToList = true);
     QString getLoginById(int id);
 };
 

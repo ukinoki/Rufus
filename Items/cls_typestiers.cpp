@@ -1,3 +1,20 @@
+/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "cls_typestiers.h"
 
 
@@ -11,21 +28,21 @@ QList<TypeTiers *> *TypesTiers::typestiers() const
     return m_typestiers;
 }
 
-void TypesTiers::addTypeTiers(TypeTiers *typetiers)
+void TypesTiers::add(TypeTiers *typetiers)
 {
     if( m_typestiers->contains(typetiers) )
         return;
     *m_typestiers << typetiers;
 }
 
-void TypesTiers::addTypeTiers(QList<TypeTiers*> listTypesTiers)
+void TypesTiers::addList(QList<TypeTiers*> listTypesTiers)
 {
     QList<TypeTiers*>::const_iterator it;
     for( it = listTypesTiers.constBegin(); it != listTypesTiers.constEnd(); ++it )
-        addTypeTiers( *it );
+        add( *it );
 }
 
-void TypesTiers::removeTypeTiers(TypeTiers* typetiers)
+void TypesTiers::remove(TypeTiers* typetiers)
 {
     while( m_typestiers->contains(typetiers) )
         m_typestiers->removeOne(typetiers);
@@ -34,12 +51,12 @@ void TypesTiers::removeTypeTiers(TypeTiers* typetiers)
 void TypesTiers::clearAll()
 {
     while (m_typestiers->size() >0)
-        removeTypeTiers(m_typestiers->at(0));
+        remove(m_typestiers->at(0));
     m_typestiers->clear();
 }
 
 /*!
- * \brief TypesTiers::initTypesTiers
+ * \brief TypesTiers::initListe
  * Charge l'ensemble des types de tiers payants
  * et les ajoute à la classe TypesTiers
  */
@@ -51,7 +68,7 @@ void TypesTiers::initListe()
     for( ittyp = listtypes.constBegin(); ittyp != listtypes.constEnd(); ++ittyp )
     {
         TypeTiers *typ = const_cast<TypeTiers*>(*ittyp);
-        addTypeTiers( typ );
+        add( typ );
     }
 }
 

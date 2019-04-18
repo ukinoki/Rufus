@@ -1230,7 +1230,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
         Entete.replace("{{POLICE}}", qApp->font().family());
         if (rplct)
         {
-            User *userRemp = Datas::I()->users->getUserById(idparent, true);
+            User *userRemp = Datas::I()->users->getById(idparent, true);
             if(userRemp && userRemp->getTitre().size())
                 Entete.replace("{{TITREUSER}}", "<s>" + userRemp->getTitre() + " " + userRemp->getPrenom() + " " + userRemp->getNom() + "</s> "
                                                 "<font color=\"darkblue\">" + tr ("remplacé par") + " "
@@ -1459,7 +1459,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
 
     if (typedoc != FACTURE)
     {
-        docmt = Datas::I()->docsexternes->getDocumentById(idimpression);
+        docmt = Datas::I()->docsexternes->getById(idimpression);
         iditem = QString::number(idimpression);
         date = docmt->date().toString(tr("d-M-yyyy"));
         typedocmt = docmt->typedoc();
@@ -1468,7 +1468,7 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
     }
     else
     {
-        dep = Datas::I()->depenses->getDepenseById(idimpression);
+        dep = Datas::I()->depenses->getById(idimpression);
         iditem = QString::number(dep->idfacture());
         date = dep->date().toString(tr("d-M-yyyy"));
         objet = dep->objet();
@@ -2058,7 +2058,7 @@ QString Procedures::getSessionStatus()
         if (liberal)
             txtstatut += tr("libéral");
         else if (pasliberal)
-            txtstatut += tr("salarié") + " - " + tr("Employeur : ") + Datas::I()->users->getUserById(m_userConnected->getEmployeur())->getLogin();
+            txtstatut += tr("salarié") + " - " + tr("Employeur : ") + Datas::I()->users->getById(m_userConnected->getEmployeur())->getLogin();
         else if (retrocession)
             txtstatut += tr("remplaçant");
         else if (pasdecompta)
@@ -2087,7 +2087,7 @@ QString Procedures::getSessionStatus()
     {
         QString cptabledefaut ("");
         if (m_userConnected->getidUserCompteParDefaut()>0)
-            cptabledefaut = tr("de") + " " + Datas::I()->users->getUserById(m_userConnected->getidUserCompteParDefaut())->getLogin();
+            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getidUserCompteParDefaut())->getLogin();
         txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getNomCompteParDefaut() + " "
                           + cptabledefaut;
     }
@@ -2176,7 +2176,7 @@ void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on
     ListeComptesEncaissUserAvecDesactive->clear();
     if (idUser==-1)
         return;
-    User* user = Datas::I()->users->getUserById(idUser);
+    User* user = Datas::I()->users->getById(idUser);
     int usercpt = ( user->getEmployeur() > 0 ? user->getEmployeur() : idUser ) ;
     QString req = "select idCompte, nomcompteabrege, desactive, userlogin from " NOM_TABLE_COMPTES " cpt"
                   " left outer join " NOM_TABLE_UTILISATEURS " usr on  usr.iduser = cpt.iduser"
@@ -2246,7 +2246,7 @@ void Procedures::initListeUsers()
         User *usr = const_cast<User*>(*itUser);
         if( usr->id() == m_userConnected->id() )
             usr = m_userConnected;
-        Datas::I()->users->addUser( usr );
+        Datas::I()->users->add( usr );
     }
 }
 
@@ -2263,7 +2263,7 @@ void Procedures::initListeCorrespondants()
     for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
     {
         Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
-        Datas::I()->correspondants->addCorrespondant(cor);
+        Datas::I()->correspondants->add(cor);
     }
 }
 
@@ -2275,7 +2275,7 @@ void Procedures::initListeCorrespondantsAll()
     for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
     {
         Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
-        Datas::I()->correspondants->addCorrespondant(cor);
+        Datas::I()->correspondants->add(cor);
     }
 }
 
@@ -2304,7 +2304,7 @@ void Procedures::initListeDepenses(int iduser)
     for( itdepenses = listdepenses.constBegin(); itdepenses != listdepenses.constEnd(); ++itdepenses )
     {
         Depense *dep = const_cast<Depense*>(*itdepenses);
-        Datas::I()->depenses->addDepense(dep);
+        Datas::I()->depenses->add(dep);
     }
 }
 
@@ -2363,7 +2363,7 @@ bool Procedures::eventFilter(QObject *obj, QEvent *event)
 void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
 {
     box->clear();
-    QMap<int, Correspondant *> *listcor = Datas::I()->correspondants->getCorrespondants();
+    QMap<int, Correspondant *> *listcor = Datas::I()->correspondants->correspondants();
     QMap<int, Correspondant *>::const_iterator itcor;
     QStandardItemModel *model = new QStandardItemModel();
     // toute la manip qui suit sert à remetre les correspondants par ordre aplhabétique (dans le QMap, ils sont triés par id croissant) - si  vous trouvez plus simple, ne vous génez pas
@@ -3626,11 +3626,11 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             //qDebug() << "comptable " << m_userConnected->getIdUserComptable();
             //qDebug() << "parent " << m_userConnected->getIdUserParent();
             if( m_userConnected->getIdUserActeSuperviseur() > 0 )
-                m_userConnected->setUserSuperviseur(Datas::I()->users->getUserById(m_userConnected->getIdUserActeSuperviseur()));
+                m_userConnected->setUserSuperviseur(Datas::I()->users->getById(m_userConnected->getIdUserActeSuperviseur()));
             if( m_userConnected->getIdUserComptable() > 0 )
-                m_userConnected->setUserComptable(Datas::I()->users->getUserById(m_userConnected->getIdUserComptable()));
+                m_userConnected->setUserComptable(Datas::I()->users->getById(m_userConnected->getIdUserComptable()));
             if( m_userConnected->getIdUserParent() > 0 )
-                m_userConnected->setUserParent(Datas::I()->users->getUserById(m_userConnected->getIdUserParent()));
+                m_userConnected->setUserParent(Datas::I()->users->getById(m_userConnected->getIdUserParent()));
 
             QList<QVariantList> lieuxlist = db->StandardSelectSQL("select Numcentre from " NOM_TABLE_PARAMSYSTEME, ok);
             if (ok && lieuxlist.size()>0)
@@ -3858,8 +3858,8 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
             // determination de comptabilité - cotation
             if( m_userConnected->getIdUserParent() == User::ROLE_INDETERMINE )
             {
-                if( Datas::I()->users->getUserById( m_userConnected->getIdUserActeSuperviseur()) != Q_NULLPTR
-                 && Datas::I()->users->getUserById( m_userConnected->getIdUserActeSuperviseur())->isRemplacant() )
+                if( Datas::I()->users->getById( m_userConnected->getIdUserActeSuperviseur()) != Q_NULLPTR
+                 && Datas::I()->users->getById( m_userConnected->getIdUserActeSuperviseur())->isRemplacant() )
                 {
                     // le superviseur est remplaçant, on essaie de savoir s'il a un parent
                     QList<User*> listUserFound;
@@ -3884,12 +3884,12 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         gAskUser                = new UpDialog();
                         gAskUser                ->AjouteLayButtons();
                         gAskUser                ->setAccessibleName(QString::number(m_userConnected->getIdUserActeSuperviseur()));
-                        gAskUser->mData         = Datas::I()->users->getUserById( m_userConnected->getIdUserActeSuperviseur());
+                        gAskUser->mData         = Datas::I()->users->getById( m_userConnected->getIdUserActeSuperviseur());
                         QVBoxLayout *boxlay     = new QVBoxLayout;
                         gAskUser->dlglayout()   ->insertLayout(0,boxlay);
                         QGroupBox*boxparent     = new QGroupBox(gAskUser);
                         boxparent               ->setAccessibleName("Parent");
-                        QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + Datas::I()->users->getUserById(m_userConnected->getIdUserActeSuperviseur())->getLogin() + "?";
+                        QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + Datas::I()->users->getById(m_userConnected->getIdUserActeSuperviseur())->getLogin() + "?";
                         boxparent               ->setTitle(lblUsrParent);
                         boxparent               ->setVisible(false);
                         boxlay                  ->addWidget(boxparent);
@@ -3927,16 +3927,16 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 else
                     m_userConnected->setIdUserParent( m_userConnected->getIdUserActeSuperviseur() );
             }
-            if( Datas::I()->users->getUserById(m_userConnected->getIdUserParent()) != Q_NULLPTR )
+            if( Datas::I()->users->getById(m_userConnected->getIdUserParent()) != Q_NULLPTR )
             {
                 // determination de l'utilisation de la cotation
-                gUseCotation = Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->isCotation();
+                gUseCotation = Datas::I()->users->getById(m_userConnected->getIdUserParent())->isCotation();
                 // determination de l'utilisation de la comptabilité
-                avecLaComptaProv = !Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->isSansCompta();
-                if( Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->isLiberal() )
-                    m_userConnected->setIdUserComptable(Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->id());
-                else if( Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->isSalarie() )
-                    m_userConnected->setIdUserComptable(Datas::I()->users->getUserById(m_userConnected->getIdUserParent())->getEmployeur());
+                avecLaComptaProv = !Datas::I()->users->getById(m_userConnected->getIdUserParent())->isSansCompta();
+                if( Datas::I()->users->getById(m_userConnected->getIdUserParent())->isLiberal() )
+                    m_userConnected->setIdUserComptable(Datas::I()->users->getById(m_userConnected->getIdUserParent())->id());
+                else if( Datas::I()->users->getById(m_userConnected->getIdUserParent())->isSalarie() )
+                    m_userConnected->setIdUserComptable(Datas::I()->users->getById(m_userConnected->getIdUserParent())->getEmployeur());
                 else
                     m_userConnected->setIdUserComptable(User::ROLE_NON_RENSEIGNE);
             }

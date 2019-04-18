@@ -615,7 +615,7 @@ void dlg_docsexternes::BasculeTriListe(int a)
 
 int dlg_docsexternes::ActualiseDocsExternes()
 {
-    m_ListDocs.addListDocsExternes(db->loadDoscExternesByPatientAll(gidPatient));
+    m_ListDocs.addList(db->loadDoscExternesByPatientAll(gidPatient));
     if (m_ListDocs.NouveauDocument())
     {
         m_ListDocs.setNouveauDocumentFalse();
@@ -690,7 +690,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
      * result["ba"] est un QByteArray qui stocke le contenu du fichier
      * result["lien"] est le lien vers le fichier sur le disque dur du serveur
     */
-    DocExterne *docmt = m_ListDocs.getDocumentById(idimpression);
+    DocExterne *docmt = m_ListDocs.getById(idimpression);
     QMap<QString,QVariant> result;
     QString idimpr = QString::number(idimpression);
     QString filename = "";
@@ -806,7 +806,7 @@ DocExterne* dlg_docsexternes::getDocumentFromIndex(QModelIndex idx)
     if (it == Q_NULLPTR || it->hasChildren())
         return Q_NULLPTR;
     int idimpr = it->data().toMap().value("id").toInt();
-    return m_ListDocs.getDocumentById(idimpr);
+    return m_ListDocs.getById(idimpr);
 }
 
 QModelIndex dlg_docsexternes::getIndexFromId(QStandardItemModel *modele, int id)
@@ -833,7 +833,7 @@ void dlg_docsexternes::ImprimeDoc()
 #ifndef QT_NO_PRINTER
     PrintButton         ->disconnect();  // pour éviter le doubles impressions en cas de double clic lent
     DocExterne * docmt  = getDocumentFromIndex(ListDocsTreeView->selectionModel()->selectedIndexes().at(0));
-    docmt               = m_ListDocs.getDocumentById(docmt->id());
+    docmt               = m_ListDocs.getById(docmt->id());
     if (docmt != Q_NULLPTR)
     {
         bool detruirealafin = false;
@@ -895,7 +895,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
     bool        ok;
 
-    User *userEntete = Datas::I()->users->getUserById(docmt->iduser(), true);
+    User *userEntete = Datas::I()->users->getById(docmt->iduser(), true);
     if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -967,7 +967,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
             if (detruirealafin)
             {
                 db->SupprRecordFromTable(docmt->id(),"idimpression",NOM_TABLE_IMPRESSIONS);
-                m_ListDocs.removeDocExterne(docmt);
+                m_ListDocs.remove(docmt);
             }
             ActualiseDocsExternes();
             int idimpr = db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok);
@@ -1127,7 +1127,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
         if (Line->text()!="")
         {
             db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + Utils::correctquoteSQL(Line->text()) + "' where idimpression = " + QString::number(docmt->id()));
-            gmodele->itemFromIndex(idx)->setText(CalcTitre(m_ListDocs.reloadDocument(docmt)));
+            gmodele->itemFromIndex(idx)->setText(CalcTitre(m_ListDocs.reload(docmt)));
             int id = docmt->id();
             QString titre = CalcTitre(docmt);
             gmodeleTriParDate->itemFromIndex(getIndexFromId(gmodeleTriParDate,id))->setText(titre);
@@ -1225,7 +1225,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
                         " where idimpression = " + idimpr + ")");
         db->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr);
         db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr);
-        m_ListDocs.removeDocExterne(docmt);
+        m_ListDocs.remove(docmt);
         RemplirTreeView();
         ListDocsTreeView->expandAll();
         if (idaafficher != "")

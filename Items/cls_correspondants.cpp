@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 /*
  * GETTER
 */
-QMap<int, Correspondant *> *Correspondants::getCorrespondants() const
+QMap<int, Correspondant *> *Correspondants::correspondants() const
 {
     return m_Correspondants;
 }
@@ -42,7 +42,7 @@ void Correspondants::clearAll()
     m_Correspondants->clear();
 }
 
-void Correspondants::removeCorrespondant(Correspondant *cor)
+void Correspondants::remove(Correspondant *cor)
 {
     if (cor == Q_NULLPTR)
         return;
@@ -55,7 +55,7 @@ void Correspondants::removeCorrespondant(Correspondant *cor)
 }
 
 /*!
- * \brief Correspondants::addCorrespondant
+ * \brief Correspondants::add
  * Cette fonction va ajouter le correspondant passé en paramètre
  *
  * \param Correspondant le correspondant que l'on veut ajouter
@@ -63,7 +63,7 @@ void Correspondants::removeCorrespondant(Correspondant *cor)
  * \return false si le paramètre correspondant est un nullptr
  * \return false si le correspondant est déjà présent
  */
-bool Correspondants::addCorrespondant(Correspondant *cor)
+bool Correspondants::add(Correspondant *cor)
 {
     if( cor == Q_NULLPTR)
         return false;
@@ -74,12 +74,12 @@ bool Correspondants::addCorrespondant(Correspondant *cor)
 }
 
 /*!
- * \brief Correspondants::getCorrespondantById
+ * \brief Correspondants::getById
  * \param id l'id du Correspondant recherché
  * \return nullptr si aucun Correspondant trouvé
  * \return Correspondant* le Correspondant correspondant à l'id
  */
-Correspondant* Correspondants::getCorrespondantById(int id)
+Correspondant* Correspondants::getById(int id)
 {
     QMap<int, Correspondant*>::const_iterator itcor = m_Correspondants->find(id);
     if( itcor == m_Correspondants->constEnd() )

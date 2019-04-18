@@ -1,3 +1,20 @@
+/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "cls_banques.h"
 
 Banques::Banques()
@@ -11,7 +28,7 @@ QMap<int, Banque *> *Banques::banques() const
 }
 
 /*!
- * \brief Naques::initListeBanques
+ * \brief Banques::initListeBanques
  * Charge l'ensemble des banques
  * et les ajoute à la classe Banques
  */
@@ -23,22 +40,22 @@ void Banques::initListe()
     for( itbq = listbanques.constBegin(); itbq != listbanques.constEnd(); ++itbq )
     {
         Banque *bq = const_cast<Banque*>(*itbq);
-        addBanque( bq );
+        add( bq );
     }
 }
 
-void Banques::addBanque(Banque *banque)
+void Banques::add(Banque *banque)
 {
     if( m_banques->contains(banque->id()) )
         return;
     m_banques->insert(banque->id(), banque);
 }
 
-void Banques::addBanque(QList<Banque*> listbanques)
+void Banques::addList(QList<Banque*> listbanques)
 {
     QList<Banque*>::const_iterator it;
     for( it = listbanques.constBegin(); it != listbanques.constEnd(); ++it )
-        addBanque( *it );
+        add( *it );
 }
 
 void Banques::clearAll()
@@ -49,7 +66,7 @@ void Banques::clearAll()
     m_banques->clear();
 }
 
-void Banques::removeBanque(Banque *banq)
+void Banques::remove(Banque *banq)
 {
     if (banq == Q_NULLPTR)
         return;
@@ -60,7 +77,7 @@ void Banques::removeBanque(Banque *banq)
     delete banq;
 }
 
-Banque* Banques::getBanqueById(int id)
+Banque* Banques::getById(int id)
 {
     QMap<int, Banque*>::const_iterator itcpt = m_banques->find(id);
     if( itcpt == m_banques->constEnd() )

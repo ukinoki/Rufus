@@ -32,13 +32,13 @@ private:
 public:
     explicit DocsExternes();
     QMap<int, DocExterne *>* docsexternes();
-    DocExterne* getDocumentById(int id, bool loadDetails=true, bool addToList=true);
-    bool addDocExterne(DocExterne *doc);
-    void addListDocsExternes(QList<DocExterne*> listdocs);
+    DocExterne* getById(int id, bool loadDetails=true, bool addToList=true);
+    bool add(DocExterne *doc);
+    void addList(QList<DocExterne*> listdocs);
     bool NouveauDocument();
     void setNouveauDocumentFalse();
-    DocExterne* reloadDocument(DocExterne* docmt);
-    void removeDocExterne(DocExterne *doc);
+    DocExterne* reload(DocExterne* docmt);
+    void remove(DocExterne *doc);
     void clearAll();
 };
 #endif // CLS_DOCSEXTERNES_H

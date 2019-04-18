@@ -485,7 +485,7 @@ void dlg_depenses::EnregistreDepense()
         return;
     }
 
-    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(),
+    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->depenses(), ui->DateDepdateEdit->date(),
                                                               ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(),
                                                               DataBase::Egal);
 
@@ -500,7 +500,7 @@ void dlg_depenses::EnregistreDepense()
     {
         if (QDate::currentDate() > ui->DateDepdateEdit->date().addDays(90))
             pb = tr("Elle date de plus de 3 mois");
-        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-180),
+        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->depenses(), ui->DateDepdateEdit->date().addDays(-180),
                                                   ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(),
                                                   DataBase::Sup);
         if (veriflistdepenses.size() > 0)
@@ -592,7 +592,7 @@ void dlg_depenses::EnregistreDepense()
     jData["idfacture"]      = 0;
 
     Depense *dep = new Depense(jData);
-    Datas::I()->depenses->addDepense(dep);
+    Datas::I()->depenses->add(dep);
 
     gBigTable->insertRow(gBigTable->rowCount());
     SetDepenseToRow(dep, gBigTable->rowCount()-1);
@@ -752,7 +752,7 @@ void dlg_depenses::SupprimerDepense()
     //On supprime l'écriture
     db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_LIGNESCOMPTES);
     db->SupprRecordFromTable(dep->id(), "idDep", NOM_TABLE_DEPENSES);
-    Datas::I()->depenses->removeDepense(dep);
+    Datas::I()->depenses->remove(dep);
 
     if (gBigTable->rowCount() == 1)
     {
@@ -1069,7 +1069,7 @@ void dlg_depenses::ModifierDepense()
     }
 
     // vérifier que cette dépense n'a pas été déjà saisie
-    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date(),
+    QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->depenses(), ui->DateDepdateEdit->date(),
                                                               ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(),
                                                               DataBase::Egal);
     if (veriflistdepenses.size() > 0){
@@ -1090,7 +1090,7 @@ void dlg_depenses::ModifierDepense()
     }
     if (!OnSauteLaQuestionSuivante)
     {
-        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->getDepenses(), ui->DateDepdateEdit->date().addDays(-1),
+        veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->depenses(), ui->DateDepdateEdit->date().addDays(-1),
                                                   ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), gDataUser->id(),
                                                   DataBase::Inf);
         if (veriflistdepenses.size() > 0)
@@ -1467,7 +1467,7 @@ void dlg_depenses::ReconstruitListeAnnees()
     ui->AnneecomboBox->disconnect();
     QStringList ListeAnnees;
 
-    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
+    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->depenses()->constBegin(); itDepense != Datas::I()->depenses->depenses()->constEnd(); ++itDepense )
     {
         Depense *dep = const_cast<Depense*>(itDepense.value());
         if (!ListeAnnees.contains(QString::number(dep->annee())))
@@ -1511,7 +1511,7 @@ void dlg_depenses::RemplitBigTable()
     gBigTable->setRowCount(0);
     QList<Depense*> listDepenses;
 
-    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->getDepenses()->constBegin(); itDepense != Datas::I()->depenses->getDepenses()->constEnd(); ++itDepense )
+    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->depenses()->constBegin(); itDepense != Datas::I()->depenses->depenses()->constEnd(); ++itDepense )
     {
         Depense *dep = const_cast<Depense*>(itDepense.value());
         if (dep->annee() == ui->AnneecomboBox->currentText().toInt())
@@ -1538,7 +1538,7 @@ void dlg_depenses::RemplitBigTable()
 
 Depense* dlg_depenses::getDepenseFromRow(int row)
 {
-    return Datas::I()->depenses->getDepenseById(gBigTable->item(row,0)->text().toInt());
+    return Datas::I()->depenses->getById(gBigTable->item(row,0)->text().toInt());
 }
 
 void dlg_depenses::EnregistreFacture(QString typedoc)

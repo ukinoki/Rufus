@@ -92,7 +92,7 @@ dlg_paiement::dlg_paiement(QList<int> ListidActeAPasser, int Mode, Procedures *p
         return;
     }
 
-    gDataUser                               = Datas::I()->users->getUserById(gidUserACrediter);
+    gDataUser                               = Datas::I()->users->getById(gidUserACrediter);
     if (gDataUser != Q_NULLPTR)
     {
         gNomUser                            = gDataUser->getLogin();
@@ -103,7 +103,7 @@ dlg_paiement::dlg_paiement(QList<int> ListidActeAPasser, int Mode, Procedures *p
     }
     if( gDataUser == Q_NULLPTR || glistComptesEncaissmt->rowCount() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + Datas::I()->users->getUserById(gidUserACrediter)->getLogin());
+        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + Datas::I()->users->getById(gidUserACrediter)->getLogin());
         InitOK = false;
         return;
     }
@@ -544,7 +544,7 @@ void dlg_paiement::Slot_CalculTotalDetails()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiement::Slot_ChangeUtilisateur()
 {
-    gDataUser = Datas::I()->users->getUserById(ui->UserscomboBox->currentData().toInt());
+    gDataUser = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
     if (gDataUser != nullptr)
     {
         gNomUser                            = gDataUser->getLogin();
@@ -559,7 +559,7 @@ void dlg_paiement::Slot_ChangeUtilisateur()
         disconnect (ui->UserscomboBox,      SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUtilisateur()));
         ui->UserscomboBox                   ->setCurrentIndex(ui->UserscomboBox->findData(gidUserACrediter));
         connect (ui->UserscomboBox,         SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUtilisateur()));
-        gDataUser                           = Datas::I()->users->getUserById(ui->UserscomboBox->currentData().toInt());
+        gDataUser                           = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
         gNomUser                            = gDataUser->getLogin();
         gidCompteBancaireParDefaut          = gDataUser->getIdCompteEncaissHonoraires();
         proc                                ->setListeComptesEncaissmtUser(gidUserACrediter);

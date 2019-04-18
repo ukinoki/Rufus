@@ -1,3 +1,20 @@
+/* (C) 2018 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "cls_tierspayants.h"
 
 TiersPayants::TiersPayants()
@@ -10,23 +27,23 @@ QMap<int, Tiers *> *TiersPayants::tierspayants() const
     return m_tierspayants;
 }
 
-void TiersPayants::addTiers(Tiers *Tiers)
+void TiersPayants::add(Tiers *Tiers)
 {
     if( m_tierspayants->contains(Tiers->id()) )
         return;
     m_tierspayants->insert(Tiers->id(), Tiers);
 }
 
-void TiersPayants::addTiers(QList<Tiers*> listTiersPayants)
+void TiersPayants::addList(QList<Tiers*> listTiersPayants)
 {
     QList<Tiers*>::const_iterator it;
     for( it = listTiersPayants.constBegin(); it != listTiersPayants.constEnd(); ++it )
-        addTiers( *it );
+        add( *it );
 }
 
-Tiers* TiersPayants::getTiersById(int id)
+Tiers* TiersPayants::getById(int id)
 {
-    QMultiMap<int, Tiers*>::const_iterator itcpt = m_tierspayants->find(id);
+    QMap<int, Tiers*>::const_iterator itcpt = m_tierspayants->find(id);
     if( itcpt == m_tierspayants->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
@@ -40,7 +57,7 @@ void TiersPayants::clearAll()
     m_tierspayants->clear();
 }
 
-void TiersPayants::removeTiers(Tiers *tiers)
+void TiersPayants::remove(Tiers *tiers)
 {
     if (tiers == Q_NULLPTR)
         return;
@@ -50,7 +67,7 @@ void TiersPayants::removeTiers(Tiers *tiers)
 }
 
 /*!
- * \brief TiersPayants::initListeTiers
+ * \brief TiersPayants::initListe
  * Charge l'ensemble des tiers payants
  * et les ajoute à la classe Tiers
  */
@@ -62,6 +79,6 @@ void TiersPayants::initListe()
     for( ittrs = listtiers.constBegin(); ittrs != listtiers.constEnd(); ++ittrs )
     {
         Tiers *trs = const_cast<Tiers*>(*ittrs);
-        addTiers( trs );
+        add( trs );
     }
 }

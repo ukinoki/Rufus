@@ -502,7 +502,7 @@ void dlg_motifs::CreeMotif()
     jmotif["utiliser"] = true;
     jmotif["noordre"] = row+1;
     Motif *motif = new Motif(jmotif);
-    Datas::I()->motifs->addMotif(motif);
+    Datas::I()->motifs->add(motif);
     SetMotifToRow(motif,row);
 
     QFontMetrics fm(qApp->font());
@@ -585,7 +585,7 @@ UpCheckBox* dlg_motifs::UpchkFromTableW(QTableWidget *Table, int row, int col)
 
 Motif* dlg_motifs::getMotifFromRow(int row)
 {
-    Motif *mtf = Datas::I()->motifs->getMotifById(ui->MotifsupTableWidget->item(row,3)->text().toInt());
+    Motif *mtf = Datas::I()->motifs->getById(ui->MotifsupTableWidget->item(row,3)->text().toInt());
     return mtf;
 }
 

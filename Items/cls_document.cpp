@@ -93,7 +93,7 @@ void Documents::removeDocument(Document *doc)
     delete doc;
 }
 
-Document* Documents::getDocumentById(int id)
+Document* Documents::getById(int id)
 {
     QMap<int, Document*>::const_iterator itdoc = m_documents->find(id);
     if( itdoc == m_documents->constEnd() )

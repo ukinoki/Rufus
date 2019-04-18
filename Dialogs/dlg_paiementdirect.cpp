@@ -473,7 +473,7 @@ void dlg_paiementdirect::ChangeComptable(int idcomptable, bool depuislecombo)
         ui->ComptablescomboBox  ->setCurrentIndex(ui->ComptablescomboBox->findData(gidComptableACrediter));
         connect (ui->ComptablescomboBox, SIGNAL(currentIndexChanged(int)), this, SLOT(Slot_ChangeComptable()));
     }
-    UserComptableACrediter = Datas::I()->users->getUserById(gidComptableACrediter);
+    UserComptableACrediter = Datas::I()->users->getById(gidComptableACrediter);
 
     if (UserComptableACrediter != Q_NULLPTR)
     {
@@ -2414,8 +2414,8 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 if (TableARemplir == ui->ListeupTableWidget)
                 {
                     pItem3->setData(Qt::UserRole, QStringList()
-                    << tr("superviseur -> ") + Datas::I()->users->getUserById(Tablelist.at(i).at(12).toInt())->getLogin()
-                    << tr("comptable -> ") + Datas::I()->users->getUserById(Tablelist.at(i).at(11).toInt())->getLogin()
+                    << tr("superviseur -> ") + Datas::I()->users->getById(Tablelist.at(i).at(12).toInt())->getLogin()
+                    << tr("comptable -> ") + Datas::I()->users->getById(Tablelist.at(i).at(11).toInt())->getLogin()
                     << tr("DDN ") + Tablelist.at(i).at(10).toDate().toString(tr("dd-MM-yyyy"))
                     << Tablelist.at(i).at(2).toString());                                             // Nom
                 }

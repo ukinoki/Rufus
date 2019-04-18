@@ -25,13 +25,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \brief Tiers class
  * l'ensemble des informations concernant un tiers payant
  *!
- * \brief TierPayants class
- * la liste des tiers payants
- *!
  * \brief TypeTiers class
  * non d'un type de tiers payants - utilisée pour les paiements directs
- * \brief TypesTiers class
- * la liste des types de tiers payants - utilisée pour les paiements directs
+ *  - utilisée pour les paiements directs
+ * AME, ACS, CMU, etc..
+ * géré par la table ComtaMedicale.tiers
  */
 
 
