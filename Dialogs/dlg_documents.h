@@ -91,6 +91,8 @@ private:
     void                        EnableLines();
     void                        EnableOKPushButton(UpCheckBox *Check = Q_NULLPTR);
     void                        FiltreListe(QString);
+    Document*                   getDocumentFromRow(int row);
+    MetaDocument*               getMetaDocumentFromRow(int row);
     void                        InsertDocument(int row);
     void                        InsertDossier(int row);
     void                        LineSelect(UpTableWidget *table, int row);

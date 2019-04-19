@@ -2381,6 +2381,16 @@ void dlg_documents::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
     });
 }
 
+Document* dlg_documents::getDocumentFromRow(int row)
+{
+    return Datas::I()->documents->getById(ui->DocupTableWidget->item(row,3)->text().toInt());
+}
+
+MetaDocument* dlg_documents::getMetaDocumentFromRow(int row)
+{
+    return Datas::I()->metadocuments->getById(ui->DossiersupTableWidget->item(row,2)->text().toInt());
+}
+
 // ----------------------------------------------------------------------------------
 // Creation du Document dans la base.
 // ----------------------------------------------------------------------------------
@@ -3108,18 +3118,18 @@ void dlg_documents::SetMetaDocumentToRow(MetaDocument*dossier, int row)
     ui->DossiersupTableWidget->setCellWidget(row,col,upLine0);
 
     col++; //2
-    pItem1->setText(QString::number(dossier->id()));                           // idMetaDocument
+    pItem1->setText(QString::number(dossier->id()));                // idMetaDocument
     ui->DossiersupTableWidget->setItem(row,col,pItem1);
 
     col++; //3
-    pItem2->setText(QString::number(dossier->iduser()));                           // idUser
+    pItem2->setText(QString::number(dossier->iduser()));            // idUser
     ui->DossiersupTableWidget->setItem(row,col,pItem2);
 
     col++; //4
     UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
     lbl->setAlignment(Qt::AlignCenter);
     if (dossier->ispublic())
-        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
+        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15));        //WARNING : icon scaled : pxLoupe 15,15
     ui->DossiersupTableWidget->setCellWidget(row,col,lbl);
 
     ui->DossiersupTableWidget->setRowHeight(row,int(fm.height()*1.3));
