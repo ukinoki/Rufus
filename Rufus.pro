@@ -117,7 +117,7 @@ DISTFILES += \
     _Diagrams/Gestion des documents sous Rufus.pdf \
     _Diagrams/Recuperation_CCAM-howto.txt \
     _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf \
-    assets/A faire.odt
+    assets/A_faire.odt
 ALEX {
     DEFINES += ALEX
 }
