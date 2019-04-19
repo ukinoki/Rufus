@@ -104,6 +104,6 @@ DISTFILES += \
     _Diagrams/Gestion des documents sous Rufus.pdf \
     _Diagrams/Recuperation_CCAM-howto.txt \
     _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf \
-    assets/A_faire.odt
+    assets/A_faire.odt \
     Rufus.AppDir/Rufus.desktop \
     Rufus.AppDir/rufus.png
