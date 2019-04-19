@@ -2285,49 +2285,6 @@ void Procedures::initListeCorrespondantsAll()
     }
 }
 
-/*!
- * \brief Procedures::initListeCotations
- * Charge l'ensemble des cotations pour le user
- * et les ajoute à la classe Correspondants
- */
-void Procedures::initListeCotationsByUser(int iduser)
-{
-    Datas::I()->cotations->clearAll();
-    QList<Cotation*> listcotations = db->loadCotationsByUser(iduser);
-    QList<Cotation*>::const_iterator itcotations;
-    for( itcotations = listcotations.constBegin(); itcotations != listcotations.constEnd(); ++itcotations )
-    {
-        Cotation *cot = const_cast<Cotation*>(*itcotations);
-        Datas::I()->cotations->addCotationByUser(cot);
-    }
-}
-
-/*!
- * \brief Procedures::initListeDocument
- * Charge l'ensemble des documments accessibles à l'utilisateur en cours
- * et les ajoute à la classe Documents
- */
-void Procedures::initListeDocuments()
-{
-    Datas::I()->documents->clearAll();
-    QList<Document*> listdocs = db->loadDocuments();
-    QList<Document*>::const_iterator itdoc;
-    for( itdoc = listdocs.constBegin(); itdoc != listdocs.constEnd(); ++itdoc )
-    {
-        Document *doc = const_cast<Document*>(*itdoc);
-        Datas::I()->documents->addDocument(doc);
-    }
-
-    Datas::I()->metadocuments->clearAll();
-    QList<MetaDocument*> listmetadocs = db->loadMetaDocuments();
-    QList<MetaDocument*>::const_iterator itmetadoc;
-    for( itmetadoc = listmetadocs.constBegin(); itmetadoc != listmetadocs.constEnd(); ++itmetadoc )
-    {
-        MetaDocument *metadoc = const_cast<MetaDocument*>(*itmetadoc);
-        Datas::I()->metadocuments->addmetaDocument(metadoc);
-    }
-}
-
 bool Procedures::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj==uptable)

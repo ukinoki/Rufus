@@ -687,7 +687,7 @@ QList<Document*> DataBase::loadDocuments()
         jData["texte"] = doclist.at(i).at(1).toString();
         jData["resume"] = doclist.at(i).at(2).toString();
         jData["conclusion"] = doclist.at(i).at(3).toString();
-        jData["idUser"] = doclist.at(i).at(4).toInt();
+        jData["iduser"] = doclist.at(i).at(4).toInt();
         jData["public"] = (doclist.at(i).at(5).toInt()==1);
         jData["prescription"] = (doclist.at(i).at(6).toInt()==1);
         jData["editable"] = (doclist.at(i).at(7).toInt()==1);
@@ -696,28 +696,6 @@ QList<Document*> DataBase::loadDocuments()
         documents << doc;
     }
     return documents;
-}
-
-QJsonObject DataBase::loadDocumentData(int idDoc)
-{
-    QJsonObject documentData{};
-    QString req = "Select idDocument, TextDocument, ResumeDocument, ConclusionDocument, idUser,"
-                  " DocPublic, Prescription, Editable, Medical from " NOM_TABLE_COURRIERS
-                  " where idDocument = " + QString::number(idDoc);
-    QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
-    if (!ok || docdata.size()==0)
-        return documentData;
-    documentData["iddocument"] = docdata.at(0).toInt();
-    documentData["texte"] = docdata.at(1).toString();
-    documentData["resume"] = docdata.at(2).toString();
-    documentData["conclusion"] = docdata.at(3).toString();
-    documentData["idUser"] = docdata.at(4).toInt();
-    documentData["public"] = (docdata.at(5).toInt()==1);
-    documentData["prescription"] = (docdata.at(6).toInt()==1);
-    documentData["editable"] = (docdata.at(7).toInt()==1);
-    documentData["medical"] = (docdata.at(8).toInt()==1);
-
-    return documentData;
 }
 
 void DataBase::SupprDocument(Document* doc)
@@ -754,30 +732,12 @@ QList<MetaDocument*> DataBase::loadMetaDocuments()
         jData["idmetadocument"] = doclist.at(i).at(1).toInt();
         jData["texte"] = doclist.at(i).at(4).toString();
         jData["resume"] = doclist.at(i).at(0).toString();
-        jData["idUser"] = doclist.at(i).at(2).toInt();
+        jData["iduser"] = doclist.at(i).at(2).toInt();
         jData["public"] = (doclist.at(i).at(3).toInt()==1);
         MetaDocument *metadoc = new MetaDocument(jData);
         metadocuments << metadoc;
     }
     return metadocuments;
-}
-
-QJsonObject DataBase::loadMetaDocumentData(int idDoc)
-{
-    QJsonObject documentData{};
-    QString req = "SELECT ResumeMetaDocument, idMetaDocument, idUser, Public, TextMetaDocument"
-                  " FROM "  NOM_TABLE_METADOCUMENTS
-                  " where idMetaDocument = " + QString::number(idDoc);
-    QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
-    if (!ok || docdata.size()==0)
-        return documentData;
-    documentData["idmetadocument"] = docdata.at(1).toInt();
-    documentData["texte"] = docdata.at(4).toString();
-    documentData["resume"] = docdata.at(0).toString();
-    documentData["idUser"] = docdata.at(3).toInt();
-    documentData["public"] = (docdata.at(2).toInt()==1);
-
-    return documentData;
 }
 
 void DataBase::SupprMetaDocument(Document* doc)

@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("18-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("19-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -100,7 +100,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //4 reconstruction des combobox des correspondants et de la liste des documents
     proc->initListeCorrespondants();
-    proc->initListeDocuments();
     ReconstruitCombosCorresp();                 // initialisation de la liste
 
     grequeteListe   = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe FROM " NOM_TABLE_PATIENTS;
@@ -8948,7 +8947,7 @@ void    Rufus::ReconstruitListesActes()
             . le texte de l'item -> la cotation de l'acte
             . en data, une QStringList contenant dans l'ordre le montant (optam ou non), le montant pratiqué, le descriptif de l'acte CCAM
     */
-    proc->initListeCotationsByUser(gUserEnCours->getIdUserParent());
+    Datas::I()->cotations->initListeByUser(gUserEnCours->getIdUserParent());
     QString req;
     QString champ = (gUserEnCours->isOPTAM()? "montantoptam" : "montantnonoptam");
     // il faut d'abord reconstruire la table des cotations

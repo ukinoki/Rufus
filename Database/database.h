@@ -138,14 +138,12 @@ public:
      * Documents émis
     */
     QList<Document*>        loadDocuments();
-    QJsonObject             loadDocumentData(int idDoc);
     void                    SupprDocument(Document *doc);
 
     /*
      * MetaDocuments
     */
     QList<MetaDocument*>    loadMetaDocuments();
-    QJsonObject             loadMetaDocumentData(int idDoc);
     void                    SupprMetaDocument(Document *doc);
 
     /*

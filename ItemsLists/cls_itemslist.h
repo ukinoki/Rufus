@@ -8,7 +8,6 @@ class ItemsList : public QObject
 {
     Q_OBJECT
 public:
-public:
     explicit ItemsList(QObject *parent = Q_NULLPTR);
 
 protected:

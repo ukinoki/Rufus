@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_banques.h"
 #include "cls_compte.h"
 #include <cls_correspondants.h>
-#include "cls_cotation.h"
+#include "cls_cotations.h"
 #include <cls_depenses.h>
 #include "cls_docsexternes.h"
 #include "cls_motifs.h"
@@ -31,7 +31,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_typestiers.h"
 #include "cls_tierspayants.h"
 #include <cls_users.h>
-#include "cls_document.h"
+#include "cls_documents.h"
 
 class Datas : public QObject
 {
@@ -59,10 +59,6 @@ public:
     Documents *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
     MetaDocuments *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
 
-signals:
-
-
-public slots:
 };
 
 #endif // GBL_DATAS_H

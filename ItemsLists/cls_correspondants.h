@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_CORRESPONDANTS_H
 #define CLS_CORRESPONDANTS_H
 
-#include <QObject>
 #include <cls_correspondant.h>
 
 class Correspondants

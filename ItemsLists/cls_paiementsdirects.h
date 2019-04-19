@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_PAIEMENTSDIRECTS_H
 #define CLS_PAIEMENTSDIRECTS_H
 
-#include <QObject>
 #include "cls_paiementdirect.h"
 
 /*!

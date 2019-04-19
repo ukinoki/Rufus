@@ -55,7 +55,7 @@ private:
     QString m_fieldName;
 
 public:
-    explicit VilleListModel(const QList<Ville*> &villes, QString fieldName, QObject *parent=0);
+    explicit VilleListModel(const QList<Ville*> &villes, QString fieldName, QObject *parent = Q_NULLPTR);
 
     void setFieldName(QString fieldName);
     int rowCount(const QModelIndex &parent) const;

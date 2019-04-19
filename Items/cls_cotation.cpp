@@ -52,27 +52,3 @@ void Cotation::setData(QJsonObject data)
 }
 
 
-Cotations::Cotations()
-{
-    m_cotations = new QMap<int, Cotation*>();
-}
-
-QMap<int, Cotation *> *Cotations::cotations() const
-{
-    return m_cotations;
-}
-
-void Cotations::addCotationByUser(Cotation *cotation)
-{
-    if( m_cotations->contains(cotation->id()) )
-        return;
-    m_cotations->insert(cotation->id(), cotation);
-}
-
-void Cotations::clearAll()
-{
-    for( QMap<int, Cotation*>::const_iterator itcot = m_cotations->constBegin(); itcot != m_cotations->constEnd(); ++itcot)
-        delete itcot.value();
-    m_cotations->clear();
-}
-

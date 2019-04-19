@@ -258,7 +258,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (gMode == Creation)
         {
-            req = "insert into " NOM_TABLE_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser) VALUES ('"
+            req = "insert into " NOM_TABLE_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, tip) VALUES ('"
                     + codeline->text() + "', "
                     + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", "
                     + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", "

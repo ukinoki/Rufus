@@ -241,8 +241,6 @@ public:
     void                    initListeComptes();
     void                    initListeCorrespondants();
     void                    initListeCorrespondantsAll();
-    void                    initListeCotationsByUser(int iduser);
-    void                    initListeDocuments();
 
     bool                    isPosteImportDocs();
 

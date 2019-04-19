@@ -878,10 +878,10 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         }
         if (a == false) return;
         UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),7));
-        QString a = "null";
+        QString b = "null";
         if (!lbl->pixmap())
         {
-            a = "1";
+            b = "1";
             lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
         }
         else
@@ -891,10 +891,10 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         }
         ui->DocPubliccheckBox->toggle();
         if (gMode == Selection)
-            db->StandardSQL("update " NOM_TABLE_COURRIERS " set DocPublic = " + a + " where idDocument = " +
+            db->StandardSQL("update " NOM_TABLE_COURRIERS " set DocPublic = " + b + " where idDocument = " +
                        ui->DocupTableWidget->item(line->getRowTable(),3)->text());
-        if (a=="null") a= "";
-        ui->DocupTableWidget->item(line->getRowTable(),4)->setText(a);
+        if (b=="null") b= "";
+        ui->DocupTableWidget->item(line->getRowTable(),4)->setText(b);
     }
     else if (choix  == "EditDoc")
     {
@@ -2916,6 +2916,49 @@ void dlg_documents::ListidCor()
 void dlg_documents::Remplir_TableWidget()
 {
     UpLineEdit          *upLine0;
+     int i=0;
+
+    //Remplissage Table Documents
+    Datas::I()->documents->initListe();
+    for (int i = 0; i<ui->DocupTableWidget->rowCount(); i++)
+    {
+        upLine0 = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
+        if (upLine0)
+            upLine0->disconnect();
+    }
+    ui->DocupTableWidget->clearContents();
+    ui->DocupTableWidget->setRowCount(Datas::I()->documents->documents()->size());
+
+    for( QMap<int, Document*>::const_iterator itDocument = Datas::I()->documents->documents()->constBegin(); itDocument != Datas::I()->documents->documents()->constEnd(); ++itDocument )
+    {
+        Document *doc = const_cast<Document*>(itDocument.value());
+        SetDocumentToRow(doc, i);
+        i++;
+    }
+
+
+    //Remplissage Table Dossiers
+    i=0;
+    Datas::I()->metadocuments->initListe();
+    for (int i = 0; i<ui->DossiersupTableWidget->rowCount(); i++)
+    {
+        upLine0 = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
+        if (upLine0)
+            upLine0->disconnect();
+    }
+    ui->DossiersupTableWidget->clearContents();
+    ui->DossiersupTableWidget->setRowCount(Datas::I()->metadocuments->metadocuments()->size());
+    for( QMap<int, MetaDocument*>::const_iterator itdossier = Datas::I()->metadocuments->metadocuments()->constBegin(); itdossier != Datas::I()->metadocuments->metadocuments()->constEnd(); ++itdossier)
+    {
+        MetaDocument *metadoc = const_cast<MetaDocument*>(itdossier.value());
+        SetMetaDocumentToRow(metadoc, i);
+        i++;
+    }
+}
+
+void dlg_documents::SetDocumentToRow(Document*doc, int row)
+{
+    UpLineEdit          *upLine0;
     QTableWidgetItem    *pItem1;
     QTableWidgetItem    *pItem2;
     QTableWidgetItem    *pItem3;
@@ -2924,201 +2967,162 @@ void dlg_documents::Remplir_TableWidget()
     QTableWidgetItem    *pItem6;
     QTableWidgetItem    *pItem10;
     QTableWidgetItem    *pItem11;
-    int i;
+
     QFontMetrics fm(qApp->font());
     QFont disabledFont = qApp->font();
     disabledFont.setItalic(true);
     QPalette palette;
     palette.setColor(QPalette::Text,QColor(0,0,140));
 
-    //Remplissage Table Documents
-    for (int i = 0; i<ui->DocupTableWidget->rowCount(); i++)
+    pItem1  = new QTableWidgetItem() ;
+    upLine0 = new UpLineEdit() ;
+    pItem2  = new QTableWidgetItem() ;
+    pItem3  = new QTableWidgetItem() ;
+    pItem4  = new QTableWidgetItem() ;
+    pItem5  = new QTableWidgetItem() ;
+    pItem6  = new QTableWidgetItem() ;
+    pItem10 = new QTableWidgetItem() ;
+    pItem11 = new QTableWidgetItem() ;
+
+    int col = 0;
+    QWidget * w = new QWidget(ui->DocupTableWidget);
+    UpCheckBox *Check = new UpCheckBox(w);
+    Check->setCheckState(Qt::Unchecked);
+    Check->setRowTable(row);
+    Check->setFocusPolicy(Qt::NoFocus);
+    connect(Check, &QCheckBox::clicked, this, [=] {EnableOKPushButton(Check);});
+    QHBoxLayout *l = new QHBoxLayout();
+    l->setAlignment( Qt::AlignCenter );
+    l->addWidget(Check);
+    l->setContentsMargins(0,0,0,0);
+    w->setLayout(l);
+    ui->DocupTableWidget->setCellWidget(row,col,w);
+    col++; //1
+    upLine0->setText(doc->resume());                                // resume
+    upLine0->setMaxLength(50);
+    upLine0->setRowTable(row);
+    upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
+                           "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
+    upLine0->setFocusPolicy(Qt::NoFocus);
+    if (doc->iduser() != gidUser)
     {
-        upLine0 = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-        if (upLine0)
-            upLine0->disconnect();
+        upLine0->setFont(disabledFont);
+        upLine0->setPalette(palette);
+        upLine0->setContextMenuPolicy(Qt::NoContextMenu);
     }
+    else
+        upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    ui->DocupTableWidget->clearContents();
-    QString  req = "SELECT ResumeDocument, TextDocument, idDocument, DocPublic, idUser, Prescription, editable, Medical"
-              " FROM "  NOM_TABLE_COURRIERS
-              " WHERE (idUser = " + QString::number(gidUser) + " Or (DocPublic = 1 and iduser <> " + QString::number(gidUser) + "))";
-    req += " and ResumeDocument LIKE '" + Utils::correctquoteSQL(ui->ChercheupLineEdit->text()) + "%'";
-    req += " ORDER BY ResumeDocument";
-    bool ok;
-    QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
-    if (!ok)
-        return;
-    ui->DocupTableWidget->setRowCount(listdocs.size());
-    for (i = 0; i < listdocs.size(); i++)
+    ui->DocupTableWidget->setCellWidget(row,col,upLine0);
+    col++; //2
+    pItem1->setText(doc->texte());                                  // text
+    ui->DocupTableWidget->setItem(row,col,pItem1);
+    col++; //3
+    pItem2->setText(QString::number(doc->id()));                    // idDocument
+    ui->DocupTableWidget->setItem(row,col,pItem2);
+    col++; //4
+    pItem3->setText(doc->ispublic()? "1" : "0");                    // DocPublic    1 = doc public "" = doc privé
+    ui->DocupTableWidget->setItem(row,col,pItem3);
+    col++; //5
+    pItem4->setText(QString::number(doc->iduser()));                // idUser
+    ui->DocupTableWidget->setItem(row,col,pItem4);
+    col++; //6
+    pItem5->setText(doc->isprescription()? "1" : "0");              // Prescription 0 = pas prescription 1 = prescription
+    ui->DocupTableWidget->setItem(row,col,pItem5);
+    col++; //7
+    UpLabel*lbl = new UpLabel(ui->DocupTableWidget);
+    lbl->setAlignment(Qt::AlignCenter);
+    if (doc->ispublic())
+        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15));        //WARNING : icon scaled : pxLoupe 15,15
+    ui->DocupTableWidget->setCellWidget(row,col,lbl);                 // Public
+    col++; //8
+    pItem6->setText(doc->iseditable()? "1" : "0");                  // Editable     0 = non éditable 1 = éditable
+    ui->DocupTableWidget->setItem(row,col,pItem6);
+    col++; //9
+    UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
+    lbl1->setAlignment(Qt::AlignCenter);
+    if (doc->iseditable())
+        lbl1->setPixmap(Icons::pxBlackCheck().scaled(15,15));       //WARNING : icon scaled : pxLoupe 15,15
+    ui->DocupTableWidget->setCellWidget(row,col,lbl1);
+    col++; //10
+    pItem10->setText("1" + upLine0->text());                        // Check+text   -> sert pour le tri de la table
+    ui->DocupTableWidget->setItem(row,col,pItem10);
+    col++; //11
+    pItem11->setText(doc->ismedical()? "1" : "0");                  // Medical      0 = doc administratif 1 = doc médical
+    ui->DocupTableWidget->setItem(row,col,pItem11);
+    col++; //12
+    UpLabel*lbl11 = new UpLabel(ui->DocupTableWidget);
+    lbl11->setAlignment(Qt::AlignCenter);
+    if (!doc->ismedical())
+        lbl11->setPixmap(Icons::pxBlackCheck().scaled(15,15));      //WARNING : icon scaled : pxLoupe 15,15
+    ui->DocupTableWidget->setCellWidget(row,col,lbl11);
+
+    ui->DocupTableWidget->setRowHeight(row,int(fm.height()*1.3));
+}
+
+void dlg_documents::SetMetaDocumentToRow(MetaDocument*dossier, int row)
+{
+    UpLineEdit          *upLine0;
+    QTableWidgetItem    *pItem1;
+    QTableWidgetItem    *pItem2;
+
+    QFontMetrics fm(qApp->font());
+    QFont disabledFont = qApp->font();
+    disabledFont.setItalic(true);
+    QPalette palette;
+    palette.setColor(QPalette::Text,QColor(0,0,140));
+
+    pItem1  = new QTableWidgetItem() ;
+    upLine0 = new UpLineEdit() ;
+    pItem2  = new QTableWidgetItem() ;
+
+    int col = 0;
+    QWidget * w = new QWidget(ui->DossiersupTableWidget);
+    UpCheckBox *Check = new UpCheckBox(w);
+    Check->setCheckState(Qt::Unchecked);
+    Check->setRowTable(row);
+    Check->setFocusPolicy(Qt::NoFocus);
+    connect(Check, &QCheckBox::clicked, this, [=] {EnableOKPushButton(Check);});
+    QHBoxLayout *l = new QHBoxLayout();
+    l->setAlignment( Qt::AlignCenter );
+    l->addWidget(Check);
+    l->setContentsMargins(0,0,0,0);
+    w->setLayout(l);
+    ui->DossiersupTableWidget->setCellWidget(row,col,w);
+
+    col++; //1
+    upLine0->setText(dossier->resume());                           // resume
+    upLine0->setMaxLength(80);
+    upLine0->setRowTable(row);
+    upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
+                           "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
+    upLine0->setFocusPolicy(Qt::NoFocus);
+    if (dossier->iduser() != gidUser)
     {
-        pItem1  = new QTableWidgetItem() ;
-        upLine0 = new UpLineEdit() ;
-        pItem2  = new QTableWidgetItem() ;
-        pItem3  = new QTableWidgetItem() ;
-        pItem4  = new QTableWidgetItem() ;
-        pItem5  = new QTableWidgetItem() ;
-        pItem6  = new QTableWidgetItem() ;
-        pItem10 = new QTableWidgetItem() ;
-        pItem11 = new QTableWidgetItem() ;
-
-        int col = 0;
-        QWidget * w = new QWidget(ui->DocupTableWidget);
-        UpCheckBox *Check = new UpCheckBox(w);
-        Check->setCheckState(Qt::Unchecked);
-        Check->setRowTable(i);
-        Check->setFocusPolicy(Qt::NoFocus);
-        connect(Check, &QCheckBox::clicked,[=] {EnableOKPushButton(Check);});
-        QHBoxLayout *l = new QHBoxLayout();
-        l->setAlignment( Qt::AlignCenter );
-        l->addWidget(Check);
-        l->setContentsMargins(0,0,0,0);
-        w->setLayout(l);
-        ui->DocupTableWidget->setCellWidget(i,col,w);
-        col++; //1
-        upLine0->setText(listdocs.at(i).at(0).toString());                          // resume
-        upLine0->setMaxLength(50);
-        upLine0->setRowTable(i);
-        upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
-                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-        upLine0->setFocusPolicy(Qt::NoFocus);
-        if (listdocs.at(i).at(4).toInt() != gidUser)
-        {
-            upLine0->setFont(disabledFont);
-            upLine0->setPalette(palette);
-            upLine0->setContextMenuPolicy(Qt::NoContextMenu);
-        }
-        else
-            upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
-        ui->DocupTableWidget->setCellWidget(i,col,upLine0);
-        col++; //2
-        pItem1->setText(listdocs.at(i).at(1).toString());                             // text
-        ui->DocupTableWidget->setItem(i,col,pItem1);
-        col++; //3
-        pItem2->setText(listdocs.at(i).at(2).toString());                             // idDocument
-        ui->DocupTableWidget->setItem(i,col,pItem2);
-        col++; //4
-        pItem3->setText(listdocs.at(i).at(3).toString());                             // DocPublic
-        ui->DocupTableWidget->setItem(i,col,pItem3);
-        col++; //5
-        pItem4->setText(listdocs.at(i).at(4).toString());                             // idUser
-        ui->DocupTableWidget->setItem(i,col,pItem4);
-        col++; //6
-        pItem5->setText(listdocs.at(i).at(5).toString());                             // Prescription 0 = pas prescription 1 = prescription
-        ui->DocupTableWidget->setItem(i,col,pItem5);
-        col++; //7
-        UpLabel*lbl = new UpLabel(ui->DocupTableWidget);
-        lbl->setAlignment(Qt::AlignCenter);
-        if (listdocs.at(i).at(3).toInt()==1)
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-        ui->DocupTableWidget->setCellWidget(i,col,lbl);                                         // Public       0 = doc public 1 = doc privé
-        col++; //8
-        pItem6->setText(listdocs.at(i).at(6).toString());                             // Editable     0 = non éditable 1 = éditable
-        ui->DocupTableWidget->setItem(i,col,pItem6);
-        col++; //9
-        UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
-        lbl1->setAlignment(Qt::AlignCenter);
-        if (listdocs.at(i).at(6).toInt()==1)
-            lbl1->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-        ui->DocupTableWidget->setCellWidget(i,col,lbl1);
-        col++; //10
-        pItem10->setText("1" + upLine0->text());                                                // Check+text   -> sert pour le tri de la table
-        ui->DocupTableWidget->setItem(i,col,pItem10);
-        col++; //11
-        pItem11->setText(listdocs.at(i).at(7).toString());                            // Medical      0 = doc administratif 1 = doc médical
-        ui->DocupTableWidget->setItem(i,col,pItem11);
-        col++; //12
-        UpLabel*lbl11 = new UpLabel(ui->DocupTableWidget);
-        lbl11->setAlignment(Qt::AlignCenter);
-        if (listdocs.at(i).at(7).toInt()!=1)
-            lbl11->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-        ui->DocupTableWidget->setCellWidget(i,col,lbl11);
-
-        ui->DocupTableWidget->setRowHeight(i,int(fm.height()*1.3));
+        upLine0->setFont(disabledFont);
+        upLine0->setPalette(palette);
+        upLine0->setContextMenuPolicy(Qt::NoContextMenu);
     }
+    else
+        upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->DossiersupTableWidget->setCellWidget(row,col,upLine0);
 
+    col++; //2
+    pItem1->setText(QString::number(dossier->id()));                           // idMetaDocument
+    ui->DossiersupTableWidget->setItem(row,col,pItem1);
 
-    //Remplissage Table Dossiers
-    for (int i = 0; i<ui->DossiersupTableWidget->rowCount(); i++)
-    {
-        upLine0 = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-        if (upLine0)
-            upLine0->disconnect();
-    }
-    ui->DossiersupTableWidget->clearContents();
-    req =  "SELECT ResumeMetaDocument, idMetaDocument, idUser, Public"
-           " FROM "  NOM_TABLE_METADOCUMENTS
-           " WHERE idUser = " + QString::number(gidUser);
-    req += " UNION \n";
-    req += "select ResumeMetaDocument, idMetaDocument, idUser, Public from " NOM_TABLE_METADOCUMENTS
-           " where idMetaDocument not in\n"
-           " (select met.idMetaDocument from " NOM_TABLE_METADOCUMENTS " as met, "
-           NOM_TABLE_JOINTURESDOCS " as joi, "
-           NOM_TABLE_COURRIERS " as doc\n"
-           " where joi.idmetadocument = met.idMetaDocument\n"
-           " and joi.idDocument = doc.iddocument\n"
-           " and doc.docpublic is null)\n";
-    req += " ORDER BY ResumeMetaDocument;";
-    //UpMessageBox::Watch(this,RemplirtableDossiersrequete);
-    QList<QVariantList> listdossiers = db->StandardSelectSQL(req,ok);
-    if (!ok)
-        return;
+    col++; //3
+    pItem2->setText(QString::number(dossier->iduser()));                           // idUser
+    ui->DossiersupTableWidget->setItem(row,col,pItem2);
 
-    ui->DossiersupTableWidget->setRowCount(listdossiers.size());
-    for (i = 0; i < listdossiers.size(); i++)
-    {
-        pItem1  = new QTableWidgetItem() ;
-        upLine0 = new UpLineEdit() ;
-        pItem2  = new QTableWidgetItem() ;
+    col++; //4
+    UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
+    lbl->setAlignment(Qt::AlignCenter);
+    if (dossier->ispublic())
+        lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
+    ui->DossiersupTableWidget->setCellWidget(row,col,lbl);
 
-        int col = 0;
-        QWidget * w = new QWidget(ui->DossiersupTableWidget);
-        UpCheckBox *Check = new UpCheckBox(w);
-        Check->setCheckState(Qt::Unchecked);
-        Check->setRowTable(i);
-        Check->setFocusPolicy(Qt::NoFocus);
-        connect(Check, &QCheckBox::clicked,[=] {EnableOKPushButton(Check);});
-        QHBoxLayout *l = new QHBoxLayout();
-        l->setAlignment( Qt::AlignCenter );
-        l->addWidget(Check);
-        l->setContentsMargins(0,0,0,0);
-        w->setLayout(l);
-        ui->DossiersupTableWidget->setCellWidget(i,col,w);
-
-        col++; //1
-        upLine0->setText(listdossiers.at(i).at(0).toString());                           // resume
-        upLine0->setMaxLength(80);
-        upLine0->setRowTable(i);
-        upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
-                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-        upLine0->setFocusPolicy(Qt::NoFocus);
-        if (listdossiers.at(i).at(2).toInt() != gidUser)
-        {
-            upLine0->setFont(disabledFont);
-            upLine0->setPalette(palette);
-            upLine0->setContextMenuPolicy(Qt::NoContextMenu);
-        }
-        else
-            upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
-        ui->DossiersupTableWidget->setCellWidget(i,col,upLine0);
-
-        col++; //2
-        pItem1->setText(listdossiers.at(i).at(1).toString());                           // idMetaDocument
-        ui->DossiersupTableWidget->setItem(i,col,pItem1);
-
-        col++; //3
-        pItem2->setText(listdossiers.at(i).at(2).toString());                           // idUser
-        ui->DossiersupTableWidget->setItem(i,col,pItem2);
-
-        col++; //4
-        UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
-        lbl->setAlignment(Qt::AlignCenter);
-        if (listdossiers.at(i).at(3).toInt()==1)
-            lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-        ui->DossiersupTableWidget->setCellWidget(i,col,lbl);
-
-        ui->DossiersupTableWidget->setRowHeight(i,int(fm.height()*1.3));
-    }
+    ui->DossiersupTableWidget->setRowHeight(row,int(fm.height()*1.3));
 }
 
 // ----------------------------------------------------------------------------------

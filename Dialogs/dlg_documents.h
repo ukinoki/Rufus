@@ -99,6 +99,8 @@ private:
     void                        MetAJour(QString texte, bool pourVisu = true);
     void                        OrdoAvecDupli(bool);
     void                        Remplir_TableWidget();
+    void                        SetDocumentToRow(Document *doc, int row);
+    void                        SetMetaDocumentToRow(MetaDocument *dossier, int row);
     void                        SupprimmDocument(int row);
     void                        SupprimmDossier(int row);
     void                        TriDocupTableWidget();

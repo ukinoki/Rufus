@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_DOCSEXTERNES_H
 #define CLS_DOCSEXTERNES_H
 
-#include <QObject>
 #include "cls_docexterne.h"
 #include "database.h"
 
