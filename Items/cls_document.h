@@ -43,6 +43,14 @@ public:
                                                  */
     bool ismedical() const;                     //! le document est médical (-> son accès réservé au personnel médical) ou administratif
     bool iseditable() const;                    //! le document est éditable avant impression
+
+    void settext(QString txt);
+    void setresume(QString resume);
+    void setconclusion(QString conclusion);
+    void setpublic(bool pblic);
+    void setprescription(bool prescription);
+    void setmedical(bool medical);
+    void seteditable(bool editable);
 };
 
 class MetaDocument : public Item

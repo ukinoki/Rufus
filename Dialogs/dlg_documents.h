@@ -106,6 +106,7 @@ private:
     void                        SupprimmDocument(int row);
     void                        SupprimmDossier(int row);
     void                        TriDocupTableWidget();
+    void                        TriDossiersupTableWidget();
     void                        UpdateDocument(int row);
     void                        UpdateDossier(int row);
     void                        Validation();

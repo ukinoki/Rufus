@@ -69,27 +69,17 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui->DocupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
     ui->DocupTableWidget->verticalHeader()->setVisible(false);
     ui->DocupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->DocupTableWidget->setColumnCount(13);
-    ui->DocupTableWidget->setColumnWidth(0,30);      // checkbox
-    ui->DocupTableWidget->setColumnWidth(1,289);     // Resume
-    ui->DocupTableWidget->setColumnHidden(2,true);   // colonne texte masquee
-    ui->DocupTableWidget->setColumnHidden(3,true);   // idDocument
-    ui->DocupTableWidget->setColumnHidden(4,true);   // DocPublic
-    ui->DocupTableWidget->setColumnHidden(5,true);   // idUserqui a créé le document
-    ui->DocupTableWidget->setColumnHidden(6,true);   // Prescription
-    ui->DocupTableWidget->setColumnWidth(7,30);      // Public   - affiche un check si document public
-    ui->DocupTableWidget->setColumnHidden(8,true);   // Editable - masqué    ->     1 si Editable - vide sinon
-    ui->DocupTableWidget->setColumnWidth(9,30);      // Editable - affiche un check si document editable
-    ui->DocupTableWidget->setColumnHidden(10,true);  // Checked
-    ui->DocupTableWidget->setColumnHidden(11,true);  // Medical  - masqué    ->     1 si Editable - vide sinon
-    ui->DocupTableWidget->setColumnWidth(12,30);     // Medical  - affiche un check si document medical
+    ui->DocupTableWidget->setColumnCount(7);
+    ui->DocupTableWidget->setColumnWidth(0,30);         // checkbox
+    ui->DocupTableWidget->setColumnWidth(1,289);        // Resume
+    ui->DocupTableWidget->setColumnHidden(2,true);      // idDocument
+    ui->DocupTableWidget->setColumnWidth(3,30);         // Public   - affiche un check si document public
+    ui->DocupTableWidget->setColumnWidth(4,30);         // Editable - affiche un check si document editable
+    ui->DocupTableWidget->setColumnWidth(5,30);         // Medical  - affiche un check si document medical
+    ui->DocupTableWidget->setColumnHidden(6,true);
     ui->DocupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(Icons::icImprimer(),""));
     ui->DocupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("TITRES DES DOCUMENTS")));
     ui->DocupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(5, new QTableWidgetItem(""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(6, new QTableWidgetItem(""));
     QTableWidgetItem *docpublic, *editable,*admin;
     docpublic   = new QTableWidgetItem(Icons::icFamily(),"");
     docpublic   ->setToolTip(tr("Document disponible pour tous les utilisateurs"));
@@ -97,12 +87,10 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     editable    ->setToolTip(tr("Document éditable au moment de l'impression"));
     admin       = new QTableWidgetItem(Icons::icAdministratif(),"");
     admin       ->setToolTip(tr("Document administratif"));
-    ui->DocupTableWidget->setHorizontalHeaderItem(7, docpublic);
-    ui->DocupTableWidget->setHorizontalHeaderItem(8, new QTableWidgetItem(""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(9, editable);
-    ui->DocupTableWidget->setHorizontalHeaderItem(10,new QTableWidgetItem(""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(11,new QTableWidgetItem(""));
-    ui->DocupTableWidget->setHorizontalHeaderItem(12,admin);
+    ui->DocupTableWidget->setHorizontalHeaderItem(3, docpublic);
+    ui->DocupTableWidget->setHorizontalHeaderItem(4, editable);
+    ui->DocupTableWidget->setHorizontalHeaderItem(5,admin);
+    ui->DocupTableWidget->setHorizontalHeaderItem(6, new QTableWidgetItem(""));
     ui->DocupTableWidget->horizontalHeader()->setVisible(true);
     ui->DocupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
     ui->DocupTableWidget->horizontalHeader()->setIconSize(QSize(25,25));
@@ -116,19 +104,19 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui->DossiersupTableWidget->verticalHeader()->setVisible(false);
     ui->DossiersupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->DossiersupTableWidget->setColumnCount(5);
-    ui->DossiersupTableWidget->setColumnWidth(0,30);      // checkbox
-    ui->DossiersupTableWidget->setColumnWidth(1,259);     // Resume
-    ui->DossiersupTableWidget->setColumnHidden(2,true);   // idDocument
-    ui->DossiersupTableWidget->setColumnHidden(3,true);   // Public
-    ui->DossiersupTableWidget->setColumnWidth(4,30);
+    ui->DossiersupTableWidget->setColumnWidth(0,30);        // checkbox
+    ui->DossiersupTableWidget->setColumnWidth(1,259);       // Resume
+    ui->DossiersupTableWidget->setColumnWidth(2,30);        // Public
+    ui->DossiersupTableWidget->setColumnHidden(3,true);     // idDocument
+    ui->DossiersupTableWidget->setColumnHidden(4,true);     // Resume dans un QtableWidgetItem
     ui->DossiersupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(Icons::icImprimer(),""));
     ui->DossiersupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("DOSSIERS")));
-    ui->DossiersupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(""));
+    ui->DossiersupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(Icons::icFamily(),""));
     ui->DossiersupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(""));
-    ui->DossiersupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(Icons::icFamily(),""));
+    ui->DossiersupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(""));
     ui->DossiersupTableWidget->horizontalHeader()->setVisible(true);
     ui->DossiersupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
-    ui->DossiersupTableWidget->horizontalHeaderItem(4)->setTextAlignment(Qt::AlignCenter);
+    ui->DossiersupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
     ui->DossiersupTableWidget->horizontalHeader()->setIconSize(QSize(25,25));
     ui->DossiersupTableWidget->FixLargeurTotale();
 
@@ -172,7 +160,10 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     db->StandardSQL("delete from " NOM_TABLE_JOINTURESDOCS " where iddocument not in (select iddocument from " NOM_TABLE_COURRIERS ")");
 
     Remplir_TableWidget();
-    if (ui->DocupTableWidget->rowCount() == 0)  ConfigMode(CreationDOC);    else ConfigMode(Selection);
+    if (ui->DocupTableWidget->rowCount() == 0)
+        ConfigMode(CreationDOC);
+    else
+        ConfigMode(Selection);
     ui->ChercheupLineEdit->setFocus();
 
     gChampsMap[TITRUSER]        = tr("Titre, nom et prénom de l'utilisateur");
@@ -327,55 +318,32 @@ void dlg_documents::CheckPublicEditablAdmin(QCheckBox *check)
     }
     if (!a)
         return;
-    int row = line->getRowTable();
 
-    int b(-1), c(-1);
-    if (check == ui->DocPubliccheckBox) {
-        b = 4;
-        c = 7;
-    }
-    else if (check == ui->DocEditcheckBox)  {
-        b = 8;
-        c = 9;
-    }
-    else if (check == ui->DocAdministratifcheckBox)  {
-        b = 11;
-        c = 12;
-    }
+    int colonnelbl (-1);
+    if (check == ui->DocPubliccheckBox)
+        colonnelbl = 4;
+    else if (check == ui->DocEditcheckBox)
+        colonnelbl = 5;
+    else if (check == ui->DocAdministratifcheckBox)
+        colonnelbl = 6;
     else if (check == ui->PrescriptioncheckBox)
     {
         if (check->isChecked() && ui->DocAdministratifcheckBox->isChecked())
         {
             ui->DocAdministratifcheckBox->setChecked(false);
-            b = 11;
-            c = 12;
-            ui->DocupTableWidget->item(row,b)->setText("1");
-            UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),c));
-            lbl->clear();
+            colonnelbl = 6;
+            static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),colonnelbl))->clear();
         }
         return;
     }
     if (check->isChecked()) {
-        QString Text = (check == ui->DocAdministratifcheckBox? "0" : "1");
-        ui->DocupTableWidget->item(row,b)->setText(Text);
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),c));
+        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),colonnelbl));
         lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-        if (check == ui->DocAdministratifcheckBox)
-        {
-            ui->PrescriptioncheckBox->setChecked(false);
-            b = 6;
-            c = 7;
-            ui->DocupTableWidget->item(row,b)->setText("");
-            UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),c));
-            lbl->clear();
-        }
+        //if (check == ui->DocAdministratifcheckBox)
+        //    ui->PrescriptioncheckBox->setChecked(false);
     }
-    else {
-        QString Text = (check == ui->DocAdministratifcheckBox? "1" : "");
-        ui->DocupTableWidget->item(row,b)->setText(Text);
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),c));
-        lbl->clear();
-    }
+    else
+        static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),colonnelbl))->clear();
 }
 
 void dlg_documents::dblClicktextEdit()
@@ -393,8 +361,7 @@ void dlg_documents::dblClicktextEdit()
                 break;
             }
         }
-        int idUser = ui->DocupTableWidget->item(row,5)->text().toInt();
-        if (idUser == db->getUserConnected()->id())
+        if (getDocumentFromRow(row)->iduser() == gidUser)
             ConfigMode(ModificationDOC,row);
     }
 }
@@ -412,18 +379,18 @@ void dlg_documents::DocCellEnter(UpLineEdit *line)
     {
         //    QRect rect = QRect(itemselect->tableWidget()->pos(),itemselect->tableWidget()->size());
         QTextEdit *text = new QTextEdit;
-        MetAJour(ui->DocupTableWidget->item(row,2)->text(),false);
+        MetAJour(getDocumentFromRow(row)->texte(),false);
         text->setText(glisttxt.at(0));
         QString ab = text->toPlainText();
         ab.replace(QRegExp("\n\n[\n]*"),"\n");
-        if (ab.endsWith("\n"))
+        while (ab.endsWith("\n"))
             ab = ab.left(ab.size()-1);
         if (ab.size()>300)
         {
             ab = ab.left(300);
-            if (ab.endsWith("\n"))
+            while (ab.endsWith("\n"))
                 ab = ab.left(ab.size()-1);
-            else if (!ab.endsWith("."))
+            if (!ab.endsWith("."))
             {
                 if (ab.endsWith(" "))
                     ab = ab.left(ab.size()-1) + "...";
@@ -475,10 +442,9 @@ void dlg_documents::DocCellEnter(UpLineEdit *line)
     else if (ui->DossiersupTableWidget->isAncestorOf(line))
     {
         bool ok;
-        int idMetaDoc = ui->DossiersupTableWidget->item(row,2)->text().toInt();
-        QString req = "select resumedocument, iddocument from " NOM_TABLE_COURRIERS
+        QString req = "select resumedocument from " NOM_TABLE_COURRIERS
                 " where iddocument in (select iddocument from " NOM_TABLE_JOINTURESDOCS
-                " where idmetadocument = " + QString::number(idMetaDoc) + ")";
+                " where idmetadocument = " + QString::number(getMetaDocumentFromRow(row)->id()) + ")";
         //UpMessageBox::Watch(this,req);
         QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
         QString resume = "";
@@ -508,6 +474,7 @@ void dlg_documents::DocCellDblClick(UpLineEdit *line)
 // ----------------------------------------------------------------------------------
 void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
 {
+    ui->OKupPushButton->setShortcut(QKeySequence());
     if (gMode == CreationDOC || gMode == ModificationDOC)
     {
         UpLineEdit *line = new UpLineEdit(this);
@@ -572,8 +539,7 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
             if (ui->DossiersupTableWidget->isAncestorOf(Check))
             {
                 bool A = Check->isChecked();
-                int idDossier = ui->DossiersupTableWidget->item(Check->getRowTable(),2)->text().toInt();
-                CocheLesDocs(idDossier,A);
+               CocheLesDocs(getMetaDocumentFromRow(Check->getRowTable())->id(),A);
             }
             if (ui->DocupTableWidget->isAncestorOf(Check))
             {
@@ -581,10 +547,10 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
                 if (!Check->isChecked())
                 {
                     VerifDossiers();
-                    ui->DocupTableWidget->item(Check->getRowTable(),10)->setText("1" + nomdoc);
+                    ui->DocupTableWidget->item(Check->getRowTable(),6)->setText("1" + nomdoc);
                 }
                 else
-                    ui->DocupTableWidget->item(Check->getRowTable(),10)->setText("0" + nomdoc);
+                    ui->DocupTableWidget->item(Check->getRowTable(),6)->setText("0" + nomdoc);
             }
         }
         if (ui->ChercheupLineEdit->text() == "")
@@ -596,11 +562,11 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
             {
                 UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
                 if(Check->isChecked())
-                    glistid << ui->DocupTableWidget->item(i,3)->text();
+                    glistid << QString::number(getDocumentFromRow(i)->id());
                 else
                 {
                     for (int k=0; k<glistid.size();k++){
-                        if (glistid.at(k) == ui->DocupTableWidget->item(Check->getRowTable(),3)->text()){
+                        if (glistid.at(k) == QString::number(getDocumentFromRow(Check->getRowTable())->id())){
                             glistid.removeAt(k);
                             k--;
                         }
@@ -619,6 +585,7 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
             }
         }
         ui->OKupPushButton->setEnabled(a);
+        ui->OKupPushButton->setShortcut(QKeySequence("Meta+Return"));
     }
 }
 
@@ -683,16 +650,17 @@ void dlg_documents::MenuContextuel(QWidget *widg)
 
     if (line)
     {
+        int row = line->getRowTable();
         if (ui->DossiersupTableWidget->isAncestorOf(line))
         {
-            LineSelect(ui->DossiersupTableWidget,line->getRowTable());
+            LineSelect(ui->DossiersupTableWidget,row);
 
             pAction_CreerDossier            = gmenuContextuel->addAction(Icons::icCreer(), tr("Créer un dossier")) ;
             pAction_ModifDossier            = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
             pAction_SupprDossier            = gmenuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
             gmenuContextuel->addSeparator();
             UpLabel *lbl                    = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->getRowTable(),4));
-            if (lbl->pixmap())
+            if (lbl->pixmap() != Q_NULLPTR)
                 pAction_PublicDossier       = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Public")) ;
             else
                 pAction_PublicDossier       = gmenuContextuel->addAction(tr("Public")) ;
@@ -709,31 +677,31 @@ void dlg_documents::MenuContextuel(QWidget *widg)
             pAction_ModifDoc                = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
             pAction_SupprDoc                = gmenuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
             pAction_CreerDoc                = gmenuContextuel->addAction(Icons::icCreer(), tr("Créer un document"));
-            if (ui->DocupTableWidget->item(line->getRowTable(),4)->text().toInt() == 1)
+            if (getDocumentFromRow(row)->ispublic())
                 pAction_PublicDoc           = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Public"));
             else
                 pAction_PublicDoc           = gmenuContextuel->addAction(tr("Public"));
             if (db->getUserConnected()->isMedecin() || db->getUserConnected()->isOrthoptist())
             {
-                if (ui->DocupTableWidget->item(line->getRowTable(),6)->text().toInt() == 1)
+                if (getDocumentFromRow(row)->isprescription())
                     pAction_PrescripDoc         = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Prescription"));
                 else
                     pAction_PrescripDoc         = gmenuContextuel->addAction(tr("Prescription"));
                 pAction_PrescripDoc ->setToolTip(tr("si cette option est cochée\nce document sera considéré comme une prescription"));
-                connect (pAction_PrescripDoc,   &QAction::triggered,    [=] {ChoixMenuContextuel("PrescripDoc");});
+                connect (pAction_PrescripDoc,   &QAction::triggered,this, [=] {ChoixMenuContextuel("PrescripDoc");});
             }
-            if (ui->DocupTableWidget->item(line->getRowTable(),8)->text().toInt() == 1)
+            if (getDocumentFromRow(row)->iseditable())
                 pAction_EditableDoc         = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Editable"));
             else
                 pAction_EditableDoc         = gmenuContextuel->addAction(tr("Editable"));
             if (db->getUserConnected()->isMedecin() || db->getUserConnected()->isOrthoptist())
             {
-                if (ui->DocupTableWidget->item(line->getRowTable(),11)->text().toInt() != 1)
+                if (!getDocumentFromRow(row)->ismedical())
                     pAction_AdminDoc        = gmenuContextuel->addAction(Icons::icBlackCheck(), tr("Document administratif"));
                 else
                     pAction_AdminDoc        = gmenuContextuel->addAction(tr("Document administratif"));
                 pAction_AdminDoc    ->setToolTip(tr("si cette option est cochée\nle document est considéré comme un document non médical"));
-                connect (pAction_AdminDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("AdminDoc");});
+                connect (pAction_AdminDoc,      &QAction::triggered,this, [=] {ChoixMenuContextuel("AdminDoc");});
             }
 
             pAction_PublicDoc   ->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
@@ -754,13 +722,13 @@ void dlg_documents::MenuContextuel(QWidget *widg)
         {
             line0 = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
             if (line0->hasSelectedText())
-                if (ui->DocupTableWidget->item(line0->getRowTable(),5)->text().toInt() == gidUser)
+                if (getDocumentFromRow(line0->getRowTable())->id() == gidUser)
                 {a =true; break;}
         }
         if (a)
         {
             pAction_ModifDoc       = gmenuContextuel->addAction(Icons::icEditer(), tr("Modifier ce document"));
-            connect (pAction_ModifDoc,      &QAction::triggered,    [=] {ChoixMenuContextuel("ModifierDoc");});
+            connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("ModifierDoc");});
         }
     }
     else if (widg == ui->upTextEdit)
@@ -863,7 +831,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
         {
             line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a= true; break;}
+            if (line->hasSelectedText()) {a = true; break;}
         }
         if (a == false) return;
         ConfigMode(ModificationDOSS,line->getRowTable());
@@ -874,12 +842,12 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
             line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-            if (line->hasSelectedText()) {a= true; break;}
+            if (line->hasSelectedText()) {a = true; break;}
         }
-        if (a == false) return;
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),7));
+        if (!a) return;
+        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),3));
         QString b = "null";
-        if (!lbl->pixmap())
+        if (lbl->pixmap() == Q_NULLPTR)
         {
             b = "1";
             lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
@@ -891,10 +859,11 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         }
         ui->DocPubliccheckBox->toggle();
         if (gMode == Selection)
+        {
             db->StandardSQL("update " NOM_TABLE_COURRIERS " set DocPublic = " + b + " where idDocument = " +
-                       ui->DocupTableWidget->item(line->getRowTable(),3)->text());
-        if (b=="null") b= "";
-        ui->DocupTableWidget->item(line->getRowTable(),4)->setText(b);
+                            QString::number(getDocumentFromRow(line->getRowTable())->id()));
+            getDocumentFromRow(line->getRowTable())->setpublic(lbl->pixmap() != Q_NULLPTR);
+        }
     }
     else if (choix  == "EditDoc")
     {
@@ -905,21 +874,22 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
             if (line->hasSelectedText()) {a= true; break;}
         }
         if (a == false) return;
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),9));
-        QString a = "null";
-        if (!lbl->pixmap())
+        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),4));
+        QString b = "null";
+        if (lbl->pixmap() == Q_NULLPTR)
         {
-            a = "1";
+            b = "1";
             lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
         }
         else
             lbl->clear();
         ui->DocEditcheckBox->toggle();
         if (gMode == Selection)
-            db->StandardSQL("update " NOM_TABLE_COURRIERS " set Editable = " + a + " where idDocument = " +
-                       ui->DocupTableWidget->item(line->getRowTable(),3)->text());
-        if (a=="null") a= "";
-        ui->DocupTableWidget->item(line->getRowTable(),8)->setText(a);
+        {
+            db->StandardSQL("update " NOM_TABLE_COURRIERS " set Editable = " + b + " where idDocument = " +
+                            QString::number(getDocumentFromRow(line->getRowTable())->id()));
+            getDocumentFromRow(line->getRowTable())->seteditable(lbl->pixmap() != Q_NULLPTR);
+        }
     }
     else if (choix  == "AdminDoc")
     {
@@ -930,21 +900,22 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
             if (line->hasSelectedText()) {a= true; break;}
         }
         if (a == false) return;
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),12));
-        QString a = "null";
-        if (!lbl->pixmap())
+        UpLabel *lbl = static_cast<UpLabel*>(ui->DocupTableWidget->cellWidget(line->getRowTable(),5));
+        QString b = "null";
+        if (lbl->pixmap() == Q_NULLPTR)
             lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
         else
         {
-            a = "1";
+            b = "1";
             lbl->clear();
         }
         ui->DocAdministratifcheckBox->toggle();
         if (gMode == Selection)
-            db->StandardSQL("update " NOM_TABLE_COURRIERS " set Medical = " + a + " where idDocument = " +
-                       ui->DocupTableWidget->item(line->getRowTable(),3)->text());
-        if (a=="null") a= "";
-        ui->DocupTableWidget->item(line->getRowTable(),11)->setText(a);
+        {
+            db->StandardSQL("update " NOM_TABLE_COURRIERS " set Medical = " + b + " where idDocument = " +
+                            QString::number(getDocumentFromRow(line->getRowTable())->id()));
+            getDocumentFromRow(line->getRowTable())->setmedical(lbl->pixmap() == Q_NULLPTR);
+        }
     }
     else if (choix  == "PublicDossier")
     {
@@ -955,19 +926,19 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
             if (line->hasSelectedText()) {a= true; break;}
         }
         if (a == false) return;
-        UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->getRowTable(),4));
-        QString a = "null";
-        if (!lbl->pixmap())
+        UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(line->getRowTable(),2));
+        QString b = "null";
+        if (lbl->pixmap() == Q_NULLPTR)
         {
             if (!VerifDossierPublic(line->getRowTable())) return;
             lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled : pxLoupe 15,15
-            a = "1";
+            b = "1";
         }
         else
             lbl->clear();
         if (gMode == Selection)
-            db->StandardSQL("update " NOM_TABLE_METADOCUMENTS " set Public = " + a + " where idMetaDocument = " +
-                       ui->DossiersupTableWidget->item(line->getRowTable(),2)->text());
+            db->StandardSQL("update " NOM_TABLE_METADOCUMENTS " set Public = " + b + " where idMetaDocument = " +
+                       QString::number(getMetaDocumentFromRow(line->getRowTable())->id()));
     }
     else if (choix  == "PrescripDoc")
     {
@@ -979,13 +950,15 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         }
         if (a == false) return;
         ui->PrescriptioncheckBox->toggle();
-        QString a = "null";
-        if (ui->PrescriptioncheckBox->isChecked()) a = "1";
+        QString b = "null";
+        if (ui->PrescriptioncheckBox->isChecked())
+            b = "1";
         if (gMode == Selection)
-            db->StandardSQL("update " NOM_TABLE_COURRIERS " set Prescription = " + a + " where idDocument = " +
-                       ui->DocupTableWidget->item(line->getRowTable(),3)->text());
-        if (a=="null") a= "";
-        ui->DocupTableWidget->item(line->getRowTable(),6)->setText(a);
+        {
+            db->StandardSQL("update " NOM_TABLE_COURRIERS " set Prescription = " + b + " where idDocument = " +
+                            QString::number(getDocumentFromRow(line->getRowTable())->id()));
+            getDocumentFromRow(line->getRowTable())->setprescription(ui->PrescriptioncheckBox->isChecked());
+        }
     }
     else if (choix  == "CreerDoc")
     {
@@ -1245,7 +1218,7 @@ void dlg_documents::Validation()
                 UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
                 if (Check->isChecked())
                 {
-                    QString text = ui->DocupTableWidget->item(i,2)->text();
+                    QString text = getDocumentFromRow(i)->texte();
                     QString quest = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°, -]*//(DATE|TEXTE|COTE|HEURE|MONTANT)[)][)])";
                     QRegExp reg;
                     reg.setPattern(quest);
@@ -1407,7 +1380,7 @@ void dlg_documents::Validation()
                             QWidget *w = hlay->itemAt(r)->widget();
                             b = (dynamic_cast<UpLabel*>(w)!=Q_NULLPTR);
                             if (b) break;
-                            w=Q_NULLPTR;
+                            w = Q_NULLPTR;
                             delete w;
                         }
                         if (b)
@@ -1494,7 +1467,7 @@ void dlg_documents::Validation()
                 if (Check->isChecked())
                 {
                     // on effectue les corrections de chacun des documents
-                    QString textAimprimer = ui->DocupTableWidget->item(i,2)->text();
+                    QString textAimprimer = getDocumentFromRow(i)->texte();
                     if (ExpARemplacer.size() > 0)
                         for (int y=0; y<ExpARemplacer.size(); y++)
                             textAimprimer.replace(ExpARemplacer.at(y),Rempla.at(y));
@@ -1504,14 +1477,14 @@ void dlg_documents::Validation()
                         QString txtdoc = glisttxt.at(j);
 
                         // on détermine le titre du document à inscrire en conclusion et le statut de prescription (si prescription => impression d'un dupli)
+                        int row = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1))->getRowTable();
                         QString titre                   = static_cast<UpLineEdit *>(ui->DocupTableWidget->cellWidget(i,1))->text();
                         TitreDocumentAImprimerList      << titre;
-                        PrescriptionAImprimerList       << ui->DocupTableWidget->item(i,6)->text();
-                        QString dupli                   = ((ui->DocupTableWidget->item(i,6)->text() == "1" && ui->DupliOrdocheckBox->isChecked())? "1": "");
-                        DupliAImprimerList              << dupli;
-                        AdministratifAImprimerList      << ui->DocupTableWidget->item(i,11)->text();
+                        PrescriptionAImprimerList       << (getDocumentFromRow(row)->isprescription()? "1": "");
+                        DupliAImprimerList              << ((getDocumentFromRow(row)->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": "");
+                        AdministratifAImprimerList      << ((getDocumentFromRow(row)->ismedical())? "": "1");
                         // on visualise le document pour correction s'il est éditable
-                        txtdoc                          = ((ui->DocupTableWidget->item(i,8)->text() == "1")? proc->Edit(txtdoc, titre): txtdoc);
+                        txtdoc                          = (getDocumentFromRow(row)->iseditable()? proc->Edit(txtdoc, titre): txtdoc);
                         if (txtdoc == "")               // si le texte du document est vide, on annule l'impression de cette itération
                         {
                             TitreDocumentAImprimerList  .removeLast();
@@ -1639,7 +1612,7 @@ bool dlg_documents::eventFilter(QObject *obj, QEvent *event)
         if (obj->inherits("UpLineEdit"))
         {
             UpLineEdit *linetext = static_cast<UpLineEdit*>(obj);
-                linetext->selectAll();
+            linetext->selectAll();
         }
     }
     if(event->type() == QEvent::FocusOut)
@@ -1782,12 +1755,12 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
     switch (gMode) {
     case CreationDOC:
     case ModificationDOC:
-        req = "select resumedocument, iduser from " NOM_TABLE_COURRIERS " where iddocument <> " + ui->DocupTableWidget->item(row,3)->text();
+        req = "select resumedocument, iduser from " NOM_TABLE_COURRIERS " where iddocument <> " + QString::number(getDocumentFromRow(row)->id());
         nom = tr("document");
         break;
     case CreationDOSS:
     case ModificationDOSS:
-        req = "select resumemetadocument, iduser from " NOM_TABLE_METADOCUMENTS " where idmetadocument <> " + ui->DossiersupTableWidget->item(row,2)->text();
+        req = "select resumemetadocument, iduser from " NOM_TABLE_METADOCUMENTS " where idmetadocument <> " + QString::number(getMetaDocumentFromRow(row)->id());
         nom = tr("dossier");
         break;
     default:
@@ -1821,8 +1794,7 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
 void dlg_documents::CocheLesDocs(int iddoss, bool A)
 {
     bool ok;
-    QString idDossier = QString::number(iddoss);
-    QString req = "select idDocument from " NOM_TABLE_JOINTURESDOCS " where idMetaDocument = " + idDossier;
+    QString req = "select idDocument from " NOM_TABLE_JOINTURESDOCS " where idMetaDocument = " + QString::number(iddoss);
     QList<QVariantList> listdocmts = db->StandardSelectSQL(req,ok);
     if (listdocmts.size() > 0)
     {
@@ -1835,7 +1807,7 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
             if (Widg)
             {
                 UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
-                if (listiddocs.contains(ui->DocupTableWidget->item(k,3)->text()))
+                if (listiddocs.contains(QString::number(getDocumentFromRow(k)->id())))
                 {
                     if (A)
                         DocCheck->setChecked(A);
@@ -1848,19 +1820,19 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
                             if (Widg)
                             {
                                 UpCheckBox *DossCheck = Widg->findChildren<UpCheckBox*>().at(0);
-                                if (ui->DossiersupTableWidget->item(j,2)->text().toInt() != iddoss)
+                                if (QString::number(getMetaDocumentFromRow(j)->id()) != iddoss)
                                 {
                                     if (DossCheck->isChecked())
                                     {
                                         req = "select idDocument from " NOM_TABLE_JOINTURESDOCS
-                                                " where idMetaDocument = " + ui->DossiersupTableWidget->item(j,2)->text();
+                                                " where idMetaDocument = " + QString::number(getMetaDocumentFromRow(j)->id());
                                         QList<QVariantList> listdocmts2 = db->StandardSelectSQL(req,ok);
                                         if (listdocmts2.size() > 0)
                                         {
                                             QStringList listid;
                                             for (int i=0; i<listdocmts2.size(); i++)
                                                 listid << listdocmts2.at(i).at(0).toString();
-                                            if (listid.contains(ui->DocupTableWidget->item(k,3)->text()))
+                                            if (listid.contains(QString::number(getDocumentFromRow(k)->id())))
                                             {
                                                 a = true;
                                                 break;
@@ -1869,9 +1841,9 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
                     }
                     QString nomdoc = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(DocCheck->getRowTable(),1))->text();
                     if (!DocCheck->isChecked())
-                        ui->DocupTableWidget->item(DocCheck->getRowTable(),10)->setText("1" + nomdoc);
+                        ui->DocupTableWidget->item(DocCheck->getRowTable(),6)->setText("1" + nomdoc);
                     else
-                         ui->DocupTableWidget->item(DocCheck->getRowTable(),10)->setText("0" + nomdoc);
+                        ui->DocupTableWidget->item(DocCheck->getRowTable(),6)->setText("0" + nomdoc);
                 }
 
             }   }   }
@@ -1978,9 +1950,9 @@ void dlg_documents::ConfigMode(int mode, int row)
         line->setFocusPolicy(Qt::WheelFocus);
         line->setFocus();
         line->selectAll();
-        connect(line,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
+        connect(line,   &QLineEdit::textEdited, this, [=] {EnableOKPushButton();});
 
-        ui->upTextEdit->setText(ui->DocupTableWidget->item(row,2)->text());
+        ui->upTextEdit->setText(getDocumentFromRow(row)->texte());
 
         ui->DocPubliccheckBox->setEnabled(VerifDocumentPublic(row,false));
         ui->DocPubliccheckBox->setToolTip(tr("Cochez cette case si vous souhaitez\nque ce document soit visible par tous les utilisateurs"));
@@ -2039,7 +2011,7 @@ void dlg_documents::ConfigMode(int mode, int row)
                 Check->setChecked(i==row);
             }
         }
-        int iddossier = ui->DossiersupTableWidget->item(row,2)->text().toInt();
+        int iddossier = getMetaDocumentFromRow(row)->id();
         CocheLesDocs(iddossier, true);
 
         ui->DocupTableWidget->setEnabled(true);
@@ -2080,15 +2052,11 @@ void dlg_documents::ConfigMode(int mode, int row)
         upLine0->setFocusPolicy(Qt::WheelFocus);
         upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
         upLine0->selectAll();
+        connect(upLine0,   &QLineEdit::textEdited, this, [=] {EnableOKPushButton();});
         ui->DocupTableWidget->setCellWidget(row,1,upLine0);
         QTableWidgetItem    *pItem1 = new QTableWidgetItem;
         QTableWidgetItem    *pItem2 = new QTableWidgetItem;
-        QTableWidgetItem    *pItem3 = new QTableWidgetItem;
-        QTableWidgetItem    *pItem4 = new QTableWidgetItem;
-        QTableWidgetItem    *pItem5 = new QTableWidgetItem;
-        QTableWidgetItem    *pItem6 = new QTableWidgetItem;
-        QTableWidgetItem    *pItem10= new QTableWidgetItem;
-        QTableWidgetItem    *pItem11= new QTableWidgetItem;
+        QTableWidgetItem    *pItem3= new QTableWidgetItem;
         int col = 2;
         pItem1->setText("");                           // text
         ui->DocupTableWidget->setItem(row,col,pItem1);
@@ -2096,36 +2064,20 @@ void dlg_documents::ConfigMode(int mode, int row)
         pItem2->setText("0");                           // idDocument
         ui->DocupTableWidget->setItem(row,col,pItem2);
         col++; //4
-        pItem3->setText("");                           // DocPublic
-        ui->DocupTableWidget->setItem(row,col,pItem3);
-        col++; //5
-        pItem4->setText("");                           // idUser
-        ui->DocupTableWidget->setItem(row,col,pItem4);
-        col++; //6
-        pItem5->setText("");                           // Prescription
-        ui->DocupTableWidget->setItem(row,col,pItem5);
-        col++; //7
         UpLabel*lbl = new UpLabel(ui->DocupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         ui->DocupTableWidget->setCellWidget(row,col,lbl);
-        col++; //8
-        pItem6->setText("");                           // Editable
-        ui->DocupTableWidget->setItem(row,col,pItem6);
-        col++; //9
+        col++; //5
         UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
         lbl1->setAlignment(Qt::AlignCenter);
         ui->DocupTableWidget->setCellWidget(row,col,lbl1);
-        connect(upLine0,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
-        col++; //10
-        pItem10->setText("");                           // Check+text   -> sert pour le tri de la table
-        ui->DocupTableWidget->setItem(row,col,pItem10);
-        col++; //11
-        pItem11->setText("");                           // Medical      0 = doc administratif 1 = doc médical
-        ui->DocupTableWidget->setItem(row,col,pItem11);
-        col++; //12
-        UpLabel*lbl12 = new UpLabel(ui->DocupTableWidget);
-        lbl12->setAlignment(Qt::AlignCenter);
-        ui->DocupTableWidget->setCellWidget(row,col,lbl12);
+        col++; //6
+        UpLabel*lbl2 = new UpLabel(ui->DocupTableWidget);
+        lbl1->setAlignment(Qt::AlignCenter);
+        ui->DocupTableWidget->setCellWidget(row,col,lbl2);
+        col++; //7
+        pItem3->setText("1");                           // Check+text   -> sert pour le tri de la table
+        ui->DocupTableWidget->setItem(row,col,pItem3);
         ui->DocupTableWidget->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
 
         ui->DocPubliccheckBox->setChecked(false);
@@ -2213,20 +2165,16 @@ void dlg_documents::ConfigMode(int mode, int row)
         upLine0->setContextMenuPolicy(Qt::CustomContextMenu);
         upLine0->setFocus();
         upLine0->selectAll();
+        connect(upLine0,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
         ui->DossiersupTableWidget->setCellWidget(row,1,upLine0);
         QTableWidgetItem    *pItem1 = new QTableWidgetItem;
-        QTableWidgetItem    *pItem2 = new QTableWidgetItem;
-        int col = 2;
-        pItem1->setText("0");                           // idMetaDocument
-        ui->DossiersupTableWidget->setItem(row,col,pItem1);
-        col++; //3
-        pItem2->setText("");                           // idUser
-        ui->DossiersupTableWidget->setItem(row,col,pItem2);
-        col++; //4
+         int col = 2;
         UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         ui->DossiersupTableWidget->setCellWidget(row,col,lbl);
-        connect(upLine0,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
+        col++; //3
+        pItem1->setText("");                           // idMetaDocument
+        ui->DossiersupTableWidget->setItem(row,col,pItem1);
 
         ui->DossiersupTableWidget->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
 
@@ -2267,7 +2215,7 @@ void dlg_documents::DisableLines()
             Check->setEnabled(false);
         }
         UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-        if (line0) {
+        if (line0 != Q_NULLPTR) {
             line0->deselect();
             line0->setEnabled(false);
             line0->setFocusPolicy(Qt::NoFocus);
@@ -2283,7 +2231,7 @@ void dlg_documents::DisableLines()
             Check->setEnabled(false);
         }
         UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-        if (line0) {
+        if (line0 != Q_NULLPTR) {
             line0->deselect();
             line0->setEnabled(false);
             line0->setFocusPolicy(Qt::NoFocus);
@@ -2302,49 +2250,47 @@ void dlg_documents::EnableLines()
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
     {
         QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
-        if (Widg)
+        if (Widg != Q_NULLPTR)
         {
             UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
             Check->setEnabled(true);
         }
         UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-        if (line0) {
+        if (line0 != Q_NULLPTR) {
             line0->deselect();
             line0->setEnabled(true);
             line0->setFocusPolicy(Qt::NoFocus);
-            if (ui->DocupTableWidget->item(i,5)->text().toInt() == gidUser)
+            if (getDocumentFromRow(i)->iduser() == gidUser)
             {
                 connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
                 connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
                 connect(line0,          &QLineEdit::textEdited,                 [=] {EnableOKPushButton();});
             }
             connect(line0,              &UpLineEdit::mouseEnter,                [=] {DocCellEnter(line0);});
-            connect(line0,              &UpLineEdit::mouseRelease,              [=] {LineSelect(ui->DocupTableWidget, line0->getRowTable());
-});
+            connect(line0,              &UpLineEdit::mouseRelease,              [=] {LineSelect(ui->DocupTableWidget, line0->getRowTable());});
         }
     }
     for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
     {
         QWidget *Widg =  dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0));
-        if (Widg)
+        if (Widg != Q_NULLPTR)
         {
             UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
             Check->setEnabled(true);
         }
         UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
-        if (line0) {
+        if (line0 != Q_NULLPTR) {
             line0->deselect();
             line0->setEnabled(true);
             line0->setFocusPolicy(Qt::NoFocus);
-            if (ui->DossiersupTableWidget->item(i,3)->text().toInt() == gidUser)
+            if (getMetaDocumentFromRow(i)->iduser() == gidUser)
             {
                 connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
                 connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
                 connect(line0,          &QLineEdit::textEdited,                 [=] {EnableOKPushButton();});
             }
             connect(line0,              &UpLineEdit::mouseEnter,                [=] {DocCellEnter(line0);});
-            connect(line0,              &UpLineEdit::mouseRelease,              [=] {LineSelect(ui->DossiersupTableWidget, line0->getRowTable());
-;});
+            connect(line0,              &UpLineEdit::mouseRelease,              [=] {LineSelect(ui->DossiersupTableWidget, line0->getRowTable());});
         }
     }
 }
@@ -2383,12 +2329,12 @@ void dlg_documents::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
 
 Document* dlg_documents::getDocumentFromRow(int row)
 {
-    return Datas::I()->documents->getById(ui->DocupTableWidget->item(row,3)->text().toInt());
+    return Datas::I()->documents->getById(ui->DocupTableWidget->item(row,2)->text().toInt());
 }
 
 MetaDocument* dlg_documents::getMetaDocumentFromRow(int row)
 {
-    return Datas::I()->metadocuments->getById(ui->DossiersupTableWidget->item(row,2)->text().toInt());
+    return Datas::I()->metadocuments->getById(ui->DossiersupTableWidget->item(row,3)->text().toInt());
 }
 
 // ----------------------------------------------------------------------------------
@@ -2430,7 +2376,7 @@ void dlg_documents::InsertDocument(int row)
     QString Public          = (ui->DocPubliccheckBox->isChecked()?          "1" : "null");
     QString Prescription    = (ui->PrescriptioncheckBox->isChecked()?       "1" : "null");
     QString Editable        = (ui->DocEditcheckBox->isChecked()?            "1" : "null");
-    QString Admin           = (ui->DocAdministratifcheckBox->isChecked()?   "0" : "1");
+    QString Admin           = (ui->DocAdministratifcheckBox->isChecked()?   "null" : "1");
     requete += ", " + Public;
     requete += ", " + Prescription;
     requete += ", " + Editable;
@@ -2486,9 +2432,9 @@ void dlg_documents::InsertDossier(int row)
             " (ResumeMetaDocument, idUser, Public) "
             " VALUES ('" + Utils::correctquoteSQL(line->text().left(100)) +
             "'," + QString::number(gidUser);
-    UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(row,4));
+    UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(row,2));
     QString a = "null";
-    if (lbl->pixmap())
+    if (lbl->pixmap() != Q_NULLPTR)
         a = "1";
     requete += "," + a + ")";
     if (db->StandardSQL(requete, tr("Erreur d'enregistrement du dossier dans ") +  NOM_TABLE_METADOCUMENTS))
@@ -2507,7 +2453,7 @@ void dlg_documents::InsertDossier(int row)
                 QHBoxLayout* boxlay = w->findChildren<QHBoxLayout*>().at(0);
                 UpCheckBox* Check = static_cast<UpCheckBox*>(boxlay->itemAt(0)->widget());
                 if (Check->isChecked())
-                    listdocs << ui->DocupTableWidget->item(i,3)->text();
+                    listdocs << QString::number(getDocumentFromRow(i)->id());
             }
             if (listdocs.size()>0)
             {
@@ -2568,29 +2514,29 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
     }
     if (table == ui->DocupTableWidget)
     {
-        widgButtonsDocs->modifBouton->setEnabled(ui->DocupTableWidget->item(row,5)->text().toInt() == gidUser);
-        widgButtonsDocs->moinsBouton->setEnabled(ui->DocupTableWidget->item(row,5)->text().toInt() == gidUser);
-        widgButtonsDossiers->modifBouton->setEnabled(false);
-        widgButtonsDossiers->moinsBouton->setEnabled(false);
+        widgButtonsDocs->modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == gidUser);
+        widgButtonsDocs->moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == gidUser);
+        widgButtonsDossiers->modifBouton    ->setEnabled(false);
+        widgButtonsDossiers->moinsBouton    ->setEnabled(false);
         if (gMode == Selection)
         {
-            ui->textFrame->setVisible(true);
-            MetAJour(ui->DocupTableWidget->item(row,2)->text(), false);
-            ui->upTextEdit->setText(glisttxt.at(0));
+            ui->textFrame                   ->setVisible(true);
+            MetAJour(getDocumentFromRow(row)->texte(), false);
+            ui->upTextEdit                  ->setText(glisttxt.at(0));
             EffaceWidget(ui->textFrame);
-            ui->DocPubliccheckBox->setChecked(ui->DocupTableWidget->item(row,4)->text().toInt() == 1);
-            ui->DocEditcheckBox->setChecked(ui->DocupTableWidget->item(row,8)->text().toInt() == 1);
-            ui->PrescriptioncheckBox->setChecked(ui->DocupTableWidget->item(row,6)->text().toInt() == 1);
-            ui->DocAdministratifcheckBox->setChecked(ui->DocupTableWidget->item(row,11)->text().toInt() != 1);
+            ui->DocPubliccheckBox           ->setChecked(getDocumentFromRow(row)->ispublic());
+            ui->DocEditcheckBox             ->setChecked(getDocumentFromRow(row)->iseditable());
+            ui->PrescriptioncheckBox        ->setChecked(getDocumentFromRow(row)->isprescription());
+            ui->DocAdministratifcheckBox    ->setChecked(!getDocumentFromRow(row)->ismedical());
         }
     }
     else if (table == ui->DossiersupTableWidget)
     {
-        ui->textFrame->setVisible(false);
-        widgButtonsDocs->modifBouton->setEnabled(false);
-        widgButtonsDossiers->modifBouton->setEnabled(ui->DossiersupTableWidget->item(row,3)->text().toInt() == gidUser);
-        widgButtonsDocs->moinsBouton->setEnabled(false);
-        widgButtonsDossiers->moinsBouton->setEnabled(ui->DossiersupTableWidget->item(row,3)->text().toInt() == gidUser);
+        ui->textFrame                       ->setVisible(false);
+        widgButtonsDocs->modifBouton        ->setEnabled(false);
+        widgButtonsDossiers->modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == gidUser);
+        widgButtonsDocs->moinsBouton        ->setEnabled(false);
+        widgButtonsDossiers->moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == gidUser);
     }
     line->selectAll();
 }
@@ -2926,7 +2872,7 @@ void dlg_documents::ListidCor()
 void dlg_documents::Remplir_TableWidget()
 {
     UpLineEdit          *upLine0;
-     int i=0;
+    int i=0;
 
     //Remplissage Table Documents
     Datas::I()->documents->initListe();
@@ -2945,6 +2891,7 @@ void dlg_documents::Remplir_TableWidget()
         SetDocumentToRow(doc, i);
         i++;
     }
+    TriDocupTableWidget();
 
 
     //Remplissage Table Dossiers
@@ -2964,6 +2911,7 @@ void dlg_documents::Remplir_TableWidget()
         SetMetaDocumentToRow(metadoc, i);
         i++;
     }
+    TriDossiersupTableWidget();
 }
 
 void dlg_documents::SetDocumentToRow(Document*doc, int row)
@@ -2971,12 +2919,6 @@ void dlg_documents::SetDocumentToRow(Document*doc, int row)
     UpLineEdit          *upLine0;
     QTableWidgetItem    *pItem1;
     QTableWidgetItem    *pItem2;
-    QTableWidgetItem    *pItem3;
-    QTableWidgetItem    *pItem4;
-    QTableWidgetItem    *pItem5;
-    QTableWidgetItem    *pItem6;
-    QTableWidgetItem    *pItem10;
-    QTableWidgetItem    *pItem11;
 
     QFontMetrics fm(qApp->font());
     QFont disabledFont = qApp->font();
@@ -2984,15 +2926,9 @@ void dlg_documents::SetDocumentToRow(Document*doc, int row)
     QPalette palette;
     palette.setColor(QPalette::Text,QColor(0,0,140));
 
-    pItem1  = new QTableWidgetItem() ;
     upLine0 = new UpLineEdit() ;
+    pItem1  = new QTableWidgetItem() ;
     pItem2  = new QTableWidgetItem() ;
-    pItem3  = new QTableWidgetItem() ;
-    pItem4  = new QTableWidgetItem() ;
-    pItem5  = new QTableWidgetItem() ;
-    pItem6  = new QTableWidgetItem() ;
-    pItem10 = new QTableWidgetItem() ;
-    pItem11 = new QTableWidgetItem() ;
 
     int col = 0;
     QWidget * w = new QWidget(ui->DocupTableWidget);
@@ -3025,47 +2961,29 @@ void dlg_documents::SetDocumentToRow(Document*doc, int row)
 
     ui->DocupTableWidget->setCellWidget(row,col,upLine0);
     col++; //2
-    pItem1->setText(doc->texte());                                  // text
+    pItem1->setText(QString::number(doc->id()));                    // idDocument
     ui->DocupTableWidget->setItem(row,col,pItem1);
     col++; //3
-    pItem2->setText(QString::number(doc->id()));                    // idDocument
-    ui->DocupTableWidget->setItem(row,col,pItem2);
-    col++; //4
-    pItem3->setText(doc->ispublic()? "1" : "0");                    // DocPublic    1 = doc public "" = doc privé
-    ui->DocupTableWidget->setItem(row,col,pItem3);
-    col++; //5
-    pItem4->setText(QString::number(doc->iduser()));                // idUser
-    ui->DocupTableWidget->setItem(row,col,pItem4);
-    col++; //6
-    pItem5->setText(doc->isprescription()? "1" : "0");              // Prescription 0 = pas prescription 1 = prescription
-    ui->DocupTableWidget->setItem(row,col,pItem5);
-    col++; //7
     UpLabel*lbl = new UpLabel(ui->DocupTableWidget);
     lbl->setAlignment(Qt::AlignCenter);
     if (doc->ispublic())
         lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15));        //WARNING : icon scaled : pxLoupe 15,15
-    ui->DocupTableWidget->setCellWidget(row,col,lbl);                 // Public
-    col++; //8
-    pItem6->setText(doc->iseditable()? "1" : "0");                  // Editable     0 = non éditable 1 = éditable
-    ui->DocupTableWidget->setItem(row,col,pItem6);
-    col++; //9
+    ui->DocupTableWidget->setCellWidget(row,col,lbl);               // Public
+    col++; //4
     UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
     lbl1->setAlignment(Qt::AlignCenter);
     if (doc->iseditable())
         lbl1->setPixmap(Icons::pxBlackCheck().scaled(15,15));       //WARNING : icon scaled : pxLoupe 15,15
     ui->DocupTableWidget->setCellWidget(row,col,lbl1);
-    col++; //10
-    pItem10->setText("1" + upLine0->text());                        // Check+text   -> sert pour le tri de la table
-    ui->DocupTableWidget->setItem(row,col,pItem10);
-    col++; //11
-    pItem11->setText(doc->ismedical()? "1" : "0");                  // Medical      0 = doc administratif 1 = doc médical
-    ui->DocupTableWidget->setItem(row,col,pItem11);
-    col++; //12
+    col++; //5
     UpLabel*lbl11 = new UpLabel(ui->DocupTableWidget);
     lbl11->setAlignment(Qt::AlignCenter);
     if (!doc->ismedical())
         lbl11->setPixmap(Icons::pxBlackCheck().scaled(15,15));      //WARNING : icon scaled : pxLoupe 15,15
     ui->DocupTableWidget->setCellWidget(row,col,lbl11);
+    col++; //6
+    pItem2->setText("1" + upLine0->text());                         // Check+text   -> sert pour le tri de la table
+    ui->DocupTableWidget->setItem(row,col,pItem2);
 
     ui->DocupTableWidget->setRowHeight(row,int(fm.height()*1.3));
 }
@@ -3118,19 +3036,20 @@ void dlg_documents::SetMetaDocumentToRow(MetaDocument*dossier, int row)
     ui->DossiersupTableWidget->setCellWidget(row,col,upLine0);
 
     col++; //2
-    pItem1->setText(QString::number(dossier->id()));                // idMetaDocument
-    ui->DossiersupTableWidget->setItem(row,col,pItem1);
-
-    col++; //3
-    pItem2->setText(QString::number(dossier->iduser()));            // idUser
-    ui->DossiersupTableWidget->setItem(row,col,pItem2);
-
-    col++; //4
     UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
     lbl->setAlignment(Qt::AlignCenter);
     if (dossier->ispublic())
         lbl->setPixmap(Icons::pxBlackCheck().scaled(15,15));        //WARNING : icon scaled : pxLoupe 15,15
     ui->DossiersupTableWidget->setCellWidget(row,col,lbl);
+
+    col++; //3
+    pItem1->setText(QString::number(dossier->id()));                // idMetaDocument
+    ui->DossiersupTableWidget->setItem(row,col,pItem1);
+
+    col++; //4
+    pItem2->setText(dossier->resume());                             // Resume dans un QTableWidgetItem
+    ui->DossiersupTableWidget->setItem(row,col,pItem2);
+
 
     ui->DossiersupTableWidget->setRowHeight(row,int(fm.height()*1.3));
 }
@@ -3141,10 +3060,9 @@ void dlg_documents::SetMetaDocumentToRow(MetaDocument*dossier, int row)
 void dlg_documents::SupprimmDocument(int row)
 {
     DisableLines();
-    UpLineEdit *line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(row,1));
 
     QString Msg;
-    Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + line->text().toUpper() + "?";
+    Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + getDocumentFromRow(row)->resume() + "?";
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
@@ -3156,11 +3074,10 @@ void dlg_documents::SupprimmDocument(int row)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
-        int iddoc = ui->DocupTableWidget->item(row,3)->text().toInt();
-        db->SupprRecordFromTable(iddoc,
+        db->SupprRecordFromTable(getDocumentFromRow(row)->id(),
                                  "idDocument",
                                  NOM_TABLE_COURRIERS,
-                                 tr("Impossible de supprimer le document\n") + line->text().toUpper() + tr("\n ... et je ne sais pas pourquoi..."));
+                                 tr("Impossible de supprimer le document\n") + getDocumentFromRow(row)->resume() + tr("\n ... et je ne sais pas pourquoi..."));
         Remplir_TableWidget();
     }
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3177,10 +3094,8 @@ void dlg_documents::SupprimmDocument(int row)
 // ----------------------------------------------------------------------------------
 void dlg_documents::SupprimmDossier(int row)
 {
-    UpLineEdit *line = static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(row,1));
-
     QString Msg;
-    Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + line->text().toUpper() + "?";
+    Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + getMetaDocumentFromRow(row)->resume() + "?";
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
@@ -3192,14 +3107,13 @@ void dlg_documents::SupprimmDossier(int row)
     msgbox.exec();
     if (msgbox.clickedButton()  != &NoBouton)
     {
-        int iddos = ui->DossiersupTableWidget->item(row,2)->text().toInt();
         QStringList locklist;
         locklist << NOM_TABLE_METADOCUMENTS << NOM_TABLE_JOINTURESDOCS ;
-        if (db->SupprRecordFromTable(iddos,
+        if (db->SupprRecordFromTable( getMetaDocumentFromRow(row)->id(),
                                       "idMetaDocument",
                                       NOM_TABLE_METADOCUMENTS,
-                                      tr("Impossible de suppprimer le dossier") + "\n" + line->text().toUpper() + "!\n ... " + tr("et je ne sais pas pourquoi") + "...\nRufus"))
-        db->SupprRecordFromTable(iddos, "idMetaDocument", NOM_TABLE_JOINTURESDOCS);
+                                      tr("Impossible de suppprimer le dossier") + "\n" + getMetaDocumentFromRow(row)->resume() + "!\n ... " + tr("et je ne sais pas pourquoi") + "...\nRufus"))
+            db->SupprRecordFromTable(getMetaDocumentFromRow(row)->id(), "idMetaDocument", NOM_TABLE_JOINTURESDOCS);
         Remplir_TableWidget();
     }
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3216,11 +3130,24 @@ void dlg_documents::SupprimmDossier(int row)
 // ----------------------------------------------------------------------------------
 void dlg_documents::TriDocupTableWidget()
 {
-    ui->DocupTableWidget->sortByColumn(10,Qt::AscendingOrder);
+    ui->DocupTableWidget->sortByColumn(6,Qt::AscendingOrder);
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
     {
         static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1))->setRowTable(i);
         static_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0))->findChildren<UpCheckBox*>().at(0)->setRowTable(i);
+    }
+}
+
+// ----------------------------------------------------------------------------------
+// Tri de la table dossiers.
+// ----------------------------------------------------------------------------------
+void dlg_documents::TriDossiersupTableWidget()
+{
+    ui->DossiersupTableWidget->sortByColumn(4,Qt::AscendingOrder);
+    for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
+    {
+        static_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1))->setRowTable(i);
+        static_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0))->findChildren<UpCheckBox*>().at(0)->setRowTable(i);
     }
 }
 
@@ -3254,15 +3181,14 @@ void dlg_documents::UpdateDocument(int row)
         return;
     }
 
-    QString idAmodifier = ui->DocupTableWidget->item(row,3)->text();
     QString req =   "UPDATE " NOM_TABLE_COURRIERS
             " SET TextDocument = '" + Utils::correctquoteSQL(ui->upTextEdit->toHtml())     + "'"
             ", ResumeDocument = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'";
     if (ui->DocPubliccheckBox->isChecked())         req += " , DocPublic = 1";      else req += " , DocPublic = null";
     if (ui->PrescriptioncheckBox->isChecked())      req += " , Prescription = 1";   else req += " , Prescription = null";
     if (ui->DocEditcheckBox->isChecked())           req += " , Editable = 1";       else req += " , Editable = null";
-    if (ui->DocAdministratifcheckBox->isChecked())  req += " , Medical = 1";        else req += " , Medical = 0";
-    req += " WHERE  idDocument = " + idAmodifier;
+    if (ui->DocAdministratifcheckBox->isChecked())  req += " , Medical = 1";        else req += " , Medical = null";
+    req += " WHERE  idDocument = " + QString::number(getDocumentFromRow(line->getRowTable())->id());
     db->StandardSQL(req, tr("Erreur de mise à jour du document dans ") + NOM_TABLE_COURRIERS);
     Remplir_TableWidget();
 
@@ -3303,11 +3229,11 @@ void dlg_documents::UpdateDossier(int row)
     for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
     {
         QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
-        if (Widg)
+        if (Widg != Q_NULLPTR)
         {
             UpCheckBox *DocCheck = Widg->findChildren<UpCheckBox*>().at(0);
             if (DocCheck->isChecked())
-                listid << ui->DocupTableWidget->item(l,3)->text();
+                listid << QString::number(getDocumentFromRow(l)->id());
         }
     }
     if (listid.size() == 0)
@@ -3316,7 +3242,7 @@ void dlg_documents::UpdateDossier(int row)
         return;
     }
 
-    QString iddoss  = ui->DossiersupTableWidget->item(row,2)->text();
+    QString iddoss  = QString::number(getMetaDocumentFromRow(row)->id());
 
     if (ChercheDoublon(line->text(), row))
     {
@@ -3338,7 +3264,7 @@ void dlg_documents::UpdateDossier(int row)
 
     req =   "UPDATE " NOM_TABLE_METADOCUMENTS
             " SET ResumeMetaDocument = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'"
-            " WHERE  idmetaDocument = " + iddoss;
+            " WHERE idmetaDocument = " + iddoss;
     db->StandardSQL(req, tr("Erreur de mise à jour du dossier dans ") + NOM_TABLE_METADOCUMENTS);
 
     Remplir_TableWidget();
@@ -3349,7 +3275,7 @@ void dlg_documents::UpdateDossier(int row)
         ConfigMode(Selection);
         for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
         {
-            if (ui->DossiersupTableWidget->item(i,2)->text() == iddoss)
+            if (QString::number(getMetaDocumentFromRow(i)->id()) == iddoss)
             {
                 QWidget *Widg =  dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0));
                 if (Widg)
@@ -3370,7 +3296,7 @@ void dlg_documents::UpdateDossier(int row)
 bool dlg_documents::VerifDocumentPublic(int row, bool msg)
 {
     bool ok;
-    int iddoc = ui->DocupTableWidget->item(row,3)->text().toInt();
+    int iddoc = getDocumentFromRow(row)->id();
     QString req = "select idmetadocument, resumemetadocument from " NOM_TABLE_METADOCUMENTS
                   " where idmetadocument in (select idmetadocument from " NOM_TABLE_JOINTURESDOCS " where iddocument = " + QString::number(iddoc) +
                   ") and public =1";
@@ -3402,7 +3328,7 @@ void dlg_documents::VerifDossiers()
             if (DossCheck->isChecked())
             {
                 QString req = "select idDocument from " NOM_TABLE_JOINTURESDOCS
-                              " where idMetaDocument = " + ui->DossiersupTableWidget->item(j,2)->text();
+                              " where idMetaDocument = " + QString::number(getMetaDocumentFromRow(j)->id());
                 QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
                 if (listdocs.size() > 0)
                 {
@@ -3413,7 +3339,7 @@ void dlg_documents::VerifDossiers()
                     for (int k=0; k<listid.size(); k++)
                     {
                         for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
-                            if (listid.contains(ui->DocupTableWidget->item(l,3)->text()))
+                            if (listid.contains(QString::number(getDocumentFromRow(l)->id())))
                             {
                                 QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(l,0));
                                 if (Widg)
@@ -3426,7 +3352,10 @@ void dlg_documents::VerifDossiers()
                         if (a) break;
                     }
                     if (!a) DossCheck->setChecked(false);
-    }   }   }   }
+                }
+            }
+        }
+    }
 }
 
 // ----------------------------------------------------------------------------------
@@ -3435,7 +3364,7 @@ void dlg_documents::VerifDossiers()
 bool dlg_documents::VerifDossierPublic(int row, bool msg)
 {
     bool ok;
-    int iddossier = ui->DossiersupTableWidget->item(row,2)->text().toInt();
+    int iddossier = getMetaDocumentFromRow(row)->id();
     QString req = "select iddocument, resumedocument from " NOM_TABLE_COURRIERS
                   " where iddocument in (select iddocument from " NOM_TABLE_JOINTURESDOCS " where idmetadocument = " + QString::number(iddossier) +
                   ") and docpublic is null";
