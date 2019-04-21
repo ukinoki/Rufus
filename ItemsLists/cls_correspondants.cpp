@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 QMap<int, Correspondant *> *Correspondants::correspondants() const
 {
-    return m_Correspondants;
+    return m_correspondants;
 }
 
 /*!
@@ -31,15 +31,15 @@ QMap<int, Correspondant *> *Correspondants::correspondants() const
  */
 Correspondants::Correspondants()
 {
-    m_Correspondants = new QMap<int, Correspondant*>();
+    m_correspondants = new QMap<int, Correspondant*>();
 }
 
 void Correspondants::clearAll()
 {
     QList<Correspondant*> listcors;
-    for( QMap<int, Correspondant*>::const_iterator itcor = m_Correspondants->constBegin(); itcor != m_Correspondants->constEnd(); ++itcor)
+    for( QMap<int, Correspondant*>::const_iterator itcor = m_correspondants->constBegin(); itcor != m_correspondants->constEnd(); ++itcor)
         delete itcor.value();
-    m_Correspondants->clear();
+    m_correspondants->clear();
 }
 
 void Correspondants::remove(Correspondant *cor)
@@ -47,10 +47,10 @@ void Correspondants::remove(Correspondant *cor)
     if (cor == Q_NULLPTR)
         return;
     QMap<int, Correspondant*>::const_iterator itcor;
-    m_Correspondants->find(cor->id());
-    if( itcor == m_Correspondants->constEnd() )
+    m_correspondants->find(cor->id());
+    if( itcor == m_correspondants->constEnd() )
         return;
-    m_Correspondants->remove(cor->id());
+    m_correspondants->remove(cor->id());
     delete cor;
 }
 
@@ -60,29 +60,73 @@ void Correspondants::remove(Correspondant *cor)
  *
  * \param Correspondant le correspondant que l'on veut ajouter
  * \return true si le correspondant est ajouté
- * \return false si le paramètre correspondant est un nullptr
+ * \return false si le paramètre correspondant est un Q_NULLPTR
  * \return false si le correspondant est déjà présent
  */
 bool Correspondants::add(Correspondant *cor)
 {
     if( cor == Q_NULLPTR)
         return false;
-    if( m_Correspondants->contains(cor->id()) )
+    if( m_correspondants->contains(cor->id()) )
         return false;
-    m_Correspondants->insert(cor->id(), cor);
+    m_correspondants->insert(cor->id(), cor);
     return true;
 }
 
 /*!
  * \brief Correspondants::getById
- * \param id l'id du Correspondant recherché
- * \return nullptr si aucun Correspondant trouvé
- * \return Correspondant* le Correspondant correspondant à l'id
+ * \param id l'id du correspondant recherché
+ * \param loadDetails   -> charge les détails si ce n'est pas déjà fait
+ * \param addToList     -> ajoute à la liste des correspondants s'il ne s'y trouve pas encore
+ * \return Q_NULLPTR si aucun correspondant trouvé
+ * \return Correspondant* le correspondant correspondant à l'id
  */
-Correspondant* Correspondants::getById(int id)
+Correspondant* Correspondants::getById(int id, bool loadDetails, bool addToList)
 {
-    QMap<int, Correspondant*>::const_iterator itcor = m_Correspondants->find(id);
-    if( itcor == m_Correspondants->constEnd() )
-        return Q_NULLPTR;
-    return itcor.value();
+    QMap<int, Correspondant*>::const_iterator itcor = m_correspondants->find(id);
+    Correspondant *result;
+    if( itcor == m_correspondants->constEnd() )
+        result = new Correspondant();
+    else
+    {
+        result = itcor.value();
+        if(!loadDetails)
+            return result;
+        addToList = false;
+    }
+
+    if( !result->isAllLoaded() )
+    {
+        QJsonObject jsonCorrespondant = DataBase::getInstance()->loadCorrespondantData(id);
+        if( jsonCorrespondant.isEmpty() )
+            return Q_NULLPTR;
+        else
+            result->setData(jsonCorrespondant);
+    }
+    if( addToList )
+        add( result );
+    return result;
+}
+
+
+/*!
+ * \brief Correspondants::initListe correspondants
+ * Charge l'ensemble des correspondants
+ * et les ajoute à la classe Correspondants
+ */
+void Correspondants::initListe(bool all)
+{
+
+    clearAll();
+    QList<Correspondant*> listcorrespondants;
+    if (all)
+        listcorrespondants = DataBase::getInstance()->loadCorrespondantsALL();
+    else
+        listcorrespondants = DataBase::getInstance()->loadCorrespondants();
+    QList<Correspondant*>::const_iterator itcorrespondants;
+    for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
+    {
+        Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
+        add(cor);
+    }
 }

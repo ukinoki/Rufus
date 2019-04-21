@@ -32,7 +32,7 @@ private:
     QString m_nom;      //!< le nom de la ville
 
 public:
-    explicit Ville(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit Ville(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
     int id() const;
     QString codePostal() const;

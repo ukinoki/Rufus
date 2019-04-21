@@ -39,7 +39,7 @@ private:
     QString m_fax;
 
 public:
-    explicit Site(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit Site(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
     void setData(QJsonObject data);
 

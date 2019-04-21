@@ -27,7 +27,8 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     proc            = Procedures::I();
     db              = DataBase::getInstance();
     gmodele         = new QStandardItemModel(this);
-    ListeModifiee   = false;
+
+    ListeCorModifiee   = false;
 
     setModal(true);
     setWindowTitle(tr("Liste des correspondants"));
@@ -42,8 +43,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     treeCor ->setMouseTracking(true);
     treeCor ->header()->setVisible(false);
 
-    proc->initListeCorrespondantsAll();
-    ReconstruitListeCorrespondants();
+    ReconstruitTreeViewCorrespondants(true);
 
     widgButtons         = new WidgetButtonFrame(treeCor);
     widgButtons         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
@@ -65,7 +65,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     connect(OKButton,           SIGNAL(clicked(bool)),                  this,   SLOT(reject()));
     connect(ChercheUplineEdit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     ChercheUplineEdit->setText(txt);
-                                                                                                    ReconstruitListeCorrespondants(txt);});
+                                                                                                    ReconstruitTreeViewCorrespondants(false, txt);});
     connect(widgButtons,        &WidgetButtonFrame::choix,              this,   [=] (int i) {ChoixButtonFrame(i);});
 
     widgButtons->modifBouton    ->setEnabled(false);
@@ -105,18 +105,22 @@ void dlg_listecorrespondants::ChoixButtonFrame(int i)
     }
 }
 
+bool dlg_listecorrespondants::listecorrespondantsmodifiee()
+{
+    return ListeCorModifiee;
+}
+
 // ------------------------------------------------------------------------------------------
 // Enregistre un nouveau correpondant
 // ------------------------------------------------------------------------------------------
 void dlg_listecorrespondants::EnregistreNouveauCorresp()
 {
     bool onlydoctors    = false;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, 0);
+    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
     if (Dlg_IdentCorresp->exec()>0)
     {
-        ListeModifiee = true;
-        proc->initListeCorrespondantsAll();
-        ReconstruitListeCorrespondants();
+        ListeCorModifiee = true;
+        ReconstruitTreeViewCorrespondants();
     }
     delete Dlg_IdentCorresp;
 }
@@ -127,12 +131,11 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
 void dlg_listecorrespondants::ModifCorresp(int idcor)
 {
     bool onlydoctors    = false;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, idcor);
+    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, true, true));
     if (Dlg_IdentCorresp->exec()>0)
     {
-        ListeModifiee = true;
-        proc->initListeCorrespondantsAll();
-        ReconstruitListeCorrespondants();
+        ListeCorModifiee = true;
+        ReconstruitTreeViewCorrespondants();
     }
     delete Dlg_IdentCorresp;
 }
@@ -160,15 +163,9 @@ void dlg_listecorrespondants::SupprCorresp()
     {
         int idCor   = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt();
         DataBase::getInstance()->SupprCorrespondant(idCor);
-        ListeModifiee = true;
-        Datas::I()->correspondants->remove(Datas::I()->correspondants->getById(idCor));
-        ReconstruitListeCorrespondants();
+        ListeCorModifiee = true;
+        ReconstruitTreeViewCorrespondants(true);
     }
-}
-
-bool dlg_listecorrespondants::getListeModifiee()
-{
-    return ListeModifiee;
 }
 
 QList<QStandardItem*> dlg_listecorrespondants::ListeMetiers()
@@ -196,8 +193,10 @@ QList<QStandardItem*> dlg_listecorrespondants::ListeMetiers()
     return listmetiers;
 }
 
-void dlg_listecorrespondants::ReconstruitListeCorrespondants(QString filtre)
+void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruirelaliste, QString filtre)
 {
+    if (reconstruirelaliste)
+        Datas::I()->correspondants->initListe(true);
     treeCor->disconnect();
     gmodele->clear();
 

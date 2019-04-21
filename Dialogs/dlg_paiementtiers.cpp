@@ -417,7 +417,7 @@ void dlg_paiementtiers::Slot_CalculTotalDetails()
 void dlg_paiementtiers::Slot_ChangeUtilisateur()
 {
     gDataUser = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
-    if (gDataUser != nullptr)
+    if (gDataUser != Q_NULLPTR)
     {
         gNomUser                            = gDataUser->getLogin();
         gidCompteBancaireParDefaut          = gDataUser->getIdCompteEncaissHonoraires();

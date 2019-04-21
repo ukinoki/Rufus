@@ -132,6 +132,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
 
     ui->AnnulupPushButton->setUpButtonStyle(UpPushButton::ANNULBUTTON, UpPushButton::Mid);
     ui->OKupPushButton->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Mid);
+    ui->AnnulupPushButton->setShortcut(QKeySequence("F12"));
 
     ui->OKupPushButton->setIcon(Icons::icImprimer());
     ui->OKupPushButton->setIconSize(QSize(30,30));

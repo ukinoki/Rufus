@@ -41,12 +41,12 @@ Patients::Patients()
  *
  * \param patient le patient que l'on veut ajouter
  * \return true si le patient est ajouté
- * \return false si le paramètre patient est un nullptr
+ * \return false si le paramètre patient est un Q_NULLPTR
  * \return false si le patient est déjà présent
  */
 bool Patients::add(Patient *patient)
 {
-    if( patient == nullptr)
+    if( patient == Q_NULLPTR)
         return false;
 
     if( m_patients->contains(patient->id()) )
@@ -60,13 +60,13 @@ bool Patients::add(Patient *patient)
 /*!
  * \brief Patients::getById
  * \param id l'id du patient recherché
- * \return nullptr si aucun patient trouvé
+ * \return Q_NULLPTR si aucun patient trouvé
  * \return Patient* le patient correspondant à l'id
  */
 Patient* Patients::getById(int id)
 {
     QMap<int, Patient*>::const_iterator patient = m_patients->find(id);
     if( patient == m_patients->constEnd() )
-        return nullptr;
+        return Q_NULLPTR;
     return patient.value();
 }

@@ -39,7 +39,7 @@ private:
     int m_id;
     QString m_nomtiers, m_adressetiers, m_villetiers, m_codepostaltiers, m_telephonetiers, m_faxtiers;
 public:
-    explicit Tiers(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit Tiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
     int id() const;
@@ -56,7 +56,7 @@ class TypeTiers : public Item
 private:
     QString m_typetiers;
 public:
-    explicit TypeTiers(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit TypeTiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
     QString typetiers() const;

@@ -61,12 +61,12 @@ Users::Users()
  *
  * \param usr l'utilisateur que l'on veut ajouter
  * \return true si l'utilisateur est ajouté
- * \return false si le paramètre usr est un nullptr
+ * \return false si le paramètre usr est un Q_NULLPTR
  * \return false si l'utilisateur est déjà présent
  */
 bool Users::add(User *usr)
 {
-    if( usr == nullptr)
+    if( usr == Q_NULLPTR)
         return false;
 
     if( m_users->contains(usr->id()) )
@@ -93,7 +93,7 @@ bool Users::add(User *usr)
  * \brief Users::getById
  * \param id l'id de l'utilisateur recherché
  * \param loadDetails
- * \return nullptr si aucun utilisateur trouvé
+ * \return Q_NULLPTR si aucun utilisateur trouvé
  * \return User* l'utilisateur correspondant à l'id
  */
 User* Users::getById(int id, bool loadDetails, bool addToList)

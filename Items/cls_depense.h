@@ -86,7 +86,7 @@ public:
     void    setpdfoujpgfacture(QString typeimg);
     void    setimgfacture(QByteArray ba);
 
-    explicit Depense(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit Depense(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
     void setData(QJsonObject data);
 };

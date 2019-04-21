@@ -30,7 +30,7 @@ private:
     double m_solde;
 
 public:
-    explicit Compte(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit Compte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
     void setSolde(double solde);
 

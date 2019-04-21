@@ -109,16 +109,16 @@ private:
 
     User *m_userSuperviseur     = Q_NULLPTR;
     int m_idUserActeSuperviseur = ROLE_INDETERMINE; //!< son id s'il est responsable de ses actes
-                                                  //!< un idUser s'il est assistant
+                                                    //!< l'id du user assisté s'il est assistant
     User *m_userParent = Q_NULLPTR;
-    int m_idUserParent = ROLE_INDETERMINE; //!< son id s'il n'est pas remplaçant
-                                         //!< un idUser qui correspond au soigant remplacé
+    int m_idUserParent = ROLE_INDETERMINE;          //!< son id s'il n'est pas remplaçant
+                                                    //!< l'ib du user remplacé s'il est remplacé
     User *m_userComptable = Q_NULLPTR;
-    int m_idUserComptable = ROLE_INDETERMINE; //!< son id s'il est responsable et libéral
-                                         //!< l'id de son employeur s'il est responsable et salarié
-                                         //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le comptable devient
-                                         //!< . celui qu'il remplace si celui qu'il remplace est libéral
-                                         //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
+    int m_idUserComptable = ROLE_INDETERMINE;       //!< son id s'il est responsable et libéral
+                                                    //!< l'id de son employeur s'il est responsable et salarié
+                                                    //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le comptable devient
+                                                    //!< . celui qu'il remplace si celui qu'il remplace est libéral
+                                                    //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
 
 
 

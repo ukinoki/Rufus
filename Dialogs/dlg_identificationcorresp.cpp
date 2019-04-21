@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_identificationcorresp.h"
 
-dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedecins, int idCorresp, QWidget *parent) :
+dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedecins, Correspondant *cor, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionIdentCorrespondant", parent),
     ui(new Ui::dlg_identificationcorresp)
 {
@@ -27,7 +27,13 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc                = Procedures::I();
     db                  = DataBase::getInstance();
-    gidCor              = idCorresp;
+    gCorrespondant      = Q_NULLPTR;
+    gidCor              = 0;
+    if (cor != Q_NULLPTR)
+    {
+        gCorrespondant  = cor;
+        gidCor          = gCorrespondant->id();
+    }
     gMode               = mode;
     OnlyDoctors         = quelesmedecins;
     VilleCPwidg     = new VilleCPWidget(proc->getVilles(), ui->Principalframe);
@@ -258,7 +264,9 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(insrequete, ok);
         if (ok && cordata.size()>0)
             gidCor = cordata.at(0).toInt();
-        proc->initListeCorrespondants();
+        modif = true;
+        Datas::I()->correspondants->initListe();
+        proc->MAJflagMG();
         accept();
     }
     if (gMode == Modification)
@@ -287,16 +295,21 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         Modifrequete += " where idCor =" + QString::number(gidCor);
         //qDebug() <<  Modifrequete;
         db->StandardSQL(Modifrequete, tr("Impossible de modifier le dossier"));
-        if (CorNom != gNomCor || CorPrenom != gPrenomCor)
-            modif = true;
-        proc->initListeCorrespondants();
+        modif = true;
+        Datas::I()->correspondants->initListe();
+        proc->MAJflagMG();
         accept();
     }
 }
 
-bool dlg_identificationcorresp::IdentModified()
+bool dlg_identificationcorresp::identcorrespondantmodifiee()
 {
     return modif;
+}
+
+Correspondant* dlg_identificationcorresp::correspondantrenvoye()
+{
+    return Datas::I()->correspondants->getById(gidCor,true,true);
 }
 
 void dlg_identificationcorresp::Slot_RegleAffichage()
@@ -345,18 +358,8 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
     ui->AutreupLineEdit   ->setVisible(!OnlyDoctors);
     if (gMode == Modification)
     {
-        bool ok;
-        QString requete = "SELECT idCor, CORNom, CORPrenom, CorSexe, CORAdresse1, CORAdresse2, CORAdresse3, CorVille, CorCodePostal,"
-                          " CorTelephone, CorPortable, CorFax, CorMail, CorMedecin, CorSpecialite, CorAutreProfession FROM " NOM_TABLE_CORRESPONDANTS
-                            " WHERE idCor = " + QString::number(gidCor);
-        if (OnlyDoctors)
-            requete += " and CorMedecin = 1";
-        QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(requete, ok, tr("Impossible de retrouver le dossier de ce correspondant"));
-        if (!ok || cordata.size() == 0)
-            return;
-        //UpMessageBox::Watch(this,requete);
-        gNomCor                 = cordata.at(1).toString();
-        gPrenomCor              = cordata.at(2).toString();
+        gNomCor                 = gCorrespondant->nom();
+        gPrenomCor              = gCorrespondant->prenom();
         ui->NomlineEdit         ->setText(gNomCor);
         ui->PrenomlineEdit      ->setText(gPrenomCor);
         // pour decocher les 2 radiobutton sexe il faut d'abord leur retirer la propriétét AutoExclusive
@@ -366,34 +369,33 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
         ui->FradioButton        ->setChecked(false);
         ui->MradioButton        ->setAutoExclusive(true);
         ui->FradioButton        ->setAutoExclusive(true);
-        Sexe                    = cordata.at(3).toString();
+        Sexe                    = gCorrespondant->sexe();
         if (Sexe == "M") ui->MradioButton->setChecked(true);
         if (Sexe == "F") ui->FradioButton->setChecked(true);
         ui->idDossierlabel      ->setText(tr("Correspondant n° ") + QString::number(gidCor));
 
-        ui->Adresse1lineEdit    ->setText(cordata.at(4).toString());
-        ui->Adresse2lineEdit    ->setText(cordata.at(5).toString());
-        ui->Adresse3lineEdit    ->setText(cordata.at(6).toString());
-        QString CP              = cordata.at(8).toString();
+        ui->Adresse1lineEdit    ->setText(gCorrespondant->adresse1());
+        ui->Adresse2lineEdit    ->setText(gCorrespondant->adresse2());
+        ui->Adresse3lineEdit    ->setText(gCorrespondant->adresse3());
+        QString CP              = gCorrespondant->codepostal();
         CPlineEdit              ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
         CPlineEdit              ->setText(CP);
-        VillelineEdit           ->setText(cordata.at(7).toString());
-        ui->TellineEdit         ->setText(cordata.at(9).toString());
-        ui->PortablelineEdit    ->setText(cordata.at(10).toString());
-        ui->MaillineEdit        ->setText(cordata.at(12).toString());
-        if (!cordata.at(14).isNull()
-                && cordata.at(14).toInt() == 0)                                  //c'est un généraliste
+        VillelineEdit           ->setText(gCorrespondant->ville());
+        ui->TellineEdit         ->setText(gCorrespondant->telephone());
+        ui->PortablelineEdit    ->setText(gCorrespondant->portable());
+        ui->MaillineEdit        ->setText(gCorrespondant->mail());
+        if (gCorrespondant->isMG())                                  //c'est un généraliste
         {
             ui->MGradioButton   ->setChecked(true);
             ui->SpecomboBox     ->setVisible(false);
             ui->AutreupLineEdit ->setVisible(false);
         }
-        else if (cordata.at(13).toInt() == 1)                                    // ce n'est pas un généralliste mais un spécialiste
+        else if (gCorrespondant->ismedecin())                                    // ce n'est pas un généralliste mais un spécialiste
         {
             ui->SperadioButton  ->setChecked(true);
             ui->SpecomboBox     ->setVisible(true);
-            int idx             = ui->SpecomboBox->findData(cordata.at(14).toInt());
+            int idx             = ui->SpecomboBox->findData(gCorrespondant->specialite());
             ui->SpecomboBox     ->setCurrentIndex(idx);
             ui->AutreupLineEdit ->setVisible(false);
         }
@@ -402,7 +404,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
             ui->SpecomboBox     ->setVisible(false);
             ui->AutreradioButton->setChecked(true);
             ui->AutreupLineEdit ->setVisible(true);
-            ui->AutreupLineEdit ->setText(cordata.at(15).toString());
+            ui->AutreupLineEdit ->setText(gCorrespondant->metier());
         }
     }
     else if (gMode == Creation)

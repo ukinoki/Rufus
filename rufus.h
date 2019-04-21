@@ -310,7 +310,6 @@ private:
     void                ExporteActe();
     void                FermeDlgAnnexes();
     bool                FermeDossier();
-    void                FlagMetAjourMG();
     void                FlagMetAjourSalDat();
     bool                IdentificationPatient(dlg_identificationpatient::Mode mode, int idPat);
     bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
@@ -337,7 +336,7 @@ private:
     void                RecaleTableView(int idPat);
     void                Refraction();
     void                ReconstruitListesActes();
-    void                ReconstruitCombosCorresp();
+    void                ReconstruitCombosCorresp(bool reconstruireliste = true);
     void                RegleRefracteur(QString TypeMesure);
     void                RemiseCheques();
     bool                Remplir_ListePatients_TableView(QString requete, QString PatNom, QString PatPrenom);

@@ -30,7 +30,7 @@ private:
     double m_montantoptam, m_montantnonoptam, m_montantpratique;
 
 public:
-    explicit Cotation(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit Cotation(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
     int id() const;

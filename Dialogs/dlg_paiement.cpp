@@ -545,7 +545,7 @@ void dlg_paiement::Slot_CalculTotalDetails()
 void dlg_paiement::Slot_ChangeUtilisateur()
 {
     gDataUser = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
-    if (gDataUser != nullptr)
+    if (gDataUser != Q_NULLPTR)
     {
         gNomUser                            = gDataUser->getLogin();
         gidCompteBancaireParDefaut          = gDataUser->getIdCompteEncaissHonoraires();
@@ -553,7 +553,7 @@ void dlg_paiement::Slot_ChangeUtilisateur()
         glistComptesEncaissmt               = proc->getListeComptesEncaissmtUser();
         glistComptesEncaissmtAvecDesactive  = proc->getListeComptesEncaissmtUserAvecDesactive();
     }
-    if (gDataUser == nullptr || glistComptesEncaissmt->rowCount() == 0)
+    if (gDataUser == Q_NULLPTR || glistComptesEncaissmt->rowCount() == 0)
     {
         UpMessageBox::Watch                 (this,tr("Impossible de changer d'utilisateur!") , tr("Les paramètres de") + ui->UserscomboBox->currentText() + tr("ne sont pas retrouvés"));
         disconnect (ui->UserscomboBox,      SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUtilisateur()));

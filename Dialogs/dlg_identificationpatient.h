@@ -44,16 +44,18 @@ public:
     ~dlg_identificationpatient();
     Ui::dlg_identificationpatient   *ui;
     int                             gidPatient;
-    bool                            ReconstruireListMG;
     QLineEdit                       *CPlineEdit, *VillelineEdit;
+    bool                            listecorrespondantsmodifiee();
 
 private:
     dlg_identificationcorresp       *Dlg_IdentCorresp;
     bool                            gAutorDepart, gControleMGCombo;
+    bool                            ListeCorModifiee;
     Mode                            gMode;
     QString                         gNomPatient, gPrenomPatient, Sexe;
     Procedures                      *proc;
     DataBase                        *db;
+    QMenu                           *gmenuContextuel;
     QTimer                          *gTimer;
     UpSmallButton                   *VitaleButton;
     VilleCPWidget                   *VilleCPwidg;
@@ -69,7 +71,8 @@ private:
     int                             EnregistreNouveauCorresp();
     void                            MAJMG();
 
-    // anciens slots
+    void                            MenuContextuelMedecin();
+    void                            ModifCorrespondant();
     void                            ChoixMG();
 
 private slots:

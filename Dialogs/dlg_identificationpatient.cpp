@@ -30,7 +30,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, int idPatAPasser
     gidPatient          = idPatAPasser;
     gMode               = mode;
     db                  = DataBase::getInstance();
-    ReconstruireListMG  = false;
+    ListeCorModifiee    = false;
     QVBoxLayout *vlay       = new QVBoxLayout;
     vlay                    ->setContentsMargins(0,10,0,10);
     vlay                    ->setSpacing(5);
@@ -66,6 +66,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, int idPatAPasser
     MGLineEdit          ->setMaxLength(90);
     ui->MGupComboBox    ->setLineEdit(MGLineEdit);
     ui->MGupComboBox    ->setMaxVisibleItems(15);
+    ui->MGupComboBox    ->setContextMenuPolicy(Qt::CustomContextMenu);
     proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
     ui->MGupComboBox    ->setCurrentIndex(-1);
 
@@ -132,6 +133,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, int idPatAPasser
     connect (ui->CMUcheckBox,               SIGNAL(clicked()),                          this,   SLOT (Slot_EnableOKpushButton()));
     connect (ui->MGupComboBox,              QOverload<int>::of(&QComboBox::activated),  this,   [=](int) {ChoixMG();});
     connect (ui->MGupComboBox,              SIGNAL(currentTextChanged(QString)) ,       this,   SLOT (Slot_EnableOKpushButton()));
+    connect (ui->MGupComboBox,              &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelMedecin();});
 
     OKButton  ->setEnabled(false);
     gAutorDepart        = true;
@@ -183,7 +185,6 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
     {
         gflagMG = proc->GetflagMG();
         // on reconstruit la liste des MG
-        proc->initListeCorrespondants();
         proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
         QString req = "select idcormedmg from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(gidPatient);
         bool ok;
@@ -332,7 +333,41 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         FermeFiche(Accept);
 }
 
-void    dlg_identificationpatient::Slot_AnnulpushButtonClicked()
+void dlg_identificationpatient::MenuContextuelMedecin()
+{
+    if (ui->MGupComboBox->findText(ui->MGupComboBox->currentText()) || ui->MGupComboBox->currentText() != "" || ui->MGupComboBox->currentIndex() != -1)
+    {
+        gmenuContextuel = new QMenu(this);
+        QAction *pAction_IdentPatient = gmenuContextuel->addAction(tr("Modifier les coordonnées de ce médecin"));
+        connect (pAction_IdentPatient,      &QAction::triggered,    [=] {ModifCorrespondant();});
+
+        // ouvrir le menu
+        gmenuContextuel->exec(cursor().pos());
+        delete gmenuContextuel;
+    }
+}
+
+void dlg_identificationpatient::ModifCorrespondant()
+{
+    int idcor           = ui->MGupComboBox->currentData().toInt();
+    bool onlydoctors = true;
+    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, true, true));
+    if (Datas::I()->correspondants->getById(idcor)==Q_NULLPTR)
+        Dlg_IdentCorresp->ui->NomlineEdit   ->setText(ui->MGupComboBox->currentText());
+    else
+        Dlg_IdentCorresp->ui->NomlineEdit   ->setText(Datas::I()->correspondants->getById(idcor)->nom());
+    Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
+    Dlg_IdentCorresp->ui->MGradioButton ->setChecked(true);
+    if (Dlg_IdentCorresp->exec()>0)
+    {
+        proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
+        ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
+        ListeCorModifiee = Dlg_IdentCorresp->identcorrespondantmodifiee();
+    }
+    delete Dlg_IdentCorresp;
+}
+
+void dlg_identificationpatient::Slot_AnnulpushButtonClicked()
 {
     gControleMGCombo = false;
     if (gMode == Creation)
@@ -494,12 +529,15 @@ int dlg_identificationpatient::EnregistreNouveauCorresp()
 {
     int idcor = -1;
     bool onlydoctors = true;
-    Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation,onlydoctors,0);
+    Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(ui->MGupComboBox->currentText());
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
     if (Dlg_IdentCorresp->exec()>0)
-        idcor = Dlg_IdentCorresp->gidCor;
+    {
+        ListeCorModifiee = Dlg_IdentCorresp->identcorrespondantmodifiee();
+        idcor = Dlg_IdentCorresp->correspondantrenvoye()->id();
+    }
     delete Dlg_IdentCorresp;
     return idcor;
 }
@@ -525,6 +563,11 @@ void dlg_identificationpatient::FermeFiche(enum CloseReason Cause)
         reject();
         break;
     }
+}
+
+bool dlg_identificationpatient::listecorrespondantsmodifiee()
+{
+    return  ListeCorModifiee;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -558,7 +601,6 @@ void dlg_identificationpatient::MAJMG()
                 int idcor = EnregistreNouveauCorresp();
                 if (idcor >= 0)
                 {
-                    ReconstruireListMG = true;
                     gflagMG = proc->GetflagMG();
                     proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));

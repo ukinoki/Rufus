@@ -51,7 +51,7 @@ void Depenses::clearAll()
  *
  * \param Depense la Depense que l'on veut ajouter
  * \return true si la Depense est ajoutée
- * \return false si le paramètre Depense est un nullptr
+ * \return false si le paramètre Depense est un Q_NULLPTR
  * \return false si la Depense est déjà présent
  */
 bool Depenses::add(Depense *Depense)
@@ -70,7 +70,7 @@ bool Depenses::add(Depense *Depense)
 /*!
  * \brief Depenses::getById
  * \param id l'id du Depense recherché
- * \return nullptr si aucune Depense trouvée
+ * \return Q_NULLPTR si aucune Depense trouvée
  * \return Depense* le Depense Depense à l'id
  */
 Depense* Depenses::getById(int id)

@@ -35,7 +35,7 @@ class dlg_listecorrespondants : public UpDialog
 public:
     explicit dlg_listecorrespondants(QWidget *parent = Q_NULLPTR);
     ~dlg_listecorrespondants();
-    bool                getListeModifiee();
+    bool                listecorrespondantsmodifiee();
 
 private:
     dlg_identificationcorresp   *Dlg_IdentCorresp;
@@ -47,7 +47,7 @@ private:
     UpLabel                 *label;
     QStandardItemModel      *gmodele;
     QList<QStandardItem*>   ListeMetiers();                // la liste des metiers
-    bool                    ListeModifiee;
+    bool                    ListeCorModifiee;
 
     WidgetButtonFrame   *widgButtons;
     void                ChoixButtonFrame(int);
@@ -55,7 +55,7 @@ private:
     void                EnregistreNouveauCorresp();
     void                ModifCorresp(int idcor);
     void                SupprCorresp();
-    void                ReconstruitListeCorrespondants(QString filtre = "");
+    void                ReconstruitTreeViewCorrespondants(bool reconstruirelaliste = false, QString filtre = "");
 };
 
 #endif // dlg_listecorrespondants_H

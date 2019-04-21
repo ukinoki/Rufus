@@ -31,7 +31,7 @@ QMap<int, DocExterne *> *DocsExternes::docsexternes()
 /*!
  * \brief docsexternes::getById
  * \param id l'idimpr du Document recherché
- * \return nullptr si aucun Document trouvée
+ * \return Q_NULLPTR si aucun Document trouvée
  * \return DocExterne* le Document correspondant à l'id
  */
 DocExterne* DocsExternes::getById(int id, bool loadDetails, bool addToList)

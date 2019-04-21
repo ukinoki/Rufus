@@ -115,7 +115,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             nom     = ordolist.at(i).at(5).toString();
             prenom  = Utils::trimcapitilize(ordolist.at(i).at(6).toString());
             //création de l'entête
-            Entete = (ALDQ? proc->ImpressionEntete(DateCreation, nullptr).value("ALD") : proc->ImpressionEntete(DateCreation, nullptr).value("Norm"));
+            Entete = (ALDQ? proc->ImpressionEntete(DateCreation, Q_NULLPTR).value("ALD") : proc->ImpressionEntete(DateCreation, Q_NULLPTR).value("Norm"));
             Entete.replace("{{TITRE1}}"            , "");
             Entete.replace("{{TITRE}}"             , "");
             Entete.replace("{{DDN}}"               , "");

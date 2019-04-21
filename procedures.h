@@ -239,9 +239,6 @@ public:
 
     void                    initListeUsers();
     void                    initListeComptes();
-    void                    initListeCorrespondants();
-    void                    initListeCorrespondantsAll();
-
     bool                    isPosteImportDocs();
 
     void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes
@@ -297,7 +294,7 @@ private:
     QPlainTextEdit          *gEtat;         // CZ 27082015
     QString                 gnomFichIni;
     QString                 gnomImprimante;
-    Villes                  *m_villes = nullptr;
+    Villes                  *m_villes = Q_NULLPTR;
     UpDialog                *gAskLogin, *gAskUser;
     UpTableWidget           *uptable;
     QPrinter                *printer;

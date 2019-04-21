@@ -68,8 +68,8 @@ private:
 
 
 public:
-    Acte(QObject *parent = nullptr);
-    Acte(int idActe, int nbActe, int noActe, QObject *parent = nullptr);
+    Acte(QObject *parent = Q_NULLPTR);
+    Acte(int idActe, int nbActe, int noActe, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
     bool isValid();

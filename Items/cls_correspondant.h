@@ -43,13 +43,20 @@ private: //Données du correspondant
     QString m_codepostal;           //!< code postal du correspondant
     QString m_ville;                //!< ville du correspondant
     QString m_telephone;            //!< telephone du correspondant
+    QString m_portable;             //!< no de portable du correspondant
+    QString m_fax;                  //!< no de fax du correspondant
+    QString m_mail;                 //!< mail du correspondant
+    bool    m_medecin;              //!< medecin?
     bool    m_generaliste;          //!< generaliste?
+    bool    m_isAllLoaded = false;  //!< tous les renseignements concernant ce correspondant sont chargés
+    int     m_specialite;           //!< id de la specialite correspondant en base
 
 private:
 
 public:
     //GETTER | SETTER
     bool isMG() const;
+    bool ismedecin() const;
     int id() const;
     QString nom() const;
     QString prenom() const;
@@ -63,8 +70,13 @@ public:
     QString ville() const;
     QString telephone() const;
     QString metier() const;
+    QString portable() const;
+    QString fax() const;
+    QString mail() const;
+    int specialite() const;
+    bool isAllLoaded() const;
 
-    explicit Correspondant(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit Correspondant(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
     void setData(QJsonObject data);
 };

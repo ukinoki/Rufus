@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("20-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("21-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -99,7 +99,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     InitMenus();
 
     //4 reconstruction des combobox des correspondants et de la liste des documents
-    proc->initListeCorrespondants();
     ReconstruitCombosCorresp();                 // initialisation de la liste
 
     grequeteListe   = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe FROM " NOM_TABLE_PATIENTS;
@@ -2881,22 +2880,23 @@ void Rufus::ListeCorrespondants()
     {
         UpMessageBox::Watch(this, tr("pas de correspondant enregistré") );
         bool onlydoctors    = false;
-        Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, 0);
+        Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
         if (Dlg_IdentCorresp->exec()>0)
         {
-            ReconstruitCombosCorresp();         // par une modif introduite par la fiche identcorrespondant
-            FlagMetAjourMG();
+            ReconstruitCombosCorresp(false);         // par une modif introduite par la fiche identcorrespondant
+            if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
+                OKModifierTerrain();
         }
         delete Dlg_IdentCorresp;
         return;
     }
     Dlg_ListCor = new dlg_listecorrespondants(this);
-
     Dlg_ListCor->exec();
-    if (Dlg_ListCor->getListeModifiee())
+    if (Dlg_ListCor->listecorrespondantsmodifiee())
     {
-        ReconstruitCombosCorresp();             // par une modif introduite par la fiche listecorrespondant
-        FlagMetAjourMG();
+        ReconstruitCombosCorresp(false);            // par une modif introduite par la fiche listecorrespondant
+        if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
+            OKModifierTerrain();
     }
     delete Dlg_ListCor;
 }
@@ -3252,7 +3252,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     //création de l'entête
     QString EnTete;
     User *userEntete = Datas::I()->users->getById(gUserEnCours->getIdUserParent(), true);
-    if (userEntete == nullptr)
+    if (userEntete == Q_NULLPTR)
         return;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
     if (EnTete == "") return;
@@ -3451,14 +3451,16 @@ void Rufus::ChoixMenuContextuelMedecin()
 {
     int id = ui->MGupComboBox->currentData().toInt();
     int idxMG = ui->MGupComboBox->currentIndex();
-    Dlg_IdentCorresp          = new dlg_identificationcorresp(dlg_identificationcorresp::Modification,true,id);
+    bool onlydoctors = true;
+    Dlg_IdentCorresp          = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, true, true));
     if (Dlg_IdentCorresp->exec()>0)
     {
-        FlagMetAjourMG();
-        ReconstruitCombosCorresp();             // par une modif introduite par la fiche identcorrespondant
-        if (Dlg_IdentCorresp->IdentModified())
+        if (Dlg_IdentCorresp->identcorrespondantmodifiee())
+        {
+            ReconstruitCombosCorresp(false);            // par une modif introduite par la fiche listecorrespondant
             ui->MGupComboBox->setCurrentIndex(idxMG);
-        OKModifierTerrain();
+            OKModifierTerrain();
+        }
     }
     delete Dlg_IdentCorresp;
 }
@@ -3492,12 +3494,13 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
     else if (choix == "Modifier2")
         id = ui->AutresCorresp2upComboBox->currentData().toInt();
     if (id==-1) return;
-    Dlg_IdentCorresp          = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, false, id);
+    bool onlydoctors = false;
+    Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, true, true));
     if (Dlg_IdentCorresp->exec()>0)
     {
-        int idCor = Dlg_IdentCorresp->gidCor;
-        ReconstruitCombosCorresp();             // par une modif introduite par la fiche identcorrespondant
-        FlagMetAjourMG();
+        int idCor = Dlg_IdentCorresp->correspondantrenvoye()->id();
+        if (Dlg_IdentCorresp->identcorrespondantmodifiee())
+            ReconstruitCombosCorresp(false);            // par une modif introduite par la fiche listecorrespondant
         if (choix == "Modifier1")
             ui->AutresCorresp1upComboBox->setCurrentIndex(ui->AutresCorresp1upComboBox->findData(idCor));
         else if (choix == "Modifier2")
@@ -5594,7 +5597,6 @@ void Rufus::VerifCorrespondants()
     {
         gflagMG = flagcor;
         // on reconstruit la liste des MG et des correspondants
-        proc->initListeCorrespondants();
         ReconstruitCombosCorresp();                     // par le timer VerifSalleDAttente
         // on resynchronise l'affichage du combobox au besoin
         if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
@@ -7435,16 +7437,19 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 {
     int idcor = -1;
     bool onlydoctors = (Cor == "MG");
-    Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, 0);
+    Dlg_IdentCorresp        = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
     Dlg_IdentCorresp->ui->NomlineEdit->setText(Nom);
     Dlg_IdentCorresp->ui->PrenomlineEdit->setFocus();
     if (Cor == "MG")
         Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
     if (Dlg_IdentCorresp->exec()>0)
     {
-        FlagMetAjourMG();
-        ReconstruitCombosCorresp();             // par une modif introduite par la fiche identcorrespondant
-        idcor = Dlg_IdentCorresp->gidCor;
+        if (Dlg_IdentCorresp->identcorrespondantmodifiee())
+        {
+            ReconstruitCombosCorresp(false);            // par une modif introduite par la fiche listecorrespondant
+            OKModifierTerrain();
+        }
+        idcor = Dlg_IdentCorresp->correspondantrenvoye()->id();
     }
     delete Dlg_IdentCorresp;
     return idcor;
@@ -7639,19 +7644,6 @@ bool Rufus::FermeDossier()
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
--- Flag pour signifier aux utilisateurs de mettre à jour leur médecin traitant ------------------------------------
------------------------------------------------------------------------------------------------------------------*/
-void Rufus::FlagMetAjourMG()
-{
-    proc->MAJflagMG();
-    // on resynchronise l'affichage du combobox au besoin
-    if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
-    {
-        OKModifierTerrain();
-    }
-}
-
-/*-----------------------------------------------------------------------------------------------------------------
 -- Flag pour signifier aux utilisateurs de mettre à jour la salle d'attente ------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::FlagMetAjourSalDat()
@@ -7715,10 +7707,11 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, int idPa
     //AA FICHE ACCEPTEE
     //*************************************************************************
     int a = Dlg_IdentPatient->exec();
-    if (Dlg_IdentPatient->ReconstruireListMG)
+    if (Dlg_IdentPatient->listecorrespondantsmodifiee())
     {
-        ReconstruitCombosCorresp();             // par une modif introduite par la fiche identpatient
-        FlagMetAjourMG();
+        ReconstruitCombosCorresp(false);             // par une modif introduite par la fiche identpatient
+        if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
+            OKModifierTerrain();
     }
     if (a > 0)
     {
@@ -8602,7 +8595,7 @@ void Rufus::MAJMG(QObject *obj)
                     else if (cbox == ui->AutresCorresp2upComboBox)
                         proc->setspe2(gPatientEnCours, idcor);
                     ReconstruitCombosCorresp();             // par une modif introduite par la fiche identcorrespondant
-                    FlagMetAjourMG();
+                    OKModifierTerrain();
                     cbox->setCurrentIndex(cbox->findData(idcor));
                 }
             }
@@ -8749,7 +8742,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     {
         int idUserEntete = Dlg_Docs->gidUserEntete;
         User *userEntete = Datas::I()->users->getById(idUserEntete, true);
-        if (userEntete == nullptr)
+        if (userEntete == Q_NULLPTR)
             return;
 
         QString     Entete;
@@ -8973,8 +8966,10 @@ void    Rufus::ReconstruitListesActes()
     ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
 }
 
-void Rufus::ReconstruitCombosCorresp()
+void Rufus::ReconstruitCombosCorresp(bool reconstruireliste)
 {
+    if (reconstruireliste)
+        Datas::I()->correspondants->initListe();
     int idxcombo, idcor (-1), idxcomboA1, idcorA1 (-1), idxcomboA2, idcorA2 (-1);
     if (ui->tabWidget->currentIndex() == ui->tabWidget->indexOf(ui->tabDossier))
     {
@@ -10704,7 +10699,6 @@ void Rufus::TraiteTCPMessage(QString msg)
         Remplir_SalDat();                       // par le TCPSocket
     else if (msg == TCPMSG_MAJCorrespondants)
     {
-        proc->initListeCorrespondants();
         ReconstruitCombosCorresp();             // maj par le TCPSocket
         // TODO signifier à dlg_identificationpatient la modification au cas où cette fiche serait ouverte
         //dlg_message(QStringList() << tr("Mise à jour de la liste des correspondants"), 3000);

@@ -491,15 +491,16 @@ QList<User*> DataBase::loadUsersAll()
     for (int i=0; i<usrlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = usrlist.at(i).at(0).toInt();
-        jData["login"] = usrlist.at(i).at(1).toString();
-        jData["soignant"] = usrlist.at(i).at(2).toInt();
-        jData["responsableActes"] = usrlist.at(i).at(3).toInt();
-        jData["enregHonoraires"] = usrlist.at(i).at(4).toInt();
-        jData["idCompteEncaissHonoraires"] = usrlist.at(i).at(5).toInt();
-        jData["cotation"] = (usrlist.at(i).at(6).toInt() == 1);
-        jData["employeur"] = usrlist.at(i).at(7).toInt();
-        jData["nomCompteAbrege"] = usrlist.at(i).at(8).toString();
+        jData["id"]                         = usrlist.at(i).at(0).toInt();
+        jData["login"]                      = usrlist.at(i).at(1).toString();
+        jData["soignant"]                   = usrlist.at(i).at(2).toInt();
+        jData["responsableActes"]           = usrlist.at(i).at(3).toInt();
+        jData["enregHonoraires"]            = usrlist.at(i).at(4).toInt();
+        jData["idCompteEncaissHonoraires"]  = usrlist.at(i).at(5).toInt();
+        jData["cotation"]                   = (usrlist.at(i).at(6).toInt() == 1);
+        jData["employeur"]                  = usrlist.at(i).at(7).toInt();
+        jData["nomCompteAbrege"]            = usrlist.at(i).at(8).toString();
+        jData["isAllLoaded"]                = false;
         User *usr = new User(jData);
         users << usr;
     }
@@ -525,7 +526,7 @@ QJsonObject DataBase::loadUserDatabyLogin(QString login)
 QList<Correspondant*> DataBase::loadCorrespondants()                             // tous les correspondants sans exception
 {
     QList<Correspondant*> correspondants;
-    QString req = "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin FROM " NOM_TABLE_CORRESPONDANTS " order by cornom, corprenom";
+    QString req = "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin, corspecialite FROM " NOM_TABLE_CORRESPONDANTS " order by cornom, corprenom";
 
     QList<QVariantList> corlist = StandardSelectSQL(req,ok);
     if(!ok || corlist.size()==0)
@@ -533,11 +534,13 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
     for (int i=0; i<corlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = corlist.at(i).at(0).toInt();
-        jData["nom"] = corlist.at(i).at(1).toString();
-        jData["prenom"] = corlist.at(i).at(2).toString();
-        jData["sexe"] = corlist.at(i).at(3).toString();
-        jData["generaliste"] = (corlist.at(i).at(4).toInt()==1);
+        jData["id"]             = corlist.at(i).at(0).toInt();
+        jData["nom"]            = corlist.at(i).at(1).toString();
+        jData["prenom"]         = corlist.at(i).at(2).toString();
+        jData["sexe"]           = corlist.at(i).at(3).toString();
+        jData["medecin"]        = (corlist.at(i).at(4).toInt()==1);
+        jData["generaliste"]    = (corlist.at(i).at(5).toInt() > 0);
+        jData["isAllLoaded"]    = false;
         Correspondant *cor = new Correspondant(jData);
         correspondants << cor;
     }
@@ -547,36 +550,88 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
 QList<Correspondant*> DataBase::loadCorrespondantsALL()                             // tous les correspondants sans exception avec plus de renseignements
 {
     QList<Correspondant*> correspondants;
-    QString req = "SELECT idCor, CorNom, CorPrenom, nomspecialite as metier, CorAdresse1, CorAdresse2, CorAdresse3,"
-                  " CorCodepostal, CorVille, CorTelephone, CorSexe, cormedecin FROM " NOM_TABLE_CORRESPONDANTS ", " NOM_TABLE_SPECIALITES
-            " where cormedecin = 1 and corspecialite = idspecialite"
-            " union"
-            " SELECT idCor, CorNom, CorPrenom, corautreprofession as metier, CorAdresse1, CorAdresse2, CorAdresse3,"
-            " CorCodepostal, CorVille, CorTelephone, CorSexe, cormedecin FROM " NOM_TABLE_CORRESPONDANTS
-            " where cormedecin <> 1 or cormedecin is null"
-            " order by metier, cornom, corprenom";
+    QString req = "SELECT idCor, CorNom, CorPrenom, nomspecialite as metier, CorAdresse1,"
+                        " CorAdresse2, CorAdresse3, CorCodepostal, CorVille, CorTelephone,"
+                        " CorSexe, cormedecin, corspecialite"
+                        " FROM " NOM_TABLE_CORRESPONDANTS ", " NOM_TABLE_SPECIALITES
+                        " where cormedecin = 1 and corspecialite = idspecialite"
+                  " union "
+                  "SELECT idCor, CorNom, CorPrenom, corautreprofession as metier, CorAdresse1,"
+                        " CorAdresse2, CorAdresse3, CorCodepostal, CorVille, CorTelephone,"
+                        " CorSexe, cormedecin, corspecialite"
+                        " FROM " NOM_TABLE_CORRESPONDANTS
+                        " where cormedecin <> 1 or cormedecin is null"
+                  " order by metier, cornom, corprenom";
     QList<QVariantList> corlist = StandardSelectSQL(req,ok);
     if(!ok || corlist.size()==0)
         return correspondants;
     for (int i=0; i<corlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"]         = corlist.at(i).at(0).toInt();
-        jData["nom"]        = corlist.at(i).at(1).toString();
-        jData["prenom"]     = corlist.at(i).at(2).toString();
-        jData["metier"]     = corlist.at(i).at(3).toString();
-        jData["adresse1"]   = corlist.at(i).at(4).toString();
-        jData["adresse2"]   = corlist.at(i).at(5).toString();
-        jData["adresse3"]   = corlist.at(i).at(6).toString();
-        jData["codepostal"] = corlist.at(i).at(7).toString();
-        jData["ville"]      = corlist.at(i).at(8).toString();
-        jData["telephone"]  = corlist.at(i).at(9).toString();
-        jData["sexe"]       = corlist.at(i).at(10).toString();
-        jData["generaliste"] = (corlist.at(i).at(11).toInt()==1);
+        jData["id"]             = corlist.at(i).at(0).toInt();
+        jData["nom"]            = corlist.at(i).at(1).toString();
+        jData["prenom"]         = corlist.at(i).at(2).toString();
+        jData["metier"]         = corlist.at(i).at(3).toString();
+        jData["adresse1"]       = corlist.at(i).at(4).toString();
+        jData["adresse2"]       = corlist.at(i).at(5).toString();
+        jData["adresse3"]       = corlist.at(i).at(6).toString();
+        jData["codepostal"]     = corlist.at(i).at(7).toString();
+        jData["ville"]          = corlist.at(i).at(8).toString();
+        jData["telephone"]      = corlist.at(i).at(9).toString();
+        jData["sexe"]           = corlist.at(i).at(10).toString();
+        jData["medecin"]        = (corlist.at(i).at(11).toInt() == 1);
+        jData["generaliste"]    = (corlist.at(i).at(12).toInt() == 0);
+        jData["isAllLoaded"]    = false;
         Correspondant *cor = new Correspondant(jData);
         correspondants << cor;
     }
     return correspondants;
+}
+
+QJsonObject DataBase::loadCorrespondantData(int idcor)                             // toutes les données d'un correspondant
+{
+    QJsonObject jData{};
+    QString req = "SELECT CorNom, CorPrenom, nomspecialite as metier, CorAdresse1, CorAdresse2,"
+                        " CorAdresse3, CorCodepostal, CorVille, CorTelephone, CorSexe,"
+                        " cormedecin, CorPortable, CorFax, CorMail, CorSpecialite"
+                        " FROM " NOM_TABLE_CORRESPONDANTS ", " NOM_TABLE_SPECIALITES
+                        " where cormedecin = 1 and corspecialite = idspecialite"
+                        " and idcor = " + QString::number(idcor) +
+                  " union "
+                  "SELECT CorNom, CorPrenom, CorAutreProfession as metier, CorAdresse1, CorAdresse2,"
+                        " CorAdresse3, CorCodepostal, CorVille, CorTelephone, CorSexe,"
+                        " cormedecin, CorPortable, CorFax, CorMail, CorSpecialite"
+                        " FROM " NOM_TABLE_CORRESPONDANTS
+                        " where cormedecin <> 1 or cormedecin is null"
+                        " and idcor = " + QString::number(idcor);
+    QVariantList cordata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'utilisateur"));
+    if (!ok)
+        return jData;
+
+    if(cordata.size()==0)
+        return jData;
+
+    for (int i=0; i<cordata.size(); ++i)
+    {
+        jData["id"]         = idcor;
+        jData["nom"]        = cordata.at(0).toString();
+        jData["prenom"]     = cordata.at(1).toString();
+        jData["metier"]     = cordata.at(2).toString();
+        jData["adresse1"]   = cordata.at(3).toString();
+        jData["adresse2"]   = cordata.at(4).toString();
+        jData["adresse3"]   = cordata.at(5).toString();
+        jData["codepostal"] = cordata.at(6).toString();
+        jData["ville"]      = cordata.at(7).toString();
+        jData["telephone"]  = cordata.at(8).toString();
+        jData["sexe"]       = cordata.at(9).toString();
+        jData["medecin"]    = (cordata.at(10).toInt()==1);
+        jData["portable"]   = cordata.at(11).toString();
+        jData["fax"]        = cordata.at(12).toString();
+        jData["mail"]       = cordata.at(13).toString();
+        jData["specialite"] = cordata.at(14).toInt();
+        jData["isAllLoaded"]= true;
+    }
+    return jData;
 }
 
 void DataBase::SupprCorrespondant(int idcor)

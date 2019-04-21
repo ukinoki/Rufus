@@ -41,6 +41,10 @@ bool Correspondant::isMG() const
 {
     return m_generaliste;
 }
+bool Correspondant::ismedecin() const
+{
+    return m_medecin;
+}
 QString Correspondant::adresse1() const
 {
     return m_adresse1;
@@ -98,10 +102,31 @@ QString Correspondant::adresseComplete() const
     }
     return ttip;
 }
+QString Correspondant::portable() const
+{
+    return m_portable;
+}
+QString Correspondant::fax() const
+{
+    return m_fax;
+}
+QString Correspondant::mail() const
+{
+    return m_mail;
+}
+int Correspondant::specialite() const
+{
+    return m_specialite;
+}
 
 Correspondant::Correspondant(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
+}
+
+bool Correspondant::isAllLoaded() const
+{
+    return m_isAllLoaded;
 }
 
 void Correspondant::setData(QJsonObject data)
@@ -109,8 +134,9 @@ void Correspondant::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, "id", m_id);
-    setDataBool(data, "generaliste", m_generaliste);
+    setDataInt(data,    "id", m_id);
+    setDataBool(data,   "generaliste", m_generaliste);
+    setDataBool(data,   "medecin", m_medecin);
     setDataString(data, "nom", m_nom);
     setDataString(data, "prenom", m_prenom);
     setDataString(data, "sexe", m_sexe);
@@ -121,5 +147,11 @@ void Correspondant::setData(QJsonObject data)
     setDataString(data, "codepostal", m_codepostal);
     setDataString(data, "ville", m_ville);
     setDataString(data, "telephone", m_telephone);
+    setDataString(data, "mail", m_mail);
+    setDataString(data, "fax", m_fax);
+    setDataString(data, "portable", m_portable);
+    setDataInt(data,    "specialite", m_specialite);
+
+    setDataBool(data,   "isAllLoaded", m_isAllLoaded);
 }
 

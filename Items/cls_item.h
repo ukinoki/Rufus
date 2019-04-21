@@ -33,7 +33,7 @@ public: //STATIC
 
 
 public:
-    explicit Item(QObject *parent = nullptr);
+    explicit Item(QObject *parent = Q_NULLPTR);
 
 
 protected:

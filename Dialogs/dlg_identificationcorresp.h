@@ -38,15 +38,17 @@ public:
         Creation,
         Modification
     };
-    explicit dlg_identificationcorresp(enum Mode mode, bool quelesmedecins, int idCorresp, QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationcorresp(enum Mode mode, bool quelesmedecins, Correspondant *cor = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationcorresp *ui;
     ~dlg_identificationcorresp();
-    int                 gidCor;
     QLineEdit           *CPlineEdit, *VillelineEdit;
-    bool                IdentModified();
+    bool                identcorrespondantmodifiee();
+    Correspondant*      correspondantrenvoye();
 
 private:
+    int                 gidCor;
     Mode                gMode;
+    Correspondant       *gCorrespondant;
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     QString             lCreatModif;
     bool                OnlyDoctors;

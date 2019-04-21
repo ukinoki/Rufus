@@ -123,7 +123,7 @@ public:
     void setActes(QMap<int, Acte *> *actes);
     QMap<int, Acte *> *actes() const;
 
-    explicit Patient(QJsonObject data = {}, QObject *parent = nullptr);
+    explicit Patient(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
     void setData(QJsonObject data);
     void addSocialData(QJsonObject data);

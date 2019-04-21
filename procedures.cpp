@@ -2256,35 +2256,6 @@ void Procedures::initListeUsers()
     }
 }
 
-/*!
- * \brief Procedures::initListe correspondants
- * Charge l'ensemble des correspondants
- * et les ajoute à la classe Correspondants
- */
-void Procedures::initListeCorrespondants()
-{
-    QList<Correspondant*> listcorrespondants = db->loadCorrespondants();
-    Datas::I()->correspondants->clearAll();
-    QList<Correspondant*>::const_iterator itcorrespondants;
-    for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
-    {
-        Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
-        Datas::I()->correspondants->add(cor);
-    }
-}
-
-void Procedures::initListeCorrespondantsAll()
-{
-    QList<Correspondant*> listcorrespondants = db->loadCorrespondantsALL();
-    Datas::I()->correspondants->clearAll();
-    QList<Correspondant*>::const_iterator itcorrespondants;
-    for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
-    {
-        Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
-        Datas::I()->correspondants->add(cor);
-    }
-}
-
 bool Procedures::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj==uptable)
@@ -2317,7 +2288,7 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
     QMap<int, Correspondant *> *listcor = Datas::I()->correspondants->correspondants();
     QMap<int, Correspondant *>::const_iterator itcor;
     QStandardItemModel *model = new QStandardItemModel();
-    // toute la manip qui suit sert à remetre les correspondants par ordre aplhabétique (dans le QMap, ils sont triés par id croissant) - si  vous trouvez plus simple, ne vous génez pas
+    // toute la manip qui suit sert à remettre les correspondants par ordre aplhabétique (dans le QMap, ils sont triés par id croissant) - si  vous trouvez plus simple, ne vous génez pas
     for( itcor = listcor->constBegin(); itcor != listcor->constEnd(); ++itcor )
     {
         Correspondant *cor = const_cast<Correspondant*>(*itcor);
@@ -2325,7 +2296,7 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
         items << new QStandardItem(cor->nom() + " "  + cor->prenom()) << new QStandardItem(QString::number(cor->id()));
         if (all)
             model->appendRow(items);
-        else if (cor->isMG())
+        else if (cor->ismedecin())
             model->appendRow(items);
     }
     model->sort(0);
