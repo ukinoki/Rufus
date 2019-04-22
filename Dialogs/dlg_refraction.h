@@ -27,7 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_commentaires.h"
 #include "ui_dlg_commentaires.h"
-#include "dlg_listemesures.h"
+#include "dlg_refractionlistemesures.h"
 
 namespace Ui {
     class dlg_refraction;

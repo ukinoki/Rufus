@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>dlg_banque</class>
- <widget class="QDialog" name="dlg_banque">
+ <class>dlg_gestionbanques</class>
+ <widget class="QDialog" name="dlg_gestionbanques">
   <property name="geometry">
    <rect>
     <x>0</x>

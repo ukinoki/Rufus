@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DLG_BANQUE_H
-#define DLG_BANQUE_H
+#ifndef DLG_GESTIONBANQUES_H
+#define DLG_GESTIONBANQUES_H
 
 #include <QSqlDatabase>
 #include <QtSql>
@@ -35,17 +35,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
 
 namespace Ui {
-class dlg_banque;
+class dlg_gestionbanques;
 }
 
-class dlg_banque : public UpDialog
+class dlg_gestionbanques : public UpDialog
 {
     Q_OBJECT
 
 public:
-    explicit dlg_banque(QWidget *parent = Q_NULLPTR, QString nouvbanqueabrege = "");
-    ~dlg_banque();
-    Ui::dlg_banque  *ui;
+    explicit dlg_gestionbanques(QWidget *parent = Q_NULLPTR, QString nouvbanqueabrege = "");
+    ~dlg_gestionbanques();
+    Ui::dlg_gestionbanques  *ui;
     UpTableWidget   *uptablebanq;
 
 private:
@@ -67,4 +67,4 @@ private:
     void            ChoixButtonFrame(int);
 };
 
-#endif // DLG_BANQUE_H
+#endif // DLG_GESTIONBANQUES_H

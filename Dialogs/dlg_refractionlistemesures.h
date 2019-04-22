@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DLG_LISTEMESURES_H
-#define DLG_LISTEMESURES_H
+#ifndef DLG_REFRACTIONLISTEMESURES_H
+#define DLG_REFRACTIONLISTEMESURES_H
 
 #include "procedures.h"
 #include <QTableView>
@@ -49,4 +49,4 @@ private slots:
     void            Slot_Item_Liste_Clicked(QModelIndex);
 
 };
-#endif // DLG_LISTEMESURES_H
+#endif // DLG_REFRACTIONLISTEMESURES_H

@@ -23,8 +23,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include "uplineedit.h"
 #include "upcheckbox.h"
-#include "dlg_banque.h"
-#include "ui_dlg_banque.h"
+#include "dlg_gestionbanques.h"
+#include "ui_dlg_gestionbanques.h"
 
 namespace Ui {
 class dlg_paiementtiers;
@@ -88,7 +88,7 @@ private:
         enum gOrdreTri      {Alphabetique, Chronologique};
     int                     gTypeTable;
         enum gTypeTable     {ActesDirects,ActesTiers,Paiements};                    // définit les 3 types de tables possibles dans la fiche
-    dlg_banque              *Dlg_Banq;
+    dlg_gestionbanques       *Dlg_Banq;
     Procedures              *proc;
     DataBase                *db;
     bool                    ok;

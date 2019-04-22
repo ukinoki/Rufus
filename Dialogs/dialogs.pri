@@ -4,7 +4,6 @@
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_autresmesures.cpp \
-    $$PWD/dlg_banque.cpp \
     $$PWD/dlg_bilanortho.cpp \
     $$PWD/dlg_choixdate.cpp \
     $$PWD/dlg_commentaires.cpp \
@@ -22,7 +21,6 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_identificationpatient.cpp \
     $$PWD/dlg_identificationuser.cpp \
     $$PWD/dlg_listecorrespondants.cpp \
-    $$PWD/dlg_listemesures.cpp \
     $$PWD/dlg_listemotscles.cpp \
     $$PWD/dlg_message.cpp \
     $$PWD/dlg_motifs.cpp \
@@ -36,11 +34,12 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_paiementdirect.cpp \
     $$PWD/dlg_paiementtiers.cpp \
     $$PWD/dlg_bilanrecettes.cpp \
-    $$PWD/dlg_gestioncotations.cpp
+    $$PWD/dlg_gestioncotations.cpp \
+    $$PWD/dlg_gestionbanques.cpp \
+    $$PWD/dlg_refractionlistemesures.cpp
 
 HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_autresmesures.h \
-    $$PWD/dlg_banque.h \
     $$PWD/dlg_bilanortho.h \
     $$PWD/dlg_choixdate.h \
     $$PWD/dlg_commentaires.h \
@@ -58,7 +57,6 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_identificationpatient.h \
     $$PWD/dlg_identificationuser.h \
     $$PWD/dlg_listecorrespondants.h \
-    $$PWD/dlg_listemesures.h \
     $$PWD/dlg_listemotscles.h \
     $$PWD/dlg_message.h \
     $$PWD/dlg_motifs.h \
@@ -72,10 +70,11 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_paiementdirect.h \
     $$PWD/dlg_paiementtiers.h \
     $$PWD/dlg_bilanrecettes.h \
-    $$PWD/dlg_gestioncotations.h
+    $$PWD/dlg_gestioncotations.h \
+    $$PWD/dlg_gestionbanques.h \
+    $$PWD/dlg_refractionlistemesures.h
 
 FORMS += $$PWD/dlg_actesprecedents.ui \
-    $$PWD/dlg_banque.ui \
     $$PWD/dlg_bilanortho.ui \
     $$PWD/dlg_choixdate.ui \
     $$PWD/dlg_commentaires.ui \
@@ -96,4 +95,5 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_remisecheques.ui \
     $$PWD/dlg_salledattente.ui \
     $$PWD/dlg_paiementdirect.ui \
-    $$PWD/dlg_paiementtiers.ui
+    $$PWD/dlg_paiementtiers.ui \
+    $$PWD/dlg_gestionbanques.ui

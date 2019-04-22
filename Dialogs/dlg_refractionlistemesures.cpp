@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "dlg_listemesures.h"
+#include "dlg_refractionlistemesures.h"
 
 dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, QWidget *parent) :
     UpDialog (QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionListeMes", parent)

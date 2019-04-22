@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include <QSqlQuery>
-#include "dlg_banque.h"
+#include "dlg_gestionbanques.h"
 #include "procedures.h"
 #include "database.h"
 #include "gbl_datas.h"
@@ -91,7 +91,7 @@ private:
     User                        *m_userConnected, *UserComptableACrediter;
     QList<TypeTiers*>           *m_typestiers;
 
-    dlg_banque                  *Dlg_Banq;
+    dlg_gestionbanques           *Dlg_Banq;
 
     void                        closeEvent(QCloseEvent *event);
     bool                        eventFilter(QObject *obj, QEvent *event)  ;

@@ -21,8 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolTip>
 
 #include "uplineedit.h"
-#include "dlg_banque.h"
-#include "ui_dlg_banque.h"
+#include "dlg_gestionbanques.h"
+#include "ui_dlg_gestionbanques.h"
 #include "dlg_gestioncotations.h"
 #include "dlg_gestionusers.h"
 #include "dlg_fontdialog.h"
@@ -51,7 +51,7 @@ public:
     QLineEdit           *CPDefautlineEdit, *VilleDefautlineEdit;
 
 private:
-    dlg_banque              *Dlg_Banq;
+    dlg_gestionbanques      *Dlg_Banq;
     dlg_gestioncotations    *Dlg_CrrCot;
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_fontdialog          *Dlg_Fonts;

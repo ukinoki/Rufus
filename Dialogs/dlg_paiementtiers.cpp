@@ -1916,7 +1916,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                       LigneDepenseAModifier.clear();
                       QString Depenserequete = "select idDep, idUser, DateDep, Reffiscale, Objet,"
                                                " Montant, Famfiscale, Nooperation, Monnaie, idRec,"
-                                               " ModePaiement, Compte, NoCheque from " NOM_TABLE_DEPENSES
+                                               " ModePaiement, Compte, NoCheque, idFacture from " NOM_TABLE_DEPENSES
                                                " where idDep = " + commdata.at(2).toString();
 
                       QVariantList depdata = db->getFirstRecordFromStandardSelectSQL(Depenserequete, ok);
@@ -1931,24 +1931,24 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                           if (depdata.at(3).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(3).toString()) + "'"; //RefFiscale
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(3).toString()) + "'";    //RefFiscale
                           if (depdata.at(4).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(4).toString()) + "'"; //Objet
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(4).toString()) + "'";    //Objet
                           LigneDepenseAModifier << depdata.at(5).toString();                                            //Montant
                           if (depdata.at(6).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(6).toString()) + "'"; //FamFiscale
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(6).toString()) + "'";    //FamFiscale
                           if (depdata.at(7).toInt() == 0)
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << depdata.at(7).toString();                                       //Nooperation
+                              LigneDepenseAModifier << depdata.at(7).toString();                                        //Nooperation
                           if (depdata.at(8).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(8).toString()) + "'"; //Monnaie
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(8).toString()) + "'";    //Monnaie
                           if (depdata.at(9).toInt() == 0)
                               LigneDepenseAModifier << "null";
                           else
@@ -1956,7 +1956,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                           if (depdata.at(10).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(10).toString()) + "'";//ModePaiement
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(depdata.at(10).toString()) + "'";   //ModePaiement
                           if (depdata.at(11).toInt() == 0)
                               LigneDepenseAModifier << "null";
                           else
@@ -1965,6 +1965,10 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                               LigneDepenseAModifier << "null";
                           else
                               LigneDepenseAModifier << depdata.at(12).toString();                                       //NoCheque
+                          if (depdata.at(13).toInt() == 0)
+                              LigneDepenseAModifier << "null";
+                          else
+                              LigneDepenseAModifier << depdata.at(13).toString();                                       //idFacture
 
                           requete = "DELETE FROM " NOM_TABLE_DEPENSES " WHERE idDep = " + depdata.at(0).toString();
                           db->StandardSQL(requete);
@@ -2918,7 +2922,7 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
             msgbox.exec();
             if (msgbox.clickedButton() == &OKBouton)
             {
-                Dlg_Banq = new dlg_banque(this, Banq.toUpper());
+                Dlg_Banq = new dlg_gestionbanques(this, Banq.toUpper());
                 if (Dlg_Banq->exec()>0)
                 {
                     ReconstruitListeBanques();

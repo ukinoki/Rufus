@@ -18,8 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_GESTIONCOMPTES_H
 #define DLG_GESTIONCOMPTES_H
 
-#include "dlg_banque.h"
-#include "ui_dlg_banque.h"
+#include "dlg_gestionbanques.h"
+#include "ui_dlg_gestionbanques.h"
 #include "upcombobox.h"
 #include <QRadioButton>
 #include "cls_user.h"
@@ -48,7 +48,7 @@ private:
     User                    *gDataUser;
     Comptes                 *comptesusr;
     Compte                  *CompteEnCours;
-    dlg_banque              *Dlg_Banq;
+    dlg_gestionbanques      *Dlg_Banq;
     bool                    gAfficheLeSolde;
     bool                    gSociete;
     bool                    gVisible;

@@ -3049,7 +3049,7 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
 
                       QString Depenserequete = "select idDep, idUser, DateDep, Reffiscale, Objet,"
                                                " Montant, Famfiscale, Nooperation, Monnaie, idRec,"
-                                               " ModePaiement, Compte, NoCheque from " NOM_TABLE_DEPENSES
+                                               " ModePaiement, Compte, NoCheque, idFacture from " NOM_TABLE_DEPENSES
                                                " where idDep = " + CommissionCompteQuery.value(2).toString();
 
                       QSqlQuery DepenseQuery (Depenserequete,db->getDataBase());
@@ -3066,24 +3066,24 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
                           if (DepenseQuery.value(3).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(3).toString()) + "'"; //RefFiscale
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(3).toString()) + "'";    //RefFiscale
                           if (DepenseQuery.value(4).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(4).toString()) + "'"; //Objet
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(4).toString()) + "'";    //Objet
                           LigneDepenseAModifier << DepenseQuery.value(5).toString();                                            //Montant
                           if (DepenseQuery.value(6).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(6).toString()) + "'"; //FamFiscale
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(6).toString()) + "'";    //FamFiscale
                           if (DepenseQuery.value(7).toInt() == 0)
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << DepenseQuery.value(7).toString();                                       //Nooperation
+                              LigneDepenseAModifier << DepenseQuery.value(7).toString();                                        //Nooperation
                           if (DepenseQuery.value(8).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(8).toString()) + "'"; //Monnaie
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(8).toString()) + "'";    //Monnaie
                           if (DepenseQuery.value(9).toInt() == 0)
                               LigneDepenseAModifier << "null";
                           else
@@ -3091,7 +3091,7 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
                           if (DepenseQuery.value(10).toString().isEmpty())
                               LigneDepenseAModifier << "null";
                           else
-                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(10).toString()) + "'";//ModePaiement
+                              LigneDepenseAModifier << "'" + Utils::correctquoteSQL(DepenseQuery.value(10).toString()) + "'";   //ModePaiement
                           if (DepenseQuery.value(11).toInt() == 0)
                               LigneDepenseAModifier << "null";
                           else
@@ -3100,6 +3100,10 @@ void dlg_paiement::ModifPaiementTiers(int idRecetteAModifier)
                               LigneDepenseAModifier << "null";
                           else
                               LigneDepenseAModifier << DepenseQuery.value(12).toString();                                       //NoCheque
+                          if (DepenseQuery.value(13).toInt() == 0)
+                              LigneDepenseAModifier << "null";
+                          else
+                              LigneDepenseAModifier << DepenseQuery.value(13).toString();                                       //idFacture
 
                           requete = "DELETE FROM " NOM_TABLE_DEPENSES " WHERE idDep = " + DepenseQuery.value(0).toString();
                           QSqlQuery SupprimDepenseQuery(requete,db->getDataBase());
@@ -4667,7 +4671,7 @@ bool dlg_paiement::VerifCoherencePaiement()
             msgbox.exec();
             if (msgbox.clickedButton() == &OKBouton)
             {
-                Dlg_Banq = new dlg_banque(this, Banq.toUpper());
+                Dlg_Banq = new dlg_gestionbanques(this, Banq.toUpper());
                 if (Dlg_Banq->exec()>0)
                 {
                     ReconstruitListeBanques();
