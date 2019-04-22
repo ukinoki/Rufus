@@ -76,7 +76,7 @@ QString Correspondant::telephone() const
 QString Correspondant::adresseComplete() const
 {
     QString ttip;
-    if (m_adresse1!= "") ttip +=m_adresse1;
+    if (m_adresse1!= "") ttip += m_adresse1;
     if (m_adresse2 != "")
     {
         if (ttip != "") ttip += "\n";

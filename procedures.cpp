@@ -2237,25 +2237,6 @@ QStandardItemModel* Procedures::getListeComptesEncaissmtUserAvecDesactive()
     return ListeComptesEncaissUserAvecDesactive;
 }
 
-
-/*!
- * \brief Procedures::initListeUsers
- * Charge l'ensemble des utilisateurs
- * et les ajoute à la classe Users
- */
-void Procedures::initListeUsers()
-{
-    QList<User*> listUsers = db->loadUsersAll();
-    QList<User*>::const_iterator itUser;
-    for( itUser = listUsers.constBegin(); itUser != listUsers.constEnd(); ++itUser )
-    {
-        User *usr = const_cast<User*>(*itUser);
-        if( usr->id() == m_userConnected->id() )
-            usr = m_userConnected;
-        Datas::I()->users->add( usr );
-    }
-}
-
 bool Procedures::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj==uptable)
@@ -3515,7 +3496,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             exit(0);
         }
         Verif_secure_file_priv();
-        initListeUsers();
+        Datas::I()->users->initListe();
         if (DefinitRoleUser()) //NOTE : User Role
         {
             /* definit les iduser pour lequel le user travaille
@@ -3597,7 +3578,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             // Création de l'utilisateur
             //TODO : ICI
             gdbOK = CreerPremierUser(m_userConnected->getLogin(), m_userConnected->getPassword());
-            initListeUsers();
+            Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
             db->StandardSQL("delete from " NOM_TABLE_USERSCONNECTES);
             exit(0);
@@ -4200,7 +4181,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Création de l'utilisateur
             gdbOK = CreerPremierUser(m_userConnected->getLogin(), m_userConnected->getPassword());
             db->login(m_userConnected->getLogin(), m_userConnected->getPassword());
-            initListeUsers();
+            Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
                                       "puissent être prises en compte\n"));

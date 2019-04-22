@@ -136,3 +136,20 @@ QString Users::getLoginById(int id)
         return user->getLogin();
     return "";
 }
+
+/*!
+ * \brief Users::initListe
+ * Charge l'ensemble des utilisateurs
+ * et les ajoute à la classe Users
+ */
+void Users::initListe()
+{
+    QList<User*> listUsers = DataBase::getInstance()->loadUsers();
+    QList<User*>::const_iterator itUser;
+    for( itUser = listUsers.constBegin(); itUser != listUsers.constEnd(); ++itUser )
+    {
+        User *usr = const_cast<User*>(*itUser);
+        add( usr );
+    }
+}
+

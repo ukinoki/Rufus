@@ -221,9 +221,9 @@ public:
     QList<QImage>           listimage;
     double                  CalcBaseSize();
 
-    // Les accesseurs
     bool                    Init();
     bool                    ApercuAvantImpression();
+    // Les accesseurs
     QString                 getCodePostalParDefaut();
     void                    setCodePostalParDefaut(QString CPParDefaut);
     Patient*                getPatientById(int id);
@@ -237,8 +237,6 @@ public:
     void                    setListeComptesEncaissmtUser(int);
     Villes*                 getVilles();
 
-    void                    initListeUsers();
-    void                    initListeComptes();
     bool                    isPosteImportDocs();
 
     void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes

@@ -476,7 +476,7 @@ QJsonObject DataBase::loadUserData(int idUser)
     }
     return userData;
 }
-QList<User*> DataBase::loadUsersAll()
+QList<User*> DataBase::loadUsers()
 {
     QList<User*> users;
     QString req = "select usr.iduser, usr.userlogin, usr.soignant, usr.responsableactes, "          //0,1,2,3
@@ -558,7 +558,7 @@ QList<Correspondant*> DataBase::loadCorrespondantsALL()                         
                   " union "
                   "SELECT idCor, CorNom, CorPrenom, corautreprofession as metier, CorAdresse1,"
                         " CorAdresse2, CorAdresse3, CorCodepostal, CorVille, CorTelephone,"
-                        " CorSexe, cormedecin, corspecialite"
+                        " CorSexe, cormedecin, -1 as corspecialite"
                         " FROM " NOM_TABLE_CORRESPONDANTS
                         " where cormedecin <> 1 or cormedecin is null"
                   " order by metier, cornom, corprenom";
@@ -581,6 +581,7 @@ QList<Correspondant*> DataBase::loadCorrespondantsALL()                         
         jData["sexe"]           = corlist.at(i).at(10).toString();
         jData["medecin"]        = (corlist.at(i).at(11).toInt() == 1);
         jData["generaliste"]    = (corlist.at(i).at(12).toInt() == 0);
+        jData["specialite"]     = corlist.at(i).at(12).toInt();
         jData["isAllLoaded"]    = false;
         Correspondant *cor = new Correspondant(jData);
         correspondants << cor;
@@ -600,7 +601,7 @@ QJsonObject DataBase::loadCorrespondantData(int idcor)                          
                   " union "
                   "SELECT CorNom, CorPrenom, CorAutreProfession as metier, CorAdresse1, CorAdresse2,"
                         " CorAdresse3, CorCodepostal, CorVille, CorTelephone, CorSexe,"
-                        " cormedecin, CorPortable, CorFax, CorMail, CorSpecialite"
+                        " cormedecin, CorPortable, CorFax, CorMail, -1 as CorSpecialite"
                         " FROM " NOM_TABLE_CORRESPONDANTS
                         " where cormedecin <> 1 or cormedecin is null"
                         " and idcor = " + QString::number(idcor);

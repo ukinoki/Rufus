@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("21-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("22-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -3467,22 +3467,19 @@ void Rufus::ChoixMenuContextuelMedecin()
 
 void Rufus::MenuContextuelCorrespondant(UpComboBox *box)
 {
-    if (!box->findText(box->currentText()) || box->currentText() != "" || box->currentIndex() == -1)
+    if (box->findText(box->currentText())  != -1)
     {
         QString choix = "";
         if (box == ui->AutresCorresp1upComboBox) choix = "Modifier1";
         else if (box == ui->AutresCorresp2upComboBox) choix = "Modifier2";
         else return;
-        if (box->findText(box->currentText()))
-        {
-            gmenuContextuel = new QMenu(this);
-            QAction *pAction_IdentPatient = gmenuContextuel->addAction(tr("Modifier les coordonnées de ce correspondant"));
-            connect (pAction_IdentPatient,      &QAction::triggered,    [=] {ChoixMenuContextuelCorrespondant(choix);});
+        gmenuContextuel = new QMenu(this);
+        QAction *pAction_IdentPatient = gmenuContextuel->addAction(tr("Modifier les coordonnées de ce correspondant"));
+        connect (pAction_IdentPatient,      &QAction::triggered,    [=] {ChoixMenuContextuelCorrespondant(choix);});
 
-            // ouvrir le menu
-            gmenuContextuel->exec(cursor().pos());
-            delete gmenuContextuel;
-        }
+        // ouvrir le menu
+        gmenuContextuel->exec(cursor().pos());
+        delete gmenuContextuel;
     }
 }
 

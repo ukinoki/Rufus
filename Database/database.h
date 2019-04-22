@@ -118,7 +118,7 @@ public:
     QJsonObject             login(QString login, QString password);
     QJsonObject             loadUserData(int idUser);
     QJsonObject             loadUserDatabyLogin(QString login);
-    QList<User*>            loadUsersAll();
+    QList<User*>            loadUsers();
 
     /*
      * Correspondants

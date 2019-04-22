@@ -335,7 +335,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
 
 void dlg_identificationpatient::MenuContextuelMedecin()
 {
-    if (ui->MGupComboBox->findText(ui->MGupComboBox->currentText()) || ui->MGupComboBox->currentText() != "" || ui->MGupComboBox->currentIndex() != -1)
+    if (ui->MGupComboBox->findText(ui->MGupComboBox->currentText()) != -1)
     {
         gmenuContextuel = new QMenu(this);
         QAction *pAction_IdentPatient = gmenuContextuel->addAction(tr("Modifier les coordonnées de ce médecin"));

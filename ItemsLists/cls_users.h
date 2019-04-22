@@ -20,6 +20,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include "cls_user.h"
+#include "database.h"
+
 /*!
  * \brief The Users class
  * Cette classe gére les différents collections de "User"
@@ -45,6 +47,7 @@ public:
     bool add(User *usr);
     User* getById(int id, bool loadDetails=false, bool addToList = true);
     QString getLoginById(int id);
+    void initListe();
 };
 
 #endif // CLS_USERS_H

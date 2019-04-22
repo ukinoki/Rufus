@@ -162,7 +162,7 @@ void dlg_listecorrespondants::SupprCorresp()
     if (msgbox.clickedButton() == &OKBouton)
     {
         int idCor   = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt();
-        DataBase::getInstance()->SupprCorrespondant(idCor);
+        db->SupprCorrespondant(idCor);
         ListeCorModifiee = true;
         ReconstruitTreeViewCorrespondants(true);
     }
@@ -240,7 +240,10 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
         gmodele->sort(0);
         gmodele->sort(1);
         connect(treeCor,    &QAbstractItemView::entered,        this,   [=] (QModelIndex idx)
-                                                                            {QToolTip::showText(cursor().pos(),gmodele->itemFromIndex(idx)->data().toMap().value("adr").toString());} );
+                                                                            {
+                                                                                if (!gmodele->itemFromIndex(idx)->hasChildren())
+                                                                                    QToolTip::showText(cursor().pos(), gmodele->itemFromIndex(idx)->data().toMap().value("adr").toString());
+                                                                            } );
         connect(treeCor,    &QAbstractItemView::pressed,        this,   &dlg_listecorrespondants::Enablebuttons);
         connect(treeCor,    &QAbstractItemView::doubleClicked,  this,   [=] (QModelIndex idx)
                                                                             {
