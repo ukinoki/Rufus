@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_REFRACTION_H
 #define DLG_REFRACTION_H
 
-#include <cmath>            // sert à introduire la fonction floor()
 #include <QTimer>
 #include "updoublespinbox.h"
 #include "updoublevalidator.h"

@@ -2073,7 +2073,7 @@ void Rufus::ExporteDocs()
                     qDebug() << "erreur";
                     return;
                 }
-                if (!proc->CompressFileJPG(CheminOKTransfrProv))
+                if (!Utils::CompressFileJPG(CheminOKTransfrProv, proc->DirImagerie()))
                 {
                     db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
                     continue;
@@ -2303,7 +2303,7 @@ void Rufus::ExporteDocs()
                 qDebug() << "erreur";
                 return;
             }
-            if (!proc->CompressFileJPG(CheminOKTransfrProv))
+            if (!Utils::CompressFileJPG(CheminOKTransfrProv, proc->DirImagerie()))
             {
                 db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), "idFacture", NOM_TABLE_FACTURES);
                 continue;

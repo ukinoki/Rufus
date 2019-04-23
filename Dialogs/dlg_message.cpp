@@ -27,6 +27,10 @@ dlg_message::dlg_message(QStringList listmsg, int pause, bool bottom)
     thread.wait();
 }
 
+dlg_message::~dlg_message()
+{
+}
+
 void dlg_message::delay(int msec)
 {
     QEventLoop loop;

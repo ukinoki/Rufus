@@ -105,7 +105,6 @@ public:
     void                    ab(int i = 1);
 
     QMap<QString,QVariant>  CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher = true);
-    bool                    CompressFileJPG(QString nomfile, QDate datetransfert = QDate::currentDate());
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
     void                    DisplayWebPage(QUrl);    /* abandonné parce QWebEngine pèse beaucoup trop lourd */
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
@@ -215,11 +214,11 @@ public:
     bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifUserConnectes = true);
     bool                    VerifBaseEtRessources();
     void                    VideDatabases();
-    double                  BaseSize, ImagesSize, VideosSize, FreeSpace;
+    qint64                  BaseSize, ImagesSize, VideosSize, FreeSpace;
     UpDialog                *gAskBupRestore;
     UpLabel                 *labelResume, *labelVolumeLibre, *inflabel;
     QList<QImage>           listimage;
-    double                  CalcBaseSize();
+    qint64                  CalcBaseSize();
 
     bool                    Init();
     bool                    ApercuAvantImpression();

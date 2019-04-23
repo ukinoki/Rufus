@@ -346,7 +346,7 @@ void dlg_docsscanner::ValideFiche()
     if (suffixe == "jpg" && qFileOrigin.size() > TAILLEMAXIIMAGES)
     {
         qFileOrigin.close();
-        if (!proc->CompressFileJPG(filename))
+        if (!Utils::CompressFileJPG(filename, proc->DirImagerie()))
             return;
         if (!qFileOrigin.open( QIODevice::ReadOnly ))
         {

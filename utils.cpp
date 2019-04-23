@@ -289,7 +289,7 @@ void Utils::supprimeAncre(QString &text, QString ancredebut, QString ancrefin)
 
 /*!
  * \brief Utils::CalcSize(QString txt)
- * calcule la taille du texte passé en paramètres dans la police passée en paramètre
+ * calcule la taille en pixels du texte passé en paramètres dans la police passée en paramètre
  * \param QString txt
  * \param QFint font
  */
@@ -311,17 +311,106 @@ QSize Utils::CalcSize(QString txt, QFont fm)
 }
 
 /*!
+ * \brief Utils::CompressFileJPG(QString nomfileOK, QString Dirprov, QString nomfileEchec)
+ * comprime un fichier jpg à une taille inférieure à celle de la macro TAILLEMAXIIMAGES
+ * \param QString nomfileOK le nom du fichier d'origine utilisé aussi en cas d'échec pour faire le log
+ * \param QString dirprov le nom du dossier d'imagerie
+ * \param QDate datetransfert date utilisée en cas d'échec pour faire le log
+ * \return true si réussi, false si échec de l'enregistrement du fichier
+ * en cas d'échec
+    * un fichier de log est utilisé ou créé au besoin dans le répertoire NOMDIR_ECHECSTRANSFERTS
+    * et une ligne résumant l'échec est ajoutée en fin de ce fichier
+    * le fichier d'origine est ajouté dans ce même répertoire
+ */
+bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfert)
+{
+    /* on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
+    QString CheminEchecTransfrDir   = Dirprov + NOMDIR_ECHECSTRANSFERTS;
+    if (!mkpath(CheminEchecTransfrDir))
+    {
+        QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + QObject::tr(" invalide");
+        QStringList listmsg;
+        listmsg << msg;
+        dlg_message(listmsg, 3000, false);
+        return false;
+    }
+    /* on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin*/
+    QString DirStockProvPath = Dirprov + NOMDIR_PROV;
+    if (!mkpath(DirStockProvPath))
+    {
+        QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + DirStockProvPath + "</b></font>" + QObject::tr(" invalide");
+        QStringList listmsg;
+        listmsg << msg;
+        dlg_message(listmsg, 3000, false);
+        return false;
+    }
+
+    QFile CC(nomfile);
+    double sz = CC.size();
+    if (sz < TAILLEMAXIIMAGES)
+        return true;
+    QImage  img(nomfile);
+    QString filename = QFileInfo(nomfile).fileName();
+    QString nomfichresize = DirStockProvPath + "/" + filename;
+    QFile fileresize(nomfichresize);
+    if (fileresize.exists())
+        fileresize.remove();
+    QFile echectrsfer(CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfert.toString("yyyy-MM-dd") + ".txt");
+    QPixmap pixmap;
+    double w = img.width();
+    double h = img.height();
+    int x = img.width();
+    if (int(w*h)>(4096*1024)) // si l'image dépasse 4 Mpixels, on la réduit en conservant les proportions
+    {
+        double proportion = w/h;
+        int y = int(sqrt((4096*1024)/proportion));
+        x = int (y*proportion);
+    }
+    pixmap = pixmap.fromImage(img.scaledToWidth(x,Qt::SmoothTransformation));
+    /* on enregistre le fichier sur le disque du serveur
+     * si on n'y arrive pas,
+        * on crée le fichier log des echecstransferts correspondants dans le répertoire des echecs de transfert sur le serveur
+        * on complète ce fichier en ajoutant une ligne correspondant à cet échec
+        * on enregistre dans ce dossier une copie du fichier d'origine
+     */
+    if (!pixmap.save(nomfichresize, "jpeg"))
+    {
+        if (echectrsfer.open(QIODevice::Append))
+        {
+            QTextStream out(&echectrsfer);
+            out << CC.fileName() << "\n" ;
+            echectrsfer.close();
+            CC.copy(CheminEchecTransfrDir + "/" + filename);
+        }
+        return false;
+    }
+    CC.remove();
+    /* on comprime*/
+    int tauxcompress = 90;
+    while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
+    {
+        pixmap.save(nomfichresize, "jpeg",tauxcompress);
+        sz = fileresize.size();
+        tauxcompress -= 10;
+    }
+    fileresize.copy(nomfile);
+    fileresize.close();
+    fileresize.remove();
+    return true;
+}
+
+/*!
  * \brief Utils::dir_size
  * Cette fonction va renvoyer le nombre de fichiers contenu dans un dossier ainsi que le volume du dossier
  * utilisé pour le calcul du volume d'une opération de sauvegarde-restauration p.e.
  * \param text le chemin du dossier
  * \return un QMap avec ces 2 infos
  */
-QMap<QString, double> Utils::dir_size(const QString DirPath)
+QMap<QString, qint64> Utils::dir_size(const QString DirPath)
 {
-    QMap<QString, double>      DataDir;
-    double sizex = 0;
-    double nfiles = 0;
+    QMap<QString, qint64>      DataDir;
+    qint64 sizex = 0;
+    qint64 nfiles = 0;
 
     QDir dir(DirPath);
     if(!dir.exists())
@@ -348,20 +437,21 @@ QMap<QString, double> Utils::dir_size(const QString DirPath)
  * \brief Utils::getExpressionSize
  * Cette fonction va renvoyer la taille d'un double en Mo, Go ou To
  */
-QString Utils::getExpressionSize(double size)
+QString Utils::getExpressionSize(qint64 size)
 {
     QString com = "Mo";
-    if (size>1024)
+    double dsize = size;
+    if (dsize>1024)
     {
         com = "Go";
-        size /= 1024;
-        if (size>1024)
+        dsize /= 1024;
+        if (dsize>1024)
         {
             com = "To";
-            size /= 1024;
+            dsize /= 1024;
         }
     }
-    return QString::number(size,'f',2) + com;
+    return QString::number(dsize,'f',2) + com;
 }
 
 qint32 Utils::ArrayToInt(QByteArray source)
