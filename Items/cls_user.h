@@ -157,6 +157,7 @@ public:
 
     int getIdUserActeSuperviseur() const;
     void setIdUserActeSuperviseur(int idUserActeSuperviseur);
+    bool ishisownsupervisor();
     int getIdUserParent() const;
     void setIdUserParent(int idUserParent);
     int getIdUserComptable() const;

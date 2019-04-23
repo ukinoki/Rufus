@@ -18,21 +18,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_documents.h"
 #include "ui_dlg_documents.h"
 
-dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString PrenomPatient, QWidget *parent) :
+dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_documents)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    gidPatient          = idPatAPasser;
-    gNomPat             = NomPatient;
-    gPrenomPat          = PrenomPatient;
-
-    proc                = Procedures::I();
-    db                  = DataBase::getInstance();
-    gidUser             = db->getUserConnected()->id();
-    gidUserSuperviseur  = db->getUserConnected()->getIdUserActeSuperviseur();
+    gPatientEnCours     = pat;
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -49,7 +42,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
 
     // Initialisation des slots.
-    connect (ui->ChercheupLineEdit,             &QLineEdit::textEdited,                 this,   [=] {FiltreListe(ui->ChercheupLineEdit->text());});
+    connect (ui->ChercheupLineEdit,             &QLineEdit::textEdited,                 this,   [=] {FiltreListe();});
     connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_documents::Validation);
     connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  this,   &dlg_documents::Annulation);
     connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocPubliccheckBox);});
@@ -154,7 +147,7 @@ dlg_documents::dlg_documents(int idPatAPasser, QString NomPatient, QString Preno
     gTimerEfface    = new QTimer(this);
 
     bool ok;
-    QString ALDrequete = "select idPat from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(gidPatient) + " and PatALD = 1";
+    QString ALDrequete = "select idPat from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(gPatientEnCours->id()) + " and PatALD = 1";
     ui->ALDcheckBox->setChecked(db->StandardSelectSQL(ALDrequete,ok).size()>0);
 
     //nettoyage de la table metadocs
@@ -362,7 +355,7 @@ void dlg_documents::dblClicktextEdit()
                 break;
             }
         }
-        if (getDocumentFromRow(row)->iduser() == gidUser)
+        if (getDocumentFromRow(row)->iduser() == gUserEnCours->id())
             ConfigMode(ModificationDOC,row);
     }
 }
@@ -590,28 +583,24 @@ void dlg_documents::EnableOKPushButton(UpCheckBox *Check)
     }
 }
 
-void dlg_documents::FiltreListe(QString)
+void dlg_documents::FiltreListe()
 {
     Remplir_TableWidget();
     EnableLines();
-    for (int j=0; j<glistid.size(); j++)
+    bool selectall = false;
+    for (int j=0; j<ui->DocupTableWidget->rowCount(); j++)
     {
-        QList<QTableWidgetItem*> listitems = ui->DocupTableWidget->findItems(glistid.at(j),Qt::MatchExactly);
-        for (int k=0; k<listitems.size(); k++)
+        UpLineEdit *line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(j,1));
+        QString txt = line->text();
+        QString txtachercher = ui->ChercheupLineEdit->text();
+        int lgth = txtachercher.length();
+        ui->DocupTableWidget->setRowHidden(j, txt.toUpper().left(lgth) != txtachercher.toUpper());
+        if (!selectall && txt.toUpper().left(lgth) == txtachercher.toUpper())
         {
-            if (listitems.at(k)->column() == 3)
-            {
-                QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(listitems.at(k)->row(),0));
-                if (Widg)
-                {
-                    UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
-                    Check->setChecked(true);
-                }
-            }
+            dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(j,1))->selectAll();
+            selectall= true;
         }
     }
-    if (ui->DocupTableWidget->rowCount()>0)
-        dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(0,1))->selectAll();
 }
 
 void dlg_documents::MenuContextuel(QWidget *widg)
@@ -723,7 +712,7 @@ void dlg_documents::MenuContextuel(QWidget *widg)
         {
             line0 = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
             if (line0->hasSelectedText())
-                if (getDocumentFromRow(line0->getRowTable())->id() == gidUser)
+                if (getDocumentFromRow(line0->getRowTable())->id() == gUserEnCours->id())
                 {a =true; break;}
         }
         if (a)
@@ -1157,9 +1146,9 @@ void dlg_documents::Validation()
     QStringList listQuestions, listtypeQuestions;
     QStringList ExpARemplacer, Rempla;
     QString listusers = "ListUsers";
-    gidUserEntete = -1;
-    if (gidUser == gidUserSuperviseur)
-        gidUserEntete = gidUser;
+    gUserEntete = Q_NULLPTR;
+    if (gUserEnCours->ishisownsupervisor())
+        gUserEntete = gUserEnCours;
 
     switch (gMode) {
     case CreationDOC:
@@ -1252,7 +1241,7 @@ void dlg_documents::Validation()
             }
         }
         // On a établi la liste de questions - on prépare la fiche qui va les poser
-        if (listQuestions.size()>0 || gidUser != gidUserSuperviseur)
+        if (listQuestions.size()>0 || !gUserEnCours->ishisownsupervisor())
         {
             gAsk = new UpDialog(this);
             gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
@@ -1324,13 +1313,13 @@ void dlg_documents::Validation()
                     lay->addWidget(Combo);
                 }
             }
-            if (listQuestions.size()>0 && gidUser != gidUserSuperviseur)
+            if (listQuestions.size()>0 && !gUserEnCours->ishisownsupervisor())
             {
                 QFrame *line = new QFrame();
                 line->setFrameShape(QFrame::HLine);
                 layWidg->addWidget(line);
             }
-            if (gidUser != gidUserSuperviseur)
+            if (!gUserEnCours->ishisownsupervisor())
             {
                 QHBoxLayout *lay = new QHBoxLayout();
                 lay->setContentsMargins(5,0,5,0);
@@ -1442,7 +1431,7 @@ void dlg_documents::Validation()
                                         ExpARemplacer   << minidou + "//COTE))";
                                     }
                                     else
-                                        gidUserEntete = linecombo->currentData().toInt();
+                                        gUserEntete = Datas::I()->users->getById(linecombo->currentData().toInt(), true);
                                     delete linecombo;
                                 }
                             }
@@ -1755,11 +1744,17 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
     QString req, nom;
     switch (gMode) {
     case CreationDOC:
+        req = "select resumedocument, iduser from " NOM_TABLE_COURRIERS;
+        nom = tr("document");
+        break;
     case ModificationDOC:
         req = "select resumedocument, iduser from " NOM_TABLE_COURRIERS " where iddocument <> " + QString::number(getDocumentFromRow(row)->id());
         nom = tr("document");
         break;
     case CreationDOSS:
+        req = "select resumemetadocument, iduser from " NOM_TABLE_METADOCUMENTS;
+        nom = tr("dossier");
+        break;
     case ModificationDOSS:
         req = "select resumemetadocument, iduser from " NOM_TABLE_METADOCUMENTS " where idmetadocument <> " + QString::number(getMetaDocumentFromRow(row)->id());
         nom = tr("dossier");
@@ -1779,7 +1774,7 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
             {
                 a = true;
                 QString b = "vous";
-                if (listdocs.at(i).at(1).toInt() != gidUser)
+                if (listdocs.at(i).at(1).toInt() != gUserEnCours->id())
                     b = Datas::I()->users->getById(listdocs.at(i).at(1).toInt())->getLogin();
                 UpMessageBox::Watch(this,tr("Il existe déjà un") + " " + nom + " " + tr("portant ce nom créé par ") + b);
                 break;
@@ -1981,6 +1976,8 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
         ui->OKupPushButton->setText(tr("Enregistrer"));
+        ui->ChercheupLineEdit->clear();
+        FiltreListe();
     }
 
     else if (mode == ModificationDOSS)
@@ -2025,12 +2022,14 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
         ui->OKupPushButton->setText(tr("Enregistrer"));
+        ui->ChercheupLineEdit->clear();
+        FiltreListe();
     }
     else if (mode == CreationDOC)
     {
+        ui->ChercheupLineEdit->clear();
+        FiltreListe();
         DisableLines();
-        if (ui->DocupTableWidget->rowCount() > 0)
-            DisableLines();
         ui->DocupTableWidget->insertRow(row);
         QWidget * w = new QWidget(ui->DocupTableWidget);
         UpCheckBox *Check = new UpCheckBox(w);
@@ -2057,28 +2056,24 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->DocupTableWidget->setCellWidget(row,1,upLine0);
         QTableWidgetItem    *pItem1 = new QTableWidgetItem;
         QTableWidgetItem    *pItem2 = new QTableWidgetItem;
-        QTableWidgetItem    *pItem3= new QTableWidgetItem;
         int col = 2;
-        pItem1->setText("");                           // text
+        pItem1->setText("0");                           // idDocument
         ui->DocupTableWidget->setItem(row,col,pItem1);
         col++; //3
-        pItem2->setText("0");                           // idDocument
-        ui->DocupTableWidget->setItem(row,col,pItem2);
-        col++; //4
         UpLabel*lbl = new UpLabel(ui->DocupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         ui->DocupTableWidget->setCellWidget(row,col,lbl);
-        col++; //5
+        col++; //4
         UpLabel*lbl1 = new UpLabel(ui->DocupTableWidget);
         lbl1->setAlignment(Qt::AlignCenter);
         ui->DocupTableWidget->setCellWidget(row,col,lbl1);
-        col++; //6
+        col++; //5
         UpLabel*lbl2 = new UpLabel(ui->DocupTableWidget);
         lbl1->setAlignment(Qt::AlignCenter);
         ui->DocupTableWidget->setCellWidget(row,col,lbl2);
-        col++; //7
-        pItem3->setText("1");                           // Check+text   -> sert pour le tri de la table
-        ui->DocupTableWidget->setItem(row,col,pItem3);
+        col++; //6
+        pItem2->setText("1");                           // Check+text   -> sert pour le tri de la table
+        ui->DocupTableWidget->setItem(row,col,pItem2);
         ui->DocupTableWidget->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
 
         ui->DocPubliccheckBox->setChecked(false);
@@ -2117,17 +2112,19 @@ void dlg_documents::ConfigMode(int mode, int row)
 
     else if (mode == CreationDOSS)
     {
+        ui->ChercheupLineEdit->clear();
+        FiltreListe();
         DisableLines();
         for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
+            QWidget *Widg = dynamic_cast<QWidget*>(ui->DocupTableWidget->cellWidget(i,0));
             if (Widg)
             {
                 UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
                 Check->setEnabled(true);
                 Check->setChecked(false);
             }
-            UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
+            UpLineEdit *line0 = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
             if (line0) {
                 line0->deselect();
                 line0->setEnabled(false);
@@ -2135,7 +2132,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         }
         for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
         {
-            QWidget *Widg =  dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0));
+            QWidget *Widg = dynamic_cast<QWidget*>(ui->DossiersupTableWidget->cellWidget(i,0));
             if (Widg)
             {
                 UpCheckBox *Check = Widg->findChildren<UpCheckBox*>().at(0);
@@ -2169,7 +2166,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         connect(upLine0,   &QLineEdit::textEdited, [=] {EnableOKPushButton();});
         ui->DossiersupTableWidget->setCellWidget(row,1,upLine0);
         QTableWidgetItem    *pItem1 = new QTableWidgetItem;
-         int col = 2;
+        int col = 2;
         UpLabel*lbl = new UpLabel(ui->DossiersupTableWidget);
         lbl->setAlignment(Qt::AlignCenter);
         ui->DossiersupTableWidget->setCellWidget(row,col,lbl);
@@ -2189,7 +2186,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->AnnulupPushButton->setIcon(Icons::icBack());
         ui->AnnulupPushButton->setEnabled(true);
         ui->AnnulupPushButton->setToolTip(tr("Revenir au mode\nsélection de document"));
-        ui->OKupPushButton->setText(tr("Enregistrer\nle document"));
+        ui->OKupPushButton->setText(tr("Enregistrer\nle dossier"));
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
     }
@@ -2261,7 +2258,7 @@ void dlg_documents::EnableLines()
             line0->deselect();
             line0->setEnabled(true);
             line0->setFocusPolicy(Qt::NoFocus);
-            if (getDocumentFromRow(i)->iduser() == gidUser)
+            if (getDocumentFromRow(i)->iduser() == gUserEnCours->id())
             {
                 connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
                 connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
@@ -2284,7 +2281,7 @@ void dlg_documents::EnableLines()
             line0->deselect();
             line0->setEnabled(true);
             line0->setFocusPolicy(Qt::NoFocus);
-            if (getMetaDocumentFromRow(i)->iduser() == gidUser)
+            if (getMetaDocumentFromRow(i)->iduser() == gUserEnCours->id())
             {
                 connect(line0,          &UpLineEdit::mouseDoubleClick,          [=] {DocCellDblClick(line0);});
                 connect(line0,          &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line0);});
@@ -2338,6 +2335,10 @@ MetaDocument* dlg_documents::getMetaDocumentFromRow(int row)
     return Datas::I()->metadocuments->getById(ui->DossiersupTableWidget->item(row,3)->text().toInt());
 }
 
+User* dlg_documents::getUserEntete()
+{
+    return gUserEntete;
+}
 // ----------------------------------------------------------------------------------
 // Creation du Document dans la base.
 // ----------------------------------------------------------------------------------
@@ -2373,7 +2374,7 @@ void dlg_documents::InsertDocument(int row)
             " (TextDocument, ResumeDocument, idUser, DocPublic, Prescription, Editable, Medical) "
             " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->document()->toHtml()) +
             "', '" + Utils::correctquoteSQL(line->text().left(100)) +
-            "', " + QString::number(gidUser);
+            "', " + QString::number(gUserEnCours->id());
     QString Public          = (ui->DocPubliccheckBox->isChecked()?          "1" : "null");
     QString Prescription    = (ui->PrescriptioncheckBox->isChecked()?       "1" : "null");
     QString Editable        = (ui->DocEditcheckBox->isChecked()?            "1" : "null");
@@ -2432,7 +2433,7 @@ void dlg_documents::InsertDossier(int row)
     QString requete = "INSERT INTO " NOM_TABLE_METADOCUMENTS
             " (ResumeMetaDocument, idUser, Public) "
             " VALUES ('" + Utils::correctquoteSQL(line->text().left(100)) +
-            "'," + QString::number(gidUser);
+            "'," + QString::number(gUserEnCours->id());
     UpLabel *lbl = static_cast<UpLabel*>(ui->DossiersupTableWidget->cellWidget(row,2));
     QString a = "null";
     if (lbl->pixmap() != Q_NULLPTR)
@@ -2505,18 +2506,18 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
 
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
     {
-        UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
+        UpLineEdit *line0   = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
         if (line0) line0->deselect();
     }
     for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
     {
-        UpLineEdit *line0        = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
+        UpLineEdit *line0   = dynamic_cast<UpLineEdit*>(ui->DossiersupTableWidget->cellWidget(i,1));
         if (line0) line0->deselect();
     }
     if (table == ui->DocupTableWidget)
     {
-        widgButtonsDocs->modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == gidUser);
-        widgButtonsDocs->moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == gidUser);
+        widgButtonsDocs->modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == gUserEnCours->id());
+        widgButtonsDocs->moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == gUserEnCours->id());
         widgButtonsDossiers->modifBouton    ->setEnabled(false);
         widgButtonsDossiers->moinsBouton    ->setEnabled(false);
         if (gMode == Selection)
@@ -2535,9 +2536,9 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
     {
         ui->textFrame                       ->setVisible(false);
         widgButtonsDocs->modifBouton        ->setEnabled(false);
-        widgButtonsDossiers->modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == gidUser);
+        widgButtonsDossiers->modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == gUserEnCours->id());
         widgButtonsDocs->moinsBouton        ->setEnabled(false);
-        widgButtonsDossiers->moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == gidUser);
+        widgButtonsDossiers->moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == gUserEnCours->id());
     }
     line->selectAll();
 }
@@ -2550,14 +2551,13 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     glistidCor.clear();
     glisttxt.clear();
 
-    int idusr = (proc->UserSuperviseur()<1? Datas::I()->users->superviseurs()->first()->id() : proc->UserSuperviseur());
-    User *userEntete = Datas::I()->users->getById(idusr, true);
+    User *userEntete = (gUserEnCours->getUserSuperviseur() == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : gUserEnCours->getUserSuperviseur());
     if (userEntete == Q_NULLPTR)
         return;
 
     QString req = "select patDDN, Sexe "
                   " from " NOM_TABLE_PATIENTS
-                  " where idPat = " + QString::number(gidPatient);
+                  " where idPat = " + QString::number(gPatientEnCours->id());
     bool ok;
     QList<QVariantList> listpat = db->StandardSelectSQL(req,ok,tr("Impossible de retrouver la date de naissance de ce patient"));
     if (!ok)
@@ -2569,16 +2569,16 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     QString formule                     = AgeTotal["formule"].toString();
     req = "select idcormedmg, cornom, corprenom, corsexe "
           " from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp, " NOM_TABLE_CORRESPONDANTS " cor "
-          " where idPat = " + QString::number(gidPatient) + " and rmp.idcormedmg = cor.idcor";
+          " where idPat = " + QString::number(gPatientEnCours->id()) + " and rmp.idcormedmg = cor.idcor";
     QList<QVariantList> listdatapat = db->StandardSelectSQL(req,ok);
 
     texte.replace("{{" + DATEDOC + "}}"         , QDate::currentDate().toString(tr("d MMMM yyyy")));
-    texte.replace("{{" + NOMPAT + "}},"         , gNomPat + ",");
-    texte.replace("{{" + NOMPAT + "}} "         , gNomPat + " ");
-    texte.replace("{{" + NOMPAT + "}}"          , gNomPat);
-    texte.replace("{{" + PRENOMPAT + "}},"      , gPrenomPat + ",");
-    texte.replace("{{" + PRENOMPAT + "}} "      , gPrenomPat + " ");
-    texte.replace("{{" + PRENOMPAT + "}}"       , gPrenomPat);
+    texte.replace("{{" + NOMPAT + "}},"         , gPatientEnCours->nom() + ",");
+    texte.replace("{{" + NOMPAT + "}} "         , gPatientEnCours->nom() + " ");
+    texte.replace("{{" + NOMPAT + "}}"          , gPatientEnCours->nom());
+    texte.replace("{{" + PRENOMPAT + "}},"      , gPatientEnCours->prenom() + ",");
+    texte.replace("{{" + PRENOMPAT + "}} "      , gPatientEnCours->prenom() + " ");
+    texte.replace("{{" + PRENOMPAT + "}}"       , gPatientEnCours->prenom());
     if (userEntete->getTitre().size())
         texte.replace("{{" + TITRUSER + "}}"    , userEntete->getTitre() + " " + userEntete->getPrenom() + " " + userEntete->getNom());
     else
@@ -2625,7 +2625,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     if (texte.contains("{{" + KERATO + "}}"))
     {
         req = "select K1OD, K2OD, AxeKOD, DioptrieK1OD, DioptrieK2OD, DioptrieKOD, K1OG, K2OG, AxeKOG, DioptrieK1OG, DioptrieK2OG, DioptrieKOG from " NOM_TABLE_DONNEES_OPHTA_PATIENTS
-              " where idpat = " + QString::number(gidPatient) + " and (K1OD <> 'null' or K1OG <> 'null')";
+              " where idpat = " + QString::number(gPatientEnCours->id()) + " and (K1OD <> 'null' or K1OG <> 'null')";
         QList<QVariantList> listker = db->StandardSelectSQL(req,ok);
         if (listker.size()>0)
         {
@@ -2657,7 +2657,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     if (texte.contains("{{" + REFRACT + "}}"))
     {
         req = "select FormuleOD, FormuleOG from " NOM_TABLE_REFRACTION
-              " where idpat = " + QString::number(gidPatient) + " and (FormuleOD <> 'null' or FormuleOG <> 'null') and QuelleMesure = 'R'";
+              " where idpat = " + QString::number(gPatientEnCours->id()) + " and (FormuleOD <> 'null' or FormuleOG <> 'null') and QuelleMesure = 'R'";
         QList<QVariantList> listref = db->StandardSelectSQL(req,ok);
         if (listref.size()>0)
         {
@@ -2680,13 +2680,13 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     if (reg.indexIn(texte, pos) != -1)
     {
         req = "select idcormedmg, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
-              " where idPat = " + QString::number(gidPatient) + " and rmp.idcormedmg = cor.idcor"
+              " where idPat = " + QString::number(gPatientEnCours->id()) + " and rmp.idcormedmg = cor.idcor"
               " union "
               "select idcormedspe1, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
-              " where idPat = " + QString::number(gidPatient) + " and rmp.idcormedspe1 = cor.idcor"
+              " where idPat = " + QString::number(gPatientEnCours->id()) + " and rmp.idcormedspe1 = cor.idcor"
               " union "
               "select idcormedspe2, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
-              " where idPat = " + QString::number(gidPatient) + " and rmp.idcormedspe2 = cor.idcor";
+              " where idPat = " + QString::number(gPatientEnCours->id()) + " and rmp.idcormedspe2 = cor.idcor";
         //qDebug() << req;
         QList<QVariantList> listcor = db->StandardSelectSQL(req,ok);
         if (listcor.size()==0)
@@ -2951,7 +2951,7 @@ void dlg_documents::SetDocumentToRow(Document*doc, int row)
     upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                            "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
     upLine0->setFocusPolicy(Qt::NoFocus);
-    if (doc->iduser() != gidUser)
+    if (doc->iduser() != gUserEnCours->id())
     {
         upLine0->setFont(disabledFont);
         upLine0->setPalette(palette);
@@ -3026,7 +3026,7 @@ void dlg_documents::SetMetaDocumentToRow(MetaDocument*dossier, int row)
     upLine0->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                            "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
     upLine0->setFocusPolicy(Qt::NoFocus);
-    if (dossier->iduser() != gidUser)
+    if (dossier->iduser() != gUserEnCours->id())
     {
         upLine0->setFont(disabledFont);
         upLine0->setPalette(palette);

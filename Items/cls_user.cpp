@@ -141,6 +141,10 @@ void User::setIdUserParent(int idUserParent)
 {
     m_idUserParent = idUserParent;
 }
+bool User::ishisownsupervisor()
+{
+    return (m_idUserActeSuperviseur == m_id);
+}
 int User::getIdUserComptable() const { return m_idUserComptable; }
 void User::setIdUserComptable(int idUserComptable)
 {

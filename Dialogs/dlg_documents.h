@@ -39,19 +39,24 @@ class dlg_documents : public QDialog
     Q_OBJECT
 
 public:
-    explicit                    dlg_documents(int idPatAPasser, QString NomPatient, QString PrenomPatient, QWidget *parent = Q_NULLPTR);
+    explicit                    dlg_documents(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_documents();
     Ui::dlg_documents           *ui;
     QString                     gReponseResumeOrdo, gReponseResumePrescription;
     QStringList                 TextDocumentsAImprimerList, TitreDocumentAImprimerList, PrescriptionAImprimerList, DupliAImprimerList, AdministratifAImprimerList;
     QStringList                 glistid;
-    int                         gidUserEntete;
+    User*                       getUserEntete();
 
 protected:
     void                        changeEvent(QEvent *e);
     bool                        event(QEvent *event);
 
 private:
+    DataBase                    *db             = DataBase::getInstance();
+    User                        *gUserEnCours   = db->getUserConnected();
+    Procedures                  *proc           = Procedures::I();
+    Patient                     *gPatientEnCours;
+    User                        *gUserEntete;
     void                        closeEvent      (QCloseEvent *event);
     bool                        eventFilter     (QObject *obj, QEvent *event);
     void                        keyPressEvent   (QKeyEvent * event );
@@ -59,9 +64,6 @@ private:
     double                      gOpacity;
     int                         gMode;
     enum gMode                  {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS,SuppressionDOSS};
-    int                         gidUser, gidPatient, gidUserSuperviseur;
-    Procedures                  *proc;
-    DataBase                    *db;
     QGraphicsOpacityEffect      *gOp;
     QList<int>                  glistidCor;
     QMap<QString,QString>       gChampsMap;
@@ -70,7 +72,6 @@ private:
     UpDialog                    *gAskDialog;
     UpDialog                    *gAskCorresp;
     QMenu                       *gmenuContextuel;
-    QString                     gNomPat, gPrenomPat;
     QTimer                      *gTimerEfface;
 
 
@@ -90,7 +91,7 @@ private:
     void                        EffaceWidget(QWidget* widg, bool AvecOuSansPause = true);
     void                        EnableLines();
     void                        EnableOKPushButton(UpCheckBox *Check = Q_NULLPTR);
-    void                        FiltreListe(QString);
+    void                        FiltreListe();
     Document*                   getDocumentFromRow(int row);
     MetaDocument*               getMetaDocumentFromRow(int row);
     void                        InsertDocument(int row);

@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("22-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("24-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -8712,7 +8712,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     {
         nom         = gNomPatient;
         prenom      = gPrenomPatient;
-        Dlg_Docs    = new dlg_documents(gidPatient, nom, prenom);
+        Dlg_Docs    = new dlg_documents(gPatientEnCours);
     }
     else
     {
@@ -8729,7 +8729,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
         {
             nom         = patdata.at(0).toString();
             prenom      = patdata.at(1).toString();
-            Dlg_Docs    = new dlg_documents(gdossierAOuvrir, nom, prenom, this);
+            Dlg_Docs    = new dlg_documents(db->loadPatientById(gdossierAOuvrir), this);
         }
     }
     Dlg_Docs->setWindowTitle(tr("Préparer un document pour ") + nom + " " + prenom);
@@ -8737,8 +8737,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
     bool aa = true;
     if (Dlg_Docs->exec() > 0)
     {
-        int idUserEntete = Dlg_Docs->gidUserEntete;
-        User *userEntete = Datas::I()->users->getById(idUserEntete, true);
+        User *userEntete = Dlg_Docs->getUserEntete();
         if (userEntete == Q_NULLPTR)
             return;
 
