@@ -192,7 +192,7 @@ public:
     */
     void                    loadSocialDataPatient(Patient* patient, bool &ok);
     void                    loadMedicalDataPatient(Patient* patient, bool &ok);
-    Patient*                loadPatientById(int idPat);
+    Patient*                loadPatientById(int idPat, bool all = false);
 
     /*
      * Mots de passe

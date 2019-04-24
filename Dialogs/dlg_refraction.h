@@ -37,7 +37,7 @@ class dlg_refraction : public QDialog
     Q_OBJECT
 
 public:
-    dlg_refraction(int idPatAPasser, QString NomPatient, QString PrenomPatient, int idActeAPasser, int AgeAPasser, QWidget *parent = Q_NULLPTR);
+    dlg_refraction(Patient *pat, int idActeAPasser, int AgeAPasser, QWidget *parent = Q_NULLPTR);
     ~dlg_refraction();
     Ui::dlg_refraction      *ui;
     dlg_listemesures        *Dlg_ListeMes;
@@ -88,8 +88,8 @@ private slots:
 
 private:
     Procedures              *proc;
-    int                     gAgePatient, gidPatient, gidUser, gidActe;
-    QString                 gNomPatient, gPrenomPatient;
+    Patient                 *gPatientEnCours;
+    int                     gAgePatient, gidUser, gidActe;
     QStringList             gstringListe1, gstringListe2;
     DataBase                *db;
     int                     gMode;

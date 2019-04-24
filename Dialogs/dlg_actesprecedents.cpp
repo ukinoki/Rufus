@@ -20,14 +20,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 //TODO : Mettre en place Patient
 //Uniquement consultative, cette fiche ne permet de modifier aucun élément de la base
-dlg_actesprecedents::dlg_actesprecedents(int idPatient, bool AvantDernier, QWidget *parent) :
+dlg_actesprecedents::dlg_actesprecedents(Patient *pat, bool AvantDernier, QWidget *parent) :
     QDialog(parent),
 
 ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
-    gidPatient      = idPatient;
+    gPatientEnCours = pat;
+    setWindowTitle(tr("Consultations précédentes de ") + gPatientEnCours->nom() + " " + gPatientEnCours->prenom());
     proc            = Procedures::I();
     gAvantDernier   = AvantDernier;
     setAttribute(Qt::WA_DeleteOnClose);
@@ -76,7 +77,7 @@ void dlg_actesprecedents::Actualise()
     for (itCurrentActe = m_listeActes.constBegin(); itCurrentActe != m_listeActes.constEnd(); ++itCurrentActe)
         delete itCurrentActe.value();
     m_listeActes.clear();
-    m_listeActes = DataBase::getInstance()->loadActesByIdPat(gidPatient);
+    m_listeActes = DataBase::getInstance()->loadActesByIdPat(gPatientEnCours->id());
     if( m_listeActes.size() == 0 )
     {
         //ERROR
@@ -429,8 +430,8 @@ bool dlg_actesprecedents::NavigationConsult(int i)
     return false;
 }
 
-int dlg_actesprecedents::getidPatient()
+Patient* dlg_actesprecedents::getPatient()
 {
-    return gidPatient;
+    return gPatientEnCours;
 }
 

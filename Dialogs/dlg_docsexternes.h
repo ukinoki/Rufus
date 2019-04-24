@@ -39,7 +39,7 @@ class dlg_docsexternes : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsexternes(Patient *pat, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
     bool                    InitOK();
 
@@ -48,7 +48,7 @@ private:
     DocsExternes            m_ListDocs;
     DocExterne              *docencours;
     DataBase                *db;
-    Patient                 *patient;
+    Patient                 *gPatientEnCours;
 
     QGraphicsScene          *Scene;
     QGraphicsVideoItem      *videoItem;
@@ -73,7 +73,6 @@ private:
 
     bool                    AvecPrevisu;
     bool                    initOK;
-    int                     gidPatient;
     int                     hdelta , wdelta;
     int                     hdeltaframe, wdeltaframe;
     int                     gMode;

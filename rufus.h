@@ -186,8 +186,6 @@ private:
     void        RetrouveMontantActe();
     void        SaisieFSE();           // CZ001
     void        SalleDAttente();
-    void        SupprimerDocsEtFactures();
-    void        SupprimerDossier();
     void        SurbrillanceSalDat(UpLabel *lab);
 
     // gestion des patients vus dans la journée
@@ -234,25 +232,23 @@ private:
 private:
     bool                    gAutorModifConsult, closeFlag;
     bool                    gIdentificationOK;
-    bool                    gCMUPatient;
-    int                     gidPatient, gidActe, nbActes, noActe, gidARecopier, gAgePatient;
+    int                     gidActe, nbActes, noActe, gidARecopier, gAgePatient;
     int                     gflagMG, gflagSalDat;
-    int                     gNombreDossiers, gdossierAOuvrir;
+    int                     gNombreDossiers;
     int                     idRefraction;
     int                     gMode;
     int                     gTotalMessages, gTotalNvxMessages;
     int                     idAdministrateur;
     bool                    gAffichTotalMessages;
     enum gMode              {NouveauDossier, Liste, RechercheDDN};
-    QDate                   gdateParDefaut, gDDNPatient;
+    QDate                   gdateParDefaut;
     QDateTime               gUserDateDernierMessage;
     UpDialog                *gAsk;
     QMenu                   *gmenuContextuel;
-    QString                 gNomPatient, gPrenomPatient;
     QString                 gActeMontant;
     QString                 gActeDate;
     QString                 grequeteListe, grequeteSalDat;
-    QString                 gSexePat, gNNIPat;
+    QString                 gNNIPat;
     QString                 gDirSauv;
     QStandardItemModel      *gListePatientsModel;
     QStandardItemModel      *gListeSuperviseursModel, *gListeParentsModel;
@@ -264,6 +260,7 @@ private:
     Acte                    *gActeEnCours;
     User                    *gUserEnCours;
     Patient                 *gPatientEnCours;
+    Patient                 *gdossierAOuvrir;
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
     UpLabel                 *gAskinflabel;
@@ -291,15 +288,15 @@ private:
     void                keyPressEvent ( QKeyEvent * event );
     void                AfficheActe(int idActe);
     void                AfficheActeCompta();
-    void                AfficheDossier(int IdPat, int idacte = 0);
+    void                AfficheDossier(Patient *pat, int idacte = 0);
     bool                AutorDepartConsult(bool ChgtDossier);
     bool                AutorSortieAppli();
-    void                CalcMotsCles(int idpt);
+    void                CalcMotsCles(Patient *pat);
     void                CalcNbDossiers();
     QString             CalcToolTipCorrespondant(int);
     bool                ChargeDataUser();
-    void                ChercheNomFiltre(int idpat = 0);
-    void                ChoixDossier(int idpat = 0, int idacte = 0);
+    void                ChercheNomFiltre(Patient *pat = Q_NULLPTR);
+    void                ChoixDossier(Patient *pat, int idacte = 0);
     void                CreerActe(Patient *pat = Q_NULLPTR);
     void                ChercherDepuisListe();
     void                CreerDossier();
@@ -311,6 +308,7 @@ private:
     void                FermeDlgAnnexes();
     bool                FermeDossier();
     void                FlagMetAjourSalDat();
+    Patient*            getSelectedPatientFromTable();                 //!> retrouve le patient sélectionné dans la liste des patients
     bool                IdentificationPatient(dlg_identificationpatient::Mode mode, int idPat);
     bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
@@ -318,7 +316,7 @@ private:
     void                InitEventFilters();
     void                InitMenus();
     void                InitVariables();
-    bool                InscritEnSalDat(int);
+    bool                InscritEnSalDat(Patient *pat);
     int                 LectureMesure(QString lIdPatient, QString lPatNom, QString lPatPrenom, QString lPatDDN, QString lPatCreeLe, QString lPatCreePar, QString MessageErreur);
     void                MAJActesPrecs();
     void                MAJDocsExternes();
@@ -328,12 +326,12 @@ private:
     QStringList         MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(int i);
     void                OuvrirActesPrecedents();
-    void                OuvrirDocsExternes(int idpat, bool depuismenucontextuel = false);
+    void                OuvrirDocsExternes(Patient *pat, bool depuismenucontextuel = false);
     void                OuvrirDocuments(bool AffichDocsExternes = true);
     void                OuvrirListe();
     void                OuvrirNouveauDossier();
     void                RecopierDossier(int idARecopier = 0);
-    void                RecaleTableView(int idPat);
+    void                RecaleTableView(Patient *pat);
     void                Refraction();
     void                ReconstruitListesActes();
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
@@ -346,7 +344,9 @@ private:
     void                SendMessage(QMap<QString,QVariant>, int id = -1 , int idMsg = -1);
     void                setTitre();
     void                SupprimerActe();
-    void                SupprimerDossier(int);
+    void                SupprimerDocsEtFactures();
+    void                SupprimerDossier();
+    void                SupprimerDossier(Patient *pat);
     void                Tonometrie();
     void                TrouverDDN();
     bool                ValideActeMontantLineEdit(QString NouveauMontant = "0,00", QString AncienMontant = "0.00");

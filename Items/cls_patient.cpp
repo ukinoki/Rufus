@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_patient.h"
 
 //GETTER | SETTER
-bool Patient::isAllLoaded() const           { return m_isAllLoaded; }
 int Patient::id() const                     { return m_id; }
 QString Patient::nom() const                { return m_nom; }
 QString Patient::prenom() const             { return m_prenom; }
@@ -58,6 +57,10 @@ QString Patient::gencorresp()               { return m_gencorresp; }
 QString Patient::important()                { return m_important; }
 QString Patient::resume()                   { return m_resume; }
 
+bool Patient::ismedicalloaded() const       { return m_ismedicalloaded; }
+bool Patient::issocialloaded() const        { return m_issocialloaded; }
+bool Patient::isalloaded() const            { return (m_issocialloaded && m_ismedicalloaded); }
+
 QMap<int, Acte *> *Patient::actes() const
 {
     return m_actes;
@@ -80,8 +83,6 @@ void Patient::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataBool(data, "isAllLoaded", m_isAllLoaded);
-
     setDataInt(data, "id", m_id);
 
     setDataString(data, "nom", m_nom);
@@ -90,6 +91,8 @@ void Patient::setData(QJsonObject data)
     setDataDate(data, "datecreation", m_datecreation);
     setDataInt(data, "idcreateur", m_idcreateur);
     setDataDate(data, "dateDeNaissance", m_dateDeNaissance);
+    setDataBool(data, "isMedicalLoaded", m_ismedicalloaded);
+    setDataBool(data, "isSocialLoaded", m_issocialloaded);
 }
 
 void Patient::addSocialData(QJsonObject data)
@@ -108,6 +111,7 @@ void Patient::addSocialData(QJsonObject data)
     setDataBool(data, "ALD", m_ALD);
     setDataBool(data, "CMU", m_CMU);
     setDataString(data, "profession", m_profession);
+    setDataBool(data, "isMedicalLoaded", m_ismedicalloaded);
 }
 
 void Patient::addMedicalData(QJsonObject data)
@@ -129,6 +133,7 @@ void Patient::addMedicalData(QJsonObject data)
     setDataString(data, "Important", m_important);
     setDataString(data, "Resume", m_resume);
     setDataString(data, "TtOph", m_traitementoph);
+    setDataBool(data, "isMedicalLoaded", m_ismedicalloaded);
 }
 
 /*!

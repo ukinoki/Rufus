@@ -17,11 +17,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_refractionlistemesures.h"
 
-dlg_listemesures::dlg_listemesures(int *IdPatient, QString mode, QWidget *parent) :
+dlg_listemesures::dlg_listemesures(Patient *pat, QString mode, QWidget *parent) :
     UpDialog (QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    gidPatient  = *IdPatient;
+    gPatientEnCours  = pat;
     proc        = Procedures::I();
     if (mode == "SUPPR")
         gMode       = Supprimer;
@@ -185,7 +185,7 @@ void dlg_listemesures::RemplirTableView()
 
     QString requete = "SELECT  idRefraction, DateRefraction, QuelleMesure, FormuleOD, FormuleOG "
               " FROM "  NOM_TABLE_REFRACTION
-              " WHERE  IdPat = " + QString::number(gidPatient);
+              " WHERE  IdPat = " + QString::number(gPatientEnCours->id());
     QList<QVariantList> refractlist = db->StandardSelectSQL(requete, ok, tr("Impossible de trouver la table des refractions!"));
     if(!ok)
         return;

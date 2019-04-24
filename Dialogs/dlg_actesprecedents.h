@@ -52,9 +52,9 @@ class dlg_actesprecedents : public QDialog
     Q_OBJECT
 
 public:
-    dlg_actesprecedents(int idPatient, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);
+    dlg_actesprecedents(Patient *pat, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);
     ~dlg_actesprecedents();
-    int                     getidPatient();
+    Patient*                getPatient();
     void                    Actualise();
     void                    ActesPrecsAfficheActe(int idActeAAfficher); // Affiche l'acte défini par idActeAAfficher
     void                    ActesPrecsAfficheActe();
@@ -62,6 +62,7 @@ public:
     void                    reloadActe(int idacte);
 
 private:
+    Patient                 *gPatientEnCours;
     void                    wheelEvent(QWheelEvent *event);
     virtual void            keyPressEvent(QKeyEvent *keyEvent); //PAS UTILISE
     Ui::dlg_actesprecedents *ui;
@@ -73,7 +74,7 @@ private:
     Acte                    *acte;
     QMap<int, Acte*>::const_iterator    itCurrentActe;
     QMap<int, Acte*>        m_listeActes;
-    int                     gidActe, gidPatient;
+    int                     gidActe;
     bool                    NavigationConsult(int i);
     bool                    gAvantDernier;
 };

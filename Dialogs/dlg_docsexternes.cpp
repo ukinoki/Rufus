@@ -21,19 +21,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 static inline double mmToInches(double mm) { return mm * 0.039370147; }
 
-dlg_docsexternes::dlg_docsexternes(int idpat, bool UtiliseTCP, QWidget *parent) :
+dlg_docsexternes::dlg_docsexternes(Patient *pat, bool UtiliseTCP, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
     proc                = Procedures::I();
-    gidPatient          = idpat;
     db                  = DataBase::getInstance();
-    patient             = db->loadPatientById(gidPatient);
+    gPatientEnCours     = pat;
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     installEventFilter(this);
     setMaximumHeight(qApp->desktop()->availableGeometry().height());
-    setWindowTitle(tr("Documents de ") + patient->prenom() + " " + patient->nom());
+    setWindowTitle(tr("Documents de ") + gPatientEnCours->prenom() + " " + gPatientEnCours->nom());
 
     QFont font          = qApp->font();
     font                .setPointSize(font.pointSize()+2);
@@ -159,7 +158,6 @@ dlg_docsexternes::~dlg_docsexternes()
     delete printer;
     m_ListDocs.clearAll();
     Datas::I()->docsexternes->clearAll();
-    delete patient;
 }
 
 bool dlg_docsexternes::InitOK()
@@ -616,7 +614,7 @@ void dlg_docsexternes::BasculeTriListe(int a)
 
 int dlg_docsexternes::ActualiseDocsExternes()
 {
-    m_ListDocs.addList(db->loadDoscExternesByPatientAll(gidPatient));
+    m_ListDocs.addList(db->loadDoscExternesByPatientAll(gPatientEnCours->id()));
     if (m_ListDocs.NouveauDocument())
     {
         m_ListDocs.setNouveauDocumentFalse();
@@ -640,7 +638,7 @@ void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
     if (dialog.exec()>0)
     {
         QDir dockdir = dialog.directory();
-        img.copy(dockdir.path() + "/" + patient->prenom() + " " + patient->nom() + " "+ docmt->soustypedoc() + "." + QFileInfo(img).suffix());
+        img.copy(dockdir.path() + "/" + gPatientEnCours->prenom() + " " + gPatientEnCours->nom() + " "+ docmt->soustypedoc() + "." + QFileInfo(img).suffix());
     }
 }
 
@@ -796,7 +794,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
 int dlg_docsexternes::CompteNbreDocs()
 {
     bool ok = true;
-    QList<QVariantList> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gidPatient), ok);
+    QList<QVariantList> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(gPatientEnCours->id()), ok);
     if (!ok) return 0;
     return list.size();
 }
@@ -911,8 +909,8 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     Entete.replace("{{TITRE1}}"        , "");
     Entete.replace("{{TITRE}}"         , "");
     Entete.replace("{{DDN}}"           , "");
-    Entete.replace("{{PRENOM PATIENT}}", (Prescription? patient->prenom()        : ""));
-    Entete.replace("{{NOM PATIENT}}"   , (Prescription? patient->nom().toUpper() : ""));
+    Entete.replace("{{PRENOM PATIENT}}", (Prescription? gPatientEnCours->prenom()        : ""));
+    Entete.replace("{{NOM PATIENT}}"   , (Prescription? gPatientEnCours->nom().toUpper() : ""));
 
     //création du pied
     Pied = proc->ImpressionPied(userEntete, docmt->format() == PRESCRIPTIONLUNETTES, ALD);

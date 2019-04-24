@@ -71,15 +71,16 @@ private: //Données du patient
     QString m_gencorresp;           //!< nom du generaliste correspondant (plus utilisé)
     QString m_important;            //!< points importants du dossier
     QString m_resume;               //!< resumé du dossier
-
-private:
-    bool m_isAllLoaded = false;
+    bool    m_ismedicalloaded;      //!< les renseignements médicaux sont chargés
+    bool    m_issocialloaded;       //!< les renseignements sociaux sont chargés
 
     QMap<int, Acte*> *m_actes;      //!< ensemble des actes du patient
 
 public:
     //GETTER | SETTER
-    bool isAllLoaded() const;
+    bool ismedicalloaded() const;
+    bool issocialloaded() const;
+    bool isalloaded() const;
 
     int     id() const;
     QString nom() const;

@@ -27,7 +27,7 @@ class dlg_listemesures : public UpDialog
     Q_OBJECT
 
 public:
-    explicit                dlg_listemesures(int *IdPatient, QString mode, QWidget *parent = Q_NULLPTR);
+    explicit                dlg_listemesures(Patient *pat, QString mode, QWidget *parent = Q_NULLPTR);
     ~dlg_listemesures();
     QTableView              *tabLM;
     QStandardItemModel      *gmodele;
@@ -36,7 +36,7 @@ public:
 private:
     int             gMode;
     enum gMode {Supprimer, Recuperer};
-    int             gidPatient;
+    Patient         *gPatientEnCours;
     Procedures      *proc;
     void            DetruireLaMesure(int IdRefract);
     int             Nombre_Mesure_Selected();
