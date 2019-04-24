@@ -75,9 +75,9 @@ dlg_paiement::dlg_paiement(QList<int> ListidActeAPasser, int Mode, Procedures *p
         else if (m_userConnected->isLiberal())
             gidUserACrediter = m_userConnected->id();
         else if (m_userConnected->isSalarie() && !m_userConnected->isAssistant())// l'utilisateur est un soignant salarie et responsable
-            gidUserACrediter = proc->UserParent();
+            gidUserACrediter = db->getUserConnected()->getIdUserParent();
         else if (m_userConnected->isRemplacant())                                // l'utilisateur est un soignant remplacant et responsable
-            gidUserACrediter = proc->UserParent();
+            gidUserACrediter = db->getUserConnected()->getIdUserParent();
         else if(m_userConnected->isSecretaire())
             gidUserACrediter = m_listeParents->first()->id();
     }

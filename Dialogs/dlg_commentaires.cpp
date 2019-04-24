@@ -879,8 +879,8 @@ void dlg_commentaires::Remplir_TableView()
     QString Remplirtablerequete = "SELECT ResumeComment, ParDefautComment, TextComment, idCommentLunet, idUser"
               " FROM "  NOM_TABLE_COMMENTAIRESLUNETTES
               " WHERE idUser = " + QString::number(gidUser) +
-                (proc->UserSuperviseur() != gidUser? " Or idUser = " + QString::number(proc->UserSuperviseur()) : "") +
-                ((proc->UserParent() != proc->UserSuperviseur())&&(proc->UserParent() != gidUser)? " Or idUser = " + QString::number(proc->UserParent()) : "") +
+                (db->getUserConnected()->getIdUserActeSuperviseur() != gidUser? " Or idUser = " + QString::number(db->getUserConnected()->getIdUserActeSuperviseur()) : "") +
+                ((db->getUserConnected()->getIdUserParent() != db->getUserConnected()->getIdUserActeSuperviseur())&&(db->getUserConnected()->getIdUserParent() != gidUser)? " Or idUser = " + QString::number(db->getUserConnected()->getIdUserParent()) : "") +
               " ORDER BY ResumeComment";
     bool ok;
     QList<QVariantList> listcom = db->StandardSelectSQL(Remplirtablerequete, ok);

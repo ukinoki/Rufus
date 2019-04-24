@@ -147,7 +147,7 @@ public:
     QString getSpecialite() const;
     qlonglong getNumPS() const;
     QString getNumCO() const;
-    bool getAGA() const;
+    bool isAGA() const;
     int getEmployeur() const;
     int getIdLieu() const;
     int getIdCompteEncaissHonoraires() const;
@@ -156,18 +156,17 @@ public:
     QString getFonction() const;
 
     int getIdUserActeSuperviseur() const;
-    void setIdUserActeSuperviseur(int idUserActeSuperviseur);
+    void setIdUserActeSuperviseur(int idusr);
     bool ishisownsupervisor();
     int getIdUserParent() const;
-    void setIdUserParent(int idUserParent);
+    void setIdUserParent(int idusr);
     int getIdUserComptable() const;
-    void setIdUserComptable(int idUserComptable);
+    void setIdUserComptable(int idusr);
     int getidUserCompteParDefaut() const;
 
     int getSecteur() const;
     int getIdCompteParDefaut() const;
     QString getMail() const;
-    QString getLoginComptable() const;
     QString getNomCompteParDefaut() const;
     QString getPortable() const;
     QString getNomCompteAbrege() const;
@@ -211,13 +210,13 @@ public:
     bool isDesactive();
 
     User *getUserSuperviseur() const;
-    void setUserSuperviseur(User *userSuperviseur);
+    void setUserSuperviseur(User *usr);
 
     User *getUserParent() const;
-    void setUserParent(User *userParent);
+    void setUserParent(User *usr);
 
     User *getUserComptable() const;
-    void setUserComptable(User *userComptable);
+    void setUserComptable(User *usr);
 
 signals:
 

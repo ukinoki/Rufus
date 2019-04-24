@@ -27,22 +27,16 @@ int User::COMPTA_SANS_COTATION_SANS_COMPTABILITE = 1; //1
 int User::COMPTA_AVEC_COTATION_SANS_COMPTABILITE = 2; //2
 int User::COMPTA_SANS_COTATION_AVEC_COMPTABILITE = 3; //3
 
-
-
-
-
 bool User::isAllLoaded() const
 {
     return m_isAllLoaded;
 }
 
-
-
-
 User::User(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
 }
+
 User::User(QString login, QString password, QJsonObject data, QObject *parent) : Item(parent),
     m_login(login), m_password(password)
 {
@@ -102,85 +96,88 @@ void User::setData(QJsonObject data)
 
 
 
-QString User::getLogin() const { return m_login; }
-QString User::getPassword() const { return m_password; }
-void User::setPassword(QString psswd) { m_password = psswd; }
+QString User::getLogin() const                      { return m_login; }
+QString User::getPassword() const                   { return m_password; }
+void User::setPassword(QString psswd)               { m_password = psswd; }
 
-int User::id() const
-{
-    return m_id;
-}
-void User::setId( int value ) { m_id = value; }
+void User::setId( int value )                       { m_id = value; }
+int User::id() const                                { return m_id; }
 
-QString User::getNom() const { return m_nom; }
-QString User::getPrenom() const { return m_prenom; }
-int User::getSoignant() const { return m_soignant; }
-int User::getResponsableactes() const { return m_responsableActes; }
-int User::getUserenreghonoraires() const { return m_userenreghonoraires; }
-int User::getUserccam() const { return m_userccam; }
-int User::getEnregHonoraires() const { return m_enregHonoraires; }
-QString User::getTitre() const { return m_titre; }
-int User::getNoSpecialite() const { return m_noSpecialite; }
-QString User::getSpecialite() const { return m_specialite; }
-qlonglong User::getNumPS() const { return m_numPS; }
-QString User::getNumCO() const { return m_numCO; }
-bool User::getAGA() const { return m_AGA; }
-int User::getEmployeur() const { return m_employeur; }
-int User::getIdCompteEncaissHonoraires() const { return m_idCompteEncaissHonoraires; }
-QString User::getNomUserEncaissHonoraires() const { return m_nomUserEncaissHonoraires; }
+QString User::getNom() const                        { return m_nom; }
+QString User::getPrenom() const                     { return m_prenom; }
+int User::getSoignant() const                       { return m_soignant; }                  //! 1 = ophtalmo 2 = orthoptiste 3 = autre 4 = Non soignant 5 = societe comptable
+int User::getResponsableactes() const               { return m_responsableActes; }
+int User::getUserenreghonoraires() const            { return m_userenreghonoraires; }       //! 1 = liberal 2 = salarie 3 = retrocession 4 = pas de comptabilite
+int User::getUserccam() const                       { return m_userccam; }
+int User::getEnregHonoraires() const                { return m_enregHonoraires; }
+QString User::getTitre() const                      { return m_titre; }
+int User::getNoSpecialite() const                   { return m_noSpecialite; }
+QString User::getSpecialite() const                 { return m_specialite; }
+qlonglong User::getNumPS() const                    { return m_numPS; }
+QString User::getNumCO() const                      { return m_numCO; }
+bool User::isAGA() const                            { return m_AGA; }
+int User::getEmployeur() const                      { return m_employeur; }
+int User::getIdCompteEncaissHonoraires() const      { return m_idCompteEncaissHonoraires; }
+QString User::getNomUserEncaissHonoraires() const   { return m_nomUserEncaissHonoraires; }
 QString User::getNomCompteEncaissHonoraires() const { return m_nomCompteEncaissHonoraires; }
-QString User::getFonction() const { return m_fonction; }
+QString User::getFonction() const                   { return m_fonction; }
 
-int User::getIdUserActeSuperviseur() const { return m_idUserActeSuperviseur; }
-void User::setIdUserActeSuperviseur(int idUserActeSuperviseur)
-{
-    m_idUserActeSuperviseur = idUserActeSuperviseur;
-}
-int User::getIdUserParent() const { return m_idUserParent; }
-void User::setIdUserParent(int idUserParent)
-{
-    m_idUserParent = idUserParent;
-}
-bool User::ishisownsupervisor()
-{
-    return (m_idUserActeSuperviseur == m_id);
-}
-int User::getIdUserComptable() const { return m_idUserComptable; }
-void User::setIdUserComptable(int idUserComptable)
-{
-    m_idUserComptable = idUserComptable;
-}
+int User::getIdUserActeSuperviseur() const          { return m_idUserActeSuperviseur; }
+void User::setIdUserActeSuperviseur(int idusr)      { m_idUserActeSuperviseur = idusr; }
+bool User::ishisownsupervisor()                     { return (m_idUserActeSuperviseur == m_id); }
 
-User *User::getUserSuperviseur() const { return m_userSuperviseur; }
-void User::setUserSuperviseur(User *userSuperviseur)
-{
-    m_userSuperviseur = userSuperviseur;
-}
-User *User::getUserParent() const { return m_userParent; }
-void User::setUserParent(User *userParent)
-{
-    m_userParent = userParent;
-}
-User *User::getUserComptable() const {  return m_userComptable; }
-void User::setUserComptable(User *userComptable)
-{
-    m_userComptable = userComptable;
-}
-QString User::getLoginComptable() const
-{
-    if( m_userComptable )
-        return m_userComptable->getLogin();
-    return "";
-}
+int User::getIdUserParent() const                   { return m_idUserParent; }
+void User::setIdUserParent(int idusr)               { m_idUserParent = idusr; }
+int User::getIdUserComptable() const                { return m_idUserComptable; }
+void User::setIdUserComptable(int idusr)            { m_idUserComptable = idusr; }
 
-int User::getSecteur() const { return m_secteur; }
-int User::getIdCompteParDefaut() const { return m_idCompteParDefaut; }
-QString User::getMail() const { return m_mail; }
-QString User::getPortable() const { return m_portable; }
+User *User::getUserSuperviseur() const              { return m_userSuperviseur; }
+void User::setUserSuperviseur(User *usr)            { m_userSuperviseur = usr; }
+User *User::getUserParent() const                   { return m_userParent; }
+void User::setUserParent(User *usr)                 { m_userParent = usr; }
+User *User::getUserComptable() const                { return m_userComptable; }
+void User::setUserComptable(User *usr)              { m_userComptable = usr; }
 
-QString User::getNomCompteParDefaut() const { return m_nomCompteParDefaut; }
-QString User::getNomCompteAbrege() const { return m_nomCompteEncaissHonoraires; }
-int User::getidUserCompteParDefaut() const { return m_iduserComptePardefaut; }
+int User::getSecteur() const                        { return m_secteur; }
+int User::getIdCompteParDefaut() const              { return m_idCompteParDefaut; }
+QString User::getMail() const                       { return m_mail; }
+QString User::getPortable() const                   { return m_portable; }
+
+QString User::getNomCompteParDefaut() const         { return m_nomCompteParDefaut; }
+QString User::getNomCompteAbrege() const            { return m_nomCompteEncaissHonoraires; }
+int User::getidUserCompteParDefaut() const          { return m_iduserComptePardefaut; }
+
+Site* User::getSite() const                         { return m_Site; }
+void User::setSite(Site *Site)                      { m_Site = Site; }
+
+Comptes* User::getComptes() const                   { return m_comptes; }
+void User::setComptes(Comptes *comptes)             { m_comptes = comptes; }
+
+int User::getTypeCompta() const                     { return m_typeCompta; }
+void User::setTypeCompta(int typeCompta )           { m_typeCompta = typeCompta; }
+
+bool User::isOPTAM()                                { return m_OPTAM; }
+bool User::isCotation()                             { return m_cotation; }
+
+bool User::isSecretaire()                           { return m_droits == SECRETAIRE; }
+bool User::isAutreFonction()                        { return m_droits == AUTREFONCTION; }
+bool User::isMedecin()                              { return m_medecin == 1; }
+bool User::isOpthalmo()                             { return m_soignant == 1; }
+bool User::isOrthoptist()                           { return m_soignant == 2; }
+bool User::isAutreSoignant()                        { return m_soignant == 3; }
+bool User::isNonSoignant()                          { return m_soignant == 4; }
+bool User::isSocComptable()                         { return m_soignant == 5; }
+bool User::isComptable()                            { return isLiberal() || isSocComptable(); }
+bool User::isSoignant()                             { return isOpthalmo() || isOrthoptist() || isAutreSoignant(); }
+bool User::isLiberal()                              { return isSoignant() && m_enregHonoraires == 1; }
+bool User::isSalarie()                              { return isSoignant() && m_enregHonoraires == 2; }
+bool User::isRemplacant()                           { return isSoignant() && m_enregHonoraires == 3; }
+bool User::isSansCompta()                           { return m_enregHonoraires == 4; }
+bool User::isResponsable()                          { return isSoignant() && m_responsableActes == 1; }
+bool User::isResponsableEtAssistant()               { return isSoignant() && m_responsableActes == 2; }
+bool User::isAssistant()                            { return isSoignant() && m_responsableActes == 3; }
+//bool User::isAssistant() { return isSoignant() && m_idUserActeSuperviseur != m_id; }
+bool User::isDesactive()                            { return m_desactive; }
 
 
 /*!
@@ -246,42 +243,5 @@ QString User::getStatus() const
 
     return str;
 }
-
-Site* User::getSite() const { return m_Site; }
-void User::setSite(Site *Site) { m_Site = Site; }
-
-
-Comptes* User::getComptes() const { return m_comptes; }
-void User::setComptes(Comptes *comptes) { m_comptes = comptes; }
-
-int User::getTypeCompta() const { return m_typeCompta; }
-void User::setTypeCompta(int typeCompta )
-{
-    m_typeCompta = typeCompta;
-}
-
-bool User::isOPTAM() { return m_OPTAM; }
-bool User::isCotation() { return m_cotation; }
-
-bool User::isSecretaire() { return m_droits == SECRETAIRE; }
-bool User::isAutreFonction() { return m_droits == AUTREFONCTION; }
-bool User::isMedecin() { return m_medecin == 1; }
-bool User::isOpthalmo() { return m_soignant == 1; }
-bool User::isOrthoptist() { return m_soignant == 2; }
-bool User::isAutreSoignant() { return m_soignant == 3; }
-bool User::isNonSoignant() { return m_soignant == 4; }
-bool User::isSocComptable() { return m_soignant == 5; }
-bool User::isComptable() { return isLiberal() || isSocComptable(); }
-bool User::isSoignant() { return isOpthalmo() || isOrthoptist() || isAutreSoignant(); }
-bool User::isLiberal() { return isSoignant() && m_enregHonoraires == 1; }
-bool User::isSalarie() { return isSoignant() && m_enregHonoraires == 2; }
-bool User::isRemplacant() { return isSoignant() && m_enregHonoraires == 3; }
-bool User::isSansCompta() { return m_enregHonoraires == 4; }
-bool User::isResponsable() { return isSoignant() && m_responsableActes == 1; }
-bool User::isResponsableEtAssistant() { return isSoignant() && m_responsableActes == 2; }
-bool User::isAssistant() { return isSoignant() && m_responsableActes == 3; }
-//bool User::isAssistant() { return isSoignant() && m_idUserActeSuperviseur != m_id; }
-
-bool User::isDesactive() { return m_desactive; }
 
 

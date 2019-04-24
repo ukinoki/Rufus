@@ -1256,7 +1256,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     ui->ComptaRemplaupRadioButton     ->setChecked(retrocession);
     ui->NoComptaupRadioButton         ->setChecked(pasdecompta);
 
-    ui->AGAupRadioButton              ->setChecked(ophtalmo && DataUser()->getAGA());
+    ui->AGAupRadioButton              ->setChecked(ophtalmo && DataUser()->isAGA());
 
     ui->ResponsableupRadioButton      ->setChecked(responsable);
     ui->ResponsableLes2upRadioButton  ->setChecked(responsableles2);
@@ -1325,7 +1325,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
         ui->ComptagroupBox              ->setVisible(true);
         ui->ModeExercicegroupBox        ->setVisible(true);
         ui->AGAupRadioButton              ->setVisible(true);
-        ui->AGAupRadioButton              ->setChecked(DataUser()->getAGA());
+        ui->AGAupRadioButton              ->setChecked(DataUser()->isAGA());
         ui->SecteurgroupBox             ->setVisible(true);
         ui->RPPSlabel                   ->setVisible(true);
         ui->RPPSupLineEdit              ->setVisible(true);

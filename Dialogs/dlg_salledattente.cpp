@@ -18,20 +18,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_salledattente.h"
 #include "ui_dlg_salledattente.h"
 
-dlg_salledattente::dlg_salledattente(int idPatAPasser, int idActeAPasser, QString Titre, QWidget *parent):
+dlg_salledattente::dlg_salledattente(Patient* pat, Acte* act, QString Titre, QWidget *parent):
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionSalDat", parent),
     ui(new Ui::dlg_salledattente)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    proc                = Procedures::I();
-    gidPatient          = idPatAPasser;
-    db                  = DataBase::getInstance();
-    gidUser             = db->getUserConnected()->id();
-    gidUserSuperviseur  = db->getUserConnected()->getIdUserActeSuperviseur();
-    gTitre              = Titre;
-    gidActe             = idActeAPasser;
-    ui->MessagetextEdit->setText(gTitre);
+    gPatientEnCours     = pat;
+    gActeEnCours        = act;
+
+    ui->MessagetextEdit->setText(gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + "\n" + Titre);
+
     ui->MessagetextEdit->document()->setTextWidth(width()-dlglayout()->contentsMargins().left()*2-2);
     ui->MessagetextEdit->setFixedSize(int(width()-dlglayout()->contentsMargins().left()*2), int(ui->MessagetextEdit->document()->size().height()+2));
     dlglayout()->insertWidget(0,ui->MiseEnSalleDAttentegroupBox);
@@ -51,7 +48,7 @@ dlg_salledattente::dlg_salledattente(int idPatAPasser, int idActeAPasser, QStrin
     ui->UsercomboBox->clear();
     QString Usersrequete = "SELECT UserLogin FROM " NOM_TABLE_UTILISATEURS " as usr, " NOM_TABLE_USERSCONNECTES " as connectusr"
             " WHERE (UserFonction = '" + tr("Médecin") + "' OR UserFonction = '" + tr("Orthoptiste") + "' OR UserFonction = '" + tr("Assistant") + "')"
-            " AND usr.idUser <> '" + QString::number(gidUser) + "'"
+            " AND usr.idUser <> '" + QString::number(db->getUserConnected()->id()) + "'"
             " AND usr.idUser = connectusr.idUser";
     //proc->Edit( Usersrequete);
     bool ok;
@@ -113,18 +110,18 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     if (ui->ExamenEnAttenteAutreAvisradioButton->isChecked())   Statut = ENATTENTENOUVELEXAMEN + ui->UsercomboBox->currentText();
     if (ui->RetourAccueilradioButton->isChecked())
     {
-        ActeSal = QString::number(gidActe);
+        ActeSal = QString::number(gActeEnCours->id());
         QString req = "select idacte, iduser from " NOM_TABLE_ACTES " where idacte = " + ActeSal;
         QList<QVariantList> ListActes = db->StandardSelectSQL(req,ok);
         if (ListActes.at(0).at(1).toInt() == -1)
-            db->StandardSQL("update " NOM_TABLE_ACTES " set idUser = " + QString::number(proc->UserSuperviseur()) +
+            db->StandardSQL("update " NOM_TABLE_ACTES " set idUser = " + QString::number(db->getUserConnected()->getIdUserActeSuperviseur()) +
                        ", UserComptable = " + QString::number(db->getUserConnected()->getIdUserComptable()) +
-                       ", UserParent = " + QString::number(proc->UserParent()) + " where idacte = " + ListActes.at(0).at(0).toString());
+                       ", UserParent = " + QString::number(db->getUserConnected()->getIdUserParent()) + " where idacte = " + ListActes.at(0).at(0).toString());
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
     }
 
-    QString saldatrequete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(gidPatient);
+    QString saldatrequete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(gPatientEnCours->id());
     QList<QVariantList> ListPatients = db->StandardSelectSQL(saldatrequete,ok,tr("Impossible de trouver le dossier dans la salle d'attente!"));
     QString MsgErreur;
     if (ListPatients.size() == 0)
@@ -132,7 +129,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
 
         saldatrequete =     "INSERT INTO " NOM_TABLE_SALLEDATTENTE
                             " (idPat, idUser, Statut, HeureStatut, idUserEnCoursExam, idActeAPayer, PosteExamen, Message)"
-                            " VALUES ('" + QString::number(gidPatient) + "','" + QString::number(gidUserSuperviseur) + "','" + Statut + "','"
+                            " VALUES ('" + QString::number(gPatientEnCours->id()) + "','" + QString::number(db->getUserConnected()->getIdUserActeSuperviseur()) + "','" + Statut + "','"
                             + QTime::currentTime().toString("hh:mm") +"', null," + ActeSal + ",'" + Utils::correctquoteSQL(Msg) + "',null)";
         MsgErreur           = tr("Impossible de mettre ce dossier en salle d'attente");
     }
@@ -146,12 +143,12 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         if (ActeSal != "null")
             saldatrequete   += ", idActeAPayer = " + ActeSal;
         saldatrequete       += ", Message = '" + Utils::correctquoteSQL(Msg) + "'";
-        saldatrequete       += " WHERE idPat = '" + QString::number(gidPatient) + "'";
+        saldatrequete       += " WHERE idPat = '" + QString::number(gPatientEnCours->id()) + "'";
         MsgErreur           = tr("Impossible de modifier les statuts du dossier en salle d'attente!");
     }
     //proc->Edit(saldatrequete);
     db->StandardSQL(saldatrequete,MsgErreur);
-    proc->MAJTcpMsgEtFlagSalDat();
+    Procedures::I()->MAJTcpMsgEtFlagSalDat();
     accept();
 }
 

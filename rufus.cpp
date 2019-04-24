@@ -9885,12 +9885,9 @@ void Rufus::ResumeStatut()
 -----------------------------------------------------------------------------------------------------------------*/
 bool Rufus::RetourSalleDattente(QString Titre)
 {
-    int idPatAPasser    = gidPatient;
-    int idActeAPasser   = gidActe;
-    QString TitreAPasser= gNomPatient + " " + gPrenomPatient + "\n" + Titre;
     bool retour         = false;
 
-    Dlg_SalDat           = new dlg_salledattente(idPatAPasser, idActeAPasser, TitreAPasser);
+    Dlg_SalDat           = new dlg_salledattente(gPatientEnCours, gActeEnCours, Titre);
     Dlg_SalDat->setWindowTitle(tr("Consultation incomplète!"));
 
     if (Titre == tr("Il manque le montant!") || Titre == tr("Il manque la cotation!"))

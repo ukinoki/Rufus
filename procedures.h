@@ -200,8 +200,6 @@ private slots:
 public:
     int                     idCentre();
     int                     idLieuExercice();
-    int                     UserSuperviseur(); //TODO : DELETE
-    int                     UserParent(); //TODO : DELETE
     QString                 getSessionStatus();
     //--------------------------------------------------------------------------------------------------------
 

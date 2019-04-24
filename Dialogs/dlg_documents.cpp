@@ -217,7 +217,8 @@ void dlg_documents::Annulation()
                 }
             }
         }
-        Remplir_TableWidget();
+        if (gMode == CreationDOC || gMode == CreationDOSS)
+            Remplir_TableWidget();
         if (ui->DocupTableWidget->rowCount() == 0)
             ConfigMode(CreationDOC);
         else
@@ -1845,6 +1846,7 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
             }   }   }
     // tri de la table docuptablewidget
     TriDocupTableWidget();
+    ui->DocupTableWidget->scrollToTop();
 
     // enable okpushbutton
     for (int l=0; l<ui->DocupTableWidget->rowCount(); l++)
@@ -1940,7 +1942,17 @@ void dlg_documents::ConfigMode(int mode, int row)
 
     else if (mode == ModificationDOC)
     {
+        int iddoc = getDocumentFromRow(row)->id();
         DisableLines();
+        row = -1;
+        for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+            if (getDocumentFromRow(i)->id() == iddoc)
+            {
+                row = i;
+                break;
+            }
+        if (row == -1)
+            return;
         UpLineEdit *line = static_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(row,1));
         line->setEnabled(true);
         line->setFocusPolicy(Qt::WheelFocus);
@@ -1955,7 +1967,7 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->DocupTableWidget->setEnabled(true);
         ui->DocupTableWidget->setStyleSheet("");
         widgButtonsDocs->setEnabled(false);
-        ui->DossiersupTableWidget->setEnabled(false);
+        ui->DossiersupTableWidget->setEnabled(true);
         widgButtonsDossiers->setEnabled(false);
         ui->textFrame->setEnabled(true);
         ui->Expliclabel->setText(tr("DOCUMENTS - MODIFICATION"));
@@ -1976,8 +1988,6 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->OKupPushButton->setIcon(Icons::icValide());
         ui->OKupPushButton->setIconSize(QSize(25,25));
         ui->OKupPushButton->setText(tr("Enregistrer"));
-        ui->ChercheupLineEdit->clear();
-        FiltreListe();
     }
 
     else if (mode == ModificationDOSS)
@@ -2023,12 +2033,9 @@ void dlg_documents::ConfigMode(int mode, int row)
         ui->OKupPushButton->setIconSize(QSize(25,25));
         ui->OKupPushButton->setText(tr("Enregistrer"));
         ui->ChercheupLineEdit->clear();
-        FiltreListe();
     }
     else if (mode == CreationDOC)
     {
-        ui->ChercheupLineEdit->clear();
-        FiltreListe();
         DisableLines();
         ui->DocupTableWidget->insertRow(row);
         QWidget * w = new QWidget(ui->DocupTableWidget);
@@ -2202,6 +2209,12 @@ void dlg_documents::ConfigMode(int mode, int row)
 // --------------------------------------------------------------------------------------------------
 void dlg_documents::DisableLines()
 {
+    ui->ChercheupLineEdit->clear();
+    for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
+        ui->DocupTableWidget->setRowHidden(i,false);
+    for (int i=0; i<ui->DossiersupTableWidget->rowCount(); i++)
+        ui->DossiersupTableWidget->setRowHidden(i,false);
+
     widgButtonsDossiers->setEnabled(false);
     widgButtonsDocs->setEnabled(false);
     for (int i=0; i<ui->DocupTableWidget->rowCount(); i++)
@@ -3060,8 +3073,6 @@ void dlg_documents::SetMetaDocumentToRow(MetaDocument*dossier, int row)
 // ----------------------------------------------------------------------------------
 void dlg_documents::SupprimmDocument(int row)
 {
-    DisableLines();
-
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + getDocumentFromRow(row)->resume() + "?";
     UpMessageBox msgbox;

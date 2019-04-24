@@ -1231,7 +1231,7 @@ QString Procedures::ImpressionPied(User *user, bool lunettes, bool ALD)
         baPied.resize(filePied_len + 1);
         baPied.data()[filePied_len] = 0;
         qFilePied.close ();
-        if( user->getAGA() )
+        if( user->isAGA() )
             baPied.replace("{{AGA}}","Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté");
         else
             baPied.replace("{{AGA}}","");
@@ -1983,7 +1983,7 @@ QString Procedures::getSessionStatus()
             txtstatut += tr("sans comptabilité");
     }
     if (respliberal||respsalarie)
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + m_userConnected->getNomCompteEncaissHonoraires() + " " + tr("de") + " " + m_userConnected->getLoginComptable();
+        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + m_userConnected->getNomCompteEncaissHonoraires() + " " + tr("de") + " " + m_userConnected->getUserComptable()->getLogin();
     else if (retrocession)
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
@@ -2010,7 +2010,7 @@ QString Procedures::getSessionStatus()
                           + cptabledefaut;
     }
     if (respliberal)
-        txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (m_userConnected->getAGA() ? tr("Oui") : tr("Sans"));
+        txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (m_userConnected->isAGA() ? tr("Oui") : tr("Sans"));
     return txtstatut;
 }
 
@@ -3964,16 +3964,6 @@ int Procedures::idLieuExercice()
     if( m_userConnected )
         return m_userConnected->getSite()->id();
     return -1;
-}
-
-int Procedures::UserSuperviseur()
-{
-    return m_userConnected->getIdUserActeSuperviseur();
-}
-
-int Procedures::UserParent()
-{
-    return m_userConnected->getIdUserParent();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
