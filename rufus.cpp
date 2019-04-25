@@ -349,7 +349,7 @@ void Rufus::Connect_Slots()
     connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {OuvrirDocuments();});
     connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelListePatients();});
     connect (ui->PatientsListeTableView,                            &QTableView::doubleClicked,                         this,   [=] {ChoixDossier(getSelectedPatientFromTable());});
-    connect (ui->PatientsListeTableView,                            &QTableView::entered,                               this,   [=] {AfficheToolTip(-1);});
+    connect (ui->PatientsListeTableView,                            &QTableView::entered,                               this,   [=] {AfficheToolTip(getSelectedPatientFromCursorPositionInTable());});
     connect (ui->PatientsListeTableView->selectionModel(),          &QItemSelectionModel::selectionChanged,             this,   [=] {EnableCreerDossierButton();});
     connect (ui->PatientsVusFlecheupLabel,                          &UpLabel::clicked,                                  this,   [=] {AffichePatientsVusWidget();});
     connect (ui->PatientsVusupTableWidget,                          &QTableView::activated,                             this,   [=] {gTimerPatientsVus->start();});
@@ -997,11 +997,11 @@ void Rufus::MAJPatientsVus()
         connect (label2,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label2);});
         connect (label3,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label3);});
         connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label4);});
-        connect (label0,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(rsgnmt["idpat"].toInt());});
-        connect (label1,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(rsgnmt["idpat"].toInt());});
-        connect (label2,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(rsgnmt["idpat"].toInt());});
-        connect (label3,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(rsgnmt["idpat"].toInt());});
-        connect (label4,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(rsgnmt["idpat"].toInt());});
+        connect (label0,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(db->loadPatientById(rsgnmt["idpat"].toInt()));});
+        connect (label1,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(db->loadPatientById(rsgnmt["idpat"].toInt()));});
+        connect (label2,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(db->loadPatientById(rsgnmt["idpat"].toInt()));});
+        connect (label3,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(db->loadPatientById(rsgnmt["idpat"].toInt()));});
+        connect (label4,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(db->loadPatientById(rsgnmt["idpat"].toInt()));});
         connect (label0,        &UpLabel::dblclick,         this,                   [=] {if (gUserEnCours->isSoignant()) ChoixDossier(db->loadPatientById(rsgnmt["idpat"].toInt()));});
         connect (label1,        &UpLabel::dblclick,         this,                   [=] {if (gUserEnCours->isSoignant()) ChoixDossier(db->loadPatientById(rsgnmt["idpat"].toInt()));});
         connect (label2,        &UpLabel::dblclick,         this,                   [=] {if (gUserEnCours->isSoignant()) ChoixDossier(db->loadPatientById(rsgnmt["idpat"].toInt()));});
@@ -1021,52 +1021,42 @@ void Rufus::MAJPatientsVus()
 /*------------------------------------------------------------------------------------------------------------------------------------
     -- Afficher l'adresse du patient en toolTip ----------------------------------------------------------------
     ------------------------------------------------------------------------------------------------------------------------------------*/
-void Rufus::AfficheToolTip(int id)
+void Rufus::AfficheToolTip(Patient *pat)
 {
-    if (id==-1)
-    {
-        QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
-        if (gListePatientsModel->itemFromIndex(pindx) == Q_NULLPTR)
-            return;
-        int row = gListePatientsModel->itemFromIndex(pindx)->row();
-        id = gListePatientsModel->item(row)->text().toInt();
-    }
-    QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatVille, PatDDN FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS " dos, " NOM_TABLE_PATIENTS " pat"
-                  "  WHERE pat.idPat = " + QString::number(id) + " and pat.idpat = dos.idpat";
-    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+    if (pat == Q_NULLPTR)
+        return;
+    db->loadSocialDataPatient(pat,ok);
     if (!ok)
         return;
     QString Msg = "";
-    if (patdata.size()>0)
+    if (pat->datedenaissance().isValid())
+        Msg += Item::CalculAge(pat->datedenaissance())["toString"].toString();
+    if (pat->ville() != "")
     {
-        if (patdata.at(4).toString() != "")
-            Msg += Item::CalculAge(patdata.at(4).toDate())["toString"].toString();
-        if (patdata.at(3).toString() != "")
-        {
-            if (Msg!="") Msg = "\n" + Msg;
-            Msg = patdata.at(3).toString() + Msg;
-        }
-        if (patdata.at(2).toString() != "")
-        {
-            if (Msg!="") Msg = "\n" + Msg;
-            Msg = patdata.at(2).toString() + Msg;
-        }
-        if (patdata.at(1).toString() != "")
-        {
-            if (Msg!="") Msg = "\n" + Msg;
-            Msg = patdata.at(1).toString() + Msg;
-        }
-        if (patdata.at(0).toString() != "")
-        {
-            if (Msg!="") Msg = "\n" + Msg;
-            Msg = patdata.at(0).toString() + Msg;
-        }
-        if (Msg!="") Msg += "\n";
-        Msg += QString::number(id);
+        if (Msg!="") Msg = "\n" + Msg;
+        Msg = pat->ville() + Msg;
     }
+    if (pat->adresse3() != "")
+    {
+        if (Msg!="") Msg = "\n" + Msg;
+        Msg = pat->adresse3() + Msg;
+    }
+    if (pat->adresse2() != "")
+    {
+        if (Msg!="") Msg = "\n" + Msg;
+        Msg = pat->adresse2() + Msg;
+    }
+    if (pat->adresse1() != "")
+    {
+        if (Msg!="") Msg = "\n" + Msg;
+        Msg = pat->adresse1() + Msg;
+    }
+    if (Msg!="") Msg += "\n";
+    Msg += QString::number(pat->id());
 
     if (Msg != "")
         QToolTip::showText(cursor().pos(),Msg);
+    delete pat;
 }
 
 
@@ -1328,11 +1318,11 @@ void Rufus::AppelPaiementTiers2()
     }
 }
 
-void Rufus::AutreDossier(int idPat)
+void Rufus::AutreDossier(Patient *pat)
 {
     if(gUserEnCours->isSoignant())
     {
-        gdossierAOuvrir = db->loadPatientById(idPat, true);
+        gdossierAOuvrir = pat;
         ChoixMenuContextuelListePatients(tr("Autre Dossier"));
     }
 }
@@ -2463,41 +2453,42 @@ void Rufus::ImportDocsExternes()
 
 void Rufus::ImprimeDossier()
 {
+    Datas::I()->actes->initListeByPatient(gPatientEnCours);
+    QMap<int, Acte*> *listeactes = Datas::I()->actes->actes();
     QString req = "select idActe, ActeDate from " NOM_TABLE_ACTES
                   " where idPat = " + QString::number(gPatientEnCours->id()) +
                   " order by ActeDate";
     //UpMessageBox::Watch(this,listactreq);
-    QList<QVariantList> listact = db->StandardSelectSQL(req, ok);
-    if (listact.size()==0)
+    if (listeactes->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Pas d'actes enregistré pour ce patient!"));
         return;
     }
 
-    if (listact.size()>1)
+    else
     {
         auto fixdateacte        = [] (UpComboBox *debutbox, UpComboBox *finbox, int idacte)
         {
             debutbox    ->setCurrentIndex(debutbox  ->findData(idacte));
             finbox      ->setCurrentIndex(finbox    ->findData(idacte));
         };
-        auto recalclistitems    = [] (UpComboBox *box, QList<QVariantList> listactes, QDate date, bool verslehaut)
+        auto recalclistitems    = [] (UpComboBox *box, QMap<int, Acte*> *listeactes, QDate date, bool verslehaut)
         {
             QDate dateencours = QDate::fromString(box->currentText(),"dd-MMM-yyyy");
             box->clear();
-            QList<QVariantList>::const_iterator itactes;
-            for( itactes = listactes.constBegin(); itactes != listactes.constEnd(); ++itactes )
+            QMap<int, Acte*>::const_iterator itactes;
+            for( itactes = listeactes->constBegin(); itactes != listeactes->constEnd(); ++itactes )
             {
-                QString dateacte = itactes->at(1).toDate().toString("dd-MMM-yyyy");
+                QString dateacte = itactes.value()->date().toString("dd-MMM-yyyy");
                 if (verslehaut)
                 {
-                    if (itactes->at(1).toDate() >= date)
-                        box->addItem(dateacte, itactes->at(0));
+                    if (itactes.value()->date() >= date)
+                        box->addItem(dateacte, itactes.value()->id());
                 }
                 else
                 {
-                    if (itactes->at(1).toDate() <= date)
-                        box->addItem(dateacte, itactes->at(0));
+                    if (itactes.value()->date() <= date)
+                        box->addItem(dateacte, itactes.value()->id());
                 }
             }
             if (verslehaut)
@@ -2515,15 +2506,15 @@ void Rufus::ImprimeDossier()
                     box->setCurrentIndex(0);
             }
         };
-        auto recalcallitems     = [] (UpComboBox *debutbox, UpComboBox *finbox, QList<QVariantList> listactes)
+        auto recalcallitems     = [] (UpComboBox *debutbox, UpComboBox *finbox, QMap<int, Acte*> *listeactes)
         {
             // remplissage des combobox de date des actes
-            QList<QVariantList>::const_iterator itactes;
-            for( itactes = listactes.constBegin(); itactes != listactes.constEnd(); ++itactes )
+            QMap<int, Acte*>::const_iterator itactes;
+            for( itactes = listeactes->constBegin(); itactes != listeactes->constEnd(); ++itactes )
             {
-                QString dateacte = itactes->at(1).toDate().toString("dd-MMM-yyyy");
-                debutbox    ->addItem(dateacte, itactes->at(0));
-                finbox      ->addItem(dateacte, itactes->at(0));
+                QString dateacte = itactes.value()->date().toString("dd-MMM-yyyy");
+                debutbox    ->addItem(dateacte, itactes.value()->id());
+                finbox      ->addItem(dateacte, itactes.value()->id());
             }
             debutbox    ->setCurrentIndex(0);
             finbox      ->setCurrentIndex(finbox->count()-1);
@@ -2562,17 +2553,17 @@ void Rufus::ImprimeDossier()
         combodebut      ->setEditable(false);
         combofin        ->setEditable(false);
         // remplissage des combobox de date des actes
-        recalcallitems (combodebut, combofin, listact);
+        recalcallitems (combodebut, combofin, listeactes);
 
         connect(gAsk->OKButton, &QPushButton::clicked,              gAsk, &UpDialog::accept);
         connect(Actebutton,     &QPushButton::clicked,              gAsk, [=] {fixdateacte(combodebut, combofin, gidActe);});
-        connect(Dossierbutton,  &QPushButton::clicked,              gAsk, [=] {recalcallitems (combodebut, combofin, listact);});
+        connect(Dossierbutton,  &QPushButton::clicked,              gAsk, [=] {recalcallitems (combodebut, combofin, listeactes);});
         connect(combodebut,     QOverload<int>::of(&QComboBox::activated),    gAsk, [=] {recalclistitems(combofin,
-                                                                                               listact,
+                                                                                               listeactes,
                                                                                                QDate::fromString(combodebut->currentText(),"dd-MMM-yyyy"),
                                                                                                true);});
         connect(combofin,       QOverload<int>::of(&QComboBox::activated),    gAsk, [=] {recalclistitems(combodebut,
-                                                                                               listact,
+                                                                                               listeactes,
                                                                                                QDate::fromString(combofin->currentText(),"dd-MMM-yyyy"),
                                                                                                false);});
         int result = gAsk->exec();
@@ -2581,24 +2572,25 @@ void Rufus::ImprimeDossier()
             delete gAsk;
             return;
         }
-        QList<int> listidactes;
-        for( int i=0; i<listact.size(); i++ )
+        QList<Acte*> listeactesaimprimer;
+        QMap<int, Acte*>::const_iterator itactes;
+        for( itactes = listeactes->constBegin(); itactes != listeactes->constEnd(); ++itactes )
         {
-            int idacte = listact.at(i).at(0).toInt();
+            int idacte = itactes.value()->id();
             if (idacte >= combodebut->currentData().toInt() && idacte <= combofin->currentData().toInt())
-                listidactes << listact.at(i).at(0).toInt();
+                listeactesaimprimer << itactes.value();
         }
         delete gAsk;
-        if (listidactes.size() > 0)
+        if (listeactesaimprimer.size() > 0)
         {
-            bool toutledossier = (listidactes.size() == listact.size());
-            ImprimeListActes(listidactes, toutledossier);
+            bool toutledossier = (listeactes->size() == listeactesaimprimer.size());
+            ImprimeListActes(listeactesaimprimer, toutledossier);
         }
     }
     MAJDocsExternes();
 }
 
-void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool queLePdf, QString nomdossier)
+void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool queLePdf, QString nomdossier)
 {
     int taillefont  = 8;
     QString Reponse =        "<html><head><meta name=\"qrichtext\" content=\"1\" />"
@@ -2683,14 +2675,15 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
 
     bool reponsevide = true;
     QString datedebut, datefin;
-    for (int i=0; i<listidactes.size(); i++)
+    QList<Acte*>::const_iterator itacte;
+    for( itacte = listeactes.constBegin(); itacte != listeactes.constEnd(); ++itacte )
     {
-        Acte* act = db->loadActeById(listidactes.at(i));
+        Acte* act = const_cast<Acte*>(*itacte);
         if (act == Q_NULLPTR)
                 continue;
-        if (i == 0)
+        if (itacte == listeactes.constBegin())
             datedebut = act->date().toString(tr("d MMM yyyy"));
-        if (i == listidactes.size()-1)
+        if (itacte == listeactes.constEnd())
             datefin = act->date().toString(tr("d MMM yyyy"));
         if (act->motif() != ""
             || act->texte() != ""
@@ -2749,7 +2742,7 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
    QString comment;
    if (toutledossier)
        comment = tr("COMPTE RENDU DE DOSSIER");
-   else if (listidactes.size() > 1)
+   else if (listeactes.size() > 1)
        comment = tr("Actes du") + " " + datedebut + tr("au") + " " + datefin;
    else
        comment = tr("Acte du") + " " + datedebut;
@@ -2784,7 +2777,7 @@ void Rufus::ImprimeListActes(QList<int> listidactes, bool toutledossier, bool qu
    if (queLePdf)
    {
        aa = proc->Imprime_pdf(Etat_textEdit, Entete, Pied,
-                             (listidactes.size() > 1?
+                             (listeactes.size() > 1?
                                   tr("Actes") + " - " + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf":
                                   tr("Acte") + " - " + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy")) + ".pdf",
                              nomdossier);
@@ -2836,7 +2829,6 @@ void Rufus::DropPatient(QByteArray data)
         }
         //qDebug() << ab;
     }
-    //qDebug() << QString::number(id);
     InscritEnSalDat(db->loadPatientById(id));
 }
 
@@ -3373,35 +3365,18 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
 {
     if (choix == "Autre Dossier")
     {
-        QString autrerequete = "select PatNom, PatPrenom from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(gdossierAOuvrir->id());
-        QVariantList autredata = db->getFirstRecordFromStandardSelectSQL(autrerequete,ok);
-        if (!ok)
-            return;
-        if (autredata.size() == 0)
+        Datas::I()->actes->initListeByPatient(gdossierAOuvrir);
+        if (Datas::I()->actes->actes()->size()  == 0)
         {
-            UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ce patient"));
+            UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ") + gdossierAOuvrir->prenom() + " " + gdossierAOuvrir->nom());
             return;
         }
         else
         {
-            QString patNom = autredata.at(0).toString();
-            QString patPrenom = autredata.at(1).toString();
-            QString autreactes = "select idActe, ActeDate from " NOM_TABLE_ACTES " where idPat = " + QString::number(gdossierAOuvrir->id()) + " ORDER BY ActeDate DESC";
-            QVariantList actedata = db->getFirstRecordFromStandardSelectSQL(autreactes,ok);
-            if (!ok)
-               return;
-            if (actedata.size() == 0)
-            {
-                UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ") + patPrenom + " " + patNom);
-                return;
-            }
-            else
-            {
-                Dlg_ActesPrecs  = new dlg_actesprecedents(gdossierAOuvrir, false, this);
-                Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + patNom + " " + patPrenom);
-                Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
-                Dlg_ActesPrecs  ->exec();
-            }
+            Dlg_ActesPrecs  = new dlg_actesprecedents(gdossierAOuvrir, false, this);
+            Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + gdossierAOuvrir->nom() + " " + gdossierAOuvrir->prenom());
+            Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
+            Dlg_ActesPrecs  ->exec();
         }
     }
     else if (choix == "SalDat")
@@ -5821,6 +5796,16 @@ Patient* Rufus::getSelectedPatientFromTable()
 {
     return db->loadPatientById(gListePatientsModel->itemFromIndex(ui->PatientsListeTableView->selectionModel()->selectedIndexes().at(0))->text().toInt());
 }
+Patient* Rufus::getSelectedPatientFromCursorPositionInTable()
+{
+    QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
+    if (gListePatientsModel->itemFromIndex(pindx) == Q_NULLPTR)
+        return Q_NULLPTR;
+    int row = gListePatientsModel->itemFromIndex(pindx)->row();
+    int id = gListePatientsModel->item(row)->text().toInt();
+    Patient *pat = db->loadPatientById(id);
+    return pat;
+}
 // ------------------------------------------------------------------------------------------
 // Interception des évènements internes
 // ------------------------------------------------------------------------------------------
@@ -6160,7 +6145,6 @@ void Rufus::AfficheActe(int idActe)
         QMap<QString,QVariant>  Age = Item::CalculAge(gPatientEnCours->datedenaissance(), ui->ActeDatedateEdit->date());
         ui->AgelineEdit             ->setText(Age["toString"].toString());
         ui->AgelineEdit             ->setAlignment(Qt::AlignCenter);
-        gAgePatient                 = Age["annee"].toInt();
 
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
         ui->CreeParlineEdit         ->setText(tr("Créé par ") + Datas::I()->users->getById(gActeEnCours->idCreatedBy())->getLogin()
@@ -7452,7 +7436,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 void Rufus::ExporteActe()
 {
     QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + gPatientEnCours->nom() + " " + gPatientEnCours->prenom() + " - " + gActeEnCours->date().toString("d MMM yyyy");
-    ImprimeListActes(QList<int>() << gActeEnCours->id(), false, true, nomdossier);
+    ImprimeListActes(QList<Acte*>() << gActeEnCours, false, true, nomdossier);
     QString req = "select idimpression from " NOM_TABLE_IMPRESSIONS
                   " where idpat = " +QString::number(gPatientEnCours->id()) +
                   " and DATE(dateimpression) = '" + gActeEnCours->date().toString("yyyy-MM-dd") + "' "
@@ -9019,9 +9003,8 @@ void    Rufus::Refraction()
     if (ui->tabWidget->currentIndex() != 1)
         return;
     int idActeAPasser       = gidActe;
-    int AgeAPasser          = gAgePatient;
 
-    Dlg_Refraction     = new dlg_refraction(gPatientEnCours, idActeAPasser, AgeAPasser, this);
+    Dlg_Refraction     = new dlg_refraction(gPatientEnCours, idActeAPasser, this);
     Dlg_Refraction->setWindowTitle("Refraction - " + gPatientEnCours->nom() + " " + gPatientEnCours->prenom());
     Dlg_Refraction->setWindowIcon(Icons::icLunettes());
     proc->setFicheRefractionOuverte(true);
@@ -9580,7 +9563,7 @@ void Rufus::Remplir_SalDat()
                 else
                 {
                     connect(UserBureau,         &QWidget::customContextMenuRequested,   [=] {MenuContextuelBureaux(UserBureau);});
-                    connect(UserBureau,         &UpTextEdit::dblclick,                  [=] {AutreDossier(UserBureau->getId());});
+                    connect(UserBureau,         &UpTextEdit::dblclick,                  [=] {AutreDossier(db->loadPatientById(UserBureau->getId()));});
                 }
                 html += "<p class=\"p2\">" +  burlist.at(i).at(3).toString() + " " + burlist.at(i).at(4).toString() + "</p>";      //Nom Prenom
                 QString color = "black";

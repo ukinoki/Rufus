@@ -99,7 +99,6 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
 
 void DocsExternes::clearAll()
 {
-    QList<DocExterne*> listdocs;
     for( QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->constBegin(); itdoc != m_docsexternes->constEnd(); ++itdoc)
         delete itdoc.value();
     m_docsexternes->clear();

@@ -138,11 +138,11 @@ private:
     void        AfficheCourriersAFaire();
     void        AfficheMenu(QMenu *menu);
     void        AfficheMotif(UpLabel *lbl);
-    void        AfficheToolTip(int);
+    void        AfficheToolTip(Patient *pat);
     void        AppelPaiementDirect(QString Origin = "");
     void        AppelPaiementTiers();
     void        AppelPaiementTiers2();
-    void        AutreDossier(int idPat);
+    void        AutreDossier(Patient *pat);
     void        BilanRecettes();
     void        ChercheNomparID(QString id);
     void        ChoixCor(UpComboBox *box);
@@ -166,7 +166,7 @@ private:
     void        VerifImportateur();                             /* vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
     void        ImprimeDossier();
     void        ImprimeListPatients(QVariant var);
-    void        ImprimeListActes(QList<int> listidactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
+    void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();       // CZ001
     void        LireLaCPS();      // CZ001
     void        MajusculeCreerNom();
@@ -232,7 +232,7 @@ private:
 private:
     bool                    gAutorModifConsult, closeFlag;
     bool                    gIdentificationOK;
-    int                     gidActe, nbActes, noActe, gidARecopier, gAgePatient;
+    int                     gidActe, nbActes, noActe, gidARecopier;
     int                     gflagMG, gflagSalDat;
     int                     gNombreDossiers;
     int                     idRefraction;
@@ -308,7 +308,8 @@ private:
     void                FermeDlgAnnexes();
     bool                FermeDossier();
     void                FlagMetAjourSalDat();
-    Patient*            getSelectedPatientFromTable();                 //!> retrouve le patient sélectionné dans la liste des patients
+    Patient*            getSelectedPatientFromTable();                       //!> retrouve le patient sélectionné dans la liste des patients
+    Patient*            getSelectedPatientFromCursorPositionInTable();       //!> retrouve le patient sélectionné dans la liste des patients
     bool                IdentificationPatient(dlg_identificationpatient::Mode mode, int idPat);
     bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);

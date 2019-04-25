@@ -60,7 +60,6 @@ void Banques::addList(QList<Banque*> listbanques)
 
 void Banques::clearAll()
 {
-    QList<Banque*> listbanqs;
     for( QMap<int, Banque*>::const_iterator itbq = m_banques->constBegin(); itbq != m_banques->constEnd(); ++itbq)
         delete itbq.value();
     m_banques->clear();

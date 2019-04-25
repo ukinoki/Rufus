@@ -39,7 +39,6 @@ Depenses::Depenses()
 
 void Depenses::clearAll()
 {
-    QList<Depense*> listdepenses;
     for( QMap<int, Depense*>::const_iterator itdep = m_Depenses->constBegin(); itdep != m_Depenses->constEnd(); ++itdep)
         delete itdep.value();
     m_Depenses->clear();

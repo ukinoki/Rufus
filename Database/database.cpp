@@ -1463,12 +1463,12 @@ Acte* DataBase::loadActeById(int idActe)
     return acte;
 }
 
-QMap<int, Acte*> DataBase::loadActesByIdPat(int idPat)
+QMap<int, Acte*> DataBase::loadActesByPat(Patient *pat)
 {
     QMap<int, Acte*> list;
-    if( idPat == 0 )
+    if( pat == Q_NULLPTR )
         return list;
-    QString req = createActeRequest(0, idPat);
+    QString req = createActeRequest(0, pat->id());
     QList<QVariantList> actlist = StandardSelectSQL(req,ok);
     if(!ok || actlist.size()==0)
         return list;

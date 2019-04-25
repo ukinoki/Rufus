@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define GBL_DATAS_H
 
 #include <QObject>
+#include "cls_actes.h"
 #include "cls_banques.h"
 #include "cls_compte.h"
 #include <cls_correspondants.h>
@@ -44,6 +45,7 @@ public:
     static Datas *I();
 
     User *userConnected;
+    Actes *actes;                       //!< la liste d'actes pour un patient
     Users *users;                       //!< Les users
     Patients *patients;                 //!< Les patients
     Correspondants *correspondants;     //!< Les correspondants

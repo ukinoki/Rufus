@@ -208,7 +208,7 @@ private:
     QJsonObject             extractActeData(QVariantList actdata);
 public:
     Acte*                   loadActeById(int idActe);
-    QMap<int, Acte*>        loadActesByIdPat(int idPat);
+    QMap<int, Acte*>        loadActesByPat(Patient *pat);
     double                  getActeMontant(int idActe);
 
 

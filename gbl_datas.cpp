@@ -29,6 +29,7 @@ Datas::Datas()
 {
     userConnected = Q_NULLPTR;
 
+    actes           = new Actes();
     banques         = new Banques();
     comptes         = new Comptes();
     correspondants  = new Correspondants();

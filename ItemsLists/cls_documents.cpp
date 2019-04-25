@@ -27,7 +27,6 @@ void Documents::addList(QList<Document*> listDocuments)
 
 void Documents::clearAll()
 {
-    QList<Document*> listdocs;
     for( QMap<int, Document*>::const_iterator itdoc = m_documents->constBegin(); itdoc != m_documents->constEnd(); ++itdoc)
         delete itdoc.value();
     m_documents->clear();

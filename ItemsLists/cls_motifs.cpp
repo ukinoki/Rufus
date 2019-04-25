@@ -51,7 +51,6 @@ Motif* Motifs::getById(int id)
 
 void Motifs::clearAll()
 {
-    QList<Motif*> listmotifs;
     for( QMap<int, Motif*>::const_iterator itmtf = m_motifs->constBegin(); itmtf != m_motifs->constEnd(); ++itmtf)
         delete itmtf.value();
     m_motifs->clear();

@@ -51,7 +51,6 @@ Tiers* TiersPayants::getById(int id)
 
 void TiersPayants::clearAll()
 {
-    QList<Tiers*> listtierss;
     for( QMap<int, Tiers*>::const_iterator ittrs = m_tierspayants->constBegin(); ittrs != m_tierspayants->constEnd(); ++ittrs)
         delete ittrs.value();
     m_tierspayants->clear();

@@ -71,13 +71,7 @@ dlg_actesprecedents::~dlg_actesprecedents()
  */
 void dlg_actesprecedents::Actualise()
 {
-    //TODO : utiliser actes de la classe Patient car il sera toujours à jours.
-
-    //TODO modifier
-    for (itCurrentActe = m_listeActes.constBegin(); itCurrentActe != m_listeActes.constEnd(); ++itCurrentActe)
-        delete itCurrentActe.value();
-    m_listeActes.clear();
-    m_listeActes = DataBase::getInstance()->loadActesByIdPat(gPatientEnCours->id());
+    m_listeActes = DataBase::getInstance()->loadActesByPat(gPatientEnCours);
     if( m_listeActes.size() == 0 )
     {
         //ERROR

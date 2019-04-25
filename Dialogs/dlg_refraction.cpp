@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_refraction.h"
 
-dlg_refraction::dlg_refraction(Patient *pat, int idActeAPasser, int AgeAPasser, QWidget *parent) :
+dlg_refraction::dlg_refraction(Patient *pat, int idActeAPasser, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_refraction)
 {
@@ -30,7 +30,6 @@ dlg_refraction::dlg_refraction(Patient *pat, int idActeAPasser, int AgeAPasser, 
     gPatientEnCours = pat;
     gidUser         = db->getUserConnected()->id();
     gidActe         = idActeAPasser;
-    gAgePatient     = AgeAPasser;
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
@@ -2447,7 +2446,8 @@ void dlg_refraction::RechercheMesureEnCours()
         ui->ReprendrePushButton->setEnabled(false);
         ui->OupsPushButton->setEnabled(false);
         ui->ResumePushButton->setEnabled(false);
-        if (gAgePatient < 45)
+        QMap<QString,QVariant>  Age = Item::CalculAge(gPatientEnCours->datedenaissance(), QDate::currentDate());
+        if (Age["annee"].toInt() < 45)
             ui->VLRadioButton->setChecked(true);
         else
             ui->V2RadioButton->setChecked(true);
