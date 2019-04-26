@@ -56,13 +56,13 @@ public:
     ~dlg_actesprecedents();
     Patient*                getPatient();
     void                    Actualise();
-    void                    ActesPrecsAfficheActe(int idActeAAfficher); // Affiche l'acte défini par idActeAAfficher
+    void                    ActesPrecsAfficheActe(Acte *acte); // Affiche l'acte défini
     void                    ActesPrecsAfficheActe();
-    int                     getActeAffiche();
-    void                    reloadActe(int idacte);
+    Acte                    *getActeAffiche();
+    void                    reloadActe(Acte *acte);
 
 private:
-    Patient                 *gPatientEnCours;
+    Patient                 *m_currentpatient;
     void                    wheelEvent(QWheelEvent *event);
     virtual void            keyPressEvent(QKeyEvent *keyEvent); //PAS UTILISE
     Ui::dlg_actesprecedents *ui;
@@ -74,7 +74,6 @@ private:
     Acte                    *acte;
     QMap<int, Acte*>::const_iterator    itCurrentActe;
     QMap<int, Acte*>        m_listeActes;
-    int                     gidActe;
     bool                    NavigationConsult(int i);
     bool                    gAvantDernier;
 };

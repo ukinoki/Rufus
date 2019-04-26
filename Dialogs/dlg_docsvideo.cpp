@@ -17,13 +17,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_docsvideo.h"
 
-dlg_docsvideo::dlg_docsvideo(int idPat, QWidget *parent) :
+dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsVideo", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-    proc    = Procedures::I();
-    db      = DataBase::getInstance();
-    idpat   = idPat;
+    proc            = Procedures::I();
+    db              = DataBase::getInstance();
+    m_currentpatient = pat;
     QString Base;
     switch (db->getMode()) {
     case DataBase::Poste:
@@ -263,7 +263,7 @@ void dlg_docsvideo::ValideFiche()
             return;
         }
     QString sstypedoc = linetitre->text();
-    QString NomFileVideoDoc = QString::number(idpat) + "_"
+    QString NomFileVideoDoc = QString::number(m_currentpatient->id()) + "_"
                              + sstypedoc.replace("/",".") + "_"
                              + editdate->date().toString("yyyyMMdd") + "-" + QFileInfo(qFile).created().toString("HHmmss");
 
@@ -274,7 +274,7 @@ void dlg_docsvideo::ValideFiche()
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
     listbinds["idImpression"] =     idimpr;
-    listbinds["idPat"] =            idpat;
+    listbinds["idPat"] =            m_currentpatient->id();
     listbinds["TypeDoc"] =          typeDocCombo->currentText();
     listbinds["SousTypeDoc"] =      sstypedoc;
     listbinds["Titre"] =            sstypedoc;

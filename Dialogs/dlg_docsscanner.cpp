@@ -17,12 +17,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_docsscanner.h"
 
-dlg_docsscanner::dlg_docsscanner(int idPatouDep, int mode, QString titre, QWidget *parent) :
+dlg_docsscanner::dlg_docsscanner(Item *item, int mode, QString titre, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
     proc            = Procedures::I();
-    iditem          = idPatouDep;       // correspond à l'id du patient dans le cas d'un document scanné, à l'id depense dans le cas d'une facture scannée
     gMode           = mode;
+    if (gMode == Document)
+        iditem = static_cast<Patient*>(item)->id();
+    else
+        iditem = static_cast<Depense*>(item)->id();
     db              = DataBase::getInstance();
     QString         NomOnglet;
     QString Base;

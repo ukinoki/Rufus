@@ -19,17 +19,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_bilanortho.h"
 #include "ui_dlg_bilanortho.h"
 
-dlg_bilanortho::dlg_bilanortho(int idActeAPAsser, bool nouveaubilan, QWidget *parent) :
+dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_bilanortho)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    idActe      = idActeAPAsser;
+    m_currentact= acte;
     proc        = Procedures::I();
     db          = DataBase::getInstance();
-    gidpat      = db->loadActeById(idActe)->idPatient();
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionBilanOrtho").toByteArray());
 
     XELlist << "-";
@@ -214,7 +213,7 @@ dlg_bilanortho::dlg_bilanortho(int idActeAPAsser, bool nouveaubilan, QWidget *pa
     ui->OrientationgroupBox->setFont(qApp->font());
     ui->OeilDirecteurgroupBox->setFont(qApp->font());
 
-    if (!nouveaubilan)    AfficheBilan(idActe);
+    if (!nouveaubilan)    AfficheBilan(m_currentact);
 }
 
 dlg_bilanortho::~dlg_bilanortho()
@@ -247,7 +246,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     bool AvecNumPage = false;
 
     QString requete = " select Patnom, patprenom, actedate, creepar, idUser  from " NOM_TABLE_PATIENTS " pat," NOM_TABLE_ACTES " act"
-            " where act.idacte = " + QString::number(idActe) + " and act.idpat = pat.idpat";
+            " where act.idacte = " + QString::number(m_currentact->id()) + " and act.idpat = pat.idpat";
     //UpMessageBox::Watch(this,requete);
     bool ok;
     QVariantList patientdata = db->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
@@ -303,7 +302,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     {
         QHash<QString,QVariant> listbinds;
         listbinds["idUser"] =           db->getUserConnected()->id();
-        listbinds["idPat"] =            gidpat;
+        listbinds["idPat"] =            m_currentact->idPatient();
         listbinds["TypeDoc"] =          "Orthoptie";
         listbinds["SousTypeDoc"] =      "Bilan";
         listbinds["Titre"] =            "Bilan orthoptique";
@@ -667,9 +666,9 @@ void dlg_bilanortho::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void dlg_bilanortho::AfficheBilan(int idBilan)
+void dlg_bilanortho::AfficheBilan(Acte *acte)
 {
-    QString chborequete = "select idBilanOrtho from " NOM_TABLE_BILANORTHO " where idBilanOrtho = " + QString::number(idBilan);
+    QString chborequete = "select idBilanOrtho from " NOM_TABLE_BILANORTHO " where idBilanOrtho = " + QString::number(acte->id());
     bool ok;
     QVariantList BOid = db->getFirstRecordFromStandardSelectSQL(chborequete, ok);
     if(!ok || BOid.size()==0)
@@ -693,7 +692,7 @@ void dlg_bilanortho::AfficheBilan(int idBilan)
                 ", HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC, HMaddoxVPSCD"                 // 60,61,62,63,64
                 ", HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD, Motilite"                      // 65,66,67,68,69
                 " from " NOM_TABLE_BILANORTHO     // 65,66,67,68
-                " where idBilanOrtho = " + QString::number(idBilan);
+                " where idBilanOrtho = " + QString::number(acte->id());
         //UpMessageBox::Watch(this,affichBOrequete);
         QVariantList BOdata = db->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);
         ui->AVODlineEdit->setText(BOdata.at(0).toString());

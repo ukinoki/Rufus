@@ -86,7 +86,7 @@ public:
     static QString                  getMACAdress();
     static bool                     VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
 
-    //!Fichiers
+    //! Fichiers
     static bool                     CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfert = QDate::currentDate());
     static QMap<QString, qint64>    dir_size(const QString DirPath);
     static QString                  getExpressionSize(qint64 size);                 //! concertit en Go, To la taille en Mo du qint64 passé en paramètre
@@ -94,7 +94,7 @@ public:
     static void                     cleanfolder(QString path);
     static double                   mmToInches(double mm);
 
-    //!refraction
+    //! refraction
     static QString                  CalculeFormule(QMap<QString,QVariant>  Donnees,
                                                   QString Cote);                   //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     static QString                  PrefixePlus(QString);                          //! convertit en QString signé + ou - les valeurs QDouble de dioptries

@@ -27,8 +27,8 @@ ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
-    gPatientEnCours = pat;
-    setWindowTitle(tr("Consultations précédentes de ") + gPatientEnCours->nom() + " " + gPatientEnCours->prenom());
+    m_currentpatient = pat;
+    setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     proc            = Procedures::I();
     gAvantDernier   = AvantDernier;
     setAttribute(Qt::WA_DeleteOnClose);
@@ -71,7 +71,7 @@ dlg_actesprecedents::~dlg_actesprecedents()
  */
 void dlg_actesprecedents::Actualise()
 {
-    m_listeActes = DataBase::getInstance()->loadActesByPat(gPatientEnCours);
+    m_listeActes = DataBase::getInstance()->loadActesByPat(m_currentpatient);
     if( m_listeActes.size() == 0 )
     {
         //ERROR
@@ -201,17 +201,17 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
     return dlg_actesprecedents::eventFilter(obj, event);
 }
 
-void dlg_actesprecedents::reloadActe(int idActeAAfficher)
+void dlg_actesprecedents::reloadActe(Acte* acte)
 {
-    m_listeActes[idActeAAfficher] = DataBase::getInstance()->loadActeById(idActeAAfficher);
+    m_listeActes[acte->id()] = DataBase::getInstance()->loadActeById(acte->id());
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Afficher les champs ---------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_actesprecedents::ActesPrecsAfficheActe(int idActeAAfficher)
+void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 {
-    itCurrentActe = m_listeActes.find(idActeAAfficher);
+    itCurrentActe = m_listeActes.find(acte->id());
     if( itCurrentActe == m_listeActes.constEnd() )
         return;
     ActesPrecsAfficheActe();
@@ -379,9 +379,9 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Retrouver l'acte à afficher -------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
-int dlg_actesprecedents::getActeAffiche()
+Acte* dlg_actesprecedents::getActeAffiche()
 {
-    return ui->idActelineEdit->text().toInt();
+    return itCurrentActe.value();;
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -426,6 +426,6 @@ bool dlg_actesprecedents::NavigationConsult(int i)
 
 Patient* dlg_actesprecedents::getPatient()
 {
-    return gPatientEnCours;
+    return m_currentpatient;
 }
 

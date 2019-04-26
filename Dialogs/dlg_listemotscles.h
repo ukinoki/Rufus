@@ -29,12 +29,12 @@ class dlg_listemotscles : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_listemotscles(int idpat, QWidget *parent = Q_NULLPTR);
+    explicit dlg_listemotscles(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_listemotscles();
     QStringList         listMCDepart();
 
 private:
-    int                 idpat;
+    Patient             *gPatientEncours;
     int                 gMode;
     enum gMode {Creation, Modif};
     QTableView          *tabMC;

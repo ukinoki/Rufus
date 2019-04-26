@@ -34,13 +34,13 @@ class dlg_docsvideo : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_docsvideo(int idPat, QWidget *parent = Q_NULLPTR);
+    dlg_docsvideo(Patient *pat, QWidget *parent = Q_NULLPTR);
     void                NavigueVers(QString);
 
 private:
     Procedures          *proc;
     DataBase            *db;
-    int                 idpat;
+    Patient             *m_currentpatient;
     UpLabel             *inflabel;
     UpLineEdit          *linetitre;
     QDateEdit           *editdate;

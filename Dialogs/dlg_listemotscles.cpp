@@ -17,11 +17,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_listemotscles.h"
 
-dlg_listemotscles::dlg_listemotscles(int idPat, QWidget *parent) :
+dlg_listemotscles::dlg_listemotscles(Patient *pat, QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionMotsCles", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-    idpat              = idPat;
+    gPatientEncours    = pat;
     proc               = Procedures::I();
     db                 = DataBase::getInstance();
 
@@ -142,7 +142,7 @@ void dlg_listemotscles::Slot_VerifMC()
                    + gmodele->itemFromIndex(gselection->currentIndex())->text() + "'";
         db->StandardSQL(req);
     }
-    db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat));
+    db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id()));
     QStringList listidMc;
     for (int i=0; i< gmodele->rowCount(); i++)
         if(gmodele->item(i,0)->checkState() == Qt::Checked)
@@ -150,9 +150,9 @@ void dlg_listemotscles::Slot_VerifMC()
     if (listidMc.size()>0)
     {
         QString req = "insert into " NOM_TABLE_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
-        req += "(" + QString::number(idpat) + ", " + listidMc.at(0) + ")";
+        req += "(" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
-            req += ", (" + QString::number(idpat) + ", " + listidMc.at(j) + ")";
+            req += ", (" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(j) + ")";
         db->StandardSQL(req);
     }
     RemplirTableView();
@@ -187,7 +187,7 @@ void dlg_listemotscles::Slot_Enablebuttons()
 
 void dlg_listemotscles::Slot_OK()
 {
-    db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat));
+    db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id()));
     QStringList listidMc;
     for (int i=0; i< gmodele->rowCount(); i++)
         if(gmodele->item(i,0)->checkState() == Qt::Checked)
@@ -195,9 +195,9 @@ void dlg_listemotscles::Slot_OK()
     if (listidMc.size()>0)
     {
         QString req = "insert into " NOM_TABLE_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
-        req += "(" + QString::number(idpat) + ", " + listidMc.at(0) + ")";
+        req += "(" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
-            req += ", (" + QString::number(idpat) + ", " + listidMc.at(j) + ")";
+            req += ", (" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(j) + ")";
         db->StandardSQL(req);
     }
     accept();
@@ -216,7 +216,7 @@ QStringList dlg_listemotscles::listMCDepart()
 void dlg_listemotscles::RemplirTableView()
 {
     bool ok;
-    QString req = "select idMotcle from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(idpat);
+    QString req = "select idMotcle from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id());
     QList<QVariantList> idmotclelist = db->StandardSelectSQL(req, ok);
     QStringList listidMC;
     bool a = glistidMCdepart.contains("-1");

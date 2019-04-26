@@ -38,7 +38,7 @@ class dlg_gestioncomptes : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_gestioncomptes(User *DataUser,
+    explicit dlg_gestioncomptes(User *user,
                                 bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncomptes();
 

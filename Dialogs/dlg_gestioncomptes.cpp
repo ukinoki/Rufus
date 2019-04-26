@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 
-dlg_gestioncomptes::dlg_gestioncomptes(User *DataUser,
+dlg_gestioncomptes::dlg_gestioncomptes(User *user,
                                        bool societe,
                                        bool AfficheLeSolde,
                                        QWidget *parent)
@@ -29,7 +29,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *DataUser,
 {
     ui->setupUi(this);
     db                      = DataBase::getInstance();
-    gDataUser               = DataUser;
+    gDataUser               = user;
 
     gidUser                 = gDataUser->id();
 

@@ -1546,7 +1546,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
     if (m_depenseencours == Q_NULLPTR)
         return;
     if (typedoc == FACTURE)
-        Dlg_DocsScan = new dlg_docsscanner(m_depenseencours->id(), dlg_docsscanner::Facture, m_depenseencours->objet(), this);
+        Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, dlg_docsscanner::Facture, m_depenseencours->objet(), this);
     else if (typedoc == ECHEANCIER)
     {
         /* on recherche s'il y a d'autres échéanciers enregistrés dans la table factures pour cet utilisateur*/
@@ -1630,7 +1630,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
             else
                 return;
         }
-        Dlg_DocsScan = new dlg_docsscanner(m_depenseencours->id(), dlg_docsscanner::Echeancier, "", this);
+        Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, dlg_docsscanner::Echeancier, "", this);
     }
     if (Dlg_DocsScan->exec() > 0)
     {

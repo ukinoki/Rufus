@@ -48,7 +48,7 @@ private:
     DocsExternes            m_ListDocs;
     DocExterne              *docencours;
     DataBase                *db;
-    Patient                 *gPatientEnCours;
+    Patient                 *m_currentpatient;
 
     QGraphicsScene          *Scene;
     QGraphicsVideoItem      *videoItem;

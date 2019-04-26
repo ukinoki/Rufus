@@ -2014,21 +2014,8 @@ QString Procedures::getSessionStatus()
     return txtstatut;
 }
 
-/*!
- * \brief Procedures::getPatientById
- * Cette fonction va retourner un patient en fonction de son id
- * \param id l'id du patient
- * \return Patien le patient
- */
-Patient* Procedures::getPatientById(int id) //TODO : getPatientById à faire
-{
-    Q_UNUSED(id);
-    Patient *result = Q_NULLPTR;
-    return result;
-}
-
 /*--------------------------------------------------------------------------------------------------------------------------------------
-    -- détermine la valeur du dossier où est stockée l'imagerie -----------------------------------------------------------
+    -- détermine le dossier où est stockée l'imagerie -----------------------------------------------------------
     DirStockageImages           = l'emplacement du dossier de l'imagerie sur le poste quand il est serveur
                                 = l'emplacement du dossier de l'imagerie sur le serveur vu par le poste sur le réseau local
                                 = l'emplacement de dossier des copies des images d'origine sur les postes distants

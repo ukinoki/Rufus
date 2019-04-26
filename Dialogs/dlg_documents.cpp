@@ -25,7 +25,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    gPatientEnCours     = pat;
+    m_currentpatient     = pat;
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -147,7 +147,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     gTimerEfface    = new QTimer(this);
 
     bool ok;
-    QString ALDrequete = "select idPat from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(gPatientEnCours->id()) + " and PatALD = 1";
+    QString ALDrequete = "select idPat from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(m_currentpatient->id()) + " and PatALD = 1";
     ui->ALDcheckBox->setChecked(db->StandardSelectSQL(ALDrequete,ok).size()>0);
 
     //nettoyage de la table metadocs
@@ -2570,7 +2570,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
 
     QString req = "select patDDN, Sexe "
                   " from " NOM_TABLE_PATIENTS
-                  " where idPat = " + QString::number(gPatientEnCours->id());
+                  " where idPat = " + QString::number(m_currentpatient->id());
     bool ok;
     QList<QVariantList> listpat = db->StandardSelectSQL(req,ok,tr("Impossible de retrouver la date de naissance de ce patient"));
     if (!ok)
@@ -2582,16 +2582,16 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     QString formule                     = AgeTotal["formule"].toString();
     req = "select idcormedmg, cornom, corprenom, corsexe "
           " from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp, " NOM_TABLE_CORRESPONDANTS " cor "
-          " where idPat = " + QString::number(gPatientEnCours->id()) + " and rmp.idcormedmg = cor.idcor";
+          " where idPat = " + QString::number(m_currentpatient->id()) + " and rmp.idcormedmg = cor.idcor";
     QList<QVariantList> listdatapat = db->StandardSelectSQL(req,ok);
 
     texte.replace("{{" + DATEDOC + "}}"         , QDate::currentDate().toString(tr("d MMMM yyyy")));
-    texte.replace("{{" + NOMPAT + "}},"         , gPatientEnCours->nom() + ",");
-    texte.replace("{{" + NOMPAT + "}} "         , gPatientEnCours->nom() + " ");
-    texte.replace("{{" + NOMPAT + "}}"          , gPatientEnCours->nom());
-    texte.replace("{{" + PRENOMPAT + "}},"      , gPatientEnCours->prenom() + ",");
-    texte.replace("{{" + PRENOMPAT + "}} "      , gPatientEnCours->prenom() + " ");
-    texte.replace("{{" + PRENOMPAT + "}}"       , gPatientEnCours->prenom());
+    texte.replace("{{" + NOMPAT + "}},"         , m_currentpatient->nom() + ",");
+    texte.replace("{{" + NOMPAT + "}} "         , m_currentpatient->nom() + " ");
+    texte.replace("{{" + NOMPAT + "}}"          , m_currentpatient->nom());
+    texte.replace("{{" + PRENOMPAT + "}},"      , m_currentpatient->prenom() + ",");
+    texte.replace("{{" + PRENOMPAT + "}} "      , m_currentpatient->prenom() + " ");
+    texte.replace("{{" + PRENOMPAT + "}}"       , m_currentpatient->prenom());
     if (userEntete->getTitre().size())
         texte.replace("{{" + TITRUSER + "}}"    , userEntete->getTitre() + " " + userEntete->getPrenom() + " " + userEntete->getNom());
     else
@@ -2638,7 +2638,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     if (texte.contains("{{" + KERATO + "}}"))
     {
         req = "select K1OD, K2OD, AxeKOD, DioptrieK1OD, DioptrieK2OD, DioptrieKOD, K1OG, K2OG, AxeKOG, DioptrieK1OG, DioptrieK2OG, DioptrieKOG from " NOM_TABLE_DONNEES_OPHTA_PATIENTS
-              " where idpat = " + QString::number(gPatientEnCours->id()) + " and (K1OD <> 'null' or K1OG <> 'null')";
+              " where idpat = " + QString::number(m_currentpatient->id()) + " and (K1OD <> 'null' or K1OG <> 'null')";
         QList<QVariantList> listker = db->StandardSelectSQL(req,ok);
         if (listker.size()>0)
         {
@@ -2670,7 +2670,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     if (texte.contains("{{" + REFRACT + "}}"))
     {
         req = "select FormuleOD, FormuleOG from " NOM_TABLE_REFRACTION
-              " where idpat = " + QString::number(gPatientEnCours->id()) + " and (FormuleOD <> 'null' or FormuleOG <> 'null') and QuelleMesure = 'R'";
+              " where idpat = " + QString::number(m_currentpatient->id()) + " and (FormuleOD <> 'null' or FormuleOG <> 'null') and QuelleMesure = 'R'";
         QList<QVariantList> listref = db->StandardSelectSQL(req,ok);
         if (listref.size()>0)
         {
@@ -2693,13 +2693,13 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     if (reg.indexIn(texte, pos) != -1)
     {
         req = "select idcormedmg, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
-              " where idPat = " + QString::number(gPatientEnCours->id()) + " and rmp.idcormedmg = cor.idcor"
+              " where idPat = " + QString::number(m_currentpatient->id()) + " and rmp.idcormedmg = cor.idcor"
               " union "
               "select idcormedspe1, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
-              " where idPat = " + QString::number(gPatientEnCours->id()) + " and rmp.idcormedspe1 = cor.idcor"
+              " where idPat = " + QString::number(m_currentpatient->id()) + " and rmp.idcormedspe1 = cor.idcor"
               " union "
               "select idcormedspe2, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
-              " where idPat = " + QString::number(gPatientEnCours->id()) + " and rmp.idcormedspe2 = cor.idcor";
+              " where idPat = " + QString::number(m_currentpatient->id()) + " and rmp.idcormedspe2 = cor.idcor";
         //qDebug() << req;
         QList<QVariantList> listcor = db->StandardSelectSQL(req,ok);
         if (listcor.size()==0)

@@ -36,7 +36,7 @@ public:
 private:
     int             gMode;
     enum gMode {Supprimer, Recuperer};
-    Patient         *gPatientEnCours;
+    Patient         *m_currentpatient;
     Procedures      *proc;
     void            DetruireLaMesure(int IdRefract);
     int             Nombre_Mesure_Selected();

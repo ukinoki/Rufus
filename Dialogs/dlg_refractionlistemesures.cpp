@@ -21,7 +21,7 @@ dlg_listemesures::dlg_listemesures(Patient *pat, QString mode, QWidget *parent) 
     UpDialog (QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    gPatientEnCours  = pat;
+    m_currentpatient  = pat;
     proc        = Procedures::I();
     if (mode == "SUPPR")
         gMode       = Supprimer;
@@ -185,7 +185,7 @@ void dlg_listemesures::RemplirTableView()
 
     QString requete = "SELECT  idRefraction, DateRefraction, QuelleMesure, FormuleOD, FormuleOG "
               " FROM "  NOM_TABLE_REFRACTION
-              " WHERE  IdPat = " + QString::number(gPatientEnCours->id());
+              " WHERE  IdPat = " + QString::number(m_currentpatient->id());
     QList<QVariantList> refractlist = db->StandardSelectSQL(requete, ok, tr("Impossible de trouver la table des refractions!"));
     if(!ok)
         return;

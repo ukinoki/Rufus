@@ -184,7 +184,7 @@ private:
     void        RechercheParMotCle();
     void        ResumeStatut();
     void        RetrouveMontantActe();
-    void        SaisieFSE();           // CZ001
+    void        SaisieFSE();
     void        SalleDAttente();
     void        SurbrillanceSalDat(UpLabel *lab);
 
@@ -232,7 +232,7 @@ private:
 private:
     bool                    gAutorModifConsult, closeFlag;
     bool                    gIdentificationOK;
-    int                     gidActe, nbActes, noActe, gidARecopier;
+    int                     nbActes, noActe;
     int                     gflagMG, gflagSalDat;
     int                     gNombreDossiers;
     int                     idRefraction;
@@ -257,9 +257,9 @@ private:
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
 
-    Acte                    *gActeEnCours;
+    Acte                    *m_currentact;
     User                    *gUserEnCours;
-    Patient                 *gPatientEnCours;
+    Patient                 *m_currentpatient;
     Patient                 *gdossierAOuvrir;
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
@@ -286,7 +286,7 @@ private:
     void                closeEvent(QCloseEvent *);
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                keyPressEvent ( QKeyEvent * event );
-    void                AfficheActe(int idActe);
+    void                AfficheActe(Acte *acte);
     void                AfficheActeCompta();
     void                AfficheDossier(Patient *pat, int idacte = 0);
     bool                AutorDepartConsult(bool ChgtDossier);
@@ -309,8 +309,8 @@ private:
     bool                FermeDossier();
     void                FlagMetAjourSalDat();
     Patient*            getSelectedPatientFromTable();                       //!> retrouve le patient sélectionné dans la liste des patients
-    Patient*            getSelectedPatientFromCursorPositionInTable();       //!> retrouve le patient sélectionné dans la liste des patients
-    bool                IdentificationPatient(dlg_identificationpatient::Mode mode, int idPat);
+    Patient*            getSelectedPatientFromCursorPositionInTable();       //!> retrouve le patient sous le curseur de la souris dans la liste des patients
+    bool                IdentificationPatient(dlg_identificationpatient::Mode mode, Patient *pat);
     bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
     void                InitWidgets();
@@ -331,7 +331,7 @@ private:
     void                OuvrirDocuments(bool AffichDocsExternes = true);
     void                OuvrirListe();
     void                OuvrirNouveauDossier();
-    void                RecopierDossier(int idARecopier = 0);
+    void                RecopierDossier(Patient *patient = Q_NULLPTR);
     void                RecaleTableView(Patient *pat);
     void                Refraction();
     void                ReconstruitListesActes();

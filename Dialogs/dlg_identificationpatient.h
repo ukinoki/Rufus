@@ -40,19 +40,18 @@ public:
         Creation,
         Modification
     };
-    explicit dlg_identificationpatient(enum Mode mode, int idPatAPasser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_identificationpatient(enum Mode mode, Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_identificationpatient();
     Ui::dlg_identificationpatient   *ui;
-    int                             gidPatient;
     QLineEdit                       *CPlineEdit, *VillelineEdit;
     bool                            listecorrespondantsmodifiee();
+    Patient*                        getPatient();
 
 private:
+    Patient                         *m_currentpatient;
     dlg_identificationcorresp       *Dlg_IdentCorresp;
-    bool                            gAutorDepart, gControleMGCombo;
     bool                            ListeCorModifiee;
     Mode                            gMode;
-    QString                         gNomPatient, gPrenomPatient, Sexe;
     Procedures                      *proc;
     DataBase                        *db;
     QMenu                           *gmenuContextuel;
@@ -64,7 +63,6 @@ private:
     int                             CloseReason;
     enum                            CloseReason {Accept,Reject};
     int                             gflagMG;
-    void                            FermeFiche(enum CloseReason);
 
     bool                            eventFilter(QObject *obj, QEvent *event)  ;
     void                            AfficheDossierAlOuverture();

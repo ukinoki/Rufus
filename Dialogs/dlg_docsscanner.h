@@ -31,7 +31,7 @@ class dlg_docsscanner : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_docsscanner(int idPatouFact, int mode = dlg_docsscanner::Document, QString titre = "", QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsscanner(Item *item, int mode = dlg_docsscanner::Document, QString titre = "", QWidget *parent = Q_NULLPTR);
     ~dlg_docsscanner();
     bool                    getinitOK();
     void                    NavigueVers(QString);
@@ -43,6 +43,8 @@ private:
     Procedures          *proc;
     DataBase            *db;
     int                 iditem;
+    Patient             *m_currentpatient;
+    Depense             *gDepenseEnCours;
     QMap<QString, QVariant> datafacture;
     UpLineEdit          *linetitre;
     QDateEdit           *editdate;

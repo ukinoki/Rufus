@@ -39,8 +39,8 @@ private slots:
 
 private:
     DataBase            *db = DataBase::getInstance();
-    Patient             *gPatientEnCours;
-    Acte                *gActeEnCours;
+    Patient             *m_currentpatient;
+    Acte                *m_currentact;
 };
 
 #endif // DLG_SALLEDATTENTE_H

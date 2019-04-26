@@ -223,7 +223,6 @@ public:
     // Les accesseurs
     QString                 getCodePostalParDefaut();
     void                    setCodePostalParDefaut(QString CPParDefaut);
-    Patient*                getPatientById(int id);
     void                    setDirImagerie();
     QString                 DirImagerie();
     QString                 DirImagerieServeur();

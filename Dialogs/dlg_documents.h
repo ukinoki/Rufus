@@ -55,7 +55,7 @@ private:
     DataBase                    *db             = DataBase::getInstance();
     User                        *gUserEnCours   = db->getUserConnected();
     Procedures                  *proc           = Procedures::I();
-    Patient                     *gPatientEnCours;
+    Patient                     *m_currentpatient;
     User                        *gUserEntete;
     void                        closeEvent      (QCloseEvent *event);
     bool                        eventFilter     (QObject *obj, QEvent *event);

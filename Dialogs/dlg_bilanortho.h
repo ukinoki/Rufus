@@ -29,7 +29,7 @@ class dlg_bilanortho : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_bilanortho(int idActeAPAsser, bool nouveaubilan, QWidget *parent = Q_NULLPTR);
+    explicit dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent = Q_NULLPTR);
     ~dlg_bilanortho();
     Ui::dlg_bilanortho      *ui;
     QString                 calcReponsehTml(QString textorigin ="");
@@ -38,12 +38,12 @@ public:
 private:
     QStringList             TNOlist, XELlist, XEPlist, VergencesCLlist, VergencesDLlist, VergencesCPlist, VergencesDPlist, HLlist, HPlist;
     QStringList             Dioptrieslist, DioptriesNeutraliselist, HDioptrieslist, HDioptriesNeutraliselist, Wirtlist, AnimauxWirtlist, Langlist, PPClist, OcclAlternlist;
-    int                     idActe, gidpat;
     void                    closeEvent(QCloseEvent *event);
-    void                    AfficheBilan(int idBilan);
+    void                    AfficheBilan(Acte *acte);
     void                    ExtraitRefraction(QString textorigin, QString &ReponseaModifier);
     Procedures              *proc;
     DataBase                *db;
+    Acte                    *m_currentact;
     QString                 CouleurTitres;
     QDate                   DateBO;
 
