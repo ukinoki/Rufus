@@ -188,11 +188,13 @@ public:
     Villes*                 loadVillesAll();
 
     /*
-     * Gestion des Patients
+     * Patients
     */
     void                    loadSocialDataPatient(Patient* patient, bool &ok);
     void                    loadMedicalDataPatient(Patient* patient, bool &ok);
     Patient*                loadPatientById(int idPat, bool all = false);
+    Patient*                CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe);
+    void                    UpdateMG(Patient *pat, Correspondant *cor);
 
     /*
      * Mots de passe

@@ -260,7 +260,7 @@ private:
     Acte                    *m_currentact;
     User                    *gUserEnCours;
     Patient                 *m_currentpatient;
-    Patient                 *gdossierAOuvrir;
+    Patient                 *m_dossierpatientaouvrir;
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
     UpLabel                 *gAskinflabel;
@@ -291,6 +291,7 @@ private:
     void                AfficheDossier(Patient *pat, int idacte = 0);
     bool                AutorDepartConsult(bool ChgtDossier);
     bool                AutorSortieAppli();
+    void                CalcHtmlIdentificationPatient();
     void                CalcMotsCles(Patient *pat);
     void                CalcNbDossiers();
     QString             CalcToolTipCorrespondant(int);
@@ -321,7 +322,7 @@ private:
     int                 LectureMesure(QString lIdPatient, QString lPatNom, QString lPatPrenom, QString lPatDDN, QString lPatCreeLe, QString lPatCreePar, QString MessageErreur);
     void                MAJActesPrecs();
     void                MAJDocsExternes();
-    void                MAJMG(QObject*);
+    void                MAJCorrespondant(QObject*);
     void                MonteUneLigne();
     void                Monte20Lignes();
     QStringList         MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());

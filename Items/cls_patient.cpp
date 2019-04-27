@@ -70,8 +70,10 @@ void Patient::setActes(QMap<int, Acte *> *actes)
     m_actes = actes;
 }
 
-
-
+void Patient::setSexe(QString sex)
+{
+    m_sexe = sex;
+}
 
 Patient::Patient(QJsonObject data, QObject *parent) : Item(parent)
 {

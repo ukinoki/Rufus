@@ -123,6 +123,7 @@ public:
 
     void setActes(QMap<int, Acte *> *actes);
     QMap<int, Acte *> *actes() const;
+    void setSexe(QString sex);
 
     explicit Patient(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 

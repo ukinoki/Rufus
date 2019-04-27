@@ -2184,50 +2184,16 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
         box->addItem(model->item(i)->text(), model->item(i,1)->text());
 }
 
-void Procedures::setMg(Patient* pat, int idmg)
-{
-    QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(pat->id());
-    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (!ok)
-        return;
-    if (patdata.size()==0)
-        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                " (idPat, idCorMedMG) VALUES (" + QString::number(pat->id()) + "," + QString::number(idmg) + ")";
-    else
-        req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + QString::number(idmg) + " where idpat = " + QString::number(pat->id());
-    //qDebug() << req;
-    db->StandardSQL(req);
-    pat->setmg(idmg);
-}
-
 void Procedures::setspe1(Patient *pat, int idspe1)
 {
-    QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(pat->id());
-    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (!ok)
-        return;
-    if (patdata.size()==0)
-        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                " (idPat, idCorMedSpe1) VALUES (" + QString::number(pat->id()) + "," + QString::number(idspe1) + ")";
-    else
-        req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = " + QString::number(idspe1) + " where idpat = " + QString::number(pat->id());
-    //qDebug() << req;
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = " + QString::number(idspe1) + " where idpat = " + QString::number(pat->id());
     db->StandardSQL(req);
     pat->setspe1(idspe1);
 }
 
 void Procedures::setspe2(Patient *pat, int idspe2)
 {
-    QString req = "select idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(pat->id());
-    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (!ok)
-        return;
-    if (patdata.size()==0)
-        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                " (idPat, idCorMedSpe2) VALUES (" + QString::number(pat->id()) + "," + QString::number(idspe2) + ")";
-    else
-        req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = " + QString::number(idspe2) + " where idpat = " + QString::number(pat->id());
-    //qDebug() << req;
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = " + QString::number(idspe2) + " where idpat = " + QString::number(pat->id());
     db->StandardSQL(req);
     pat->setspe2(idspe2);
 }
@@ -2953,30 +2919,60 @@ bool Procedures::VerifBaseEtRessources()
             Message(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000, false);
             QString Nomfic = "://majbase" + QString::number(Version) + ".sql";
             QFile DumpFile(Nomfic);
-            QString NomDumpFile = QDir::homePath() + "/Documents/Rufus/Ressources/majbase" + QString::number(Version) + ".sql";
-            DumpFile.copy(NomDumpFile);
-            QFile base(NomDumpFile);
-            QStringList listinstruct = Utils::DecomposeScriptSQL(NomDumpFile);
-            bool a = true;
-            foreach(const QString &s, listinstruct)
+            if (DumpFile.exists())
             {
-                if (!db->StandardSQL(s))
-                    a = false;
+                QString NomDumpFile = QDir::homePath() + "/Documents/Rufus/Ressources/majbase" + QString::number(Version) + ".sql";
+                DumpFile.copy(NomDumpFile);
+                QFile base(NomDumpFile);
+                QStringList listinstruct = Utils::DecomposeScriptSQL(NomDumpFile);
+                bool a = true;
+                foreach(const QString &s, listinstruct)
+                {
+                    if (!db->StandardSQL(s))
+                        a = false;
+                }
+                int result=0;
+                base.remove();
+                if (a)
+                {
+                    result = 1;
+                    UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
+                }
+                else
+                {
+                    QSound::play(NOM_ALARME);
+                    UpMessageBox::Watch(Q_NULLPTR,tr("Echec de la mise à jour vers la version ") + QString::number(Version) + "\n" + tr("Le programme de mise à jour n'a pas pu effectuer la tâche!"));
+                }
+                if (result!=1)
+                    return false;
             }
-            int result=0;
-            base.remove();
-            if (a)
+            if (Version == 53)
             {
-                result = 1;
-                UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
-            }
-            else
-            {
-                QSound::play(NOM_ALARME);
-                UpMessageBox::Watch(Q_NULLPTR,tr("Echec de la mise à jour vers la version ") + QString::number(Version) + "\n" + tr("Le programme de mise à jour n'a pas pu effectuer la tâche!"));
-            }
-            if (result!=1)
-                return false;
+                /*! dans les anciennes versions du programme antérieures à la 53, pour des raisons d'économie d'espace disque,
+                 * la création d'un dossier n'entraînait pas systématiquement
+                 * la création d'une ligne corresondante dans la table renseignementsmedicauxpatients
+                 * à partir de la version 53, cette ligen est créée systématiquement pour ne pas avoir à on vérifier sa présence
+                 *  à chaque fois qu'on veut enregistrer un renseignement
+                 * A partir de la version 53, cette ligne est systématiquement créée lors de la création d'un dossier
+                 * il n'y a donc plus à faire cette vérification
+                 * cette MAJ crée une ligne pour tous les dossiers n'ayant pas la correspondance dans la table renseignementsmedicauxpatients
+                 */
+                QList<QVariantList> listid =
+                        db->StandardSelectSQL("SELECT idpat FROM " NOM_TABLE_PATIENTS " pat"
+                                              " where  pat.idpat not in (select rmp.idpat from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp)", ok);
+                if (listid.size()>0)
+                {
+                    for (int i=0; i<listid.size(); i++)
+                    {
+                        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                                " (idPat) VALUES (" + listid.at(i).at(0).toString() + ")";
+                        db->StandardSQL(req);
+                    }
+                    UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version), QString::number(listid.size()) + tr(" enregistrements modifiés"));
+                }
+                else
+                    UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
+                db->StandardSQL("UPDATE " NOM_TABLE_PARAMSYSTEME " SET VersionBase = 53");            }
         }
     }
     //verification des fichiers ressources
