@@ -162,6 +162,7 @@ public:
                                                                         * renvoie un QJsonObject contenant les id d la réussite ou l'échec de la connection */
     QList<User*>            loadUsers();                                //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts
     QJsonObject             loadUserData(int idUser);                   //! complète tous les renseignements concernant l'utilisateur défini par l'id
+    QJsonObject             loadAdminData();                            //! complète tous les renseignements concernant l'utilisateur admin
 
     /*
      * Correspondants

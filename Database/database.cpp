@@ -476,6 +476,19 @@ QJsonObject DataBase::loadUserData(int idUser)
     }
     return userData;
 }
+
+QJsonObject DataBase::loadAdminData()
+{
+    QJsonObject userData{};
+    QString req = "select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "'";
+    QVariantList usrid = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'administrateur"));
+    if (!ok)
+        return userData;
+    if(usrid.size()==0)
+        return userData;
+    return loadUserData(usrid.at(0).toInt());
+}
+
 QList<User*> DataBase::loadUsers()
 {
     QList<User*> users;
