@@ -562,7 +562,7 @@ void dlg_depenses::EnregistreDepense()
     if (m != "E")
     {
         if (Paiement == tr("Virement")) Paiement = tr("Virement débiteur");
-        int a = db->getMaxLigneBanque();
+        int a = db->getIdMaxTableComptesTableArchives();
         QHash<QString, QString> listsets;
         listsets.insert("idLigne",              QString::number(a));
         listsets.insert("idCompte",             idCompte);

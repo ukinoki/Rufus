@@ -337,7 +337,7 @@ void dlg_recettesspeciales::EnregistreRecette()
     if (Paiement == NOM_VIREMENT || Paiement == NOM_ESPECES)
     {
         Paiement = (Paiement == NOM_VIREMENT? tr("Virement crébiteur") : tr("Dépôt espèces"));
-        int a = db->getMaxLigneBanque();
+        int a = db->getIdMaxTableComptesTableArchives();
         if (!db->StandardSQL("insert into " NOM_TABLE_LIGNESCOMPTES "(idLigne, idCompte, idRecSpec, LigneDate, Lignelibelle, LigneMontant, LigneDebitCredit, LigneTypeoperation) VALUES (" +
                     QString::number(a) + "," +
                     ui->ComptesupComboBox->currentData().toString() +

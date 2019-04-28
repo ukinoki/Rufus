@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("27-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("28-04-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -102,7 +102,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ReconstruitCombosCorresp();                 // initialisation de la liste
 
     grequeteListe   = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe FROM " NOM_TABLE_PATIENTS;
-    Remplir_ListePatients_TableView(grequeteListe,"","");       //InitTables()
+    Remplir_ListePatients_TableView(db->loadPatientsAll());       //InitTables()
     CalcNbDossiers();
     MetAJourUserConnectes();
 
@@ -402,9 +402,7 @@ void Rufus::OuvrirDocsExternes(Patient *pat, bool depuismenucontextuel)
         if (ListDialogDocs.size()>0)
             return;
     }
-    QString req = "Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(pat->id());
-    QVariantList impdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && impdata.size()>0)
+    if (db->loadDoscExternesByPatient(pat).size()>0)
      {
         Dlg_DocsExt = new dlg_docsexternes(pat, UtiliseTCP, this);
         ui->OuvreDocsExternespushButton->setEnabled(true);
@@ -444,15 +442,14 @@ void Rufus::MAJDocsExternes()
         proc->emit UpdDocsExternes();
     else if (gUserEnCours->isSoignant())
     {
-        QString req = "Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(m_currentpatient->id());
-        QVariantList impdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-        if (ok && impdata.size()>0)
+        QList<DocExterne*> listdocs = db->loadDoscExternesByPatient(m_currentpatient);
+        if (listdocs.size()>0)
         {
             Dlg_DocsExt = new dlg_docsexternes(m_currentpatient, UtiliseTCP, this);
             if (Dlg_DocsExt->InitOK())
                 Dlg_DocsExt->show();
         }
-        ui->OuvreDocsExternespushButton->setEnabled(impdata.size()>0);
+        ui->OuvreDocsExternespushButton->setEnabled(listdocs.size()>0);
     }
 }
 
@@ -1025,7 +1022,8 @@ void Rufus::AfficheToolTip(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    db->loadSocialDataPatient(pat,ok);
+    if (!pat->issocialloaded())
+        db->loadSocialDataPatient(pat,ok);
     if (!ok)
         return;
     QString Msg = "";
@@ -1380,7 +1378,7 @@ void Rufus::ChangeTabBureau()
 
 void Rufus::ChoixMG()
 {
-    db->UpdateMG(m_currentpatient, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+    db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
     OKModifierTerrain(false);
     ui->MGupComboBox->setImmediateToolTip(CalcToolTipCorrespondant(ui->MGupComboBox->currentData().toInt()));
 }
@@ -1405,13 +1403,10 @@ void Rufus::ChoixCor(UpComboBox *box)
 {
     QString idcor;
     if (box==ui->AutresCorresp1upComboBox)
-        idcor = "idcormedspe1";
+        db->UpdateCorrespondant(m_currentpatient, DataBase::Spe1, Datas::I()->correspondants->getById(box->currentData().toInt()));
     else if (box==ui->AutresCorresp2upComboBox)
-        idcor = "idcormedspe2";
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + idcor + " = " + box->currentData().toString() + " where idpat = " + QString::number(m_currentpatient->id());
-    db->StandardSQL(req);
-    OKModifierTerrain();
-    box->setImmediateToolTip(CalcToolTipCorrespondant(box->currentData().toInt()));
+        db->UpdateCorrespondant(m_currentpatient, DataBase::Spe2, Datas::I()->correspondants->getById(box->currentData().toInt()));
+     box->setImmediateToolTip(CalcToolTipCorrespondant(box->currentData().toInt()));
 }
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     tous les timers sont déconnectés pendant les procédures de sauvegarde de la base ---------------------------------------------------------------------------------------------------------------------------
@@ -6859,18 +6854,7 @@ void Rufus::ChercheNomFiltre(Patient *pat) // Dans ce mode de recherche, la list
     QString Filtrerequete;
     QString idPat = "0";
 
-    if (pat != Q_NULLPTR)
-        idPat = QString::number(pat->id());
-    else if (ui->PatientsListeTableView->selectionModel()->selectedIndexes().size() > 0)
-        idPat = QString::number(getSelectedPatientFromTable()->id());
-
-    Filtrerequete = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe "
-                    " FROM "  NOM_TABLE_PATIENTS;
-    if (ui->CreerNomlineEdit->text() != "" || ui->CreerPrenomlineEdit->text() != "")
-        Filtrerequete += " WHERE PatNom LIKE '" + Utils::correctquoteSQL(ui->CreerNomlineEdit->text()) + "%'" +
-                        " AND PatPrenom LIKE '" + Utils::correctquoteSQL(ui->CreerPrenomlineEdit->text()) + "%'";
-
-    Remplir_ListePatients_TableView(Filtrerequete,"","");   //ChercheNomFiltre()
+    Remplir_ListePatients_TableView(db->loadPatientsAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text(), true));   //ChercheNomFiltre()
     CalcNbDossiers();
 
     if ((ui->CreerNomlineEdit->text() != "" || ui->CreerPrenomlineEdit->text() != "") && pat == Q_NULLPTR)
@@ -7120,7 +7104,7 @@ void Rufus::CreerDossier()
             return;
 
         if (!IdentificationPatient(dlg_identificationpatient::Creation, m_currentpatient)) return;
-        Remplir_ListePatients_TableView(grequeteListe, m_currentpatient->nom(), m_currentpatient->prenom());
+        Remplir_ListePatients_TableView(db->loadPatientsAll(m_currentpatient->nom(), m_currentpatient->prenom()));
 
         // Si le User est un soignant, on crée d'emblée une consultation et on l'affiche
         if( gUserEnCours->isSoignant() )
@@ -7465,9 +7449,7 @@ void Rufus::FermeDlgAnnexes()
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     for (int n = 0; n <  ListDialogDocs.size(); n++)
         ListDialogDocs.at(n)->close();
-    QString req = "select idimpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(m_currentpatient->id());
-    QVariantList imprdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
-    ui->OuvreDocsExternespushButton->setEnabled(imprdata.size()>0);
+    ui->OuvreDocsExternespushButton->setEnabled(db->loadDoscExternesByPatient(m_currentpatient).size()>0);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8194,7 +8176,7 @@ void Rufus::MAJCorrespondant(QObject *obj)
                 else
                 {
                     if (cbox == ui->MGupComboBox)
-                        db->UpdateMG(m_currentpatient, Datas::I()->correspondants->getById(idcor));
+                        db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(idcor));
                     else if (cbox == ui->AutresCorresp1upComboBox)
                         proc->setspe1(m_currentpatient, idcor);
                     else if (cbox == ui->AutresCorresp2upComboBox)
@@ -8847,32 +8829,10 @@ void Rufus::RemiseCheques()
 -- Remplir la liste avec les noms, prénoms et DDN des patients ----------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
 //BUG : -> CREER PATIENT
-bool Rufus::Remplir_ListePatients_TableView(QString requete, QString PatNom, QString PatPrenom)
+bool Rufus::Remplir_ListePatients_TableView(QList<Patient*>  listpatients)
 {
-    QString Addrequete;
     QStandardItem *pitem, *pitem0, *pitem1;
-
-    if (Utils::correctquoteSQL(PatNom).length() > 0 || Utils::correctquoteSQL(PatPrenom).length() > 0)
-        Addrequete += " WHERE ";
-    if (Utils::correctquoteSQL(PatNom).length() > 0)
-        Addrequete += "PatNom = '" + Utils::correctquoteSQL(PatNom) + "'";
-    if (Utils::correctquoteSQL(PatPrenom).length() > 0)
-    {
-        if (Addrequete != " WHERE ")
-            Addrequete += " AND PatPrenom = '" + Utils::correctquoteSQL(PatPrenom) + "'";
-        else
-            Addrequete += "PatPrenom = '" + Utils::correctquoteSQL(PatPrenom) + "'";
-    }
-    requete += Addrequete;
-    requete += " ORDER BY PatNom, PatPrenom, PatDDN ";
-    if (db->getMode() == DataBase::Distant)
-        requete += " LIMIT 1000";
-    QList<QVariantList> patlist = db->StandardSelectSQL(requete, ok);
-    if (!ok)
-        return false;
-    gNombreDossiers = patlist.size();
-
-
+    gNombreDossiers = listpatients.size();
     gListePatientsModel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
     if (gListePatientsModel)
         gListePatientsModel->clear();
@@ -8883,9 +8843,9 @@ bool Rufus::Remplir_ListePatients_TableView(QString requete, QString PatNom, QSt
     {
         for (int i=0;i<gNombreDossiers;i++)
         {
-            pitem   = new QStandardItem(patlist.at(i).at(0).toString());                                                             // IdPatient
-            pitem0  = new QStandardItem(patlist.at(i).at(1).toString().toUpper() + " " + patlist.at(i).at(2).toString());  // Nom + Prénom
-            pitem1  = new QStandardItem(patlist.at(i).at(3).toDate().toString(tr("dd-MM-yyyy")));                                        // date de naissance
+            pitem   = new QStandardItem(QString::number(listpatients.at(i)->id()));                                 // IdPatient
+            pitem0  = new QStandardItem(listpatients.at(i)->nom().toUpper() + " " + listpatients.at(i)->prenom());  // Nom + Prénom
+            pitem1  = new QStandardItem(listpatients.at(i)->datedenaissance().toString(tr("dd-MM-yyyy")));          // date de naissance
             QList<QStandardItem *> pitemlist;
             pitemlist << pitem << pitem0 << pitem1;
             gListePatientsModel->appendRow(pitemlist);
@@ -9553,14 +9513,7 @@ void Rufus::SupprimerActe()
     }
     dateacte = actlist.last().at(1).toDate();
     if (actlist.size() < 2)           // Aucune autre consultation trouvee pour ces criteres
-    {
-        delete m_currentact;
-        m_currentact = new Acte();
-        ui->Acteframe->setVisible(false);
-        ui->CreerActepushButton_2->setVisible(true);
-        ui->CreerBOpushButton_2->setVisible(true);
-        ui->idActelineEdit->clear();
-    }
+        m_currentact = Q_NULLPTR;
     else
     {
         int a;
@@ -9570,7 +9523,7 @@ void Rufus::SupprimerActe()
             ++a;    //on est au milieu des actes -> on va rechercher l'idActe suivant
         else
             --a;    //on est sur le dernier acte -> on va rechercher l'idActe précédant
-        idAAficher = actlist.at(a).at(0).toInt();
+        m_currentact = db->loadActeById(actlist.at(a).at(0).toInt());
         if (idAAficher == 0)  return;
     }
 
@@ -9626,8 +9579,7 @@ void Rufus::SupprimerActe()
         return;
 
     // On affiche la nouvelle consultation
-    if (m_currentact->id() > 0)
-        AfficheActe(db->loadActeById(idAAficher));
+    AfficheActe(m_currentact);
 
     // On met à jour l'affichage éventuel de dlg_actesprecedents
     QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
@@ -9809,7 +9761,7 @@ void Rufus::SupprimerDossier(Patient *pat)
     //10. On reconstruit le treeView Liste
     delete m_currentpatient;
     m_currentpatient = new Patient();
-    Remplir_ListePatients_TableView(grequeteListe,"","");
+    Remplir_ListePatients_TableView(db->loadPatientsAll());     //SupprimerDossier()
     OuvrirListe();
 
     //11. On ferme la fiche dlg_actesprecedents
@@ -10152,14 +10104,14 @@ void Rufus::LireLaCV()
             " WHERE UPPER(PatNom) LIKE '" + nomPat.toUpper() + "%'" +
             " AND   UPPER(PatPrenom) LIKE '" + prenomPat.toUpper() + "%'" +
             " AND   PatDDN = '" + zdat + "'";
-    Remplir_ListePatients_TableView(requete,"","") ;   // LireLaCV()
+    Remplir_ListePatients_TableView(db->loadPatientsAll(nomPat.toUpper(), prenomPat.toUpper(), false)) ;   // LireLaCV()
     if (gNombreDossiers == 0)       // aucun patient trouvé
         {
         // si rien trouvé, deuxième recherche sur date de naissance seule
         requete = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe  "
                   " FROM "  NOM_TABLE_PATIENTS
                   " WHERE PatDDN = '" + zdat + "'";
-        Remplir_ListePatients_TableView(requete,"","") ;   // LireLaCV()
+        Remplir_ListePatients_TableView(db->loadPatientsAll()) ;   // LireLaCV()
         CalcNbDossiers();
         OuvrirNouveauDossier();
         ui->CreerNomlineEdit->setText(nomPat);

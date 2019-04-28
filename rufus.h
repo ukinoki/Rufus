@@ -339,7 +339,7 @@ private:
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
     void                RegleRefracteur(QString TypeMesure);
     void                RemiseCheques();
-    bool                Remplir_ListePatients_TableView(QString requete, QString PatNom, QString PatPrenom);
+    bool                Remplir_ListePatients_TableView(QList<Patient*>  listpatients);
     QTabWidget*         Remplir_MsgTabWidget();
     void                Remplir_SalDat();
     bool                RetourSalleDattente(QString Titre);

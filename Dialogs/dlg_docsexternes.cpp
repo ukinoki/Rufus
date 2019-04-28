@@ -614,7 +614,7 @@ void dlg_docsexternes::BasculeTriListe(int a)
 
 int dlg_docsexternes::ActualiseDocsExternes()
 {
-    m_ListDocs.addList(db->loadDoscExternesByPatientAll(m_currentpatient->id()));
+    m_ListDocs.addList(db->loadDoscExternesByPatient(m_currentpatient));
     if (m_ListDocs.NouveauDocument())
     {
         m_ListDocs.setNouveauDocumentFalse();

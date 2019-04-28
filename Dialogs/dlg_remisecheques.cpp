@@ -277,7 +277,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
 
         // On enregitre dans la table GestionComptes cettte remise
         req =  "INSERT INTO " NOM_TABLE_LIGNESCOMPTES " (idLigne, idCompte,LigneDate,LigneLibelle,LigneMontant,LigneDebitCredit,LigneTypeOperation, idremcheq) VALUES (" +
-                QString::number(db->getMaxLigneBanque()) + "," +
+                QString::number(db->getIdMaxTableComptesTableArchives()) + "," +
                 ui->ComptecomboBox->currentData().toString() +
                 ", NOW(),"
                 "'" + tr("Remise de chèques n°") + QString::number(idRemise) +

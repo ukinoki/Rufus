@@ -155,7 +155,7 @@ dlg_identificationpatient::~dlg_identificationpatient()
 void dlg_identificationpatient::ChoixMG()
 {
     OKButton->setEnabled(true);
-    db->UpdateMG(m_currentpatient, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+    db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
 }
 
 void    dlg_identificationpatient::Slot_EnableOKpushButton()
@@ -184,11 +184,9 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
         gflagMG = proc->GetflagMG();
         // on reconstruit la liste des MG
         proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
-        QString req = "select idcormedmg from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idpat = " + QString::number(m_currentpatient->id());
-        bool ok;
-        QVariantList mgdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-        if (ok && mgdata.size()>0)
-            ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(mgdata.at(0).toInt()));
+        db->loadMedicalDataPatient(m_currentpatient, ok);
+        if (m_currentpatient->idmg() > 0 && ui->MGupComboBox->currentData().toInt() != m_currentpatient->idmg())
+            ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(m_currentpatient->idmg()));
         else
             ui->MGupComboBox->setCurrentIndex(-1);
     }
@@ -196,7 +194,6 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
 
 void    dlg_identificationpatient::Slot_OKpushButtonClicked()
 {
-    bool ok;
     QString PatNom, PatPrenom, PatDDN, PatCreePar, PatCreeLe;
     PatNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
     PatPrenom   = Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text(),true));
@@ -292,40 +289,36 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             reject();
 
         // Mise à jour de donneessocialespatients
+        QString ALD = (ui->ALDcheckBox->isChecked()? "1" : "null");
+        QString CMU = (ui->CMUcheckBox->isChecked()? "1" : "null");
         requete = "UPDATE " NOM_TABLE_DONNEESSOCIALESPATIENTS
-                         " SET PatAdresse1 = '" + Utils::correctquoteSQL(ui->Adresse1lineEdit->text()) +
-                         "', PatAdresse2 = '" + Utils::correctquoteSQL(ui->Adresse2lineEdit->text()) +
-                         "', PatAdresse3 = '" + Utils::correctquoteSQL(ui->Adresse3lineEdit->text()) +
+                         " SET PatAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text())) +
+                         "', PatAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text())) +
+                         "', PatAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text())) +
                          "', PatCodePostal = '" + CPlineEdit->text() + "'";
         if (!ui->NNIlineEdit->text().isEmpty())
             requete +=   ", PatNNI = " + ui->NNIlineEdit->text();
-        requete +=       ", PatVille = '" + Utils::correctquoteSQL(VillelineEdit->text()).left(70) +
+        requete +=       ", PatVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text())).left(70) +
                          "', PatTelephone = '" + ui->TellineEdit->text() +
                          "', PatPortable = '" + ui->PortablelineEdit->text() +
                          "', PatMail = '" + ui->MaillineEdit->text() +
                          "', PatProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->ProfessionlineEdit->text(), true)) + "'";
-        if (ui->ALDcheckBox->isChecked())
-            requete +=   ", PatALD = 1";
-        else
-            requete +=   ", PatALD = null";
-        if (ui->CMUcheckBox->isChecked())
-            requete +=   ", PatCMU = 1";
-        else
-            requete +=   ", PatCMU = null";
+        requete +=       ", PatALD = "  + ALD;
+        requete +=       ", PatCMU = " + CMU;
         requete +=       " WHERE idPat = " + QString::number(m_currentpatient->id());
 
         db->StandardSQL(requete, tr("Impossible d'écrire dans la table des données sociales"));
 
         // Mise à jour du medecin traitant
-        db->UpdateMG(m_currentpatient, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+        db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
         accept();
     }
     else if (gMode == Modification)
     {
         // on vérifie si le dossier existe déjà avec les mêmes nom, prénom et DDN
         QString requete = "select idPat from " NOM_TABLE_PATIENTS
-                          " where PatNom LIKE '" + Utils::correctquoteSQL(ui->NomlineEdit->text()) + "%'"
-                          " and PatPrenom LIKE '" + Utils::correctquoteSQL(ui->PrenomlineEdit->text()) + "%'"
+                          " where PatNom LIKE '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text())) + "%'"
+                          " and PatPrenom LIKE '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text())) + "%'"
                           " and PatDDN = '" + ui->DDNdateEdit->date().toString("yyyy-MM-dd") + "'" +
                           " and idpat <> " + QString::number(m_currentpatient->id());
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok, tr("Impossible d'interroger la table des patients!"));
@@ -351,18 +344,18 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
 
         // Mise à jour de donneessocialespatients
         requete =   "UPDATE " NOM_TABLE_DONNEESSOCIALESPATIENTS
-                " SET PatAdresse1 = '" + Utils::correctquoteSQL(ui->Adresse1lineEdit->text()) +
-                "', PatAdresse2 = '" + Utils::correctquoteSQL(ui->Adresse2lineEdit->text()) +
-                "', PatAdresse3 = '" + Utils::correctquoteSQL(ui->Adresse3lineEdit->text()) +
+                " SET PatAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text())) +
+                "', PatAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text())) +
+                "', PatAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text())) +
                 "', PatCodePostal = '" + CPlineEdit->text() + "'";
         if (!ui->NNIlineEdit->text().isEmpty())
             requete += ", PatNNI = " + ui->NNIlineEdit->text();
         requete +=
-                ", PatVille = '" + Utils::correctquoteSQL(VillelineEdit->text()).left(70) +
+                ", PatVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text())).left(70) +
                 "', PatTelephone = '" + ui->TellineEdit->text() +
                 "', PatPortable = '" + ui->PortablelineEdit->text() +
                 "', PatMail = '" + ui->MaillineEdit->text() +
-                "', PatProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->ProfessionlineEdit->text(), true)) + "'";
+                "', PatProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->ProfessionlineEdit->text())) + "'";
         if (ui->ALDcheckBox->isChecked())
             requete += ", PatALD = 1";
         else
@@ -375,7 +368,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         db->StandardSQL(requete,tr("Impossible d'écrire dans la table des données sociales"));
 
         // Mise à jour du médecin traitant
-        db->UpdateMG(m_currentpatient, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+        db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
         accept();
     }
     else if (gMode == Creation)
@@ -388,18 +381,18 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         }
         //2 - Mise à jour de donneessocialespatients
         QString requete =   "UPDATE " NOM_TABLE_DONNEESSOCIALESPATIENTS
-                " SET PatAdresse1 = '" + Utils::correctquoteSQL(ui->Adresse1lineEdit->text()) +
-                "', PatAdresse2 = '" + Utils::correctquoteSQL(ui->Adresse2lineEdit->text()) +
-                "', PatAdresse3 = '" + Utils::correctquoteSQL(ui->Adresse3lineEdit->text()) +
+                " SET PatAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text())) +
+                "', PatAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text())) +
+                "', PatAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text())) +
                 "', PatCodePostal = '" + CPlineEdit->text() + "'";
         if (!ui->NNIlineEdit->text().isEmpty())
             requete += ", PatNNI = " + ui->NNIlineEdit->text();
         requete +=
-                ", PatVille = '" + Utils::correctquoteSQL(VillelineEdit->text()).left(70) +
+                ", PatVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text())).left(70) +
                 "', PatTelephone = '" + ui->TellineEdit->text() +
                 "', PatPortable = '" + ui->PortablelineEdit->text() +
                 "', PatMail = '" + ui->MaillineEdit->text() +
-                "', PatProfession = '" + Utils::correctquoteSQL(ui->ProfessionlineEdit->text()) + "'";
+                "', PatProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->ProfessionlineEdit->text())) + "'";
         if (ui->ALDcheckBox->isChecked())
             requete += ", PatALD = 1";
         else
@@ -412,7 +405,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
 
         db->StandardSQL(requete, tr("Impossible d'écrire dans la table des données sociales"));
         //2 - Mise à jour de medecin traitant
-        db->UpdateMG(m_currentpatient, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+        db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
         accept();
     }
 }
@@ -665,7 +658,7 @@ void dlg_identificationpatient::MAJMG()
                     gflagMG = proc->GetflagMG();
                     proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
-                    db->UpdateMG(m_currentpatient, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+                    db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
                 }
                 else
                     ui->MGupComboBox->setCurrentText(anc);
@@ -675,7 +668,7 @@ void dlg_identificationpatient::MAJMG()
             msgbox.close();
         }
         else if (ui->MGupComboBox->getValeurAvant() != "" && gMode != Copie)
-            db->UpdateMG(m_currentpatient, Q_NULLPTR);
+            db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Q_NULLPTR);
     }
 }
 

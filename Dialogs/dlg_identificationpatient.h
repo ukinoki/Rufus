@@ -54,6 +54,7 @@ private:
     Mode                            gMode;
     Procedures                      *proc;
     DataBase                        *db;
+    bool                            ok;
     QMenu                           *gmenuContextuel;
     QTimer                          *gTimer;
     UpSmallButton                   *VitaleButton;

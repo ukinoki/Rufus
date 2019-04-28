@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_actesprecedents.h"
 #include "ui_dlg_actesprecedents.h"
 
-//TODO : Mettre en place Patient
 //Uniquement consultative, cette fiche ne permet de modifier aucun élément de la base
 dlg_actesprecedents::dlg_actesprecedents(Patient *pat, bool AvantDernier, QWidget *parent) :
     QDialog(parent),
@@ -336,7 +335,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         // on calcule le montant payé pour l'acte
         if (acte->paiementType() != "G" || acte->paiementType() != "I")
         {
-            double montant = DataBase::getInstance()->getActeMontant(acte->id());
+            double montant = DataBase::getInstance()->getActePaye(acte->id());
             ui->PayelineEdit->setText(QLocale().toString(montant,'f',2));
         }
 
