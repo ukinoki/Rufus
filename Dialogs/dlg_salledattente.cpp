@@ -148,7 +148,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     }
     //proc->Edit(saldatrequete);
     db->StandardSQL(saldatrequete,MsgErreur);
-    Datas::I()->flags->MAJFlagSalleDAttente();
+    Flags::I()->MAJFlagSalleDAttente();
     accept();
 }
 

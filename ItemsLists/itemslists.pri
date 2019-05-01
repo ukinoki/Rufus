@@ -17,7 +17,6 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_cotations.cpp \
     $$PWD/cls_documents.cpp \
     $$PWD/cls_actes.cpp \
-    $$PWD/cls_flags.cpp
 
 HEADERS += $$PWD/cls_correspondants.h \
         $$PWD/cls_patients.h \
@@ -34,4 +33,3 @@ HEADERS += $$PWD/cls_correspondants.h \
     $$PWD/cls_cotations.h \
     $$PWD/cls_documents.h \
     $$PWD/cls_actes.h \
-    $$PWD/cls_flags.h

@@ -26,6 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestionbanques.h"
 #include "ui_dlg_gestionbanques.h"
 #include "gbl_datas.h"
+#include "flags.h"
 
 namespace Ui {
 class dlg_paiement;

@@ -63,6 +63,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_paiementtiers.h"
 #include "tcpsocket.h"
 
+#include "flags.h"
 #include "importdocsexternesthread.h"
 #include "log.h"
 
@@ -205,6 +206,7 @@ private:
     void        MsgRead(UpCheckBox *chk);
     void        MsgResp(int);
     void        OneusrChkBoxSendMsg(bool a);
+    void        ReconstruitListeMessages();
     void        SupprimerMessageEmis(int idMsg);
     void        SupprimerMessageRecu(int idJoint);
     void        VerifSendMessage(int idMsg = -1);

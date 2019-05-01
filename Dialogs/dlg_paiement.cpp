@@ -2292,7 +2292,7 @@ int dlg_paiement::EnregistreRecette()
             }
         }
     db->commit();
-    Datas::I()->flags->MAJFlagSalleDAttente();
+    Flags::I()->MAJFlagSalleDAttente();
     return OK;
 }
 

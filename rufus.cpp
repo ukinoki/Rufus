@@ -65,7 +65,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     proc->setDirImagerie();                                              // lit l'emplacement du dossier d'imagerie sur le serveur
     db = DataBase::getInstance();
-    flags = Datas::I()->flags;
+    flags = Flags::I();
 
     // 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
@@ -162,18 +162,17 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
     }
     proc->setoktcp(UtiliseTCP);
-    flags->setTCP(UtiliseTCP);
 
     // 6 - mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
     gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente                                                          utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants                                                 utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
+    gTimerVerifMessages         = new QTimer(this);     // scrutation des nouveaux message                                                                      utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerUserConnecte          = new QTimer(this);     // mise à jour de la connexion à la base de données
     gTimerVerifImportateurDocs  = new QTimer(this);     // vérifie que le poste importateur des documents externes est toujours là
     gTimerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base
     gTimerActualiseDocsExternes = new QTimer(this);     // actualise l'affichage des documents externes si un dossier est ouvert
     gTimerImportDocsExternes    = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à importer dans la base
-    gTimerVerifMessages         = new QTimer(this);     // utilisé par les postes en accès distants ou les réseaux sans RufusAdmin pour vérifier l'arrivée de nouveaux messages
     gTimerVerifConnexion        = new QTimer(this);     // utilisé par le TcpServer pour vérifier l'xistence de la connexion
     gTimerVerifVerrou           = new QTimer(this);     // utilisé par le TcpServer pour vérifier l'absence d'utilisateurs déconnectés dans la base
     gTimerSupprDocs             = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer
@@ -215,7 +214,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (!UtiliseTCP)
     {
         m_flagcorrespondants    = flags->flagCorrespondants();
-        m_flagsalledattente     = flags->flagSallleDAttente();
+        m_flagsalledattente     = flags->flagSalleDAttente();
         m_flagmessages          = flags->flagMessages();
         connect (gTimerSalDat,              &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
         connect (gTimerCorrespondants,      &QTimer::timeout,   this,   &Rufus::VerifCorrespondants);
@@ -384,14 +383,17 @@ void Rufus::Connect_Slots()
                                                                                                                                         else
                                                                                                                                             m_flagsalledattente ++;
                                                                                                                                         Remplir_SalDat();
-                                                                                                                                } );
+                                                                                                                                    } );
     connect(flags,                                                  &Flags::UpdCorrespondants,                          this,   [=] {   if (UtiliseTCP)
                                                                                                                                             envoieMessage(TCPMSG_MAJCorrespondants);
                                                                                                                                         else
                                                                                                                                             m_flagcorrespondants ++;
                                                                                                                                         ReconstruitCombosCorresp(false);
-                                                                                                                                     } );
-    connect(flags,                                                  &Flags::UpdMessages,                                this,   [=] { VerifMessages(); } );
+                                                                                                                                    } );
+    connect(flags,                                                  &Flags::UpdMessages,                                this,   [=] {   if (!UtiliseTCP)
+                                                                                                                                            m_flagmessages ++;
+                                                                                                                                        ReconstruitListeMessages();
+                                                                                                                                    } );
 
     // Nouvelle mesure d'appareil de refraction ----------------------------------------------------------------------------------
     if (proc->PortFronto()!=Q_NULLPTR || proc->PortAutoref()!=Q_NULLPTR || proc->PortRefracteur()!=Q_NULLPTR)
@@ -5435,6 +5437,81 @@ void Rufus::SupprimerMessageRecu(int idJoint)
         AfficheMessages();
 }
 
+void Rufus::ReconstruitListeMessages()
+{
+    QDateTime DateMsg;
+    gTotalNvxMessages = 0;
+    QString req =
+            "select Distinct mess.idMessage, Creele, ReponseA from "
+            NOM_TABLE_MESSAGES " mess left outer join " NOM_TABLE_MESSAGESJOINTURES " joint on mess.idmessage = joint.idmessage \n"
+                                                                                    " where \n"
+                                                                                    " iddestinataire = " + QString::number(gUserEnCours->id()) + "\n"
+                                                                                                                                                 " or (idemetteur = " + QString::number(gUserEnCours->id()) + " and asupprimer is null)"
+                                                                                                                                                                                                              " order by CreeLe";
+    /*
+select Distinct mess.idMessage, Creele, ReponseA from Rufus.Messagerie mess left outer join Rufus.MessagerieJointures joint on mess.idmessage = joint.idmessage
+where iddestinataire = 1
+or (idemetteur = 1 and asupprimer is null)
+order by CreeLe
+*/
+    QList<QVariantList> msglist = db->StandardSelectSQL(req,ok);
+    gTotalMessages = msglist.size();
+    gMessageIcon->setVisible(gTotalMessages>0);
+    if (gTotalMessages>0)
+    {
+        for (int i=0; i<gTotalMessages; i++)
+        {
+            DateMsg = QDateTime(msglist.at(i).at(1).toDate(), msglist.at(i).at(1).toTime());
+            if (DateMsg > QDateTime(gUserDateDernierMessage))
+                gTotalNvxMessages += 1;
+        }
+        gUserDateDernierMessage = QDateTime(DateMsg);
+    }
+    else if (gMsgDialog !=Q_NULLPTR)
+    {
+        if (gMsgDialog->isVisible())
+            gMsgDialog->close();
+    }
+
+    QString msg = "";
+    if (gAffichTotalMessages)
+    {
+        if (gTotalMessages==gTotalNvxMessages)
+        {
+            if (gTotalMessages>1)
+                msg = tr("Vous avez ") + QString::number(gTotalMessages) + tr(" nouveaux messages");
+            else if (gTotalMessages>0)
+                msg = tr("Vous avez 1 nouveau message");
+        }
+        else if (gTotalMessages>gTotalNvxMessages)
+        {
+            if (gTotalMessages>1)
+            {
+                msg = tr("Vous avez ") + QString::number(gTotalMessages) + tr(" messages");
+                if (gTotalNvxMessages>1)
+                    msg += " dont " + QString::number(gTotalNvxMessages) + tr(" nouveaux");
+                else if (gTotalNvxMessages>0)
+                    msg += tr(" dont 1 nouveau");
+            }
+            else if (gTotalMessages>0)
+                msg = tr("Vous avez 1 message");
+        }
+    }
+    else if (gTotalNvxMessages>1)
+        msg = tr("Vous avez ") + QString::number(gTotalNvxMessages) + tr(" nouveaux messages");
+    else if (gTotalNvxMessages>0)
+        msg = tr("Vous avez 1 nouveau message");
+    if (msg!="")
+    {
+        QSound::play(NOM_ALARME);
+        gMessageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
+        if (gMsgDialog != Q_NULLPTR)
+            if (gMsgDialog->isVisible())
+                AfficheMessages();
+    }
+    gAffichTotalMessages = false;
+}
+
 void Rufus::VerifMessages()
 {
     if (!QSystemTrayIcon::isSystemTrayAvailable())
@@ -5442,84 +5519,14 @@ void Rufus::VerifMessages()
     int flagmsg = flags->flagMessages();
     if (m_flagmessages < flagmsg)
     {
-        QDateTime DateMsg;
-        gTotalNvxMessages = 0;
-        QString req =
-                "select Distinct mess.idMessage, Creele, ReponseA from "
-                NOM_TABLE_MESSAGES " mess left outer join " NOM_TABLE_MESSAGESJOINTURES " joint on mess.idmessage = joint.idmessage \n"
-                                                                                        " where \n"
-                                                                                        " iddestinataire = " + QString::number(gUserEnCours->id()) + "\n"
-                                                                                                                                                     " or (idemetteur = " + QString::number(gUserEnCours->id()) + " and asupprimer is null)"
-                                                                                                                                                                                                                  " order by CreeLe";
-        /*
-    select Distinct mess.idMessage, Creele, ReponseA from Rufus.Messagerie mess left outer join Rufus.MessagerieJointures joint on mess.idmessage = joint.idmessage
-    where iddestinataire = 1
-    or (idemetteur = 1 and asupprimer is null)
-    order by CreeLe
-    */
-        QList<QVariantList> msglist = db->StandardSelectSQL(req,ok);
-        gTotalMessages = msglist.size();
-        gMessageIcon->setVisible(gTotalMessages>0);
-        if (gTotalMessages>0)
-        {
-            for (int i=0; i<gTotalMessages; i++)
-            {
-                DateMsg = QDateTime(msglist.at(i).at(1).toDate(), msglist.at(i).at(1).toTime());
-                if (DateMsg > QDateTime(gUserDateDernierMessage))
-                    gTotalNvxMessages += 1;
-            }
-            gUserDateDernierMessage = QDateTime(DateMsg);
-        }
-        else if (gMsgDialog !=Q_NULLPTR)
-        {
-            if (gMsgDialog->isVisible())
-                gMsgDialog->close();
-        }
-
-        QString msg = "";
-        if (gAffichTotalMessages)
-        {
-            if (gTotalMessages==gTotalNvxMessages)
-            {
-                if (gTotalMessages>1)
-                    msg = tr("Vous avez ") + QString::number(gTotalMessages) + tr(" nouveaux messages");
-                else if (gTotalMessages>0)
-                    msg = tr("Vous avez 1 nouveau message");
-            }
-            else if (gTotalMessages>gTotalNvxMessages)
-            {
-                if (gTotalMessages>1)
-                {
-                    msg = tr("Vous avez ") + QString::number(gTotalMessages) + tr(" messages");
-                    if (gTotalNvxMessages>1)
-                        msg += " dont " + QString::number(gTotalNvxMessages) + tr(" nouveaux");
-                    else if (gTotalNvxMessages>0)
-                        msg += tr(" dont 1 nouveau");
-                }
-                else if (gTotalMessages>0)
-                    msg = tr("Vous avez 1 message");
-            }
-        }
-        else if (gTotalNvxMessages>1)
-            msg = tr("Vous avez ") + QString::number(gTotalNvxMessages) + tr(" nouveaux messages");
-        else if (gTotalNvxMessages>0)
-            msg = tr("Vous avez 1 nouveau message");
-        if (msg!="")
-        {
-            QSound::play(NOM_ALARME);
-            gMessageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
-            if (gMsgDialog != Q_NULLPTR)
-                if (gMsgDialog->isVisible())
-                    AfficheMessages();
-        }
-        gAffichTotalMessages = false;
+        ReconstruitListeMessages();
         m_flagmessages = flagmsg;
     }
 }
 
 void Rufus::VerifSalleDAttente()
 {
-    int flagsaldat = flags->flagSallleDAttente();
+    int flagsaldat = flags->flagSalleDAttente();
     //qDebug() << "VerifSalleDAttente()" << "m_flagsalledattente = " << m_flagsalledattente << "fagsaldat = " << flagsaldat << "gTimerSalDat interval = " << gTimerSalDat->interval();
     if (m_flagsalledattente < flagsaldat)
     {
@@ -10249,11 +10256,9 @@ void Rufus::envoieMessage(QString msg)
 
 void Rufus::envoieMessageA(QList<int> listidusr)
 {
+    flags->MAJflagMessages();
     if (!UtiliseTCP)
-    {
-        flags->MAJflagMessages();
         return;
-    }
     QString listid;
     for (int i=0; i<listidusr.size(); i++)
     {

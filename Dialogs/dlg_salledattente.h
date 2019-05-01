@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_SALLEDATTENTE_H
 
 #include "procedures.h"
+#include "flags.h"
 
 namespace Ui {
 class dlg_salledattente;

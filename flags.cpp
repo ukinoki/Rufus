@@ -1,8 +1,18 @@
-#include "cls_flags.h"
+#include "flags.h"
 
+
+Flags* Flags::instance =  Q_NULLPTR;
+Flags* Flags::I()
+{
+    if( !instance )
+        instance = new Flags();
+
+    return instance;
+}
 
 Flags::Flags(QObject *parent) : QObject (parent)
 {
+    TCP = false;
 }
 
 Flags::~Flags()
@@ -30,7 +40,7 @@ int Flags::flagMessages()
     return 0;
 }
 
-int Flags::flagSallleDAttente()
+int Flags::flagSalleDAttente()
 {
     QVariantList flag = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
     if (ok && flag.size() > 0)
@@ -40,14 +50,13 @@ int Flags::flagSallleDAttente()
 
 void Flags::MAJflagCorrespondants()
 {
-    /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
+    /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur liste de correspondants  */
     if (!TCP)
     {
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
-        int a = 0;
         QVariantList flagdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
         if (ok && flagdata.size()>0) {
-            a = flagdata.at(0).toInt() + 1;
+            int a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMG = " + QString::number(a);
         }
         DataBase::getInstance()->StandardSQL(MAJreq);
@@ -62,10 +71,9 @@ void Flags::MAJFlagSalleDAttente()
     if (!TCP)
     {
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagSalDat) VALUES (1)";
-        int a = 0;
         QVariantList flagdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
         if (ok && flagdata.size()>0) {
-            a = flagdata.at(0).toInt() + 1;
+            int a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagSalDat = " + QString::number(a);
         }
         DataBase::getInstance()->StandardSQL(MAJreq);
@@ -76,14 +84,13 @@ void Flags::MAJFlagSalleDAttente()
 
 void Flags::MAJflagMessages()
 {
-    /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
+    /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur liste de messages  */
     if (!TCP)
     {
         QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMessages) VALUES (1)";
-        int a = 0;
         QVariantList flagdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " NOM_TABLE_FLAGS, ok);
         if (ok && flagdata.size()>0) {
-            a = flagdata.at(0).toInt() + 1;
+            int a = flagdata.at(0).toInt() + 1;
             MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMessages = " + QString::number(a);
         }
         DataBase::getInstance()->StandardSQL(MAJreq);

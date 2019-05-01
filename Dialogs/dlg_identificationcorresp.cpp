@@ -299,7 +299,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     modif = true;
     Datas::I()->correspondants->initListe();
     m_correspondant = Datas::I()->correspondants->getById(idcor, true, true);
-    Datas::I()->flags->MAJflagCorrespondants();
+    Flags::I()->MAJflagCorrespondants();
     accept();
 }
 

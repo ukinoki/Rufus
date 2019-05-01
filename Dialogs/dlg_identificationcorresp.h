@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include "villecpwidget.h"
 #include "ui_villecpwidget.h"
+#include "flags.h"
 
 namespace Ui {
 class dlg_identificationcorresp;

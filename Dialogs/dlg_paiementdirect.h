@@ -26,6 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "icons.h"
 #include "utils.h"
+#include "flags.h"
 
 namespace Ui {
 class dlg_paiementdirect;

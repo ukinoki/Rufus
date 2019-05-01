@@ -3102,7 +3102,7 @@ int dlg_paiementdirect::EnregistreRecette()
             }
         }
     db->commit();
-    Datas::I()->flags->MAJFlagSalleDAttente();
+    Flags::I()->MAJFlagSalleDAttente();
     return OK;
 }
 
