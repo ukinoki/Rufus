@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("28-04-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("01-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -65,6 +65,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     proc->setDirImagerie();                                              // lit l'emplacement du dossier d'imagerie sur le serveur
     db = DataBase::getInstance();
+    flags = Datas::I()->flags;
 
     // 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
@@ -101,16 +102,15 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //4 reconstruction des combobox des correspondants et de la liste des documents
     ReconstruitCombosCorresp();                 // initialisation de la liste
 
-    grequeteListe   = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe FROM " NOM_TABLE_PATIENTS;
     Remplir_ListePatients_TableView(db->loadPatientsAll());       //InitTables()
     CalcNbDossiers();
     MetAJourUserConnectes();
 
-    QVariantList admindata= db->getFirstRecordFromStandardSelectSQL("select iduser from " NOM_TABLE_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "'", ok);
-    if (admindata.size() == 0 || !ok)
+    QJsonObject jadmin = db->loadAdminData();
+    if (jadmin.size() == 0)
         idAdministrateur = -1;
     else
-        idAdministrateur = admindata.at(0).toInt();
+        idAdministrateur = jadmin["id"].toInt();
 
     // 5 - lancement du TCP
     UtiliseTCP = false;
@@ -162,6 +162,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
     }
     proc->setoktcp(UtiliseTCP);
+    flags->setTCP(UtiliseTCP);
 
     // 6 - mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
@@ -213,8 +214,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     if (!UtiliseTCP)
     {
-        gflagMG     = proc->GetflagMG();
-        gflagSalDat = proc->GetflagSalDat();
+        m_flagcorrespondants    = flags->flagCorrespondants();
+        m_flagsalledattente     = flags->flagSallleDAttente();
+        m_flagmessages          = flags->flagMessages();
         connect (gTimerSalDat,              &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
         connect (gTimerCorrespondants,      &QTimer::timeout,   this,   &Rufus::VerifCorrespondants);
         connect (gTimerVerifImportateurDocs,&QTimer::timeout,   this,   &Rufus::VerifImportateur);
@@ -377,14 +379,19 @@ void Rufus::Connect_Slots()
     connect(this,                                                   &Rufus::EnregistrePaiement,                         this,   [=] {AppelPaiementDirect("Bouton");});
 
     // MAJ Salle d'attente ----------------------------------------------------------------------------------
-    connect(proc,                                                   &Procedures::UpdSalDat,                             this,   [=] {
-                                                                                                                                        envoieMessage(TCPMSG_MAJSalAttente);
+    connect(flags,                                                  &Flags::UpdSalleDAttente,                           this,   [=] {   if (UtiliseTCP)
+                                                                                                                                            envoieMessage(TCPMSG_MAJSalAttente);
+                                                                                                                                        else
+                                                                                                                                            m_flagsalledattente ++;
                                                                                                                                         Remplir_SalDat();
-                                                                                                                                    } );
-    connect(proc,                                                   &Procedures::UpdCorrespondants,                     this,   [=] {
-                                                                                                                                        envoieMessage(TCPMSG_MAJCorrespondants);
-                                                                                                                                        ReconstruitCombosCorresp();
+                                                                                                                                } );
+    connect(flags,                                                  &Flags::UpdCorrespondants,                          this,   [=] {   if (UtiliseTCP)
+                                                                                                                                            envoieMessage(TCPMSG_MAJCorrespondants);
+                                                                                                                                        else
+                                                                                                                                            m_flagcorrespondants ++;
+                                                                                                                                        ReconstruitCombosCorresp(false);
                                                                                                                                      } );
+    connect(flags,                                                  &Flags::UpdMessages,                                this,   [=] { VerifMessages(); } );
 
     // Nouvelle mesure d'appareil de refraction ----------------------------------------------------------------------------------
     if (proc->PortFronto()!=Q_NULLPTR || proc->PortAutoref()!=Q_NULLPTR || proc->PortRefracteur()!=Q_NULLPTR)
@@ -2846,23 +2853,12 @@ void Rufus::ListeCorrespondants()
         UpMessageBox::Watch(this, tr("pas de correspondant enregistré") );
         bool onlydoctors    = false;
         Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
-        if (Dlg_IdentCorresp->exec()>0)
-        {
-            ReconstruitCombosCorresp(false);         // par une modif introduite par la fiche identcorrespondant
-            if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
-                OKModifierTerrain();
-        }
+        Dlg_IdentCorresp->exec();
         delete Dlg_IdentCorresp;
         return;
     }
     Dlg_ListCor = new dlg_listecorrespondants(this);
     Dlg_ListCor->exec();
-    if (Dlg_ListCor->listecorrespondantsmodifiee())
-    {
-        ReconstruitCombosCorresp(false);            // par une modif introduite par la fiche listecorrespondant
-        if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
-            OKModifierTerrain();
-    }
     delete Dlg_ListCor;
 }
 
@@ -3032,9 +3028,9 @@ void Rufus::AfficheDossiersRechercheParMotCle()
     QTableView      *tabMC              = new QTableView(gAskListPatients);
     gAskListPatients->dlglayout()       ->insertWidget(0,tabMC);
     gAskListPatients->AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
-    gAskListPatients->PrintButton   ->setLuggage(listidMc);
+    gAskListPatients->PrintButton   ->setData(listidMc);
     connect(gAskListPatients->OKButton,     &QPushButton::clicked,   [=] {gAskListPatients->accept();});
-    connect(gAskListPatients->PrintButton,  &QPushButton::clicked,   [=] {ImprimeListPatients(gAskListPatients->PrintButton->Luggage());});
+    connect(gAskListPatients->PrintButton,  &QPushButton::clicked,   [=] {ImprimeListPatients(gAskListPatients->PrintButton->Data());});
 
     gAskListPatients->setModal(true);
     gAskListPatients->setSizeGripEnabled(false);
@@ -3402,14 +3398,8 @@ void Rufus::ChoixMenuContextuelMedecin()
     bool onlydoctors = true;
     Dlg_IdentCorresp          = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(id, true, true));
     if (Dlg_IdentCorresp->exec()>0)
-    {
         if (Dlg_IdentCorresp->identcorrespondantmodifiee())
-        {
-            ReconstruitCombosCorresp(false);            // par une modif introduite par la fiche listecorrespondant
             ui->MGupComboBox->setCurrentIndex(idxMG);
-            OKModifierTerrain();
-        }
-    }
     delete Dlg_IdentCorresp;
 }
 
@@ -3444,8 +3434,6 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
     if (Dlg_IdentCorresp->exec()>0)
     {
         int idCor = Dlg_IdentCorresp->correspondantrenvoye()->id();
-        if (Dlg_IdentCorresp->identcorrespondantmodifiee())
-            ReconstruitCombosCorresp(false);            // par une modif introduite par la fiche listecorrespondant
         if (choix == "Modifier1")
             ui->AutresCorresp1upComboBox->setCurrentIndex(ui->AutresCorresp1upComboBox->findData(idCor));
         else if (choix == "Modifier2")
@@ -5451,98 +5439,103 @@ void Rufus::VerifMessages()
 {
     if (!QSystemTrayIcon::isSystemTrayAvailable())
         return;
-    QDateTime DateMsg;
-    gTotalNvxMessages = 0;
-    QString req =
-        "select Distinct mess.idMessage, Creele, ReponseA from "
-        NOM_TABLE_MESSAGES " mess left outer join " NOM_TABLE_MESSAGESJOINTURES " joint on mess.idmessage = joint.idmessage \n"
-        " where \n"
-        " iddestinataire = " + QString::number(gUserEnCours->id()) + "\n"
-        " or (idemetteur = " + QString::number(gUserEnCours->id()) + " and asupprimer is null)"
-        " order by CreeLe";
-    /*
+    int flagmsg = flags->flagMessages();
+    if (m_flagmessages < flagmsg)
+    {
+        QDateTime DateMsg;
+        gTotalNvxMessages = 0;
+        QString req =
+                "select Distinct mess.idMessage, Creele, ReponseA from "
+                NOM_TABLE_MESSAGES " mess left outer join " NOM_TABLE_MESSAGESJOINTURES " joint on mess.idmessage = joint.idmessage \n"
+                                                                                        " where \n"
+                                                                                        " iddestinataire = " + QString::number(gUserEnCours->id()) + "\n"
+                                                                                                                                                     " or (idemetteur = " + QString::number(gUserEnCours->id()) + " and asupprimer is null)"
+                                                                                                                                                                                                                  " order by CreeLe";
+        /*
     select Distinct mess.idMessage, Creele, ReponseA from Rufus.Messagerie mess left outer join Rufus.MessagerieJointures joint on mess.idmessage = joint.idmessage
     where iddestinataire = 1
     or (idemetteur = 1 and asupprimer is null)
     order by CreeLe
     */
-    QList<QVariantList> msglist = db->StandardSelectSQL(req,ok);
-    gTotalMessages = msglist.size();
-    gMessageIcon->setVisible(gTotalMessages>0);
-    if (gTotalMessages>0)
-    {
-        for (int i=0; i<gTotalMessages; i++)
+        QList<QVariantList> msglist = db->StandardSelectSQL(req,ok);
+        gTotalMessages = msglist.size();
+        gMessageIcon->setVisible(gTotalMessages>0);
+        if (gTotalMessages>0)
         {
-            DateMsg = QDateTime(msglist.at(i).at(1).toDate(), msglist.at(i).at(1).toTime());
-            if (DateMsg > QDateTime(gUserDateDernierMessage))
-                gTotalNvxMessages += 1;
-        }
-        gUserDateDernierMessage = QDateTime(DateMsg);
-    }
-    else if (gMsgDialog !=Q_NULLPTR)
-    {
-        if (gMsgDialog->isVisible())
-            gMsgDialog->close();
-    }
-
-    QString msg = "";
-    if (gAffichTotalMessages)
-    {
-        if (gTotalMessages==gTotalNvxMessages)
-        {
-            if (gTotalMessages>1)
-                msg = tr("Vous avez ") + QString::number(gTotalMessages) + tr(" nouveaux messages");
-            else if (gTotalMessages>0)
-                msg = tr("Vous avez 1 nouveau message");
-        }
-        else if (gTotalMessages>gTotalNvxMessages)
-        {
-            if (gTotalMessages>1)
+            for (int i=0; i<gTotalMessages; i++)
             {
-                msg = tr("Vous avez ") + QString::number(gTotalMessages) + tr(" messages");
-                if (gTotalNvxMessages>1)
-                    msg += " dont " + QString::number(gTotalNvxMessages) + tr(" nouveaux");
-                else if (gTotalNvxMessages>0)
-                    msg += tr(" dont 1 nouveau");
+                DateMsg = QDateTime(msglist.at(i).at(1).toDate(), msglist.at(i).at(1).toTime());
+                if (DateMsg > QDateTime(gUserDateDernierMessage))
+                    gTotalNvxMessages += 1;
             }
-            else if (gTotalMessages>0)
-                msg = tr("Vous avez 1 message");
+            gUserDateDernierMessage = QDateTime(DateMsg);
         }
-    }
-    else if (gTotalNvxMessages>1)
-        msg = tr("Vous avez ") + QString::number(gTotalNvxMessages) + tr(" nouveaux messages");
-    else if (gTotalNvxMessages>0)
-        msg = tr("Vous avez 1 nouveau message");
-    if (msg!="")
-    {
-        QSound::play(NOM_ALARME);
-        gMessageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
-        if (gMsgDialog != Q_NULLPTR)
+        else if (gMsgDialog !=Q_NULLPTR)
+        {
             if (gMsgDialog->isVisible())
-                AfficheMessages();
+                gMsgDialog->close();
+        }
+
+        QString msg = "";
+        if (gAffichTotalMessages)
+        {
+            if (gTotalMessages==gTotalNvxMessages)
+            {
+                if (gTotalMessages>1)
+                    msg = tr("Vous avez ") + QString::number(gTotalMessages) + tr(" nouveaux messages");
+                else if (gTotalMessages>0)
+                    msg = tr("Vous avez 1 nouveau message");
+            }
+            else if (gTotalMessages>gTotalNvxMessages)
+            {
+                if (gTotalMessages>1)
+                {
+                    msg = tr("Vous avez ") + QString::number(gTotalMessages) + tr(" messages");
+                    if (gTotalNvxMessages>1)
+                        msg += " dont " + QString::number(gTotalNvxMessages) + tr(" nouveaux");
+                    else if (gTotalNvxMessages>0)
+                        msg += tr(" dont 1 nouveau");
+                }
+                else if (gTotalMessages>0)
+                    msg = tr("Vous avez 1 message");
+            }
+        }
+        else if (gTotalNvxMessages>1)
+            msg = tr("Vous avez ") + QString::number(gTotalNvxMessages) + tr(" nouveaux messages");
+        else if (gTotalNvxMessages>0)
+            msg = tr("Vous avez 1 nouveau message");
+        if (msg!="")
+        {
+            QSound::play(NOM_ALARME);
+            gMessageIcon->showMessage(tr("Messages"), msg, Icons::icPostit(), 10000);
+            if (gMsgDialog != Q_NULLPTR)
+                if (gMsgDialog->isVisible())
+                    AfficheMessages();
+        }
+        gAffichTotalMessages = false;
+        m_flagmessages = flagmsg;
     }
-    gAffichTotalMessages = false;
 }
 
 void Rufus::VerifSalleDAttente()
 {
-    int flagsaldat = proc->GetflagSalDat();
-    //qDebug() << "VerifSalleDAttente()" << "gflagSalDat = " << gflagSalDat << "fagsaldat = " << flagsaldat << "gTimerSalDat interval = " << gTimerSalDat->interval();
-    if (gflagSalDat < flagsaldat)
+    int flagsaldat = flags->flagSallleDAttente();
+    //qDebug() << "VerifSalleDAttente()" << "m_flagsalledattente = " << m_flagsalledattente << "fagsaldat = " << flagsaldat << "gTimerSalDat interval = " << gTimerSalDat->interval();
+    if (m_flagsalledattente < flagsaldat)
     {
-        gflagSalDat = flagsaldat;
+        m_flagsalledattente = flagsaldat;
         Remplir_SalDat();                       // par le timer VerifSalleDAttente
     }
 }
 
 void Rufus::VerifCorrespondants()
 {
-    int flagcor = proc->GetflagMG();
-    if (gflagMG < flagcor)
+    int flagcor = flags->flagCorrespondants();
+    if (m_flagcorrespondants < flagcor)
     {
-        gflagMG = flagcor;
+        m_flagcorrespondants = flagcor;
         // on reconstruit la liste des MG et des correspondants
-        ReconstruitCombosCorresp();                     // par le timer VerifSalleDAttente
+        ReconstruitCombosCorresp();                     // par le timer gTimerCorrespondants
         // on resynchronise l'affichage du combobox au besoin
         if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
         {
@@ -7338,14 +7331,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
     if (Cor == "MG")
         Dlg_IdentCorresp->ui->MGradioButton->setChecked(true);
     if (Dlg_IdentCorresp->exec()>0)
-    {
-        if (Dlg_IdentCorresp->identcorrespondantmodifiee())
-        {
-            ReconstruitCombosCorresp(false);            // par une modif introduite par la fiche listecorrespondant
-            OKModifierTerrain();
-        }
         idcor = Dlg_IdentCorresp->correspondantrenvoye()->id();
-    }
     delete Dlg_IdentCorresp;
     return idcor;
 }
@@ -7542,7 +7528,7 @@ bool Rufus::FermeDossier()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::FlagMetAjourSalDat()
 {
-    proc->MAJTcpMsgEtFlagSalDat();
+    flags->MAJFlagSalleDAttente();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -7553,15 +7539,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
 {
     Dlg_IdentPatient           = new dlg_identificationpatient(mode, pat, this);
 
-    int a = Dlg_IdentPatient->exec();
-
-    if (Dlg_IdentPatient->listecorrespondantsmodifiee())
-    {
-        ReconstruitCombosCorresp(false);             // par une modif introduite par la fiche identpatient
-        if (ui->tabWidget->indexOf(ui->tabDossier) > -1)
-            OKModifierTerrain();
-    }
-    if (a > 0)
+    if (Dlg_IdentPatient->exec() > 0)
     {
         if (mode == dlg_identificationpatient::Modification)
         {
@@ -8015,7 +7993,6 @@ void Rufus::InitVariables()
     nbActes             = 0;
     noActe              = 0;
     gMode               = Liste;
-    grequeteListe       = "";
     gNombreDossiers     = 1;
     m_dossierpatientaouvrir     = new Patient();
     gdateParDefaut              = QDate::fromString("2000-01-01", "yyyy-MM-dd");
@@ -8181,8 +8158,6 @@ void Rufus::MAJCorrespondant(QObject *obj)
                         proc->setspe1(m_currentpatient, idcor);
                     else if (cbox == ui->AutresCorresp2upComboBox)
                         proc->setspe2(m_currentpatient, idcor);
-                    ReconstruitCombosCorresp();             // par une modif introduite par la fiche identcorrespondant
-                    OKModifierTerrain();
                     cbox->setCurrentIndex(cbox->findData(idcor));
                 }
             }
@@ -9781,8 +9756,11 @@ void Rufus::Tonometrie()
 
     if (Dlg_AutresMes->exec()> 0)
     {
-        TOD = Dlg_AutresMes->widgto->ui->TOODSpinBox->text();
-        TOG = Dlg_AutresMes->widgto->ui->TOOGSpinBox->text();
+        WidgTono *widgtono = dynamic_cast<WidgTono*>(Dlg_AutresMes->Widget());
+        if (widgtono == Q_NULLPTR)
+            return;
+        TOD = widgtono->ui->TOODSpinBox->text();
+        TOG = widgtono->ui->TOOGSpinBox->text();
         if (TOD.toInt() > 21)
             TODcolor = "<font color = \"red\"><b>" + TOD + "</b></font>";
         else
@@ -9793,9 +9771,9 @@ void Rufus::Tonometrie()
             TOGcolor = "<font color = \"blue\"><b>" + TOG + "</b></font>";
         if (TOD.toInt() > 0 || TOG.toInt() > 0)
         {
-            if (Dlg_AutresMes->widgto->ui->AirRadioButton->isChecked())        Methode = tr("Air");
-            if (Dlg_AutresMes->widgto->ui->AutreRadioButton->isChecked())      Methode = tr("Autre");
-            if (Dlg_AutresMes->widgto->ui->AplanationRadioButton->isChecked()) Methode = tr("Aplanation");
+            if (widgtono->ui->AirRadioButton->isChecked())        Methode = tr("Air");
+            if (widgtono->ui->AutreRadioButton->isChecked())      Methode = tr("Autre");
+            if (widgtono->ui->AplanationRadioButton->isChecked()) Methode = tr("Aplanation");
 
             QString Tono;
             if (TOD.toInt() == 0 && TOG.toInt() > 0)
@@ -10117,8 +10095,8 @@ void Rufus::LireLaCV()
         ui->CreerNomlineEdit->setText(nomPat);
         ui->CreerPrenomlineEdit->setText(prenomPat);
         ui->CreerDDNdateEdit->setDate(QDate::fromString(zdat, "yyyy-MM-dd"));
-        gNNIPat     = settingPatientPar.value("Bénéficiaire/Numéro").toString();
-        QString Sexe = (gNNIPat.left(1) == "1"? "M" : "F");
+        QString NNIPat     = settingPatientPar.value("Bénéficiaire/Numéro").toString();
+        QString Sexe = (NNIPat.left(1) == "1"? "M" : "F");
 
         if (gNombreDossiers == 0)       // aucun patient trouvé
             {// si rien non plus on propose la création du dossier.
@@ -10273,7 +10251,7 @@ void Rufus::envoieMessageA(QList<int> listidusr)
 {
     if (!UtiliseTCP)
     {
-        proc->MAJflagMessages();
+        flags->MAJflagMessages();
         return;
     }
     QString listid;

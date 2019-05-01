@@ -1222,7 +1222,7 @@ QList<Site*> DataBase::loadSites(QString req)
 /*
  * Villes
 */
-Villes* DataBase::loadVillesAll()
+Villes* DataBase::loadVilles()
 {
     Villes *villes = new Villes();
 
@@ -1347,7 +1347,7 @@ QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filt
         if (clausewhere != " WHERE ")
             clausewhere += " AND PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
         else
-            clausewhere += "PatPrenom " + like + " '" + Utils::correctquoteSQL(nom) + (filtre? "%" : "") + "'";
+            clausewhere += "PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
     }
     if (m_mode == Distant)
         clauselimit = " limit 1000";

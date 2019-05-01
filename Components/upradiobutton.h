@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include <QMouseEvent>
 #include <QToolTip>
+#include "cls_item.h"
 
 class UpRadioButton : public QRadioButton
 {
@@ -35,10 +36,12 @@ public:
     bool        Toggleable() const;
     void        setiD(int val);
     int         iD() const;
+    void        setItem(Item* item);
+    Item*       getItem();
 
-    QObject     *mData;
 
 private:
+    Item        *m_item;
     int         gid;
     QString     gToolTipMsg;
     bool        eventFilter(QObject *obj, QEvent *event)  ;

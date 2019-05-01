@@ -113,11 +113,6 @@ public:
     bool                    PrintDocument(QMap<QString, QVariant> doc);
     bool                    FicheChoixConnexion();
     QString                 getDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
-    int                     GetflagMG();
-    int                     GetflagSalDat();
-    void                    MAJflagMG();
-    void                    MAJTcpMsgEtFlagSalDat();
-    void                    MAJflagMessages();
     void                    EnChantier(bool avecMsg = false);
     void                    Message(QStringList listmsg, int pause = 1000, bool bottom = true);
     void                    Message(QString mess, int pause = 1000, bool bottom = true);
@@ -262,8 +257,6 @@ public:
     void                    setoktcp(bool  ok);
 
 signals:
-    void                    UpdSalDat();
-    void                    UpdCorrespondants();
     void                    UpdDocsExternes();
     void                    ModifEdit(QString txt);
     void                    ConnectTimers();

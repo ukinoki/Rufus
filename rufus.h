@@ -115,6 +115,7 @@ private:
     UpLineEdit                      *MGlineEdit;
     UpLineEdit                      *AutresCorresp1LineEdit, *AutresCorresp2LineEdit;
     DataBase                        *db;
+    Flags                           *flags;
     bool                            ok;
 
     pyxinterf                       *pyxi;     // CZ001
@@ -233,7 +234,7 @@ private:
     bool                    gAutorModifConsult, closeFlag;
     bool                    gIdentificationOK;
     int                     nbActes, noActe;
-    int                     gflagMG, gflagSalDat;
+    int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     int                     gNombreDossiers;
     int                     idRefraction;
     int                     gMode;
@@ -247,8 +248,7 @@ private:
     QMenu                   *gmenuContextuel;
     QString                 gActeMontant;
     QString                 gActeDate;
-    QString                 grequeteListe, grequeteSalDat;
-    QString                 gNNIPat;
+    QString                 grequeteSalDat;
     QString                 gDirSauv;
     QStandardItemModel      *gListePatientsModel;
     QStandardItemModel      *gListeSuperviseursModel, *gListeParentsModel;

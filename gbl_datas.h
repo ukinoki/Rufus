@@ -33,6 +33,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_tierspayants.h"
 #include <cls_users.h>
 #include "cls_documents.h"
+#include "cls_flags.h"
 
 class Datas : public QObject
 {
@@ -60,6 +61,7 @@ public:
     DocsExternes *docsexternes;         //!< Les documents externes
     Documents *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
     MetaDocuments *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Flags *flags;                       //!> les flags de MAJ de la salle d'attente, de la liste des corresondants et de la messagerie
 
 };
 

@@ -63,7 +63,7 @@ private:
 
     int                             CloseReason;
     enum                            CloseReason {Accept,Reject};
-    int                             gflagMG;
+    int                             m_flagcorrespondants;
 
     bool                            eventFilter(QObject *obj, QEvent *event)  ;
     void                            AfficheDossierAlOuverture();

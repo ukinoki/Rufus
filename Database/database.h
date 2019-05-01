@@ -210,27 +210,28 @@ public:
     /*
      * Cotations
     */
-    QStringList             loadTypesCotations();
-    QList<Cotation*>        loadCotationsByUser(int iduser);
+    QStringList             loadTypesCotations();                       //! charge toutes les cotations possibles à partir des tables cotations et ccam
+    QList<Cotation*>        loadCotationsByUser(int iduser);            //! charge toutes les cotations utilisées par un user à partir des tables cotations et ccam
 
     /*
      * Motifs
     */
-    QList<Motif*>           loadMotifs();
+    QList<Motif*>           loadMotifs();                               //! charge tous les motifs d'actes possibles à partir de la table motifsRDV
 
     /*
      * Sites
     */
-    QList<Site*>            loadSitesByUser(int idUser);
-    QList<Site*>            loadSitesAll();
 private:
-    QList<Site*>            loadSites(QString req);
+    QList<Site*>            loadSites(QString req);                     //! chharge les sites à partir de la requete req
+public:
+    QList<Site*>            loadSitesByUser(int idUser);                //! charge tous les sites utilisés par un user
+    QList<Site*>            loadSitesAll();                             //! chatges tous les sites sans exception
 
 public:
     /*
      * Villes
     */
-    Villes*                 loadVillesAll();
+    Villes*                 loadVilles();                               //! chatge toutes les villes et leur code postal à partir de la table villes
 
     /*
      * Patients
@@ -252,7 +253,7 @@ public:
      * Mots de passe
     */
     //Pas normal, les mots de passes doivent etre chiffrés
-    QString                 getMDPAdmin();
+    QString                 getMDPAdmin();                                      //! retrouve le mdp de l'administratuer
 
     /*
      * Actes
@@ -265,10 +266,6 @@ public:
     QMap<int, Acte*>        loadActesByPat(Patient *pat);                       //! chrage les actes d'un patient
     double                  getActePaye(int idActe);                            //! retrouve le total des paiements pour un acte
 
-
-signals:
-
-public slots:
 };
 
 #endif // DataBase_H

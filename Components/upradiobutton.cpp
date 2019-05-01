@@ -21,8 +21,9 @@ UpRadioButton::UpRadioButton(QWidget *parent) : QRadioButton(parent)
 {
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
-    gid          = -1;
-    Toggable  = true;
+    gid         = -1;
+    Toggable    = true;
+    m_item    = Q_NULLPTR;
 }
 
 UpRadioButton::UpRadioButton(const QString Title, QWidget *parent) : QRadioButton(Title, parent)
@@ -73,4 +74,13 @@ void UpRadioButton::setiD(int val)
 int UpRadioButton::iD() const
 {
     return gid;
+}
+
+void UpRadioButton::setItem(Item* item)
+{
+    m_item = item;
+}
+Item* UpRadioButton::getItem()
+{
+    return m_item;
 }

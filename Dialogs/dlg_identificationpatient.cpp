@@ -96,11 +96,11 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
 
     installEventFilter(this);
 
-    ui->MGupComboBox    ->installEventFilter(this);
-    ui->MaillineEdit    ->installEventFilter(this);
-    gflagMG             = proc->GetflagMG();
-    gTimer              = new QTimer(this);
-    gTimer              ->start(5000);
+    ui->MGupComboBox        ->installEventFilter(this);
+    ui->MaillineEdit        ->installEventFilter(this);
+    m_flagcorrespondants    = Datas::I()->flags->flagCorrespondants();
+    gTimer                  = new QTimer(this);
+    gTimer                  ->start(5000);
     connect (gTimer,                        &QTimer::timeout,                           this,   &dlg_identificationpatient::Slot_VerifMGFlag);
 
     ui->NomlineEdit->setFocus();
@@ -179,9 +179,10 @@ void    dlg_identificationpatient::Slot_ModifDDN()
 
 void dlg_identificationpatient::Slot_VerifMGFlag()
 {
-    if (gflagMG < proc->GetflagMG())
+    int flag = Datas::I()->flags->flagCorrespondants();
+    if (m_flagcorrespondants < flag)
     {
-        gflagMG = proc->GetflagMG();
+        m_flagcorrespondants = flag;
         // on reconstruit la liste des MG
         proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
         db->loadMedicalDataPatient(m_currentpatient, ok);
@@ -655,7 +656,7 @@ void dlg_identificationpatient::MAJMG()
                 int idcor = EnregistreNouveauCorresp();
                 if (idcor >= 0)
                 {
-                    gflagMG = proc->GetflagMG();
+                    m_flagcorrespondants = Datas::I()->flags->flagCorrespondants();
                     proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
                     db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));

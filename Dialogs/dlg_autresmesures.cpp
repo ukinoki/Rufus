@@ -17,19 +17,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_autresmesures.h"
 
-dlg_autresmesures::dlg_autresmesures(Patient *pat, enum mode mod,  QWidget *parent) :
+dlg_autresmesures::dlg_autresmesures(Patient *pat, mode mod,  QWidget *parent) :
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionTono", parent)
 {
-    proc            = Procedures::I();
-    m_currentpatient = pat;
-    db              = DataBase::getInstance()->getDataBase();
-    mode            = mod;
+    m_currentpatient    = pat;
+    m_mode            = mod;
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     connect (OKButton,   &QPushButton::clicked,   [=] {OKButtonClicked();});
-    if (mode == TONO)
+    if (m_mode == TONO)
     {
         widgto      = new WidgTono(this);
         widgto      ->setFixedSize(275,95);
@@ -37,6 +35,7 @@ dlg_autresmesures::dlg_autresmesures(Patient *pat, enum mode mod,  QWidget *pare
         widgto->ui->AirRadioButton->setChecked(true);
         widgto->ui->TOODSpinBox->installEventFilter(this);
         widgto->ui->TOOGSpinBox->installEventFilter(this);
+        setWidget(widgto);
     }
     CancelButton->installEventFilter(this);
     OKButton->installEventFilter(this);
@@ -51,7 +50,7 @@ dlg_autresmesures::~dlg_autresmesures()
 -----------------------------------------------------------------------------------------------------------------*/
 void    dlg_autresmesures::OKButtonClicked()
 {
-    switch (mode) {
+    switch (m_mode) {
     case TONO:
         EnregistreTono();
         break;
@@ -101,4 +100,16 @@ void dlg_autresmesures::EnregistreTono()
 
     accept();
 }
+
+QWidget *dlg_autresmesures::Widget()
+{
+    return  m_widget;
+}
+
+void dlg_autresmesures::setWidget(QWidget* widget)
+{
+    m_widget = widget;
+}
+
+
 

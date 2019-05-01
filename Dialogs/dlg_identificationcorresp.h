@@ -48,7 +48,7 @@ public:
 private:
     int                 gidCor;
     Mode                gMode;
-    Correspondant       *gCorrespondant;
+    Correspondant       *m_correspondant;
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     QString             lCreatModif;
     bool                OnlyDoctors;

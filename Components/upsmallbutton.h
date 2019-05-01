@@ -39,8 +39,8 @@ public:
     void        setId(int);
     int         getId();
     void        setText(QString);
-    void        setLuggage(QVariant var);
-    QVariant    Luggage();
+    void        setData(QVariant var);
+    QVariant    Data();
     void        setImmediateToolTip(QString Msg);
 
 private:

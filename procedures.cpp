@@ -160,91 +160,6 @@ QString Procedures::getDossierDocuments(QString Appareil, int mode)
     return dossier;
 }
 
-/*--------------------------------------------------------------------------------------------------------------------------------------
-    -- Gestion du flag de mise à jour de l'affichage du médecin traitant -----------------------------------------------------------------------------
-    ------------------------------------------------------------------------------------------------------------------------------------*/
-int Procedures::GetflagMG()
-{
-    QVariantList flagrcd = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
-    if (ok && flagrcd.size() > 0)
-        return flagrcd.at(0).toInt();
-    return 0;
-}
-
-/*--------------------------------------------------------------------------------------------------------------------------------------
-    -- Gestion du flag de mise à jour de l'affichage du médecin traitant -----------------------------------------------------------------------------
-    ------------------------------------------------------------------------------------------------------------------------------------*/
-int Procedures::GetflagSalDat()
-{
-    QVariantList flagsaldatrcd = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
-    if (ok && flagsaldatrcd.size() > 0)
-        return flagsaldatrcd.at(0).toInt();
-    return 0;
-}
-
-/*------------------------------------------------------------------------------------------------------------------------------------
--- Signifier aux autres utilisateurs que la liste des correspondants vient d'être modifiée -------
-------------------------------------------------------------------------------------------------------------------------------------*/
-void Procedures::MAJflagMG()
-{
-    /* envoi du message de MAJ de la liste des correspondants au serveur */
-    emit UpdCorrespondants();
-    /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
-    if (!OKTCP)
-    {
-        QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMG) VALUES (1)";
-        int a = 0;
-        QVariantList flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMG from " NOM_TABLE_FLAGS, ok);
-        if (ok && flagdata.size()>0) {
-            a = flagdata.at(0).toInt() + 1;
-            MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMG = " + QString::number(a);
-        }
-        db->StandardSQL(MAJreq);
-    }
-}
-
-/*------------------------------------------------------------------------------------------------------------------------------------
--- Signifier aux autres utilisateurs que la salle d'attente vient d'être modifiée --------------------
-------------------------------------------------------------------------------------------------------------------------------------*/
-void Procedures::MAJTcpMsgEtFlagSalDat()
-{
-    /* envoi du message de MAJ de la salle d'attente au serveur */
-    emit UpdSalDat();
-    /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
-    if (!OKTCP)
-    {
-        //qDebug() << "MAJTcpMsgEtFlagSalDat()";
-        //qDebug() << "MAJTcpMsgEtFlagSalDat() lock OK";
-        QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagSalDat) VALUES (1)";
-        int a = 0;
-        QVariantList flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagSalDat from " NOM_TABLE_FLAGS, ok);
-        if (ok && flagdata.size()>0) {
-            a = flagdata.at(0).toInt() + 1;
-            MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagSalDat = " + QString::number(a);
-        }
-        db->StandardSQL(MAJreq);
-    }
-}
-
-/*------------------------------------------------------------------------------------------------------------------------------------
--- Signifier aux autres utilisateurs qu'un message vient d'être envoyé --------------------
-------------------------------------------------------------------------------------------------------------------------------------*/
-void Procedures::MAJflagMessages()
-{
-    /* mise à jour du flag en cas de non utilisation du TCP ou pour les utilisateurs distants qui le surveillent et mettent ainsi à jour leur salle d'attente  */
-    if (!OKTCP)
-    {
-        QString MAJreq = "insert into " NOM_TABLE_FLAGS " (MAJflagMessages) VALUES (1)";
-        int a = 0;
-        QVariantList flagdata = db->getFirstRecordFromStandardSelectSQL("select MAJflagMessages from " NOM_TABLE_FLAGS, ok);
-        if (ok && flagdata.size()>0) {
-            a = flagdata.at(0).toInt() + 1;
-            MAJreq = "update " NOM_TABLE_FLAGS " set MAJflagMessages = " + QString::number(a);
-        }
-        db->StandardSQL(MAJreq);
-    }
-}
-
 /*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -------------------- GESTION DES VILLES ET DES CODES POSTAUX
 géré par la classe villecpwidget
@@ -253,7 +168,7 @@ géré par la classe villecpwidget
 Villes* Procedures::getVilles()
 {
     if( m_villes == Q_NULLPTR )
-        m_villes = db->loadVillesAll();
+        m_villes = db->loadVilles();
     return m_villes;
 }
 
@@ -1675,7 +1590,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     connect(this, &Procedures::CloseEditDocument, gAsk, [=] {gAsk->accept();});
     if (Button.testFlag(UpDialog::ButtonPrint))
     {
-        gAsk->PrintButton->setLuggage(doc);
+        gAsk->PrintButton->setData(doc);
         connect(gAsk->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), [=](QVariant) {PrintDocument(doc);});
     }
     if (Button.testFlag(UpDialog::ButtonSuppr))
@@ -3109,7 +3024,7 @@ Site* Procedures::DetermineLieuExercice()
     if( listEtab.size() == 1 )
         return listEtab[0];
 
-    /* Cas ou le praticient est dans plusieur centres
+    /* Cas ou le praticien est dans plusieur centres
      * on lui demande de sélectionner le centre où il se trouve au moment de la connexion
     */
     UpDialog *gAskLieux     = new UpDialog();
@@ -3130,7 +3045,7 @@ Site* Procedures::DetermineLieuExercice()
         UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
         pradiobutt->setText(etab->nom());
         pradiobutt->setAccessibleName(QString::number(etab->id()));
-        pradiobutt->mData = etab;
+        pradiobutt->setItem(etab);
         QString data("");
         if( etab->nom().size() )
             data += etab->nom();
@@ -3163,7 +3078,7 @@ Site* Procedures::DetermineLieuExercice()
     {
         UpRadioButton *rb = const_cast<UpRadioButton*>(*itRB);
         if( rb->isChecked() )
-            return qobject_cast<Site*>(rb->mData);
+            return qobject_cast<Site*>(rb->getItem());
     }
     /*
     if (db->getMode() == DataBase::Poste || db->getMode() == DataBase::Distant)

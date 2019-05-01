@@ -27,12 +27,12 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc                = Procedures::I();
     db                  = DataBase::getInstance();
-    gCorrespondant      = Q_NULLPTR;
-    gidCor              = 0;
+    m_correspondant      = Q_NULLPTR;
     if (cor != Q_NULLPTR)
     {
-        gCorrespondant  = cor;
-        gidCor          = gCorrespondant->id();
+        m_correspondant  = cor;
+        if (!m_correspondant->isAllLoaded())
+            m_correspondant->setData(db->loadCorrespondantData(m_correspondant->id()));
     }
     gMode               = mode;
     OnlyDoctors         = quelesmedecins;
@@ -213,10 +213,10 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
 
     if (cordata.size() > 0)
     {
-        if (cordata.at(0).toInt() != gidCor)
+        if (cordata.at(0).toInt() != m_correspondant->id())
         {
             UpMessageBox::Watch(this,tr("Ce correspondant existe déjà!"));
-            gidCor = cordata.at(0).toInt();
+            m_correspondant->setid(cordata.at(0).toInt());
             if (OnlyDoctors)
                 OnlyDoctors = (cordata.at(2).toInt()==1);
             OKButton->setEnabled(false);
@@ -231,6 +231,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
             return;
         }
     }
+    int idcor = 0;
 
     if (gMode == Creation)
     {
@@ -238,6 +239,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         QString gSexeCor = "";
         if (ui->MradioButton->isChecked()) gSexeCor = "M";
         if (ui->FradioButton->isChecked()) gSexeCor = "F";
+        db->locktables(QStringList() << NOM_TABLE_CORRESPONDANTS);
         QString insrequete = "INSERT INTO " NOM_TABLE_CORRESPONDANTS
                 " (CORNom, CORPrenom, CorSexe, CORAdresse1, CORAdresse2, CORAdresse3, CorVille, CorCodePostal,"
                 " CorTelephone, CorPortable, CorFax, CorMail,CorMedecin,CorSpecialite,CorAutreProfession) "
@@ -263,14 +265,12 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         insrequete = "select max(idcor) from " NOM_TABLE_CORRESPONDANTS;
         QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(insrequete, ok);
         if (ok && cordata.size()>0)
-            gidCor = cordata.at(0).toInt();
-        modif = true;
-        Datas::I()->correspondants->initListe();
-        proc->MAJflagMG();
-        accept();
+            idcor = cordata.at(0).toInt();
+        db->unlocktables();
     }
-    if (gMode == Modification)
+    else if (gMode == Modification)
     {
+        idcor = m_correspondant->id();
         // D - Il n'existe pas de dossier similaire, on le modifie
         QString gSexeCor = "";
         if (ui->MradioButton->isChecked()) gSexeCor = "M";
@@ -292,14 +292,15 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
             Modifrequete += ", CorMedecin = 1, CorSpecialite = " + ui->SpecomboBox->currentData().toString() + ", CorautreProfession = NULL";
         else if (ui->AutreradioButton->isChecked())
             Modifrequete += ", CorMedecin = 1, CorSpecialite = null, CorautreProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->AutreupLineEdit->text())) + "'";
-        Modifrequete += " where idCor =" + QString::number(gidCor);
+        Modifrequete += " where idCor =" + QString::number(idcor);
         //qDebug() <<  Modifrequete;
         db->StandardSQL(Modifrequete, tr("Impossible de modifier le dossier"));
-        modif = true;
-        Datas::I()->correspondants->initListe();
-        proc->MAJflagMG();
-        accept();
     }
+    modif = true;
+    Datas::I()->correspondants->initListe();
+    m_correspondant = Datas::I()->correspondants->getById(idcor, true, true);
+    Datas::I()->flags->MAJflagCorrespondants();
+    accept();
 }
 
 bool dlg_identificationcorresp::identcorrespondantmodifiee()
@@ -309,7 +310,7 @@ bool dlg_identificationcorresp::identcorrespondantmodifiee()
 
 Correspondant* dlg_identificationcorresp::correspondantrenvoye()
 {
-    return Datas::I()->correspondants->getById(gidCor,true,true);
+    return m_correspondant;
 }
 
 void dlg_identificationcorresp::Slot_RegleAffichage()
@@ -358,8 +359,8 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
     ui->AutreupLineEdit   ->setVisible(!OnlyDoctors);
     if (gMode == Modification)
     {
-        gNomCor                 = gCorrespondant->nom();
-        gPrenomCor              = gCorrespondant->prenom();
+        gNomCor                 = m_correspondant->nom();
+        gPrenomCor              = m_correspondant->prenom();
         ui->NomlineEdit         ->setText(gNomCor);
         ui->PrenomlineEdit      ->setText(gPrenomCor);
         // pour decocher les 2 radiobutton sexe il faut d'abord leur retirer la propriétét AutoExclusive
@@ -369,33 +370,33 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
         ui->FradioButton        ->setChecked(false);
         ui->MradioButton        ->setAutoExclusive(true);
         ui->FradioButton        ->setAutoExclusive(true);
-        Sexe                    = gCorrespondant->sexe();
+        Sexe                    = m_correspondant->sexe();
         if (Sexe == "M") ui->MradioButton->setChecked(true);
         if (Sexe == "F") ui->FradioButton->setChecked(true);
-        ui->idDossierlabel      ->setText(tr("Correspondant n° ") + QString::number(gidCor));
+        ui->idDossierlabel      ->setText(tr("Correspondant n° ") + QString::number(m_correspondant->id()));
 
-        ui->Adresse1lineEdit    ->setText(gCorrespondant->adresse1());
-        ui->Adresse2lineEdit    ->setText(gCorrespondant->adresse2());
-        ui->Adresse3lineEdit    ->setText(gCorrespondant->adresse3());
-        QString CP              = gCorrespondant->codepostal();
+        ui->Adresse1lineEdit    ->setText(m_correspondant->adresse1());
+        ui->Adresse2lineEdit    ->setText(m_correspondant->adresse2());
+        ui->Adresse3lineEdit    ->setText(m_correspondant->adresse3());
+        QString CP              = m_correspondant->codepostal();
         CPlineEdit              ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
         CPlineEdit              ->setText(CP);
-        VillelineEdit           ->setText(gCorrespondant->ville());
-        ui->TellineEdit         ->setText(gCorrespondant->telephone());
-        ui->PortablelineEdit    ->setText(gCorrespondant->portable());
-        ui->MaillineEdit        ->setText(gCorrespondant->mail());
-        if (gCorrespondant->isMG())                                  //c'est un généraliste
+        VillelineEdit           ->setText(m_correspondant->ville());
+        ui->TellineEdit         ->setText(m_correspondant->telephone());
+        ui->PortablelineEdit    ->setText(m_correspondant->portable());
+        ui->MaillineEdit        ->setText(m_correspondant->mail());
+        if (m_correspondant->isMG())                                  //c'est un généraliste
         {
             ui->MGradioButton   ->setChecked(true);
             ui->SpecomboBox     ->setVisible(false);
             ui->AutreupLineEdit ->setVisible(false);
         }
-        else if (gCorrespondant->ismedecin())                                    // ce n'est pas un généralliste mais un spécialiste
+        else if (m_correspondant->ismedecin())                                    // ce n'est pas un généralliste mais un spécialiste
         {
             ui->SperadioButton  ->setChecked(true);
             ui->SpecomboBox     ->setVisible(true);
-            int idx             = ui->SpecomboBox->findData(gCorrespondant->specialite());
+            int idx             = ui->SpecomboBox->findData(m_correspondant->specialite());
             ui->SpecomboBox     ->setCurrentIndex(idx);
             ui->AutreupLineEdit ->setVisible(false);
         }
@@ -404,7 +405,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
             ui->SpecomboBox     ->setVisible(false);
             ui->AutreradioButton->setChecked(true);
             ui->AutreupLineEdit ->setVisible(true);
-            ui->AutreupLineEdit ->setText(gCorrespondant->metier());
+            ui->AutreupLineEdit ->setText(m_correspondant->metier());
         }
     }
     else if (gMode == Creation)

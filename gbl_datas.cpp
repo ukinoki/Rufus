@@ -43,6 +43,7 @@ Datas::Datas()
     docsexternes    = new DocsExternes();
     documents       = new Documents();
     metadocuments   = new MetaDocuments();
+    flags           = new Flags();
 }
 
 

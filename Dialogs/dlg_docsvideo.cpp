@@ -62,7 +62,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(toolbar,    &UpToolBar::TBSignal,   this, [=] {NavigueVers(toolbar->action);});
+    connect(toolbar,    &UpToolBar::TBSignal,   this, [=] {NavigueVers(toolbar->choix());});
 
     toolbar     ->setMinimumHeight(30);
     dirsearchbutton->setFixedHeight(30);

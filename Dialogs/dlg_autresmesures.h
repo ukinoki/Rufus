@@ -32,19 +32,21 @@ class dlg_autresmesures : public UpDialog
 
 public:
     ~dlg_autresmesures();
-    int mode;
     enum mode {TONO, PACHY};
     explicit dlg_autresmesures(Patient *pat, enum mode mod = TONO, QWidget *parent = Q_NULLPTR);
-    WidgTono            *widgto;
+    QWidget*            Widget();
 
 private:
+    Procedures          *proc = Procedures::I();
+    mode                m_mode;
+    WidgTono            *widgto;
+    QWidget             *m_widget;
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                EnregistreTono();
     double              gTOD, gTOG;
-    Procedures          *proc;
     Patient             *m_currentpatient;
-    QSqlDatabase        db;
     void                OKButtonClicked();
+    void                setWidget(QWidget *widget);
 };
 
 #endif // DLG_AUTRESMESURES_H

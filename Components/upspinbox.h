@@ -33,12 +33,12 @@ public:
     int             getValeurAvant() const;
     int             gUpDown;    enum gUpDown    {Up,Down};
     void            setAutorCorrigeAxe(bool);
-    bool            gCorrigeAxe;
     void            CorrigeAxe(int UpDown);
 
 private:
     int             ValeurAvant;
     bool            eventFilter(QObject *, QEvent *);
+    bool            gCorrigeAxe;
 
 };
 

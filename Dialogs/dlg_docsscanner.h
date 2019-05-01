@@ -43,8 +43,6 @@ private:
     Procedures          *proc;
     DataBase            *db;
     int                 iditem;
-    Patient             *m_currentpatient;
-    Depense             *gDepenseEnCours;
     QMap<QString, QVariant> datafacture;
     UpLineEdit          *linetitre;
     QDateEdit           *editdate;

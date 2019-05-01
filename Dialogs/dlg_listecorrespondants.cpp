@@ -86,7 +86,6 @@ void dlg_listecorrespondants::Enablebuttons()
 
 void dlg_listecorrespondants::ChoixButtonFrame(int i)
 {
-    int idCor;
     switch (i) {
     case 1:
         EnregistreNouveauCorresp();
@@ -94,8 +93,7 @@ void dlg_listecorrespondants::ChoixButtonFrame(int i)
     case 0:
         if (treeCor->selectionModel()->selectedIndexes().size()==0)
             return;
-        idCor = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt();
-        ModifCorresp(idCor);
+        ModifCorresp(getCorrespondantFromIndex(treeCor->selectionModel()->selectedIndexes().at(0)));
         break;
     case -1:
         SupprCorresp();
@@ -126,16 +124,27 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
 }
 
 // ------------------------------------------------------------------------------------------
+// renvoie le correpondant correspodant à l'index
+// ------------------------------------------------------------------------------------------
+Correspondant* dlg_listecorrespondants::getCorrespondantFromIndex(QModelIndex idx )
+{
+    return Datas::I()->correspondants->getById(gmodele->itemFromIndex(idx)->data().toMap().value("id").toInt());
+}
+
+
+// ------------------------------------------------------------------------------------------
 // Modifie un correpondant
 // ------------------------------------------------------------------------------------------
-void dlg_listecorrespondants::ModifCorresp(int idcor)
+void dlg_listecorrespondants::ModifCorresp(Correspondant *cor)
 {
+    if (cor == Q_NULLPTR)
+        return;
     bool onlydoctors    = false;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, true, true));
+    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, cor);
     if (Dlg_IdentCorresp->exec()>0)
     {
         ListeCorModifiee = true;
-        ReconstruitTreeViewCorrespondants();
+        ReconstruitTreeViewCorrespondants(true);
     }
     delete Dlg_IdentCorresp;
 }
@@ -242,14 +251,13 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
         connect(treeCor,    &QAbstractItemView::entered,        this,   [=] (QModelIndex idx)
                                                                             {
                                                                                 if (!gmodele->itemFromIndex(idx)->hasChildren())
-                                                                                    QToolTip::showText(cursor().pos(), gmodele->itemFromIndex(idx)->data().toMap().value("adr").toString());
+                                                                                    QToolTip::showText(cursor().pos(), getCorrespondantFromIndex(idx)->adresseComplete());
                                                                             } );
         connect(treeCor,    &QAbstractItemView::pressed,        this,   &dlg_listecorrespondants::Enablebuttons);
         connect(treeCor,    &QAbstractItemView::doubleClicked,  this,   [=] (QModelIndex idx)
                                                                             {
-                                                                                int id = gmodele->itemFromIndex(idx)->data().toMap().value("id").toInt();
-                                                                                if (id != -1)
-                                                                                    ModifCorresp(id);
+                                                                                if (!gmodele->itemFromIndex(idx)->hasChildren())
+                                                                                    ModifCorresp(getCorrespondantFromIndex(idx));
                                                                             });
     }
 }

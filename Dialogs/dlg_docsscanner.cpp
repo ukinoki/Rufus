@@ -112,7 +112,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, int mode, QString titre, QWidget *p
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(toolbar,    &UpToolBar::TBSignal, this, [=] {NavigueVers(toolbar->action);});
+    connect(toolbar,    &UpToolBar::TBSignal, this, [=] {NavigueVers(toolbar->choix());});
 
     uptable     ->setColumnCount(1);
     uptable     ->horizontalHeader()->setVisible(false);

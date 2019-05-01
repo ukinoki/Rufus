@@ -53,7 +53,8 @@ private:
     void                ChoixButtonFrame(int);
     void                Enablebuttons();
     void                EnregistreNouveauCorresp();
-    void                ModifCorresp(int idcor);
+    Correspondant*      getCorrespondantFromIndex(QModelIndex idx);
+    void                ModifCorresp(Correspondant *cor);
     void                SupprCorresp();
     void                ReconstruitTreeViewCorrespondants(bool reconstruirelaliste = false, QString filtre = "");
 };

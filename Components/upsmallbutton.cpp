@@ -97,12 +97,12 @@ void UpSmallButton::setText(QString txt)
     setStyleSheet(STYLE_UPSMALLBUTTON);
 }
 
-void UpSmallButton::setLuggage(QVariant var)
+void UpSmallButton::setData(QVariant var)
 {
     gLuggage = var;
 }
 
-QVariant UpSmallButton::Luggage()
+QVariant UpSmallButton::Data()
 {
     return gLuggage;
 }
@@ -202,7 +202,7 @@ bool UpSmallButton::eventFilter(QObject *obj, QEvent *event)
         if (isEnabled())
         {
             if (ButtonStyle() == PRINTBUTTON)
-                emit clicked(Luggage());
+                emit clicked(Data());
             else
                 emit clicked(getId());
         }
