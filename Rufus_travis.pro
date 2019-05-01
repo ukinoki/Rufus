@@ -50,7 +50,8 @@ SOURCES += main.cpp\
     importdocsexternesthread.cpp \
     qlabeldelegate.cpp \
     utils.cpp \
-    gbl_datas.cpp
+    gbl_datas.cpp \
+    flags.cpp
 
 HEADERS += rufus.h \
     procedures.h \
@@ -65,7 +66,8 @@ HEADERS += rufus.h \
     icons.h \
     log.h \
     gbl_datas.h \
-    styles.h
+    styles.h \
+    flags.h
 
 FORMS += \
     rufus.ui

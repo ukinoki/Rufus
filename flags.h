@@ -102,9 +102,9 @@ public:
     void                    MAJFlagSalleDAttente();             //!<  MAJ du flag de la salle d'attente
 
 signals:
-    void                    UpdCorrespondants();                //!< signal de mise à jour de la liste des correspondants
-    void                    UpdMessages();                      //!< signal de mise à jour de la messagerie
-    void                    UpdSalleDAttente();                 //!< signal de mise à jour de la salle d'attente
+    void                    UpdCorrespondants(int);             //!< signal de mise à jour de la liste des correspondants
+    void                    UpdMessages(int);                   //!< signal de mise à jour de la messagerie
+    void                    UpdSalleDAttente(int);              //!< signal de mise à jour de la salle d'attente
 
 private:
     static Flags            *instance;

@@ -378,22 +378,22 @@ void Rufus::Connect_Slots()
     connect(this,                                                   &Rufus::EnregistrePaiement,                         this,   [=] {AppelPaiementDirect("Bouton");});
 
     // MAJ Salle d'attente ----------------------------------------------------------------------------------
-    connect(flags,                                                  &Flags::UpdSalleDAttente,                           this,   [=] {   if (UtiliseTCP)
-                                                                                                                                            envoieMessage(TCPMSG_MAJSalAttente);
-                                                                                                                                        else
-                                                                                                                                            m_flagsalledattente ++;
-                                                                                                                                        Remplir_SalDat();
-                                                                                                                                    } );
-    connect(flags,                                                  &Flags::UpdCorrespondants,                          this,   [=] {   if (UtiliseTCP)
-                                                                                                                                            envoieMessage(TCPMSG_MAJCorrespondants);
-                                                                                                                                        else
-                                                                                                                                            m_flagcorrespondants ++;
-                                                                                                                                        ReconstruitCombosCorresp(false);
-                                                                                                                                    } );
-    connect(flags,                                                  &Flags::UpdMessages,                                this,   [=] {   if (!UtiliseTCP)
-                                                                                                                                            m_flagmessages ++;
-                                                                                                                                        ReconstruitListeMessages();
-                                                                                                                                    } );
+    connect(flags,                                                  &Flags::UpdSalleDAttente,                           this,   [=](int a)  {   if (UtiliseTCP)
+                                                                                                                                                    envoieMessage(TCPMSG_MAJSalAttente);
+                                                                                                                                                else
+                                                                                                                                                    m_flagsalledattente = a;
+                                                                                                                                                Remplir_SalDat();
+                                                                                                                                            } );
+    connect(flags,                                                  &Flags::UpdCorrespondants,                          this,   [=](int a)  {   if (UtiliseTCP)
+                                                                                                                                                    envoieMessage(TCPMSG_MAJCorrespondants);
+                                                                                                                                                else
+                                                                                                                                                    m_flagcorrespondants = a;
+                                                                                                                                                ReconstruitCombosCorresp(false);
+                                                                                                                                            } );
+    connect(flags,                                                  &Flags::UpdMessages,                                this,   [=](int a)  {   if (!UtiliseTCP)
+                                                                                                                                                    m_flagmessages = a;
+                                                                                                                                                ReconstruitListeMessages();
+                                                                                                                                            } );
 
     // Nouvelle mesure d'appareil de refraction ----------------------------------------------------------------------------------
     if (proc->PortFronto()!=Q_NULLPTR || proc->PortAutoref()!=Q_NULLPTR || proc->PortRefracteur()!=Q_NULLPTR)
