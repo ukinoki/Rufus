@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("01-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("02-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -384,12 +384,14 @@ void Rufus::Connect_Slots()
                                                                                                                                                     m_flagsalledattente = a;
                                                                                                                                                 Remplir_SalDat();
                                                                                                                                             } );
+    // MAJ Correspondants ----------------------------------------------------------------------------------
     connect(flags,                                                  &Flags::UpdCorrespondants,                          this,   [=](int a)  {   if (UtiliseTCP)
                                                                                                                                                     envoieMessage(TCPMSG_MAJCorrespondants);
                                                                                                                                                 else
                                                                                                                                                     m_flagcorrespondants = a;
                                                                                                                                                 ReconstruitCombosCorresp(false);
                                                                                                                                             } );
+    // MAJ messages ----------------------------------------------------------------------------------
     connect(flags,                                                  &Flags::UpdMessages,                                this,   [=](int a)  {   if (!UtiliseTCP)
                                                                                                                                                     m_flagmessages = a;
                                                                                                                                                 ReconstruitListeMessages();

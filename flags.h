@@ -76,10 +76,10 @@
 
             * Quand RufusAdmin est utilisé,
                 * seuls les postes distants n'utilisent pas le TCP et mettent donc à jour les champs MAJFlag de la table rufus.flags
-                * RufusAdmin scrute ces champs et déclenchent les messages TCP corepondants
-                * A l'inverse, quand un poste du réseau local modifie un des 3 items (salle d'attente, correpondants et messages), il en informe RufusAdmin qui va
+                * RufusAdmin scrute ces champs (RufusAdmin::VerifModifsFlags() déclenché par un timer) et déclenche les messages TCP correspondants
+                * A l'inverse, quand un poste du réseau local modifie un des 3 items (salle d'attente, correpondants et messages), il en informe RufusAdmin par un message TCP qui va
                     * traiter le message
-                    * mettre à jour les champs MJFlag correspondants pour ques les postes distants soient informés
+                    * mettre à jour les champs MJFlag correspondants pour que les postes distants soient informés
             */
 
 class Flags : public QObject
@@ -102,9 +102,9 @@ public:
     void                    MAJFlagSalleDAttente();             //!<  MAJ du flag de la salle d'attente
 
 signals:
-    void                    UpdCorrespondants(int);             //!< signal de mise à jour de la liste des correspondants
-    void                    UpdMessages(int);                   //!< signal de mise à jour de la messagerie
-    void                    UpdSalleDAttente(int);              //!< signal de mise à jour de la salle d'attente
+    void                    UpdCorrespondants(int);             //!< signal de mise à jour de la liste des correspondants - l'argument donne la nouvelle valeur du flag
+    void                    UpdMessages(int);                   //!< signal de mise à jour de la messagerie - l'argument donne la nouvelle valeur du flag
+    void                    UpdSalleDAttente(int);              //!< signal de mise à jour de la salle d'attente - l'argument donne la nouvelle valeur du flag
 
 private:
     static Flags            *instance;
