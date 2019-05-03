@@ -28,7 +28,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
                                         ui(new Ui::dlg_gestioncomptes)
 {
     ui->setupUi(this);
-    db                      = DataBase::getInstance();
+    db                      = DataBase::I();
     gDataUser               = user;
 
     gidUser                 = gDataUser->id();
@@ -142,9 +142,9 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
     ui->idCompteupLineEdit          ->setText(QString::number(CompteEnCours->id()));
     ui->DesactiveComptecheckBox     ->setChecked(CompteEnCours->isDesactive());
 
-    widgButtons->modifBouton    ->setEnabled(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
-    ui->SoldeuplineEdit         ->setVisible(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
-    ui->Soldelabel              ->setVisible(CompteEnCours->idUser() == DataBase::getInstance()->getUserConnected()->id());
+    widgButtons->modifBouton    ->setEnabled(CompteEnCours->idUser() == DataBase::I()->getUserConnected()->id());
+    ui->SoldeuplineEdit         ->setVisible(CompteEnCours->idUser() == DataBase::I()->getUserConnected()->id());
+    ui->Soldelabel              ->setVisible(CompteEnCours->idUser() == DataBase::I()->getUserConnected()->id());
 
     /*On ne peut pas supprimer un compte s'il est utilisé ou s'il y a déjà eu des ecritures bancaires*/
     bool autorsupprimer = false;

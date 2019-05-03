@@ -25,7 +25,7 @@ dlg_docsexternes::dlg_docsexternes(Patient *pat, bool UtiliseTCP, QWidget *paren
     UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
     proc                = Procedures::I();
-    db                  = DataBase::getInstance();
+    db                  = DataBase::I();
     m_currentpatient     = pat;
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -350,7 +350,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     PrintButton                 ->setVisible(true);
     PrintButton                 ->setEnabled(true);
     SupprButton                 ->setEnabled(true);
-    RecordButton                ->setVisible((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && DataBase::getInstance()->getMode() != DataBase::Distant);
+    RecordButton                ->setVisible((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && DataBase::I()->getMode() != DataBase::Distant);
     RecordButton                ->disconnect();
     QPixmap pix;
     glistPix    .clear();
@@ -363,15 +363,15 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 
     if (docmt->format() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais est un fichier sur le disque
     {
-        if (DataBase::getInstance()->getMode() == DataBase::Distant)
+        if (DataBase::I()->getMode() == DataBase::Distant)
         {
             UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
             return;
         }
         QString NomOnglet, NomDirStockageImagerie;
-        if (DataBase::getInstance()->getMode() == DataBase::Poste)
+        if (DataBase::I()->getMode() == DataBase::Poste)
             NomOnglet = tr("Monoposte");
-        if (DataBase::getInstance()->getMode() == DataBase::ReseauLocal)
+        if (DataBase::I()->getMode() == DataBase::ReseauLocal)
             NomOnglet = tr("Réseau local");
         NomDirStockageImagerie  = proc->DirImagerie();
         if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
@@ -1183,7 +1183,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
     QString idimpr = QString::number(docmt->id());
     if (!db->getUserConnected()->isSoignant())         //le user n'est pas un soignant
     {
-        if (docmt->useremetteur() != DataBase::getInstance()->getUserConnected()->id())
+        if (docmt->useremetteur() != DataBase::I()->getUserConnected()->id())
         {
             UpMessageBox::Watch(this,tr("Suppression refusée"), tr("Vous ne pouvez pas supprimer un document dont vous n'êtes pas l'auteur"));
             return;

@@ -32,7 +32,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc            = Procedures::I();
-    db              = DataBase::getInstance();
+    db              = DataBase::I();
     m_userConnected  = db->getUserConnected();
     gidUserACrediter = -1;
     //ui->UserscomboBox->setEnabled(db->getUserConnected().isSecretaire());

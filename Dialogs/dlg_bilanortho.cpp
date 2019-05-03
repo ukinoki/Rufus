@@ -28,7 +28,7 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
 
     m_currentact= acte;
     proc        = Procedures::I();
-    db          = DataBase::getInstance();
+    db          = DataBase::I();
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionBilanOrtho").toByteArray());
 
     XELlist << "-";

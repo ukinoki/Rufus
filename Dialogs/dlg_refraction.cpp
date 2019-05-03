@@ -26,7 +26,7 @@ dlg_refraction::dlg_refraction(Patient *pat, Acte *acte, QWidget *parent) :
 {
     ui->setupUi(this);
     proc            = Procedures::I();
-    db              = DataBase::getInstance();
+    db              = DataBase::I();
     m_currentpatient = pat;
     gidUser         = db->getUserConnected()->id();
     gACteEnCours    = acte;

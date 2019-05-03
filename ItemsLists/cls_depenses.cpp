@@ -99,7 +99,7 @@ void Depenses::remove(Depense *dep)
 void Depenses::initListeByUser(int iduser)
 {
     clearAll();
-    QList<Depense*> listdepenses = DataBase::getInstance()->loadDepensesByUser(iduser);
+    QList<Depense*> listdepenses = DataBase::I()->loadDepensesByUser(iduser);
     QList<Depense*>::const_iterator itdepenses;
     for( itdepenses = listdepenses.constBegin(); itdepenses != listdepenses.constEnd(); ++itdepenses )
     {

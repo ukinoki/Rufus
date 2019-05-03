@@ -50,7 +50,7 @@ DocExterne* DocsExternes::getById(int id, bool loadDetails, bool addToList)
 
     if( loadDetails && !result->isAllLoaded() )
     {
-        QJsonObject jsonDocExterne = DataBase::getInstance()->loadDocExterneData(id);
+        QJsonObject jsonDocExterne = DataBase::I()->loadDocExterneData(id);
         if( jsonDocExterne.isEmpty() )
             return Q_NULLPTR;
         else

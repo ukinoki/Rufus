@@ -96,7 +96,7 @@ Correspondant* Correspondants::getById(int id, bool loadDetails, bool addToList)
 
     if( !result->isAllLoaded() )
     {
-        QJsonObject jsonCorrespondant = DataBase::getInstance()->loadCorrespondantData(id);
+        QJsonObject jsonCorrespondant = DataBase::I()->loadCorrespondantData(id);
         if( jsonCorrespondant.isEmpty() )
             return Q_NULLPTR;
         else
@@ -119,9 +119,9 @@ void Correspondants::initListe(bool all)
     clearAll();
     QList<Correspondant*> listcorrespondants;
     if (all)
-        listcorrespondants = DataBase::getInstance()->loadCorrespondantsALL();
+        listcorrespondants = DataBase::I()->loadCorrespondantsALL();
     else
-        listcorrespondants = DataBase::getInstance()->loadCorrespondants();
+        listcorrespondants = DataBase::I()->loadCorrespondants();
     QList<Correspondant*>::const_iterator itcorrespondants;
     for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
     {

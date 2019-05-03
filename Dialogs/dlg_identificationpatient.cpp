@@ -29,7 +29,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     proc                = Procedures::I();
     m_currentpatient    = pat;
     gMode               = mode;
-    db                  = DataBase::getInstance();
+    db                  = DataBase::I();
     ListeCorModifiee    = false;
     QVBoxLayout *vlay       = new QVBoxLayout;
     vlay                    ->setContentsMargins(0,10,0,10);

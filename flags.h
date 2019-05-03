@@ -13,7 +13,7 @@
                 * au démarrage, si le TCP N'est pas utilisé (pas de RufusAdmin ou accès distant), la classe rufus.cpp lit la valeur de MAJFlagMG dans la table rufus.flags (fonction Flags::flagCorrespondants()) et la stocke dans la variale m_flagcorrespondants
                 * si le TCP n'est pas utilisé, un timer est lancé pour scruter la valeur du champ MAJFlagMG
                     * 1 - l'utilisateur modifie, supprime ou crée un correspondant par la classe dlg_identificationpatient ou dlg_listecorrespondants
-                        * la classe concernée reinitialise la liste des correspondants -> DataBase::getInstance()->loadCorrespondants()
+                        * la classe concernée reinitialise la liste des correspondants -> DataBase::I()->loadCorrespondants()
                         * et éxécute Flags::MAJflagCorrespondants()
                         * Flags::MAJflagCorrespondants()
                             * incrémente le champ MAJFlagMG de la table rufus.flags en cas de non utilisation de TCP

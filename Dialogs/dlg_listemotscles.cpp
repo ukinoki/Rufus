@@ -23,7 +23,7 @@ dlg_listemotscles::dlg_listemotscles(Patient *pat, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     gPatientEncours    = pat;
     proc               = Procedures::I();
-    db                 = DataBase::getInstance();
+    db                 = DataBase::I();
 
     tabMC              = new QTableView();
 

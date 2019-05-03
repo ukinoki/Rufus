@@ -18,7 +18,7 @@ QMap<int, Acte *> *Actes::actes() const
 void Actes::initListeByPatient(Patient *pat)
 {
     clearAll();
-    QMap<int, Acte*> listActes = DataBase::getInstance()->loadActesByPat(pat);
+    QMap<int, Acte*> listActes = DataBase::I()->loadActesByPat(pat);
     QMap<int, Acte*>::const_iterator itact;
     for( itact = listActes.constBegin(); itact != listActes.constEnd(); ++itact )
     {

@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 TcpSocket* TcpSocket::instance = Q_NULLPTR;
 
-TcpSocket* TcpSocket::getInstance()
+TcpSocket* TcpSocket::I()
 {
     if (instance == Q_NULLPTR)
         instance = new TcpSocket();
@@ -28,7 +28,7 @@ TcpSocket* TcpSocket::getInstance()
 
 TcpSocket::TcpSocket()
 {
-    db = DataBase::getInstance();
+    db = DataBase::I();
     buffer.clear();
     sizedata = 0;
 }

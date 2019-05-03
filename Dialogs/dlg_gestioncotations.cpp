@@ -24,7 +24,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     gMode       = mode;
     gCodeActe   = CodeActe;
 
-    db                      = DataBase::getInstance();
+    db                      = DataBase::I();
     gidUser                 = db->getUserConnected()->id();
     gSecteurUser            = db->getUserConnected()->getSecteur();
     QDoubleValidator *val   = new QDoubleValidator(this);

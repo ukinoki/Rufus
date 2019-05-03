@@ -15,33 +15,26 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DLG_SALLEDATTENTE_H
-#define DLG_SALLEDATTENTE_H
+#ifndef UPSTANDARDITEM_H
+#define UPSTANDARDITEM_H
 
-#include "procedures.h"
-#include "flags.h"
+#include <QStandardItem>
+#include "cls_item.h"
 
-namespace Ui {
-class dlg_salledattente;
-}
-
-class dlg_salledattente : public UpDialog
+class UpStandardItem : public QStandardItem
 {
-    Q_OBJECT
-
 public:
-    explicit dlg_salledattente(Patient *pat, Acte *act, QString Titre, QWidget *parent = Q_NULLPTR);
-    ~dlg_salledattente();
-    Ui::dlg_salledattente *ui;
-
-private slots:
-    void                Slot_OKButtonClicked();
-    void                Slot_EnableOKButton();
+    UpStandardItem();
+    UpStandardItem(QString txt);
+    void    seItem(Item* item);
+    Item*   item();
 
 private:
-    DataBase            *db = DataBase::I();
-    Patient             *m_currentpatient;
-    Acte                *m_currentact;
+    Item*   m_item = Q_NULLPTR;
+
+signals:
+
+public slots:
 };
 
-#endif // DLG_SALLEDATTENTE_H
+#endif // UPSTANDARDITEM_H

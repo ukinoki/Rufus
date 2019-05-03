@@ -70,7 +70,7 @@ dlg_actesprecedents::~dlg_actesprecedents()
  */
 void dlg_actesprecedents::Actualise()
 {
-    m_listeActes = DataBase::getInstance()->loadActesByPat(m_currentpatient);
+    m_listeActes = DataBase::I()->loadActesByPat(m_currentpatient);
     if( m_listeActes.size() == 0 )
     {
         //ERROR
@@ -202,7 +202,7 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_actesprecedents::reloadActe(Acte* acte)
 {
-    m_listeActes[acte->id()] = DataBase::getInstance()->loadActeById(acte->id());
+    m_listeActes[acte->id()] = DataBase::I()->loadActeById(acte->id());
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -335,7 +335,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         // on calcule le montant payé pour l'acte
         if (acte->paiementType() != "G" || acte->paiementType() != "I")
         {
-            double montant = DataBase::getInstance()->getActePaye(acte->id());
+            double montant = DataBase::I()->getActePaye(acte->id());
             ui->PayelineEdit->setText(QLocale().toString(montant,'f',2));
         }
 

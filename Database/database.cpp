@@ -23,7 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 DataBase* DataBase::instance = Q_NULLPTR;
 
-DataBase* DataBase::getInstance()
+DataBase* DataBase::I()
 {
     if( !instance )
     {
@@ -1352,6 +1352,32 @@ QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filt
     if (m_mode == Distant)
         clauselimit = " limit 1000";
     QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS + clausewhere + " order by patnom, patprenom, PatDDN" + clauselimit;
+    //qDebug() << req;
+    QList<QVariantList> patlist = StandardSelectSQL(req,ok);
+    if( !ok || patlist.size()==0 )
+        return listpatients;
+    for (int i=0; i<patlist.size(); ++i)
+    {
+        QJsonObject jData{};
+        jData["id"] = patlist.at(i).at(0).toInt();
+        jData["nom"] = patlist.at(i).at(1).toString();
+        jData["prenom"] = patlist.at(i).at(2).toString();
+        jData["sexe"] = patlist.at(i).at(4).toString();
+        jData["dateDeNaissance"] = patlist.at(i).at(3).toDate().toString("yyyy-MM-dd");
+        jData["datecreation"] = patlist.at(i).at(5).toDate().toString("yyyy-MM-dd");
+        jData["idcreateur"] = patlist.at(i).at(6).toInt();
+        jData["isMedicalLoaded"] = false;
+        jData["isSocialLoaded"] = false;
+        Patient *patient = new Patient(jData);
+        listpatients << patient;
+    }
+    return listpatients;
+}
+
+QList<Patient*> DataBase::loadPatientsByDDN(QDate DDN)
+{
+    QList<Patient*> listpatients;
+    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS " WHERE PatDDN = '" + DDN.toString("yyyy-MM-dd") + "' order by patnom, patprenom, PatDDN";
     //qDebug() << req;
     QList<QVariantList> patlist = StandardSelectSQL(req,ok);
     if( !ok || patlist.size()==0 )

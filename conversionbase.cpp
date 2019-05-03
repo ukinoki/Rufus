@@ -22,7 +22,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
     QObject(parent)
 {
     QString NomBase = BaseAConvertir;
-    db = DataBase::getInstance();
+    db = DataBase::I();
     /*COnvertir une base ophtalogic
     */
     //proc->RestaureBase(true,false,true);

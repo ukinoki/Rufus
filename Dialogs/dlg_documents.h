@@ -52,7 +52,7 @@ protected:
     bool                        event(QEvent *event);
 
 private:
-    DataBase                    *db             = DataBase::getInstance();
+    DataBase                    *db             = DataBase::I();
     User                        *gUserEnCours   = db->getUserConnected();
     Procedures                  *proc           = Procedures::I();
     Patient                     *m_currentpatient;

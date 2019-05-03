@@ -78,7 +78,7 @@ private:
     QSqlDatabase m_db;
 
 public:
-    static DataBase*        getInstance();
+    static DataBase*        I();
 
     /*
      * SQL
@@ -244,6 +244,9 @@ public:
                                                                                 * \param patnom filtrer sur le nom de patient
                                                                                 * \param patprenom filtrer sur le prénom de patient
                                                                                 * \param le filtre se fait sur des valuers aprrochantes */
+    QList<Patient*>         loadPatientsByDDN(QDate DDN);
+                                                                                /*! charge la liste de tous les patients pour une date de naissance
+                                                                                * \param DDN la date de naissance */
     Patient*                CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe);
                                                                                 //! crée un patient àa partir des 4 paramètres nom, prenom, DDN, sexe
     void                    UpdateCorrespondant(Patient *pat, typecorrespondant type, Correspondant *cor);

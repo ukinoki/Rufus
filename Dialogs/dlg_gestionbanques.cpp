@@ -28,7 +28,7 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    db                      = DataBase::getInstance();
+    db                      = DataBase::I();
 
     gFermeApresValidation   = (nouvbanqueabrege != "");
     setWindowTitle(tr("Enregistrer une nouvelle banque"));
@@ -302,7 +302,7 @@ void dlg_gestionbanques::ValideModifBanque()
         QHash<QString, QString> listsets;
         listsets.insert("nombanque",      nombanque);
         listsets.insert("idbanqueabrege", ui->NomAbregeupLineEdit->text());
-        DataBase:: getInstance()->UpdateTable(NOM_TABLE_BANQUES,
+        DataBase:: I()->UpdateTable(NOM_TABLE_BANQUES,
                                               listsets,
                                               "where idBanque = " + QString::number(idBanque));
         Datas::I()->banques->initListe();

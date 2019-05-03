@@ -26,7 +26,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     proc = Procedures::I();
-    db = DataBase::getInstance();
+    db = DataBase::I();
     intervalledate = 180;
     dateencours = QDate::currentDate();
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionComptes").toByteArray());

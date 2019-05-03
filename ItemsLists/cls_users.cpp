@@ -112,7 +112,7 @@ User* Users::getById(int id, bool loadDetails, bool addToList)
 
     if( !result->isAllLoaded() )
     {
-        QJsonObject jsonUser = DataBase::getInstance()->loadUserData(id);
+        QJsonObject jsonUser = DataBase::I()->loadUserData(id);
         if( jsonUser.isEmpty() )
             return Q_NULLPTR;
         else
@@ -144,7 +144,7 @@ QString Users::getLoginById(int id)
  */
 void Users::initListe()
 {
-    QList<User*> listUsers = DataBase::getInstance()->loadUsers();
+    QList<User*> listUsers = DataBase::I()->loadUsers();
     QList<User*>::const_iterator itUser;
     for( itUser = listUsers.constBegin(); itUser != listUsers.constEnd(); ++itUser )
     {

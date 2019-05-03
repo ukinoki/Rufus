@@ -22,7 +22,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     proc            = Procedures::I();
-    db              = DataBase::getInstance();
+    db              = DataBase::I();
     m_currentpatient = pat;
     QString Base;
     switch (db->getMode()) {

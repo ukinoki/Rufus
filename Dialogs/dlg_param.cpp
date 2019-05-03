@@ -27,7 +27,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc            = Procedures::I();
-    db              = DataBase::getInstance();
+    db              = DataBase::I();
     gidUser         = idUser;
 
     gModifPoste     = false;

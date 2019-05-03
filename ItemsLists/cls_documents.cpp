@@ -57,7 +57,7 @@ Document* Documents::getById(int id)
 void Documents::initListe()
 {
     clearAll();
-    QList<Document*> listdocs = DataBase::getInstance()->loadDocuments();
+    QList<Document*> listdocs = DataBase::I()->loadDocuments();
     QList<Document*>::const_iterator itdoc;
     for( itdoc = listdocs.constBegin(); itdoc != listdocs.constEnd(); ++itdoc )
     {
@@ -124,7 +124,7 @@ MetaDocument* MetaDocuments::getById(int id)
 void MetaDocuments::initListe()
 {
     clearAll();
-    QList<MetaDocument*> listmetadocs = DataBase::getInstance()->loadMetaDocuments();
+    QList<MetaDocument*> listmetadocs = DataBase::I()->loadMetaDocuments();
     QList<MetaDocument*>::const_iterator itmetadoc;
     for( itmetadoc = listmetadocs.constBegin(); itmetadoc != listmetadocs.constEnd(); ++itmetadoc )
     {

@@ -28,7 +28,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
 
     proc      = Procedures::I();
-    db        = DataBase::getInstance();
+    db        = DataBase::I();
 
     ui->Userlabel->setText(tr("Recettes spéciales de ") + db->getUserConnected()->getLogin());
 

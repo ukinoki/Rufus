@@ -73,7 +73,7 @@ void TiersPayants::remove(Tiers *tiers)
 void TiersPayants::initListe()
 {
     clearAll();
-    QList<Tiers*> listtiers = DataBase::getInstance()->loadTiersPayants();
+    QList<Tiers*> listtiers = DataBase::I()->loadTiersPayants();
     QList<Tiers*>::const_iterator ittrs;
     for( ittrs = listtiers.constBegin(); ittrs != listtiers.constEnd(); ++ittrs )
     {

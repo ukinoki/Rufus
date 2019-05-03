@@ -27,7 +27,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     setWindowIcon(Icons::icCreditCard());
 
     proc        = Procedures::I();
-    db          = DataBase::getInstance();
+    db          = DataBase::I();
     ui->UserscomboBox->setEnabled(db->getUserConnected()->isSecretaire() );
     AccesDistant = (db->getMode()==DataBase::Distant);
     m_listUserLiberaux = Datas::I()->users->liberaux();
@@ -924,7 +924,7 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     /* on remet à null le champ idfacture de la dépense*/
     QHash<QString, QString> listsets;
     listsets.insert("idfacture","null");
-    DataBase:: getInstance()->UpdateTable(NOM_TABLE_DEPENSES,
+    DataBase:: I()->UpdateTable(NOM_TABLE_DEPENSES,
                                           listsets,
                                           "where idDep = " + QString::number(dep->id()));
 
@@ -1140,7 +1140,7 @@ void dlg_depenses::ModifierDepense()
         listsets.insert("FamFiscale",   FamFiscale);
         listsets.insert("ModePaiement", m);
         listsets.insert("Compte",       (m!="E"? idCompte : "null"));
-        DataBase:: getInstance()->UpdateTable(NOM_TABLE_DEPENSES,
+        DataBase:: I()->UpdateTable(NOM_TABLE_DEPENSES,
                                               listsets,
                                               "where idDep = " + idDep);
 
@@ -1181,7 +1181,7 @@ void dlg_depenses::ModifierDepense()
            listsets.insert("LigneDebitCredit",      "0");
            listsets.insert("LigneTypeOperation",    Paiement);
            listsets.insert("idCompte",              (m!="E"? idCompte : "null"));
-           DataBase:: getInstance()->UpdateTable(NOM_TABLE_LIGNESCOMPTES,
+           DataBase:: I()->UpdateTable(NOM_TABLE_LIGNESCOMPTES,
                                                  listsets,
                                                  "where idDep = " + idDep);
         }
@@ -1197,7 +1197,7 @@ void dlg_depenses::ModifierDepense()
                 listsets.insert("LigneLibelle",         ui->ObjetlineEdit->text());
                 listsets.insert("LigneDebitCredit",     "0");
                 listsets.insert("LigneTypeOperation",   Paiement);
-                DataBase:: getInstance()->UpdateTable(NOM_TABLE_ARCHIVESBANQUE,
+                DataBase:: I()->UpdateTable(NOM_TABLE_ARCHIVESBANQUE,
                                                       listsets,
                                                       " where idDep = " + idDep);
             }
@@ -1213,7 +1213,7 @@ void dlg_depenses::ModifierDepense()
                 listsets.insert("LigneMontant",         QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
                 listsets.insert("LigneDebitCredit",     "0");
                 listsets.insert("LigneTypeoperation",   Paiement);
-                DataBase:: getInstance()->InsertIntoTable(NOM_TABLE_LIGNESCOMPTES, listsets);
+                DataBase:: I()->InsertIntoTable(NOM_TABLE_LIGNESCOMPTES, listsets);
             }
         }
     }

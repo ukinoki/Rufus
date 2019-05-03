@@ -27,7 +27,7 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc        = Procedures::I();
-    db          = DataBase::getInstance();
+    db          = DataBase::I();
     gidUser     = db->getUserConnected()->id();
 
     widgButtons = new WidgetButtonFrame(ui->ComupTableWidget);

@@ -27,7 +27,7 @@ dlg_listemesures::dlg_listemesures(Patient *pat, QString mode, QWidget *parent) 
         gMode       = Supprimer;
     else if (mode == "RECUP")
         gMode       = Recuperer;
-    db          = DataBase::getInstance();
+    db          = DataBase::I();
 
 
     tabLM              = new QTableView(this);

@@ -35,7 +35,7 @@ Procedures::Procedures(QObject *parent) :
 {
     lCPParDefaut    = "";
     lVilleParDefaut = "";
-    db              = DataBase::getInstance();
+    db              = DataBase::I();
 
     gnomFichIni     = QDir::homePath() + NOMFIC_INI;
     QFile FichierIni(gnomFichIni);
@@ -653,7 +653,7 @@ $MYSQL -u $MYSQL_USER -p$MYSQL_PASSWORD -h localhost -P $MYSQL_PORT < File3"
     for (int i=0; i<ListNomFiles.size(); i++)
     if (QFile(ListNomFiles.at(i)).exists())
     {
-        scriptrestore += "$MYSQL -u " + m_userConnected->getLogin() +  " -p" +  m_userConnected->getPassword() + " -h localhost -P " + QString::number(db->getInstance()->getDataBase().port()) + " < " + ListNomFiles.at(i);
+        scriptrestore += "$MYSQL -u " + m_userConnected->getLogin() +  " -p" +  m_userConnected->getPassword() + " -h localhost -P " + QString::number(db->I()->getDataBase().port()) + " < " + ListNomFiles.at(i);
         scriptrestore += "\n";
     }
     if (QFile::exists(QDir::homePath() + SCRIPTRESTOREFILE))

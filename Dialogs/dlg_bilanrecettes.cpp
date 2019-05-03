@@ -23,7 +23,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
 {
     InitOK = true;
     proc        = Procedures::I();
-    db          = DataBase::getInstance();
+    db          = DataBase::I();
 
     CalcBilan();
     if (!InitOK)

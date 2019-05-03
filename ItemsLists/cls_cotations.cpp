@@ -50,7 +50,7 @@ void Cotations::clearAll()
 void Cotations::initListeByUser(int iduser)
 {
     clearAll();
-    QList<Cotation*> listcotations = DataBase::getInstance()->loadCotationsByUser(iduser);
+    QList<Cotation*> listcotations = DataBase::I()->loadCotationsByUser(iduser);
     QList<Cotation*>::const_iterator itcotations;
     for( itcotations = listcotations.constBegin(); itcotations != listcotations.constEnd(); ++itcotations )
     {

@@ -75,6 +75,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_motif.h"
 #include "cls_cotation.h"
 
+#include "upstandarditem.h"
+
 namespace Ui {
 class Rufus;
 }

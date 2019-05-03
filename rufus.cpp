@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("02-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("03-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -64,7 +64,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
 
     proc->setDirImagerie();                                              // lit l'emplacement du dossier d'imagerie sur le serveur
-    db = DataBase::getInstance();
+    db = DataBase::I();
     flags = Flags::I();
 
     // 1 - Restauration de la position de la fenetre et de la police d'écran
@@ -130,7 +130,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             Utils::Pause(100);
             dlg_message(QStringList() << tr("Connexion au serveur TCP ") + serverdata.at(0).toString(), false);
             Utils::Pause(100);
-            TcPConnect = TcpSocket::getInstance();
+            TcPConnect = TcpSocket::I();
             UtiliseTCP = TcPConnect->TcpConnectToServer();
             if (!UtiliseTCP)
             {
@@ -141,7 +141,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 Utils::Pause(100);
                 dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Nouvelle tentative de connexion au serveur ") + serverdata.at(0).toString(), 5000, false);
                 Utils::Pause(2000);
-                TcPConnect = TcpSocket::getInstance();
+                TcPConnect = TcpSocket::I();
                 UtiliseTCP = TcPConnect->TcpConnectToServer();
             }
             if (!UtiliseTCP)
@@ -1065,7 +1065,6 @@ void Rufus::AfficheToolTip(Patient *pat)
 
     if (Msg != "")
         QToolTip::showText(cursor().pos(),Msg);
-    delete pat;
 }
 
 
@@ -3297,11 +3296,15 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
 }
 void Rufus::MenuContextuelListePatients()
 {
-    QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
-    if (gListePatientsModel->itemFromIndex(pindx) == Q_NULLPTR)
+    Patient *pat = getSelectedPatientFromCursorPositionInTable();
+    if (pat == Q_NULLPTR)
         return;
-    int row = gListePatientsModel->itemFromIndex(pindx)->row();
-    m_dossierpatientaouvrir = db->loadPatientById(gListePatientsModel->item(row)->text().toInt(), true);
+    m_dossierpatientaouvrir = pat;
+    if (!m_dossierpatientaouvrir->isalloaded())
+    {
+        db->loadSocialDataPatient(m_dossierpatientaouvrir, ok);
+        db->loadMedicalDataPatient(m_dossierpatientaouvrir, ok);
+    }
 
     gmenuContextuel = new QMenu(this);
 
@@ -5776,18 +5779,22 @@ void Rufus::keyPressEvent (QKeyEvent * event )
 
 Patient* Rufus::getSelectedPatientFromTable()
 {
-    return db->loadPatientById(gListePatientsModel->itemFromIndex(ui->PatientsListeTableView->selectionModel()->selectedIndexes().at(0))->text().toInt());
+    QModelIndex pindx = ui->PatientsListeTableView->selectionModel()->selectedIndexes().at(0);
+    if (gListePatientsModel->itemFromIndex(pindx) == Q_NULLPTR)
+        return Q_NULLPTR;
+    UpStandardItem *upitem = static_cast<UpStandardItem *>(gListePatientsModel->itemFromIndex(pindx));
+    return dynamic_cast<Patient *>(upitem->item());
 }
+
 Patient* Rufus::getSelectedPatientFromCursorPositionInTable()
 {
     QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
     if (gListePatientsModel->itemFromIndex(pindx) == Q_NULLPTR)
         return Q_NULLPTR;
-    int row = gListePatientsModel->itemFromIndex(pindx)->row();
-    int id = gListePatientsModel->item(row)->text().toInt();
-    Patient *pat = db->loadPatientById(id);
-    return pat;
+    UpStandardItem *upitem = static_cast<UpStandardItem *>(gListePatientsModel->itemFromIndex(pindx));
+    return dynamic_cast<Patient *>(upitem->item());
 }
+
 // ------------------------------------------------------------------------------------------
 // Interception des évènements internes
 // ------------------------------------------------------------------------------------------
@@ -7997,7 +8004,7 @@ void Rufus::InitMenus()
 void Rufus::InitVariables()
 {
     gAutorModifConsult  = false;
-    m_currentpatient = new Patient();
+    m_currentpatient    = new Patient();
     m_currentact        = new Acte();
     nbActes             = 0;
     noActe              = 0;
@@ -8812,10 +8819,9 @@ void Rufus::RemiseCheques()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Remplir la liste avec les noms, prénoms et DDN des patients ----------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-//BUG : -> CREER PATIENT
 bool Rufus::Remplir_ListePatients_TableView(QList<Patient*>  listpatients)
 {
-    QStandardItem *pitem, *pitem0, *pitem1;
+    UpStandardItem *pitem, *pitem0, *pitem1;
     gNombreDossiers = listpatients.size();
     gListePatientsModel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
     if (gListePatientsModel)
@@ -8827,9 +8833,12 @@ bool Rufus::Remplir_ListePatients_TableView(QList<Patient*>  listpatients)
     {
         for (int i=0;i<gNombreDossiers;i++)
         {
-            pitem   = new QStandardItem(QString::number(listpatients.at(i)->id()));                                 // IdPatient
-            pitem0  = new QStandardItem(listpatients.at(i)->nom().toUpper() + " " + listpatients.at(i)->prenom());  // Nom + Prénom
-            pitem1  = new QStandardItem(listpatients.at(i)->datedenaissance().toString(tr("dd-MM-yyyy")));          // date de naissance
+            pitem   = new UpStandardItem(QString::number(listpatients.at(i)->id()));                                 // IdPatient
+            pitem0  = new UpStandardItem(listpatients.at(i)->nom().toUpper() + " " + listpatients.at(i)->prenom());  // Nom + Prénom
+            pitem1  = new UpStandardItem(listpatients.at(i)->datedenaissance().toString(tr("dd-MM-yyyy")));          // date de naissance
+            pitem   ->seItem(listpatients.at(i));
+            pitem0  ->seItem(listpatients.at(i));
+            pitem1  ->seItem(listpatients.at(i));
             QList<QStandardItem *> pitemlist;
             pitemlist << pitem << pitem0 << pitem1;
             gListePatientsModel->appendRow(pitemlist);
@@ -9816,28 +9825,24 @@ void Rufus::Tonometrie()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::TrouverDDN()
 {
-    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN FROM " NOM_TABLE_PATIENTS
-            " WHERE PatDDN = '" + ui->CreerDDNdateEdit->date().toString("yyyy-MM-dd") + "'";
-    QList<QVariantList> ddnlist = db->StandardSelectSQL(req,ok, tr("Impossible de retrouver un patient pour cette date de naissance"));
-    if (!ok)
-        return;
+    QList<Patient *> listpatients = db->loadPatientsByDDN(ui->CreerDDNdateEdit->date());
+    gListePatientsModel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
+    if (gListePatientsModel)
+        gListePatientsModel->clear();
     else
-    {
-        gListePatientsModel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
-        if (gListePatientsModel)
-            gListePatientsModel->clear();
-        else
-            gListePatientsModel = new QStandardItemModel;
-    }
-    gNombreDossiers = ddnlist.size();
+        gListePatientsModel = new QStandardItemModel;
+    gNombreDossiers = listpatients.size();
     if (gNombreDossiers > 0)
     {
-        QStandardItem *pitem, *pitem0, *pitem1;
+        UpStandardItem *pitem, *pitem0, *pitem1;
         for (int i=0;i<gNombreDossiers;i++)
         {
-            pitem   = new QStandardItem(ddnlist.at(i).at(0).toString());                                                        // IdPatient
-            pitem0  = new QStandardItem(ddnlist.at(i).at(1).toString().toUpper() + " " + ddnlist.at(i).at(2).toString());       // Nom + Prénom
-            pitem1  = new QStandardItem(ddnlist.at(i).at(3).toDate().toString(tr("dd-MM-yyyy")));                               // date de naissance
+            pitem   = new UpStandardItem(QString::number(listpatients.at(i)->id()));                                                  // IdPatient
+            pitem0  = new UpStandardItem(listpatients.at(i)->nom().toUpper() + " " + listpatients.at(i)->prenom());  // Nom + Prénom
+            pitem1  = new UpStandardItem(listpatients.at(i)->datedenaissance().toString(tr("dd-MM-yyyy")));          // date de naissance
+            pitem   ->seItem(listpatients.at(i));
+            pitem0  ->seItem(listpatients.at(i));
+            pitem1  ->seItem(listpatients.at(i));
             QList<QStandardItem *> pitemlist;
             pitemlist << pitem << pitem0 << pitem1;
             gListePatientsModel->appendRow(pitemlist);

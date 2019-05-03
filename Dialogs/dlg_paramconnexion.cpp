@@ -241,11 +241,11 @@ bool dlg_paramconnexion::TestConnexion()
 
     //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
     QString error = "";
-    DataBase::getInstance()->initFromFirstConnexion(mode, gServeur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());  //à mettre avant le connectToDataBase() sinon une restaurationp llante parce qu'elle n'a pas les renseignements
+    DataBase::I()->initFromFirstConnexion(mode, gServeur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());  //à mettre avant le connectToDataBase() sinon une restaurationp llante parce qu'elle n'a pas les renseignements
 #ifdef ALEX
-    error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
+    error = DataBase::I()->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
 #else
-    error = DataBase::getInstance()->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
+    error = DataBase::I()->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
 #endif
 
     if( error.size() )
@@ -262,11 +262,11 @@ bool dlg_paramconnexion::TestConnexion()
     req = "show grants for 'rufusConnection'@'localhost'";
 #else
     QString Client;
-    if (DataBase::getInstance()->getBase() == "BDD_DISTANT")
+    if (DataBase::I()->getBase() == "BDD_DISTANT")
         Client = "%";
-    else if (DataBase::getInstance()->getBase() == "BDD_LOCAL" && Utils::rgx_IPV4.exactMatch(DataBase::getInstance()->getServer()))
+    else if (DataBase::I()->getBase() == "BDD_LOCAL" && Utils::rgx_IPV4.exactMatch(DataBase::I()->getServer()))
     {
-        QStringList listIP = DataBase::getInstance()->getServer().split(".");
+        QStringList listIP = DataBase::I()->getServer().split(".");
         for (int i=0;i<listIP.size()-1;i++)
         {
             Client += QString::number(listIP.at(i).toInt()) + ".";
@@ -275,11 +275,11 @@ bool dlg_paramconnexion::TestConnexion()
         }
     }
     else
-        Client = DataBase::getInstance()->getServer();
-    req = "show grants for '" + Login + (DataBase::getInstance()->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
+        Client = DataBase::I()->getServer();
+    req = "show grants for '" + Login + (DataBase::I()->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
 #endif
     bool ok;
-    QVariantList grantsdata = DataBase::getInstance()->getFirstRecordFromStandardSelectSQL(req,ok);
+    QVariantList grantsdata = DataBase::I()->getFirstRecordFromStandardSelectSQL(req,ok);
     if (!ok || grantsdata.size()==0)
     {
         UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),

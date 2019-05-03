@@ -30,7 +30,7 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     ui(new Ui::dlg_identificationuser)
 {
     ui->setupUi(this);
-    db = DataBase::getInstance();
+    db = DataBase::I();
     setWindowTitle(tr("Rufus - Identification de l'utilisateur"));
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 

@@ -29,7 +29,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     setWindowTitle(tr("Gestion des paiements directs"));
 
     proc                      = Procedures::I();
-    db                        = DataBase::getInstance();
+    db                        = DataBase::I();
     gListidActe               = ListidActeAPasser;
     gidComptableACrediter     = -2;
     p_listComptesEncaissmt               = new QStandardItemModel(this);

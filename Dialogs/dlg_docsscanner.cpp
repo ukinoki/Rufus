@@ -26,7 +26,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, int mode, QString titre, QWidget *p
         iditem = static_cast<Patient*>(item)->id();
     else
         iditem = static_cast<Depense*>(item)->id();
-    db              = DataBase::getInstance();
+    db              = DataBase::I();
     QString         NomOnglet;
     QString Base;
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);

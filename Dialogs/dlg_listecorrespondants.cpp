@@ -25,7 +25,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
     proc            = Procedures::I();
-    db              = DataBase::getInstance();
+    db              = DataBase::I();
     gmodele         = new QStandardItemModel(this);
 
     ListeCorModifiee   = false;

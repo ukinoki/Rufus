@@ -63,7 +63,7 @@ void TypesTiers::clearAll()
 void TypesTiers::initListe()
 {
     clearAll();
-    QList<TypeTiers*> listtypes = DataBase::getInstance()->loadTypesTiers();
+    QList<TypeTiers*> listtypes = DataBase::I()->loadTypesTiers();
     QList<TypeTiers*>::const_iterator ittyp;
     for( ittyp = listtypes.constBegin(); ittyp != listtypes.constEnd(); ++ittyp )
     {
