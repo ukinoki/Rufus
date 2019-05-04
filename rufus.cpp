@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("03-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("04-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -102,7 +102,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //4 reconstruction des combobox des correspondants et de la liste des documents
     ReconstruitCombosCorresp();                 // initialisation de la liste
 
-    Remplir_ListePatients_TableView(db->loadPatientsAll());       //InitTables()
+    m_lispatients->initListeAll();
+    Remplir_ListePatients_TableView(m_lispatients);       //InitTables()
     CalcNbDossiers();
     MetAJourUserConnectes();
 
@@ -246,7 +247,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     req = " delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(gidUser);
     db->StandardSQL(req);
 
-    if (gListePatientsModel->rowCount() == 0)
+    if (m_listepatientsmodel->rowCount() == 0)
     {
         OuvrirNouveauDossier();
         ui->LListepushButton->setEnabled(false);
@@ -1852,8 +1853,8 @@ void Rufus::EnregistreDocScanner()
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + nomprenompat);
     Dlg_DocsScan->exec();
     MAJDocsExternes();
-    if (pat != m_currentpatient)
-        delete pat;
+//    if (pat != m_currentpatient)
+//        delete pat;
 }
 
 void Rufus::EnregistreVideo()
@@ -1874,8 +1875,8 @@ void Rufus::EnregistreVideo()
     Dlg_DocsVideo->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + nomprenompat);
     Dlg_DocsVideo->exec();
     MAJDocsExternes();
-    if (pat != m_currentpatient)
-        delete pat;
+//    if (pat != m_currentpatient)
+//        delete pat;
 }
 
 void Rufus::FiltreSalleDAttente()
@@ -5780,18 +5781,18 @@ void Rufus::keyPressEvent (QKeyEvent * event )
 Patient* Rufus::getSelectedPatientFromTable()
 {
     QModelIndex pindx = ui->PatientsListeTableView->selectionModel()->selectedIndexes().at(0);
-    if (gListePatientsModel->itemFromIndex(pindx) == Q_NULLPTR)
+    if (m_listepatientsmodel->itemFromIndex(pindx) == Q_NULLPTR)
         return Q_NULLPTR;
-    UpStandardItem *upitem = static_cast<UpStandardItem *>(gListePatientsModel->itemFromIndex(pindx));
+    UpStandardItem *upitem = static_cast<UpStandardItem *>(m_listepatientsmodel->itemFromIndex(pindx));
     return dynamic_cast<Patient *>(upitem->item());
 }
 
 Patient* Rufus::getSelectedPatientFromCursorPositionInTable()
 {
     QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
-    if (gListePatientsModel->itemFromIndex(pindx) == Q_NULLPTR)
+    if (m_listepatientsmodel->itemFromIndex(pindx) == Q_NULLPTR)
         return Q_NULLPTR;
-    UpStandardItem *upitem = static_cast<UpStandardItem *>(gListePatientsModel->itemFromIndex(pindx));
+    UpStandardItem *upitem = static_cast<UpStandardItem *>(m_listepatientsmodel->itemFromIndex(pindx));
     return dynamic_cast<Patient *>(upitem->item());
 }
 
@@ -6837,7 +6838,7 @@ void    Rufus::CalcMotsCles(Patient *pat)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::CalcNbDossiers()
 {
-    int a = gListePatientsModel->rowCount();
+    int a = m_listepatientsmodel->rowCount();
     switch (a) {
     case 0:
         ui->label_15->setText(tr("aucun dossier pour ces critères"));
@@ -6863,20 +6864,21 @@ void Rufus::ChercheNomFiltre(Patient *pat) // Dans ce mode de recherche, la list
     QString Filtrerequete;
     QString idPat = "0";
 
-    Remplir_ListePatients_TableView(db->loadPatientsAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text(), true));   //ChercheNomFiltre()
+    m_lispatients->initListeAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text(), true);
+    Remplir_ListePatients_TableView(m_lispatients) ;   //ChercheNomFiltre()
     CalcNbDossiers();
 
     if ((ui->CreerNomlineEdit->text() != "" || ui->CreerPrenomlineEdit->text() != "") && pat == Q_NULLPTR)
     {
-        if (gListePatientsModel->rowCount()>0)
+        if (m_listepatientsmodel->rowCount()>0)
         {
             ui->PatientsListeTableView->selectRow(0);
-            ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(0)->index(),QAbstractItemView::PositionAtTop);
+            ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(0)->index(),QAbstractItemView::PositionAtTop);
         }
     }
     else if (idPat != "0")
         {
-            QList<QStandardItem*> listitems = gListePatientsModel->findItems(idPat);
+            QList<QStandardItem*> listitems = m_listepatientsmodel->findItems(idPat);
             if (!listitems.isEmpty())
             {
                 ui->PatientsListeTableView->selectRow(listitems.at(0)->row());
@@ -7089,7 +7091,7 @@ void Rufus::CreerDossier()
     -----------------------------------------------------------------------------------------------------------------*/
 
     // 2. On recherche ensuite un dossier similaire Nom + Prenom
-    if (ui->PatientsListeTableView->isVisible()  && gListePatientsModel->rowCount()>0)
+    if (ui->PatientsListeTableView->isVisible()  && m_listepatientsmodel->rowCount()>0)
     {
         UpMessageBox msgbox;
         msgbox.setText(tr("Un ou plusieurs dossiers similaires!"));
@@ -7113,7 +7115,8 @@ void Rufus::CreerDossier()
             return;
 
         if (!IdentificationPatient(dlg_identificationpatient::Creation, m_currentpatient)) return;
-        Remplir_ListePatients_TableView(db->loadPatientsAll(m_currentpatient->nom(), m_currentpatient->prenom()));
+        m_lispatients->initListeAll(m_currentpatient->nom(), m_currentpatient->prenom());
+        Remplir_ListePatients_TableView(m_lispatients) ;   //CreerDossier
 
         // Si le User est un soignant, on crée d'emblée une consultation et on l'affiche
         if( gUserEnCours->isSoignant() )
@@ -7306,10 +7309,10 @@ void Rufus::DescendUneLigne()
     QModelIndexList listindx = ui->PatientsListeTableView->selectionModel()->selectedIndexes();
     if (listindx.size()==0) return;
     int itrow = listindx.at(0).row();
-    if (itrow < gListePatientsModel->rowCount()-1)
+    if (itrow < m_listepatientsmodel->rowCount()-1)
     {
-        ui->PatientsListeTableView->selectRow(gListePatientsModel->item(itrow+1)->row());
-        ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(itrow+1)->index(),QAbstractItemView::PositionAtCenter);
+        ui->PatientsListeTableView->selectRow(m_listepatientsmodel->item(itrow+1)->row());
+        ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(itrow+1)->index(),QAbstractItemView::PositionAtCenter);
     }
 }
 
@@ -7322,15 +7325,15 @@ void Rufus::Descend20Lignes()
     QModelIndexList listindx = ui->PatientsListeTableView->selectionModel()->selectedIndexes();
     if (listindx.size()==0) return;
     int itrow = listindx.at(0).row();
-    if (itrow < gListePatientsModel->rowCount()-20)
+    if (itrow < m_listepatientsmodel->rowCount()-20)
     {
-        ui->PatientsListeTableView->selectRow(gListePatientsModel->item(itrow+20)->row());
-        ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(itrow+20)->index(),QAbstractItemView::PositionAtCenter);
+        ui->PatientsListeTableView->selectRow(m_listepatientsmodel->item(itrow+20)->row());
+        ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(itrow+20)->index(),QAbstractItemView::PositionAtCenter);
     }
     else
     {
-        ui->PatientsListeTableView->selectRow(gListePatientsModel->rowCount()-1);
-        ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(gListePatientsModel->rowCount()-1)->index(),QAbstractItemView::PositionAtCenter);
+        ui->PatientsListeTableView->selectRow(m_listepatientsmodel->rowCount()-1);
+        ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(m_listepatientsmodel->rowCount()-1)->index(),QAbstractItemView::PositionAtCenter);
     }
 }
 
@@ -7530,8 +7533,8 @@ bool Rufus::FermeDossier()
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) {
-        delete m_currentpatient;
-        delete m_currentact;
+//        delete m_currentpatient;
+//        delete m_currentact;
         m_currentpatient = new Patient();
         m_currentact = new Acte();
     }
@@ -8005,15 +8008,16 @@ void Rufus::InitVariables()
 {
     gAutorModifConsult  = false;
     m_currentpatient    = new Patient();
+    m_lispatients       = Datas::I()->patients;
     m_currentact        = new Acte();
     nbActes             = 0;
     noActe              = 0;
     gMode               = Liste;
-    gNombreDossiers     = 1;
+    m_listepatientsproxymodel   = new QSortFilterProxyModel();
     m_dossierpatientaouvrir     = new Patient();
     gdateParDefaut              = QDate::fromString("2000-01-01", "yyyy-MM-dd");
     gAffichTotalMessages        = true;
-    gListeSuperviseursModel     = new QStandardItemModel();
+    m_listesuperviseursmodel    = new QStandardItemModel();
 
     MGlineEdit                  = new UpLineEdit();
     AutresCorresp1LineEdit      = new UpLineEdit();
@@ -8209,8 +8213,8 @@ void Rufus::MonteUneLigne()
     int itrow = listindx.at(0).row();
     if (itrow > 0)
     {
-        ui->PatientsListeTableView->selectRow(gListePatientsModel->item(itrow-1)->row());
-        ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(itrow-1)->index(),QAbstractItemView::PositionAtCenter);
+        ui->PatientsListeTableView->selectRow(m_listepatientsmodel->item(itrow-1)->row());
+        ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(itrow-1)->index(),QAbstractItemView::PositionAtCenter);
     }
 }
 
@@ -8226,13 +8230,13 @@ void Rufus::Monte20Lignes()
     int itrow = listindx.at(0).row();
     if (itrow > 19)
     {
-        ui->PatientsListeTableView->selectRow(gListePatientsModel->item(itrow-20)->row());
-        ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(itrow-20)->index(),QAbstractItemView::PositionAtCenter);
+        ui->PatientsListeTableView->selectRow(m_listepatientsmodel->item(itrow-20)->row());
+        ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(itrow-20)->index(),QAbstractItemView::PositionAtCenter);
     }
     else
     {
         ui->PatientsListeTableView->selectRow(0);
-        ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(0)->index(),QAbstractItemView::PositionAtTop);
+        ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(0)->index(),QAbstractItemView::PositionAtTop);
     }
 }
 
@@ -8383,17 +8387,17 @@ void    Rufus::OuvrirListe()
 
     if (m_currentpatient->id() > 0)
     {
-        QList<QStandardItem*> listitems = gListePatientsModel->findItems(QString::number(m_currentpatient->id()));
+        QList<QStandardItem*> listitems = m_listepatientsmodel->findItems(QString::number(m_currentpatient->id()));
         if (!listitems.isEmpty())
         {
             ui->PatientsListeTableView->selectRow(listitems.at(0)->row());
             ui->PatientsListeTableView->scrollTo(listitems.at(0)->index(),QAbstractItemView::PositionAtCenter);
         }
     }
-    else if (gListePatientsModel->rowCount() > 0)
+    else if (m_listepatientsmodel->rowCount() > 0)
     {
         ui->PatientsListeTableView->selectRow(0);
-        ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(0)->index(),QAbstractItemView::PositionAtTop);
+        ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(0)->index(),QAbstractItemView::PositionAtTop);
     }
     CalcNbDossiers();
     gMode = Liste;
@@ -8427,7 +8431,7 @@ void Rufus::OuvrirNouveauDossier()
     ui->CreerDossierpushButton->setText(tr("Créer\nle dossier"));
     ui->LListepushButton->setEnabled(true);
     ui->LNouvDossierpushButton->setEnabled(false);
-    ui->LRecopierpushButton->setEnabled(gListePatientsModel->rowCount() > 0);
+    ui->LRecopierpushButton->setEnabled(m_listepatientsmodel->rowCount() > 0);
     ui->CreerDDNdateEdit->setVisible(true);
     ui->CreerDDNdateEdit->setDate(gdateParDefaut);
     ui->DDNlabel->setVisible(true);
@@ -8469,8 +8473,8 @@ void    Rufus::RecopierDossier(Patient *patient)
         }
         FermeDlgAnnexes();
         IdentificationPatient(dlg_identificationpatient::Copie, pat);
-        if (pat != m_currentpatient)
-            delete pat;
+//        if (pat != m_currentpatient)
+//            delete pat;
     }
 }
 
@@ -8479,12 +8483,11 @@ void    Rufus::RecopierDossier(Patient *patient)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::RecaleTableView(Patient* pat)
 {
-    QList<QStandardItem*> listitems = gListePatientsModel->findItems(QString::number(pat->id()));
+    QList<QStandardItem*> listitems = m_listepatientsmodel->findItems(QString::number(pat->id()));
     if (listitems.size() > 0)
     {
         QStandardItem *item = listitems.at(0);
-        int itrow = item->row();
-        ui->PatientsListeTableView->selectRow(itrow);
+        ui->PatientsListeTableView->selectRow(item->row());
         ui->PatientsListeTableView->scrollTo(item->index(), QAbstractItemView::PositionAtCenter);
     }
 }
@@ -8819,46 +8822,66 @@ void Rufus::RemiseCheques()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Remplir la liste avec les noms, prénoms et DDN des patients ----------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Rufus::Remplir_ListePatients_TableView(QList<Patient*>  listpatients)
+bool Rufus::Remplir_ListePatients_TableView(Patients *patients)
 {
-    UpStandardItem *pitem, *pitem0, *pitem1;
-    gNombreDossiers = listpatients.size();
-    gListePatientsModel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
-    if (gListePatientsModel)
-        gListePatientsModel->clear();
+    QList<Patient*> *listpatients = patients->patients();
+    UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4, *pitem5;
+    m_listepatientsmodel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
+    if (m_listepatientsmodel != Q_NULLPTR)
+        m_listepatientsmodel->clear();
     else
-        gListePatientsModel = new QStandardItemModel;
+        m_listepatientsmodel = new QStandardItemModel;
 
-    if (gNombreDossiers > 0)
+    if (listpatients->size() > 0)
     {
-        for (int i=0;i<gNombreDossiers;i++)
+        for (int i=0;i<listpatients->size();i++)
         {
-            pitem   = new UpStandardItem(QString::number(listpatients.at(i)->id()));                                 // IdPatient
-            pitem0  = new UpStandardItem(listpatients.at(i)->nom().toUpper() + " " + listpatients.at(i)->prenom());  // Nom + Prénom
-            pitem1  = new UpStandardItem(listpatients.at(i)->datedenaissance().toString(tr("dd-MM-yyyy")));          // date de naissance
-            pitem   ->seItem(listpatients.at(i));
-            pitem0  ->seItem(listpatients.at(i));
-            pitem1  ->seItem(listpatients.at(i));
-            QList<QStandardItem *> pitemlist;
-            pitemlist << pitem << pitem0 << pitem1;
-            gListePatientsModel->appendRow(pitemlist);
+            pitem0   = new UpStandardItem(QString::number(listpatients->at(i)->id()));                                   // IdPatient
+            pitem1  = new UpStandardItem(listpatients->at(i)->nom().toUpper() + " " + listpatients->at(i)->prenom());   // Nom + Prénom
+            pitem2  = new UpStandardItem(listpatients->at(i)->datedenaissance().toString(tr("dd-MM-yyyy")));            // date de naissance
+            pitem3  = new UpStandardItem(listpatients->at(i)->datedenaissance().toString(tr("yyyyMMdd")));              // date de naissance inversée pour le tri
+            pitem4  = new UpStandardItem(listpatients->at(i)->nom());                                                   // Nom utilisé pour le tri
+            pitem5  = new UpStandardItem(listpatients->at(i)->prenom());                                                // Prénomutilisé pour le tri
+            pitem0  ->seItem(listpatients->at(i));
+            pitem1  ->seItem(listpatients->at(i));
+            pitem2  ->seItem(listpatients->at(i));
+            pitem3  ->seItem(listpatients->at(i));
+            pitem4  ->seItem(listpatients->at(i));
+            pitem5  ->seItem(listpatients->at(i));
+            m_listepatientsmodel->appendRow(QList<QStandardItem *>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5);
         }
     }
     QStandardItem *itnom = new QStandardItem();
     itnom->setText("Nom");
     itnom->setTextAlignment(Qt::AlignLeft);
-    gListePatientsModel->setHorizontalHeaderItem(1,itnom);
+    m_listepatientsmodel->setHorizontalHeaderItem(1,itnom);
     QStandardItem *itDDN = new QStandardItem();
     itDDN->setText("Date de naissance");
     itDDN->setTextAlignment(Qt::AlignLeft);
-    gListePatientsModel->setHorizontalHeaderItem(2,itDDN);
-    ui->PatientsListeTableView->setModel(gListePatientsModel);
+    m_listepatientsmodel->setHorizontalHeaderItem(2,itDDN);
+
+    QSortFilterProxyModel *DDNFilterModel = new QSortFilterProxyModel();
+    DDNFilterModel->setSourceModel(m_listepatientsmodel);
+    DDNFilterModel->sort(3);
+
+    QSortFilterProxyModel *PrenomFilterModel = new QSortFilterProxyModel();
+    PrenomFilterModel->setSourceModel(DDNFilterModel);
+    PrenomFilterModel->sort(5);
+
+    m_listepatientsproxymodel->setSourceModel(PrenomFilterModel);
+    m_listepatientsproxymodel->sort(4);
+
+    ui->PatientsListeTableView->setModel(m_listepatientsproxymodel);
+    //ui->PatientsListeTableView->setModel(m_listepatientsmodel);
     ui->PatientsListeTableView->setColumnWidth(0,0);          //IdPat
     ui->PatientsListeTableView->setColumnWidth(1,230 );       //Nom + Prénom
     ui->PatientsListeTableView->setColumnWidth(2,122 );       //DDN
+    ui->PatientsListeTableView->setColumnWidth(3,0 );         //DDN inversé pour le tri
+    ui->PatientsListeTableView->setColumnWidth(4,0 );         //nom utilisé pour le tri
+    ui->PatientsListeTableView->setColumnWidth(5,0 );         //prénom utilisé pour le tri
 
     QFontMetrics fm(qApp->font());
-    for (int j=0; j<gNombreDossiers; j++)
+    for (int j=0; j<listpatients->size(); j++)
          ui->PatientsListeTableView->setRowHeight(j,int(fm.height()*1.3));
 
     ui->PatientsListeTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
@@ -8891,7 +8914,7 @@ void Rufus::Remplir_SalDat()
     QList<QVariantList> attlist = db->StandardSelectSQL(SalDatrequete, ok , tr("Impossible de remplir la salle d'attente!"));
 
     TableAMettreAJour   ->setRowCount(attlist.size());
-    gListeSuperviseursModel->clear();
+    m_listesuperviseursmodel->clear();
     QStandardItem       *pitem0, *pitem1;
     QList<int>          listidusers;
     for (i = 0; i < attlist.size(); i++)
@@ -8973,7 +8996,7 @@ void Rufus::Remplir_SalDat()
             pitem1 = new QStandardItem(attlist.at(i).at(9).toString());
             QList<QStandardItem*> listitems;
             listitems << pitem0 << pitem1;
-            gListeSuperviseursModel    ->appendRow(listitems);
+            m_listesuperviseursmodel    ->appendRow(listitems);
         }
         QString colorRDV;
         if (attlist.at(i).at(6).toTime().toString("HH:mm") != "")
@@ -9062,21 +9085,21 @@ void Rufus::Remplir_SalDat()
     while (gSalDatTab->count()>0)
         gSalDatTab->removeTab(0);
     int k =0;
-    if (gListeSuperviseursModel->rowCount()==0)
+    if (m_listesuperviseursmodel->rowCount()==0)
         gSalDatTab->setVisible(false);
     else
     {
         gSalDatTab->setVisible(true);
-        if (gListeSuperviseursModel->rowCount()>1)
+        if (m_listesuperviseursmodel->rowCount()>1)
         {
             gSalDatTab  ->insertTab(0, Icons::icFamily(), tr("Tout le monde"));
             gSalDatTab  ->setTabData(k, -1);
             k++;
         }
-        for (int i=0; i<gListeSuperviseursModel->rowCount(); i++)
+        for (int i=0; i<m_listesuperviseursmodel->rowCount(); i++)
         {
-            gSalDatTab  ->insertTab(k,gListeSuperviseursModel->item(i,1)->text());
-            gSalDatTab  ->setTabData(k, gListeSuperviseursModel->item(i,0)->text());
+            gSalDatTab  ->insertTab(k,m_listesuperviseursmodel->item(i,1)->text());
+            gSalDatTab  ->setTabData(k, m_listesuperviseursmodel->item(i,0)->text());
             k++;
         }
         bool a = false;
@@ -9196,7 +9219,7 @@ void Rufus::Remplir_SalDat()
     QList<QVariantList> acclist = db->StandardSelectSQL(PaiementsEnAttenterequete, ok , tr("Impossible de remplir la salle d'attente!"));
     TableAMettreAJour->clearContents();
     TableAMettreAJour->setRowCount(acclist.size());
-    gListeParentsModel  = new QStandardItemModel;
+    m_listeparentsmodel = new QStandardItemModel;
     QStandardItem       *oitem0, *oitem1;
     QList<int>          listidparents;
 
@@ -9283,7 +9306,7 @@ void Rufus::Remplir_SalDat()
             oitem1                  = new QStandardItem(Datas::I()->users->getById(acclist.at(i).at(10).toInt())->getLogin());
             QList<QStandardItem*>   listitems;
             listitems               << oitem0 << oitem1;
-            gListeParentsModel      ->appendRow(listitems);
+            m_listeparentsmodel      ->appendRow(listitems);
         }
 
         connect (label0,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDatPaiemt(label0);});
@@ -9310,15 +9333,15 @@ void Rufus::Remplir_SalDat()
     }
     while (gAccueilTab->count()>0)
         gAccueilTab->removeTab(0);
-    if (gListeParentsModel->rowCount()==0)
+    if (m_listeparentsmodel->rowCount()==0)
         gAccueilTab->setVisible(false);
     else
     {
         gAccueilTab->setVisible(true);
-        for (int i=0; i<gListeParentsModel->rowCount(); i++)
+        for (int i=0; i<m_listeparentsmodel->rowCount(); i++)
         {
-            gAccueilTab  ->insertTab(i,gListeParentsModel->item(i,1)->text());
-            gAccueilTab  ->setTabData(i, gListeParentsModel->item(i,0)->text());
+            gAccueilTab  ->insertTab(i,m_listeparentsmodel->item(i,1)->text());
+            gAccueilTab  ->setTabData(i, m_listeparentsmodel->item(i,0)->text());
         }
         if (ui->AccueilupTableWidget->selectedRanges().size()>0)
         {
@@ -9492,6 +9515,7 @@ void Rufus::SupprimerActe()
     // On récupère la date de l'acte
      //on va rechercher l'idActe suivant
     idASupprimer = m_currentact->id();
+    qDebug() << idASupprimer;
     idAAficher = 0;
     QDate dateacte;
 
@@ -9517,7 +9541,6 @@ void Rufus::SupprimerActe()
         else
             --a;    //on est sur le dernier acte -> on va rechercher l'idActe précédant
         m_currentact = db->loadActeById(actlist.at(a).at(0).toInt());
-        if (idAAficher == 0)  return;
     }
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
@@ -9754,7 +9777,8 @@ void Rufus::SupprimerDossier(Patient *pat)
     //10. On reconstruit le treeView Liste
     delete m_currentpatient;
     m_currentpatient = new Patient();
-    Remplir_ListePatients_TableView(db->loadPatientsAll());     //SupprimerDossier()
+    m_lispatients->initListeAll();
+    Remplir_ListePatients_TableView(m_lispatients) ;   //SupprimerDossier()
     OuvrirListe();
 
     //11. On ferme la fiche dlg_actesprecedents
@@ -9825,51 +9849,8 @@ void Rufus::Tonometrie()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::TrouverDDN()
 {
-    QList<Patient *> listpatients = db->loadPatientsByDDN(ui->CreerDDNdateEdit->date());
-    gListePatientsModel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
-    if (gListePatientsModel)
-        gListePatientsModel->clear();
-    else
-        gListePatientsModel = new QStandardItemModel;
-    gNombreDossiers = listpatients.size();
-    if (gNombreDossiers > 0)
-    {
-        UpStandardItem *pitem, *pitem0, *pitem1;
-        for (int i=0;i<gNombreDossiers;i++)
-        {
-            pitem   = new UpStandardItem(QString::number(listpatients.at(i)->id()));                                                  // IdPatient
-            pitem0  = new UpStandardItem(listpatients.at(i)->nom().toUpper() + " " + listpatients.at(i)->prenom());  // Nom + Prénom
-            pitem1  = new UpStandardItem(listpatients.at(i)->datedenaissance().toString(tr("dd-MM-yyyy")));          // date de naissance
-            pitem   ->seItem(listpatients.at(i));
-            pitem0  ->seItem(listpatients.at(i));
-            pitem1  ->seItem(listpatients.at(i));
-            QList<QStandardItem *> pitemlist;
-            pitemlist << pitem << pitem0 << pitem1;
-            gListePatientsModel->appendRow(pitemlist);
-        }
-        QStandardItem *itnom = new QStandardItem();
-        itnom->setText(tr("Nom"));
-        itnom->setTextAlignment(Qt::AlignLeft);
-        gListePatientsModel->setHorizontalHeaderItem(1,itnom);
-        QStandardItem *itDDN = new QStandardItem();
-        itDDN->setText(tr("Date de naissance"));
-        itDDN->setTextAlignment(Qt::AlignLeft);
-        gListePatientsModel->setHorizontalHeaderItem(2,itDDN);
-        ui->PatientsListeTableView->setModel(gListePatientsModel);
-        ui->PatientsListeTableView->setColumnWidth(0,0);          //IdPat
-        ui->PatientsListeTableView->setColumnWidth(1,230 );       //Nom + Prénom
-        ui->PatientsListeTableView->setColumnWidth(2,122 );       //DDN
-
-        QFontMetrics fm(qApp->font());
-        for (int j=0; j<gNombreDossiers; j++)
-             ui->PatientsListeTableView->setRowHeight(j,int(fm.height()*1.3));
-
-        ui->PatientsListeTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-        ui->PatientsListeTableView->horizontalHeader()->setFixedHeight(int(fm.height()*1.3));
-
-        ui->PatientsListeTableView->selectRow(0);
-        ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(0)->index(),QAbstractItemView::PositionAtTop);
-    }
+    m_lispatients->initListeByDDN(ui->CreerDDNdateEdit->date());
+    Remplir_ListePatients_TableView(m_lispatients);
     EnableCreerDossierButton();
 }
 
@@ -10096,14 +10077,16 @@ void Rufus::LireLaCV()
             " WHERE UPPER(PatNom) LIKE '" + nomPat.toUpper() + "%'" +
             " AND   UPPER(PatPrenom) LIKE '" + prenomPat.toUpper() + "%'" +
             " AND   PatDDN = '" + zdat + "'";
-    Remplir_ListePatients_TableView(db->loadPatientsAll(nomPat.toUpper(), prenomPat.toUpper(), false)) ;   // LireLaCV()
-    if (gNombreDossiers == 0)       // aucun patient trouvé
+    m_lispatients->initListeAll(nomPat.toUpper(), prenomPat.toUpper(), false);
+    Remplir_ListePatients_TableView(m_lispatients) ;   // LireLaCV()
+    if (m_lispatients->patients()->size() == 0)       // aucun patient trouvé
         {
         // si rien trouvé, deuxième recherche sur date de naissance seule
         requete = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe  "
                   " FROM "  NOM_TABLE_PATIENTS
                   " WHERE PatDDN = '" + zdat + "'";
-        Remplir_ListePatients_TableView(db->loadPatientsAll()) ;   // LireLaCV()
+        m_lispatients->initListeAll();
+        Remplir_ListePatients_TableView(m_lispatients) ;   // LireLaCV()
         CalcNbDossiers();
         OuvrirNouveauDossier();
         ui->CreerNomlineEdit->setText(nomPat);
@@ -10112,19 +10095,16 @@ void Rufus::LireLaCV()
         QString NNIPat     = settingPatientPar.value("Bénéficiaire/Numéro").toString();
         QString Sexe = (NNIPat.left(1) == "1"? "M" : "F");
 
-        if (gNombreDossiers == 0)       // aucun patient trouvé
-            {// si rien non plus on propose la création du dossier.
-            return;
-            }       // A REVOIR
-        else
-            { // on a trouvé des patients avec la même date de naissance et on les a affichés.
-            return;
-            }       // A REVOIR
+        // aucun patient trouvé
+        // si rien non plus on propose la création du dossier.
+        // A REVOIR
+        // on a trouvé des patients avec la même date de naissance et on les a affichés.
+        // A REVOIR
         }
-    if (gListePatientsModel->rowCount()>0)
+    if (m_listepatientsmodel->rowCount()>0)
     {
         ui->PatientsListeTableView->selectRow(0);
-        ui->PatientsListeTableView->scrollTo(gListePatientsModel->item(0)->index(),QAbstractItemView::PositionAtTop);
+        ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(0)->index(),QAbstractItemView::PositionAtTop);
     }
 }
 /*-----------------------------------------------------------------------------------------------------------------

@@ -44,8 +44,7 @@ void TypesTiers::addList(QList<TypeTiers*> listTypesTiers)
 
 void TypesTiers::remove(TypeTiers* typetiers)
 {
-    while( m_typestiers->contains(typetiers) )
-        m_typestiers->removeOne(typetiers);
+    m_typestiers->removeOne(typetiers);
     delete  typetiers;
 }
 void TypesTiers::clearAll()

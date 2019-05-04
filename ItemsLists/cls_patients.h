@@ -20,20 +20,36 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include <cls_patient.h>
+#include "database.h"
 
 class Patients
 {
-    QMap<int, Patient*> *m_patients; //!<Collection de tous les Patient
 
 public:
+    explicit Patients();
+
     //GETTER
-    QMap<int, Patient *> *getPatients() const;
+    QList<Patient*> *patients() const;
 
 
-    Patients();
+    Patient* getById(int id);
+
+    bool isfull();
 
     bool add(Patient *patient);
-    Patient* getById(int id);
+    void addList(QList<Patient*> listpatientss);
+    void remove(Patient* patient);
+    void clearAll();
+    void initListeAll(QString nom = "", QString prenom = "", bool filtre = false);          /*! crée une liste de patients
+                                                                                            * \param patnom filtrer sur le nom de patient
+                                                                                            * \param patprenom filtrer sur le prénom de patient
+                                                                                            * \param le filtre se fait sur des valeurs aprrochantes */
+
+    void initListeByDDN(QDate DDN = QDate());                                               /*! crée une liste de tous les patients pour une date de naissance
+                                                                                            * \param DDN la date de naissance */
+    private:
+    QList<Patient*> *m_patients;                                                            //!< une liste de patients
+    bool    m_full;                                                                         //!nlanliste de patients contient tous les patients de la base
 };
 
 #endif // CLS_PATIENTS_H

@@ -239,7 +239,6 @@ private:
     bool                    gIdentificationOK;
     int                     nbActes, noActe;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
-    int                     gNombreDossiers;
     int                     idRefraction;
     int                     gMode;
     int                     gTotalMessages, gTotalNvxMessages;
@@ -254,8 +253,9 @@ private:
     QString                 gActeDate;
     QString                 grequeteSalDat;
     QString                 gDirSauv;
-    QStandardItemModel      *gListePatientsModel;
-    QStandardItemModel      *gListeSuperviseursModel, *gListeParentsModel;
+    QStandardItemModel      *m_listepatientsmodel;
+    QSortFilterProxyModel   *m_listepatientsproxymodel;
+    QStandardItemModel      *m_listesuperviseursmodel, *m_listeparentsmodel;
     QTabBar                 *gSalDatTab, *gAccueilTab;
     QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerVerifConnexion, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
@@ -265,6 +265,7 @@ private:
     User                    *gUserEnCours;
     Patient                 *m_currentpatient;
     Patient                 *m_dossierpatientaouvrir;
+    Patients                *m_lispatients;
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
     UpLabel                 *gAskinflabel;
@@ -343,7 +344,7 @@ private:
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
     void                RegleRefracteur(QString TypeMesure);
     void                RemiseCheques();
-    bool                Remplir_ListePatients_TableView(QList<Patient*>  listpatients);
+    bool                Remplir_ListePatients_TableView(Patients *patients);
     QTabWidget*         Remplir_MsgTabWidget();
     void                Remplir_SalDat();
     bool                RetourSalleDattente(QString Titre);

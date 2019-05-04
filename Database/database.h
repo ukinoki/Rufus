@@ -239,12 +239,12 @@ public:
     void                    loadSocialDataPatient(Patient* patient, bool &ok);      //! charge les donnéess sociales d'un patient à partir de la table donneessocialespatients
     void                    loadMedicalDataPatient(Patient* patient, bool &ok);     //! charge les donnéess médicales d'un patient à partir de la table renseignementsmedicauxpatients
     Patient*                loadPatientById(int idPat, bool all = false);           //! charge un patient par son id à partir de la table patients
-    QList<Patient*>         loadPatientsAll(QString nom = "", QString prenom = "", bool filtre = false);
+    QList<Patient*>*        loadPatientsAll(QString nom = "", QString prenom = "", bool filtre = false);
                                                                                 /*! charge la liste de tous les patients à partir de la table patients
                                                                                 * \param patnom filtrer sur le nom de patient
                                                                                 * \param patprenom filtrer sur le prénom de patient
-                                                                                * \param le filtre se fait sur des valuers aprrochantes */
-    QList<Patient*>         loadPatientsByDDN(QDate DDN);
+                                                                                * \param le filtre se fait sur des valeurs aprrochantes */
+    QList<Patient *> *loadPatientsByDDN(QDate DDN);
                                                                                 /*! charge la liste de tous les patients pour une date de naissance
                                                                                 * \param DDN la date de naissance */
     Patient*                CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe);

@@ -17,22 +17,42 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_patients.h"
 
-/*
- * GETTER
-*/
-QMap<int, Patient *> *Patients::getPatients() const
-{
-    return m_patients;
-}
-
-
 /*!
  * \brief Patients::Patients
  * Initialise la map Patient
  */
 Patients::Patients()
 {
-    m_patients = new QMap<int, Patient*>();
+    m_patients = new QList<Patient*>();
+    m_full  = false;
+}
+
+QList< Patient *> *Patients::patients() const
+{
+    return m_patients;
+}
+
+bool Patients::isfull()
+{
+    return m_full;
+}
+
+/*!
+ * \brief Patients::getById
+ * \param id l'id du patient recherché
+ * \return Q_NULLPTR si aucun patient trouvé
+ * \return Patient* le patient correspondant à l'id
+ */
+Patient* Patients::getById(int id)
+{
+    Patient* pat = Q_NULLPTR;
+    for (int i=0; i< m_patients->size(); i++)
+        if (m_patients->at(i)->id() == id)
+        {
+            pat = m_patients->at(i);
+            break;
+        }
+    return pat;
 }
 
 /*!
@@ -48,25 +68,45 @@ bool Patients::add(Patient *patient)
 {
     if( patient == Q_NULLPTR)
         return false;
-
-    if( m_patients->contains(patient->id()) )
+    if( m_patients->contains(patient) )
         return false;
-
     m_patients->insert(patient->id(), patient);
-
     return true;
 }
 
-/*!
- * \brief Patients::getById
- * \param id l'id du patient recherché
- * \return Q_NULLPTR si aucun patient trouvé
- * \return Patient* le patient correspondant à l'id
- */
-Patient* Patients::getById(int id)
+void Patients::addList(QList<Patient*> listpatients)
 {
-    QMap<int, Patient*>::const_iterator patient = m_patients->find(id);
-    if( patient == m_patients->constEnd() )
-        return Q_NULLPTR;
-    return patient.value();
+    QList<Patient*>::const_iterator it;
+    for( it = listpatients.constBegin(); it != listpatients.constEnd(); ++it )
+        add( *it );
 }
+
+void Patients::remove(Patient* patient)
+{
+    m_patients->removeOne(patient);
+    delete  patient;
+}
+void Patients::clearAll()
+{
+    while (m_patients->size() >0)
+        remove(m_patients->at(0));
+    m_patients->clear();
+}
+
+void Patients::initListeAll(QString nom, QString prenom, bool filtre)
+{
+    clearAll();
+    m_patients  = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
+    m_full = (nom == "" && prenom == "");
+}
+
+void Patients::initListeByDDN(QDate DDN)
+{
+    clearAll();
+    if (DDN == QDate())
+        m_patients = DataBase::I()->loadPatientsAll();
+    else
+        m_patients = DataBase::I()->loadPatientsByDDN(DDN);
+    m_full = (DDN == QDate());
+}
+

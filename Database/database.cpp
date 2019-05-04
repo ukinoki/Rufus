@@ -1332,9 +1332,9 @@ Patient* DataBase::loadPatientById(int idPat, bool all)
     return patient;
 }
 
-QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filtre)
+QList<Patient*>* DataBase::loadPatientsAll(QString nom, QString prenom, bool filtre)
 {
-    QList<Patient*> listpatients;
+    QList<Patient*> *listpatients = new QList<Patient*>();
     QString clausewhere ("");
     QString like = (filtre? "like" : "=");
     QString clauselimit ("");
@@ -1351,7 +1351,9 @@ QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filt
     }
     if (m_mode == Distant)
         clauselimit = " limit 1000";
-    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS + clausewhere + " order by patnom, patprenom, PatDDN" + clauselimit;
+    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS +
+                  clausewhere +
+                  clauselimit;
     //qDebug() << req;
     QList<QVariantList> patlist = StandardSelectSQL(req,ok);
     if( !ok || patlist.size()==0 )
@@ -1369,15 +1371,16 @@ QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filt
         jData["isMedicalLoaded"] = false;
         jData["isSocialLoaded"] = false;
         Patient *patient = new Patient(jData);
-        listpatients << patient;
+        listpatients->append(patient);
     }
     return listpatients;
 }
 
-QList<Patient*> DataBase::loadPatientsByDDN(QDate DDN)
+QList<Patient*>* DataBase::loadPatientsByDDN(QDate DDN)
 {
-    QList<Patient*> listpatients;
-    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS " WHERE PatDDN = '" + DDN.toString("yyyy-MM-dd") + "' order by patnom, patprenom, PatDDN";
+    QList<Patient*> *listpatients = new QList<Patient*>();
+    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS
+                  " WHERE PatDDN = '" + DDN.toString("yyyy-MM-dd") + "'";
     //qDebug() << req;
     QList<QVariantList> patlist = StandardSelectSQL(req,ok);
     if( !ok || patlist.size()==0 )
@@ -1395,7 +1398,7 @@ QList<Patient*> DataBase::loadPatientsByDDN(QDate DDN)
         jData["isMedicalLoaded"] = false;
         jData["isSocialLoaded"] = false;
         Patient *patient = new Patient(jData);
-        listpatients << patient;
+        listpatients->append(patient);
     }
     return listpatients;
 }
