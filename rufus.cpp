@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("04-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("05-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -104,7 +104,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     m_lispatients->initListeAll();
     Remplir_ListePatients_TableView(m_lispatients);       //InitTables()
-    CalcNbDossiers();
     MetAJourUserConnectes();
 
     QJsonObject jadmin = db->loadAdminData();
@@ -249,7 +248,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     if (m_listepatientsmodel->rowCount() == 0)
     {
-        OuvrirNouveauDossier();
+        ModeCreationDossier();
         ui->LListepushButton->setEnabled(false);
         UpMessageBox::Watch(this,tr("Vous n'avez aucun dossier de patient enregistré!"), tr("Vous devez d'abord en créer un."));
     }
@@ -278,6 +277,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //12 - mise à jour du programmateur de sauvegardes
     proc->InitBackupAuto();
+    ModeSelectDepuisListe();
  }
 
 Rufus::~Rufus()
@@ -329,9 +329,9 @@ void Rufus::Connect_Slots()
     connect (ui->FSEpushButton,                                     &QPushButton::clicked,                              this,   [=] {SaisieFSE();});       // CZ001
     connect (ui->IdentPatienttextEdit,                              &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelIdentPatient();});
     connect (ui->LFermepushButton,                                  &QPushButton::clicked,                              this,   [=] {close();});
-    connect (ui->ListepushButton,                                   &QPushButton::clicked,                              this,   [=] {OuvrirListe();});
-    connect (ui->LListepushButton,                                  &QPushButton::clicked,                              this,   [=] {OuvrirListe();});
-    connect (ui->LNouvDossierpushButton,                            &QPushButton::clicked,                              this,   [=] {OuvrirNouveauDossier();;});
+    connect (ui->ListepushButton,                                   &QPushButton::clicked,                              this,   [=] {ModeSelectDepuisListe();});
+    connect (ui->LListepushButton,                                  &QPushButton::clicked,                              this,   [=] {ModeSelectDepuisListe();});
+    connect (ui->LNouvDossierpushButton,                            &QPushButton::clicked,                              this,   [=] {ModeCreationDossier();;});
     connect (ui->LRecopierpushButton,                               &QPushButton::clicked,                              this,   [=] {RecopierDossier();});
     connect (ui->SendMessagepushButton,                             &QPushButton::clicked,                              this,   [=] {QMap<QString, QVariant> map;  map["null"] = true; SendMessage(map, m_currentpatient->id());});
     connect (ui->LSendMessagepushButton,                            &QPushButton::clicked,                              this,   [=] {QMap<QString, QVariant> map;  map["null"] = true; SendMessage(map);});
@@ -345,14 +345,14 @@ void Rufus::Connect_Slots()
     connect (ModifIdentificationupSmallButton,                      &QPushButton::clicked,                              this,   [=] {ChoixMenuContextuelIdentPatient();});
     connect (ui->MotsClesLabel,                                     &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelMotsCles();});
     connect (ui->MotsClesupSmallButton,                             &QPushButton::clicked,                              this,   [=] {ChoixMenuContextuelMotsCles();});
-    connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              this,   [=] {OuvrirNouveauDossier();});
+    connect (ui->NouvDossierpushButton,                             &QPushButton::clicked,                              this,   [=] {ModeCreationDossier();});
     connect (ui->OuvreActesPrecspushButton,                         &QPushButton::clicked,                              this,   [=] {OuvrirActesPrecspushButtonClicked();});
     connect (ui->OuvreDocsExternespushButton,                       &QPushButton::clicked,                              this,   &Rufus::ActualiseDocsExternes);
     connect (ui->OuvrirDocumentpushButton,                          &QPushButton::clicked,                              this,   [=] {OuvrirDocuments();});
     connect (ui->PatientsListeTableView,                            &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelListePatients();});
     connect (ui->PatientsListeTableView,                            &QTableView::doubleClicked,                         this,   [=] {ChoixDossier(getSelectedPatientFromTable());});
     connect (ui->PatientsListeTableView,                            &QTableView::entered,                               this,   [=] {AfficheToolTip(getSelectedPatientFromCursorPositionInTable());});
-    connect (ui->PatientsListeTableView->selectionModel(),          &QItemSelectionModel::selectionChanged,             this,   [=] {EnableCreerDossierButton();});
+    connect (ui->PatientsListeTableView->selectionModel(),          &QItemSelectionModel::selectionChanged,             this,   [=] {EnableButtons();});
     connect (ui->PatientsVusFlecheupLabel,                          &UpLabel::clicked,                                  this,   [=] {AffichePatientsVusWidget();});
     connect (ui->PatientsVusupTableWidget,                          &QTableView::activated,                             this,   [=] {gTimerPatientsVus->start();});
     connect (ui->PremierActepushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(0);});
@@ -1076,22 +1076,22 @@ void Rufus::AfficheMenu(QMenu *menu)
 {
     actionRechercheParID->setVisible(gMode != NouveauDossier);
     bool a = ui->tabWidget->indexOf(ui->tabDossier) < 0;
-        actionBilanRecettes->setEnabled(a);
-        actionRemiseCheques->setEnabled(a);
-        actionRecettesSpeciales->setEnabled(a);
-        actionParametres->setEnabled(a);
-        actionRechercheCourrier->setVisible(gUserEnCours->isSoignant() && a);
-        if (gUserEnCours->isSoignant())
-        {
-            bool c;
-            QString req = "select idActe from " NOM_TABLE_ACTES " where ActeCourrierafaire = 'T' and idUser = " + QString::number(gUserEnCours->id());
-            c = (db->StandardSelectSQL(req, ok).size()>0);
-            actionRechercheCourrier     ->setEnabled(a && c);
-        }
+    actionBilanRecettes->setEnabled(a);
+    actionRemiseCheques->setEnabled(a);
+    actionRecettesSpeciales->setEnabled(a);
+    actionParametres->setEnabled(a);
+    actionRechercheCourrier->setVisible(gUserEnCours->isSoignant() && a);
+    if (gUserEnCours->isSoignant())
+    {
+        bool c;
+        QString req = "select idActe from " NOM_TABLE_ACTES " where ActeCourrierafaire = 'T' and idUser = " + QString::number(gUserEnCours->id());
+        c = (db->StandardSelectSQL(req, ok).size()>0);
+        actionRechercheCourrier     ->setEnabled(a && c);
+    }
 
     bool b = (ui->tabWidget->currentWidget() == ui->tabDossier);
-        actionSupprimerActe->setVisible(b);
-        actionCreerActe->setVisible(b);
+    actionSupprimerActe->setVisible(b);
+    actionCreerActe->setVisible(b);
 
     if (menu == menuDossier)
     {
@@ -1100,14 +1100,17 @@ void Rufus::AfficheMenu(QMenu *menu)
         {
             if (ui->tabWidget->indexOf(ui->tabDossier) < 0)
             {
+               actionSupprimerDossier->setVisible(false);
                QModelIndexList listitems = ui->PatientsListeTableView->selectionModel()->selectedIndexes();
                if (listitems.size() > 0)
                {
-                   QString req = "select idacte from " NOM_TABLE_ACTES " where idpat = " + QString::number(getSelectedPatientFromTable()->id());
-                   actionSupprimerDossier->setVisible(db->StandardSelectSQL(req,ok).size() == 0);
+                   Patient *pat = getSelectedPatientFromTable();
+                   if (pat != Q_NULLPTR)
+                   {
+                       QString req = "select idacte from " NOM_TABLE_ACTES " where idpat = " + QString::number(getSelectedPatientFromTable()->id());
+                       actionSupprimerDossier->setVisible(db->StandardSelectSQL(req,ok).size() == 0);
+                   }
                }
-                else
-                   actionSupprimerDossier->setVisible(false);
             }
             else
             {
@@ -1823,24 +1826,29 @@ void Rufus::CreerDossierpushButtonClicked()
         ChoixDossier(getSelectedPatientFromTable());
 }
 
-void Rufus::EnableCreerDossierButton()
+void Rufus::EnableButtons()
 {
-    if (gMode != NouveauDossier)
+    if (gMode == Liste || gMode == RechercheDDN)
+    {
+        ui->LRecopierpushButton->setEnabled(ui->PatientsListeTableView->selectionModel()->selectedIndexes().size()>0);
         ui->CreerDossierpushButton->setEnabled(ui->PatientsListeTableView->selectionModel()->selectedIndexes().size()>0);
-    else
+    }
+    else if (gMode == NouveauDossier)
+    {
+        ui->LRecopierpushButton->setEnabled(ui->PatientsListeTableView->selectionModel()->selectedIndexes().size()>0);
         ui->CreerDossierpushButton->setEnabled(ui->CreerNomlineEdit->text() != "" && ui->CreerPrenomlineEdit->text() != "");
+    }
 }
 
 void Rufus::EnregistreDocScanner()
 {
     Patient *pat = Q_NULLPTR;
     QString nomprenompat;
-    if (ui->tabWidget->currentWidget() == ui->tabList) {
-        pat           = getSelectedPatientFromTable();
-    }
+    if (ui->tabWidget->currentWidget() == ui->tabList)
+        pat = getSelectedPatientFromTable();
     else if (ui->tabWidget->currentWidget() == ui->tabDossier)
-        pat           = m_currentpatient;
-    else
+        pat = m_currentpatient;
+    if (pat == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Pas de dossier patient en cours"));
         return;
@@ -1853,8 +1861,6 @@ void Rufus::EnregistreDocScanner()
     Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + nomprenompat);
     Dlg_DocsScan->exec();
     MAJDocsExternes();
-//    if (pat != m_currentpatient)
-//        delete pat;
 }
 
 void Rufus::EnregistreVideo()
@@ -1865,7 +1871,7 @@ void Rufus::EnregistreVideo()
         pat = getSelectedPatientFromTable();
     else if (ui->tabWidget->currentWidget() == ui->tabDossier)
         pat = m_currentpatient;
-    else
+    if (pat == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Pas de dossier patient en cours"));
         return;
@@ -1875,8 +1881,6 @@ void Rufus::EnregistreVideo()
     Dlg_DocsVideo->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + nomprenompat);
     Dlg_DocsVideo->exec();
     MAJDocsExternes();
-//    if (pat != m_currentpatient)
-//        delete pat;
 }
 
 void Rufus::FiltreSalleDAttente()
@@ -4116,6 +4120,8 @@ void Rufus::RecettesSpeciales()
 
 void Rufus::RetrouveMontantActe()
 {
+    if (m_currentpatient == Q_NULLPTR)
+        return;
     //TODO : SQL
     QString Cotation = ui->ActeCotationcomboBox->currentText();
     // On recherche s'il y a un montant enregistré pour cette cotation
@@ -4262,7 +4268,7 @@ void Rufus::SalleDAttente()
         ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
         ui->tabWidget->setCurrentWidget(ui->tabList);
         FermeDlgAnnexes();
-        OuvrirListe();
+        ModeSelectDepuisListe();
     }
 }
 
@@ -5742,7 +5748,7 @@ void Rufus::keyPressEvent (QKeyEvent * event )
                 if (ui->tabWidget->indexOf(ui->tabDossier) > 0)
                     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
                 FermeDlgAnnexes();
-                OuvrirListe();
+                ModeSelectDepuisListe();
             }
             break;
         case Qt::Key_F6:
@@ -5751,7 +5757,7 @@ void Rufus::keyPressEvent (QKeyEvent * event )
                 if (ui->tabWidget->indexOf(ui->tabDossier) > 0)
                     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
                 FermeDlgAnnexes();
-                OuvrirNouveauDossier();
+                ModeCreationDossier();
             }
             break;
         case Qt::Key_F9:
@@ -5780,20 +5786,29 @@ void Rufus::keyPressEvent (QKeyEvent * event )
 
 Patient* Rufus::getSelectedPatientFromTable()
 {
-    QModelIndex pindx = ui->PatientsListeTableView->selectionModel()->selectedIndexes().at(0);
-    if (m_listepatientsmodel->itemFromIndex(pindx) == Q_NULLPTR)
+    if (ui->PatientsListeTableView->selectionModel()->selectedIndexes().size() == 0)
         return Q_NULLPTR;
-    UpStandardItem *upitem = static_cast<UpStandardItem *>(m_listepatientsmodel->itemFromIndex(pindx));
-    return dynamic_cast<Patient *>(upitem->item());
+    QModelIndex psortindx   = ui->PatientsListeTableView->selectionModel()->selectedIndexes().at(0);    //  -> listepatientsproxymodel
+    return getSelectedPatientFromIndex(psortindx);
 }
 
 Patient* Rufus::getSelectedPatientFromCursorPositionInTable()
 {
-    QModelIndex pindx = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
-    if (m_listepatientsmodel->itemFromIndex(pindx) == Q_NULLPTR)
+    QModelIndex psortindx   = ui->PatientsListeTableView->indexAt(ui->PatientsListeTableView->viewport()->mapFromGlobal(cursor().pos()));
+    return getSelectedPatientFromIndex(psortindx);
+}
+
+Patient* Rufus::getSelectedPatientFromIndex(QModelIndex idx)
+{
+    QModelIndex pprenomindx = m_listepatientsproxymodel->mapToSource(idx);                              //  -> prenomsortmodel
+    QModelIndex pDDNindx    = m_prenomsortmodel->mapToSource(pprenomindx);                              //  -> DDNsortmodel
+    QModelIndex pindx       = m_DDNsortmodel->mapToSource(pDDNindx);                                    //  -> m_listepatientsmodel
+
+    UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_listepatientsmodel->itemFromIndex(pindx));
+    if (upitem == Q_NULLPTR)
         return Q_NULLPTR;
-    UpStandardItem *upitem = static_cast<UpStandardItem *>(m_listepatientsmodel->itemFromIndex(pindx));
-    return dynamic_cast<Patient *>(upitem->item());
+    Patient *pat = dynamic_cast<Patient *>(upitem->item());
+    return pat;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -6866,7 +6881,6 @@ void Rufus::ChercheNomFiltre(Patient *pat) // Dans ce mode de recherche, la list
 
     m_lispatients->initListeAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text(), true);
     Remplir_ListePatients_TableView(m_lispatients) ;   //ChercheNomFiltre()
-    CalcNbDossiers();
 
     if ((ui->CreerNomlineEdit->text() != "" || ui->CreerPrenomlineEdit->text() != "") && pat == Q_NULLPTR)
     {
@@ -6877,15 +6891,14 @@ void Rufus::ChercheNomFiltre(Patient *pat) // Dans ce mode de recherche, la list
         }
     }
     else if (idPat != "0")
+    {
+        QList<QStandardItem*> listitems = m_listepatientsmodel->findItems(idPat);
+        if (!listitems.isEmpty())
         {
-            QList<QStandardItem*> listitems = m_listepatientsmodel->findItems(idPat);
-            if (!listitems.isEmpty())
-            {
-                ui->PatientsListeTableView->selectRow(listitems.at(0)->row());
-                ui->PatientsListeTableView->scrollTo(listitems.at(0)->index(),QAbstractItemView::PositionAtTop);
-            }
+            ui->PatientsListeTableView->selectRow(listitems.at(0)->row());
+            ui->PatientsListeTableView->scrollTo(listitems.at(0)->index(),QAbstractItemView::PositionAtTop);
         }
-    EnableCreerDossierButton();
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -7011,7 +7024,7 @@ void    Rufus::ChercherDepuisListe()
         ui->CreerDDNdateEdit->setFocus();
     }
     else
-        OuvrirListe();
+        ModeSelectDepuisListe();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -7110,7 +7123,7 @@ void Rufus::CreerDossier()
     if (idPat == 0)
     {
         // Récupération de nom, prénom et DDN puis création du dossier---------------------------------
-        m_currentpatient = db->CreationPatient(PatNom, PatPrenom, ui->CreerDDNdateEdit->date(), m_currentpatient->sexe());
+        m_currentpatient = db->CreationPatient(PatNom, PatPrenom, ui->CreerDDNdateEdit->date(), "");
         if (m_currentpatient == Q_NULLPTR)
             return;
 
@@ -7202,8 +7215,8 @@ void Rufus::CreerMenu()
     actionQuit                      ->setMenuRole(QAction::PreferencesRole);
     // Les connect des actions --------------------------------------------------------------------------------------------------
     connect (actionQuit,                        &QAction::triggered,        this,                   &Rufus::close);
-    connect (actionCreerDossier,                &QAction::triggered,        this,                   &Rufus::OuvrirNouveauDossier);
-    connect (actionOuvrirDossier,               &QAction::triggered,        this,                   &Rufus::OuvrirListe);
+    connect (actionCreerDossier,                &QAction::triggered,        this,                   &Rufus::ModeCreationDossier);
+    connect (actionOuvrirDossier,               &QAction::triggered,        this,                   &Rufus::ModeSelectDepuisListe);
     connect (actionSupprimerDossier,            &QAction::triggered,        this,                   [=] {SupprimerDossier();});
     connect (actionRechercheParMotCle,          &QAction::triggered,        this,                   &Rufus::RechercheParMotCle);
     connect (actionRechercheParID,              &QAction::triggered,        this,                   &Rufus::RechercheParID);
@@ -7533,9 +7546,7 @@ bool Rufus::FermeDossier()
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) {
-//        delete m_currentpatient;
-//        delete m_currentact;
-        m_currentpatient = new Patient();
+        m_currentpatient = Q_NULLPTR;
         m_currentact = new Acte();
     }
     FlagMetAjourSalDat();
@@ -8007,14 +8018,13 @@ void Rufus::InitMenus()
 void Rufus::InitVariables()
 {
     gAutorModifConsult  = false;
-    m_currentpatient    = new Patient();
+    m_currentpatient    = Q_NULLPTR;
     m_lispatients       = Datas::I()->patients;
-    m_currentact        = new Acte();
+    m_currentact        = Q_NULLPTR;
     nbActes             = 0;
     noActe              = 0;
-    gMode               = Liste;
     m_listepatientsproxymodel   = new QSortFilterProxyModel();
-    m_dossierpatientaouvrir     = new Patient();
+    m_dossierpatientaouvrir     = Q_NULLPTR;
     gdateParDefaut              = QDate::fromString("2000-01-01", "yyyy-MM-dd");
     gAffichTotalMessages        = true;
     m_listesuperviseursmodel    = new QStandardItemModel();
@@ -8357,7 +8367,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
 /*-----------------------------------------------------------------------------------------------------------------
 -- Ouvrir la liste des patients -----------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    Rufus::OuvrirListe()
+void    Rufus::ModeSelectDepuisListe()
 {
     if (ui->tabWidget->currentIndex() == ui->tabWidget->indexOf(ui->tabDossier))
         ui->AtcdtsPersostextEdit->setFocus();
@@ -8383,15 +8393,18 @@ void    Rufus::OuvrirListe()
     ui->CreerDossierpushButton->setText(tr("Ouvrir\nle dossier"));
     ui->LListepushButton->setEnabled(false);
     ui->LNouvDossierpushButton->setEnabled(true);
-    ui->LRecopierpushButton->setEnabled(ui->PatientsListeTableView->model()->rowCount() > 0);
-
-    if (m_currentpatient->id() > 0)
+    ui->LRecopierpushButton->setEnabled(false);
+    if (m_currentpatient != Q_NULLPTR)
     {
-        QList<QStandardItem*> listitems = m_listepatientsmodel->findItems(QString::number(m_currentpatient->id()));
-        if (!listitems.isEmpty())
+        qDebug() << m_currentpatient->id();
+        if (m_currentpatient->id() > 0)
         {
-            ui->PatientsListeTableView->selectRow(listitems.at(0)->row());
-            ui->PatientsListeTableView->scrollTo(listitems.at(0)->index(),QAbstractItemView::PositionAtCenter);
+            QList<QStandardItem*> listitems = m_listepatientsmodel->findItems(QString::number(m_currentpatient->id()));
+            if (!listitems.isEmpty())
+            {
+                ui->PatientsListeTableView->selectRow(listitems.at(0)->row());
+                ui->PatientsListeTableView->scrollTo(listitems.at(0)->index(),QAbstractItemView::PositionAtCenter);
+            }
         }
     }
     else if (m_listepatientsmodel->rowCount() > 0)
@@ -8399,15 +8412,16 @@ void    Rufus::OuvrirListe()
         ui->PatientsListeTableView->selectRow(0);
         ui->PatientsListeTableView->scrollTo(m_listepatientsmodel->item(0)->index(),QAbstractItemView::PositionAtTop);
     }
-    CalcNbDossiers();
     gMode = Liste;
+    EnableButtons();
+    ui->CreerNomlineEdit->setFocus();
 }
 
 
 /*-----------------------------------------------------------------------------------------------------------------
 -- Enregistrer les données pour créer un nouveau dossier - Mise en place de la fiche ------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::OuvrirNouveauDossier()
+void Rufus::ModeCreationDossier()
 {
     if(!AutorDepartConsult(true)) return;
     if (ui->tabWidget->indexOf(ui->tabDossier) != -1)
@@ -8431,10 +8445,10 @@ void Rufus::OuvrirNouveauDossier()
     ui->CreerDossierpushButton->setText(tr("Créer\nle dossier"));
     ui->LListepushButton->setEnabled(true);
     ui->LNouvDossierpushButton->setEnabled(false);
-    ui->LRecopierpushButton->setEnabled(m_listepatientsmodel->rowCount() > 0);
     ui->CreerDDNdateEdit->setVisible(true);
     ui->CreerDDNdateEdit->setDate(gdateParDefaut);
     ui->DDNlabel->setVisible(true);
+    ui->CreerDossierpushButton->setEnabled(ui->CreerNomlineEdit->text() != "" && ui->CreerPrenomlineEdit->text() != "");
     gMode = NouveauDossier;
 }
 
@@ -8473,8 +8487,6 @@ void    Rufus::RecopierDossier(Patient *patient)
         }
         FermeDlgAnnexes();
         IdentificationPatient(dlg_identificationpatient::Copie, pat);
-//        if (pat != m_currentpatient)
-//            delete pat;
     }
 }
 
@@ -8487,8 +8499,11 @@ void Rufus::RecaleTableView(Patient* pat)
     if (listitems.size() > 0)
     {
         QStandardItem *item = listitems.at(0);
-        ui->PatientsListeTableView->selectRow(item->row());
-        ui->PatientsListeTableView->scrollTo(item->index(), QAbstractItemView::PositionAtCenter);
+        QModelIndex pindx       = m_DDNsortmodel->mapFromSource(item->index());
+        QModelIndex pprenomindx = m_prenomsortmodel->mapFromSource(pindx);
+        QModelIndex finalindx   = m_listepatientsproxymodel->mapFromSource(pprenomindx);
+
+        ui->PatientsListeTableView->scrollTo(finalindx, QAbstractItemView::PositionAtCenter);
     }
 }
 
@@ -8860,15 +8875,15 @@ bool Rufus::Remplir_ListePatients_TableView(Patients *patients)
     itDDN->setTextAlignment(Qt::AlignLeft);
     m_listepatientsmodel->setHorizontalHeaderItem(2,itDDN);
 
-    QSortFilterProxyModel *DDNFilterModel = new QSortFilterProxyModel();
-    DDNFilterModel->setSourceModel(m_listepatientsmodel);
-    DDNFilterModel->sort(3);
+    m_DDNsortmodel = new QSortFilterProxyModel();
+    m_DDNsortmodel->setSourceModel(m_listepatientsmodel);
+    m_DDNsortmodel->sort(3);
 
-    QSortFilterProxyModel *PrenomFilterModel = new QSortFilterProxyModel();
-    PrenomFilterModel->setSourceModel(DDNFilterModel);
-    PrenomFilterModel->sort(5);
+    m_prenomsortmodel = new QSortFilterProxyModel();
+    m_prenomsortmodel->setSourceModel(m_DDNsortmodel);
+    m_prenomsortmodel->sort(5);
 
-    m_listepatientsproxymodel->setSourceModel(PrenomFilterModel);
+    m_listepatientsproxymodel->setSourceModel(m_prenomsortmodel);
     m_listepatientsproxymodel->sort(4);
 
     ui->PatientsListeTableView->setModel(m_listepatientsproxymodel);
@@ -8886,6 +8901,7 @@ bool Rufus::Remplir_ListePatients_TableView(Patients *patients)
 
     ui->PatientsListeTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->PatientsListeTableView->horizontalHeader()->setFixedHeight(int(fm.height()*1.3));
+    CalcNbDossiers();
 
     return true;
 }
@@ -9775,11 +9791,10 @@ void Rufus::SupprimerDossier(Patient *pat)
 
 
     //10. On reconstruit le treeView Liste
-    delete m_currentpatient;
-    m_currentpatient = new Patient();
+    m_currentpatient = Q_NULLPTR;
     m_lispatients->initListeAll();
     Remplir_ListePatients_TableView(m_lispatients) ;   //SupprimerDossier()
-    OuvrirListe();
+    ModeSelectDepuisListe();
 
     //11. On ferme la fiche dlg_actesprecedents
     FermeDlgAnnexes();
@@ -9851,7 +9866,6 @@ void Rufus::TrouverDDN()
 {
     m_lispatients->initListeByDDN(ui->CreerDDNdateEdit->date());
     Remplir_ListePatients_TableView(m_lispatients);
-    EnableCreerDossierButton();
 }
 
 
@@ -10087,8 +10101,7 @@ void Rufus::LireLaCV()
                   " WHERE PatDDN = '" + zdat + "'";
         m_lispatients->initListeAll();
         Remplir_ListePatients_TableView(m_lispatients) ;   // LireLaCV()
-        CalcNbDossiers();
-        OuvrirNouveauDossier();
+        ModeCreationDossier();
         ui->CreerNomlineEdit->setText(nomPat);
         ui->CreerPrenomlineEdit->setText(prenomPat);
         ui->CreerDDNdateEdit->setDate(QDate::fromString(zdat, "yyyy-MM-dd"));

@@ -651,6 +651,8 @@ void DataBase::SupprCorrespondant(int idcor)
 QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
 {
     QList<DocExterne*> docsexternes;
+    if (pat == Q_NULLPTR)
+        return QList<DocExterne*>();
     QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression,"
                   " compression, lienversfichier, formatdoc, Importance from " NOM_TABLE_IMPRESSIONS
                   " where idpat = " + QString::number(pat->id());

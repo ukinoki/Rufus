@@ -158,7 +158,7 @@ private:
     void        CreerBilanOrtho();
     void        CreerDossierpushButtonClicked();
     void        DropPatient(QByteArray);
-    void        EnableCreerDossierButton();
+    void        EnableButtons();
     void        ExporteDocs();                                  /* exporte les documents d'imagerie inscrits dans la base pra les postes idstants
                                                                 pour les archiver en fichiers standards sur le HD du serveur*/
     void        FiltreAccueil(int idx);
@@ -254,7 +254,7 @@ private:
     QString                 grequeteSalDat;
     QString                 gDirSauv;
     QStandardItemModel      *m_listepatientsmodel;
-    QSortFilterProxyModel   *m_listepatientsproxymodel;
+    QSortFilterProxyModel   *m_listepatientsproxymodel, *m_DDNsortmodel, *m_prenomsortmodel;
     QStandardItemModel      *m_listesuperviseursmodel, *m_listeparentsmodel;
     QTabBar                 *gSalDatTab, *gAccueilTab;
     QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerVerifConnexion, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
@@ -316,6 +316,7 @@ private:
     void                FlagMetAjourSalDat();
     Patient*            getSelectedPatientFromTable();                       //!> retrouve le patient sélectionné dans la liste des patients
     Patient*            getSelectedPatientFromCursorPositionInTable();       //!> retrouve le patient sous le curseur de la souris dans la liste des patients
+    Patient*            getSelectedPatientFromIndex(QModelIndex idx);       //!> retrouve le patient à partir du modelindex dans la table
     bool                IdentificationPatient(dlg_identificationpatient::Mode mode, Patient *pat);
     bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
@@ -335,8 +336,8 @@ private:
     void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(Patient *pat, bool depuismenucontextuel = false);
     void                OuvrirDocuments(bool AffichDocsExternes = true);
-    void                OuvrirListe();
-    void                OuvrirNouveauDossier();
+    void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
+    void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
     void                RecopierDossier(Patient *patient = Q_NULLPTR);
     void                RecaleTableView(Patient *pat);
     void                Refraction();
