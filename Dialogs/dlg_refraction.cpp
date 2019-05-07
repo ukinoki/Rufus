@@ -31,6 +31,8 @@ dlg_refraction::dlg_refraction(Patient *pat, Acte *acte, QWidget *parent) :
     gidUser         = db->getUserConnected()->id();
     gACteEnCours    = acte;
 
+    setWindowTitle("Refraction - " + m_currentpatient->nom() + " " + m_currentpatient->prenom());
+    setWindowIcon(Icons::icLunettes());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     InitDivers();

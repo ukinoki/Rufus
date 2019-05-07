@@ -37,21 +37,33 @@ bool Patients::isfull()
     return m_full;
 }
 
-/*!
- * \brief Patients::getById
+/*! charge les données du patient corresondant à l'id * \brief Patients::getById
  * \param id l'id du patient recherché
+ * \param all =false  -> ne charge que les données d'identité - =true -> charge les données sociales et médicales
  * \return Q_NULLPTR si aucun patient trouvé
  * \return Patient* le patient correspondant à l'id
  */
-Patient* Patients::getById(int id)
+Patient* Patients::getById(int id, bool all)
 {
     Patient* pat = Q_NULLPTR;
     for (int i=0; i< m_patients->size(); i++)
         if (m_patients->at(i)->id() == id)
         {
             pat = m_patients->at(i);
+            if (all)
+                if (!pat->isalloaded())
+                {
+                    bool ok;
+                    DataBase::I()->loadMedicalDataPatient(pat, ok);
+                    DataBase::I()->loadSocialDataPatient(pat, ok);
+                }
             break;
         }
+    if (pat == Q_NULLPTR)
+    {
+        pat = DataBase::I()->loadPatientById(id, all);
+        m_patients->append(pat);
+    }
     return pat;
 }
 

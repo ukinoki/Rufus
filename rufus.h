@@ -126,14 +126,9 @@ private:
     // anciens slots
     void        ChoixMenuContextuelIdentPatient();
     void        ChoixMenuContextuelMotsCles();
-    void        EnregistreDocScanner();
-    void        EnregistreVideo();
+    void        EnregistreDocScanner(Patient *pat);
+    void        EnregistreVideo(Patient *pat);
     void        ListeCorrespondants();
-
-
-
-signals:
-    void        EnregistrePaiement();
 
 private:
     void        ActeMontantModifie();
@@ -143,19 +138,20 @@ private:
     void        AfficheMenu(QMenu *menu);
     void        AfficheMotif(UpLabel *lbl);
     void        AfficheToolTip(Patient *pat);
-    void        AppelPaiementDirect(QString Origin = "");
+    enum Origin {BoutonPaiement, Accueil, Menu};
+    void        AppelPaiementDirect(Origin origin);
     void        AppelPaiementTiers();
     void        AppelPaiementTiers2();
     void        AutreDossier(Patient *pat);
     void        BilanRecettes();
-    void        ChercheNomparID(QString id);
+    void        CherchePatientParID(int id);
     void        ChoixCor(UpComboBox *box);
     void        BasculerMontantActe();
     void        ChoixMG();
     void        ChangeTabBureau();
     void        ConnectTimers(bool);
     void        CourrierAFaireChecked();
-    void        CreerBilanOrtho();
+    void        CreerBilanOrtho(Acte *act);
     void        CreerDossierpushButtonClicked();
     void        DropPatient(QByteArray);
     void        EnableButtons();
@@ -168,9 +164,9 @@ private:
                                                                 lance le thread impotrtdocsexternesthread qui va importer les documents d'imagerie
                                                                 enregistrés sur les dossiers d'échanges par les appareils d'imagerie*/
     void        VerifImportateur();                             /* vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
-    void        ImprimeDossier();
+    void        ImprimeDossier(Patient *pat);
     void        ImprimeListPatients(QVariant var);
-    void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
+    void        ImprimeListActes(Patient *pat, QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();       // CZ001
     void        LireLaCPS();      // CZ001
     void        MajusculeCreerNom();
@@ -179,7 +175,7 @@ private:
     void        ModifierTerrain();
     void        Moulinette();
     void        NouvelleMesureRefraction();                     // les connexions aux appareils de mesure
-    void        OKModifierTerrain(bool recalclesdonnees = true);
+    void        OKModifierTerrain(Patient *pat, bool recalclesdonnees = true);                  //!> recalcule le TreeWidgtet résumant le terrain
     void        OuvrirActesPrecspushButtonClicked();
     void        OuvrirJournalDepenses();
     void        OuvrirParametres();
@@ -262,10 +258,10 @@ private:
     Procedures              *proc;
 
     Acte                    *m_currentact;
-    User                    *gUserEnCours;
+    User                    *m_currentuser;
     Patient                 *m_currentpatient;
     Patient                 *m_dossierpatientaouvrir;
-    Patients                *m_lispatients;
+    Patients                *m_listepatients;
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
     UpLabel                 *gAskinflabel;
@@ -292,16 +288,17 @@ private:
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                keyPressEvent ( QKeyEvent * event );
     void                AfficheActe(Acte *acte);
-    void                AfficheActeCompta();
+    void                AfficheActeCompta(Acte *acte);
     void                AfficheDossier(Patient *pat, int idacte = 0);
     bool                AutorDepartConsult(bool ChgtDossier);
     bool                AutorSortieAppli();
-    void                CalcHtmlIdentificationPatient();
+    QString             CalcHtmlIdentificationPatient(Patient *pat);
+    QIcon               CalcIconPatient(Patient *pat);                      //!> renvoie l'icone qui représente le patient dans le html et sur le tab
     void                CalcMotsCles(Patient *pat);
     void                CalcNbDossiers();
     QString             CalcToolTipCorrespondant(int);
     bool                ChargeDataUser();
-    void                ChercheNomFiltre(Patient *pat = Q_NULLPTR);
+    void                ChercheNomFiltre();                                 //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
     void                ChoixDossier(Patient *pat, int idacte = 0);
     void                CreerActe(Patient *pat = Q_NULLPTR);
     void                ChercherDepuisListe();
@@ -310,13 +307,14 @@ private:
     void                DescendUneLigne();
     void                Descend20Lignes();
     int                 EnregistreNouveauCorresp(QString Cor, QString Nom);
-    void                ExporteActe();
-    void                FermeDlgAnnexes();
+    void                ExporteActe(Acte *act);
+    void                FermeDlgActesPrecedentsEtDocsExternes();
     bool                FermeDossier();
-    void                FlagMetAjourSalDat();
-    Patient*            getSelectedPatientFromTable();                       //!> retrouve le patient sélectionné dans la liste des patients
-    Patient*            getSelectedPatientFromCursorPositionInTable();       //!> retrouve le patient sous le curseur de la souris dans la liste des patients
-    Patient*            getSelectedPatientFromIndex(QModelIndex idx);       //!> retrouve le patient à partir du modelindex dans la table
+    Patient*            getPatientFromRow(int row);                         //!> retrouve le patient correspondant à la rangée row
+    Patient*            getPatientFromSelectionInTable();                   //!> retrouve le patient sélectionné dans la liste des patients
+    Patient*            getPatientFromCursorPositionInTable();              //!> retrouve le patient sous le curseur de la souris dans la liste des patients
+    Patient*            getPatientFromIndex(QModelIndex idx);               //!> retrouve le patient à partir du modelindex dans la table
+    int                 getRowFromPatient(Patient *pat);                    //!> retrouve la rangée où se trouve un patient dans la table;
     bool                IdentificationPatient(dlg_identificationpatient::Mode mode, Patient *pat);
     bool                Imprimer_Document(User *user, QString titre, QString Entete, QString text, QDate date, QString nom, QString prenom,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
@@ -339,7 +337,7 @@ private:
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
     void                RecopierDossier(Patient *patient = Q_NULLPTR);
-    void                RecaleTableView(Patient *pat);
+    void                RecaleTableView(Patient *pat, QAbstractItemView::ScrollHint scrollhint = QAbstractItemView::PositionAtCenter);
     void                Refraction();
     void                ReconstruitListesActes();
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);

@@ -136,7 +136,6 @@ public:
     void    setmg(int id) {m_idmg = id;}
     void    setspe1(int id) {m_idspe1 = id;}
     void    setspe2(int id) {m_idspe2 = id;}
-
 };
 
 #endif // CLS_PATIENT_H

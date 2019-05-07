@@ -3,14 +3,14 @@
 
 #include "database.h"
 
-            /*! les flags sont utilisés pour contrôler la mise à jour
-             *  - des la liste des messages
+            /*! les flags sont utilisés pour contrôler la mise à jour ils pallient l'absence du TCP en cas de on utilisation de RufusAdmin
+             *  - de la liste des messages
              *  - de la liste des correspondants
              *  - de la salle d'attente
              * Ils fonctionnent tous sur le même principe.
 
              * A - Pour les correspondants
-                * au démarrage, si le TCP N'est pas utilisé (pas de RufusAdmin ou accès distant), la classe rufus.cpp lit la valeur de MAJFlagMG dans la table rufus.flags (fonction Flags::flagCorrespondants()) et la stocke dans la variale m_flagcorrespondants
+                * au démarrage, si le TCP n'est pas utilisé (pas de RufusAdmin ou accès distant), la classe rufus.cpp lit la valeur de MAJFlagMG dans la table rufus.flags (fonction Flags::flagCorrespondants()) et la stocke dans la variale m_flagcorrespondants
                 * si le TCP n'est pas utilisé, un timer est lancé pour scruter la valeur du champ MAJFlagMG
                     * 1 - l'utilisateur modifie, supprime ou crée un correspondant par la classe dlg_identificationpatient ou dlg_listecorrespondants
                         * la classe concernée reinitialise la liste des correspondants -> DataBase::I()->loadCorrespondants()
@@ -35,7 +35,7 @@
                                 * reconstruit les combobox de correspondants
 
              * B - Pour les messages
-                * au démarrage, si le TCP N'est pas utilisé (pas de RufusAdmin ou accès distant), la classe rufus.cpp lit la valeur de MAJFlagMessages dans la table rufus.flags (fonction Flags::flagMessagess()) et la stocke dans la variale m_flagmessages
+                * au démarrage, si le TCP n'est pas utilisé (pas de RufusAdmin ou accès distant), la classe rufus.cpp lit la valeur de MAJFlagMessages dans la table rufus.flags (fonction Flags::flagMessagess()) et la stocke dans la variale m_flagmessages
                 * si le TCP n'est pas utilisé, un timer est lancé pour scruter la valeur du champ MAJFlagMessages
                     * 1 - l'utilisateur crée un message par la classe rufus.cpp
                         * rufus.cpp éxécute Flags::MAJflagMessages()
@@ -54,7 +54,7 @@
                             * si la valeur a augmenté, rufus.cpp met à jour les messages
 
              * C - Pour la salle d'attente
-                * au démarrage, si le TCP N'est pas utilisé (pas de RufusAdmin ou accès distant), la classe rufus.cpp lit la valeur de MAJFlagSalDat dans la table rufus.flags (fonction Flags::flagSalleDAttente()) et la stocke dans la variale m_flagsalledattente
+                * au démarrage, si le TCP n'est pas utilisé (pas de RufusAdmin ou accès distant), la classe rufus.cpp lit la valeur de MAJFlagSalDat dans la table rufus.flags (fonction Flags::flagSalleDAttente()) et la stocke dans la variale m_flagsalledattente
                 * si le TCP n'est pas utilisé, un timer est lancé pour scruter la valeur du champ MAJFlagSalDat
                     * 1 - l'utilisateur modifie la salle d'attente
                         * rufus.cpp reconstruit la salle d'attente

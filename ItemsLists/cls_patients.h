@@ -32,7 +32,13 @@ public:
     QList<Patient*> *patients() const;
 
 
-    Patient* getById(int id);
+    Patient* getById(int id, bool all = false);                                             /*! charge les données du patient corresondant à l'id
+                                                                                             * \brief Patients::getById
+                                                                                             * \param id l'id du patient recherché
+                                                                                             * \param all =false  -> ne charge que les données d'identité - =true -> charge les données sociales et médicales
+                                                                                             * \return Q_NULLPTR si aucun patient trouvé
+                                                                                             * \return Patient* le patient correspondant à l'id
+                                                                                             */
 
     bool isfull();
 

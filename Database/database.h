@@ -244,7 +244,7 @@ public:
                                                                                 * \param patnom filtrer sur le nom de patient
                                                                                 * \param patprenom filtrer sur le prénom de patient
                                                                                 * \param le filtre se fait sur des valeurs aprrochantes */
-    QList<Patient *> *loadPatientsByDDN(QDate DDN);
+    QList<Patient *> *      loadPatientsByDDN(QDate DDN);
                                                                                 /*! charge la liste de tous les patients pour une date de naissance
                                                                                 * \param DDN la date de naissance */
     Patient*                CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe);
