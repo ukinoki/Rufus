@@ -25,7 +25,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItemModel>
 #include <QtSql>
 #include "upmessagebox.h"
-#include "cls_villes.h"
+#include "database.h"
+#include "gbl_datas.h"
+#include "utils.h"
 
 namespace Ui {
     class VilleCPWidget;

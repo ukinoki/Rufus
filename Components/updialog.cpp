@@ -98,6 +98,12 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         CloseButton     ->setShortcut(QKeySequence("Meta+P"));
         laybuttons      ->addWidget(CloseButton);
     }
+    if (Button.testFlag(UpDialog::ButtonOups))
+    {
+        CloseButton     = new UpSmallButton();
+        CloseButton     ->setUpButtonStyle(UpSmallButton::OUPSBUTTON);
+        laybuttons      ->addWidget(CloseButton);
+    }
     UpdateTabOrder();
     setStageCount(1);
 }

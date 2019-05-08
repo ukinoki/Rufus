@@ -22,17 +22,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_actes.h"
 #include "cls_banques.h"
 #include "cls_compte.h"
-#include <cls_correspondants.h>
+#include "cls_correspondants.h"
 #include "cls_cotations.h"
-#include <cls_depenses.h>
+#include "cls_depenses.h"
 #include "cls_docsexternes.h"
 #include "cls_motifs.h"
 #include "cls_paiementsdirects.h"
-#include <cls_patients.h>
+#include "cls_patients.h"
 #include "cls_typestiers.h"
 #include "cls_tierspayants.h"
-#include <cls_users.h>
+#include "cls_users.h"
 #include "cls_documents.h"
+#include "cls_villes.h"
+#include "cls_sites.h"
 
 class Datas : public QObject
 {
@@ -45,6 +47,7 @@ public:
     static Datas *I();
 
     User *userConnected;
+    Site *sitedetravail;
     Actes *actes;                       //!< la liste d'actes pour un patient
     Users *users;                       //!< Les users
     Patients *patients;                 //!< Les patients
@@ -58,8 +61,10 @@ public:
     TypesTiers *typestiers;             //!< tous les types tiers payants
     PaiementsDirects *paiementsdirects; //!< tous les paiements en attente d'enregistrement
     DocsExternes *docsexternes;         //!< Les documents externes
+    Sites *sites;                       //!< Les lieux de travail
     Documents *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
     MetaDocuments *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Villes *villes;                     //!< toutes les villes
 };
 
 #endif // GBL_DATAS_H

@@ -18,11 +18,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_ARCHIVE_H
 #define CLS_ARCHIVE_H
 
-#include <QObject>
 #include "cls_item.h"
 
 class Archive : public Item
 {
+
 private:
     int m_idligne, m_idcompte;
     int m_iddepense, m_idrecette, m_idrecettespeciale, m_idremisecheque;
@@ -52,6 +52,7 @@ public:
 
 class Archives
 {
+
 private:
     QMap<int, Archive*>* m_archives = Q_NULLPTR; //!< la liste des archives
 public:

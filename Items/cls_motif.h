@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_MOTIF_H
 #define CLS_MOTIF_H
 
-#include <QObject>
 #include "cls_item.h"
 
 /*!
@@ -30,6 +29,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Motif : public Item
 {
+
 private:
     int m_id, m_duree, m_noordre;
     QString m_motif, m_raccourci, m_couleur;

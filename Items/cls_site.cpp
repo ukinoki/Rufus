@@ -40,11 +40,12 @@ void Site::setData(QJsonObject data)
 }
 
 
-int Site::id() const { return m_id; }
-QString Site::nom() const { return m_nom; }
-QString Site::adresse1() const { return m_adresse1; }
-QString Site::adresse2() const { return m_adresse2; }
-QString Site::adresse3() const { return m_adresse3; }
-int Site::codePostal() const { return m_codePostal; }
-QString Site::ville() const { return m_ville; }
+int Site::id() const            { return m_id; }
+QString Site::nom() const       { return m_nom; }
+QString Site::adresse1() const  { return m_adresse1; }
+QString Site::adresse2() const  { return m_adresse2; }
+QString Site::adresse3() const  { return m_adresse3; }
+int Site::codePostal() const    { return m_codePostal; }
+QString Site::ville() const     { return m_ville; }
 QString Site::telephone() const { return m_telephone; }
+QString Site::fax() const       { return m_fax; }

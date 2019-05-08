@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("08-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("09-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -66,6 +66,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->setDirImagerie();                                              // lit l'emplacement du dossier d'imagerie sur le serveur
     db = DataBase::I();
     flags = Flags::I();
+    Datas::I()->villes->initListe();
+    Datas::I()->sites->initListe();
 
     // 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
@@ -6106,7 +6108,11 @@ void Rufus::AfficheActe(Acte* acte)
         ui->ActeConclusiontextEdit  ->setText(acte->conclusion());
         ui->idActelineEdit          ->setText(QString::number(acte->id()));
         ui->CourrierAFairecheckBox  ->setChecked(acte->courrierAFaire());
+
+        ui->ActeCotationcomboBox    ->disconnect();                                         //! il faut faire ça pour éviter un foutoir de messages quand on navigue d'un acte à l'autre dans le dossier du patient
         ui->ActeCotationcomboBox    ->setCurrentText(acte->cotation());
+        connect (ui->ActeCotationcomboBox,  &QComboBox::currentTextChanged, this,   [=] {   RetrouveMontantActe();
+                                                                                            ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), gActeMontant); });
         // on affiche tous les montants en euros, même ce qui a été payé en francs.
         double H = 1;
         if (acte->isPayeEnFranc())
@@ -6894,13 +6900,10 @@ void    Rufus::CalcNbDossiers()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::ChercheNomFiltre()
 {
-    if ((ui->CreerNomlineEdit->text() != "" || ui->CreerPrenomlineEdit->text() != ""))
-    {
-        m_listepatients->initListeAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text(), true);
-        Remplir_ListePatients_TableView(m_listepatients) ;   //ChercheNomFiltre()
-        if (m_listepatientsmodel->rowCount()>0)
-            RecaleTableView(getPatientFromRow(0), QAbstractItemView::PositionAtCenter);
-    }
+    m_listepatients->initListeAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text(), true);
+    Remplir_ListePatients_TableView(m_listepatients) ;   //ChercheNomFiltre()
+    if (m_listepatientsmodel->rowCount()>0)
+        RecaleTableView(getPatientFromRow(0), QAbstractItemView::PositionAtCenter);
     EnableButtons();
 }
 
@@ -6985,8 +6988,9 @@ void    Rufus::CreerActe(Patient *pat)
                 " WHERE idUser = " + QString::number(m_currentuser->getIdUserActeSuperviseur()) + " AND idPat = "+ QString::number(pat->id());
     QVariantList maxactdata = db->getFirstRecordFromStandardSelectSQL(maxrequete ,ok , tr("Impossible de retrouver l'acte qui vient d'être créé"));
     if (!ok)
-            return ;
-    AfficheActe(db->loadActeById(maxactdata.at(0).toInt()));
+        return ;
+    Acte * act = db->loadActeById(maxactdata.at(0).toInt());
+    AfficheActe(act);
     QString req = "SELECT idActe FROM " NOM_TABLE_ACTES " WHERE idPat = " + QString::number(pat->id());
     QList<QVariantList> actlist = db->StandardSelectSQL(req,ok,tr("Impossible de compter le nombre d'actes"));
     if (!ok)
@@ -7160,6 +7164,7 @@ void Rufus::CreerDossier()
             }
             else if (msgbox.clickedButton() == &AnnulBouton)
             {
+                m_currentpatient = pat;
                 CreerActe(pat);
                 AfficheDossier(pat);
             }
@@ -8375,7 +8380,9 @@ void    Rufus::ModeSelectDepuisListe()
         ui->AtcdtsPersostextEdit->setFocus();
     ui->CreerNomlineEdit->clear();
     ui->CreerPrenomlineEdit->clear();
-    ui->CreerNomlineEdit->setFocus();
+    if (!m_listepatients->isfull())
+        m_listepatients->initListeAll();
+    Remplir_ListePatients_TableView(m_listepatients);
     if (gMode == Liste && ui->tabWidget->currentIndex() == ui->tabWidget->indexOf(ui->tabList))
         return;
     ui->tabWidget->setCurrentIndex(ui->tabWidget->indexOf(ui->tabList));
@@ -8845,7 +8852,7 @@ void Rufus::RemiseCheques()
 bool Rufus::Remplir_ListePatients_TableView(Patients *patients)
 {
     QList<Patient*> *listpatients = patients->patients();
-    UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4;
+    UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4, *pitem5;
     m_listepatientsmodel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
     if (m_listepatientsmodel != Q_NULLPTR)
         m_listepatientsmodel->clear();
@@ -8856,45 +8863,48 @@ bool Rufus::Remplir_ListePatients_TableView(Patients *patients)
     {
         for (int i=0;i<listpatients->size();i++)
         {
-            pitem0  = new UpStandardItem(listpatients->at(i)->nom().toUpper() + " " + listpatients->at(i)->prenom());   // Nom + Prénom
-            pitem1  = new UpStandardItem(listpatients->at(i)->datedenaissance().toString(tr("dd-MM-yyyy")));            // date de naissance
-            pitem2  = new UpStandardItem(listpatients->at(i)->datedenaissance().toString(tr("yyyyMMdd")));              // date de naissance inversée   -> utilisé pour le tri
-            pitem3  = new UpStandardItem(listpatients->at(i)->nom());                                                   // Nom                          -> utilisé pour le tri
-            pitem4  = new UpStandardItem(listpatients->at(i)->prenom());                                                // Prénom                       -> utilisé pour le tri
-            pitem0  ->seItem(listpatients->at(i));
-            pitem1  ->seItem(listpatients->at(i));
-            pitem2  ->seItem(listpatients->at(i));
-            pitem3  ->seItem(listpatients->at(i));
-            pitem4  ->seItem(listpatients->at(i));
-            m_listepatientsmodel->appendRow(QList<QStandardItem *>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4);
+            pitem0  = new UpStandardItem(QString::number(listpatients->at(i)->id()));                                   // id                           -> utilisé pour le drop event
+            pitem1  = new UpStandardItem(listpatients->at(i)->nom().toUpper() + " " + listpatients->at(i)->prenom());   // Nom + Prénom
+            pitem2  = new UpStandardItem(listpatients->at(i)->datedenaissance().toString(tr("dd-MM-yyyy")));            // date de naissance
+            pitem3  = new UpStandardItem(listpatients->at(i)->datedenaissance().toString(tr("yyyyMMdd")));              // date de naissance inversée   -> utilisé pour le tri
+            pitem4  = new UpStandardItem(listpatients->at(i)->nom());                                                   // Nom                          -> utilisé pour le tri
+            pitem5  = new UpStandardItem(listpatients->at(i)->prenom());                                                // Prénom                       -> utilisé pour le tri
+            pitem0  ->setItem(listpatients->at(i));
+            pitem1  ->setItem(listpatients->at(i));
+            pitem2  ->setItem(listpatients->at(i));
+            pitem3  ->setItem(listpatients->at(i));
+            pitem4  ->setItem(listpatients->at(i));
+            pitem4  ->setItem(listpatients->at(i));
+            m_listepatientsmodel->appendRow(QList<QStandardItem *>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5);
         }
     }
     QStandardItem *itnom = new QStandardItem();
     itnom->setText("Nom");
     itnom->setTextAlignment(Qt::AlignLeft);
-    m_listepatientsmodel->setHorizontalHeaderItem(0,itnom);
+    m_listepatientsmodel->setHorizontalHeaderItem(1,itnom);
     QStandardItem *itDDN = new QStandardItem();
     itDDN->setText("Date de naissance");
     itDDN->setTextAlignment(Qt::AlignLeft);
-    m_listepatientsmodel->setHorizontalHeaderItem(1,itDDN);
+    m_listepatientsmodel->setHorizontalHeaderItem(2,itDDN);
 
     m_DDNsortmodel = new QSortFilterProxyModel();
     m_DDNsortmodel->setSourceModel(m_listepatientsmodel);
-    m_DDNsortmodel->sort(2);
+    m_DDNsortmodel->sort(3);
 
     m_prenomsortmodel = new QSortFilterProxyModel();
     m_prenomsortmodel->setSourceModel(m_DDNsortmodel);
-    m_prenomsortmodel->sort(4);
+    m_prenomsortmodel->sort(5);
 
     m_listepatientsproxymodel->setSourceModel(m_prenomsortmodel);
-    m_listepatientsproxymodel->sort(3);
+    m_listepatientsproxymodel->sort(4);
 
     ui->PatientsListeTableView->setModel(m_listepatientsproxymodel);
-    ui->PatientsListeTableView->setColumnWidth(0,230 );       //Nom + Prénom
-    ui->PatientsListeTableView->setColumnWidth(1,122 );       //DDN
-    ui->PatientsListeTableView->setColumnWidth(2,0 );         //DDN inversé pour le tri
-    ui->PatientsListeTableView->setColumnWidth(3,0 );         //nom utilisé pour le tri
-    ui->PatientsListeTableView->setColumnWidth(4,0 );         //prénom utilisé pour le tri
+    ui->PatientsListeTableView->setColumnWidth(0,0 );         //id
+    ui->PatientsListeTableView->setColumnWidth(1,230 );       //Nom + Prénom
+    ui->PatientsListeTableView->setColumnWidth(2,122 );       //DDN
+    ui->PatientsListeTableView->setColumnWidth(3,0 );         //DDN inversé pour le tri
+    ui->PatientsListeTableView->setColumnWidth(4,0 );         //nom utilisé pour le tri
+    ui->PatientsListeTableView->setColumnWidth(5,0 );         //prénom utilisé pour le tri
 
     QFontMetrics fm(qApp->font());
     for (int j=0; j<listpatients->size(); j++)

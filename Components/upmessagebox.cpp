@@ -215,7 +215,6 @@ int UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons
 int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QStringList textlist)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
-    msgbox  ->setAttribute(Qt::WA_DeleteOnClose);
     msgbox  ->setText(Text);
     msgbox  ->setInformativeText(InfoText);
     msgbox  ->setIcon(UpMessageBox::Quest);
@@ -235,12 +234,15 @@ int UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Butt
         }
     }
     msgbox  ->Textedt           ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->InfoLabel       ->setFixedSize(Utils::CalcSize(InfoText));
+    msgbox  ->InfoLabel         ->setFixedSize(Utils::CalcSize(InfoText));
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
-    if (msgbox  ->exec()>0)
-        return msgbox->clickedButton()->ButtonStyle();
-    else return UpSmallButton::CANCELBUTTON;
+    int a = msgbox  ->exec();
+    int repons = msgbox->clickedButton()->ButtonStyle();
+    if (a==0)
+        repons = UpSmallButton::CANCELBUTTON;
+    delete msgbox;
+    return repons;
 }
 
 void UpMessageBox::Information(QWidget *parent, QString Text, QString InfoText)

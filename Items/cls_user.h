@@ -19,10 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_USER_H
 
 #include <QMap>
-#include <QObject>
 #include <QVariant>
 #include <QDate>
-#include <QJsonObject>
 #include "cls_item.h"
 #include "cls_site.h"
 #include "cls_compte.h"

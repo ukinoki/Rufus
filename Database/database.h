@@ -47,7 +47,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_patient.h"
 #include "cls_tiers.h"
 #include "cls_user.h"
-#include "cls_villes.h"
+#include "cls_site.h"
+#include "cls_ville.h"
 
 #include "log.h"
 #include "utils.h"
@@ -219,19 +220,19 @@ public:
     QList<Motif*>           loadMotifs();                               //! charge tous les motifs d'actes possibles à partir de la table motifsRDV
 
     /*
-     * Sites
+     * WorkSites
     */
 private:
-    QList<Site*>            loadSites(QString req);                     //! chharge les sites à partir de la requete req
+    QList<Site*>            loadSites(QString req);                 //! charge les sites de travailà partir de la requete req
 public:
-    QList<Site*>            loadSitesByUser(int idUser);                //! charge tous les sites utilisés par un user
-    QList<Site*>            loadSitesAll();                             //! chatges tous les sites sans exception
+    QList<Site*>            loadSitesByUser(int idUser);            //! charge tous les sites de travail utilisés par un user
+    QList<Site*>            loadSitesAll();                         //! charge tous les sites de travail sans exception
 
 public:
     /*
      * Villes
     */
-    Villes*                 loadVilles();                               //! chatge toutes les villes et leur code postal à partir de la table villes
+    QList<Ville *>          loadVilles();                                //! charge toutes les villes et leur code postal à partir de la table villes
 
     /*
      * Patients

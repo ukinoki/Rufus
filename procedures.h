@@ -69,16 +69,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptoolbar.h"
 #include "upmessagebox.h"
 
-#include "cls_correspondant.h"
-#include "cls_correspondants.h"
-#include "cls_cotation.h"
-#include "cls_depense.h"
-#include "cls_depenses.h"
-#include "cls_document.h"
-#include "cls_motif.h"
-#include "cls_patient.h"
-#include "cls_user.h"
-#include "cls_users.h"
 #include "database.h"
 #include "gbl_datas.h"
 
@@ -152,8 +142,8 @@ public:
               };
     Q_DECLARE_FLAGS(Days, Day)
     QTimer                  gTimerBackup;
-    void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true);
-    bool                    Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie = "", bool OKImages = false, bool OKVideos = false);
+    void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
+    bool                    Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie = "", bool OKImages = false, bool OKVideos = false, bool OKFactures = false);
     void                    BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days);                     // déclenche le backup à l'heure programmée
     void                    DefinitScriptBackup(QString NomDirDestination, QString NomDirStockageImagerie, bool AvecImages= true, bool AvecVideos = true);
     void                    DefinitScriptRestore(QStringList ListNomFiles);
@@ -207,7 +197,7 @@ public:
     bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifUserConnectes = true);
     bool                    VerifBaseEtRessources();
     void                    VideDatabases();
-    qint64                  BaseSize, ImagesSize, VideosSize, FreeSpace;
+    qint64                  BaseSize, ImagesSize, VideosSize, FacturesSize, FreeSpace;
     UpDialog                *gAskBupRestore;
     UpLabel                 *labelResume, *labelVolumeLibre, *inflabel;
     QList<QImage>           listimage;
@@ -226,7 +216,6 @@ public:
     QStandardItemModel*     getListeComptesEncaissmtUser();
     QStandardItemModel*     getListeComptesEncaissmtUserAvecDesactive();
     void                    setListeComptesEncaissmtUser(int);
-    Villes*                 getVilles();
 
     bool                    isPosteImportDocs();
 

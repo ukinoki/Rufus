@@ -25,7 +25,7 @@ UpStandardItem::UpStandardItem(QString txt) : QStandardItem(txt)
 {
 }
 
-void UpStandardItem::seItem(Item* item)
+void UpStandardItem::setItem(Item* item)
 {
     m_item = item;
 }

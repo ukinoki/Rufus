@@ -20,8 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_item.h"
 
-#include <QObject>
-
 /*!
  * \brief The depense class
  * l'ensemble des informations concernant une dépense
@@ -29,7 +27,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Depense : public Item
 {
-    Q_OBJECT
 
 private: //Données de la dépense
     int m_iddepense;            //!< id de la dépense

@@ -23,13 +23,14 @@ dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)  : UpDialog(QDir::homePath()
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     db              = DataBase::I();
     AjouteLayButtons(UpDialog::ButtonClose);
-    connect(CloseButton, SIGNAL(clicked(bool)), this, SLOT(Slot_EnregLieux()));
+    connect(CloseButton, SIGNAL(clicked(bool)), this, SLOT(reject()));
 
     QVBoxLayout *lay = dynamic_cast<QVBoxLayout*>(layout());
     tabLM = new QTableView(this);
     Adressuplbl = new UpLabel();
     Adressuplbl->setFixedWidth(240);
-
+    if (Datas::I()->sites->sites()->size() == 0)
+        Datas::I()->sites->initListe();
     ReconstruitModel();
     widg = new WidgetButtonFrame(tabLM);
     widg->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
@@ -41,11 +42,12 @@ dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)  : UpDialog(QDir::homePath()
     vlay    ->addWidget(Adressuplbl);
     vlay    ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
     hlay    ->addWidget(widg->widgButtonParent());
+    hlay    ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed));
     hlay    ->addLayout(vlay);
     lay     ->insertLayout(0,hlay);
     lay     ->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(widg,                       SIGNAL(choix(int)),                                 this,   SLOT(Slot_ChoixButtonFrame(int)));
+    connect(widg,   SIGNAL(choix(int)), this,   SLOT(Slot_ChoixButtonFrame(int)));
 }
 
 dlg_GestionLieux::~dlg_GestionLieux()
@@ -54,53 +56,61 @@ dlg_GestionLieux::~dlg_GestionLieux()
 
 void dlg_GestionLieux::Slot_AfficheDetails(QModelIndex idx, QModelIndex)
 {
-    int row = idx.row();
-    QString data ("");
-    for (int i=2; i<9; i++)
+    Site * sit = getSiteFromIndex(idx);
+    if (sit == Q_NULLPTR)
     {
-        QString datasuiv = tabModel->itemData(tabModel->index(row,i)).value(0).toString();
-        switch (i) {
-        case 2:
-        case 3:
-        case 4:
-        case 5:
-            if (data != "")
-                if (datasuiv != "")
-                    data += "\n";
-            data += datasuiv;
-            break;
-        case 6:
-            if (data != "")
-                if (datasuiv != "")
-                {
-                    if (tabModel->itemData(tabModel->index(row,5)).value(0).toString() != "")
-                        data += " ";
-                    else
-                        data += "\n";
-                }
-            data += datasuiv;
-            break;
-        case 7:
-            if (data != "")
-                if (datasuiv != "")
-                    data += "\n";
-            if (datasuiv != "")
-                data += "Tel: " + datasuiv;
-            break;
-        case 8:
-            if (data != "")
-                if (datasuiv != "")
-                    data += "\n";
-            if (datasuiv != "")
-                data += "Fax: " + datasuiv;
-            break;
-        default:
-            break;
-        }
+        widg->moinsBouton->setEnabled(false);
+        return;
+    }
+    QString data;
+    if (sit->adresse1() != "")
+        data = sit->adresse1();
+    if (sit->adresse2() != "")
+    {
+        if (data !="")
+            data += "\n";
+        data += sit->adresse2();
+    }
+    if (sit->adresse3() != "")
+    {
+        if (data !="")
+            data += "\n";
+        data += sit->adresse3();
+    }
+    if( sit->codePostal()>0 || sit->ville() != "")
+    {
+        if (data !="")
+            data += "\n";
+        if( sit->codePostal()>0)
+            data += QString::number(sit->codePostal());
+        if (sit->ville() != "" && sit->codePostal()>0)
+            data += " ";
+        data += sit->ville();
+    }
+    if (sit->telephone() != "")
+    {
+        if (data !="")
+            data += "\n";
+        data += "Tel: " + sit->telephone();
+    }
+    if (sit->fax() != "")
+    {
+        if (data !="")
+            data += "\n";
+        data += "Tel: " + sit->fax();
     }
     Adressuplbl->setText(data);
-    widg->moinsBouton->setEnabled(db->StandardSelectSQL("select iduser from " NOM_TABLE_JOINTURESLIEUX " where idlieu = " + tabModel->itemData(tabModel->index(row,0)).value(0).toString(), ok).size() == 0
-                                  && tabModel->itemData(tabModel->index(row,0)).value(0).toInt() != idlieuserveur);
+    widg->moinsBouton->setEnabled(db->StandardSelectSQL("select iduser from " NOM_TABLE_JOINTURESLIEUX " where idlieu = " + QString::number(sit->id()), ok).size() == 0
+                                  && sit->id() != idlieuserveur);
+}
+
+Site* dlg_GestionLieux::getSiteFromIndex(QModelIndex idx)
+{
+    UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(tabModel->itemFromIndex(idx));
+    if (upitem == Q_NULLPTR)
+        return Q_NULLPTR;
+    Site *sit = dynamic_cast<Site *>(upitem->item());
+    return sit;
 }
 
 void dlg_GestionLieux::Slot_ChoixButtonFrame(int i)
@@ -118,12 +128,6 @@ void dlg_GestionLieux::Slot_ChoixButtonFrame(int i)
     default:
         break;
     }
-}
-
-void dlg_GestionLieux::Slot_EnregLieux()
-{
-
-    reject();
 }
 
 void dlg_GestionLieux::CreerLieu()
@@ -154,7 +158,7 @@ void dlg_GestionLieux::Slot_EnregNouvLieu()
                         "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditfax->text())) + "')";
         //qDebug() << req;
         db->StandardSQL(req);
-        delete tabModel;
+        Datas::I()->sites->initListe();
         ReconstruitModel();
         gLieuDialog->accept();
         connect(tabLM->selectionModel(),    SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this,   SLOT(Slot_AfficheDetails(QModelIndex,QModelIndex)));
@@ -262,7 +266,10 @@ void dlg_GestionLieux::ModifLieuxDialog()
 void dlg_GestionLieux::ModifLieu()
 {
     ModifLieuxDialog();
-    idLieuAModifier = tabModel->itemData(tabModel->index(tabLM->currentIndex().row(),0)).value(0).toInt();
+    Site * sit = getSiteFromIndex(tabModel->index(tabLM->currentIndex().row(),0));
+    if (sit == Q_NULLPTR)
+        return;
+    idLieuAModifier = sit->id();
     leditnom    ->setText(tr("non défini"));
     QString req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE
                   " where idLieu = " + QString::number(idLieuAModifier);
@@ -299,7 +306,7 @@ void dlg_GestionLieux::Slot_ModifLieu()
                         "where idLieu = "   + QString::number(idLieuAModifier);
         //qDebug() << req;
         db->StandardSQL(req);
-        delete tabModel;
+        Datas::I()->sites->initListe();
         ReconstruitModel();
         gLieuDialog->accept();
         connect(tabLM->selectionModel(),    SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this,   SLOT(Slot_AfficheDetails(QModelIndex,QModelIndex)));
@@ -309,13 +316,16 @@ void dlg_GestionLieux::Slot_ModifLieu()
 
 void dlg_GestionLieux::SupprLieu()
 {
-    int idLieuASupprimer = tabModel->itemData(tabModel->index(tabLM->currentIndex().row(),0)).value(0).toInt();
-    QString lieu = tabModel->itemData(tabModel->index(tabLM->currentIndex().row(),1)).value(0).toString();
+    Site * sit = getSiteFromIndex(tabModel->index(tabLM->currentIndex().row(),0));
+    if (sit == Q_NULLPTR)
+        return;
+    int idLieuASupprimer = sit->id();
+    QString lieu = sit->nom();
     if (UpMessageBox::Question(this,tr("Suppression d'un lieu de soins"),tr("voulez vous vraiment supprimer") + "\n" + lieu + " ?") == UpSmallButton::STARTBUTTON)
     {
         db->SupprRecordFromTable(idLieuASupprimer, "idLieu", NOM_TABLE_LIEUXEXERCICE);
-        ReconstruitModel();
         dlg_message(QStringList() << lieu + " supprimé", 3000);
+        Datas::I()->sites->initListe();
         ReconstruitModel();
         connect(tabLM->selectionModel(),    SIGNAL(currentRowChanged(QModelIndex,QModelIndex)), this,   SLOT(Slot_AfficheDetails(QModelIndex,QModelIndex)));
         tabLM->selectRow(0);
@@ -351,60 +361,26 @@ bool dlg_GestionLieux::ValidationFiche()
 
 void dlg_GestionLieux::ReconstruitModel()
 {
-    tabModel = new QStandardItemModel();
-    tabModel->deleteLater();
+    QMap<int, Site*> *listsites = Datas::I()->sites->sites();
+    tabModel = dynamic_cast<QStandardItemModel*>(tabLM->model());
+    if (tabModel != Q_NULLPTR)
+        tabModel->clear();
+    else
+        tabModel = new QStandardItemModel;
 
-    QStandardItem *pitem0;
-    QStandardItem *pitem1;
-    QStandardItem *pitem2;
-    QStandardItem *pitem3;
-    QStandardItem *pitem4;
-    QStandardItem *pitem5;
-    QStandardItem *pitem6;
-    QStandardItem *pitem7;
-    QStandardItem *pitem8;
+    UpStandardItem *pitem0;
 
-    QList<QVariantList> listlieux = db->StandardSelectSQL("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE,ok);
-    if(!ok)
-        return;
-    for (int i=0; i<listlieux.size(); i++)
+    for( QMap<int, Site*>::const_iterator itsite = listsites->constBegin(); itsite != listsites->constEnd(); ++itsite )
     {
-        pitem0 = new QStandardItem(listlieux.at(i).at(0).toString());
-        pitem1 = new QStandardItem(listlieux.at(i).at(1).toString()==""? tr("non défini") : listlieux.at(i).at(1).toString());
-        pitem2 = new QStandardItem(listlieux.at(i).at(2).toString());
-        pitem3 = new QStandardItem(listlieux.at(i).at(3).toString());
-        pitem4 = new QStandardItem(listlieux.at(i).at(4).toString());
-        pitem5 = new QStandardItem(listlieux.at(i).at(5).toString());
-        pitem6 = new QStandardItem(listlieux.at(i).at(6).toString());
-        pitem7 = new QStandardItem(listlieux.at(i).at(7).toString());
-        pitem8 = new QStandardItem(listlieux.at(i).at(8).toString());
-        tabModel->appendRow(QList<QStandardItem*>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5 << pitem6 << pitem7 << pitem8);
+        Site *sit = const_cast<Site*>(itsite.value());
+        pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom());
+        pitem0->setItem(sit);
+        tabModel->appendRow(QList<QStandardItem*>() << pitem0);
     }
-
     tabLM->setModel(tabModel);
 
-    tabModel->setHeaderData(0, Qt::Horizontal, tr("idLieu"));
-    tabModel->setHeaderData(1, Qt::Horizontal, tr("Structure de soins"));
-    tabModel->setHeaderData(2, Qt::Horizontal, tr("Adresse1"));
-    tabModel->setHeaderData(3, Qt::Horizontal, tr("Adresse2"));
-    tabModel->setHeaderData(4, Qt::Horizontal, tr("Adresse3"));
-    tabModel->setHeaderData(5, Qt::Horizontal, tr("Code postal"));
-    tabModel->setHeaderData(6, Qt::Horizontal, tr("Ville"));
-    tabModel->setHeaderData(7, Qt::Horizontal, tr("Telephone"));
-    tabModel->setHeaderData(8, Qt::Horizontal, tr("Fax"));
-
-    tabLM->setColumnWidth(0,1);         // idLieu
-    tabLM->setColumnWidth(1,240);       // NomLieu
-    tabLM->setColumnWidth(2,240);       // Adresse1
-    tabLM->setColumnWidth(3,240);       // Adresse2
-    tabLM->setColumnWidth(4,240);       // Adresse3
-    tabLM->setColumnWidth(5,90);        // CP
-    tabLM->setColumnWidth(6,240);       // Ville
-    tabLM->setColumnWidth(7,120);       // Telephone
-    tabLM->setColumnWidth(8,120);       // Fax
-    tabLM->hideColumn(0);
-    for (int i=2; i<9; i++)
-        tabLM->setColumnHidden(i, true);
+    tabModel->setHeaderData(0, Qt::Horizontal, tr("Structure de soins"));
+    tabLM->setColumnWidth(0,240);       // NomLieu
     tabLM->verticalHeader()->setVisible(false);
     tabLM->setFocusPolicy(Qt::StrongFocus);
     tabLM->setGridStyle(Qt::NoPen);

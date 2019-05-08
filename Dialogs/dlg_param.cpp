@@ -244,7 +244,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->PortTonometreupComboBox     ->setCurrentText(proc->gsettingsIni->value("Param_Poste/PortTonometre").toString());
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
-       VilleCPDefautWidg   = new VilleCPWidget(proc->getVilles(), ui->VilleDefautframe);
+       VilleCPDefautWidg   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
        CPDefautlineEdit    = VilleCPDefautWidg->ui->CPlineEdit;
        VilleDefautlineEdit = VilleCPDefautWidg->ui->VillelineEdit;
        VilleCPDefautWidg   ->move(15,10);

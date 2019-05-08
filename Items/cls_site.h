@@ -15,13 +15,10 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLS_LIEUXTRAVAIL_H
-#define CLS_LIEUXTRAVAIL_H
+#ifndef CLS_SITE_H
+#define CLS_SITE_H
 
 #include "cls_item.h"
-
-#include <QJsonObject>
-#include <QObject>
 
 class Site : public Item
 {
@@ -43,7 +40,6 @@ public:
 
     void setData(QJsonObject data);
 
-
     int id() const;
     QString nom() const;
     QString adresse1() const;
@@ -52,11 +48,7 @@ public:
     int codePostal() const;
     QString ville() const;
     QString telephone() const;
-
-
-signals:
-
-public slots:
+    QString fax() const;
 };
 
-#endif // CLS_LIEUXTRAVAIL_H
+#endif // CLS_SITE_H

@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_BANQUE_H
 #define CLS_BANQUE_H
 
-#include <QObject>
 #include "cls_item.h"
 
 /*!
@@ -29,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Banque : public Item
 {
+
 private:
     int m_id, m_codebanque;
     QString m_idbanqueabrege, m_nombanque;

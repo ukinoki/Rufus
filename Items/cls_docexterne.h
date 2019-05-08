@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class DocExterne : public Item
 {
+
 private:
     int m_idimpression, m_iduser, m_importance, m_idpatient, m_compression, m_useremetteur;
     QString m_typedoc, m_titre, m_soustypedoc, m_textentete, m_textcorps, m_textorigine, m_textpied, m_formatdoc, m_lienversfichier;

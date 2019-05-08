@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Document : public Item
 {
+
 private:
     int m_iddocument, m_iduser;
     QString m_texte, m_resume, m_conclusion;

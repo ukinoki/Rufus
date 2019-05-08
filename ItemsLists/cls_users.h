@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_USERS_H
 #define CLS_USERS_H
 
-#include <QObject>
 #include "cls_user.h"
 #include "database.h"
 

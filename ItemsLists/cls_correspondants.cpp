@@ -115,7 +115,6 @@ Correspondant* Correspondants::getById(int id, bool loadDetails, bool addToList)
  */
 void Correspondants::initListe(bool all)
 {
-
     clearAll();
     QList<Correspondant*> listcorrespondants;
     if (all)

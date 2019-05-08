@@ -43,6 +43,8 @@ Datas::Datas()
     docsexternes    = new DocsExternes();
     documents       = new Documents();
     metadocuments   = new MetaDocuments();
+    villes          = new Villes();
+    sites           = new Sites();
 }
 
 

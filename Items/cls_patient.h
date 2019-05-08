@@ -21,8 +21,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_item.h"
 #include "cls_acte.h"
 
-#include <QObject>
-
 /*!
  * \brief The Patient class
  * l'ensemble des informations concernant une patient
@@ -30,7 +28,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Patient : public Item
 {
-    Q_OBJECT
 
 private: //Données du patient
     int m_id;                       //!< Id du patient en base

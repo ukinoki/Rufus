@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_PATIENTS_H
 #define CLS_PATIENTS_H
 
-#include <QObject>
 #include <cls_patient.h>
 #include "database.h"
 
@@ -51,7 +50,7 @@ public:
 
     void initListeByDDN(QDate DDN = QDate());                                               /*! crée une liste de tous les patients pour une date de naissance
                                                                                             * \param DDN la date de naissance */
-    private:
+private:
     QList<Patient*> *m_patients;                                                            //!< une liste de patients
     bool m_full;                                                                            //! la liste contient tous les patients de la base
 };

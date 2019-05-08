@@ -160,18 +160,6 @@ QString Procedures::getDossierDocuments(QString Appareil, int mode)
     return dossier;
 }
 
-/*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--------------------- GESTION DES VILLES ET DES CODES POSTAUX
-géré par la classe villecpwidget
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-
-Villes* Procedures::getVilles()
-{
-    if( m_villes == Q_NULLPTR )
-        m_villes = db->loadVilles();
-    return m_villes;
-}
-
 void Procedures::EnChantier(bool avecMsg)
 {
     UpMessageBox msgbox;
@@ -242,7 +230,7 @@ bool Procedures::VerifAutresPostesConnectes(bool msg)
  *  \param OKvideos :           les fichiers videos sont sauvegardés
  *
  */
-void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdestination, bool OKini, bool OKRssces, bool OKimages, bool OKvideos)
+void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdestination, bool OKini, bool OKRssces, bool OKimages, bool OKvideos, bool OKfactures)
 {
     QMap<QString, qint64>      DataDir;
     // taille de la base de données ----------------------------------------------------------------------------------------------------------------------------------------------
@@ -354,6 +342,32 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             connect(Imgeschk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
         }
     }
+    if (OKfactures)
+    {
+        // taille du dossier Factures ---------------------------------------------------------------------------------------------------------------------------------------
+        DataDir = Utils::dir_size(pathorigin + NOMDIR_FACTURES);
+        FacturesSize = DataDir["Size"]/1024/1024;
+        if (FacturesSize > 0)
+        {
+            QHBoxLayout *layFctures = new QHBoxLayout;
+            UpLabel *labelmges = new UpLabel();
+            labelmges->setVisible(false);
+            labelmges->setFixedSize(labelsize, labelsize);
+            layFctures->addWidget(labelmges);
+            UpCheckBox *Fctureschk  = new UpCheckBox();
+            Fctureschk->setText("Factures");
+            Fctureschk->setEnabled(OKimages || !Restore);
+            Fctureschk->setChecked(OKimages || !Restore);
+            Fctureschk->setAccessibleDescription("factures");
+            layFctures->addWidget(Fctureschk);
+            layFctures->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
+            UpLabel *lblvolfct = new UpLabel();
+            lblvolfct->setText(Utils::getExpressionSize(FacturesSize));
+            layFctures->addWidget(lblvolfct);
+            gAskBupRestore->dlglayout()->insertLayout(0, layFctures);
+            connect(Fctureschk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
+        }
+    }
 
     QHBoxLayout *layBDD = new QHBoxLayout;
     UpLabel *labelBDD = new UpLabel();
@@ -390,7 +404,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
     Slot_CalcTimeBupRestore();
 }
 
-bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie, bool OKImages, bool OKVideos)
+bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie, bool OKImages, bool OKVideos, bool OKFactures)
 {
     if (QDir(NomDirStockageImagerie).exists())
     {
@@ -402,6 +416,7 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
     {
         OKImages = false;
         OKVideos = false;
+        OKFactures = false;
     }
 
     Message(tr("Sauvegarde en cours"),3000,false);
@@ -456,7 +471,10 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
             Message(Msg, 3000);
             QProcess::execute("cp -R " + NomDirStockageImagerie + NOMDIR_IMAGES + " " + dest);
             Message(tr("Fichiers d'imagerie sauvegardés!"), 3000, false);
-            Msg = (tr("Sauvegarde des factures\n")
+        }
+        if (OKFactures)
+        {
+            QString Msg = (tr("Sauvegarde des factures\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
             Message(Msg, 3000);
             QProcess::execute("cp -R " + NomDirStockageImagerie + NOMDIR_FACTURES + " " + dest);
@@ -473,10 +491,9 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
     }
     connexion = true;
     if (OKImages)
-    {
         Utils::cleanfolder(dirSauv + NOMDIR_IMAGES);
+    if (OKFactures)
         Utils::cleanfolder(dirSauv + NOMDIR_FACTURES);
-    }
     if (OKVideos)
         Utils::cleanfolder(dirSauv + NOMDIR_VIDEOS);
     emit ConnectTimers();
@@ -703,11 +720,13 @@ bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool 
     bool OKbase     = false;
     bool OKImages   = false;
     bool OKVideos   = false;
+    bool OKFactures = false;
     if (full)
     {
         OKbase = true;
         OKImages = true && QDir(NomDirStockageImagerie).exists();
         OKVideos = true && QDir(NomDirStockageImagerie).exists();
+        OKFactures = true && QDir(NomDirStockageImagerie).exists();
     }
     else
     {
@@ -723,11 +742,13 @@ bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool 
                 OKImages = listchk.at(i)->isChecked();
             else if (listchk.at(i)->accessibleDescription() == "videos")
                 OKVideos = listchk.at(i)->isChecked();
+            else if (listchk.at(i)->accessibleDescription() == "factures")
+                OKFactures = listchk.at(i)->isChecked();
         }
     }
-    if (!OKbase && !OKImages && !OKVideos)
+    if (!OKbase && !OKImages && !OKVideos && !OKFactures)
         return false;
-    return Backup(NomDirDestination, OKbase, NomDirStockageImagerie, OKImages, OKVideos);
+    return Backup(NomDirDestination, OKbase, NomDirStockageImagerie, OKImages, OKVideos, OKFactures);
 }
 
 /*!
@@ -2406,6 +2427,11 @@ void Procedures::Slot_CalcTimeBupRestore()
             if (listchk.at(i)->isChecked())
                 volume += VideosSize;
         }
+        if (listchk.at(i)->accessibleDescription() == "factures")
+        {
+            if (listchk.at(i)->isChecked())
+                volume += FacturesSize;
+        }
     }
     time = (volume/1024 /2)*60000; //duréée approximative de sauvegarde en ms
     QString Volumelitteral = Utils::getExpressionSize(volume);
@@ -2554,6 +2580,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         bool OKRessces  = false;
         bool OKini      = false;
         bool OKImages   = false;
+        bool OKFactures = false;
         bool OKVideos   = false;
 
         QString msg;
@@ -2569,6 +2596,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (QDir(dirtorestore.absolutePath() + NOMDIR_VIDEOS).exists())
             if (QDir(dirtorestore.absolutePath() + NOMDIR_VIDEOS).entryList(QDir::Files | QDir::NoDotAndDotDot).size()>0)
                 OKVideos = true;
+        if (QDir(dirtorestore.absolutePath() + NOMDIR_FACTURES).exists())
+            if (QDir(dirtorestore.absolutePath() + NOMDIR_FACTURES).entryList(QDir::Dirs | QDir::NoDotAndDotDot).size()>0)
+                OKFactures = true;
 
         QString NomDirStockageImagerie = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGES;
         QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
@@ -2607,7 +2637,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
 
         req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + NomDirStockageImagerie + "'";
         db->StandardSQL(req, "bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifUserConnectes) - 1st");
-        AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos);
+        AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos, OKFactures);
         if (gAskBupRestore->exec()>0)
         {
             connexion = false;
@@ -2771,12 +2801,41 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         else
                         {
                             QString Msg = (tr("Restauration des fichiers videos\n")
-                                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
+                                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille du dosseir"));
                             Message(Msg, 3000, false);
                             Msg = "cp -R " + dirrestaurevideo.absolutePath() + " " + NomDirStockageImagerie;
                             QProcess::execute(Msg);
                             msg += tr("Fichiers videos restaurés\n");
                             Message(tr("Fichiers videos restaurés"), 3000);
+                        }
+                    }
+                }
+            }
+            for (int i= 0; i<listchk.size(); i++)
+            {
+                if (listchk.at(i)->accessibleDescription() == "factures")
+                {
+                    if (listchk.at(i)->isChecked())
+                    {
+                        QDir dirrestaurefactures = QDir(dirtorestore.absolutePath() + NOMDIR_FACTURES);
+                        QString dirdestinationfactures       =  NomDirStockageImagerie + NOMDIR_FACTURES;
+                        QDir DirDestFac(dirdestinationfactures);
+                        if (DirDestFac.exists())
+                            DirDestFac.removeRecursively();
+                        if (!DirDestFac.mkdir(dirdestinationfactures))
+                        {
+                            QString Msg = tr("le dossier de destination des factures n'existe pas");
+                            Message(Msg, 3000, false);
+                        }
+                        else
+                        {
+                            QString Msg = (tr("Restauration des fichiers facturess\n")
+                                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille du dossier"));
+                            Message(Msg, 3000, false);
+                            Msg = "cp -R " + dirrestaurefactures.absolutePath() + " " + NomDirStockageImagerie;
+                            QProcess::execute(Msg);
+                            msg += tr("Factures restaurées\n");
+                            Message(tr("Factures restaurées"), 3000);
                         }
                     }
                 }
@@ -3017,7 +3076,7 @@ bool Procedures::Connexion_A_La_Base()
 
 /*-----------------------------------------------------------------------------------------------------------------
     -- Détermination du lieu exercice pour la session en cours -------------------------------------------------------------
-    -----------------------------------------------------------------------------------------------------------------*/
+    ----------------------------------------------------------------------------------------------------------------- */
 Site* Procedures::DetermineLieuExercice()
 {
     QList<Site*> listEtab = db->loadSitesByUser(m_userConnected->id());
@@ -3080,27 +3139,6 @@ Site* Procedures::DetermineLieuExercice()
         if( rb->isChecked() )
             return qobject_cast<Site*>(rb->getItem());
     }
-    /*
-    if (db->getMode() == DataBase::Poste || db->getMode() == DataBase::Distant)
-    {
-            delete gAskLieux;
-    }
-    else //TODO : ??? : Je ne comprends pas pourquoi
-    {
-        QString lieuxreq = "select idLieuParDefaut from " NOM_TABLE_PARAMSYSTEME;
-        QSqlQuery lxquer(lieuxreq,db->getDataBase() );
-        db->erreurRequete(lxquer,lieuxreq);
-        lxquer.first();
-        if (lxquer.value(0).toInt()>=1)
-            idLieuExercice = lxquer.value(0).toInt();
-        else
-        {
-            QSqlQuery lieuquer("select min(idlieu) from " NOM_TABLE_LIEUXEXERCICE,db->getDataBase() );
-            lieuquer.first();
-            idLieuExercice = lieuquer.value(0).toInt();
-            QSqlQuery("update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + lieuquer.value(0).toString(), db->getDataBase() );
-        }
-    }*/
     return Q_NULLPTR;
 }
 

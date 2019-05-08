@@ -36,7 +36,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     }
     gMode               = mode;
     OnlyDoctors         = quelesmedecins;
-    VilleCPwidg     = new VilleCPWidget(proc->getVilles(), ui->Principalframe);
+    VilleCPwidg     = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
     CPlineEdit      = VilleCPwidg->ui->CPlineEdit;
     VillelineEdit   = VilleCPwidg->ui->VillelineEdit;
     VilleCPwidg     ->move(10,224);
@@ -85,8 +85,8 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     ui->MaillineEdit->installEventFilter(this);
     ui->NomlineEdit->setFocus();
 
+    OKButton->disconnect();
     connect (OKButton,                  SIGNAL(clicked()),                  this,           SLOT (Slot_OKpushButtonClicked()));
-
     connect (ui->NomlineEdit,           SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
     connect (ui->PrenomlineEdit,        SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
     connect (ui->Adresse1lineEdit,      SIGNAL(editingFinished()),          this,           SLOT (Slot_Majuscule()));
@@ -138,8 +138,13 @@ dlg_identificationcorresp::~dlg_identificationcorresp()
 
 void    dlg_identificationcorresp::Slot_EnableOKpushButton()
 {
-    OKButton->setEnabled(true);
-    OKButton->setShortcut(QKeySequence("Meta+Return"));
+    bool a  = ui->NomlineEdit->text() != ""
+           && ui->PrenomlineEdit->text() != ""
+           && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
+           && CPlineEdit->text() != ""
+           && VillelineEdit->text() != "";
+    OKButton->setEnabled(a);
+    OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 
 void dlg_identificationcorresp::Slot_Majuscule()
@@ -154,7 +159,6 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     QString CorNom, CorPrenom;
     CorNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
     CorPrenom   = Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text(),true));
-
 
     if (CPlineEdit->text() == "" && VillelineEdit->text() == "")
     {

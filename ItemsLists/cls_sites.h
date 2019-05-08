@@ -15,26 +15,28 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef UPSTANDARDITEM_H
-#define UPSTANDARDITEM_H
+#ifndef SITES_H // si on met CLS_SITES_H, ça ne compile pas (?)
+#define SITES_H
 
-#include <QStandardItem>
-#include "cls_item.h"
+#include "cls_site.h"
+#include "database.h"
 
-class UpStandardItem : public QStandardItem
+class Sites
 {
-public:
-    UpStandardItem();
-    UpStandardItem(QString txt);
-    void    setItem(Item* item);
-    Item*   item();
-
 private:
-    Item*   m_item = Q_NULLPTR;
+    QMap<int, Site*> *m_sites;    //!<Collection de tous les sites sans exception, généralistes ou pas
 
-signals:
+public:
+    //GETTER
+    QMap<int, Site *> *sites()     const;
 
-public slots:
+    Sites();
+
+    bool add(Site *sit);
+    Site* getById(int id);
+    void remove(Site* sit);
+    void clearAll();
+    void initListe();
 };
 
-#endif // UPSTANDARDITEM_H
+#endif // SITES_H

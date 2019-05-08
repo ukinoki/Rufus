@@ -40,7 +40,8 @@ public:
                 ButtonCancel            = 0x8,
                 ButtonClose             = 0x10,
                 ButtonEdit              = 0x20,
-                ButtonRecord            = 0x40
+                ButtonRecord            = 0x40,
+                ButtonOups              = 0x80
                 };
     Q_DECLARE_FLAGS(Buttons, Button)
 

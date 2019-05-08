@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_TIERS_H
 #define CLS_TIERS_H
 
-#include <QObject>
 #include "cls_item.h"
 
 /*!
@@ -35,6 +34,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Tiers : public Item
 {
+
 private:
     int m_id;
     QString m_nomtiers, m_adressetiers, m_villetiers, m_codepostaltiers, m_telephonetiers, m_faxtiers;
@@ -53,6 +53,7 @@ public:
 
 class TypeTiers : public Item
 {
+
 private:
     QString m_typetiers;
 public:

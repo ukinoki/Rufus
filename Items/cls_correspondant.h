@@ -20,8 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_item.h"
 
-#include <QObject>
-
 /*!
  * \brief The correspondant class
  * l'ensemble des informations concernant un correspondant
@@ -29,7 +27,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Correspondant : public Item
 {
-    Q_OBJECT
 
 private: //Données du correspondant
     int m_id = -1;                  //!< Id du correspondant en base

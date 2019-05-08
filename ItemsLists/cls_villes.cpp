@@ -16,31 +16,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cls_villes.h"
+#include "database.h"
 
 #include <QException>
-
-/*
- * Ville
-*/
-Ville::Ville(QJsonObject data, QObject *parent) : Item(parent)
-{
-    setData( data );
-}
-
-int Ville::id() const { return m_id; }
-QString Ville::codePostal() const { return m_codePostal; }
-QString Ville::nom() const { return m_nom; }
-
-void Ville::setData(QJsonObject data)
-{
-    if( data.isEmpty() )
-        return;
-
-    setDataInt(data, "ville_id", m_id);
-    setDataString(data, "codePostal", m_codePostal);
-    setDataString(data, "ville", m_nom);
-}
-
 
 /*
  * VilleListModel
@@ -84,9 +62,22 @@ QVariant VilleListModel::data(const QModelIndex& index, int role) const
  * Villes
 */
 Villes::Villes()
-{}
+{
+}
 
-void Villes::addVille(Ville *ville)
+void Villes::initListe()
+{
+    QList<Ville*> listvilles;
+    listvilles = DataBase::I()->loadVilles();
+    QList<Ville*>::const_iterator itvilles;
+    for( itvilles = listvilles.constBegin(); itvilles != listvilles.constEnd(); ++itvilles )
+    {
+        Ville *ville = const_cast<Ville*>(*itvilles);
+        add(ville);
+    }
+}
+
+void Villes::add(Ville *ville)
 {
     /*
     if( m_villes.contains(ville->id()) )

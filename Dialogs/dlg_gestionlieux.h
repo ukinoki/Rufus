@@ -30,7 +30,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uplabel.h"
 #include "uplineedit.h"
 #include "upmessagebox.h"
+#include "upstandarditem.h"
 #include "widgetbuttonframe.h"
+#include "gbl_datas.h"
 
 /* sert à gérer les lieux d'exercice
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
@@ -43,7 +45,6 @@ public:
     explicit dlg_GestionLieux(QWidget *parent = Q_NULLPTR);
     ~dlg_GestionLieux();
 private slots:
-    void                    Slot_EnregLieux();
     void                    Slot_AfficheDetails(QModelIndex, QModelIndex);
     void                    Slot_ChoixButtonFrame(int i);
     void                    Slot_EnableOKButton();
@@ -68,6 +69,7 @@ private:
     int                     idLieuAModifier;
     int                     idlieuserveur;
     void                    CreerLieu();
+    Site*                   getSiteFromIndex(QModelIndex idx);
     void                    ModifLieu();
     void                    SupprLieu();
     void                    ModifLieuxDialog();

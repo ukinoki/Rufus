@@ -70,7 +70,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
     ui->MGupComboBox    ->setCurrentIndex(-1);
 
-    VilleCPwidg         = new VilleCPWidget(proc->getVilles(), ui->Principalframe);
+    VilleCPwidg         = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
     CPlineEdit          = VilleCPwidg->ui->CPlineEdit;
     VillelineEdit       = VilleCPwidg->ui->VillelineEdit;
     VilleCPwidg         ->move(10,254);
@@ -105,8 +105,9 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
 
     ui->NomlineEdit->setFocus();
 
+    OKButton    ->disconnect();
+    CancelButton->disconnect();
     connect (OKButton,                      SIGNAL(clicked()),                          this,   SLOT (Slot_OKpushButtonClicked()));
-    disconnect (CancelButton,               SIGNAL(clicked()),                          this,   SLOT (reject()));
     connect (CancelButton,                  SIGNAL(clicked()),                          this,   SLOT (Slot_AnnulpushButtonClicked()));
     connect (ui->ModifierDDNupPushButton,   SIGNAL(clicked()),                          this,   SLOT (Slot_ModifDDN()));
 
@@ -160,8 +161,13 @@ void dlg_identificationpatient::ChoixMG()
 
 void    dlg_identificationpatient::Slot_EnableOKpushButton()
 {
-    OKButton    ->setEnabled(true);
-    OKButton    ->setShortcut(QKeySequence("Meta+Return"));
+    bool a  = ui->NomlineEdit->text() != ""
+           && ui->PrenomlineEdit->text() != ""
+           && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
+           && CPlineEdit->text() != ""
+           && VillelineEdit->text() != "";
+    OKButton->setEnabled(a);
+    OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 
 void dlg_identificationpatient::Slot_Majuscule()
@@ -256,6 +262,11 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         {
             UpMessageBox::Watch(this,tr("Vous devez spécifier un prénom!"));
             ui->PrenomlineEdit->setFocus();
+            return;
+        }
+        if (Sexe == "")
+        {
+            UpMessageBox::Watch(this,tr("Vous devez spécifier le sexe!"));
             return;
         }
 
@@ -449,16 +460,16 @@ void dlg_identificationpatient::Slot_AnnulpushButtonClicked()
 {
     if (gMode == Creation)
     {
-        UpMessageBox msgbox;
+        UpMessageBox *msgbox = new UpMessageBox(this);
         UpSmallButton OKBouton(tr("Annuler la création"));
-        UpSmallButton NoBouton;
-        msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin());
-        msgbox.setInformativeText(tr("Annuler la création de ce dossier ?"));
-        msgbox.setIcon(UpMessageBox::Warning);
-        msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
-        msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
-        msgbox.exec();
-        if (msgbox.clickedButton() == &OKBouton)
+        UpSmallButton NoBouton(tr("Revenir à la fiche"));
+        msgbox->setText("Euuhh... " + db->getUserConnected()->getLogin());
+        msgbox->setInformativeText(tr("Annuler la création de ce dossier ?"));
+        msgbox->setIcon(UpMessageBox::Warning);
+        msgbox->addButton(&NoBouton, UpSmallButton::OUPSBUTTON);
+        msgbox->addButton(&OKBouton, UpSmallButton::CLOSEBUTTON);
+        msgbox->exec();
+        if (msgbox->clickedButton() == &OKBouton)
         {
             db->StandardSQL("delete from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(m_currentpatient->id()));
             db->StandardSQL("delete from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idPat = " + QString::number(m_currentpatient->id()));

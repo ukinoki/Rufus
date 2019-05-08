@@ -18,11 +18,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_COMPTE_H
 #define CLS_COMPTE_H
 
-#include <QObject>
 #include "cls_item.h"
 
 class Compte : public Item
 {
+
 private:
     int m_id, m_idbanque, m_iduser;
     QString m_nom, m_iban, m_intitulecompte, m_nombanque;

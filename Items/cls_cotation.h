@@ -18,11 +18,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_COTATION_H
 #define CLS_COTATION_H
 
-#include <QObject>
 #include "cls_item.h"
 
 class Cotation : public Item
 {
+
 private:
     int m_id, m_iduser, m_frequence, m_idcotation;
     QString m_typeacte, m_descriptif;

@@ -18,30 +18,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_SITES_H
 #define CLS_SITES_H
 
-#include "cls_item.h"
+#include "cls_ville.h"
 
 #include <QAbstractListModel>
 #include <QJsonArray>
-#include <QObject>
-
-class Ville : public Item
-{
-private:
-    int m_id;           //!< l'id de la ville en base
-    QString m_codePostal;   //!< le code postal de la ville
-    QString m_nom;      //!< le nom de la ville
-
-public:
-    explicit Ville(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-
-    int id() const;
-    QString codePostal() const;
-    QString nom() const;
-
-
-    void setData(QJsonObject data);
-
-};
 
 class VilleListModel : public QAbstractListModel
 {
@@ -67,6 +47,7 @@ private:
 
 class Villes
 {
+
 private:
     QMultiMap<QString, Ville*> m_villes;        //!< la liste des villes par nom
     QMultiMap<QString, Ville*> m_codePostal;    //!< la liste des villes par codePostal
@@ -74,9 +55,9 @@ private:
     QStringList m_listeCodePostal;              //!< la liste des codes postaux
 
 public:
-    explicit Villes();
-
-    void addVille(Ville *ville);
+    Villes();
+    void initListe();
+    void add(Ville *ville);
 
     QStringList getListVilles();
     QStringList getListCodePostal();

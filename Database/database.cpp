@@ -1179,20 +1179,18 @@ QList<Motif*> DataBase::loadMotifs()
 */
 QList<Site*> DataBase::loadSitesAll()
 {
-    QString req = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
+    QString req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
                     "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
-                  "from " NOM_TABLE_JOINTURESLIEUX;
-
+                  "from " NOM_TABLE_LIEUXEXERCICE;
     return loadSites( req );
 }
 QList<Site*> DataBase::loadSitesByUser(int idUser)
 {
     QString req = "select joint.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
-                    "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
+                  "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
                   "from " NOM_TABLE_JOINTURESLIEUX " joint "
                   "left join " NOM_TABLE_LIEUXEXERCICE " lix on joint.idlieu = lix.idLieu "
                   "where iduser = " + QString::number(idUser);
-
     return loadSites( req );
 }
 QList<Site*> DataBase::loadSites(QString req)
@@ -1216,17 +1214,15 @@ QList<Site*> DataBase::loadSites(QString req)
         Site *etab = new Site(jEtab);
         etabs << etab;
     }
-
     return etabs;
 }
-
 
 /*
  * Villes
 */
-Villes* DataBase::loadVilles()
+QList<Ville*> DataBase::loadVilles()
 {
-    Villes *villes = new Villes();
+    QList<Ville*> villes;
 
     QString req = "select ville_id, codePostal, ville "
                   "from " NOM_TABLE_VILLES;
@@ -1240,9 +1236,8 @@ Villes* DataBase::loadVilles()
         jEtab["codePostal"] = villist.at(i).at(1).toString();
         jEtab["ville"] = villist.at(i).at(2).toString();
         Ville *ville = new Ville(jEtab);
-        villes->addVille(ville);
+        villes << ville;
     }
-
     return villes;
 }
 
