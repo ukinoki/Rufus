@@ -111,18 +111,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 //les TCP
 #define NOM_PORT_TCPSERVEUR                         "50885"
-#define TCPMSG_idUser                               "idUser"                                            /* nom du message fournissant l'idUser */
-#define TCPMSG_MAJCorrespondants                    "MajCorrespondants"                                 /* fin du message invitant à mettre à jour la liste des correspondants */
-#define TCPMSG_MAJDocsExternes                      "MajDocsExternes"                                   /* fin du message invitant à mettre à jour la liste des documents externes pour un patient */
-#define TCPMSG_MAJSalAttente                        "MajSalAttente"                                     /* fin du message invitant à mettre à jour la salle d'attente */
-#define TCPMSG_MsgBAL                               "MsgRecuDansBAL"                                    /* fin du message informant de la réception d'un message de messagerie instantanée */
-#define TCPMSG_Separator                            "triumphspeedtriple1050"                            /* separateur au sein d'un message */
-#define TCPMSG_DataSocket                           "DataSocket"                                        /* fin du message fournissant IP et MAC d'un client */
-#define TCPMSG_ListeSockets                         "ListeSockets"                                      /* fin du message informant le client que ce message contient la liste des TcpSockets */
-#define TCPMSG_EnvoieListSocket                     "EnvoieListe"                                       /* fin du message demandant l'envoi de la liste des sockets à un client */
-#define TCPMSG_Disconnect                           "Deconnexion"                                       /* fin du message demandant la deconnexion et la fermeture d'un socket */
-#define TCPMSG_TestConnexion                        "TestConnexion"                                     /* fin du message de test de la connexion */
-#define TCPMSG_OKConnexion                          "OKConnexion"                                       /* fin du message de confirmation de la connexion */
+#define TCPMSG_idUser                               "idUser"                                            /*! nom du message fournissant l'idUser */
+#define TCPMSG_MAJCorrespondants                    "MajCorrespondants"                                 /*! fin du message invitant à mettre à jour la liste des correspondants */
+#define TCPMSG_MAJDocsExternes                      "MajDocsExternes"                                   /*! fin du message invitant à mettre à jour la liste des documents externes pour un patient */
+#define TCPMSG_MAJSalAttente                        "MajSalAttente"                                     /*! fin du message invitant à mettre à jour la salle d'attente */
+#define TCPMSG_MAJListePatients                     "MajListePatients"                                  /*! fin du message invitant à mettre à jour la liste des patients */
+#define TCPMSG_MsgBAL                               "MsgRecuDansBAL"                                    /*! fin du message informant de la réception d'un message de messagerie instantanée */
+#define TCPMSG_Separator                            "triumphspeedtriple1050"                            /*! separateur au sein d'un message */
+#define TCPMSG_DataSocket                           "DataSocket"                                        /*! fin du message fournissant IP et MAC d'un client */
+#define TCPMSG_ListeSockets                         "ListeSockets"                                      /*! fin du message informant le client que ce message contient la liste des TcpSockets */
+#define TCPMSG_EnvoieListSocket                     "EnvoieListe"                                       /*! fin du message demandant l'envoi de la liste des sockets à un client */
+#define TCPMSG_Disconnect                           "Deconnexion"                                       /*! fin du message demandant la deconnexion et la fermeture d'un socket */
+#define TCPMSG_TestConnexion                        "TestConnexion"                                     /*! fin du message de test de la connexion */
+#define TCPMSG_OKConnexion                          "OKConnexion"                                       /*! fin du message de confirmation de la connexion */
 
 // Constantes de statut salle d'attente  //+++++ATTENTION ces constantes servent dans des requêtes SQL - NE PAS METTRE DE CARACTERES SPECIAUX
 #define ARRIVE                                      "Arrivé"

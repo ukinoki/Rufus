@@ -70,7 +70,6 @@ Patient* Patients::getById(int id, bool all)
 /*!
  * \brief Patients::addPatient
  * Cette fonction va ajouter le patient passé en paramètre
- *
  * \param patient le patient que l'on veut ajouter
  * \return true si le patient est ajouté
  * \return false si le paramètre patient est un Q_NULLPTR

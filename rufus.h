@@ -155,6 +155,7 @@ private:
     void        CreerDossierpushButtonClicked();
     void        DropPatient(QByteArray);
     void        EnableButtons();
+    void        EnregistreMontantActe(QString Cotation, double montant, Acte *acte);
     void        ExporteDocs();                                  /* exporte les documents d'imagerie inscrits dans la base pra les postes idstants
                                                                 pour les archiver en fichiers standards sur le HD du serveur*/
     void        FiltreAccueil(int idx);
@@ -166,7 +167,7 @@ private:
     void        VerifImportateur();                             /* vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
     void        ImprimeDossier(Patient *pat);
     void        ImprimeListPatients(QVariant var);
-    void        ImprimeListActes(Patient *pat, QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
+    void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();       // CZ001
     void        LireLaCPS();      // CZ001
     void        MajusculeCreerNom();
@@ -349,13 +350,13 @@ private:
     bool                RetourSalleDattente(QString Titre);
     void                SendMessage(QMap<QString,QVariant>, int id = -1 , int idMsg = -1);
     void                setTitre();
-    void                SupprimerActe();
+    void                SupprimerActe(Acte *act);
     void                SupprimerDocsEtFactures();
-    void                SupprimerDossier();
     void                SupprimerDossier(Patient *pat);
     void                Tonometrie();
     void                TrouverDDN();
     bool                ValideActeMontantLineEdit(QString NouveauMontant = "0,00", QString AncienMontant = "0.00");
+    bool                VerifCoherenceMontantPaiement();        /*! Vérifie que le montant facturé pour l'acte en cours n'est pas inférieur à la somme des paiements déjà enregistrés */
 
     // TCPServer, TCPSocket
     bool                UtiliseTCP;

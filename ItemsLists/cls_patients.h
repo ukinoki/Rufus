@@ -39,9 +39,7 @@ public:
                                                                                              * \return Q_NULLPTR si aucun patient trouvé
                                                                                              * \return Patient* le patient correspondant à l'id
                                                                                              */
-
-    bool isfull();
-
+    bool isfull();                                                                          /*! la liste contient tous les patients de la base */
     bool add(Patient *patient);
     void addList(QList<Patient*> listpatientss);
     void remove(Patient* patient);
@@ -55,7 +53,7 @@ public:
                                                                                             * \param DDN la date de naissance */
     private:
     QList<Patient*> *m_patients;                                                            //!< une liste de patients
-    bool    m_full;                                                                         //!nlanliste de patients contient tous les patients de la base
+    bool m_full;                                                                            //! la liste contient tous les patients de la base
 };
 
 #endif // CLS_PATIENTS_H
