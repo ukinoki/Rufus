@@ -229,13 +229,13 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     ui->CorpsupTextEdit->clear();
     ui->ConclusionupTextEdit->clear();
 
+    QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
+                      "<td width=\"130\"><font color = \"" + proc->CouleurTitres + "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
+                      "<td width=\"60\">" + Item::CalculAge(acte->agePatient(), acte->date())["toString"].toString() + "</td>"
+                      "<td width=\"400\">" + Datas::I()->users->getById(acte->idUser())->getPrenom() + " " + Datas::I()->users->getById(acte->idUser())->getNom() + "</td></p>";
+    ui->EnteteupLabel->setText(textHTML);
     if( acte->motif().size() || acte->texte().size() || acte->conclusion().size() )
     {
-        QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
-                          "<td width=\"130\"><font color = \"" + proc->CouleurTitres + "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
-                          "<td width=\"60\">" + Item::CalculAge(acte->agePatient(), acte->date())["toString"].toString() + "</td>"
-                          "<td width=\"400\">" + Datas::I()->users->getById(acte->idUser())->getPrenom() + " " + Datas::I()->users->getById(acte->idUser())->getNom() + "</td></p>";
-        ui->EnteteupLabel->setText(textHTML);
         textHTML = "";
         if( acte->motif().size() )
         {

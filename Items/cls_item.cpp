@@ -173,3 +173,10 @@ void Item::setDataByteArray(QJsonObject data, QString key, QByteArray &prop)
         prop = data[key].toVariant().toByteArray();
     }
 }
+void Item::setDataVariant(QJsonObject data, QString key, QVariant &prop)
+{
+    if( data.contains(key) )
+    {
+        prop = data[key].toVariant();
+    }
+}

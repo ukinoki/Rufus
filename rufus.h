@@ -251,7 +251,7 @@ private:
     QString                 grequeteSalDat;
     QString                 gDirSauv;
     QStandardItemModel      *m_listepatientsmodel;
-    QSortFilterProxyModel   *m_listepatientsproxymodel, *m_DDNsortmodel, *m_prenomsortmodel;
+    QSortFilterProxyModel   *m_listepatientsproxymodel, *m_DDNsortmodel, *m_prenomfiltersortmodel;
     QStandardItemModel      *m_listesuperviseursmodel, *m_listeparentsmodel;
     QTabBar                 *gSalDatTab, *gAccueilTab;
     QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerVerifConnexion, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
@@ -310,7 +310,7 @@ private:
     int                 EnregistreNouveauCorresp(QString Cor, QString Nom);
     void                ExporteActe(Acte *act);
     void                FermeDlgActesPrecedentsEtDocsExternes();
-    bool                FermeDossier();
+    bool                FermeDossier(Patient *pat);
     Patient*            getPatientFromRow(int row);                         //!> retrouve le patient correspondant à la rangée row
     Patient*            getPatientFromSelectionInTable();                   //!> retrouve le patient sélectionné dans la liste des patients
     Patient*            getPatientFromCursorPositionInTable();              //!> retrouve le patient sous le curseur de la souris dans la liste des patients

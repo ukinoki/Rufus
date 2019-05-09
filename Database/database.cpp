@@ -1179,7 +1179,43 @@ QList<Motif*> DataBase::loadMotifs()
 */
 QList<Site*> DataBase::loadSitesAll()
 {
-    QString req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
+    int iduser = 1;
+    QString req = "select lieux.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
+                  " LieuCodePostal, LieuVille, LieuTelephone, LieuFax, iduser"
+                  " from " NOM_TABLE_LIEUXEXERCICE " lieux left join " NOM_TABLE_JOINTURESLIEUX " joint"
+                  " on joint.idlieu = lieux.idLieu"
+                  " where iduser = " + QString::number(iduser) +
+                  " union"
+                  " (select lieux.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
+                  " LieuCodePostal, LieuVille, LieuTelephone, LieuFax, null as iduser"
+                  " from " NOM_TABLE_LIEUXEXERCICE " lieux left join " NOM_TABLE_JOINTURESLIEUX " joint"
+                  " on joint.idlieu = lieux.idLieu"
+                  " where iduser <> " + QString::number(iduser) + " and iduser is not null"
+                  " and lieux.idlieu not in"
+                  " (select lieux.idLieu"
+                  " from " NOM_TABLE_LIEUXEXERCICE " lieux left join " NOM_TABLE_JOINTURESLIEUX " joint"
+                  " on joint.idlieu = lieux.idLieu"
+                  " where iduser = " + QString::number(iduser) + ")";
+                  " union"
+                  " (select lieux.idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
+                  " LieuCodePostal, LieuVille, LieuTelephone, LieuFax, null as iduser"
+                  " from " NOM_TABLE_LIEUXEXERCICE " lieux left join " NOM_TABLE_JOINTURESLIEUX " joint"
+                  " on joint.idlieu = lieux.idLieu"
+                  " where iduser is not null"
+                  " and lieux.idlieu not in"
+                  " (select lieux.idLieu"
+                  " from " NOM_TABLE_LIEUXEXERCICE " lieux left join " NOM_TABLE_JOINTURESLIEUX " joint"
+                  " on joint.idlieu = lieux.idLieu"
+                  " where iduser = " + QString::number(iduser) + ")";
+    /*!< cette requête sert à recenser tous les lieux de travail avec le champ iduser positionné
+     *  à l'id du user en cours s'il est utilisé par l'user en cours,
+     *  à -1 s'il est utilisé par d'autres utilisateurs mais pas le user en cours
+     *  et à null s'il n'est utilisé par personne
+     * il doit y avoir moyen de faire plus simple mais je ne sais pas comment
+     */
+    qDebug() << req;
+
+    req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
                     "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
                   "from " NOM_TABLE_LIEUXEXERCICE;
     return loadSites( req );

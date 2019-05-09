@@ -220,13 +220,13 @@ public:
     QList<Motif*>           loadMotifs();                               //! charge tous les motifs d'actes possibles à partir de la table motifsRDV
 
     /*
-     * WorkSites
+     * Sites
     */
 private:
-    QList<Site*>            loadSites(QString req);                 //! charge les sites de travailà partir de la requete req
+    QList<Site*>            loadSites(QString req);                 //! charge les sites de travail à partir de la requete req
 public:
-    QList<Site*>            loadSitesByUser(int idUser);            //! charge tous les sites de travail utilisés par un user
-    QList<Site*>            loadSitesAll();                         //! charge tous les sites de travail sans exception
+    QList<Site*>            loadSitesByUser(int idUser);            //! élabore la requête qui charge tous les sites de travail utilisés par un user
+    QList<Site*>            loadSitesAll();                         //! élabore la requête qui charge tous les sites de travail sans exception
 
 public:
     /*
