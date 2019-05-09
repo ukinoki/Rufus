@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLS_SITES_H
-#define CLS_SITES_H
+#ifndef CLS_VILLES_H
+#define CLS_VILLES_H
 
 #include "cls_ville.h"
 

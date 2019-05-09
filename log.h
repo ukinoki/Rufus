@@ -25,16 +25,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmessagebox.h"
 #include "dlg_message.h"
 
-
-/**
+/*!
 * \file Log.h
 * \brief Cette classe permet d'écrire des logs visuels et dans des fichiers physiques
-* \author Alexanre.D
+* \author Alexandre.D
 * \version 0.1
 * \date 12 juin 2018
-*
 * Cette classe est utilisée de manière uniquement static.
-*
 */
 
 class Logs
@@ -104,6 +101,5 @@ public:
         return true;
     }
 };
-
 
 #endif // LOG_H

@@ -269,21 +269,14 @@ void dlg_GestionLieux::ModifLieu()
     Site * sit = getSiteFromIndex(tabModel->index(tabLM->currentIndex().row(),0));
     if (sit == Q_NULLPTR)
         return;
-    idLieuAModifier = sit->id();
-    leditnom    ->setText(tr("non défini"));
-    QString req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax from " NOM_TABLE_LIEUXEXERCICE
-                  " where idLieu = " + QString::number(idLieuAModifier);
-    //qDebug() << req;
-    QVariantList lieudata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && lieudata.size()>0)
-        leditnom    ->setText(lieudata.at(1).toString());
-    leditadr1   ->setText(lieudata.at(2).toString());
-    leditadr2   ->setText(lieudata.at(3).toString());
-    leditadr3   ->setText(lieudata.at(4).toString());
-    leditcp     ->setText(lieudata.at(5).toString());
-    leditville  ->setText(lieudata.at(6).toString());
-    ledittel    ->setText(lieudata.at(7).toString());
-    leditfax    ->setText(lieudata.at(8).toString());
+    leditnom    ->setText(sit->nom());
+    leditadr1   ->setText(sit->adresse1());
+    leditadr2   ->setText(sit->adresse2());
+    leditadr3   ->setText(sit->adresse3());
+    leditcp     ->setText(QString::number(sit->codePostal()));
+    leditville  ->setText(sit->ville());
+    ledittel    ->setText(sit->telephone());
+    leditfax    ->setText(sit->fax());
     connect(gLieuDialog->OKButton, SIGNAL(clicked(bool)), this, SLOT(Slot_ModifLieu()));
     gLieuDialog->exec();
     delete  gLieuDialog;
@@ -368,12 +361,10 @@ void dlg_GestionLieux::ReconstruitModel()
     else
         tabModel = new QStandardItemModel;
 
-    UpStandardItem *pitem0;
-
     for( QMap<int, Site*>::const_iterator itsite = listsites->constBegin(); itsite != listsites->constEnd(); ++itsite )
     {
         Site *sit = const_cast<Site*>(itsite.value());
-        pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom());
+        UpStandardItem *pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom());
         pitem0->setItem(sit);
         tabModel->appendRow(QList<QStandardItem*>() << pitem0);
     }

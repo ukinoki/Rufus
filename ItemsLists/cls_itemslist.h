@@ -1,5 +1,5 @@
-#ifndef ITEMSLIST_H
-#define ITEMSLIST_H
+#ifndef CLS_ITEMSLIST_H
+#define CLS_ITEMSLIST_H
 
 #include "QObject"
 #include "cls_tiers.h"

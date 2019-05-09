@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef COTATIONS_H
-#define COTATIONS_H
+#ifndef CLS_COTATIONS_H
+#define CLS_COTATIONS_H
 
 #include "cls_cotation.h"
 #include "database.h"

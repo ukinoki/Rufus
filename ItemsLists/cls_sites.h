@@ -15,8 +15,8 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SITES_H // si on met CLS_SITES_H, ça ne compile pas (?)
-#define SITES_H
+#ifndef CLS_SITES_H
+#define CLS_SITES_H
 
 #include "cls_site.h"
 #include "database.h"
