@@ -60,10 +60,7 @@ Patient* Patients::getById(int id, bool all)
             break;
         }
     if (pat == Q_NULLPTR)
-    {
         pat = DataBase::I()->loadPatientById(id, all);
-        m_patients->append(pat);
-    }
     return pat;
 }
 

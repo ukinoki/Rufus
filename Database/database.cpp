@@ -1213,7 +1213,7 @@ QList<Site*> DataBase::loadSitesAll()
      *  et à null s'il n'est utilisé par personne
      * il doit y avoir moyen de faire plus simple mais je ne sais pas comment
      */
-    qDebug() << req;
+    //qDebug() << req;
 
     req = "select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, "
                     "LieuCodePostal, LieuVille, LieuTelephone, LieuFax "
