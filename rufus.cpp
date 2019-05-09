@@ -8408,9 +8408,6 @@ void    Rufus::ModeSelectDepuisListe()
         ui->AtcdtsPersostextEdit->setFocus();
     ui->CreerNomlineEdit->clear();
     ui->CreerPrenomlineEdit->clear();
-    if (!m_listepatients->isfull())
-        m_listepatients->initListeAll();
-    Remplir_ListePatients_TableView(m_listepatients);
     if (gMode == Liste && ui->tabWidget->currentIndex() == ui->tabWidget->indexOf(ui->tabList))
         return;
     ui->tabWidget->setCurrentIndex(ui->tabWidget->indexOf(ui->tabList));
