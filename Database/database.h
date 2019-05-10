@@ -240,6 +240,10 @@ public:
     void                    loadSocialDataPatient(Patient* patient, bool &ok);      //! charge les donnéess sociales d'un patient à partir de la table donneessocialespatients
     void                    loadMedicalDataPatient(Patient* patient, bool &ok);     //! charge les donnéess médicales d'un patient à partir de la table renseignementsmedicauxpatients
     Patient*                loadPatientById(int idPat, bool all = false);           //! charge un patient par son id à partir de la table patients
+    qint64                  countPatientsAll(QString nom = "", QString prenom = "");
+                                                                                /*! compte le nombre de patients
+                                                                                * \param patnom filtrer sur le nom de patient
+                                                                                * \param patprenom filtrer sur le prénom de patient */
     QList<Patient*>*        loadPatientsAll(QString nom = "", QString prenom = "", bool filtre = false);
                                                                                 /*! charge la liste de tous les patients à partir de la table patients
                                                                                 * \param patnom filtrer sur le nom de patient

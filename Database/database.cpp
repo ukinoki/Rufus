@@ -1365,6 +1365,25 @@ Patient* DataBase::loadPatientById(int idPat, bool all)
     return patient;
 }
 
+qint64 DataBase::countPatientsAll(QString nom, QString prenom)
+{
+    QString clausewhere ("");
+    if (Utils::correctquoteSQL(nom).length() > 0 || Utils::correctquoteSQL(prenom).length() > 0)
+        clausewhere += " WHERE ";
+    if (Utils::correctquoteSQL(nom).length() > 0)
+        clausewhere += "PatNom like '" + Utils::correctquoteSQL(nom) + "%'";
+    if (Utils::correctquoteSQL(prenom).length() > 0)
+    {
+        if (clausewhere != " WHERE ")
+            clausewhere += " AND PatPrenom like '" + Utils::correctquoteSQL(prenom) + "%'";
+        else
+            clausewhere += "PatPrenom like '" + Utils::correctquoteSQL(prenom) + "%'";
+    }
+    QString req = "SELECT COUNT(idPat) FROM " NOM_TABLE_PATIENTS + clausewhere;
+    QVariantList patlist = getFirstRecordFromStandardSelectSQL(req,ok);
+    return qint64(patlist.at(0).toULongLong());
+}
+
 QList<Patient*>* DataBase::loadPatientsAll(QString nom, QString prenom, bool filtre)
 {
     QList<Patient*> *listpatients = new QList<Patient*>();
@@ -1382,11 +1401,11 @@ QList<Patient*>* DataBase::loadPatientsAll(QString nom, QString prenom, bool fil
         else
             clausewhere += "PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
     }
-    if (m_mode == Distant)
-        clauselimit = " limit 1000";
+    clauselimit = " limit 1000";
     QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS +
                   clausewhere +
                   clauselimit;
+    //req += " WITH (INDEX ('nom_prenom))";
     //qDebug() << req;
     QList<QVariantList> patlist = StandardSelectSQL(req,ok);
     if( !ok || patlist.size()==0 )

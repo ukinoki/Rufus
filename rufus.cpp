@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("09-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("10-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -6886,7 +6886,7 @@ void    Rufus::CalcMotsCles(Patient *pat)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::CalcNbDossiers()
 {
-    int a = m_listepatientsmodel->rowCount();
+    qint64 a = m_listepatientsmodel->rowCount();
     switch (a) {
     case 0:
         ui->label_15->setText(tr("aucun dossier pour ces critères"));
@@ -6895,10 +6895,9 @@ void    Rufus::CalcNbDossiers()
         ui->label_15->setText("1 dossier");
         break;
     default:
-        if (db->getMode() == DataBase::Distant && a==1000)
-            ui->label_15->setText("> 1000 " + tr("dossiers"));
-        else
-            ui->label_15->setText(QString::number(a) + " " + tr("dossiers"));
+        if (a == 1000)
+             a = db->countPatientsAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
+        ui->label_15->setText(QString::number(a) + " " + tr("dossiers"));
         break;
     }
 }
