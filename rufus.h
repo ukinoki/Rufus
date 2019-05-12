@@ -151,7 +151,7 @@ private:
     void        ChangeTabBureau();
     void        ConnectTimers(bool);
     void        CourrierAFaireChecked();
-    void        CreerBilanOrtho(Acte *act);
+    void        CreerBilanOrtho(Patient *pat);
     void        CreerDossierpushButtonClicked();
     void        DropPatient(QByteArray);
     void        EnableButtons();
@@ -301,7 +301,7 @@ private:
     bool                ChargeDataUser();
     void                ChercheNomFiltre();                                 //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
     void                ChoixDossier(Patient *pat, int idacte = 0);
-    void                CreerActe(Patient *pat = Q_NULLPTR);
+    Acte *              CreerActe(Patient *pat = Q_NULLPTR);
     void                ChercherDepuisListe();
     void                CreerDossier();
     void                CreerMenu();
@@ -340,7 +340,10 @@ private:
     void                RecopierDossier(Patient *patient = Q_NULLPTR);
     void                RecaleTableView(Patient *pat, QAbstractItemView::ScrollHint scrollhint = QAbstractItemView::PositionAtCenter);
     void                Refraction();
-    void                ReconstruitListesActes();
+    void                ConnectCotationComboBox();  //!> reconnecte la box des cotations à 2 signaux
+                                                    //!> si une cotation est choisie, le montant de l'acte est recherché est affiché dans la ligne MontantLineEdit
+                                                    //!> un tooltip est affiché décrivant le descriptif de la cotation mise en surbrillance dans la liste déroulante
+    void                ReconstruitListesCotations();
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
     void                RegleRefracteur(QString TypeMesure);
     void                RemiseCheques();

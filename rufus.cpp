@@ -263,7 +263,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I()->typestiers->initListe();
     Datas::I()->motifs->initListe();
     if (m_currentuser->isSoignant())
-        ReconstruitListesActes();
+        ReconstruitListesCotations();
 
     // 9 - Mise à jour des salles d'attente
     // on donne le statut "arrivé" aux patients en salle d'attente dont le iduserencourssexam ltutilisateur actuel et qui n'auraient pas été su^^rimés (plantage)
@@ -277,7 +277,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         envoieMessage(TCPMSG_MAJSalAttente);
 
     // 10 - Vérification de la messagerie
-    VerifMessages();
+    ReconstruitListeMessages();
 
     // 11 - Affichage des boutons bilan orthoptique
     ui->CreerBOpushButton   ->setVisible(m_currentuser->isOrthoptist());
@@ -325,8 +325,8 @@ void Rufus::Connect_Slots()
     connect (ui->CourrierAFairecheckBox,                            &QPushButton::clicked,                              this,   [=] {CourrierAFaireChecked();});
     connect (ui->CreerActepushButton,                               &QPushButton::clicked,                              this,   [=] {CreerActe(m_currentpatient);});
     connect (ui->CreerActepushButton_2,                             &QPushButton::clicked,                              this,   [=] {CreerActe(m_currentpatient);});
-    connect (ui->CreerBOpushButton,                                 &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho(m_currentact);});
-    connect (ui->CreerBOpushButton_2,                               &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho(m_currentact);});
+    connect (ui->CreerBOpushButton,                                 &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho(m_currentpatient);});
+    connect (ui->CreerBOpushButton_2,                               &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho(m_currentpatient);});
     connect (ui->CreerDDNdateEdit,                                  &QDateEdit::dateChanged,                            this,   [=] {if (gMode == RechercheDDN) TrouverDDN();});
     connect (ui->ChercherDepuisListepushButton,                     &QPushButton::clicked,                              this,   [=] {ChercherDepuisListe();});
     connect (ui->CreerNomlineEdit,                                  &QLineEdit::textEdited,                             this,   [=] {MajusculeCreerNom();});
@@ -1523,15 +1523,15 @@ void Rufus::CourrierAFaireChecked()
 /*------------------------------------------------------------------------------------------------------------------
 -- création - gestion des bilans orthoptiques ----------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::CreerBilanOrtho(Acte *act)
+void Rufus::CreerBilanOrtho(Patient *pat)
 {
     bool    nouveauBO       = true;
     bool    creeracte       = true;
     QDate DateBl;
-    Patient *pat = m_currentpatient;
     if (pat == Q_NULLPTR)
         return;
-    if (ui->Acteframe->isVisible())
+    Acte *act = m_currentact;
+    if (ui->Acteframe->isVisible() && m_currentact != Q_NULLPTR)
     {
         QString requete = "select idbilanortho from " NOM_TABLE_BILANORTHO
                 " where idbilanortho = " + QString::number(act->id());
@@ -1588,7 +1588,7 @@ void Rufus::CreerBilanOrtho(Acte *act)
         {
             if (ui->Acteframe->isVisible())
                 if (!AutorDepartConsult(false)) return;
-            CreerActe(pat);
+            act = CreerActe(pat);
         }
         Dlg_BlOrtho             = new dlg_bilanortho(act, nouveauBO);
         QString Titre           = tr("Bilan orthoptique - ") + pat->prenom() + " " + pat->nom();
@@ -4108,7 +4108,7 @@ void Rufus::OuvrirParametres()
         QString reqDel = "delete from " NOM_TABLE_COTATIONS " where idUser = " + QString::number(m_currentuser->id());
         db->StandardSQL(reqDel);
         db->StandardSQL(req);
-        ReconstruitListesActes();
+        ReconstruitListesCotations();
     }
     delete Dlg_Param;
 }
@@ -6116,10 +6116,9 @@ void Rufus::AfficheActe(Acte* acte)
         ui->idActelineEdit          ->setText(QString::number(acte->id()));
         ui->CourrierAFairecheckBox  ->setChecked(acte->courrierAFaire());
 
-        ui->ActeCotationcomboBox    ->disconnect();                                         //! il faut faire ça pour éviter un foutoir de messages quand on navigue d'un acte à l'autre dans le dossier du patient
+        ui->ActeCotationcomboBox    ->disconnect();                       //! il faut faire ça pour éviter un foutoir de messages quand on navigue d'un acte à l'autre dans le dossier du patient
         ui->ActeCotationcomboBox    ->setCurrentText(acte->cotation());
-        connect (ui->ActeCotationcomboBox,  &QComboBox::currentTextChanged, this,   [=] {   RetrouveMontantActe();
-                                                                                            ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), gActeMontant); });
+        ConnectCotationComboBox();
         // on affiche tous les montants en euros, même ce qui a été payé en francs.
         double H = 1;
         if (acte->isPayeEnFranc())
@@ -6536,7 +6535,8 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
         return true;
     ui->tabWidget->setCurrentWidget(ui->tabDossier);
     if (!ui->Acteframe->isVisible()) return FermeDossier(m_currentpatient);
-    focusWidget()->clearFocus();      //!> Valide les changements dans les champs du dossier en cours d'affichage
+    if (focusWidget() != Q_NULLPTR)
+        focusWidget()->clearFocus();      //!> Valide les changements dans les champs du dossier en cours d'affichage
 
     /*! 1. On vérifie si on peut quitter la consultation sans quitter le dossier (il n'est pas obligatoire d'avoir la ligne correspondante dans typepaiementactes */
     if (ui->ActeCotationcomboBox->currentText() == "")
@@ -6970,16 +6970,17 @@ void    Rufus::ChoixDossier(Patient *pat, int idacte)  // appelée depuis la tab
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
--- Créer une consultation ------------------------------------------------------------------------------------------
+-- Créer un acte ------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    Rufus::CreerActe(Patient *pat)
+Acte* Rufus::CreerActe(Patient *pat)
 {
+    Acte * acte = Q_NULLPTR;
     if (pat == Q_NULLPTR)
         pat = m_currentpatient;
     if (pat == Q_NULLPTR)
-        return;
+        return acte;
     if (ui->Acteframe->isVisible())
-        if(!AutorDepartConsult(false)) return;
+        if(!AutorDepartConsult(false)) return acte;
     QString rempla = (m_currentuser->getEnregHonoraires()==3? "1" : "null");
     QString creerrequete =
             "INSERT INTO " NOM_TABLE_ACTES
@@ -6997,19 +6998,19 @@ void    Rufus::CreerActe(Patient *pat)
             QString::number(m_currentuser->getSite()->id()) +")";
     //qDebug() << creerrequete;
     if (!db->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + NOM_TABLE_ACTES))
-        return ;
+        return acte;
     // Récupération de l'idActe créé et affichage du dossier ------------------------------------
     QString maxrequete = "SELECT MAX(idActe) FROM " NOM_TABLE_ACTES
                 " WHERE idUser = " + QString::number(m_currentuser->getIdUserActeSuperviseur()) + " AND idPat = "+ QString::number(pat->id());
     QVariantList maxactdata = db->getFirstRecordFromStandardSelectSQL(maxrequete ,ok , tr("Impossible de retrouver l'acte qui vient d'être créé"));
     if (!ok)
-        return ;
-    Acte * act = db->loadActeById(maxactdata.at(0).toInt());
-    AfficheActe(act);
+        return acte ;
+    acte = db->loadActeById(maxactdata.at(0).toInt());
+    AfficheActe(acte);
     QString req = "SELECT idActe FROM " NOM_TABLE_ACTES " WHERE idPat = " + QString::number(pat->id());
     QList<QVariantList> actlist = db->StandardSelectSQL(req,ok,tr("Impossible de compter le nombre d'actes"));
     if (!ok)
-            return ;
+            return acte;
     else if (actlist.size()>1)
     {
         QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
@@ -7028,6 +7029,7 @@ void    Rufus::CreerActe(Patient *pat)
             listactesprecs.at(0)->Actualise();
     }
     ui->ActeMotiftextEdit->setFocus();
+    return acte;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8047,7 +8049,7 @@ void Rufus::InitVariables()
 {
     gAutorModifConsult  = false;
     m_currentpatient    = Q_NULLPTR;
-    m_listepatients       = Datas::I()->patients;
+    m_listepatients     = Datas::I()->patients;
     m_currentact        = Q_NULLPTR;
     nbActes             = 0;
     noActe              = 0;
@@ -8519,7 +8521,7 @@ void Rufus::RecaleTableView(Patient* pat, QAbstractItemView::ScrollHint scrollhi
 /*-----------------------------------------------------------------------------------------------------------------
 -- Reconstruit la liste des Cotations dans le combobox ActeCotations ----------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void    Rufus::ReconstruitListesActes()
+void    Rufus::ReconstruitListesCotations()
 {
     ui->ActeCotationcomboBox->disconnect();
     if (ui->ActeCotationcomboBox->lineEdit()->completer() != Q_NULLPTR)
@@ -8534,6 +8536,24 @@ void    Rufus::ReconstruitListesActes()
     QString champ = (m_currentuser->isOPTAM()? "montantoptam" : "montantnonoptam");
     // il faut d'abord reconstruire la table des cotations
     ui->ActeCotationcomboBox->clear();
+
+    QStandardItemModel *cotationmodel = new QStandardItemModel(this);
+    UpStandardItem *pitem0;
+    pitem0 = new UpStandardItem(tr("Acte gratuit"));
+    pitem0->setData(QStringList() << "0.00" << "0.00" << tr("Acte gratuit"));
+    cotationmodel->appendRow(QList<QStandardItem*>() << pitem0);
+    for (QMap<int, Cotation*>::const_iterator itcot = Datas::I()->cotations->cotations()->constBegin();
+         itcot != Datas::I()->cotations->cotations()->constEnd();
+         ++itcot)
+    {
+        Cotation *cot = const_cast<Cotation*>(itcot.value());
+        QStringList list;
+        QString champ = (m_currentuser->isOPTAM()? QString::number(cot->montantoptam(),'f',2) : QString::number(cot->montantnonoptam(), 'f', 2));
+        list << champ << QString::number(cot->montantpratique(), 'f', 2) << cot->descriptif();
+        pitem0 = new UpStandardItem(cot->typeacte());
+        pitem0->setData(list);
+        cotationmodel->appendRow(QList<QStandardItem*>() << pitem0);
+    }
 
     ui->ActeCotationcomboBox->addItem(tr("Acte gratuit"),QStringList() << "0.00" << "0.00" << tr("Acte gratuit"));
     for (QMap<int, Cotation*>::const_iterator itcot = Datas::I()->cotations->cotations()->constBegin();
@@ -8553,11 +8573,21 @@ void    Rufus::ReconstruitListesActes()
     comp->setMaxVisibleItems(5);
     ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
     connect(comp,                       QOverload<const QString &>::of(&QCompleter::activated), this,   [=] {RetrouveMontantActe();});
-    connect (ui->ActeCotationcomboBox,  QOverload<int>::of(&QComboBox::highlighted),            this,   [=](int a)  {QToolTip::showText(cursor().pos(),ui->ActeCotationcomboBox->itemData(a).toStringList().at(2));});
-    connect (ui->ActeCotationcomboBox,  &QComboBox::currentTextChanged,                         this,   [=] {
-                                                                                                                RetrouveMontantActe();
-                                                                                                                ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), gActeMontant);
-                                                                                                            });
+    ConnectCotationComboBox();
+}
+
+void Rufus::ConnectCotationComboBox()
+{
+    connect (ui->ActeCotationcomboBox,  &QComboBox::currentTextChanged, this,
+    [=] {
+        RetrouveMontantActe();
+        ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), gActeMontant);
+    });
+    connect (ui->ActeCotationcomboBox,  QOverload<int>::of(&QComboBox::highlighted),    this,
+    [=] (int a) {
+        QString tip = ui->ActeCotationcomboBox->itemData(a).toStringList().at(2);
+        QToolTip::showText(cursor().pos(),tip);
+    });
 }
 
 void Rufus::ReconstruitCombosCorresp(bool reconstruireliste)

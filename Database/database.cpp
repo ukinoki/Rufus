@@ -1504,9 +1504,12 @@ QMap<int, Patient*>* DataBase::loadPatientsAll(QString nom, QString prenom, bool
             clausewhere += "PatPrenom " + like + " '" + Utils::correctquoteSQL(prenom) + (filtre? "%" : "") + "'";
     }
     clauselimit = " limit 1000";
-    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS +
-                  clausewhere +
-                  clauselimit;
+    QString req = "select idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar from"
+                   " (select idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar from " NOM_TABLE_PATIENTS
+                   " force index(idx_nomprenom) order by patnom, patprenom) as idxpat";
+    req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS;
+    req += clausewhere;
+    req += clauselimit;
     //req += " WITH (INDEX ('nom_prenom))";
     //qDebug() << req;
     QList<QVariantList> patlist = StandardSelectSQL(req,ok);
