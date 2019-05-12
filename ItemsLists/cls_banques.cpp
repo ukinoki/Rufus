@@ -69,9 +69,6 @@ void Banques::remove(Banque *banq)
 {
     if (banq == Q_NULLPTR)
         return;
-    QMap<int, Banque*>::const_iterator itbanq = m_banques->find(banq->id());
-    if( itbanq == m_banques->constEnd() )
-        return;
     m_banques->remove(banq->id());
     delete banq;
 }

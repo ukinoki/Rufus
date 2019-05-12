@@ -57,6 +57,7 @@ private:
     Procedures                  *proc           = Procedures::I();
     Patient                     *m_currentpatient;
     User                        *gUserEntete;
+    bool                        ok;
     void                        closeEvent      (QCloseEvent *event);
     bool                        eventFilter     (QObject *obj, QEvent *event);
     void                        keyPressEvent   (QKeyEvent * event );

@@ -23,11 +23,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  */
 Patients::Patients()
 {
-    m_patients = new QList<Patient*>();
+    m_patients = new QMap<int, Patient*>();
     m_full  = false;
 }
 
-QList< Patient *> *Patients::patients() const
+QMap<int,  Patient *> *Patients::patients() const
 {
     return m_patients;
 }
@@ -45,23 +45,29 @@ bool Patients::isfull()
  */
 Patient* Patients::getById(int id, bool all)
 {
-    Patient* pat = Q_NULLPTR;
-    for (int i=0; i< m_patients->size(); i++)
-        if (m_patients->at(i)->id() == id)
-        {
-            pat = m_patients->at(i);
-            if (all)
-                if (!pat->isalloaded())
-                {
-                    bool ok;
-                    DataBase::I()->loadMedicalDataPatient(pat, ok);
-                    DataBase::I()->loadSocialDataPatient(pat, ok);
-                }
-            break;
-        }
-    if (pat == Q_NULLPTR)
-        pat = DataBase::I()->loadPatientById(id, all);
+    Patient *pat = Q_NULLPTR;
+    QMap<int, Patient*>::const_iterator itpat = m_patients->find(id);
+    if (itpat == m_patients->constEnd())
+        pat = DataBase::I()->loadPatientById(id, pat, all);
+    else
+    {
+        pat = itpat.value();
+        if (all)
+            if (!pat->isalloaded())
+            {
+                QJsonObject jsonPatient = DataBase::I()->loadAllDataPatientById(id);
+                if( jsonPatient.isEmpty() )
+                    return Q_NULLPTR;
+                else
+                    pat->setData(jsonPatient);
+            }
+    }
     return pat;
+}
+
+void Patients::loadAll(Patient *pat)
+{
+    pat = getById(pat->id(), true);
 }
 
 /*!
@@ -76,7 +82,8 @@ bool Patients::add(Patient *patient)
 {
     if( patient == Q_NULLPTR)
         return false;
-    if( m_patients->contains(patient) )
+    QMap<int, Patient*>::const_iterator itpat = m_patients->find(patient->id());
+    if (itpat != m_patients->constEnd())
         return false;
     m_patients->insert(patient->id(), patient);
     return true;
@@ -91,13 +98,15 @@ void Patients::addList(QList<Patient*> listpatients)
 
 void Patients::remove(Patient* patient)
 {
-    m_patients->removeOne(patient);
-    delete  patient;
+    if (patient == Q_NULLPTR)
+        return;
+    m_patients->remove(patient->id());
+    delete patient;
 }
 void Patients::clearAll()
 {
-    while (m_patients->size() >0)
-        remove(m_patients->at(0));
+    for( QMap<int, Patient*>::const_iterator itpat = m_patients->constBegin(); itpat != m_patients->constEnd(); ++itpat)
+        delete itpat.value();
     m_patients->clear();
 }
 

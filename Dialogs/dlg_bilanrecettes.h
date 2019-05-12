@@ -53,7 +53,7 @@ private:
     UpRadioButton               *ComptableRadio;
     UpRadioButton               *SupervRadio;
     User                        *gidUser;
-    QList<QVariantList>         CalcBilan();
+    void                        CalcBilan();
     double                      TotalMontant;
     double                      TotalRecu;
     double                      TotalRecEsp;

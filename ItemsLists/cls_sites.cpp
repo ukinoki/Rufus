@@ -45,10 +45,6 @@ void Sites::remove(Site *sit)
 {
     if (sit == Q_NULLPTR)
         return;
-    QMap<int, Site*>::const_iterator itsit;
-    m_sites->find(sit->id());
-    if( itsit == m_sites->constEnd() )
-        return;
     m_sites->remove(sit->id());
     delete sit;
 }

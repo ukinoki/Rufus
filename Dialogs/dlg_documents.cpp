@@ -26,6 +26,9 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     m_currentpatient     = pat;
+    if (!pat->isalloaded())
+        pat = Datas::I()->patients->getById(pat->id(),true);
+
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);

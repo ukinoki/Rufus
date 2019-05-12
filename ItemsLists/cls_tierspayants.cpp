@@ -60,8 +60,7 @@ void TiersPayants::remove(Tiers *tiers)
 {
     if (tiers == Q_NULLPTR)
         return;
-    while( m_tierspayants->contains(tiers->id()) )
-        m_tierspayants->remove(tiers->id());
+    m_tierspayants->remove(tiers->id());
     delete tiers;
 }
 

@@ -69,9 +69,6 @@ void Actes::remove(Acte *acte)
 {
     if (acte == Q_NULLPTR)
         return;
-    QMap<int, Acte*>::const_iterator itact = m_actes->find(acte->id());
-    if( itact == m_actes->constEnd() )
-        return;
     m_actes->remove(acte->id());
     delete acte;
 }

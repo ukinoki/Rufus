@@ -77,7 +77,7 @@ public:
     //GETTER | SETTER
     bool ismedicalloaded() const;
     bool issocialloaded() const;
-    bool isalloaded() const;
+    bool isalloaded();
 
     int     id() const;
     QString nom() const;

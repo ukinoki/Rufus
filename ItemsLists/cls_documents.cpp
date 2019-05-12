@@ -34,8 +34,7 @@ void Documents::clearAll()
 
 void Documents::remove(Document *doc)
 {
-    QMap<int, Document*>::const_iterator itdoc = m_documents->find(doc->id());
-    if( itdoc == m_documents->constEnd() )
+    if (doc == Q_NULLPTR)
         return;
     m_documents->remove(doc->id());
     delete doc;

@@ -84,9 +84,6 @@ void Depenses::remove(Depense *dep)
 {
     if (dep == Q_NULLPTR)
         return;
-    QMap<int, Depense*>::const_iterator Depense = m_Depenses->find(dep->id());
-    if( Depense == m_Depenses->constEnd() )
-        return;
     m_Depenses->remove(dep->id());
     delete dep;
 }

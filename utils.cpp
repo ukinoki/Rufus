@@ -80,7 +80,7 @@ void Utils::Pause(int msec)
  */
 QString Utils::trim(QString text, bool end, bool removereturnend)
 {
-    QString textC = text;
+ QString textC = text;
     QChar c;
     while( textC.size() )                   // enlève les espaces, les tirets et les apostrophes du début
     {

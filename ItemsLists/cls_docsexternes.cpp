@@ -108,9 +108,6 @@ void DocsExternes::remove(DocExterne *doc)
 {
     if (doc == Q_NULLPTR)
         return;
-    QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->find(doc->id());
-    if( itdoc == m_docsexternes->constEnd() )
-        return;
     m_docsexternes->remove(doc->id());
     delete doc;
 }

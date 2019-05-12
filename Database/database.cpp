@@ -1066,6 +1066,87 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
     return types;
 }
 
+QMap<int, Recette*>* DataBase::loadRecettesByDate(QDate datedebut, QDate datefin)
+{
+    QMap<int, Recette*> *listerecettes = new QMap<int,Recette*>();
+        //---------------------------------------------- Tous les actes effectués par tout le monde durant la période, sauf les impayés et les gratuits
+        QString req =
+        "select res1.idActe, res1.actedate, res1.nom, res1.actecotation, res1.acteMontant, res1.actemonnaie, res1.TypePaiement,"
+        " res1.Tiers, Paye, res1.iduser, res1.userparent, res1.usercomptable, null as montantautresrecettes, null as typeautresrecettes from\n "
+        "(\n"
+            "select\n"
+            " act.idActe, actedate, concat(patnom, ' ', patprenom) as nom, actecotation, acteMontant, acteMonnaie, TypePaiement, Tiers, iduser, userparent, usercomptable from \n"
+            NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_TYPEPAIEMENTACTES " typ\n"
+            " where act.idPat = pat.idpat\n"
+            " and act.idActe = typ.idacte\n"
+            " and actedate >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
+            " and actedate <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
+            " order by actedate, nom\n"
+        ")\n"
+        " as res1\n"
+        " left outer join\n"
+        " (\n"
+            "select rec.idrecette, paye, lig.idActe from \n"
+            NOM_TABLE_LIGNESPAIEMENTS " lig, " NOM_TABLE_RECETTES " rec, " NOM_TABLE_TYPEPAIEMENTACTES " typ2\n"
+            " where lig.idrecette = rec.idrecette\n"
+            " and lig.idActe = typ2.idacte\n"
+            " and TypePaiement <> 'T'\n"
+            " and TypePaiement <> 'G'\n"
+            " and datepaiement >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
+            " and datepaiement <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
+        ")\n"
+        " as res3 on res1.idacte = res3.idActe\n";
+
+        //----------------------------------------------- et tous les tiers payants encaissés durant cette même période
+        req +=
+        " union\n"
+
+        " select null as idActe, DatePaiement as actedate, NomTiers as nom, null as actecotation, null as acteMontant, Monnaie as acteMonnaie, ModePaiement as TypePaiement,"
+        " null as Tiers, Montant as paye, iduser, iduser as userparent, iduser as usercomptable, null as montantautresrecettes, null as typeautresrecettes from \n"
+        NOM_TABLE_RECETTES
+        "\n where TiersPayant = 'O'\n"
+        " and DatePaiement >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
+        " and DatePaiement <= '" + datefin.toString("yyyy-MM-dd") + "'\n"
+
+        " union\n"
+
+        " select null as idActe, DateRecette as actedate, Libelle as nom, null as actecotation, null as acteMontant, Monnaie as acteMonnaie,"
+        " Paiement as TypePaiement, null as Tiers, null as paye, null as iduser, null as userparent, iduser as usercomptable,"
+        " montant as montantautresrecettes, Typerecette as typeautresrecettes from \n" NOM_TABLE_RECETTESSPECIALES
+        " \nwhere"
+        " DateRecette >= '" + datedebut.toString("yyyy-MM-dd") + "'\n"
+        " and DateRecette<= '" + datefin.toString("yyyy-MM-dd") + "'\n"
+        " order by actedate, nom";
+
+        //proc->Edit(req);
+        //p... ça c'est de la requête
+        QList<QVariantList> recetteslist = StandardSelectSQL(req,ok);
+        if(!ok || recetteslist.size()==0)
+            return listerecettes;
+        for (int i=0; i<recetteslist.size(); ++i)
+        {
+            QJsonObject jData{};
+            jData["id"] = i;
+            jData["idacte"] = (recetteslist.at(i).at(0) == QVariant()? -1 : recetteslist.at(i).at(0).toInt());
+            jData["date"] = recetteslist.at(i).at(1).toDate().toString("yyyy-MM-dd");;
+            jData["payeur"] = recetteslist.at(i).at(2).toString();
+            jData["cotationacte"] = recetteslist.at(i).at(3).toString();
+            jData["montant"] = recetteslist.at(i).at(4).toDouble();
+            jData["monnaie"] = recetteslist.at(i).at(5).toString();
+            jData["modepaiement"] = recetteslist.at(i).at(6).toString();
+            jData["typetiers"] = recetteslist.at(i).at(7).toString();
+            jData["encaissement"] = recetteslist.at(i).at(8).toDouble();
+            jData["iduser"] = recetteslist.at(i).at(9).toInt();
+            jData["idparent"] = recetteslist.at(i).at(10).toInt();
+            jData["idcomptable"] = recetteslist.at(i).at(11).toInt();
+            jData["encaissementautrerecette"] = recetteslist.at(i).at(12).toDouble();
+            jData["typeautrerecette"] = recetteslist.at(i).at(13).toString();
+            Recette *recette = new Recette(jData);
+            listerecettes->insert(i,recette);
+        }
+        return listerecettes;
+}
+
 
 /*******************************************************************************************************************************************************************
  ***** FIN COMPTABILITÊ ********************************************************************************************************************************************
@@ -1281,17 +1362,18 @@ QList<Ville*> DataBase::loadVilles()
 /*
  * Gestion des Patients
 */
-void DataBase::loadSocialDataPatient(Patient* patient, bool &ok)
+void DataBase::loadSocialDataPatient(QJsonObject &jData, bool &ok)
 {
     QString req = "SELECT PatAdresse1, PatAdresse2, PatAdresse3, PatCodePostal, PatVille,"
                   " PatTelephone, PatPortable, PatMail, PatNNI, PatALD,"
                   " PatCMU, PatProfession FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS
-                  " WHERE idPat = " + QString::number(patient->id());
-
+                  " WHERE idPat = " + QString::number(jData["id"].toInt());
     QVariantList patlist = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok || patlist.size()==0)
+    {
+        jData["isSocialLoaded"] = false;
         return;
-    QJsonObject jData{};
+    }
     jData["adresse1"]       = patlist.at(0).toString();
     jData["adresse2"]       = patlist.at(1).toString();
     jData["adresse3"]       = patlist.at(2).toString();
@@ -1305,20 +1387,21 @@ void DataBase::loadSocialDataPatient(Patient* patient, bool &ok)
     jData["CMU"]            = (patlist.at(10).toInt() == 1);
     jData["profession"]     = patlist.at(11).toString();
     jData["isSocialLoaded"] = true;
-    patient->addSocialData(jData);
 }
 
-void DataBase::loadMedicalDataPatient(Patient* patient, bool &ok)
+void DataBase::loadMedicalDataPatient(QJsonObject &jData, bool &ok)
 {
     QString req = "select idCorMedMG, idCorMedSpe1, idCorMedSpe2, idCorMedSpe3, idCorNonMed,"
                   " RMPAtcdtsPersos, RMPTtGeneral, RMPAtcdtsFamiliaux, RMPAtcdtsOphs, Tabac,"
                   " Autrestoxiques, Gencorresp, Important, Resume, RMPTtOphs FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                  " WHERE idPat = " + QString::number(patient->id());
+                  " WHERE idPat = " + QString::number(jData["id"].toInt());
 
     QVariantList patlist = getFirstRecordFromStandardSelectSQL(req, ok);
     if(!ok || patlist.size()==0)
+    {
+        jData["isMedicalLoaded"] = false;
         return;
-    QJsonObject jData{};
+    }
     jData["idMG"]               = patlist.at(0).toInt();
     jData["idSpe1"]             = patlist.at(1).toInt();
     jData["idSpe2"]             = patlist.at(2).toInt();
@@ -1335,34 +1418,53 @@ void DataBase::loadMedicalDataPatient(Patient* patient, bool &ok)
     jData["Resume"]             = patlist.at(13).toString();
     jData["TtOph"]              = patlist.at(14).toString();
     jData["isMedicalLoaded"]    = true;
-    patient->addMedicalData(jData);
 }
 
-Patient* DataBase::loadPatientById(int idPat, bool all)
+QJsonObject DataBase::loadAllDataPatientById(int idPat)
 {
-    Patient *patient = new Patient();
-    QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idPat);
+    QJsonObject jData{};
+    QString req = "SELECT PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idPat);
+    QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if( !ok || patdata.size()==0 )
+        return jData;
+    jData["id"] = idPat;
+    jData["nom"] = patdata.at(0).toString();
+    jData["prenom"] = patdata.at(1).toString();
+    jData["sexe"] = patdata.at(3).toString();
+    jData["dateDeNaissance"] = patdata.at(2).toDate().toString("yyyy-MM-dd");
+    jData["datecreation"] = patdata.at(4).toDate().toString("yyyy-MM-dd");
+    jData["idcreateur"] = patdata.at(5).toInt();
+    loadMedicalDataPatient(jData, ok);
+    loadSocialDataPatient(jData, ok);
+    return jData;
+}
+
+Patient* DataBase::loadPatientById(int idPat, Patient *pat, bool all)
+{
+    if (pat == Q_NULLPTR)
+        pat = new Patient();
+    QString req = "SELECT PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS " where idPat = " + QString::number(idPat);
     QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
         return Q_NULLPTR;
     QJsonObject jData{};
-    jData["id"] = patdata.at(0).toInt();
-    jData["nom"] = patdata.at(1).toString();
-    jData["prenom"] = patdata.at(2).toString();
-    jData["sexe"] = patdata.at(4).toString();
-    jData["dateDeNaissance"] = patdata.at(3).toDate().toString("yyyy-MM-dd");
-    jData["datecreation"] = patdata.at(5).toDate().toString("yyyy-MM-dd");
-    jData["idcreateur"] = patdata.at(6).toInt();
+    jData["id"] = idPat;
+    jData["nom"] = patdata.at(0).toString();
+    jData["prenom"] = patdata.at(1).toString();
+    jData["sexe"] = patdata.at(3).toString();
+    jData["dateDeNaissance"] = patdata.at(2).toDate().toString("yyyy-MM-dd");
+    jData["datecreation"] = patdata.at(4).toDate().toString("yyyy-MM-dd");
+    jData["idcreateur"] = patdata.at(5).toInt();
     jData["isMedicalLoaded"] = all;
     jData["isSocialLoaded"] = all;
-    patient->setData(jData);
     if (all)
     {
         bool ok;
-        loadSocialDataPatient(patient, ok);
-        loadMedicalDataPatient(patient, ok);
+        loadMedicalDataPatient(jData, ok);
+        loadSocialDataPatient(jData, ok);
     }
-    return patient;
+    pat->setData(jData);
+    return pat;
 }
 
 qint64 DataBase::countPatientsAll(QString nom, QString prenom)
@@ -1384,9 +1486,9 @@ qint64 DataBase::countPatientsAll(QString nom, QString prenom)
     return qint64(patlist.at(0).toULongLong());
 }
 
-QList<Patient*>* DataBase::loadPatientsAll(QString nom, QString prenom, bool filtre)
+QMap<int, Patient*>* DataBase::loadPatientsAll(QString nom, QString prenom, bool filtre)
 {
-    QList<Patient*> *listpatients = new QList<Patient*>();
+    QMap<int, Patient*> *listpatients = new QMap<int, Patient*>();
     QString clausewhere ("");
     QString like = (filtre? "like" : "=");
     QString clauselimit ("");
@@ -1423,14 +1525,14 @@ QList<Patient*>* DataBase::loadPatientsAll(QString nom, QString prenom, bool fil
         jData["isMedicalLoaded"] = false;
         jData["isSocialLoaded"] = false;
         Patient *patient = new Patient(jData);
-        listpatients->append(patient);
+        listpatients->insert(patlist.at(i).at(0).toInt(), patient);
     }
     return listpatients;
 }
 
-QList<Patient*>* DataBase::loadPatientsByDDN(QDate DDN)
+QMap<int, Patient *> *DataBase::loadPatientsByDDN(QDate DDN)
 {
-    QList<Patient*> *listpatients = new QList<Patient*>();
+    QMap<int, Patient*> *listpatients = new QMap<int, Patient*>();
     QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS
                   " WHERE PatDDN = '" + DDN.toString("yyyy-MM-dd") + "'";
     //qDebug() << req;
@@ -1450,7 +1552,7 @@ QList<Patient*>* DataBase::loadPatientsByDDN(QDate DDN)
         jData["isMedicalLoaded"] = false;
         jData["isSocialLoaded"] = false;
         Patient *patient = new Patient(jData);
-        listpatients->append(patient);
+        listpatients->insert(patlist.at(i).at(0).toInt(),patient);
     }
     return listpatients;
 }

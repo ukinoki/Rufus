@@ -35,6 +35,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_documents.h"
 #include "cls_villes.h"
 #include "cls_sites.h"
+#include "cls_recettes.h"
 
 class Datas : public QObject
 {
@@ -64,6 +65,7 @@ public:
     Sites *sites;                       //!< Les lieux de travail
     Documents *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
     MetaDocuments *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Recettes *recettes;                 //!> toutes les recettes sur une période donnée
     Villes *villes;                     //!< toutes les villes
 };
 

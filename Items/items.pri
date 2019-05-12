@@ -18,7 +18,8 @@ SOURCES += $$PWD/cls_acte.cpp \
     $$PWD/cls_cotation.cpp \
     $$PWD/cls_document.cpp \
     $$PWD/cls_ville.cpp \
-    $$PWD/cls_site.cpp
+    $$PWD/cls_site.cpp \
+    $$PWD/cls_recette.cpp
 
 HEADERS += $$PWD/cls_acte.h \
         $$PWD/cls_compte.h \
@@ -36,4 +37,5 @@ HEADERS += $$PWD/cls_acte.h \
     $$PWD/cls_cotation.h \
     $$PWD/cls_document.h \
     $$PWD/cls_ville.h \
-    $$PWD/cls_site.h
+    $$PWD/cls_site.h \
+    $$PWD/cls_recette.h

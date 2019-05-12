@@ -30,8 +30,8 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
         return;
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-
-    gidUser     = db->getUserConnected();
+    User* usr = db->getUserConnected();
+    gidUser     = usr;
 
     TotalMontantlbl         = new UpLabel();
     TotalReclbl             = new UpLabel();
@@ -134,7 +134,7 @@ bool dlg_bilanrecettes::getInitOK()
     return InitOK;
 }
 
-QList<QVariantList> dlg_bilanrecettes::CalcBilan()
+void dlg_bilanrecettes::CalcBilan()
 {
     QMap<QString, QDate> DateMap = proc->ChoixDate();
     if (!DateMap.isEmpty())
@@ -199,19 +199,20 @@ QList<QVariantList> dlg_bilanrecettes::CalcBilan()
         {
             InitOK = false;
             UpMessageBox::Watch(this,tr("Pas de recette enregistrée pour cette période"));
-            return gBilan;
+            return;
         }
     }
     else
     {
         InitOK = false;
         gBilan.clear();
-        return gBilan;
+        return;
     }
 
     InitOK = true;
-    return gBilan;
+    return;
 }
+
 void dlg_bilanrecettes::FiltreTable(int idx)
 {
     if (gMode==SUPERVISEUR)

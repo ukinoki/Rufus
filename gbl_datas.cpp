@@ -45,6 +45,7 @@ Datas::Datas()
     metadocuments   = new MetaDocuments();
     villes          = new Villes();
     sites           = new Sites();
+    recettes        = new Recettes();
 }
 
 

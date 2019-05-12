@@ -45,6 +45,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_document.h"
 #include "cls_motif.h"
 #include "cls_patient.h"
+#include "cls_recette.h"
 #include "cls_tiers.h"
 #include "cls_user.h"
 #include "cls_site.h"
@@ -203,11 +204,13 @@ public:
                                                                         //! comme son nom l'indique
     int                     getIdMaxTableComptesTableArchives();        //! comme son nom l'indique
     QList<Archive*>         loadArchiveByDate(QDate date, Compte *compte, int intervalle);
-                                                                    //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
+                                                                        //! charge les archives contenues entre 6 mois avant date et date pour le compte donné
     QList<Banque*>          loadBanques();                              //! charge toutes les banques ç partir de la  table banques
     QList<Tiers*>           loadTiersPayants();                         //! charge tous les organismes de tiers payants de la table tiers
     QList<TypeTiers*>       loadTypesTiers();                           //! charge tous les types de tiers payants (AME, CMU, AT...) à partir de la table rufus.listetiers
 
+    QMap<int, Recette*>*    loadRecettesByDate(QDate datedebut, QDate datefin);
+                                                                        //! charge toutes les recettes pour la période spécifiée
     /*
      * Cotations
     */
@@ -237,19 +240,20 @@ public:
     /*
      * Patients
     */
-    void                    loadSocialDataPatient(Patient* patient, bool &ok);      //! charge les donnéess sociales d'un patient à partir de la table donneessocialespatients
-    void                    loadMedicalDataPatient(Patient* patient, bool &ok);     //! charge les donnéess médicales d'un patient à partir de la table renseignementsmedicauxpatients
-    Patient*                loadPatientById(int idPat, bool all = false);           //! charge un patient par son id à partir de la table patients
+    QJsonObject             loadAllDataPatientById(int idPat);
+    void                    loadSocialDataPatient(QJsonObject &jData, bool &ok);      //! charge les donnéess sociales d'un patient à partir de la table donneessocialespatients
+    void                    loadMedicalDataPatient(QJsonObject &jData, bool &ok);     //! charge les donnéess médicales d'un patient à partir de la table renseignementsmedicauxpatients
+    Patient*                loadPatientById(int idPat, Patient *pat = Q_NULLPTR, bool all = false);           //! charge un patient par son id à partir de la table patients
     qint64                  countPatientsAll(QString nom = "", QString prenom = "");
                                                                                 /*! compte le nombre de patients
                                                                                 * \param patnom filtrer sur le nom de patient
                                                                                 * \param patprenom filtrer sur le prénom de patient */
-    QList<Patient*>*        loadPatientsAll(QString nom = "", QString prenom = "", bool filtre = false);
+    QMap<int,Patient*>*        loadPatientsAll(QString nom = "", QString prenom = "", bool filtre = false);
                                                                                 /*! charge la liste de tous les patients à partir de la table patients
                                                                                 * \param patnom filtrer sur le nom de patient
                                                                                 * \param patprenom filtrer sur le prénom de patient
                                                                                 * \param le filtre se fait sur des valeurs aprrochantes */
-    QList<Patient *> *      loadPatientsByDDN(QDate DDN);
+    QMap<int,Patient *>*      loadPatientsByDDN(QDate DDN);
                                                                                 /*! charge la liste de tous les patients pour une date de naissance
                                                                                 * \param DDN la date de naissance */
     Patient*                CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe);

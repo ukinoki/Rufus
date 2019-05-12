@@ -191,7 +191,7 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
         m_flagcorrespondants = flag;
         // on reconstruit la liste des MG
         proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
-        db->loadMedicalDataPatient(m_currentpatient, ok);
+        m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(),true);
         if (m_currentpatient->idmg() > 0 && ui->MGupComboBox->currentData().toInt() != m_currentpatient->idmg())
             ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(m_currentpatient->idmg()));
         else
@@ -283,7 +283,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         if (patdata.size() > 0)
         {
             UpMessageBox::Watch(this,tr("Ce dossier existe déjà!"));
-            m_currentpatient = db->loadPatientById(patdata.at(0).toInt(), true);
+            db->loadPatientById(patdata.at(0).toInt(), m_currentpatient, true);
             AfficheDossierAlOuverture();
             disconnect (OKButton, SIGNAL(clicked()), this, SLOT (Slot_OKpushButtonClicked()));
             connect (OKButton, SIGNAL(clicked(bool)),this,SLOT(Slot_AnnulpushButtonClicked()));
@@ -518,12 +518,8 @@ bool dlg_identificationpatient::eventFilter(QObject *obj, QEvent *event)
 --------------------------------------------------------------------------------------------*/
 void dlg_identificationpatient::AfficheDossierAlOuverture()
 {
-    bool ok;
     if (!m_currentpatient->isalloaded())
-    {
-        db->loadSocialDataPatient(m_currentpatient, ok);
-        db->loadMedicalDataPatient(m_currentpatient, ok);
-    }
+        m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(),true);
     if (gMode == Copie)
     {
         ui->NomlineEdit->setText(m_currentpatient->nom());

@@ -60,9 +60,6 @@ void Motifs::remove(Motif *motif)
 {
     if (motif == Q_NULLPTR)
         return;
-    QMap<int, Motif*>::const_iterator itmotf = m_motifs->find(motif->id());
-    if( itmotf == m_motifs->constEnd() )
-        return;
     m_motifs->remove(motif->id());
     delete motif;
 }
