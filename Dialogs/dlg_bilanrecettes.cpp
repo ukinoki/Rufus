@@ -427,13 +427,13 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
 
 void dlg_bilanrecettes::CalculeTotal()
 {
-    TotalMontant = 0;
-    TotalRecu    = 0;
+    TotalMontant    = 0;
+    TotalRecu       = 0;
     TotalRecEsp     = 0;
     TotalRecBanq    = 0;
-    int    nbreActes    = 0;
-    TotalApportlbl      ->setVisible(gMode==COMPTABLE);
-    GdTotalReclbl       ->setVisible(gMode==COMPTABLE);
+    int nbreActes   = 0;
+    TotalApportlbl  ->setVisible(gMode==COMPTABLE);
+    GdTotalReclbl   ->setVisible(gMode==COMPTABLE);
     if (gBigTable->rowCount() > 0)
     {
         if (gMode == SUPERVISEUR)

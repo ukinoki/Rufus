@@ -624,7 +624,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,53,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,54,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);
@@ -924,7 +924,10 @@ CREATE TABLE `Patients` (
   `PatCreePar` int(11) DEFAULT NULL,
   `NumCentre` int(11) DEFAULT NULL,
   `Commentaire` blob DEFAULT NULL,
-  PRIMARY KEY (`idPat`)
+  PRIMARY KEY (`idPat`),
+  FULLTEXT KEY `idx_nom` (`PatNom`),
+  FULLTEXT KEY `idx_prenom` (`PatPrenom`),
+  FULLTEXT KEY `idx_nomprenom` (`PatNom`,`PatPrenom`)
 ) ENGINE=InnoDB;
 
 

@@ -319,11 +319,11 @@ void dlg_documents::CheckPublicEditablAdmin(QCheckBox *check)
 
     int colonnelbl (-1);
     if (check == ui->DocPubliccheckBox)
-        colonnelbl = 4;
+        colonnelbl = 3;
     else if (check == ui->DocEditcheckBox)
-        colonnelbl = 5;
+        colonnelbl = 4;
     else if (check == ui->DocAdministratifcheckBox)
-        colonnelbl = 6;
+        colonnelbl = 5;
     else if (check == ui->PrescriptioncheckBox)
     {
         if (check->isChecked() && ui->DocAdministratifcheckBox->isChecked())
@@ -2991,13 +2991,13 @@ void dlg_documents::SetDocumentToRow(Document*doc, int row)
     lbl1->setAlignment(Qt::AlignCenter);
     if (doc->iseditable())
         lbl1->setPixmap(Icons::pxBlackCheck().scaled(15,15));       //WARNING : icon scaled : pxLoupe 15,15
-    ui->DocupTableWidget->setCellWidget(row,col,lbl1);
+    ui->DocupTableWidget->setCellWidget(row,col,lbl1);              //Editable
     col++; //5
     UpLabel*lbl11 = new UpLabel(ui->DocupTableWidget);
     lbl11->setAlignment(Qt::AlignCenter);
     if (!doc->ismedical())
         lbl11->setPixmap(Icons::pxBlackCheck().scaled(15,15));      //WARNING : icon scaled : pxLoupe 15,15
-    ui->DocupTableWidget->setCellWidget(row,col,lbl11);
+    ui->DocupTableWidget->setCellWidget(row,col,lbl11);             // Administratif
     col++; //6
     pItem2->setText("1" + upLine0->text());                         // Check+text   -> sert pour le tri de la table
     ui->DocupTableWidget->setItem(row,col,pItem2);

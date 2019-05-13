@@ -67,7 +67,15 @@ Patient* Patients::getById(int id, bool all)
 
 void Patients::loadAll(Patient *pat)
 {
-    pat = getById(pat->id(), true);
+    QMap<int, Patient*>::const_iterator itpat = m_patients->find(pat->id());
+    if (itpat == m_patients->constEnd())
+        pat = DataBase::I()->loadPatientById(pat->id(), pat, true);
+    else if (!itpat.value()->isalloaded())
+    {
+        QJsonObject jsonPatient = DataBase::I()->loadAllDataPatientById(pat->id());
+        if( !jsonPatient.isEmpty() )
+            pat->setData(jsonPatient);
+    }
 }
 
 /*!

@@ -1507,7 +1507,6 @@ QMap<int, Patient*>* DataBase::loadPatientsAll(QString nom, QString prenom, bool
     QString req = "select idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar from"
                    " (select idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar from " NOM_TABLE_PATIENTS
                    " force index(idx_nomprenom) order by patnom, patprenom) as idxpat";
-    req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " NOM_TABLE_PATIENTS;
     req += clausewhere;
     req += clauselimit;
     //req += " WITH (INDEX ('nom_prenom))";

@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("11-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("13-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -40,8 +40,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     proc = Procedures::I();
 
-    if (!proc->Init())                                                  // vérifie que le fichier rufus.ini est cohérent
-        exit(0);                                                        // choisit le mode de connexion au serveur
+    if (!proc->Init())                                                  //! vérifie que le fichier rufus.ini est cohérent
+        exit(0);                                                        //! choisit le mode de connexion au serveur
 
     //0. Connexion à la base et récupération des données utilisateur
     if (!proc->gdbOK)
@@ -63,17 +63,17 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
     }
 
-    proc->setDirImagerie();                                              // lit l'emplacement du dossier d'imagerie sur le serveur
+    proc->setDirImagerie();                                              //! lit l'emplacement du dossier d'imagerie sur le serveur
     db = DataBase::I();
     flags = Flags::I();
     Datas::I()->villes->initListe();
     Datas::I()->sites->initListe();
 
-    // 1 - Restauration de la position de la fenetre et de la police d'écran
+    //! 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
     setWindowIcon(Icons::icSunglasses());
 
-    // 2 - charge les data du user connecté
+    //! 2 - charge les data du user connecté
     int gidUser = -1;
     if( db->getUserConnected() != Q_NULLPTR )
         gidUser = db->getUserConnected()->id();
@@ -94,18 +94,18 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     qApp->setStyleSheet(Styles::StyleAppli());
     proc->Message(m_currentuser->getStatus(), 3000);
 
-    //3 Initialisation de tout
+    //! 3 Initialisation de tout
     InitVariables();
     InitWidgets();
     InitEventFilters();
     CreerMenu();
     InitMenus();
 
-    //4 reconstruction des combobox des correspondants et de la liste des documents
-    ReconstruitCombosCorresp();                 // initialisation de la liste
+    //! 4 reconstruction des combobox des correspondants et de la liste des documents
+    ReconstruitCombosCorresp();                 //! initialisation de la liste
 
     m_listepatients->initListeAll();
-    Remplir_ListePatients_TableView(m_listepatients);       //InitTables()
+    Remplir_ListePatients_TableView(m_listepatients);       //! InitTables()
     MetAJourUserConnectes();
 
     QJsonObject jadmin = db->loadAdminData();
@@ -114,7 +114,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     else
         idAdministrateur = jadmin["id"].toInt();
 
-    // 5 - lancement du TCP
+    //! 5 - lancement du TCP
     UtiliseTCP = false;
     if (proc->isadminpresent())
     {
@@ -165,7 +165,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
     proc->setoktcp(UtiliseTCP);
 
-    // 6 - mettre en place le TcpSocket et/ou les timer
+    //! 6 - mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
     gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente                                                          utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants                                                 utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
@@ -233,7 +233,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
     connect (gTimerVerifConnexion,          &QTimer::timeout,   this,   &Rufus::TesteConnexion);
 
-    // 7 - Nettoyage des erreurs éventuelles de la salle d'attente
+    //! 7 - Nettoyage des erreurs éventuelles de la salle d'attente
     QString blabla              = ENCOURSEXAMEN;
     int length                  = blabla.size();
     QString req = "UPDATE " NOM_TABLE_SALLEDATTENTE
@@ -241,10 +241,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                     " WhERE idUser = " + QString::number(db->getUserConnected()->id()) +
                     " AND Left(Statut," + QString::number(length) + ") = '" ENCOURSEXAMEN "'";
     db->StandardSQL(req);
-    // les slots
+
+    //! 8 les slots
     Connect_Slots();
 
-    // 8 - libération des verrous de la compta
+    //! 9 - libération des verrous de la compta
     req = " delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(gidUser);
     db->StandardSQL(req);
 
@@ -265,7 +266,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (m_currentuser->isSoignant())
         ReconstruitListesCotations();
 
-    // 9 - Mise à jour des salles d'attente
+    //! 10 - Mise à jour des salles d'attente
     // on donne le statut "arrivé" aux patients en salle d'attente dont le iduserencourssexam ltutilisateur actuel et qui n'auraient pas été su^^rimés (plantage)
     req = "update " NOM_TABLE_SALLEDATTENTE " set Statut = '" ARRIVE "', posteexamen = null, iduserencoursexam = null where"
                   " statut = '" ENCOURSEXAMEN + m_currentuser->getLogin() + "'"
@@ -276,15 +277,17 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if(UtiliseTCP)
         envoieMessage(TCPMSG_MAJSalAttente);
 
-    // 10 - Vérification de la messagerie
+    //! 11 - Vérification de la messagerie
     ReconstruitListeMessages();
 
-    // 11 - Affichage des boutons bilan orthoptique
+    //! 12 - Affichage des boutons bilan orthoptique
     ui->CreerBOpushButton   ->setVisible(m_currentuser->isOrthoptist());
     ui->CreerBOpushButton_2 ->setVisible(m_currentuser->isOrthoptist());
 
-    //12 - mise à jour du programmateur de sauvegardes
+    //! 13 - mise à jour du programmateur de sauvegardes
     proc->InitBackupAuto();
+
+    //! 14 - passage en mode sélection de patient
     ModeSelectDepuisListe();
  }
 
