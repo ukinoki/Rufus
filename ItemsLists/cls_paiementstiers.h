@@ -15,37 +15,34 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CLS_PAIEMENTSTIERS_H
+#define CLS_PAIEMENTSTIERS_H
 
-#ifndef CLS_MOTIF_H
-#define CLS_MOTIF_H
-
-#include "cls_item.h"
+#include "cls_paiementtiers.h"
+#include "cls_user.h"
 
 /*!
- * \brief Motif class
- * l'ensemble des informations concernant un motif d'acte
+ * \brief Cette classe gére la liste des paiements par tiers payants
+ *  ( = paiements effectués par toute autre personne que le patient )
  */
 
-class Motif : public Item
+class PaiementsTiers
 {
 
 private:
-    int m_id, m_duree, m_noordre;
-    QString m_motif, m_raccourci, m_couleur;
-    bool m_pardefaut, m_utiliser;
+    QMap<int, PaiementTiers*> *m_paiementstiers; //!< la liste des paiements par tiers
 
 public:
-    explicit Motif(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    explicit PaiementsTiers();
 
-    int id() const;
-    QString motif() const;
-    QString raccourci() const;
-    QString couleur() const;
-    int duree() const;
-    bool pardefaut() const;
-    bool utiliser() const;
-    int noordre() const;
+    QMap<int, PaiementTiers *> *paiementstiers() const;
+
+    void add(PaiementTiers *PaiementsTiers);
+    void addList(QList<PaiementTiers*> listpaiementstiers);
+    void remove(PaiementTiers* PaiementsTiers);
+    PaiementTiers* getById(int id);
+    void clearAll();
+    void initListe(User *usr);
 };
 
-#endif // CLS_MOTIF_H
+#endif // CLS_PAIEMENTSTIERS_H

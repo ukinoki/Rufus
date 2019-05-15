@@ -8,7 +8,6 @@ SOURCES += $$PWD/cls_correspondants.cpp \
         $$PWD/cls_villes.cpp \
     $$PWD/cls_depenses.cpp \
     $$PWD/cls_docsexternes.cpp \
-    $$PWD/cls_paiementsdirects.cpp \
     $$PWD/cls_banques.cpp \
     $$PWD/cls_tierspayants.cpp \
     $$PWD/cls_typestiers.cpp \
@@ -18,7 +17,8 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_documents.cpp \
     $$PWD/cls_actes.cpp \
     $$PWD/cls_sites.cpp \
-    $$PWD/cls_recettes.cpp
+    $$PWD/cls_recettes.cpp \
+    $$PWD/cls_paiementstiers.cpp
 
 HEADERS += $$PWD/cls_correspondants.h \
         $$PWD/cls_patients.h \
@@ -26,7 +26,6 @@ HEADERS += $$PWD/cls_correspondants.h \
         $$PWD/cls_villes.h \
     $$PWD/cls_depenses.h \
     $$PWD/cls_docsexternes.h \
-    $$PWD/cls_paiementsdirects.h \
     $$PWD/cls_banques.h \
     $$PWD/cls_tierspayants.h \
     $$PWD/cls_typestiers.h \
@@ -36,4 +35,5 @@ HEADERS += $$PWD/cls_correspondants.h \
     $$PWD/cls_documents.h \
     $$PWD/cls_actes.h \
     $$PWD/cls_sites.h \
-    $$PWD/cls_recettes.h
+    $$PWD/cls_recettes.h \
+    $$PWD/cls_paiementstiers.h

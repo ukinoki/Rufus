@@ -43,6 +43,7 @@ Datas::Datas()
     docsexternes    = new DocsExternes();
     documents       = new Documents();
     metadocuments   = new MetaDocuments();
+    paiementstiers  = new PaiementsTiers();
     villes          = new Villes();
     sites           = new Sites();
     recettes        = new Recettes();

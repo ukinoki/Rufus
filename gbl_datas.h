@@ -27,7 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_depenses.h"
 #include "cls_docsexternes.h"
 #include "cls_motifs.h"
-#include "cls_paiementsdirects.h"
+#include "cls_paiementstiers.h"
 #include "cls_patients.h"
 #include "cls_typestiers.h"
 #include "cls_tierspayants.h"
@@ -60,7 +60,7 @@ public:
     Motifs *motifs;                     //!< tous les motifs d'actes
     TiersPayants *tiers;                //!< tous les tiers payants
     TypesTiers *typestiers;             //!< tous les types tiers payants
-    PaiementsDirects *paiementsdirects; //!< tous les paiements en attente d'enregistrement
+    PaiementsTiers *paiementstiers;     //!< tous les paiements par tiers payants
     DocsExternes *docsexternes;         //!< Les documents externes
     Sites *sites;                       //!< Les lieux de travail
     Documents *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)

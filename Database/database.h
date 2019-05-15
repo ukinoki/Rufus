@@ -44,6 +44,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_docexterne.h"
 #include "cls_document.h"
 #include "cls_motif.h"
+#include "cls_paiementtiers.h"
 #include "cls_patient.h"
 #include "cls_recette.h"
 #include "cls_tiers.h"
@@ -211,6 +212,9 @@ public:
 
     QMap<int, Recette*>*    loadRecettesByDate(QDate datedebut, QDate datefin);
                                                                         //! charge toutes les recettes pour la période spécifiée
+
+    QMap<int, PaiementTiers*>*  loadPaiementTiersByUser(User *usr);    //! charge tous les paiements par tiers pour un utilisateur pour la période spécifiée
+
     /*
      * Cotations
     */

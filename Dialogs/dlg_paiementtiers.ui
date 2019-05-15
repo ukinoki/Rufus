@@ -76,7 +76,7 @@
       <number>5</number>
      </property>
      <item>
-      <widget class="QWidget" name="" native="true">
+      <widget class="QWidget" name="widget" native="true">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -844,7 +844,7 @@ tiers payant</string>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,0,1,1,15,1">
+     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,0,1,1,0,1">
       <property name="spacing">
        <number>5</number>
       </property>
@@ -1024,7 +1024,7 @@ tiers payant</string>
        </widget>
       </item>
       <item>
-       <widget class="UpTableWidget" name="ListeupTableWidget">
+       <widget class="UpTableView" name="ListetableView">
         <property name="minimumSize">
          <size>
           <width>520</width>
@@ -1076,17 +1076,17 @@ tiers payant</string>
         <property name="cornerButtonEnabled">
          <bool>true</bool>
         </property>
-        <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
         <attribute name="verticalHeaderDefaultSectionSize">
          <number>0</number>
         </attribute>
-        <attribute name="verticalHeaderHighlightSections">
-         <bool>false</bool>
-        </attribute>
         <attribute name="verticalHeaderMinimumSectionSize">
          <number>0</number>
+        </attribute>
+        <attribute name="verticalHeaderShowSortIndicator" stdset="0">
+         <bool>false</bool>
+        </attribute>
+        <attribute name="verticalHeaderStretchLastSection">
+         <bool>false</bool>
         </attribute>
        </widget>
       </item>
@@ -1146,6 +1146,11 @@ tiers payant</string>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
   </customwidget>
+  <customwidget>
+   <class>UpTableView</class>
+   <extends>QTableView</extends>
+   <header>uptableview.h</header>
+  </customwidget>
  </customwidgets>
  <tabstops>
   <tabstop>UserscomboBox</tabstop>
@@ -1158,7 +1163,7 @@ tiers payant</string>
   <tabstop>CommissionlineEdit</tabstop>
   <tabstop>BanqueChequecomboBox</tabstop>
   <tabstop>TireurChequelineEdit</tabstop>
-  <tabstop>ListeupTableWidget</tabstop>
+  <tabstop>ListetableView</tabstop>
  </tabstops>
  <resources>
   <include location="../assets/Images/images.qrc"/>

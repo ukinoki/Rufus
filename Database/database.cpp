@@ -1066,6 +1066,9 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
     return types;
 }
 
+/*
+ * Recettes
+*/
 QMap<int, Recette*>* DataBase::loadRecettesByDate(QDate datedebut, QDate datefin)
 {
     QMap<int, Recette*> *listerecettes = new QMap<int,Recette*>();
@@ -1140,14 +1143,59 @@ QMap<int, Recette*>* DataBase::loadRecettesByDate(QDate datedebut, QDate datefin
             jData["idparent"] = recetteslist.at(i).at(10).toInt();
             jData["idcomptable"] = recetteslist.at(i).at(11).toInt();
             jData["encaissementautrerecette"] = recetteslist.at(i).at(12).toDouble();
-            jData["typeautrerecette"] = recetteslist.at(i).at(13).toString();
+            jData["apportpraticien"] = (recetteslist.at(i).at(13).toString() == tr("Apport praticien"));
+            jData["autrerecette"] = (recetteslist.at(i).at(13).toString() == tr("Divers et autres recettes"));
             Recette *recette = new Recette(jData);
             listerecettes->insert(i,recette);
         }
         return listerecettes;
 }
 
+/*
+ * PaiementsTiers
+*/
+QMap<int, PaiementTiers*>* DataBase::loadPaiementTiersByUser(User* usr)
+{
+    QMap<int, PaiementTiers*> *listepaiements = new QMap<int,PaiementTiers*>();
+    if (usr == Q_NULLPTR)
+        return listepaiements;
+    QString req =   "SELECT idRecette, DatePaiement, DateEnregistrement, Montant, ModePaiement,"
+                    " TireurCheque, CompteVirement, BanqueCheque, NomTiers, Commission,"
+                    " Monnaie, idRemise, EnAttente, EnregistrePar, TypeRecette,"
+                    " RCDate FROM " NOM_TABLE_RECETTES
+                "\n LEFT OUTER JOIN (SELECT RCDate, idRemCheq FROM " NOM_TABLE_REMISECHEQUES ") AS rc\n"
+                " ON rc.idRemCheq = idRemise\n"
+                " WHERE idUser = " + QString::number(usr->id()) +
+                "\n AND TiersPayant = 'O'\n"
+                " ORDER BY DatePaiement DESC, NomTiers";
+    QList<QVariantList> paiementslist = StandardSelectSQL(req,ok);
+    if(!ok || paiementslist.size()==0)
+        return listepaiements;
+    for (int i=0; i<paiementslist.size(); ++i)
+    {
+        QJsonObject jData{};
+        jData["idpaiement"]                 = paiementslist.at(i).at(0).toInt();
+        jData["date"]                       = paiementslist.at(i).at(1).toDate().toString("yyyy-MM-dd");
+        jData["dateenregistrement"]         = paiementslist.at(i).at(2).toDate().toString("yyyy-MM-dd");
+        jData["montant"]                    = paiementslist.at(i).at(3).toDouble();
+        jData["modepaiement"]               = paiementslist.at(i).at(4).toString();
+        jData["tireurcheque"]               = paiementslist.at(i).at(5).toString();
+        jData["comptevirement"]             = paiementslist.at(i).at(6).toInt();
+        jData["banquecheque"]               = paiementslist.at(i).at(7).toString();
+        jData["nomtiers"]                   = paiementslist.at(i).at(8).toString();
+        jData["commission"]                 = paiementslist.at(i).at(9).toDouble();
+        jData["monnaie"]                    = paiementslist.at(i).at(10).toString();
+        jData["idremisecheque"]             = paiementslist.at(i).at(11).toInt();
+        jData["chequeenattente"]            = (paiementslist.at(i).at(12).toInt() == 1);
+        jData["iduserenregistreur"]         = paiementslist.at(i).at(13).toInt();
+        jData["dateremisecheques"]          = paiementslist.at(i).at(14).toDate().toString("yyyy-MM-dd");
+        jData["encaissement"]               = 0;
 
+        listepaiements->insert(i, new PaiementTiers(jData));
+    }
+    return listepaiements;
+
+}
 /*******************************************************************************************************************************************************************
  ***** FIN COMPTABILITÊ ********************************************************************************************************************************************
 ********************************************************************************************************************************************************************/

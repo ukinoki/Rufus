@@ -55,7 +55,8 @@ private:
     int m_iduserparent;                 //!> l'id du user parent du user responsable de l'acte (le user remplacé si le user responsable est remplaçant, le user responsable lui-même sinon)
     int m_idusercomptable;              //!> l'id du user comptable de la recette
     double m_montantautrerecettes;      //!> le montant encaissé d'une recette spéciale
-    QString m_typeautrerecette;         //!> le type de recette en cas de recette spéciale
+    bool m_isapportparticien;           //! la  recette est un apport pratiicien
+    bool m_isautrerecette;              //! la  recette est un apport pratiicien
 
 public:
     explicit Recette(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -75,7 +76,8 @@ public:
     int idparent() const;
     int idcomptable() const;
     double encaissementautrerecette() const;
-    QString typeautrerecette() const;
+    bool isapportpraticien();
+    bool isautrerecette();
 };
 
 #endif // CLS_RECETTE_H

@@ -30,8 +30,8 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
         return;
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    User* usr = db->getUserConnected();
-    gidUser     = usr;
+
+    gidUser     = db->getUserConnected();
 
     TotalMontantlbl         = new UpLabel();
     TotalReclbl             = new UpLabel();
@@ -107,11 +107,11 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
         Titre = tr("Bilan des recettes pour la période du ") + Debut.toString(tr("d MMMM yyyy")) + tr(" au ") + Fin.toString(tr("d MMMM yyyy"));
     setWindowTitle(Titre);
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonClose);
-    CalcSuperviseursEtComptables();
     gMode = SUPERVISEUR;
+    gBigTable = new UpTableView();
 
-    DefinitArchitetureTable();
     RemplitLaTable();
+    CalcSuperviseursEtComptables();
     FiltreTable(-1);
     dlglayout()->insertLayout(0,glblbox);
     dlglayout()->insertWidget(0,gBigTable);
@@ -141,61 +141,8 @@ void dlg_bilanrecettes::CalcBilan()
     {
         Debut = DateMap["DateDebut"];
         Fin   = DateMap["DateFin"];
-        //---------------------------------------------- Tous les actes effectués par tout le monde durant la période, sauf les impayés et les gratuits
-        QString req =
-        "select res1.idActe, res1.actedate, res1.nom, res1.actecotation, res1.acteMontant, res1.actemonnaie, res1.TypePaiement,"
-        " res1.Tiers, Paye, res1.iduser, res1.userparent, res1.usercomptable, null as montantautresrecettes, null as typeautresrecettes from\n "
-        "(\n"
-            "select\n"
-            " act.idActe, actedate, concat(patnom, ' ', patprenom) as nom, actecotation, acteMontant, acteMonnaie, TypePaiement, Tiers, iduser, userparent, usercomptable from \n"
-            NOM_TABLE_ACTES " act, " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_TYPEPAIEMENTACTES " typ\n"
-            " where act.idPat = pat.idpat\n"
-            " and act.idActe = typ.idacte\n"
-            " and actedate >= '" + Debut.toString("yyyy-MM-dd") + "'\n"
-            " and actedate <= '" + Fin.toString("yyyy-MM-dd") + "'\n"
-            " order by actedate, nom\n"
-        ")\n"
-        " as res1\n"
-        " left outer join\n"
-        " (\n"
-            "select rec.idrecette, paye, lig.idActe from \n"
-            NOM_TABLE_LIGNESPAIEMENTS " lig, " NOM_TABLE_RECETTES " rec, " NOM_TABLE_TYPEPAIEMENTACTES " typ2\n"
-            " where lig.idrecette = rec.idrecette\n"
-            " and lig.idActe = typ2.idacte\n"
-            " and TypePaiement <> 'T'\n"
-            " and TypePaiement <> 'G'\n"
-            " and datepaiement >= '" + Debut.toString("yyyy-MM-dd") + "'\n"
-            " and datepaiement <= '" + Fin.toString("yyyy-MM-dd") + "'\n"
-        ")\n"
-        " as res3 on res1.idacte = res3.idActe\n";
-
-        //----------------------------------------------- et tous les tiers payants encaissés durant cette même période
-        req +=
-        " union\n"
-
-        " select null as idActe, DatePaiement as actedate, NomTiers as nom, null as actecotation, null as acteMontant, Monnaie as acteMonnaie, ModePaiement as TypePaiement,"
-        " null as Tiers, Montant as paye, iduser, iduser as userparent, iduser as usercomptable, null as montantautresrecettes, null as typeautresrecettes from \n"
-        NOM_TABLE_RECETTES
-        "\n where TiersPayant = 'O'\n"
-        " and DatePaiement >= '" + Debut.toString("yyyy-MM-dd") + "'\n"
-        " and DatePaiement <= '" + Fin.toString("yyyy-MM-dd") + "'\n"
-
-        " union\n"
-
-        " select null as idActe, DateRecette as actedate, Libelle as nom, null as actecotation, null as acteMontant, Monnaie as acteMonnaie,"
-        " Paiement as TypePaiement, null as Tiers, null as paye, null as iduser, null as userparent, iduser as usercomptable,"
-        " montant as montantautresrecettes, Typerecette as typeautresrecettes from \n" NOM_TABLE_RECETTESSPECIALES
-        " \nwhere"
-        " DateRecette >= '" + Debut.toString("yyyy-MM-dd") + "'\n"
-        " and DateRecette<= '" + Fin.toString("yyyy-MM-dd") + "'\n"
-        " order by actedate, nom";
-
-        //proc->Edit(req);
-        //p... ça c'est de la requête
-        bool OK = true;
-        gBilan =  db->StandardSelectSQL(req, OK);
-
-        if (gBilan.size() == 0)
+        Datas::I()->recettes->initListe(DateMap);
+        if (Datas::I()->recettes->recettes()->size() == 0)
         {
             InitOK = false;
             UpMessageBox::Watch(this,tr("Pas de recette enregistrée pour cette période"));
@@ -205,10 +152,8 @@ void dlg_bilanrecettes::CalcBilan()
     else
     {
         InitOK = false;
-        gBilan.clear();
         return;
     }
-
     InitOK = true;
     return;
 }
@@ -219,49 +164,90 @@ void dlg_bilanrecettes::FiltreTable(int idx)
     {
         if (idx==-1)
         {
-            for(int i=0; i<gBigTable->rowCount(); i++)
-                gBigTable->setRowHidden(i,gBigTable->item(i,0)->text() == "0");
+            for(int i=0; i<m_recettesmodel->rowCount(); i++)
+            {
+                Recette* rec = getRecetteFromRow(i);
+                if (rec == Q_NULLPTR)
+                    gBigTable->setRowHidden(i,true);
+                else
+                    gBigTable->setRowHidden(i, rec->idacte() == -1);
+            }
         }
         else
         {
             QMultiMap<int, User*>::iterator userFind = Datas::I()->users->superviseurs()->find(idx);
             if( userFind != Datas::I()->users->superviseurs()->end() )
             {
-                for(int i=0; i<gBigTable->rowCount(); i++)
+                for(int i=0; i<m_recettesmodel->rowCount(); i++)
                 {
-                    //qDebug() << gBigTable->item(i,8)->text() + " - " + QString::number(idx) + " - " + gBigTable->item(i,0)->text() + " ;";
-                    gBigTable->setRowHidden(i,gBigTable->item(i,8)->text() != QString::number(idx) || gBigTable->item(i,0)->text() == "0");
+                    Recette* rec = getRecetteFromRow(i);
+                    if (rec == Q_NULLPTR)
+                        gBigTable->setRowHidden(i,true);
+                    else
+                        gBigTable->setRowHidden(i, rec->iduser() != idx || rec->idacte() == -1);
                 }
             }
         }
         PrintButton->setEnabled(gSupervBox->currentData().toInt()>-1  && gBigTable->rowNoHiddenCount()>0);
-        gBigTable->setColumnHidden(7,true);     // divers et autres recettes
-        gBigTable->setColumnHidden(12,true);    // apport pratcien
+        gBigTable->setColumnHidden(6,true);    // divers et autres recettes
+        gBigTable->setColumnHidden(7,true);    // apport pratcien
     }
     else if (gMode==COMPTABLE)
     {
             QMultiMap<int, User*>::iterator userFind = Datas::I()->users->comptables()->find(idx);
             if( userFind != Datas::I()->users->comptables()->end() )
             {
-                for(int i=0; i<gBigTable->rowCount(); i++)
+                for(int i=0; i<m_recettesmodel->rowCount(); i++)
                 {
-                    //qDebug() << gBigTable->item(i,10)->text() + " - " + QString::number(idx) + " - "
-                    //+ gBigTable->item(i,6)->text() + " ; " + QString::number(QLocale().toDouble(gBigTable->item(i,6)->text()));
-                    gBigTable->setRowHidden(i,
-                                            gBigTable->item(i,10)->text() != QString::number(idx)
-                                            || (QLocale().toDouble(gBigTable->item(i,6)->text()) == 0.0
-                                            && QLocale().toDouble(gBigTable->item(i,7)->text()) == 0.0
-                                            && QLocale().toDouble(gBigTable->item(i,12)->text()) == 0.0));
+                    Recette* rec = getRecetteFromRow(i);
+                    if (rec == Q_NULLPTR)
+                        gBigTable->setRowHidden(i,true);
+                    else
+                    {
+                        bool a =  rec->idcomptable() != idx
+                                            || (rec->encaissement() == 0.0
+                                            && rec->encaissementautrerecette() == 0.0);
+                         gBigTable->setRowHidden(i, a);
+                    }
                 }
             }
         PrintButton->setEnabled(gBigTable->rowNoHiddenCount()>0);
-        gBigTable->setColumnHidden(7,false);     // divers et autres recettes
-        gBigTable->setColumnHidden(12,false);    // apport pratcien
+        gBigTable->setColumnHidden(6,false);    // divers et autres recettes
+        gBigTable->setColumnHidden(7,false);    // apport pratcien
     }
     ExportButt->setEnabled(gBigTable->rowNoHiddenCount()>0);
     ExportButt->setVisible(!(gMode==SUPERVISEUR && gSupervBox->currentData().toInt()==-1));
     gBigTable->FixLargeurTotale();
     CalculeTotal();
+}
+
+Recette* dlg_bilanrecettes::getRecetteFromIndex(QModelIndex idx)
+{
+    UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_recettesmodel->itemFromIndex(idx));
+    if (upitem == Q_NULLPTR)
+        return Q_NULLPTR;
+    if (upitem->item() == Q_NULLPTR)
+    {
+        qDebug() << "erreur sur l'item - row = " << upitem->row() << " - col = " << upitem->column() << upitem->text();
+        return Q_NULLPTR;
+    }
+    Recette *rec = dynamic_cast<Recette *>(upitem->item());
+    return rec;
+}
+
+Recette* dlg_bilanrecettes::getRecetteFromRow(int row)
+{
+    QModelIndex idx = m_recettesmodel->index(row, 0);
+    return getRecetteFromIndex(idx);
+
+}
+
+Recette* dlg_bilanrecettes::getRecetteFromSelectionInTable()
+{
+    if (gBigTable->selectionModel()->selectedIndexes().size() == 0)
+        return Q_NULLPTR;
+    QModelIndex idx  = gBigTable->selectionModel()->selectedIndexes().at(0);
+    return getRecetteFromIndex(idx);
 }
 
 void dlg_bilanrecettes::ImprimeEtat()
@@ -270,6 +256,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     bool AvecDupli   = false;
     bool AvecPrevisu = true;
     bool AvecNumPage = false;
+
     User *userEntete = Q_NULLPTR;
 
     //création de l'entête
@@ -311,61 +298,87 @@ void dlg_bilanrecettes::ImprimeEtat()
                     "<body LANG=\"fr-FR\" DIR=\"LTR\">"
                     "<table width=\"" + QString::number(int(c*510)) + "\" border=\"1\"  cellspacing=\"0\" cellpadding=\"2\">";
     int row = 1;
-    for (int i = 0; i < gBigTable->rowCount();i++)
+    for (int i = 0; i < m_recettesmodel->rowCount();i++)
     {
         if (!gBigTable->isRowHidden(i))
         {
             if (gMode == SUPERVISEUR)
             {
-                if (gBigTable->item(i,3)->text()!= "")
-                {
-                    test4 += "<tr>"
-                             "<td width=\"" + QString::number(int(c*30))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(row) + "</div></span></td>"              // no ligne
-                             "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">" + gBigTable->item(i,2)->text() + "</span></td>"                                 // nom prenom
-                             "<td width=\"" + QString::number(int(c*160)) + "\"><span style=\"font-size:8pt\">" + gBigTable->item(i,3)->text() + "</span></td>"                                 // cotation
-                             "<td width=\"" + QString::number(int(c*95))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + gBigTable->item(i,4)->text() + "</div></span></td>"      // montant
-                             "</tr>";
-                    row++;
-                }
+                Recette* rec = getRecetteFromRow(i);
+                if (rec != Q_NULLPTR)
+                    if (rec->cotationacte() != "")
+                    {
+                        test4 += "<tr>"
+                                 "<td width=\"" + QString::number(int(c*30))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(row) + "</div></span></td>"      //! no ligne
+                                 "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">" + rec->payeur() + "</span></td>"                                        //! nom prenom
+                                 "<td width=\"" + QString::number(int(c*160)) + "\"><span style=\"font-size:8pt\">" + rec->cotationacte() + "</span></td>"                                  //! cotation
+                                 "<td width=\"" + QString::number(int(c*95))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                                 + QLocale().toString(rec->montant(),'f',2) + "</div></span></td>"                                                                                          //! montant
+                                 "</tr>";
+                        row++;
+                    }
             }
             else if (gMode == COMPTABLE)
             {
                 test4 += "<tr>";
-                if (QLocale().toDouble(gBigTable->item(i,12)->text())!=0.0)                      // ------------------------------------------------------------------------------------   c'est un apport praticien
+                Recette* rec = getRecetteFromRow(i);
+                if (rec != Q_NULLPTR)
                 {
-                    test4 +=    "<td width=\"" + QString::number(int(c*25))  + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(row) + "</div></span></font></td>"             // no ligne
-                                "<td width=\"" + QString::number(int(c*60))  + "\">" + couleur + "<span style=\"font-size:8pt\">" + gBigTable->item(i,1)->text() + "</span></font></td>"                                // date
-                                "<td width=\"" + QString::number(int(c*180)) + "\">" + couleur + "<span style=\"font-size:8pt\">" + gBigTable->item(i,2)->text() + "</span></font></td>"                                // libelle apport praticien
-                                "<td width=\"" + QString::number(int(c*115)) + "\">" + couleur + "<span style=\"font-size:8pt\">" + tr("apport praticien") + "</span></font></td>"                                      // apport praticien
-                                "<td width=\"" + QString::number(int(c*50))  + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">" + gBigTable->item(i,12)->text() + "</div></span></font></td>"    // montant
-                                "<td width=\"" + QString::number(int(c*75))  + "\">" + couleur + "<span style=\"font-size:8pt\">" + gBigTable->item(i,5)->text() + "</span></font></td>";                               // mode de paiement
-                }
-                else if (QLocale().toDouble(gBigTable->item(i,4)->text())==0.0 && QLocale().toDouble(gBigTable->item(i,7)->text())==0.0) // --------------------------------------------   c'est un tiers payant
-                {
-                    test4 += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(row) + "</span></td>"                    // no ligne
-                             "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">" + gBigTable->item(i,1)->text() + "</span></td>"                                 // date
-                             "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">" + gBigTable->item(i,2)->text() + "</span></td>"                                 // nom prenom ou libelle si recette speciale
-                             "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">-</span></td>";                                                                   // vide (on est obligé de mettre un "-" parce que sinon la hauteur de ligne est fausse)
-                    test4 += "<td width=\"" + QString::number(int(c*50))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + gBigTable->item(i,6)->text() + "</div></span></td>";     // montant
-                    test4 += "<td width=\"" + QString::number(int(c*75))  + "\"><span style=\"font-size:8pt\">" + gBigTable->item(i,5)->text() + "</span></td>";                                // mode de paiement
+                    if (rec->isapportpraticien())                                      //! ----   c'est un apport praticien
+                    {
+                        test4 +=    "<td width=\"" + QString::number(int(c*25))  + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">"
+                                + QString::number(row) + "</div></span></font></td>"                                                     //! no ligne
+                                "<td width=\"" + QString::number(int(c*60))  + "\">" + couleur + "<span style=\"font-size:8pt\">"
+                                + rec->date().toString(tr("d MMM yyyy")) + "</span></font></td>"                                         //! date
+                                "<td width=\"" + QString::number(int(c*180)) + "\">" + couleur + "<span style=\"font-size:8pt\">"
+                                + rec->payeur() + "</span></font></td>"                                                                  //! libelle apport praticien
+                                "<td width=\"" + QString::number(int(c*115)) + "\">" + couleur + "<span style=\"font-size:8pt\">"
+                                + tr("apport praticien") + "</span></font></td>"                                                         //! apport praticien
+                                "<td width=\"" + QString::number(int(c*50))  + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">"
+                                + QLocale().toString(rec->encaissementautrerecette(), 'f',2) + "</div></span></font></td>"               //! montant
+                                "<td width=\"" + QString::number(int(c*75))  + "\">" + couleur + "<span style=\"font-size:8pt\">"
+                                + Utils::ConvertitModePaiement(rec->modepaiement()) + "</span></font></td>";                             //! mode de paiement
+                    }
+                    else if (rec->montant()==0.0 && !rec->isapportpraticien())          //! ----   c'est un tiers payant
+                    {
+                        test4 += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                                + QString::number(row) + "</span></td>"                                                                 //! no ligne
+                                "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">"
+                                + rec->date().toString(tr("d MMM yyyy")) + "</span></td>"                                               //! date
+                                "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">"
+                                + rec->payeur() + "</span></td>"                                                                        //! nom prenom ou libelle si recette speciale
+                                "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">-</span></td>";                       //! vide (on est obligé de mettre un "-" parce que sinon la hauteur de ligne est fausse)
+                        test4 += "<td width=\"" + QString::number(int(c*50))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                                + QLocale().toString(rec->encaissement(), 'f', 2) + "</div></span></td>";                               //! montant
+                        test4 += "<td width=\"" + QString::number(int(c*75))  + "\"><span style=\"font-size:8pt\">"
+                                + Utils::ConvertitModePaiement(rec->modepaiement()) + "</span></font></td>";                            //! mode de paiement
 
-               }
-                else                                                                            // -------------------------------------------------------------------------------------   c'est une recette
-                {
-                    test4 += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(row) + "</span></td>"                    // no ligne
-                             "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">" + gBigTable->item(i,1)->text() + "</span></td>"                                 // date
-                             "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">" + gBigTable->item(i,2)->text() + "</span></td>";                                // nom prenom ou libelle si recette speciale
-                    if (QLocale().toDouble(gBigTable->item(i,7)->text())!=0.0)                                                                                                                  // cotation ou type recette si recette spéciale
-                        test4 += "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">" + tr("divers et autres recettes") + "</span></td>";
-                    else
-                        test4 += "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">" + gBigTable->item(i,3)->text() + "</span></td>";
-                    if (QLocale().toDouble(gBigTable->item(i,7)->text())!=0.0)                                                                                                                  // montant
-                        test4 += "<td width=\"" + QString::number(int(c*50)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + gBigTable->item(i,7)->text() + "</div></span></td>";
-                    else
-                        test4 += "<td width=\"" + QString::number(int(c*50)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + gBigTable->item(i,6)->text() + "</div></span></td>";
-                    test4 += "<td width=\"" + QString::number(int(c*75))  + "\"><span style=\"font-size:8pt\">" + gBigTable->item(i,5)->text() + "</span></td>";                                // mode de paiement
-               }
-                row++;
+                    }
+                    else                                                                                        //! ----   c'est une recette
+                    {
+                        test4 += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                                + QString::number(row) + "</span></td>"                                                                 //! no ligne
+                                "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">"
+                                + rec->date().toString(tr("d MMM yyyy")) + "</span></td>"                                               //! date
+                                "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">"
+                                + rec->payeur() + "</span></td>";                                                                       //! nom prenom ou libelle si recette speciale
+                        if (rec->isautrerecette())
+                                test4 += "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">"
+                                + tr("divers et autres recettes") + "</span></td>";
+                        else
+                            test4 += "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">"
+                                + rec->cotationacte() + "</span></td>";
+                        if (rec->isautrerecette())
+                            test4 += "<td width=\"" + QString::number(int(c*50)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                                    + QLocale().toString(rec->encaissementautrerecette(), 'f', 2) + "</div></span></td>";
+                        else
+                            test4 += "<td width=\"" + QString::number(int(c*50)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                                    + QLocale().toString(rec->encaissement(), 'f', 2) + "</div></span></td>";
+                        test4 += "<td width=\"" + QString::number(int(c*75))  + "\"><span style=\"font-size:8pt\">"
+                                + Utils::ConvertitModePaiement(rec->modepaiement()) + "</span></font></td>";                            //! mode de paiement
+                    }
+                    row++;
+                }
             }
         }
     }
@@ -375,7 +388,7 @@ void dlg_bilanrecettes::ImprimeEtat()
         test4 +=    "<table width  =\"" + QString::number(int(c*510)) + "\" border=\"0\"  cellspacing=\"0\" cellpadding=\"2\">";
         test4 +=    "<tr>"
                     "<tr><td width =\"" + QString::number(int(c*125)) + "\">" + couleur + "<span style=\"font-size:8pt\">" + tr("Total apports praticien") + "</span></font></td>"
-                    "<td width     =\"" + QString::number(int(c*125)) + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(TotalApport,'f',2) + "</div></span></font></font></td>";
+                                                                                                                                                             "<td width     =\"" + QString::number(int(c*125)) + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(TotalApport,'f',2) + "</div></span></font></font></td>";
         test4 +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\">" + tr("Total recettes") + "</span></td>"
                     "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(TotalRecu,'f',2) + "</div></span></td>"
                     "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt\">(Espèces = " + QString::number(TotalRecEsp,'f',2) + ", Banque = " + QString::number(TotalRecBanq,'f',2) + ")</span></td>";
@@ -403,16 +416,21 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
     glblbox->removeWidget(ClassmtupGrpBox);
     gSupervBox->clear();
 
-    QList <int> listiD; // la liste des superviseurs - gBilan.value(9)
+    QList <int> listiD; // la liste des superviseurs
     bool idcomptabletrouve = false;
 
-    for (int i=0; i< gBilan.size(); i++)
+    for (int i=0; i< m_recettesmodel->rowCount(); i++)
     {
-        int iduser = gBilan.at(i).at(9).toInt();
-        if (!listiD.contains(iduser) && iduser > 0)
-            listiD << iduser;
-        if (!idcomptabletrouve)
-            idcomptabletrouve = (gBilan.at(i).at(11).toInt() == gidUser->id());
+        Recette* rec = getRecetteFromRow(i);
+        if (rec == Q_NULLPTR)
+            continue;
+        else
+        {
+            if (!listiD.contains(rec->iduser()) && rec->iduser() > 0)
+                listiD << rec->iduser();
+            if (!idcomptabletrouve)
+                idcomptabletrouve = (rec->idcomptable() == gidUser->id());
+        }
     }
     if( listiD.size() > 1 )
         gSupervBox->addItem(tr("Tout le monde"),-1);
@@ -427,30 +445,32 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
 
 void dlg_bilanrecettes::CalculeTotal()
 {
-    TotalMontant    = 0;
-    TotalRecu       = 0;
+    TotalMontant = 0;
+    TotalRecu    = 0;
     TotalRecEsp     = 0;
     TotalRecBanq    = 0;
-    int nbreActes   = 0;
-    TotalApportlbl  ->setVisible(gMode==COMPTABLE);
-    GdTotalReclbl   ->setVisible(gMode==COMPTABLE);
-    if (gBigTable->rowCount() > 0)
+    int    nbreActes    = 0;
+    TotalApportlbl      ->setVisible(gMode==COMPTABLE);
+    GdTotalReclbl       ->setVisible(gMode==COMPTABLE);
+    if (m_recettesmodel->rowCount() > 0)
     {
         if (gMode == SUPERVISEUR)
         {
-            for (int k = 0; k < gBigTable->rowCount(); k++)
+            for (int k = 0; k < m_recettesmodel->rowCount(); k++)
             {
                 if (!gBigTable->isRowHidden(k))
                 {
-                    if(gBigTable->item(k,3)->text()!= "")
+                    Recette * rec = getRecetteFromRow(k);
+                    if(rec->montant()>0)
                     {
-                        TotalMontant    += QLocale().toDouble(gBigTable->item(k,4)->text());
+                        TotalMontant    += rec->montant();
                         nbreActes++;
                     }
-                    TotalRecu               += QLocale().toDouble(gBigTable->item(k,6)->text());
-                    if(gBigTable->item(k,5)->text()  == tr("Espèces"))
-                        TotalRecEsp        += QLocale().toDouble(gBigTable->item(k,6)->text());
-                    else    TotalRecBanq       += QLocale().toDouble(gBigTable->item(k,6)->text());
+                    TotalRecu           += rec->encaissement();
+                    if(rec->modepaiement()  == "E")
+                        TotalRecEsp     += rec->encaissement();
+                    else
+                        TotalRecBanq    += rec->encaissement();
                 }
             }
             TotalMontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" actes ") : tr(" acte ")) + QLocale().toString(TotalMontant,'f',2));
@@ -466,23 +486,26 @@ void dlg_bilanrecettes::CalculeTotal()
             TotalAutresRecBanq  = 0;
             GdTotalEsp      = 0;
             GdTotalBanq     = 0;
-            for (int k = 0; k < gBigTable->rowCount(); k++)
+            for (int k = 0; k < m_recettesmodel->rowCount(); k++)
             {
                 if (!gBigTable->isRowHidden(k))
                 {
                     nbreActes++;
-                    TotalRecu               += QLocale().toDouble(gBigTable->item(k,6)->text());
-                    TotalApport             += QLocale().toDouble(gBigTable->item(k,12)->text());
-                    TotalAutresRec          += QLocale().toDouble(gBigTable->item(k,7)->text());
-                    if(gBigTable->item(k,5)->text()  == tr("Espèces"))
+                    Recette * rec           = getRecetteFromRow(k);
+                    TotalRecu               += rec->encaissement();
+                    TotalApport             += (rec->isapportpraticien()? rec->encaissementautrerecette() : 0.0);
+                    TotalAutresRec          += (rec->isautrerecette()? rec->encaissementautrerecette() : 0.0);
+                    if(rec->modepaiement()  == "E")
                     {
-                        TotalRecEsp            += QLocale().toDouble(gBigTable->item(k,6)->text());
-                        TotalAutresRecEsp   += QLocale().toDouble(gBigTable->item(k,7)->text());
+                        TotalRecEsp         += rec->encaissement();
+                        if (rec->isautrerecette())
+                            TotalAutresRecEsp   += rec->encaissementautrerecette();
                     }
                     else
                     {
-                        TotalRecBanq           += QLocale().toDouble(gBigTable->item(k,6)->text());
-                        TotalAutresRecBanq  += QLocale().toDouble(gBigTable->item(k,7)->text());
+                        TotalRecBanq           += rec->encaissement();
+                        if (rec->isautrerecette())
+                            TotalAutresRecBanq  += rec->encaissementautrerecette();
                     }
                 }
             }
@@ -519,77 +542,6 @@ void dlg_bilanrecettes::ChangeMode(enum gMode Mode)
         FiltreTable(gidUser->id());
 }
 
-void dlg_bilanrecettes::DefinitArchitetureTable()
-{
-    gBigTable = new UpTableWidget();
-
-    int ColCount = 13;
-    gBigTable->setPalette(QPalette(Qt::white));
-    gBigTable->setEditTriggers(QAbstractItemView::AnyKeyPressed
-                               |QAbstractItemView::DoubleClicked
-                               |QAbstractItemView::EditKeyPressed
-                               |QAbstractItemView::SelectedClicked);
-    gBigTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gBigTable->verticalHeader()->setVisible(false);
-    gBigTable->setFocusPolicy(Qt::StrongFocus);
-    gBigTable->setColumnCount(ColCount);
-    gBigTable->setSelectionMode(QAbstractItemView::SingleSelection);
-
-    QStringList LabelARemplir;
-    LabelARemplir << "";
-    LabelARemplir << tr("Date");
-    LabelARemplir << tr("Nom");
-    LabelARemplir << tr("Type acte");
-    LabelARemplir << tr("Montant");
-    LabelARemplir << tr("Mode de paiement");
-    LabelARemplir << tr("Reçu");
-    LabelARemplir << tr("Divers et\nautres recettes");
-    LabelARemplir << "";
-    LabelARemplir << "";
-    LabelARemplir << "";
-    LabelARemplir << "";
-    LabelARemplir << tr("Apport praticien");
-
-    gBigTable->setHorizontalHeaderLabels(LabelARemplir);
-    gBigTable->horizontalHeader()->setVisible(true);
-    gBigTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-    int li = 0;                                                                     // Réglage de la largeur et du nombre des colonnes
-    gBigTable->setColumnWidth(li,0);                                                // 0 - idActe
-    li++;
-    gBigTable->setColumnWidth(li,100);                                              // 1 - Date affichage européen
-    li++;
-    gBigTable->setColumnWidth(li,240);                                              // 2 - Nom
-    li++;
-    gBigTable->setColumnWidth(li,140);                                              // 3 - TypeActe
-    li++;
-    gBigTable->setColumnWidth(li,85);                                               // 4 - Montant
-    li++;
-    gBigTable->setColumnWidth(li,130);                                              // 5 - Mode de paiement
-    li++;
-    gBigTable->setColumnWidth(li,85);                                               // 6 - Reçu
-    li++;
-    gBigTable->setColumnWidth(li,120);                                              // 7 - Divers et autres recettes
-    li++;
-    gBigTable->setColumnWidth(li,0);                                                // 8 - idsuperviseur
-    li++;
-    gBigTable->setColumnWidth(li,0);                                                // 9 - idparent
-    li++;
-    gBigTable->setColumnWidth(li,0);                                                // 10 - idcomptable
-    li++;
-    gBigTable->setColumnWidth(li,0);                                                // 11 - date format MySQL
-    li++;
-    gBigTable->setColumnWidth(li,120);                                              // 12 - Apport praticien
-
-    gBigTable->setColumnHidden(0,true);
-    gBigTable->setColumnHidden(ColCount-5,true);
-    gBigTable->setColumnHidden(ColCount-4,true);
-    gBigTable->setColumnHidden(ColCount-3,true);
-    gBigTable->setColumnHidden(ColCount-2,true);
-
-    gBigTable->setGridStyle(Qt::SolidLine);
-    gBigTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-}
-
 void dlg_bilanrecettes::ExportTable()
 {
     QByteArray ExportEtat;
@@ -600,23 +552,22 @@ void dlg_bilanrecettes::ExportTable()
             != UpSmallButton::STARTBUTTON)
         return;
     ExportEtat.append(tr("Date") + sep + tr("Nom") + sep + tr("Type acte") + sep + tr("Montant") + sep + tr("Mode de paiement") + sep + tr("Reçu") + sep + tr("Divers et autres recettes") + sep + tr("Apport praticien") + "\n");
-    for (int i=0;i< gBigTable->rowCount(); i++)
+    for (int i=0;i< m_recettesmodel->rowCount(); i++)
     {
         if (!gBigTable->isRowHidden(i))
         {
-            QString date = QDate::fromString(gBigTable->item(i,11)->text(), "yyyy-MM-dd").toString("dd/MM/yyyy");
-            ExportEtat.append(date + sep);                                                                                              // Date - col = 11
-            ExportEtat.append(gBigTable->item(i,2)->text() + sep);                                                                      // NomPrenom - col = 2
-            ExportEtat.append(gBigTable->item(i,3)->text() + sep);                                                                      // Cotation - col = 3;
-            double montant = QLocale().toDouble(gBigTable->item(i,4)->text());
-            ExportEtat.append(QString::number(montant) + sep);                                                                          // Montant - col = 4
-            ExportEtat.append(gBigTable->item(i,5)->text() + sep);                                                                      // Mode de paiement - col = 5
-            double recu = QLocale().toDouble(gBigTable->item(i,6)->text());
-            ExportEtat.append(QString::number(recu) + sep);                                                                             // Reçu- col = 6
-            double diversrec = QLocale().toDouble(gBigTable->item(i,7)->text());
-            ExportEtat.append(QString::number(diversrec) + sep);                                                                        // divers et eutres recettes - col = 7
-            double apportprat = QLocale().toDouble(gBigTable->item(i,12)->text());
-            ExportEtat.append(QString::number(apportprat) + sep);                                                                       // Apports praticien- col = 12
+            Recette * rec           = getRecetteFromRow(i);
+            QString date = rec->date().toString("dd/MM/yyyy");
+            ExportEtat.append(date + sep);                                                                  // Date
+            ExportEtat.append(rec->payeur() + sep);                                                         // NomPrenom
+            ExportEtat.append(rec->cotationacte() + sep);                                                   // Cotation
+            ExportEtat.append(QString::number(rec->montant()) + sep);                                       // Montant
+            ExportEtat.append(Utils::ConvertitModePaiement(rec->modepaiement()) + sep);                     // Mode de paiement
+            ExportEtat.append(QString::number(rec->encaissement()) + sep);                                  // Reçu
+            double diversrec = (rec->isautrerecette()? rec->encaissementautrerecette() : 0.0);
+            ExportEtat.append(QString::number(diversrec) + sep);                                            // divers et eutres recettes
+            double apportprat = (rec->isapportpraticien()? rec->encaissementautrerecette() : 0.0);
+            ExportEtat.append(QString::number(apportprat) + sep);                                           // Apports praticien
             ExportEtat.append("\n");
         }
     }
@@ -642,13 +593,11 @@ void dlg_bilanrecettes::ExportTable()
 void dlg_bilanrecettes::NouvPeriode()
 {
     QDate debutavant, finavant;
-    QList<QVariantList> bilanavant;
     CalcBilan();
     if (!InitOK)
     {
         Debut   = debutavant;
         Fin     = finavant;
-        gBilan  = bilanavant;
         InitOK  = true;
         return;
     }
@@ -660,127 +609,140 @@ void dlg_bilanrecettes::NouvPeriode()
         Titre = tr("Bilan des recettes pour la période du ") + Debut.toString(tr("d MMMM yyyy")) + tr(" au ") + Fin.toString(tr("d MMMM yyyy"));
     setWindowTitle(Titre);
 
-    CalcSuperviseursEtComptables();
-
     RemplitLaTable();
+    CalcSuperviseursEtComptables();
     SupervRadio->click();
 }
 
 void dlg_bilanrecettes::RemplitLaTable()
 {
-    QTableWidgetItem    *pItem0,*pItem1,*pItem2,*pItem3,*pItem4,*pItem5,*pItem6,*pItem7, *pItem8, *pItem9, *pItem10, *pItem11, *pItem12;
-    QString             A;
-    int hauteurrow      = int(QFontMetrics(qApp->font()).height()*1.3);
-    gBigTable->clearContents();
-
-    gBigTable->setRowCount(gBilan.size());
-
-    gBilan.first();
-    for (int i = 0; i < gBilan.size(); i++)
+    QMap<int, Recette*> *listrecettes = Datas::I()->recettes->recettes();
+    UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4, *pitem5,*pitem6,*pitem7;
+    m_recettesmodel = dynamic_cast<QStandardItemModel*>(gBigTable->model());
+    if (m_recettesmodel != Q_NULLPTR)
+        m_recettesmodel->clear();
+    else
+        m_recettesmodel = new QStandardItemModel;
+    for (QMap<int, Recette*>::const_iterator itrec = listrecettes->constBegin(); itrec != listrecettes->constEnd(); itrec ++)
     {
-        int col = 0;
-        QVariantList rec = gBilan.at(i);
+        Recette *rec = itrec.value();
 
-        A = rec.at(0).toString();                                                             // idActe - col = 0
-        pItem0 = new QTableWidgetItem();
-        pItem0->setText(A);
-        gBigTable->setItem(i,col,pItem0);
-        col++;
+        pitem0 = new UpStandardItem(rec->date().toString(tr("d MMM yyyy")));                        // Date - col = 0
+        pitem0->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        pitem0->setItem(rec);
 
-        A = rec.at(1).toDate().toString(tr("d MMM yyyy"));                                     // Date - col = 1
-        pItem1 = new QTableWidgetItem();
-        pItem1->setText(A);
-        pItem1->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        gBigTable->setItem(i,col,pItem1);
-        col++;
+        pitem1 = new UpStandardItem(rec->payeur());                                                 // NomPrenom - col = 1
+        pitem1->setItem(rec);
 
-        pItem2 = new QTableWidgetItem();
-        pItem2->setText(rec.at(2).toString());                                                // NomPrenom - col = 2
-        gBigTable->setItem(i,col,pItem2);
-        col++;
+        pitem2 = new UpStandardItem(rec->cotationacte());                                           // Cotation - col = 2;
+        pitem2->setItem(rec);
 
-        pItem3 = new QTableWidgetItem();
-        pItem3->setText(rec.at(3).toString());                                                // Cotation - col = 3;
-        gBigTable->setItem(i,col,pItem3);
-        col++;
-
-        if (rec.at(5).toString() == "F")
-            A = QLocale().toString(rec.at(4).toDouble()/6.55957,'f',2);// Montant en F converti en euros
+        QString A;
+        if (rec->monnaie() == "F")
+            A = QLocale().toString(rec->montant()/6.55957,'f',2);                                   // Montant en F converti en euros
         else
-            A = QLocale().toString(rec.at(4).toDouble(),'f',2);                               // Montant - col = 4
-        pItem4 = new QTableWidgetItem();
-        pItem4->setText(A);
-        pItem4->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        gBigTable->setItem(i,col,pItem4);
-        col++;
+            A = QLocale().toString(rec->montant(),'f',2);                                           // Montant - col = 3
+        pitem3 = new UpStandardItem(A);
+        pitem3->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        pitem3->setItem(rec);
 
-        A = rec.at(6).toString();                                                             // Mode de paiement - col = 5
+        A = rec->modepaiement();                                                                    // Mode de paiement - col = 4
         QString B = A;
         if (A == "T")
-            B = rec.at(7).toString();
-        if (B == "CB")
-            B = tr("Carte Bancaire");
-        else if (B == "E")
-            B = tr("Espèces");
-        else if (B== "C")
-            B = tr("Chèque");
-        else if (B == "G")
-            B = tr("Gratuit");
-        else if (B == "I")
-            B = tr("Impayé");
-        else if(B == "V")
-            B = tr("Virement");
-        pItem5 = new QTableWidgetItem();
-        pItem5->setText(B);
-        gBigTable->setItem(i,col,pItem5);
-        col++;
+            B = rec->typetiers();
+        pitem4 = new UpStandardItem(Utils::ConvertitModePaiement(B));
+        pitem4->setItem(rec);
 
+        double C = rec->encaissement();                                                             // Reçu- col = 5
+        pitem5 = new UpStandardItem(QLocale().toString(C,'f',2));
+        pitem5->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        pitem5->setItem(rec);
 
-        double C = rec.at(8).toDouble();                                                      // Reçu- col = 6
-        pItem6 = new QTableWidgetItem();
-        pItem6->setText(QLocale().toString(C,'f',2));
-        pItem6->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        gBigTable->setItem(i,col,pItem6);
-        col++;
+        pitem6 = new UpStandardItem("0,00");                                                        // Divers et autres recettes - col = 6
+        if (rec->isautrerecette())
+            pitem6->setText(QLocale().toString(rec->encaissementautrerecette(),'f',2));
+        pitem6->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        pitem6->setItem(rec);
 
-        pItem7 = new QTableWidgetItem() ;                                                           //DIvers et autres recettes - col = 7
-        pItem7->setText(("0,00"));
-        if (rec.at(13).toString() == tr("Divers et autres recettes"))
-            pItem7->setText(QLocale().toString(rec.at(12).toDouble(),'f',2));
-        pItem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        gBigTable->setItem(i,col,pItem7);
-        col++;
+        pitem7 = new UpStandardItem("0,00");                                                       // Apport praticien - col = 7
+        if (rec->isapportpraticien())
+            pitem7->setText(QLocale().toString(rec->encaissementautrerecette(),'f',2));
+        pitem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+        pitem7->setItem(rec);
 
-        pItem8 = new QTableWidgetItem();
-        pItem8->setText(rec.at(9).toString());                                                // iduser - col = 8 - superviseur;
-        gBigTable->setItem(i,col,pItem8);
-        col++;
-
-        pItem9 = new QTableWidgetItem();
-        pItem9->setText(rec.at(10).toString());                                               // idparent - col = 9;
-        gBigTable->setItem(i,col,pItem9);
-        col++;
-
-        pItem10 = new QTableWidgetItem();
-        pItem10->setText(rec.at(11).toString());                                               // idcomptable - col = 10;
-        gBigTable->setItem(i,col,pItem10);
-        col++;
-
-        pItem11 = new QTableWidgetItem();
-        pItem11->setText(rec.at(1).toString());                                               // date format MySQL (yyyy-MM-dd) - col = 11;
-        gBigTable->setItem(i,col,pItem11);
-
-        gBigTable->setRowHeight(i,hauteurrow);
-
-        col++;
-
-        pItem12 = new QTableWidgetItem() ;                                                           // Apports praticien - col = 12
-        pItem12->setText(("0,00"));
-        if (rec.at(13).toString() == tr("Apport praticien"))
-            pItem12->setText(QLocale().toString(rec.at(12).toDouble(),'f',2));
-        pItem12->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-        gBigTable->setItem(i,col,pItem12);
+        m_recettesmodel->appendRow(QList<QStandardItem*>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5 << pitem6 << pitem7);
     }
+    int hauteurrow      = int(QFontMetrics(qApp->font()).height()*1.3);
     int nbrowsAAfficher = 30;
     gBigTable->setFixedHeight(nbrowsAAfficher*hauteurrow+2);
+
+    gBigTable->setModel(m_recettesmodel);
+
+    gBigTable->setPalette(QPalette(Qt::white));
+    gBigTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    gBigTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    gBigTable->verticalHeader()->setVisible(false);
+    gBigTable->setFocusPolicy(Qt::StrongFocus);
+    gBigTable->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    QStandardItem *itdate = new QStandardItem();
+    itdate->setText(tr("Date"));
+    itdate->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_recettesmodel->setHorizontalHeaderItem(0,itdate);
+    QStandardItem *itnom = new QStandardItem();
+    itnom->setText(tr("Nom"));
+    itnom->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_recettesmodel->setHorizontalHeaderItem(1,itnom);
+    QStandardItem *ittypeacte = new QStandardItem();
+    ittypeacte->setText(tr("Type acte"));
+    ittypeacte->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_recettesmodel->setHorizontalHeaderItem(2,ittypeacte);
+    QStandardItem *itmontant = new QStandardItem();
+    itmontant->setText(tr("Montant"));
+    itmontant->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_recettesmodel->setHorizontalHeaderItem(3,itmontant);
+    QStandardItem *itmodepaiement = new QStandardItem();
+    itmodepaiement->setText(tr("Mode de paiement"));
+    itmodepaiement->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_recettesmodel->setHorizontalHeaderItem(4,itmodepaiement);
+    QStandardItem *itpaye = new QStandardItem();
+    itpaye->setText(tr("Reçu"));
+    itpaye->setTextAlignment(Qt::AlignCenter | Qt::AlignVCenter);
+    m_recettesmodel->setHorizontalHeaderItem(5,itpaye);
+    QStandardItem *itdivers = new QStandardItem();
+    itdivers->setText(tr("Divers et\nautres recettes"));
+    itdivers->setTextAlignment(Qt::AlignCenter);
+    m_recettesmodel->setHorizontalHeaderItem(6,itdivers);
+    QStandardItem *itapports = new QStandardItem();
+    itapports->setText(tr("Apports\npraticiens"));
+    itdivers->setTextAlignment(Qt::AlignCenter);
+    m_recettesmodel->setHorizontalHeaderItem(7,itapports);
+
+    gBigTable->horizontalHeader()->setVisible(true);
+    gBigTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    int li = 0;                                                                     // Réglage de la largeur et du nombre des colonnes
+    gBigTable->setColumnWidth(li,100);                                              // 0 - Date affichage européen
+    li++;
+    gBigTable->setColumnWidth(li,240);                                              // 1 - Nom
+    li++;
+    gBigTable->setColumnWidth(li,140);                                              // 2 - TypeActe
+    li++;
+    gBigTable->setColumnWidth(li,85);                                               // 3 - Montant
+    li++;
+    gBigTable->setColumnWidth(li,130);                                              // 4 - Mode de paiement
+    li++;
+    gBigTable->setColumnWidth(li,85);                                               // 5 - Reçu
+    li++;
+    gBigTable->setColumnWidth(li,120);                                              // 6 - Divers et autres recettes
+    li++;
+    gBigTable->setColumnWidth(li,120);                                              // 7 - Apport praticien
+
+    gBigTable->setGridStyle(Qt::SolidLine);
+    QFontMetrics fm(qApp->font());
+    for (int j=0; j<listrecettes->size(); j++)
+         gBigTable->setRowHeight(j,int(fm.height()*1.3));
+
+    gBigTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    //gBigTable->horizontalHeader()->setFixedHeight(int(fm.height()*2));
 }
+

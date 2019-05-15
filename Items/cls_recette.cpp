@@ -36,7 +36,8 @@ int Recette::iduser() const                         { return m_iduser; }
 int Recette::idparent() const                       { return m_iduserparent; }
 int Recette::idcomptable() const                    { return m_idusercomptable; }
 double Recette::encaissementautrerecette() const    { return m_montantautrerecettes; }
-QString Recette::typeautrerecette() const           { return m_typeautrerecette; }
+bool Recette::isautrerecette()                      { return m_isautrerecette; }
+bool Recette::isapportpraticien()                   { return m_isapportparticien; }
 
 void Recette::setData(QJsonObject data)
 {
@@ -56,5 +57,6 @@ void Recette::setData(QJsonObject data)
     setDataInt(data, "idparent", m_iduserparent);
     setDataInt(data, "idcomptable", m_idusercomptable);
     setDataDouble(data, "encaissementautrerecette", m_montantautrerecettes);
-    setDataString(data, "typeautrerecette", m_typeautrerecette);
+    setDataBool(data, "apportpraticien", m_isapportparticien);
+    setDataBool(data, "autrerecette", m_isautrerecette);
 }

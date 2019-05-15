@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QLocale>
 #include "procedures.h"
-#include "uptablewidget.h"
+#include "uptableview.h"
 #include "upgroupbox.h"
 #include "upradiobutton.h"
 
@@ -39,13 +39,14 @@ private:
     Procedures                  *proc;
     QDate                       Debut, Fin;
     DataBase                    *db;
-    QList<QVariantList>         gBilan;
     QCheckBox                   *gSupervcheckBox;
     QGroupBox                   *ClassmtupGrpBox;
     QHBoxLayout                 *glblbox, *hboxsup;
     UpComboBox                  *gSupervBox;
     UpLabel                     *gLabel;
-    UpTableWidget               *gBigTable;
+    UpTableView                 *gBigTable;
+    QStandardItemModel          *m_recettesmodel;
+    QSortFilterProxyModel       *m_sortfilterrecettesmodel;
     UpLabel                     *TotalMontantlbl, *TotalReclbl;
     UpLabel                     *TotalApportlbl, *GdTotalReclbl;
     UpPushButton                *ChxPeriodButt;
@@ -69,9 +70,11 @@ private:
     void                        CalcSuperviseursEtComptables(); //Etablit la liste des superviseurs et des comptables pour la période du bilan
     void                        CalculeTotal();
     void                        ChangeMode(enum gMode);
-    void                        DefinitArchitetureTable();
     void                        ExportTable();
     void                        FiltreTable(int idx);
+    Recette*                    getRecetteFromRow(int row);
+    Recette*                    getRecetteFromIndex(QModelIndex idx);
+    Recette*                    getRecetteFromSelectionInTable();
     void                        ImprimeEtat();
     void                        NouvPeriode();
     void                        RemplitLaTable();
