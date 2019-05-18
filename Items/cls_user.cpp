@@ -151,7 +151,7 @@ void User::setComptes(QList<Compte *> *comptes)
     if (m_comptes != Q_NULLPTR)
         m_comptes->clear();
     else
-        m_comptes = new QList<Compte*>();
+        m_comptes = new QList<Compte*>();       //! si on le laisse à Q_NULLPTR, le append() qui suit plantera le prg
     if (m_comptesall != Q_NULLPTR)
         m_comptesall->clear();
     m_comptesall = comptes;
