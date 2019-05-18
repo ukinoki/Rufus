@@ -158,8 +158,6 @@ void User::setComptes(QList<Compte *> *comptes)
     for( QList<Compte*>::const_iterator itcpt = m_comptesall->constBegin(); itcpt != m_comptesall->constEnd(); ++itcpt )
     {
         Compte *cpt = const_cast<Compte*>(*itcpt);
-        qDebug() << cpt->nom();
-        qDebug() << cpt->id();
         if (!cpt->isDesactive())
             m_comptes->append(cpt);
     }

@@ -38,8 +38,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     gAfficheLeSolde         = AfficheLeSolde;
 
     m_comptesusr            = gDataUser->getComptes();
-
-    CompteEnCours           = Datas::I()->comptes->getCompteById(gidCompteParDefaut);
+    CompteEnCours           = gDataUser->getCompteParDefaut();
 
     gVisible                = true;
     gTimer                  = new QTimer(this);
@@ -371,6 +370,13 @@ void dlg_gestioncomptes::SupprCompte()
         return;
     db->StandardSQL("delete from " NOM_TABLE_COMPTES " where idCompte = " + ui->idCompteupLineEdit->text());
     Datas::I()->comptes->removeCompte(Datas::I()->comptes->getCompteById(ui->idCompteupLineEdit->text().toInt()));
+    m_comptesusr->clear();
+    for (QMap<int, Compte*>::const_iterator itcpt = Datas::I()->comptes->comptes()->constBegin(); itcpt != Datas::I()->comptes->comptes()->constEnd(); ++itcpt)
+    {
+        if (itcpt.value()->idUser() == gDataUser->id())
+            m_comptesusr->append(itcpt.value());
+    }
+    gDataUser     ->setComptes(m_comptesusr);
     RemplirTableView();
 }
 

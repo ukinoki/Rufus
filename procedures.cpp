@@ -3705,6 +3705,13 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     return true;
 }
 
+/*!
+ * \brief Procedures::SetUserAllData(User *usr)
+ * Charge le sodnnées d'un utilisateur, y compris ses données bancaires
+ * cette fonction fait appel aux deux classes cls_user et cls_compte
+ * et ne peut pas figurer dans la classe cls_user
+ * en raison de référence croisées
+ */
 bool Procedures::SetUserAllData(User *usr)
 {
     if (!usr->isAllLoaded())
@@ -3731,6 +3738,7 @@ bool Procedures::SetUserAllData(User *usr)
     usr->setCompteEncaissement(Datas::I()->comptes->getCompteById(usr->getIdCompteEncaissHonoraires()));
     return true;
 }
+
 /*!
  * \brief Procedures::Slot_CalcUserSuperviseur
  *
