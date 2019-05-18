@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_user.h"
 #include "log.h"
+#include "database.h"
 
 int User::ROLE_NON_RENSEIGNE = -1;
 int User::ROLE_VIDE = -2;
@@ -67,9 +68,6 @@ void User::setData(QJsonObject data)
     setDataString(data, "memo", m_memo);
     setDataString(data, "policeEcran", m_policeEcran);
     setDataString(data, "policeAttribut", m_policeAttribut);
-    setDataString(data, "nomUserEncaissHonoraires", m_nomUserEncaissHonoraires);
-    setDataString(data, "nomCompteEncaissHonoraires", m_nomCompteEncaissHonoraires);
-    setDataString(data, "nomCompteParDefaut", m_nomCompteParDefaut);
 
     setDataInt(data, "soignant", m_soignant);
     setDataInt(data, "responsableActes", m_responsableActes);
@@ -84,7 +82,6 @@ void User::setData(QJsonObject data)
     setDataInt(data, "idCompteEncaissHonoraires", m_idCompteEncaissHonoraires);
     setDataInt(data, "enregHonoraires", m_enregHonoraires);
     setDataInt(data, "secteur", m_secteur);
-    setDataInt(data, "usercptdefaut", m_iduserComptePardefaut);
 
     setDataBool(data, "AGA", m_AGA);
     setDataBool(data, "desactive", m_desactive);
@@ -118,8 +115,6 @@ QString User::getNumCO() const                      { return m_numCO; }
 bool User::isAGA() const                            { return m_AGA; }
 int User::getEmployeur() const                      { return m_employeur; }
 int User::getIdCompteEncaissHonoraires() const      { return m_idCompteEncaissHonoraires; }
-QString User::getNomUserEncaissHonoraires() const   { return m_nomUserEncaissHonoraires; }
-QString User::getNomCompteEncaissHonoraires() const { return m_nomCompteEncaissHonoraires; }
 QString User::getFonction() const                   { return m_fonction; }
 
 int User::getIdUserActeSuperviseur() const          { return m_idUserActeSuperviseur; }
@@ -143,15 +138,26 @@ int User::getIdCompteParDefaut() const              { return m_idCompteParDefaut
 QString User::getMail() const                       { return m_mail; }
 QString User::getPortable() const                   { return m_portable; }
 
-QString User::getNomCompteParDefaut() const         { return m_nomCompteParDefaut; }
-QString User::getNomCompteAbrege() const            { return m_nomCompteEncaissHonoraires; }
-int User::getidUserCompteParDefaut() const          { return m_iduserComptePardefaut; }
-
 Site* User::getSite() const                         { return m_Site; }
 void User::setSite(Site *Site)                      { m_Site = Site; }
 
-Comptes* User::getComptes() const                   { return m_comptes; }
-void User::setComptes(Comptes *comptes)             { m_comptes = comptes; }
+QList<Compte*>* User::getComptes(bool avecdesactive) const
+                                                    { return (avecdesactive? m_comptesall : m_comptes); }
+
+void User::setComptes(QList<Compte *> *comptes)
+{
+    if (m_comptes != Q_NULLPTR)
+        m_comptes->clear();
+    if (m_comptesall != Q_NULLPTR)
+        m_comptesall->clear();
+    m_comptesall = comptes;
+    for( QList<Compte*>::const_iterator itcpt = m_comptesall->constBegin(); itcpt != m_comptesall->constEnd(); ++itcpt )
+    {
+        Compte *cpt = const_cast<Compte*>(*itcpt);
+        if (!cpt->isDesactive())
+            m_comptes->append(cpt);
+    }
+}
 
 int User::getTypeCompta() const                     { return m_typeCompta; }
 void User::setTypeCompta(int typeCompta )           { m_typeCompta = typeCompta; }

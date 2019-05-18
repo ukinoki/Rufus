@@ -37,10 +37,9 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     gSociete                = societe;
     gAfficheLeSolde         = AfficheLeSolde;
 
-    comptesusr              = Datas::I()->comptes;
-    comptesusr              ->clearAll();
-    comptesusr              ->addCompte( db->loadComptesByUser(gDataUser->id()) );
-    CompteEnCours           = comptesusr->getCompteById(gidCompteParDefaut);
+    m_comptesusr            = gDataUser->getComptes();
+
+    CompteEnCours           = Datas::I()->comptes->getCompteById(gidCompteParDefaut);
 
     gVisible                = true;
     gTimer                  = new QTimer(this);
@@ -133,7 +132,7 @@ void dlg_gestioncomptes::closeEvent(QCloseEvent *event)
 void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem *)
 {
     int idCompte = ui->ComptesuptableWidget->item(pitem->row(),0)->text().toInt();
-    CompteEnCours = comptesusr->getCompteById(idCompte);
+    CompteEnCours = Datas::I()->comptes->getCompteById(idCompte);
     ui->BanqueupcomboBox            ->setCurrentText(CompteEnCours->nombanque());
     ui->IBANuplineEdit              ->setText(CompteEnCours->iban());
     ui->IntituleCompteuplineEdit    ->setText(CompteEnCours->intitulecompte());
@@ -371,7 +370,7 @@ void dlg_gestioncomptes::SupprCompte()
     if (msgbox.clickedButton() != &OKBouton)
         return;
     db->StandardSQL("delete from " NOM_TABLE_COMPTES " where idCompte = " + ui->idCompteupLineEdit->text());
-    comptesusr->removeCompte(comptesusr->getCompteById(ui->idCompteupLineEdit->text().toInt()));
+    Datas::I()->comptes->removeCompte(Datas::I()->comptes->getCompteById(ui->idCompteupLineEdit->text().toInt()));
     RemplirTableView();
 }
 
@@ -434,9 +433,15 @@ void dlg_gestioncomptes::ValidCompte()
             UpMessageBox::Watch(this, tr("Le compte ") + ui->IntituleCompteuplineEdit->text() + tr(" a été enregistré."),
                                       tr("le solde a été fixé à 0,00 euros et devra être corrigé par le propriétaire du compte"));
     }
-    comptesusr->removeCompte(CompteEnCours);
-    comptesusr->addCompte(db->loadComptesByUser(gidUser));
-    CompteEnCours = comptesusr->getCompteById(idcompte);
+    m_comptesusr->clear();
+    Datas::I()->comptes->initListe();
+    for (QMap<int, Compte*>::const_iterator itcpt = Datas::I()->comptes->comptes()->constBegin(); itcpt != Datas::I()->comptes->comptes()->constEnd(); ++itcpt)
+    {
+        if (itcpt.value()->idUser() == gDataUser->id())
+            m_comptesusr->append(itcpt.value());
+    }
+    gDataUser     ->setComptes(m_comptesusr);
+    CompteEnCours = Datas::I()->comptes->getCompteById(idcompte);
 
     RemplirTableView(idcompte);
     ui->OKModifupSmallButton->setVisible(false);
@@ -475,18 +480,14 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
     ui->ComptesuptableWidget->horizontalHeader()->setIconSize(QSize(25,25));
     ui->ComptesuptableWidget->setGridStyle(Qt::DotLine);
 
-    QList<Compte*> listcomptes;
-    for(QMultiMap<int, Compte*>::const_iterator itcpt = comptesusr->comptesAll()->constBegin(); itcpt != comptesusr->comptesAll()->constEnd(); ++itcpt)
-    {
-        Compte *cpt = const_cast<Compte*>(itcpt.value());
-        listcomptes << cpt;
-    }
-    if (listcomptes.size()>0)
+    m_comptesusr->clear();
+    m_comptesusr = gDataUser->getComptes(true);
+    if (m_comptesusr->size()>0)
     {
         ui->Compteframe->setVisible(true);
-        ui->ComptesuptableWidget->setRowCount(listcomptes.size());
+        ui->ComptesuptableWidget->setRowCount(m_comptesusr->size());
         int i=0;
-        for (QList<Compte*>::const_iterator itcpt = listcomptes.constBegin(); itcpt!=listcomptes.constEnd(); ++itcpt)
+        for (QList<Compte*>::const_iterator itcpt = m_comptesusr->constBegin(); itcpt!=m_comptesusr->constEnd(); ++itcpt)
         {
             Compte *cpt = const_cast<Compte*>(*itcpt);
             pitem0 = new QTableWidgetItem;

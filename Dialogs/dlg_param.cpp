@@ -991,6 +991,7 @@ void dlg_param::Slot_GestDataPersoUser()
     if(DonneesUserModifiees)
     {
         db->getUserConnected()->setData(db->loadUserData(gidUser));
+        proc->SetUserAllData(db->getUserConnected());
         gDataUser = db->getUserConnected();
         AfficheParamUser();
     }
@@ -1008,6 +1009,7 @@ void dlg_param::Slot_GestUser()
     if(DonneesUserModifiees)
     {
         db->getUserConnected()->setData(db->loadUserData(gidUser));
+        proc->SetUserAllData(db->getUserConnected());
         gDataUser = db->getUserConnected();
         AfficheParamUser();
     }

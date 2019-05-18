@@ -68,7 +68,7 @@ private:
     void                    reject();
     bool                    ImprimerRemise(int);
     QMap<int, User *>       *m_comptables, *m_comptablesavecchequesenattente;
-    QMap<int, Compte*>      m_comptes;
+    QMultiMap<int, Compte*> *m_comptes = Q_NULLPTR;
     User                    *gUser;
     QString                 ValeurAvantChangement;
     void                    ChangeCompte();

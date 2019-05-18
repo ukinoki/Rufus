@@ -68,6 +68,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     flags = Flags::I();
     Datas::I()->villes->initListe();
     Datas::I()->sites->initListe();
+    Datas::I()->comptes->initListe();
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
