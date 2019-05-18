@@ -37,7 +37,6 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         proc->SetUserAllData(db->getUserConnected());
     comptesusr = db->getUserConnected()->getComptes(true);
 
-
     if (comptesusr->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas de compte bancaire enregistré!"));
@@ -53,6 +52,8 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         for (itcpt = comptesusr->constBegin(); itcpt != comptesusr->constEnd(); ++itcpt)
         {
             Compte *cpt = const_cast<Compte*>(*itcpt);
+            qDebug() << cpt->nom();
+            qDebug() << cpt->id();
             ui->BanquecomboBox->addItem(cpt->nom(),cpt->id());
             if (db->getUserConnected()->getCompteParDefaut() != Q_NULLPTR)
                 idcptprefer = db->getUserConnected()->getCompteParDefaut()->id();

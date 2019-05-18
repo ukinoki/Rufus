@@ -146,14 +146,20 @@ QList<Compte*>* User::getComptes(bool avecdesactive) const
 
 void User::setComptes(QList<Compte *> *comptes)
 {
+    if (comptes == Q_NULLPTR)
+        return;
     if (m_comptes != Q_NULLPTR)
         m_comptes->clear();
+    else
+        m_comptes = new QList<Compte*>();
     if (m_comptesall != Q_NULLPTR)
         m_comptesall->clear();
     m_comptesall = comptes;
     for( QList<Compte*>::const_iterator itcpt = m_comptesall->constBegin(); itcpt != m_comptesall->constEnd(); ++itcpt )
     {
         Compte *cpt = const_cast<Compte*>(*itcpt);
+        qDebug() << cpt->nom();
+        qDebug() << cpt->id();
         if (!cpt->isDesactive())
             m_comptes->append(cpt);
     }

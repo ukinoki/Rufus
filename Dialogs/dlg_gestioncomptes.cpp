@@ -205,7 +205,7 @@ void dlg_gestioncomptes::DesactiveCompte()
                                                                         NOM_TABLE_LIGNESCOMPTES, ok,
                                                                         "where iduser = " + QString::number(gidUser) + " and desactive is null");
         ui->DesactiveComptecheckBox ->setEnabled(listcomptes.size()>1);
-    }
+    }    
 }
 
 void dlg_gestioncomptes::ChoixButtonFrame(int i)
@@ -415,6 +415,7 @@ void dlg_gestioncomptes::ValidCompte()
         db->UpdateTable(NOM_TABLE_COMPTES,
                         listsets,
                         "where idCompte = "          + ui->idCompteupLineEdit->text());
+        Datas::I()->comptes->reloadCompte(Datas::I()->comptes->getCompteById(ui->idCompteupLineEdit->text().toInt()));
     }
     else if (gMode == Nouv)
     {
@@ -432,9 +433,10 @@ void dlg_gestioncomptes::ValidCompte()
         if (!gAfficheLeSolde)
             UpMessageBox::Watch(this, tr("Le compte ") + ui->IntituleCompteuplineEdit->text() + tr(" a été enregistré."),
                                       tr("le solde a été fixé à 0,00 euros et devra être corrigé par le propriétaire du compte"));
+        Compte *cpt = new Compte(db->loadCompteById(idcompte));
+        Datas::I()->comptes->add(cpt);
     }
     m_comptesusr->clear();
-    Datas::I()->comptes->initListe();
     for (QMap<int, Compte*>::const_iterator itcpt = Datas::I()->comptes->comptes()->constBegin(); itcpt != Datas::I()->comptes->comptes()->constEnd(); ++itcpt)
     {
         if (itcpt.value()->idUser() == gDataUser->id())

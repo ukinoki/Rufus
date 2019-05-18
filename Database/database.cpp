@@ -801,7 +801,7 @@ QList<Compte*> DataBase::loadComptesAll()
     QList<Compte*> listcomptes = QList<Compte*>();
     bool ok;
     QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
-          " FROM " NOM_TABLE_COMPTES;
+          " FROM " NOM_TABLE_COMPTES " cmpt left join " NOM_TABLE_BANQUES " bnq on cmpt.idBanque = bnq.idBanque";
     QList<QVariantList> cptlist = DataBase::I()->StandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
         return listcomptes;
@@ -821,6 +821,32 @@ QList<Compte*> DataBase::loadComptesAll()
         listcomptes << new Compte(jData);
     }
     return listcomptes;
+}
+
+QJsonObject DataBase::loadCompteById(int id)
+{
+    QJsonObject jData{};
+    bool ok;
+    QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
+          " FROM " NOM_TABLE_COMPTES " cmpt left join " NOM_TABLE_BANQUES " bnq on cmpt.idBanque = bnq.idBanque"
+          " where idCompte = " + QString::number(id);
+    QList<QVariantList> cptlist = DataBase::I()->StandardSelectSQL(req,ok);
+    if(!ok || cptlist.size()==0)
+        return jData;
+    for (int i=0; i<cptlist.size(); ++i)
+    {
+        jData["id"]             = cptlist.at(i).at(0).toInt();
+        jData["idbanque"]       = cptlist.at(i).at(1).toInt();
+        jData["iduser"]         = cptlist.at(i).at(2).toInt();
+        jData["IBAN"]           = cptlist.at(i).at(3).toString();
+        jData["IntituleCompte"] = cptlist.at(i).at(4).toString();
+        jData["nom"]            = cptlist.at(i).at(5).toString();
+        jData["solde"]          = cptlist.at(i).at(6).toDouble();
+        jData["partage"]        = (cptlist.at(i).at(7).toInt() == 1);
+        jData["desactive"]      = (cptlist.at(i).at(8).toInt() == 1);
+        jData["NomBanque"]      = cptlist.at(i).at(9).toString();
+    }
+    return jData;
 }
 
 int DataBase::getIdMaxTableComptesTableArchives()

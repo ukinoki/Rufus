@@ -37,6 +37,7 @@ public:
     void removeCompte(Compte* cpt);
     void clearAll();
     Compte* getCompteById(int id);
+    void reloadCompte(Compte*compte);
 
     void initListe();
 };

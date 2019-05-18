@@ -1940,8 +1940,8 @@ QString Procedures::getSessionStatus()
     if (respliberal || soccomptable)
     {
         QString cptabledefaut ("");
-        if (m_userConnected->getidUserCompteParDefaut()>0)
-            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getidUserCompteParDefaut())->getLogin();
+        if (m_userConnected->getCompteParDefaut() != Q_NULLPTR)
+            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getCompteParDefaut()->idUser())->getLogin();
         txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getCompteParDefaut()->nom() + " "
                           + cptabledefaut;
     }
@@ -2045,7 +2045,7 @@ void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on
     if (ListeComptesEncaissUser->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
     {
         QStandardItem *nitem0, *nitem1;
-        nitem0 = new QStandardItem(Datas::I()->users->getById(user->getCompteEncaissement()->id())->getLogin() + "/" + Datas::I()->users->getById(user->getCompteEncaissement()->id())->getLogin());
+        nitem0 = new QStandardItem(Datas::I()->users->getById(user->getCompteEncaissement()->idUser())->getLogin() + "/" + user->getCompteEncaissement()->nom());
         nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
         QList<QStandardItem*> nlistitems;
         nlistitems << nitem0 << nitem1;
@@ -2054,7 +2054,7 @@ void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on
     if (ListeComptesEncaissUserAvecDesactive->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
     {
         QStandardItem *nitem0, *nitem1;
-        nitem0 = new QStandardItem(Datas::I()->users->getById(user->getCompteEncaissement()->id())->getLogin() + "/" + Datas::I()->users->getById(user->getCompteEncaissement()->id())->getLogin());
+        nitem0 = new QStandardItem(Datas::I()->users->getById(user->getCompteEncaissement()->idUser())->getLogin() + "/" + user->getCompteEncaissement()->nom());
         nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
         QList<QStandardItem*> nlistitems;
         nlistitems << nitem0 << nitem1;

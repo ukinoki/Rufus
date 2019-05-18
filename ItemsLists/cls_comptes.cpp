@@ -75,13 +75,20 @@ Compte* Comptes::getCompteById(int id)
     return itcpt.value();
 }
 
+void Comptes::reloadCompte(Compte *compte)
+{
+    compte->setData(DataBase::I()->loadCompteById(compte->id()));
+}
+
 void Comptes::initListe()
 {
-    clearAll();
     QList<Compte*> listcomptes;
     listcomptes = DataBase::I()->loadComptesAll();
     QList<Compte*>::const_iterator itcomptes;
     for( itcomptes = listcomptes.constBegin(); itcomptes != listcomptes.constEnd(); ++itcomptes )
-        add(const_cast<Compte*>(*itcomptes));
+    {
+        Compte* cpt = const_cast<Compte*>(*itcomptes);
+        add(cpt);
+    }
 }
 
