@@ -53,7 +53,6 @@ public:
 
     void initListeByDDN(QDate DDN = QDate());                                               /*! crée une liste de tous les patients pour une date de naissance
                                                                                             * \param DDN la date de naissance */
-
 private:
     QMap<int, Patient*> *m_patients;                                                            //!< une liste de patients
     bool m_full;                                                                            //! la liste contient tous les patients de la base

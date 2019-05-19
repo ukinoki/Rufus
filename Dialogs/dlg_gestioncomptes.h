@@ -46,14 +46,13 @@ private:
     Ui::dlg_gestioncomptes  *ui;
     DataBase                *db;
     User                    *gDataUser;
-    Comptes                 *comptesusr;
+    QList<Compte*>          *m_comptesusr;
     Compte                  *CompteEnCours;
     dlg_gestionbanques      *Dlg_Banq;
     bool                    gAfficheLeSolde;
     bool                    gSociete;
     bool                    gVisible;
     int                     gidUser, gMode;
-    int                     gidCompteParDefaut;
     enum gMode              {Norm, Modif, Nouv};
     QString                 gUserLogin;
     QTimer                  *gTimer;

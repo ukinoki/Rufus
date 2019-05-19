@@ -98,6 +98,7 @@ void Patients::reloadSocialData(Patient *pat)
         pat->setSocialData(jData);
 }
 
+
 /*!
  * \brief Patients::addPatient
  * Cette fonction va ajouter le patient passé en paramètre

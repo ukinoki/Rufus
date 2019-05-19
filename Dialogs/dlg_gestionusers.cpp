@@ -1377,10 +1377,29 @@ bool dlg_gestionusers::ExisteEmployeur(int iduser)
 }
 bool dlg_gestionusers::setDataUser(int id)
 {
-    QJsonObject data = db->loadUserData(id); //TODO : !!! Chargement du lieu
-    if( data.isEmpty() )
-        return false;
-    OtherUser = new User( data );
+    OtherUser = Datas::I()->users->getById(id);
+    if (!OtherUser->isAllLoaded())
+    {
+        QJsonObject data = db->loadUserData(OtherUser->id());
+        if(data.isEmpty())
+        {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Les paramètres de ")
+                                + OtherUser->getLogin() + tr("ne sont pas retrouvés"));
+            return false;
+        }
+        OtherUser->setData( data );
+    }
+    QList<Compte *> *listcomptes = new QList<Compte*>();
+    if (Datas::I()->comptes->comptes()->size() == 0)
+        Datas::I()->comptes->initListe();
+    for (QMap<int, Compte*>::const_iterator itcpt = Datas::I()->comptes->comptes()->constBegin(); itcpt != Datas::I()->comptes->comptes()->constEnd(); ++itcpt)
+    {
+        if (itcpt.value()->idUser() == OtherUser->id())
+            listcomptes->append(itcpt.value());
+    }
+    OtherUser->setComptes(listcomptes);
+    OtherUser->setCompteParDefaut(Datas::I()->comptes->getCompteById(OtherUser->getIdCompteParDefaut()));
+    OtherUser->setCompteEncaissement(Datas::I()->comptes->getCompteById(OtherUser->getIdCompteEncaissHonoraires()));
     return true;
 }
 

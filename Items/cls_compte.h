@@ -26,7 +26,7 @@ class Compte : public Item
 private:
     int m_id, m_idbanque, m_iduser;
     QString m_nom, m_iban, m_intitulecompte, m_nombanque;
-    bool m_desactive, m_partage, m_prefere;
+    bool m_desactive, m_partage;
     double m_solde;
 
 public:
@@ -44,30 +44,6 @@ public:
     bool isPartage() const;
     bool isDesactive() const;
     QString nombanque() const;
-    bool isPrefere() const;
-};
-
-
-class Comptes
-{
-private:
-    QMultiMap<int, Compte*> *m_comptes = Q_NULLPTR;          //!< la liste des comptes actifs d'un user
-    QMultiMap<int, Compte*> *m_comptesAll = Q_NULLPTR;       //!< la liste de tous les comptes même inactifs d'un user
-    QMultiMap<int, Compte*> *m_comptesAllusers = Q_NULLPTR;  //!< la liste de tous les comptes actifs de tous les utsers
-
-public:
-    explicit Comptes();
-    ~Comptes();
-
-    QMultiMap<int, Compte *>* comptes() const;
-    QMultiMap<int, Compte *>* comptesAll() const;
-    QMultiMap<int, Compte *>* comptesAllUsers() const;
-
-    void addCompte(Compte *compte);
-    void addCompte(QList<Compte*> listCompte);
-    void removeCompte(Compte* cpt);
-    void clearAll();
-    Compte* getCompteById(int id);
 };
 
 #endif // CLS_COMPTE_H

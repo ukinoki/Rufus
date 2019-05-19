@@ -28,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("16-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("20-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5854,10 +5854,10 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
 
     if (event->type() == QEvent::FocusOut )
     {
-        if (obj->inherits("UpTextEdit"))
+        UpTextEdit* objUpText = dynamic_cast<UpTextEdit*>(obj);
+        if (objUpText != Q_NULLPTR)
         {
             QString requetemodif;
-            UpTextEdit* objUpText = static_cast<UpTextEdit*>(obj);
             objUpText->textCursor().clearSelection();
             if (objUpText->getValeurAvant() != objUpText->toHtml())
             {
@@ -5893,53 +5893,55 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                 }
             }
         }
-        else if (obj->inherits("UpLineEdit") && obj != MGlineEdit && obj != AutresCorresp1LineEdit && obj != AutresCorresp2LineEdit)
-        {  
-            if (obj == ui->ActeMontantlineEdit)
-                // le contrôle de sortie pour ActeMontantlineEdit est traité la méthode ValideActeMontant();
-                return QWidget::eventFilter(obj, event);
-            QString requetemodif;
-            UpLineEdit* objUpLine = static_cast<UpLineEdit*>(obj);
-            if (objUpLine->getValeurAvant() != objUpLine->text())
-            {
-                objUpLine->setText(Utils::trimcapitilize(objUpLine->text(),true));
-                if (objUpLine->getTableCorrespondant() == NOM_TABLE_ACTES)
-                {
-                    requetemodif =   "UPDATE " NOM_TABLE_ACTES " SET " + objUpLine->getChampCorrespondant() + " = '"
-                            + Utils::correctquoteSQL(objUpLine->text()) + "' WHERE idActe = " + QString::number(m_currentpatient->id());
-                    db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpLine->getChampCorrespondant() + "!");
-                    Datas::I()->actes->reloadActe(m_currentact);
-                }
-                else if (objUpLine->getTableCorrespondant() == NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS)
-                {
-                    requetemodif =   "UPDATE " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                                    " SET " + objUpLine->getChampCorrespondant() + " = '" +
-                                      Utils::correctquoteSQL(objUpLine->text()) + "' WHERE idPat = " + QString::number(m_currentpatient->id());
-                    db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpLine->getChampCorrespondant() + "!");
-                    m_currentpatient = m_listepatients->getById(m_currentpatient->id(),true);
-                    OKModifierTerrain(m_currentpatient);
-                    Datas::I()->patients->reloadMedicalData(m_currentpatient);
-                }
-            }
-        }
-        else if (obj->objectName() == "ActeDatedateEdit")
+        else
         {
-            if (ui->ActeDatedateEdit->text() != gActeDate)
+            UpLineEdit* objUpLine = dynamic_cast<UpLineEdit*>(obj);
+            if (objUpLine != Q_NULLPTR && obj != MGlineEdit && obj != AutresCorresp1LineEdit && obj != AutresCorresp2LineEdit)
             {
-                QString requete =   "UPDATE " NOM_TABLE_ACTES " SET ActeDate = '" + ui->ActeDatedateEdit->date().toString("yyyy-MM-dd") + "' WHERE idActe = " + QString::number(m_currentact->id());
-                if (!db->StandardSQL(requete,tr("Impossible de mettre à jour la date de l'acte!")))
-                    ui->ActeDatedateEdit->setDate(QDate::fromString(gActeDate,"dd/MM/yyyy"));
-                else
+                if (obj == ui->ActeMontantlineEdit)
+                    // le contrôle de sortie pour ActeMontantlineEdit est traité la méthode ValideActeMontant();
+                    return QWidget::eventFilter(obj, event);
+                QString requetemodif;
+                if (objUpLine->getValeurAvant() != objUpLine->text())
                 {
-                    gActeDate       = ui->ActeDatedateEdit->text();
-                    MAJActesPrecs();
-                    Datas::I()->actes->reloadActe(m_currentact);
+                    objUpLine->setText(Utils::trimcapitilize(objUpLine->text(),true));
+                    if (objUpLine->getTableCorrespondant() == NOM_TABLE_ACTES)
+                    {
+                        requetemodif =   "UPDATE " NOM_TABLE_ACTES " SET " + objUpLine->getChampCorrespondant() + " = '"
+                                + Utils::correctquoteSQL(objUpLine->text()) + "' WHERE idActe = " + QString::number(m_currentpatient->id());
+                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpLine->getChampCorrespondant() + "!");
+                        Datas::I()->actes->reloadActe(m_currentact);
+                    }
+                    else if (objUpLine->getTableCorrespondant() == NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS)
+                    {
+                        requetemodif =   "UPDATE " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                                " SET " + objUpLine->getChampCorrespondant() + " = '" +
+                                Utils::correctquoteSQL(objUpLine->text()) + "' WHERE idPat = " + QString::number(m_currentpatient->id());
+                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpLine->getChampCorrespondant() + "!");
+                        Datas::I()->patients->reloadMedicalData(m_currentpatient);
+                        OKModifierTerrain(m_currentpatient);
+                    }
                 }
             }
-            ui->ActeDatedateEdit->setEnabled(false);
+            else if (obj == ui->ActeDatedateEdit)
+            {
+                if (ui->ActeDatedateEdit->text() != gActeDate)
+                {
+                    QString requete =   "UPDATE " NOM_TABLE_ACTES " SET ActeDate = '" + ui->ActeDatedateEdit->date().toString("yyyy-MM-dd") + "' WHERE idActe = " + QString::number(m_currentact->id());
+                    if (!db->StandardSQL(requete,tr("Impossible de mettre à jour la date de l'acte!")))
+                        ui->ActeDatedateEdit->setDate(QDate::fromString(gActeDate,"dd/MM/yyyy"));
+                    else
+                    {
+                        gActeDate       = ui->ActeDatedateEdit->text();
+                        MAJActesPrecs();
+                        Datas::I()->actes->reloadActe(m_currentact);
+                    }
+                }
+                ui->ActeDatedateEdit->setEnabled(false);
+            }
+            else if (obj == ui->MGupComboBox || obj != ui->AutresCorresp1upComboBox || obj != ui->AutresCorresp2upComboBox)
+                MAJCorrespondant(obj);
         }
-        else if (obj == ui->MGupComboBox || obj != ui->AutresCorresp1upComboBox || obj != ui->AutresCorresp2upComboBox)
-            MAJCorrespondant(obj);
     }
 
     if(event->type() == QEvent::MouseButtonPress)
