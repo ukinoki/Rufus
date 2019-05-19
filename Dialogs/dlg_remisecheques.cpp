@@ -94,7 +94,6 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
     ReconstruitListeUsers();
     if (!InitOK)
         return;
-    m_comptes = new QMultiMap<int, Compte*>();
     connect (ui->UserComboBox,          SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUser()));
     connect (ui->ComptecomboBox,        QOverload<int>::of(&QComboBox::currentIndexChanged),    this,    [=](int) {ChangeCompte();});
     VoirNouvelleRemise();
@@ -534,8 +533,8 @@ void dlg_remisecheques::Slot_MiseEnFormeMontant(int A, int B, int C, int D)
 
 void dlg_remisecheques::ChangeCompte()
 {
-    QMultiMap<int, Compte*>::const_iterator itcpt = m_comptes->find(ui->ComptecomboBox->currentData().toInt());
-    if(itcpt != m_comptes->end())
+    QMap<int, Compte*>::const_iterator itcpt = m_comptes.find(ui->ComptecomboBox->currentData().toInt());
+    if(itcpt != m_comptes.end())
     {
         Compte *cpt = const_cast<Compte*>(itcpt.value());
         ui->IntituleComptetextEdit->setText(cpt->nom() + "\n" + cpt->iban());
@@ -545,7 +544,6 @@ void dlg_remisecheques::ChangeCompte()
 void dlg_remisecheques::Slot_ChangeUser()
 {
     gUser = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
-    proc->SetUserAllData(gUser);
     if (!VoirNouvelleRemise())
         if (!VoirRemisesPrecs())
         {
@@ -714,11 +712,11 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              Q_NULLPTR, Q_NULLPTR);
 
     QString idlist;
-    for( QMultiMap<int, Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
+    for( QMap<int, Compte*>::const_iterator itcpt = m_comptes.constBegin(); itcpt != m_comptes.constEnd(); ++itcpt )
     {
         Compte *cpt = const_cast<Compte*>(itcpt.value());
         idlist += QString::number(cpt->id());
-        if (itcpt != m_comptes->constEnd()-1)
+        if (itcpt != m_comptes.constEnd()-1)
             idlist += ", ";
     }
 
@@ -1038,8 +1036,8 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     int iduser = ui->UserComboBox->currentData().toInt();
     QDate date;
     QString req;
-    QMultiMap<int, Compte*>::const_iterator itcpt = m_comptes->find(ui->ComptecomboBox->currentData().toInt());
-    if(itcpt != m_comptes->end())
+    QMap<int, Compte*>::const_iterator itcpt = m_comptes.find(ui->ComptecomboBox->currentData().toInt());
+    if(itcpt != m_comptes.end())
         cpt = const_cast<Compte*>(itcpt.value());
 
     if (gMode == RevoirRemisesPrecs) {
@@ -1166,24 +1164,26 @@ void dlg_remisecheques::ReconstruitListeUsers()
         ui->UserComboBox->setCurrentIndex(0);
         int idusr = ui->UserComboBox->currentData().toInt();
         gUser = Datas::I()->users->getById(idusr);
-        proc->SetUserAllData(gUser);
+        gUser->setData(db->loadUserData(idusr));
     }
 }
 
 void dlg_remisecheques::ReconstruitListeComptes(bool avecinactif)
 {
     ui->ComptecomboBox->clear();
-    QList<Compte*> *model = gUser->getComptes();
-    for( QList<Compte*>::const_iterator itcpt = model->constBegin(); itcpt != model->constEnd(); ++itcpt )
+    QList<Compte*> listcomptes = db->loadComptesByUser(gUser->id());
+    for (int i=0; i< listcomptes.size(); i++)
     {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
-        if (!avecinactif)
-        {
-            if (!cpt->isDesactive())
-                ui->ComptecomboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
-        }
-        else
-            ui->ComptecomboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
+        Compte *compte = listcomptes.at(i);
+        if (avecinactif)
+        m_comptes.insert(compte->id(),compte);
+        else if (!compte->isDesactive())
+            m_comptes.insert(compte->id(),compte);
+    }
+    for( QMap<int, Compte*>::const_iterator itCompte = m_comptes.constBegin(); itCompte != m_comptes.constEnd(); ++itCompte )
+    {
+        Compte *cpt = const_cast<Compte*>(itCompte.value());
+        ui->ComptecomboBox->addItem(cpt->nom(), cpt->id() );
     }
     ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(gUser->getIdCompteParDefaut()));
 }

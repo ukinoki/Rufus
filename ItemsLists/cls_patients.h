@@ -42,6 +42,8 @@ public:
     bool add(Patient *patient);
     void addList(QList<Patient*> listpatientss);
     void loadAll(Patient *pat);
+    void reloadMedicalData(Patient* pat);                                                   //!> recharge les données médicales d'un patient
+    void reloadSocialData(Patient* pat);                                                    //!> recharge les données sociales d'un patient
     void remove(Patient* patient);
     void clearAll();
     void initListeAll(QString nom = "", QString prenom = "", bool filtre = false);          /*! crée une liste de patients
@@ -51,6 +53,7 @@ public:
 
     void initListeByDDN(QDate DDN = QDate());                                               /*! crée une liste de tous les patients pour une date de naissance
                                                                                             * \param DDN la date de naissance */
+
 private:
     QMap<int, Patient*> *m_patients;                                                            //!< une liste de patients
     bool m_full;                                                                            //! la liste contient tous les patients de la base

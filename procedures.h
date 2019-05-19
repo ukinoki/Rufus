@@ -183,7 +183,6 @@ private slots:
     void                    Slot_CalcUserSuperviseur();
     void                    Slot_CalcUserParent();
 public:
-    bool                    SetUserAllData(User* usr);
     int                     idCentre();
     int                     idLieuExercice();
     QString                 getSessionStatus();

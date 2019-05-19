@@ -1919,7 +1919,7 @@ QString Procedures::getSessionStatus()
             txtstatut += tr("sans comptabilité");
     }
     if (respliberal||respsalarie)
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + Datas::I()->users->getById(m_userConnected->getCompteEncaissement()->id())->getLogin() + " " + tr("de") + " " + m_userConnected->getUserComptable()->getLogin();
+        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + m_userConnected->getNomCompteEncaissHonoraires() + " " + tr("de") + " " + m_userConnected->getUserComptable()->getLogin();
     else if (retrocession)
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
@@ -1940,9 +1940,9 @@ QString Procedures::getSessionStatus()
     if (respliberal || soccomptable)
     {
         QString cptabledefaut ("");
-        if (m_userConnected->getCompteParDefaut() != Q_NULLPTR)
-            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getCompteParDefaut()->idUser())->getLogin();
-        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getCompteParDefaut()->nom() + " "
+        if (m_userConnected->getidUserCompteParDefaut()>0)
+            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getidUserCompteParDefaut())->getLogin();
+        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getNomCompteParDefaut() + " "
                           + cptabledefaut;
     }
     if (respliberal)
@@ -2045,7 +2045,7 @@ void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on
     if (ListeComptesEncaissUser->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
     {
         QStandardItem *nitem0, *nitem1;
-        nitem0 = new QStandardItem(Datas::I()->users->getById(user->getCompteEncaissement()->idUser())->getLogin() + "/" + user->getCompteEncaissement()->nom());
+        nitem0 = new QStandardItem(user->getNomUserEncaissHonoraires() + "/" + user->getNomCompteEncaissHonoraires());
         nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
         QList<QStandardItem*> nlistitems;
         nlistitems << nitem0 << nitem1;
@@ -2054,7 +2054,7 @@ void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on
     if (ListeComptesEncaissUserAvecDesactive->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
     {
         QStandardItem *nitem0, *nitem1;
-        nitem0 = new QStandardItem(Datas::I()->users->getById(user->getCompteEncaissement()->idUser())->getLogin() + "/" + user->getCompteEncaissement()->nom());
+        nitem0 = new QStandardItem(user->getNomUserEncaissHonoraires() + "/" + user->getNomCompteEncaissHonoraires());
         nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
         QList<QStandardItem*> nlistitems;
         nlistitems << nitem0 << nitem1;
@@ -3338,7 +3338,6 @@ bool Procedures::IdentificationUser(bool ChgUsr)
     if( result > 0 )
     {
         m_userConnected = db->getUserConnected();
-        SetUserAllData(m_userConnected);
         if (!VerifBaseEtRessources())
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
@@ -3704,41 +3703,6 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     avecLaComptaProv = true; //FIXME : avecLaComptaProv
     return true;
 }
-
-/*!
- * \brief Procedures::SetUserAllData(User *usr)
- * Charge le sodnnées d'un utilisateur, y compris ses données bancaires
- * cette fonction fait appel aux deux classes cls_user et cls_compte
- * et ne peut pas figurer dans la classe cls_user
- * en raison de référence croisées
- */
-bool Procedures::SetUserAllData(User *usr)
-{
-    if (!usr->isAllLoaded())
-    {
-        QJsonObject data = db->loadUserData(usr->id());
-        if(data.isEmpty())
-        {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Les paramètres de ")
-                                + usr->getLogin() + tr("ne sont pas retrouvés"));
-            return false;
-        }
-        usr->setData( data ); //on charge le reste des données
-    }
-    QList<Compte *> *listcomptes = new QList<Compte*>();
-    if (Datas::I()->comptes->comptes()->size() == 0)
-        Datas::I()->comptes->initListe();
-    for (QMap<int, Compte*>::const_iterator itcpt = Datas::I()->comptes->comptes()->constBegin(); itcpt != Datas::I()->comptes->comptes()->constEnd(); ++itcpt)
-    {
-        if (itcpt.value()->idUser() == usr->id())
-            listcomptes->append(itcpt.value());
-    }
-    usr->setComptes(listcomptes);
-    usr->setCompteParDefaut(Datas::I()->comptes->getCompteById(usr->getIdCompteParDefaut()));
-    usr->setCompteEncaissement(Datas::I()->comptes->getCompteById(usr->getIdCompteEncaissHonoraires()));
-    return true;
-}
-
 /*!
  * \brief Procedures::Slot_CalcUserSuperviseur
  *
@@ -4055,7 +4019,6 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Création de l'utilisateur
             gdbOK = CreerPremierUser(m_userConnected->getLogin(), m_userConnected->getPassword());
             db->login(m_userConnected->getLogin(), m_userConnected->getPassword());
-            SetUserAllData(m_userConnected);
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"

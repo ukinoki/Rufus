@@ -101,8 +101,8 @@ private:
     QList<QString>          LigneRecetteAModifier;
     QList<QString>          LigneDepenseAModifier;
     QList<QString>          MontantActesAModifier;
-    User                    *m_useracrediter;
-    User                    *m_userconnected;
+    User                    *gDataUser;
+    User                    *m_userConnected;
     QStandardItemModel      *glistComptesEncaissmt;
     QStandardItemModel      *glistComptesEncaissmtAvecDesactive;
     QMap<int, User*>        *m_listeParents;

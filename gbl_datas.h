@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "cls_actes.h"
 #include "cls_banques.h"
-#include "cls_comptes.h"
+#include "cls_compte.h"
 #include "cls_correspondants.h"
 #include "cls_cotations.h"
 #include "cls_depenses.h"

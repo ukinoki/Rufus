@@ -80,3 +80,8 @@ Acte* Actes::getById(int id)
         return Q_NULLPTR;
     return itact.value();
 }
+
+void Actes::reloadActe(Acte* acte)
+{
+    acte->setData(DataBase::I()->loadActeAllData(acte->id()));
+}

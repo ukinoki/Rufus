@@ -37,6 +37,7 @@ public:
     void    remove(Acte* acte);
     void    clearAll();
     Acte*   getById(int id);
+    void    reloadActe(Acte* acte);
     void    initListeByPatient(Patient *pat);
 };
 

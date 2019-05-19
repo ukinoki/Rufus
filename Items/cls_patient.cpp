@@ -83,6 +83,8 @@ Patient::Patient(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
+
+
 void Patient::setData(QJsonObject data)
 {
     if( data.isEmpty() )
@@ -133,17 +135,44 @@ void Patient::setData(QJsonObject data)
     }
 }
 
-void Patient::addSocialData(QJsonObject data)
+void Patient::setSocialData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
+    setDataString(data, "adresse1", m_adresse1);
+    setDataString(data, "adresse2", m_adresse2);
+    setDataString(data, "adresse3", m_adresse3);
+    setDataString(data, "codepostal", m_codepostal);
+    setDataString(data, "ville", m_ville);
+    setDataString(data, "telephone", m_telephone);
+    setDataString(data, "portable", m_portable);
+    setDataString(data, "mail", m_mail);
+    setDataLongLongInt(data, "NNI", m_NNI);
+    setDataBool(data, "ALD", m_ALD);
+    setDataBool(data, "CMU", m_CMU);
+    setDataString(data, "profession", m_profession);
     m_issocialloaded = data["isSocialLoaded"].toBool();
 }
 
-void Patient::addMedicalData(QJsonObject data)
+void Patient::setMedicalData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
+    setDataInt(data, "idMG", m_idmg);
+    setDataInt(data, "idSpe1", m_idspe1);
+    setDataInt(data, "idSpe2", m_idspe2);
+    setDataInt(data, "idSpe3", m_idspe3);
+    setDataInt(data, "idCornonMG", m_idcornonmg);
+    setDataString(data, "AtcdtsPerso", m_atcdtspersos);
+    setDataString(data, "TtGeneral", m_traitementgen);
+    setDataString(data, "AtcdtsFamiliaux", m_atcdtsfamiliaux);
+    setDataString(data, "AtcdstOph", m_atcdtsophtalmos);
+    setDataString(data, "Tabac", m_tabac);
+    setDataString(data, "Toxiques", m_toxiques);
+    setDataString(data, "GenCorresp", m_gencorresp);
+    setDataString(data, "Important", m_important);
+    setDataString(data, "Resume", m_resume);
+    setDataString(data, "TtOph", m_traitementoph);
     m_ismedicalloaded = data["isMedicalLoaded"].toBool();
 }
 

@@ -58,9 +58,10 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
-    Datas::I()->banques->initListe();
-    for(QMap<int, Banque*>::const_iterator itbq = Datas::I()->banques->banques()->constBegin(); itbq != Datas::I()->banques->banques()->constEnd(); ++itbq )
-        ui->BanqChequpComboBox->addItem(itbq.value()->NomBanqueAbrege(),itbq.value()->id());
+    bool OK = true;
+    QList<QVariantList> listbanq = db->StandardSelectSQL("SELECT idBanqueAbrege, idBanque FROM " NOM_TABLE_BANQUES " ORDER by idBanqueAbrege",OK);
+    for (int i=0; i<listbanq.size(); i++)
+        ui->BanqChequpComboBox->addItem(listbanq.at(i).at(0).toString(),listbanq.at(i).at(1).toInt());
 
     //TODO : SQL
     QStringList ListeRubriques;
@@ -159,7 +160,7 @@ void    dlg_recettesspeciales::RegleAffichageFiche(enum gMode mode)
     ui->GestionComptesupPushButton  ->setEnabled(gMode == Lire || gMode == TableVide);
     ui->SupprimerupPushButton       ->setVisible(gMode == Lire);
     ui->ModifierupPushButton        ->setVisible(gMode == Lire);
-    int sz = gDataUser->getComptes()->size();
+    int sz = gDataUser->getComptes()->comptes()->size();
     ui->NouvelleRecetteupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && sz>0);
     ui->NouvelleRecetteupPushButton->setToolTip((gMode == Lire || gMode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
     EnregupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
@@ -191,13 +192,29 @@ void dlg_recettesspeciales::AnnulEnreg()
 bool dlg_recettesspeciales::initializeUserSelected()
 {
     gDataUser = db->getUserConnected();
-    proc->SetUserAllData(gDataUser);
-    if( gDataUser->getComptes(true)->size() == 0)
+
+    if (gDataUser->getComptes() == Q_NULLPTR)
+    {
+        Comptes *comptes = new Comptes();
+        comptes->addCompte( db->loadComptesByUser(gDataUser->id()) );
+        gDataUser->setComptes( comptes );
+    }
+    if( gDataUser->getComptes()->comptesAll()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gDataUser->getLogin());
         return false;
     }
-    if (gDataUser->getCompteParDefaut() == Q_NULLPTR)
+
+    QJsonObject data = db->loadUserData(gDataUser->id());
+    if(data.isEmpty())
+    {
+        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche recettes spéciales!"), tr("Les paramètres de ")
+                             + gDataUser->getLogin() + tr("ne sont pas retrouvés"));
+        return false;
+    }
+    gDataUser->setData( data ); //ON charge le reste des données
+
+    if (gDataUser->getIdCompteParDefaut() <= 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche recettes spéciales!"), tr("Pas de compte bancaire enregistré pour ")
                                      + gDataUser->getLogin());
@@ -438,18 +455,10 @@ void dlg_recettesspeciales::ChoixMenu(QString choix)
 void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
-    QList<Compte*> *model = gDataUser->getComptes();
-    for( QList<Compte*>::const_iterator itcpt = model->constBegin(); itcpt != model->constEnd(); ++itcpt )
-    {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
-        if (ActiveSeult)
-        {
-            if (!cpt->isDesactive())
-                ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
-        }
-        else
-            ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
-    }
+
+    QMultiMap<int, Compte*>* model = (ActiveSeult? gDataUser->getComptes()->comptes() : gDataUser->getComptes()->comptesAll());
+    for( QMultiMap<int, Compte*>::const_iterator itCompte = model->constBegin(); itCompte != model->constEnd(); ++itCompte )
+       ui->ComptesupComboBox->addItem(itCompte.value()->nom(), QString::number(itCompte.value()->id()) );
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -614,10 +623,10 @@ void dlg_recettesspeciales::MetAJourFiche()
         {
             if (recette.at(6).toInt()>0)
             {
-                int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getCompteById(recette.at(6).toInt()));
-                if( idx > -1 )
+                QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll()->find(recette.at(6).toInt());
+                if( compteFind != gDataUser->getComptes()->comptesAll()->constEnd() )
                 {
-                    B = gDataUser->getComptes(true)->at(idx)->nom();
+                    B = compteFind.value()->nom();
                     ui->Comptelabel->setVisible(true);
                     ui->ComptesupComboBox->setVisible(true);
                     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
@@ -1015,9 +1024,9 @@ void dlg_recettesspeciales::RemplitBigTable()
             {
                 if (recette.at(10).toInt() > 0)
                 {
-                    int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getCompteById(recette.at(10).toInt()));
-                    if( idx > -1 )
-                        B = gDataUser->getComptes(true)->at(idx)->nom();
+                    QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll()->find(recette.at(10).toInt());
+                    if( cptFind != gDataUser->getComptes()->comptesAll()->constEnd() )
+                        B = cptFind.value()->nom();
                 }
                 A = NOM_VIREMENT + (B==""? "" : " " + B);
             }

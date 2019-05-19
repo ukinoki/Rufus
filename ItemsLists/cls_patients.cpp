@@ -78,6 +78,26 @@ void Patients::loadAll(Patient *pat)
     }
 }
 
+void Patients::reloadMedicalData(Patient *pat)
+{
+    QJsonObject jData{};
+    jData["id"] = pat->id();
+    bool ok;
+    DataBase::I()->loadMedicalDataPatient(jData, ok);
+    if( !jData.isEmpty() )
+        pat->setMedicalData(jData);
+}
+
+void Patients::reloadSocialData(Patient *pat)
+{
+    QJsonObject jData{};
+    jData["id"] = pat->id();
+    bool ok;
+    DataBase::I()->loadSocialDataPatient(jData, ok);
+    if( !jData.isEmpty() )
+        pat->setSocialData(jData);
+}
+
 /*!
  * \brief Patients::addPatient
  * Cette fonction va ajouter le patient passé en paramètre

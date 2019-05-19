@@ -33,8 +33,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc            = Procedures::I();
     db              = DataBase::I();
-    m_userconnected  = db->getUserConnected();
-    m_useracrediter = Q_NULLPTR;
+    m_userConnected  = db->getUserConnected();
     gidUserACrediter = -1;
     //ui->UserscomboBox->setEnabled(db->getUserConnected().isSecretaire());
     QFont font = qApp->font();
@@ -46,31 +45,30 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionPaiement").toByteArray());
 
     m_listeParents = Datas::I()->users->parents(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
-    if (m_userconnected->isLiberal())
-        m_useracrediter = m_userconnected;
-    else if (m_userconnected->isSalarie() && !m_userconnected->isAssistant())// l'utilisateur est un soignant salarie et responsable
-        m_useracrediter = Datas::I()->users->getById(m_userconnected->getIdUserComptable());
-    else if (m_userconnected->isRemplacant())                                // l'utilisateur est un soignant remplacant et responsable
-    {
-        User *parent = Datas::I()->users->getById(m_userconnected->getIdUserParent());
-        if (parent->isLiberal())
-            m_useracrediter = parent;
-        else if (m_userconnected->isSalarie() && !m_userconnected->isAssistant())// l'utilisateur est un soignant salarie et responsable
-            m_useracrediter = Datas::I()->users->getById(parent->getIdUserComptable());
-    }
-    else if(m_userconnected->isSecretaire())
-        m_useracrediter = Datas::I()->users->getById(m_listeParents->first()->id());
-    if (m_useracrediter == Q_NULLPTR)
+    if (m_userConnected->isLiberal())
+        gidUserACrediter = m_userConnected->id();
+    else if (m_userConnected->isSalarie() && !m_userConnected->isAssistant())// l'utilisateur est un soignant salarie et responsable
+        gidUserACrediter = db->getUserConnected()->getIdUserParent();
+    else if (m_userConnected->isRemplacant())                                // l'utilisateur est un soignant remplacant et responsable
+        gidUserACrediter = db->getUserConnected()->getIdUserParent();
+    else if(m_userConnected->isSecretaire())
+        gidUserACrediter = m_listeParents->first()->id();
+    if (gidUserACrediter == -1)
     {
         InitOK = false;
         return;
     }
-    gNomUser                            = m_useracrediter->getLogin();
-    gidCompteBancaireParDefaut          = m_useracrediter->getIdCompteEncaissHonoraires();
-    proc                                ->setListeComptesEncaissmtUser(m_useracrediter->id());
-    glistComptesEncaissmt               = proc->getListeComptesEncaissmtUser();
-    glistComptesEncaissmtAvecDesactive  = proc->getListeComptesEncaissmtUserAvecDesactive();
-    if( glistComptesEncaissmt->rowCount() == 0)
+
+    gDataUser                               = Datas::I()->users->getById(gidUserACrediter);
+    if (gDataUser != Q_NULLPTR)
+    {
+        gNomUser                            = gDataUser->getLogin();
+        gidCompteBancaireParDefaut          = gDataUser->getIdCompteEncaissHonoraires();
+        proc                                ->setListeComptesEncaissmtUser(gidUserACrediter);
+        glistComptesEncaissmt               = proc->getListeComptesEncaissmtUser();
+        glistComptesEncaissmtAvecDesactive  = proc->getListeComptesEncaissmtUserAvecDesactive();
+    }
+    if( gDataUser == Q_NULLPTR || glistComptesEncaissmt->rowCount() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + Datas::I()->users->getById(gidUserACrediter)->getLogin());
         InitOK = false;
@@ -79,10 +77,17 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
 
 
     // On reconstruit le combobox des utilisateurs avec la liste des utilisateurs qui encaissent des honoraires et qui travaillent encore
+    int index = 0;
     for( QMap<int, User*>::const_iterator itParent = m_listeParents->constBegin(); itParent != m_listeParents->constEnd(); ++itParent )
+    {
         ui->UserscomboBox->addItem(itParent.value()->getLogin(), QString::number(itParent.value()->id()) );
-    int idx = ui->UserscomboBox->findData(m_userconnected->id());
-    ui->UserscomboBox->setCurrentIndex(idx==-1? 0 : idx);
+        if( gidUserACrediter != itParent.value()->id())
+            ++index;
+    }
+    if(index>=m_listeParents->size())
+        ui->UserscomboBox->setCurrentIndex(0);
+    else
+        ui->UserscomboBox->setCurrentIndex(index);
 
     // idem pour les comptes
     RegleComptesComboBox();
@@ -411,24 +416,24 @@ void dlg_paiementtiers::Slot_CalculTotalDetails()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::Slot_ChangeUtilisateur()
 {
-    m_useracrediter = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
-    if (m_useracrediter != Q_NULLPTR)
+    gDataUser = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
+    if (gDataUser != Q_NULLPTR)
     {
-        gNomUser                            = m_useracrediter->getLogin();
-        gidCompteBancaireParDefaut          = m_useracrediter->getIdCompteEncaissHonoraires();
+        gNomUser                            = gDataUser->getLogin();
+        gidCompteBancaireParDefaut          = gDataUser->getIdCompteEncaissHonoraires();
         proc                                ->setListeComptesEncaissmtUser(gidCompteBancaireParDefaut);
         glistComptesEncaissmt               = proc->getListeComptesEncaissmtUser();
         glistComptesEncaissmtAvecDesactive  = proc->getListeComptesEncaissmtUserAvecDesactive();
     }
-    if (m_useracrediter == Q_NULLPTR || glistComptesEncaissmt->rowCount() == 0)
+    if (gDataUser == Q_NULLPTR || glistComptesEncaissmt->rowCount() == 0)
     {
         UpMessageBox::Watch                 (this,tr("Impossible de changer d'utilisateur!") , tr("Les paramètres de") + ui->UserscomboBox->currentText() + tr("ne sont pas retrouvés"));
         disconnect (ui->UserscomboBox,      SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUtilisateur()));
         ui->UserscomboBox                   ->setCurrentIndex(ui->UserscomboBox->findData(gidUserACrediter));
         connect (ui->UserscomboBox,         SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUtilisateur()));
-        m_useracrediter                           = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
-        gNomUser                            = m_useracrediter->getLogin();
-        gidCompteBancaireParDefaut          = m_useracrediter->getIdCompteEncaissHonoraires();
+        gDataUser                           = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
+        gNomUser                            = gDataUser->getLogin();
+        gidCompteBancaireParDefaut          = gDataUser->getIdCompteEncaissHonoraires();
         proc                                ->setListeComptesEncaissmtUser(gidUserACrediter);
         glistComptesEncaissmt               = proc->getListeComptesEncaissmtUser();
         glistComptesEncaissmtAvecDesactive  = proc->getListeComptesEncaissmtUserAvecDesactive();
@@ -614,7 +619,7 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
         ui->line_4              ->setGeometry(140,70,20,190);
         ui->Buttonsframe        ->setGeometry(490,10,200,250);
         ui->AnnulupPushButton   ->move(10,150);
-        ui->UserscomboBox       ->setEnabled(m_userconnected->isSecretaire());
+        ui->UserscomboBox       ->setEnabled(m_userConnected->isSecretaire());
 
         QList<QRadioButton *> allRButtons = ui->PaiementgroupBox->findChildren<QRadioButton *>();
         for (int n = 0; n <  allRButtons.size(); n++)
@@ -851,7 +856,7 @@ void dlg_paiementtiers::Slot_ValidePaiement()
 //        }
 //        requete = "SELECT idActe FROM " NOM_TABLE_LIGNESPAIEMENTS
 //                " WHERE idRecette = " + QString::number(idRecette) +
-//                " AND idActe IN (SELECT idActe FROM " NOM_TABLE_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userconnected->id()) + ")";
+//                " AND idActe IN (SELECT idActe FROM " NOM_TABLE_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userConnected->id()) + ")";
 //        QList<QVariantList> actlist = db->StandardSelectSQL(requete,ok);
 //        if (actlist.size() > 0)
 //        {
@@ -1241,7 +1246,7 @@ int dlg_paiementtiers::EnregistreRecette()
                 EnregRecetterequete += "," + idCompte;
             }
 
-            EnregRecetterequete += "," + QString::number(m_userconnected->id());                                                      // EnregistrePar
+            EnregRecetterequete += "," + QString::number(m_userConnected->id());                                                      // EnregistrePar
             EnregRecetterequete += ",1";                                                                                // TypeRecette
                 EnregRecetterequete += ",'O'";
 
@@ -2050,7 +2055,7 @@ void dlg_paiementtiers::NettoieVerrousListeActesAAfficher() //TODO pasfini
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::NettoieVerrousCompta()
 {
-    QString NettoieVerrousComptaActesRequete = "delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(m_userconnected->id()) + " or PosePar is null";
+    QString NettoieVerrousComptaActesRequete = "delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(m_userConnected->id()) + " or PosePar is null";
     db->StandardSQL(NettoieVerrousComptaActesRequete);
 }
 
@@ -2067,7 +2072,7 @@ void dlg_paiementtiers::PoseVerrouCompta(int ActeAVerrouiller)
         QString VerrouilleEnreg= "INSERT INTO " NOM_TABLE_VERROUCOMPTAACTES
                 " (idActe,DateTimeVerrou, PosePar)"
                 " VALUES ("  + QString::number(ActeAVerrouiller) +
-                ", NOW() ,"  + QString::number(m_userconnected->id()) + ")";
+                ", NOW() ,"  + QString::number(m_userConnected->id()) + ")";
         db->StandardSQL(VerrouilleEnreg);
     }
 }
@@ -2628,18 +2633,18 @@ void dlg_paiementtiers::RemplitLesTables(int Mode)
 //    disconnect (ui->ListeupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
 
     QString user =  " AND act.UserComptable = ";
-    if (m_userconnected->isLiberal())
+    if (m_userConnected->isLiberal())
         // l'utilisateur est un soignant liberal et responsable - il enregistre ses actes et ceux de ses éventuels salariés
         user = " AND act.UserComptable = "  + QString::number(gidUserACrediter) + "\n";
-    else if (m_userconnected->isSalarie() && !m_userconnected->isAssistant())
+    else if (m_userConnected->isSalarie() && !m_userConnected->isAssistant())
         // l'utilisateur est un soignant salarie et responsable
-        user = " AND act.UserComptable = "  + QString::number(m_userconnected->getIdUserComptable()) + "\n"
-               " AND act.UserParent = "     + QString::number(m_userconnected->id()) + "\n";
-    else if (m_userconnected->isRemplacant())
+        user = " AND act.UserComptable = "  + QString::number(m_userConnected->getIdUserComptable()) + "\n"
+               " AND act.UserParent = "     + QString::number(m_userConnected->id()) + "\n";
+    else if (m_userConnected->isRemplacant())
         // l'utilisateur est un remplacant
-        user = " AND act.UserComptable = "  + QString::number(m_userconnected->getIdUserComptable()) + "\n"
-               " AND act.UserParent = "     + QString::number(m_userconnected->id()) + "\n";
-    else if (m_userconnected->isSecretaire())
+        user = " AND act.UserComptable = "  + QString::number(m_userConnected->getIdUserComptable()) + "\n"
+               " AND act.UserParent = "     + QString::number(m_userConnected->id()) + "\n";
+    else if (m_userConnected->isSecretaire())
         // l'utilisateur est un secretaire
         user = " AND act.UserComptable = "  + QString::number(gidUserACrediter) + "\n";
     else

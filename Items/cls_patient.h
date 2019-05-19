@@ -125,8 +125,8 @@ public:
     explicit Patient(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
     void setData(QJsonObject data);
-    void addSocialData(QJsonObject data);
-    void addMedicalData(QJsonObject data);
+    void setSocialData(QJsonObject data);
+    void setMedicalData(QJsonObject data);
     void addActe(Acte *acte);
 
     // Medical data
