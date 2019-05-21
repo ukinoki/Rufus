@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_banques.h"
 
-Banques::Banques()
+Banques::Banques(QObject *parent) : ItemsList(parent)
 {
     m_banques = new QMap<int, Banque*>();
 }

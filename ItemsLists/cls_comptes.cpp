@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_comptes.h"
 
-Comptes::Comptes(QObject * parent) : QObject (parent)
+Comptes::Comptes(QObject * parent) : ItemsList(parent)
 {
     m_comptes = new QMap<int, Compte*>();
 }
@@ -67,7 +67,7 @@ void Comptes::removeCompte(Compte* cpt)
     delete cpt;
 }
 
-Compte* Comptes::getCompteById(int id)
+Compte* Comptes::getById(int id)
 {
     QMap<int, Compte*>::const_iterator itcpt = m_comptes->find(id);
     if( itcpt == m_comptes->constEnd() )

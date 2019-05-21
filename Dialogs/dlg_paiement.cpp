@@ -63,7 +63,7 @@ dlg_paiement::dlg_paiement(QList<int> ListidActeAPasser, int Mode, Procedures *p
         // la fiche a été appelée par le bouton "enregistrer le paiement"
         if (gListidActe.at(0)>0)
         {
-            Acte *act = Datas::I()->actes->getById(gListidActe.at(0));
+            Acte *act = Datas::I()->actes->getById(gListidActe.at(0), ItemsList::AddToList);
             m_useracrediter = Datas::I()->users->getById(act->idComptable());
         }
         // la fiche a été appelée par le menu et il n'y a pas d'acte prédéterminé à enregistrer

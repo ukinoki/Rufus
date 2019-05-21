@@ -1076,7 +1076,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
         Entete.replace("{{POLICE}}", qApp->font().family());
         if (rplct)
         {
-            User *userRemp = Datas::I()->users->getById(idparent, true);
+            User *userRemp = Datas::I()->users->getById(idparent, ItemsList::LoadDetails);
             if(userRemp && userRemp->getTitre().size())
                 Entete.replace("{{TITREUSER}}", "<s>" + userRemp->getTitre() + " " + userRemp->getPrenom() + " " + userRemp->getNom() + "</s> "
                                                 "<font color=\"darkblue\">" + tr ("remplacé par") + " "
@@ -3670,8 +3670,8 @@ bool Procedures::SetUserAllData(User *usr)
             listcomptes->append(itcpt.value());
     }
     usr->setComptes(listcomptes);
-    usr->setCompteParDefaut(Datas::I()->comptes->getCompteById(usr->getIdCompteParDefaut()));
-    usr->setCompteEncaissement(Datas::I()->comptes->getCompteById(usr->getIdCompteEncaissHonoraires()));
+    usr->setCompteParDefaut(Datas::I()->comptes->getById(usr->getIdCompteParDefaut()));
+    usr->setCompteEncaissement(Datas::I()->comptes->getById(usr->getIdCompteEncaissHonoraires()));
     return true;
 }
 

@@ -58,7 +58,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         }
         ui->BanquecomboBox->setCurrentIndex(ui->BanquecomboBox->findData(idcptprefer));
         idCompte = ui->BanquecomboBox->currentData().toInt();
-        CompteEnCours = Datas::I()->comptes->getCompteById(idCompte);
+        CompteEnCours = Datas::I()->comptes->getById(idCompte);
         if (CompteEnCours != Q_NULLPTR)
         {
             SoldeSurReleve = CompteEnCours->solde();
@@ -604,7 +604,7 @@ void dlg_comptes::CalculeTotal()
 void dlg_comptes::ChangeCompte(int idx)
 {
     idCompte = ui->BanquecomboBox->itemData(idx).toInt();
-    CompteEnCours = Datas::I()->comptes->getCompteById(idCompte);
+    CompteEnCours = Datas::I()->comptes->getById(idCompte);
     // on doit refaire la requête parce que le solde s'il est null est passé en 0 par loadcomptesbyUser()
     bool ok = true;
     QList<QVariantList> listsoldes = db->SelectRecordsFromTable(QStringList() << "SoldeSurDernierReleve",

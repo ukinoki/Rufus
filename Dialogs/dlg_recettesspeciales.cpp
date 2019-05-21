@@ -614,7 +614,7 @@ void dlg_recettesspeciales::MetAJourFiche()
         {
             if (recette.at(6).toInt()>0)
             {
-                int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getCompteById(recette.at(6).toInt()));
+                int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getById(recette.at(6).toInt()));
                 if( idx > -1 )
                 {
                     B = m_userencours->getComptes(true)->at(idx)->nom();
@@ -1015,7 +1015,7 @@ void dlg_recettesspeciales::RemplitBigTable()
             {
                 if (recette.at(10).toInt() > 0)
                 {
-                    int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getCompteById(recette.at(10).toInt()));
+                    int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getById(recette.at(10).toInt()));
                     if( idx > -1 )
                         B = m_userencours->getComptes(true)->at(idx)->nom();
                 }

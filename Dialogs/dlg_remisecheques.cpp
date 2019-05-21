@@ -1055,7 +1055,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     //création de l'entête
     QString EnTete;
     if (iduser == -1) return false;
-    User *userEntete = Datas::I()->users->getById(iduser, true);
+    User *userEntete = Datas::I()->users->getById(iduser, ItemsList::LoadDetails);
     if(userEntete == Q_NULLPTR)
         return false;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");

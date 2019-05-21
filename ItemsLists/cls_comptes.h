@@ -20,8 +20,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_compte.h"
 #include "database.h"
+#include "cls_itemslist.h"
 
-class Comptes : public QObject
+class Comptes : public ItemsList
 {
 private:
     QMap<int, Compte*> *m_comptes = Q_NULLPTR;  //!< la liste de tous les comptes
@@ -36,7 +37,7 @@ public:
     void addList(QList<Compte*> listCompte);
     void removeCompte(Compte* cpt);
     void clearAll();
-    Compte* getCompteById(int id);
+    Compte* getById(int id);
     void reloadCompte(Compte*compte);
 
     void initListe();

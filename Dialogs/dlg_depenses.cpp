@@ -982,7 +982,7 @@ void dlg_depenses::MetAJourFiche()
         if (A == "E")           A = tr("Espèces");
         else
         {
-            int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getCompteById(m_depenseencours->comptebancaire()));
+            int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getById(m_depenseencours->comptebancaire()));
             if( idx == -1 )
             {
                 //ATTENTION ERROR
@@ -1258,7 +1258,7 @@ void dlg_depenses::ModifierDepense()
         if (A == "E")  A = tr("Espèces");
         else
         {
-            int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getCompteById(dep->comptebancaire()));
+            int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getById(dep->comptebancaire()));
             if( idx == -1 )
             {
                 //ATTENTION ERROR
@@ -1725,7 +1725,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     QString mode = Utils::ConvertitModePaiement(A);
     if (A != "E")
     {
-        int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getCompteById(dep->comptebancaire()));
+        int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getById(dep->comptebancaire()));
         if( idx == -1 )
         {
             //ATTENTION ERROR

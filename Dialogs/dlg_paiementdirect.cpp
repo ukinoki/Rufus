@@ -160,7 +160,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     // on cherche le comptable à créditer
     if (gListidActe.size() > 0)                     // il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis l'accueil ou par le bouton enregistrepaiement
     {
-        Acte *act = Datas::I()->actes->getById(gListidActe.at(0));
+        Acte *act = Datas::I()->actes->getById(gListidActe.at(0), ItemsList::AddToList);
         if (act != Q_NULLPTR)
             m_useracrediter = Datas::I()->users->getById(act->idComptable());
     }
@@ -169,7 +169,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 
     if( m_useracrediter == Q_NULLPTR)
     {
-        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Le compyable n'est pas retrouvé"));
+        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Le comptable n'est pas retrouvé"));
         InitOK = false;
         return;
     }

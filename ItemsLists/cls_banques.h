@@ -20,14 +20,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "database.h"
 #include "cls_banque.h"
+#include "cls_itemslist.h"
 
-class Banques
+class Banques : public ItemsList
 {
 private:
     QMap<int, Banque*> *m_banques = Q_NULLPTR; //!< la liste des Banques
 
 public:
-    explicit Banques();
+    explicit Banques(QObject *parent = Q_NULLPTR);
 
     QMap<int, Banque *> *banques() const;
 
