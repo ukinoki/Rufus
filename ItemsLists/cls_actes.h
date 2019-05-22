@@ -20,16 +20,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "database.h"
 #include "cls_acte.h"
-#include "cls_itemslist.h"
 
-class Actes: public ItemsList
+class Actes
 
 {
 private:
     QMap<int, Acte*> *m_actes = Q_NULLPTR; //!< une liste d'actes
 
 public:
-    explicit Actes(QObject *parent = Q_NULLPTR);
+    explicit Actes();
 
     QMap<int, Acte *> *actes() const;
 
@@ -37,10 +36,9 @@ public:
     void    addList(QList<Acte*> listActes);
     void    remove(Acte* acte);
     void    clearAll();
-    Acte*   getById(int id, ADDTOLIST add = AddToList);
-    void    initListeByPatient(Patient *pat);
+    Acte*   getById(int id);
     void    reloadActe(Acte* acte);
-
+    void    initListeByPatient(Patient *pat);
 };
 
 

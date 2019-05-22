@@ -26,13 +26,12 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     setWindowIcon(Icons::icCreditCard());
 
-    proc            = Procedures::I();
-    db              = DataBase::I();
+    proc        = Procedures::I();
+    db          = DataBase::I();
     ui->UserscomboBox->setEnabled(db->getUserConnected()->isSecretaire() );
-    AccesDistant    = (db->getMode()==DataBase::Distant);
+    AccesDistant = (db->getMode()==DataBase::Distant);
     m_listUserLiberaux = Datas::I()->users->liberaux();
-    gDataUser       = Q_NULLPTR;
-    m_comptesusr    = Q_NULLPTR;
+    gDataUser = Q_NULLPTR;
 
     int index = 0;
     bool foundUser = false;
@@ -247,18 +246,9 @@ void dlg_depenses::ExportTable()
 void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
-    QList<Compte*> *model = gDataUser->getComptes();
-    for( QList<Compte*>::const_iterator itcpt = model->constBegin(); itcpt != model->constEnd(); ++itcpt )
-    {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
-        if (ActiveSeult)
-        {
-            if (!cpt->isDesactive())
-                ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
-        }
-        else
-            ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
-    }
+    QMultiMap<int, Compte*>* model = (ActiveSeult? gDataUser->getComptes()->comptes() : gDataUser->getComptes()->comptesAll());
+    for( QMultiMap<int, Compte*>::const_iterator itCompte = model->constBegin(); itCompte != model->constEnd(); ++itCompte )
+       ui->ComptesupComboBox->addItem(itCompte.value()->nom(), QString::number(itCompte.value()->id()) );
 }
 
 void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
@@ -296,9 +286,9 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     EnregupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
     AnnulupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
     ui->Facturewidget               ->setVisible(gMode == Lire);
-    ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->size() > 0 );
+    ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->comptes()->size() );
     QString ttip = "";
-    if( gDataUser->getComptes()->size() == 0)
+    if( gDataUser->getComptes()->comptes()->size() == 0)
         ttip = tr("Vous ne pouvez pas enregistrer de dépenses.\nAucun compte bancaire n'est enregistré.");
     ui->NouvelleDepenseupPushButton->setToolTip(ttip);
     SupprimerupPushButton   ->setVisible(gMode == Lire);
@@ -361,7 +351,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
         ModifierupPushButton->setShortcut(QKeySequence());
         EnregupPushButton       ->setShortcut(QKeySequence("Meta+Return"));
         RegleComptesComboBox();
-        ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(QString::number(gDataUser->getCompteParDefaut()->id())));
+        ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(QString::number(gDataUser->getIdCompteParDefaut())));
         break;
     }
     default:
@@ -387,15 +377,29 @@ bool dlg_depenses::initializeUserSelected()
 {
     int id = ui->UserscomboBox->currentData().toInt();
     gDataUser = m_listUserLiberaux->find(id).value();
-    proc->SetUserAllData(gDataUser);
     Datas::I()->depenses->initListeByUser(gDataUser->id());
-    m_comptesusr = gDataUser->getComptes();
-    if( gDataUser->getComptes()->size() == 0)
+    if (gDataUser->getComptes() == Q_NULLPTR)
+    {
+        Comptes *comptes = new Comptes();
+        comptes->addCompte( db->loadComptesByUser(gDataUser->id()) );
+        gDataUser->setComptes( comptes );
+    }
+    if( gDataUser->getComptes()->comptesAll()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gDataUser->getLogin());
         return false;
     }
-    if (gDataUser->getCompteParDefaut() == Q_NULLPTR)
+
+    QJsonObject data = db->loadUserData(gDataUser->id());
+    if(data.isEmpty())
+    {
+        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche paiement!"), tr("Les paramètres de ")
+                             + gDataUser->getLogin() + tr("ne sont pas retrouvés"));
+        return false;
+    }
+    gDataUser->setData( data ); //ON charge le reste des données
+
+    if (gDataUser->getIdCompteParDefaut() <= 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir le journal des dépenses!"), tr("Pas de compte bancaire enregistré pour ")
                                      + gDataUser->getLogin());
@@ -982,13 +986,17 @@ void dlg_depenses::MetAJourFiche()
         if (A == "E")           A = tr("Espèces");
         else
         {
-            int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getById(m_depenseencours->comptebancaire()));
-            if( idx == -1 )
+            QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll()->find(m_depenseencours->comptebancaire());
+            if( compteFind == gDataUser->getComptes()->comptesAll()->constEnd() )
             {
                 //ATTENTION ERROR
             }
-            B = gDataUser->getComptes(true)->at(idx)->nom();
-            A = Utils::ConvertitModePaiement(A);
+            B       = compteFind.value()->nom();
+            if (A == "B")       A = tr("Carte de crédit");
+            else if (A == "T")  A = tr("TIP");
+            else if (A == "V")  A = tr("Virement");
+            else if (A == "P")  A = tr("Prélèvement");
+            else if (A == "C")  A = tr("Chèque");
         }
         ui->PaiementcomboBox    ->setCurrentText(A);
         ui->ComptesupComboBox   ->setCurrentIndex(ui->ComptesupComboBox->findText(B));
@@ -1258,16 +1266,14 @@ void dlg_depenses::ModifierDepense()
         if (A == "E")  A = tr("Espèces");
         else
         {
-            int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getById(dep->comptebancaire()));
-            if( idx == -1 )
-            {
-                //ATTENTION ERROR
-            }
-            B = gDataUser->getComptes(true)->at(idx)->nom();
-            A = Utils::ConvertitModePaiement(A);
-            if (A == tr("Chèque"))
-                if (dep->nocheque() > 0)
-                    C += " " + QString::number(dep->nocheque());
+            QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll()->find(dep->comptebancaire());
+            if( cptFind != gDataUser->getComptes()->comptesAll()->constEnd() )
+                B = cptFind.value()->nom();
+            if (A == "B")       A = tr("Carte de crédit");
+            else if (A == "T")  A = tr("TIP");
+            else if (A == "V")  A = tr("Virement");
+            else if (A == "P")  A = tr("Prélèvement");
+            else if (A == "C") { A = tr("Chèque");  if (dep->nocheque() > 0) C += " " + QString::number(dep->nocheque());}
         }
         A += " " + B + " " + C;
         static_cast<UpLabel*>(gBigTable->cellWidget(row,4))->setText(" " + A);
@@ -1725,13 +1731,10 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     QString mode = Utils::ConvertitModePaiement(A);
     if (A != "E")
     {
-        int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getById(dep->comptebancaire()));
-        if( idx == -1 )
-        {
-            //ATTENTION ERROR
-        }
-        B = gDataUser->getComptes(true)->at(idx)->nom();
-        if (A == tr("Chèque"))
+        QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll()->find(dep->comptebancaire());
+        if( cptFind != gDataUser->getComptes()->comptesAll()->constEnd() )
+            B = cptFind.value()->nom();
+        if (A == "C")
             if (dep->nocheque() > 0)
                 C += " " + QString::number(dep->nocheque());
     }

@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CLS_USERS_H
 #define CLS_USERS_H
 
-#include "cls_itemslist.h"
 #include "cls_user.h"
 #include "database.h"
 
@@ -26,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \brief The Users class
  * Cette classe gére les différents collections de "User"
  */
-class Users : public ItemsList
+class Users
 {
 private:
     QMap<int, User*> *m_users = Q_NULLPTR;           //!<Collection de tous les User
@@ -43,9 +42,9 @@ public:
     QMap<int, User *> *liberaux() const;
     QMap<int, User *> *comptables() const;
 
-    Users(QObject *parent = Q_NULLPTR);
+    Users();
     bool add(User *usr);
-    User* getById(int id, LOADDETAILS loadDetails = NoLoadDetails, ADDTOLIST addToList = AddToList);
+    User* getById(int id, bool loadDetails=false, bool addToList = true);
     QString getLoginById(int id);
     void initListe();
 };

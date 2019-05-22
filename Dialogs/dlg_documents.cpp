@@ -27,7 +27,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
 
     m_currentpatient     = pat;
     if (!pat->isalloaded())
-        pat = Datas::I()->patients->getById(pat->id(), ItemsList::LoadDetails);
+        pat = Datas::I()->patients->getById(pat->id(),true);
 
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
@@ -1435,7 +1435,7 @@ void dlg_documents::Validation()
                                         ExpARemplacer   << minidou + "//COTE))";
                                     }
                                     else
-                                        gUserEntete = Datas::I()->users->getById(linecombo->currentData().toInt(), ItemsList::LoadDetails);
+                                        gUserEntete = Datas::I()->users->getById(linecombo->currentData().toInt(), true);
                                     delete linecombo;
                                 }
                             }

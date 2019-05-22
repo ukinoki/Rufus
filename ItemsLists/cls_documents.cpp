@@ -1,7 +1,7 @@
 #include "cls_documents.h"
 
 
-Documents::Documents(QObject *parent) : ItemsList(parent)
+Documents::Documents()
 {
     m_documents = new QMap<int, Document*>();
 }

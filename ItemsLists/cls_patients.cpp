@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \brief Patients::Patients
  * Initialise la map Patient
  */
-Patients::Patients(QObject *parent) : ItemsList(parent)
+Patients::Patients()
 {
     m_patients = new QMap<int, Patient*>();
     m_full  = false;
@@ -43,16 +43,16 @@ bool Patients::isfull()
  * \return Q_NULLPTR si aucun patient trouvé
  * \return Patient* le patient correspondant à l'id
  */
-Patient* Patients::getById(int id, LOADDETAILS loadDetails)
+Patient* Patients::getById(int id, bool all)
 {
     Patient *pat = Q_NULLPTR;
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(id);
     if (itpat == m_patients->constEnd())
-        pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
+        pat = DataBase::I()->loadPatientById(id, pat, all);
     else
     {
         pat = itpat.value();
-        if (loadDetails == LoadDetails)
+        if (all)
             if (!pat->isalloaded())
             {
                 QJsonObject jsonPatient = DataBase::I()->loadAllDataPatientById(id);
@@ -97,7 +97,6 @@ void Patients::reloadSocialData(Patient *pat)
     if( !jData.isEmpty() )
         pat->setSocialData(jData);
 }
-
 
 /*!
  * \brief Patients::addPatient

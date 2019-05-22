@@ -183,7 +183,6 @@ private slots:
     void                    Slot_CalcUserSuperviseur();
     void                    Slot_CalcUserParent();
 public:
-    bool                    SetUserAllData(User* usr);
     int                     idCentre();
     int                     idLieuExercice();
     QString                 getSessionStatus();
@@ -214,6 +213,9 @@ public:
     QString                 DirImagerieServeur();
     void                    setFicheRefractionOuverte(bool a);
     bool                    FicheRefractionOuverte();
+    QStandardItemModel*     getListeComptesEncaissmtUser();
+    QStandardItemModel*     getListeComptesEncaissmtUserAvecDesactive();
+    void                    setListeComptesEncaissmtUser(int);
 
     bool                    isPosteImportDocs();
 
@@ -259,6 +261,8 @@ private:
     dlg_paramconnexion      *Dlg_ParamConnex;
     QFont                   gAppFont;
     User *m_userConnected = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
+    QStandardItemModel      *ListeComptesEncaissUser;
+    QStandardItemModel      *ListeComptesEncaissUserAvecDesactive;
 
     QString                 DirStockageImages, DirStockageImagesServeur;
     QString                 lCPParDefaut, lVilleParDefaut;

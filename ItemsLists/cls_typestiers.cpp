@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_typestiers.h"
 
 
-TypesTiers::TypesTiers(QObject *parent) : ItemsList(parent)
+TypesTiers::TypesTiers()
 {
     m_typestiers = new QList<TypeTiers *>();
 }

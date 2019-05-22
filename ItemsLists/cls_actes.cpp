@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_actes.h"
 
-Actes::Actes(QObject *parent) : ItemsList(parent)
+Actes::Actes()
 {
     m_actes = new QMap<int, Acte*>();
 }
@@ -73,16 +73,11 @@ void Actes::remove(Acte *acte)
     delete acte;
 }
 
-Acte* Actes::getById(int id, ADDTOLIST add)
+Acte* Actes::getById(int id)
 {
     QMap<int, Acte*>::const_iterator itact = m_actes->find(id);
     if( itact == m_actes->constEnd() )
-    {
-        Acte * act = Q_NULLPTR;
-        if (add == AddToList)
-            act = DataBase::I()->loadActeById(id);
-        return act;
-    }
+        return Q_NULLPTR;
     return itact.value();
 }
 

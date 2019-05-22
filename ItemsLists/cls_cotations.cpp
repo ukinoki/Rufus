@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_cotations.h"
 
 
-Cotations::Cotations(QObject *parent) : ItemsList(parent)
+Cotations::Cotations()
 {
     m_cotations = new QMap<int, Cotation*>();
 }

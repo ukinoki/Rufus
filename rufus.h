@@ -31,9 +31,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <poppler-qt5.h>
 
 #include "dlg_actesprecedents.h"
-#include "dlg_autresmesures.h"
 #include "dlg_bilanortho.h"
-#include "dlg_bilanrecettes.h"
 #include "ui_dlg_bilanortho.h"
 #include "dlg_comptes.h"
 #include "dlg_depenses.h"
@@ -51,34 +49,33 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listecorrespondants.h"
 #include "dlg_listemotscles.h"
 #include "dlg_paiement.h"
-#include "dlg_paiementdirect.h"
-#include "dlg_paiementtiers.h"
 #include "dlg_param.h"
 #include "ui_dlg_param.h"
 #include "dlg_refraction.h"
+#include "dlg_bilanrecettes.h"
 #include "dlg_recettesspeciales.h"
 #include "ui_dlg_recettesspeciales.h"
 #include "dlg_remisecheques.h"
 #include "dlg_salledattente.h"
 #include "ui_dlg_salledattente.h"
+#include "dlg_autresmesures.h"
+#include "dlg_paiementdirect.h"
+#include "dlg_paiementtiers.h"
+#include "tcpsocket.h"
 
+#include "flags.h"
+#include "importdocsexternesthread.h"
+#include "log.h"
+
+#include "conversionbase.h"
+#include "pyxinterf.h"
+
+#include "cls_item.h"
 #include "cls_user.h"
 #include "cls_motif.h"
 #include "cls_cotation.h"
-#include "cls_itemslist.h"
 
 #include "upstandarditem.h"
-#include "conversionbase.h"
-#include "database.h"
-#include "flags.h"
-#include "gbl_datas.h"
-#include "icons.h"
-#include "importdocsexternesthread.h"
-#include "log.h"
-#include "pyxinterf.h"
-#include "styles.h"
-#include "tcpsocket.h"
-
 
 namespace Ui {
 class Rufus;

@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_tiers.h"
 #include "database.h"
-#include "cls_itemslist.h"
 
 /*!
  * \brief TypesTiers class
@@ -30,13 +29,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * géré par la table rufus.listetiers
 */
 
-class TypesTiers : public ItemsList
+class TypesTiers
 {
 private:
     QList<TypeTiers *> *m_typestiers; //!< la liste des types de tiers payants
 
 public:
-    explicit TypesTiers(QObject *parent = Q_NULLPTR);
+    explicit TypesTiers();
 
     QList<TypeTiers *> *typestiers() const;
 
