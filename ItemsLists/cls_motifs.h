@@ -20,14 +20,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_motif.h"
 #include "database.h"
+#include "cls_itemslist.h"
 
-class Motifs
+class Motifs : public ItemsList
 {
 private:
     QMap<int, Motif*> *m_motifs; //!< la liste des Motifs
 
 public:
-    explicit Motifs();
+    explicit Motifs(QObject *parent = Q_NULLPTR);
 
     QMap<int, Motif *> *motifs() const;
 
@@ -38,6 +39,5 @@ public:
     void clearAll();
     void initListe();
 };
-
 
 #endif // CLS_MOTIFS_H

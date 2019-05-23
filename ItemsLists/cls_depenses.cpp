@@ -32,7 +32,7 @@ QMap<int, Depense *> *Depenses::depenses() const
  * \brief Depenses::Depenses
  * Initialise la map Depenses
  */
-Depenses::Depenses()
+Depenses::Depenses(QObject *parent) : ItemsList(parent)
 {
     m_Depenses = new QMap<int, Depense*>();
 }

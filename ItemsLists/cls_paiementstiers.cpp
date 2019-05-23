@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_paiementstiers.h"
 #include "database.h"
 
-PaiementsTiers::PaiementsTiers()
+PaiementsTiers::PaiementsTiers(QObject *parent) : ItemsList(parent)
 {
     m_paiementstiers = new QMap<int, PaiementTiers*>();
 }

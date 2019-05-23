@@ -37,10 +37,12 @@ class Acte : public Item
 
 private:
     int m_id;                   //!< Id de l'acte en base
+
     int m_nbActes;              //!< nombres d'acte total
     int m_noActe;               //!< numero de l'acte
     int m_idActeMin;            //!< id du premier acte
     int m_idActeMax;            //!< id du dernier acte
+
     int m_idPatient;            //!< id du Patient correspondant à l'acte
     int m_idUser;               //!< id du User
     int m_idCreatedBy;          //!< id du User qui a créé l'acte

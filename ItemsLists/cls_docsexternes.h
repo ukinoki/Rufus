@@ -20,15 +20,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_docexterne.h"
 #include "database.h"
+#include "cls_itemslist.h"
 
-class DocsExternes
+class DocsExternes : public ItemsList
 {
 private:
     QMap<int, DocExterne*> *m_docsexternes = Q_NULLPTR; //!< la liste des DocExternes pour un patient donné
     bool m_nouveaudocument;
 
 public:
-    explicit DocsExternes();
+    explicit DocsExternes(QObject *parent = Q_NULLPTR);
     QMap<int, DocExterne *>* docsexternes();
     DocExterne* getById(int id, bool loadDetails=true, bool addToList=true);
     bool add(DocExterne *doc);

@@ -109,8 +109,6 @@ Procedures::Procedures(QObject *parent) :
     Ouverture_Ports_Series();
     MesureRef               = None;
     dlgrefractionouverte    = false;
-    ListeComptesEncaissUser                 = new QStandardItemModel();
-    ListeComptesEncaissUserAvecDesactive    = new QStandardItemModel();
     initOK                  = true;
     int margemm         = TailleTopMarge(); // exprimé en mm
     printer             = new QPrinter(QPrinter::HighResolution);
@@ -1078,7 +1076,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
         Entete.replace("{{POLICE}}", qApp->font().family());
         if (rplct)
         {
-            User *userRemp = Datas::I()->users->getById(idparent, true);
+            User *userRemp = Datas::I()->users->getById(idparent, ItemsList::LoadDetails);
             if(userRemp && userRemp->getTitre().size())
                 Entete.replace("{{TITREUSER}}", "<s>" + userRemp->getTitre() + " " + userRemp->getPrenom() + " " + userRemp->getNom() + "</s> "
                                                 "<font color=\"darkblue\">" + tr ("remplacé par") + " "
@@ -1919,7 +1917,7 @@ QString Procedures::getSessionStatus()
             txtstatut += tr("sans comptabilité");
     }
     if (respliberal||respsalarie)
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + m_userConnected->getNomCompteEncaissHonoraires() + " " + tr("de") + " " + m_userConnected->getUserComptable()->getLogin();
+        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + Datas::I()->users->getById(m_userConnected->getCompteEncaissement()->id())->getLogin() + " " + tr("de") + " " + m_userConnected->getUserComptable()->getLogin();
     else if (retrocession)
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
@@ -1940,9 +1938,9 @@ QString Procedures::getSessionStatus()
     if (respliberal || soccomptable)
     {
         QString cptabledefaut ("");
-        if (m_userConnected->getidUserCompteParDefaut()>0)
-            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getidUserCompteParDefaut())->getLogin();
-        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getNomCompteParDefaut() + " "
+        if (m_userConnected->getCompteParDefaut() != Q_NULLPTR)
+            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getCompteParDefaut()->idUser())->getLogin();
+        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getCompteParDefaut()->nom() + " "
                           + cptabledefaut;
     }
     if (respliberal)
@@ -1950,7 +1948,7 @@ QString Procedures::getSessionStatus()
     return txtstatut;
 }
 
-/*--------------------------------------------------------------------------------------------------------------------------------------
+/*! --------------------------------------------------------------------------------------------------------------------------------------
     -- détermine le dossier où est stockée l'imagerie -----------------------------------------------------------
     DirStockageImages           = l'emplacement du dossier de l'imagerie sur le poste quand il est serveur
                                 = l'emplacement du dossier de l'imagerie sur le serveur vu par le poste sur le réseau local
@@ -2008,68 +2006,6 @@ void Procedures::setFicheRefractionOuverte(bool a)
 bool Procedures::FicheRefractionOuverte()
 {
     return dlgrefractionouverte;
-}
-
-//TODO : Compta
-void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on vide les listes de comptes
-{
-    ListeComptesEncaissUser->clear();
-    ListeComptesEncaissUserAvecDesactive->clear();
-    if (idUser==-1)
-        return;
-    User* user = Datas::I()->users->getById(idUser);
-    int usercpt = ( user->getEmployeur() > 0 ? user->getEmployeur() : idUser ) ;
-    QString req = "select idCompte, nomcompteabrege, desactive, userlogin from " NOM_TABLE_COMPTES " cpt"
-                  " left outer join " NOM_TABLE_UTILISATEURS " usr on  usr.iduser = cpt.iduser"
-                  " where cpt.idUser = " + QString::number(usercpt);
-    QStandardItem *pitem0, *pitem1;
-    QStandardItem *oitem0, *oitem1;
-    QList<QVariantList> cptlist = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur!"));
-    if (ok)
-    {
-        for (int i = 0; i < cptlist.size(); i++)
-        {
-            pitem0 = new QStandardItem(cptlist.at(i).at(3).toString() + "/" + cptlist.at(i).at(1).toString());
-            pitem1 = new QStandardItem(cptlist.at(i).at(0).toString());
-            QList<QStandardItem*> listitems;
-            listitems << pitem0 << pitem1;
-            ListeComptesEncaissUserAvecDesactive    ->appendRow(listitems);
-            oitem0 = new QStandardItem(cptlist.at(i).at(3).toString() + "/" + cptlist.at(i).at(1).toString());
-            oitem1 = new QStandardItem(cptlist.at(i).at(0).toString());
-            QList<QStandardItem*> olistitems;
-            olistitems << oitem0 << oitem1;
-            if(cptlist.at(i).at(2).toInt() != 1)
-                ListeComptesEncaissUser    ->appendRow(olistitems);
-        }
-    }
-    if (ListeComptesEncaissUser->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
-    {
-        QStandardItem *nitem0, *nitem1;
-        nitem0 = new QStandardItem(user->getNomUserEncaissHonoraires() + "/" + user->getNomCompteEncaissHonoraires());
-        nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
-        QList<QStandardItem*> nlistitems;
-        nlistitems << nitem0 << nitem1;
-        ListeComptesEncaissUser->insertRow(0, nlistitems);
-    }
-    if (ListeComptesEncaissUserAvecDesactive->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
-    {
-        QStandardItem *nitem0, *nitem1;
-        nitem0 = new QStandardItem(user->getNomUserEncaissHonoraires() + "/" + user->getNomCompteEncaissHonoraires());
-        nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
-        QList<QStandardItem*> nlistitems;
-        nlistitems << nitem0 << nitem1;
-        ListeComptesEncaissUserAvecDesactive->insertRow(0, nlistitems);
-    }
-}
-
-QStandardItemModel* Procedures::getListeComptesEncaissmtUser()
-{
-    return ListeComptesEncaissUser;
-}
-
-QStandardItemModel* Procedures::getListeComptesEncaissmtUserAvecDesactive()
-{
-    return ListeComptesEncaissUserAvecDesactive;
 }
 
 bool Procedures::eventFilter(QObject *obj, QEvent *event)
@@ -3052,7 +2988,6 @@ bool Procedures::Connexion()
 bool Procedures::Connexion_A_La_Base()
 {
     db->init(*gsettingsIni, gMode2);
-
     if (!IdentificationUser())
         return false;
 
@@ -3338,6 +3273,10 @@ bool Procedures::IdentificationUser(bool ChgUsr)
     if( result > 0 )
     {
         m_userConnected = db->getUserConnected();
+        Datas::I()->villes->initListe();
+        Datas::I()->sites->initListe();
+        Datas::I()->comptes->initListe();
+        SetUserAllData(m_userConnected);
         if (!VerifBaseEtRessources())
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
@@ -3703,6 +3642,33 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     avecLaComptaProv = true; //FIXME : avecLaComptaProv
     return true;
 }
+
+/*!
+ * \brief Procedures::SetUserAllData(User *usr)
+ * Charge les données d'un utilisateur, y compris ses données bancaires
+ * cette fonction fait appel aux deux classes cls_user et cls_compte
+ * et ne peut pas figurer dans la classe cls_user
+ * en raison de référence croisées
+ */
+bool Procedures::SetUserAllData(User *usr)
+{
+    if (!usr->isAllLoaded())
+    {
+        QJsonObject data = db->loadUserData(usr->id());
+        if(data.isEmpty())
+        {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Les paramètres de ")
+                                + usr->getLogin() + tr("ne sont pas retrouvés"));
+            return false;
+        }
+        usr->setData( data ); //on charge le reste des données
+    }
+    dlg_gestioncomptes::ReconstruitListeComptes(usr);
+    usr->setCompteParDefaut(Datas::I()->comptes->getById(usr->getIdCompteParDefaut()));
+    usr->setCompteEncaissement(Datas::I()->comptes->getById(usr->getIdCompteEncaissHonoraires()));
+    return true;
+}
+
 /*!
  * \brief Procedures::Slot_CalcUserSuperviseur
  *
@@ -4019,6 +3985,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Création de l'utilisateur
             gdbOK = CreerPremierUser(m_userConnected->getLogin(), m_userConnected->getPassword());
             db->login(m_userConnected->getLogin(), m_userConnected->getPassword());
+            SetUserAllData(m_userConnected);
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
