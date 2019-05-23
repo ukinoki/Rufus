@@ -7617,8 +7617,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
                 if (ui->MGupComboBox->currentData().toInt() != m_currentpatient->idmg())
                 {
                     int e = ui->MGupComboBox->findData(m_currentpatient->idmg());
-                    if (e > -1)
-                        ui->MGupComboBox->setCurrentIndex(e);
+                    ui->MGupComboBox->setCurrentIndex(e);
                     OKModifierTerrain(m_currentpatient);
                 }
                 QMap<QString,QVariant>  NewAge = Item::CalculAge(m_currentpatient->datedenaissance(), ui->ActeDatedateEdit->date());
@@ -8220,7 +8219,7 @@ void Rufus::MAJCorrespondant(QObject *obj)
                 else
                 {
                     if (cbox == ui->MGupComboBox)
-                        db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(idcor));
+                        proc->setmg(m_currentpatient, idcor);
                     else if (cbox == ui->AutresCorresp1upComboBox)
                         proc->setspe1(m_currentpatient, idcor);
                     else if (cbox == ui->AutresCorresp2upComboBox)
@@ -8241,8 +8240,12 @@ void Rufus::MAJCorrespondant(QObject *obj)
     }
     else
     {
-        req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + Upline->getChampCorrespondant() + " = null where idpat = " + QString::number(m_currentpatient->id());
-        db->StandardSQL(req);
+        if (cbox == ui->MGupComboBox)
+            proc->setmg(m_currentpatient);
+        else if (cbox == ui->AutresCorresp1upComboBox)
+            proc->setspe1(m_currentpatient);
+        else if (cbox == ui->AutresCorresp2upComboBox)
+            proc->setspe2(m_currentpatient);
         cbox->setCurrentIndex(-1);
         OKModifierTerrain(m_currentpatient);
     }

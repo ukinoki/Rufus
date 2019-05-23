@@ -2056,16 +2056,26 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
         box->addItem(model->item(i)->text(), model->item(i,1)->text());
 }
 
+void Procedures::setmg(Patient *pat, int idmg)
+{
+    QString val = (idmg == 0? "null" : QString::number(idmg));
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + val + " where idpat = " + QString::number(pat->id());
+    db->StandardSQL(req);
+    pat->setmg(idmg);
+}
+
 void Procedures::setspe1(Patient *pat, int idspe1)
 {
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = " + QString::number(idspe1) + " where idpat = " + QString::number(pat->id());
+    QString val = (idspe1 == 0? "null" : QString::number(idspe1));
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = " + val + " where idpat = " + QString::number(pat->id());
     db->StandardSQL(req);
     pat->setspe1(idspe1);
 }
 
 void Procedures::setspe2(Patient *pat, int idspe2)
 {
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = " + QString::number(idspe2) + " where idpat = " + QString::number(pat->id());
+    QString val = (idspe2 == 0? "null" : QString::number(idspe2));
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = " + val + " where idpat = " + QString::number(pat->id());
     db->StandardSQL(req);
     pat->setspe2(idspe2);
 }

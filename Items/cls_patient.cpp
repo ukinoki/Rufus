@@ -53,7 +53,6 @@ QString Patient::traitementgen()            { return m_traitementgen; }
 QString Patient::traitementoph()            { return m_traitementoph; }
 QString Patient::tabac()                    { return m_tabac; }
 QString Patient::toxiques()                 { return m_toxiques; }
-QString Patient::gencorresp()               { return m_gencorresp; }
 QString Patient::important()                { return m_important; }
 QString Patient::resume()                   { return m_resume; }
 
@@ -126,7 +125,6 @@ void Patient::setData(QJsonObject data)
         setDataString(data, "AtcdstOph", m_atcdtsophtalmos);
         setDataString(data, "Tabac", m_tabac);
         setDataString(data, "Toxiques", m_toxiques);
-        setDataString(data, "GenCorresp", m_gencorresp);
         setDataString(data, "Important", m_important);
         setDataString(data, "Resume", m_resume);
         setDataString(data, "TtOph", m_traitementoph);
@@ -167,7 +165,6 @@ void Patient::setMedicalData(QJsonObject data)
     setDataString(data, "AtcdstOph", m_atcdtsophtalmos);
     setDataString(data, "Tabac", m_tabac);
     setDataString(data, "Toxiques", m_toxiques);
-    setDataString(data, "GenCorresp", m_gencorresp);
     setDataString(data, "Important", m_important);
     setDataString(data, "Resume", m_resume);
     setDataString(data, "TtOph", m_traitementoph);

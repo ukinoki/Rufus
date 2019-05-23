@@ -66,7 +66,7 @@ private:
     int                         gMode;
     enum gMode                  {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS,SuppressionDOSS};
     QGraphicsOpacityEffect      *gOp;
-    QList<int>                  glistidCor;
+    QList<Correspondant*>       m_listedestinataires;
     QMap<QString,QString>       gChampsMap;
     QStringList                 glisttxt;
     UpDialog                    *gAsk;
@@ -82,7 +82,7 @@ private:
     int                         AskDialog(QString titre);
     void                        CheckPublicEditablAdmin(QCheckBox *check);
     bool                        ChercheDoublon(QString, int row);
-    void                        ChoixCorrespondant(QList<QVariantList> listcor);
+    void                        ChoixCorrespondant(QList<Correspondant*> listcor);
     void                        CocheLesDocs(int iddoss, bool A);
     void                        ConfigMode(int mode, int row = 0);
     void                        dblClicktextEdit();
@@ -118,23 +118,35 @@ private:
     bool                        VerifDossierPublic(int row, bool msg = true);
 
 private:
-    QString TITRUSER            =tr("TITREUSER");
-    QString NOMPAT              =tr("NOM PATIENT");
-    QString DATEDOC             =tr("DATE");
-    QString DDNPAT              =tr("DDN");
-    QString TITREPAT            =tr("TITRE PATIENT");
-    QString AGEPAT              =tr("AGE PATIENT");
-    QString PRENOMPAT           =tr("PRENOM PATIENT");
-    QString MGPAT               =tr("MEDECIN PATIENT");
-    QString POLITESSEMG         =tr("FORMULE POLITESSE MEDECIN");
-    QString PRENOMMG            =tr("PRENOM MEDECIN");
-    QString NOMMG               =tr("NOM MEDECIN");
-    QString REFRACT             =tr("REFRACTION");
-    QString KERATO              =tr("KERATOMETRIE");
-    QString POLITESSECOR        =tr("FORMULE POLITESSE CORRESPONDANT");
-    QString CORPAT              =tr("CORRESPONDANT PATIENT");
-    QString PRENOMCOR           =tr("PRENOM CORRESPONDANT");
-    QString NOMCOR              =tr("NOM CORRESPONDANT");
+    QString TITRUSER            = tr("TITREUSER");
+    QString NOMPAT              = tr("NOM PATIENT");
+    QString DATEDOC             = tr("DATE");
+    QString DDNPAT              = tr("DDN");
+    QString TITREPAT            = tr("TITRE PATIENT");
+    QString AGEPAT              = tr("AGE PATIENT");
+    QString PRENOMPAT           = tr("PRENOM PATIENT");
+    QString SEXEPAT             = tr("SEXE PATIENT");
+    QString MGPAT               = tr("MEDECIN PATIENT");
+    QString MGPATTITRE          = tr("TITRE MEDECIN PATIENT");
+    QString POLITESSEMG         = tr("FORMULE POLITESSE MEDECIN");
+    QString PRENOMMG            = tr("PRENOM MEDECIN");
+    QString NOMMG               = tr("NOM MEDECIN");
+    QString REFRACT             = tr("REFRACTION");
+    QString KERATO              = tr("KERATOMETRIE");
+    QString POLITESSECOR        = tr("FORMULE POLITESSE CORRESPONDANT");
+    QString CORPAT              = tr("CORRESPONDANT PATIENT");
+    QString PRENOMCOR           = tr("PRENOM CORRESPONDANT");
+    QString NOMCOR              = tr("NOM CORRESPONDANT");
+    QString PRENOMUSER          = tr("PRENOM RESPONSABLE");
+    QString NOMUSER             = tr("NOM RESPONSABLE");
+    QString TELEPHONE           = tr("TELEPHONE PATIENT");
+
+    QString TYPEANESTHESIE      = tr("TYPEANESTHESIE");
+    QString PROVENANCE          = tr("PROVENANCE");
+    QString TYPESEJOUR          = tr("SEJOUR");
+    QString COTE                = tr("COTE");
+
+    QString NOCOR               = tr("PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT");
 
 };
 

@@ -351,18 +351,15 @@ void dlg_gestioncomptes::NouvCompte()
     ui->DesactiveComptecheckBox     ->setVisible(false);
 }
 
-void dlg_gestioncomptes::ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes)
+void dlg_gestioncomptes::ReconstruitListeComptes (User *usr)
 {
-    if (listcomptes != Q_NULLPTR)
-        listcomptes->clear();
-    else
-        listcomptes = new QList<Compte*>();
+    QList<Compte*> listcomptes;
     for (QMap<int, Compte*>::const_iterator itcpt = Datas::I()->comptes->comptes()->constBegin(); itcpt != Datas::I()->comptes->comptes()->constEnd(); ++itcpt)
     {
         if (itcpt.value()->idUser() == usr->id())
-            listcomptes->append(itcpt.value());
+            listcomptes << itcpt.value();
     }
-    usr->setComptes(listcomptes);
+    usr->setComptes(&listcomptes);
 }
 
 void dlg_gestioncomptes::SupprCompte()

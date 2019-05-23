@@ -171,6 +171,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     gChampsMap[AGEPAT]          = tr("Âge du patient");
     gChampsMap[PRENOMPAT]       = tr("Prénom du patient");
     gChampsMap[MGPAT]           = tr("Médecin du patient");
+    gChampsMap[MGPATTITRE]      = tr("Titre médecin du patient");
     gChampsMap[POLITESSEMG]     = tr("formule de politesse médecin patient");
     gChampsMap[PRENOMMG]        = tr("Prénom du médecin");
     gChampsMap[NOMMG]           = tr("Nom du médecin");
@@ -180,6 +181,8 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     gChampsMap[POLITESSECOR]    = tr("formule de politesse correspondant");
     gChampsMap[PRENOMCOR]       = tr("Prénom du correspondant");
     gChampsMap[NOMCOR]          = tr("Nom du correspondant");
+    gChampsMap[TELEPHONE]       = tr("Téléphone du patient");
+    gChampsMap[SEXEPAT]         = tr("Sexe du patient");
 }
 
 dlg_documents::~dlg_documents()
@@ -637,6 +640,10 @@ void dlg_documents::MenuContextuel(QWidget *widg)
     QAction *pAction_InsInterroCote;
     QAction *pAction_InsInterroHeure;
     QAction *pAction_InsInterroMontant;
+    QAction *pAction_InsInterroMedecin;
+    QAction *pAction_InsInterroAnesthesie;
+    QAction *pAction_InsInterroProvenance;
+    QAction *pAction_InsInterroSejour;
     QAction *pAction_InsInterroText;
     QMenu *interro = new QMenu(this);
     UpLineEdit *line0;
@@ -733,7 +740,11 @@ void dlg_documents::MenuContextuel(QWidget *widg)
         pAction_InsInterroHeure     = interro->addAction            (Icons::icClock(),  tr("Heure"));
         pAction_InsInterroCote      = interro->addAction            (Icons::icSide(),   tr("Côté"));
         pAction_InsInterroMontant   = interro->addAction            (Icons::icEuro(),   tr("Montant"));
-        pAction_InsInterroText      = interro->addAction            (Icons::icText(),   tr("Texte libre"));
+        pAction_InsInterroMedecin   = interro->addAction            (Icons::icStetho(), tr("Soignant"));
+        pAction_InsInterroProvenance= interro->addAction            (Icons::icFamily(), tr("Provenance"));
+        pAction_InsInterroAnesthesie= interro->addAction            (Icons::icStetho(),   tr("Anesthésie"));
+        pAction_InsInterroSejour    = interro->addAction            (Icons::icInformation(),   tr("Séjour"));
+        pAction_InsInterroText      = interro->addAction            (Icons::icMedoc(),  tr("Texte libre"));
 
         gmenuContextuel->addSeparator();
         if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
@@ -770,16 +781,20 @@ void dlg_documents::MenuContextuel(QWidget *widg)
             connect (pAction_Coller,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Coller");});
         }
 
-        connect (pAction_InsertChamp,       &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Inserer");});
-        connect (pAction_InsInterroDate,    &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Date");});
-        connect (pAction_InsInterroCote,    &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Cote");});
-        connect (pAction_InsInterroHeure,   &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Heure");});
-        connect (pAction_InsInterroMontant, &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Montant");});
-        connect (pAction_InsInterroText,    &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Texte");});
-        connect (pAction_Blockcentr,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Centre");});
-        connect (pAction_Blockright,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Droite");});
-        connect (pAction_Blockleft,         &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Gauche");});
-        connect (pAction_Blockjust,         &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Justifie");});
+        connect (pAction_InsertChamp,           &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Inserer");});
+        connect (pAction_InsInterroDate,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Date");});
+        connect (pAction_InsInterroCote,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel(COTE);});
+        connect (pAction_InsInterroHeure,       &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Heure");});
+        connect (pAction_InsInterroMontant,     &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Montant");});
+        connect (pAction_InsInterroMedecin,     &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Soignant");});
+        connect (pAction_InsInterroProvenance,  &QAction::triggered,    this,    [=] {ChoixMenuContextuel(PROVENANCE);});
+        connect (pAction_InsInterroAnesthesie,  &QAction::triggered,    this,    [=] {ChoixMenuContextuel(TYPEANESTHESIE);});
+        connect (pAction_InsInterroSejour,      &QAction::triggered,    this,    [=] {ChoixMenuContextuel(TYPESEJOUR);});
+        connect (pAction_InsInterroText,        &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Texte");});
+        connect (pAction_Blockcentr,            &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Centre");});
+        connect (pAction_Blockright,            &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Droite");});
+        connect (pAction_Blockleft,             &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Gauche");});
+        connect (pAction_Blockjust,             &QAction::triggered,    this,    [=] {ChoixMenuContextuel("Justifie");});
     }
 
     // ouvrir le menu
@@ -1073,7 +1088,6 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
             tabChamps   ->setItem(i,0,pitem0);
             pitem1       = new QTableWidgetItem;
             pitem1      ->setText(it.key());
-            tabChamps   ->setItem(i,0,pitem0);
             tabChamps   ->setItem(i,1,pitem1);
             tabChamps   ->setRowHeight(i,int(fm.height()*1.1));
             i++;
@@ -1118,6 +1132,35 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
             ui->upTextEdit->textCursor().insertHtml("((" + gAskDialog->findChildren<UpLineEdit*>().at(0)->text() + "//TEXTE))");
         delete gAskDialog;
     }
+    else if (choix == "Soignant")
+    {
+        ui->upTextEdit->textCursor().insertHtml("((" + tr("Quel soignant?") + "//SOIGNANT))");
+        delete gAskDialog;
+    }
+    else if (choix == TYPEANESTHESIE)
+    {
+        QString txt = "((" + tr("Anesthésie") + "//";
+        txt += TYPEANESTHESIE;
+        txt += "))";
+        ui->upTextEdit->textCursor().insertHtml(txt);
+        delete gAskDialog;
+    }
+    else if (choix == PROVENANCE)
+    {
+        QString txt = "((" + tr("Provenance") + "//";
+        txt += PROVENANCE;
+        txt += "))";
+        ui->upTextEdit->textCursor().insertHtml(txt);
+        delete gAskDialog;
+    }
+    else if (choix == TYPESEJOUR)
+    {
+        QString txt = "((" + tr("Sejour") + "//";
+        txt += TYPESEJOUR;
+        txt += "))";
+        ui->upTextEdit->textCursor().insertHtml(txt);
+        delete gAskDialog;
+    }
     else if (choix == "Montant")
     {
         if (AskDialog("Choix de texte")>0)
@@ -1130,10 +1173,15 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
             ui->upTextEdit->textCursor().insertHtml("((" + gAskDialog->findChildren<UpLineEdit*>().at(0)->text() + "//HEURE))");
         delete gAskDialog;
     }
-    else if (choix == "Cote")
+    else if (choix == COTE)
     {
         if (AskDialog("Choix d'un côté")>0)
-            ui->upTextEdit->textCursor().insertHtml("((" + gAskDialog->findChildren<UpLineEdit*>().at(0)->text() + "//COTE))");
+        {
+            QString txt = "((" + gAskDialog->findChildren<UpLineEdit*>().at(0)->text() + "//";
+            txt += COTE;
+            txt += "))";
+            ui->upTextEdit->textCursor().insertHtml(txt);
+        }
         delete gAskDialog;
     }
 }
@@ -1150,6 +1198,7 @@ void dlg_documents::Validation()
     QStringList listQuestions, listtypeQuestions;
     QStringList ExpARemplacer, Rempla;
     QString listusers = "ListUsers";
+    QString listsoignants = "ListSoignants";
     gUserEntete = Q_NULLPTR;
     if (gUserEnCours->ishisownsupervisor())
         gUserEntete = gUserEnCours;
@@ -1213,7 +1262,9 @@ void dlg_documents::Validation()
                 if (Check->isChecked())
                 {
                     QString text = getDocumentFromRow(i)->texte();
-                    QString quest = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°, -]*//(DATE|TEXTE|COTE|HEURE|MONTANT)[)][)])";
+                    QString quest = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
+                    quest+= "|" + COTE + "|" + TYPEANESTHESIE + "|" + PROVENANCE + "|" + TYPESEJOUR;
+                    quest += ")[)][)])";
                     QRegExp reg;
                     reg.setPattern(quest);
                     int count = 0;
@@ -1285,6 +1336,21 @@ void dlg_documents::Validation()
                     Line->installEventFilter(this);
                     lay->addWidget(Line);
                 }
+                else if (listtypeQuestions.at(m)  == "SOIGNANT")
+                {
+                    UpComboBox *Combo = new UpComboBox();
+                    Combo->setContentsMargins(0,0,0,0);
+                    Combo->setFixedHeight(34);
+                    Combo->setEditable(false);
+                    Combo->setAccessibleDescription(listsoignants);
+                    for (QMap<int, User*>::const_iterator itusr = Datas::I()->users->all()->constBegin(); itusr != Datas::I()->users->all()->constEnd(); ++itusr)
+                    {
+                        User* usr = const_cast<User*>(itusr.value());
+                        if (usr->isSoignant())
+                            Combo->addItem(usr->getLogin(), usr->id());
+                    }
+                    lay->addWidget(Combo);
+                }
                 else if (listtypeQuestions.at(m)  == "DATE")
                 {
                     QDateEdit *Date = new QDateEdit();
@@ -1304,16 +1370,46 @@ void dlg_documents::Validation()
                     Time->setTimeSpec(Qt::LocalTime);
                     lay->addWidget(Time);
                 }
-                else if (listtypeQuestions.at(m)  == "COTE")
+                else if (listtypeQuestions.at(m)  == COTE)
                 {
                     UpComboBox *Combo = new UpComboBox();
                     Combo->setContentsMargins(0,0,0,0);
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
+                    Combo->setAccessibleDescription(COTE);
                     QStringList listcote;
                     listcote << tr("chaque oeil") << tr("l'oeil droit") << tr("l'oeil gauche");
                     Combo->addItems(listcote);
-                    //Combo->setStyleSheet("QComboBox {margin-top: 0px; pxmargin-bottom: 10px;}");
+                    lay->addWidget(Combo);
+                }
+                else if (listtypeQuestions.at(m)  == TYPEANESTHESIE)
+                {
+                    UpComboBox *Combo = new UpComboBox();
+                    Combo->setContentsMargins(0,0,0,0);
+                    Combo->setFixedHeight(34);
+                    Combo->setEditable(false);
+                    Combo->setAccessibleDescription(TYPEANESTHESIE);
+                    Combo->addItems(QStringList() << tr("locale") << tr("locorégionale") << tr("générale"));
+                    lay->addWidget(Combo);
+                }
+                else if (listtypeQuestions.at(m)  == PROVENANCE)
+                {
+                    UpComboBox *Combo = new UpComboBox();
+                    Combo->setContentsMargins(0,0,0,0);
+                    Combo->setFixedHeight(34);
+                    Combo->setEditable(false);
+                    Combo->setAccessibleDescription(PROVENANCE);
+                    Combo->addItems(QStringList() << tr("Domicile") << tr("Institution") << tr("Transfert"));
+                    lay->addWidget(Combo);
+                }
+                else if (listtypeQuestions.at(m)  == TYPESEJOUR)
+                {
+                    UpComboBox *Combo = new UpComboBox();
+                    Combo->setContentsMargins(0,0,0,0);
+                    Combo->setFixedHeight(34);
+                    Combo->setEditable(false);
+                    Combo->setAccessibleDescription(TYPESEJOUR);
+                    Combo->addItems(QStringList() << tr("Ambulatoire") << tr("Hospitalisation") << tr("Urgence"));
                     lay->addWidget(Combo);
                 }
             }
@@ -1329,7 +1425,7 @@ void dlg_documents::Validation()
                 lay->setContentsMargins(5,0,5,0);
                 layWidg->addLayout(lay);
                 UpLabel *label = new UpLabel();
-                label->setText(tr("Quel soignant?"));
+                label->setText(tr("Quel entête?"));
                 label->setFixedSize(150,25);
                 lay->addWidget(label);
                 QSpacerItem *spacer = new QSpacerItem(10,10,QSizePolicy::Expanding);
@@ -1348,7 +1444,7 @@ void dlg_documents::Validation()
             }
             gAsk->dlglayout()   ->setContentsMargins(5,5,5,5);
             layWidg     ->setContentsMargins(0,0,0,0);
-            layWidg     ->setSpacing(10);
+            layWidg     ->setSpacing(0);
             gAsk->dlglayout()   ->setSpacing(5);
             gAsk->dlglayout()   ->insertLayout(0,layWidg);
 
@@ -1429,13 +1525,24 @@ void dlg_documents::Validation()
                                 else if (listwidg.at(p)->inherits("UpComboBox"))
                                 {
                                     UpComboBox *linecombo = static_cast<UpComboBox*>(listwidg.at(p));
-                                    if (linecombo->accessibleDescription() != listusers)
+                                    if (linecombo->accessibleDescription() == listsoignants)
+                                    {
+                                        int idusr = linecombo->currentData().toInt();
+                                        User* usr = Datas::I()->users->getById(idusr, ItemsList::LoadDetails);
+                                        QString babar = (usr->isMedecin()? usr->getTitre() : "") + " " + usr->getPrenom() + " " + usr->getNom();
+                                        Rempla          << babar;
+                                        ExpARemplacer   << minidou + "//SOIGNANT))";
+                                    }
+                                    else if (linecombo->accessibleDescription() != listusers)
                                     {
                                         Rempla          << linecombo->currentText();
-                                        ExpARemplacer   << minidou + "//COTE))";
+                                        ExpARemplacer   << minidou + "//" + linecombo->accessibleDescription() + "))";
                                     }
                                     else
-                                        gUserEntete = Datas::I()->users->getById(linecombo->currentData().toInt(), ItemsList::LoadDetails);
+                                    {
+                                        int idusr = linecombo->currentData().toInt();
+                                        gUserEntete = Datas::I()->users->getById(idusr, ItemsList::LoadDetails);
+                                    }
                                     delete linecombo;
                                 }
                             }
@@ -2564,30 +2671,17 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
 // ----------------------------------------------------------------------------------
 void dlg_documents::MetAJour(QString texte, bool pourVisu)
 {
-    glistidCor.clear();
+    m_listedestinataires.clear();
     glisttxt.clear();
 
     User *userEntete = (gUserEnCours->getUserSuperviseur() == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : gUserEnCours->getUserSuperviseur());
     if (userEntete == Q_NULLPTR)
         return;
 
-    QString req = "select patDDN, Sexe "
-                  " from " NOM_TABLE_PATIENTS
-                  " where idPat = " + QString::number(m_currentpatient->id());
-    bool ok;
-    QList<QVariantList> listpat = db->StandardSelectSQL(req,ok,tr("Impossible de retrouver la date de naissance de ce patient"));
-    if (!ok)
-        texte.replace("{{DDN}}"                 ,"xx xx xxxx");
-    QString Sexe                        = listpat.at(0).at(1).toString();
-    QDate ddn                           = listpat.at(0).at(0).toDate();
-    QMap<QString,QVariant>  AgeTotal    = Item::CalculAge(ddn, Sexe);
+    QMap<QString,QVariant>  AgeTotal    = Item::CalculAge(m_currentpatient->datedenaissance(), m_currentpatient->sexe());
     QString age                         = AgeTotal["toString"].toString();
     QString formule                     = AgeTotal["formule"].toString();
-    req = "select idcormedmg, cornom, corprenom, corsexe "
-          " from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp, " NOM_TABLE_CORRESPONDANTS " cor "
-          " where idPat = " + QString::number(m_currentpatient->id()) + " and rmp.idcormedmg = cor.idcor";
-    QList<QVariantList> listdatapat = db->StandardSelectSQL(req,ok);
-
+ 
     texte.replace("{{" + DATEDOC + "}}"         , QDate::currentDate().toString(tr("d MMMM yyyy")));
     texte.replace("{{" + NOMPAT + "}},"         , m_currentpatient->nom() + ",");
     texte.replace("{{" + NOMPAT + "}} "         , m_currentpatient->nom() + " ");
@@ -2599,48 +2693,49 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
         texte.replace("{{" + TITRUSER + "}}"    , userEntete->getTitre() + " " + userEntete->getPrenom() + " " + userEntete->getNom());
     else
         texte.replace("{{" + TITRUSER + "}}"    , userEntete->getPrenom() + " " + userEntete->getNom());
-    texte.replace("{{" + DDNPAT + "}}"          , listpat.at(0).at(0).toDate().toString((tr("d MMMM yyyy"))));
+    texte.replace("{{" + DDNPAT + "}}"          , m_currentpatient->datedenaissance().toString((tr("d MMMM yyyy"))));
     texte.replace("{{" + TITREPAT + "}} "       , formule + " ");
     texte.replace("{{" + TITREPAT + "}}"        , formule);
     texte.replace("{{" + AGEPAT + "}}"          , age);
-    if (Sexe == "F")    texte.replace("(e)" ,"e");
-    if (Sexe == "M")    texte.replace("(e)" ,"");
+    QString telephone = "";
+    if (m_currentpatient->telephone() != "")
+        telephone= m_currentpatient->telephone();
+    if (m_currentpatient->portable() != "")
+        telephone = m_currentpatient->portable();
+    texte.replace("{{" + TELEPHONE + "}}"       , telephone);
+    texte.replace("{{" + SEXEPAT + "}}"         , m_currentpatient->sexe());
+    if (m_currentpatient->sexe() == "F")
+        texte.replace("(e)" ,"e");
+    else if (m_currentpatient->sexe() == "M")
+        texte.replace("(e)" ,"");
 
-    if (listdatapat.size() == 0) {
-        texte.replace("{{" + MGPAT + "}},"      ,"");
-        texte.replace("{{" + MGPAT + "}} "      ,"");
-        texte.replace("{{" + MGPAT + "}}"       ,"");
-        texte.replace("{{" + POLITESSEMG + "}}" ,tr("Ma chère consoeur, mon cher confrère"));
-        texte.replace("{{" + NOMMG + "}}},"     ,"");
-        texte.replace("{{" + PRENOMMG + "}},"   ,"");
-        texte.replace("{{" + NOMMG + "}}} "     ,"");
-        texte.replace("{{" + PRENOMMG + "}} "   ,"");
-        texte.replace("{{" + NOMMG + "}}}"      ,"");
-        texte.replace("{{" + PRENOMMG + "}}"    ,"");
-    }
-    else {
-        QString form = "", form2 = "";
-        if (listdatapat.at(0).at(3).toString() == "F")
+    QString form = NOCOR, form2 = NOCOR;
+    Correspondant * cor = Datas::I()->correspondants->getById(m_currentpatient->idmg());
+    if (cor != Q_NULLPTR)
+    {
+        if (cor->sexe() == "F")
         {
             form = tr("Madame le docteur ");
             form2 = tr("Ma chère consoeur");
         }
-        else if (listdatapat.at(0).at(3).toString() == "M")
+        else if (cor->sexe() == "M")
         {
             form = tr("Monsieur le docteur ");
             form2 = tr("Mon cher confrère");
         }
         else
             form2 = tr("Ma chère consoeur, mon cher confrère");
-        form += listdatapat.at(0).at(2).toString() + " " + listdatapat.at(0).at(1).toString();
-        texte.replace("{{" + MGPAT + "}}"               ,form);
-        texte.replace("{{" + POLITESSEMG + "}}"         ,form2);
-        texte.replace("{{" + NOMMG + "}}}"              ,listdatapat.at(0).at(1).toString());
-        texte.replace("{{" + PRENOMMG + "}}"            ,listdatapat.at(0).at(2).toString());
+        form += cor->prenom() + " " + cor->nom();
     }
+    texte.replace("{{" + MGPAT + "}}"               , form);
+    texte.replace("{{" + MGPATTITRE + "}}"          , (cor != Q_NULLPTR? (cor->ismedecin()? tr("Docteur") : "") : ""));
+    texte.replace("{{" + POLITESSEMG + "}}"         , form2);
+    texte.replace("{{" + NOMMG + "}}"               , (cor != Q_NULLPTR? cor->nom(): ""));
+    texte.replace("{{" + PRENOMMG + "}}"            , (cor != Q_NULLPTR? cor->prenom(): ""));
+
     if (texte.contains("{{" + KERATO + "}}"))
     {
-        req = "select K1OD, K2OD, AxeKOD, DioptrieK1OD, DioptrieK2OD, DioptrieKOD, K1OG, K2OG, AxeKOG, DioptrieK1OG, DioptrieK2OG, DioptrieKOG from " NOM_TABLE_DONNEES_OPHTA_PATIENTS
+        QString req = "select K1OD, K2OD, AxeKOD, DioptrieK1OD, DioptrieK2OD, DioptrieKOD, K1OG, K2OG, AxeKOG, DioptrieK1OG, DioptrieK2OG, DioptrieKOG from " NOM_TABLE_DONNEES_OPHTA_PATIENTS
               " where idpat = " + QString::number(m_currentpatient->id()) + " and (K1OD <> 'null' or K1OG <> 'null')";
         QList<QVariantList> listker = db->StandardSelectSQL(req,ok);
         if (listker.size()>0)
@@ -2672,7 +2767,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     }
     if (texte.contains("{{" + REFRACT + "}}"))
     {
-        req = "select FormuleOD, FormuleOG from " NOM_TABLE_REFRACTION
+        QString req = "select FormuleOD, FormuleOG from " NOM_TABLE_REFRACTION
               " where idpat = " + QString::number(m_currentpatient->id()) + " and (FormuleOD <> 'null' or FormuleOG <> 'null') and QuelleMesure = 'R'";
         QList<QVariantList> listref = db->StandardSelectSQL(req,ok);
         if (listref.size()>0)
@@ -2695,24 +2790,27 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     reg.setPattern("([{][{].*CORRESPONDANT.*[}][}])");
     if (reg.indexIn(texte, pos) != -1)
     {
-        req = "select idcormedmg, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
-              " where idPat = " + QString::number(m_currentpatient->id()) + " and rmp.idcormedmg = cor.idcor"
-              " union "
-              "select idcormedspe1, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
-              " where idPat = " + QString::number(m_currentpatient->id()) + " and rmp.idcormedspe1 = cor.idcor"
-              " union "
-              "select idcormedspe2, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp," NOM_TABLE_CORRESPONDANTS " cor"
-              " where idPat = " + QString::number(m_currentpatient->id()) + " and rmp.idcormedspe2 = cor.idcor";
-        //qDebug() << req;
-        QList<QVariantList> listcor = db->StandardSelectSQL(req,ok);
+        QList<Correspondant*> listcor;
+        Correspondant * cor = Datas::I()->correspondants->getById(m_currentpatient->idmg());
+        if (cor != Q_NULLPTR)
+            listcor << cor;
+        Correspondant * spe1 = Datas::I()->correspondants->getById(m_currentpatient->idspe1());
+        if (spe1 != Q_NULLPTR)
+            listcor << spe1;
+        Correspondant * spe2 = Datas::I()->correspondants->getById(m_currentpatient->idspe2());
+        if (spe2 != Q_NULLPTR)
+            listcor << spe2;
+        Correspondant * spe3 = Datas::I()->correspondants->getById(m_currentpatient->idspe3());
+        if (spe3 != Q_NULLPTR)
+            listcor << spe3;
         if (listcor.size()==0)
-            texte.replace(reg,tr("PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT"));
+            texte.replace(reg, NOCOR);
         else if (listcor.size()==1)
         {
             QString form = "", form2 = "";
-            if (listcor.at(0).at(3).toString() == "F")
+            if (listcor.at(0)->sexe() == "F")
             {
-                if (listcor.at(0).at(5).toInt() == 1)
+                if (listcor.at(0)->ismedecin() == 1)
                 {
                     form = tr("Madame le docteur ");
                     form2 = tr("Ma chère consoeur");
@@ -2723,9 +2821,9 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
                     form2 = tr("Madame");
                 }
             }
-            else if (listcor.at(0).at(3).toString() == "M")
+            else if (listcor.at(0)->sexe() == "M")
             {
-                if (listcor.at(0).at(5).toInt() == 1)
+                if (listcor.at(0)->ismedecin() == 1)
                 {
                     form = tr("Monsieur le docteur ");
                     form2 = tr("Mon cher confrère");
@@ -2739,11 +2837,11 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
             else
                 form2 = tr("Madame, Monsieur");
 
-            form += listcor.at(0).at(2).toString() + " " + listcor.at(0).at(1).toString();
-            texte.replace("{{" + CORPAT + "}}"             ,form);
+            form += listcor.at(0)->prenom() + " " + listcor.at(0)->nom();
+            texte.replace("{{" + CORPAT + "}}"         ,form);
             texte.replace("{{" + POLITESSECOR + "}}"   ,form2);
-            texte.replace("{{" + NOMCOR + "}}}"                ,listcor.at(0).at(1).toString());
-            texte.replace("{{" + PRENOMCOR + "}}"              ,listcor.at(0).at(2).toString());
+            texte.replace("{{" + NOMCOR + "}}}"        ,listcor.at(0)->nom());
+            texte.replace("{{" + PRENOMCOR + "}}"      ,listcor.at(0)->prenom());
         }
         else if (!pourVisu)
         {
@@ -2755,27 +2853,18 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
         else
         {
             ChoixCorrespondant(listcor);
-            if (glistidCor.size()>0)
+            if (m_listedestinataires.size()>0)
             {
-                //qDebug() << QString::number(glistidCor.size()) + " correspondants sélectionnés";
-                req = "select idcor, cornom, corprenom, corsexe, CorSpecialite, CorMedecin, CorAutreProfession from " NOM_TABLE_CORRESPONDANTS
-                        " where idcor in (";
-                for (int i=0; i<glistidCor.size(); i++)
+                for (int j=0; j<m_listedestinataires.size(); j++)
                 {
-                    if (i<glistidCor.size()-1)
-                        req += QString::number(glistidCor.at(i)) + ", ";
-                    else
-                        req += QString::number(glistidCor.at(i)) + ")";
-                }
-                //qDebug() << req;
-                QList<QVariantList> listtxt = db->StandardSelectSQL(req,ok);
-                for (int j=0; j<listtxt.size(); j++)
-                {
+                    Correspondant * cor = m_listedestinataires.at(j);
+                    if (cor == Q_NULLPTR)
+                        continue;
                     QString txtdef = texte;
                     QString form = "", form2 = "";
-                    if (listtxt.at(j).at(3).toString() == "F")
+                    if (cor->sexe() == "F")
                     {
-                        if (listtxt.at(j).at(5).toInt() == 1)
+                        if (cor->ismedecin() == 1)
                         {
                             form = tr("Madame le docteur ");
                             form2 = tr("Ma chère consoeur");
@@ -2786,9 +2875,9 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
                             form2 = tr("Madame");
                         }
                     }
-                    else if (listtxt.at(j).at(3).toString() == "M")
+                    else if (cor->sexe() == "M")
                     {
-                        if (listtxt.at(j).at(5).toInt() == 1)
+                        if (cor->ismedecin() == 1)
                         {
                             form = tr("Monsieur le docteur ");
                             form2 = tr("Mon cher confrère");
@@ -2802,23 +2891,23 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
                     else
                         form2 = tr("Madame, Monsieur");
 
-                    form += listtxt.at(j).at(2).toString() + " " + listtxt.at(j).at(1).toString();
-                    txtdef.replace("{{" + CORPAT + "}}"             ,form);
-                    txtdef.replace("{{" + POLITESSECOR + "}}"   ,form2);
-                    txtdef.replace("{{" + NOMCOR + "}}}"                ,listtxt.at(j).at(1).toString());
-                    txtdef.replace("{{" + PRENOMCOR + "}}"              ,listtxt.at(j).at(2).toString());
+                    form += cor->prenom() + " " + cor->nom();
+                    txtdef.replace("{{" + CORPAT + "}}"         , form);
+                    txtdef.replace("{{" + POLITESSECOR + "}}"   , form2);
+                    txtdef.replace("{{" + NOMCOR + "}}}"        , cor->nom());
+                    txtdef.replace("{{" + PRENOMCOR + "}}"      , cor->prenom());
                     glisttxt << txtdef;
                 }
             }
         }
     }
-    if (glistidCor.size() == 0)
+    if (m_listedestinataires.size() == 0)
         glisttxt << texte;
 }
 
-void dlg_documents::ChoixCorrespondant(QList<QVariantList> listcor)
+void dlg_documents::ChoixCorrespondant(QList<Correspondant *> listcor)
 {
-    glistidCor.clear();
+    m_listedestinataires.clear();
     gAskCorresp                 = new UpDialog(this);
     gAskCorresp                 ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
     gAskCorresp                 ->AjouteLayButtons();
@@ -2843,8 +2932,8 @@ void dlg_documents::ChoixCorrespondant(QList<QVariantList> listcor)
     tblCorresp  ->setEditTriggers(QAbstractItemView::NoEditTriggers);
     for (int i=0; i<listcor.size(); i++)
     {
-        pitem       = new QStandardItem(listcor.at(i).at(1).toString() + " " + listcor.at(i).at(2).toString());
-        pitem       ->setAccessibleDescription(listcor.at(i).at(0).toString());
+        pitem       = new QStandardItem(listcor.at(i)->prenom() + " " + listcor.at(i)->prenom());
+        pitem       ->setAccessibleDescription(QString::number(listcor.at(i)->id()));
         pitem       ->setEditable(false);
         pitem       ->setCheckable(true);
         pitem       ->setCheckState(Qt::Unchecked);
@@ -2879,7 +2968,11 @@ void dlg_documents::ListidCor()
     QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(gAskCorresp->findChildren<QTableView *>().at(0)->model());
     for (int i=0; i< model->rowCount(); i++)
         if (model->item(i)->checkState() == Qt::Checked)
-            glistidCor << model->item(i)->accessibleDescription().toInt();
+        {
+            Correspondant * cor = Datas::I()->correspondants->getById(model->item(i)->accessibleDescription().toInt());
+            if (cor != Q_NULLPTR)
+                m_listedestinataires << cor;
+        }
     gAskCorresp->accept();
 }
 
