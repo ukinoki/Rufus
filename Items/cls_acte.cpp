@@ -89,8 +89,8 @@ int Acte::idComptable() const     { return m_idUserComptable; }
 
 Acte::Acte(QObject *parent) : Item(parent)
 {
-
 }
+
 Acte::Acte(int idActe, int nbActe, int noActe, QObject *parent) : Item(parent), m_id(idActe), m_nbActes(nbActe), m_noActe(noActe)
 {
 

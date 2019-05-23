@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_recettes.h"
 
-Recettes::Recettes(QObject *parent) : ItemsList(parent)
+Recettes::Recettes()
 {
     m_recettes = new QMap<int, Recette*>();
 }

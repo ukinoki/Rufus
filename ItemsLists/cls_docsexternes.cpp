@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_docsexternes.h"
 
-DocsExternes::DocsExternes(QObject *parent) : ItemsList(parent)
+DocsExternes::DocsExternes()
 {
     m_docsexternes = new QMap<int, DocExterne*>();
 }

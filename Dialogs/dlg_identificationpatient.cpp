@@ -191,7 +191,7 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
         m_flagcorrespondants = flag;
         // on reconstruit la liste des MG
         proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
-        m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), ItemsList::LoadDetails);
+        m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(),true);
         if (m_currentpatient->idmg() > 0 && ui->MGupComboBox->currentData().toInt() != m_currentpatient->idmg())
             ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(m_currentpatient->idmg()));
         else
@@ -519,7 +519,7 @@ bool dlg_identificationpatient::eventFilter(QObject *obj, QEvent *event)
 void dlg_identificationpatient::AfficheDossierAlOuverture()
 {
     if (!m_currentpatient->isalloaded())
-        m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), ItemsList::LoadDetails);
+        m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(),true);
     if (gMode == Copie)
     {
         ui->NomlineEdit->setText(m_currentpatient->nom());

@@ -29,7 +29,7 @@ QMap<int, Correspondant *> *Correspondants::correspondants() const
  * \brief Correspondants::Correspondants
  * Initialise la map Correspondants
  */
-Correspondants::Correspondants(QObject *parent) : ItemsList(parent)
+Correspondants::Correspondants()
 {
     m_correspondants = new QMap<int, Correspondant*>();
 }

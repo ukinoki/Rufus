@@ -20,9 +20,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_depense.h"
 #include "database.h"
-#include "cls_itemslist.h"
 
-class Depenses : public ItemsList
+class Depenses
 {
 private:
     QMap<int, Depense*> *m_Depenses = Q_NULLPTR;    //!< Collection de toutes les depenses pour un user et une année donnée
@@ -31,7 +30,7 @@ public:
     //GETTER
     QMap<int, Depense *> *depenses()     const;
 
-    Depenses(QObject *parent = Q_NULLPTR);
+    Depenses();
 
     bool        add(Depense *Depense);
     Depense*    getById(int id);

@@ -51,7 +51,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_user.h"
 #include "cls_site.h"
 #include "cls_ville.h"
-#include "cls_compte.h"
 
 #include "log.h"
 #include "utils.h"
@@ -165,7 +164,7 @@ public:
                                                                         * crée l'utilisateur en cours m_userconnected  et complète tous les renseignements concernant cet utilisateur
                                                                         * renvoie un QJsonObject contenant les id d la réussite ou l'échec de la connection */
     QList<User*>            loadUsers();                                //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts
-    QJsonObject             loadUserData(int idUser);                   //! complète tous les renseignements concernant l'utilisateur défini par l'id sauf la liste des comptes
+    QJsonObject             loadUserData(int idUser);                   //! complète tous les renseignements concernant l'utilisateur défini par l'id
     QJsonObject             loadAdminData();                            //! complète tous les renseignements concernant l'utilisateur admin
 
     /*
@@ -198,8 +197,7 @@ public:
     /*
      * Compta
     */
-    QList<Compte*>          loadComptesAll();                           //! charge tous les comptes bancaires sans exception
-    QJsonObject             loadCompteById(int id);                     //! charge les datas d'un compte bancaire défini par son id
+    QList<Compte*>          loadComptesByUser(int idUser);              //! charge tous les comptes d'un utilisateur à partir de la table comptes
     QList<Depense*>         loadDepensesByUser(int idUser);             //! charge toutes les dépenses d'un utilisateur à partir de la table depenses
     void                    loadDepenseArchivee(Depense *dep);          //! charge tous renseignements sur une dépense archivée
     QStringList             ListeRubriquesFiscales();                   //! charge la liste de toutes les rubriques fiscales à partir de la table rubriques2035

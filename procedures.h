@@ -183,8 +183,6 @@ private slots:
     void                    Slot_CalcUserSuperviseur();
     void                    Slot_CalcUserParent();
 public:
-    bool                    SetUserAllData(User* usr);
-    void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
     int                     idCentre();
     int                     idLieuExercice();
     QString                 getSessionStatus();
@@ -215,13 +213,16 @@ public:
     QString                 DirImagerieServeur();
     void                    setFicheRefractionOuverte(bool a);
     bool                    FicheRefractionOuverte();
+    QStandardItemModel*     getListeComptesEncaissmtUser();
+    QStandardItemModel*     getListeComptesEncaissmtUserAvecDesactive();
+    void                    setListeComptesEncaissmtUser(int);
 
     bool                    isPosteImportDocs();
 
     void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes
-    void                    setmg(Patient* pat, int idmg = 0);
-    void                    setspe1(Patient* pat, int idspe1 = 0);
-    void                    setspe2(Patient* pat, int idspe2 = 0);
+    void                    setmg(Patient* pat, int idcor = 0);
+    void                    setspe1(Patient* pat, int idcor = 0);
+    void                    setspe2(Patient* pat, int idcor = 0);
 
     QString                 getMDPAdmin();
     void                    setNomImprimante(QString NomImprimante);
@@ -261,6 +262,8 @@ private:
     dlg_paramconnexion      *Dlg_ParamConnex;
     QFont                   gAppFont;
     User *m_userConnected = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
+    QStandardItemModel      *ListeComptesEncaissUser;
+    QStandardItemModel      *ListeComptesEncaissUserAvecDesactive;
 
     QString                 DirStockageImages, DirStockageImagesServeur;
     QString                 lCPParDefaut, lVilleParDefaut;
