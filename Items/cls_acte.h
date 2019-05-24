@@ -37,17 +37,19 @@ class Acte : public Item
 
 private:
     int m_id;                   //!< Id de l'acte en base
+
     int m_nbActes;              //!< nombres d'acte total
     int m_noActe;               //!< numero de l'acte
     int m_idActeMin;            //!< id du premier acte
     int m_idActeMax;            //!< id du dernier acte
+
     int m_idPatient;            //!< id du Patient correspondant à l'acte
     int m_idUser;               //!< id du User
     int m_idCreatedBy;          //!< id du User qui a créé l'acte
-    int m_idUserParent;         //!< id du User remplacé si le user est ramplaçant ( = iduser si pas remplacé)
+    int m_idUserParent;         //!< id du User remplacé si le user est remplaçant ( = iduser si pas remplacé)
     int m_idUserComptable;      //!< id du User qui comptabilise l'acte
-    //TODO : ??? : différence idUser et idCreatedBy
-    //-> reponse = le user est le responsable médical de l'acte - le idcreatedby est le user qui a créé l'acte et c'est parfois différent en cas de travail avec un assistant
+    int m_numCentre;            //!< id du lieu où se trouve le serveur
+    int m_idLieu;               //!< id du lieu où l'acte est effectué
 
     double m_montant;           //!< montant total
 
@@ -92,8 +94,14 @@ public:
     QString paiementTiers() const;
     int idUser() const;
 
+    int numcentre() const;
+    int idlieu() const;
+
     int idParent() const;
     int idComptable() const;
+
+    void setcotation(QString cot)       { m_cotation = cot; }
+    void setmontant(double montant)     { m_montant = montant; }
 };
 
 #endif // CLS_ACTE_H

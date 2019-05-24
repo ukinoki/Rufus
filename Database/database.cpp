@@ -395,7 +395,6 @@ QJsonObject DataBase::login(QString login, QString password)
     userData["prenom"] = usrdata.at(2).toString();
 
     m_userConnected = new User(login, password, userData);
-    m_userConnected->setData( loadUserData(m_userConnected->id()));
     return jrep;
 }
 
@@ -409,10 +408,9 @@ QJsonObject DataBase::loadUserData(int idUser)
             " UserPortable, UserPoste, UserWeb, UserMemo, UserDesactive,"                               // 15,16,17,18,19
             " UserPoliceEcran, UserPoliceAttribut, UserSecteur, Soignant, ResponsableActes,"            // 20,21,22,23,24
             " UserCCAM, UserEmployeur, DateDerniereConnexion, idCompteEncaissHonoraires, Medecin,"      // 25,26,27,28,29
-            " OPTAM, cpt.nomcompteabrege, cpt2.nomcompteabrege, cpt2.iduser as usercptdefaut"           // 30,31,32,33
+            " OPTAM, cpt.nomcompteabrege"                                                               // 30,31
             " from " NOM_TABLE_UTILISATEURS " usr "
             " left outer join " NOM_TABLE_COMPTES " cpt on usr.idcompteencaisshonoraires = cpt.idCompte"
-            " left outer join " NOM_TABLE_COMPTES " cpt2 on usr.idCompteParDefaut = cpt2.idCompte"
             " where usr.idUser = " + QString::number(idUser);
 
             //+ "  and userdesactive is null";
@@ -439,7 +437,7 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData["specialite"]                  = usrdata.at(9).isNull() ? "" : usrdata.at(9).toString();
     userData["noSpecialite"]                = usrdata.at(10).toInt();
     userData["numCO"]                       = usrdata.at(11).isNull() ? "" : usrdata.at(11).toString();
-    userData["idCompteParDefaut"]           = usrdata.at(12).toInt();
+    userData["idCompteParDefaut"]           = (usrdata.at(12).isNull()? -1 : usrdata.at(12).toInt());
     userData["enregHonoraires"]             = usrdata.at(13).toInt();
     userData["password"]                    = usrdata.at(14).toString();
     userData["portable"]                    = usrdata.at(15).isNull() ? "" : usrdata.at(15).toString();
@@ -457,23 +455,9 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData["employeur"]                   = usrdata.at(26).toInt();
     userData["dateDerniereConnexion"]       = QDateTime(usrdata.at(27).toDate(), usrdata.at(27).toTime()).toMSecsSinceEpoch();
     userData["medecin"]                     = usrdata.at(29).toInt();
-    userData["idCompteEncaissHonoraires"]   = usrdata.at(28).toInt();
-    if( userData["idCompteEncaissHonoraires"].isNull() )
-    {
-        userData["idUserEncaissHonoraires"] = -1;
-    }
-    else
-    {
-        userData["idUserEncaissHonoraires"]    = idUser;
+    userData["idCompteEncaissHonoraires"]   = (usrdata.at(28).isNull()? -1 : usrdata.at(28).toInt());
+    if( userData["idCompteEncaissHonoraires"].toInt() > -1 )
         userData["nomCompteEncaissHonoraires"] = usrdata.at(31).toString();
-        userData["nomUserEncaissHonoraires"]   = usrdata.at(2).toString();
-    }
-
-    if( !usrdata.at(32).isNull() )
-    {
-        userData["nomCompteParDefaut"]  = usrdata.at(32).toString();
-        userData["usercptdefaut"]       = usrdata.at(33).toInt();
-    }
     return userData;
 }
 
@@ -812,43 +796,57 @@ void DataBase::SupprMetaDocument(Document* doc)
 /*
  * Comptes
 */
-QList<Compte*> DataBase::loadComptesByUser(int idUser)
+QList<Compte*> DataBase::loadComptesAll()
 {
-    int idcptprefer=-1;
-    QString req =
-            " select idcomptepardefaut from " NOM_TABLE_UTILISATEURS
-            " where iduser = " + QString::number(idUser);
-    QVariantList cptdata = getFirstRecordFromStandardSelectSQL(req,ok);
-    if(ok && cptdata.size()>0 )
-        idcptprefer= cptdata.at(0).toInt();
-
-    QList<Compte*> comptes;
-    req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
-          " FROM " NOM_TABLE_COMPTES " as cmpt "
-          " left outer join " NOM_TABLE_BANQUES " as bank on cmpt.idbanque = bank.idbanque "
-          " WHERE idUser = " + QString::number(idUser);
-    QList<QVariantList> cptlist = StandardSelectSQL(req,ok);
+    QList<Compte*> listcomptes = QList<Compte*>();
+    bool ok;
+    QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
+          " FROM " NOM_TABLE_COMPTES " cmpt left join " NOM_TABLE_BANQUES " bnq on cmpt.idBanque = bnq.idBanque";
+    QList<QVariantList> cptlist = DataBase::I()->StandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
-        return comptes;
+        return listcomptes;
     for (int i=0; i<cptlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = cptlist.at(i).at(0).toInt();
-        jData["idbanque"] = cptlist.at(i).at(1).toInt();
-        jData["iduser"] = cptlist.at(i).at(2).toInt();
-        jData["IBAN"] = cptlist.at(i).at(3).toString();
+        jData["id"]             = cptlist.at(i).at(0).toInt();
+        jData["idbanque"]       = cptlist.at(i).at(1).toInt();
+        jData["iduser"]         = cptlist.at(i).at(2).toInt();
+        jData["IBAN"]           = cptlist.at(i).at(3).toString();
         jData["IntituleCompte"] = cptlist.at(i).at(4).toString();
-        jData["nom"] = cptlist.at(i).at(5).toString();
-        jData["solde"] = cptlist.at(i).at(6).toDouble();
-        jData["partage"] = (cptlist.at(i).at(7).toInt() == 1);
-        jData["desactive"] = (cptlist.at(i).at(8).toInt() == 1);
-        jData["NomBanque"] = cptlist.at(i).at(9).toString();
-        jData["prefere"] = (cptlist.at(i).at(0).toInt() == idcptprefer);
-        Compte *cpt = new Compte(jData);
-        comptes << cpt;
+        jData["nom"]            = cptlist.at(i).at(5).toString();
+        jData["solde"]          = cptlist.at(i).at(6).toDouble();
+        jData["partage"]        = (cptlist.at(i).at(7).toInt() == 1);
+        jData["desactive"]      = (cptlist.at(i).at(8).toInt() == 1);
+        jData["NomBanque"]      = cptlist.at(i).at(9).toString();
+        listcomptes << new Compte(jData);
     }
+    return listcomptes;
+}
 
-    return comptes;
+QJsonObject DataBase::loadCompteById(int id)
+{
+    QJsonObject jData{};
+    bool ok;
+    QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
+          " FROM " NOM_TABLE_COMPTES " cmpt left join " NOM_TABLE_BANQUES " bnq on cmpt.idBanque = bnq.idBanque"
+          " where idCompte = " + QString::number(id);
+    QList<QVariantList> cptlist = DataBase::I()->StandardSelectSQL(req,ok);
+    if(!ok || cptlist.size()==0)
+        return jData;
+    for (int i=0; i<cptlist.size(); ++i)
+    {
+        jData["id"]             = cptlist.at(i).at(0).toInt();
+        jData["idbanque"]       = cptlist.at(i).at(1).toInt();
+        jData["iduser"]         = cptlist.at(i).at(2).toInt();
+        jData["IBAN"]           = cptlist.at(i).at(3).toString();
+        jData["IntituleCompte"] = cptlist.at(i).at(4).toString();
+        jData["nom"]            = cptlist.at(i).at(5).toString();
+        jData["solde"]          = cptlist.at(i).at(6).toDouble();
+        jData["partage"]        = (cptlist.at(i).at(7).toInt() == 1);
+        jData["desactive"]      = (cptlist.at(i).at(8).toInt() == 1);
+        jData["NomBanque"]      = cptlist.at(i).at(9).toString();
+    }
+    return jData;
 }
 
 int DataBase::getIdMaxTableComptesTableArchives()
@@ -1696,7 +1694,7 @@ QString DataBase::loadActeRequest(int idActe, int idPat)
                         " act.ActeCourrierAFaire, act.ActeCotation, act.ActeMontant, act.ActeMonnaie, "
                         " act.CreePar, act.UserComptable, act.UserParent, "
                         " pat.PatDDN, ll2.rank, ll.idActeMin, ll.idActeMax, ll.total, "
-                        " tpm.TypePaiement, tpm.Tiers "
+                        " tpm.TypePaiement, tpm.Tiers, act.NumCentre, idLieu "
                       " FROM " NOM_TABLE_ACTES " act "
                       " LEFT JOIN " NOM_TABLE_PATIENTS " pat on pat.idPat = act.idPat "
                       " JOIN ( "+ subRequestMinMaxAct + " ) ll on ll.idPat = act.idPat "
@@ -1749,6 +1747,8 @@ QJsonObject DataBase::loadActeData(QVariantList actdata)
         data["paiementTiers"] = "";
     else
         data["paiementTiers"] = actdata.at(20).toString();
+    data["NumCentre"] = actdata.at(21).toInt();
+    data["idLieu"] = actdata.at(22).toInt();
 
     return data;
 }

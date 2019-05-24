@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_actes.h"
 
-Actes::Actes()
+Actes::Actes(QObject *parent) : ItemsList(parent)
 {
     m_actes = new QMap<int, Acte*>();
 }
@@ -73,11 +73,16 @@ void Actes::remove(Acte *acte)
     delete acte;
 }
 
-Acte* Actes::getById(int id)
+Acte* Actes::getById(int id, ADDTOLIST add)
 {
     QMap<int, Acte*>::const_iterator itact = m_actes->find(id);
     if( itact == m_actes->constEnd() )
-        return Q_NULLPTR;
+    {
+        Acte * act = Q_NULLPTR;
+        if (add == AddToList)
+            act = DataBase::I()->loadActeById(id);
+        return act;
+    }
     return itact.value();
 }
 
@@ -85,3 +90,36 @@ void Actes::reloadActe(Acte* acte)
 {
     acte->setData(DataBase::I()->loadActeAllData(acte->id()));
 }
+
+void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
+{
+    if ( act == Q_NULLPTR )
+        return;
+    //on modifie la table Actes avec la nouvelle cotation
+    QString cotsql = Cotation;
+    if (cotsql == "")
+    {
+        cotsql = "null";
+        montant = 0.00;
+    }
+    else
+        cotsql = "'" + Utils::correctquoteSQL(Cotation) + "'";
+    QString requete = "UPDATE " NOM_TABLE_ACTES
+                      " SET ActeCotation = " + cotsql +
+                      ", ActeMontant = " + QString::number(montant) +
+                      " WHERE idActe = " + QString::number(act->id());
+    DataBase::I()->StandardSQL(requete);
+    act->setcotation(Cotation);
+    act->setmontant(montant);
+}
+
+bool Actes::SupprimeActe(Acte* act)
+{
+    // on supprime la consultation -------------------------------------------------------------------------------------------------
+    QString req = "DELETE FROM " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(act->id());
+    if (!DataBase::I()->StandardSQL(req))
+        return false;
+    remove(act);
+    return true;
+}
+

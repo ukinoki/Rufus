@@ -27,7 +27,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
 
     m_currentpatient     = pat;
     if (!pat->isalloaded())
-        pat = Datas::I()->patients->getById(pat->id(), true);
+        pat = Datas::I()->patients->getById(pat->id(), ItemsList::LoadDetails);
 
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
@@ -1528,7 +1528,7 @@ void dlg_documents::Validation()
                                     if (linecombo->accessibleDescription() == listsoignants)
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        User* usr = Datas::I()->users->getById(idusr, true);
+                                        User* usr = Datas::I()->users->getById(idusr, ItemsList::LoadDetails);
                                         QString babar = (usr->isMedecin()? usr->getTitre() : "") + " " + usr->getPrenom() + " " + usr->getNom();
                                         Rempla          << babar;
                                         ExpARemplacer   << minidou + "//SOIGNANT))";
@@ -1541,7 +1541,7 @@ void dlg_documents::Validation()
                                     else
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        gUserEntete = Datas::I()->users->getById(idusr, true);
+                                        gUserEntete = Datas::I()->users->getById(idusr, ItemsList::LoadDetails);
                                     }
                                     delete linecombo;
                                 }

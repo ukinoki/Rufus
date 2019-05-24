@@ -29,7 +29,7 @@ QMap<int, Site *> *Sites::sites() const
  * \brief Sites::Sites
  * Initialise la map m_sites
  */
-Sites::Sites()
+Sites::Sites(QObject *parent) : ItemsList(parent)
 {
     m_sites = new QMap<int, Site*>();
 }

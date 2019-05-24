@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \brief Patients::Patients
  * Initialise la map Patient
  */
-Patients::Patients()
+Patients::Patients(QObject *parent) : ItemsList(parent)
 {
     m_patients = new QMap<int, Patient*>();
     m_full  = false;
@@ -43,16 +43,16 @@ bool Patients::isfull()
  * \return Q_NULLPTR si aucun patient trouvé
  * \return Patient* le patient correspondant à l'id
  */
-Patient* Patients::getById(int id, bool all)
+Patient* Patients::getById(int id, LOADDETAILS loadDetails)
 {
     Patient *pat = Q_NULLPTR;
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(id);
     if (itpat == m_patients->constEnd())
-        pat = DataBase::I()->loadPatientById(id, pat, all);
+        pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
     else
     {
         pat = itpat.value();
-        if (all)
+        if (loadDetails == LoadDetails)
             if (!pat->isalloaded())
             {
                 QJsonObject jsonPatient = DataBase::I()->loadAllDataPatientById(id);
@@ -97,6 +97,7 @@ void Patients::reloadSocialData(Patient *pat)
     if( !jData.isEmpty() )
         pat->setSocialData(jData);
 }
+
 
 /*!
  * \brief Patients::addPatient
@@ -154,4 +155,29 @@ void Patients::initListeByDDN(QDate DDN)
         m_patients = DataBase::I()->loadPatientsByDDN(DDN);
     m_full = (DDN == QDate());
 }
+
+void Patients::setmg(Patient *pat, int idmg)
+{
+    QString val = (idmg == 0? "null" : QString::number(idmg));
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + val + " where idpat = " + QString::number(pat->id());
+    DataBase::I()->StandardSQL(req);
+    pat->setmg(idmg);
+}
+
+void Patients::setspe1(Patient *pat, int idspe1)
+{
+    QString val = (idspe1 == 0? "null" : QString::number(idspe1));
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = " + val + " where idpat = " + QString::number(pat->id());
+    DataBase::I()->StandardSQL(req);
+    pat->setspe1(idspe1);
+}
+
+void Patients::setspe2(Patient *pat, int idspe2)
+{
+    QString val = (idspe2 == 0? "null" : QString::number(idspe2));
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = " + val + " where idpat = " + QString::number(pat->id());
+    DataBase::I()->StandardSQL(req);
+    pat->setspe2(idspe2);
+}
+
 

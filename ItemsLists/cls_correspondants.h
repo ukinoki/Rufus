@@ -20,8 +20,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_correspondant.h"
 #include "database.h"
+#include "cls_itemslist.h"
 
-class Correspondants
+class Correspondants : public ItemsList
 {
 private:
     QMap<int, Correspondant*> *m_correspondants;    //!<Collection de tous les correspondants sans exception, généralistes ou pas
@@ -30,7 +31,7 @@ public:
     //GETTER
     QMap<int, Correspondant *> *correspondants()     const;
 
-    Correspondants();
+    Correspondants(QObject *parent = Q_NULLPTR);
 
     bool add(Correspondant *cor);
     Correspondant* getById(int id, bool loadDetails = false, bool addToList = true);
