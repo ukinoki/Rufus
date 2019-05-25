@@ -59,11 +59,16 @@ private:
     bool m_full;                                                                            //! la liste contient tous les patients de la base
 
 
-    //!> action sur les champs
 public:
+    //!> actions sur les champs
     void        setmg(Patient* pat, int idmg = 0);          //! modifie le médecin généraliste d'un patient
     void        setspe1(Patient* pat, int idspe1 = 0);      //! modifie le 1er correspondant spécialiste d'un patient
     void        setspe2(Patient* pat, int idspe2 = 0);      //! modifie le 2ème correspondant spécialiste d'un patient
+
+    //!> actions sur les enregistrements
+    void        SupprimePatient(Patient *pat);
+    Patient*    CreerPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe = "");
+
 
 };
 

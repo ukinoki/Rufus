@@ -296,8 +296,8 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             return;
         }
         // D - le dossier n'existe pas, on le crée
-        m_currentpatient = db->CreationPatient(ui->NomlineEdit->text(), ui->PrenomlineEdit->text(), ui->DDNdateEdit->date(), Sexe);
-        if (m_currentpatient == Q_NULLPTR)
+        m_nouveaupatient = Datas::I()->patients->CreerPatient(ui->NomlineEdit->text(), ui->PrenomlineEdit->text(), ui->DDNdateEdit->date(), Sexe);
+        if (m_nouveaupatient == Q_NULLPTR)
             reject();
 
         // Mise à jour de donneessocialespatients
@@ -317,12 +317,15 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                          "', PatProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->ProfessionlineEdit->text(), true)) + "'";
         requete +=       ", PatALD = "  + ALD;
         requete +=       ", PatCMU = " + CMU;
-        requete +=       " WHERE idPat = " + QString::number(m_currentpatient->id());
+        requete +=       " WHERE idPat = " + QString::number(m_nouveaupatient->id());
 
         db->StandardSQL(requete, tr("Impossible d'écrire dans la table des données sociales"));
 
         // Mise à jour du medecin traitant
-        db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+        db->UpdateCorrespondant(m_nouveaupatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+        // on met à jour les atcdts familiaux
+        QString req = "Update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " SET RMPAtcdtsFamiliaux = '" + m_currentpatient->atcdtsfamiliaux() + "' where idPat = " + QString::number(m_nouveaupatient->id());
+        db->StandardSQL(req);
         accept();
     }
     else if (gMode == Modification)
@@ -470,12 +473,7 @@ void dlg_identificationpatient::Slot_AnnulpushButtonClicked()
         msgbox->addButton(&OKBouton, UpSmallButton::CLOSEBUTTON);
         msgbox->exec();
         if (msgbox->clickedButton() == &OKBouton)
-        {
-            db->StandardSQL("delete from " NOM_TABLE_PATIENTS " where idPat = " + QString::number(m_currentpatient->id()));
-            db->StandardSQL("delete from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idPat = " + QString::number(m_currentpatient->id()));
-            db->StandardSQL("delete from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " where idPat = " + QString::number(m_currentpatient->id()));
             reject();
-        }
     }
     else
         reject();
@@ -518,10 +516,17 @@ bool dlg_identificationpatient::eventFilter(QObject *obj, QEvent *event)
 --------------------------------------------------------------------------------------------*/
 void dlg_identificationpatient::AfficheDossierAlOuverture()
 {
-    if (!m_currentpatient->isalloaded())
-        m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), ItemsList::LoadDetails);
-    if (gMode == Copie)
+    // pour decocher les 2 radiobutton sexe il faut d'abord leur retirer la propriété AutoExclusive
+    ui->MradioButton->setAutoExclusive(false);
+    ui->FradioButton->setAutoExclusive(false);
+    ui->MradioButton->setChecked(false);
+    ui->FradioButton->setChecked(false);
+    ui->MradioButton->setAutoExclusive(true);
+    ui->FradioButton->setAutoExclusive(true);
+    if (gMode == Copie)                                             //!> le nouveau dossier n'est pas encore créé (il ne le sera que si la fche est validée), on se contente de recopier les données du patient passsé en paramètre dans la fiche
     {
+        if (!m_currentpatient->isalloaded())
+            m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), ItemsList::LoadDetails);
         ui->NomlineEdit->setText(m_currentpatient->nom());
         ui->Adresse1lineEdit->setText(m_currentpatient->adresse1());
         ui->Adresse2lineEdit->setText(m_currentpatient->adresse2());
@@ -529,77 +534,76 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         CPlineEdit->setText(m_currentpatient->codepostal());
         VillelineEdit->setText(m_currentpatient->ville());
         ui->TellineEdit->setText(m_currentpatient->telephone());
-        ui->idPatientlabel->setVisible(false);
-        ui->Createurlabel->setVisible(false);
         ui->ModifierDDNupPushButton->setVisible(false);
         int e = ui->MGupComboBox->findData(m_currentpatient->idmg());
         if (e > -1)
             ui->MGupComboBox->setCurrentIndex(e);
-        return;
+        ui->idPatientlabel->setText("");
+        ui->Createurlabel->setText("");
     }
-    if (gMode == Creation)
+    else if (gMode == Creation)                                     //!> le nouveau dossier est créé, on affiche les paramètres définis à sa création (nom, prénom, DDN, idcreateur, datecreation)
     {
+        ui->NomlineEdit->setText(m_currentpatient->nom());
+        ui->PrenomlineEdit->setText(m_currentpatient->prenom());
+        ui->DDNdateEdit->setDate(m_currentpatient->datedenaissance());
         ui->NomlineEdit->setEnabled(false);
         ui->PrenomlineEdit->setEnabled(false);
         ui->DDNdateEdit->setEnabled(false);
+        ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
+        ui->Createurlabel->setText(tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")) + "\n" +
+                                   tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->getLogin());
+        ui->Adresse1lineEdit->clear();
+        ui->Adresse2lineEdit->clear();
+        ui->Adresse3lineEdit->clear();
+        CPlineEdit->setText(proc->getCodePostalParDefaut());
+        VillelineEdit->setText(proc->getVilleParDefaut());
+        ui->TellineEdit->clear();
+        ui->PortablelineEdit->clear();
+        ui->MaillineEdit->clear();
+        ui->ProfessionlineEdit->clear();
+        ui->ALDcheckBox->setChecked(false);
+        ui->CMUcheckBox->setChecked(false);
     }
-    else if (gMode == Modification)
+    else if (gMode == Modification)                                 //!> on ne crée pas de nouveau dossier, on affiche tous les paramètres connus du dossier
+    {
+        if (!m_currentpatient->isalloaded())
+            m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), ItemsList::LoadDetails);
+        ui->NomlineEdit->setText(m_currentpatient->nom());
+        ui->PrenomlineEdit->setText(m_currentpatient->prenom());
+        ui->DDNdateEdit->setDate(m_currentpatient->datedenaissance());
         ui->DDNdateEdit->setEnabled(false);
+        ui->MradioButton->setChecked(m_currentpatient->sexe() == "M");
+        ui->FradioButton->setChecked(m_currentpatient->sexe() == "F");
+        ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
+        ui->Createurlabel->setText(tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")) + "\n" +
+                                   tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->getLogin());
+        ui->Adresse1lineEdit->setText(m_currentpatient->adresse1());
+        ui->Adresse2lineEdit->setText(m_currentpatient->adresse2());
+        ui->Adresse3lineEdit->setText(m_currentpatient->adresse3());
+        QString CP;
+        if (m_currentpatient->codepostal() == "")
+            CP = proc->getCodePostalParDefaut();
+        else
+            CP = m_currentpatient->codepostal();
+        CPlineEdit          ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
+        // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
 
-    ui->NomlineEdit->setText(m_currentpatient->nom());
-    ui->PrenomlineEdit->setText(m_currentpatient->prenom());
-    ui->DDNdateEdit->setDate(m_currentpatient->datedenaissance());
-    // pour decocher les 2 radiobutton sexe il faut d'abord leur retirer la propriétét AutoExclusive
-    ui->MradioButton->setAutoExclusive(false);
-    ui->FradioButton->setAutoExclusive(false);
-    ui->MradioButton->setChecked(false);
-    ui->FradioButton->setChecked(false);
-    ui->MradioButton->setAutoExclusive(true);
-    ui->FradioButton->setAutoExclusive(true);
-    ui->MradioButton->setChecked(m_currentpatient->sexe() == "M");
-    ui->FradioButton->setChecked(m_currentpatient->sexe() == "F");
-    ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
-
-
-    ui->Createurlabel->setText(tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")) + "\n" +
-                               tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->getLogin());
-    ui->Adresse1lineEdit->clear();
-    ui->Adresse2lineEdit->clear();
-    ui->Adresse3lineEdit->clear();
-    CPlineEdit->setText(proc->getCodePostalParDefaut());
-    VillelineEdit->setText(proc->getVilleParDefaut());
-    ui->TellineEdit->clear();
-    ui->PortablelineEdit->clear();
-    ui->MaillineEdit->clear();
-    ui->ProfessionlineEdit->clear();
-    ui->ALDcheckBox->setChecked(false);
-    ui->CMUcheckBox->setChecked(false);
-    ui->Adresse1lineEdit->setText(m_currentpatient->adresse1());
-    ui->Adresse2lineEdit->setText(m_currentpatient->adresse2());
-    ui->Adresse3lineEdit->setText(m_currentpatient->adresse3());
-    QString CP;
-    if (m_currentpatient->codepostal() == "")
-        CP = proc->getCodePostalParDefaut();
-    else
-        CP = m_currentpatient->codepostal();
-    CPlineEdit          ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
-    // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
-
-    CPlineEdit          ->setText(CP);
-    if (m_currentpatient->ville() == "")
-        VillelineEdit   ->setText(proc->getVilleParDefaut());
-    else
-        VillelineEdit   ->setText(m_currentpatient->ville());
-    ui->TellineEdit     ->setText(m_currentpatient->telephone());
-    ui->PortablelineEdit->setText(m_currentpatient->portable());
-    ui->MaillineEdit    ->setText(m_currentpatient->mail());
-    if (m_currentpatient->NNI() > 0) ui->NNIlineEdit->setText(QString::number(m_currentpatient->NNI()));
-    ui->ProfessionlineEdit->setText(m_currentpatient->profession());
-    ui->ALDcheckBox     ->setChecked(m_currentpatient->isald());
-    ui->CMUcheckBox     ->setChecked(m_currentpatient->iscmu());
-    int e = ui->MGupComboBox->findData(m_currentpatient->idmg());
-    if (e > -1)
-        ui->MGupComboBox->setCurrentIndex(e);
+        CPlineEdit          ->setText(CP);
+        if (m_currentpatient->ville() == "")
+            VillelineEdit   ->setText(proc->getVilleParDefaut());
+        else
+            VillelineEdit   ->setText(m_currentpatient->ville());
+        ui->TellineEdit     ->setText(m_currentpatient->telephone());
+        ui->PortablelineEdit->setText(m_currentpatient->portable());
+        ui->MaillineEdit    ->setText(m_currentpatient->mail());
+        if (m_currentpatient->NNI() > 0) ui->NNIlineEdit->setText(QString::number(m_currentpatient->NNI()));
+        ui->ProfessionlineEdit->setText(m_currentpatient->profession());
+        ui->ALDcheckBox     ->setChecked(m_currentpatient->isald());
+        ui->CMUcheckBox     ->setChecked(m_currentpatient->iscmu());
+        int e = ui->MGupComboBox->findData(m_currentpatient->idmg());
+        if (e > -1)
+            ui->MGupComboBox->setCurrentIndex(e);
+    }
 }
 
 // ------------------------------------------------------------------------------------------
@@ -630,7 +634,7 @@ bool dlg_identificationpatient::listecorrespondantsmodifiee()
 
 Patient* dlg_identificationpatient::getPatient()
 {
-    return m_currentpatient;
+    return m_nouveaupatient;
 }
 
 // ------------------------------------------------------------------------------------------

@@ -1624,14 +1624,13 @@ Patient* DataBase::CreationPatient(QString nom, QString prenom, QDate datedenais
         return Q_NULLPTR;
 
     // Récupération de l'idPatient créé ------------------------------------
-    QString recuprequete =  "SELECT  idPat, PatNom, PatPrenom FROM " NOM_TABLE_PATIENTS
-            " WHERE PatNom = '" + Utils::correctquoteSQL(nom) +
-            "' AND PatPrenom = '" + Utils::correctquoteSQL(prenom) +
-            "' AND PatDDN = '" + datedenaissance.toString("yyyy-MM-dd") + "'";
-    QVariantList patdata = getFirstRecordFromStandardSelectSQL(recuprequete, ok, tr("Impossible de sélectionner les enregistrements"));
-    if (!ok ||  patdata.size() == 0)
+    int idpat = selectMaxFromTable("idPat", NOM_TABLE_PATIENTS, ok, tr("Impossible de sélectionner les enregistrements"));
+    if (!ok ||  idpat == 0)
+    {
+        unlocktables();
         return Q_NULLPTR;
-    Patient *pat = loadPatientById(patdata.at(0).toInt());
+    }
+    Patient *pat = loadPatientById(idpat);
     req = "INSERT INTO " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
     StandardSQL(req,tr("Impossible de créer les données sociales"));
     req = "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";

@@ -180,4 +180,36 @@ void Patients::setspe2(Patient *pat, int idspe2)
     pat->setspe2(idspe2);
 }
 
+void Patients::SupprimePatient(Patient *pat)
+{
+    //!. Suppression des bilans orthoptiques
+    QString requete;
+    DataBase::I()->StandardSQL("DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " NOM_TABLE_ACTES " where idPat = " + QString::number(pat->id()) + ")");
+    //!. Suppression des actes
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_ACTES);
+    //!. Suppression des documents émis
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_IMPRESSIONS);
+    //!. Suppression des mots cles utilisés
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_MOTSCLESJOINTURES);
+    //!. Suppression de la salle d'attente
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_SALLEDATTENTE);
+
+    //! Suppression dans la base OPhtalmologie
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_REFRACTION);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_BIOMETRIES);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_TONOMETRIE);
+
+    //!. Suppression du patient
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_PATIENTS);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_DONNEESSOCIALESPATIENTS);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    delete pat;
+}
+
+Patient*    Patients::CreerPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe)
+{
+    return DataBase::I()->CreationPatient(nom, prenom, datedenaissance, sexe);
+}
+
 

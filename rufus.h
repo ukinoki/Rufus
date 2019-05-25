@@ -235,7 +235,6 @@ private:
 
 private:
     bool                    gAutorModifConsult, closeFlag;
-    bool                    gIdentificationOK;
     int                     nbActes, noActe;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     int                     idRefraction;
@@ -302,7 +301,6 @@ private:
     void                CalcMotsCles(Patient *pat);
     void                CalcNbDossiers();
     QString             CalcToolTipCorrespondant(int);
-    bool                ChargeDataUser();
     void                ChercheNomFiltre();                                 //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
     void                ChoixDossier(Patient *pat, int idacte = 0);
     Acte *              CreerActe(Patient *pat = Q_NULLPTR);
@@ -328,7 +326,6 @@ private:
     void                InitMenus();
     void                InitVariables();
     bool                InscritEnSalDat(Patient *pat);
-    int                 LectureMesure(QString lIdPatient, QString lPatNom, QString lPatPrenom, QString lPatDDN, QString lPatCreeLe, QString lPatCreePar, QString MessageErreur);
     void                MAJActesPrecs();
     void                MAJDocsExternes();
     void                MAJCorrespondant(QObject*);
@@ -337,12 +334,13 @@ private:
     QStringList         MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(int i);
     void                OuvrirActesPrecedents();
-    void                OuvrirDocsExternes(Patient *pat, bool depuismenucontextuel = false);
+    void                OuvrirDocsExternes(Patient *pat);
     void                OuvrirDocuments(bool AffichDocsExternes = true);
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
     void                RecopierDossier(Patient *patient = Q_NULLPTR);
     void                RecaleTableView(Patient *pat, QAbstractItemView::ScrollHint scrollhint = QAbstractItemView::PositionAtCenter);
+    int                 RecherchePatient(QString lPatNom, QString lPatPrenom, QString lPatDDN, QString MessageErreur);
     void                Refraction();
     void                ConnectCotationComboBox();  //!> reconnecte la box des cotations à 2 signaux
                                                     //!> si une cotation est choisie, le montant de l'acte est recherché est affiché dans la ligne MontantLineEdit

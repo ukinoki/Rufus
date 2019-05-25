@@ -123,3 +123,40 @@ bool Actes::SupprimeActe(Acte* act)
     return true;
 }
 
+Acte* Actes::CreationActe(Patient *pat, int idcentre)
+{
+    if (pat == Q_NULLPTR)
+        return Q_NULLPTR;
+    bool ok;
+    User* usr = DataBase::I()->getUserConnected();
+    QString rempla = (usr->getEnregHonoraires()==3? "1" : "null");
+    QString creerrequete =
+            "INSERT INTO " NOM_TABLE_ACTES
+            " (idPat, idUser, ActeDate, ActeHeure, CreePar, UserComptable, UserParent,SuperViseurRemplacant, NumCentre, idLieu)"
+            " VALUES (" +
+            QString::number(pat->id()) + ", " +
+            QString::number(usr->getIdUserActeSuperviseur()) + ", "
+            "NOW(), "
+            "NOW(), " +
+            QString::number(usr->id()) + ", " +
+            QString::number(usr->getIdUserComptable()) + ", " +
+            QString::number(usr->getIdUserParent()) + ", " +
+            rempla + ", " +
+            QString::number(idcentre) + ", " +
+            QString::number(usr->getSite()->id()) +")";
+    //qDebug() << creerrequete;
+    DataBase::I()->locktables(QStringList() << NOM_TABLE_ACTES);
+    if (!DataBase::I()->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + NOM_TABLE_ACTES))
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
+    int idacte = DataBase::I()->selectMaxFromTable("idActe", NOM_TABLE_ACTES, ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
+    if (!ok || idacte == 0)
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
+    DataBase::I()->unlocktables();
+    return DataBase::I()->loadActeById(idacte);
+}

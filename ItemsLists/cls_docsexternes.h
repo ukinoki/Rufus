@@ -29,15 +29,18 @@ private:
     bool m_nouveaudocument;
 
 public:
-    explicit DocsExternes(QObject *parent = Q_NULLPTR);
-    QMap<int, DocExterne *>* docsexternes();
-    DocExterne* getById(int id, bool loadDetails=true, bool addToList=true);
-    bool add(DocExterne *doc);
-    void addList(QList<DocExterne*> listdocs);
-    bool NouveauDocument();
-    void setNouveauDocumentFalse();
-    DocExterne* reload(DocExterne* docmt);
-    void remove(DocExterne *doc);
-    void clearAll();
+    explicit                    DocsExternes(QObject *parent = Q_NULLPTR);
+    QMap<int, DocExterne *>*    docsexternes();
+    DocExterne*                 getById(int id, bool loadDetails=true, bool addToList=true);
+    bool                        add(DocExterne *doc);
+    void                        addList(QList<DocExterne*> listdocs);
+    void                        remove(DocExterne *doc);
+    void                        clearAll();
+    void                        initListeByPatient(Patient *pat);
+
+    bool                        NouveauDocument();
+    void                        setNouveauDocumentFalse();
+    void                        setsoustype(DocExterne* docmt, QString soustype = "");                  //!> actualise le soustype d'un document
+    bool                        SupprimeDocExterne(DocExterne* doc);
 };
 #endif // CLS_DOCSEXTERNES_H

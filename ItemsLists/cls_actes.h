@@ -41,9 +41,11 @@ public:
     void    initListeByPatient(Patient *pat);
     void    reloadActe(Acte* acte);
 
-    //! SETTERS
+    //!> actions sur les champs
     void    setMontantCotation(Acte *act, QString Cotation = "", double montant = 0.0);
-    bool SupprimeActe(Acte *act);
+    //!> actions sur les enregistrements
+    bool    SupprimeActe(Acte *act);
+    Acte*   CreationActe(Patient *pat, int idcentre);
 
 };
 
