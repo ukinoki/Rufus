@@ -69,7 +69,10 @@ private:
     QString m_memo;
     QString m_policeEcran;
     QString m_policeAttribut;
+    QString m_nomUserEncaissHonoraires;
     QString m_nomCompteEncaissHonoraires;
+    QString m_nomCompteParDefaut;
+    int m_iduserComptePardefaut; //!< id du user propriétaire du compte bancaire par défaut
 
     int m_soignant;
     int m_responsableActes; //!< 1 : responsable
@@ -99,10 +102,7 @@ private:
     QDateTime m_dateDerniereConnexion;
 
     Site *m_Site        = Q_NULLPTR;
-    QList<Compte*> *m_comptes  = Q_NULLPTR;         //! tous les comptes actifs de l'utilisateur
-    QList<Compte*> *m_comptesall  = Q_NULLPTR;      //! tous les comptes de l'utilisateur  y compris ceux qui sont devenus inactifs
-    Compte* m_comptepardefaut = Q_NULLPTR;          //! le compte bancaire personnel utilisé pour la comptabilité personnelle
-    Compte* m_compteencaissement = Q_NULLPTR;       //! le compte bancaire utilisé pour l''enregistrement des recettes (différent du compte personnel en cas d'exercice en société type SEL)
+    Comptes *m_comptes  = Q_NULLPTR;
 
 
     User *m_userSuperviseur     = Q_NULLPTR;
@@ -149,6 +149,8 @@ public:
     int getEmployeur() const;
     int getIdLieu() const;
     int getIdCompteEncaissHonoraires() const;
+    QString getNomUserEncaissHonoraires() const;
+    QString getNomCompteEncaissHonoraires() const;
     QString getFonction() const;
 
     int getIdUserActeSuperviseur() const;
@@ -163,19 +165,18 @@ public:
     int getSecteur() const;
     int getIdCompteParDefaut() const;
     QString getMail() const;
+    QString getNomCompteParDefaut() const;
     QString getPortable() const;
+    QString getNomCompteAbrege() const;
+
 
     QString getStatus() const;
 
     Site* getSite() const;
     void setSite(Site *Site);
 
-    QList<Compte*>* getComptes(bool avecdesactive = false) const;
-    void setComptes(QList<Compte*> *listcomptes);
-    Compte* getCompteParDefaut() const          { return m_comptepardefaut; }
-    void setCompteParDefaut(Compte *compte)     { m_comptepardefaut = compte; }
-    Compte* getCompteEncaissement() const       { return m_compteencaissement; }
-    void setCompteEncaissement(Compte *compte)  { m_compteencaissement = compte; }
+    Comptes *getComptes() const;
+    void setComptes(Comptes *comptes);
 
     int getTypeCompta() const;
     void setTypeCompta(int typeCompta);

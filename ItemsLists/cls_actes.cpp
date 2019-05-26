@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_actes.h"
 
-Actes::Actes(QObject *parent) : ItemsList(parent)
+Actes::Actes()
 {
     m_actes = new QMap<int, Acte*>();
 }
@@ -73,100 +73,15 @@ void Actes::remove(Acte *acte)
     delete acte;
 }
 
-Acte* Actes::getById(int id, ADDTOLIST add)
+Acte* Actes::getById(int id)
 {
     QMap<int, Acte*>::const_iterator itact = m_actes->find(id);
     if( itact == m_actes->constEnd() )
-    {
-        Acte * act = Q_NULLPTR;
-        if (add == AddToList)
-            act = DataBase::I()->loadActeById(id);
-        return act;
-    }
+        return Q_NULLPTR;
     return itact.value();
 }
 
-QMap<int, Acte*>::const_iterator Actes::getLast()
-{
-    return actes()->find(actes()->lastKey());
-}
-
-QMap<int, Acte*>::const_iterator Actes::getAt(int idx)
-{
-    return actes()->find( actes()->keys().at(idx) );
-}
-
-void Actes::updateActe(Acte* acte)
+void Actes::reloadActe(Acte* acte)
 {
     acte->setData(DataBase::I()->loadActeAllData(acte->id()));
-}
-
-void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
-{
-    if ( act == Q_NULLPTR )
-        return;
-    //on modifie la table Actes avec la nouvelle cotation
-    QString cotsql = Cotation;
-    if (cotsql == "")
-    {
-        cotsql = "null";
-        montant = 0.00;
-    }
-    else
-        cotsql = "'" + Utils::correctquoteSQL(Cotation) + "'";
-    QString requete = "UPDATE " NOM_TABLE_ACTES
-                      " SET ActeCotation = " + cotsql +
-                      ", ActeMontant = " + QString::number(montant) +
-                      " WHERE idActe = " + QString::number(act->id());
-    DataBase::I()->StandardSQL(requete);
-    act->setcotation(Cotation);
-    act->setmontant(montant);
-}
-
-bool Actes::SupprimeActe(Acte* act)
-{
-    // on supprime la consultation -------------------------------------------------------------------------------------------------
-    QString req = "DELETE FROM " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(act->id());
-    if (!DataBase::I()->StandardSQL(req))
-        return false;
-    remove(act);
-    return true;
-}
-
-Acte* Actes::CreationActe(Patient *pat, int idcentre)
-{
-    if (pat == Q_NULLPTR)
-        return Q_NULLPTR;
-    bool ok;
-    User* usr = DataBase::I()->getUserConnected();
-    QString rempla = (usr->getEnregHonoraires()==3? "1" : "null");
-    QString creerrequete =
-            "INSERT INTO " NOM_TABLE_ACTES
-            " (idPat, idUser, ActeDate, ActeHeure, CreePar, UserComptable, UserParent,SuperViseurRemplacant, NumCentre, idLieu)"
-            " VALUES (" +
-            QString::number(pat->id()) + ", " +
-            QString::number(usr->getIdUserActeSuperviseur()) + ", "
-            "NOW(), "
-            "NOW(), " +
-            QString::number(usr->id()) + ", " +
-            QString::number(usr->getIdUserComptable()) + ", " +
-            QString::number(usr->getIdUserParent()) + ", " +
-            rempla + ", " +
-            QString::number(idcentre) + ", " +
-            QString::number(usr->getSite()->id()) +")";
-    //qDebug() << creerrequete;
-    DataBase::I()->locktables(QStringList() << NOM_TABLE_ACTES);
-    if (!DataBase::I()->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + NOM_TABLE_ACTES))
-    {
-        DataBase::I()->unlocktables();
-        return Q_NULLPTR;
-    }
-    int idacte = DataBase::I()->selectMaxFromTable("idActe", NOM_TABLE_ACTES, ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
-    if (!ok || idacte == 0)
-    {
-        DataBase::I()->unlocktables();
-        return Q_NULLPTR;
-    }
-    DataBase::I()->unlocktables();
-    return DataBase::I()->loadActeById(idacte);
 }

@@ -51,6 +51,7 @@ public:
 
     static QRegExp const rgx_mail;
     static QRegExp const rgx_mailexactmatch;
+    static QRegExp const rgx_NNI;
 
     static QRegExp const rgx_adresse;
     static QRegExp const rgx_intitulecompta;

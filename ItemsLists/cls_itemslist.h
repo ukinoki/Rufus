@@ -9,8 +9,6 @@ class ItemsList : public QObject
     Q_OBJECT
 public:
     explicit ItemsList(QObject *parent = Q_NULLPTR);
-    enum ADDTOLIST {AddToList, NoAddToList};
-    enum LOADDETAILS {LoadDetails, NoLoadDetails};
 
 protected:
     template <typename T>

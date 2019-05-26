@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_motifs.h"
 
-Motifs::Motifs(QObject *parent) : ItemsList(parent)
+Motifs::Motifs()
 {
     m_motifs = new QMap<int, Motif*>();
 }

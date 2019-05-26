@@ -20,16 +20,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "database.h"
 #include "cls_acte.h"
-#include "cls_itemslist.h"
 
-class Actes: public ItemsList
+class Actes
 
 {
 private:
     QMap<int, Acte*> *m_actes = Q_NULLPTR; //!< une liste d'actes
 
 public:
-    explicit Actes(QObject *parent = Q_NULLPTR);
+    explicit Actes();
 
     QMap<int, Acte *> *actes() const;
 
@@ -37,18 +36,9 @@ public:
     void    addList(QList<Acte*> listActes);
     void    remove(Acte* acte);
     void    clearAll();
-    Acte*   getById(int id, ADDTOLIST add = AddToList);                                     //!> crée un acte à partir de son id
-    QMap<int, Acte*>::const_iterator   getLast();                                           //!> renvoie le dernier acte de la liste
-    QMap<int, Acte*>::const_iterator   getAt(int idx);                                      //!> renvoie l'acte de la liste à l'index idx
-    void    initListeByPatient(Patient *pat);                                               //!> charge tous les actes d'un patient
-    void    updateActe(Acte* acte);                                                         //!> met à jour les dayas d'un acte
-
-    //!> actions sur les champs
-    void    setMontantCotation(Acte *act, QString Cotation = "", double montant = 0.0);
-    //!> actions sur les enregistrements
-    bool    SupprimeActe(Acte *act);
-    Acte*   CreationActe(Patient *pat, int idcentre);
-
+    Acte*   getById(int id);
+    void    reloadActe(Acte* acte);
+    void    initListeByPatient(Patient *pat);
 };
 
 

@@ -1377,21 +1377,10 @@ bool dlg_gestionusers::ExisteEmployeur(int iduser)
 }
 bool dlg_gestionusers::setDataUser(int id)
 {
-    OtherUser = Datas::I()->users->getById(id);
-    if (!OtherUser->isAllLoaded())
-    {
-        QJsonObject data = db->loadUserData(OtherUser->id());
-        if(data.isEmpty())
-        {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Les paramètres de ")
-                                + OtherUser->getLogin() + tr("ne sont pas retrouvés"));
-            return false;
-        }
-        OtherUser->setData( data );
-    }
-    dlg_gestioncomptes::ReconstruitListeComptes(OtherUser);
-    OtherUser->setCompteParDefaut(Datas::I()->comptes->getById(OtherUser->getIdCompteParDefaut()));
-    OtherUser->setCompteEncaissement(Datas::I()->comptes->getById(OtherUser->getIdCompteEncaissHonoraires()));
+    QJsonObject data = db->loadUserData(id); //TODO : !!! Chargement du lieu
+    if( data.isEmpty() )
+        return false;
+    OtherUser = new User( data );
     return true;
 }
 

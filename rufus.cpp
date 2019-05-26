@@ -15,15 +15,20 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "gbl_datas.h"
+#include "cls_item.h"
+#include "database.h"
+#include "icons.h"
 #include "rufus.h"
 #include "ui_rufus.h"
+#include "styles.h"
 
 Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("26-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("20-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -34,6 +39,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     qApp->setStyleSheet(Styles::StyleAppli());
 
     proc = Procedures::I();
+
     if (!proc->Init())                                                  //! vérifie que le fichier rufus.ini est cohérent
         exit(0);                                                        //! choisit le mode de connexion au serveur
 
@@ -60,18 +66,31 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->setDirImagerie();                                              //! lit l'emplacement du dossier d'imagerie sur le serveur
     db = DataBase::I();
     flags = Flags::I();
+    Datas::I()->villes->initListe();
+    Datas::I()->sites->initListe();
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
     setWindowIcon(Icons::icSunglasses());
 
     //! 2 - charge les data du user connecté
-    m_currentuser = db->getUserConnected();
-    if (m_currentuser == Q_NULLPTR)
+    int gidUser = -1;
+    if( db->getUserConnected() != Q_NULLPTR )
+        gidUser = db->getUserConnected()->id();
+    if (gidUser == -1)
+        gidUser = proc->gsettingsIni->value("idUtilisateur/idUser").toInt();
+    gIdentificationOK = (gidUser > -1);
+    if (!gIdentificationOK)
     {
         UpMessageBox::Watch(this, tr("Pas d'utilisateur identifié!\nSortie du programme"));
         exit(0);
     }
+    if (!ChargeDataUser())
+    {
+        UpMessageBox::Watch(this, tr("Impossible de charger les données de l'utilisateur!\nSortie du programme"));
+        exit(0);
+    }
+
     qApp->setStyleSheet(Styles::StyleAppli());
     proc->Message(m_currentuser->getStatus(), 3000);
 
@@ -138,7 +157,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 dlg_message(QStringList() << tr("Connexion TCP OK"), 3000, false);
                 connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});  // traitement des messages reçus
                 // envoi iduser
-                envoieMessage(QString::number(m_currentuser->id()) + TCPMSG_idUser);
+                envoieMessage(QString::number(db->getUserConnected()->id()) + TCPMSG_idUser);
                 // envoi adresse IP, adresse MAC, nom d'hôte
                 envoieMessage(Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
             }
@@ -219,7 +238,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     int length                  = blabla.size();
     QString req = "UPDATE " NOM_TABLE_SALLEDATTENTE
                     " SET Statut = '" ARRIVE "', idUserEnCoursExam = null, PosteExamen = null"
-                    " WhERE idUser = " + QString::number(m_currentuser->id()) +
+                    " WhERE idUser = " + QString::number(db->getUserConnected()->id()) +
                     " AND Left(Statut," + QString::number(length) + ") = '" ENCOURSEXAMEN "'";
     db->StandardSQL(req);
 
@@ -227,7 +246,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Connect_Slots();
 
     //! 9 - libération des verrous de la compta
-    req = " delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(m_currentuser->id());
+    req = " delete from " NOM_TABLE_VERROUCOMPTAACTES " where PosePar = " + QString::number(gidUser);
     db->StandardSQL(req);
 
     if (m_listepatientsmodel->rowCount() == 0)
@@ -393,32 +412,27 @@ void Rufus::Connect_Slots()
     ui->MoulinettepushButton->setVisible(false);
 }
 
-void Rufus::OuvrirDocsExternes(Patient *pat)
+void Rufus::OuvrirDocsExternes(Patient *pat, bool depuismenucontextuel)
 {
-    //! si la fiche est déjà ouverte, on quitte
-    if (pat == m_currentpatient)  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
+    if (!depuismenucontextuel)  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
     {
         QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
         if (ListDialogDocs.size()>0)
-            for (int i=0; i< ListDialogDocs.size();++i)
-                if (ListDialogDocs.at(i)->getPatient() == m_currentpatient)
-                    return;
+            return;
     }
-    DocsExternes *docs;
-    if (pat == m_currentpatient)
-        docs = Datas::I()->docsexternes;
-    else docs = new DocsExternes;
-    docs->initListeByPatient(pat);
-    if (docs->docsexternes()->size()>0)
-    {
-        Dlg_DocsExt = new dlg_docsexternes(docs, pat, (pat == m_currentpatient), UtiliseTCP, this);
+    if (db->loadDoscExternesByPatient(pat).size()>0)
+     {
+        Dlg_DocsExt = new dlg_docsexternes(pat, UtiliseTCP, this);
         ui->OuvreDocsExternespushButton->setEnabled(true);
-        Dlg_DocsExt->show();
-        if (pat != m_currentpatient)
-            Dlg_DocsExt->setModal(true); //quand la fiche ne concerne pas le patient en cours
+        if (Dlg_DocsExt->InitOK())
+        {
+            Dlg_DocsExt->show();
+            if (depuismenucontextuel)
+                Dlg_DocsExt->setModal(true); //quand la fiche est ouverte depuis le menu contectuel de la liste des patients
+        }
     }
     else
-        if (pat == m_currentpatient)
+        if (!depuismenucontextuel)
             ui->OuvreDocsExternespushButton->setEnabled(false);
 }
 
@@ -429,9 +443,12 @@ void Rufus::MAJActesPrecs()
 {
     QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
     if (m_currentact != Q_NULLPTR)
-        for (int n = 0; n < ListDialog.size(); n++)
+        for (int n = 0; n <  ListDialog.size(); n++)
+        {
+            ListDialog.at(n)->reloadActe(m_currentact);
             if (ListDialog.at(n)->getActeAffiche() == m_currentact)
                 ListDialog.at(n)->ActesPrecsAfficheActe(m_currentact);
+        }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -441,23 +458,17 @@ void Rufus::MAJDocsExternes()
 {
     QList<dlg_docsexternes *> ListDialogDocs = findChildren<dlg_docsexternes *>();
     if (ListDialogDocs.size()>0)
-    {
-        for (int i=0; i< ListDialogDocs.size();++i)
-            if (ListDialogDocs.at(i)->getPatient() == m_currentpatient)
-            {
-                proc->emit UpdDocsExternes();
-                break;
-            }
-    }
+        proc->emit UpdDocsExternes();
     else if (m_currentuser->isSoignant())
     {
-        if (Datas::I()->docsexternes->docsexternes()->size()>0)
+        QList<DocExterne*> listdocs = db->loadDoscExternesByPatient(m_currentpatient);
+        if (listdocs.size()>0)
         {
-            Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, m_currentpatient, true, UtiliseTCP, this);
-            Dlg_DocsExt->show();
-            ui->OuvreDocsExternespushButton->setEnabled(true);
+            Dlg_DocsExt = new dlg_docsexternes(m_currentpatient, UtiliseTCP, this);
+            if (Dlg_DocsExt->InitOK())
+                Dlg_DocsExt->show();
         }
-        ui->OuvreDocsExternespushButton->setEnabled(false);
+        ui->OuvreDocsExternespushButton->setEnabled(listdocs.size()>0);
     }
 }
 
@@ -1522,17 +1533,18 @@ void Rufus::CreerBilanOrtho(Patient *pat)
     QDate DateBl;
     if (pat == Q_NULLPTR)
         return;
+    Acte *act = m_currentact;
     if (ui->Acteframe->isVisible() && m_currentact != Q_NULLPTR)
     {
         QString requete = "select idbilanortho from " NOM_TABLE_BILANORTHO
-                " where idbilanortho = " + QString::number(m_currentact->id());
+                " where idbilanortho = " + QString::number(act->id());
         QVariantList bodata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         if (!ok)
             return;
         nouveauBO = (bodata.size()<1);
         if (!nouveauBO)
         {
-            DateBl = m_currentact->date();
+            DateBl = act->date();
             if (DateBl != QDate::currentDate())
             {
                 UpMessageBox msgbox;
@@ -1552,19 +1564,19 @@ void Rufus::CreerBilanOrtho(Patient *pat)
                 creeracte = (msgbox.clickedButton() == &NouveauBOBouton);
                 msgbox.close();
             }
-            else if (!Datas::I()->users->getById(m_currentact->idCreatedBy())->isOrthoptist())
+            else if (!Datas::I()->users->getById(act->idCreatedBy())->isOrthoptist())
             {
                 nouveauBO = true;
                 creeracte = false;
             }
         }
         else
-            creeracte = !Datas::I()->users->getById(m_currentact->idCreatedBy())->isOrthoptist();
+            creeracte = !Datas::I()->users->getById(act->idCreatedBy())->isOrthoptist();
     }
 
     if (!nouveauBO)
     {
-        Dlg_BlOrtho             = new dlg_bilanortho(m_currentact, nouveauBO);
+        Dlg_BlOrtho             = new dlg_bilanortho(act, nouveauBO);
         QString Titre           = tr("Bilan orthoptique - ") + pat->prenom() + " " + pat->nom();
         Dlg_BlOrtho->ui->OcclAlternlabel    ->setVisible(pat->datedenaissance().daysTo(DateBl) < 730);
         Dlg_BlOrtho->ui->OcclAlterncomboBox ->setVisible(pat->datedenaissance().daysTo(DateBl) < 730);
@@ -1579,9 +1591,10 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         {
             if (ui->Acteframe->isVisible())
                 if (!AutorDepartConsult(false)) return;
-            CreerActe(pat);
+            m_currentact = CreerActe(pat);
+            act = m_currentact;
         }
-        Dlg_BlOrtho             = new dlg_bilanortho(m_currentact, nouveauBO);
+        Dlg_BlOrtho             = new dlg_bilanortho(act, nouveauBO);
         QString Titre           = tr("Bilan orthoptique - ") + pat->prenom() + " " + pat->nom();
         Dlg_BlOrtho             ->setWindowTitle(Titre);
         QString RefractionOD    = "";
@@ -1614,14 +1627,14 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         Motif                           = paragraph + debutdelimiter + Motif + "</a></p>";
         ui->ActeMotiftextEdit           ->setText(Motif);
         updaterequete                   = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(ui->ActeMotiftextEdit->toHtml()) +
-                                          "' where idActe = " + QString::number(m_currentact->id());
+                                          "' where idActe = " + QString::number(act->id());
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Motif !"));
 
         // Compléter le Champ Texte et mettre à jour l'affichage de ActeTextetextEdit
         QString Reponse                 = Dlg_BlOrtho->calcReponsehTml(ui->ActeTextetextEdit->toHtml());
         ui->ActeTextetextEdit           ->setHtml(Reponse);
         updaterequete                   = "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(Reponse) +
-                                          "' where idActe = " + QString::number(m_currentact->id());
+                                          "' where idActe = " + QString::number(act->id());
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
 
         // Compléter le Champ Conclusion et mettre à jour l'affichage de ActeConclusiontextEdit
@@ -1630,7 +1643,7 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         Concl                           = paragraph + debutdelimiter + Concl + "</p>";
         ui->ActeConclusiontextEdit      ->setText(Concl);
         updaterequete                   = "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->toHtml()) +
-                                          "' where idActe = " + QString::number(m_currentact->id());
+                                          "' where idActe = " + QString::number(act->id());
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Conclusion!"));
 
         //Mettre à jour la table bilanortho
@@ -1651,7 +1664,7 @@ void Rufus::CreerBilanOrtho(Patient *pat)
                 ", HEcranVPASCD, HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC"     // 60,61,62,63,64
                 ", HMaddoxVPSCD, HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD"      // 65,66,67,68,69
                 ") \nVALUES \n(";
-        bilanorthorequete += QString::number(m_currentact->id());                                                                          //0 idActe
+        bilanorthorequete += QString::number(act->id());                                                                          //0 idActe
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Motif) + "'\n";                           //1 Motif
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVODlineEdit->text()) + "'\n";                     //2
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVOGlineEdit->text()) + "'\n";                     //3
@@ -1812,12 +1825,13 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         if (!db->StandardSQL(bilanorthorequete)){
             db->rollback(); return;}
         db->commit();
+        Datas::I()->actes->reloadActe(m_currentact);
 
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }
     else
-        if (nouveauBO) SupprimerActe(m_currentact);
+        if (nouveauBO) SupprimerActe(act);
 
     Dlg_BlOrtho->close();
     delete Dlg_BlOrtho;
@@ -2436,6 +2450,7 @@ void Rufus::ImprimeDossier(Patient *pat)
 {
     if(pat==Q_NULLPTR)
         return;
+    Datas::I()->actes->initListeByPatient(pat);
     QMap<int, Acte*> *listeactes = Datas::I()->actes->actes();
     if (listeactes->size() == 0)
     {
@@ -2573,8 +2588,6 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
     Patient *pat = m_listepatients->getById(listeactes.at(0)->idPatient());
     if (pat == Q_NULLPTR)
         return;
-    if (focusWidget() != Q_NULLPTR)
-        focusWidget()->clearFocus();      //!> Valide les changements dans les champs du dossier en cours d'affichage
     int taillefont  = 8;
     QString Reponse =        "<html><head><meta name=\"qrichtext\" content=\"1\" />"
                              "<style type=\"text/css\">"
@@ -2712,7 +2725,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    bool     AvecNumPage = true;
 
    //création de l'entête
-   User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), ItemsList::LoadDetails);
+   User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), true);
    if (!userEntete)
    {
        UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -3217,7 +3230,7 @@ void Rufus::ImprimeListPatients(QVariant var)
 
     //création de l'entête
     QString EnTete;
-    User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), ItemsList::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), true);
     if (userEntete == Q_NULLPTR)
         return;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
@@ -3272,7 +3285,7 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
 {
     if (UpText->getId() == 0)
         return;
-    m_dossierpatientaouvrir = m_listepatients->getById(UpText->getId(), ItemsList::LoadDetails);
+    m_dossierpatientaouvrir = m_listepatients->getById(UpText->getId(), true);
     if( m_currentuser->isSoignant() )
     {
         gmenuContextuel = new QMenu(this);
@@ -3302,7 +3315,7 @@ void Rufus::MenuContextuelListePatients()
     if (pat == Q_NULLPTR)
         return;
     if (!pat->isalloaded())
-        pat = m_listepatients->getById(pat->id(), ItemsList::LoadDetails);
+        pat = m_listepatients->getById(pat->id(),true);
     m_dossierpatientaouvrir = pat;
 
     gmenuContextuel = new QMenu(this);
@@ -3349,22 +3362,19 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
         return;
     if (choix == "Autre Dossier")
     {
-        Actes *acts = new Actes;
-        acts->initListeByPatient(m_dossierpatientaouvrir);
-        if (acts->actes()->size()  == 0)
+        Datas::I()->actes->initListeByPatient(m_dossierpatientaouvrir);
+        if (Datas::I()->actes->actes()->size()  == 0)
         {
             UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ") + m_dossierpatientaouvrir->prenom() + " " + m_dossierpatientaouvrir->nom());
             return;
         }
         else
         {
-            Dlg_ActesPrecs  = new dlg_actesprecedents(acts, false, this);
+            Dlg_ActesPrecs  = new dlg_actesprecedents(m_dossierpatientaouvrir, false, this);
             Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + m_dossierpatientaouvrir->nom() + " " + m_dossierpatientaouvrir->prenom());
             Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
             Dlg_ActesPrecs  ->exec();
         }
-        acts->clearAll();
-        delete acts;
     }
     else if (choix == "SalDat")
         InscritEnSalDat(m_dossierpatientaouvrir);
@@ -3375,7 +3385,7 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
     else if (choix == "Document")
         OuvrirDocuments(false);
     else if (choix == "ImprimeAncienDoc")
-        OuvrirDocsExternes(m_dossierpatientaouvrir);                                                //depuis menu contextuel ListePatients
+        OuvrirDocsExternes(m_dossierpatientaouvrir, true);                                          //depuis menu contextuel ListePatients
     else if (choix == "EnregDocScan")
         EnregistreDocScanner(m_dossierpatientaouvrir);                                              //depuis menu contextuel ListePatients
     else if (choix == "EnregVideo")
@@ -3511,7 +3521,7 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
         {a = true;  break;}
     if (a == false) return;
 
-    m_dossierpatientaouvrir = m_listepatients->getById(labelClicked->getId(), ItemsList::LoadDetails);
+    m_dossierpatientaouvrir = m_listepatients->getById(labelClicked->getId(), true);
     gmenuContextuel = new QMenu(this);
 
     if (listRange.size() == 1 && listRange.at(0).rowCount()== 1)
@@ -3808,7 +3818,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
     if (pat == Q_NULLPTR)
         return;
     if (recalclesdonnees)
-        pat = m_listepatients->getById(pat->id(), ItemsList::LoadDetails);
+        pat = m_listepatients->getById(pat->id(),true);
     ui->TerraintreeWidget->clear();
     bool a = false;
     ui->TerraintreeWidget->setColumnCount(2);
@@ -3996,7 +4006,7 @@ void Rufus::OuvrirActesPrecspushButtonClicked()
             listres.at(0)->show();
     }
     else
-        OuvrirActesPrecedents();            //! depuis OuvrirActesPrecspushButtonClicked()
+        OuvrirActesPrecedents();
 }
 
 void Rufus::OuvrirJournalDepenses()
@@ -4018,7 +4028,10 @@ void Rufus::OuvrirParametres()
     Dlg_Param->setWindowTitle(tr("Paramètres"));
     Dlg_Param->exec();
     if (Dlg_Param->DataUserModifiees())
+    {
+        ChargeDataUser();
         setWindowTitle("Rufus - " + m_currentuser->getLogin() + " - " + m_currentuser->getFonction());
+    }
     if (Dlg_Param->CotationsModifiees())
     {
         QString req = "insert into " NOM_TABLE_COTATIONS " (typeacte, MontantOPTAM, MontantNonOPTAM, montantpratique, CCAM, iduser, tip) values \n";
@@ -4243,6 +4256,23 @@ void Rufus::RetrouveMontantActe()
         }
     }*/
 }
+
+void Rufus::EnregistreMontantActe(QString Cotation, double montant, Acte *acte)
+{
+    if ( acte == Q_NULLPTR )
+        return;
+    //on modifie la table Actes avec la nouvelle cotation
+    if (Cotation == "")
+    {
+        Cotation = "null";
+        montant = 0.00;
+    }
+    else
+        Cotation = "'" + Utils::correctquoteSQL(Cotation) + "'";
+    QString requete = "UPDATE " NOM_TABLE_ACTES " SET ActeCotation = " + Cotation + ", ActeMontant = " + QString::number(montant) + " WHERE idActe = " + QString::number(acte->id());
+    db->StandardSQL(requete);
+}
+
 
 void Rufus::SalleDAttente()
 {
@@ -5826,10 +5856,10 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
 
     if (event->type() == QEvent::FocusOut )
     {
-        UpTextEdit* objUpText = dynamic_cast<UpTextEdit*>(obj);
-        if (objUpText != Q_NULLPTR)
+        if (obj->inherits("UpTextEdit"))
         {
             QString requetemodif;
+            UpTextEdit* objUpText = static_cast<UpTextEdit*>(obj);
             objUpText->textCursor().clearSelection();
             if (objUpText->getValeurAvant() != objUpText->toHtml())
             {
@@ -5860,60 +5890,58 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                 }
                 if (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES)
                 {
-                    Datas::I()->actes->updateActe(m_currentact);
                     MAJActesPrecs();
+                    Datas::I()->actes->reloadActe(m_currentact);
                 }
             }
         }
-        else
+        else if (obj->inherits("UpLineEdit") && obj != MGlineEdit && obj != AutresCorresp1LineEdit && obj != AutresCorresp2LineEdit)
+        {  
+            if (obj == ui->ActeMontantlineEdit)
+                // le contrôle de sortie pour ActeMontantlineEdit est traité la méthode ValideActeMontant();
+                return QWidget::eventFilter(obj, event);
+            QString requetemodif;
+            UpLineEdit* objUpLine = static_cast<UpLineEdit*>(obj);
+            if (objUpLine->getValeurAvant() != objUpLine->text())
+            {
+                objUpLine->setText(Utils::trimcapitilize(objUpLine->text(),true));
+                if (objUpLine->getTableCorrespondant() == NOM_TABLE_ACTES)
+                {
+                    requetemodif =   "UPDATE " NOM_TABLE_ACTES " SET " + objUpLine->getChampCorrespondant() + " = '"
+                            + Utils::correctquoteSQL(objUpLine->text()) + "' WHERE idActe = " + QString::number(m_currentpatient->id());
+                    db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpLine->getChampCorrespondant() + "!");
+                    Datas::I()->actes->reloadActe(m_currentact);
+                }
+                else if (objUpLine->getTableCorrespondant() == NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS)
+                {
+                    requetemodif =   "UPDATE " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                                    " SET " + objUpLine->getChampCorrespondant() + " = '" +
+                                      Utils::correctquoteSQL(objUpLine->text()) + "' WHERE idPat = " + QString::number(m_currentpatient->id());
+                    db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpLine->getChampCorrespondant() + "!");
+                    m_currentpatient = m_listepatients->getById(m_currentpatient->id(),true);
+                    OKModifierTerrain(m_currentpatient);
+                    Datas::I()->patients->reloadMedicalData(m_currentpatient);
+                }
+            }
+        }
+        else if (obj->objectName() == "ActeDatedateEdit")
         {
-            UpLineEdit* objUpLine = dynamic_cast<UpLineEdit*>(obj);
-            if (objUpLine != Q_NULLPTR && obj != MGlineEdit && obj != AutresCorresp1LineEdit && obj != AutresCorresp2LineEdit)
+            if (ui->ActeDatedateEdit->text() != gActeDate)
             {
-                if (obj == ui->ActeMontantlineEdit)
-                    // le contrôle de sortie pour ActeMontantlineEdit est traité la méthode ValideActeMontant();
-                    return QWidget::eventFilter(obj, event);
-                QString requetemodif;
-                if (objUpLine->getValeurAvant() != objUpLine->text())
+                QString requete =   "UPDATE " NOM_TABLE_ACTES " SET ActeDate = '" + ui->ActeDatedateEdit->date().toString("yyyy-MM-dd") + "' WHERE idActe = " + QString::number(m_currentact->id());
+                if (!db->StandardSQL(requete,tr("Impossible de mettre à jour la date de l'acte!")))
+                    ui->ActeDatedateEdit->setDate(QDate::fromString(gActeDate,"dd/MM/yyyy"));
+                else
                 {
-                    objUpLine->setText(Utils::trimcapitilize(objUpLine->text(),true));
-                    if (objUpLine->getTableCorrespondant() == NOM_TABLE_ACTES)
-                    {
-                        requetemodif =   "UPDATE " NOM_TABLE_ACTES " SET " + objUpLine->getChampCorrespondant() + " = '"
-                                + Utils::correctquoteSQL(objUpLine->text()) + "' WHERE idActe = " + QString::number(m_currentpatient->id());
-                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpLine->getChampCorrespondant() + "!");
-                        Datas::I()->actes->updateActe(m_currentact);
-                    }
-                    else if (objUpLine->getTableCorrespondant() == NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS)
-                    {
-                        requetemodif =   "UPDATE " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
-                                " SET " + objUpLine->getChampCorrespondant() + " = '" +
-                                Utils::correctquoteSQL(objUpLine->text()) + "' WHERE idPat = " + QString::number(m_currentpatient->id());
-                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpLine->getChampCorrespondant() + "!");
-                        Datas::I()->patients->reloadMedicalData(m_currentpatient);
-                        OKModifierTerrain(m_currentpatient);
-                    }
+                    gActeDate       = ui->ActeDatedateEdit->text();
+                    MAJActesPrecs();
+                    Datas::I()->actes->reloadActe(m_currentact);
                 }
             }
-            else if (obj == ui->ActeDatedateEdit)
-            {
-                if (ui->ActeDatedateEdit->text() != gActeDate)
-                {
-                    QString requete =   "UPDATE " NOM_TABLE_ACTES " SET ActeDate = '" + ui->ActeDatedateEdit->date().toString("yyyy-MM-dd") + "' WHERE idActe = " + QString::number(m_currentact->id());
-                    if (!db->StandardSQL(requete,tr("Impossible de mettre à jour la date de l'acte!")))
-                        ui->ActeDatedateEdit->setDate(QDate::fromString(gActeDate,"dd/MM/yyyy"));
-                    else
-                    {
-                        gActeDate       = ui->ActeDatedateEdit->text();
-                        Datas::I()->actes->updateActe(m_currentact);
-                        MAJActesPrecs();
-                    }
-                }
-                ui->ActeDatedateEdit->setEnabled(false);
-            }
-            else if (obj == ui->MGupComboBox || obj != ui->AutresCorresp1upComboBox || obj != ui->AutresCorresp2upComboBox)
-                MAJCorrespondant(obj);
+            ui->ActeDatedateEdit->setEnabled(false);
         }
+        else if (obj == ui->MGupComboBox || obj != ui->AutresCorresp1upComboBox || obj != ui->AutresCorresp2upComboBox)
+            MAJCorrespondant(obj);
     }
 
     if(event->type() == QEvent::MouseButtonPress)
@@ -6313,42 +6341,43 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
 //  Afficher les éléments de la tables Patients
     if (pat == Q_NULLPTR)
         return;
-    m_currentpatient = pat;
-    if (!m_currentpatient->isalloaded())
-        m_currentpatient = m_listepatients->getById(m_currentpatient->id(), ItemsList::LoadDetails);
+    if (!pat->isalloaded())
+        pat = m_listepatients->getById(pat->id(),true);
     QString     Msg;
 
-    //qDebug() << "AfficheDossier() " +  m_currentpatient->nom() + " " + m_currentpatient->prenom() + " - id = " + QString::number(m_currentpatient->id());
-    ui->DateCreationDossierlineEdit->setText(m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")));
-    ui->idPatientlineEdit->setText(QString::number(m_currentpatient->id()));
+    //qDebug() << "AfficheDossier() " +  pat->nom() + " " + pat->prenom() + " - id = " + QString::number(pat->id());
+    m_currentpatient = pat;
+    m_dossierpatientaouvrir = pat;
+    ui->DateCreationDossierlineEdit->setText(pat->datecreationdossier().toString(tr("d-M-yyyy")));
+    ui->idPatientlineEdit->setText(QString::number(pat->id()));
     if (!ui->tabDossier->isVisible())
     {
         ui->tabWidget->insertTab(1,ui->tabDossier,"");
         ui->tabWidget->setCurrentIndex(ui->tabWidget->indexOf(ui->tabDossier));
     }
 
-    ui->IdCreateurDossierlineEdit->setText(Datas::I()->users->getById(m_currentpatient->idcreateur())->getLogin());
+    ui->IdCreateurDossierlineEdit->setText(Datas::I()->users->getById(pat->idcreateur())->getLogin());
 
-    ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(m_currentpatient));
-    ui->tabWidget->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),CalcIconPatient(m_currentpatient));
-    ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tabDossier) ,m_currentpatient->nom() + " " + m_currentpatient->prenom());
+    ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(pat));
+    ui->tabWidget->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),CalcIconPatient(pat));
+    ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tabDossier) ,pat->nom() + " " + pat->prenom());
 
     //3 - récupération des données médicales
 
-    ui->AtcdtsPersostextEdit->setText(m_currentpatient->atcdtspersos());
-    ui->TtGeneraltextEdit->setText(m_currentpatient->traitementgen());
-    ui->AtcdtsFamiliauxtextEdit->setText(m_currentpatient->atcdtsfamiliaux());
-    ui->AtcdtsOphstextEdit->setText(m_currentpatient->atcdtsophtalmos());
-    ui->TabaclineEdit->setText(m_currentpatient->tabac());
-    ui->AutresToxiquestextEdit->setText(m_currentpatient->toxiques());
+    ui->AtcdtsPersostextEdit->setText(pat->atcdtspersos());
+    ui->TtGeneraltextEdit->setText(pat->traitementgen());
+    ui->AtcdtsFamiliauxtextEdit->setText(pat->atcdtsfamiliaux());
+    ui->AtcdtsOphstextEdit->setText(pat->atcdtsophtalmos());
+    ui->TabaclineEdit->setText(pat->tabac());
+    ui->AutresToxiquestextEdit->setText(pat->toxiques());
 
     MGlineEdit->clear();
     AutresCorresp1LineEdit->clear();
     AutresCorresp2LineEdit->clear();
     QString tooltp = "";
-    if (m_currentpatient->idmg()>0)
+    if (pat->idmg()>0)
     {
-        int id = m_currentpatient->idmg();
+        int id = pat->idmg();
         ui->MGupComboBox->setCurrentIndex
                 (ui->MGupComboBox->findData(id));
         tooltp = CalcToolTipCorrespondant(id);
@@ -6357,9 +6386,9 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->MGupComboBox->setCurrentIndex(-1);
     ui->MGupComboBox->setImmediateToolTip(tooltp);
     tooltp = "";
-    if (m_currentpatient->idspe1()>0)
+    if (pat->idspe1()>0)
     {
-        int id = m_currentpatient->idspe1();
+        int id = pat->idspe1();
         ui->AutresCorresp1upComboBox->setCurrentIndex
                 (ui->AutresCorresp1upComboBox->findData(id));
         tooltp = CalcToolTipCorrespondant(id);
@@ -6368,9 +6397,9 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
     ui->AutresCorresp1upComboBox->setImmediateToolTip(tooltp);
     tooltp = "";
-    if (m_currentpatient->idspe2()>0)
+    if (pat->idspe2()>0)
     {
-        int id = m_currentpatient->idspe2();
+        int id = pat->idspe2();
         ui->AutresCorresp2upComboBox->setCurrentIndex
                 (ui->AutresCorresp2upComboBox->findData(id));
         tooltp = CalcToolTipCorrespondant(id);
@@ -6378,18 +6407,19 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     else
         ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
     ui->AutresCorresp2upComboBox->setImmediateToolTip(tooltp);
-    ui->ImportanttextEdit->setText(m_currentpatient->important());
-    ui->ResumetextEdit->setText(m_currentpatient->resume());
-    ui->TtOphtextEdit->setText(m_currentpatient->traitementoph());
-    OKModifierTerrain(m_currentpatient, false);
+    ui->ImportanttextEdit->setText(pat->important());
+    ui->ResumetextEdit->setText(pat->resume());
+    ui->TtOphtextEdit->setText(pat->traitementoph());
+    OKModifierTerrain(pat, false);
 
     FermeDlgActesPrecedentsEtDocsExternes();
 
     //3 - récupération des actes
 
-    Datas::I()->actes->initListeByPatient(m_currentpatient);
-
-    if (Datas::I()->actes->actes()->size() == 0)
+    QString recuprequete = "SELECT idActe FROM " NOM_TABLE_ACTES
+            " WHERE idPat = '" + QString::number(pat->id()) + "' ORDER BY ActeDate";
+    QList<QVariantList> actlist = db->StandardSelectSQL(recuprequete, ok, tr("Impossible de retrouver les consultations de ce patient"));
+    if (!ok)
     {
         ui->Acteframe->setVisible(false);
         ui->CreerActepushButton_2->setVisible(true);
@@ -6400,14 +6430,23 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     }
     else
     {
-        OuvrirDocsExternes(m_currentpatient);        // depuis AfficheDossier
-        if (idacte > 0)
-            AfficheActe(Datas::I()->actes->getById(idacte));
+        OuvrirDocsExternes(pat);  // depuis AfficheDossier
+        if (actlist.size() > 0)           // Il y a des consultations
+        {
+            int a = (idacte == 0? actlist.last().at(0).toInt() : idacte);
+            AfficheActe(db->loadActeById(a));
+            if (actlist.size() > 1)
+                OuvrirActesPrecedents();
+            ui->ActeMotiftextEdit->setFocus();
+        }
         else
-            AfficheActe(Datas::I()->actes->actes()->last());
-        if (Datas::I()->actes->actes()->size() > 1)
-            OuvrirActesPrecedents();            //! depuis AfficheDossier()
-        ui->ActeMotiftextEdit->setFocus();
+        {
+            m_currentact = Q_NULLPTR;
+            ui->Acteframe->setVisible(false);
+            ui->CreerActepushButton_2->setVisible(true);
+            ui->CreerBOpushButton_2->setVisible(true);
+            ui->idActelineEdit->clear();
+        }
     }
     //4 - réglage du refracteur
     if (proc->PortRefracteur()!=Q_NULLPTR)
@@ -6421,7 +6460,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
 
     //5 - mise à jour du dossier en salle d'attente
     QString req =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE
-                " WHERE idPat = " + QString::number(m_currentpatient->id());
+                " WHERE idPat = " + QString::number(pat->id());
     QVariantList attdata = db->getFirstRecordFromStandardSelectSQL(req,ok,tr("Impossible de retrouver la salle d'attente!"));
     if (ok)
     {
@@ -6429,7 +6468,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         {
             req =   "INSERT INTO " NOM_TABLE_SALLEDATTENTE
                     " (idPat, idUser, Statut, HeureStatut, idUserEnCoursExam, PosteExamen, HeureArrivee)"
-                    " VALUES ('" + QString::number(m_currentpatient->id()) + "','" + QString::number(m_currentuser->getIdUserActeSuperviseur()) + "','" ENCOURSEXAMEN + m_currentuser->getLogin() + "','" + QTime::currentTime().toString("hh:mm")
+                    " VALUES ('" + QString::number(pat->id()) + "','" + QString::number(m_currentuser->getIdUserActeSuperviseur()) + "','" ENCOURSEXAMEN + m_currentuser->getLogin() + "','" + QTime::currentTime().toString("hh:mm")
                     + "'," + QString::number(m_currentuser->id()) + ", '" + QHostInfo::localHostName().left(60) + "','" + QTime::currentTime().toString("hh:mm") +"')";
             Msg = tr("Impossible de mettre ce dossier en salle d'attente");
         }
@@ -6440,7 +6479,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
                     "', HeureStatut = '" + QTime::currentTime().toString("hh:mm") +
                     "', idUserEnCoursExam = " + QString::number(m_currentuser->id()) +
                     ", PosteExamen = '" + QHostInfo::localHostName().left(60) +
-                    "' WHERE idPat = '" + QString::number(m_currentpatient->id()) + "'";
+                    "' WHERE idPat = '" + QString::number(pat->id()) + "'";
             Msg = tr("Impossible de modifier le statut du dossier en salle d'attente!");
         }
         //UpMessageBox::Watch(this,req);
@@ -6448,20 +6487,20 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     }
 
     ui->AtcdtsPersostextEdit->setFocus();
-    RecaleTableView(m_currentpatient);
-    CalcMotsCles(m_currentpatient);
+    RecaleTableView(pat);
+    CalcMotsCles(pat);
     flags->MAJFlagSalleDAttente();
 
     if (m_currentuser->id() > 1) return;
     QString Sexe = "";
-    req ="select idpat from " NOM_TABLE_PATIENTS " where patPrenom = '" + m_currentpatient->prenom() + "' and sexe = '' and patPrenom <> 'Dominique' and patPrenom <> 'Claude'";
+    req ="select idpat from " NOM_TABLE_PATIENTS " where patPrenom = '" + pat->prenom() + "' and sexe = '' and patPrenom <> 'Dominique' and patPrenom <> 'Claude'";
     QList<QVariantList> patlist = db->StandardSelectSQL(req, ok);
     if (patlist.size()>0)
     {
-        if (UpMessageBox::Question(this, tr("Il existe ") + QString::number(patlist.size()) + " " + m_currentpatient->prenom() + tr(" dont le sexe n'est pas précisé."), tr("Les convertir?")) == UpSmallButton::STARTBUTTON)
+        if (UpMessageBox::Question(this, tr("Il existe ") + QString::number(patlist.size()) + " " + pat->prenom() + tr(" dont le sexe n'est pas précisé."), tr("Les convertir?")) == UpSmallButton::STARTBUTTON)
         {
             UpMessageBox msgbox;
-            msgbox.setText(tr("Convertir ") + QString::number(patlist.size()) + " " + m_currentpatient->prenom() + "...");
+            msgbox.setText(tr("Convertir ") + QString::number(patlist.size()) + " " + pat->prenom() + "...");
             msgbox.setIcon(UpMessageBox::Warning);
             UpSmallButton MBouton;
             MBouton.setText(tr("Masculin"));
@@ -6480,16 +6519,17 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
             else if (msgbox.clickedButton() == &FBouton)
                 Sexe = "F";
             if (Sexe != ""){
-                db->StandardSQL("update " NOM_TABLE_PATIENTS " set sexe = '" + Sexe + "' where PatPrenom = '" + m_currentpatient->prenom() + "' and sexe = ''");
+                db->StandardSQL("update " NOM_TABLE_PATIENTS " set sexe = '" + Sexe + "' where PatPrenom = '" + pat->prenom() + "' and sexe = ''");
                 req ="select idpat from " NOM_TABLE_PATIENTS " where sexe = ''";
                 QList<QVariantList> patlist = db->StandardSelectSQL(req,ok);
                 if (ok && patlist.size()>0)
                 UpMessageBox::Information(this, tr("Il reste ") + QString::number(patlist.size()) + tr(" dossiers pour lesquels le sexe n'est pas précisé"),"");
-                m_currentpatient->setSexe(Sexe);
-                ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(m_currentpatient));
+                pat->setSexe(Sexe);
+                AfficheDossier(pat);
             }
         }
     }
+                                                                    //! qDebug() << "AfficheDossier() - fin " << m_currentpatient->nom()  << m_currentpatient->prenom() << m_currentpatient->id();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -6551,7 +6591,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             if (actdata.size()>0 && actdata.at(0).toInt() > 0) // =il n'y a pas de paiement enregistré pour le dernier acte
             {
                 if (actdata.at(0).toInt() != m_currentact->id())
-                    AfficheActe(Datas::I()->actes->getById(actdata.at(0).toInt()));
+                    AfficheActe(db->loadActeById(actdata.at(0).toInt()));
                 if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
                 {
                     msgbox.setText(tr("Vous avez entré un montant nul !"));
@@ -6737,6 +6777,15 @@ QString Rufus::CalcToolTipCorrespondant(int idcor)
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
+-- Chargement des données de l'utilisateur --------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------*/
+bool    Rufus::ChargeDataUser()
+{
+    m_currentuser = db->getUserConnected();
+    return true;
+}
+
+/*-----------------------------------------------------------------------------------------------------------------
 -- Redessine le cadre d'identification du patient en html  -------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
 QString Rufus::CalcHtmlIdentificationPatient(Patient *pat)
@@ -6873,9 +6922,9 @@ void Rufus::ChercheNomFiltre()
                 //! mettre en place un filtre directement sur la liste est moins rapide que de réinterroger la BDD directement en SQL
     //m_listepatientsproxymodel->setFilterRegExp("^" + ui->CreerNomlineEdit->text() + ".*");
     if (id != -1)
-        m_currentpatient = m_listepatients->getById(id, ItemsList::LoadDetails);
+        m_currentpatient = m_listepatients->getById(id, true);
     if (id0 != -1)
-        m_dossierpatientaouvrir = m_listepatients->getById(id0, ItemsList::LoadDetails);
+        m_dossierpatientaouvrir = m_listepatients->getById(id0, true);
     //qDebug() << "ChercheNomFiltre() - fin " << m_currentpatient->nom()  << m_currentpatient->prenom() << m_currentpatient->id();
     Remplir_ListePatients_TableView(m_listepatients) ;   //ChercheNomFiltre()
     if (m_listepatientsmodel->rowCount()>0)
@@ -6910,6 +6959,7 @@ void    Rufus::ChoixDossier(Patient *pat, int idacte)  // appelée depuis la tab
         }
         else
         {
+            m_dossierpatientaouvrir = pat;
             // On vérifie si le dossier n'est pas verrouillé par un autre utilisateur
             QString blabla = ENCOURSEXAMEN;
             int length = blabla.size();
@@ -6925,46 +6975,72 @@ void    Rufus::ChoixDossier(Patient *pat, int idacte)  // appelée depuis la tab
                                     tr("Ce patient est") + verroudata.at(1).toString() + "\n" + tr("sur ") + verroudata.at(2).toString());
                 return;
             }
-            m_currentpatient = pat;
         }
-        AfficheDossier(m_currentpatient, idacte);
+        AfficheDossier(pat, idacte);
     }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
 -- Créer un acte ------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::CreerActe(Patient *pat)
+Acte* Rufus::CreerActe(Patient *pat)
 {
+    Acte * acte = Q_NULLPTR;
+    if (pat == Q_NULLPTR)
+        pat = m_currentpatient;
+    if (pat == Q_NULLPTR)
+        return acte;
     if (ui->Acteframe->isVisible())
-        if(!AutorDepartConsult(false)) return;
-    Acte * acte = Datas::I()->actes->CreationActe(pat, proc->idCentre());
-    if (acte == Q_NULLPTR)
-        return;
-    m_currentact = acte;
-    acte = Q_NULLPTR;
-    delete acte;
-
-    Datas::I()->actes->add(m_currentact);
-    AfficheActe(m_currentact);
-    if (Datas::I()->actes->actes()->size() > 1)
+        if(!AutorDepartConsult(false)) return acte;
+    QString rempla = (m_currentuser->getEnregHonoraires()==3? "1" : "null");
+    QString creerrequete =
+            "INSERT INTO " NOM_TABLE_ACTES
+            " (idPat, idUser, ActeDate, ActeHeure, CreePar, UserComptable, UserParent,SuperViseurRemplacant, NumCentre, idLieu)"
+            " VALUES (" +
+            QString::number(pat->id()) + ", " +
+            QString::number(m_currentuser->getIdUserActeSuperviseur()) + ", "
+            "NOW(), "
+            "NOW(), " +
+            QString::number(m_currentuser->id()) + ", " +
+            QString::number(m_currentuser->getIdUserComptable()) + ", " +
+            QString::number(m_currentuser->getIdUserParent()) + ", " +
+            rempla + ", " +
+            QString::number(proc->idCentre()) + ", " +
+            QString::number(m_currentuser->getSite()->id()) +")";
+    //qDebug() << creerrequete;
+    if (!db->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + NOM_TABLE_ACTES))
+        return acte;
+    // Récupération de l'idActe créé et affichage du dossier ------------------------------------
+    QString maxrequete = "SELECT MAX(idActe) FROM " NOM_TABLE_ACTES
+                " WHERE idUser = " + QString::number(m_currentuser->getIdUserActeSuperviseur()) + " AND idPat = "+ QString::number(pat->id());
+    QVariantList maxactdata = db->getFirstRecordFromStandardSelectSQL(maxrequete ,ok , tr("Impossible de retrouver l'acte qui vient d'être créé"));
+    if (!ok)
+        return acte ;
+    acte = db->loadActeById(maxactdata.at(0).toInt());
+    AfficheActe(acte);
+    QString req = "SELECT idActe FROM " NOM_TABLE_ACTES " WHERE idPat = " + QString::number(pat->id());
+    QList<QVariantList> actlist = db->StandardSelectSQL(req,ok,tr("Impossible de compter le nombre d'actes"));
+    if (!ok)
+            return acte;
+    else if (actlist.size()>1)
     {
         QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
         for (int i = 0; i<listactesprecs.size();i++)
+        {
             if (listactesprecs.at(i)->getPatient() != pat)
+            {
                 listactesprecs.at(i)->close();
-        if (findChildren<dlg_actesprecedents *>().size() == 0)
-            OuvrirActesPrecedents();            //! depuis CreerActe()
+                listactesprecs.removeAt(i);
+                i--;
+            }
+        }
+        if (listactesprecs.size() == 0)
+            OuvrirActesPrecedents();
         else
-            findChildren<dlg_actesprecedents *>().at(0)->Actualise();
-    }
-    else
-    {
-        QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
-        for (int i = 0; i<listactesprecs.size();i++)
-            listactesprecs.at(i)->close();
+            listactesprecs.at(0)->Actualise();
     }
     ui->ActeMotiftextEdit->setFocus();
+    return acte;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -7034,17 +7110,14 @@ void Rufus::CreerDossier()
     }
 
     // 1. On recherche d'abord si le dossier existe
-    idPat = RecherchePatient(PatNom, PatPrenom, PatDDN, "Impossible de rechercher le dossier");
+    idPat = LectureMesure("", PatNom, PatPrenom, PatDDN, "", "", "Impossible de rechercher le dossier");
     if (idPat == -1)                                                // il y a eu une erreur pendant la recherche
         return ;
     if (idPat > 0)                                                  // Le dossier existe, on l'affiche
     {
         UpMessageBox::Watch(this, tr("Ce patient est déjà venu!"));
         if( m_currentuser->isSoignant() )
-        {
-            m_currentpatient = m_listepatients->getById(idPat);
-            AfficheDossier(m_currentpatient);
-        }
+            AfficheDossier(m_listepatients->getById(idPat));
         else
         {
             UpMessageBox msgbox;
@@ -7086,16 +7159,11 @@ void Rufus::CreerDossier()
     if (idPat == 0)
     {
         // Récupération de nom, prénom et DDN puis création du dossier---------------------------------
-        Patient *pat = m_listepatients->CreerPatient(PatNom, PatPrenom, ui->CreerDDNdateEdit->date());
+        Patient *pat = db->CreationPatient(PatNom, PatPrenom, ui->CreerDDNdateEdit->date(), "");
         if (pat == Q_NULLPTR)
             return;
 
-        if (!IdentificationPatient(dlg_identificationpatient::Creation, pat))
-        {
-            m_listepatients->SupprimePatient(pat);
-            m_listepatients->initListeAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
-            return;
-        }
+        if (!IdentificationPatient(dlg_identificationpatient::Creation, pat)) return;
         m_listepatients->initListeAll(pat->nom(), pat->prenom());
         Remplir_ListePatients_TableView(m_listepatients) ;   //CreerDossier
 
@@ -7125,8 +7193,8 @@ void Rufus::CreerDossier()
             else if (msgbox.clickedButton() == &AnnulBouton)
             {
                 m_currentpatient = pat;
-                CreerActe(m_currentpatient);
-                AfficheDossier(m_currentpatient);
+                AfficheDossier(pat);
+                CreerActe(pat);
             }
             else
                 RecaleTableView(pat);
@@ -7134,8 +7202,6 @@ void Rufus::CreerDossier()
         else
             if (!InscritEnSalDat(pat))
                 RecaleTableView(pat);
-        pat = Q_NULLPTR;
-        delete pat;
     }
 }
 
@@ -7445,7 +7511,7 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
     for (int n = 0; n <  ListDialogDocs.size(); n++)
         ListDialogDocs.at(n)->close();
     if (m_currentpatient != Q_NULLPTR)
-        ui->OuvreDocsExternespushButton->setEnabled(Datas::I()->docsexternes->docsexternes()->size()>0);
+        ui->OuvreDocsExternespushButton->setEnabled(db->loadDoscExternesByPatient(m_currentpatient).size()>0);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -7548,9 +7614,9 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
         if (mode == dlg_identificationpatient::Modification)
         {
             //  Mise à jour de m_currentpatient et de l'affichage si le dossier modifié est le dossier en cours
+            db->loadPatientById(pat->id(), pat, true);
             if (pat == m_currentpatient)
             {
-                db->loadPatientById(pat->id(), m_currentpatient, true);
                 ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(m_currentpatient));
                 ui->tabWidget->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),CalcIconPatient(m_currentpatient));
                 ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tabDossier) ,pat->nom() + " " + pat->prenom());
@@ -7576,9 +7642,11 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
 
         else if (mode == dlg_identificationpatient::Copie)
         {
-            pat = Dlg_IdentPatient->getPatient();
-            m_listepatients->initListeAll(pat->nom(), pat->prenom());
-            Remplir_ListePatients_TableView(m_listepatients) ;
+            pat = m_listepatients->getById(Dlg_IdentPatient->getPatient()->id());
+            // on met à jour les atcdts familiaux
+            QString req = "Update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " SET RMPAtcdtsFamiliaux = '" + pat->atcdtsfamiliaux() + "' where idPat = " + QString::number(pat->id());
+            db->StandardSQL(req);
+            pat = m_listepatients->getById(pat->id(),true);
             // Si le User est un soignant, on crée d'emblée une consultation et on l'affiche
             if( m_currentuser->isSoignant() )
             {
@@ -7604,9 +7672,8 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
                 }
                 else if (msgbox.clickedButton() == &AnnulBouton)
                 {
-                    m_currentpatient = pat;
-                    CreerActe(m_currentpatient);
-                    AfficheDossier(m_currentpatient);
+                    AfficheDossier(pat);
+                    CreerActe(pat);
                 }
                 else
                     RecaleTableView(pat);
@@ -7620,7 +7687,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
     }
     else  // si la fiche est rejetée
     {
-        if (mode == dlg_identificationpatient::Copie && Dlg_IdentPatient->getPatient() == Q_NULLPTR)  // il n'y a pas eu de copie parce que le dossssier existait déjà
+        if (mode == dlg_identificationpatient::Copie && Dlg_IdentPatient->getPatient()->id() == 0)  // il n'y a pas eu de copie parce que le dossssier existait déjà
         {
             QString Sexe ("");
             if (Dlg_IdentPatient->ui->MradioButton->isChecked()) Sexe = "M";
@@ -7758,8 +7825,9 @@ void Rufus::InitWidgets()
     "QLineEdit {background-color:white; border-style: none;}"
     "QLineEdit:focus {border-style:none;}");
     ui->ActeCotationcomboBox->lineEdit()->setMaxLength(20);
-    ui->ActeCotationcomboBox->lineEdit()->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
+    //ui->ActeCotationcomboBox->lineEdit()->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
     ui->ActeCotationcomboBox->lineEdit()->setFont(ui->ActeMontantlineEdit->font());
+    ui->ActeCotationcomboBox->lineEdit()->setValidator(new QRegExpValidator(Utils::rgx_cotation, this));
     ui->ActeCotationcomboBox->setFont(ui->ActeMontantlineEdit->font());
 
     QDoubleValidator *val = new QDoubleValidator(this);
@@ -8054,21 +8122,63 @@ void Rufus::InitVariables()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Recherche d'un dossier -----------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-int Rufus::RecherchePatient(QString PatNom, QString PatPrenom, QString PatDDN, QString MessageErreur)
+int Rufus::LectureMesure(QString lidPatient, QString lPatNom, QString lPatPrenom, QString lPatDDN, QString lPatCreeLe, QString lPatCreePar, QString MessageErreur)
 
 {
-    QString requete = "SELECT  idPat, PatNom, PatPrenom, PatDDN, PatCreeLe, PatCreePar"
-            " FROM " NOM_TABLE_PATIENTS
-            " WHERE PatNom = '" + Utils::correctquoteSQL(PatNom) + "'"
-            " AND PatPrenom = '" + Utils::correctquoteSQL(PatPrenom) + "'"
-            " AND PatDDN = '" + PatDDN +"'";
+    QString     Addrequete;
 
-    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok, MessageErreur);
+    QString requete = "SELECT  idPat, PatNom, PatPrenom, PatDDN, PatCreeLe, PatCreePar"
+            " FROM " NOM_TABLE_PATIENTS ;
+
+    // On relit la mesure après selection dans la liste mesure (reprendre)
+    Addrequete = "";
+    if (lidPatient.length() > 0 || Utils::correctquoteSQL(lPatNom).length() > 0 || Utils::correctquoteSQL(lPatPrenom).length() > 0 || lPatDDN.length() > 0 )
+        Addrequete += " WHERE ";
+    if (lidPatient.length() > 0 )
+        Addrequete += " idPat = '" + lidPatient + "'";
+    if (Utils::correctquoteSQL(lPatNom).length() > 0)
+    {
+        if (Addrequete != " WHERE ")
+            Addrequete += " AND PatNom = '" + Utils::correctquoteSQL(lPatNom) + "'";
+        else
+            Addrequete += "PatNom = '" + Utils::correctquoteSQL(lPatNom) + "'";
+    }
+    if (Utils::correctquoteSQL(lPatPrenom).length() > 0)
+    {
+        if (Addrequete != " WHERE ")
+            Addrequete += " AND PatPrenom = '" + Utils::correctquoteSQL(lPatPrenom) + "'";
+        else
+            Addrequete += "PatPrenom = '" + Utils::correctquoteSQL(lPatPrenom) + "'";
+    }
+    if (lPatDDN.length() > 0)
+    {
+        if (Addrequete != " WHERE ")
+            Addrequete += " AND PatDDN = '" + lPatDDN +"'";
+        else
+            Addrequete += "PatDDN = '" + lPatDDN + "'";
+    }
+    if (lPatCreeLe.length() > 0)
+    {
+        if (Addrequete != " WHERE ")
+            Addrequete += " AND PatCreeLe = '" + lPatCreeLe +"'";
+        else
+            Addrequete += "PatCreeLe = '" + lPatCreeLe + "'";
+    }
+    if (lPatCreePar.length() > 0)
+    {
+        if (Addrequete != " WHERE ")
+            Addrequete += " AND PatCreePar = '" + lPatCreePar +"'";
+        else
+            Addrequete += "PatCreePar = '" + lPatCreePar + "'";
+    }
+    requete += Addrequete;
+
+    QVariantList mesdata = db->getFirstRecordFromStandardSelectSQL(requete, ok, MessageErreur);
     if (!ok)
         return -1;
-    if (patdata.size() == 0)        // Aucune mesure trouvee pour ces criteres
+    if (mesdata.size() == 0)        // Aucune mesure trouvee pour ces criteres
         return 0;
-    return patdata.at(0).toInt();   // renvoie idPatient
+    return mesdata.at(0).toInt();   // retourne idPatient
 }
 
 // ------------------------------------------------------------------------------------------
@@ -8115,21 +8225,18 @@ void Rufus::MAJCorrespondant(QObject *obj)
                 else
                 {
                     if (cbox == ui->MGupComboBox)
-                        Datas::I()->patients->setmg(m_currentpatient, idcor);
+                        proc->setmg(m_currentpatient, idcor);
                     else if (cbox == ui->AutresCorresp1upComboBox)
-                        Datas::I()->patients->setspe1(m_currentpatient, idcor);
+                        proc->setspe1(m_currentpatient, idcor);
                     else if (cbox == ui->AutresCorresp2upComboBox)
-                        Datas::I()->patients->setspe2(m_currentpatient, idcor);
+                        proc->setspe2(m_currentpatient, idcor);
                     cbox->setCurrentIndex(cbox->findData(idcor));
                 }
             }
             else
             {
                 int e = cbox->findText(anc);
-                if (-1<e && e<cbox->count())
-                    cbox->setCurrentText(anc);
-                else
-                    cbox->setCurrentIndex(-1);
+                cbox->setCurrentIndex(e);
             }
             msgbox.close();
         }
@@ -8137,11 +8244,11 @@ void Rufus::MAJCorrespondant(QObject *obj)
     else
     {
         if (cbox == ui->MGupComboBox)
-            Datas::I()->patients->setmg(m_currentpatient);
+            proc->setmg(m_currentpatient);
         else if (cbox == ui->AutresCorresp1upComboBox)
-            Datas::I()->patients->setspe1(m_currentpatient);
+            proc->setspe1(m_currentpatient);
         else if (cbox == ui->AutresCorresp2upComboBox)
-            Datas::I()->patients->setspe2(m_currentpatient);
+            proc->setspe2(m_currentpatient);
         cbox->setCurrentIndex(-1);
         OKModifierTerrain(m_currentpatient);
     }
@@ -8208,7 +8315,7 @@ bool Rufus::NavigationConsult(int i)
 
     if (idActe > -1)
     {
-        AfficheActe(Datas::I()->actes->getById(idActe));
+        AfficheActe(db->loadActeById(idActe));
         return true;
     }
     else
@@ -8220,8 +8327,9 @@ bool Rufus::NavigationConsult(int i)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::OuvrirActesPrecedents()
 {
-    Dlg_ActesPrecs = new dlg_actesprecedents(Datas::I()->actes, true, this);
+    Dlg_ActesPrecs = new dlg_actesprecedents(m_currentpatient, true, this);
     Dlg_ActesPrecs->show();
+    Dlg_ActesPrecs->setWindowIcon(Icons::icLoupe());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -8376,7 +8484,7 @@ void    Rufus::RecopierDossier(Patient *patient)
     if (patient != Q_NULLPTR)
     {
         if (!patient->isalloaded())
-            patient = m_listepatients->getById(patient->id(), ItemsList::LoadDetails);
+            patient = m_listepatients->getById(patient->id(),true);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, patient);
         return;
@@ -8394,7 +8502,7 @@ void    Rufus::RecopierDossier(Patient *patient)
             return;
         }
         if (!pat->isalloaded())
-            pat = m_listepatients->getById(pat->id(), ItemsList::LoadDetails);
+            pat = m_listepatients->getById(pat->id(),true);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, pat);
     }
@@ -9494,8 +9602,9 @@ void Rufus::SupprimerActe(Acte *act)
         return;
     }
     dateacte = actlist.last().at(1).toDate();
-    Acte *nouvact;
-    if (actlist.size() > 1 )
+    if (actlist.size() < 2)           // Aucune autre consultation trouvee pour ces criteres
+        act = Q_NULLPTR;
+    else
     {
         int a;
         for (a = 0; a < actlist.size(); a++)
@@ -9504,7 +9613,7 @@ void Rufus::SupprimerActe(Acte *act)
             ++a;    //on est au milieu des actes -> on va rechercher l'idActe suivant
         else
             --a;    //on est sur le dernier acte -> on va rechercher l'idActe précédant
-        nouvact = Datas::I()->actes->getById(actlist.at(a).at(0).toInt());
+        act = db->loadActeById(actlist.at(a).at(0).toInt());
     }
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
@@ -9553,23 +9662,34 @@ void Rufus::SupprimerActe(Acte *act)
         db->StandardSQL(req);
     }
 
-    // on supprime l'acte -------------------------------------------------------------------------------------------------
-    Datas::I()->actes->SupprimeActe(act);
+    // on supprime la consultation -------------------------------------------------------------------------------------------------
+    req = "DELETE FROM " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(idASupprimer);
+    if (!db->StandardSQL(req))
+        return;
 
     // On affiche la nouvelle consultation
-    AfficheActe(nouvact);
+    AfficheActe(act);
 
     // On met à jour l'affichage éventuel de dlg_actesprecedents
     QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
     for (int i = 0; i<listactesprecs.size();i++)
-        if (listactesprecs.at(i)->getPatient() != pat)
-            listactesprecs.at(i)->close();
-    if (findChildren<dlg_actesprecedents *>().size()>0)
     {
-        if (Datas::I()->actes->actes()->size() < 2)
-            findChildren<dlg_actesprecedents *>().at(0)->close();
+        if (listactesprecs.at(i)->getPatient() != pat)
+        {
+            listactesprecs.at(i)->close();
+            listactesprecs.removeAt(i);
+            i--;
+        }
+    }
+    if (listactesprecs.size()>0)
+    {
+        if (actlist.size() < 3)
+        {
+            listactesprecs.at(0)->close();
+            listactesprecs.removeAt(0);
+        }
         else
-            findChildren<dlg_actesprecedents *>().at(0)->Actualise();
+            listactesprecs.at(0)->Actualise();
     }
 }
 
@@ -9667,19 +9787,72 @@ void Rufus::SupprimerDossier(Patient *pat)
         db->StandardSQL(requete);
     }
 
-    //!. Fermeture de l'onglet dossier
+    //5. On ferme l'onglet dossier
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
     FermeDlgActesPrecedentsEtDocsExternes();
 
-    //!. Suppression du dossier, reconstruction de la liste et du treeView
-    m_listepatients->SupprimePatient(pat);
-    m_currentpatient = Q_NULLPTR;
-    m_listepatients->initListeAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
-    Remplir_ListePatients_TableView(m_listepatients) ;   //SupprimerDossier()
+    //6. On supprime les bilans orthoptiques correspondants à ce dossier
+    requete =  "DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " NOM_TABLE_ACTES " where idPat = " + QString::number(pat->id()) + ")";
+    if (!db->StandardSQL(requete))
+        return;
+
+    //7. On supprime tous les actes correspondants à ce dossier
+    requete =  "DELETE FROM " NOM_TABLE_ACTES " WHERE idPat = " + QString::number(pat->id());
+    if (!db->StandardSQL(requete))
+        return;
+
+    //8. On supprime le dossier dans la base Rufus
+    requete =  "DELETE FROM " NOM_TABLE_PATIENTS " WHERE idPat = " + QString::number(pat->id());
+    if (!db->StandardSQL(requete))
+        return;
+
+    //9. On supprime les documents émis
+    requete =  "DELETE FROM " NOM_TABLE_IMPRESSIONS " WHERE idPat = " + QString::number(pat->id());
+    if (!db->StandardSQL(requete))
+        return;
+
+    requete =  "DELETE FROM " NOM_TABLE_DONNEESSOCIALESPATIENTS " WHERE idPat = " + QString::number(pat->id());
+    if (!db->StandardSQL(requete))
+        return;
+
+    requete =  "DELETE FROM " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " WHERE idPat = " + QString::number(pat->id());
+    if (!db->StandardSQL(requete))
+        return;
+
+    requete =  "DELETE FROM " NOM_TABLE_MOTSCLESJOINTURES " WHERE idPat = " + QString::number(pat->id());
+    if (!db->StandardSQL(requete))
+        return;
+
+    requete =  "DELETE FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(pat->id());
+    if (!db->StandardSQL(requete))
+        return;
     flags->MAJFlagSalleDAttente();
+
+    //10. On supprime le dossier dans la base OPhtalmologie
+    requete =  "DELETE FROM " NOM_TABLE_REFRACTION
+            " WHERE idPat = " + QString::number(pat->id());
+    db->StandardSQL(requete);
+
+    requete =  "DELETE FROM " NOM_TABLE_DONNEES_OPHTA_PATIENTS
+            " WHERE idPat = " + QString::number(pat->id());
+    db->StandardSQL(requete);
+
+    requete =  "DELETE FROM " NOM_TABLE_BIOMETRIES
+            " WHERE idPat = " + QString::number(pat->id());
+    db->StandardSQL(requete);
+
+    requete =  "DELETE FROM " NOM_TABLE_TONOMETRIE
+            " WHERE idPat = " + QString::number(pat->id());
+    db->StandardSQL(requete);
+
+
+    //10. On reconstruit le treeView Liste
+    m_currentpatient = Q_NULLPTR;
+    m_listepatients->initListeAll();
+    Remplir_ListePatients_TableView(m_listepatients) ;   //SupprimerDossier()
     ModeSelectDepuisListe();
 
-    //!. Fermeture de la fiche dlg_actesprecedents
+    //11. On ferme la fiche dlg_actesprecedents
     FermeDlgActesPrecedentsEtDocsExternes();
 }
 
@@ -9818,7 +9991,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
             ui->ActeMontantlineEdit->setText(NouveauMontant);
     }
     //on modifie la table Actes avec le nouveau montant
-    Datas::I()->actes->setMontantCotation(m_currentact, ui->ActeCotationcomboBox->currentText(), QLocale().toDouble(NouveauMontant));
+    EnregistreMontantActe(ui->ActeCotationcomboBox->currentText(), QLocale().toDouble(NouveauMontant), m_currentact);
     MAJActesPrecs();
 
     int idx = ui->ActeCotationcomboBox->currentIndex();

@@ -27,7 +27,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
 
     m_currentpatient     = pat;
     if (!pat->isalloaded())
-        pat = Datas::I()->patients->getById(pat->id(), ItemsList::LoadDetails);
+        pat = Datas::I()->patients->getById(pat->id(), true);
 
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
@@ -1135,7 +1135,6 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
     else if (choix == "Soignant")
     {
         ui->upTextEdit->textCursor().insertHtml("((" + tr("Quel soignant?") + "//SOIGNANT))");
-        delete gAskDialog;
     }
     else if (choix == TYPEANESTHESIE)
     {
@@ -1143,7 +1142,6 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += TYPEANESTHESIE;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
-        delete gAskDialog;
     }
     else if (choix == PROVENANCE)
     {
@@ -1151,7 +1149,6 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += PROVENANCE;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
-        delete gAskDialog;
     }
     else if (choix == TYPESEJOUR)
     {
@@ -1159,7 +1156,6 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += TYPESEJOUR;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
-        delete gAskDialog;
     }
     else if (choix == "Montant")
     {
@@ -1528,7 +1524,7 @@ void dlg_documents::Validation()
                                     if (linecombo->accessibleDescription() == listsoignants)
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        User* usr = Datas::I()->users->getById(idusr, ItemsList::LoadDetails);
+                                        User* usr = Datas::I()->users->getById(idusr, true);
                                         QString babar = (usr->isMedecin()? usr->getTitre() : "") + " " + usr->getPrenom() + " " + usr->getNom();
                                         Rempla          << babar;
                                         ExpARemplacer   << minidou + "//SOIGNANT))";
@@ -1541,7 +1537,7 @@ void dlg_documents::Validation()
                                     else
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        gUserEntete = Datas::I()->users->getById(idusr, ItemsList::LoadDetails);
+                                        gUserEntete = Datas::I()->users->getById(idusr, true);
                                     }
                                     delete linecombo;
                                 }

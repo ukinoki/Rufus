@@ -65,6 +65,7 @@ private: //Données du patient
     QString m_traitementoph;        //!< le traitement ophtalmo
     QString m_tabac;                //!< consommation de tabac /j
     QString m_toxiques;             //!< autres toxiques
+    QString m_gencorresp;           //!< nom du generaliste correspondant (plus utilisé)
     QString m_important;            //!< points importants du dossier
     QString m_resume;               //!< resumé du dossier
     bool    m_ismedicalloaded;      //!< les renseignements médicaux sont chargés
@@ -113,6 +114,7 @@ public:
     QString traitementoph();
     QString tabac();
     QString toxiques();
+    QString gencorresp();
     QString important();
     QString resume();
 
@@ -128,7 +130,7 @@ public:
     void addActe(Acte *acte);
 
     // Medical data
-    void    setmg(int id)   {m_idmg = id;}
+    void    setmg(int id) {m_idmg = id;}
     void    setspe1(int id) {m_idspe1 = id;}
     void    setspe2(int id) {m_idspe2 = id;}
 };

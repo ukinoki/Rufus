@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \brief Patients::Patients
  * Initialise la map Patient
  */
-Patients::Patients(QObject *parent) : ItemsList(parent)
+Patients::Patients()
 {
     m_patients = new QMap<int, Patient*>();
     m_full  = false;
@@ -43,16 +43,16 @@ bool Patients::isfull()
  * \return Q_NULLPTR si aucun patient trouvé
  * \return Patient* le patient correspondant à l'id
  */
-Patient* Patients::getById(int id, LOADDETAILS loadDetails)
+Patient* Patients::getById(int id, bool all)
 {
     Patient *pat = Q_NULLPTR;
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(id);
     if (itpat == m_patients->constEnd())
-        pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
+        pat = DataBase::I()->loadPatientById(id, pat, all);
     else
     {
         pat = itpat.value();
-        if (loadDetails == LoadDetails)
+        if (all)
             if (!pat->isalloaded())
             {
                 QJsonObject jsonPatient = DataBase::I()->loadAllDataPatientById(id);
@@ -97,7 +97,6 @@ void Patients::reloadSocialData(Patient *pat)
     if( !jData.isEmpty() )
         pat->setSocialData(jData);
 }
-
 
 /*!
  * \brief Patients::addPatient
@@ -155,61 +154,4 @@ void Patients::initListeByDDN(QDate DDN)
         m_patients = DataBase::I()->loadPatientsByDDN(DDN);
     m_full = (DDN == QDate());
 }
-
-void Patients::setmg(Patient *pat, int idmg)
-{
-    QString val = (idmg == 0? "null" : QString::number(idmg));
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + val + " where idpat = " + QString::number(pat->id());
-    DataBase::I()->StandardSQL(req);
-    pat->setmg(idmg);
-}
-
-void Patients::setspe1(Patient *pat, int idspe1)
-{
-    QString val = (idspe1 == 0? "null" : QString::number(idspe1));
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = " + val + " where idpat = " + QString::number(pat->id());
-    DataBase::I()->StandardSQL(req);
-    pat->setspe1(idspe1);
-}
-
-void Patients::setspe2(Patient *pat, int idspe2)
-{
-    QString val = (idspe2 == 0? "null" : QString::number(idspe2));
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = " + val + " where idpat = " + QString::number(pat->id());
-    DataBase::I()->StandardSQL(req);
-    pat->setspe2(idspe2);
-}
-
-void Patients::SupprimePatient(Patient *pat)
-{
-    //!. Suppression des bilans orthoptiques
-    QString requete;
-    DataBase::I()->StandardSQL("DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " NOM_TABLE_ACTES " where idPat = " + QString::number(pat->id()) + ")");
-    //!. Suppression des actes
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_ACTES);
-    //!. Suppression des documents émis
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_IMPRESSIONS);
-    //!. Suppression des mots cles utilisés
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_MOTSCLESJOINTURES);
-    //!. Suppression de la salle d'attente
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_SALLEDATTENTE);
-
-    //! Suppression dans la base OPhtalmologie
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_REFRACTION);
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_DONNEES_OPHTA_PATIENTS);
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_BIOMETRIES);
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_TONOMETRIE);
-
-    //!. Suppression du patient
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_PATIENTS);
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_DONNEESSOCIALESPATIENTS);
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    remove(pat);
-}
-
-Patient*    Patients::CreerPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe)
-{
-    return DataBase::I()->CreationPatient(nom, prenom, datedenaissance, sexe);
-}
-
 
