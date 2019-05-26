@@ -20,8 +20,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_site.h"
 #include "database.h"
+#include "cls_itemslist.h"
 
-class Sites
+class Sites : public ItemsList
 {
 private:
     QMap<int, Site*> *m_sites;    //!<Collection de tous les sites sans exception, généralistes ou pas
@@ -30,7 +31,7 @@ public:
     //GETTER
     QMap<int, Site *> *sites()     const;
 
-    Sites();
+    Sites(QObject *parent = Q_NULLPTR);
 
     bool add(Site *sit);
     Site* getById(int id);

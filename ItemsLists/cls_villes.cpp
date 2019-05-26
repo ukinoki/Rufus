@@ -61,7 +61,7 @@ QVariant VilleListModel::data(const QModelIndex& index, int role) const
 /*
  * Villes
 */
-Villes::Villes()
+Villes::Villes(QObject *parent) : ItemsList(parent)
 {
 }
 

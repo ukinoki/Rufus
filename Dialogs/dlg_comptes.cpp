@@ -34,16 +34,10 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
 
     // On reconstruit le combobox des comptes de l'utilisateur
     if (db->getUserConnected()->getComptes() == Q_NULLPTR)
-    {
-        comptesusr = new Comptes();
-        comptesusr->addCompte( db->loadComptesByUser(db->getUserConnected()->id()) );
-        db->getUserConnected()->setComptes(comptesusr);
-    }
-    else
-        comptesusr = db->getUserConnected()->getComptes();
+        proc->SetUserAllData(db->getUserConnected());
+    comptesusr = db->getUserConnected()->getComptes(true);
 
-
-    if (comptesusr->comptesAll()->size() == 0)
+    if (comptesusr->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas de compte bancaire enregistré!"));
         InitOK = false;
@@ -54,17 +48,17 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         CompteEnCours = new Compte();
         ui->BanquecomboBox->clear();
         int idcptprefer = -1;
-        QMultiMap<int, Compte*>::const_iterator itcpt;
-        for (itcpt = comptesusr->comptes()->constBegin(); itcpt != comptesusr->comptes()->constEnd(); ++itcpt)
+        QList<Compte*>::const_iterator itcpt;
+        for (itcpt = comptesusr->constBegin(); itcpt != comptesusr->constEnd(); ++itcpt)
         {
-            Compte *cpt = const_cast<Compte*>(itcpt.value());
+            Compte *cpt = const_cast<Compte*>(*itcpt);
             ui->BanquecomboBox->addItem(cpt->nom(),cpt->id());
-            if (cpt->isPrefere())
-                idcptprefer = cpt->id();
+            if (db->getUserConnected()->getCompteParDefaut() != Q_NULLPTR)
+                idcptprefer = db->getUserConnected()->getCompteParDefaut()->id();
         }
         ui->BanquecomboBox->setCurrentIndex(ui->BanquecomboBox->findData(idcptprefer));
         idCompte = ui->BanquecomboBox->currentData().toInt();
-        CompteEnCours = comptesusr->getCompteById(idCompte);
+        CompteEnCours = Datas::I()->comptes->getById(idCompte);
         if (CompteEnCours != Q_NULLPTR)
         {
             SoldeSurReleve = CompteEnCours->solde();
@@ -610,8 +604,8 @@ void dlg_comptes::CalculeTotal()
 void dlg_comptes::ChangeCompte(int idx)
 {
     idCompte = ui->BanquecomboBox->itemData(idx).toInt();
-    CompteEnCours = comptesusr->getCompteById(idCompte);
-    // on doit refaire la requête parce que le sole s'il est null est passé en 0 par loadcomptesbyUser()
+    CompteEnCours = Datas::I()->comptes->getById(idCompte);
+    // on doit refaire la requête parce que le solde s'il est null est passé en 0 par loadcomptesbyUser()
     bool ok = true;
     QList<QVariantList> listsoldes = db->SelectRecordsFromTable(QStringList() << "SoldeSurDernierReleve",
                                                                    NOM_TABLE_COMPTES, ok,

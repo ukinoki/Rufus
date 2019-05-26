@@ -20,21 +20,22 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cls_patient.h>
 #include "database.h"
+#include "cls_itemslist.h"
 
-class Patients
+class Patients : public ItemsList
 {
 
 public:
-    explicit Patients();
+    explicit Patients(QObject *parent = Q_NULLPTR);
 
     //GETTER
     QMap<int, Patient*> *patients() const;
 
 
-    Patient* getById(int id, bool all = false);                                             /*! charge les données du patient corresondant à l'id
+    Patient* getById(int id, LOADDETAILS loadDetails = NoLoadDetails);                      /*! charge les données du patient corresondant à l'id
                                                                                              * \brief Patients::getById
                                                                                              * \param id l'id du patient recherché
-                                                                                             * \param all =false  -> ne charge que les données d'identité - =true -> charge les données sociales et médicales
+                                                                                             * \param loadDetails = NoLoadDetails  -> ne charge que les données d'identité - = LoadDetails -> charge les données sociales et médicales
                                                                                              * \return Q_NULLPTR si aucun patient trouvé
                                                                                              * \return Patient* le patient correspondant à l'id
                                                                                              */
@@ -53,10 +54,30 @@ public:
 
     void initListeByDDN(QDate DDN = QDate());                                               /*! crée une liste de tous les patients pour une date de naissance
                                                                                             * \param DDN la date de naissance */
-
 private:
-    QMap<int, Patient*> *m_patients;                                                            //!< une liste de patients
+    QMap<int, Patient*> *m_patients;                                                        //!< une liste de patients
     bool m_full;                                                                            //! la liste contient tous les patients de la base
+
+
+public:
+
+
+    //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
+
+    //!> actions sur les champs
+    void        setmg(Patient* pat, int idmg = 0);          //! modifie le médecin généraliste d'un patient
+    void        setspe1(Patient* pat, int idspe1 = 0);      //! modifie le 1er correspondant spécialiste d'un patient
+    void        setspe2(Patient* pat, int idspe2 = 0);      //! modifie le 2ème correspondant spécialiste d'un patient
+
+    //!> actions sur les enregistrements
+    void        SupprimePatient(Patient *pat);
+    Patient*    CreerPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe = "");
+
+    //!< action sur toutes les données
+    void    updatePatient(Patient* pat);                                                    //!> met à jour les datas d'un patient à partir des données enregistrées dans la base
+    void    updatePatientData(Patient *pat, QString nomchamp, QVariant value);               //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour le patient
+
+
 };
 
 #endif // CLS_PATIENTS_H

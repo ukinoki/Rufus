@@ -991,6 +991,7 @@ void dlg_param::Slot_GestDataPersoUser()
     if(DonneesUserModifiees)
     {
         db->getUserConnected()->setData(db->loadUserData(gidUser));
+        proc->SetUserAllData(db->getUserConnected());
         gDataUser = db->getUserConnected();
         AfficheParamUser();
     }
@@ -1008,6 +1009,7 @@ void dlg_param::Slot_GestUser()
     if(DonneesUserModifiees)
     {
         db->getUserConnected()->setData(db->loadUserData(gidUser));
+        proc->SetUserAllData(db->getUserConnected());
         gDataUser = db->getUserConnected();
         AfficheParamUser();
     }
@@ -1133,7 +1135,7 @@ void dlg_param::NouvAppareil()
     UpComboBox *upCombo = new UpComboBox();
     upCombo->insertItems(0,glistAppareils);
     upCombo->setFixedSize(260,32);
-    upCombo->setChampCorrespondant("NomAppareil");
+    upCombo->setChamp("NomAppareil");
     upCombo->showPopup();
     lay->addWidget(upCombo);
     gAskAppareil->dlglayout()->insertLayout(0,lay);

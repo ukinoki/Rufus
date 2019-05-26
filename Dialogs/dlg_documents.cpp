@@ -27,7 +27,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
 
     m_currentpatient     = pat;
     if (!pat->isalloaded())
-        pat = Datas::I()->patients->getById(pat->id(), true);
+        pat = Datas::I()->patients->getById(pat->id(), ItemsList::LoadDetails);
 
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
@@ -1135,6 +1135,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
     else if (choix == "Soignant")
     {
         ui->upTextEdit->textCursor().insertHtml("((" + tr("Quel soignant?") + "//SOIGNANT))");
+        delete gAskDialog;
     }
     else if (choix == TYPEANESTHESIE)
     {
@@ -1142,6 +1143,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += TYPEANESTHESIE;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
+        delete gAskDialog;
     }
     else if (choix == PROVENANCE)
     {
@@ -1149,6 +1151,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += PROVENANCE;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
+        delete gAskDialog;
     }
     else if (choix == TYPESEJOUR)
     {
@@ -1156,6 +1159,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         txt += TYPESEJOUR;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
+        delete gAskDialog;
     }
     else if (choix == "Montant")
     {
@@ -1524,7 +1528,7 @@ void dlg_documents::Validation()
                                     if (linecombo->accessibleDescription() == listsoignants)
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        User* usr = Datas::I()->users->getById(idusr, true);
+                                        User* usr = Datas::I()->users->getById(idusr, ItemsList::LoadDetails);
                                         QString babar = (usr->isMedecin()? usr->getTitre() : "") + " " + usr->getPrenom() + " " + usr->getNom();
                                         Rempla          << babar;
                                         ExpARemplacer   << minidou + "//SOIGNANT))";
@@ -1537,7 +1541,7 @@ void dlg_documents::Validation()
                                     else
                                     {
                                         int idusr = linecombo->currentData().toInt();
-                                        gUserEntete = Datas::I()->users->getById(idusr, true);
+                                        gUserEntete = Datas::I()->users->getById(idusr, ItemsList::LoadDetails);
                                     }
                                     delete linecombo;
                                 }
@@ -2741,20 +2745,20 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
             if (ker.at(0).toDouble()>0)
             {
                 if (ker.at(3).toDouble()!=0.0)
-                    kerato += "<font color = " + proc->CouleurTitres + "><b>" + tr("KOD:") + "</b></font> " + QString::number(ker.at(0).toDouble(),'f',2) + "/" + QString::number(ker.at(1).toDouble(),'f',2) + " Km = " + QString::number((ker.at(0).toDouble() + ker.at(1).toDouble())/2,'f',2) +
+                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOD:") + "</b></font> " + QString::number(ker.at(0).toDouble(),'f',2) + "/" + QString::number(ker.at(1).toDouble(),'f',2) + " Km = " + QString::number((ker.at(0).toDouble() + ker.at(1).toDouble())/2,'f',2) +
                               " - " + QString::number(ker.at(3).toDouble(),'f',2) + "/" + QString::number(ker.at(4).toDouble(),'f',2) + " " + QString::number(ker.at(5).toDouble(),'f',2) +  " à " + ker.at(2).toString() + "°</td></p>";
                 else
-                    kerato += "<font color = " + proc->CouleurTitres + "><b>" + tr("KOD:") + "</b></font> " + QString::number(ker.at(0).toDouble(),'f',2) + " à " + ker.at(2).toString() + "°/" + QString::number(ker.at(1).toDouble(),'f',2) + " Km = " + QString::number((ker.at(0).toDouble() + ker.at(1).toDouble())/2,'f',2) ;
+                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOD:") + "</b></font> " + QString::number(ker.at(0).toDouble(),'f',2) + " à " + ker.at(2).toString() + "°/" + QString::number(ker.at(1).toDouble(),'f',2) + " Km = " + QString::number((ker.at(0).toDouble() + ker.at(1).toDouble())/2,'f',2) ;
             }
             if (ker.at(0).toDouble()>0 && ker.at(6).toDouble()>0)
                 kerato += "<br/>";
             if (ker.at(6).toDouble()>0.0)
             {
                 if (ker.at(9).toDouble()!=0.0)
-                    kerato += "<font color = " + proc->CouleurTitres + "><b>" + tr("KOG:") + "</b></font> " + QString::number(ker.at(6).toDouble(),'f',2) + "/" +QString::number( ker.at(7).toDouble(),'f',2) + " Km = " + QString::number((ker.at(6).toDouble() + ker.at(7).toDouble())/2,'f',2) +
+                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOG:") + "</b></font> " + QString::number(ker.at(6).toDouble(),'f',2) + "/" +QString::number( ker.at(7).toDouble(),'f',2) + " Km = " + QString::number((ker.at(6).toDouble() + ker.at(7).toDouble())/2,'f',2) +
                             " - " + QString::number(ker.at(9).toDouble(),'f',2) + "/" + QString::number(ker.at(10).toDouble(),'f',2) + " " + QString::number(ker.at(11).toDouble(),'f',2) +  " à " + ker.at(8).toString() + "°</td></p>";
                 else
-                    kerato += "<font color = " + proc->CouleurTitres + "><b>" + tr("KOG:") + "</b></font> " + QString::number(ker.at(6).toDouble(),'f',2) + " à " + ker.at(8).toString() + "°/" + QString::number(ker.at(7).toDouble(),'f',2) + " Km = " + QString::number((ker.at(6).toDouble() + ker.at(7).toDouble())/2,'f',2) ;
+                    kerato += "<font color = " COULEUR_TITRES "><b>" + tr("KOG:") + "</b></font> " + QString::number(ker.at(6).toDouble(),'f',2) + " à " + ker.at(8).toString() + "°/" + QString::number(ker.at(7).toDouble(),'f',2) + " Km = " + QString::number((ker.at(6).toDouble() + ker.at(7).toDouble())/2,'f',2) ;
             }
             texte.replace("{{" + KERATO + "}}",kerato);
         }
@@ -2771,11 +2775,11 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
             QVariantList ref = listref.last();
             QString refract = "";
             if (ref.at(0).toString() != "")
-                refract += "<font color = " + proc->CouleurTitres + "><b>" + tr("OD:") + "</b></font> " + ref.at(0).toString();
+                refract += "<font color = " COULEUR_TITRES "><b>" + tr("OD:") + "</b></font> " + ref.at(0).toString();
             if (ref.at(0).toString() != ""&& ref.at(1).toString() != "")
                 refract += "<br />";
             if (ref.at(1).toString() != "")
-                refract += "<font color = " + proc->CouleurTitres + "><b>" + tr("OG:") + "</b></font> " + ref.at(1).toString();
+                refract += "<font color = " COULEUR_TITRES "><b>" + tr("OG:") + "</b></font> " + ref.at(1).toString();
             texte.replace("{{" + REFRACT + "}}",refract);
         }
         else

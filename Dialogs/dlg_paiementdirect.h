@@ -61,8 +61,6 @@ private:
     bool                        ModifLigneRecettePossible;
     bool                        ModifPaiementEnCours;
     bool                        TraiteparCloseFlag;
-    int                         gidComptableACrediter;
-    int                         gidCompteBancaireParDefaut;
     int                         gidRecette;
     int                     gMode;
         enum gMode              {Accueil, EnregistrePaiement, VoirListeActes};
@@ -85,18 +83,16 @@ private:
     QList<QString>              MontantActesAModifier;
     QMap<int, User*>            *m_listeComptables;
     QMap<int, Banque*>          *m_banques;
-    QStandardItemModel          *p_listComptesEncaissmt;
-    QStandardItemModel          *p_listComptesEncaissmtAvecDesactive;
     QTimer                      *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;
     UpPushButton                *SupprimerBouton;
-    User                        *m_userConnected, *UserComptableACrediter;
+    User                        *m_userConnected, *m_useracrediter;
     QList<TypeTiers*>           *m_typestiers;
 
     dlg_gestionbanques           *Dlg_Banq;
 
     void                        closeEvent(QCloseEvent *event);
     bool                        eventFilter(QObject *obj, QEvent *event)  ;
-    void                        ChangeComptable(int idcomptable, bool depuislecombo = false);
+    void                        ChangeComptable(User *comptable, bool depuislecombo = false);
     void                        CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche = true);
     void                        DefinitArchitectureTableView(UpTableWidget *TableARemplir, int TypeTable = 0);
     int                         EnregistreRecette();
@@ -107,7 +103,7 @@ private:
     void                        ReconstruitListeBanques();
     void                        ReconstruitListeTiers();
     void                        RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
-    void                        RegleComptesComboBox(bool ActiveSeult = true);
+    void                        RegleComptesComboBox(bool avecLesComptesInactifs = false);
     void                        RemetToutAZero();
     void                        RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QVariantList> Tablelist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
     void                        RemplitLesTables();

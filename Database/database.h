@@ -51,6 +51,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_user.h"
 #include "cls_site.h"
 #include "cls_ville.h"
+#include "cls_compte.h"
 
 #include "log.h"
 #include "utils.h"
@@ -164,7 +165,7 @@ public:
                                                                         * crée l'utilisateur en cours m_userconnected  et complète tous les renseignements concernant cet utilisateur
                                                                         * renvoie un QJsonObject contenant les id d la réussite ou l'échec de la connection */
     QList<User*>            loadUsers();                                //! charge tous les utilisateurs Rufus référencés dans la table Utilisateurs avec des renseignements succincts
-    QJsonObject             loadUserData(int idUser);                   //! complète tous les renseignements concernant l'utilisateur défini par l'id
+    QJsonObject             loadUserData(int idUser);                   //! complète tous les renseignements concernant l'utilisateur défini par l'id sauf la liste des comptes
     QJsonObject             loadAdminData();                            //! complète tous les renseignements concernant l'utilisateur admin
 
     /*
@@ -197,7 +198,8 @@ public:
     /*
      * Compta
     */
-    QList<Compte*>          loadComptesByUser(int idUser);              //! charge tous les comptes d'un utilisateur à partir de la table comptes
+    QList<Compte*>          loadComptesAll();                           //! charge tous les comptes bancaires sans exception
+    QJsonObject             loadCompteById(int id);                     //! charge les datas d'un compte bancaire défini par son id
     QList<Depense*>         loadDepensesByUser(int idUser);             //! charge toutes les dépenses d'un utilisateur à partir de la table depenses
     void                    loadDepenseArchivee(Depense *dep);          //! charge tous renseignements sur une dépense archivée
     QStringList             ListeRubriquesFiscales();                   //! charge la liste de toutes les rubriques fiscales à partir de la table rubriques2035
@@ -244,7 +246,7 @@ public:
     /*
      * Patients
     */
-    QJsonObject             loadAllDataPatientById(int idPat);
+    QJsonObject             loadPatientAllData(int idPat);
     void                    loadSocialDataPatient(QJsonObject &jData, bool &ok);      //! charge les donnéess sociales d'un patient à partir de la table donneessocialespatients
     void                    loadMedicalDataPatient(QJsonObject &jData, bool &ok);     //! charge les donnéess médicales d'un patient à partir de la table renseignementsmedicauxpatients
     Patient*                loadPatientById(int idPat, Patient *pat = Q_NULLPTR, bool all = false);           //! charge un patient par son id à partir de la table patients
@@ -252,18 +254,23 @@ public:
                                                                                 /*! compte le nombre de patients
                                                                                 * \param patnom filtrer sur le nom de patient
                                                                                 * \param patprenom filtrer sur le prénom de patient */
-    QMap<int,Patient*>*        loadPatientsAll(QString nom = "", QString prenom = "", bool filtre = false);
+    QMap<int,Patient*>*     loadPatientsAll(QString nom = "", QString prenom = "", bool filtre = false);
                                                                                 /*! charge la liste de tous les patients à partir de la table patients
                                                                                 * \param patnom filtrer sur le nom de patient
                                                                                 * \param patprenom filtrer sur le prénom de patient
                                                                                 * \param le filtre se fait sur des valeurs aprrochantes */
-    QMap<int,Patient *>*      loadPatientsByDDN(QDate DDN);
-                                                                                /*! charge la liste de tous les patients pour une date de naissance
+
+    QMap<int,Patient *>*    loadPatientsByDDN(QDate DDN);                     /*! charge la liste de tous les patients pour une date de naissance
                                                                                 * \param DDN la date de naissance */
-    Patient*                CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe);
-                                                                                //! crée un patient àa partir des 4 paramètres nom, prenom, DDN, sexe
-    void                    UpdateCorrespondant(Patient *pat, typecorrespondant type, Correspondant *cor);
-                                                                                //! met à jour un des correspondants d'un patient
+
+    Patient*                CreationPatient(QString nom,                        //! crée un patient àa partir des 4 paramètres nom, prenom, DDN, sexe et rajoute la dete de création du dossier et l'id du créateur
+                                            QString prenom,
+                                            QDate datedenaissance,
+                                            QString sexe = "");
+
+    void                    UpdateCorrespondant(Patient *pat,                   //! met à jour un des correspondants d'un patient
+                                                typecorrespondant type,
+                                                Correspondant *cor);
 
     /*
      * Mots de passe
@@ -275,11 +282,10 @@ public:
      * Actes
     */
 private:
-    QString                 loadActeRequest(int idActe, int idPat);             //! création de la requête de selection d'un ou plusieurs actes
     QJsonObject             loadActeData(QVariantList actdata);                 //! attribue le liste des datas à un acte
 public:
     Acte*                   loadActeById(int idActe);                           //! charge un Acte à partir de son id
-    QJsonObject             loadActeAllData(int idacte);                        //! charge toutes les données d'un acte défini par son id - utilisé pour renouveler les données en cas de modification
+    QJsonObject             loadActeAllData(int idActe);                        //! charge toutes les données d'un acte défini par son id - utilisé pour renouveler les données en cas de modification
     QMap<int, Acte*>        loadActesByPat(Patient *pat);                       //! chrage les actes d'un patient
     double                  getActePaye(int idActe);                            //! retrouve le total des paiements pour un acte
 

@@ -19,15 +19,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_actesprecedents.h"
 
 //Uniquement consultative, cette fiche ne permet de modifier aucun élément de la base
-dlg_actesprecedents::dlg_actesprecedents(Patient *pat, bool AvantDernier, QWidget *parent) :
+dlg_actesprecedents::dlg_actesprecedents(Actes *actes, bool AvantDernier, QWidget *parent) :
     QDialog(parent),
 
 ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
-    m_currentpatient = pat;
+    m_listeActes = actes;
+    m_currentpatient = Datas::I()->patients->getById(m_listeActes->actes()->last()->idPatient());
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
+    setWindowIcon(Icons::icLoupe());
     proc            = Procedures::I();
     gAvantDernier   = AvantDernier;
     setAttribute(Qt::WA_DeleteOnClose);
@@ -58,8 +60,6 @@ ui(new Ui::dlg_actesprecedents)
 
 dlg_actesprecedents::~dlg_actesprecedents()
 {
-    for (itCurrentActe = m_listeActes.constBegin(); itCurrentActe != m_listeActes.constEnd(); ++itCurrentActe)
-        delete itCurrentActe.value();
     delete ui;
 }
 
@@ -70,8 +70,7 @@ dlg_actesprecedents::~dlg_actesprecedents()
  */
 void dlg_actesprecedents::Actualise()
 {
-    m_listeActes = DataBase::I()->loadActesByPat(m_currentpatient);
-    if( m_listeActes.size() == 0 )
+    if( m_listeActes->actes()->size() == 0 )
     {
         //ERROR
         //tr("Impossible de retrouver la dernière consultation")
@@ -79,8 +78,8 @@ void dlg_actesprecedents::Actualise()
     }
 
     int initScrollValue;
-    itCurrentActe = m_listeActes.find(m_listeActes.lastKey());
-    initScrollValue = m_listeActes.size() - 1;
+    itCurrentActe = m_listeActes->getLast();
+    initScrollValue = m_listeActes->actes()->size() - 1;
     if( gAvantDernier )
     {
         --initScrollValue;
@@ -88,19 +87,19 @@ void dlg_actesprecedents::Actualise()
         if( itCurrentActe == Q_NULLPTR )
         {
             initScrollValue = 0;
-            itCurrentActe = m_listeActes.constBegin();
+            itCurrentActe = m_listeActes->actes()->constBegin();
         }
     }
     ui->ScrollBar->disconnect();
     ui->ScrollBar->setMinimum(0);
-    ui->ScrollBar->setMaximum(m_listeActes.size() - 1);
+    ui->ScrollBar->setMaximum(m_listeActes->actes()->size() - 1);
     ui->ScrollBar->setSingleStep(1);
     ui->ScrollBar->setValue(initScrollValue);
-    ActesPrecsAfficheActe( );
+    ActesPrecsAfficheActe();
 
     if( ui->ScrollBar->maximum() > 0 )
         connect(ui->ScrollBar, &QScrollBar::valueChanged, this, [=](int newValue) {
-            itCurrentActe = m_listeActes.find( m_listeActes.keys().at(newValue) );
+            itCurrentActe = m_listeActes->getAt(newValue);
             ActesPrecsAfficheActe();
         });
 }
@@ -126,7 +125,7 @@ void dlg_actesprecedents::keyPressEvent(QKeyEvent *keyEvent)
 
         --itCurrentActe;
         if( itCurrentActe == Q_NULLPTR)
-            itCurrentActe = m_listeActes.constBegin();
+            itCurrentActe = m_listeActes->actes()->constBegin();
         ActesPrecsAfficheActe();
     }
 
@@ -200,26 +199,23 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
     return dlg_actesprecedents::eventFilter(obj, event);
 }
 
-void dlg_actesprecedents::reloadActe(Acte* acte)
-{
-    m_listeActes[acte->id()] = DataBase::I()->loadActeById(acte->id());
-}
-
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Afficher les champs ---------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 {
-    itCurrentActe = m_listeActes.find(acte->id());
-    if( itCurrentActe == m_listeActes.constEnd() )
+    itCurrentActe = m_listeActes->actes()->find(acte->id());
+    if( itCurrentActe == m_listeActes->actes()->constEnd() )
         return;
     ActesPrecsAfficheActe();
 }
 
 void dlg_actesprecedents::ActesPrecsAfficheActe()
 {
-    acte = itCurrentActe.value();
-    if( !acte->isValid() )    // Aucune consultation trouvee pour ces criteres
+    Acte *acte = itCurrentActe.value();
+    User * usr = Datas::I()->users->getById(acte->idUser());
+
+    if( acte == Q_NULLPTR )    // Aucune consultation trouvee pour ces criteres
         return;
 
     ui->idPatientlineEdit->setText(QString::number(acte->idPatient()));
@@ -230,9 +226,9 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     ui->ConclusionupTextEdit->clear();
 
     QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
-                      "<td width=\"130\"><font color = \"" + proc->CouleurTitres + "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
+                      "<td width=\"130\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
                       "<td width=\"60\">" + Item::CalculAge(acte->agePatient(), acte->date())["toString"].toString() + "</td>"
-                      "<td width=\"400\">" + Datas::I()->users->getById(acte->idUser())->getPrenom() + " " + Datas::I()->users->getById(acte->idUser())->getNom() + "</td></p>";
+                      "<td width=\"400\">" + usr->getPrenom() + " " + usr->getNom() + "</td></p>";
     ui->EnteteupLabel->setText(textHTML);
     if( acte->motif().size() || acte->texte().size() || acte->conclusion().size() )
     {
@@ -241,7 +237,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         {
             QString texte = acte->motif();
             Utils::convertHTML(texte);
-            textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\"><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("MOTIF") + "</font></td></p>";
+            textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\"><td width=\"450\"><font color = \"" COULEUR_TITRES "\">" + tr("MOTIF") + "</font></td></p>";
             textHTML += "<p style = \"margin-top:0px; margin-bottom:10px;\"><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
         }
 
@@ -249,7 +245,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         {
             QString texte = acte->texte();
             Utils::convertHTML(texte);
-            textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("EXAMEN") + "</font></td></p>";
+            textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" COULEUR_TITRES "\">" + tr("EXAMEN") + "</font></td></p>";
             textHTML += "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
         }
         ui->CorpsupTextEdit->setText(textHTML);
@@ -259,7 +255,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         {
             QString texte = acte->conclusion();
             if( acte->motif().size() || acte->texte().size() )
-                textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" + proc->CouleurTitres + "\">" + tr("CONCLUSION") + "</font></td></p>";
+                textHTML += "<p style = \"margin-top:0px; margin-bottom:0px;\" ><td width=\"450\"><font color = \"" COULEUR_TITRES "\">" + tr("CONCLUSION") + "</font></td></p>";
             textHTML += "<p style = \"margin-top:0px; margin-bottom:10px;\" ><td width=\"10\"></td><td width=\"450\">" + texte + "</td></p>";
         }
         ui->ConclusionupTextEdit->setText(textHTML);
@@ -272,33 +268,28 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     //2. retrouver le créateur de l'acte
     //idUser = ActesPrecsQuery.value(2).toInt();
     ui->CreateurConsultlineEdit->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->getLogin() +
-                                         tr(" pour ") + Datas::I()->users->getById(acte->idUser())->getLogin()); //Avant idPatient
+                                         tr(" pour ") + usr->getLogin()); //Avant idPatient
 
     //3. Mettre à jour le numéro d'acte
-    if( acte->nbActes() > 1 )
+    if( m_listeActes->actes()->size() > 1 )
     {
-        //disconnect(ui->ScrollBar, 0, this, 0);
-        int scrolPos = m_listeActes.keys().indexOf(acte->id());
+        int scrolPos = m_listeActes->actes()->keys().indexOf(acte->id());
         ui->ScrollBar->setValue(scrolPos);
-        /*connect(ui->ScrollBar, &QScrollBar::valueChanged, this, [=](int newValue) {
-            itCurrentActe = m_listeActes.find( m_listeActes.keys().at(newValue) );
-            ActesPrecsAfficheActe();
-        });*/
     }
 
-    bool canprec = (acte->nbActes() > 1 && acte->noActe() > 1);
+    bool canprec = (m_listeActes->actes()->size() > 1 && m_listeActes->actes()->keys().indexOf(acte->id()) > 0);
     ui->ActePrecedentpushButton->setEnabled(canprec);
 
-    bool cansui = (acte->nbActes() > 1 && acte->noActe() < acte->nbActes());
+    bool cansui = (m_listeActes->actes()->size() > 1 && m_listeActes->actes()->keys().indexOf(acte->id()) < m_listeActes->actes()->size() - 1);
     ui->ActeSuivantpushButton->setEnabled(cansui);
 
-    bool canfirst = (acte->nbActes() > 1 && acte->noActe() > 1);
+    bool canfirst = (m_listeActes->actes()->size() > 1 && m_listeActes->actes()->keys().indexOf(acte->id()) > 0);
     ui->PremierActepushButton->setEnabled(canfirst);
 
-    bool canlast = (acte->nbActes() > 1 && acte->noActe() < acte->nbActes());
+    bool canlast = (m_listeActes->actes()->size() > 1 && m_listeActes->actes()->keys().indexOf(acte->id()) < m_listeActes->actes()->size() - 1);
     ui->DernierActepushButton->setEnabled(canlast);
 
-    ui->NoActelabel->setText(QString::number(acte->noActe()) + " / " + QString::number(acte->nbActes()));
+    ui->NoActelabel->setText(QString::number(m_listeActes->actes()->keys().indexOf(acte->id()) + 1) + " / " + QString::number(m_listeActes->actes()->size()));
 
     //4. Afficher les renseignements comptables
     ui->ActeCotationlineEdit->setText(acte->cotation());
@@ -388,29 +379,29 @@ Acte* dlg_actesprecedents::getActeAffiche()
 ------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_actesprecedents::NavigationConsult(int i)
 {
-    if( acte->nbActes() == 1 )
+    if( m_listeActes->actes()->size() == 1 )
         return true;
 
     int idActe = -1;
     if (i == Suiv)
     {
         ++itCurrentActe;
-        if( itCurrentActe == m_listeActes.constEnd() )
-            itCurrentActe = m_listeActes.find(m_listeActes.lastKey());
+        if( itCurrentActe == m_listeActes->actes()->constEnd() )
+            itCurrentActe = m_listeActes->getLast();
     }
     else if (i == Prec)
     {
         --itCurrentActe;
         if( itCurrentActe == Q_NULLPTR )
-            itCurrentActe = m_listeActes.constBegin();
+            itCurrentActe = m_listeActes->actes()->constBegin();
     }
     else if (i == Debut)
     {
-        itCurrentActe = m_listeActes.constBegin();
+        itCurrentActe = m_listeActes->actes()->constBegin();
     }
     else if (i == Fin)
     {
-        itCurrentActe = m_listeActes.find(m_listeActes.lastKey());
+        itCurrentActe = m_listeActes->getLast();
     }
 
     idActe = itCurrentActe.value()->id();
