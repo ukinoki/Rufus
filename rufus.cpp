@@ -427,26 +427,11 @@ void Rufus::OuvrirDocsExternes(Patient *pat)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::MAJActesPrecs()
 {
-    QString txt = m_currentact->conclusion();
-    Utils::convertPlainText(txt);
-    qDebug() << txt;
-    qDebug() << m_currentact;
     QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
     if (m_currentact != Q_NULLPTR)
         for (int n = 0; n < ListDialog.size(); n++)
-        {
-            QString txt = ListDialog.at(n)->getActeAffiche()->conclusion();
-            Utils::convertPlainText(txt);
-            qDebug() << txt;
-            qDebug() << ListDialog.at(n)->getActeAffiche();
             if (ListDialog.at(n)->getActeAffiche() == m_currentact)
-            {
-                QString txt = m_currentact->conclusion();
-                Utils::convertPlainText(txt);
-                qDebug() << txt;
                 ListDialog.at(n)->ActesPrecsAfficheActe(m_currentact);
-            }
-        }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
