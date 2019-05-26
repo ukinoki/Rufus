@@ -18,8 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_acte.h"
 
 int Acte::id() const                    { return m_id; }
-int Acte::nbActes() const               { return m_nbActes; }
-int Acte::noActe() const                { return m_noActe; }
 QDate Acte::date() const                { return m_date.date(); }
 QString Acte::motif() const             { return m_motif; }
 QString Acte::texte() const             { return m_texte; }
@@ -42,10 +40,6 @@ Acte::Acte(QObject *parent) : Item(parent)
 {
 
 }
-Acte::Acte(int idActe, int nbActe, int noActe, QObject *parent) : Item(parent), m_id(idActe), m_nbActes(nbActe), m_noActe(noActe)
-{
-
-}
 
 void Acte::setData(QJsonObject data)
 {
@@ -53,10 +47,6 @@ void Acte::setData(QJsonObject data)
         return;
 
     setDataInt(data, "id", m_id);
-    setDataInt(data, "nbActes", m_nbActes);
-    setDataInt(data, "noActe", m_noActe);
-    setDataInt(data, "idActeMin", m_idActeMin);
-    setDataInt(data, "idActeMax", m_idActeMax);
     setDataInt(data, "idCreatedBy", m_idCreatedBy);
     setDataInt(data, "idPatient", m_idPatient);
     setDataInt(data, "idUser", m_idUser);
@@ -81,7 +71,6 @@ void Acte::setData(QJsonObject data)
 }
 
 
-bool Acte::isValid() { return m_nbActes > 0; }
 bool Acte::courrierAFaire() { return m_courrierStatus == "T" || m_courrierStatus == "1"; }
 bool Acte::isPayeEnFranc() const { return m_monnaie == "F"; }
 

@@ -86,7 +86,17 @@ Acte* Actes::getById(int id, ADDTOLIST add)
     return itact.value();
 }
 
-void Actes::reloadActe(Acte* acte)
+QMap<int, Acte*>::const_iterator Actes::getLast()
+{
+    return actes()->find(actes()->lastKey());
+}
+
+QMap<int, Acte*>::const_iterator Actes::getAt(int idx)
+{
+    return actes()->find( actes()->keys().at(idx) );
+}
+
+void Actes::updateActe(Acte* acte)
 {
     acte->setData(DataBase::I()->loadActeAllData(acte->id()));
 }

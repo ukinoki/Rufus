@@ -37,9 +37,11 @@ public:
     void    addList(QList<Acte*> listActes);
     void    remove(Acte* acte);
     void    clearAll();
-    Acte*   getById(int id, ADDTOLIST add = AddToList);
-    void    initListeByPatient(Patient *pat);
-    void    reloadActe(Acte* acte);
+    Acte*   getById(int id, ADDTOLIST add = AddToList);                                     //!> crée un acte à partir de son id
+    QMap<int, Acte*>::const_iterator   getLast();                                           //!> renvoie le dernier acte de la liste
+    QMap<int, Acte*>::const_iterator   getAt(int idx);                                      //!> renvoie l'acte de la liste à l'index idx
+    void    initListeByPatient(Patient *pat);                                               //!> charge tous les actes d'un patient
+    void    updateActe(Acte* acte);                                                         //!> met à jour les dayas d'un acte
 
     //!> actions sur les champs
     void    setMontantCotation(Acte *act, QString Cotation = "", double montant = 0.0);

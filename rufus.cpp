@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("25-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("26-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -427,11 +427,26 @@ void Rufus::OuvrirDocsExternes(Patient *pat)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::MAJActesPrecs()
 {
+    QString txt = m_currentact->conclusion();
+    Utils::convertPlainText(txt);
+    qDebug() << txt;
+    qDebug() << m_currentact;
     QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
     if (m_currentact != Q_NULLPTR)
-        for (int n = 0; n <  ListDialog.size(); n++)
+        for (int n = 0; n < ListDialog.size(); n++)
+        {
+            QString txt = ListDialog.at(n)->getActeAffiche()->conclusion();
+            Utils::convertPlainText(txt);
+            qDebug() << txt;
+            qDebug() << ListDialog.at(n)->getActeAffiche();
             if (ListDialog.at(n)->getActeAffiche() == m_currentact)
+            {
+                QString txt = m_currentact->conclusion();
+                Utils::convertPlainText(txt);
+                qDebug() << txt;
                 ListDialog.at(n)->ActesPrecsAfficheActe(m_currentact);
+            }
+        }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -1522,18 +1537,17 @@ void Rufus::CreerBilanOrtho(Patient *pat)
     QDate DateBl;
     if (pat == Q_NULLPTR)
         return;
-    Acte *act = m_currentact;
     if (ui->Acteframe->isVisible() && m_currentact != Q_NULLPTR)
     {
         QString requete = "select idbilanortho from " NOM_TABLE_BILANORTHO
-                " where idbilanortho = " + QString::number(act->id());
+                " where idbilanortho = " + QString::number(m_currentact->id());
         QVariantList bodata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         if (!ok)
             return;
         nouveauBO = (bodata.size()<1);
         if (!nouveauBO)
         {
-            DateBl = act->date();
+            DateBl = m_currentact->date();
             if (DateBl != QDate::currentDate())
             {
                 UpMessageBox msgbox;
@@ -1553,19 +1567,19 @@ void Rufus::CreerBilanOrtho(Patient *pat)
                 creeracte = (msgbox.clickedButton() == &NouveauBOBouton);
                 msgbox.close();
             }
-            else if (!Datas::I()->users->getById(act->idCreatedBy())->isOrthoptist())
+            else if (!Datas::I()->users->getById(m_currentact->idCreatedBy())->isOrthoptist())
             {
                 nouveauBO = true;
                 creeracte = false;
             }
         }
         else
-            creeracte = !Datas::I()->users->getById(act->idCreatedBy())->isOrthoptist();
+            creeracte = !Datas::I()->users->getById(m_currentact->idCreatedBy())->isOrthoptist();
     }
 
     if (!nouveauBO)
     {
-        Dlg_BlOrtho             = new dlg_bilanortho(act, nouveauBO);
+        Dlg_BlOrtho             = new dlg_bilanortho(m_currentact, nouveauBO);
         QString Titre           = tr("Bilan orthoptique - ") + pat->prenom() + " " + pat->nom();
         Dlg_BlOrtho->ui->OcclAlternlabel    ->setVisible(pat->datedenaissance().daysTo(DateBl) < 730);
         Dlg_BlOrtho->ui->OcclAlterncomboBox ->setVisible(pat->datedenaissance().daysTo(DateBl) < 730);
@@ -1580,9 +1594,9 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         {
             if (ui->Acteframe->isVisible())
                 if (!AutorDepartConsult(false)) return;
-            act = CreerActe(pat);
+            CreerActe(pat);
         }
-        Dlg_BlOrtho             = new dlg_bilanortho(act, nouveauBO);
+        Dlg_BlOrtho             = new dlg_bilanortho(m_currentact, nouveauBO);
         QString Titre           = tr("Bilan orthoptique - ") + pat->prenom() + " " + pat->nom();
         Dlg_BlOrtho             ->setWindowTitle(Titre);
         QString RefractionOD    = "";
@@ -1615,14 +1629,14 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         Motif                           = paragraph + debutdelimiter + Motif + "</a></p>";
         ui->ActeMotiftextEdit           ->setText(Motif);
         updaterequete                   = "UPDATE " NOM_TABLE_ACTES " SET ActeMotif = '" + Utils::correctquoteSQL(ui->ActeMotiftextEdit->toHtml()) +
-                                          "' where idActe = " + QString::number(act->id());
+                                          "' where idActe = " + QString::number(m_currentact->id());
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Motif !"));
 
         // Compléter le Champ Texte et mettre à jour l'affichage de ActeTextetextEdit
         QString Reponse                 = Dlg_BlOrtho->calcReponsehTml(ui->ActeTextetextEdit->toHtml());
         ui->ActeTextetextEdit           ->setHtml(Reponse);
         updaterequete                   = "UPDATE " NOM_TABLE_ACTES " SET ActeTexte = '" + Utils::correctquoteSQL(Reponse) +
-                                          "' where idActe = " + QString::number(act->id());
+                                          "' where idActe = " + QString::number(m_currentact->id());
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Texte !"));
 
         // Compléter le Champ Conclusion et mettre à jour l'affichage de ActeConclusiontextEdit
@@ -1631,7 +1645,7 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         Concl                           = paragraph + debutdelimiter + Concl + "</p>";
         ui->ActeConclusiontextEdit      ->setText(Concl);
         updaterequete                   = "UPDATE " NOM_TABLE_ACTES " SET ActeConclusion = '" + Utils::correctquoteSQL(ui->ActeConclusiontextEdit->toHtml()) +
-                                          "' where idActe = " + QString::number(act->id());
+                                          "' where idActe = " + QString::number(m_currentact->id());
         db->StandardSQL(updaterequete, tr("Impossible de mettre à jour le champ Conclusion!"));
 
         //Mettre à jour la table bilanortho
@@ -1652,7 +1666,7 @@ void Rufus::CreerBilanOrtho(Patient *pat)
                 ", HEcranVPASCD, HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC"     // 60,61,62,63,64
                 ", HMaddoxVPSCD, HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD"      // 65,66,67,68,69
                 ") \nVALUES \n(";
-        bilanorthorequete += QString::number(act->id());                                                                          //0 idActe
+        bilanorthorequete += QString::number(m_currentact->id());                                                                          //0 idActe
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Motif) + "'\n";                           //1 Motif
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVODlineEdit->text()) + "'\n";                     //2
         bilanorthorequete += ", '" + Utils::correctquoteSQL(Dlg_BlOrtho->ui->AVOGlineEdit->text()) + "'\n";                     //3
@@ -1818,7 +1832,7 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }
     else
-        if (nouveauBO) SupprimerActe(act);
+        if (nouveauBO) SupprimerActe(m_currentact);
 
     Dlg_BlOrtho->close();
     delete Dlg_BlOrtho;
@@ -3350,27 +3364,22 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
         return;
     if (choix == "Autre Dossier")
     {
-        Actes *actesaouvrir = new Actes;
-        actesaouvrir->initListeByPatient(m_dossierpatientaouvrir);
-        if (actesaouvrir->actes()->size()  == 0)
+        Actes *acts = new Actes;
+        acts->initListeByPatient(m_dossierpatientaouvrir);
+        if (acts->actes()->size()  == 0)
         {
             UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ") + m_dossierpatientaouvrir->prenom() + " " + m_dossierpatientaouvrir->nom());
             return;
         }
         else
         {
-            Actes acts;
-            acts.initListeByPatient(m_dossierpatientaouvrir);
-            QMap<int, Acte*> *listactes = acts.actes();
-            Dlg_ActesPrecs  = new dlg_actesprecedents(listactes, false, this);
+            Dlg_ActesPrecs  = new dlg_actesprecedents(acts, false, this);
             Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + m_dossierpatientaouvrir->nom() + " " + m_dossierpatientaouvrir->prenom());
             Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
             Dlg_ActesPrecs  ->exec();
-            acts.clearAll();
-            delete listactes;
         }
-        actesaouvrir->clearAll();
-        delete actesaouvrir;
+        acts->clearAll();
+        delete acts;
     }
     else if (choix == "SalDat")
         InscritEnSalDat(m_dossierpatientaouvrir);
@@ -4002,7 +4011,7 @@ void Rufus::OuvrirActesPrecspushButtonClicked()
             listres.at(0)->show();
     }
     else
-        OuvrirActesPrecedents();
+        OuvrirActesPrecedents();            //! depuis OuvrirActesPrecspushButtonClicked()
 }
 
 void Rufus::OuvrirJournalDepenses()
@@ -5866,7 +5875,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                 }
                 if (objUpText->getTableCorrespondant() == NOM_TABLE_ACTES)
                 {
-                    Datas::I()->actes->reloadActe(m_currentact);
+                    Datas::I()->actes->updateActe(m_currentact);
                     MAJActesPrecs();
                 }
             }
@@ -5888,7 +5897,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                         requetemodif =   "UPDATE " NOM_TABLE_ACTES " SET " + objUpLine->getChampCorrespondant() + " = '"
                                 + Utils::correctquoteSQL(objUpLine->text()) + "' WHERE idActe = " + QString::number(m_currentpatient->id());
                         db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpLine->getChampCorrespondant() + "!");
-                        Datas::I()->actes->reloadActe(m_currentact);
+                        Datas::I()->actes->updateActe(m_currentact);
                     }
                     else if (objUpLine->getTableCorrespondant() == NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS)
                     {
@@ -5911,7 +5920,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     else
                     {
                         gActeDate       = ui->ActeDatedateEdit->text();
-                        Datas::I()->actes->reloadActe(m_currentact);
+                        Datas::I()->actes->updateActe(m_currentact);
                         MAJActesPrecs();
                     }
                 }
@@ -6407,10 +6416,12 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     else
     {
         OuvrirDocsExternes(m_currentpatient);        // depuis AfficheDossier
-        int a = (idacte == 0? Datas::I()->actes->actes()->last()->id() : idacte);
-        AfficheActe(Datas::I()->actes->getById(a));
+        if (idacte > 0)
+            AfficheActe(Datas::I()->actes->getById(idacte));
+        else
+            AfficheActe(Datas::I()->actes->actes()->last());
         if (Datas::I()->actes->actes()->size() > 1)
-            OuvrirActesPrecedents();
+            OuvrirActesPrecedents();            //! depuis AfficheDossier()
         ui->ActeMotiftextEdit->setFocus();
     }
     //4 - réglage du refracteur
@@ -6555,7 +6566,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             if (actdata.size()>0 && actdata.at(0).toInt() > 0) // =il n'y a pas de paiement enregistré pour le dernier acte
             {
                 if (actdata.at(0).toInt() != m_currentact->id())
-                    AfficheActe(db->loadActeById(actdata.at(0).toInt()));
+                    AfficheActe(Datas::I()->actes->getById(actdata.at(0).toInt()));
                 if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
                 {
                     msgbox.setText(tr("Vous avez entré un montant nul !"));
@@ -6938,32 +6949,37 @@ void    Rufus::ChoixDossier(Patient *pat, int idacte)  // appelée depuis la tab
 /*-----------------------------------------------------------------------------------------------------------------
 -- Créer un acte ------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-Acte* Rufus::CreerActe(Patient *pat)
+void Rufus::CreerActe(Patient *pat)
 {
+    if (ui->Acteframe->isVisible())
+        if(!AutorDepartConsult(false)) return;
     Acte * acte = Datas::I()->actes->CreationActe(pat, proc->idCentre());
     if (acte == Q_NULLPTR)
-        return acte;
-    Datas::I()->actes->add(acte);
-    AfficheActe(acte);
+        return;
+    m_currentact = acte;
+    acte = Q_NULLPTR;
+    delete acte;
+
+    Datas::I()->actes->add(m_currentact);
+    AfficheActe(m_currentact);
     if (Datas::I()->actes->actes()->size() > 1)
     {
         QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
         for (int i = 0; i<listactesprecs.size();i++)
-        {
             if (listactesprecs.at(i)->getPatient() != pat)
-            {
                 listactesprecs.at(i)->close();
-                listactesprecs.removeAt(i);
-                i--;
-            }
-        }
-        if (listactesprecs.size() == 0)
-            OuvrirActesPrecedents();
+        if (findChildren<dlg_actesprecedents *>().size() == 0)
+            OuvrirActesPrecedents();            //! depuis CreerActe()
         else
-            listactesprecs.at(0)->Actualise();
+            findChildren<dlg_actesprecedents *>().at(0)->Actualise();
+    }
+    else
+    {
+        QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
+        for (int i = 0; i<listactesprecs.size();i++)
+            listactesprecs.at(i)->close();
     }
     ui->ActeMotiftextEdit->setFocus();
-    return acte;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -7133,6 +7149,8 @@ void Rufus::CreerDossier()
         else
             if (!InscritEnSalDat(pat))
                 RecaleTableView(pat);
+        pat = Q_NULLPTR;
+        delete pat;
     }
 }
 
@@ -7755,9 +7773,8 @@ void Rufus::InitWidgets()
     "QLineEdit {background-color:white; border-style: none;}"
     "QLineEdit:focus {border-style:none;}");
     ui->ActeCotationcomboBox->lineEdit()->setMaxLength(20);
-    //ui->ActeCotationcomboBox->lineEdit()->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
+    ui->ActeCotationcomboBox->lineEdit()->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
     ui->ActeCotationcomboBox->lineEdit()->setFont(ui->ActeMontantlineEdit->font());
-    ui->ActeCotationcomboBox->lineEdit()->setValidator(new QRegExpValidator(Utils::rgx_cotation, this));
     ui->ActeCotationcomboBox->setFont(ui->ActeMontantlineEdit->font());
 
     QDoubleValidator *val = new QDoubleValidator(this);
@@ -8206,7 +8223,7 @@ bool Rufus::NavigationConsult(int i)
 
     if (idActe > -1)
     {
-        AfficheActe(db->loadActeById(idActe));
+        AfficheActe(Datas::I()->actes->getById(idActe));
         return true;
     }
     else
@@ -8218,9 +8235,8 @@ bool Rufus::NavigationConsult(int i)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::OuvrirActesPrecedents()
 {
-    Dlg_ActesPrecs = new dlg_actesprecedents(Datas::I()->actes->actes(), true, this);
+    Dlg_ActesPrecs = new dlg_actesprecedents(Datas::I()->actes, true, this);
     Dlg_ActesPrecs->show();
-    Dlg_ActesPrecs->setWindowIcon(Icons::icLoupe());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9493,7 +9509,7 @@ void Rufus::SupprimerActe(Acte *act)
         return;
     }
     dateacte = actlist.last().at(1).toDate();
-    Acte *nouvact = Q_NULLPTR;
+    Acte *nouvact;
     if (actlist.size() > 1 )
     {
         int a;
@@ -9503,7 +9519,7 @@ void Rufus::SupprimerActe(Acte *act)
             ++a;    //on est au milieu des actes -> on va rechercher l'idActe suivant
         else
             --a;    //on est sur le dernier acte -> on va rechercher l'idActe précédant
-        nouvact = db->loadActeById(actlist.at(a).at(0).toInt());
+        nouvact = Datas::I()->actes->getById(actlist.at(a).at(0).toInt());
     }
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
@@ -9561,23 +9577,14 @@ void Rufus::SupprimerActe(Acte *act)
     // On met à jour l'affichage éventuel de dlg_actesprecedents
     QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
     for (int i = 0; i<listactesprecs.size();i++)
-    {
         if (listactesprecs.at(i)->getPatient() != pat)
-        {
             listactesprecs.at(i)->close();
-            listactesprecs.removeAt(i);
-            i--;
-        }
-    }
-    if (listactesprecs.size()>0)
+    if (findChildren<dlg_actesprecedents *>().size()>0)
     {
         if (Datas::I()->actes->actes()->size() < 2)
-        {
-            listactesprecs.at(0)->close();
-            listactesprecs.removeAt(0);
-        }
+            findChildren<dlg_actesprecedents *>().at(0)->close();
         else
-            listactesprecs.at(0)->Actualise();
+            findChildren<dlg_actesprecedents *>().at(0)->Actualise();
     }
 }
 

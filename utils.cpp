@@ -42,7 +42,7 @@ QRegExp const Utils::rgx_ville = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôö�
 QRegExp const Utils::rgx_telephone = QRegExp("[0-9 ]*");
 
 QRegExp const Utils::rgx_tabac = QRegExp("[0-9]{2}");
-QRegExp const Utils::rgx_cotation = QRegExp("[a-zA-Z0-9.+/]*");  // le x pour BZQKOO1x1.5 et le s pour Cs
+QRegExp const Utils::rgx_cotation = QRegExp("[a-zA-Z0-9.+/ ]*");
 
 QRegExp const Utils::rgx_recherche = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-Z %-]*");
 

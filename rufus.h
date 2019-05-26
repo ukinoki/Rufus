@@ -303,7 +303,7 @@ private:
     QString             CalcToolTipCorrespondant(int);
     void                ChercheNomFiltre();                                 //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
     void                ChoixDossier(Patient *pat, int idacte = 0);
-    Acte *              CreerActe(Patient *pat = Q_NULLPTR);
+    void CreerActe(Patient *pat = Q_NULLPTR);
     void                ChercherDepuisListe();
     void                CreerDossier();
     void                CreerMenu();

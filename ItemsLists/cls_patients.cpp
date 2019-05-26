@@ -204,7 +204,7 @@ void Patients::SupprimePatient(Patient *pat)
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_PATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_DONNEESSOCIALESPATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    delete pat;
+    remove(pat);
 }
 
 Patient*    Patients::CreerPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe)

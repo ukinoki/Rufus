@@ -26,20 +26,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_user.h"
 #include "icons.h"
 
-/* La fiche dlg_actesprecednets présente les actes d'un patient dans une fiche dans laquelle aucun champ ne peut être modifié.
+/*! La fiche dlg_actesprecedents présente les actes d'un patient dans une fiche dans laquelle aucun champ ne peut être modifié.
  * Elle sert à consulter simplement les actes effectués sur un patient
  * Elle est appelée dans 4 circonstances
  *  . systématiquement, à l'ouverture d'un dossier s'il y a plusieurs actes dans ce dossier
  *  . en cliquant sur le bouton ui->OuvreActesPrespushButton ("Actes Précédents")
- *  . lors de la création d'un acte, si, du coup, on se retrouve avec plusieurs actes pour le même patients
+ *  . lors de la création d'un acte, si, du coup, on se retrouve avec plusieurs actes pour le même patient
  *      dans ces 3 premiers cas, elle se positionne automatiquement sur la consultation précédent celle qui est affichée dans le dossier et n'est pas modale.
  *      elle est appelée par Rufus::OuvresActesPrecedents(int idActe)
  *  . par un clic droit sur un mon de patient  dans la liste des patients et le choix "Visualiser le dossier"
  *      cette 4ème possibilité permet d'afficher la fiche d'un patient quand on consulte un autre dossier. Dans ce cas, la fiche est modale
  * les variables
- *  . idpatient     = l'idpatient
- *  . idActeAPasser = id de l'acte en cours d'affichage (le dernier en cas d'appel par "Visualiser le dossier"
- *  . procAPasser   = procedures.h
+ *  . Actes     = la classe Actes à afficher
  *  . AvantDernier  = bool qui indique si on se positionne sur idActeAPasser (false) ou sur celui qui précède (true)
  *  . le parent sert à retrouver la fiche depuis rufus.cpp si on veut le fermer
  */
@@ -52,9 +50,9 @@ class dlg_actesprecedents : public QDialog
     Q_OBJECT
 
 public:
-    dlg_actesprecedents(QMap<int, Acte *> *listactes, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);
+    dlg_actesprecedents(Actes *actes, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);
     ~dlg_actesprecedents();
-    Patient*                getPatient();
+    Patient*                getPatient();       //!> renvoie à rufus.cpp le patient concerné
     void                    Actualise();
     void                    ActesPrecsAfficheActe(Acte *acte); // Affiche l'acte défini
     void                    ActesPrecsAfficheActe();
@@ -70,9 +68,8 @@ private:
         enum                position{Debut, Prec, Suiv, Fin};
     void                    closeEvent(QCloseEvent *event);
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
-    Acte                    *acte;
     QMap<int, Acte*>::const_iterator    itCurrentActe;
-    QMap<int, Acte*>        *m_listeActes;
+    Actes                   *m_listeActes;
     bool                    NavigationConsult(int i);
     bool                    gAvantDernier;
 };
