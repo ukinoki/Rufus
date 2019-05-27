@@ -50,7 +50,7 @@ public:
     void    updateActeData(Acte *act, QString nomchamp, QVariant value);                     //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour l'acte
 
     //!> actions sur les enregistrements
-    bool    SupprimeActe(Acte *act);
+    void SupprimeActe(Acte *act);
     Acte*   CreationActe(Patient *pat, int idcentre);
 
     //!< action sur toutes les données

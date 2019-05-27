@@ -102,7 +102,7 @@ private:
     QList<Compte*> *m_comptes  = Q_NULLPTR;         //! tous les comptes actifs de l'utilisateur
     QList<Compte*> *m_comptesall  = Q_NULLPTR;      //! tous les comptes de l'utilisateur  y compris ceux qui sont devenus inactifs
     Compte* m_comptepardefaut = Q_NULLPTR;          //! le compte bancaire personnel utilisé pour la comptabilité personnelle
-    Compte* m_compteencaissement = Q_NULLPTR;       //! le compte bancaire utilisé pour l''enregistrement des recettes (différent du compte personnel en cas d'exercice en société type SEL)
+    Compte* m_compteencaissement = Q_NULLPTR;       //! le compte bancaire utilisé pour l'enregistrement des recettes (différent du compte personnel en cas d'exercice en société type SEL)
 
 
     User *m_userSuperviseur     = Q_NULLPTR;

@@ -157,14 +157,10 @@ void Actes::updateActeData(Acte *act, QString nomchamp, QVariant value)
     DataBase::I()->StandardSQL(requete);
 }
 
-bool Actes::SupprimeActe(Acte* act)
+void Actes::SupprimeActe(Acte* act)
 {
-    // on supprime la consultation -------------------------------------------------------------------------------------------------
-    QString req = "DELETE FROM " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(act->id());
-    if (!DataBase::I()->StandardSQL(req))
-        return false;
+    DataBase::I()->StandardSQL("DELETE FROM " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(act->id()));
     remove(act);
-    return true;
 }
 
 Acte* Actes::CreationActe(Patient *pat, int idcentre)

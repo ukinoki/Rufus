@@ -114,7 +114,10 @@ User* Users::getById(int id, LOADDETAILS loadDetails, ADDTOLIST addToList)
     {
         QJsonObject jsonUser = DataBase::I()->loadUserData(id);
         if( jsonUser.isEmpty() )
-            return result;
+        {
+            delete result;
+            return Q_NULLPTR;
+        }
         else
             result->setData(jsonUser);
     }

@@ -11,6 +11,7 @@ public:
     explicit ItemsList(QObject *parent = Q_NULLPTR);
     enum ADDTOLIST {AddToList, NoAddToList};
     enum LOADDETAILS {LoadDetails, NoLoadDetails};
+    enum UPDATE {NoUpdate, ForceUpdate};
 
 protected:
     template <typename T>

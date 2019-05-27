@@ -157,7 +157,7 @@ dlg_identificationpatient::~dlg_identificationpatient()
 void dlg_identificationpatient::ChoixMG()
 {
     OKButton->setEnabled(true);
-    db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+    Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
 }
 
 void    dlg_identificationpatient::Slot_EnableOKpushButton()
@@ -301,7 +301,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             return;
         }
         // D - le dossier n'existe pas, on le crée
-        m_nouveaupatient = Datas::I()->patients->CreerPatient(ui->NomlineEdit->text(), ui->PrenomlineEdit->text(), ui->DDNdateEdit->date(), Sexe);
+        m_nouveaupatient = Datas::I()->patients->CreationPatient(ui->NomlineEdit->text(), ui->PrenomlineEdit->text(), ui->DDNdateEdit->date(), Sexe);
         if (m_nouveaupatient == Q_NULLPTR)
             reject();
 
@@ -324,7 +324,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         db->StandardSQL(requete, tr("Impossible d'écrire dans la table des données sociales"));
 
         // Mise à jour du medecin traitant
-        db->UpdateCorrespondant(m_nouveaupatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+        Datas::I()->patients->updateCorrespondant(m_nouveaupatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
         // on met à jour les atcdts familiaux
         QString req = "Update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " SET RMPAtcdtsFamiliaux = '" + m_currentpatient->atcdtsfamiliaux() + "' where idPat = " + QString::number(m_nouveaupatient->id());
         db->StandardSQL(req);
@@ -378,7 +378,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         db->StandardSQL(requete,tr("Impossible d'écrire dans la table des données sociales"));
 
         // Mise à jour du médecin traitant
-        db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+        Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
         accept();
     }
     else if (gMode == Creation)
@@ -408,7 +408,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
 
         db->StandardSQL(requete, tr("Impossible d'écrire dans la table des données sociales"));
         //2 - Mise à jour de medecin traitant
-        db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+        Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
         accept();
     }
 }
@@ -659,7 +659,7 @@ void dlg_identificationpatient::MAJMG()
                     m_flagcorrespondants = Flags::I()->flagCorrespondants();
                     proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
-                    db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+                    Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
                 }
                 else
                     ui->MGupComboBox->setCurrentText(anc);
@@ -669,7 +669,7 @@ void dlg_identificationpatient::MAJMG()
             msgbox.close();
         }
         else if (ui->MGupComboBox->getValeurAvant() != "" && gMode != Copie)
-            db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Q_NULLPTR);
+            Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG);
     }
 }
 

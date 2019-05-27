@@ -94,7 +94,10 @@ Correspondant* Correspondants::getById(int id, bool loadDetails, bool addToList)
     {
         QJsonObject jsonCorrespondant = DataBase::I()->loadCorrespondantData(id);
         if( jsonCorrespondant.isEmpty() )
+        {
+            delete result;
             return Q_NULLPTR;
+        }
         else
             result->setData(jsonCorrespondant);
     }

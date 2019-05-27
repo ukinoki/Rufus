@@ -1916,8 +1916,17 @@ QString Procedures::getSessionStatus()
         else if (pasdecompta)
             txtstatut += tr("sans comptabilité");
     }
-    if (respliberal||respsalarie)
+    if (respliberal)
         txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + Datas::I()->users->getById(m_userConnected->getCompteEncaissement()->id())->getLogin() + " " + tr("de") + " " + m_userConnected->getUserComptable()->getLogin();
+    else if (respsalarie)
+    {
+        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t");
+        User *employeur = Datas::I()->users->getById(m_userConnected->getEmployeur(), ItemsList::LoadDetails);
+        employeur->setCompteEncaissement(Datas::I()->comptes->getById(employeur->getIdCompteEncaissHonoraires()));
+        Compte *cptt= employeur->getCompteEncaissement();
+        txtstatut += cptt->nom() + " ";
+        txtstatut += tr("de") + " " + Datas::I()->users->getById(m_userConnected->getEmployeur())->getLogin();
+    }
     else if (retrocession)
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
@@ -3650,7 +3659,10 @@ bool Procedures::SetUserAllData(User *usr)
     }
     dlg_gestioncomptes::ReconstruitListeComptes(usr);
     usr->setCompteParDefaut(Datas::I()->comptes->getById(usr->getIdCompteParDefaut()));
-    usr->setCompteEncaissement(Datas::I()->comptes->getById(usr->getIdCompteEncaissHonoraires()));
+    if (usr->isLiberal())
+        usr->setCompteEncaissement(Datas::I()->comptes->getById(usr->getIdCompteEncaissHonoraires()));
+    else if (usr->isSalarie())
+        usr->setCompteEncaissement(Datas::I()->comptes->getById(Datas::I()->users->getById(usr->getEmployeur())->getIdCompteEncaissHonoraires()));
     return true;
 }
 

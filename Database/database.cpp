@@ -1605,61 +1605,6 @@ QMap<int, Patient *> *DataBase::loadPatientsByDDN(QDate DDN)
     return listpatients;
 }
 
-Patient* DataBase::CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe)
-{
-    bool ok;
-    QString req;
-    locktables(QStringList() << NOM_TABLE_PATIENTS << NOM_TABLE_DONNEESSOCIALESPATIENTS << NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    req =   "INSERT INTO " NOM_TABLE_PATIENTS
-            " (PatNom, PatPrenom, PatDDN, PatCreele, PatCreePar, Sexe) "
-            " VALUES ('" +
-            Utils::correctquoteSQL(nom) + "', '" +
-            Utils::correctquoteSQL(prenom) + "', '" +
-            datedenaissance.toString("yyyy-MM-dd") +
-            "', NOW(), '" +
-            QString::number(getUserConnected()->id()) +"' , '" +
-            sexe +
-            "');";
-    if (!StandardSQL(req, tr("Impossible de créer le dossier")))
-        return Q_NULLPTR;
-
-    // Récupération de l'idPatient créé ------------------------------------
-    int idpat = selectMaxFromTable("idPat", NOM_TABLE_PATIENTS, ok, tr("Impossible de sélectionner les enregistrements"));
-    if (!ok ||  idpat == 0)
-    {
-        unlocktables();
-        return Q_NULLPTR;
-    }
-    Patient *pat = loadPatientById(idpat);
-    req = "INSERT INTO " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
-    StandardSQL(req,tr("Impossible de créer les données sociales"));
-    req = "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
-    StandardSQL(req,tr("Impossible de créer les renseignements médicaux"));
-    unlocktables();
-    return pat;
-}
-
-void DataBase::UpdateCorrespondant(Patient *pat, typecorrespondant type, Correspondant *cor)
-{
-    QString id = (cor != Q_NULLPTR ? QString::number(cor->id()) : "null");
-    QString field;
-    switch (type) {
-    case MG:
-        field = "idCorMedMG";
-        break;
-    case Spe1:
-        field = "idCorMedSpe1";
-        break;
-    case Spe2:
-        field = "idCorMedSpe2";
-    }
-    StandardSQL("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + field + " = " + id +
-                " where idpat = " + QString::number(pat->id()));
-    if (cor != Q_NULLPTR && type == MG)
-        pat->setmg(cor->id());
-}
-
-
 /*
  * MDP
 */

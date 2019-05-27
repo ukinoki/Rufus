@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("27-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("28-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -85,8 +85,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 4 reconstruction des combobox des correspondants et de la liste des documents
     ReconstruitCombosCorresp();                 //! initialisation de la liste
 
-    m_listepatients->initListeAll();
-    Remplir_ListePatients_TableView(m_listepatients);       //! InitTables()
+    FiltreTable();                         //! InitTables()
     MetAJourUserConnectes();
 
     QJsonObject jadmin = db->loadAdminData();
@@ -1020,7 +1019,6 @@ void Rufus::MAJPatientsVus()
         ui->PatientsVusupTableWidget->setCellWidget(i,4,label4);
         ui->PatientsVusupTableWidget->setRowHeight(i,int(fm.height()*1.1));
     }
-
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -1030,10 +1028,7 @@ void Rufus::AfficheToolTip(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    if (!pat->issocialloaded())
-        m_listepatients->loadAll(pat);
-    if (!ok)
-        return;
+    m_listepatients->loadAll(pat, ItemsList::ForceUpdate);
     QString Msg = "";
     if (pat->datedenaissance().isValid())
         Msg += Item::CalculAge(pat->datedenaissance())["toString"].toString();
@@ -1391,7 +1386,7 @@ void Rufus::ChangeTabBureau()
 
 void Rufus::ChoixMG()
 {
-    db->UpdateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+    Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
     OKModifierTerrain(m_currentpatient, false);
     ui->MGupComboBox->setImmediateToolTip(CalcToolTipCorrespondant(ui->MGupComboBox->currentData().toInt()));
 }
@@ -1421,9 +1416,9 @@ void Rufus::ChoixCor(UpComboBox *box)
 {
     QString idcor;
     if (box==ui->AutresCorresp1upComboBox)
-        db->UpdateCorrespondant(m_currentpatient, DataBase::Spe1, Datas::I()->correspondants->getById(box->currentData().toInt()));
+        Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::Spe1, Datas::I()->correspondants->getById(box->currentData().toInt()));
     else if (box==ui->AutresCorresp2upComboBox)
-        db->UpdateCorrespondant(m_currentpatient, DataBase::Spe2, Datas::I()->correspondants->getById(box->currentData().toInt()));
+        Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::Spe2, Datas::I()->correspondants->getById(box->currentData().toInt()));
      box->setImmediateToolTip(CalcToolTipCorrespondant(box->currentData().toInt()));
 }
 /* -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2855,13 +2850,13 @@ void Rufus::ListeCorrespondants()
 void Rufus::MajusculeCreerNom()
 {
     ui->CreerNomlineEdit->setText(Utils::trimcapitilize(ui->CreerNomlineEdit->text(), false));
-    ChercheNomFiltre();
+    FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
 }
 
 void Rufus::MajusculeCreerPrenom()
 {
     ui->CreerPrenomlineEdit->setText(Utils::trimcapitilize(ui->CreerPrenomlineEdit->text(), false));
-    ChercheNomFiltre();
+    FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
 }
 
 void Rufus::MenuContextuelIdentPatient()
@@ -2919,10 +2914,7 @@ void Rufus::ChoixMenuContextuelMotsCles()
 void Rufus::RechercheParID()
 {
     if (!m_listepatients->isfull())
-    {
-        m_listepatients->initListeAll();
-        Remplir_ListePatients_TableView(m_listepatients);
-    }
+        FiltreTable();
     gAskRechParIDDialog                 = new UpDialog();
     gAskRechParIDDialog                 ->setAttribute(Qt::WA_DeleteOnClose);
     UpLabel         *idlabel            = new UpLabel(gAskRechParIDDialog, tr("id du patient"));
@@ -3800,7 +3792,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
     if (pat == Q_NULLPTR)
         return;
     if (recalclesdonnees)
-        pat = m_listepatients->getById(pat->id(), ItemsList::LoadDetails);
+        m_listepatients->loadAll(pat, ItemsList::ForceUpdate);
     ui->TerraintreeWidget->clear();
     bool a = false;
     ui->TerraintreeWidget->setColumnCount(2);
@@ -5980,7 +5972,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             {
             case Qt::Key_Delete:
                 Qobj->clear();;
-                ChercheNomFiltre();
+                FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
                 return true;
             case Qt::Key_Up:
                 MonteUneLigne();
@@ -6841,20 +6833,20 @@ void    Rufus::CalcNbDossiers()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Rechercher le nom dans les TreeWidget  en restreignant la liste ------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::ChercheNomFiltre()
+void Rufus::FiltreTable(QString nom, QString prenom)
 {
     int id = (m_currentpatient != Q_NULLPTR? m_currentpatient->id() : -1);
     int id0 = (m_dossierpatientaouvrir!=Q_NULLPTR? m_dossierpatientaouvrir->id() : -1);
 
     m_listepatients->initListeAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text(), true);
                 //! mettre en place un filtre directement sur la liste est moins rapide que de réinterroger la BDD directement en SQL
+    Remplir_ListePatients_TableView(m_listepatients) ;   //FiltreTable()
     //m_listepatientsproxymodel->setFilterRegExp("^" + ui->CreerNomlineEdit->text() + ".*");
     if (id != -1)
         m_currentpatient = m_listepatients->getById(id, ItemsList::LoadDetails);
     if (id0 != -1)
         m_dossierpatientaouvrir = m_listepatients->getById(id0, ItemsList::LoadDetails);
-    //qDebug() << "ChercheNomFiltre() - fin " << m_currentpatient->nom()  << m_currentpatient->prenom() << m_currentpatient->id();
-    Remplir_ListePatients_TableView(m_listepatients) ;   //ChercheNomFiltre()
+    //qDebug() << "FiltreTable() - fin " << m_currentpatient->nom()  << m_currentpatient->prenom() << m_currentpatient->id();
     if (m_listepatientsmodel->rowCount()>0)
         RecaleTableView(getPatientFromRow(0), QAbstractItemView::PositionAtCenter);
     EnableButtons();
@@ -7063,7 +7055,7 @@ void Rufus::CreerDossier()
     if (idPat == 0)
     {
         // Récupération de nom, prénom et DDN puis création du dossier---------------------------------
-        Patient *pat = m_listepatients->CreerPatient(PatNom, PatPrenom, ui->CreerDDNdateEdit->date());
+        Patient *pat = m_listepatients->CreationPatient(PatNom, PatPrenom, ui->CreerDDNdateEdit->date());
         if (pat == Q_NULLPTR)
             return;
 
@@ -7073,8 +7065,7 @@ void Rufus::CreerDossier()
             m_listepatients->initListeAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
             return;
         }
-        m_listepatients->initListeAll(pat->nom(), pat->prenom());
-        Remplir_ListePatients_TableView(m_listepatients) ;   //CreerDossier
+        FiltreTable(pat->nom(), pat->prenom());
 
         // Si le User est un soignant, on crée d'emblée une consultation et on l'affiche
         if( m_currentuser->isSoignant() )
@@ -7554,8 +7545,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
         else if (mode == dlg_identificationpatient::Copie)
         {
             pat = Dlg_IdentPatient->getPatient();
-            m_listepatients->initListeAll(pat->nom(), pat->prenom());
-            Remplir_ListePatients_TableView(m_listepatients) ;
+            FiltreTable(pat->nom(), pat->prenom());
             // Si le User est un soignant, on crée d'emblée une consultation et on l'affiche
             if( m_currentuser->isSoignant() )
             {
@@ -7606,7 +7596,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
             ui->CreerPrenomlineEdit->setText(Dlg_IdentPatient->ui->PrenomlineEdit->text());
             ui->CreerDDNdateEdit->setDate(Dlg_IdentPatient->ui->DDNdateEdit->date());
             ui->tabWidget->setCurrentWidget(ui->tabList);
-            ChercheNomFiltre();
+            FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
         }
         delete Dlg_IdentPatient;
         return false;
@@ -8090,11 +8080,11 @@ void Rufus::MAJCorrespondant(QObject *obj)
                 else
                 {
                     if (cbox == ui->MGupComboBox)
-                        Datas::I()->patients->setmg(m_currentpatient, idcor);
+                        Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(idcor));
                     else if (cbox == ui->AutresCorresp1upComboBox)
-                        Datas::I()->patients->setspe1(m_currentpatient, idcor);
+                        Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::Spe1, Datas::I()->correspondants->getById(idcor));
                     else if (cbox == ui->AutresCorresp2upComboBox)
-                        Datas::I()->patients->setspe2(m_currentpatient, idcor);
+                        Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::Spe2, Datas::I()->correspondants->getById(idcor));
                     cbox->setCurrentIndex(cbox->findData(idcor));
                 }
             }
@@ -8112,11 +8102,11 @@ void Rufus::MAJCorrespondant(QObject *obj)
     else
     {
         if (cbox == ui->MGupComboBox)
-            Datas::I()->patients->setmg(m_currentpatient);
+            Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG);
         else if (cbox == ui->AutresCorresp1upComboBox)
-            Datas::I()->patients->setspe1(m_currentpatient);
+            Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::Spe1);
         else if (cbox == ui->AutresCorresp2upComboBox)
-            Datas::I()->patients->setspe2(m_currentpatient);
+            Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::Spe2);
         cbox->setCurrentIndex(-1);
         OKModifierTerrain(m_currentpatient);
     }
@@ -9643,8 +9633,7 @@ void Rufus::SupprimerDossier(Patient *pat)
     //!. Suppression du dossier, reconstruction de la liste et du treeView
     m_listepatients->SupprimePatient(pat);
     m_currentpatient = Q_NULLPTR;
-    m_listepatients->initListeAll(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
-    Remplir_ListePatients_TableView(m_listepatients) ;   //SupprimerDossier()
+    FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
     flags->MAJFlagSalleDAttente();
     ModeSelectDepuisListe();
 
@@ -9946,16 +9935,14 @@ void Rufus::LireLaCV()
             " WHERE UPPER(PatNom) LIKE '" + nomPat.toUpper() + "%'" +
             " AND   UPPER(PatPrenom) LIKE '" + prenomPat.toUpper() + "%'" +
             " AND   PatDDN = '" + zdat + "'";
-    m_listepatients->initListeAll(nomPat.toUpper(), prenomPat.toUpper(), false);
-    Remplir_ListePatients_TableView(m_listepatients) ;   // LireLaCV()
+    FiltreTable(nomPat.toUpper(), prenomPat.toUpper());
     if (m_listepatients->patients()->size() == 0)       // aucun patient trouvé
         {
         // si rien trouvé, deuxième recherche sur date de naissance seule
         requete = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe  "
                   " FROM "  NOM_TABLE_PATIENTS
                   " WHERE PatDDN = '" + zdat + "'";
-        m_listepatients->initListeAll();
-        Remplir_ListePatients_TableView(m_listepatients) ;   // LireLaCV()
+        FiltreTable();
         ModeCreationDossier();
         ui->CreerNomlineEdit->setText(nomPat);
         ui->CreerPrenomlineEdit->setText(prenomPat);

@@ -42,7 +42,9 @@ public:
     bool isfull();                                                                          /*! la liste contient tous les patients de la base */
     bool add(Patient *patient);
     void addList(QList<Patient*> listpatientss);
-    void loadAll(Patient *pat);
+    void loadAll(Patient *pat, ItemsList::UPDATE upd = NoUpdate);                          /*! charge toutes les données d'un  patient si ce n'est pas le cas
+                                                                                             * \param upd force ou non la recharge depuis la BDD si elles sont déjà chargées
+                                                                                             */
     void reloadMedicalData(Patient* pat);                                                   //!> recharge les données médicales d'un patient
     void reloadSocialData(Patient* pat);                                                    //!> recharge les données sociales d'un patient
     void remove(Patient* patient);
@@ -65,17 +67,18 @@ public:
     //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
 
     //!> actions sur les champs
-    void        setmg(Patient* pat, int idmg = 0);          //! modifie le médecin généraliste d'un patient
-    void        setspe1(Patient* pat, int idspe1 = 0);      //! modifie le 1er correspondant spécialiste d'un patient
-    void        setspe2(Patient* pat, int idspe2 = 0);      //! modifie le 2ème correspondant spécialiste d'un patient
+    void    updatePatientData(Patient *pat, QString nomchamp, QVariant value);              //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour le patient
+    void    updateCorrespondant(Patient *pat,                                               //! met à jour un des correspondants d'un patient
+                                DataBase::typecorrespondant type,
+                                Correspondant *cor = Q_NULLPTR);
+
 
     //!> actions sur les enregistrements
     void        SupprimePatient(Patient *pat);
-    Patient*    CreerPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe = "");
+    Patient*    CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe = "");
 
     //!< action sur toutes les données
     void    updatePatient(Patient* pat);                                                    //!> met à jour les datas d'un patient à partir des données enregistrées dans la base
-    void    updatePatientData(Patient *pat, QString nomchamp, QVariant value);               //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour le patient
 
 
 };

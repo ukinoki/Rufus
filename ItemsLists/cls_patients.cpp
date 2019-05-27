@@ -48,7 +48,11 @@ Patient* Patients::getById(int id, LOADDETAILS loadDetails)
     Patient *pat = Q_NULLPTR;
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(id);
     if (itpat == m_patients->constEnd())
+    {
         pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
+        if (pat != Q_NULLPTR)
+            add(pat);
+    }
     else
     {
         pat = itpat.value();
@@ -65,12 +69,12 @@ Patient* Patients::getById(int id, LOADDETAILS loadDetails)
     return pat;
 }
 
-void Patients::loadAll(Patient *pat)
+void Patients::loadAll(Patient *pat, ItemsList::UPDATE upd)
 {
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(pat->id());
     if (itpat == m_patients->constEnd())
-        pat = DataBase::I()->loadPatientById(pat->id(), pat, true);
-    else if (!itpat.value()->isalloaded())
+        add(pat);
+    if (!pat->isalloaded() || upd == ItemsList::ForceUpdate)
     {
         QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(pat->id());
         if( !jsonPatient.isEmpty() )
@@ -156,30 +160,6 @@ void Patients::initListeByDDN(QDate DDN)
     m_full = (DDN == QDate());
 }
 
-void Patients::setmg(Patient *pat, int idmg)
-{
-    QString val = (idmg == 0? "null" : QString::number(idmg));
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + val + " where idpat = " + QString::number(pat->id());
-    DataBase::I()->StandardSQL(req);
-    pat->setmg(idmg);
-}
-
-void Patients::setspe1(Patient *pat, int idspe1)
-{
-    QString val = (idspe1 == 0? "null" : QString::number(idspe1));
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = " + val + " where idpat = " + QString::number(pat->id());
-    DataBase::I()->StandardSQL(req);
-    pat->setspe1(idspe1);
-}
-
-void Patients::setspe2(Patient *pat, int idspe2)
-{
-    QString val = (idspe2 == 0? "null" : QString::number(idspe2));
-    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = " + val + " where idpat = " + QString::number(pat->id());
-    DataBase::I()->StandardSQL(req);
-    pat->setspe2(idspe2);
-}
-
 void Patients::SupprimePatient(Patient *pat)
 {
     //!. Suppression des bilans orthoptiques
@@ -207,9 +187,42 @@ void Patients::SupprimePatient(Patient *pat)
     remove(pat);
 }
 
-Patient* Patients::CreerPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe)
+Patient* Patients::CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe)
 {
-    return DataBase::I()->CreationPatient(nom, prenom, datedenaissance, sexe);
+    bool ok;
+    QString req;
+    req =   "INSERT INTO " NOM_TABLE_PATIENTS
+            " (PatNom, PatPrenom, PatDDN, PatCreele, PatCreePar, Sexe) "
+            " VALUES ('" +
+            Utils::correctquoteSQL(nom) + "', '" +
+            Utils::correctquoteSQL(prenom) + "', '" +
+            datedenaissance.toString("yyyy-MM-dd") +
+            "', NOW(), '" +
+            QString::number(DataBase::I()->getUserConnected()->id()) +"' , '" +
+            sexe +
+            "');";
+
+    DataBase::I()->locktables(QStringList() << NOM_TABLE_PATIENTS << NOM_TABLE_DONNEESSOCIALESPATIENTS << NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    if (!DataBase::I()->StandardSQL(req, tr("Impossible de créer le dossier")))
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
+    // Récupération de l'idPatient créé ------------------------------------
+    int idpat = DataBase::I()->selectMaxFromTable("idPat", NOM_TABLE_PATIENTS, ok, tr("Impossible de sélectionner les enregistrements"));
+    if (!ok ||  idpat == 0)
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
+
+    Patient *pat = DataBase::I()->loadPatientById(idpat);
+    req = "INSERT INTO " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
+    DataBase::I()->StandardSQL(req,tr("Impossible de créer les données sociales"));
+    req = "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
+    DataBase::I()->StandardSQL(req,tr("Impossible de créer les renseignements médicaux"));
+    DataBase::I()->unlocktables();
+    return pat;
 }
 
 void Patients::updatePatient(Patient *pat)
@@ -295,3 +308,26 @@ void Patients::updatePatientData(Patient *pat, QString nomchamp, QVariant value)
     QString requete = "UPDATE " + table + " SET " + nomchamp + " = " + newvalue + " WHERE idPat = " + QString::number(pat->id());
     DataBase::I()->StandardSQL(requete);
 }
+
+void Patients::updateCorrespondant(Patient *pat, DataBase::typecorrespondant type, Correspondant *cor)
+{
+    int id = (cor != Q_NULLPTR ? cor->id() : 0);
+    QString field;
+    switch (type) {
+    case DataBase::MG:
+        field = CP_IDMGRMP;
+        pat->setmg(id);
+        break;
+    case DataBase::Spe1:
+        field = CP_IDSPE1RMP;
+        pat->setspe1(id);
+        break;
+    case DataBase::Spe2:
+        pat->setspe2(id);
+        field = CP_IDSPE2RMP;
+    }
+    QString idsql = (cor != Q_NULLPTR ? QString::number(cor->id()) : "null");
+    DataBase::I()->StandardSQL("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + field + " = " + idsql +
+                " where idpat = " + QString::number(pat->id()));
+}
+
