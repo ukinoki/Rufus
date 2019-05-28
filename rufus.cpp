@@ -1028,7 +1028,7 @@ void Rufus::AfficheToolTip(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    m_listepatients->loadAll(pat, ItemsList::ForceUpdate);
+    m_listepatients->loadAll(pat, Item::ForceUpdate);
     QString Msg = "";
     if (pat->datedenaissance().isValid())
         Msg += Item::CalculAge(pat->datedenaissance())["toString"].toString();
@@ -2699,7 +2699,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    bool     AvecNumPage = true;
 
    //création de l'entête
-   User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), ItemsList::LoadDetails);
+   User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), Item::LoadDetails);
    if (!userEntete)
    {
        UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -3201,7 +3201,7 @@ void Rufus::ImprimeListPatients(QVariant var)
 
     //création de l'entête
     QString EnTete;
-    User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), ItemsList::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), Item::LoadDetails);
     if (userEntete == Q_NULLPTR)
         return;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
@@ -3256,7 +3256,7 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
 {
     if (UpText->getId() == 0)
         return;
-    m_dossierpatientaouvrir = m_listepatients->getById(UpText->getId(), ItemsList::LoadDetails);
+    m_dossierpatientaouvrir = m_listepatients->getById(UpText->getId(), Item::LoadDetails);
     if( m_currentuser->isSoignant() )
     {
         gmenuContextuel = new QMenu(this);
@@ -3286,7 +3286,7 @@ void Rufus::MenuContextuelListePatients()
     if (pat == Q_NULLPTR)
         return;
     if (!pat->isalloaded())
-        pat = m_listepatients->getById(pat->id(), ItemsList::LoadDetails);
+        pat = m_listepatients->getById(pat->id(), Item::LoadDetails);
     m_dossierpatientaouvrir = pat;
 
     gmenuContextuel = new QMenu(this);
@@ -3495,7 +3495,7 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
         {a = true;  break;}
     if (a == false) return;
 
-    m_dossierpatientaouvrir = m_listepatients->getById(labelClicked->getId(), ItemsList::LoadDetails);
+    m_dossierpatientaouvrir = m_listepatients->getById(labelClicked->getId(), Item::LoadDetails);
     gmenuContextuel = new QMenu(this);
 
     if (listRange.size() == 1 && listRange.at(0).rowCount()== 1)
@@ -3792,7 +3792,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
     if (pat == Q_NULLPTR)
         return;
     if (recalclesdonnees)
-        m_listepatients->loadAll(pat, ItemsList::ForceUpdate);
+        m_listepatients->loadAll(pat, Item::ForceUpdate);
     ui->TerraintreeWidget->clear();
     bool a = false;
     ui->TerraintreeWidget->setColumnCount(2);
@@ -6284,7 +6284,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         return;
     m_currentpatient = pat;
     if (!m_currentpatient->isalloaded())
-        m_currentpatient = m_listepatients->getById(m_currentpatient->id(), ItemsList::LoadDetails);
+        m_currentpatient = m_listepatients->getById(m_currentpatient->id(), Item::LoadDetails);
     QString     Msg;
 
     //qDebug() << "AfficheDossier() " +  m_currentpatient->nom() + " " + m_currentpatient->prenom() + " - id = " + QString::number(m_currentpatient->id());
@@ -6843,9 +6843,9 @@ void Rufus::FiltreTable(QString nom, QString prenom)
     Remplir_ListePatients_TableView(m_listepatients) ;   //FiltreTable()
     //m_listepatientsproxymodel->setFilterRegExp("^" + ui->CreerNomlineEdit->text() + ".*");
     if (id != -1)
-        m_currentpatient = m_listepatients->getById(id, ItemsList::LoadDetails);
+        m_currentpatient = m_listepatients->getById(id, Item::LoadDetails);
     if (id0 != -1)
-        m_dossierpatientaouvrir = m_listepatients->getById(id0, ItemsList::LoadDetails);
+        m_dossierpatientaouvrir = m_listepatients->getById(id0, Item::LoadDetails);
     //qDebug() << "FiltreTable() - fin " << m_currentpatient->nom()  << m_currentpatient->prenom() << m_currentpatient->id();
     if (m_listepatientsmodel->rowCount()>0)
         RecaleTableView(getPatientFromRow(0), QAbstractItemView::PositionAtCenter);
@@ -8341,7 +8341,7 @@ void    Rufus::RecopierDossier(Patient *patient)
     if (patient != Q_NULLPTR)
     {
         if (!patient->isalloaded())
-            patient = m_listepatients->getById(patient->id(), ItemsList::LoadDetails);
+            patient = m_listepatients->getById(patient->id(), Item::LoadDetails);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, patient);
         return;
@@ -8359,7 +8359,7 @@ void    Rufus::RecopierDossier(Patient *patient)
             return;
         }
         if (!pat->isalloaded())
-            pat = m_listepatients->getById(pat->id(), ItemsList::LoadDetails);
+            pat = m_listepatients->getById(pat->id(), Item::LoadDetails);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, pat);
     }

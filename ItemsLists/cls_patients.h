@@ -32,7 +32,7 @@ public:
     QMap<int, Patient*> *patients() const;
 
 
-    Patient* getById(int id, LOADDETAILS loadDetails = NoLoadDetails);                      /*! charge les données du patient corresondant à l'id
+    Patient* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails);          /*! charge les données du patient corresondant à l'id
                                                                                              * \brief Patients::getById
                                                                                              * \param id l'id du patient recherché
                                                                                              * \param loadDetails = NoLoadDetails  -> ne charge que les données d'identité - = LoadDetails -> charge les données sociales et médicales
@@ -42,7 +42,7 @@ public:
     bool isfull();                                                                          /*! la liste contient tous les patients de la base */
     bool add(Patient *patient);
     void addList(QList<Patient*> listpatientss);
-    void loadAll(Patient *pat, ItemsList::UPDATE upd = NoUpdate);                          /*! charge toutes les données d'un  patient si ce n'est pas le cas
+    void loadAll(Patient *pat, Item::UPDATE upd = Item::NoUpdate);                          /*! charge toutes les données d'un  patient si ce n'est pas le cas
                                                                                              * \param upd force ou non la recharge depuis la BDD si elles sont déjà chargées
                                                                                              */
     void reloadMedicalData(Patient* pat);                                                   //!> recharge les données médicales d'un patient

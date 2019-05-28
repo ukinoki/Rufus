@@ -261,9 +261,9 @@ void dlg_bilanrecettes::ImprimeEtat()
 
     //création de l'entête
     if (gMode==SUPERVISEUR)
-        userEntete = Datas::I()->users->getById(gSupervBox->currentData().toInt(), ItemsList::LoadDetails);
+        userEntete = Datas::I()->users->getById(gSupervBox->currentData().toInt(), Item::LoadDetails);
     else
-        userEntete = Datas::I()->users->getById(gidUser->id(), ItemsList::LoadDetails);
+        userEntete = Datas::I()->users->getById(gidUser->id(), Item::LoadDetails);
 
     if(userEntete == Q_NULLPTR)
     {

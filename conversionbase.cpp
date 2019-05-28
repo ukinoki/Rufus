@@ -131,7 +131,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             }
 
             //création du pied
-            Pied = proc->ImpressionPied(Datas::I()->users->getById(idUser.toInt(), ItemsList::LoadDetails),false, ALDQ);
+            Pied = proc->ImpressionPied(Datas::I()->users->getById(idUser.toInt(), Item::LoadDetails),false, ALDQ);
 
             // creation du corps
             Corps = proc->ImpressionCorps(ordolist.at(i).at(2).toString(), ALDQ);

@@ -43,7 +43,7 @@ bool Patients::isfull()
  * \return Q_NULLPTR si aucun patient trouvé
  * \return Patient* le patient correspondant à l'id
  */
-Patient* Patients::getById(int id, LOADDETAILS loadDetails)
+Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
 {
     Patient *pat = Q_NULLPTR;
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(id);
@@ -56,7 +56,7 @@ Patient* Patients::getById(int id, LOADDETAILS loadDetails)
     else
     {
         pat = itpat.value();
-        if (loadDetails == LoadDetails)
+        if (loadDetails == Item::LoadDetails)
             if (!pat->isalloaded())
             {
                 QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(id);
@@ -69,12 +69,12 @@ Patient* Patients::getById(int id, LOADDETAILS loadDetails)
     return pat;
 }
 
-void Patients::loadAll(Patient *pat, ItemsList::UPDATE upd)
+void Patients::loadAll(Patient *pat, Item::UPDATE upd)
 {
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(pat->id());
     if (itpat == m_patients->constEnd())
         add(pat);
-    if (!pat->isalloaded() || upd == ItemsList::ForceUpdate)
+    if (!pat->isalloaded() || upd == Item::ForceUpdate)
     {
         QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(pat->id());
         if( !jsonPatient.isEmpty() )

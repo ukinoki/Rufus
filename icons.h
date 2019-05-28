@@ -188,6 +188,7 @@ public:
     static QIcon icCheck() { return foundIC("icCheck", "://check.png", QSize(45,45)); }
     static QIcon icCheckOblig() { return foundIC("icCheckOblig", "://Check-icon.png", QSize(45,45)); }
     static QIcon icCinema() { return foundIC("icCinema", "://movie.png"); }
+    static QIcon icClinic() { return foundIC("icClinic", "://clinic.png"); }
     static QIcon icClock() { return foundIC("icClock", "://Clock.png", QSize(45,45)); }
     static QIcon icComputer() { return foundIC("icComputer", "://Computer.png", QSize(45,45)); }
     static QIcon icContact() { return foundIC("icContact", "://contact.png"); }

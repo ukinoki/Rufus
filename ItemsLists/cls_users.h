@@ -45,7 +45,7 @@ public:
 
     Users(QObject *parent = Q_NULLPTR);
     bool add(User *usr);
-    User* getById(int id, LOADDETAILS loadDetails = NoLoadDetails, ADDTOLIST addToList = AddToList);
+    User* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, ADDTOLIST addToList = AddToList);
     QString getLoginById(int id);
     void initListe();
 

@@ -1076,7 +1076,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
         Entete.replace("{{POLICE}}", qApp->font().family());
         if (rplct)
         {
-            User *userRemp = Datas::I()->users->getById(idparent, ItemsList::LoadDetails);
+            User *userRemp = Datas::I()->users->getById(idparent, Item::LoadDetails);
             if(userRemp && userRemp->getTitre().size())
                 Entete.replace("{{TITREUSER}}", "<s>" + userRemp->getTitre() + " " + userRemp->getPrenom() + " " + userRemp->getNom() + "</s> "
                                                 "<font color=\"darkblue\">" + tr ("remplacé par") + " "
@@ -1921,7 +1921,7 @@ QString Procedures::getSessionStatus()
     else if (respsalarie)
     {
         txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t");
-        User *employeur = Datas::I()->users->getById(m_userConnected->getEmployeur(), ItemsList::LoadDetails);
+        User *employeur = Datas::I()->users->getById(m_userConnected->getEmployeur(), Item::LoadDetails);
         employeur->setCompteEncaissement(Datas::I()->comptes->getById(employeur->getIdCompteEncaissHonoraires()));
         Compte *cptt= employeur->getCompteEncaissement();
         txtstatut += cptt->nom() + " ";
