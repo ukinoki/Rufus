@@ -45,7 +45,7 @@ QMap<int, User *> *Users::comptables() const
  * \brief Users::Users
  * Initialise les Maps
  */
-Users::Users()
+Users::Users(QObject *parent) : ItemsList(parent)
 {
     m_users = new QMultiMap<int, User*>();
     m_superviseurs = new QMultiMap<int, User*>();
@@ -96,7 +96,7 @@ bool Users::add(User *usr)
  * \return Q_NULLPTR si aucun utilisateur trouvé
  * \return User* l'utilisateur correspondant à l'id
  */
-User* Users::getById(int id, bool loadDetails, bool addToList)
+User* Users::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
 {
     QMap<int, User*>::const_iterator user = m_users->find(id);
     User *result;
@@ -105,20 +105,23 @@ User* Users::getById(int id, bool loadDetails, bool addToList)
     else
     {
         result = user.value();
-        if(!loadDetails)
+        if(loadDetails == Item::NoLoadDetails)
             return result;
-        addToList = false;
+        addToList = NoAddToList;
     }
 
     if( !result->isAllLoaded() )
     {
         QJsonObject jsonUser = DataBase::I()->loadUserData(id);
         if( jsonUser.isEmpty() )
+        {
+            delete result;
             return Q_NULLPTR;
+        }
         else
             result->setData(jsonUser);
     }
-    if( addToList )
+    if( addToList == AddToList )
         add( result );
     return result;
 }
@@ -152,4 +155,3 @@ void Users::initListe()
         add( usr );
     }
 }
-

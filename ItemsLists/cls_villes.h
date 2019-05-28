@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_VILLES_H
 
 #include "cls_ville.h"
+#include "cls_itemslist.h"
 
 #include <QAbstractListModel>
 #include <QJsonArray>
@@ -45,7 +46,7 @@ private:
 
 };
 
-class Villes
+class Villes : public ItemsList
 {
 
 private:
@@ -55,7 +56,7 @@ private:
     QStringList m_listeCodePostal;              //!< la liste des codes postaux
 
 public:
-    Villes();
+    Villes(QObject *parent = Q_NULLPTR);
     void initListe();
     void add(Ville *ville);
 

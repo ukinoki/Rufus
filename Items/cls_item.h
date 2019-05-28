@@ -33,6 +33,8 @@ public: //STATIC
 
 
 public:
+    enum LOADDETAILS {LoadDetails, NoLoadDetails};
+    enum UPDATE {NoUpdate, ForceUpdate};
     explicit Item(QObject *parent = Q_NULLPTR);
 
 

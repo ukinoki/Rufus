@@ -1784,7 +1784,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    User *userEntete = Datas::I()->users->getById(db->getUserConnected()->getIdUserActeSuperviseur(), true);
+    User *userEntete = Datas::I()->users->getById(db->getUserConnected()->getIdUserActeSuperviseur(), Item::LoadDetails);
     Entete = proc->ImpressionEntete(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
@@ -3103,11 +3103,11 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
         case 1:
-            gResultatPO =  "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Porte:</b></font></td><td>" + gResultatP + "</td>" + ResultatPrisme + ResultatRyser;
+            gResultatPO =  "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Porte:</b></font></td><td>" + gResultatP + "</td>" + ResultatPrisme + ResultatRyser;
             gResultatPO.insert(gResultatPO.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         case 6:
-            gResultatPR =  "<td width=\"30\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>VP:</b></font></td><td>" + gResultatP + " " + ui->CommentairePrescriptionTextEdit->toPlainText() + "</td>" + ResultatPrisme + ResultatRyser;
+            gResultatPR =  "<td width=\"30\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>VP:</b></font></td><td>" + gResultatP + " " + ui->CommentairePrescriptionTextEdit->toPlainText() + "</td>" + ResultatPrisme + ResultatRyser;
             gResultatPR.insert(gResultatPR.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         default:
@@ -3157,31 +3157,31 @@ void dlg_refraction::ResumeObservation()
         if (QLocale().toDouble(ui->K1OD->text())>0)
         {
             if (gDioptrAstOD!=0.0)
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + proc->CouleurTitres + "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
+                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OD->text() + "/" + ui->K2OD->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2)
                         + "</td><td width=\"120\">" + QString::number(gDioptrAstOD,'f',2) +  tr(" à ") + ui->AxeKOD->text() + "°</td>";
             else
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + proc->CouleurTitres + "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
+                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
                         + ui->K1OD->text() + tr(" à ") + ui->AxeKOD->text() + "°/" + ui->K2OD->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2) + "</td>";
         }
         if (QLocale().toDouble(ui->K1OG->text())>0)
         {
             if (gDioptrAstOG!=0.0)
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + proc->CouleurTitres + "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
+                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() + "/" + ui->K2OG->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2)
                         + "</td><td width=\"120\">" + QString::number(gDioptrAstOG,'f',2) +  tr(" à ") + ui->AxeKOG->text() + "°</td>";
             else
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + proc->CouleurTitres + "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
+                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() +  tr(" à ") + ui->AxeKOG->text() + "°/" + ui->K2OG->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2) + "</td>";
         }
         switch (IMesure)
         {
         case 2:
-            gResultatAnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>" + tr("(non dilaté)") + "</td>" + kerato;
+            gResultatAnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>" + tr("(non dilaté)") + "</td>" + kerato;
             gResultatAnondil.insert(gResultatAnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         case 3:
-            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">" + tr("(dilaté)") + "</font></td>" + kerato;
+            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">" + tr("(dilaté)") + "</font></td>" + kerato;
             gResultatAdil.insert(gResultatAdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         default:
@@ -3328,11 +3328,11 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
             case 4:
-                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + db->getUserConnected()->getLogin() + "</td>";
+                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + db->getUserConnected()->getLogin() + "</td>";
                 gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             case 5:
-                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->getLogin() + "</td>";
+                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->getLogin() + "</td>";
                 gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             default:

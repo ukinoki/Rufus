@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \brief Patients::Patients
  * Initialise la map Patient
  */
-Patients::Patients()
+Patients::Patients(QObject *parent) : ItemsList(parent)
 {
     m_patients = new QMap<int, Patient*>();
     m_full  = false;
@@ -43,19 +43,23 @@ bool Patients::isfull()
  * \return Q_NULLPTR si aucun patient trouvé
  * \return Patient* le patient correspondant à l'id
  */
-Patient* Patients::getById(int id, bool all)
+Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
 {
     Patient *pat = Q_NULLPTR;
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(id);
     if (itpat == m_patients->constEnd())
-        pat = DataBase::I()->loadPatientById(id, pat, all);
+    {
+        pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
+        if (pat != Q_NULLPTR)
+            add(pat);
+    }
     else
     {
         pat = itpat.value();
-        if (all)
+        if (loadDetails == Item::LoadDetails)
             if (!pat->isalloaded())
             {
-                QJsonObject jsonPatient = DataBase::I()->loadAllDataPatientById(id);
+                QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(id);
                 if( jsonPatient.isEmpty() )
                     return Q_NULLPTR;
                 else
@@ -65,14 +69,14 @@ Patient* Patients::getById(int id, bool all)
     return pat;
 }
 
-void Patients::loadAll(Patient *pat)
+void Patients::loadAll(Patient *pat, Item::UPDATE upd)
 {
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(pat->id());
     if (itpat == m_patients->constEnd())
-        pat = DataBase::I()->loadPatientById(pat->id(), pat, true);
-    else if (!itpat.value()->isalloaded())
+        add(pat);
+    if (!pat->isalloaded() || upd == Item::ForceUpdate)
     {
-        QJsonObject jsonPatient = DataBase::I()->loadAllDataPatientById(pat->id());
+        QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(pat->id());
         if( !jsonPatient.isEmpty() )
             pat->setData(jsonPatient);
     }
@@ -97,6 +101,7 @@ void Patients::reloadSocialData(Patient *pat)
     if( !jData.isEmpty() )
         pat->setSocialData(jData);
 }
+
 
 /*!
  * \brief Patients::addPatient
@@ -153,5 +158,176 @@ void Patients::initListeByDDN(QDate DDN)
     else
         m_patients = DataBase::I()->loadPatientsByDDN(DDN);
     m_full = (DDN == QDate());
+}
+
+void Patients::SupprimePatient(Patient *pat)
+{
+    //!. Suppression des bilans orthoptiques
+    QString requete;
+    DataBase::I()->StandardSQL("DELETE FROM " NOM_TABLE_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " NOM_TABLE_ACTES " where idPat = " + QString::number(pat->id()) + ")");
+    //!. Suppression des actes
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_ACTES);
+    //!. Suppression des documents émis
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_IMPRESSIONS);
+    //!. Suppression des mots cles utilisés
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_MOTSCLESJOINTURES);
+    //!. Suppression de la salle d'attente
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_SALLEDATTENTE);
+
+    //! Suppression dans la base OPhtalmologie
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_REFRACTION);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_DONNEES_OPHTA_PATIENTS);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_BIOMETRIES);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_TONOMETRIE);
+
+    //!. Suppression du patient
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_PATIENTS);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_DONNEESSOCIALESPATIENTS);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    remove(pat);
+}
+
+Patient* Patients::CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe)
+{
+    bool ok;
+    QString req;
+    req =   "INSERT INTO " NOM_TABLE_PATIENTS
+            " (PatNom, PatPrenom, PatDDN, PatCreele, PatCreePar, Sexe) "
+            " VALUES ('" +
+            Utils::correctquoteSQL(nom) + "', '" +
+            Utils::correctquoteSQL(prenom) + "', '" +
+            datedenaissance.toString("yyyy-MM-dd") +
+            "', NOW(), '" +
+            QString::number(DataBase::I()->getUserConnected()->id()) +"' , '" +
+            sexe +
+            "');";
+
+    DataBase::I()->locktables(QStringList() << NOM_TABLE_PATIENTS << NOM_TABLE_DONNEESSOCIALESPATIENTS << NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    if (!DataBase::I()->StandardSQL(req, tr("Impossible de créer le dossier")))
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
+    // Récupération de l'idPatient créé ------------------------------------
+    int idpat = DataBase::I()->selectMaxFromTable("idPat", NOM_TABLE_PATIENTS, ok, tr("Impossible de sélectionner les enregistrements"));
+    if (!ok ||  idpat == 0)
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
+
+    Patient *pat = DataBase::I()->loadPatientById(idpat);
+    req = "INSERT INTO " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
+    DataBase::I()->StandardSQL(req,tr("Impossible de créer les données sociales"));
+    req = "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
+    DataBase::I()->StandardSQL(req,tr("Impossible de créer les renseignements médicaux"));
+    DataBase::I()->unlocktables();
+    return pat;
+}
+
+void Patients::updatePatient(Patient *pat)
+{
+    pat->setData(DataBase::I()->loadPatientAllData(pat->id()));
+}
+
+void Patients::updatePatientData(Patient *pat, QString nomchamp, QVariant value)
+{
+    QString table, newvalue;
+    if (nomchamp == CP_ATCDTSOPHRMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->setatcdtsoph(value.toString());
+        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+    }
+    else if (nomchamp == CP_ATCDTSFAMLXSRMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->setatcdtsfam(value.toString());
+        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+    }
+    else if (nomchamp == CP_ATCDTSPERSOSRMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->setatcdtsgen(value.toString());
+        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+    }
+    else if (nomchamp == CP_TRAITMTGENRMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->settraitemntsgen(value.toString());
+        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+    }
+    else if (nomchamp == CP_TRAITMTOPHRMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->settraitemntsoph(value.toString());
+        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+    }
+    else if (nomchamp == CP_TABACRMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->settabac(value.toString());
+        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+    }
+    else if (nomchamp == CP_AUTRESTOXIQUESRMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->setautrestoxiques(value.toString());
+        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+    }
+    else if (nomchamp == CP_IMPORTANTRMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->setimportant(value.toString());
+        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+    }
+    else if (nomchamp == CP_RESUMERMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->setresume(value.toString());
+        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+    }
+    else if (nomchamp == CP_IDMGRMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->setmg(value.toInt());
+        newvalue = QString::number(value.toInt());
+    }
+    else if (nomchamp == CP_IDSPE1RMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->setspe1(value.toInt());
+        newvalue = QString::number(value.toInt());
+    }
+    else if (nomchamp == CP_IDSPE2RMP)
+    {
+        table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
+        pat->setspe2(value.toInt());
+        newvalue = QString::number(value.toInt());
+    }
+    QString requete = "UPDATE " + table + " SET " + nomchamp + " = " + newvalue + " WHERE idPat = " + QString::number(pat->id());
+    DataBase::I()->StandardSQL(requete);
+}
+
+void Patients::updateCorrespondant(Patient *pat, DataBase::typecorrespondant type, Correspondant *cor)
+{
+    int id = (cor != Q_NULLPTR ? cor->id() : 0);
+    QString field;
+    switch (type) {
+    case DataBase::MG:
+        field = CP_IDMGRMP;
+        pat->setmg(id);
+        break;
+    case DataBase::Spe1:
+        field = CP_IDSPE1RMP;
+        pat->setspe1(id);
+        break;
+    case DataBase::Spe2:
+        pat->setspe2(id);
+        field = CP_IDSPE2RMP;
+    }
+    QString idsql = (cor != Q_NULLPTR ? QString::number(cor->id()) : "null");
+    DataBase::I()->StandardSQL("update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set " + field + " = " + idsql +
+                " where idpat = " + QString::number(pat->id()));
 }
 

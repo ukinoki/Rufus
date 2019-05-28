@@ -29,7 +29,7 @@ QMap<int, Correspondant *> *Correspondants::correspondants() const
  * \brief Correspondants::Correspondants
  * Initialise la map Correspondants
  */
-Correspondants::Correspondants()
+Correspondants::Correspondants(QObject *parent) : ItemsList(parent)
 {
     m_correspondants = new QMap<int, Correspondant*>();
 }
@@ -94,7 +94,10 @@ Correspondant* Correspondants::getById(int id, bool loadDetails, bool addToList)
     {
         QJsonObject jsonCorrespondant = DataBase::I()->loadCorrespondantData(id);
         if( jsonCorrespondant.isEmpty() )
+        {
+            delete result;
             return Q_NULLPTR;
+        }
         else
             result->setData(jsonCorrespondant);
     }

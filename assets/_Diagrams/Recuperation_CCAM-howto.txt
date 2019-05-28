@@ -8,13 +8,13 @@
 		1. changer le champ pu_base au format Nombre/Anglais(USA)/2 décimales/ 1 zéro non significatif/pas de séparateur de milliers
 		2. changer le champ date au format AAAA-MM-JJ,
 		3. pour la table R_PU_BASE, il faut éliminer tous les codes se terminant par 40 (codes anesthésie) et retirer les 2 derniers caractères
-			en D1, copier la formule =SI(DROITE(A1;2)="10";GAUCHE(A1;7))
-			recopier cette formule dans toute la colonne 4
-			recopier la colonne 4 sur elle-même en collage spécial pour remplacer les formules par le texte
-			supprimer toutes les lignes où la colonne 4 est vide
-			supprimer la colonne 1
-			décaler la colonne 4 (devenue 3) en 1
-			trier la table sur les colonnes 1,3,2
+			en E2, copier la formule =SI(DROITE(A2;2)="10";GAUCHE(A2;7))
+			recopier cette formule dans toute la colonne E
+			recopier la colonne E sur elle-même en collage spécial pour remplacer les formules par le texte
+			supprimer toutes les lignes où la colonne E est vide (faire un tri sur cette colonne puis supprimer les lignes vides qui se seront mises tout au début de la table)
+			supprimer la colonne A
+			décaler la colonne E (devenue D) en A
+			trier la table sur les colonnes A,C,B
 			recréer une première ligne avec les noms codeccam, montant, date
 	6. pour la table R_ACTE
 		trier la table sur la colonnes 1
@@ -31,12 +31,12 @@
 	Z. Supprimer la table ccam
 	7. Exécuter le requête "create table rufus.ccam as (SELECT distinct codeccam , nom FROM rufus.RACTE);" pour éliminer tous les doublons de RACTE
 	8. Rajouter les champs OPTAM et NonOPTAM, format decimal(7,2)
-	9. Rajouter un champ d'index primaire idcccam, Primary key, autoincrémenté, int pour ccamprov
+	9. Rajouter un champ d'index primaire idcccam, Primary key, autoincrémenté, int pour ccam
 	10. Supprimer la table R_ACTE
 
 6. Calculer et attribuer les montants OPTAM et NonOPTAM
 	1. Compléter les montants dans la base ccam
-	utiliser le scriot
+	utiliser le script
 
     		bool ok;
     		QString req = "select codeccam from rufus.ccam";

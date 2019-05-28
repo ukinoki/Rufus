@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "database.h"
 #include "cls_tiers.h"
+#include "cls_itemslist.h"
 
 
 /*!
@@ -28,13 +29,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * CPAM, MGEN, MSA...etc..
  * géré par la table ComptaMedicale.tiers
  */
-class TiersPayants
+class TiersPayants : public ItemsList
 {
 private:
     QMap<int, Tiers*> *m_tierspayants; //!< la liste des tiers payants
 
 public:
-    explicit TiersPayants();
+    explicit TiersPayants(QObject *parent = Q_NULLPTR);
 
     QMap<int, Tiers *> *tierspayants() const;
 

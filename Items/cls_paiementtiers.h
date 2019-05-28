@@ -34,8 +34,8 @@ public:
 private:
     /*! les paiements tiers correspondent à tous les paiements de la table comptamedicale.lignesrecettes effectués par des tiers payants : organisemes sociaux, assurances privées, tutelles ..etc...
      *  les paiements par carte de crédit sont aussi considérés comme des paiements par tiers puisque leur paiement se fait par un tiers, la banque, avec une commission
-     *  d'une manièere générale tout paiement décalé dans le temps par une autre personne que le patient est considéré comme paiement pra tiers
-     * Ces paiements son enregistrés par un 'O' dans le champ TiersPayant de la table comptamedicale.lignesrecettes
+     *  d'une manièere générale tout paiement décalé dans le temps par une autre personne que le patient est considéré comme paiement par tiers
+     *  Ces paiements son enregistrés par un 'O' dans le champ TiersPayant de la table comptamedicale.lignesrecettes
      */
 
     int m_idpaiement;               //!> l'idrecette du paiement en attente

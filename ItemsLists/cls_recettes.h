@@ -20,14 +20,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "database.h"
 #include "cls_recette.h"
+#include "cls_itemslist.h"
 
-class Recettes
+class Recettes : public ItemsList
 {
 private:
     QMap<int, Recette*> *m_recettes = Q_NULLPTR; //!< la liste des recettes
 
 public:
-    explicit Recettes();
+    explicit Recettes(QObject *parent = Q_NULLPTR);
 
     QMap<int, Recette *> *recettes() const;
 

@@ -20,23 +20,27 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_docexterne.h"
 #include "database.h"
+#include "cls_itemslist.h"
 
-class DocsExternes
+class DocsExternes : public ItemsList
 {
 private:
     QMap<int, DocExterne*> *m_docsexternes = Q_NULLPTR; //!< la liste des DocExternes pour un patient donné
     bool m_nouveaudocument;
 
 public:
-    explicit DocsExternes();
-    QMap<int, DocExterne *>* docsexternes();
-    DocExterne* getById(int id, bool loadDetails=true, bool addToList=true);
-    bool add(DocExterne *doc);
-    void addList(QList<DocExterne*> listdocs);
-    bool NouveauDocument();
-    void setNouveauDocumentFalse();
-    DocExterne* reload(DocExterne* docmt);
-    void remove(DocExterne *doc);
-    void clearAll();
+    explicit                    DocsExternes(QObject *parent = Q_NULLPTR);
+    QMap<int, DocExterne *>*    docsexternes();
+    DocExterne*                 getById(int id, bool loadDetails=true, bool addToList=true);
+    bool                        add(DocExterne *doc);
+    void                        addList(QList<DocExterne*> listdocs);
+    void                        remove(DocExterne *doc);
+    void                        clearAll();
+    void                        initListeByPatient(Patient *pat);
+
+    bool                        NouveauDocument();
+    void                        setNouveauDocumentFalse();
+    void                        setsoustype(DocExterne* docmt, QString soustype = "");                  //!> actualise le soustype d'un document
+    bool                        SupprimeDocExterne(DocExterne* doc);
 };
 #endif // CLS_DOCSEXTERNES_H
