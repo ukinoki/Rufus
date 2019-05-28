@@ -186,6 +186,5 @@
         <file>qwant.png</file>
         <file>button_blue_refresh.png</file>
         <file>home.png</file>
-        <file>clinic.png</file>
     </qresource>
 </RCC>

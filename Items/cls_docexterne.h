@@ -56,7 +56,5 @@ public:
     void setDate(QDateTime date);
     void setimportance(int imptce);
     void setAllLoaded(bool allloaded);
-
-    void setsoustype(QString soustype)  { m_soustypedoc = soustype; }
 };
 #endif // CLS_DOCEXTERNE_H

@@ -261,9 +261,9 @@ void dlg_bilanrecettes::ImprimeEtat()
 
     //création de l'entête
     if (gMode==SUPERVISEUR)
-        userEntete = Datas::I()->users->getById(gSupervBox->currentData().toInt(), Item::LoadDetails);
+        userEntete = Datas::I()->users->getById(gSupervBox->currentData().toInt(), true);
     else
-        userEntete = Datas::I()->users->getById(gidUser->id(), Item::LoadDetails);
+        userEntete = Datas::I()->users->getById(gidUser->id(), true);
 
     if(userEntete == Q_NULLPTR)
     {
@@ -273,7 +273,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
     if (Entete == "") return;
 
-    // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
+    // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ceux sont les données d'un User qui sont utilisées ???
     // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
     // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
     if (gMode == SUPERVISEUR)
@@ -290,7 +290,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     if (Pied == "") return;
 
     // creation du corps de la remise
-    QString couleur = "<font color = \"" COULEUR_TITRES "\">";
+    QString couleur = "<font color = \"" + proc->CouleurTitres + "\">";
     double c = CORRECTION_td_width;
     QTextEdit *Etat_textEdit = new QTextEdit;
     QString test4 = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"

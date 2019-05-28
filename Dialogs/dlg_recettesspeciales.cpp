@@ -58,9 +58,10 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
-    Datas::I()->banques->initListe();
-    for(QMap<int, Banque*>::const_iterator itbq = Datas::I()->banques->banques()->constBegin(); itbq != Datas::I()->banques->banques()->constEnd(); ++itbq )
-        ui->BanqChequpComboBox->addItem(itbq.value()->NomBanqueAbrege(),itbq.value()->id());
+    bool OK = true;
+    QList<QVariantList> listbanq = db->StandardSelectSQL("SELECT idBanqueAbrege, idBanque FROM " NOM_TABLE_BANQUES " ORDER by idBanqueAbrege",OK);
+    for (int i=0; i<listbanq.size(); i++)
+        ui->BanqChequpComboBox->addItem(listbanq.at(i).at(0).toString(),listbanq.at(i).at(1).toInt());
 
     //TODO : SQL
     QStringList ListeRubriques;
@@ -159,7 +160,7 @@ void    dlg_recettesspeciales::RegleAffichageFiche(enum gMode mode)
     ui->GestionComptesupPushButton  ->setEnabled(gMode == Lire || gMode == TableVide);
     ui->SupprimerupPushButton       ->setVisible(gMode == Lire);
     ui->ModifierupPushButton        ->setVisible(gMode == Lire);
-    int sz = m_userencours->getComptes()->size();
+    int sz = gDataUser->getComptes()->comptes()->size();
     ui->NouvelleRecetteupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && sz>0);
     ui->NouvelleRecetteupPushButton->setToolTip((gMode == Lire || gMode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
     EnregupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
@@ -190,17 +191,33 @@ void dlg_recettesspeciales::AnnulEnreg()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_recettesspeciales::initializeUserSelected()
 {
-    m_userencours = db->getUserConnected();
-    proc->SetUserAllData(m_userencours);
-    if( m_userencours->getComptes(true)->size() == 0)
+    gDataUser = db->getUserConnected();
+
+    if (gDataUser->getComptes() == Q_NULLPTR)
     {
-        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + m_userencours->getLogin());
+        Comptes *comptes = new Comptes();
+        comptes->addCompte( db->loadComptesByUser(gDataUser->id()) );
+        gDataUser->setComptes( comptes );
+    }
+    if( gDataUser->getComptes()->comptesAll()->size() == 0)
+    {
+        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gDataUser->getLogin());
         return false;
     }
-    if (m_userencours->getCompteParDefaut() == Q_NULLPTR)
+
+    QJsonObject data = db->loadUserData(gDataUser->id());
+    if(data.isEmpty())
+    {
+        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche recettes spéciales!"), tr("Les paramètres de ")
+                             + gDataUser->getLogin() + tr("ne sont pas retrouvés"));
+        return false;
+    }
+    gDataUser->setData( data ); //ON charge le reste des données
+
+    if (gDataUser->getIdCompteParDefaut() <= 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche recettes spéciales!"), tr("Pas de compte bancaire enregistré pour ")
-                                     + m_userencours->getLogin());
+                                     + gDataUser->getLogin());
         return false;
     }
 
@@ -249,7 +266,7 @@ void dlg_recettesspeciales::EnregistreRecette()
                                   " where DateRecette = '" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
                                   "'and Libelle = '"  + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
                                   "'and Montant = "   + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                                  " and idUser = "    + QString::number(m_userencours->id()),OK);
+                                  " and idUser = "    + QString::number(gDataUser->id()),OK);
     if (listrec.size() > 0)
     {
         pb = tr("Elle a déjà été saisie");
@@ -264,7 +281,7 @@ void dlg_recettesspeciales::EnregistreRecette()
         listrec = db->StandardSelectSQL("select DateRecette from " NOM_TABLE_RECETTESSPECIALES " where DateRecette > '" + ui->DateRecdateEdit->date().addDays(-180).toString("yyyy-MM-dd") +
                 "'and Libelle = '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
                 "'and Montant = " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
-                " and idUser = " + QString::number(m_userencours->id()),OK);
+                " and idUser = " + QString::number(gDataUser->id()),OK);
         if (listrec.size() > 0)
         {
             if (pb != "")
@@ -300,7 +317,7 @@ void dlg_recettesspeciales::EnregistreRecette()
         return;
     if (!db->StandardSQL("insert into " NOM_TABLE_RECETTESSPECIALES " (DateRecette, idUser, Libelle, Montant, TypeRecette, Paiement, CompteVirement, TireurCheque, BanqueCheque)"
             " VALUES ('" + ui->DateRecdateEdit->date().toString("yyyy-MM-dd") +
-            "', " + QString::number(m_userencours->id()) +
+            "', " + QString::number(gDataUser->id()) +
             ", '" + Utils::correctquoteSQL(ui->ObjetlineEdit->text()) +
             "', " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text())) +
             ", '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) +
@@ -438,18 +455,10 @@ void dlg_recettesspeciales::ChoixMenu(QString choix)
 void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
-    QList<Compte*> *model = m_userencours->getComptes();
-    for( QList<Compte*>::const_iterator itcpt = model->constBegin(); itcpt != model->constEnd(); ++itcpt )
-    {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
-        if (ActiveSeult)
-        {
-            if (!cpt->isDesactive())
-                ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
-        }
-        else
-            ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
-    }
+
+    QMultiMap<int, Compte*>* model = (ActiveSeult? gDataUser->getComptes()->comptes() : gDataUser->getComptes()->comptesAll());
+    for( QMultiMap<int, Compte*>::const_iterator itCompte = model->constBegin(); itCompte != model->constEnd(); ++itCompte )
+       ui->ComptesupComboBox->addItem(itCompte.value()->nom(), QString::number(itCompte.value()->id()) );
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -614,10 +623,10 @@ void dlg_recettesspeciales::MetAJourFiche()
         {
             if (recette.at(6).toInt()>0)
             {
-                int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getById(recette.at(6).toInt()));
-                if( idx > -1 )
+                QMap<int, Compte*>::iterator compteFind = gDataUser->getComptes()->comptesAll()->find(recette.at(6).toInt());
+                if( compteFind != gDataUser->getComptes()->comptesAll()->constEnd() )
                 {
-                    B = m_userencours->getComptes(true)->at(idx)->nom();
+                    B = compteFind.value()->nom();
                     ui->Comptelabel->setVisible(true);
                     ui->ComptesupComboBox->setVisible(true);
                     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
@@ -661,7 +670,7 @@ void dlg_recettesspeciales::MetAJourFiche()
             ui->DateRecdateEdit->setDate(QDate::currentDate());
             ui->Comptelabel->setVisible(true);
             ui->ComptesupComboBox->setVisible(true);
-            ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(m_userencours->getCompteParDefaut()->id()));
+            ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(gDataUser->getIdCompteParDefaut()));
             ui->PaiementcomboBox->setCurrentText(NOM_VIREMENT);
             break;
         case Modifier:
@@ -902,7 +911,7 @@ void dlg_recettesspeciales::ReconstruitListeAnnees()
     bool ok = true;
     QList<QVariantList> listannees =
             db->StandardSelectSQL("SELECT distinct Annee from (SELECT year(DateRecette) as Annee FROM " NOM_TABLE_RECETTESSPECIALES
-                                  " WHERE idUser = " + QString::number(m_userencours->id()) + ") as ghf order by Annee",ok);
+                                  " WHERE idUser = " + QString::number(gDataUser->id()) + ") as ghf order by Annee",ok);
     QStringList ListeAnnees;
     for (int i = 0; i < listannees.size(); i++)
     {
@@ -930,7 +939,7 @@ void dlg_recettesspeciales::RemplitBigTable()
     gBigTable->clearContents();
     QString Recrequete = "SELECT idRecette, idUser, year(DateRecette) as Annee, DateRecette, Libelle, Montant,"
                          "TypeRecette, Nooperation, Monnaie, Paiement, CompteVirement, BanqueCheque FROM " NOM_TABLE_RECETTESSPECIALES
-                         " WHERE idUser = " + QString::number(m_userencours->id());
+                         " WHERE idUser = " + QString::number(gDataUser->id());
     if (ui->AnneecomboBox->currentText() != "")
         Recrequete += " AND year(DateRecette) = " + ui->AnneecomboBox->currentText();
     Recrequete += " ORDER BY DateRecette, Libelle";
@@ -1015,9 +1024,9 @@ void dlg_recettesspeciales::RemplitBigTable()
             {
                 if (recette.at(10).toInt() > 0)
                 {
-                    int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getById(recette.at(10).toInt()));
-                    if( idx > -1 )
-                        B = m_userencours->getComptes(true)->at(idx)->nom();
+                    QMultiMap<int, Compte*>::const_iterator cptFind = gDataUser->getComptes()->comptesAll()->find(recette.at(10).toInt());
+                    if( cptFind != gDataUser->getComptes()->comptesAll()->constEnd() )
+                        B = cptFind.value()->nom();
                 }
                 A = NOM_VIREMENT + (B==""? "" : " " + B);
             }

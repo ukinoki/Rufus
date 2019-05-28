@@ -109,6 +109,8 @@ Procedures::Procedures(QObject *parent) :
     Ouverture_Ports_Series();
     MesureRef               = None;
     dlgrefractionouverte    = false;
+    ListeComptesEncaissUser                 = new QStandardItemModel();
+    ListeComptesEncaissUserAvecDesactive    = new QStandardItemModel();
     initOK                  = true;
     int margemm         = TailleTopMarge(); // exprimé en mm
     printer             = new QPrinter(QPrinter::HighResolution);
@@ -1076,7 +1078,7 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
         Entete.replace("{{POLICE}}", qApp->font().family());
         if (rplct)
         {
-            User *userRemp = Datas::I()->users->getById(idparent, Item::LoadDetails);
+            User *userRemp = Datas::I()->users->getById(idparent, true);
             if(userRemp && userRemp->getTitre().size())
                 Entete.replace("{{TITREUSER}}", "<s>" + userRemp->getTitre() + " " + userRemp->getPrenom() + " " + userRemp->getNom() + "</s> "
                                                 "<font color=\"darkblue\">" + tr ("remplacé par") + " "
@@ -1916,17 +1918,8 @@ QString Procedures::getSessionStatus()
         else if (pasdecompta)
             txtstatut += tr("sans comptabilité");
     }
-    if (respliberal)
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + Datas::I()->users->getById(m_userConnected->getCompteEncaissement()->id())->getLogin() + " " + tr("de") + " " + m_userConnected->getUserComptable()->getLogin();
-    else if (respsalarie)
-    {
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t");
-        User *employeur = Datas::I()->users->getById(m_userConnected->getEmployeur(), Item::LoadDetails);
-        employeur->setCompteEncaissement(Datas::I()->comptes->getById(employeur->getIdCompteEncaissHonoraires()));
-        Compte *cptt= employeur->getCompteEncaissement();
-        txtstatut += cptt->nom() + " ";
-        txtstatut += tr("de") + " " + Datas::I()->users->getById(m_userConnected->getEmployeur())->getLogin();
-    }
+    if (respliberal||respsalarie)
+        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + m_userConnected->getNomCompteEncaissHonoraires() + " " + tr("de") + " " + m_userConnected->getUserComptable()->getLogin();
     else if (retrocession)
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
@@ -1947,9 +1940,9 @@ QString Procedures::getSessionStatus()
     if (respliberal || soccomptable)
     {
         QString cptabledefaut ("");
-        if (m_userConnected->getCompteParDefaut() != Q_NULLPTR)
-            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getCompteParDefaut()->idUser())->getLogin();
-        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getCompteParDefaut()->nom() + " "
+        if (m_userConnected->getidUserCompteParDefaut()>0)
+            cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getidUserCompteParDefaut())->getLogin();
+        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getNomCompteParDefaut() + " "
                           + cptabledefaut;
     }
     if (respliberal)
@@ -1957,7 +1950,7 @@ QString Procedures::getSessionStatus()
     return txtstatut;
 }
 
-/*! --------------------------------------------------------------------------------------------------------------------------------------
+/*--------------------------------------------------------------------------------------------------------------------------------------
     -- détermine le dossier où est stockée l'imagerie -----------------------------------------------------------
     DirStockageImages           = l'emplacement du dossier de l'imagerie sur le poste quand il est serveur
                                 = l'emplacement du dossier de l'imagerie sur le serveur vu par le poste sur le réseau local
@@ -2017,6 +2010,68 @@ bool Procedures::FicheRefractionOuverte()
     return dlgrefractionouverte;
 }
 
+//TODO : Compta
+void Procedures::setListeComptesEncaissmtUser(int idUser) // si iduser == -1, on vide les listes de comptes
+{
+    ListeComptesEncaissUser->clear();
+    ListeComptesEncaissUserAvecDesactive->clear();
+    if (idUser==-1)
+        return;
+    User* user = Datas::I()->users->getById(idUser);
+    int usercpt = ( user->getEmployeur() > 0 ? user->getEmployeur() : idUser ) ;
+    QString req = "select idCompte, nomcompteabrege, desactive, userlogin from " NOM_TABLE_COMPTES " cpt"
+                  " left outer join " NOM_TABLE_UTILISATEURS " usr on  usr.iduser = cpt.iduser"
+                  " where cpt.idUser = " + QString::number(usercpt);
+    QStandardItem *pitem0, *pitem1;
+    QStandardItem *oitem0, *oitem1;
+    QList<QVariantList> cptlist = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur!"));
+    if (ok)
+    {
+        for (int i = 0; i < cptlist.size(); i++)
+        {
+            pitem0 = new QStandardItem(cptlist.at(i).at(3).toString() + "/" + cptlist.at(i).at(1).toString());
+            pitem1 = new QStandardItem(cptlist.at(i).at(0).toString());
+            QList<QStandardItem*> listitems;
+            listitems << pitem0 << pitem1;
+            ListeComptesEncaissUserAvecDesactive    ->appendRow(listitems);
+            oitem0 = new QStandardItem(cptlist.at(i).at(3).toString() + "/" + cptlist.at(i).at(1).toString());
+            oitem1 = new QStandardItem(cptlist.at(i).at(0).toString());
+            QList<QStandardItem*> olistitems;
+            olistitems << oitem0 << oitem1;
+            if(cptlist.at(i).at(2).toInt() != 1)
+                ListeComptesEncaissUser    ->appendRow(olistitems);
+        }
+    }
+    if (ListeComptesEncaissUser->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
+    {
+        QStandardItem *nitem0, *nitem1;
+        nitem0 = new QStandardItem(user->getNomUserEncaissHonoraires() + "/" + user->getNomCompteEncaissHonoraires());
+        nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
+        QList<QStandardItem*> nlistitems;
+        nlistitems << nitem0 << nitem1;
+        ListeComptesEncaissUser->insertRow(0, nlistitems);
+    }
+    if (ListeComptesEncaissUserAvecDesactive->findItems(QString::number(user->getIdCompteEncaissHonoraires()), Qt::MatchExactly, 1).size()==0)
+    {
+        QStandardItem *nitem0, *nitem1;
+        nitem0 = new QStandardItem(user->getNomUserEncaissHonoraires() + "/" + user->getNomCompteEncaissHonoraires());
+        nitem1 = new QStandardItem(QString::number(user->getIdCompteEncaissHonoraires()));
+        QList<QStandardItem*> nlistitems;
+        nlistitems << nitem0 << nitem1;
+        ListeComptesEncaissUserAvecDesactive->insertRow(0, nlistitems);
+    }
+}
+
+QStandardItemModel* Procedures::getListeComptesEncaissmtUser()
+{
+    return ListeComptesEncaissUser;
+}
+
+QStandardItemModel* Procedures::getListeComptesEncaissmtUserAvecDesactive()
+{
+    return ListeComptesEncaissUserAvecDesactive;
+}
+
 bool Procedures::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj==uptable)
@@ -2064,6 +2119,31 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
     for(int i=0; i<model->rowCount(); i++)
         box->addItem(model->item(i)->text(), model->item(i,1)->text());
 }
+
+void Procedures::setmg(Patient *pat, int idcor)
+{
+    QString val = (idcor == 0? "null" : QString::number(idcor));
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg = " + val + " where idpat = " + QString::number(pat->id());
+    db->StandardSQL(req);
+    pat->setmg(idcor);
+}
+
+void Procedures::setspe1(Patient *pat, int idcor)
+{
+    QString val = (idcor == 0? "null" : QString::number(idcor));
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = " + val + " where idpat = " + QString::number(pat->id());
+    db->StandardSQL(req);
+    pat->setspe1(idcor);
+}
+
+void Procedures::setspe2(Patient *pat, int idcor)
+{
+    QString val = (idcor == 0? "null" : QString::number(idcor));
+    QString req = "update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = " + val + " where idpat = " + QString::number(pat->id());
+    db->StandardSQL(req);
+    pat->setspe2(idcor);
+}
+
 
 //Pas normal, les mots de passes doivent etre chiffrés
 QString Procedures::getMDPAdmin()
@@ -2982,6 +3062,7 @@ bool Procedures::Connexion()
 bool Procedures::Connexion_A_La_Base()
 {
     db->init(*gsettingsIni, gMode2);
+
     if (!IdentificationUser())
         return false;
 
@@ -3267,10 +3348,6 @@ bool Procedures::IdentificationUser(bool ChgUsr)
     if( result > 0 )
     {
         m_userConnected = db->getUserConnected();
-        Datas::I()->villes->initListe();
-        Datas::I()->sites->initListe();
-        Datas::I()->comptes->initListe();
-        SetUserAllData(m_userConnected);
         if (!VerifBaseEtRessources())
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Impossible de mettre à jour la base de données\nSortie du programme"));
@@ -3636,36 +3713,6 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     avecLaComptaProv = true; //FIXME : avecLaComptaProv
     return true;
 }
-
-/*!
- * \brief Procedures::SetUserAllData(User *usr)
- * Charge les données d'un utilisateur, y compris ses données bancaires
- * cette fonction fait appel aux deux classes cls_user et cls_compte
- * et ne peut pas figurer dans la classe cls_user
- * en raison de référence croisées
- */
-bool Procedures::SetUserAllData(User *usr)
-{
-    if (!usr->isAllLoaded())
-    {
-        QJsonObject data = db->loadUserData(usr->id());
-        if(data.isEmpty())
-        {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Les paramètres de ")
-                                + usr->getLogin() + tr("ne sont pas retrouvés"));
-            return false;
-        }
-        usr->setData( data ); //on charge le reste des données
-    }
-    dlg_gestioncomptes::ReconstruitListeComptes(usr);
-    usr->setCompteParDefaut(Datas::I()->comptes->getById(usr->getIdCompteParDefaut()));
-    if (usr->isLiberal())
-        usr->setCompteEncaissement(Datas::I()->comptes->getById(usr->getIdCompteEncaissHonoraires()));
-    else if (usr->isSalarie())
-        usr->setCompteEncaissement(Datas::I()->comptes->getById(Datas::I()->users->getById(usr->getEmployeur())->getIdCompteEncaissHonoraires()));
-    return true;
-}
-
 /*!
  * \brief Procedures::Slot_CalcUserSuperviseur
  *
@@ -3982,7 +4029,6 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Création de l'utilisateur
             gdbOK = CreerPremierUser(m_userConnected->getLogin(), m_userConnected->getPassword());
             db->login(m_userConnected->getLogin(), m_userConnected->getPassword());
-            SetUserAllData(m_userConnected);
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
@@ -5353,7 +5399,7 @@ void Procedures::setHtmlRefracteur()
             if (Resultat == "" && ResultatOD == "Rien" && ResultatOG != "Rien")
                 Resultat = ResultatVLOG + "<font color = " + colorVLOG + "><b>" + mAVLOG + "</b></font> " + tr("OG");
         }
-        Resultat = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + m_userConnected->getLogin() + "</td></p>";
+        Resultat = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + m_userConnected->getLogin() + "</td></p>";
     }
     HtmlMesureRefracteurSubjectif = Resultat;
     // CALCUL DE HtmlMesureTono ======================================================================================================================================
@@ -5652,7 +5698,7 @@ void Procedures::setHtmlFronto()
     else
         Resultat = ResultatOD + " / " + ResultatOG;
 
-    HtmlMesureFronto =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Porte") + ":</b></font></td><td>" + Resultat + "</p>";
+    HtmlMesureFronto =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("Porte") + ":</b></font></td><td>" + Resultat + "</p>";
 }
 
 QString Procedures::HtmlFronto()
@@ -6259,7 +6305,7 @@ void Procedures::setHtmlAutoref()
     }
     else
         Resultat = ResultatOD + " / " + ResultatOG;
-    HtmlMesureAutoref =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td></p>";
+    HtmlMesureAutoref =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td></p>";
 
 }
 
@@ -6285,22 +6331,22 @@ void Procedures::setHtmlKerato(QMap<QString,QVariant>  MKer)
     if (QLocale().toDouble(mK1OD)>0)
     {
         if (QLocale().toDouble(mDioptrKOD)!=0.0)
-            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
+            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("KOD") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OD + "/" + mK2OD + " Km = " + QString::number((QLocale().toDouble(mK1OD) + QLocale().toDouble(mK2OD))/2,'f',2) + "</td>"
                       "<td width=\"180\">" + mDioptrK1OD + "/" + mDioptrK2OD + " " + mDioptrKOD +  tr(" à ") + mAxeKOD + "°</td></p>";
         else
-            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td>"
+            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("KOD") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OD + tr(" à ") + mAxeKOD + "°/" + mK2OD
                       + " Km = " + QString::number((QLocale().toDouble(mK1OD) + QLocale().toDouble(mK2OD))/2,'f',2) + "</td></p>";
     }
     if (QLocale().toDouble(mK1OG)>0)
     {
         if (QLocale().toDouble(mDioptrKOG)!=0.0)
-            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
+            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("KOG") + ":</b></font></td>"
                       "<td width=\"180\">" + mK1OG + "/" + mK2OG + " Km = " + QString::number((QLocale().toDouble(mK1OG) + QLocale().toDouble(mK2OG))/2,'f',2) + "</td>"
                       "<td width=\"180\">" + mDioptrK1OG + "/" + mDioptrK2OG + " " + mDioptrKOG +  tr(" à ") + mAxeKOG + "°</td></p>";
         else
-            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td>"
+            kerato += "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("KOG") + ":</b></font></td>"
                       "<td width=\"180\">"  + mK1OG +  tr(" à ") + mAxeKOG + "°/" + mK2OG
                       + " Km = " + QString::number((QLocale().toDouble(mK1OG) + QLocale().toDouble(mK2OG))/2,'f',2) + "</td></p>";
     }
@@ -6331,13 +6377,13 @@ void Procedures::setHtmlTono()
         else
             TOGcolor = "<font color = \"blue\"><b>" + mTOG + "</b></font>";
         if (mTOD.toInt() == 0 && mTOG.toInt() > 0)
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
+            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else if (mTOG.toInt() == 0 && mTOD.toInt() > 0)
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
+            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else if (mTOD.toInt() == mTOG.toInt())
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
+            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else
-            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
+            Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_userConnected->getLogin() + "</td></p>";
 
     }
     HtmlMesureTono = Tono;
@@ -6360,13 +6406,13 @@ void Procedures::setHtmlPachy()
     if (a > 0 || b > 0)
     {
         if (a == 0 && b > 0)
-            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
+            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else if (b == 0 && a > 0)
-            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOD + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
+            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("PachyOG:") + "</b></font></td><td width=\"80\">" + mPachyOD + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else if (a == b)
-            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("PachyODG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
+            Pachy = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("PachyODG:") + "</b></font></td><td width=\"80\">" + mPachyOG + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
         else
-            Pachy= "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Pachy:") + "</b></font></td><td width=\"80\">" + mPachyOD + "/" + mPachyOG + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
+            Pachy= "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + CouleurTitres + "><b>" + tr("Pachy:") + "</b></font></td><td width=\"80\">" + mPachyOD + "/" + mPachyOG + "</td><td>" + m_userConnected->getLogin() + "</td></p>";
 
     }
     HtmlMesurePachy = Pachy;

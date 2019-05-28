@@ -533,16 +533,17 @@ void dlg_remisecheques::Slot_MiseEnFormeMontant(int A, int B, int C, int D)
 
 void dlg_remisecheques::ChangeCompte()
 {
-    int id = ui->ComptecomboBox->currentData().toInt();
-    Compte *cpt = Datas::I()->comptes->getById(id);
-    if (cpt != Q_NULLPTR)
+    QMap<int, Compte*>::const_iterator itcpt = m_comptes.find(ui->ComptecomboBox->currentData().toInt());
+    if(itcpt != m_comptes.end())
+    {
+        Compte *cpt = const_cast<Compte*>(itcpt.value());
         ui->IntituleComptetextEdit->setText(cpt->nom() + "\n" + cpt->iban());
+    }
 }
 
 void dlg_remisecheques::Slot_ChangeUser()
 {
-    m_userencours = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
-    proc->SetUserAllData(m_userencours);
+    gUser = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
     if (!VoirNouvelleRemise())
         if (!VoirRemisesPrecs())
         {
@@ -711,11 +712,11 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              Q_NULLPTR, Q_NULLPTR);
 
     QString idlist;
-    for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
+    for( QMap<int, Compte*>::const_iterator itcpt = m_comptes.constBegin(); itcpt != m_comptes.constEnd(); ++itcpt )
     {
-        Compte *cpt = const_cast<Compte*>(itcpt.i->t());
+        Compte *cpt = const_cast<Compte*>(itcpt.value());
         idlist += QString::number(cpt->id());
-        if (itcpt != m_comptes->constEnd()-1)
+        if (itcpt != m_comptes.constEnd()-1)
             idlist += ", ";
     }
 
@@ -841,7 +842,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         //1, on recherche les chèques à déposer
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec  FROM " NOM_TABLE_RECETTES " pai"
                 " WHERE pai.idRecette in (SELECT lig.idRecette FROM " NOM_TABLE_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE UserComptable = " + QString::number(m_userencours->id()) + "))"
+                " (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE UserComptable = " + QString::number(gUser->id()) + "))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NULL"
                 " AND ModePaiement = 'C'";
@@ -858,7 +859,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " NOM_TABLE_RECETTES " pai"
                 " WHERE pai.idRecette in (SELECT lig.idRecette FROM " NOM_TABLE_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE UserComptable = " + QString::number(m_userencours->id()) +"))"
+                " (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE UserComptable = " + QString::number(gUser->id()) +"))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NOT NULL"
                 " AND ModePaiement = 'C'";
@@ -1035,16 +1036,9 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     int iduser = ui->UserComboBox->currentData().toInt();
     QDate date;
     QString req;
-    int id = ui->ComptecomboBox->currentData().toInt();
-    for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
-    {
-        Compte *icpt = const_cast<Compte*>(itcpt.i->t());
-        if (icpt->id() == id)
-        {
-            cpt = icpt;
-            break;
-        }
-    }
+    QMap<int, Compte*>::const_iterator itcpt = m_comptes.find(ui->ComptecomboBox->currentData().toInt());
+    if(itcpt != m_comptes.end())
+        cpt = const_cast<Compte*>(itcpt.value());
 
     if (gMode == RevoirRemisesPrecs) {
         QMap<QString, QVariant> MapRemise =  ui->RemisePrecsupComboBox->currentData().toMap();
@@ -1052,14 +1046,14 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
         AvecPrevisu = true;
     }
     else if (gMode == NouvelleRemise) {
-        iduser      = m_userencours->id();
+        iduser      = gUser->id();
         date        = QDate::currentDate();
     }
 
     //création de l'entête
     QString EnTete;
     if (iduser == -1) return false;
-    User *userEntete = Datas::I()->users->getById(iduser, Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(iduser, true);
     if(userEntete == Q_NULLPTR)
         return false;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
@@ -1069,7 +1063,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     EnTete.replace("{{PRENOM PATIENT}}"    , "");
     EnTete.replace("{{NOM PATIENT}}"       , cpt->intitulecompte());
     EnTete.replace("{{TITRE}}"             , "Compte " + cpt->iban());
-    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">Remise de chèques n° " + QString::number(idRemise) + "</font>");
+    EnTete.replace("{{DDN}}"               , "<font color = \"" + proc->CouleurTitres + "\">Remise de chèques n° " + QString::number(idRemise) + "</font>");
 
     // création du pied
     QString Pied = proc->ImpressionPied(userEntete);
@@ -1157,37 +1151,39 @@ void dlg_remisecheques::ReconstruitListeUsers()
         InitOK = false;
         return;
     }
-    m_userencours = db->getUserConnected();
+    gUser = db->getUserConnected();
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
-    if (m_userencours->getUserComptable())
+    if (gUser->getUserComptable())
     {
-        QMap<int, User*>::const_iterator itusr = m_comptablesavecchequesenattente->find(m_userencours->id());
+        QMap<int, User*>::const_iterator itusr = m_comptablesavecchequesenattente->find(gUser->id());
         if(itusr != m_comptablesavecchequesenattente->end())
-            ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_userencours->id()));
+            ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(gUser->id()));
     }
     else
     {
         ui->UserComboBox->setCurrentIndex(0);
         int idusr = ui->UserComboBox->currentData().toInt();
-        m_userencours = Datas::I()->users->getById(idusr);
-        proc->SetUserAllData(m_userencours);
+        gUser = Datas::I()->users->getById(idusr);
+        gUser->setData(db->loadUserData(idusr));
     }
 }
 
 void dlg_remisecheques::ReconstruitListeComptes(bool avecinactif)
 {
     ui->ComptecomboBox->clear();
-    m_comptes = m_userencours->getComptes();
-    for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
+    QList<Compte*> listcomptes = db->loadComptesByUser(gUser->id());
+    for (int i=0; i< listcomptes.size(); i++)
     {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
-        if (!avecinactif)
-        {
-            if (!cpt->isDesactive())
-                ui->ComptecomboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
-        }
-        else
-            ui->ComptecomboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
+        Compte *compte = listcomptes.at(i);
+        if (avecinactif)
+        m_comptes.insert(compte->id(),compte);
+        else if (!compte->isDesactive())
+            m_comptes.insert(compte->id(),compte);
     }
-    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_userencours->getIdCompteParDefaut()));
+    for( QMap<int, Compte*>::const_iterator itCompte = m_comptes.constBegin(); itCompte != m_comptes.constEnd(); ++itCompte )
+    {
+        Compte *cpt = const_cast<Compte*>(itCompte.value());
+        ui->ComptecomboBox->addItem(cpt->nom(), cpt->id() );
+    }
+    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(gUser->getIdCompteParDefaut()));
 }

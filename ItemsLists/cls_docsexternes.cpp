@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_docsexternes.h"
 
-DocsExternes::DocsExternes(QObject *parent) : ItemsList(parent)
+DocsExternes::DocsExternes()
 {
     m_docsexternes = new QMap<int, DocExterne*>();
 }
@@ -52,10 +52,7 @@ DocExterne* DocsExternes::getById(int id, bool loadDetails, bool addToList)
     {
         QJsonObject jsonDocExterne = DataBase::I()->loadDocExterneData(id);
         if( jsonDocExterne.isEmpty() )
-        {
-            delete result;
             return Q_NULLPTR;
-        }
         else
             result->setData(jsonDocExterne);
     }
@@ -74,14 +71,10 @@ void DocsExternes::setNouveauDocumentFalse()
     m_nouveaudocument = false;
 }
 
-void DocsExternes::setsoustype(DocExterne* docmt, QString soustype)
+DocExterne* DocsExternes::reload(DocExterne* docmt)
 {
-    if (soustype == "")
-        soustype = "null";
-    else
-        soustype = "'" + Utils::correctquoteSQL(soustype) + "'";
-    DataBase::I()->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = " + soustype + " where idimpression = " + QString::number(docmt->id()));
-    docmt->setsoustype(soustype);
+    docmt->setAllLoaded(false);
+    return getById(docmt->id());
 }
 
 bool DocsExternes::add(DocExterne *doc)
@@ -118,27 +111,3 @@ void DocsExternes::remove(DocExterne *doc)
     m_docsexternes->remove(doc->id());
     delete doc;
 }
-
-/*!
- * \brief DocsExternes::initListeByPatient
- * Charge l'ensemble des documents externes pour un patient
- * et les ajoute à la classe Patients
- */
-void DocsExternes::initListeByPatient(Patient *pat)
-{
-    clearAll();
-    addList(DataBase::I()->loadDoscExternesByPatient(pat));
-}
-
-
-bool DocsExternes::SupprimeDocExterne(DocExterne* doc)
-{
-    DataBase::I()->StandardSQL("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS
-                    " where idimpression = " + QString::number(doc->id()) + ")");
-    DataBase::I()->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + QString::number(doc->id()));
-    DataBase::I()->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));
-    remove(doc);
-    return true;
-}
-
-

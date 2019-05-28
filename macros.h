@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                                55  // version de la base de données
+#define VERSION_BASE                                56  // version de la base de données
 #define VERSION_RESSOURCES                          34  // version des fichiers de ressources
 
 // Les bases
@@ -85,31 +85,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_TABLE_UTILISATEURS                      "rufus.utilisateurs"
 #define NOM_TABLE_USERSCONNECTES                    "rufus.UtilisateursConnectes"
 #define NOM_TABLE_VILLES                            "rufus.Villes"
-
-// Les champs
-                            //! Table Actes
-#define CP_MOTIFACTES                               "ActeMotif"
-#define CP_TEXTEACTES                               "ActeTexte"
-#define CP_CONCLUSIONACTES                          "ActeConclusion"
-#define CP_ACTEDATEACTES                            "ActeDate"
-#define CP_COURRIERAFAIREACTES                      "ActeCourrierafaire"
-
-                            //! Table renseignementsmedicauxpatients
-#define CP_ATCDTSOPHRMP                             "RMPAtcdtsOphs"
-#define CP_TRAITMTOPHRMP                            "RMPTtOphs"
-#define CP_IMPORTANTRMP                             "Important"
-#define CP_RESUMERMP                                "Resume"
-#define CP_ATCDTSPERSOSRMP                          "RMPAtcdtsPersos"
-#define CP_ATCDTSFAMLXSRMP                          "RMPAtcdtsFamiliaux"
-#define CP_TRAITMTGENRMP                            "RMPTtGeneral"
-#define CP_AUTRESTOXIQUESRMP                        "Autrestoxiques"
-#define CP_IDMGRMP                                  "idCorMedMG"
-#define CP_IDSPE1RMP                                "idCorMedSpe1"
-#define CP_IDSPE2RMP                                "idCorMedSpe2"
-#define CP_TABACRMP                                 "Tabac"
-
-                            //! Table Messagerie
-#define CP_TEXTMSGMESSAGERIE                        "TexteMessage"
 
 // Divers
 #define PDF                                         "pdf"
@@ -194,9 +169,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 // la largeur de la formule de réfraction dans le champ ActeTexte
 #define LARGEUR_FORMULE                             "310"
-
-// la couleur des titres
-#define COULEUR_TITRES                              "blue"
 
 // le lien vers la CCAM
 #define LIEN_CCAM                                   "https://www.ameli.fr/accueil-de-la-ccam/trouver-un-acte/consultation-par-chapitre.php?chap=a%3A0%3A%7B%7D&add=2#chapitre_2"
