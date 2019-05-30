@@ -2768,8 +2768,7 @@ bool Procedures::VerifBaseEtRessources()
     int Version         = VERSION_BASE;
     bool b;
     Versionencours = m_parametres->versionbase();
-    if (Versionencours < Version)
-        b = true;
+    b = (Versionencours < Version);
 
     bool BupDone = false;
     if (b)
