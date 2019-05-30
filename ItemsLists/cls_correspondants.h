@@ -34,7 +34,7 @@ public:
     Correspondants(QObject *parent = Q_NULLPTR);
 
     bool add(Correspondant *cor);
-    Correspondant* getById(int id, bool loadDetails = false, bool addToList = true);
+    Correspondant* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, bool addToList = true);
     void remove(Correspondant* cor);
     void clearAll();
     void initListe(bool all = false);

@@ -716,6 +716,8 @@ QString Utils::ConvertitModePaiement(QString mode)
     else if (mode == "V")  mode = QObject::tr("Virement");
     else if (mode == "P")  mode = QObject::tr("Prélèvement");
     else if (mode == "C")  mode = QObject::tr("Chèque");
+    else if (mode == "G")  mode = QObject::tr("Acte gratuit");
+    else if (mode == "I")  mode = QObject::tr("Impayé");
     return mode;
 }
 

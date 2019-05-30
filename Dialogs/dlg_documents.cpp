@@ -2955,7 +2955,7 @@ void dlg_documents::ChoixCorrespondant(QList<Correspondant *> listcor)
     tblCorresp  ->setEditTriggers(QAbstractItemView::NoEditTriggers);
     for (int i=0; i<listcor.size(); i++)
     {
-        pitem       = new QStandardItem(listcor.at(i)->prenom() + " " + listcor.at(i)->prenom());
+        pitem       = new QStandardItem(listcor.at(i)->prenom() + " " + listcor.at(i)->nom());
         pitem       ->setAccessibleDescription(QString::number(listcor.at(i)->id()));
         pitem       ->setEditable(false);
         pitem       ->setCheckable(true);

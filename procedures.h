@@ -257,6 +257,7 @@ private:
     dlg_paramconnexion      *Dlg_ParamConnex;
     QFont                   gAppFont;
     User *m_userConnected = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
+    ParametresSysteme      *m_parametres;
 
     QString                 DirStockageImages, DirStockageImagesServeur;
     QString                 lCPParDefaut, lVilleParDefaut;

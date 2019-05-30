@@ -29,6 +29,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_motifs.h"
 #include "cls_paiementstiers.h"
 #include "cls_patients.h"
+#include "cls_patientsencours.h"
 #include "cls_typestiers.h"
 #include "cls_tierspayants.h"
 #include "cls_users.h"
@@ -52,6 +53,7 @@ public:
     Actes *actes;                       //!< la liste d'actes pour un patient
     Users *users;                       //!< Les users
     Patients *patients;                 //!< Les patients
+    PatientsEnCours *patientsencours;   //! les patients en cours : patients dont les dossiers sont ouverts, ou présents en salle d'attente ou à l'accueil ou en cours d'examen
     Correspondants *correspondants;     //!< Les correspondants
     Cotations *cotations;               //!< Les cotations
     Depenses *depenses;                 //!< les depenses pour un user et une  année donnée

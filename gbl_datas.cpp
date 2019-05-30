@@ -37,6 +37,7 @@ Datas::Datas()
     depenses        = new Depenses();
     motifs          = new Motifs();
     patients        = new Patients();
+    patientsencours = new PatientsEnCours();
     tiers           = new TiersPayants();
     typestiers      = new TypesTiers();
     users           = new Users();

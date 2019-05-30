@@ -302,7 +302,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     }
     modif = true;
     Datas::I()->correspondants->initListe();
-    m_correspondant = Datas::I()->correspondants->getById(idcor, true, true);
+    m_correspondant = Datas::I()->correspondants->getById(idcor, Item::LoadDetails, true);
     Flags::I()->MAJflagCorrespondants();
     accept();
 }
@@ -400,7 +400,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
         {
             ui->SperadioButton  ->setChecked(true);
             ui->SpecomboBox     ->setVisible(true);
-            int idx             = ui->SpecomboBox->findData(m_correspondant->specialite());
+            int idx             = ui->SpecomboBox->findData(m_correspondant->idspecialite());
             ui->SpecomboBox     ->setCurrentIndex(idx);
             ui->AutreupLineEdit ->setVisible(false);
         }

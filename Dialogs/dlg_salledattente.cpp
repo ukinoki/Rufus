@@ -48,11 +48,11 @@ dlg_salledattente::dlg_salledattente(Patient* pat, Acte* act, QString Titre, QWi
     ui->UsercomboBox->clear();
     QString Usersrequete = "SELECT UserLogin FROM " NOM_TABLE_UTILISATEURS " as usr, " NOM_TABLE_USERSCONNECTES " as connectusr"
             " WHERE (UserFonction = '" + tr("Médecin") + "' OR UserFonction = '" + tr("Orthoptiste") + "' OR UserFonction = '" + tr("Assistant") + "')"
-            " AND usr.idUser <> '" + QString::number(db->getUserConnected()->id()) + "'"
+            " AND usr.idUser <> '" + QString::number(Datas::I()->users->userconnected()->id()) + "'"
             " AND usr.idUser = connectusr.idUser";
     //proc->Edit( Usersrequete);
     bool ok;
-    QList<QVariantList> ListUsers = db->StandardSelectSQL(Usersrequete,ok);
+    QList<QVariantList> ListUsers = DataBase::I()->StandardSelectSQL(Usersrequete,ok);
     if (!ok)
         return;
     if (ListUsers.size() == 0)
@@ -95,7 +95,6 @@ dlg_salledattente::~dlg_salledattente()
 -----------------------------------------------------------------------------------------------------------------*/
 void    dlg_salledattente::Slot_OKButtonClicked()
 {
-    bool ok;
     QString Statut;
 
     if (!ui->ExamEnCoursradioButton->isChecked() && !ui->ExamenEnAttenteAutreAvisradioButton->isChecked() && !ui->RetourAccueilradioButton->isChecked())
@@ -111,43 +110,30 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     if (ui->RetourAccueilradioButton->isChecked())
     {
         ActeSal = QString::number(m_currentact->id());
-        QString req = "select idacte, iduser from " NOM_TABLE_ACTES " where idacte = " + ActeSal;
-        QList<QVariantList> ListActes = db->StandardSelectSQL(req,ok);
-        if (ListActes.at(0).at(1).toInt() == -1)
-            db->StandardSQL("update " NOM_TABLE_ACTES " set idUser = " + QString::number(db->getUserConnected()->getIdUserActeSuperviseur()) +
-                       ", UserComptable = " + QString::number(db->getUserConnected()->getIdUserComptable()) +
-                       ", UserParent = " + QString::number(db->getUserConnected()->getIdUserParent()) + " where idacte = " + ListActes.at(0).at(0).toString());
+        if (m_currentact->idUser() < 1)
+        {
+            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERACTES,         Datas::I()->users->userconnected()->getIdUserActeSuperviseur());
+            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERPARENTACTES,   Datas::I()->users->userconnected()->getIdUserParent());
+            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERCOMPTABLEACTES,Datas::I()->users->userconnected()->getIdUserComptable());
+        }
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
     }
 
-    QString saldatrequete =   "SELECT idPat FROM " NOM_TABLE_SALLEDATTENTE " WHERE idPat = " + QString::number(m_currentpatient->id());
-    QList<QVariantList> ListPatients = db->StandardSelectSQL(saldatrequete,ok,tr("Impossible de trouver le dossier dans la salle d'attente!"));
     QString MsgErreur;
-    if (ListPatients.size() == 0)
-    {
-
-        saldatrequete =     "INSERT INTO " NOM_TABLE_SALLEDATTENTE
-                            " (idPat, idUser, Statut, HeureStatut, idUserEnCoursExam, idActeAPayer, PosteExamen, Message)"
-                            " VALUES ('" + QString::number(m_currentpatient->id()) + "','" + QString::number(db->getUserConnected()->getIdUserActeSuperviseur()) + "','" + Statut + "','"
-                            + QTime::currentTime().toString("hh:mm") +"', null," + ActeSal + ",'" + Utils::correctquoteSQL(Msg) + "',null)";
-        MsgErreur           = tr("Impossible de mettre ce dossier en salle d'attente");
-    }
+    PatientEnCours *pat = m_patientsencours->getById(m_currentpatient->id());
+    if (pat == Q_NULLPTR)
+        pat = m_patientsencours->CreationPatient(m_currentpatient->id(), DataBase::I()->getUserConnected()->getIdUserActeSuperviseur(), "", Statut, ActeSal.toInt(), 0, "", Msg);
     else
     {
-        saldatrequete =     "UPDATE " NOM_TABLE_SALLEDATTENTE " SET"
-                            " Statut = '" + Statut +
-                             "', HeureStatut = '" + QTime::currentTime().toString("hh:mm") +
-                            "', idUserEnCoursExam = null"
-                            ", PosteExamen = null";
+        m_patientsencours->updatePatientEnCoursData(pat, CP_STATUTSALDAT, Statut);
         if (ActeSal != "null")
-            saldatrequete   += ", idActeAPayer = " + ActeSal;
-        saldatrequete       += ", Message = '" + Utils::correctquoteSQL(Msg) + "'";
-        saldatrequete       += " WHERE idPat = '" + QString::number(m_currentpatient->id()) + "'";
-        MsgErreur           = tr("Impossible de modifier les statuts du dossier en salle d'attente!");
+            m_patientsencours->updatePatientEnCoursData(pat, CP_IDACTEAPAYERSALDAT, ActeSal.toInt());
+        m_patientsencours->updatePatientEnCoursData(pat, CP_MESSAGESALDAT, Msg);
+        m_patientsencours->updatePatientEnCoursData(pat, CP_HEURESTATUTSALDAT, QTime::currentTime());
+        m_patientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAMSALDAT);
+        m_patientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMENSALDAT);
     }
-    //proc->Edit(saldatrequete);
-    db->StandardSQL(saldatrequete,MsgErreur);
     Flags::I()->MAJFlagSalleDAttente();
     accept();
 }

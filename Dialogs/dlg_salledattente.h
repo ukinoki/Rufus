@@ -39,8 +39,8 @@ private slots:
     void                Slot_EnableOKButton();
 
 private:
-    DataBase            *db = DataBase::I();
     Patient             *m_currentpatient;
+    PatientsEnCours     *m_patientsencours = Datas::I()->patientsencours;
     Acte                *m_currentact;
 };
 

@@ -122,6 +122,8 @@ private:
     UpLineEdit                      *AutresCorresp1LineEdit, *AutresCorresp2LineEdit;
     DataBase                        *db;
     Flags                           *flags;
+    ParametresSysteme               *m_parametres;
+    PatientsEnCours                 *m_patientsencours = Datas::I()->patientsencours;
     bool                            ok;
 
     pyxinterf                       *pyxi;     // CZ001

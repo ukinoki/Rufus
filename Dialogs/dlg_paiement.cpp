@@ -2278,6 +2278,14 @@ int dlg_paiement::EnregistreRecette()
                 db->rollback();
                 return Impossible;
             }
+            else for (QMap<int, PatientEnCours*>::const_iterator itpat = Datas::I()->patientsencours->patientsencours()->constBegin();
+                    itpat != Datas::I()->patientsencours->patientsencours()->constEnd(); ++itpat)
+            {
+                PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.value());
+                if (pat != Q_NULLPTR)
+                    if (pat->idacteapayer() == ActeAInserer.toInt())
+                        Datas::I()->patientsencours->remove(pat);
+            }
         }
     db->commit();
     Flags::I()->MAJFlagSalleDAttente();

@@ -76,7 +76,7 @@ bool Correspondants::add(Correspondant *cor)
  * \return Q_NULLPTR si aucun correspondant trouvé
  * \return Correspondant* le correspondant correspondant à l'id
  */
-Correspondant* Correspondants::getById(int id, bool loadDetails, bool addToList)
+Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, bool addToList)
 {
     QMap<int, Correspondant*>::const_iterator itcor = m_correspondants->find(id);
     Correspondant *result;
@@ -85,7 +85,7 @@ Correspondant* Correspondants::getById(int id, bool loadDetails, bool addToList)
     else
     {
         result = itcor.value();
-        if(!loadDetails)
+        if(loaddetails == Item::NoLoadDetails)
             return result;
         addToList = false;
     }

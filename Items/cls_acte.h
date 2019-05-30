@@ -95,6 +95,9 @@ public:
     void setcourrierafaire(bool caf)        { m_courrierStatus = (caf? "T" : ""); }
     void setdate(QDate date)                { m_date = QDateTime(date); }
     void setmontant(double montant)         { m_montant = montant; }
+    void setiduser(int idusr)               { m_idUser = idusr; }
+    void setidusercomptable(int idusr)      { m_idUserComptable = idusr; }
+    void setiduserparent(int idusr)         { m_idUserParent = idusr; }
     void setmotif(QString motif)            { m_motif = motif; }
     void settexte(QString texte)            { m_texte = texte; }
     void setconclusion(QString conclusion)  { m_conclusion = conclusion; }

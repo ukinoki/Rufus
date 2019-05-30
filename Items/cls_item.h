@@ -47,6 +47,7 @@ protected:
     void setDataBool(QJsonObject data, QString key, bool &prop);
     void setDataDateTime(QJsonObject data, QString key, QDateTime &prop);
     void setDataDate(QJsonObject data, QString key, QDate &prop);
+    void setDataTime(QJsonObject data, QString key, QTime &prop);
     void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     void setDataVariant(QJsonObject data, QString key, QVariant &prop);
 

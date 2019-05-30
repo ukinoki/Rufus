@@ -48,7 +48,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
     }
     for (int itr=0; itr<listdocs.size(); itr++)
     {
-        QString NomDirDoc         = proc->getDossierDocuments(listdocs.at(itr).at(1).toString(), db->getMode());  // le dossier où sont exportés les documents d'un appareil donné
+        QString NomDirDoc = proc->getDossierDocuments(listdocs.at(itr).at(1).toString(), db->getMode());  // le dossier où sont exportés les documents d'un appareil donné
         if (NomDirDoc == "")
             NomDirDoc = "Triumph Speed Triple 1050 2011";
         if (QDir(NomDirDoc).exists())
@@ -607,10 +607,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
     if (db->getMode() == DataBase::Poste)
     {
         NomOnglet = tr("Monoposte");
-        bool ok;
-        QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, ok);
-        if (ok && dirdata.size()>0)
-            NomDirStockageImagerie = dirdata.at(0).toString();
+        NomDirStockageImagerie = db->parametres()->dirimagerie();
     }
     if (db->getMode() == DataBase::ReseauLocal)
     {

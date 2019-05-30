@@ -392,8 +392,6 @@ void dlg_GestionLieux::ReconstruitModel()
         tabLM->setRowHeight(i, h);
     bool ok;
     idlieuserveur = -1;
-    QVariantList serveurLieudata = db->getFirstRecordFromStandardSelectSQL("select idlieupardefaut from " NOM_TABLE_PARAMSYSTEME, ok);
-    if (ok && serveurLieudata.size()>0)
-        idlieuserveur = serveurLieudata.at(0).toInt();
+    idlieuserveur = db->parametres()->idlieupardefaut();
 }
 

@@ -114,9 +114,9 @@ QString Correspondant::mail() const
 {
     return m_mail;
 }
-int Correspondant::specialite() const
+int Correspondant::idspecialite() const
 {
-    return m_specialite;
+    return m_idspecialite;
 }
 
 Correspondant::Correspondant(QJsonObject data, QObject *parent) : Item(parent)
@@ -150,7 +150,7 @@ void Correspondant::setData(QJsonObject data)
     setDataString(data, "mail", m_mail);
     setDataString(data, "fax", m_fax);
     setDataString(data, "portable", m_portable);
-    setDataInt(data,    "specialite", m_specialite);
+    setDataInt(data,    "specialite", m_idspecialite);
 
     setDataBool(data,   "isAllLoaded", m_isAllLoaded);
 }

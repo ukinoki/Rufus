@@ -442,9 +442,7 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
         if (b)
         {
             QString NomDirDestination;
-            QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL("select DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
-            if (ok && dirdata.size()>0)
-                NomDirDestination = dirdata.at(0).toString();
+            NomDirDestination = m_parametres->dirbkup();
             if (!QDir(NomDirDestination).exists())
             {
                 QFile::remove(QDir::homePath() + SCRIPTBACKUPFILE);
@@ -694,12 +692,8 @@ bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool 
 
     QString NomDirStockageImagerie ("");
     QString NomDirDestination ("");
-    QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie, DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
-    if (ok && dirdata.size()>0)
-    {
-        NomDirStockageImagerie = dirdata.at(0).toString();
-        NomDirDestination = dirdata.at(1).toString();
-    }
+    NomDirStockageImagerie = m_parametres->dirimagerie();
+    NomDirDestination = m_parametres->dirbkup();
     if (dirSauv == "")
     {
         QString dirSauv = QFileDialog::getExistingDirectory(Q_NULLPTR,
@@ -761,22 +755,17 @@ void Procedures::InitBackupAuto()
     QString dirdestination ("");
     QString dirimagerie("");
     QTime timebackup = QTime(0,0,0);
+    dirdestination  = m_parametres->dirbkup();
+    timebackup      = m_parametres->heurebkup();
+    if (m_parametres->lundibkup())      days.setFlag(Procedures::Lundi);
+    if (m_parametres->mardibkup())      days.setFlag(Procedures::Mardi);
+    if (m_parametres->mercredibkup())   days.setFlag(Procedures::Mercredi);
+    if (m_parametres->jeudibkup())      days.setFlag(Procedures::Jeudi);
+    if (m_parametres->vendredibkup())   days.setFlag(Procedures::Vendredi);
+    if (m_parametres->samedibkup())     days.setFlag(Procedures::Samedi);
+    if (m_parametres->dimanchebkup())   days.setFlag(Procedures::Dimanche);
 
-    QString reqBkup = "select LundiBkup, MardiBkup, MercrediBkup, JeudiBkup, VendrediBkup, SamediBkup, DimancheBkup, HeureBkup, DirBkup, DirImagerie from " NOM_TABLE_PARAMSYSTEME;
-    QVariantList Bkupdata = db->getFirstRecordFromStandardSelectSQL(reqBkup, ok);
-    if (ok && Bkupdata.size()>0)
-    {
-        dirdestination  = Bkupdata.at(8).toString();
-        timebackup      = Bkupdata.at(7).toTime();
-        if (Bkupdata.at(0).toInt()==1) days.setFlag(Procedures::Lundi);
-        if (Bkupdata.at(1).toInt()==1) days.setFlag(Procedures::Mardi);
-        if (Bkupdata.at(2).toInt()==1) days.setFlag(Procedures::Mercredi);
-        if (Bkupdata.at(3).toInt()==1) days.setFlag(Procedures::Jeudi);
-        if (Bkupdata.at(4).toInt()==1) days.setFlag(Procedures::Vendredi);
-        if (Bkupdata.at(5).toInt()==1) days.setFlag(Procedures::Samedi);
-        if (Bkupdata.at(6).toInt()==1) days.setFlag(Procedures::Dimanche);
-    }
-        ParamAutoBackup(dirdestination, dirimagerie, timebackup, days);
+    ParamAutoBackup(dirdestination, dirimagerie, timebackup, days);
 }
 
 void Procedures::EffaceAutoBackup()
@@ -784,15 +773,15 @@ void Procedures::EffaceAutoBackup()
     QString Base = db->getBase();
     if (Base == "")
         return;
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set HeureBkup = '',"
-                                                     " DirBkup = '',"
-                                                     " LundiBkup = NULL,"
-                                                     " MardiBkup = NULL,"
-                                                     " MercrediBkup = NULL,"
-                                                     " JeudiBkup = NULL,"
-                                                     " VendrediBkup = NULL,"
-                                                     " SamediBkup = NULL,"
-                                                     " DimancheBkup = NULL");
+    db->setlundibkup(false);
+    db->setmardibkup(false);
+    db->setmercredibkup(false);
+    db->setjeudibkup(false);
+    db->setvendredibkup(false);
+    db->setsamedibkup(false);
+    db->setdimanchebkup(false);
+    db->setheurebkup();
+    db->setdirbkup();
     EffaceScriptsBackup();
 }
 
@@ -1969,10 +1958,7 @@ QString Procedures::getSessionStatus()
 void Procedures::setDirImagerie()
 {
     DirStockageImages = "";
-    QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
-    QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && dirdata.size()>0)
-        DirStockageImagesServeur = dirdata.at(0).toString();
+    DirStockageImagesServeur = m_parametres->dirimagerie();
     switch (db->getMode()) {
     case DataBase::Poste:
     {
@@ -2068,12 +2054,9 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
 //Pas normal, les mots de passes doivent etre chiffrés
 QString Procedures::getMDPAdmin()
 {
-    QString req = "select mdpadmin from " NOM_TABLE_PARAMSYSTEME;
-    QVariantList mdpdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && mdpdata.size()>0)
-        if (mdpdata.at(0).toString() == "")
-            db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set mdpadmin = '" NOM_MDPADMINISTRATEUR "'");
-    return (mdpdata.at(0).toString() != ""? mdpdata.at(0).toString() : NOM_MDPADMINISTRATEUR);
+    if (m_parametres->mdpadmin() == "")
+        db->setmdpadmin(NOM_MDPADMINISTRATEUR);
+    return m_parametres->mdpadmin();
 }
 
 void Procedures::setNomImprimante(QString NomImprimante)
@@ -2198,7 +2181,7 @@ void Procedures::setoktcp(bool oktcp)
 {
     OKTCP = oktcp;
     if (!oktcp && !OKAdmin)
-        db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseTCPServeur = null");
+        db->setadresseserveurtcp("");
 }
 
 QString Procedures::Var_secure_file_priv()
@@ -2531,11 +2514,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 OKFactures = true;
 
         QString NomDirStockageImagerie = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGES;
-        QString req = "select dirimagerie from " NOM_TABLE_PARAMSYSTEME;
-        QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-        if (ok && dirdata.size()>0)
+        if (m_parametres->dirimagerie() != "")
         {
-            NomDirStockageImagerie = dirdata.at(0).toString();
+            NomDirStockageImagerie = m_parametres->dirimagerie();
             if (!QDir(NomDirStockageImagerie).exists())
             {
                 UpMessageBox::Watch(Q_NULLPTR,tr("Pas de dossier de stockage valide"),
@@ -2565,8 +2546,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             dirstock.mkdir(NomDirStockageImagerie);
         }
 
-        req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + NomDirStockageImagerie + "'";
-        db->StandardSQL(req, "bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifUserConnectes) - 1st");
+        db->setdirimagerie(NomDirStockageImagerie);
         AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos, OKFactures);
         if (gAskBupRestore->exec()>0)
         {
@@ -2786,15 +2766,11 @@ bool Procedures::VerifBaseEtRessources()
 {
     int Versionencours  = 9; //correspond aux premières versions de MAJ de la base
     int Version         = VERSION_BASE;
-    QString req         = "select VersionBase from " NOM_TABLE_PARAMSYSTEME;
-    QVariantList versiondata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    bool b              = (!ok || versiondata.size() == 0);
-    if (!b)
-    {
-        Versionencours = versiondata.at(0).toInt();
-        if (Versionencours < Version)
-            b = true;
-    }
+    bool b;
+    Versionencours = m_parametres->versionbase();
+    if (Versionencours < Version)
+        b = true;
+
     bool BupDone = false;
     if (b)
     {
@@ -2857,7 +2833,6 @@ bool Procedures::VerifBaseEtRessources()
                  * la création d'une ligne corresondante dans la table renseignementsmedicauxpatients
                  * à partir de la version 53, cette ligen est créée systématiquement pour ne pas avoir à on vérifier sa présence
                  *  à chaque fois qu'on veut enregistrer un renseignement
-                 * A partir de la version 53, cette ligne est systématiquement créée lors de la création d'un dossier
                  * il n'y a donc plus à faire cette vérification
                  * cette MAJ crée une ligne pour tous les dossiers n'ayant pas la correspondance dans la table renseignementsmedicauxpatients
                  */
@@ -2868,7 +2843,7 @@ bool Procedures::VerifBaseEtRessources()
                 {
                     for (int i=0; i<listid.size(); i++)
                     {
-                        req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
+                        QString req =   "INSERT INTO " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS
                                 " (idPat) VALUES (" + listid.at(i).at(0).toString() + ")";
                         db->StandardSQL(req);
                     }
@@ -2876,7 +2851,7 @@ bool Procedures::VerifBaseEtRessources()
                 }
                 else
                     UpMessageBox::Watch(Q_NULLPTR,tr("Mise à jour effectuée de la base vers la version ") + QString::number(Version));
-                db->StandardSQL("UPDATE " NOM_TABLE_PARAMSYSTEME " SET VersionBase = 53");            }
+                db->setversionbase(53);            }
         }
     }
     //verification des fichiers ressources
@@ -3248,8 +3223,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
         gidLieuExercice = lieuxlist.at(0).at(0).toInt(); //TODO : ICI
     req = "insert into " NOM_TABLE_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + QString::number(idusr) + ", " + QString::number(gidLieuExercice) + ")";
     db->StandardSQL(req);
-    req = "update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + QString::number(gidLieuExercice);
-    db->StandardSQL(req, "void Procedures::CreerUserFactice(User &user)");
+    db->setidlieupardefaut(gidLieuExercice);
 }
 
 
@@ -3267,6 +3241,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
     if( result > 0 )
     {
         m_userConnected = db->getUserConnected();
+        m_parametres = db->parametres();
         Datas::I()->villes->initListe();
         Datas::I()->sites->initListe();
         Datas::I()->comptes->initListe();
@@ -3316,9 +3291,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             if( m_userConnected->getIdUserParent() > 0 )
                 m_userConnected->setUserParent(Datas::I()->users->getById(m_userConnected->getIdUserParent()));
 
-            QList<QVariantList> lieuxlist = db->StandardSelectSQL("select Numcentre from " NOM_TABLE_PARAMSYSTEME, ok);
-            if (ok && lieuxlist.size()>0)
-                gidCentre = lieuxlist.at(0).at(0).toInt();
+            gidCentre = m_parametres->numcentre();
             a = true;
         }
     }
@@ -3977,7 +3950,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             if (!RestaureBase(true, true))
                 return false;
             if (gMode2 == DataBase::ReseauLocal)
-                db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurLocal = '" + gsettingsIni->value("BDD_LOCAL/Serveur").toString() + "'");
+                db->setadresseserveurlocal(gsettingsIni->value("BDD_LOCAL/Serveur").toString());
 
             // Création de l'utilisateur
             gdbOK = CreerPremierUser(m_userConnected->getLogin(), m_userConnected->getPassword());
@@ -4017,7 +3990,7 @@ void Procedures::PremierParametrageMateriel()
     gsettingsIni->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
     gsettingsIni->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
     QString NomDirImg = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE;
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'", "void Procedures::PremierParametrageMateriel()");
+    db->setdirimagerie(NomDirImg);
     gsettingsIni->setValue("BDD_DISTANT/DossierImagerie", NomDirImg);
 }
 
@@ -4097,8 +4070,7 @@ void Procedures::PremierParametrageRessources()
     if (gMode2 == DataBase::Poste)
     {
         QString NomDirImg = QDir::homePath() + NOMDIR_RUFUS NOMDIR_IMAGERIE;
-        QString reqimg = "update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = '" + NomDirImg + "'";
-        db->StandardSQL( reqimg, "void Procedures::PremierParametrageRessources()");
+        db->setdirimagerie(NomDirImg);
     }
  }
 

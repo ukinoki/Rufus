@@ -171,8 +171,6 @@ void Patients::SupprimePatient(Patient *pat)
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_IMPRESSIONS);
     //!. Suppression des mots cles utilisés
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_MOTSCLESJOINTURES);
-    //!. Suppression de la salle d'attente
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_SALLEDATTENTE);
 
     //! Suppression dans la base OPhtalmologie
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_REFRACTION);
@@ -237,73 +235,75 @@ void Patients::updatePatientData(Patient *pat, QString nomchamp, QVariant value)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->setatcdtsoph(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_ATCDTSFAMLXSRMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->setatcdtsfam(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_ATCDTSPERSOSRMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->setatcdtsgen(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_TRAITMTGENRMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->settraitemntsgen(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_TRAITMTOPHRMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->settraitemntsoph(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_TABACRMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->settabac(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_AUTRESTOXIQUESRMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->setautrestoxiques(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_IMPORTANTRMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->setimportant(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_RESUMERMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->setresume(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_IDMGRMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->setmg(value.toInt());
-        newvalue = QString::number(value.toInt());
+        newvalue = (value.toInt() != 0? value.toString() : "null");
+
     }
     else if (nomchamp == CP_IDSPE1RMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->setspe1(value.toInt());
-        newvalue = QString::number(value.toInt());
+        newvalue = (value.toInt() != 0? value.toString() : "null");
+
     }
     else if (nomchamp == CP_IDSPE2RMP)
     {
         table = NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS;
         pat->setspe2(value.toInt());
-        newvalue = QString::number(value.toInt());
+        newvalue = (value.toInt() != 0? value.toString() : "null");
     }
     QString requete = "UPDATE " + table + " SET " + nomchamp + " = " + newvalue + " WHERE idPat = " + QString::number(pat->id());
     DataBase::I()->StandardSQL(requete);

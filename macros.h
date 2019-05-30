@@ -92,6 +92,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_TEXTEACTES                               "ActeTexte"
 #define CP_CONCLUSIONACTES                          "ActeConclusion"
 #define CP_ACTEDATEACTES                            "ActeDate"
+#define CP_IDUSERACTES                              "idUser"
+#define CP_IDUSERPARENTACTES                        "UserParent"
+#define CP_IDUSERCOMPTABLEACTES                     "UserComptable"
 #define CP_COURRIERAFAIREACTES                      "ActeCourrierafaire"
 
                             //! Table renseignementsmedicauxpatients
@@ -110,6 +113,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
                             //! Table Messagerie
 #define CP_TEXTMSGMESSAGERIE                        "TexteMessage"
+
+                            //! Table salledattente
+#define CP_IDPATSALDAT                              "idPat"
+#define CP_IDUSERSALDAT                             "idUser"
+#define CP_STATUTSALDAT                             "Statut"
+#define CP_HEURESTATUTSALDAT                        "HeureStatut"
+#define CP_HEURERDVSALDAT                           "HeureRDV"
+#define CP_HEUREARRIVEESALDAT                       "HeureArrivee"
+#define CP_MOTIFSALDAT                              "Motif"
+#define CP_MESSAGESALDAT                            "Message"
+#define CP_IDACTEAPAYERSALDAT                       "idActeAPayer"
+#define CP_POSTEEXAMENSALDAT                        "PosteExamen"
+#define CP_IDUSERENCOURSEXAMSALDAT                  "idUserEnCoursExam"
+#define CP_IDSALDATSALDAT                           "idSalDat"
 
 // Divers
 #define PDF                                         "pdf"

@@ -19,7 +19,8 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_sites.cpp \
     $$PWD/cls_recettes.cpp \
     $$PWD/cls_paiementstiers.cpp \
-    $$PWD/cls_comptes.cpp
+    $$PWD/cls_comptes.cpp \
+    $$PWD/cls_patientsencours.cpp
 
 HEADERS += $$PWD/cls_correspondants.h \
         $$PWD/cls_patients.h \
@@ -38,4 +39,5 @@ HEADERS += $$PWD/cls_correspondants.h \
     $$PWD/cls_sites.h \
     $$PWD/cls_recettes.h \
     $$PWD/cls_paiementstiers.h \
-    $$PWD/cls_comptes.h
+    $$PWD/cls_comptes.h \
+    $$PWD/cls_patientsencours.h

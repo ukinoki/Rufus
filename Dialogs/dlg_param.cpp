@@ -29,6 +29,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     proc            = Procedures::I();
     db              = DataBase::I();
     gidUser         = idUser;
+    m_parametres    = db->parametres();
 
     gModifPoste     = false;
     gDataUser       = db->getUserConnected();
@@ -320,12 +321,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     if (a)
     {
         ui->SQLPortPostecomboBox    ->setCurrentText(proc->gsettingsIni->value(Base + "/Port").toString());
-        QString NomDirStockageImagerie = "";
-        bool ok;
-        QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, ok);
-        if (ok && dirdata.size()>0)
-            NomDirStockageImagerie = dirdata.at(0).toString();
-        ui->PosteStockageupLineEdit->setText(NomDirStockageImagerie);
+        ui->PosteStockageupLineEdit->setText(m_parametres->dirimagerie());
     }
     Base = "BDD_LOCAL";
     b = (proc->gsettingsIni->value(Base + "/Active").toString() == "YES");
@@ -392,11 +388,10 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     connect (&gTimerVerifPosteImportDocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
     connect (proc,                          &Procedures::ConnectTimers,     this,       [=] {ConnectTimers(proc->Connexion());});
 
-    QVariantList VersionBasedata = db->getFirstRecordFromStandardSelectSQL("select VersionBase from " NOM_TABLE_PARAMSYSTEME, ok);
-     if (!ok || VersionBasedata.size()==0)
+     if (m_parametres->versionbase() == 0)
         ui->VersionBaselabel->setText(tr("Version de la base") + "\t<font color=\"red\"><b>" + tr("inconnue") + "</b></font>");
     else
-        ui->VersionBaselabel->setText(tr("Version de la base ") + "<font color=\"green\"><b>" + VersionBasedata.at(0).toString() + "</b></font>");
+        ui->VersionBaselabel->setText(tr("Version de la base ") + "<font color=\"green\"><b>" + QString::number(m_parametres->versionbase()) + "</b></font>");
     ui->VersionRufuslabel->setText(tr("Version de Rufus ") + "<font color=\"green\"><b>" + qApp->applicationVersion() + "</b></font>");
 
     // Mise en forme de la table DossiersDocuments
@@ -485,22 +480,17 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->Appareilsconnectesframe->setFixedWidth(widgAppareils->widgButtonParent()->width() + marge + marge);
     ui->Appareilsconnectesframe->setLayout(applay);
 
-    ui->Sauvegardeframe         ->setEnabled(db->getMode() == DataBase::Poste);    
-    QString reqBkup = "select LundiBkup, MardiBkup, MercrediBkup, JeudiBkup, VendrediBkup, SamediBkup, DimancheBkup, HeureBkup, DirBkup from " NOM_TABLE_PARAMSYSTEME;
-    QVariantList Bkupdata = db->getFirstRecordFromStandardSelectSQL(reqBkup, ok);
-    if (ok && Bkupdata.size()>0)
-    {
-        ui->DirBackupuplineEdit->setText(Bkupdata.at(8).toString());
-        if (Bkupdata.at(7).toTime().isValid())
-            ui->HeureBackuptimeEdit->setTime(Bkupdata.at(7).toTime());
-        ui->LundiradioButton    ->setChecked(Bkupdata.at(0).toInt()==1);
-        ui->MardiradioButton    ->setChecked(Bkupdata.at(1).toInt()==1);
-        ui->MercrediradioButton ->setChecked(Bkupdata.at(2).toInt()==1);
-        ui->JeudiradioButton    ->setChecked(Bkupdata.at(3).toInt()==1);
-        ui->VendrediradioButton ->setChecked(Bkupdata.at(4).toInt()==1);
-        ui->SamediradioButton   ->setChecked(Bkupdata.at(5).toInt()==1);
-        ui->DimancheradioButton ->setChecked(Bkupdata.at(6).toInt()==1);
-    }
+    ui->Sauvegardeframe         ->setEnabled(db->getMode() == DataBase::Poste);
+    ui->DirBackupuplineEdit->setText(m_parametres->dirbkup());
+    if (m_parametres->heurebkup().isValid())
+        ui->HeureBackuptimeEdit->setTime(m_parametres->heurebkup());
+    ui->LundiradioButton    ->setChecked(m_parametres->lundibkup());
+    ui->MardiradioButton    ->setChecked(m_parametres->mardibkup());
+    ui->MercrediradioButton ->setChecked(m_parametres->mercredibkup());
+    ui->JeudiradioButton    ->setChecked(m_parametres->jeudibkup());
+    ui->VendrediradioButton ->setChecked(m_parametres->vendredibkup());
+    ui->SamediradioButton   ->setChecked(m_parametres->samedibkup());
+    ui->DimancheradioButton ->setChecked(m_parametres->dimanchebkup());
     Remplir_Tables();
     ConnectSlots();
 }
@@ -1107,9 +1097,8 @@ void dlg_param::ReconstruitListeLieuxExerciceAllusers()
     {
         for (int i=0; i<servlist.size(); ++i)
             ui->EmplacementServeurupComboBox->addItem(servlist.at(i).at(1).toString() + " " + servlist.at(i).at(2).toString(), servlist.at(i).at(0));
-        QVariantList DefautLieudata = db->getFirstRecordFromStandardSelectSQL("select idlieupardefaut from " NOM_TABLE_PARAMSYSTEME, ok);
-        if (ok && DefautLieudata.size()>0)
-            ui->EmplacementServeurupComboBox->setCurrentIndex(ui->EmplacementServeurupComboBox->findData(DefautLieudata.at(0)));
+        if (m_parametres->idlieupardefaut()>0)
+            ui->EmplacementServeurupComboBox->setCurrentIndex(ui->EmplacementServeurupComboBox->findData(m_parametres->idlieupardefaut()));
         else
         {
             ui->EmplacementServeurupComboBox->setCurrentIndex(0);
@@ -1560,7 +1549,7 @@ void dlg_param::Slot_EnregistreAppareil()
 void dlg_param::Slot_EnregistreEmplacementServeur(int idx)
 {
     if (ui->EmplacementServeurupComboBox->itemData(idx).toString() != "")
-        db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set idlieupardefaut = " + ui->EmplacementServeurupComboBox->itemData(idx).toString());
+        db->setidlieupardefaut(ui->EmplacementServeurupComboBox->itemData(idx).toInt());
 }
 
 void dlg_param::NouvAssocCCAM()
@@ -1731,30 +1720,20 @@ void dlg_param::Slot_ModifDirBackup()
         return;
 
     ui->DirBackupuplineEdit ->setText(dirSauv);
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set DirBkup = '" + dirSauv + "'");
+    db->setdirbkup(dirSauv);
     ModifParamAutoBackup();
 }
 
 void dlg_param::Slot_ModifDateBackup()    //Modification de la date ou de l'heure et date du backup
 {
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set HeureBkup = '"    + ui->HeureBackuptimeEdit->time().toString("HH:mm") + "'");
-
-    QString LundiBkup       = (ui->LundiradioButton->isChecked()?   "1" : "NULL");
-    QString MardiBkup       = (ui->MardiradioButton->isChecked()?   "1" : "NULL");
-    QString MercrediBkup    = (ui->MercrediradioButton->isChecked()?"1" : "NULL");
-    QString JeudiBkup       = (ui->JeudiradioButton->isChecked()?   "1" : "NULL");
-    QString VendrediBkup    = (ui->VendrediradioButton->isChecked()?"1" : "NULL");
-    QString SamediBkup      = (ui->SamediradioButton->isChecked()?  "1" : "NULL");
-    QString DimancheBkup    = (ui->DimancheradioButton->isChecked()?"1" : "NULL");
-
-    db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set LundiBkup = "      + LundiBkup +
-                                                        ", MardiBkup = "      + MardiBkup +
-                                                        ", MercrediBkup = "   + MercrediBkup +
-                                                        ", JeudiBkup = "      + JeudiBkup +
-                                                        ", VendrediBkup = "   + VendrediBkup +
-                                                        ", SamediBkup = "     + SamediBkup +
-                                                        ", DimancheBkup = "   + DimancheBkup);
-
+    db->setheurebkup(ui->HeureBackuptimeEdit->time());
+    db->setlundibkup(ui->LundiradioButton->isChecked());
+    db->setmardibkup(ui->MardiradioButton->isChecked());
+    db->setmercredibkup(ui->MercrediradioButton->isChecked());
+    db->setjeudibkup(ui->JeudiradioButton->isChecked());
+    db->setvendredibkup(ui->VendrediradioButton->isChecked());
+    db->setsamedibkup(ui->SamediradioButton->isChecked());
+    db->setdimanchebkup(ui->DimancheradioButton->isChecked());
     ModifParamAutoBackup();
 }
 
@@ -1812,8 +1791,7 @@ void dlg_param::Slot_DirPosteStockage()
             return;
         }
         ui->PosteStockageupLineEdit->setText(dockdir.path());
-        QString req = "update " NOM_TABLE_PARAMSYSTEME " set dirImagerie = '" + dockdir.path() + "'";
-        db->StandardSQL(req, "void dlg_param::Slot_DirPosteStockage()");
+        db->setdirimagerie(dockdir.path());
         proc->setDirImagerie();
     }
 }
@@ -1926,9 +1904,7 @@ void dlg_param::ModifParamAutoBackup()
         return;
     bool ok;
     QString NomDirStockageImagerie ("");
-    QVariantList dirdata = db->getFirstRecordFromStandardSelectSQL("select dirimagerie from " NOM_TABLE_PARAMSYSTEME, ok);
-    if (ok && dirdata.size()>0)
-        NomDirStockageImagerie  = dirdata.at(0).toString();
+    NomDirStockageImagerie      = m_parametres->dirimagerie();
     bool NoDirBupDefined        = (ui->DirBackupuplineEdit->text() == "");
     bool IncorrectDirBupDefined = !QDir(ui->DirBackupuplineEdit->text()).exists() && !NoDirBupDefined;
     bool NoDayBupDefined        = true;
@@ -1948,9 +1924,7 @@ void dlg_param::ModifParamAutoBackup()
 
     // ENREGISTREMENT DES PARAMETRES DE SAUVEGARDE
     QString NomDirDestination;
-    dirdata = db->getFirstRecordFromStandardSelectSQL("select DirBkup from " NOM_TABLE_PARAMSYSTEME, ok);
-    if (ok && dirdata.size()>0)
-        NomDirDestination = dirdata.at(0).toString();
+    NomDirDestination = m_parametres->dirbkup();
     if (!QDir(NomDirDestination).exists())
         return;
     Procedures::Days days;
@@ -1989,12 +1963,10 @@ void dlg_param::Slot_ReinitBase()
 
 void dlg_param::VerifTCP()
 {
-    bool ok;
-    QVariantList serverdata = db->getFirstRecordFromStandardSelectSQL("select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME, ok);
-    if(!ok || serverdata.size()==0)
+    if(m_parametres->adresseserveurtcp() == "")
         return;
     ui->TCPlabel->setText("<font color=\"black\">" + tr("Serveur") + " </font>"
-                        + "<font color=\"green\"><b>" + serverdata.at(0).toString() + "</b></font>"
+                        + "<font color=\"green\"><b>" + m_parametres->adresseserveurtcp() + "</b></font>"
                         + "<font color=\"black\"> " + " - " + tr("Port") + " " + "</font>"
                         + "<font color=\"green\"><b> " NOM_PORT_TCPSERVEUR "</b></font>");
 }
@@ -2336,10 +2308,9 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
             mdpdata = db->getFirstRecordFromStandardSelectSQL("select iduser from " NOM_TABLE_UTILISATEURS " where UserNom = '" NOM_ADMINISTRATEURDOCS "'", ok);
         }
         idAdminDocs = mdpdata.at(0).toInt();
-        QString req = "update " NOM_TABLE_PARAMSYSTEME " set MDPAdmin = '" + nouv + "'";
-        db->StandardSQL(req);
+        db->setmdpadmin(nouv);
         // Enregitrer le nouveau MDP de la base
-        req = "update " NOM_TABLE_UTILISATEURS " set userMDP = '" + nouv + "' where idUser = " + QString::number(idAdminDocs);
+        QString req = "update " NOM_TABLE_UTILISATEURS " set userMDP = '" + nouv + "' where idUser = " + QString::number(idAdminDocs);
         db->StandardSQL(req);
         // Enregitrer le nouveau MDP de connexion à MySQL
         req = "set password for '" NOM_ADMINISTRATEURDOCS "'@'localhost' = '" + nouv + "'";
@@ -2986,7 +2957,7 @@ bool dlg_param::Valide_Modifications()
         else
             proc->gsettingsIni->setValue(Base + "/Active","NO");
         proc->gsettingsIni->setValue(Base + "/Serveur",ui->EmplacementLocaluplineEdit->text());
-        db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurLocal = '" + ui->EmplacementLocaluplineEdit->text() + "'");
+        db->setadresseserveurlocal(ui->EmplacementLocaluplineEdit->text());
         proc->gsettingsIni->setValue(Base + "/Port",ui->SQLPortLocalcomboBox->currentText());
 
         Base = "BDD_DISTANT";
@@ -2995,7 +2966,7 @@ bool dlg_param::Valide_Modifications()
         else
             proc->gsettingsIni->setValue(Base + "/Active","NO");
         proc->gsettingsIni->setValue(Base + "/Serveur",ui->EmplacementDistantuplineEdit->text());
-        db->StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurDistant = '" + ui->EmplacementDistantuplineEdit->text() + "'");
+        db->setadresseserveurdistant(ui->EmplacementDistantuplineEdit->text());
         proc->gsettingsIni->setValue(Base + "/Port",ui->SQLPortDistantcomboBox->currentText());
         proc->gsettingsIni->setValue("Param_Imprimante/TailleEnTete",ui->EntetespinBox->value());
         proc->gsettingsIni->setValue("Param_Imprimante/TailleEnTeteALD",ui->EnteteALDspinBox->value());

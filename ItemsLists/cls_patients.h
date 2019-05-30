@@ -67,7 +67,7 @@ public:
     //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
 
     //!> actions sur les champs
-    void    updatePatientData(Patient *pat, QString nomchamp, QVariant value);              //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour le patient
+    void    updatePatientData(Patient *pat, QString nomchamp, QVariant value = QVariant()); //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour le patient
     void    updateCorrespondant(Patient *pat,                                               //! met à jour un des correspondants d'un patient
                                 DataBase::typecorrespondant type,
                                 Correspondant *cor = Q_NULLPTR);

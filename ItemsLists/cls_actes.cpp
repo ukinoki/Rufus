@@ -129,27 +129,45 @@ void Actes::updateActeData(Acte *act, QString nomchamp, QVariant value)
     if (nomchamp == CP_MOTIFACTES)
     {
         act->setmotif(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_TEXTEACTES)
     {
         act->settexte(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_CONCLUSIONACTES)
     {
         act->setconclusion(value.toString());
-        newvalue = "'" + Utils::correctquoteSQL(value.toString()) + "'";
+        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
     else if (nomchamp == CP_ACTEDATEACTES)
     {
         act->setdate(value.toDate());
-        newvalue = "'" + value.toDate().toString("yyyy-MM-dd") + "'";
+        newvalue = (value.toDate().isValid()? "'" + value.toDate().toString("yyyy-MM-dd") + "'" : "null");
     }
     else if (nomchamp == CP_COURRIERAFAIREACTES)
     {
         act->setcourrierafaire(value.toString()== "T" || value.toString()== "1");
         newvalue = ((value.toString() == "T" || value.toString()== "1")? "'T'" : "null");
+    }
+    else if (nomchamp == CP_IDUSERACTES)
+    {
+        act->setiduser(value.toInt());
+        newvalue = (value.toInt() != 0? value.toString() : "null");
+
+    }
+    else if (nomchamp == CP_IDUSERPARENTACTES)
+    {
+        act->setiduserparent(value.toInt());
+        newvalue = (value.toInt() != 0? value.toString() : "null");
+
+    }
+    else if (nomchamp == CP_IDUSERCOMPTABLEACTES)
+    {
+        act->setidusercomptable(value.toInt());
+        newvalue = (value.toInt() != 0? value.toString() : "null");
+
     }
     QString requete = "UPDATE " NOM_TABLE_ACTES
                       " SET " + nomchamp + " = " + newvalue +

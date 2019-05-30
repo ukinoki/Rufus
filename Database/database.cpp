@@ -351,6 +351,176 @@ QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &O
 
 
 /*
+ * Parametres système
+*/
+void DataBase::initParametres()
+{
+    if (m_parametres == Q_NULLPTR)
+        m_parametres = new ParametresSysteme();
+    QJsonObject paramData{};
+
+    QString req = "select MDPAdmin, NumCentre, idLieuParDefaut, DocsComprimes, VersionBase,"
+                  " SansCompta, AdresseServeurLocal, AdresseServeurDistant, UtiliseTCP, AdresseTCPServeur,"
+                  " PortTCPServeur, DirImagerie, LundiBkup, MardiBkup, MercrediBkup,"
+                  " JeudiBkup, VendrediBkup, SamediBkup, DimancheBkup, HeureBkup,"
+                  " DirBkup from " NOM_TABLE_PARAMSYSTEME;
+    QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
+    if(!ok || paramdata.size() == 0)
+    {
+        delete m_parametres;
+        m_parametres = Q_NULLPTR;
+        return ;
+    }
+    paramData["mdpadmin"]               = paramdata.at(0).toString();
+    paramData["numcentre"]              = paramdata.at(1).toInt();
+    paramData["idlieupardefaut"]        = paramdata.at(2).toInt();
+    paramData["docscomprimes"]          = (paramdata.at(3).toInt() == 1);
+    paramData["versionbase"]            = paramdata.at(4).toInt();
+    paramData["aveccompta"]             = (paramdata.at(5).toInt() == 1);
+    paramData["adresseserveurlocal"]    = paramdata.at(6).toString();
+    paramData["adresseserveurdistant"]  = paramdata.at(7).toString();
+    paramData["utilisetcp"]             = (paramdata.at(8).toInt() == 1);
+    paramData["adresseserveurtcp"]      = paramdata.at(9).toString();
+    paramData["portserveurtcp"]         = paramdata.at(10).toInt();
+    paramData["dirimagerie"]            = paramdata.at(11).toString();
+    paramData["lundibkup"]              = (paramdata.at(12).toInt() == 1);
+    paramData["mardibkup"]              = (paramdata.at(13).toInt() == 1);
+    paramData["mercredibkup"]           = (paramdata.at(14).toInt() == 1);
+    paramData["jeudibkup"]              = (paramdata.at(15).toInt() == 1);
+    paramData["vendredibkup"]           = (paramdata.at(16).toInt() == 1);
+    paramData["samedibkup"]             = (paramdata.at(17).toInt() == 1);
+    paramData["dimanchebkup"]           = (paramdata.at(18).toInt() == 1);
+    paramData["heurebkup"]              = paramdata.at(19).toTime().toString("hh:mm:ss");
+    paramData["dirbkup"]                = paramdata.at(20).toString();
+    m_parametres->setData(paramData);
+    return;
+}
+
+ParametresSysteme* DataBase::parametres()
+{
+    if (m_parametres == Q_NULLPTR)
+        initParametres();
+    return m_parametres;
+}
+void DataBase::setmdpadmin(QString mdp)
+{
+    QString value = (mdp != ""? "'" + Utils::correctquoteSQL(mdp) + "'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set MDPAdmin = " + value);
+    m_parametres->setmdpadmin(mdp);
+}
+void DataBase::setnumcentre(int id)
+{
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set NumCentre = " + QString::number(id));
+    m_parametres->setnumcentre(id);
+}
+void DataBase::setidlieupardefaut(int id)
+{
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set idLieuParDefaut = " + QString::number(id));
+    m_parametres->setidlieupardefaut(id);
+}
+void DataBase::setdocscomprimes(bool one)
+{
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set DocsComprimes = " + a);
+    m_parametres->setdocscomprimes(one);
+}
+void DataBase::setversionbase(int version)
+{
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set VersionBase = " + QString::number(version));
+    m_parametres->setversionbase(version);
+}
+void DataBase::setaveccompta(bool one)
+{
+    QString a = (!one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set SansCompta = " + a);
+    m_parametres->setaveccompta(one);
+}
+void DataBase::setadresseserveurlocal(QString  adress)
+{
+    QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurLocal = " + value);
+    m_parametres->setadresseserveurlocal(adress);
+}
+void DataBase::setadresseserveurdistant(QString adress)
+{
+    QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseServeurDistant = " + value);
+    m_parametres->setadresseserveurdistant(adress);
+}
+void DataBase::setutilisetcp(bool one)
+{
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set UtiliseTCP = " + a);
+    m_parametres->setutilisetcp(one);
+}
+void DataBase::setadresseserveurtcp(QString adress)
+{
+    QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set AdresseTCPServeur = " + value);
+    m_parametres->setadresseserveurtcp(adress);
+}
+void DataBase::setdirimagerie(QString adress)
+{
+    QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set DirImagerie = " + value);
+    m_parametres->setdirimagerie(adress);
+}
+void DataBase::setlundibkup(bool one)
+{
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set LundiBkup = " + a);
+    m_parametres->setlundibkup(one);
+}
+void DataBase::setmardibkup(bool one)
+{
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set MardiBkup = " + a);
+    m_parametres->setmardibkup(one);
+}
+void DataBase::setmercredibkup(bool one)
+{
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set MercrediBkup = " + a);
+    m_parametres->setmercredibkup(one);
+}
+void DataBase::setjeudibkup(bool one)
+{
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set JeudiBkup = " + a);
+    m_parametres->setjeudibkup(one);
+}
+void DataBase::setvendredibkup(bool one)
+{
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set VendrediBkup = " + a);
+    m_parametres->setvendredibkup(one);
+}
+void DataBase::setsamedibkup(bool one)
+{
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set SamediBkup = " + a);
+    m_parametres->setsamedibkup(one);
+}
+void DataBase::setdimanchebkup(bool one)
+{
+    QString a = (one? "'1'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set DimancheBkup = " + a);
+    m_parametres->setdimanchebkup(one);
+}
+void DataBase::setheurebkup(QTime time)
+{
+    QString value = (time != QTime()? "'" + time.toString("hh:mm:ss") + "'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set HeureBkup = " + value);
+    m_parametres->setheurebkup(time);
+}
+void DataBase::setdirbkup(QString adress)
+{
+    QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
+    StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set DirBkup = " + value);
+    m_parametres->setdirbkup(adress);
+}
+
+/*
  * Users
 */
 QJsonObject DataBase::login(QString login, QString password)
@@ -1402,6 +1572,78 @@ QList<Ville*> DataBase::loadVilles()
         villes << ville;
     }
     return villes;
+}
+
+
+/*
+ * Gestion des Patients présents dans le centre de soins
+*/
+PatientEnCours* DataBase::loadPatientEnCoursById(int idPat)
+{
+    PatientEnCours *pat = new PatientEnCours;
+    QString req = "SELECT idPat, IdUser, Statut, HeureStatut,  HeureRDV,"
+                  " HeureArrivee, Motif, Message, idActeAPayer, PosteExamen,"
+                  " idUserEnCoursExam, idSalDat FROM " NOM_TABLE_SALLEDATTENTE " where idPat = " + QString::number(idPat);
+    QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if( !ok || patdata.size()==0 )
+    {
+        delete pat;
+        pat = Q_NULLPTR;
+        return pat;
+    }
+    QJsonObject jData = loadPatientEnCoursData(patdata);
+    pat->setData(jData);
+    return pat;
+}
+
+QJsonObject DataBase::loadPatientEnCoursDataById(int idPat)
+{
+    QString req = "SELECT idPat, IdUser, Statut, HeureStatut,  HeureRDV,"
+                  " HeureArrivee, Motif, Message, idActeAPayer, PosteExamen,"
+                  " idUserEnCoursExam, idSalDat FROM " NOM_TABLE_SALLEDATTENTE " where idPat = " + QString::number(idPat);
+    QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
+    if( !ok || patdata.size()==0 )
+        return QJsonObject();
+    QJsonObject jData = loadPatientEnCoursData(patdata);
+    return jData;
+}
+
+QJsonObject DataBase::loadPatientEnCoursData(QVariantList patdata)
+{
+    QJsonObject jData{};
+    if( !ok || patdata.size()==0 )
+        return jData;
+    jData["id"] = patdata.at(0).toInt();
+    jData["iduser"] = patdata.at(1).toInt();
+    jData["statut"] = patdata.at(2).toString();
+    jData["heurestatut"] = patdata.at(3).toTime().toString("hh:mm:ss");
+    jData["heurerdv"] = patdata.at(4).toTime().toString("hh:mm:ss");
+    jData["heurerarrivee"] = patdata.at(5).toTime().toString("hh:mm:ss");
+    jData["motif"] = patdata.at(6).toString();
+    jData["message"] = patdata.at(7).toInt();
+    jData["idacteapayer"] = patdata.at(8).toInt();
+    jData["posteexamen"] = patdata.at(9).toString();
+    jData["iduserencoursexam"] = patdata.at(10).toInt();
+    jData["idsaldat"] = patdata.at(11).toInt();
+    return jData;
+}
+
+QMap<int, PatientEnCours*>* DataBase::loadPatientsenCoursAll()
+{
+    QMap<int, PatientEnCours*> *mappat = Q_NULLPTR;
+    QString req = "SELECT idPat, IdUser, Statut, HeureStatut,  HeureRDV,"
+                  " HeureArrivee, Motif, Message, idActeAPayer, PosteExamen,"
+                  " idUserEnCoursExam, idSalDat FROM " NOM_TABLE_SALLEDATTENTE;
+    QList<QVariantList> patlist = StandardSelectSQL(req, ok);
+    if( !ok || patlist.size()==0 )
+        return Q_NULLPTR;
+    for (int i=0; i<patlist.size(); ++i)
+    {
+        QJsonObject jData = loadPatientEnCoursData(patlist.at(i));
+        PatientEnCours *patient = new PatientEnCours(jData);
+        mappat->insert(patient->id(), patient);
+    }
+    return mappat;
 }
 
 
