@@ -390,7 +390,6 @@ void dlg_GestionLieux::ReconstruitModel()
     int h = int(QFontMetrics(qApp->font()).height()*1.1);
     for (int i=0; i < tabModel->rowCount(); i++)
         tabLM->setRowHeight(i, h);
-    bool ok;
     idlieuserveur = -1;
     idlieuserveur = db->parametres()->idlieupardefaut();
 }

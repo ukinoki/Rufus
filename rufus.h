@@ -237,7 +237,6 @@ private:
 
 private:
     bool                    gAutorModifConsult, closeFlag;
-    int                     nbActes, noActe;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     int                     idRefraction;
     int                     gMode;
@@ -266,7 +265,8 @@ private:
     Patient                 *m_currentpatient;
     Patient                 *m_dossierpatientaouvrir;
     Patients                *m_listepatients;
-    Actes                   *m_currentlistactes;
+    Actes                   *m_listeactes;
+    LignesPaiements         *m_listepaiements;
 
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;

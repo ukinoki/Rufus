@@ -45,6 +45,7 @@ private:
     int m_idUserComptable;      //!< id du User qui comptabilise l'acte
     int m_numCentre;            //!< id du lieu où se trouve le serveur
     int m_idLieu;               //!< id du lieu où l'acte est effectué
+    bool m_remplacant;          //!> le superviseur de l'acte est remplaçant au moment de la réalisation de l'acte
 
     double m_montant;           //!< montant total
 
@@ -58,7 +59,11 @@ private:
     QString m_paiementTiers;    //!< //TODO : à compléter : je ne sais pas
 
     QDateTime m_date;           //!< date de la création de l'acte
-    QDateTime m_agePatient;     //!< date de naissance du Patient //TODO : MOVE to Patient
+    QTime m_heure;              //!< heure de la création de l'acte
+    QDateTime m_agePatient;     //!< age du Patient au moment de l'acte
+
+
+
 
 
 
@@ -67,11 +72,12 @@ public:
     void setData(QJsonObject data);
 
     bool courrierAFaire();
-    bool isPayeEnFranc() const;
+    bool isFactureEnFranc() const;
 
     /* GETTER / SETTER*/
     int id() const;
     QDate date() const;
+    QTime heure() const;
     QString motif() const;
     QString texte() const;
     QString conclusion() const;
@@ -84,6 +90,7 @@ public:
     QString paiementType() const;
     QString paiementTiers() const;
     int idUser() const;
+    bool effectueparremplacant() const;
 
     int numcentre() const;
     int idlieu() const;

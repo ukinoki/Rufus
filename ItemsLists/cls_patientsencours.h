@@ -1,8 +1,3 @@
-#ifndef CLS_PATIENTSENCOURS_H
-#define CLS_PATIENTSENCOURS_H
-
-
-#include <cls_patientencours.h>
 /* (C) 2018 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
@@ -20,6 +15,11 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef CLS_PATIENTSENCOURS_H
+#define CLS_PATIENTSENCOURS_H
+
+
+#include <cls_patientencours.h>
 #include "database.h"
 #include "cls_itemslist.h"
 

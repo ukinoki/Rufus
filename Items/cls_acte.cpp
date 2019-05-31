@@ -27,7 +27,7 @@ int Acte::idCreatedBy() const           { return m_idCreatedBy; }
 int Acte::idPatient() const             { return m_idPatient; }
 QDate Acte::agePatient() const          { return m_agePatient.date(); }
 QString Acte::cotation() const          { return m_cotation; }
-double Acte::montant() const            { return (isPayeEnFranc()? m_montant / 6.55957 : m_montant); }
+double Acte::montant() const            { return (isFactureEnFranc()? m_montant / 6.55957 : m_montant); }
 QString Acte::paiementType() const      { return m_paiementType; }
 QString Acte::paiementTiers() const     { return m_paiementTiers; }
 int Acte::idUser() const                { return m_idUser; }
@@ -35,6 +35,8 @@ int Acte::idParent() const              { return m_idUserParent; }
 int Acte::idComptable() const           { return m_idUserComptable; }
 int Acte::numcentre() const             { return m_numCentre; }
 int Acte::idlieu() const                { return m_idLieu; }
+QTime Acte::heure() const               { return m_heure; }
+bool Acte::effectueparremplacant() const{ return m_remplacant; }
 
 Acte::Acte(QObject *parent) : Item(parent)
 {
@@ -68,9 +70,10 @@ void Acte::setData(QJsonObject data)
 
     setDataDateTime(data, "date", m_date);
     setDataDateTime(data, "agePatient", m_agePatient);
+    setDataTime(data, "heure", m_heure);
+    setDataBool(data, "remplacant", m_remplacant);
 }
 
-
 bool Acte::courrierAFaire() { return m_courrierStatus == "T" || m_courrierStatus == "1"; }
-bool Acte::isPayeEnFranc() const { return m_monnaie == "F"; }
+bool Acte::isFactureEnFranc() const { return m_monnaie == "F"; }
 

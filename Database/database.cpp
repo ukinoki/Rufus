@@ -390,7 +390,7 @@ void DataBase::initParametres()
     paramData["vendredibkup"]           = (paramdata.at(16).toInt() == 1);
     paramData["samedibkup"]             = (paramdata.at(17).toInt() == 1);
     paramData["dimanchebkup"]           = (paramdata.at(18).toInt() == 1);
-    paramData["heurebkup"]              = paramdata.at(19).toTime().toString("hh:mm:ss");
+    paramData["heurebkup"]              = paramdata.at(19).toTime().toString("HH:mm:ss");
     paramData["dirbkup"]                = paramdata.at(20).toString();
     m_parametres->setData(paramData);
     return;
@@ -509,7 +509,7 @@ void DataBase::setdimanchebkup(bool one)
 }
 void DataBase::setheurebkup(QTime time)
 {
-    QString value = (time != QTime()? "'" + time.toString("hh:mm:ss") + "'" : "null");
+    QString value = (time != QTime()? "'" + time.toString("HH:mm:ss") + "'" : "null");
     StandardSQL("update " NOM_TABLE_PARAMSYSTEME " set HeureBkup = " + value);
     m_parametres->setheurebkup(time);
 }
@@ -1362,7 +1362,35 @@ QMap<int, PaiementTiers*>* DataBase::loadPaiementTiersByUser(User* usr)
         listepaiements->insert(i, new PaiementTiers(jData));
     }
     return listepaiements;
+}
 
+
+/*
+ * Lignes  paiements
+*/
+QMap<QString, LignePaiement*>* DataBase::loadlignespaiementsByPatient(Patient *pat)
+{
+    if (pat == Q_NULLPTR)
+        return Q_NULLPTR;
+    bool ok;
+    QMap<QString, LignePaiement*> *listepaiements = new QMap<QString,LignePaiement*>();
+    QString req =   "SELECT idActe, lig.idRecette, Paye, Monnaie FROM " NOM_TABLE_LIGNESPAIEMENTS " as lig"
+                    " inner join " NOM_TABLE_RECETTES " rec on rec.idrecette = lig.idrecette"
+                    " where idActe in"
+                    " (select idActe from " NOM_TABLE_ACTES " where idpat = " + QString::number(pat->id()) + ")";
+    QList<QVariantList> paiementslist = StandardSelectSQL(req, ok);
+    if(!ok || paiementslist.size()==0)
+        return listepaiements;
+    for (int i=0; i<paiementslist.size(); ++i)
+    {
+        QJsonObject jData{};
+        QString stringid    = paiementslist.at(i).at(0).toString() + TCPMSG_Separator + paiementslist.at(i).at(1).toString();
+        jData["stringid"]   = stringid;
+        jData["paye"]       = paiementslist.at(i).at(2).toDouble();
+        jData["monnaie"]    = paiementslist.at(i).at(3).toString();
+        listepaiements->insert(stringid, new LignePaiement(jData));
+    }
+    return listepaiements;
 }
 /*******************************************************************************************************************************************************************
  ***** FIN COMPTABILITÊ ********************************************************************************************************************************************
@@ -1616,9 +1644,9 @@ QJsonObject DataBase::loadPatientEnCoursData(QVariantList patdata)
     jData["id"] = patdata.at(0).toInt();
     jData["iduser"] = patdata.at(1).toInt();
     jData["statut"] = patdata.at(2).toString();
-    jData["heurestatut"] = patdata.at(3).toTime().toString("hh:mm:ss");
-    jData["heurerdv"] = patdata.at(4).toTime().toString("hh:mm:ss");
-    jData["heurerarrivee"] = patdata.at(5).toTime().toString("hh:mm:ss");
+    jData["heurestatut"] = patdata.at(3).toTime().toString("HH:mm:ss");
+    jData["heurerdv"] = patdata.at(4).toTime().toString("HH:mm:ss");
+    jData["heurerarrivee"] = patdata.at(5).toTime().toString("HH:mm:ss");
     jData["motif"] = patdata.at(6).toString();
     jData["message"] = patdata.at(7).toInt();
     jData["idacteapayer"] = patdata.at(8).toInt();
@@ -1900,6 +1928,8 @@ QJsonObject DataBase::loadActeData(QVariantList actdata)
         data["paiementTiers"] = actdata.at(16).toString();
     data["NumCentre"] = actdata.at(17).toInt();
     data["idLieu"] = actdata.at(18).toInt();
+    data["heure"] = actdata.at(19).toTime().toString("HH:mm:ss");
+    data["remplacant"] = (actdata.at(20) == 1);
 
     return data;
 }
@@ -1916,12 +1946,11 @@ Acte* DataBase::loadActeById(int idActe)
 
 QJsonObject DataBase::loadActeAllData(int idActe)
 {
-    QString req = "SELECT act.idActe, act.idPat, act.idUser, "
-                  " act.ActeDate, act.ActeMotif, act.ActeTexte, act.ActeConclusion, "
-                  " act.ActeCourrierAFaire, act.ActeCotation, act.ActeMontant, act.ActeMonnaie, "
-                  " act.CreePar, act.UserComptable, act.UserParent, "
-                  " pat.PatDDN, "
-                  " tpm.TypePaiement, tpm.Tiers, act.NumCentre, idLieu "
+    QString req = "SELECT act.idActe, act.idPat, act.idUser,  act.ActeDate, act.ActeMotif,"
+                  " act.ActeTexte, act.ActeConclusion, act.ActeCourrierAFaire, act.ActeCotation, act.ActeMontant,"
+                  " act.ActeMonnaie, act.CreePar, act.UserComptable, act.UserParent, pat.PatDDN, "
+                  " tpm.TypePaiement, tpm.Tiers, act.NumCentre, idLieu, act.ActeHeure,"
+                  " act.SuperViseurRemplacant"
                   " FROM " NOM_TABLE_ACTES " act "
                   " LEFT JOIN " NOM_TABLE_PATIENTS " pat on pat.idPat = act.idPat "
                   " LEFT JOIN " NOM_TABLE_TYPEPAIEMENTACTES " tpm on tpm.idActe = act.idActe "
@@ -1937,12 +1966,11 @@ QMap<int, Acte*> DataBase::loadActesByPat(Patient *pat)
     QMap<int, Acte*> list;
     if( pat == Q_NULLPTR )
         return list;
-    QString req = "SELECT act.idActe, act.idPat, act.idUser, "
-                  " act.ActeDate, act.ActeMotif, act.ActeTexte, act.ActeConclusion, "
-                  " act.ActeCourrierAFaire, act.ActeCotation, act.ActeMontant, act.ActeMonnaie, "
-                  " act.CreePar, act.UserComptable, act.UserParent, "
-                  " pat.PatDDN, "
-                  " tpm.TypePaiement, tpm.Tiers, act.NumCentre, idLieu "
+    QString req = "SELECT act.idActe, act.idPat, act.idUser,  act.ActeDate, act.ActeMotif,"
+                  " act.ActeTexte, act.ActeConclusion, act.ActeCourrierAFaire, act.ActeCotation, act.ActeMontant,"
+                  " act.ActeMonnaie, act.CreePar, act.UserComptable, act.UserParent, pat.PatDDN, "
+                  " tpm.TypePaiement, tpm.Tiers, act.NumCentre, idLieu, act.ActeHeure,"
+                  " act.SuperViseurRemplacant"
                   " FROM " NOM_TABLE_ACTES " act "
                   " LEFT JOIN " NOM_TABLE_PATIENTS " pat on pat.idPat = act.idPat "
                   " LEFT JOIN " NOM_TABLE_TYPEPAIEMENTACTES " tpm on tpm.idActe = act.idActe "

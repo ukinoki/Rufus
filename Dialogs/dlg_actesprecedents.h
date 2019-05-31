@@ -70,7 +70,8 @@ private:
     void                    closeEvent(QCloseEvent *event);
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     QMap<int, Acte*>::const_iterator    itCurrentActe;
-    Actes                   *m_listeActes;
+    Actes                   *m_listeactes;
+    LignesPaiements         *m_listepaiements;
     bool                    NavigationConsult(int i);
     bool                    gAvantDernier;
 };

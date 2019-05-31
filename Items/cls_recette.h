@@ -29,11 +29,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
     * on va faire la liste des actes pratiqués par un soigant responsable pendant une période donnée.
     * On ne comptabilisera aucun encaissement direct, ni aucun paiement par tiers.
     * On se contente de faire la somme des montants facturés par acte.
-    * Ce décompte est utile pour faire par exemple le total des cates facturés par un remplaçant pour juger son activité et étahlir les reversements d'honoraires
+    * Ce décompte est utile pour faire par exemple le total des actes facturés par un remplaçant pour juger son activité et calculer les reversements d'honoraires
  * l'activité comptatle: qui a encaissé quoi et de qui?
-     * on fait ala liste des honoraires pour un comptable.
+     * on fait la liste des honoraires pour un comptable.
      * Ne figureront ddonc pas dans cette liste les actes payés par tiers payant
-     * Par contre, on y trouvera tous les paiements par tiers, les recttes spéciales et les actes payés directement, en chèque ou en espèces.
+     * Par contre, on y trouvera tous les paiements par tiers, les recettes spéciales et les actes payés directement, en chèque ou en espèces.
  */
 
 
@@ -55,8 +55,8 @@ private:
     int m_iduserparent;                 //!> l'id du user parent du user responsable de l'acte (le user remplacé si le user responsable est remplaçant, le user responsable lui-même sinon)
     int m_idusercomptable;              //!> l'id du user comptable de la recette
     double m_montantautrerecettes;      //!> le montant encaissé d'une recette spéciale
-    bool m_isapportparticien;           //! la  recette est un apport pratiicien
-    bool m_isautrerecette;              //! la  recette est un apport pratiicien
+    bool m_isapportparticien;           //! la  recette est un apport praticien
+    bool m_isautrerecette;              //! la  recette est une autre recette
 
 public:
     explicit Recette(QJsonObject data = {}, QObject *parent = Q_NULLPTR);

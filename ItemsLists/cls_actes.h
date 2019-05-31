@@ -21,12 +21,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "database.h"
 #include "cls_acte.h"
 #include "cls_itemslist.h"
+#include <QStandardItemModel>
+#include <QSortFilterProxyModel>
+#include <QModelIndex>
+#include "upstandarditem.h"
 
 class Actes: public ItemsList
 
 {
 private:
     QMap<int, Acte*> *m_actes = Q_NULLPTR; //!< une liste d'actes
+    QSortFilterProxyModel* m_actesortmodel;
+    QSortFilterProxyModel* m_heuresortmodel;
+    QStandardItemModel *m_actesmodel;
 
 public:
     explicit Actes(QObject *parent = Q_NULLPTR);
@@ -42,6 +49,12 @@ public:
     QMap<int, Acte*>::const_iterator   getAt(int idx);                                      //!> renvoie l'acte de la liste à l'index idx
     void    initListeByPatient(Patient *pat);                                               //!> charge tous les actes d'un patient
 
+    void sortActesByDate();                                                                 /*! > trie la liste des actes par date, heure et met le résultat dans un QSortFilterProxyModel
+                                                                                             * il arrive que la liste d'actes ne soit pas triée dans le bon ordre
+                                                                                             * (acte créé a posteriori ou erreur sur la date) */
+    Acte* getActeFromRow(int row);
+    Acte* getActeFromIndex(QModelIndex idx);
+
 
     //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
 
@@ -50,7 +63,7 @@ public:
     void    updateActeData(Acte *act, QString nomchamp, QVariant value = QVariant());                     //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour l'acte
 
     //!> actions sur les enregistrements
-    void SupprimeActe(Acte *act);
+    void    SupprimeActe(Acte *act);
     Acte*   CreationActe(Patient *pat, int idcentre);
 
     //!< action sur toutes les données

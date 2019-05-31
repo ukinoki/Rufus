@@ -48,7 +48,7 @@ public:
     User* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, ADDTOLIST addToList = AddToList);
     QString getLoginById(int id);
     void initListe();
-    User*   userconnected()             { return DataBase::I()->getUserConnected(); };
+    User*   userconnected()             { return DataBase::I()->getUserConnected(); }
 
 };
 

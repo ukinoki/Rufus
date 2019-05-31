@@ -15,36 +15,34 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLS_MOTIF_H
-#define CLS_MOTIF_H
+#ifndef CLS_LIGNEPAIEMENT_H
+#define CLS_LIGNEPAIEMENT_H
 
 #include "cls_item.h"
+#include "macros.h"
 
 /*!
- * \brief Motif class
- * l'ensemble des informations concernant un motif d'acte
+ * \brief LignePaiement class
+ * l'ensemble des informations concernant une ligne de paiement
  */
 
-class Motif : public Item
+class LignePaiement : public Item
 {
 
 private:
-    int m_id, m_duree, m_noordre;
-    QString m_motif, m_raccourci, m_couleur;
-    bool m_pardefaut, m_utiliser;
+    double m_paye;
+    QString m_stringid;
+    QString m_monnaie;
 
 public:
-    explicit Motif(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit LignePaiement(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int id() const;
-    QString motif() const;
-    QString raccourci() const;
-    QString couleur() const;
-    int duree() const;
-    bool pardefaut() const;
-    bool utiliser() const;
-    int noordre() const;
+    int idacte() const;
+    int idrecette() const;
+    double paye() const;
+    QString stringid() const;
+    QString monnaie() const;
 };
 
-#endif // CLS_MOTIF_H
+#endif // CLS_LIGNEPAIEMENT_H

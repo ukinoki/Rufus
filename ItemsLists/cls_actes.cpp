@@ -73,6 +73,56 @@ void Actes::remove(Acte *acte)
     delete acte;
 }
 
+void Actes::sortActesByDate()
+{
+    // toute la manip qui suit sert à remetre les acteses par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
+    if (m_actesmodel == Q_NULLPTR)
+        m_actesmodel = new QStandardItemModel();
+    else
+        m_actesmodel->clear();
+    for (QMap<int, Acte*>::const_iterator itact = m_actes->constBegin(); itact != m_actes->constEnd(); ++itact)
+    {
+        QList<QStandardItem *> items;
+        Acte* act = const_cast<Acte*>(itact.value());
+        UpStandardItem *itemact = new UpStandardItem(QString::number(act->id()));
+        itemact->setItem(act);
+        items << new UpStandardItem(act->date().toString("yyyymmss"))
+              << new UpStandardItem(act->heure().toString("HHmm"))
+              << itemact;
+        m_actesmodel->appendRow(items);
+    }
+    m_heuresortmodel = new QSortFilterProxyModel();
+    m_heuresortmodel->setSourceModel(m_actesmodel);
+    m_heuresortmodel->sort(1);
+
+    m_actesortmodel = new QSortFilterProxyModel();
+    m_actesortmodel->setSourceModel(m_heuresortmodel);
+    m_actesortmodel->sort(0);
+}
+
+Acte* Actes::getActeFromRow(int row)
+{
+    QModelIndex psortindx = m_actesortmodel->index(row, 2);
+    return getActeFromIndex(psortindx);
+}
+
+Acte* Actes::getActeFromIndex(QModelIndex idx)
+{
+    QModelIndex heureindx   = m_actesortmodel->mapToSource(idx);                      //  -> m_heuresortmodel
+    QModelIndex pindx       = m_heuresortmodel->mapToSource(heureindx);               //  -> m_actesmodel
+
+    UpStandardItem *item = dynamic_cast<UpStandardItem *>(m_actesmodel->itemFromIndex(pindx));
+    if (item == Q_NULLPTR)
+        return Q_NULLPTR;
+    if (item->item() == Q_NULLPTR)
+    {
+        qDebug() << "erreur sur l'item - row = " << item->row() << " - col = " << item->column() << item->text();
+        return Q_NULLPTR;
+    }
+    Acte *act = dynamic_cast<Acte *>(item->item());
+    return act;
+}
+
 Acte* Actes::getById(int id, ADDTOLIST add)
 {
     QMap<int, Acte*>::const_iterator itact = m_actes->find(id);
@@ -190,7 +240,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     QString rempla = (usr->getEnregHonoraires()==3? "1" : "null");
     QString creerrequete =
             "INSERT INTO " NOM_TABLE_ACTES
-            " (idPat, idUser, ActeDate, ActeHeure, CreePar, UserComptable, UserParent,SuperViseurRemplacant, NumCentre, idLieu)"
+            " (idPat, idUser, ActeDate, ActeHeure, CreePar, UserComptable, UserParent, SuperViseurRemplacant, NumCentre, idLieu)"
             " VALUES (" +
             QString::number(pat->id()) + ", " +
             QString::number(usr->getIdUserActeSuperviseur()) + ", "
@@ -216,5 +266,20 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
         return Q_NULLPTR;
     }
     DataBase::I()->unlocktables();
-    return DataBase::I()->loadActeById(idacte);
+    QJsonObject data{};
+    data["id"] = idacte;
+    data["idPatient"] = pat->id();
+    data["idUser"] = usr->getIdUserActeSuperviseur();
+    data["date"] = QDateTime(QDate::currentDate()).toMSecsSinceEpoch();
+    data["heure"] = QTime::currentTime().toString("HH:mm:ss");
+    data["idCreatedBy"] = usr->id();
+    data["idUserComptable"] = usr->getIdUserComptable();
+    data["idUserParent"] = usr->getIdUserParent();
+    data["remplacant"] = (rempla == "1");
+    data["NumCentre"] = idcentre;
+    data["idLieu"] = usr->getSite()->id();
+    Acte *act = new Acte();
+    act->setData(data);
+
+    return act;
 }

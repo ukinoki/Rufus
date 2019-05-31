@@ -26,9 +26,10 @@ ui(new Ui::dlg_actesprecedents)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowMinMaxButtonsHint);
-    m_listeActes = actes;
-    m_currentpatient = Datas::I()->patients->getById(m_listeActes->actes()->last()->idPatient());
-    m_idpatient = m_listeActes->actes()->last()->idPatient();
+    m_listeactes = actes;
+    m_currentpatient = Datas::I()->patients->getById(m_listeactes->actes()->last()->idPatient());
+    m_listepaiements = Datas::I()->lignespaiements;
+    m_idpatient = m_listeactes->actes()->last()->idPatient();
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     setWindowIcon(Icons::icLoupe());
     proc            = Procedures::I();
@@ -71,7 +72,7 @@ dlg_actesprecedents::~dlg_actesprecedents()
  */
 void dlg_actesprecedents::Actualise()
 {
-    if( m_listeActes->actes()->size() == 0 )
+    if( m_listeactes->actes()->size() == 0 )
     {
         //ERROR
         //tr("Impossible de retrouver la dernière consultation")
@@ -79,8 +80,8 @@ void dlg_actesprecedents::Actualise()
     }
 
     int initScrollValue;
-    itCurrentActe = m_listeActes->getLast();
-    initScrollValue = m_listeActes->actes()->size() - 1;
+    itCurrentActe = m_listeactes->getLast();
+    initScrollValue = m_listeactes->actes()->size() - 1;
     if( gAvantDernier )
     {
         --initScrollValue;
@@ -88,19 +89,19 @@ void dlg_actesprecedents::Actualise()
         if( itCurrentActe == Q_NULLPTR )
         {
             initScrollValue = 0;
-            itCurrentActe = m_listeActes->actes()->constBegin();
+            itCurrentActe = m_listeactes->actes()->constBegin();
         }
     }
     ui->ScrollBar->disconnect();
     ui->ScrollBar->setMinimum(0);
-    ui->ScrollBar->setMaximum(m_listeActes->actes()->size() - 1);
+    ui->ScrollBar->setMaximum(m_listeactes->actes()->size() - 1);
     ui->ScrollBar->setSingleStep(1);
     ui->ScrollBar->setValue(initScrollValue);
     ActesPrecsAfficheActe();
 
     if( ui->ScrollBar->maximum() > 0 )
         connect(ui->ScrollBar, &QScrollBar::valueChanged, this, [=](int newValue) {
-            itCurrentActe = m_listeActes->getAt(newValue);
+            itCurrentActe = m_listeactes->getAt(newValue);
             ActesPrecsAfficheActe();
         });
 }
@@ -126,7 +127,7 @@ void dlg_actesprecedents::keyPressEvent(QKeyEvent *keyEvent)
 
         --itCurrentActe;
         if( itCurrentActe == Q_NULLPTR)
-            itCurrentActe = m_listeActes->actes()->constBegin();
+            itCurrentActe = m_listeactes->actes()->constBegin();
         ActesPrecsAfficheActe();
     }
 
@@ -205,8 +206,8 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
 ------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_actesprecedents::ActesPrecsAfficheActe(Acte *acte)
 {
-    itCurrentActe = m_listeActes->actes()->find(acte->id());
-    if( itCurrentActe == m_listeActes->actes()->constEnd() )
+    itCurrentActe = m_listeactes->actes()->find(acte->id());
+    if( itCurrentActe == m_listeactes->actes()->constEnd() )
         return;
     ActesPrecsAfficheActe();
 }
@@ -272,29 +273,29 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
                                          tr(" pour ") + usr->getLogin()); //Avant idPatient
 
     //3. Mettre à jour le numéro d'acte
-    if( m_listeActes->actes()->size() > 1 )
+    if( m_listeactes->actes()->size() > 1 )
     {
-        int scrolPos = m_listeActes->actes()->keys().indexOf(acte->id());
+        int scrolPos = m_listeactes->actes()->keys().indexOf(acte->id());
         ui->ScrollBar->setValue(scrolPos);
     }
 
-    bool canprec = (m_listeActes->actes()->size() > 1 && m_listeActes->actes()->keys().indexOf(acte->id()) > 0);
+    bool canprec = (m_listeactes->actes()->size() > 1 && m_listeactes->actes()->keys().indexOf(acte->id()) > 0);
     ui->ActePrecedentpushButton->setEnabled(canprec);
 
-    bool cansui = (m_listeActes->actes()->size() > 1 && m_listeActes->actes()->keys().indexOf(acte->id()) < m_listeActes->actes()->size() - 1);
+    bool cansui = (m_listeactes->actes()->size() > 1 && m_listeactes->actes()->keys().indexOf(acte->id()) < m_listeactes->actes()->size() - 1);
     ui->ActeSuivantpushButton->setEnabled(cansui);
 
-    bool canfirst = (m_listeActes->actes()->size() > 1 && m_listeActes->actes()->keys().indexOf(acte->id()) > 0);
+    bool canfirst = (m_listeactes->actes()->size() > 1 && m_listeactes->actes()->keys().indexOf(acte->id()) > 0);
     ui->PremierActepushButton->setEnabled(canfirst);
 
-    bool canlast = (m_listeActes->actes()->size() > 1 && m_listeActes->actes()->keys().indexOf(acte->id()) < m_listeActes->actes()->size() - 1);
+    bool canlast = (m_listeactes->actes()->size() > 1 && m_listeactes->actes()->keys().indexOf(acte->id()) < m_listeactes->actes()->size() - 1);
     ui->DernierActepushButton->setEnabled(canlast);
 
-    ui->NoActelabel->setText(QString::number(m_listeActes->actes()->keys().indexOf(acte->id()) + 1) + " / " + QString::number(m_listeActes->actes()->size()));
+    ui->NoActelabel->setText(QString::number(m_listeactes->actes()->keys().indexOf(acte->id()) + 1) + " / " + QString::number(m_listeactes->actes()->size()));
 
     //4. Afficher les renseignements comptables
     ui->ActeCotationlineEdit->setText(acte->cotation());
-    if( acte->isPayeEnFranc() )
+    if( acte->isFactureEnFranc() )
     {
         ui->ActeMontantLabel->setFixedHeight(30);
         ui->ActeMontantLabel->setText("Montant (€)\n(payé en F)");
@@ -316,19 +317,28 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         ui->PaiementlineEdit->setVisible(true);
 
         //2. on recheche ensuite le type de paiement : espèces, chèque, tiers, cb, impayé, gratuit
-        if (acte->paiementType() == "C") ui->PaiementlineEdit->setText(tr("chèque"));
-        else if (acte->paiementType() == "E") ui->PaiementlineEdit->setText(tr("espèces"));
-        else if (acte->paiementType() == "B") ui->PaiementlineEdit->setText(tr("carte de crédit"));
-        else if (acte->paiementType() == "G") ui->PaiementlineEdit->setText(tr("Acte gratuit"));
-        else if (acte->paiementType() == "I") ui->PaiementlineEdit->setText(tr("Impayé"));
-        else if (acte->paiementType() == "T" && acte->paiementTiers() == "CB") ui->PaiementlineEdit->setText(tr("carte de crédit"));
-        else if (acte->paiementType() == "T" && acte->paiementTiers() != "CB") ui->PaiementlineEdit->setText(acte->paiementTiers());
+        QString txtpaiement = Utils::ConvertitModePaiement(acte->paiementType());
+        if (acte->paiementType() == "T"
+                && acte->paiementTiers() == "CB") txtpaiement = tr("carte de crédit");
+         else if (acte->paiementType() == "T") txtpaiement = acte->paiementTiers();
+        ui->PaiementlineEdit->setText(txtpaiement);
 
         // on calcule le montant payé pour l'acte
         if (acte->paiementType() != "G" || acte->paiementType() != "I")
         {
-            double montant = DataBase::I()->getActePaye(acte->id());
-            ui->PayelineEdit->setText(QLocale().toString(montant,'f',2));
+            double TotalPaye = 0;
+            for (QMap<QString, LignePaiement*>::const_iterator itlig = m_listepaiements->lignespaiements()->constBegin(); itlig != m_listepaiements->lignespaiements()->constEnd(); ++itlig)
+            {
+                LignePaiement *lign = const_cast<LignePaiement*>(itlig.value());
+                if (lign->idacte() == acte->id())
+                {
+                    if (lign->monnaie() == "F")
+                        TotalPaye += lign->paye() / 6.55957;
+                    else
+                        TotalPaye += lign->paye();
+                }
+            }
+            ui->PayelineEdit->setText(QLocale().toString(TotalPaye,'f',2));
         }
 
 
@@ -380,29 +390,29 @@ Acte* dlg_actesprecedents::getActeAffiche()
 ------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_actesprecedents::NavigationConsult(int i)
 {
-    if( m_listeActes->actes()->size() == 1 )
+    if( m_listeactes->actes()->size() == 1 )
         return true;
 
     int idActe = -1;
     if (i == Suiv)
     {
         ++itCurrentActe;
-        if( itCurrentActe == m_listeActes->actes()->constEnd() )
-            itCurrentActe = m_listeActes->getLast();
+        if( itCurrentActe == m_listeactes->actes()->constEnd() )
+            itCurrentActe = m_listeactes->getLast();
     }
     else if (i == Prec)
     {
         --itCurrentActe;
         if( itCurrentActe == Q_NULLPTR )
-            itCurrentActe = m_listeActes->actes()->constBegin();
+            itCurrentActe = m_listeactes->actes()->constBegin();
     }
     else if (i == Debut)
     {
-        itCurrentActe = m_listeActes->actes()->constBegin();
+        itCurrentActe = m_listeactes->actes()->constBegin();
     }
     else if (i == Fin)
     {
-        itCurrentActe = m_listeActes->getLast();
+        itCurrentActe = m_listeactes->getLast();
     }
 
     idActe = itCurrentActe.value()->id();

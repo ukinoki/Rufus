@@ -2007,7 +2007,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
        ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0)   // 16-07-2014
    {
        listbinds["OrigineK"]     = QuelleMesure();
-       listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+       listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    if (ui->ODCheckBox->isChecked())
    {
@@ -2023,7 +2023,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
            listbinds["AddVPOD"] = ui->AddVPOD->value();
        if (gMode == Refraction  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
            listbinds["AVPOD"]   = AVPOD->text();
-       listbinds["DateRefOD"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+       listbinds["DateRefOD"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    if (ui->OGCheckBox->isChecked())
    {
@@ -2039,7 +2039,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
            listbinds["AddVPOG"] = ui->AddVPOG->value();
        if (gMode == Refraction  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
            listbinds["AVPOG"]   = AVPOG->text();
-       listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+       listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    db->InsertSQLByBinds(NOM_TABLE_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS);
 }
@@ -2052,7 +2052,7 @@ bool dlg_refraction::InsertRefraction()
     QHash<QString,QVariant> listbinds;
     listbinds["idPat"]              = m_currentpatient->id();
     listbinds["idActe"]             = gACteEnCours->id();
-    listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
+    listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
     listbinds["QuelleMesure"]       = QuelleMesure();
     if(QuelleMesure() != "A")
         listbinds["QuelleDistance"]  = QuelleDistance();
@@ -3895,7 +3895,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
         {
             UpdateDOPrequete +=
                     ", OrigineK = '" + QuelleMesure() + "'" +
-                    ", DateK =  '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss") + "'";
+                    ", DateK =  '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
         }
     }
     if (ui->ODCheckBox->isChecked())
@@ -3922,7 +3922,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
             UpdateDOPrequete += ", AVPOD = '" + AVPOD->text() + "'";
         else
             UpdateDOPrequete += ", AVPOD = null";
-        UpdateDOPrequete += ", DateRefOD = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss") + "'";
+        UpdateDOPrequete += ", DateRefOD = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
     }
     if (ui->OGCheckBox->isChecked())
     {
@@ -3948,7 +3948,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
             UpdateDOPrequete += ", AVPOG = '" + AVPOG->text() + "'";
         else
             UpdateDOPrequete += ", AVPOG = null";
-        UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss") + "'";
+        UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
     }
     UpdateDOPrequete +=  " WHERE idPat = " + QString::number(m_currentpatient->id()) + " AND QuelleMesure = '" + QuelleMesure() + "'";
     db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS);

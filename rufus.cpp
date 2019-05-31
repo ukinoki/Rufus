@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("30-05-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("31-05-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -103,7 +103,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         if (m_parametres->adresseserveurtcp() == "")
         {
             log = tr("Aucun serveur TCP enregistré");
-            Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", ba.append(log + " - " +QTime::currentTime().toString("hh:mm::ss")) );
+            Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", ba.append(log + " - " +QTime::currentTime().toString("HH:mm::ss")) );
             dlg_message(QStringList() << log, false);
         }
         else
@@ -116,7 +116,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             if (!UtiliseTCP)
             {
                 log = tr("Echec 1ere connexion");
-                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", ba.append(log + " - " + QTime::currentTime().toString("hh:mm::ss")) );
+                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", ba.append(log + " - " + QTime::currentTime().toString("HH:mm::ss")) );
                 // on réessaie une 2ème fois (parfois le serveur met du temps à se réveiller)
                 delete TcPConnect;
                 Utils::Pause(100);
@@ -128,7 +128,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             if (!UtiliseTCP)
             {
                 log = tr("Echec 2ème connexion");
-                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", ba.append(log + " - " + QTime::currentTime().toString("hh:mm::ss")) );
+                Logs::LogToFile(QDir::homePath() + NOMDIR_RUFUS "/logtcp.txt", ba.append(log + " - " + QTime::currentTime().toString("HH:mm::ss")) );
                 dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Fonctionnement sans Tcpsocket"), 5000, false);
             }
             else
@@ -1251,10 +1251,12 @@ void Rufus::AppelPaiementDirect(Origin origin)
         }
         flags->MAJFlagSalleDAttente();
     }
-
-    if (m_currentact != Q_NULLPTR)
+    if (m_currentpatient != Q_NULLPTR)
+    {
+        m_listepaiements->initListeByPatient(m_currentpatient);
         if (m_currentact->id()>0 && ui->tabDossier->isVisible())
             AfficheActeCompta(m_currentact);
+    }
 }
 
 void Rufus::AppelPaiementTiers()
@@ -2398,7 +2400,7 @@ void Rufus::ImprimeDossier(Patient *pat)
 {
     if(pat==Q_NULLPTR)
         return;
-    QMap<int, Acte*> *listeactes = Datas::I()->actes->actes();
+    QMap<int, Acte*> *listeactes = m_listeactes->actes();
     if (listeactes->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Pas d'actes enregistré pour ce patient!"));
@@ -3537,12 +3539,12 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
             return;
         PatientEnCours *pat = m_patientsencours->getById(m_dossierpatientaouvrir->id());
         if (pat == Q_NULLPTR)
-            m_patientsencours->CreationPatient(m_dossierpatientaouvrir->id(), llist.at(3).toInt(), ARRIVE, llist.at(0), 0, 0, "", llist.at(1), QTime().fromString(llist.at(2), "hh:mm"));
+            m_patientsencours->CreationPatient(m_dossierpatientaouvrir->id(), llist.at(3).toInt(), ARRIVE, llist.at(0), 0, 0, "", llist.at(1), QTime().fromString(llist.at(2), "HH:mm"));
         else
         {
             m_patientsencours->updatePatientEnCoursData(pat, CP_MOTIFSALDAT, llist.at(0));
             m_patientsencours->updatePatientEnCoursData(pat, CP_MESSAGESALDAT, llist.at(1));
-            m_patientsencours->updatePatientEnCoursData(pat, CP_HEURERDVSALDAT, QTime().fromString(llist.at(2), "hh:mm"));
+            m_patientsencours->updatePatientEnCoursData(pat, CP_HEURERDVSALDAT, QTime().fromString(llist.at(2), "HH:mm"));
             m_patientsencours->updatePatientEnCoursData(pat, CP_IDUSERSALDAT, llist.at(3).toInt());
         }
         flags->MAJFlagSalleDAttente();
@@ -5738,7 +5740,7 @@ Patient* Rufus::getPatientFromCursorPositionInTable()
 Patient* Rufus::getPatientFromIndex(QModelIndex idx)
 {
     QModelIndex pprenomindx = m_listepatientsproxymodel->mapToSource(idx);                              //  -> prenomsortmodel
-    QModelIndex pDDNindx    = m_prenomfiltersortmodel->mapToSource(pprenomindx);                              //  -> DDNsortmodel
+    QModelIndex pDDNindx    = m_prenomfiltersortmodel->mapToSource(pprenomindx);                        //  -> DDNsortmodel
     QModelIndex pindx       = m_DDNsortmodel->mapToSource(pDDNindx);                                    //  -> m_listepatientsmodel
 
     UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_listepatientsmodel->itemFromIndex(pindx));
@@ -6011,10 +6013,10 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
 ------------------------------------------------------------------------------------------------------------------------------------*/
 void Rufus::AfficheActe(Acte* acte)
 {
+    int nbActes (0);
+    int noActe (0);
     if (acte == Q_NULLPTR)          // Aucune consultation trouvee pour ce  patient
     {
-        nbActes = 0;
-        noActe = 0;
         ui->Acteframe->setVisible(false);
         ui->CreerActepushButton_2->setVisible(true);
         ui->CreerBOpushButton_2->setVisible(true);
@@ -6042,7 +6044,7 @@ void Rufus::AfficheActe(Acte* acte)
         ConnectCotationComboBox();
         // on affiche tous les montants en euros, même ce qui a été payé en francs.
         double H = 1;
-        if (acte->isPayeEnFranc())
+        if (acte->isFactureEnFranc())
         {
             ui->ActeMontantLabel    ->setText(tr("Montant (€)\n(payé en F)"));
             H = 6.55957;
@@ -6082,62 +6084,47 @@ void Rufus::AfficheActe(Acte* acte)
                                      + tr(" pour ") + Datas::I()->users->getById(acte->idUser())->getLogin());
 
         //3. Mettre à jour le numéro d'acte
-        QString req = "SELECT idActe FROM " NOM_TABLE_ACTES " WHERE idPat = '" + QString::number(m_currentpatient->id()) + "' ORDER BY ActeDate";
-        QList<QVariantList> actlist = db->StandardSelectSQL(req, ok , tr("Impossible de retrouver les consultations de ce patient"));
-        if (ok)
+        if (m_listeactes->actes()->size() > 0)           // Il y a des consultations
         {
-            if (actlist.size() > 0)           // Il y a des consultations
+            nbActes = m_listeactes->actes()->size();
+            if (nbActes == 1)
             {
-                nbActes = actlist.size();
-                if (nbActes == 1)
-                {
-                    ui->ActePrecedentpushButton ->setEnabled(false);
-                    ui->ActeSuivantpushButton   ->setEnabled(false);
-                    ui->PremierActepushButton   ->setEnabled(false);
-                    ui->DernierActepushButton   ->setEnabled(false);
-                    noActe = 1;
-                    ui->OuvreActesPrecspushButton->setEnabled(false);
-                    ui->OuvreActesPrecspushButton->setToolTip("");
-                }
-                if (nbActes > 1)
-                {
-                    for (int i = 0; i < nbActes; i++)
-                    {
-                        if (actlist.at(i).at(0).toInt() == acte->id())
-                        {
-                            noActe = i + 1;
-                            break;
-                        }
-                     }
-                    if (noActe == 1)
-                    {
-                        ui->ActePrecedentpushButton->setEnabled(false);
-                        ui->PremierActepushButton->setEnabled(false);
-                        ui->ActeSuivantpushButton->setEnabled(true);
-                        ui->DernierActepushButton->setEnabled(true);
-                    }
-                    else
-                    {
-                        if (noActe == nbActes)
-                        {
-                            ui->ActePrecedentpushButton->setEnabled(true);
-                            ui->ActeSuivantpushButton->setEnabled(false);
-                            ui->PremierActepushButton->setEnabled(true);
-                            ui->DernierActepushButton->setEnabled(false);
-                        }
-                        else
-                        {
-                            ui->ActePrecedentpushButton->setEnabled(true);
-                            ui->ActeSuivantpushButton->setEnabled(true);
-                            ui->PremierActepushButton->setEnabled(true);
-                            ui->DernierActepushButton->setEnabled(true);
-                        }
-                    }
-                    ui->OuvreActesPrecspushButton->setEnabled(true);
-                    ui->OuvreActesPrecspushButton->setToolTip(tr("Voir les consultations précédentes de ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
-                }
-                ui->NoActelabel->setText(QString::number(noActe) + " / " + QString::number(nbActes));
+                ui->ActePrecedentpushButton ->setEnabled(false);
+                ui->ActeSuivantpushButton   ->setEnabled(false);
+                ui->PremierActepushButton   ->setEnabled(false);
+                ui->DernierActepushButton   ->setEnabled(false);
+                noActe = 1;
+                ui->OuvreActesPrecspushButton->setEnabled(false);
+                ui->OuvreActesPrecspushButton->setToolTip("");
             }
+            else if (nbActes > 1)
+            {
+                noActe = m_listeactes->actes()->keys().indexOf(acte->id()) + 1;
+                if (noActe == 1)
+                {
+                    ui->ActePrecedentpushButton->setEnabled(false);
+                    ui->PremierActepushButton->setEnabled(false);
+                    ui->ActeSuivantpushButton->setEnabled(true);
+                    ui->DernierActepushButton->setEnabled(true);
+                }
+                else if (noActe == nbActes)
+                {
+                    ui->ActePrecedentpushButton->setEnabled(true);
+                    ui->ActeSuivantpushButton->setEnabled(false);
+                    ui->PremierActepushButton->setEnabled(true);
+                    ui->DernierActepushButton->setEnabled(false);
+                }
+                else
+                {
+                    ui->ActePrecedentpushButton->setEnabled(true);
+                    ui->ActeSuivantpushButton->setEnabled(true);
+                    ui->PremierActepushButton->setEnabled(true);
+                    ui->DernierActepushButton->setEnabled(true);
+                }
+                ui->OuvreActesPrecspushButton->setEnabled(true);
+                ui->OuvreActesPrecspushButton->setToolTip(tr("Voir les consultations précédentes de ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
+            }
+            ui->NoActelabel->setText(QString::number(noActe) + " / " + QString::number(nbActes));
         }
     }
     gAutorModifConsult = false;
@@ -6151,11 +6138,8 @@ void Rufus::AfficheActeCompta(Acte *acte)
 {
     if (acte == Q_NULLPTR)
         return;
-    //1. on recherche d'abord s'il y a eu un paiement enregistré pour cette consultation
-    QString req = "SELECT TypePaiement, Tiers From " NOM_TABLE_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(acte->id());
-    QVariantList pmtdata = db->getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les renseignements comptables"));
 
-    bool a = (pmtdata.size() == 0);
+    bool a = (acte->paiementType() == "");
 
     ui->Comptaframe->setVisible(!a);
     ui->Cotationframe->setEnabled(a);
@@ -6173,39 +6157,37 @@ void Rufus::AfficheActeCompta(Acte *acte)
 
     //2. on recherche ensuite le type de paiement : espèces, chèque, tiers, cb, impayé, gratuit
 
-    if (pmtdata.at(0).toString() == "T"  && pmtdata.at(1).toString() != "CB") ui->PaiementlineEdit->setText(pmtdata.at(1).toString());
+    if (acte->paiementType() == "T"  && acte->paiementTiers() != "CB") ui->PaiementlineEdit->setText(acte->paiementTiers());
 
-    QString txtpaiement = Utils::ConvertitModePaiement(pmtdata.at(0).toString());
-    if (pmtdata.at(0).toString() == "T"
-            && pmtdata.at(1).toString() == "CB") txtpaiement = tr("carte de crédit");
-    if (pmtdata.at(0).toString() == "T"
-            && pmtdata.at(1).toString() != "CB") txtpaiement = pmtdata.at(1).toString();
+    QString txtpaiement = Utils::ConvertitModePaiement(acte->paiementType());
+    if (acte->paiementType() == "T"
+            && acte->paiementTiers() == "CB") txtpaiement = tr("carte de crédit");
+     else if (acte->paiementType() == "T") txtpaiement = acte->paiementTiers();
     ui->PaiementlineEdit->setText(txtpaiement);
 
     // on calcule le montant payé pour l'acte
-    if (pmtdata.at(0).toString() != "G" || pmtdata.at(0).toString() != "I")
+    if (acte->paiementType() != "G" || acte->paiementType() != "I")
     {
         double TotalPaye = 0;
-        // on récupère les lignes de paiement
-        QString requete = " SELECT lig.idRecette, Paye, Monnaie FROM " NOM_TABLE_LIGNESPAIEMENTS " as lig"
-                          " inner join " NOM_TABLE_RECETTES " on " NOM_TABLE_RECETTES ".idrecette = lig.idrecette"
-                          " WHERE idActe = " + QString::number(acte->id());
-        QList<QVariantList> reclist = db->StandardSelectSQL(requete, ok);
-        for (int l = 0; l < reclist.size(); l++)
+        for (QMap<QString, LignePaiement*>::const_iterator itlig = m_listepaiements->lignespaiements()->constBegin(); itlig != m_listepaiements->lignespaiements()->constEnd(); ++itlig)
         {
-            if (reclist.at(l).at(0).toString() == "F")
-                TotalPaye = TotalPaye + (reclist.at(l).at(1).toDouble() / 6.55957);
-            else
-                TotalPaye = TotalPaye + reclist.at(l).at(1).toDouble();
+            LignePaiement *lign = const_cast<LignePaiement*>(itlig.value());
+            if (lign->idacte() == acte->id())
+            {
+                if (lign->monnaie() == "F")
+                    TotalPaye += lign->paye() / 6.55957;
+                else
+                    TotalPaye += lign->paye();
+            }
         }
         ui->PayelineEdit->setText(QLocale().toString(TotalPaye,'f',2));
     }
 
-    if (pmtdata.at(0).toString() == "B"
-        ||(pmtdata.at(0).toString() == "T"
-            && pmtdata.at(1).toString() == "CB")
-        || pmtdata.at(0).toString() == "C"
-        || pmtdata.at(0).toString() == "E")
+    if (acte->paiementType() == "B"
+        ||(acte->paiementType() == "T"
+            && acte->paiementTiers() == "CB")
+        || acte->paiementType() == "C"
+        || acte->paiementType() == "E")
     {
         ui->PaiementLabel->setVisible(true);
         ui->PaiementLabel->setText("Paiement:");
@@ -6215,8 +6197,8 @@ void Rufus::AfficheActeCompta(Acte *acte)
         ui->PaiementlineEdit->setGeometry(79,4,91,18);
         return;
     }
-    if (pmtdata.at(0).toString() == "G"
-        || pmtdata.at(0).toString() == "I")
+    if (acte->paiementType() == "G"
+        || acte->paiementType() == "I")
     {
         ui->PaiementLabel->setVisible(false);
         ui->PayeLabel->setVisible(false);
@@ -6225,8 +6207,8 @@ void Rufus::AfficheActeCompta(Acte *acte)
         ui->PaiementlineEdit->setGeometry(8,4,164,18);
         return;
     }
-    if (pmtdata.at(0).toString() == "T"
-            && pmtdata.at(1).toString() != "CB")
+    if (acte->paiementType() == "T"
+            && acte->paiementTiers() != "CB")
     {
         ui->PaiementLabel->setText("Tiers");
         ui->PaiementLabel->setVisible(true);
@@ -6321,9 +6303,10 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
 
     //3 - récupération des actes
 
-    Datas::I()->actes->initListeByPatient(m_currentpatient);
+    m_listeactes->initListeByPatient(m_currentpatient);
+    m_listepaiements->initListeByPatient(m_currentpatient);
 
-    if (Datas::I()->actes->actes()->size() == 0)
+    if (m_listeactes->actes()->size() == 0)
     {
         ui->Acteframe->setVisible(false);
         ui->CreerActepushButton_2->setVisible(true);
@@ -6336,10 +6319,10 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     {
         OuvrirDocsExternes(m_currentpatient);        // depuis AfficheDossier
         if (idacte > 0)
-            AfficheActe(Datas::I()->actes->getById(idacte));
+            AfficheActe(m_listeactes->getById(idacte));
         else
-            AfficheActe(Datas::I()->actes->actes()->last());
-        if (Datas::I()->actes->actes()->size() > 1)
+            AfficheActe(m_listeactes->actes()->last());
+        if (m_listeactes->actes()->size() > 1)
             OuvrirActesPrecedents();            //! depuis AfficheDossier()
         ui->ActeMotiftextEdit->setFocus();
     }
@@ -6476,7 +6459,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
             if (actdata.size()>0 && actdata.at(0).toInt() > 0) // =il n'y a pas de paiement enregistré pour le dernier acte
             {
                 if (actdata.at(0).toInt() != m_currentact->id())
-                    AfficheActe(Datas::I()->actes->getById(actdata.at(0).toInt()));
+                    AfficheActe(m_listeactes->getById(actdata.at(0).toInt()));
                 if (QLocale().toDouble(ui->ActeMontantlineEdit->text()) == 0.0 && ui->ActeCotationcomboBox->currentText() != "")   // il s'agit d'un acte gratuit - on propose de le classer
                 {
                     msgbox.setText(tr("Vous avez entré un montant nul !"));
@@ -6855,16 +6838,16 @@ void Rufus::CreerActe(Patient *pat)
 {
     if (ui->Acteframe->isVisible())
         if(!AutorDepartConsult(false)) return;
-    Acte * acte = Datas::I()->actes->CreationActe(pat, proc->idCentre());
+    Acte * acte = m_listeactes->CreationActe(pat, proc->idCentre());
     if (acte == Q_NULLPTR)
         return;
     m_currentact = acte;
     acte = Q_NULLPTR;
     delete acte;
 
-    Datas::I()->actes->add(m_currentact);
+    m_listeactes->add(m_currentact);
     AfficheActe(m_currentact);
-    if (Datas::I()->actes->actes()->size() > 1)
+    if (m_listeactes->actes()->size() > 1)
     {
         QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
         for (int i = 0; i<listactesprecs.size();i++)
@@ -7897,9 +7880,9 @@ void Rufus::InitVariables()
     gAutorModifConsult  = false;
     m_currentpatient    = Q_NULLPTR;
     m_listepatients     = Datas::I()->patients;
+    m_listeactes        = Datas::I()->actes;
+    m_listepaiements    = Datas::I()->lignespaiements;
     m_currentact        = Q_NULLPTR;
-    nbActes             = 0;
-    noActe              = 0;
     m_listepatientsproxymodel   = new QSortFilterProxyModel();
     m_dossierpatientaouvrir     = Q_NULLPTR;
     gdateParDefaut              = QDate::fromString("2000-01-01", "yyyy-MM-dd");
@@ -8089,7 +8072,7 @@ bool Rufus::NavigationConsult(int i)
         return false;
     if(!AutorDepartConsult(false)) return false;
     //  Afficher les éléments de la tables Actes
-   int idActe = -1;
+    int idActe = -1;
     QString requete = "SELECT idActe, ActeDate FROM " NOM_TABLE_ACTES " WHERE idPat = '" + QString::number(m_currentpatient->id()) + "' ORDER BY ActeDate, ActeHeure";
     QList<QVariantList> actlist = db->StandardSelectSQL(requete, ok,  tr("Impossible de retrouver les consultations de ce patient!"));
     if (!ok)
@@ -8111,7 +8094,7 @@ bool Rufus::NavigationConsult(int i)
 
     if (idActe > -1)
     {
-        AfficheActe(Datas::I()->actes->getById(idActe));
+        AfficheActe(m_listeactes->getById(idActe));
         return true;
     }
     else
@@ -9399,7 +9382,7 @@ void Rufus::SupprimerActe(Acte *act)
             ++a;    //on est au milieu des actes -> on va rechercher l'idActe suivant
         else
             --a;    //on est sur le dernier acte -> on va rechercher l'idActe précédant
-        nouvact = Datas::I()->actes->getById(actlist.at(a).at(0).toInt());
+        nouvact = m_listeactes->getById(actlist.at(a).at(0).toInt());
     }
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
@@ -9449,7 +9432,7 @@ void Rufus::SupprimerActe(Acte *act)
     }
 
     // on supprime l'acte -------------------------------------------------------------------------------------------------
-    Datas::I()->actes->SupprimeActe(act);
+    m_listeactes->SupprimeActe(act);
 
     // On affiche la nouvelle consultation
     AfficheActe(nouvact);
@@ -9461,7 +9444,7 @@ void Rufus::SupprimerActe(Acte *act)
             listactesprecs.at(i)->close();
     if (findChildren<dlg_actesprecedents *>().size()>0)
     {
-        if (Datas::I()->actes->actes()->size() < 2)
+        if (m_listeactes->actes()->size() < 2)
             findChildren<dlg_actesprecedents *>().at(0)->close();
         else
             findChildren<dlg_actesprecedents *>().at(0)->Actualise();
@@ -9663,7 +9646,7 @@ bool Rufus::VerifCoherenceMontantPaiement()
 
 void Rufus::updateActeData(Acte *act, QString nomchamp, QVariant value)
 {
-    Datas::I()->actes->updateActeData(act, nomchamp, value);
+    m_listeactes->updateActeData(act, nomchamp, value);
     MAJActesPrecs();
 }
 
@@ -9716,7 +9699,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
             ui->ActeMontantlineEdit->setText(NouveauMontant);
     }
     //on modifie la table Actes avec le nouveau montant
-    Datas::I()->actes->setMontantCotation(m_currentact, ui->ActeCotationcomboBox->currentText(), QLocale().toDouble(NouveauMontant));
+    m_listeactes->setMontantCotation(m_currentact, ui->ActeCotationcomboBox->currentText(), QLocale().toDouble(NouveauMontant));
     MAJActesPrecs();
 
     int idx = ui->ActeCotationcomboBox->currentIndex();
@@ -9766,7 +9749,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     else if (TypeMesure == Procedures::Kerato)
     {
         QString ARajouterEnText= proc->HtmlKerato();
-        Datas::I()->actes->updateActeData(m_currentact, CP_TEXTEACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+        m_listeactes->updateActeData(m_currentact, CP_TEXTEACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         proc->InsertRefraction(m_currentpatient->id(), m_currentact->id(), Procedures::Kerato);

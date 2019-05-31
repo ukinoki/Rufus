@@ -163,7 +163,7 @@ void Item::setDataTime(QJsonObject data, QString key, QTime &prop)
 {
     if( data.contains(key) )
     {
-        prop = QTime::fromString(data[key].toString(),"hh:mm:ss");
+        prop = QTime::fromString(data[key].toString(),"HH:mm:ss");
     }
 }
 void Item::setDataDate(QJsonObject data, QString key, QDate &prop)

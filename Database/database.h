@@ -43,6 +43,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_depense.h"
 #include "cls_docexterne.h"
 #include "cls_document.h"
+#include "cls_lignepaiement.h"
 #include "cls_motif.h"
 #include "cls_paiementtiers.h"
 #include "cls_patient.h"
@@ -246,6 +247,8 @@ public:
                                                                         //! charge toutes les recettes pour la période spécifiée
 
     QMap<int, PaiementTiers*>*  loadPaiementTiersByUser(User *usr);    //! charge tous les paiements par tiers pour un utilisateur pour la période spécifiée
+
+    QMap<QString, LignePaiement*>* loadlignespaiementsByPatient(Patient *pat); //!> charge toutes les lignes de paiements des actes d'un patient
 
     /*
      * Cotations

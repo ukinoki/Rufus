@@ -134,18 +134,18 @@ void PatientsEnCours::updatePatientEnCoursData(PatientEnCours *pat, QString nomc
     else if (nomchamp == CP_HEURESTATUTSALDAT)
     {
         pat->setheurestatut(value.toTime());
-        newvalue = (value.toTime().isValid()? "'" + value.toTime().toString("hh:mm:ss") + "'" : "null");
+        newvalue = (value.toTime().isValid()? "'" + value.toTime().toString("HH:mm:ss") + "'" : "null");
     }
     else if (nomchamp == CP_HEUREARRIVEESALDAT)
     {
         pat->setheurerarrivee(value.toTime());
-        newvalue = (value.toTime().isValid()? "'" + value.toTime().toString("hh:mm:ss") + "'" : "null");
+        newvalue = (value.toTime().isValid()? "'" + value.toTime().toString("HH:mm:ss") + "'" : "null");
 
     }
     else if (nomchamp == CP_HEURERDVSALDAT)
     {
         pat->setheurerdv(value.toTime());
-        newvalue = (value.toTime().isValid()? "'" + value.toTime().toString("hh:mm:ss") + "'" : "null");
+        newvalue = (value.toTime().isValid()? "'" + value.toTime().toString("HH:mm:ss") + "'" : "null");
 
     }
     else if (nomchamp == CP_MOTIFSALDAT)
@@ -202,7 +202,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser, QString 
                                      iduser + "," +
                                      motif + "," +
                                      statut + ",'" +
-                                     QTime::currentTime().toString("hh:mm") +"'," +
+                                     QTime::currentTime().toString("HH:mm") +"'," +
                                      idacteapayer   + "," +
                                      iduserencours  + "," +
                                      posteexamen    + "," +
