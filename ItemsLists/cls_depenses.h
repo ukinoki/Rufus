@@ -34,6 +34,7 @@ public:
     Depenses(QObject *parent = Q_NULLPTR);
 
     bool        add(Depense *Depense);
+    void        addList(QList<Depense*> listdep);
     Depense*    getById(int id);
     void        clearAll();
     void        remove(Depense *dep);

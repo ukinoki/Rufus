@@ -22,7 +22,7 @@ LignesPaiements::LignesPaiements(QObject *parent) : ItemsList(parent)
     m_lignespaiements = new QMap<QString, LignePaiement*>();
 }
 
-QMap<QString, LignePaiement *> *LignesPaiements::lignespaiements() const
+QMap<QString, LignePaiement *>* LignesPaiements::lignespaiements() const
 {
     return m_lignespaiements;
 }
@@ -72,6 +72,17 @@ void LignesPaiements::remove(LignePaiement *ligne)
 void LignesPaiements::initListeByPatient(Patient *pat)
 {
     clearAll();
-    m_lignespaiements = DataBase::I()->loadlignespaiementsByPatient(pat);
+    QList<LignePaiement*> listpaiements = DataBase::I()->loadlignespaiementsByPatient(pat);
+    addList(listpaiements);
+}
+
+void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
+{
+    DataBase::I()->StandardSQL("DELETE FROM " TBL_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(act->id()));
+    for (QMap<QString, LignePaiement*>::const_iterator itlign = m_lignespaiements->constBegin() ; itlign != m_lignespaiements->constEnd(); ++itlign)
+    {
+        LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
+        remove(lign);
+    }
 }
 

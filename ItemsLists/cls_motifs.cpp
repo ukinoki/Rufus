@@ -72,12 +72,6 @@ void Motifs::remove(Motif *motif)
 void Motifs::initListe()
 {
     clearAll();
-    QList<Motif*> listmotifs = DataBase::I()->loadMotifs();
-    QList<Motif*>::const_iterator itmtf;
-    for( itmtf = listmotifs.constBegin(); itmtf != listmotifs.constEnd(); ++itmtf )
-    {
-        Motif *mtf = const_cast<Motif*>(*itmtf);
-        add(mtf);
-    }
+    addList(DataBase::I()->loadMotifs());
 }
 

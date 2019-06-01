@@ -35,6 +35,13 @@ void Cotations::add(Cotation *cotation)
     m_cotations->insert(cotation->id(), cotation);
 }
 
+void Cotations::addList(QList<Cotation*> listcot)
+{
+    QList<Cotation*>::const_iterator it;
+    for( it = listcot.constBegin(); it != listcot.constEnd(); ++it )
+        add( *it );
+}
+
 void Cotations::clearAll()
 {
     for( QMap<int, Cotation*>::const_iterator itcot = m_cotations->constBegin(); itcot != m_cotations->constEnd(); ++itcot)
@@ -51,11 +58,6 @@ void Cotations::initListeByUser(int iduser)
 {
     clearAll();
     QList<Cotation*> listcotations = DataBase::I()->loadCotationsByUser(iduser);
-    QList<Cotation*>::const_iterator itcotations;
-    for( itcotations = listcotations.constBegin(); itcotations != listcotations.constEnd(); ++itcotations )
-    {
-        Cotation *cot = const_cast<Cotation*>(*itcotations);
-        add(cot);
-    }
+    addList(listcotations);
 }
 

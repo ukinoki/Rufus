@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_salledattente.h"
 
 dlg_salledattente::dlg_salledattente(Patient* pat, Acte* act, QString Titre, QWidget *parent):
-    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionSalDat", parent),
+    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionSalDat", parent),
     ui(new Ui::dlg_salledattente)
 {
     ui->setupUi(this);
@@ -46,7 +46,7 @@ dlg_salledattente::dlg_salledattente(Patient* pat, Acte* act, QString Titre, QWi
     QStringList ListUser;
 
     ui->UsercomboBox->clear();
-    QString Usersrequete = "SELECT UserLogin FROM " NOM_TABLE_UTILISATEURS " as usr, " NOM_TABLE_USERSCONNECTES " as connectusr"
+    QString Usersrequete = "SELECT UserLogin FROM " TBL_UTILISATEURS " as usr, " TBL_USERSCONNECTES " as connectusr"
             " WHERE (UserFonction = '" + tr("Médecin") + "' OR UserFonction = '" + tr("Orthoptiste") + "' OR UserFonction = '" + tr("Assistant") + "')"
             " AND usr.idUser <> '" + QString::number(Datas::I()->users->userconnected()->id()) + "'"
             " AND usr.idUser = connectusr.idUser";

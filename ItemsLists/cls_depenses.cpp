@@ -65,6 +65,12 @@ bool Depenses::add(Depense *Depense)
 
     return true;
 }
+void Depenses::addList(QList<Depense*> listDepense)
+{
+    QList<Depense*>::const_iterator it;
+    for( it = listDepense.constBegin(); it != listDepense.constEnd(); ++it )
+        add( *it );
+}
 
 /*!
  * \brief Depenses::getById
@@ -97,11 +103,6 @@ void Depenses::initListeByUser(int iduser)
 {
     clearAll();
     QList<Depense*> listdepenses = DataBase::I()->loadDepensesByUser(iduser);
-    QList<Depense*>::const_iterator itdepenses;
-    for( itdepenses = listdepenses.constBegin(); itdepenses != listdepenses.constEnd(); ++itdepenses )
-    {
-        Depense *dep = const_cast<Depense*>(*itdepenses);
-        add(dep);
-    }
+    addList(listdepenses);
 }
 

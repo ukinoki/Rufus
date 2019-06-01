@@ -59,6 +59,7 @@ public:
     Villes(QObject *parent = Q_NULLPTR);
     void initListe();
     void add(Ville *ville);
+    void addList(QList<Ville*> listvilles);
 
     QStringList getListVilles();
     QStringList getListCodePostal();

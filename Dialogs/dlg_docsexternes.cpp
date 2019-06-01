@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 static inline double mmToInches(double mm) { return mm * 0.039370147; }
 
 dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent) :
-    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsExternes", parent)
+    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
     proc                = Procedures::I();
     db                  = DataBase::I();
@@ -117,7 +117,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurr
     AvecPrevisu = proc  ->ApercuAvantImpression();
 
     /*Gestion des XML - exemple
-    QString adressexml = QDir::homePath() + NOMDIR_RUFUS + "/XML/" + QString::number(idpat) + "/Exam_Data.xml";
+    QString adressexml = QDir::homePath() + DIR_RUFUS + "/XML/" + QString::number(idpat) + "/Exam_Data.xml";
     QFile xmldoc(adressexml);
     if (xmldoc.open(QIODevice::ReadOnly))
     {
@@ -321,7 +321,7 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     item = gmodeleTriParType->itemFromIndex(getIndexFromId(gmodeleTriParType,id));
     if (item != Q_NULLPTR)
         modifieitem(item, docmt, imp, gFont);
-    db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set Importance = " + QString::number(imp) + " where idImpression = " + QString::number(id));
+    db->StandardSQL("update " TBL_IMPRESSIONS " set Importance = " + QString::number(imp) + " where idImpression = " + QString::number(id));
     int nimportants = 0;
     for(QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->constBegin(); itdoc != m_docsexternes->docsexternes()->constEnd(); ++itdoc )
     {
@@ -380,7 +380,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this,msg, msg2);
             return;
         }
-        QString filename = NomDirStockageImagerie + NOMDIR_VIDEOS "/" + docmt->lienversfichier();
+        QString filename = NomDirStockageImagerie + DIR_VIDEOS "/" + docmt->lienversfichier();
         QFile   qFile(filename);
         if (!qFile.open(QIODevice::ReadOnly))
         {
@@ -624,7 +624,7 @@ int dlg_docsexternes::ActualiseDocsExternes()
 
 void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 {
-    QString filename = proc->DirImagerie() + NOMDIR_IMAGES + docmt->lienversfichier();
+    QString filename = proc->DirImagerie() + DIR_IMAGES + docmt->lienversfichier();
     QFile img(filename);
     if (!img.open(QIODevice::ReadOnly))
     {
@@ -712,27 +712,27 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
                     filesufx        = lst.at(lst.size()-1);
                 }
                 QString sfx = (filesufx == PDF? PDF : JPG);
-                QString req = "delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr + " and Facture is null";
+                QString req = "delete from " TBL_ECHANGEIMAGES " where idimpression = " + idimpr + " and Facture is null";
                 db->StandardSQL(req);
-                req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
+                req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
                                "VALUES (" +
                                idimpr + ", " +
-                               " LOAD_FILE('" + Utils::correctquoteSQL(proc->DirImagerieServeur() + NOMDIR_IMAGES + filename) + "'), " +
+                               " LOAD_FILE('" + Utils::correctquoteSQL(proc->DirImagerieServeur() + DIR_IMAGES + filename) + "'), " +
                                QString::number(docmt->compression()) + ")";
                  db->StandardSQL(req);
             }
         }
         bool ok = false;
-        QList<QVariantList> listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr
+        QList<QVariantList> listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_ECHANGEIMAGES " where idimpression = " + idimpr
                                                                 , ok
-                                                                , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
+                                                                , tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
         if (!ok)
             return result;
         if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans impressions
         {
-            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr
+            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_IMPRESSIONS " where idimpression = " + idimpr
                                              , ok
-                                             , tr("Impossible d'accéder à la table ") + NOM_TABLE_IMPRESSIONS);
+                                             , tr("Impossible d'accéder à la table ") + TBL_IMPRESSIONS);
         }
         if (listimpr.size()==0)
             return result;
@@ -775,9 +775,9 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
         TexteAImprimer->setHeaderSize(TailleEnTete);
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(proc->TailleTopMarge());
-        QString ficpdf = QDir::homePath() + NOMFIC_PDF;
+        QString ficpdf = QDir::homePath() + FILE_PDF;
         TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
-        // le paramètre true de la fonction print() génère la création du fichier pdf NOMFIC_PDF et pas son impression
+        // le paramètre true de la fonction print() génère la création du fichier pdf FILE_PDF et pas son impression
         QFile filepdf(ficpdf);
         if (!filepdf.open( QIODevice::ReadOnly ))
             UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
@@ -793,7 +793,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
 int dlg_docsexternes::CompteNbreDocs()
 {
     bool ok = true;
-    QList<QVariantList> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(m_currentpatient->id()), ok);
+    QList<QVariantList> list = db->StandardSelectSQL("Select idImpression from " TBL_IMPRESSIONS " where idpat = " + QString::number(m_currentpatient->id()), ok);
     if (!ok) return 0;
     return list.size();
 }
@@ -955,7 +955,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds["ald"] = (ALD? "1" : QVariant(QVariant::String));
         listbinds["useremetteur"] = db->getUserConnected()->id();
         listbinds["importance"] = docmt->importance();
-        if (!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
+        if (!db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds))
         {
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
             connect(PrintButton,        &QPushButton::clicked, this,   &dlg_docsexternes::ImprimeDoc);
@@ -964,11 +964,11 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         {
             if (detruirealafin)
             {
-                db->SupprRecordFromTable(docmt->id(),"idimpression",NOM_TABLE_IMPRESSIONS);
+                db->SupprRecordFromTable(docmt->id(),"idimpression",TBL_IMPRESSIONS);
                 m_docsexternes->remove(docmt);
             }
             ActualiseDocsExternes();
-            int idimpr = db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok);
+            int idimpr = db->selectMaxFromTable("idimpression", TBL_IMPRESSIONS, ok);
             QModelIndex idx = getIndexFromId(gmodele, idimpr);
             ListDocsTreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
             ListDocsTreeView->setCurrentIndex(idx);
@@ -1084,7 +1084,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     {
         if (dateedit->date().isValid())
         {
-            db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set DateImpression = '" + dateedit->date().toString("yyyy-MM-dd") + "' where idimpression = " + QString::number(docmt->id()));
+            db->StandardSQL("update " TBL_IMPRESSIONS " set DateImpression = '" + dateedit->date().toString("yyyy-MM-dd") + "' where idimpression = " + QString::number(docmt->id()));
             docmt->setDate(QDateTime(dateedit->date()));
             RemplirTreeView();
             dlg->accept();
@@ -1203,9 +1203,9 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         if (docmt->lienversfichier() != "")
         {
             QString filename = (docmt->format() == VIDEO? "/" : "") + docmt->lienversfichier();
-            QString cheminFichier = (docmt->format()== VIDEO? NOMDIR_VIDEOS : NOMDIR_IMAGES);
+            QString cheminFichier = (docmt->format()== VIDEO? DIR_VIDEOS : DIR_IMAGES);
             filename = cheminFichier + filename;
-            db->StandardSQL("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + Utils::correctquoteSQL(filename) + "')");
+            db->StandardSQL("insert into " TBL_DOCSASUPPRIMER " (FilePath) VALUES ('" + Utils::correctquoteSQL(filename) + "')");
         }
         QString idaafficher = "";
         if (m_docsexternes->docsexternes()->size() > 1)    // on recherche le document sur qui va être mis la surbrillance après la suppression

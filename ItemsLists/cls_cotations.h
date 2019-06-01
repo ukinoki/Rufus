@@ -31,6 +31,7 @@ public:
     explicit Cotations(QObject *parent = Q_NULLPTR);
     QMap<int, Cotation *> *cotations() const;
     void add(Cotation *cotation);
+    void addList(QList<Cotation*> listcot);
     void clearAll();
     void initListeByUser(int iduser);
 };

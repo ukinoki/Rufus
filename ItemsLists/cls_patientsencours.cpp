@@ -96,13 +96,14 @@ void PatientsEnCours::clearAll()
 void PatientsEnCours::initListeAll()
 {
     clearAll();
-    m_patientsencours  = DataBase::I()->loadPatientsenCoursAll();
+    QList<PatientEnCours*> listpatienteneours = DataBase::I()->loadPatientsenCoursAll();
+    addList(listpatienteneours);
 }
 
 void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat)
 {
     //!. Suppression du patient
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", NOM_TABLE_SALLEDATTENTE);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_SALLEDATTENTE);
     remove(pat);
 }
 
@@ -122,7 +123,7 @@ void PatientsEnCours::updatePatientEnCoursData(PatientEnCours *pat, QString nomc
     }
     else if (nomchamp == CP_IDUSERSALDAT)
     {
-        pat->setiduserencoursexam(value.toInt());
+        pat->setiduser(value.toInt());
         newvalue = (value.toInt() != 0? value.toString() : "null");
 
     }
@@ -181,7 +182,7 @@ void PatientsEnCours::updatePatientEnCoursData(PatientEnCours *pat, QString nomc
         newvalue = (value.toInt() != 0? value.toString() : "null");
 
     }
-    QString requete = "UPDATE " NOM_TABLE_SALLEDATTENTE " SET " + nomchamp + " = " + newvalue + " WHERE idPat = " + QString::number(pat->id());
+    QString requete = "UPDATE " TBL_SALLEDATTENTE " SET " + nomchamp + " = " + newvalue + " WHERE idPat = " + QString::number(pat->id());
     DataBase::I()->StandardSQL(requete);
 }
 
@@ -189,14 +190,14 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser, QString 
 {
     bool ok;
     QString idacteapayer    = (idActeAPayer == 0?   "null" : QString::number(idActeAPayer));
-    QString iduser          = (idUser == 0? QString::number(DataBase::I()->getUserConnected()->getIdUserActeSuperviseur()) : QString::number(idUser));
+    QString iduser          = (idUser == 0?         QString::number(DataBase::I()->getUserConnected()->getIdUserActeSuperviseur()) : QString::number(idUser));
     QString iduserencours   = (idUserEnCours == 0?  "null" : QString::number(idUserEnCours));
     QString posteexamen     = (PosteExamen == ""?   "null" : "'" + Utils::correctquoteSQL(PosteExamen) + "'");
     QString message         = (Message == ""?       "null" : "'" + Utils::correctquoteSQL(Message) + "'");
     QString motif           = (Motif == ""?         "null" : "'" + Utils::correctquoteSQL(Motif) + "'");
     QString statut          = (Statut == ""?        "null" : "'" + Utils::correctquoteSQL(Statut) + "'");
     QString heurerdv        = (heureRDV == QTime()? "null" : "'" + heureRDV.toString("hh::mm::ss") + "'");
-    QString req =     "INSERT INTO " NOM_TABLE_SALLEDATTENTE
+    QString req =     "INSERT INTO " TBL_SALLEDATTENTE
                         " (idPat, idUser, Motif, Statut, HeureStatut, idActeAPayer, idUserEnCoursExam, PosteExamen, Message, heureRDV)"
                         " VALUES (" + QString::number(idPat) + "," +
                                      iduser + "," +
@@ -208,15 +209,16 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser, QString 
                                      posteexamen    + "," +
                                      message        + "," +
                                      heurerdv       + ")";
+    qDebug() << req;
     QString MsgErreur           = tr("Impossible de mettre ce dossier en salle d'attente");
-    DataBase::I()->locktables(QStringList() << NOM_TABLE_SALLEDATTENTE);
+    DataBase::I()->locktables(QStringList() << TBL_SALLEDATTENTE);
     if (!DataBase::I()->StandardSQL(req, MsgErreur))
     {
         DataBase::I()->unlocktables();
         return Q_NULLPTR;
     }
     // Récupération de l'idPatient créé ------------------------------------
-    int idpat = DataBase::I()->selectMaxFromTable("idPat", NOM_TABLE_SALLEDATTENTE, ok, tr("Impossible de sélectionner les enregistrements"));
+    int idpat = DataBase::I()->selectMaxFromTable("idPat", TBL_SALLEDATTENTE, ok, tr("Impossible de sélectionner les enregistrements"));
     DataBase::I()->unlocktables();
     if (!ok ||  idpat == 0)
         return Q_NULLPTR;

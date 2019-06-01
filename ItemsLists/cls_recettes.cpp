@@ -35,7 +35,7 @@ QMap<int, Recette *> *Recettes::recettes() const
 void Recettes::initListe(QMap<QString, QDate> DateMap)
 {
     clearAll();
-    m_recettes = DataBase::I()->loadRecettesByDate(DateMap["DateDebut"], DateMap["DateFin"]);
+    addList(DataBase::I()->loadRecettesByDate(DateMap["DateDebut"], DateMap["DateFin"]));
 }
 
 void Recettes::add(Recette *Recette)

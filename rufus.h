@@ -123,7 +123,7 @@ private:
     DataBase                        *db;
     Flags                           *flags;
     ParametresSysteme               *m_parametres;
-    PatientsEnCours                 *m_patientsencours = Datas::I()->patientsencours;
+    PatientsEnCours                 *m_listepatientsencours = Datas::I()->patientsencours;
     bool                            ok;
 
     pyxinterf                       *pyxi;     // CZ001
@@ -334,7 +334,7 @@ private:
     void                MonteUneLigne();
     void                Monte20Lignes();
     QStringList         MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
-    bool                NavigationConsult(int i);
+    bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(Patient *pat);
     void                OuvrirDocuments(bool AffichDocsExternes = true);

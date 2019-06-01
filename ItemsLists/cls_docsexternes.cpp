@@ -80,7 +80,7 @@ void DocsExternes::setsoustype(DocExterne* docmt, QString soustype)
         soustype = "null";
     else
         soustype = "'" + Utils::correctquoteSQL(soustype) + "'";
-    DataBase::I()->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = " + soustype + " where idimpression = " + QString::number(docmt->id()));
+    DataBase::I()->StandardSQL("update " TBL_IMPRESSIONS " set soustypedoc = " + soustype + " where idimpression = " + QString::number(docmt->id()));
 }
 
 bool DocsExternes::add(DocExterne *doc)
@@ -132,10 +132,10 @@ void DocsExternes::initListeByPatient(Patient *pat)
 
 bool DocsExternes::SupprimeDocExterne(DocExterne* doc)
 {
-    DataBase::I()->StandardSQL("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS
+    DataBase::I()->StandardSQL("delete from " TBL_REFRACTION " where idrefraction = (select idrefraction from " TBL_IMPRESSIONS
                     " where idimpression = " + QString::number(doc->id()) + ")");
-    DataBase::I()->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + QString::number(doc->id()));
-    DataBase::I()->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));
+    DataBase::I()->StandardSQL("delete from " TBL_IMPRESSIONS " where idimpression = " + QString::number(doc->id()));
+    DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));
     remove(doc);
     return true;
 }

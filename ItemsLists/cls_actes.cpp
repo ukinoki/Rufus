@@ -32,16 +32,15 @@ QMap<int, Acte *> *Actes::actes() const
  * Charge l'ensemble des actes
  * et les ajoute à la classe Actes
  */
-void Actes::initListeByPatient(Patient *pat)
+void Actes::initListeByPatient(Patient *pat, bool quelesid)
 {
     clearAll();
-    QMap<int, Acte*> listActes = DataBase::I()->loadActesByPat(pat);
-    QMap<int, Acte*>::const_iterator itact;
-    for( itact = listActes.constBegin(); itact != listActes.constEnd(); ++itact )
-    {
-        Acte *act = const_cast<Acte*>(*itact);
-        add( act );
-    }
+    QList<Acte*> listActes;
+    if (quelesid)
+        listActes = DataBase::I()->loadIdActesByPat(pat);
+    else
+        listActes = DataBase::I()->loadActesByPat(pat);
+    addList(listActes);
 }
 
 void Actes::add(Acte *acte)
@@ -73,7 +72,10 @@ void Actes::remove(Acte *acte)
     delete acte;
 }
 
-void Actes::sortActesByDate()
+void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont pour l'instant pas utilisées.
+                                 * elles sont prévues pour réorganiser le tri des actes en fonction de leur date et pas en fonction de leur id
+                                 * parce qu'il arrive (rarement) qu'on saisisse un acte a posteriori dont la date sera antérieure à celle du dernier acte
+                                 * si on continue à défiler par id, cet acte n'apparaîtra pas en ordre chronologique mais en dernier. */
 {
     // toute la manip qui suit sert à remetre les acteses par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
     if (m_actesmodel == Q_NULLPTR)
@@ -164,7 +166,7 @@ void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
     }
     else
         cotsql = "'" + Utils::correctquoteSQL(Cotation) + "'";
-    QString requete = "UPDATE " NOM_TABLE_ACTES
+    QString requete = "UPDATE " TBL_ACTES
                       " SET ActeCotation = " + cotsql +
                       ", ActeMontant = " + QString::number(montant) +
                       " WHERE idActe = " + QString::number(act->id());
@@ -219,7 +221,7 @@ void Actes::updateActeData(Acte *act, QString nomchamp, QVariant value)
         newvalue = (value.toInt() != 0? value.toString() : "null");
 
     }
-    QString requete = "UPDATE " NOM_TABLE_ACTES
+    QString requete = "UPDATE " TBL_ACTES
                       " SET " + nomchamp + " = " + newvalue +
                       " WHERE idActe = " + QString::number(act->id());
     DataBase::I()->StandardSQL(requete);
@@ -227,7 +229,7 @@ void Actes::updateActeData(Acte *act, QString nomchamp, QVariant value)
 
 void Actes::SupprimeActe(Acte* act)
 {
-    DataBase::I()->StandardSQL("DELETE FROM " NOM_TABLE_ACTES " WHERE idActe = " + QString::number(act->id()));
+    DataBase::I()->StandardSQL("DELETE FROM " TBL_ACTES " WHERE idActe = " + QString::number(act->id()));
     remove(act);
 }
 
@@ -239,7 +241,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     User* usr = DataBase::I()->getUserConnected();
     QString rempla = (usr->getEnregHonoraires()==3? "1" : "null");
     QString creerrequete =
-            "INSERT INTO " NOM_TABLE_ACTES
+            "INSERT INTO " TBL_ACTES
             " (idPat, idUser, ActeDate, ActeHeure, CreePar, UserComptable, UserParent, SuperViseurRemplacant, NumCentre, idLieu)"
             " VALUES (" +
             QString::number(pat->id()) + ", " +
@@ -253,13 +255,13 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
             QString::number(idcentre) + ", " +
             QString::number(usr->getSite()->id()) +")";
     //qDebug() << creerrequete;
-    DataBase::I()->locktables(QStringList() << NOM_TABLE_ACTES);
-    if (!DataBase::I()->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + NOM_TABLE_ACTES))
+    DataBase::I()->locktables(QStringList() << TBL_ACTES);
+    if (!DataBase::I()->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + TBL_ACTES))
     {
         DataBase::I()->unlocktables();
         return Q_NULLPTR;
     }
-    int idacte = DataBase::I()->selectMaxFromTable("idActe", NOM_TABLE_ACTES, ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
+    int idacte = DataBase::I()->selectMaxFromTable("idActe", TBL_ACTES, ok, tr("Impossible de retrouver l'acte qui vient d'être créé"));
     if (!ok || idacte == 0)
     {
         DataBase::I()->unlocktables();

@@ -68,6 +68,13 @@ bool Correspondants::add(Correspondant *cor)
     return true;
 }
 
+void Correspondants::addList(QList<Correspondant*> listcor)
+{
+    QList<Correspondant*>::const_iterator it;
+    for( it = listcor.constBegin(); it != listcor.constEnd(); ++it )
+        add( *it );
+}
+
 /*!
  * \brief Correspondants::getById
  * \param id l'id du correspondant recherché
@@ -120,10 +127,5 @@ void Correspondants::initListe(bool all)
         listcorrespondants = DataBase::I()->loadCorrespondantsALL();
     else
         listcorrespondants = DataBase::I()->loadCorrespondants();
-    QList<Correspondant*>::const_iterator itcorrespondants;
-    for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
-    {
-        Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
-        add(cor);
-    }
+    addList(listcorrespondants);
 }

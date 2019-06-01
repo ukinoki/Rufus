@@ -271,7 +271,7 @@ private:
     QRectF                  rect;
     void                    Print(QPrinter*, QImage image);
     void                    PrintPdf(QPrinter*, Poppler::Document* document, bool &printok);
-    bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
+    bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = TBL_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     QString                 gLogin, gConfirmMDP, gNouvMDP;

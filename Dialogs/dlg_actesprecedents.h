@@ -56,7 +56,7 @@ public:
     void                    Actualise();
     void                    ActesPrecsAfficheActe(Acte *acte); // Affiche l'acte défini
     void                    ActesPrecsAfficheActe();
-    Acte                    *getActeAffiche();
+    Acte*                   getActeAffiche();
 
 private:
     Patient                 *m_currentpatient;
@@ -65,14 +65,12 @@ private:
     virtual void            keyPressEvent(QKeyEvent *keyEvent); //PAS UTILISE
     Ui::dlg_actesprecedents *ui;
     Procedures              *proc;
-    int                     position;
-        enum                position{Debut, Prec, Suiv, Fin};
     void                    closeEvent(QCloseEvent *event);
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     QMap<int, Acte*>::const_iterator    itCurrentActe;
     Actes                   *m_listeactes;
     LignesPaiements         *m_listepaiements;
-    bool                    NavigationConsult(int i);
+    bool                    NavigationConsult(ItemsList::POSITION i);
     bool                    gAvantDernier;
 };
 

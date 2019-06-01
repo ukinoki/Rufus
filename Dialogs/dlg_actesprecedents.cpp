@@ -49,10 +49,10 @@ ui(new Ui::dlg_actesprecedents)
         restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionAutreDossier").toByteArray());
 
     connect (ui->FermepushButton,           &QPushButton::clicked,  this,   &dlg_actesprecedents::close);
-    connect (ui->ActeSuivantpushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(Suiv);});
-    connect (ui->DernierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(Fin);});
-    connect (ui->PremierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(Debut);});
-    connect (ui->ActePrecedentpushButton,   &QPushButton::clicked,  this,   [=] {NavigationConsult(Prec);});
+    connect (ui->ActeSuivantpushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Suiv);});
+    connect (ui->DernierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Fin);});
+    connect (ui->PremierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Debut);});
+    connect (ui->ActePrecedentpushButton,   &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Prec);});
 
     ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
     proc->ModifTailleFont(ui->RenseignementsWidget, -3);
@@ -160,9 +160,9 @@ void dlg_actesprecedents::wheelEvent(QWheelEvent *event)
     {
         int deplacemtsouris = event->angleDelta().y();
         if( deplacemtsouris > 0 ) //on affiche l'acte précédent
-            NavigationConsult(Prec);
+            NavigationConsult(ItemsList::Prec);
         else //on affiche l'acte suivant
-            NavigationConsult(Suiv);
+            NavigationConsult(ItemsList::Suiv);
     }
 }
 
@@ -229,7 +229,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 
     QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
                       "<td width=\"130\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
-                      "<td width=\"60\">" + Item::CalculAge(acte->agePatient(), acte->date())["toString"].toString() + "</td>"
+                      "<td width=\"60\">" + Utils::CalculAge(acte->agePatient(), acte->date())["toString"].toString() + "</td>"
                       "<td width=\"400\">" + usr->getPrenom() + " " + usr->getNom() + "</td></p>";
     ui->EnteteupLabel->setText(textHTML);
     if( acte->motif().size() || acte->texte().size() || acte->conclusion().size() )
@@ -388,29 +388,29 @@ Acte* dlg_actesprecedents::getActeAffiche()
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Afficher la consultation précédente ou suivante d'un patient ----------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
-bool dlg_actesprecedents::NavigationConsult(int i)
+bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
 {
     if( m_listeactes->actes()->size() == 1 )
         return true;
 
     int idActe = -1;
-    if (i == Suiv)
+    if (i == ItemsList::Suiv)
     {
         ++itCurrentActe;
         if( itCurrentActe == m_listeactes->actes()->constEnd() )
             itCurrentActe = m_listeactes->getLast();
     }
-    else if (i == Prec)
+    else if (i == ItemsList::Prec)
     {
         --itCurrentActe;
         if( itCurrentActe == Q_NULLPTR )
             itCurrentActe = m_listeactes->actes()->constBegin();
     }
-    else if (i == Debut)
+    else if (i == ItemsList::Debut)
     {
         itCurrentActe = m_listeactes->actes()->constBegin();
     }
-    else if (i == Fin)
+    else if (i == ItemsList::Fin)
     {
         itCurrentActe = m_listeactes->getLast();
     }

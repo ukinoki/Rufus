@@ -68,13 +68,7 @@ Villes::Villes(QObject *parent) : ItemsList(parent)
 void Villes::initListe()
 {
     QList<Ville*> listvilles;
-    listvilles = DataBase::I()->loadVilles();
-    QList<Ville*>::const_iterator itvilles;
-    for( itvilles = listvilles.constBegin(); itvilles != listvilles.constEnd(); ++itvilles )
-    {
-        Ville *ville = const_cast<Ville*>(*itvilles);
-        add(ville);
-    }
+    addList(DataBase::I()->loadVilles());
 }
 
 void Villes::add(Ville *ville)
@@ -86,6 +80,14 @@ void Villes::add(Ville *ville)
     m_villes.insert(ville->nom(), ville);
     m_codePostal.insert(ville->codePostal(), ville);
 }
+void Villes::addList(QList<Ville*> listvilles)
+{
+    QList<Ville*>::const_iterator it;
+    for( it = listvilles.constBegin(); it != listvilles.constEnd(); ++it )
+        add( *it );
+}
+
+
 
 QStringList Villes::getListVilles()
 {

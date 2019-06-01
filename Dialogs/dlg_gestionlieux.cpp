@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestionlieux.h"
 #include "utils.h"
 
-dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)  : UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionLieux", parent)
+dlg_GestionLieux::dlg_GestionLieux(QWidget *parent)  : UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionLieux", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     db              = DataBase::I();
@@ -100,7 +100,7 @@ void dlg_GestionLieux::Slot_AfficheDetails(QModelIndex idx, QModelIndex)
         data += "Tel: " + sit->fax();
     }
     Adressuplbl->setText(data);
-    widg->moinsBouton->setEnabled(db->StandardSelectSQL("select iduser from " NOM_TABLE_JOINTURESLIEUX " where idlieu = " + QString::number(sit->id()), ok).size() == 0
+    widg->moinsBouton->setEnabled(db->StandardSelectSQL("select iduser from " TBL_JOINTURESLIEUX " where idlieu = " + QString::number(sit->id()), ok).size() == 0
                                   && sit->id() != idlieuserveur);
 }
 
@@ -147,7 +147,7 @@ void dlg_GestionLieux::Slot_EnregNouvLieu()
 {
     if (ValidationFiche())
     {
-        QString req = "insert into " NOM_TABLE_LIEUXEXERCICE "(NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax)  values("
+        QString req = "insert into " TBL_LIEUXEXERCICE "(NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3, LieuCodePostal, LieuVille, LieuTelephone, LieuFax)  values("
                         "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditnom->text())) + "', "
                         "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr1->text())) + "', "
                         "'" + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr2->text())) + "', "
@@ -287,7 +287,7 @@ void dlg_GestionLieux::Slot_ModifLieu()
 
     if (ValidationFiche())
     {
-        QString req = "update " NOM_TABLE_LIEUXEXERCICE " set "
+        QString req = "update " TBL_LIEUXEXERCICE " set "
                         "NomLieu = '"       + Utils::correctquoteSQL(Utils::trimcapitilize(leditnom->text())) + "', "
                         "LieuAdresse1 = '"  + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr1->text())) + "', "
                         "LieuAdresse2 = '"  + Utils::correctquoteSQL(Utils::trimcapitilize(leditadr2->text())) + "', "
@@ -316,7 +316,7 @@ void dlg_GestionLieux::SupprLieu()
     QString lieu = sit->nom();
     if (UpMessageBox::Question(this,tr("Suppression d'un lieu de soins"),tr("voulez vous vraiment supprimer") + "\n" + lieu + " ?") == UpSmallButton::STARTBUTTON)
     {
-        db->SupprRecordFromTable(idLieuASupprimer, "idLieu", NOM_TABLE_LIEUXEXERCICE);
+        db->SupprRecordFromTable(idLieuASupprimer, "idLieu", TBL_LIEUXEXERCICE);
         dlg_message(QStringList() << lieu + " supprimé", 3000);
         Datas::I()->sites->initListe();
         ReconstruitModel();

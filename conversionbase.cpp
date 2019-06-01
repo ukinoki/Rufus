@@ -31,10 +31,10 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                   " and schema_name <> 'mysql'"
                   " and schema_name <> 'sys'"
                   " and schema_name <> 'performance_schema'"
-                  " and schema_name <> '" NOM_BASE_CCAM
-                  "' and schema_name <> '" NOM_BASE_CONSULTS
-                  "' and schema_name <> '" NOM_BASE_COMPTA
-                  "' and schema_name <> '" NOM_BASE_OPHTA "'";
+                  " and schema_name <> '" DB_CCAM
+                  "' and schema_name <> '" DB_CONSULTS
+                  "' and schema_name <> '" DB_COMPTA
+                  "' and schema_name <> '" DB_OPHTA "'";
     QList<QVariantList> lgclist = db->StandardSelectSQL(req,ok);
     if (lgclist.size()==0)
     {
@@ -54,16 +54,16 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         }
         if (NomBase=="")
             return;
-        db->StandardSQL("delete from " NOM_TABLE_PATIENTS);
-        db->StandardSQL("delete from " NOM_TABLE_DONNEESSOCIALESPATIENTS);
-        db->StandardSQL("delete from " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS);
-        db->StandardSQL("delete from " NOM_TABLE_ACTES);
-        db->StandardSQL("delete from " NOM_TABLE_TYPEPAIEMENTACTES);
-        db->StandardSQL("delete from " NOM_TABLE_LIGNESPAIEMENTS);
-        db->StandardSQL("delete from " NOM_TABLE_RECETTES);
-        db->StandardSQL("delete from " NOM_TABLE_CORRESPONDANTS);
-        db->StandardSQL("delete from " NOM_TABLE_REFRACTION);
-        db->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS);
+        db->StandardSQL("delete from " TBL_PATIENTS);
+        db->StandardSQL("delete from " TBL_DONNEESSOCIALESPATIENTS);
+        db->StandardSQL("delete from " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+        db->StandardSQL("delete from " TBL_ACTES);
+        db->StandardSQL("delete from " TBL_TYPEPAIEMENTACTES);
+        db->StandardSQL("delete from " TBL_LIGNESPAIEMENTS);
+        db->StandardSQL("delete from " TBL_RECETTES);
+        db->StandardSQL("delete from " TBL_CORRESPONDANTS);
+        db->StandardSQL("delete from " TBL_REFRACTION);
+        db->StandardSQL("delete from " TBL_IMPRESSIONS);
 
         QDate DDN,DateCreation;
         QString listpat, insertreq, listsocpat, listrmppat;
@@ -153,7 +153,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             if (ALDQ) ALD100 = "1";
             listbinds["ald"] = ALD100;
 
-            db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds, "problème pour enregistrer une prescription du patient " + nom.toUpper() + " " + prenom);
+            db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds, "problème pour enregistrer une prescription du patient " + nom.toUpper() + " " + prenom);
             if (b==100)
                 b=0;
             if (b==0)
@@ -165,7 +165,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             }
             b+=1;
         }
-        proc->Message("table " NOM_TABLE_IMPRESSIONS " importée",1000);
+        proc->Message("table " TBL_IMPRESSIONS " importée",1000);
 
         // Refractions
         proc->Message("importation des réfractions",1000);
@@ -211,11 +211,11 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                     + reflist.at(i).at(14).toString() + "','"
                     + reflist.at(i).at(15).toString() + "'"
                     + ")";
-            insertreq = "insert into " NOM_TABLE_REFRACTION " (idPat, idActe, DateRefraction, QuelleMesure, SphereOD, CylindreOD, AxeCylindreOD, SphereOG, CylindreOG, AxeCylindreOG, AddVPOD, AddVPOG,"
+            insertreq = "insert into " TBL_REFRACTION " (idPat, idActe, DateRefraction, QuelleMesure, SphereOD, CylindreOD, AxeCylindreOD, SphereOG, CylindreOG, AxeCylindreOG, AddVPOD, AddVPOG,"
                                                             "AVLOD, AVLOG, AVPOD, AVPOG) values " + ref;
             db->StandardSQL(insertreq);
         }
-        proc->Message("table " NOM_TABLE_REFRACTION " importée",1000);
+        proc->Message("table " TBL_REFRACTION " importée",1000);
 
         // - Importation des données patients -------------------------------------------------------------------------------------------------------------------------------------------
         req = "select Numéropatient, nompatient, prénom, datenaiss, sexe, DateCréation,"
@@ -242,7 +242,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                             + Sexe + "','"
                             + DateCreation.toString("yyyy-MM-dd")
                             + "',1)";
-            insertreq = "insert into " NOM_TABLE_PATIENTS " (idpat,patnom,patprenom,patDDN, Sexe, patCreele, Patcreepar) values \n" + listpat;
+            insertreq = "insert into " TBL_PATIENTS " (idpat,patnom,patprenom,patDDN, Sexe, patCreele, Patcreepar) values \n" + listpat;
             //proc->Edit(insertreq);
             db->StandardSQL(insertreq);
 
@@ -257,7 +257,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                             + NNI + ","
                             + ALD + ",'"
                             + Utils::correctquoteSQL(patlist.at(i).at(12).toString().left(45)) + "')";
-            insertreq = "insert into " NOM_TABLE_DONNEESSOCIALESPATIENTS " (idpat,patAdresse1,Patcodepostal,patville,pattelephone,patNNI,patALD,patprofession) values \n" + listsocpat;
+            insertreq = "insert into " TBL_DONNEESSOCIALESPATIENTS " (idpat,patAdresse1,Patcodepostal,patville,pattelephone,patNNI,patALD,patprofession) values \n" + listsocpat;
             //proc->Edit(insertreq);
             db->StandardSQL(insertreq);
 
@@ -272,22 +272,22 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                         + Utils::correctquoteSQL(patlist.at(i).at(14).toString()) + "','"
                         + Utils::correctquoteSQL(patlist.at(i).at(15).toString()) + "','"
                         + Utils::correctquoteSQL(patlist.at(i).at(16).toString()) + "')";
-                insertreq = "insert into " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " (idpat,RMPTtGeneral, RMPTtOphs, RMPAtcdtsOPhs, RMPAtcdtsFamiliaux) values \n" + listrmppat;
+                insertreq = "insert into " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " (idpat,RMPTtGeneral, RMPTtOphs, RMPAtcdtsOPhs, RMPAtcdtsFamiliaux) values \n" + listrmppat;
                 //proc->Edit(insertreq);
                 db->StandardSQL(insertreq);
             }
         }
-        req = " select idPat, Patnom from " NOM_TABLE_PATIENTS;
+        req = " select idPat, Patnom from " TBL_PATIENTS;
         patlist = db->StandardSelectSQL(req,ok);
         for (int i=0;i<patlist.size();i++)
         {
-            req = "update " NOM_TABLE_PATIENTS " set Patnom = '" + Utils::correctquoteSQL(Utils::trimcapitilize(patlist.at(i).at(1).toString())) + "' where idpat = "  + patlist.at(i).at(0).toString();
+            req = "update " TBL_PATIENTS " set Patnom = '" + Utils::correctquoteSQL(Utils::trimcapitilize(patlist.at(i).at(1).toString())) + "' where idpat = "  + patlist.at(i).at(0).toString();
             db->StandardSQL(req);
         }
 
-        proc->Message("table " NOM_TABLE_PATIENTS " importée",1000);
-        proc->Message("table " NOM_TABLE_DONNEESSOCIALESPATIENTS " importée",1000);
-        proc->Message("table " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " importée",1000);
+        proc->Message("table " TBL_PATIENTS " importée",1000);
+        proc->Message("table " TBL_DONNEESSOCIALESPATIENTS " importée",1000);
+        proc->Message("table " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " importée",1000);
 
         // - Importation des actes -------------------------------------------------------------------------------------------------------------------------------------------
         proc->Message("importation des actes - date, motif et diagnostic",1000);
@@ -310,7 +310,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                             + Utils::correctquoteSQL(actlist.at(i).at(4).toString()) + "','"
                             + HeureCreation.toString("HH:mm")
                             + "')";
-            insertreq = "insert into " NOM_TABLE_ACTES " (idActe,idpat,ActeDate,Actemotif, ActeConclusion, ActeHeure) values \n" + listpat;
+            insertreq = "insert into " TBL_ACTES " (idActe,idpat,ActeDate,Actemotif, ActeConclusion, ActeHeure) values \n" + listpat;
             //proc->Edit(insertreq);
             db->StandardSQL(insertreq);
         }
@@ -401,11 +401,11 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
            txtCs.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
            txtCs.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
 
-            req = "select idActe from " NOM_TABLE_ACTES " where idActe = " + idActe;
+            req = "select idActe from " TBL_ACTES " where idActe = " + idActe;
             QVariantList csdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
             if (csdata.size()>0)
             {
-                req = "update " NOM_TABLE_ACTES " set Actetexte = '" + Utils::correctquoteSQL(txtCs) + "', idUser = " + idUser + ", ActeMontant = " + cslist.at(i).at(5).toString() + ", CreePar = " + idUser +
+                req = "update " TBL_ACTES " set Actetexte = '" + Utils::correctquoteSQL(txtCs) + "', idUser = " + idUser + ", ActeMontant = " + cslist.at(i).at(5).toString() + ", CreePar = " + idUser +
                         " where idActe = " + idActe;
                 //proc->Edit(req);
                 db->StandardSQL(req);
@@ -423,7 +423,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                             + HeureCreation.toString("HH:mm") + "',"
                             + idUser
                             + ")";
-                insertreq = "insert into " NOM_TABLE_ACTES " (idActe, idPat, idUser, ActeDate, ActeTexte, ActeMontant, ActeHeure, CreePar) values \n" + listpat;
+                insertreq = "insert into " TBL_ACTES " (idActe, idPat, idUser, ActeDate, ActeTexte, ActeMontant, ActeHeure, CreePar) values \n" + listpat;
                 //proc->Edit(insertreq);
                 db->StandardSQL(insertreq);
             }
@@ -436,16 +436,16 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         QList<QVariantList> cotlist = db->StandardSelectSQL(req,ok);
         for (int i=0; i< cotlist.size(); i++)
         {
-            req = "update " NOM_TABLE_ACTES " set actecotation = '" + Utils::correctquoteSQL(cotlist.at(i).at(1).toString().left(20)) +
+            req = "update " TBL_ACTES " set actecotation = '" + Utils::correctquoteSQL(cotlist.at(i).at(1).toString().left(20)) +
                     "' where idacte = " + cotlist.at(i).at(0).toString();
             db->StandardSQL(req);
         }
-        db->StandardSQL("update " NOM_TABLE_ACTES " set actecotation = 'xxx' where actecotation is null");
-        proc->Message("table " NOM_TABLE_ACTES " importée",1000);
+        db->StandardSQL("update " TBL_ACTES " set actecotation = 'xxx' where actecotation is null");
+        proc->Message("table " TBL_ACTES " importée",1000);
 
         // Paiements
         proc->Message("paiements - espèces pour tout le monde",1000);
-        req = "select idActe, actemontant, idUser, actedate from " NOM_TABLE_ACTES;
+        req = "select idActe, actemontant, idUser, actedate from " TBL_ACTES;
         QList<QVariantList> pmtlist = db->StandardSelectSQL(req,ok);
         for (int i=0; i< pmtlist.size(); i++)
         {
@@ -453,21 +453,21 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             QString typepai = "E";
             if (pmtlist.at(i).at(1).toDouble()==0.0)
                 typepai = "G";
-            req = "insert into " NOM_TABLE_TYPEPAIEMENTACTES " (idacte, typepaiement) values (" + pmtlist.at(i).at(0).toString() + ",'" + typepai + "')";
+            req = "insert into " TBL_TYPEPAIEMENTACTES " (idacte, typepaiement) values (" + pmtlist.at(i).at(0).toString() + ",'" + typepai + "')";
             db->StandardSQL(req);
             if (typepai=="E")
             {
-                req = "insert into " NOM_TABLE_LIGNESPAIEMENTS " (idacte, idRecette, Paye) values (" + pmtlist.at(i).at(0).toString() + "," + pmtlist.at(i).at(0).toString() + "," + pmtlist.at(i).at(1).toString() + ")";
+                req = "insert into " TBL_LIGNESPAIEMENTS " (idacte, idRecette, Paye) values (" + pmtlist.at(i).at(0).toString() + "," + pmtlist.at(i).at(0).toString() + "," + pmtlist.at(i).at(1).toString() + ")";
                 db->StandardSQL(req);
-                req = "insert into " NOM_TABLE_RECETTES " (idRecette, idUser, DatePaiement, DateEnregistrement, Montant, Modepaiement,Monnaie, EnregistrePar,TypeRecette) values (" +
+                req = "insert into " TBL_RECETTES " (idRecette, idUser, DatePaiement, DateEnregistrement, Montant, Modepaiement,Monnaie, EnregistrePar,TypeRecette) values (" +
                         pmtlist.at(i).at(0).toString() + "," + pmtlist.at(i).at(2).toString() + ",'" + DateCreation.toString("yyyy-MM-dd") + "','" + DateCreation.toString("yyyy-MM-dd") + "'," +
                         pmtlist.at(i).at(1).toString() + ",'E','E'," + pmtlist.at(i).at(2).toString() + ",1)";
                 db->StandardSQL(req);
             }
         }
-        proc->Message("table " NOM_TABLE_TYPEPAIEMENTACTES " importée",1000);
-        proc->Message("table " NOM_TABLE_LIGNESPAIEMENTS " importée",1000);
-        proc->Message("table " NOM_TABLE_RECETTES " importée",1000);
+        proc->Message("table " TBL_TYPEPAIEMENTACTES " importée",1000);
+        proc->Message("table " TBL_LIGNESPAIEMENTS " importée",1000);
+        proc->Message("table " TBL_RECETTES " importée",1000);
 
         // Correspondants
         proc->Message("médecins correspondants",1000);
@@ -475,7 +475,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         QList<QVariantList> corlist = db->StandardSelectSQL(req,ok);
         for (int i=0; i< corlist.size(); i++)
         {
-            req = "insert into " NOM_TABLE_CORRESPONDANTS " (idCor, CorNom, CorPrenom, CorAdresse1, CorCodePostal, CorVille, CorTelephone, CorFax, CorMedecin, CorSpecialite) values (" +
+            req = "insert into " TBL_CORRESPONDANTS " (idCor, CorNom, CorPrenom, CorAdresse1, CorCodePostal, CorVille, CorTelephone, CorFax, CorMedecin, CorSpecialite) values (" +
                     corlist.at(i).at(0).toString() +
                     ",'" + Utils::correctquoteSQL(corlist.at(i).at(1).toString().left(70)) +
                     "','" + Utils::correctquoteSQL(corlist.at(i).at(2).toString().left(70)) +
@@ -487,15 +487,15 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                     "',1,'" + Utils::correctquoteSQL(corlist.at(i).at(8).toString().left(45)) + "')";
             db->StandardSQL(req);
         }
-        req = "update " NOM_TABLE_CORRESPONDANTS " set corspecialite = 0 where corspecialite = 'Généraliste'";
+        req = "update " TBL_CORRESPONDANTS " set corspecialite = 0 where corspecialite = 'Généraliste'";
         db->StandardSQL(req);
-        req = " select idCor, cornom from " NOM_TABLE_CORRESPONDANTS;
+        req = " select idCor, cornom from " TBL_CORRESPONDANTS;
         corlist = db->StandardSelectSQL(req,ok);
         for (int i=0;i<corlist.size();i++)
         {
-            req = "update " NOM_TABLE_CORRESPONDANTS " set cornom = '" + Utils::correctquoteSQL(Utils::trimcapitilize(corlist.at(i).at(1).toString())) + "' where idcor = "  + corlist.at(i).at(0).toString();
+            req = "update " TBL_CORRESPONDANTS " set cornom = '" + Utils::correctquoteSQL(Utils::trimcapitilize(corlist.at(i).at(1).toString())) + "' where idcor = "  + corlist.at(i).at(0).toString();
             db->StandardSQL(req);
         }
-        proc->Message("table " NOM_TABLE_CORRESPONDANTS " importée",1000);
+        proc->Message("table " TBL_CORRESPONDANTS " importée",1000);
     }
 }

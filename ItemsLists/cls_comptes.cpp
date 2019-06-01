@@ -84,11 +84,6 @@ void Comptes::initListe()
 {
     QList<Compte*> listcomptes;
     listcomptes = DataBase::I()->loadComptesAll();
-    QList<Compte*>::const_iterator itcomptes;
-    for( itcomptes = listcomptes.constBegin(); itcomptes != listcomptes.constEnd(); ++itcomptes )
-    {
-        Compte* cpt = const_cast<Compte*>(*itcomptes);
-        add(cpt);
-    }
+    addList(listcomptes);
 }
 

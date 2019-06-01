@@ -68,7 +68,7 @@ private:
 
 
 public:
-    Acte(QObject *parent = Q_NULLPTR);
+    Acte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
     bool courrierAFaire();

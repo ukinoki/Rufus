@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationpatient.h"
 
 dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QWidget *parent) :
-    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionIdentificationPatient", parent),
+    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionIdentificationPatient", parent),
     ui(new Ui::dlg_identificationpatient)
 {
     ui->setupUi(this);
@@ -276,7 +276,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         }
 
         // C - On vérifie ensuite si ce dossier existe déjà
-        QString requete = "select idPat from " NOM_TABLE_PATIENTS
+        QString requete = "select idPat from " TBL_PATIENTS
                 " where PatNom LIKE '" + PatNom + "%' and PatPrenom LIKE '" + PatPrenom + "%' and PatDDN = '" + PatDDN + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok,  tr("Impossible d'interroger la table des patients!"));
         if(!ok)
@@ -306,7 +306,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             reject();
 
         // Mise à jour de donneessocialespatients
-        requete = "UPDATE " NOM_TABLE_DONNEESSOCIALESPATIENTS
+        requete = "UPDATE " TBL_DONNEESSOCIALESPATIENTS
                          " SET PatAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text())) +
                          "', PatAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text())) +
                          "', PatAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text())) +
@@ -326,14 +326,14 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         // Mise à jour du medecin traitant
         Datas::I()->patients->updateCorrespondant(m_nouveaupatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
         // on met à jour les atcdts familiaux
-        QString req = "Update " NOM_TABLE_RENSEIGNEMENTSMEDICAUXPATIENTS " SET RMPAtcdtsFamiliaux = '" + m_currentpatient->atcdtsfamiliaux() + "' where idPat = " + QString::number(m_nouveaupatient->id());
+        QString req = "Update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " SET RMPAtcdtsFamiliaux = '" + m_currentpatient->atcdtsfamiliaux() + "' where idPat = " + QString::number(m_nouveaupatient->id());
         db->StandardSQL(req);
         accept();
     }
     else if (gMode == Modification)
     {
         // on vérifie si le dossier existe déjà avec les mêmes nom, prénom et DDN
-        QString requete = "select idPat from " NOM_TABLE_PATIENTS
+        QString requete = "select idPat from " TBL_PATIENTS
                           " where PatNom LIKE '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text())) + "%'"
                           " and PatPrenom LIKE '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text())) + "%'"
                           " and PatDDN = '" + ui->DDNdateEdit->date().toString("yyyy-MM-dd") + "'" +
@@ -350,7 +350,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             }
         }            // Mise à jour SQL patients
         //1 - Mise à jour patients
-        requete =    "UPDATE " NOM_TABLE_PATIENTS
+        requete =    "UPDATE " TBL_PATIENTS
                      " SET PatNom = '" + Utils::correctquoteSQL(ui->NomlineEdit->text()) +
                      "', PatPrenom = '" + Utils::correctquoteSQL(ui->PrenomlineEdit->text()) +
                      "', PatDDN = '" + ui->DDNdateEdit->date().toString("yyyy-MM-dd");
@@ -360,7 +360,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         db->StandardSQL(requete,tr("Impossible d'écrire dans la table PATIENTS"));
 
         // Mise à jour de donneessocialespatients
-        requete =   "UPDATE " NOM_TABLE_DONNEESSOCIALESPATIENTS
+        requete =   "UPDATE " TBL_DONNEESSOCIALESPATIENTS
                 " SET PatAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text())) +
                 "', PatAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text())) +
                 "', PatAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text())) +
@@ -386,11 +386,11 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         //1 - Mise à jour patients
         if (Sexe != "")
         {
-            QString requete =   "UPDATE " NOM_TABLE_PATIENTS " SET Sexe = '" + Sexe + "' WHERE idPat = " + QString::number(m_currentpatient->id());
+            QString requete =   "UPDATE " TBL_PATIENTS " SET Sexe = '" + Sexe + "' WHERE idPat = " + QString::number(m_currentpatient->id());
             db->StandardSQL(requete,"Impossible d'écrire dans la table patients");
         }
         //2 - Mise à jour de donneessocialespatients
-        QString requete =   "UPDATE " NOM_TABLE_DONNEESSOCIALESPATIENTS
+        QString requete =   "UPDATE " TBL_DONNEESSOCIALESPATIENTS
                 " SET PatAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text())) +
                 "', PatAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text())) +
                 "', PatAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text())) +

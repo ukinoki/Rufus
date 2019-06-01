@@ -89,6 +89,13 @@ bool Users::add(User *usr)
     return true;
 }
 
+void Users::addList(QList<User*> listusr)
+{
+    QList<User*>::const_iterator it;
+    for( it = listusr.constBegin(); it != listusr.constEnd(); ++it )
+        add( *it );
+}
+
 /*!
  * \brief Users::getById
  * \param id l'id de l'utilisateur recherché
@@ -147,11 +154,5 @@ QString Users::getLoginById(int id)
  */
 void Users::initListe()
 {
-    QList<User*> listUsers = DataBase::I()->loadUsers();
-    QList<User*>::const_iterator itUser;
-    for( itUser = listUsers.constBegin(); itUser != listUsers.constEnd(); ++itUser )
-    {
-        User *usr = const_cast<User*>(*itUser);
-        add( usr );
-    }
+    addList(DataBase::I()->loadUsers());
 }

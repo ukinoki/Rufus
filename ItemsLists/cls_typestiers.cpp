@@ -47,6 +47,7 @@ void TypesTiers::remove(TypeTiers* typetiers)
     m_typestiers->removeOne(typetiers);
     delete  typetiers;
 }
+
 void TypesTiers::clearAll()
 {
     while (m_typestiers->size() >0)
@@ -62,12 +63,6 @@ void TypesTiers::clearAll()
 void TypesTiers::initListe()
 {
     clearAll();
-    QList<TypeTiers*> listtypes = DataBase::I()->loadTypesTiers();
-    QList<TypeTiers*>::const_iterator ittyp;
-    for( ittyp = listtypes.constBegin(); ittyp != listtypes.constEnd(); ++ittyp )
-    {
-        TypeTiers *typ = const_cast<TypeTiers*>(*ittyp);
-        add( typ );
-    }
+    addList(DataBase::I()->loadTypesTiers());
 }
 

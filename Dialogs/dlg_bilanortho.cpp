@@ -243,7 +243,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     bool AvecPrevisu = true;
     bool AvecNumPage = false;
 
-    QString requete = " select Patnom, patprenom, actedate, creepar, idUser  from " NOM_TABLE_PATIENTS " pat," NOM_TABLE_ACTES " act"
+    QString requete = " select Patnom, patprenom, actedate, creepar, idUser  from " TBL_PATIENTS " pat," TBL_ACTES " act"
             " where act.idacte = " + QString::number(m_currentact->id()) + " and act.idpat = pat.idpat";
     //UpMessageBox::Watch(this,requete);
     bool ok;
@@ -312,7 +312,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds["EmisRecu"] =         "0";
         listbinds["FormatDoc"] =        BILANORTHOPTIQUE;
         listbinds["idlieu"] =           db->getUserConnected()->getSite()->id();
-        if(!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
+        if(!db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds))
             UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
     }
     delete textHtml;
@@ -666,7 +666,7 @@ void dlg_bilanortho::closeEvent(QCloseEvent *event)
 
 void dlg_bilanortho::AfficheBilan(Acte *acte)
 {
-    QString chborequete = "select idBilanOrtho from " NOM_TABLE_BILANORTHO " where idBilanOrtho = " + QString::number(acte->id());
+    QString chborequete = "select idBilanOrtho from " TBL_BILANORTHO " where idBilanOrtho = " + QString::number(acte->id());
     bool ok;
     QVariantList BOid = db->getFirstRecordFromStandardSelectSQL(chborequete, ok);
     if(!ok || BOid.size()==0)
@@ -689,7 +689,7 @@ void dlg_bilanortho::AfficheBilan(Acte *acte)
                 ", HEcranVLASC, HEcranVLASCD, HEcranfixresVLASC, HEcranVPASC, HEcranVPASCD"                 // 55,56,57,58,59
                 ", HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC, HMaddoxVPSCD"                 // 60,61,62,63,64
                 ", HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD, Motilite"                      // 65,66,67,68,69
-                " from " NOM_TABLE_BILANORTHO     // 65,66,67,68
+                " from " TBL_BILANORTHO     // 65,66,67,68
                 " where idBilanOrtho = " + QString::number(acte->id());
         //UpMessageBox::Watch(this,affichBOrequete);
         QVariantList BOdata = db->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);

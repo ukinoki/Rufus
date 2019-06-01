@@ -74,5 +74,5 @@ void PaiementsTiers::remove(PaiementTiers *PaiementTiers)
 void PaiementsTiers::initListe(User* usr)
 {
     clearAll();
-    m_paiementstiers = DataBase::I()->loadPaiementTiersByUser(usr);
+    addList(DataBase::I()->loadPaiementTiersByUser(usr));
 }

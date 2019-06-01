@@ -36,12 +36,7 @@ void Banques::initListe()
 {
     clearAll();
     QList<Banque*> listbanques = DataBase::I()->loadBanques();
-    QList<Banque*>::const_iterator itbq;
-    for( itbq = listbanques.constBegin(); itbq != listbanques.constEnd(); ++itbq )
-    {
-        Banque *bq = const_cast<Banque*>(*itbq);
-        add( bq );
-    }
+    addList(listbanques);
 }
 
 void Banques::add(Banque *banque)

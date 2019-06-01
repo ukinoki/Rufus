@@ -68,6 +68,13 @@ bool Sites::add(Site *sit)
     return true;
 }
 
+void Sites::addList(QList<Site*> listSites)
+{
+    QList<Site*>::const_iterator it;
+    for( it = listSites.constBegin(); it != listSites.constEnd(); ++it )
+        add( *it );
+}
+
 /*!
  * \brief Sites::getById
  * \param id l'id du site recherché
@@ -92,12 +99,5 @@ Site* Sites::getById(int id)
 void Sites::initListe()
 {
     clearAll();
-    QList<Site*> listSites;
-    listSites = DataBase::I()->loadSitesAll();
-    QList<Site*>::const_iterator itSites;
-    for( itSites = listSites.constBegin(); itSites != listSites.constEnd(); ++itSites )
-    {
-        Site *sit = const_cast<Site*>(*itSites);
-        add(sit);
-    }
+    addList(DataBase::I()->loadSitesAll());
 }

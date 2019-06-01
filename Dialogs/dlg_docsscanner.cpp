@@ -17,8 +17,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_docsscanner.h"
 
-dlg_docsscanner::dlg_docsscanner(Item *item, int mode, QString titre, QWidget *parent) :
-    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsScanner", parent)
+dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *parent) :
+    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
     proc            = Procedures::I();
     gMode           = mode;
@@ -332,11 +332,11 @@ void dlg_docsscanner::ValideFiche()
     QString user("");
     if (gMode != Document)
         user = Datas::I()->users->getLoginById(Datas::I()->depenses->getById(iditem)->iduser());
-    QString CheminBackup = NomDirStockageImagerie + NOMDIR_ORIGINAUX + (gMode==Document? NOMDIR_IMAGES : NOMDIR_FACTURES) + "/" + (gMode==Document? datetransfer : user);
+    QString CheminBackup = NomDirStockageImagerie + DIR_ORIGINAUX + (gMode==Document? DIR_IMAGES : DIR_FACTURES) + "/" + (gMode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
     qFileOrigin.copy(CheminBackup + "/" + fichierimageencours);
 
-    QString CheminOKTransfrDir  = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES "/" + datetransfer : NOMDIR_FACTURES "/" + user) ;
+    QString CheminOKTransfrDir  = NomDirStockageImagerie + (gMode == Document? DIR_IMAGES "/" + datetransfer : DIR_FACTURES "/" + user) ;
     if (!Utils::mkpath(CheminOKTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
@@ -368,7 +368,7 @@ void dlg_docsscanner::ValideFiche()
 
     if (gMode == Document)      // c'est un document scanné
     {
-        idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok) + 1;
+        idimpr =  db->selectMaxFromTable("idimpression", TBL_IMPRESSIONS, ok) + 1;
         QString NomFileDoc = QString::number(iditem) + "_"
                 + typeDocCombo->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
@@ -402,11 +402,11 @@ void dlg_docsscanner::ValideFiche()
             listbinds["FormatDoc"] =        DOCUMENTRECU;
             listbinds["idLieu"] =           db->getUserConnected()->getSite()->id();
         }
-        b = db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds);
+        b = db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds);
     }
     else                        // c'est une facture ou un échéancier
     {
-        idimpr =  db->selectMaxFromTable("idFacture", NOM_TABLE_FACTURES, ok) + 1;
+        idimpr =  db->selectMaxFromTable("idFacture", TBL_FACTURES, ok) + 1;
         QString NomFileDoc = QString::number(idimpr) + "_"
                 + typeDocCombo->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
@@ -432,7 +432,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds[suffixe] =            ba;
             datafacture["lien"] =           "";
         }
-        b = db->InsertSQLByBinds(NOM_TABLE_FACTURES, listbinds);
+        b = db->InsertSQLByBinds(TBL_FACTURES, listbinds);
         datafacture["idfacture"] = idimpr;
         datafacture["echeancier"] = (gMode == Echeancier);
         datafacture["objetecheancier"] = (gMode == Echeancier? sstypedoc : "");
@@ -446,7 +446,7 @@ void dlg_docsscanner::ValideFiche()
     }
     else if (!AccesDistant)
     {
-        QString CheminOKTransfrDoc = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES : NOMDIR_FACTURES) + lien;
+        QString CheminOKTransfrDoc = NomDirStockageImagerie + (gMode == Document? DIR_IMAGES : DIR_FACTURES) + lien;
         if (suffixe == JPG)
         {
             QFile CF(filename);

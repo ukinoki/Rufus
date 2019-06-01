@@ -26,11 +26,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Item : public QObject
 {
     Q_OBJECT
-public: //STATIC
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance);
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QDate datedujour);
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour = QDate::currentDate());
-
 
 public:
     enum LOADDETAILS {LoadDetails, NoLoadDetails};
@@ -51,11 +46,6 @@ protected:
     void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     void setDataVariant(QJsonObject data, QString key, QVariant &prop);
 
-private:
-
-signals:
-
-public slots:
 };
 
 #endif // CLS_ITEM_H

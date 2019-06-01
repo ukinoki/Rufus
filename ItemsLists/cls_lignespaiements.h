@@ -43,6 +43,9 @@ public:
     LignePaiement* getById(QString stringid);
     void clearAll();
     void initListeByPatient(Patient *pat);
+
+    //!> actions sur les enregistrements
+    void    SupprimeActeLignesPaiements(Acte *act);         //!> Supprime toutes les lignes de paiement correspondant à un acte
 };
 
 #endif // CLS_LIGNESPAIEMENTS_H

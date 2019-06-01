@@ -57,12 +57,7 @@ void Documents::initListe()
 {
     clearAll();
     QList<Document*> listdocs = DataBase::I()->loadDocuments();
-    QList<Document*>::const_iterator itdoc;
-    for( itdoc = listdocs.constBegin(); itdoc != listdocs.constEnd(); ++itdoc )
-    {
-        Document *doc = const_cast<Document*>(*itdoc);
-        add(doc);
-    }
+    addList(listdocs);
 }
 
 

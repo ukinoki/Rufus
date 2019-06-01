@@ -34,6 +34,7 @@ public:
     Sites(QObject *parent = Q_NULLPTR);
 
     bool add(Site *sit);
+    void addList(QList<Site*> listSites);
     Site* getById(int id);
     void remove(Site* sit);
     void clearAll();

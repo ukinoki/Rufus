@@ -47,9 +47,9 @@ public:
     Acte*   getById(int id, ADDTOLIST add = AddToList);                                     //!> crée un acte à partir de son id
     QMap<int, Acte*>::const_iterator   getLast();                                           //!> renvoie le dernier acte de la liste
     QMap<int, Acte*>::const_iterator   getAt(int idx);                                      //!> renvoie l'acte de la liste à l'index idx
-    void    initListeByPatient(Patient *pat);                                               //!> charge tous les actes d'un patient
+    void    initListeByPatient(Patient *pat, bool quelesid = false);                        //!> charge tous les actes d'un patient
 
-    void sortActesByDate();                                                                 /*! > trie la liste des actes par date, heure et met le résultat dans un QSortFilterProxyModel
+    void    sortActesByDate();                                                              /*! > trie la liste des actes par date, heure et met le résultat dans un QSortFilterProxyModel
                                                                                              * il arrive que la liste d'actes ne soit pas triée dans le bon ordre
                                                                                              * (acte créé a posteriori ou erreur sur la date) */
     Acte* getActeFromRow(int row);

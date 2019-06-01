@@ -38,9 +38,9 @@ int Acte::idlieu() const                { return m_idLieu; }
 QTime Acte::heure() const               { return m_heure; }
 bool Acte::effectueparremplacant() const{ return m_remplacant; }
 
-Acte::Acte(QObject *parent) : Item(parent)
+Acte::Acte(QJsonObject data, QObject *parent) : Item(parent)
 {
-
+    setData(data);
 }
 
 void Acte::setData(QJsonObject data)

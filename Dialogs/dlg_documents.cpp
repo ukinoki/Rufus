@@ -150,11 +150,11 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     gTimerEfface    = new QTimer(this);
 
     bool ok;
-    QString ALDrequete = "select idPat from " NOM_TABLE_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(m_currentpatient->id()) + " and PatALD = 1";
+    QString ALDrequete = "select idPat from " TBL_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(m_currentpatient->id()) + " and PatALD = 1";
     ui->ALDcheckBox->setChecked(db->StandardSelectSQL(ALDrequete,ok).size()>0);
 
     //nettoyage de la table metadocs
-    db->StandardSQL("delete from " NOM_TABLE_JOINTURESDOCS " where iddocument not in (select iddocument from " NOM_TABLE_COURRIERS ")");
+    db->StandardSQL("delete from " TBL_JOINTURESDOCS " where iddocument not in (select iddocument from " TBL_COURRIERS ")");
 
     Remplir_TableWidget();
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -443,8 +443,8 @@ void dlg_documents::DocCellEnter(UpLineEdit *line)
     else if (ui->DossiersupTableWidget->isAncestorOf(line))
     {
         bool ok;
-        QString req = "select resumedocument from " NOM_TABLE_COURRIERS
-                " where iddocument in (select iddocument from " NOM_TABLE_JOINTURESDOCS
+        QString req = "select resumedocument from " TBL_COURRIERS
+                " where iddocument in (select iddocument from " TBL_JOINTURESDOCS
                 " where idmetadocument = " + QString::number(getMetaDocumentFromRow(row)->id()) + ")";
         //UpMessageBox::Watch(this,req);
         QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
@@ -872,7 +872,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         ui->DocPubliccheckBox->toggle();
         if (gMode == Selection)
         {
-            db->StandardSQL("update " NOM_TABLE_COURRIERS " set DocPublic = " + b + " where idDocument = " +
+            db->StandardSQL("update " TBL_COURRIERS " set DocPublic = " + b + " where idDocument = " +
                             QString::number(getDocumentFromRow(line->getRowTable())->id()));
             getDocumentFromRow(line->getRowTable())->setpublic(lbl->pixmap() != Q_NULLPTR);
         }
@@ -898,7 +898,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         ui->DocEditcheckBox->toggle();
         if (gMode == Selection)
         {
-            db->StandardSQL("update " NOM_TABLE_COURRIERS " set Editable = " + b + " where idDocument = " +
+            db->StandardSQL("update " TBL_COURRIERS " set Editable = " + b + " where idDocument = " +
                             QString::number(getDocumentFromRow(line->getRowTable())->id()));
             getDocumentFromRow(line->getRowTable())->seteditable(lbl->pixmap() != Q_NULLPTR);
         }
@@ -924,7 +924,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         ui->DocAdministratifcheckBox->toggle();
         if (gMode == Selection)
         {
-            db->StandardSQL("update " NOM_TABLE_COURRIERS " set Medical = " + b + " where idDocument = " +
+            db->StandardSQL("update " TBL_COURRIERS " set Medical = " + b + " where idDocument = " +
                             QString::number(getDocumentFromRow(line->getRowTable())->id()));
             getDocumentFromRow(line->getRowTable())->setmedical(lbl->pixmap() == Q_NULLPTR);
         }
@@ -949,7 +949,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         else
             lbl->clear();
         if (gMode == Selection)
-            db->StandardSQL("update " NOM_TABLE_METADOCUMENTS " set Public = " + b + " where idMetaDocument = " +
+            db->StandardSQL("update " TBL_METADOCUMENTS " set Public = " + b + " where idMetaDocument = " +
                        QString::number(getMetaDocumentFromRow(line->getRowTable())->id()));
     }
     else if (choix  == "PrescripDoc")
@@ -967,7 +967,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
             b = "1";
         if (gMode == Selection)
         {
-            db->StandardSQL("update " NOM_TABLE_COURRIERS " set Prescription = " + b + " where idDocument = " +
+            db->StandardSQL("update " TBL_COURRIERS " set Prescription = " + b + " where idDocument = " +
                             QString::number(getDocumentFromRow(line->getRowTable())->id()));
             getDocumentFromRow(line->getRowTable())->setprescription(ui->PrescriptioncheckBox->isChecked());
         }
@@ -1878,19 +1878,19 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
     QString req, nom;
     switch (gMode) {
     case CreationDOC:
-        req = "select resumedocument, iduser from " NOM_TABLE_COURRIERS;
+        req = "select resumedocument, iduser from " TBL_COURRIERS;
         nom = tr("document");
         break;
     case ModificationDOC:
-        req = "select resumedocument, iduser from " NOM_TABLE_COURRIERS " where iddocument <> " + QString::number(getDocumentFromRow(row)->id());
+        req = "select resumedocument, iduser from " TBL_COURRIERS " where iddocument <> " + QString::number(getDocumentFromRow(row)->id());
         nom = tr("document");
         break;
     case CreationDOSS:
-        req = "select resumemetadocument, iduser from " NOM_TABLE_METADOCUMENTS;
+        req = "select resumemetadocument, iduser from " TBL_METADOCUMENTS;
         nom = tr("dossier");
         break;
     case ModificationDOSS:
-        req = "select resumemetadocument, iduser from " NOM_TABLE_METADOCUMENTS " where idmetadocument <> " + QString::number(getMetaDocumentFromRow(row)->id());
+        req = "select resumemetadocument, iduser from " TBL_METADOCUMENTS " where idmetadocument <> " + QString::number(getMetaDocumentFromRow(row)->id());
         nom = tr("dossier");
         break;
     default:
@@ -1924,7 +1924,7 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
 void dlg_documents::CocheLesDocs(int iddoss, bool A)
 {
     bool ok;
-    QString req = "select idDocument from " NOM_TABLE_JOINTURESDOCS " where idMetaDocument = " + QString::number(iddoss);
+    QString req = "select idDocument from " TBL_JOINTURESDOCS " where idMetaDocument = " + QString::number(iddoss);
     QList<QVariantList> listdocmts = db->StandardSelectSQL(req,ok);
     if (listdocmts.size() > 0)
     {
@@ -1954,7 +1954,7 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
                                 {
                                     if (DossCheck->isChecked())
                                     {
-                                        req = "select idDocument from " NOM_TABLE_JOINTURESDOCS
+                                        req = "select idDocument from " TBL_JOINTURESDOCS
                                                 " where idMetaDocument = " + QString::number(getMetaDocumentFromRow(j)->id());
                                         QList<QVariantList> listdocmts2 = db->StandardSelectSQL(req,ok);
                                         if (listdocmts2.size() > 0)
@@ -2516,7 +2516,7 @@ void dlg_documents::InsertDocument(int row)
         return;
     }
 
-    QString requete = "INSERT INTO " NOM_TABLE_COURRIERS
+    QString requete = "INSERT INTO " TBL_COURRIERS
             " (TextDocument, ResumeDocument, idUser, DocPublic, Prescription, Editable, Medical) "
             " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->document()->toHtml()) +
             "', '" + Utils::correctquoteSQL(line->text().left(100)) +
@@ -2530,7 +2530,7 @@ void dlg_documents::InsertDocument(int row)
     requete += ", " + Editable;
     requete += ", " + Admin;
     requete += ")";
-    db->StandardSQL(requete,tr("Erreur d'enregistrement du document dans ") + NOM_TABLE_COURRIERS);
+    db->StandardSQL(requete,tr("Erreur d'enregistrement du document dans ") + TBL_COURRIERS);
 
     Remplir_TableWidget();
 
@@ -2576,7 +2576,7 @@ void dlg_documents::InsertDossier(int row)
         return;
     }
 
-    QString requete = "INSERT INTO " NOM_TABLE_METADOCUMENTS
+    QString requete = "INSERT INTO " TBL_METADOCUMENTS
             " (ResumeMetaDocument, idUser, Public) "
             " VALUES ('" + Utils::correctquoteSQL(line->text().left(100)) +
             "'," + QString::number(gUserEnCours->id());
@@ -2585,11 +2585,11 @@ void dlg_documents::InsertDossier(int row)
     if (lbl->pixmap() != Q_NULLPTR)
         a = "1";
     requete += "," + a + ")";
-    if (db->StandardSQL(requete, tr("Erreur d'enregistrement du dossier dans ") +  NOM_TABLE_METADOCUMENTS))
+    if (db->StandardSQL(requete, tr("Erreur d'enregistrement du dossier dans ") +  TBL_METADOCUMENTS))
     {
         QStringList listdocs;
         QString idmetadoc;
-        requete = "select idmetadocument from " NOM_TABLE_METADOCUMENTS " where ResumeMetadocument = '" + Utils::correctquoteSQL(line->text().left(100)) + "'";
+        requete = "select idmetadocument from " TBL_METADOCUMENTS " where ResumeMetadocument = '" + Utils::correctquoteSQL(line->text().left(100)) + "'";
         bool ok;
         QList<QVariantList> listdocmts = db->StandardSelectSQL(requete,ok);
         if (listdocmts.size()>0)
@@ -2605,7 +2605,7 @@ void dlg_documents::InsertDossier(int row)
             }
             if (listdocs.size()>0)
             {
-                requete = "insert into " NOM_TABLE_JOINTURESDOCS " (idMetadocument, iddocument) VALUES ";
+                requete = "insert into " TBL_JOINTURESDOCS " (idMetadocument, iddocument) VALUES ";
                 for (int k=0; k<listdocs.size(); k++)
                 {
                     requete += "(" + idmetadoc + ", " + listdocs.at(k) + ")";
@@ -2701,7 +2701,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     if (userEntete == Q_NULLPTR)
         return;
 
-    QMap<QString,QVariant>  AgeTotal    = Item::CalculAge(m_currentpatient->datedenaissance(), m_currentpatient->sexe());
+    QMap<QString,QVariant>  AgeTotal    = Utils::CalculAge(m_currentpatient->datedenaissance(), m_currentpatient->sexe());
     QString age                         = AgeTotal["toString"].toString();
     QString formule                     = AgeTotal["formule"].toString();
  
@@ -2758,7 +2758,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
 
     if (texte.contains("{{" + KERATO + "}}"))
     {
-        QString req = "select K1OD, K2OD, AxeKOD, DioptrieK1OD, DioptrieK2OD, DioptrieKOD, K1OG, K2OG, AxeKOG, DioptrieK1OG, DioptrieK2OG, DioptrieKOG from " NOM_TABLE_DONNEES_OPHTA_PATIENTS
+        QString req = "select K1OD, K2OD, AxeKOD, DioptrieK1OD, DioptrieK2OD, DioptrieKOD, K1OG, K2OG, AxeKOG, DioptrieK1OG, DioptrieK2OG, DioptrieKOG from " TBL_DONNEES_OPHTA_PATIENTS
               " where idpat = " + QString::number(m_currentpatient->id()) + " and (K1OD <> 'null' or K1OG <> 'null')";
         QList<QVariantList> listker = db->StandardSelectSQL(req,ok);
         if (listker.size()>0)
@@ -2790,7 +2790,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     }
     if (texte.contains("{{" + REFRACT + "}}"))
     {
-        QString req = "select FormuleOD, FormuleOG from " NOM_TABLE_REFRACTION
+        QString req = "select FormuleOD, FormuleOG from " TBL_REFRACTION
               " where idpat = " + QString::number(m_currentpatient->id()) + " and (FormuleOD <> 'null' or FormuleOG <> 'null') and QuelleMesure = 'R'";
         QList<QVariantList> listref = db->StandardSelectSQL(req,ok);
         if (listref.size()>0)
@@ -3207,7 +3207,7 @@ void dlg_documents::SupprimmDocument(int row)
     {
         db->SupprRecordFromTable(getDocumentFromRow(row)->id(),
                                  "idDocument",
-                                 NOM_TABLE_COURRIERS,
+                                 TBL_COURRIERS,
                                  tr("Impossible de supprimer le document\n") + getDocumentFromRow(row)->resume() + tr("\n ... et je ne sais pas pourquoi..."));
         Remplir_TableWidget();
     }
@@ -3239,12 +3239,12 @@ void dlg_documents::SupprimmDossier(int row)
     if (msgbox.clickedButton()  != &NoBouton)
     {
         QStringList locklist;
-        locklist << NOM_TABLE_METADOCUMENTS << NOM_TABLE_JOINTURESDOCS ;
+        locklist << TBL_METADOCUMENTS << TBL_JOINTURESDOCS ;
         if (db->SupprRecordFromTable( getMetaDocumentFromRow(row)->id(),
                                       "idMetaDocument",
-                                      NOM_TABLE_METADOCUMENTS,
+                                      TBL_METADOCUMENTS,
                                       tr("Impossible de suppprimer le dossier") + "\n" + getMetaDocumentFromRow(row)->resume() + "!\n ... " + tr("et je ne sais pas pourquoi") + "...\nRufus"))
-            db->SupprRecordFromTable(getMetaDocumentFromRow(row)->id(), "idMetaDocument", NOM_TABLE_JOINTURESDOCS);
+            db->SupprRecordFromTable(getMetaDocumentFromRow(row)->id(), "idMetaDocument", TBL_JOINTURESDOCS);
         Remplir_TableWidget();
     }
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3312,7 +3312,7 @@ void dlg_documents::UpdateDocument(int row)
         return;
     }
 
-    QString req =   "UPDATE " NOM_TABLE_COURRIERS
+    QString req =   "UPDATE " TBL_COURRIERS
             " SET TextDocument = '" + Utils::correctquoteSQL(ui->upTextEdit->toHtml())     + "'"
             ", ResumeDocument = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'";
     if (ui->DocPubliccheckBox->isChecked())         req += " , DocPublic = 1";      else req += " , DocPublic = null";
@@ -3320,7 +3320,7 @@ void dlg_documents::UpdateDocument(int row)
     if (ui->DocEditcheckBox->isChecked())           req += " , Editable = 1";       else req += " , Editable = null";
     if (ui->DocAdministratifcheckBox->isChecked())  req += " , Medical = 1";        else req += " , Medical = null";
     req += " WHERE  idDocument = " + QString::number(getDocumentFromRow(line->getRowTable())->id());
-    db->StandardSQL(req, tr("Erreur de mise à jour du document dans ") + NOM_TABLE_COURRIERS);
+    db->StandardSQL(req, tr("Erreur de mise à jour du document dans ") + TBL_COURRIERS);
     Remplir_TableWidget();
 
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3382,9 +3382,9 @@ void dlg_documents::UpdateDossier(int row)
         return;
     }
 
-    db->SupprRecordFromTable(iddoss.toInt(), "idMetaDocument", NOM_TABLE_JOINTURESDOCS);
+    db->SupprRecordFromTable(iddoss.toInt(), "idMetaDocument", TBL_JOINTURESDOCS);
 
-    QString req     = "insert into " NOM_TABLE_JOINTURESDOCS " (idmetadocument,iddocument) Values ";
+    QString req     = "insert into " TBL_JOINTURESDOCS " (idmetadocument,iddocument) Values ";
     for (int i=0; i<listid.size(); i++)
     {
         req += "(" + iddoss + ", " + listid.at(i) + ")";
@@ -3393,10 +3393,10 @@ void dlg_documents::UpdateDossier(int row)
     }
     db->StandardSQL(req);
 
-    req =   "UPDATE " NOM_TABLE_METADOCUMENTS
+    req =   "UPDATE " TBL_METADOCUMENTS
             " SET ResumeMetaDocument = '"  + Utils::correctquoteSQL(line->text().left(100)) + "'"
             " WHERE idmetaDocument = " + iddoss;
-    db->StandardSQL(req, tr("Erreur de mise à jour du dossier dans ") + NOM_TABLE_METADOCUMENTS);
+    db->StandardSQL(req, tr("Erreur de mise à jour du dossier dans ") + TBL_METADOCUMENTS);
 
     Remplir_TableWidget();
     if (ui->DocupTableWidget->rowCount() == 0)
@@ -3428,8 +3428,8 @@ bool dlg_documents::VerifDocumentPublic(int row, bool msg)
 {
     bool ok;
     int iddoc = getDocumentFromRow(row)->id();
-    QString req = "select idmetadocument, resumemetadocument from " NOM_TABLE_METADOCUMENTS
-                  " where idmetadocument in (select idmetadocument from " NOM_TABLE_JOINTURESDOCS " where iddocument = " + QString::number(iddoc) +
+    QString req = "select idmetadocument, resumemetadocument from " TBL_METADOCUMENTS
+                  " where idmetadocument in (select idmetadocument from " TBL_JOINTURESDOCS " where iddocument = " + QString::number(iddoc) +
                   ") and public =1";
     QList<QVariantList> listdossiers = db->StandardSelectSQL(req,ok);
     if (listdossiers.size()>0)
@@ -3458,7 +3458,7 @@ void dlg_documents::VerifDossiers()
             UpCheckBox *DossCheck = Widg->findChildren<UpCheckBox*>().at(0);
             if (DossCheck->isChecked())
             {
-                QString req = "select idDocument from " NOM_TABLE_JOINTURESDOCS
+                QString req = "select idDocument from " TBL_JOINTURESDOCS
                               " where idMetaDocument = " + QString::number(getMetaDocumentFromRow(j)->id());
                 QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
                 if (listdocs.size() > 0)
@@ -3496,8 +3496,8 @@ bool dlg_documents::VerifDossierPublic(int row, bool msg)
 {
     bool ok;
     int iddossier = getMetaDocumentFromRow(row)->id();
-    QString req = "select iddocument, resumedocument from " NOM_TABLE_COURRIERS
-                  " where iddocument in (select iddocument from " NOM_TABLE_JOINTURESDOCS " where idmetadocument = " + QString::number(iddossier) +
+    QString req = "select iddocument, resumedocument from " TBL_COURRIERS
+                  " where iddocument in (select iddocument from " TBL_JOINTURESDOCS " where idmetadocument = " + QString::number(iddossier) +
                   ") and docpublic is null";
     QList<QVariantList> listdocs = db->StandardSelectSQL(req,ok);
     if (listdocs.size()>0)

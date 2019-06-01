@@ -243,12 +243,12 @@ public:
     QList<Tiers*>           loadTiersPayants();                         //! charge tous les organismes de tiers payants de la table tiers
     QList<TypeTiers*>       loadTypesTiers();                           //! charge tous les types de tiers payants (AME, CMU, AT...) à partir de la table rufus.listetiers
 
-    QMap<int, Recette*>*    loadRecettesByDate(QDate datedebut, QDate datefin);
+    QList<Recette*>         loadRecettesByDate(QDate datedebut, QDate datefin);
                                                                         //! charge toutes les recettes pour la période spécifiée
 
-    QMap<int, PaiementTiers*>*  loadPaiementTiersByUser(User *usr);    //! charge tous les paiements par tiers pour un utilisateur pour la période spécifiée
+    QList<PaiementTiers *>  loadPaiementTiersByUser(User *usr);    //! charge tous les paiements par tiers pour un utilisateur pour la période spécifiée
 
-    QMap<QString, LignePaiement*>* loadlignespaiementsByPatient(Patient *pat); //!> charge toutes les lignes de paiements des actes d'un patient
+    QList<LignePaiement*>   loadlignespaiementsByPatient(Patient *pat); //!> charge toutes les lignes de paiements des actes d'un patient
 
     /*
      * Cotations
@@ -282,7 +282,7 @@ public:
     PatientEnCours*             loadPatientEnCoursById(int idPat);                                          //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
     QJsonObject                 loadPatientEnCoursData(QVariantList patdata);                               //! crée le QJsonObject des data d'un patient à partir des résultats de la requête en BDD
     QJsonObject                 loadPatientEnCoursDataById(int idPat);                                   //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
-    QMap<int,PatientEnCours*>*  loadPatientsenCoursAll();                                                   /*! charge la liste de tous les patients à partir de la table salledattente*/
+    QList<PatientEnCours *>     loadPatientsenCoursAll();                                                   /*! charge la liste de tous les patients à partir de la table salledattente*/
 
     /*
      * Patients
@@ -296,12 +296,12 @@ public:
                                                                                                             * \param patnom filtrer sur le nom de patient
                                                                                                             * \param patprenom filtrer sur le prénom de patient */
 
-    QMap<int,Patient*>*     loadPatientsAll(QString nom = "", QString prenom = "", bool filtre = false);    /*! charge la liste de tous les patients à partir de la table patients
+    QList<Patient*>         loadPatientsAll(QString nom = "", QString prenom = "", bool filtre = false);    /*! charge la liste de tous les patients à partir de la table patients
                                                                                                             * \param patnom filtrer sur le nom de patient
                                                                                                             * \param patprenom filtrer sur le prénom de patient
                                                                                                             * \param le filtre se fait sur des valeurs aprrochantes */
 
-    QMap<int,Patient *>*    loadPatientsByDDN(QDate DDN);                                                   /*! charge la liste de tous les patients pour une date de naissance
+    QList<Patient *>        loadPatientsByDDN(QDate DDN);                                                   /*! charge la liste de tous les patients pour une date de naissance
                                                                                                              * \param DDN la date de naissance */
 
     /*
@@ -318,7 +318,8 @@ private:
 public:
     Acte*                   loadActeById(int idActe);                           //! charge un Acte à partir de son id
     QJsonObject             loadActeAllData(int idActe);                        //! charge toutes les données d'un acte défini par son id - utilisé pour renouveler les données en cas de modification
-    QMap<int, Acte*>        loadActesByPat(Patient *pat);                       //! chrage les actes d'un patient
+    QList<Acte*>            loadActesByPat(Patient *pat);                       //! chrage les actes d'un patient
+    QList<Acte*>            loadIdActesByPat(Patient *pat);                     //! chrage les actes d'un patient en ne retenant que les id
     double                  getActePaye(int idActe);                            //! retrouve le total des paiements pour un acte
 
 };

@@ -31,13 +31,13 @@ class dlg_docsscanner : public UpDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_docsscanner(Item *item, int mode = dlg_docsscanner::Document, QString titre = "", QWidget *parent = Q_NULLPTR);
+    enum Mode          {Document, Facture, Echeancier};
+    Mode                gMode;
+    explicit dlg_docsscanner(Item *item, Mode mode = Document, QString titre = "", QWidget *parent = Q_NULLPTR);
     ~dlg_docsscanner();
     bool                    getinitOK();
     void                    NavigueVers(QString);
     QMap<QString, QVariant> getdataFacture();
-    int                     gMode;
-        enum gMode          {Document, Facture, Echeancier};
 
 private:
     Procedures          *proc;
