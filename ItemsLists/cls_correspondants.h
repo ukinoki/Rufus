@@ -26,6 +26,7 @@ class Correspondants : public ItemsList
 {
 private:
     QMap<int, Correspondant*> *m_correspondants;    //!<Collection de tous les correspondants sans exception, généralistes ou pas
+    void addList(QList<Correspondant*> listcor);
 
 public:
     //GETTER
@@ -33,11 +34,7 @@ public:
 
     Correspondants(QObject *parent = Q_NULLPTR);
 
-    bool add(Correspondant *cor);
-    void addList(QList<Correspondant*> listcor);
-    Correspondant* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, bool addToList = true);
-    void remove(Correspondant* cor);
-    void clearAll();
+    Correspondant* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, ItemsList::ADDTOLIST addToList = ItemsList::AddToList);
     void initListe(bool all = false);
 };
 

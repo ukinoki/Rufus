@@ -33,7 +33,7 @@ QMap<int, DocExterne *> *DocsExternes::docsexternes()
  * \return Q_NULLPTR si aucun Document trouvée
  * \return DocExterne* le Document correspondant à l'id
  */
-DocExterne* DocsExternes::getById(int id, bool loadDetails, bool addToList)
+DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
 {
     QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->find(id);
     DocExterne *result;
@@ -42,12 +42,12 @@ DocExterne* DocsExternes::getById(int id, bool loadDetails, bool addToList)
     else
     {
         result = itdoc.value();
-        if (!loadDetails)
+        if (loadDetails == Item::NoLoadDetails)
             return result;
-        addToList = false;
+        addToList = ItemsList::NoAddToList;
     }
 
-    if( loadDetails && !result->isAllLoaded() )
+    if( loadDetails == Item::LoadDetails && !result->isAllLoaded() )
     {
         QJsonObject jsonDocExterne = DataBase::I()->loadDocExterneData(id);
         if( jsonDocExterne.isEmpty() )
@@ -58,8 +58,8 @@ DocExterne* DocsExternes::getById(int id, bool loadDetails, bool addToList)
         else
             result->setData(jsonDocExterne);
     }
-    if( addToList )
-        add( result );
+    if( addToList == ItemsList::AddToList)
+        add( m_docsexternes, result->id(), result );
     return result;
 }
 
@@ -83,31 +83,13 @@ void DocsExternes::setsoustype(DocExterne* docmt, QString soustype)
     DataBase::I()->StandardSQL("update " TBL_IMPRESSIONS " set soustypedoc = " + soustype + " where idimpression = " + QString::number(docmt->id()));
 }
 
-bool DocsExternes::add(DocExterne *doc)
-{
-    if( doc == Q_NULLPTR)
-        return false;
-    if( m_docsexternes->contains(doc->id()) )
-        return false;
-    m_docsexternes->insert(doc->id(), doc);
-    m_nouveaudocument = true;
-    return true;
-}
-
 void DocsExternes::addList(QList<DocExterne*> listdocs)
 {
     for(QList<DocExterne*>::const_iterator it = listdocs.constBegin(); it != listdocs.constEnd(); ++it )
     {
         DocExterne *doc = const_cast<DocExterne*>(*it);
-        add(doc);
+        add(m_docsexternes, doc->id(), doc);
     }
-}
-
-void DocsExternes::clearAll()
-{
-    for( QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->constBegin(); itdoc != m_docsexternes->constEnd(); ++itdoc)
-        delete itdoc.value();
-    m_docsexternes->clear();
 }
 
 void DocsExternes::remove(DocExterne *doc)
@@ -125,7 +107,7 @@ void DocsExternes::remove(DocExterne *doc)
  */
 void DocsExternes::initListeByPatient(Patient *pat)
 {
-    clearAll();
+    clearAll(m_docsexternes);
     addList(DataBase::I()->loadDoscExternesByPatient(pat));
 }
 

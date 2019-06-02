@@ -26,18 +26,20 @@ class Motifs : public ItemsList
 {
 private:
     QMap<int, Motif*> *m_motifs; //!< la liste des Motifs
+    void addList(QList<Motif*> listMotifs);
 
 public:
     explicit Motifs(QObject *parent = Q_NULLPTR);
 
     QMap<int, Motif *> *motifs() const;
 
-    void add(Motif *Motif);
-    void addList(QList<Motif*> listMotifs);
-    void remove(Motif* motif);
     Motif* getById(int id);
-    void clearAll();
     void initListe();
+
+    //!> actions sur les enregistrements
+    void        SupprimeMotif(Motif *motif);
+    Motif*      CreationMotif(QString Motif, QString Raccourci, QString Couleur, int Duree, bool ParDefaut, bool Utiliser, int NoOrdre);
+
 };
 
 #endif // CLS_MOTIFS_H

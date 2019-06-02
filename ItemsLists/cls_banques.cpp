@@ -28,44 +28,24 @@ QMap<int, Banque *> *Banques::banques() const
 }
 
 /*!
- * \brief Banques::initListeBanques
+ * \brief Banques::initListE_BANQUES
  * Charge l'ensemble des banques
  * et les ajoute à la classe Banques
  */
 void Banques::initListe()
 {
-    clearAll();
-    QList<Banque*> listbanques = DataBase::I()->loadBanques();
-    addList(listbanques);
-}
-
-void Banques::add(Banque *banque)
-{
-    if( m_banques->contains(banque->id()) )
-        return;
-    m_banques->insert(banque->id(), banque);
+    clearAll(m_banques);
+    addList(DataBase::I()->loadBanques());
 }
 
 void Banques::addList(QList<Banque*> listbanques)
 {
     QList<Banque*>::const_iterator it;
     for( it = listbanques.constBegin(); it != listbanques.constEnd(); ++it )
-        add( *it );
-}
-
-void Banques::clearAll()
-{
-    for( QMap<int, Banque*>::const_iterator itbq = m_banques->constBegin(); itbq != m_banques->constEnd(); ++itbq)
-        delete itbq.value();
-    m_banques->clear();
-}
-
-void Banques::remove(Banque *banq)
-{
-    if (banq == Q_NULLPTR)
-        return;
-    m_banques->remove(banq->id());
-    delete banq;
+    {
+        Banque* item = const_cast<Banque*>(*it);
+        add( m_banques, item->id(), item );
+    }
 }
 
 Banque* Banques::getById(int id)
@@ -74,4 +54,43 @@ Banque* Banques::getById(int id)
     if( itcpt == m_banques->constEnd() )
         return Q_NULLPTR;
     return itcpt.value();
+}
+
+void Banques::SupprimeBanque(Banque *bq)
+{
+    DataBase::I()->SupprRecordFromTable(bq->id(), CP_IDBANQUE_BANQUES, TBL_BANQUES);
+    remove(m_banques, bq);
+}
+
+ Banque*    Banques::CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque)
+{
+    Banque *bq = Q_NULLPTR;
+    bool ok;
+    QString idabrege        = (idBanqueAbrege == ""?    "null" : "'" + Utils::correctquoteSQL(idBanqueAbrege) + "'");
+    QString nombq           = (NomBanque == ""?         "null" : "'" + Utils::correctquoteSQL(NomBanque) + "'");
+    QString codebq          = (CodeBanque == 0?         "null" : QString::number(CodeBanque));
+    QString req =     "INSERT INTO " TBL_BANQUES
+                        " (Motif,Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre)"
+                        " VALUES (" +   idabrege + "," +
+                                        nombq + "," +
+                                        codebq +  ")";
+    QString MsgErreur  = tr("Impossible de créer cette banque");
+    DataBase::I()->locktables(QStringList() << TBL_BANQUES);
+    if (!DataBase::I()->StandardSQL(req, MsgErreur))
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
+    // Récupération de l'idMotif créé ------------------------------------
+    int idbq = DataBase::I()->selectMaxFromTable(CP_IDBANQUE_BANQUES, TBL_BANQUES, ok, tr("Impossible de sélectionner les enregistrements"));
+    DataBase::I()->unlocktables();
+    QJsonObject jData{};
+    jData["id"] = idbq;
+    jData["idbanqueabrege"] = idBanqueAbrege;
+    jData["nombanque"] = NomBanque;
+    jData["codebanque"] = CodeBanque;
+    bq = new Banque(jData);
+    if (bq != Q_NULLPTR)
+        add(m_banques, bq->id(), bq);
+    return bq;
 }

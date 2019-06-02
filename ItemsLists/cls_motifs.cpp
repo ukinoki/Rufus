@@ -27,18 +27,14 @@ QMap<int, Motif *> *Motifs::motifs() const
     return m_motifs;
 }
 
-void Motifs::add(Motif *Motif)
-{
-    if( m_motifs->contains(Motif->id()) )
-        return;
-    m_motifs->insert(Motif->id(), Motif);
-}
-
 void Motifs::addList(QList<Motif*> listMotifs)
 {
     QList<Motif*>::const_iterator it;
     for( it = listMotifs.constBegin(); it != listMotifs.constEnd(); ++it )
-        add( *it );
+    {
+        Motif* item = const_cast<Motif*>(*it);
+        add( m_motifs, item->id(), item );
+    }
 }
 
 Motif* Motifs::getById(int id)
@@ -49,21 +45,6 @@ Motif* Motifs::getById(int id)
     return itcpt.value();
 }
 
-void Motifs::clearAll()
-{
-    for( QMap<int, Motif*>::const_iterator itmtf = m_motifs->constBegin(); itmtf != m_motifs->constEnd(); ++itmtf)
-        delete itmtf.value();
-    m_motifs->clear();
-}
-
-void Motifs::remove(Motif *motif)
-{
-    if (motif == Q_NULLPTR)
-        return;
-    m_motifs->remove(motif->id());
-    delete motif;
-}
-
 /*!
  * \brief Motifs::initListe
  * Charge l'ensemble des motifs
@@ -71,7 +52,56 @@ void Motifs::remove(Motif *motif)
  */
 void Motifs::initListe()
 {
-    clearAll();
+    clearAll(m_motifs);
     addList(DataBase::I()->loadMotifs());
 }
 
+void Motifs::SupprimeMotif(Motif *mf)
+{
+    DataBase::I()->SupprRecordFromTable(mf->id(), "idMotifsRDV", TBL_MOTIFSRDV);
+    remove(m_motifs, mf);
+}
+
+Motif*  Motifs::CreationMotif(QString Motf, QString Raccourci, QString Couleur, int Duree, bool ParDefaut, bool Utiliser, int NoOrdre)
+{
+    Motif *motf = Q_NULLPTR;
+    bool ok;
+    QString motif           = (Motf == ""?              "null" : "'" + Utils::correctquoteSQL(Motf) + "'");
+    QString raccourci       = (Raccourci == ""?         "null" : "'" + Utils::correctquoteSQL(Raccourci) + "'");
+    QString couleur         = (Couleur == ""?           "null" : "'" + Utils::correctquoteSQL(Couleur) + "'");
+    QString duree           = (Duree == 0?              "null" : QString::number(Duree));
+    QString pardefaut       = (!ParDefaut?              "null" : "1");
+    QString utiliser        = (!Utiliser?               "null" : "1");
+    QString noordre         = (NoOrdre == 0?            "null" : QString::number(NoOrdre));
+    QString req =     "INSERT INTO " TBL_MOTIFSRDV
+                        " (Motif,Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre)"
+                        " VALUES (" +   motif + "," +
+                                        raccourci + "," +
+                                        couleur + "," +
+                                        duree   + "," +
+                                        pardefaut   + "," +
+                                        utiliser   + "," +
+                                        noordre + ")";
+    QString MsgErreur           = tr("Impossible de créer ce motif");
+    DataBase::I()->locktables(QStringList() << TBL_MOTIFSRDV);
+    if (!DataBase::I()->StandardSQL(req, MsgErreur))
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
+    // Récupération de l'idMotif créé ------------------------------------
+    int idmotif = DataBase::I()->selectMaxFromTable("idMotifsRDV", TBL_MOTIFSRDV, ok, tr("Impossible de sélectionner les enregistrements"));
+    DataBase::I()->unlocktables();
+    QJsonObject jmotif{};
+    jmotif["id"] = idmotif;
+    jmotif["motif"] = Motf;
+    jmotif["raccourci"] = Raccourci;
+    jmotif["couleur"] = Couleur;
+    jmotif["duree"] = Duree;
+    jmotif["pardefaut"] = ParDefaut;
+    jmotif["utiliser"] = Utiliser;
+    jmotif["noordre"] = NoOrdre;
+    motf = new Motif(jmotif);
+    add(m_motifs, motf->id(), motf);
+    return motf;
+}

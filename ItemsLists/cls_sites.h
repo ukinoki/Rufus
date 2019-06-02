@@ -26,6 +26,7 @@ class Sites : public ItemsList
 {
 private:
     QMap<int, Site*> *m_sites;    //!<Collection de tous les sites sans exception, généralistes ou pas
+    void addList(QList<Site*> listSites);
 
 public:
     //GETTER
@@ -33,11 +34,7 @@ public:
 
     Sites(QObject *parent = Q_NULLPTR);
 
-    bool add(Site *sit);
-    void addList(QList<Site*> listSites);
     Site* getById(int id);
-    void remove(Site* sit);
-    void clearAll();
     void initListe();
 };
 

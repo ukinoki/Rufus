@@ -1065,7 +1065,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
     if (EnTete == "") return false;
 
-    EnTete.replace("{{TITRE1}}"            , cpt->nombanque().toUpper());
+    EnTete.replace("{{TITRE1}}"            , Datas::I()->banques->getById(cpt->idBanque())->NomBanqueAbrege().toUpper());
     EnTete.replace("{{PRENOM PATIENT}}"    , "");
     EnTete.replace("{{NOM PATIENT}}"       , cpt->intitulecompte());
     EnTete.replace("{{TITRE}}"             , "Compte " + cpt->iban());

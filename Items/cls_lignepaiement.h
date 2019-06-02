@@ -31,7 +31,6 @@ class LignePaiement : public Item
 
 private:
     double m_paye;
-    QString m_stringid;
     QString m_monnaie;
 
 public:
@@ -41,7 +40,6 @@ public:
     int idacte() const;
     int idrecette() const;
     double paye() const;
-    QString stringid() const;
     QString monnaie() const;
 };
 

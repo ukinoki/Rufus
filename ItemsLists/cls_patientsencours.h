@@ -37,15 +37,11 @@ public:
                                                                                              * \return PatientEnCours* le patient correspondant à l'id
                                                                                              */
 
-    bool add(PatientEnCours *patient);
-    void addList(QList<PatientEnCours*> listpatientss);
-    void remove(PatientEnCours* patient);
-    void clearAll();
     void initListeAll();          /*! crée une liste de patients */
 
 private:
     QMap<int, PatientEnCours*> *m_patientsencours;                                                        //!< une liste de patients
-
+    void addList(QList<PatientEnCours*> listpatientss);
 
 public:
 
@@ -56,7 +52,9 @@ public:
 
     //!> actions sur les enregistrements
     void                SupprimePatientEnCours(PatientEnCours *pat);
-    PatientEnCours*     CreationPatient(int idPat, int idUser , QString Statut, QString Motif, int idActeAPayer = 0, int idUserEnCours = 0, QString PosteExamen = "", QString Message = "", QTime heureRDV = QTime());
+    PatientEnCours*     CreationPatient(int idPat, int idUser , QString Statut, QTime heureStatut, QTime heureRDV = QTime(),
+                                        QTime heureArrivee = QTime(), QString Motif = "", QString Message = "", int idActeAPayer = 0, QString PosteExamen = "",
+                                        int idUserEnCours = 0, int idSalDat = 0);
 
     //!< action sur toutes les données
     void    updatePatientEnCours(PatientEnCours* pat);                                                    //!> met à jour les datas d'un patient à partir des données enregistrées dans la base

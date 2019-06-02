@@ -25,7 +25,6 @@ class Site : public Item
     Q_OBJECT
 private:
     //Adresse de travail
-    int m_id;
     QString m_nom;
     QString m_adresse1;
     QString m_adresse2;
@@ -40,7 +39,6 @@ public:
 
     void setData(QJsonObject data);
 
-    int id() const;
     QString nom() const;
     QString adresse1() const;
     QString adresse2() const;

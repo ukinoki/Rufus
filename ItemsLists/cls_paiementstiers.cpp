@@ -29,18 +29,14 @@ QMap<int, PaiementTiers *> *PaiementsTiers::paiementstiers() const
     return m_paiementstiers;
 }
 
-void PaiementsTiers::add(PaiementTiers *PaiementTiers)
-{
-    if( m_paiementstiers->contains(PaiementTiers->id()) )
-        return;
-    m_paiementstiers->insert(PaiementTiers->id(), PaiementTiers);
-}
-
 void PaiementsTiers::addList(QList<PaiementTiers*> listpaiementtiers)
 {
     QList<PaiementTiers*>::const_iterator it;
     for( it = listpaiementtiers.constBegin(); it != listpaiementtiers.constEnd(); ++it )
-        add( *it );
+    {
+        PaiementTiers* item = const_cast<PaiementTiers*>(*it);
+        add( m_paiementstiers, item->id(), item );
+    }
 }
 
 PaiementTiers* PaiementsTiers::getById(int id)
@@ -51,21 +47,6 @@ PaiementTiers* PaiementsTiers::getById(int id)
     return itcpt.value();
 }
 
-void PaiementsTiers::clearAll()
-{
-    for( QMap<int, PaiementTiers*>::const_iterator itmtf = m_paiementstiers->constBegin(); itmtf != m_paiementstiers->constEnd(); ++itmtf)
-        delete itmtf.value();
-    m_paiementstiers->clear();
-}
-
-void PaiementsTiers::remove(PaiementTiers *PaiementTiers)
-{
-    if (PaiementTiers == Q_NULLPTR)
-        return;
-    m_paiementstiers->remove(PaiementTiers->id());
-    delete PaiementTiers;
-}
-
 /*!
  * \brief PaiementsTiers::initListe
  * Charge l'ensemble des paiements par tiers
@@ -73,6 +54,6 @@ void PaiementsTiers::remove(PaiementTiers *PaiementTiers)
  */
 void PaiementsTiers::initListe(User* usr)
 {
-    clearAll();
+    clearAll(m_paiementstiers);
     addList(DataBase::I()->loadPaiementTiersByUser(usr));
 }

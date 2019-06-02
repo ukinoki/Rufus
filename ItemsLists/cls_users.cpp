@@ -70,7 +70,10 @@ bool Users::add(User *usr)
         return false;
 
     if( m_users->contains(usr->id()) )
+    {
+        delete usr;
         return false;
+    }
 
     m_users->insert(usr->id(), usr);
 

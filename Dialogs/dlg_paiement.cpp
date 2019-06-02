@@ -2281,10 +2281,17 @@ int dlg_paiement::EnregistreRecette()
             else for (QMap<int, PatientEnCours*>::const_iterator itpat = Datas::I()->patientsencours->patientsencours()->constBegin();
                     itpat != Datas::I()->patientsencours->patientsencours()->constEnd(); ++itpat)
             {
-                PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.value());
-                if (pat != Q_NULLPTR)
-                    if (pat->idacteapayer() == ActeAInserer.toInt())
-                        Datas::I()->patientsencours->remove(pat);
+                QList<PatientEnCours*> listpatients;
+                for (QMap<int, PatientEnCours*>::const_iterator itpat = Datas::I()->patientsencours->patientsencours()->constBegin();
+                     itpat != Datas::I()->patientsencours->patientsencours()->constEnd(); ++itpat)
+                {
+                    PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.value());
+                    if (pat != Q_NULLPTR)
+                        if (pat->idacteapayer() == ActeAInserer.toInt())
+                            listpatients << pat;
+                }
+                for (int i=0; i<listpatients.size();++i)
+                    Datas::I()->patientsencours->SupprimePatientEnCours(listpatients.at(i));
             }
         }
     db->commit();

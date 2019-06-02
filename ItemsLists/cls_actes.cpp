@@ -32,29 +32,43 @@ QMap<int, Acte *> *Actes::actes() const
  * Charge l'ensemble des actes
  * et les ajoute à la classe Actes
  */
-void Actes::initListeByPatient(Patient *pat, bool quelesid)
+void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
 {
-    clearAll();
+    if (upd == Item::NoUpdate)
+        clearAll();
     QList<Acte*> listActes;
     if (quelesid)
         listActes = DataBase::I()->loadIdActesByPat(pat);
     else
         listActes = DataBase::I()->loadActesByPat(pat);
-    addList(listActes);
+    addList(listActes, upd);
 }
 
-void Actes::add(Acte *acte)
+bool Actes::add(Acte *acte, Item::UPDATE upd)
 {
+    if (acte == Q_NULLPTR)
+        return false;
     if( m_actes->contains(acte->id()) )
-        return;
-    m_actes->insert(acte->id(), acte);
+    {
+        if (upd == Item::ForceUpdate)
+        {
+            QMap<int, Acte*>::const_iterator itact = m_actes->find(acte->id());
+            if (itact != m_actes->constEnd())
+                itact.value()->setData(acte->datas());
+        }
+        delete acte;
+        return false;
+    }
+    else
+        m_actes->insert(acte->id(), acte);
+    return true;
 }
 
-void Actes::addList(QList<Acte*> listActes)
+void Actes::addList(QList<Acte*> listActes, Item::UPDATE upd)
 {
     QList<Acte*>::const_iterator it;
     for( it = listActes.constBegin(); it != listActes.constEnd(); ++it )
-        add( *it );
+        add( *it, upd );
 }
 
 void Actes::clearAll()
@@ -62,14 +76,6 @@ void Actes::clearAll()
     for( QMap<int, Acte*>::const_iterator itact = m_actes->constBegin(); itact != m_actes->constEnd(); ++itact)
         delete itact.value();
     m_actes->clear();
-}
-
-void Actes::remove(Acte *acte)
-{
-    if (acte == Q_NULLPTR)
-        return;
-    m_actes->remove(acte->id());
-    delete acte;
 }
 
 void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont pour l'instant pas utilisées.
@@ -178,44 +184,44 @@ void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
 void Actes::updateActeData(Acte *act, QString nomchamp, QVariant value)
 {
     QString newvalue;
-    if (nomchamp == CP_MOTIFACTES)
+    if (nomchamp == CP_MOTIF_ACTES)
     {
         act->setmotif(value.toString());
         newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
-    else if (nomchamp == CP_TEXTEACTES)
+    else if (nomchamp == CP_TEXTE_ACTES)
     {
         act->settexte(value.toString());
         newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
-    else if (nomchamp == CP_CONCLUSIONACTES)
+    else if (nomchamp == CP_CONCLUSION_ACTES)
     {
         act->setconclusion(value.toString());
         newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
     }
-    else if (nomchamp == CP_ACTEDATEACTES)
+    else if (nomchamp == CP_ACTEDATE_ACTES)
     {
         act->setdate(value.toDate());
         newvalue = (value.toDate().isValid()? "'" + value.toDate().toString("yyyy-MM-dd") + "'" : "null");
     }
-    else if (nomchamp == CP_COURRIERAFAIREACTES)
+    else if (nomchamp == CP_COURRIERAFAIRE_ACTES)
     {
         act->setcourrierafaire(value.toString()== "T" || value.toString()== "1");
         newvalue = ((value.toString() == "T" || value.toString()== "1")? "'T'" : "null");
     }
-    else if (nomchamp == CP_IDUSERACTES)
+    else if (nomchamp == CP_IDUSER_ACTES)
     {
         act->setiduser(value.toInt());
         newvalue = (value.toInt() != 0? value.toString() : "null");
 
     }
-    else if (nomchamp == CP_IDUSERPARENTACTES)
+    else if (nomchamp == CP_IDUSERPARENT_ACTES)
     {
         act->setiduserparent(value.toInt());
         newvalue = (value.toInt() != 0? value.toString() : "null");
 
     }
-    else if (nomchamp == CP_IDUSERCOMPTABLEACTES)
+    else if (nomchamp == CP_IDUSERCOMPTABLE_ACTES)
     {
         act->setidusercomptable(value.toInt());
         newvalue = (value.toInt() != 0? value.toString() : "null");
@@ -230,13 +236,14 @@ void Actes::updateActeData(Acte *act, QString nomchamp, QVariant value)
 void Actes::SupprimeActe(Acte* act)
 {
     DataBase::I()->StandardSQL("DELETE FROM " TBL_ACTES " WHERE idActe = " + QString::number(act->id()));
-    remove(act);
+    remove(m_actes, act);
 }
 
 Acte* Actes::CreationActe(Patient *pat, int idcentre)
 {
     if (pat == Q_NULLPTR)
         return Q_NULLPTR;
+    Acte *act = Q_NULLPTR;
     bool ok;
     User* usr = DataBase::I()->getUserConnected();
     QString rempla = (usr->getEnregHonoraires()==3? "1" : "null");
@@ -280,8 +287,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     data["remplacant"] = (rempla == "1");
     data["NumCentre"] = idcentre;
     data["idLieu"] = usr->getSite()->id();
-    Acte *act = new Acte();
-    act->setData(data);
+    act = new Acte(data);
 
     return act;
 }

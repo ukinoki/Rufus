@@ -25,7 +25,6 @@ LignePaiement::LignePaiement(QJsonObject data, QObject *parent) : Item(parent)
 int LignePaiement::idrecette() const            { return m_stringid.split(TCPMSG_Separator).at(1).toInt(); }
 int LignePaiement::idacte() const               { return m_stringid.split(TCPMSG_Separator).at(0).toInt(); }
 double LignePaiement::paye() const              { return m_paye; }
-QString LignePaiement::stringid() const         { return m_stringid; }
 QString LignePaiement::monnaie() const          { return m_monnaie; }
 
 void LignePaiement::setData(QJsonObject data)

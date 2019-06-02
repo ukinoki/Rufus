@@ -30,7 +30,6 @@ class PatientEnCours : public Item
 {
 
 private:
-    int m_id;
     int m_iduser;
     QString m_statut;
     QTime m_heurestatut;
@@ -47,7 +46,6 @@ public:
     explicit PatientEnCours(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int id() const                      { return m_id; }
     int iduser() const                  { return m_iduser; }
     QString statut() const              { return m_statut; }
     QTime heurestatut() const           { return m_heurestatut; }

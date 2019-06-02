@@ -973,8 +973,8 @@ QList<Compte*> DataBase::loadComptesAll()
 {
     QList<Compte*> listcomptes = QList<Compte*>();
     bool ok;
-    QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
-          " FROM " TBL_COMPTES " cmpt left join " TBL_BANQUES " bnq on cmpt.idBanque = bnq.idBanque";
+    QString req = "SELECT idCompte, idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive "
+          " FROM " TBL_COMPTES;
     QList<QVariantList> cptlist = DataBase::I()->StandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
         return listcomptes;
@@ -990,7 +990,6 @@ QList<Compte*> DataBase::loadComptesAll()
         jData["solde"]          = cptlist.at(i).at(6).toDouble();
         jData["partage"]        = (cptlist.at(i).at(7).toInt() == 1);
         jData["desactive"]      = (cptlist.at(i).at(8).toInt() == 1);
-        jData["NomBanque"]      = cptlist.at(i).at(9).toString();
         Compte *cpt = new Compte(jData);
         if (cpt != Q_NULLPTR)
             listcomptes << cpt;
@@ -1002,8 +1001,8 @@ QJsonObject DataBase::loadCompteById(int id)
 {
     QJsonObject jData{};
     bool ok;
-    QString req = "SELECT idCompte, cmpt.idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive, NomBanque "
-          " FROM " TBL_COMPTES " cmpt left join " TBL_BANQUES " bnq on cmpt.idBanque = bnq.idBanque"
+    QString req = "SELECT idCompte, idBanque, idUser, IBAN, intitulecompte, NomCompteAbrege, SoldeSurDernierReleve, partage, desactive "
+          " FROM " TBL_COMPTES
           " where idCompte = " + QString::number(id);
     QList<QVariantList> cptlist = DataBase::I()->StandardSelectSQL(req,ok);
     if(!ok || cptlist.size()==0)
@@ -1019,7 +1018,6 @@ QJsonObject DataBase::loadCompteById(int id)
         jData["solde"]          = cptlist.at(i).at(6).toDouble();
         jData["partage"]        = (cptlist.at(i).at(7).toInt() == 1);
         jData["desactive"]      = (cptlist.at(i).at(8).toInt() == 1);
-        jData["NomBanque"]      = cptlist.at(i).at(9).toString();
     }
     return jData;
 }
@@ -1068,7 +1066,6 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
         jData["idfacture"]      = deplist.at(i).at(11).toInt();
         jData["lienfacture"]    = deplist.at(i).at(12).toString();
         jData["echeancier"]     = (deplist.at(i).at(13).toInt()==1);
-        jData["objetecheancier"]= deplist.at(i).at(14).toString();
         jData["objetecheancier"]= deplist.at(i).at(14).toString();
         jData["idrubrique"]     = deplist.at(i).at(15).toInt();
         Depense *dep = new Depense(jData);

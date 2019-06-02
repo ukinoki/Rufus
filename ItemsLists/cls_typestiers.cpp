@@ -28,18 +28,27 @@ QList<TypeTiers *> *TypesTiers::typestiers() const
     return m_typestiers;
 }
 
-void TypesTiers::add(TypeTiers *typetiers)
+bool TypesTiers::add(TypeTiers *typetiers)
 {
+    if (typetiers == Q_NULLPTR)
+        return false;
     if( m_typestiers->contains(typetiers) )
-        return;
+    {
+        delete typetiers;
+        return false;
+    }
     *m_typestiers << typetiers;
+    return true;
 }
 
 void TypesTiers::addList(QList<TypeTiers*> listTypesTiers)
 {
     QList<TypeTiers*>::const_iterator it;
     for( it = listTypesTiers.constBegin(); it != listTypesTiers.constEnd(); ++it )
-        add( *it );
+    {
+        TypeTiers* trs = const_cast<TypeTiers*>(*it);
+        add( trs );
+    }
 }
 
 void TypesTiers::remove(TypeTiers* typetiers)

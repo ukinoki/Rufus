@@ -24,7 +24,7 @@ class DocExterne : public Item
 {
 
 private:
-    int m_idimpression, m_iduser, m_importance, m_idpatient, m_compression, m_useremetteur;
+    int m_iduser, m_importance, m_idpatient, m_compression, m_useremetteur;
     QString m_typedoc, m_titre, m_soustypedoc, m_textentete, m_textcorps, m_textorigine, m_textpied, m_formatdoc, m_lienversfichier;
     QDateTime m_dateimpression;
     bool m_ald;
@@ -34,7 +34,6 @@ public:
     explicit DocExterne(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int id() const;
     int idpatient() const;
     int iduser() const;
     QString typedoc() const;

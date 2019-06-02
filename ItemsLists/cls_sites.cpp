@@ -34,45 +34,14 @@ Sites::Sites(QObject *parent) : ItemsList(parent)
     m_sites = new QMap<int, Site*>();
 }
 
-void Sites::clearAll()
-{
-    for( QMap<int, Site*>::const_iterator itsit = m_sites->constBegin(); itsit != m_sites->constEnd(); ++itsit)
-        delete itsit.value();
-    m_sites->clear();
-}
-
-void Sites::remove(Site *sit)
-{
-    if (sit == Q_NULLPTR)
-        return;
-    m_sites->remove(sit->id());
-    delete sit;
-}
-
-/*!
- * \brief Sites::add
- * ajoute le site passé en paramètre
- * à la liste des sites
- * \param sit le site que l'on veut ajouter
- * \return true si le site est ajouté
- * \return false si le paramètre site est un Q_NULLPTR
- * \return false si le site est déjà présent
- */
-bool Sites::add(Site *sit)
-{
-    if( sit == Q_NULLPTR)
-        return false;
-    if( m_sites->contains(sit->id()) )
-        return false;
-    m_sites->insert(sit->id(), sit);
-    return true;
-}
-
 void Sites::addList(QList<Site*> listSites)
 {
     QList<Site*>::const_iterator it;
     for( it = listSites.constBegin(); it != listSites.constEnd(); ++it )
-        add( *it );
+    {
+        Site* sit = const_cast<Site*>(*it);
+        add( m_sites, sit->id(), sit );
+    }
 }
 
 /*!
@@ -98,6 +67,6 @@ Site* Sites::getById(int id)
  */
 void Sites::initListe()
 {
-    clearAll();
+    clearAll(m_sites);
     addList(DataBase::I()->loadSitesAll());
 }

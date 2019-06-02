@@ -38,7 +38,6 @@ private:
      *  Ces paiements son enregistrés par un 'O' dans le champ TiersPayant de la table comptamedicale.lignesrecettes
      */
 
-    int m_idpaiement;               //!> l'idrecette du paiement en attente
     QDate m_date;                   //!> la date du paiement
     QDate m_dateenregistrement;     //!> la date à laquelle le paiement est enregistré
     double m_montant;               //!> le montant du paiement
@@ -56,7 +55,6 @@ private:
     double m_encaissement;          //!> ???
 
 public:
-    int id() const;                       //!> l'idrecette du paiement en attente
     QDate date() const;                   //!> la date du paiement
     QDate dateenregistrement() const;     //!> la date à laquelle le paiement est enregistré
     double montant() const;               //!> le montant du paiement

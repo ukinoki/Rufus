@@ -26,6 +26,7 @@ class Depenses : public ItemsList
 {
 private:
     QMap<int, Depense*> *m_Depenses = Q_NULLPTR;    //!< Collection de toutes les depenses pour un user et une année donnée
+    void        addList(QList<Depense*> listdep);
 
 public:
     //GETTER
@@ -33,12 +34,12 @@ public:
 
     Depenses(QObject *parent = Q_NULLPTR);
 
-    bool        add(Depense *Depense);
-    void        addList(QList<Depense*> listdep);
     Depense*    getById(int id);
-    void        clearAll();
-    void        remove(Depense *dep);
     void        initListeByUser(int iduser);
+
+    //!> actions sur les enregistrements
+    void        SupprimeDepense(Depense *dep);
+    Depense*    CreationDepense(int idUser, QDate DateDep, QString RefFiscale, QString Objet, double Montant, QString FamFiscale, QString Monnaie, int idRec, QString ModePaiement, int Compte, int Nocheque, int  idFacture);
 };
 
 #endif // CLS_DEPENSES_H

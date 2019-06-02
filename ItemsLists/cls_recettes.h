@@ -26,16 +26,13 @@ class Recettes : public ItemsList
 {
 private:
     QMap<int, Recette*> *m_recettes = Q_NULLPTR; //!< la liste des recettes
+    void    addList(QList<Recette*> listRecettes);
 
 public:
     explicit Recettes(QObject *parent = Q_NULLPTR);
 
     QMap<int, Recette *> *recettes() const;
 
-    void    add(Recette *Recette);
-    void    addList(QList<Recette*> listRecettes);
-    void    remove(Recette* Recette);
-    void    clearAll();
     Recette* getById(int id);
     void    initListe(QMap<QString, QDate> DateMap);
 };

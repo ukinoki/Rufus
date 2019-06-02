@@ -130,7 +130,7 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
 {
     int idCompte = ui->ComptesuptableWidget->item(pitem->row(),0)->text().toInt();
     m_comptencours = Datas::I()->comptes->getById(idCompte);
-    ui->BanqueupcomboBox            ->setCurrentText(m_comptencours->nombanque());
+    ui->BanqueupcomboBox            ->setCurrentText(Datas::I()->banques->getById(m_comptencours->idBanque())->NomBanqueAbrege());
     ui->IBANuplineEdit              ->setText(m_comptencours->iban());
     ui->IntituleCompteuplineEdit    ->setText(m_comptencours->intitulecompte());
     ui->NomCompteAbregeuplineEdit   ->setText(m_comptencours->nom());
@@ -377,8 +377,8 @@ void dlg_gestioncomptes::SupprCompte()
     msgbox.exec();
     if (msgbox.clickedButton() != &OKBouton)
         return;
-    db->StandardSQL("delete from " TBL_COMPTES " where idCompte = " + ui->idCompteupLineEdit->text());
-    Datas::I()->comptes->removeCompte(Datas::I()->comptes->getById(ui->idCompteupLineEdit->text().toInt()));
+
+    Datas::I()->comptes->SupprimeCompte(Datas::I()->comptes->getById(ui->idCompteupLineEdit->text().toInt()));
     ReconstruitListeComptes(m_userencours);
     RemplirTableView();
 }
@@ -428,24 +428,14 @@ void dlg_gestioncomptes::ValidCompte()
         Datas::I()->comptes->reloadCompte(Datas::I()->comptes->getById(ui->idCompteupLineEdit->text().toInt()));
     }
     else if (gMode == Nouv)
-    {
-        QHash<QString, QString> listsets;
-        listsets.insert("iduser"                 , QString::number(gidUser));
-        listsets.insert("idbanque"               , QString::number(idbanque));
-        listsets.insert("IBAN"                   , ui->IBANuplineEdit->text());
-        listsets.insert("IntituleCompte"         , ui->IntituleCompteuplineEdit->text());
-        listsets.insert("NomCompteABrege"        , ui->NomCompteAbregeuplineEdit->text());
-        listsets.insert("SoldeSurDernierReleve"  , QString::number(QLocale().toDouble(ui->SoldeuplineEdit->text())));
-        listsets.insert("partage"                , (gSociete? "1" : "null"));
-        listsets.insert("desactive"              , (ui->DesactiveComptecheckBox->isChecked()? "1" : "null"));
-        db->InsertIntoTable(TBL_COMPTES, listsets);
-        idcompte = db->selectMaxFromTable("idcompte",TBL_COMPTES, ok);
-        if (!gAfficheLeSolde)
-            UpMessageBox::Watch(this, tr("Le compte ") + ui->IntituleCompteuplineEdit->text() + tr(" a été enregistré."),
-                                      tr("le solde a été fixé à 0,00 euros et devra être corrigé par le propriétaire du compte"));
-        Compte *cpt = new Compte(db->loadCompteById(idcompte));
-        Datas::I()->comptes->add(cpt);
-    }
+        Datas::I()->comptes->CreationCompte(idbanque,                                          //! idBanque
+                                            gidUser,                                           //! idUser
+                                            ui->IBANuplineEdit->text(),                        //! IBAN
+                                            ui->IntituleCompteuplineEdit->text(),              //! IntituleCompte
+                                            ui->NomCompteAbregeuplineEdit->text(),             //! NomCompteAbrege
+                                            QLocale().toDouble(ui->SoldeuplineEdit->text()),   //! SoldeSurDernierReleve
+                                            gSociete,                                          //! Partage
+                                            ui->DesactiveComptecheckBox->isChecked());         //! Desactive
     ReconstruitListeComptes(m_userencours);
     m_comptencours = Datas::I()->comptes->getById(idcompte);
 

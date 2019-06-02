@@ -40,15 +40,11 @@ public:
                                                                                              * \return Patient* le patient correspondant à l'id
                                                                                              */
     bool isfull();                                                                          /*! la liste contient tous les patients de la base */
-    bool add(Patient *patient);
-    void addList(QList<Patient*> listpatientss);
     void loadAll(Patient *pat, Item::UPDATE upd = Item::NoUpdate);                          /*! charge toutes les données d'un  patient si ce n'est pas le cas
                                                                                              * \param upd force ou non la recharge depuis la BDD si elles sont déjà chargées
                                                                                              */
     void reloadMedicalData(Patient* pat);                                                   //!> recharge les données médicales d'un patient
     void reloadSocialData(Patient* pat);                                                    //!> recharge les données sociales d'un patient
-    void remove(Patient* patient);
-    void clearAll();
     void initListeAll(QString nom = "", QString prenom = "", bool filtre = false);          /*! crée une liste de patients
                                                                                             * \param patnom filtrer sur le nom de patient
                                                                                             * \param patprenom filtrer sur le prénom de patient
@@ -58,6 +54,7 @@ public:
                                                                                             * \param DDN la date de naissance */
 private:
     QMap<int, Patient*> *m_patients;                                                        //!< une liste de patients
+    void addList(QList<Patient*> listpatientss);
     bool m_full;                                                                            //! la liste contient tous les patients de la base
 
 

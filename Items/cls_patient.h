@@ -30,7 +30,7 @@ class Patient : public Item
 {
 
 private: //Données du patient
-    int m_id;                       //!< Id du patient en base
+    //!<m_id = Id du patient en base
     QString m_nom;                  //!< Nom du patient
     QString m_prenom;               //!< Prénom du patient
     QString m_sexe;                 //!< Sexe du patient
@@ -78,7 +78,6 @@ public:
     bool issocialloaded() const;
     bool isalloaded();
 
-    int     id() const;
     QString nom() const;
     QString prenom() const;
     QString sexe() const;

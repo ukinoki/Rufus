@@ -29,7 +29,6 @@ class Correspondant : public Item
 {
 
 private: //Données du correspondant
-    int m_id = -1;                  //!< Id du correspondant en base
     QString m_nom;                  //!< Nom du correspondant
     QString m_prenom;               //!< Prénom du correspondant
     QString m_sexe;                 //!< Sexe du correspondant
@@ -54,7 +53,6 @@ public:
     //GETTER | SETTER
     bool isMG() const;
     bool ismedecin() const;
-    int id() const;
     QString nom() const;
     QString prenom() const;
     QString nomprenom() const;

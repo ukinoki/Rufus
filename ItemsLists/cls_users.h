@@ -34,6 +34,8 @@ private:
     QMap<int, User*> *m_parents = Q_NULLPTR;         //!<Collection des parents : User->isSoignant() && !User->isRemplacant()
     QMap<int, User*> *m_liberaux = Q_NULLPTR;        //!<Collection des liberaux : User->isLiberal()
     QMap<int, User*> *m_comptables = Q_NULLPTR;      //!<Collection des comptables : User->isSocComptable() || User->isLiberal()
+    bool add(User *usr);
+    void addList(QList<User*> listusr);
 
 public:
     //GETTER
@@ -44,8 +46,6 @@ public:
     QMap<int, User *> *comptables() const;
 
     Users(QObject *parent = Q_NULLPTR);
-    bool add(User *usr);
-    void addList(QList<User*> listusr);
     User* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails, ADDTOLIST addToList = AddToList);
     QString getLoginById(int id);
     void initListe();

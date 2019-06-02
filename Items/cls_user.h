@@ -52,7 +52,7 @@ public: //static
 private:
     bool m_isAllLoaded = false;
 
-    int m_id; //!< Id de l'utilsateur en base
+    //!< m_id = Id de l'utilsateur en base
 
     QString m_login; //!< Identifiant de l'utilisateur
     QString m_password;
@@ -130,7 +130,6 @@ public:
     QString getPassword() const;
     void setPassword(QString psswd);
 
-    int id() const;
     void setId( int value );
 
     QString getNom() const;

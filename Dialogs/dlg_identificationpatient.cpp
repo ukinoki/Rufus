@@ -431,7 +431,7 @@ void dlg_identificationpatient::ModifCorrespondant()
 {
     int idcor           = ui->MGupComboBox->currentData().toInt();
     bool onlydoctors = true;
-    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, Item::LoadDetails, true));
+    Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, Datas::I()->correspondants->getById(idcor, Item::LoadDetails));
     if (Datas::I()->correspondants->getById(idcor)==Q_NULLPTR)
         Dlg_IdentCorresp->ui->NomlineEdit   ->setText(ui->MGupComboBox->currentText());
     else

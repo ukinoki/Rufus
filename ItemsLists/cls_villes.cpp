@@ -71,20 +71,29 @@ void Villes::initListe()
     addList(DataBase::I()->loadVilles());
 }
 
-void Villes::add(Ville *ville)
+bool Villes::add(Ville *ville)
 {
-    /*
-    if( m_villes.contains(ville->id()) )
-        return;
-    */
+    if (ville == Q_NULLPTR)
+        return false;
+
+    if( m_codePostal.contains(ville->codePostal()) )
+    {
+        delete ville;
+        return false;
+    }
     m_villes.insert(ville->nom(), ville);
     m_codePostal.insert(ville->codePostal(), ville);
+    return true;
 }
+
 void Villes::addList(QList<Ville*> listvilles)
 {
     QList<Ville*>::const_iterator it;
     for( it = listvilles.constBegin(); it != listvilles.constEnd(); ++it )
-        add( *it );
+    {
+        Ville* ville = const_cast<Ville*>(*it);
+        add( ville );
+    }
 }
 
 

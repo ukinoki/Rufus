@@ -54,12 +54,12 @@ private:
     QMultiMap<QString, Ville*> m_codePostal;    //!< la liste des villes par codePostal
     QStringList m_listeNomVilles;               //!< la liste de nom de ville
     QStringList m_listeCodePostal;              //!< la liste des codes postaux
+    bool add(Ville *ville);
+    void addList(QList<Ville*> listvilles);
 
 public:
     Villes(QObject *parent = Q_NULLPTR);
     void initListe();
-    void add(Ville *ville);
-    void addList(QList<Ville*> listvilles);
 
     QStringList getListVilles();
     QStringList getListCodePostal();
@@ -69,7 +69,4 @@ public:
     QList<Ville *> getVilleByCodePostalEtNom(QString codePostal, QString name);
 };
 
-
-
-
-#endif // CLS_SITES_H
+#endif // CLS_VILLES_H

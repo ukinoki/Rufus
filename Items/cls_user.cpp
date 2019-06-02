@@ -99,7 +99,6 @@ QString User::getPassword() const                   { return m_password; }
 void User::setPassword(QString psswd)               { m_password = psswd; }
 
 void User::setId( int value )                       { m_id = value; }
-int User::id() const                                { return m_id; }
 
 QString User::getNom() const                        { return m_nom; }
 QString User::getPrenom() const                     { return m_prenom; }

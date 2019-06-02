@@ -27,18 +27,14 @@ QMap<QString, LignePaiement *>* LignesPaiements::lignespaiements() const
     return m_lignespaiements;
 }
 
-void LignesPaiements::add(LignePaiement *ligne)
-{
-    if( m_lignespaiements->contains(ligne->stringid()) )
-        return;
-    m_lignespaiements->insert(ligne->stringid(), ligne);
-}
-
 void LignesPaiements::addList(QList<LignePaiement*> listlignes)
 {
     QList<LignePaiement*>::const_iterator it;
     for( it = listlignes.constBegin(); it != listlignes.constEnd(); ++it )
-        add( *it );
+    {
+        LignePaiement* item = const_cast<LignePaiement*>(*it);
+        add( m_lignespaiements, item->stringid(), item );
+    }
 }
 
 LignePaiement* LignesPaiements::getById(QString stringid)
@@ -56,14 +52,6 @@ void LignesPaiements::clearAll()
     m_lignespaiements->clear();
 }
 
-void LignesPaiements::remove(LignePaiement *ligne)
-{
-    if (ligne == Q_NULLPTR)
-        return;
-    m_lignespaiements->remove(ligne->stringid());
-    delete ligne;
-}
-
 /*!
  * \brief LignesPaiements::initListe
  * Charge l'ensemble des lignes de paiement pour les actes concernant un patient
@@ -72,8 +60,7 @@ void LignesPaiements::remove(LignePaiement *ligne)
 void LignesPaiements::initListeByPatient(Patient *pat)
 {
     clearAll();
-    QList<LignePaiement*> listpaiements = DataBase::I()->loadlignespaiementsByPatient(pat);
-    addList(listpaiements);
+    addList(DataBase::I()->loadlignespaiementsByPatient(pat));
 }
 
 void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
@@ -82,7 +69,7 @@ void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
     for (QMap<QString, LignePaiement*>::const_iterator itlign = m_lignespaiements->constBegin() ; itlign != m_lignespaiements->constEnd(); ++itlign)
     {
         LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
-        remove(lign);
+        remove(m_lignespaiements, lign);
     }
 }
 

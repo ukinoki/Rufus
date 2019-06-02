@@ -112,9 +112,9 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         ActeSal = QString::number(m_currentact->id());
         if (m_currentact->idUser() < 1)
         {
-            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERACTES,         Datas::I()->users->userconnected()->getIdUserActeSuperviseur());
-            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERPARENTACTES,   Datas::I()->users->userconnected()->getIdUserParent());
-            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERCOMPTABLEACTES,Datas::I()->users->userconnected()->getIdUserComptable());
+            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSER_ACTES,         Datas::I()->users->userconnected()->getIdUserActeSuperviseur());
+            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERPARENT_ACTES,   Datas::I()->users->userconnected()->getIdUserParent());
+            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERCOMPTABLE_ACTES,Datas::I()->users->userconnected()->getIdUserComptable());
         }
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
@@ -123,16 +123,26 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     QString MsgErreur;
     PatientEnCours *pat = m_patientsencours->getById(m_currentpatient->id());
     if (pat == Q_NULLPTR)
-        pat = m_patientsencours->CreationPatient(m_currentpatient->id(), DataBase::I()->getUserConnected()->getIdUserActeSuperviseur(), "", Statut, ActeSal.toInt(), 0, "", Msg);
+        pat = m_patientsencours->CreationPatient(m_currentpatient->id(),                                                //! idPat
+                                                 DataBase::I()->getUserConnected()->getIdUserActeSuperviseur(),         //! idUser
+                                                 Statut,                                                                //! Statut
+                                                 QTime::currentTime(),                                                  //! heureStatut
+                                                 QTime(),                                                               //! heureRDV
+                                                 QTime(),                                                               //! heureArrivee
+                                                 "",                                                                    //! Motif
+                                                 Msg,                                                                   //! Message
+                                                 ActeSal.toInt(),                                                       //! idActeAPayer
+                                                 "",                                                                    //! PosteExamen
+                                                 0,                                                                     //! idUserEnCoursExamen
+                                                 0);                                                                    //! idSalDat
     else
     {
-        m_patientsencours->updatePatientEnCoursData(pat, CP_STATUTSALDAT, Statut);
-        if (ActeSal != "null")
-            m_patientsencours->updatePatientEnCoursData(pat, CP_IDACTEAPAYERSALDAT, ActeSal.toInt());
-        m_patientsencours->updatePatientEnCoursData(pat, CP_MESSAGESALDAT, Msg);
-        m_patientsencours->updatePatientEnCoursData(pat, CP_HEURESTATUTSALDAT, QTime::currentTime());
-        m_patientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAMSALDAT);
-        m_patientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMENSALDAT);
+        m_patientsencours->updatePatientEnCoursData(pat, CP_STATUT_SALDAT, Statut);
+        m_patientsencours->updatePatientEnCoursData(pat, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
+        m_patientsencours->updatePatientEnCoursData(pat, CP_MESSAGE_SALDAT, Msg);
+        m_patientsencours->updatePatientEnCoursData(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
+        m_patientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+        m_patientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMEN_SALDAT);
     }
     Flags::I()->MAJFlagSalleDAttente();
     accept();

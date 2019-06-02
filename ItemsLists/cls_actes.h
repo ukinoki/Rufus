@@ -34,20 +34,20 @@ private:
     QSortFilterProxyModel* m_actesortmodel;
     QSortFilterProxyModel* m_heuresortmodel;
     QStandardItemModel *m_actesmodel;
+    void    addList(QList<Acte*> listActes, Item::UPDATE upd = Item::NoUpdate);
 
 public:
     explicit Actes(QObject *parent = Q_NULLPTR);
 
     QMap<int, Acte *> *actes() const;
 
-    void    add(Acte *acte);
-    void    addList(QList<Acte*> listActes);
-    void    remove(Acte* acte);
+    bool    add(Acte *acte, Item::UPDATE upd = Item::NoUpdate);
     void    clearAll();
     Acte*   getById(int id, ADDTOLIST add = AddToList);                                     //!> crée un acte à partir de son id
     QMap<int, Acte*>::const_iterator   getLast();                                           //!> renvoie le dernier acte de la liste
     QMap<int, Acte*>::const_iterator   getAt(int idx);                                      //!> renvoie l'acte de la liste à l'index idx
-    void    initListeByPatient(Patient *pat, bool quelesid = false);                        //!> charge tous les actes d'un patient
+    void    initListeByPatient(Patient *pat, Item::UPDATE upd = Item::NoUpdate, bool quelesid = false);
+                                                                                            //!> charge tous les actes d'un patient
 
     void    sortActesByDate();                                                              /*! > trie la liste des actes par date, heure et met le résultat dans un QSortFilterProxyModel
                                                                                              * il arrive que la liste d'actes ne soit pas triée dans le bon ordre

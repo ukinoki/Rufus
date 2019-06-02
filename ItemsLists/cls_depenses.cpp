@@ -37,39 +37,14 @@ Depenses::Depenses(QObject *parent) : ItemsList(parent)
     m_Depenses = new QMap<int, Depense*>();
 }
 
-void Depenses::clearAll()
-{
-    for( QMap<int, Depense*>::const_iterator itdep = m_Depenses->constBegin(); itdep != m_Depenses->constEnd(); ++itdep)
-        delete itdep.value();
-    m_Depenses->clear();
-}
-
-/*!
- * \brief Depenses::addDepense
- * Cette fonction va ajouter la Depense passée en paramètre
- *
- * \param Depense la Depense que l'on veut ajouter
- * \return true si la Depense est ajoutée
- * \return false si le paramètre Depense est un Q_NULLPTR
- * \return false si la Depense est déjà présent
- */
-bool Depenses::add(Depense *Depense)
-{
-    if( Depense == Q_NULLPTR)
-        return false;
-
-    if( m_Depenses->contains(Depense->id()) )
-        return false;
-
-    m_Depenses->insert(Depense->id(), Depense);
-
-    return true;
-}
 void Depenses::addList(QList<Depense*> listDepense)
 {
     QList<Depense*>::const_iterator it;
     for( it = listDepense.constBegin(); it != listDepense.constEnd(); ++it )
-        add( *it );
+    {
+        Depense* item = const_cast<Depense*>(*it);
+        add( m_Depenses, item->id(), item );
+    }
 }
 
 /*!
@@ -86,14 +61,6 @@ Depense* Depenses::getById(int id)
     return Depense.value();
 }
 
-void Depenses::remove(Depense *dep)
-{
-    if (dep == Q_NULLPTR)
-        return;
-    m_Depenses->remove(dep->id());
-    delete dep;
-}
-
 /*!
  * \brief Depenseses::initListeByUser
  * Charge l'ensemble des cotations pour le user
@@ -101,8 +68,75 @@ void Depenses::remove(Depense *dep)
  */
 void Depenses::initListeByUser(int iduser)
 {
-    clearAll();
+    clearAll(m_Depenses);
     QList<Depense*> listdepenses = DataBase::I()->loadDepensesByUser(iduser);
     addList(listdepenses);
+}
+
+void Depenses::SupprimeDepense(Depense *dep)
+{
+    DataBase::I()->SupprRecordFromTable(dep->id(), CP_IDDEPENSE_DEPENSES, TBL_DEPENSES);
+    remove(m_Depenses, dep);
+}
+Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale, QString Objet, double Montant, QString FamFiscale,
+                                   QString Monnaie, int idRec, QString ModePaiement, int Compte, int Nocheque, int  idFacture)
+{
+    Depense *dep = Q_NULLPTR;
+    bool ok;
+    QString idusr           = (idUser == 0?                 "null" : QString::number(idUser));
+    QString date            = (DateDep.isValid()?           "'" + QDate::currentDate().toString("yyyy-MM-dd") + "'" : "'" + DateDep.toString("yyyy-MM-dd") + "'");
+    QString ref             = (RefFiscale == ""?            "" : "'" + Utils::correctquoteSQL(RefFiscale) + "'");
+    QString objet           = (Objet == ""?                 "" : "'" + Utils::correctquoteSQL(Objet) + "'");
+    QString montant         = QString::number(Montant, 'f',2);
+    QString fam             = (FamFiscale == ""?            "null" : "'" + Utils::correctquoteSQL(FamFiscale) + "'");
+    QString monnaie         = (Monnaie == ""?               "null" : "'" + Utils::correctquoteSQL(Monnaie) + "'");
+    QString idrec           = (idRec == 0?                  "null" : QString::number(idRec));
+    QString modpaiement     = (ModePaiement == ""?          "null" : "'" + Utils::correctquoteSQL(ModePaiement) + "'");
+    QString idcpt           = (Compte == 0?                 "null" : QString::number(Compte));
+    QString nochq           = (Nocheque == 0?               "null" : QString::number(Nocheque));
+    QString idfacture       = (idFacture == 0?              "null" : QString::number(idFacture));
+    QString req =     "INSERT INTO " TBL_DEPENSES
+            " (idUser, DateDep, RefFiscale, Objet, Montant, FamFiscale,"
+            " Monnaie, idRec, ModePaiement, Compte, Nocheque, idFacture)"
+            " VALUES (" +   idusr + "," +
+            date + "," +
+            ref + "," +
+            objet   + "," +
+            montant   + "," +
+            fam   + "," +
+            monnaie + "," +
+            idrec   + "," +
+            modpaiement   + "," +
+            idcpt   + "," +
+            nochq   + "," +
+            idfacture + ")";
+    qDebug() << req;
+    QString MsgErreur           = tr("Impossible d'enregistrer cette dépense");
+    DataBase::I()->locktables(QStringList() << TBL_DEPENSES);
+    if (!DataBase::I()->StandardSQL(req, MsgErreur))
+    {
+        DataBase::I()->unlocktables();
+        return Q_NULLPTR;
+    }
+    // Récupération de l'idMotif créé ------------------------------------
+    int iddep = DataBase::I()->selectMaxFromTable(CP_IDDEPENSE_DEPENSES, TBL_DEPENSES, ok, tr("Impossible de sélectionner les enregistrements"));
+    DataBase::I()->unlocktables();
+    QJsonObject jData{};
+    jData["iddepense"]      = iddep;
+    jData["iduser"]         = idUser;
+    jData["date"]           = DateDep.toString("yyyy-MM-dd");
+    jData["reffiscale"]     = RefFiscale;
+    jData["objet"]          = Objet;
+    jData["montant"]        = Montant;
+    jData["famfiscale"]     = FamFiscale;
+    jData["monnaie"]        = Monnaie;
+    jData["idrecette"]      = idRec;
+    jData["modepaiement"]   = ModePaiement;
+    jData["compte"]         = Compte;
+    jData["nocheque"]       = Nocheque;
+    jData["idfacture"]      = idFacture;
+    dep = new Depense(jData);
+    add(m_Depenses, dep->id(), dep);
+    return dep;
 }
 

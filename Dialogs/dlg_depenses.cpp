@@ -176,7 +176,6 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 dlg_depenses::~dlg_depenses()
 {
     delete ui;
-    Datas::I()->depenses->clearAll();
 }
 
 void dlg_depenses::ExportTable()
@@ -539,21 +538,19 @@ void dlg_depenses::EnregistreDepense()
                                                                        "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
     QString idCompte = ui->ComptesupComboBox->currentData().toString();
-    db->locktables(QStringList() << TBL_DEPENSES << TBL_LIGNESCOMPTES << TBL_ARCHIVESBANQUE);
 
-    QHash<QString, QString> listsets;
-    listsets.insert("DateDep",       ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-    listsets.insert("idUser",       QString::number(gDataUser->id()));
-    listsets.insert("Objet",        ui->ObjetlineEdit->text());
-    listsets.insert("Montant",      QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-    listsets.insert("RefFiscale",   ui->RefFiscalecomboBox->currentText());
-    listsets.insert("FamFiscale",   FamFiscale);
-    listsets.insert("ModePaiement", m);
-    listsets.insert("Compte",       (m!="E"? idCompte : "null"));
-    db->InsertIntoTable(TBL_DEPENSES, listsets);
-
-    idDep   = QString::number(db->selectMaxFromTable("idDep", TBL_DEPENSES, ok));
-
+    Depense *dep = Datas::I()->depenses->CreationDepense(gDataUser->id(),                           //! idUser
+                                        ui->DateDepdateEdit->date(),                                //! DateDep
+                                        ui->RefFiscalecomboBox->currentText(),                      //! RefFiscale
+                                        ui->ObjetlineEdit->text(),                                  //! Objet
+                                        QLocale().toDouble(ui->MontantlineEdit->text()),            //! Montant
+                                        FamFiscale,                                                 //! FamFiscale
+                                        "",                                                         //! Monnaie
+                                        0,                                                          //! idRec
+                                        m,                                                          //! ModePaiement
+                                        (m!="E"? idCompte.toInt() : 0),                             //! Compte
+                                        0,                                                          //! NoCheque
+                                        0);                                                         //! idFacture
     // insertion de l'écriture dans la table lignescomptes quand il s'agit d'une opération bancaire
     if (m != "E")
     {
@@ -562,7 +559,7 @@ void dlg_depenses::EnregistreDepense()
         QHash<QString, QString> listsets;
         listsets.insert("idLigne",              QString::number(a));
         listsets.insert("idCompte",             idCompte);
-        listsets.insert("idDep",                idDep);
+        listsets.insert("idDep",                QString::number(dep->id()));
         listsets.insert("LigneDate",            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
         listsets.insert("Lignelibelle",         ui->ObjetlineEdit->text());
         listsets.insert("LigneMontant",         QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
@@ -570,25 +567,6 @@ void dlg_depenses::EnregistreDepense()
         listsets.insert("LigneTypeoperation",   Paiement);
         db->InsertIntoTable(TBL_LIGNESCOMPTES, listsets);
     }
-    db->unlocktables();
-
-    QJsonObject jData{};
-    jData["iddepense"]      = idDep.toInt();
-    jData["iduser"]         = gDataUser->id();
-    jData["date"]           = ui->DateDepdateEdit->date().toString("yyyy-MM-dd");
-    jData["reffiscale"]     = ui->RefFiscalecomboBox->currentText();
-    jData["objet"]          = ui->ObjetlineEdit->text();
-    jData["montant"]        = QLocale().toDouble(ui->MontantlineEdit->text());
-    jData["famfiscale"]     = FamFiscale;
-    jData["monnaie"]        = QString();
-    jData["idrecette"]      = QVariant().toInt();
-    jData["modepaiement"]   = m;
-    jData["compte"]         = (m!="E"? idCompte.toInt() : QVariant().toInt());
-    jData["nocheque"]       = QVariant().toInt();
-    jData["idfacture"]      = 0;
-
-    Depense *dep = new Depense(jData);
-    Datas::I()->depenses->add(dep);
 
     gBigTable->insertRow(gBigTable->rowCount());
     SetDepenseToRow(dep, gBigTable->rowCount()-1);
@@ -747,8 +725,7 @@ void dlg_depenses::SupprimerDepense()
 
     //On supprime l'écriture
     db->SupprRecordFromTable(dep->id(), "idDep", TBL_LIGNESCOMPTES);
-    db->SupprRecordFromTable(dep->id(), "idDep", TBL_DEPENSES);
-    Datas::I()->depenses->remove(dep);
+    Datas::I()->depenses->SupprimeDepense(dep);
 
     if (gBigTable->rowCount() == 1)
     {

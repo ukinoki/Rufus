@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_patient.h"
 
 //GETTER | SETTER
-int Patient::id() const                     { return m_id; }
 QString Patient::nom() const                { return m_nom; }
 QString Patient::prenom() const             { return m_prenom; }
 QString Patient::sexe() const               { return m_sexe; }

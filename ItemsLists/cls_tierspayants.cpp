@@ -27,18 +27,14 @@ QMap<int, Tiers *> *TiersPayants::tierspayants() const
     return m_tierspayants;
 }
 
-void TiersPayants::add(Tiers *Tiers)
-{
-    if( m_tierspayants->contains(Tiers->id()) )
-        return;
-    m_tierspayants->insert(Tiers->id(), Tiers);
-}
-
 void TiersPayants::addList(QList<Tiers*> listTiersPayants)
 {
     QList<Tiers*>::const_iterator it;
     for( it = listTiersPayants.constBegin(); it != listTiersPayants.constEnd(); ++it )
-        add( *it );
+    {
+        Tiers* trs = const_cast<Tiers*>(*it);
+        add( m_tierspayants, trs->id(), trs );
+    }
 }
 
 Tiers* TiersPayants::getById(int id)
@@ -49,21 +45,6 @@ Tiers* TiersPayants::getById(int id)
     return itcpt.value();
 }
 
-void TiersPayants::clearAll()
-{
-    for( QMap<int, Tiers*>::const_iterator ittrs = m_tierspayants->constBegin(); ittrs != m_tierspayants->constEnd(); ++ittrs)
-        delete ittrs.value();
-    m_tierspayants->clear();
-}
-
-void TiersPayants::remove(Tiers *tiers)
-{
-    if (tiers == Q_NULLPTR)
-        return;
-    m_tierspayants->remove(tiers->id());
-    delete tiers;
-}
-
 /*!
  * \brief TiersPayants::initListe
  * Charge l'ensemble des tiers payants
@@ -71,6 +52,6 @@ void TiersPayants::remove(Tiers *tiers)
  */
 void TiersPayants::initListe()
 {
-    clearAll();
+    clearAll(m_tierspayants);
     addList(DataBase::I()->loadTiersPayants());
 }

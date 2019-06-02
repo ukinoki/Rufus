@@ -1902,7 +1902,7 @@ void dlg_param::ModifParamAutoBackup()
 {
     if (db->getMode() != DataBase::Poste)
         return;
-    bool ok;
+
     QString NomDirStockageImagerie ("");
     NomDirStockageImagerie      = m_parametres->dirimagerie();
     bool NoDirBupDefined        = (ui->DirBackupuplineEdit->text() == "");

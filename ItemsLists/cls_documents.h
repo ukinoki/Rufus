@@ -26,33 +26,28 @@ class Documents : public ItemsList
 {
 private:
     QMap<int, Document*> *m_documents = Q_NULLPTR;      //!< la liste des Documents
+    void addList(QList<Document*> listDocuments);
 
 public:
     explicit Documents(QObject *parent = Q_NULLPTR);
 
     QMap<int, Document *> *documents() const;
 
-    void add(Document *Document);
-    void addList(QList<Document*> listDocuments);
-    void remove(Document* Document);
-    void clearAll();
     Document* getById(int id);
     void initListe();
 };
 
-class MetaDocuments
+class MetaDocuments : public ItemsList
 {
 private:
     QMap<int, MetaDocument*> *m_metadocuments = Q_NULLPTR;      //!< la liste des metadocuments
+    void addList(QList<MetaDocument*> listmetaDocs);
 
 public:
     explicit MetaDocuments();
 
     QMap<int, MetaDocument *> *metadocuments() const;
 
-    void add(MetaDocument *MetaDoc);
-    void addList(QList<MetaDocument*> listmetaDocs);
-    void remove(MetaDocument* MetaDoc);
     void clearAll();
     MetaDocument* getById(int id);
     void initListe();

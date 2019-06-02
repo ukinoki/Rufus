@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_depense.h"
 
-int         Depense::id() const                 { return  m_iddepense;}
 int         Depense::iduser() const             { return  m_iduser;}
 QDate       Depense::date() const               { return  m_datedepepense;}
 QString     Depense::rubriquefiscale() const    { return  m_rubriquefiscale;}
@@ -61,7 +60,7 @@ void Depense::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, "iddepense", m_iddepense);
+    setDataInt(data, "iddepense", m_id);
     setDataInt(data, "iduser", m_iduser);
     setDataDate(data, "date", m_datedepepense);
     setDataString(data, "reffiscale", m_rubriquefiscale);

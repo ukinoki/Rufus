@@ -159,7 +159,7 @@ dlg_docsexternes::~dlg_docsexternes()
     delete printer;
     if (!conservealafin)
     {
-        m_docsexternes->clearAll();
+        m_docsexternes->clearAll(m_docsexternes->docsexternes());
         delete m_docsexternes;
     }
 }

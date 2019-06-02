@@ -41,7 +41,7 @@ class Recette : public Item
 {
 
 private:
-    int m_id;                           //!> l'id de la recette (pas utilisé dans la bdd)
+    //!> m_id = l'id de la recette (pas utilisé dans la bdd)
     int m_idacte;                       //!> l'id de l'acte correspondant si la recette correspond à un acte payé directement
     QDate m_date;                       //!> la date de la recette
     QString m_nompayeur;                //!> le nom du payeur
@@ -62,7 +62,6 @@ public:
     explicit Recette(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int id() const;
     int idacte() const;
     QDate date() const;
     QString payeur() const;

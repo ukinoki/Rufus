@@ -17,7 +17,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_acte.h"
 
-int Acte::id() const                    { return m_id; }
 QDate Acte::date() const                { return m_date.date(); }
 QString Acte::motif() const             { return m_motif; }
 QString Acte::texte() const             { return m_texte; }
@@ -37,6 +36,7 @@ int Acte::numcentre() const             { return m_numCentre; }
 int Acte::idlieu() const                { return m_idLieu; }
 QTime Acte::heure() const               { return m_heure; }
 bool Acte::effectueparremplacant() const{ return m_remplacant; }
+QJsonObject Acte::datas() const         { return m_data; }
 
 Acte::Acte(QJsonObject data, QObject *parent) : Item(parent)
 {
@@ -72,6 +72,7 @@ void Acte::setData(QJsonObject data)
     setDataDateTime(data, "agePatient", m_agePatient);
     setDataTime(data, "heure", m_heure);
     setDataBool(data, "remplacant", m_remplacant);
+    m_data = data;
 }
 
 bool Acte::courrierAFaire() { return m_courrierStatus == "T" || m_courrierStatus == "1"; }

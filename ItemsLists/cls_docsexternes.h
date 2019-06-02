@@ -31,11 +31,9 @@ private:
 public:
     explicit                    DocsExternes(QObject *parent = Q_NULLPTR);
     QMap<int, DocExterne *>*    docsexternes();
-    DocExterne*                 getById(int id, bool loadDetails=true, bool addToList=true);
-    bool                        add(DocExterne *doc);
+    DocExterne*                 getById(int id, Item::LOADDETAILS loadDetails = Item::LoadDetails, ItemsList::ADDTOLIST addToList = ItemsList::AddToList);
     void                        addList(QList<DocExterne*> listdocs);
     void                        remove(DocExterne *doc);
-    void                        clearAll();
     void                        initListeByPatient(Patient *pat);
 
     bool                        NouveauDocument();

@@ -31,7 +31,8 @@ public:
     enum LOADDETAILS {LoadDetails, NoLoadDetails};
     enum UPDATE {NoUpdate, ForceUpdate};
     explicit Item(QObject *parent = Q_NULLPTR);
-
+    int id() const { return m_id; }
+    QString stringid() const  { return m_stringid; }
 
 protected:
 
@@ -46,6 +47,8 @@ protected:
     void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     void setDataVariant(QJsonObject data, QString key, QVariant &prop);
 
+    int m_id;
+    QString  m_stringid;
 };
 
 #endif // CLS_ITEM_H

@@ -24,8 +24,8 @@ class Compte : public Item
 {
 
 private:
-    int m_id, m_idbanque, m_iduser;
-    QString m_nom, m_iban, m_intitulecompte, m_nombanque;
+    int m_idbanque, m_iduser;
+    QString m_nom, m_iban, m_intitulecompte;
     bool m_desactive, m_partage;
     double m_solde;
 
@@ -34,7 +34,6 @@ public:
     void setData(QJsonObject data);
     void setSolde(double solde);
 
-    int id() const;
     int idBanque() const;
     int idUser() const;                         //!< l'utilisateur qui a créé le compte
     QString iban() const;
@@ -43,7 +42,6 @@ public:
     double solde() const;
     bool isPartage() const;
     bool isDesactive() const;
-    QString nombanque() const;
 };
 
 #endif // CLS_COMPTE_H

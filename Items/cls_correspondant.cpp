@@ -17,10 +17,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_correspondant.h"
 
-int Correspondant::id() const
-{
-    return m_id;
-}
 QString Correspondant::nom() const
 {
     return m_nom;

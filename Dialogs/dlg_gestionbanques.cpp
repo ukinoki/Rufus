@@ -217,8 +217,7 @@ void dlg_gestionbanques::SupprBanque()
         UpMessageBox::Watch(this, tr("Impossible de supprimer la banque ") + lbl->text(), tr("Elle est utilisée par d'autres utilisateurs"));
         return;
     }
-    Datas::I()->banques->remove(Datas::I()->banques->getById(idBanque));
-    db->SupprRecordFromTable(idBanque,"idBanque",TBL_BANQUES);
+    Datas::I()->banques->SupprimeBanque(Datas::I()->banques->getById(idBanque));
     RemplirTableView();
     AfficheBanque();
 }
@@ -259,11 +258,10 @@ void dlg_gestionbanques::ValideModifBanque()
             ui->NomAbregeupLineEdit->setFocus();
             return;
         }
-        QHash<QString, QString> listsets;
-        listsets.insert("idbanqueabrege",   ui->NomAbregeupLineEdit->text());
-        listsets.insert("nombanque",        nombanque);
-        db->InsertIntoTable(TBL_BANQUES, listsets);
-        Datas::I()->banques->initListe();
+        Banque *banq = Datas::I()->banques->CreationBanque(ui->NomAbregeupLineEdit->text(),   //! idBanqueAbrege
+                                                            nombanque);                        //! NomBanque
+        if (banq == Q_NULLPTR)
+            return;
         if (gFermeApresValidation)
         {
             UpMessageBox::Watch(this,tr("La banque ") + nombanque + tr(" a été enregistrée"));

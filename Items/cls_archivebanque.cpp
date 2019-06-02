@@ -22,7 +22,6 @@ Archive::Archive(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
-int Archive::id() const                         { return m_idligne;}
 int Archive::idcompte() const                   { return m_idcompte;}
 int Archive::iddepense() const                  { return m_iddepense;}
 int Archive::idrecette() const                  { return m_idrecette;}
@@ -40,7 +39,7 @@ void Archive::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, "idligne", m_idligne);
+    setDataInt(data, "idligne", m_id);
     setDataInt(data, "idcompte", m_idcompte);
     setDataInt(data, "iddepense", m_iddepense);
     setDataInt(data, "idrecette", m_idrecette);
