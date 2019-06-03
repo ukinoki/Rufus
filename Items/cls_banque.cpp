@@ -22,7 +22,6 @@ Banque::Banque(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
-int Banque::id() const                    { return m_id; }
 int Banque::CodeBanque() const            { return m_codebanque; }
 QString Banque::NomBanque() const         { return m_nombanque; }
 QString Banque::NomBanqueAbrege() const   { return m_idbanqueabrege; }
@@ -35,6 +34,7 @@ void Banque::setData(QJsonObject data)
     setDataString(data, "nombanque", m_nombanque);
     setDataString(data, "idbanqueabrege", m_idbanqueabrege);
     setDataInt(data, "codebanque", m_codebanque);
+    m_data = data;
 }
 
 

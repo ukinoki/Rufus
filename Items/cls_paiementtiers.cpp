@@ -27,7 +27,7 @@ void PaiementTiers::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, "id", m_idpaiement);
+    setDataInt(data, "id", m_id);
     setDataDate(data, "date", m_date);
     setDataDate(data, "dateenregistrement", m_dateenregistrement);
     setDataDouble(data, "montant", m_montant);
@@ -43,10 +43,9 @@ void PaiementTiers::setData(QJsonObject data)
     setDataInt(data, "iduserenregistreur", m_iduserenregistreur);
     setDataDate(data, "dateremisecheques", m_dateremisecheques);
     setDataDouble(data, "encaissement", m_encaissement);
-
+    m_data = data;
 }
 
-int PaiementTiers::id() const                       { return m_idpaiement; }
 QDate PaiementTiers::date() const                   { return m_date; }
 QDate PaiementTiers::dateenregistrement() const     { return m_dateenregistrement; }
 double PaiementTiers::montant() const               { return m_montant; }

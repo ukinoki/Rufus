@@ -37,10 +37,10 @@ void Site::setData(QJsonObject data)
     setDataString(data, "ville", m_ville);
     setDataString(data, "telephone", m_telephone);
     setDataString(data, "fax", m_fax);
+    m_data = data;
 }
 
 
-int Site::id() const            { return m_id; }
 QString Site::nom() const       { return m_nom; }
 QString Site::adresse1() const  { return m_adresse1; }
 QString Site::adresse2() const  { return m_adresse2; }

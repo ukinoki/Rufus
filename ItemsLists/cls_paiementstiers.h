@@ -20,28 +20,26 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_paiementtiers.h"
 #include "cls_user.h"
+#include "cls_itemslist.h"
 
 /*!
  * \brief Cette classe gére la liste des paiements par tiers payants
  *  ( = paiements effectués par toute autre personne que le patient )
  */
 
-class PaiementsTiers
+class PaiementsTiers : public ItemsList
 {
 
 private:
     QMap<int, PaiementTiers*> *m_paiementstiers; //!< la liste des paiements par tiers
+    void addList(QList<PaiementTiers*> listpaiementstiers);
 
 public:
-    explicit PaiementsTiers();
+    explicit PaiementsTiers(QObject *parent = Q_NULLPTR);
 
     QMap<int, PaiementTiers *> *paiementstiers() const;
 
-    void add(PaiementTiers *PaiementsTiers);
-    void addList(QList<PaiementTiers*> listpaiementstiers);
-    void remove(PaiementTiers* PaiementsTiers);
     PaiementTiers* getById(int id);
-    void clearAll();
     void initListe(User *usr);
 };
 

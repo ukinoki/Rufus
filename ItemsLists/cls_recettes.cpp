@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_recettes.h"
 
-Recettes::Recettes()
+Recettes::Recettes(QObject *parent) : ItemsList(parent)
 {
     m_recettes = new QMap<int, Recette*>();
 }
@@ -34,37 +34,18 @@ QMap<int, Recette *> *Recettes::recettes() const
  */
 void Recettes::initListe(QMap<QString, QDate> DateMap)
 {
-    clearAll();
-    m_recettes = DataBase::I()->loadRecettesByDate(DateMap["DateDebut"], DateMap["DateFin"]);
-}
-
-void Recettes::add(Recette *Recette)
-{
-    if( m_recettes->contains(Recette->id()) )
-        return;
-    m_recettes->insert(Recette->id(), Recette);
+    clearAll(m_recettes);
+    addList(DataBase::I()->loadRecettesByDate(DateMap["DateDebut"], DateMap["DateFin"]));
 }
 
 void Recettes::addList(QList<Recette*> listRecettes)
 {
     QList<Recette*>::const_iterator it;
     for( it = listRecettes.constBegin(); it != listRecettes.constEnd(); ++it )
-        add( *it );
-}
-
-void Recettes::clearAll()
-{
-    for( QMap<int, Recette*>::const_iterator itrec = m_recettes->constBegin(); itrec != m_recettes->constEnd(); ++itrec)
-        delete itrec.value();
-    m_recettes->clear();
-}
-
-void Recettes::remove(Recette *recette)
-{
-    if (recette == Q_NULLPTR)
-        return;
-    m_recettes->remove(recette->id());
-    delete recette;
+    {
+        Recette* item = const_cast<Recette*>(*it);
+        add( m_recettes, item->id(), item );
+    }
 }
 
 Recette* Recettes::getById(int id)
