@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_refractionlistemesures.h"
 
 dlg_listemesures::dlg_listemesures(Patient *pat, QString mode, QWidget *parent) :
-    UpDialog (QDir::homePath() + FILE_INI, "PositionsFiches/PositionListeMes", parent)
+    UpDialog (QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     m_currentpatient  = pat;
@@ -142,15 +142,15 @@ void dlg_listemesures::Slot_Item_Liste_Clicked(QModelIndex mod)
 void dlg_listemesures::DetruireLaMesure(int IdRefract)
 {
     bool ok;
-    QString requete = "select idPat, quellemesure from " TBL_REFRACTION " WHERE  idRefraction = " + QString::number(IdRefract);
+    QString requete = "select idPat, quellemesure from " NOM_TABLE_REFRACTION " WHERE  idRefraction = " + QString::number(IdRefract);
     QVariantList mesuredata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
     if (ok && mesuredata.size() > 0)
     {
-        requete = "DELETE  FROM " TBL_DONNEES_OPHTA_PATIENTS " WHERE  QuelleMesure = '"
+        requete = "DELETE  FROM " NOM_TABLE_DONNEES_OPHTA_PATIENTS " WHERE  QuelleMesure = '"
                     + mesuredata.at(1).toString() + "' and idpat = " + mesuredata.at(0).toString();
         db->StandardSQL(requete, tr("Impossible de suppimer cette mesure dans donneesophtapatients!"));
     }
-    requete = "DELETE  FROM " TBL_REFRACTION " WHERE  idRefraction = " + QString::number(IdRefract);
+    requete = "DELETE  FROM " NOM_TABLE_REFRACTION " WHERE  idRefraction = " + QString::number(IdRefract);
     db->StandardSQL(requete, tr("Impossible de suppimer cette mesure dans refractions!"));
 }
 
@@ -184,7 +184,7 @@ void dlg_listemesures::RemplirTableView()
         SupprButton->setEnabled(false);
 
     QString requete = "SELECT  idRefraction, DateRefraction, QuelleMesure, FormuleOD, FormuleOG "
-              " FROM "  TBL_REFRACTION
+              " FROM "  NOM_TABLE_REFRACTION
               " WHERE  IdPat = " + QString::number(m_currentpatient->id());
     QList<QVariantList> refractlist = db->StandardSelectSQL(requete, ok, tr("Impossible de trouver la table des refractions!"));
     if(!ok)

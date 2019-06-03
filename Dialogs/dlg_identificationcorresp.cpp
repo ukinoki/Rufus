@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationcorresp.h"
 
 dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedecins, Correspondant *cor, QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionIdentCorrespondant", parent),
+    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionIdentCorrespondant", parent),
     ui(new Ui::dlg_identificationcorresp)
 {
     ui->setupUi(this);
@@ -115,7 +115,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     setStageCount(1);
 
     bool ok;
-    QList<QVariantList> proflist = db->StandardSelectSQL("select distinct corautreprofession from " TBL_CORRESPONDANTS " where corautreprofession is not NULL", ok);
+    QList<QVariantList> proflist = db->StandardSelectSQL("select distinct corautreprofession from " NOM_TABLE_CORRESPONDANTS " where corautreprofession is not NULL", ok);
     if (ok && proflist.size()>0)
     {
         QStringList listprof;
@@ -206,7 +206,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
 
     // D - On vérifie ensuite si ce correspondant existe déjà
     bool ok;
-    QString requete = "select idcor, corspecialite, cormedecin from " TBL_CORRESPONDANTS
+    QString requete = "select idcor, corspecialite, cormedecin from " NOM_TABLE_CORRESPONDANTS
             " where CorNom LIKE '" + CorNom + "%' and CorPrenom LIKE '" + CorPrenom + "%'";
     QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des patients!"));
     if (!ok)
@@ -243,8 +243,8 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         QString gSexeCor = "";
         if (ui->MradioButton->isChecked()) gSexeCor = "M";
         if (ui->FradioButton->isChecked()) gSexeCor = "F";
-        db->locktables(QStringList() << TBL_CORRESPONDANTS);
-        QString insrequete = "INSERT INTO " TBL_CORRESPONDANTS
+        db->locktables(QStringList() << NOM_TABLE_CORRESPONDANTS);
+        QString insrequete = "INSERT INTO " NOM_TABLE_CORRESPONDANTS
                 " (CORNom, CORPrenom, CorSexe, CORAdresse1, CORAdresse2, CORAdresse3, CorVille, CorCodePostal,"
                 " CorTelephone, CorPortable, CorFax, CorMail,CorMedecin,CorSpecialite,CorAutreProfession) "
                 " VALUES "
@@ -266,7 +266,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
             insrequete += "',null,null,'" + Utils::correctquoteSQL(ui->AutreupLineEdit->text()) + "');";
         if (!db->StandardSQL(insrequete,tr("Impossible de créer le dossier")))
             reject();
-        insrequete = "select max(idcor) from " TBL_CORRESPONDANTS;
+        insrequete = "select max(idcor) from " NOM_TABLE_CORRESPONDANTS;
         QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(insrequete, ok);
         if (ok && cordata.size()>0)
             idcor = cordata.at(0).toInt();
@@ -279,7 +279,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         QString gSexeCor = "";
         if (ui->MradioButton->isChecked()) gSexeCor = "M";
         if (ui->FradioButton->isChecked()) gSexeCor = "F";
-        QString Modifrequete = "update " TBL_CORRESPONDANTS
+        QString Modifrequete = "update " NOM_TABLE_CORRESPONDANTS
                 " set CorNom = '" + CorNom + "', CorPrenom = '" + CorPrenom + "', CorSexe = '" + gSexeCor
                 + "', CorAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text(),true))
                 + "', CorAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true))
@@ -302,7 +302,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     }
     modif = true;
     Datas::I()->correspondants->initListe();
-    m_correspondant = Datas::I()->correspondants->getById(idcor, Item::LoadDetails);
+    m_correspondant = Datas::I()->correspondants->getById(idcor, true, true);
     Flags::I()->MAJflagCorrespondants();
     accept();
 }
@@ -400,7 +400,7 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
         {
             ui->SperadioButton  ->setChecked(true);
             ui->SpecomboBox     ->setVisible(true);
-            int idx             = ui->SpecomboBox->findData(m_correspondant->idspecialite());
+            int idx             = ui->SpecomboBox->findData(m_correspondant->specialite());
             ui->SpecomboBox     ->setCurrentIndex(idx);
             ui->AutreupLineEdit ->setVisible(false);
         }
@@ -424,7 +424,7 @@ void dlg_identificationcorresp::ReconstruitListeSpecialites()
     bool ok;
     ui->SpecomboBox->clear();
     QStringList ListSpec;
-    QString req = "SELECT idspecialite, nomspecialite FROM " TBL_SPECIALITES " order by nomspecialite";
+    QString req = "SELECT idspecialite, nomspecialite FROM " NOM_TABLE_SPECIALITES " order by nomspecialite";
     QList<QVariantList> speclist = db->StandardSelectSQL(req,ok);
     if (!ok) return;
     for (int i = 0; i < speclist.size(); i++)

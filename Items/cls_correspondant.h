@@ -29,6 +29,7 @@ class Correspondant : public Item
 {
 
 private: //Données du correspondant
+    int m_id = -1;                  //!< Id du correspondant en base
     QString m_nom;                  //!< Nom du correspondant
     QString m_prenom;               //!< Prénom du correspondant
     QString m_sexe;                 //!< Sexe du correspondant
@@ -45,7 +46,7 @@ private: //Données du correspondant
     bool    m_medecin;              //!< medecin?
     bool    m_generaliste;          //!< generaliste?
     bool    m_isAllLoaded = false;  //!< tous les renseignements concernant ce correspondant sont chargés
-    int     m_idspecialite;           //!< id de la specialite correspondant en base
+    int     m_specialite;           //!< id de la specialite correspondant en base
 
 private:
 
@@ -53,6 +54,7 @@ public:
     //GETTER | SETTER
     bool isMG() const;
     bool ismedecin() const;
+    int id() const;
     QString nom() const;
     QString prenom() const;
     QString nomprenom() const;
@@ -68,7 +70,7 @@ public:
     QString portable() const;
     QString fax() const;
     QString mail() const;
-    int idspecialite() const;
+    int specialite() const;
     bool isAllLoaded() const;
 
     explicit Correspondant(QJsonObject data = {}, QObject *parent = Q_NULLPTR);

@@ -147,9 +147,9 @@ int dlg_identificationuser::ControleDonnees()
 //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
         QString error = "";
 #ifdef ALEX
-        error = db->connectToDataBase(DB_CONSULTS, "rufusConnection", "rufuspassword");
+        error = db->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
 #else
-        error = db->connectToDataBase(DB_CONSULTS, Login, Password);
+        error = db->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
 #endif
 
         if( error.size() )
@@ -210,7 +210,7 @@ int dlg_identificationuser::ControleDonnees()
 
         ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
         Utils::Pause(300);
-        req = "SHOW TABLES FROM " DB_CONSULTS " LIKE '%tilisateurs%'";
+        req = "SHOW TABLES FROM " NOM_BASE_CONSULTS " LIKE '%tilisateurs%'";
         QList<QVariantList> tablist = db->StandardSelectSQL(req, ok);
         if (tablist.size()<2)
         {

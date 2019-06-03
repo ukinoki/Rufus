@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_patient.h"
 
 //GETTER | SETTER
+int Patient::id() const                     { return m_id; }
 QString Patient::nom() const                { return m_nom; }
 QString Patient::prenom() const             { return m_prenom; }
 QString Patient::sexe() const               { return m_sexe; }
@@ -52,6 +53,7 @@ QString Patient::traitementgen()            { return m_traitementgen; }
 QString Patient::traitementoph()            { return m_traitementoph; }
 QString Patient::tabac()                    { return m_tabac; }
 QString Patient::toxiques()                 { return m_toxiques; }
+QString Patient::gencorresp()               { return m_gencorresp; }
 QString Patient::important()                { return m_important; }
 QString Patient::resume()                   { return m_resume; }
 
@@ -80,6 +82,8 @@ Patient::Patient(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
 }
+
+
 
 void Patient::setData(QJsonObject data)
 {
@@ -124,11 +128,11 @@ void Patient::setData(QJsonObject data)
         setDataString(data, "AtcdstOph", m_atcdtsophtalmos);
         setDataString(data, "Tabac", m_tabac);
         setDataString(data, "Toxiques", m_toxiques);
+        setDataString(data, "GenCorresp", m_gencorresp);
         setDataString(data, "Important", m_important);
         setDataString(data, "Resume", m_resume);
         setDataString(data, "TtOph", m_traitementoph);
     }
-    m_data = data;
 }
 
 void Patient::setSocialData(QJsonObject data)
@@ -165,6 +169,7 @@ void Patient::setMedicalData(QJsonObject data)
     setDataString(data, "AtcdstOph", m_atcdtsophtalmos);
     setDataString(data, "Tabac", m_tabac);
     setDataString(data, "Toxiques", m_toxiques);
+    setDataString(data, "GenCorresp", m_gencorresp);
     setDataString(data, "Important", m_important);
     setDataString(data, "Resume", m_resume);
     setDataString(data, "TtOph", m_traitementoph);

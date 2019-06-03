@@ -38,9 +38,9 @@ public:
     QString     getValeurAvant() const;
     void        setValeurApres(QString valpost);
     QString     getValeurApres() const;
-    void        setChamp(QString champcorrespondant);
+    void        setChampCorrespondant(QString champcorrespondant);
     QString     getChampCorrespondant() const;
-    void        setTable(QString tablecorrespondant);
+    void        setTableCorrespondant(QString tablecorrespondant);
     QString     getTableCorrespondant() const;
     void        setImmediateToolTip(QString Msg);
     void        clearImmediateToolTip();

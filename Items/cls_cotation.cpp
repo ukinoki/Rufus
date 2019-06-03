@@ -23,6 +23,7 @@ Cotation::Cotation(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
+int Cotation::id() const                    { return m_id; }
 int Cotation::idcotation() const            { return m_idcotation; }
 QString Cotation::typeacte() const          { return m_typeacte; }
 double Cotation::montantoptam() const       { return m_montantoptam; }
@@ -48,7 +49,6 @@ void Cotation::setData(QJsonObject data)
     setDataInt(data, "iduser", m_iduser);
     setDataInt(data, "frequence", m_frequence);
     setDataString(data, "descriptif", m_descriptif);
-    m_data = data;
 }
 
 

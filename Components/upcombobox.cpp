@@ -145,7 +145,7 @@ QString UpComboBox::getValeurApres() const
     return ValeurApres;
 }
 
-void UpComboBox::setChamp(QString champcorrespondant)
+void UpComboBox::setChampCorrespondant(QString champcorrespondant)
 {
     Champ = champcorrespondant;
 }
@@ -155,7 +155,7 @@ QString UpComboBox::getChampCorrespondant() const
     return Champ;
 }
 
-void UpComboBox::setTable(QString tablecorrespondant)
+void UpComboBox::setTableCorrespondant(QString tablecorrespondant)
 {
     Table = tablecorrespondant;
 }

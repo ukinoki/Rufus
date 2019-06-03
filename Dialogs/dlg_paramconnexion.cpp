@@ -243,9 +243,9 @@ bool dlg_paramconnexion::TestConnexion()
     QString error = "";
     DataBase::I()->initFromFirstConnexion(mode, gServeur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());  //à mettre avant le connectToDataBase() sinon une restaurationp llante parce qu'elle n'a pas les renseignements
 #ifdef ALEX
-    error = DataBase::I()->connectToDataBase(DB_CONSULTS, "rufusConnection", "rufuspassword");
+    error = DataBase::I()->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
 #else
-    error = DataBase::I()->connectToDataBase(DB_CONSULTS, Login, Password);
+    error = DataBase::I()->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
 #endif
 
     if( error.size() )

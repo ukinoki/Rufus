@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsvideo.h"
 
 dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsVideo", parent)
+    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsVideo", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     proc            = Procedures::I();
@@ -253,7 +253,7 @@ void dlg_docsvideo::ValideFiche()
         return;
     }
     // on vérifie que le dossier de stockage des videos existe sinon on le crée
-    QString CheminVideoDir      = NomDirStockageImagerie + DIR_VIDEOS;
+    QString CheminVideoDir      = NomDirStockageImagerie + NOMDIR_VIDEOS;
     QDir VideoDir;
     if (!QDir(CheminVideoDir).exists())
         if (!VideoDir.mkdir(CheminVideoDir))
@@ -270,7 +270,7 @@ void dlg_docsvideo::ValideFiche()
     QHash<QString,QVariant> listbinds;
     bool b = false;
     bool ok;
-    int idimpr =  db->selectMaxFromTable("idimpression", TBL_IMPRESSIONS, ok) + 1;
+    int idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok) + 1;
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
     listbinds["idImpression"] =     idimpr;
@@ -284,7 +284,7 @@ void dlg_docsvideo::ValideFiche()
     listbinds["formatautre"] =      VIDEO;
     listbinds["lienversfichier"] =  NomFileVideoDoc;
     listbinds["FormatDoc"] =        VIDEO;
-    b = db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds);
+    b = db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds);
     if(!b)
     {
         UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));

@@ -1320,7 +1320,7 @@ void dlg_refraction::AfficherLaMesure()
             setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_SANS_DETAIL);
         ResumePrescription();
     }
-    QString LocalRequete = "SELECT  idRefraction FROM " TBL_REFRACTION " WHERE  idPat = " + QString::number(m_currentpatient->id()) ;
+    QString LocalRequete = "SELECT  idRefraction FROM " NOM_TABLE_REFRACTION " WHERE  idPat = " + QString::number(m_currentpatient->id()) ;
     QList<QVariantList> ListeRefractions = db->StandardSelectSQL(LocalRequete,ok);
     ui->OupsPushButton->setEnabled(ListeRefractions.size() > 0);
     ui->ReprendrePushButton->setEnabled(ListeRefractions.size() > 0);
@@ -1700,11 +1700,11 @@ bool dlg_refraction::DeplaceVers(QWidget *widget, QString FinOuDebut)
 int dlg_refraction::DetruireLaMesure(int IdRefract)
 {
 //1. On supprime la mesure de la table
-    db->SupprRecordFromTable(IdRefract,"idRefraction", TBL_REFRACTION, tr("Impossible de supprimer la mesure"));
+    db->SupprRecordFromTable(IdRefract,"idRefraction", NOM_TABLE_REFRACTION, tr("Impossible de supprimer la mesure"));
 
 //2. s'il n'y a plus de mesures pour le patient => on cache les boutons Oups, Resume et Reprendre
     QString LocalRequete = "SELECT  idRefraction"
-              " FROM " TBL_REFRACTION
+              " FROM " NOM_TABLE_REFRACTION
               " WHERE  idPat = " + QString::number(m_currentpatient->id()) ;
     QList<QVariantList> ListeRefractions = db->StandardSelectSQL(LocalRequete,ok);
     ui->OupsPushButton->setEnabled(ListeRefractions.size() > 0);
@@ -1784,7 +1784,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    User *userEntete = Datas::I()->users->getById(db->getUserConnected()->getIdUserActeSuperviseur(), Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(db->getUserConnected()->getIdUserActeSuperviseur(), true);
     Entete = proc->ImpressionEntete(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
@@ -1825,7 +1825,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds["emisrecu"] =         "0";
         listbinds["formatdoc"] =        PRESCRIPTIONLUNETTES;
         listbinds["idlieu"] =           db->getUserConnected()->getSite()->id();
-        if(!db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds))
+        if(!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
             UpMessageBox::Watch(this, tr("Impossible d'enregistrer ce document dans la base!"));
     }
     delete Etat_textEdit;
@@ -1943,7 +1943,7 @@ void dlg_refraction::Init_Value_DoubleSpin(QDoubleSpinBox *DoubleSpinBox, double
 void dlg_refraction::InscriptRefraction()
 {
     bool a = InsertRefraction();
-    QString req = "select max(idrefraction) from " TBL_REFRACTION " where idpat = " + QString::number(m_currentpatient->id());
+    QString req = "select max(idrefraction) from " NOM_TABLE_REFRACTION " where idpat = " + QString::number(m_currentpatient->id());
     QVariantList refractdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && refractdata.size()>0)
         gidRefraction = refractdata.at(0).toInt();
@@ -1952,12 +1952,12 @@ void dlg_refraction::InscriptRefraction()
     if (gMode == Prescription && a)
     {
         bool ok;
-        req = "select max(idimpression) from " TBL_IMPRESSIONS " where idpat = " + QString::number(m_currentpatient->id());
+        req = "select max(idimpression) from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(m_currentpatient->id());
         QVariantList imprdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (ok && imprdata.size()>0)
         {
             int idimp = imprdata.at(0).toInt();
-            db->StandardSQL("update " TBL_IMPRESSIONS " set idRefraction = " + QString::number(gidRefraction) + " where idimpression = " + QString::number(idimp));
+            db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set idRefraction = " + QString::number(gidRefraction) + " where idimpression = " + QString::number(idimp));
         }
     }
 }
@@ -1967,7 +1967,7 @@ QString dlg_refraction::InsertCommentaireObligatoire()
     QString rep ("");
     bool ok;
     QString req = "SELECT TextComment"
-                  " FROM "  TBL_COMMENTAIRESLUNETTES
+                  " FROM "  NOM_TABLE_COMMENTAIRESLUNETTES
                   " WHERE idUser = " + QString::number(gidUser) +
                   " and ParDefautComment = 1"
                   " ORDER BY ResumeComment";
@@ -2007,7 +2007,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
        ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0)   // 16-07-2014
    {
        listbinds["OrigineK"]     = QuelleMesure();
-       listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
+       listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
    }
    if (ui->ODCheckBox->isChecked())
    {
@@ -2023,7 +2023,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
            listbinds["AddVPOD"] = ui->AddVPOD->value();
        if (gMode == Refraction  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
            listbinds["AVPOD"]   = AVPOD->text();
-       listbinds["DateRefOD"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
+       listbinds["DateRefOD"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
    }
    if (ui->OGCheckBox->isChecked())
    {
@@ -2039,9 +2039,9 @@ void dlg_refraction::InsertDonneesOphtaPatient()
            listbinds["AddVPOG"] = ui->AddVPOG->value();
        if (gMode == Refraction  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
            listbinds["AVPOG"]   = AVPOG->text();
-       listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
+       listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
    }
-   db->InsertSQLByBinds(TBL_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
+   db->InsertSQLByBinds(NOM_TABLE_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS);
 }
 
 //---------------------------------------------------------------------------------
@@ -2052,7 +2052,7 @@ bool dlg_refraction::InsertRefraction()
     QHash<QString,QVariant> listbinds;
     listbinds["idPat"]              = m_currentpatient->id();
     listbinds["idActe"]             = gACteEnCours->id();
-    listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
+    listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss");
     listbinds["QuelleMesure"]       = QuelleMesure();
     if(QuelleMesure() != "A")
         listbinds["QuelleDistance"]  = QuelleDistance();
@@ -2126,7 +2126,7 @@ bool dlg_refraction::InsertRefraction()
         listbinds["VerreTeinte"]                = ui->VerresTeintesCheckBox->isChecked()? 1 : 0;
     }
     listbinds["PrimKeyDocMed"]              = m_currentpatient->id();
-    return db->InsertSQLByBinds(TBL_REFRACTION, listbinds, tr("Erreur de création dans ") + TBL_REFRACTION);
+    return db->InsertSQLByBinds(NOM_TABLE_REFRACTION, listbinds, tr("Erreur de création dans ") + NOM_TABLE_REFRACTION);
 }
 
 //---------------------------------------------------------------------------------
@@ -2150,7 +2150,7 @@ int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun,
             " AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "                       // 24-25-26-27-28-29
             " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "                  // 30-31-32-34-35
             " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte, PrimKeyDocMed"  // 36-37-38-39-40-41
-            " FROM " TBL_REFRACTION ;
+            " FROM " NOM_TABLE_REFRACTION ;
 
     // On relit la mesure après selection dans la liste mesure (reprendre)
     if (IdRefraction.length() > 0)
@@ -2273,7 +2273,7 @@ void dlg_refraction::MajDonneesOphtaPatient()
 {
     // Recherche d'un enregistrement existant
     bool ok;
-    QString MAJrequete = "SELECT   idPat FROM " TBL_DONNEES_OPHTA_PATIENTS
+    QString MAJrequete = "SELECT   idPat FROM " NOM_TABLE_DONNEES_OPHTA_PATIENTS
               " WHERE   (idPat = " + QString::number(m_currentpatient->id()) +
               " AND QuelleMesure = '" + QuelleMesure() + "')";
     QList<QVariantList> MAJDonneesOphtalist = db->StandardSelectSQL(MAJrequete, ok, tr("Impossible de se connecter à la table des Donnees biométriques!"));
@@ -2438,7 +2438,7 @@ void dlg_refraction::RechercheMesureEnCours()
     QString Reponse ="";
 
     // On cherche si le patient est enregistré dans la table réfractions - sinon, on sort de la procédure
-    QString selrequete = "SELECT idActe FROM " TBL_REFRACTION
+    QString selrequete = "SELECT idActe FROM " NOM_TABLE_REFRACTION
               " WHERE IdPat = " + QString::number(m_currentpatient->id()) + " and quellemesure <> 'null'" ;
     //proc->Edit(selrequete);
     QList<QVariantList> mesurelist = db->StandardSelectSQL(selrequete, ok);
@@ -2448,7 +2448,7 @@ void dlg_refraction::RechercheMesureEnCours()
         ui->ReprendrePushButton->setEnabled(false);
         ui->OupsPushButton->setEnabled(false);
         ui->ResumePushButton->setEnabled(false);
-        QMap<QString,QVariant>  Age = Utils::CalculAge(m_currentpatient->datedenaissance(), QDate::currentDate());
+        QMap<QString,QVariant>  Age = Item::CalculAge(m_currentpatient->datedenaissance(), QDate::currentDate());
         if (Age["annee"].toInt() < 45)
             ui->VLRadioButton->setChecked(true);
         else
@@ -2460,7 +2460,7 @@ void dlg_refraction::RechercheMesureEnCours()
     // recherche d'une mesure du jour
     while (i == 0)
     {
-        selrequete = "SELECT idActe, QuelleMesure FROM " TBL_REFRACTION   // recherche d'une mesure pour le jour en cours
+        selrequete = "SELECT idActe, QuelleMesure FROM " NOM_TABLE_REFRACTION   // recherche d'une mesure pour le jour en cours
                   " WHERE DateRefraction = '" + QDate::currentDate().toString("yyyy-MM-dd") +
                   "' AND   IdPat = " + QString::number(m_currentpatient->id()) ;
         QList<QVariantList> mesurelist2 = db->StandardSelectSQL(selrequete, ok);
@@ -2560,7 +2560,7 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
 
     QString requeteBase, zdate;
     requeteBase =   "SELECT ODcoche, OGcoche, DateRefraction, FormuleOD, FormuleOG "     // 0-1-2-3-4
-                    " FROM " TBL_REFRACTION
+                    " FROM " NOM_TABLE_REFRACTION
                     " WHERE  idPat        =  " + QString::number(m_currentpatient->id()) +
                     " AND    QuelleMesure = '" + Mesure     + "'"
                     " AND    Cycloplegie  =  " + Cycloplegie   ;
@@ -2638,7 +2638,7 @@ QString dlg_refraction::RechercheVerres()
     QString     zdate, Formule, TypeMesure;
 
     QString requete     =   "SELECT ODcoche, OGcoche, DateRefraction, FormuleOD, FormuleOG, QuelleMesure "     // 0-1-2-3-4-5
-                    " FROM " TBL_REFRACTION
+                    " FROM " NOM_TABLE_REFRACTION
                     " WHERE  idPat        =  "+ QString::number(m_currentpatient->id()) +
                     " AND (QuelleMesure = 'P' OR QuelleMesure = 'O') "
                     " ORDER  BY DateRefraction DESC ";
@@ -3103,11 +3103,11 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
         case 1:
-            gResultatPO =  "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Porte:</b></font></td><td>" + gResultatP + "</td>" + ResultatPrisme + ResultatRyser;
+            gResultatPO =  "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Porte:</b></font></td><td>" + gResultatP + "</td>" + ResultatPrisme + ResultatRyser;
             gResultatPO.insert(gResultatPO.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         case 6:
-            gResultatPR =  "<td width=\"30\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>VP:</b></font></td><td>" + gResultatP + " " + ui->CommentairePrescriptionTextEdit->toPlainText() + "</td>" + ResultatPrisme + ResultatRyser;
+            gResultatPR =  "<td width=\"30\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>VP:</b></font></td><td>" + gResultatP + " " + ui->CommentairePrescriptionTextEdit->toPlainText() + "</td>" + ResultatPrisme + ResultatRyser;
             gResultatPR.insert(gResultatPR.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         default:
@@ -3157,31 +3157,31 @@ void dlg_refraction::ResumeObservation()
         if (QLocale().toDouble(ui->K1OD->text())>0)
         {
             if (gDioptrAstOD!=0.0)
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
+                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + proc->CouleurTitres + "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OD->text() + "/" + ui->K2OD->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2)
                         + "</td><td width=\"120\">" + QString::number(gDioptrAstOD,'f',2) +  tr(" à ") + ui->AxeKOD->text() + "°</td>";
             else
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
+                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + proc->CouleurTitres + "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
                         + ui->K1OD->text() + tr(" à ") + ui->AxeKOD->text() + "°/" + ui->K2OD->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2) + "</td>";
         }
         if (QLocale().toDouble(ui->K1OG->text())>0)
         {
             if (gDioptrAstOG!=0.0)
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
+                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + proc->CouleurTitres + "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() + "/" + ui->K2OG->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2)
                         + "</td><td width=\"120\">" + QString::number(gDioptrAstOG,'f',2) +  tr(" à ") + ui->AxeKOG->text() + "°</td>";
             else
-                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
+                kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " + proc->CouleurTitres + "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() +  tr(" à ") + ui->AxeKOG->text() + "°/" + ui->K2OG->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2) + "</td>";
         }
         switch (IMesure)
         {
         case 2:
-            gResultatAnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>" + tr("(non dilaté)") + "</td>" + kerato;
+            gResultatAnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>" + tr("(non dilaté)") + "</td>" + kerato;
             gResultatAnondil.insert(gResultatAnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         case 3:
-            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">" + tr("(dilaté)") + "</font></td>" + kerato;
+            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">" + tr("(dilaté)") + "</font></td>" + kerato;
             gResultatAdil.insert(gResultatAdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
             break;
         default:
@@ -3328,11 +3328,11 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
             case 4:
-                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + db->getUserConnected()->getLogin() + "</td>";
+                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + db->getUserConnected()->getLogin() + "</td>";
                 gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             case 5:
-                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->getLogin() + "</td>";
+                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " + proc->CouleurTitres + "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->getLogin() + "</td>";
                 gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             default:
@@ -3872,7 +3872,7 @@ QString dlg_refraction::ResultatObservation()
 //---------------------------------------------------------------------------------
 void dlg_refraction::UpdateDonneesOphtaPatient()
 {
-    QString UpdateDOPrequete = "UPDATE  " TBL_DONNEES_OPHTA_PATIENTS
+    QString UpdateDOPrequete = "UPDATE  " NOM_TABLE_DONNEES_OPHTA_PATIENTS
                 " SET QuelleMesure = '" + QuelleMesure() + "'";
     if (QuelleMesure()=="A")
     {
@@ -3895,7 +3895,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
         {
             UpdateDOPrequete +=
                     ", OrigineK = '" + QuelleMesure() + "'" +
-                    ", DateK =  '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+                    ", DateK =  '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss") + "'";
         }
     }
     if (ui->ODCheckBox->isChecked())
@@ -3922,7 +3922,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
             UpdateDOPrequete += ", AVPOD = '" + AVPOD->text() + "'";
         else
             UpdateDOPrequete += ", AVPOD = null";
-        UpdateDOPrequete += ", DateRefOD = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+        UpdateDOPrequete += ", DateRefOD = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss") + "'";
     }
     if (ui->OGCheckBox->isChecked())
     {
@@ -3948,10 +3948,10 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
             UpdateDOPrequete += ", AVPOG = '" + AVPOG->text() + "'";
         else
             UpdateDOPrequete += ", AVPOG = null";
-        UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+        UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd hh:mm:ss") + "'";
     }
     UpdateDOPrequete +=  " WHERE idPat = " + QString::number(m_currentpatient->id()) + " AND QuelleMesure = '" + QuelleMesure() + "'";
-    db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
+    db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ NOM_TABLE_DONNEES_OPHTA_PATIENTS);
 }
 
 //---------------------------------------------------------------------------------------------------------

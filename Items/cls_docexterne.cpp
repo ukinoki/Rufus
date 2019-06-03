@@ -26,6 +26,7 @@ DocExterne::DocExterne(QJsonObject data, QObject *parent) : Item(parent)
 
 bool DocExterne::isAllLoaded() const                { return m_isAllLoaded;}
 
+int DocExterne::id() const                          { return m_idimpression;}
 int DocExterne::iduser() const                      { return m_iduser;}
 int DocExterne::idpatient() const                   { return m_idpatient;}
 QString DocExterne::typedoc() const                 { return m_typedoc;}
@@ -56,7 +57,7 @@ void DocExterne::setData(QJsonObject data)
         return;
     setDataBool(data, "isallloaded", m_isAllLoaded);
 
-    setDataInt(data, "id", m_id);
+    setDataInt(data, "id", m_idimpression);
     setDataInt(data, "iduser", m_iduser);
     setDataInt(data, "idpat", m_idpatient);
     setDataString(data, "typedoc", m_typedoc);
@@ -76,6 +77,5 @@ void DocExterne::setData(QJsonObject data)
 
     setDataString(data, "formatdoc", m_formatdoc);
     setDataInt(data, "importance", m_importance);
-    m_data = data;
 }
 

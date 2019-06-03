@@ -15,9 +15,10 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #include "cls_docsexternes.h"
 
-DocsExternes::DocsExternes(QObject *parent) : ItemsList(parent)
+DocsExternes::DocsExternes()
 {
     m_docsexternes = new QMap<int, DocExterne*>();
 }
@@ -33,7 +34,7 @@ QMap<int, DocExterne *> *DocsExternes::docsexternes()
  * \return Q_NULLPTR si aucun Document trouvée
  * \return DocExterne* le Document correspondant à l'id
  */
-DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
+DocExterne* DocsExternes::getById(int id, bool loadDetails, bool addToList)
 {
     QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->find(id);
     DocExterne *result;
@@ -42,24 +43,21 @@ DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLI
     else
     {
         result = itdoc.value();
-        if (loadDetails == Item::NoLoadDetails)
+        if (!loadDetails)
             return result;
-        addToList = ItemsList::NoAddToList;
+        addToList = false;
     }
 
-    if( loadDetails == Item::LoadDetails && !result->isAllLoaded() )
+    if( loadDetails && !result->isAllLoaded() )
     {
         QJsonObject jsonDocExterne = DataBase::I()->loadDocExterneData(id);
         if( jsonDocExterne.isEmpty() )
-        {
-            delete result;
             return Q_NULLPTR;
-        }
         else
             result->setData(jsonDocExterne);
     }
-    if( addToList == ItemsList::AddToList)
-        add( m_docsexternes, result->id(), result );
+    if( addToList )
+        add( result );
     return result;
 }
 
@@ -73,13 +71,21 @@ void DocsExternes::setNouveauDocumentFalse()
     m_nouveaudocument = false;
 }
 
-void DocsExternes::setsoustype(DocExterne* docmt, QString soustype)
+DocExterne* DocsExternes::reload(DocExterne* docmt)
 {
-    if (soustype == "")
-        soustype = "null";
-    else
-        soustype = "'" + Utils::correctquoteSQL(soustype) + "'";
-    DataBase::I()->StandardSQL("update " TBL_IMPRESSIONS " set soustypedoc = " + soustype + " where idimpression = " + QString::number(docmt->id()));
+    docmt->setAllLoaded(false);
+    return getById(docmt->id());
+}
+
+bool DocsExternes::add(DocExterne *doc)
+{
+    if( doc == Q_NULLPTR)
+        return false;
+    if( m_docsexternes->contains(doc->id()) )
+        return false;
+    m_docsexternes->insert(doc->id(), doc);
+    m_nouveaudocument = true;
+    return true;
 }
 
 void DocsExternes::addList(QList<DocExterne*> listdocs)
@@ -87,38 +93,21 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
     for(QList<DocExterne*>::const_iterator it = listdocs.constBegin(); it != listdocs.constEnd(); ++it )
     {
         DocExterne *doc = const_cast<DocExterne*>(*it);
-        add(m_docsexternes, doc->id(), doc);
+        add(doc);
     }
 }
 
-/*!
- * \brief DocsExternes::initListeByPatient
- * Charge l'ensemble des documents externes pour un patient
- * et les ajoute à la classe Patients
- */
-void DocsExternes::initListeByPatient(Patient *pat)
+void DocsExternes::clearAll()
 {
-    clearAll(m_docsexternes);
-    addList(DataBase::I()->loadDoscExternesByPatient(pat));
+    for( QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->constBegin(); itdoc != m_docsexternes->constEnd(); ++itdoc)
+        delete itdoc.value();
+    m_docsexternes->clear();
 }
 
-
-void DocsExternes::SupprimeDocument(DocExterne *doc)
+void DocsExternes::remove(DocExterne *doc)
 {
-    DataBase::I()->StandardSQL("delete from " TBL_REFRACTION " where idrefraction = (select idrefraction from " TBL_IMPRESSIONS
-                    " where idimpression = " + QString::number(doc->id()) + ")");
-    DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));
-    DataBase::I()->SupprRecordFromTable(doc->id(), CP_IDIMPRESSION_IMPRESSIONS, TBL_IMPRESSIONS);
-    remove(m_docsexternes, doc);
+    if (doc == Q_NULLPTR)
+        return;
+    m_docsexternes->remove(doc->id());
+    delete doc;
 }
-
-DocExterne* DocsExternes::CreationDocument(int idImpression, int idUser, int idPat, QString TypeDoc, QString SousTypeDoc,
-                                     QString Titre, QString TextEntete, QString TextCorps, QString TextOrigine, QString  TextPied,
-                                     QDateTime DateImpression, QByteArray pdf, bool Compression, QByteArray jpg, QByteArray autre,
-                                     QString formatautre, QString lienversfichier, QString LienFichierDistant, int idRefraction, bool ALD,
-                                     int UserEmetteur, QString Conclusion, int EmisRecu, QString FormatDoc, int idLieu,
-                                     int Importance)
-{
-    return Q_NULLPTR;
-}
-

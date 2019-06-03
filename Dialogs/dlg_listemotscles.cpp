@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listemotscles.h"
 
 dlg_listemotscles::dlg_listemotscles(Patient *pat, QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionMotsCles", parent)
+    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionMotsCles", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     gPatientEncours    = pat;
@@ -133,23 +133,23 @@ void dlg_listemotscles::Slot_VerifMC()
     }
     if (gAskDialog->mode()=="Creation")
     {
-        QString req = "insert into " TBL_MOTSCLES " (MotCle) values('" + Utils::correctquoteSQL(nouvMC) + "')";
+        QString req = "insert into " NOM_TABLE_MOTSCLES " (MotCle) values('" + Utils::correctquoteSQL(nouvMC) + "')";
         db->StandardSQL(req);
     }
     else if (gAskDialog->mode()=="Modif")
     {
-        QString req = "update " TBL_MOTSCLES " set MotCle = '" + Utils::correctquoteSQL(nouvMC) + "' where MotCle = '"
+        QString req = "update " NOM_TABLE_MOTSCLES " set MotCle = '" + Utils::correctquoteSQL(nouvMC) + "' where MotCle = '"
                    + gmodele->itemFromIndex(gselection->currentIndex())->text() + "'";
         db->StandardSQL(req);
     }
-    db->StandardSQL("delete from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id()));
+    db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id()));
     QStringList listidMc;
     for (int i=0; i< gmodele->rowCount(); i++)
         if(gmodele->item(i,0)->checkState() == Qt::Checked)
             listidMc << gmodele->item(i,0)->accessibleDescription();
     if (listidMc.size()>0)
     {
-        QString req = "insert into " TBL_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
+        QString req = "insert into " NOM_TABLE_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
         req += "(" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
             req += ", (" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(j) + ")";
@@ -173,7 +173,7 @@ void dlg_listemotscles::SupprMC()
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        QString req = "delete from " TBL_MOTSCLES " where idmotcle = " + gmodele->itemFromIndex(gselection->currentIndex())->accessibleDescription();
+        QString req = "delete from " NOM_TABLE_MOTSCLES " where idmotcle = " + gmodele->itemFromIndex(gselection->currentIndex())->accessibleDescription();
         db->StandardSQL(req);
         RemplirTableView();
     }
@@ -187,14 +187,14 @@ void dlg_listemotscles::Slot_Enablebuttons()
 
 void dlg_listemotscles::Slot_OK()
 {
-    db->StandardSQL("delete from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id()));
+    db->StandardSQL("delete from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id()));
     QStringList listidMc;
     for (int i=0; i< gmodele->rowCount(); i++)
         if(gmodele->item(i,0)->checkState() == Qt::Checked)
             listidMc << gmodele->item(i,0)->accessibleDescription();
     if (listidMc.size()>0)
     {
-        QString req = "insert into " TBL_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
+        QString req = "insert into " NOM_TABLE_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
         req += "(" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
             req += ", (" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(j) + ")";
@@ -216,7 +216,7 @@ QStringList dlg_listemotscles::listMCDepart()
 void dlg_listemotscles::RemplirTableView()
 {
     bool ok;
-    QString req = "select idMotcle from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id());
+    QString req = "select idMotcle from " NOM_TABLE_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id());
     QList<QVariantList> idmotclelist = db->StandardSelectSQL(req, ok);
     QStringList listidMC;
     bool a = glistidMCdepart.contains("-1");
@@ -230,7 +230,7 @@ void dlg_listemotscles::RemplirTableView()
                 glistidMCdepart << idmotclelist.at(i).at(0).toString();
         }
     }
-    req = "select idmotcle, motcle from " TBL_MOTSCLES " order by motcle";
+    req = "select idmotcle, motcle from " NOM_TABLE_MOTSCLES " order by motcle";
     QList<QVariantList> motclelist = db->StandardSelectSQL(req, ok);
     QStandardItem       *pitem;
     gmodele = dynamic_cast<QStandardItemModel*>(tabMC->model());

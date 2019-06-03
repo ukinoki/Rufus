@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_VILLES_H
 
 #include "cls_ville.h"
-#include "cls_itemslist.h"
 
 #include <QAbstractListModel>
 #include <QJsonArray>
@@ -46,7 +45,7 @@ private:
 
 };
 
-class Villes : public ItemsList
+class Villes
 {
 
 private:
@@ -54,12 +53,11 @@ private:
     QMultiMap<QString, Ville*> m_codePostal;    //!< la liste des villes par codePostal
     QStringList m_listeNomVilles;               //!< la liste de nom de ville
     QStringList m_listeCodePostal;              //!< la liste des codes postaux
-    bool add(Ville *ville);
-    void addList(QList<Ville*> listvilles);
 
 public:
-    Villes(QObject *parent = Q_NULLPTR);
+    Villes();
     void initListe();
+    void add(Ville *ville);
 
     QStringList getListVilles();
     QStringList getListCodePostal();
@@ -69,4 +67,7 @@ public:
     QList<Ville *> getVilleByCodePostalEtNom(QString codePostal, QString name);
 };
 
-#endif // CLS_VILLES_H
+
+
+
+#endif // CLS_SITES_H
