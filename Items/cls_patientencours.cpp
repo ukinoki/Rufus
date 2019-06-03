@@ -38,8 +38,7 @@ void PatientEnCours::setData(QJsonObject data)
     setDataString(data, "posteexamen", m_posteexamen);
     setDataInt(data, "iduserencoursexam", m_iduserencoursexam);
     setDataInt(data, "idsaldat", m_idsaldat);
-
-    void setData(QJsonObject data);
+    m_data = data;
 }
 
 

@@ -61,12 +61,10 @@ private:
     QTime m_heure;              //!< heure de la création de l'acte
     QDateTime m_agePatient;     //!< age du Patient au moment de l'acte
 
-    QJsonObject m_data;         //!< les datas d'una cte
 
 public:
     Acte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
-    QJsonObject datas() const;
 
     bool courrierAFaire();
     bool isFactureEnFranc() const;

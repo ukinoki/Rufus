@@ -435,7 +435,7 @@ void dlg_gestioncomptes::ValidCompte()
                                             ui->NomCompteAbregeuplineEdit->text(),             //! NomCompteAbrege
                                             QLocale().toDouble(ui->SoldeuplineEdit->text()),   //! SoldeSurDernierReleve
                                             gSociete,                                          //! Partage
-                                            ui->DesactiveComptecheckBox->isChecked());         //! Desactive
+                                            ui->DesactiveComptecheckBox->isChecked());         //! Partage
     ReconstruitListeComptes(m_userencours);
     m_comptencours = Datas::I()->comptes->getById(idcompte);
 

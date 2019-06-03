@@ -33,12 +33,19 @@ public:
     QMap<int, DocExterne *>*    docsexternes();
     DocExterne*                 getById(int id, Item::LOADDETAILS loadDetails = Item::LoadDetails, ItemsList::ADDTOLIST addToList = ItemsList::AddToList);
     void                        addList(QList<DocExterne*> listdocs);
-    void                        remove(DocExterne *doc);
     void                        initListeByPatient(Patient *pat);
 
     bool                        NouveauDocument();
     void                        setNouveauDocumentFalse();
     void                        setsoustype(DocExterne* docmt, QString soustype = "");                  //!> actualise le soustype d'un document
-    bool                        SupprimeDocExterne(DocExterne* doc);
+
+    //!> actions sur les enregistrements
+    void                SupprimeDocument(DocExterne *doc);
+    DocExterne*         CreationDocument(int idImpression, int idUser, int idPat, QString TypeDoc, QString SousTypeDoc,
+                                         QString Titre, QString TextEntete, QString TextCorps, QString TextOrigine, QString  TextPied,
+                                         QDateTime DateImpression, QByteArray pdf, bool Compression, QByteArray jpg, QByteArray autre,
+                                         QString formatautre, QString lienversfichier, QString LienFichierDistant, int idRefraction, bool ALD,
+                                         int UserEmetteur, QString Conclusion, int EmisRecu, QString FormatDoc, int idLieu,
+                                         int Importance);
 };
 #endif // CLS_DOCSEXTERNES_H

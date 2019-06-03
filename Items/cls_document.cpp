@@ -55,6 +55,7 @@ void Document::setData(QJsonObject data)
     setDataBool(data, "prescription", m_prescription);
     setDataBool(data, "editable", m_editable);
     setDataBool(data, "medical", m_medical);
+    m_data = data;
 }
 
 

@@ -48,6 +48,7 @@ void Cotation::setData(QJsonObject data)
     setDataInt(data, "iduser", m_iduser);
     setDataInt(data, "frequence", m_frequence);
     setDataString(data, "descriptif", m_descriptif);
+    m_data = data;
 }
 
 

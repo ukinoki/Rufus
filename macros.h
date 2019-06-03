@@ -97,7 +97,35 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDUSERCOMPTABLE_ACTES                     "UserComptable"
 #define CP_COURRIERAFAIRE_ACTES                      "ActeCourrierafaire"
 
-                            //! Table renseignementsmedicauxpatients
+                            //! Table Rufus.Impressions
+#define CP_IDIMPRESSION_IMPRESSIONS                  "idImpression"
+#define CP_IDUSER_IMPRESSIONS                        "idUser"
+#define CP_IDPAT_IMPRESSIONS                         "idPat"
+#define CP_TYPEDOC_IMPRESSIONS                       "TypeDoc"
+#define CP_SOUSTYPEDOC_IMPRESSIONS                   "SousTypeDoc"
+#define CP_TITRE_IMPRESSIONS                         "Titre"
+#define CP_TEXTENTETE_IMPRESSIONS                    "TextEntete"
+#define CP_TEXTCORPS_IMPRESSIONS                     "TextCorps"
+#define CP_TEXTORIGINE_IMPRESSIONS                   "TextOrigine"
+#define CP_TEXTPIED_IMPRESSIONS                      "TextPied"
+#define CP_DATE_IMPRESSIONS                          "DateImpression"
+#define CP_ISPDF_IMPRESSIONS                         "pdf"
+#define CP_ISCOMPRESSION_IMPRESSIONS                 "Compression"
+#define CP_ISJPG_IMPRESSIONS                         "jpg"
+#define CP_ISAUTRE_IMPRESSIONS                       "autre"
+#define CP_FORMATAUTRE_IMPRESSIONS                   "formatautre"
+#define CP_LIENFICHIER_IMPRESSIONS                   "lienversfichier"
+#define CP_LIENFICHIERDISTANT_IMPRESSIONS            "LienFichierDistant"
+#define CP_IDREFRACTION_IMPRESSIONS                  "idRefraction"
+#define CP_ISALD_IMPRESSIONS                         "ALD"
+#define CP_IDEMETTEUR_IMPRESSIONS                    "UserEmetteur"
+#define CP_CONCLUSION_IMPRESSIONS                    "Conclusion"
+#define CP_EMISORRECU_IMPRESSIONS                    "EmisRecu"
+#define CP_FORMATDOC_IMPRESSIONS                     "FormatDoc"
+#define CP_IDLIEU_IMPRESSIONS                        "idLieu"
+#define CP_IMPORTANCE_IMPRESSIONS                    "Importance"
+
+                            //! Table Rufus.renseignementsmedicauxpatients
 #define CP_ATCDTSOPH_RMP                             "RMPAtcdtsOphs"
 #define CP_TRAITMTOPH_RMP                            "RMPTtOphs"
 #define CP_IMPORTANT_RMP                             "Important"
@@ -111,10 +139,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDSPE2_RMP                                "idCorMedSpe2"
 #define CP_TABAC_RMP                                 "Tabac"
 
-                            //! Table Messagerie
+                            //! Table Rufus.Messagerie
 #define CP_TEXTMSG_MESSAGERIE                        "TexteMessage"
 
-                            //! Table salledattente
+                            //! Table Rufus.salledattente
 #define CP_IDPAT_SALDAT                              "idPat"
 #define CP_IDUSER_SALDAT                             "idUser"
 #define CP_STATUT_SALDAT                             "Statut"

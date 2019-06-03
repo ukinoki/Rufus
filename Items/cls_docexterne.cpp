@@ -76,5 +76,6 @@ void DocExterne::setData(QJsonObject data)
 
     setDataString(data, "formatdoc", m_formatdoc);
     setDataInt(data, "importance", m_importance);
+    m_data = data;
 }
 

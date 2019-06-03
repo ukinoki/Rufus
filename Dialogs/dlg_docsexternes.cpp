@@ -963,10 +963,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         else
         {
             if (detruirealafin)
-            {
-                db->SupprRecordFromTable(docmt->id(),"idimpression",TBL_IMPRESSIONS);
-                m_docsexternes->remove(docmt);
-            }
+                m_docsexternes->SupprimeDocument(docmt);
             ActualiseDocsExternes();
             int idimpr = db->selectMaxFromTable("idimpression", TBL_IMPRESSIONS, ok);
             QModelIndex idx = getIndexFromId(gmodele, idimpr);
@@ -1218,7 +1215,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
                 --itdoc;
             idaafficher = QString::number(itdoc.key());
         }
-        m_docsexternes->SupprimeDocExterne(docmt);
+        m_docsexternes->SupprimeDocument(docmt);
         RemplirTreeView();
         ListDocsTreeView->expandAll();
         if (idaafficher != "")

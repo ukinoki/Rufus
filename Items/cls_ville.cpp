@@ -19,6 +19,7 @@ void Ville::setData(QJsonObject data)
     setDataInt(data, "ville_id", m_id);
     setDataString(data, "codePostal", m_codePostal);
     setDataString(data, "ville", m_nom);
+    m_data = data;
 }
 
 

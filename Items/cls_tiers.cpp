@@ -40,6 +40,7 @@ void Tiers::setData(QJsonObject data)
     setDataString(data, "villetiers", m_villetiers);
     setDataString(data, "telephonetiers", m_telephonetiers);
     setDataString(data, "faxtiers", m_faxtiers);
+    m_data = data;
 }
 
 

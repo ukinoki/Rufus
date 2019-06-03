@@ -77,6 +77,7 @@ void Depense::setData(QJsonObject data)
     setDataBool(data, "echeancier", m_echeancier);
     setDataString(data, "objetecheancier", m_objetecheancier);
     setDataInt(data, "idrubrique", m_idrubriquefiscale);
+    m_data = data;
 }
 
 

@@ -45,13 +45,6 @@ LignePaiement* LignesPaiements::getById(QString stringid)
     return itcpt.value();
 }
 
-void LignesPaiements::clearAll()
-{
-    for( QMap<QString, LignePaiement*>::const_iterator itmtf = m_lignespaiements->constBegin(); itmtf != m_lignespaiements->constEnd(); ++itmtf)
-        delete itmtf.value();
-    m_lignespaiements->clear();
-}
-
 /*!
  * \brief LignesPaiements::initListe
  * Charge l'ensemble des lignes de paiement pour les actes concernant un patient
@@ -59,7 +52,7 @@ void LignesPaiements::clearAll()
  */
 void LignesPaiements::initListeByPatient(Patient *pat)
 {
-    clearAll();
+    clearAll(m_lignespaiements);
     addList(DataBase::I()->loadlignespaiementsByPatient(pat));
 }
 

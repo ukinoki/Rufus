@@ -90,6 +90,7 @@ void User::setData(QJsonObject data)
     setDataBool(data, "cotation", m_cotation);
 
     setDataDateTime(data, "dateDerniereConnexion", m_dateDerniereConnexion);
+    m_data = data;
 }
 
 

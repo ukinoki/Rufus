@@ -75,7 +75,6 @@ void DocsExternes::setNouveauDocumentFalse()
 
 void DocsExternes::setsoustype(DocExterne* docmt, QString soustype)
 {
-    docmt->setsoustype(soustype);
     if (soustype == "")
         soustype = "null";
     else
@@ -92,14 +91,6 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
     }
 }
 
-void DocsExternes::remove(DocExterne *doc)
-{
-    if (doc == Q_NULLPTR)
-        return;
-    m_docsexternes->remove(doc->id());
-    delete doc;
-}
-
 /*!
  * \brief DocsExternes::initListeByPatient
  * Charge l'ensemble des documents externes pour un patient
@@ -112,14 +103,22 @@ void DocsExternes::initListeByPatient(Patient *pat)
 }
 
 
-bool DocsExternes::SupprimeDocExterne(DocExterne* doc)
+void DocsExternes::SupprimeDocument(DocExterne *doc)
 {
     DataBase::I()->StandardSQL("delete from " TBL_REFRACTION " where idrefraction = (select idrefraction from " TBL_IMPRESSIONS
                     " where idimpression = " + QString::number(doc->id()) + ")");
-    DataBase::I()->StandardSQL("delete from " TBL_IMPRESSIONS " where idimpression = " + QString::number(doc->id()));
     DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));
-    remove(doc);
-    return true;
+    DataBase::I()->SupprRecordFromTable(doc->id(), CP_IDIMPRESSION_IMPRESSIONS, TBL_IMPRESSIONS);
+    remove(m_docsexternes, doc);
 }
 
+DocExterne* DocsExternes::CreationDocument(int idImpression, int idUser, int idPat, QString TypeDoc, QString SousTypeDoc,
+                                     QString Titre, QString TextEntete, QString TextCorps, QString TextOrigine, QString  TextPied,
+                                     QDateTime DateImpression, QByteArray pdf, bool Compression, QByteArray jpg, QByteArray autre,
+                                     QString formatautre, QString lienversfichier, QString LienFichierDistant, int idRefraction, bool ALD,
+                                     int UserEmetteur, QString Conclusion, int EmisRecu, QString FormatDoc, int idLieu,
+                                     int Importance)
+{
+    return Q_NULLPTR;
+}
 

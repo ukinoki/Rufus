@@ -36,7 +36,6 @@ int Acte::numcentre() const             { return m_numCentre; }
 int Acte::idlieu() const                { return m_idLieu; }
 QTime Acte::heure() const               { return m_heure; }
 bool Acte::effectueparremplacant() const{ return m_remplacant; }
-QJsonObject Acte::datas() const         { return m_data; }
 
 Acte::Acte(QJsonObject data, QObject *parent) : Item(parent)
 {

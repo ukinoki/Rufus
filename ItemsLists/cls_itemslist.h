@@ -11,6 +11,7 @@ public:
     explicit ItemsList(QObject *parent = Q_NULLPTR);
     enum ADDTOLIST {AddToList, NoAddToList};
     enum POSITION {Debut, Prec, Suiv, Fin};
+
     /*!
      * \brief ItemsList::clearAll
      * Cette fonction vide un QMap de son contenu et delete les items
@@ -20,6 +21,13 @@ public:
     void clearAll(QMap<int, T*> *m_map)
     {
         for(typename QMap<int, T*>::const_iterator it = m_map->constBegin(); it != m_map->constEnd(); ++it)
+            delete it.value();
+        m_map->clear();
+    }
+    template <typename T>
+    void clearAll(QMap<QString, T*> *m_map)
+    {
+        for(typename QMap<QString, T*>::const_iterator it = m_map->constBegin(); it != m_map->constEnd(); ++it)
             delete it.value();
         m_map->clear();
     }
@@ -37,12 +45,18 @@ protected:
      * \return false si l'item est déjà présent dans le QMap et delete l'item dans ce cas
      */
     template <typename T>
-    bool add(QMap<int, T*> *m_map, int id, T* item)
+    bool add(QMap<int, T*> *m_map, int id, T* item, Item::UPDATE upd = Item::NoUpdate)
     {
         if (item == Q_NULLPTR)
             return false;
         if( m_map->contains(id) )
         {
+            if (upd == Item::ForceUpdate)
+            {
+                typename QMap<int, T*>::const_iterator it = m_map->find(id);
+                if (it != m_map->constEnd())
+                    it.value()->setData(item->datas());
+            }
             delete item;
             return false;
         }
@@ -50,12 +64,18 @@ protected:
         return true;
     }
     template <typename T>
-    bool add(QMap<QString, T*> *m_map, QString stringid, T* item)
+    bool add(QMap<QString, T*> *m_map, QString stringid, T* item, Item::UPDATE upd = Item::NoUpdate)
     {
         if (item == Q_NULLPTR)
             return false;
         if( m_map->contains(stringid) )
         {
+            if (upd == Item::ForceUpdate)
+            {
+                typename QMap<QString, T*>::const_iterator it = m_map->find(stringid);
+                if (it != m_map->constEnd())
+                    it.value()->setData(item->datas());
+            }
             delete item;
             return false;
         }

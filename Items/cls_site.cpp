@@ -37,6 +37,7 @@ void Site::setData(QJsonObject data)
     setDataString(data, "ville", m_ville);
     setDataString(data, "telephone", m_telephone);
     setDataString(data, "fax", m_fax);
+    m_data = data;
 }
 
 

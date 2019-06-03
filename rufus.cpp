@@ -3345,7 +3345,7 @@ void Rufus::ChoixMenuContextuelListePatients(QString choix)
             Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
             Dlg_ActesPrecs  ->exec();
         }
-        acts->clearAll();
+        acts->clearAll(acts->actes());
         delete acts;
     }
     else if (choix == "SalDat")
@@ -6897,13 +6897,8 @@ void Rufus::CreerActe(Patient *pat)
     if (ui->Acteframe->isVisible())
         if(!AutorDepartConsult(false)) return;
     Acte * acte = m_listeactes->CreationActe(pat, proc->idCentre());
-    if (acte == Q_NULLPTR)
-        return;
     m_currentact = acte;
-    acte = Q_NULLPTR;
-    delete acte;
 
-    m_listeactes->add(m_currentact);
     AfficheActe(m_currentact);
     if (m_listeactes->actes()->size() > 1)
     {
@@ -9609,8 +9604,8 @@ void Rufus::SupprimerDossier(Patient *pat)
     //!. Suppression du dossier, reconstruction de la liste et du treeView
     m_listepatientsencours->SupprimePatientEnCours(m_listepatientsencours->getById(pat->id()));
     m_listepatients->SupprimePatient(pat);
-    m_listeactes->clearAll();
-    m_listepaiements->clearAll();
+    m_listeactes->clearAll(m_listeactes->actes());
+    m_listepaiements->clearAll(m_listepaiements->lignespaiements());
     m_currentpatient = Q_NULLPTR;
     m_listeactes = Q_NULLPTR;
     m_listepaiements = Q_NULLPTR;

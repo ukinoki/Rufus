@@ -31,19 +31,17 @@ private:
                                                         * dans la table ComptaMedicale.lignesaiements correspondant à cette classe (erreur du début de la rédaction du programme)
                                                         * par contre, le couple idActe/idRecette est unique pour chaque enregistrement
                                                         * la key est donc la concaténation de ces 2 champs séparés par un séparateur */
-    void addList(QList<LignePaiement*> listlignes);
+    void                            addList(QList<LignePaiement*> listlignes);
 
 public:
-    explicit LignesPaiements(QObject *parent = Q_NULLPTR);
+    explicit                        LignesPaiements(QObject *parent = Q_NULLPTR);
 
-    QMap<QString, LignePaiement *> *lignespaiements() const;
-
-    LignePaiement* getById(QString stringid);
-    void clearAll();
-    void initListeByPatient(Patient *pat);
+    QMap<QString, LignePaiement *>* lignespaiements() const;
+    LignePaiement*                  getById(QString stringid);
+    void                            initListeByPatient(Patient *pat);
 
     //!> actions sur les enregistrements
-    void    SupprimeActeLignesPaiements(Acte *act);         //!> Supprime toutes les lignes de paiement correspondant à un acte
+    void                            SupprimeActeLignesPaiements(Acte *act);         //!> Supprime toutes les lignes de paiement correspondant à un acte
 };
 
 #endif // CLS_LIGNESPAIEMENTS_H

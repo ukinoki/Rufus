@@ -497,7 +497,7 @@ void dlg_motifs::CreeMotif()
                                              0,                             //! duree
                                              false,                         //! pardefaut
                                              true,                          //! utiliser
-                                             row+1);                        //! noOrdreidSalDat
+                                             row+1);                        //! noOrdre
     if (motif == Q_NULLPTR)
         return;
     ui->MotifsupTableWidget->insertRow(row);

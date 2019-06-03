@@ -33,6 +33,7 @@ public:
     explicit Item(QObject *parent = Q_NULLPTR);
     int id() const { return m_id; }
     QString stringid() const  { return m_stringid; }
+    QJsonObject datas() const { return m_data; }
 
 protected:
 
@@ -49,6 +50,7 @@ protected:
 
     int m_id;
     QString  m_stringid;
+    QJsonObject m_data;         //!< les datas d'un item
 };
 
 #endif // CLS_ITEM_H

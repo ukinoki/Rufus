@@ -46,6 +46,7 @@ void Compte::setData(QJsonObject data)
     setDataDouble(data, "solde", m_solde);
     setDataBool(data, "desactive", m_desactive);
     setDataBool(data, "partage", m_partage);
+    m_data = data;
 }
 
 void Compte::setSolde(double solde)

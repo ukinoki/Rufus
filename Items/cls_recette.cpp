@@ -58,4 +58,5 @@ void Recette::setData(QJsonObject data)
     setDataDouble(data, "encaissementautrerecette", m_montantautrerecettes);
     setDataBool(data, "apportpraticien", m_isapportparticien);
     setDataBool(data, "autrerecette", m_isautrerecette);
+    m_data = data;
 }

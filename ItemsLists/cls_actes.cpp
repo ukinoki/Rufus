@@ -35,7 +35,7 @@ QMap<int, Acte *> *Actes::actes() const
 void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
 {
     if (upd == Item::NoUpdate)
-        clearAll();
+        clearAll(m_actes);
     QList<Acte*> listActes;
     if (quelesid)
         listActes = DataBase::I()->loadIdActesByPat(pat);
@@ -44,38 +44,14 @@ void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
     addList(listActes, upd);
 }
 
-bool Actes::add(Acte *acte, Item::UPDATE upd)
-{
-    if (acte == Q_NULLPTR)
-        return false;
-    if( m_actes->contains(acte->id()) )
-    {
-        if (upd == Item::ForceUpdate)
-        {
-            QMap<int, Acte*>::const_iterator itact = m_actes->find(acte->id());
-            if (itact != m_actes->constEnd())
-                itact.value()->setData(acte->datas());
-        }
-        delete acte;
-        return false;
-    }
-    else
-        m_actes->insert(acte->id(), acte);
-    return true;
-}
-
 void Actes::addList(QList<Acte*> listActes, Item::UPDATE upd)
 {
     QList<Acte*>::const_iterator it;
     for( it = listActes.constBegin(); it != listActes.constEnd(); ++it )
-        add( *it, upd );
-}
-
-void Actes::clearAll()
-{
-    for( QMap<int, Acte*>::const_iterator itact = m_actes->constBegin(); itact != m_actes->constEnd(); ++itact)
-        delete itact.value();
-    m_actes->clear();
+    {
+        Acte* item = const_cast<Acte*>(*it);
+        add( m_actes, item->id(), item, upd );
+    }
 }
 
 void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont pour l'instant pas utilisées.
@@ -288,6 +264,6 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     data["NumCentre"] = idcentre;
     data["idLieu"] = usr->getSite()->id();
     act = new Acte(data);
-
+    add(m_actes, idacte, act);
     return act;
 }

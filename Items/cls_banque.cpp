@@ -34,6 +34,7 @@ void Banque::setData(QJsonObject data)
     setDataString(data, "nombanque", m_nombanque);
     setDataString(data, "idbanqueabrege", m_idbanqueabrege);
     setDataInt(data, "codebanque", m_codebanque);
+    m_data = data;
 }
 
 

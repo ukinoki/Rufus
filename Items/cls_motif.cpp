@@ -43,6 +43,7 @@ void Motif::setData(QJsonObject data)
     setDataBool(data, "pardefaut", m_pardefaut);
     setDataBool(data, "utiliser", m_utiliser);
     setDataInt(data, "noordre", m_noordre);
+    m_data = data;
 }
 
 

@@ -149,6 +149,7 @@ void Correspondant::setData(QJsonObject data)
     setDataInt(data,    "specialite", m_idspecialite);
 
     setDataBool(data,   "isAllLoaded", m_isAllLoaded);
+    m_data = data;
 }
 
 void Correspondant::setid(int id)

@@ -128,6 +128,7 @@ void Patient::setData(QJsonObject data)
         setDataString(data, "Resume", m_resume);
         setDataString(data, "TtOph", m_traitementoph);
     }
+    m_data = data;
 }
 
 void Patient::setSocialData(QJsonObject data)

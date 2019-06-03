@@ -51,6 +51,7 @@ void Archive::setData(QJsonObject data)
     setDataString(data, "lignetypeoperation", m_lignetypeoperation);
     setDataDate(data, "lignedateconsolidation", m_lignedateconsolidation);
     setDataInt(data, "idarchive", m_idarchive);
+    m_data = data;
 }
 
 Archives::Archives()

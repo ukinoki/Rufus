@@ -43,7 +43,7 @@ void PaiementTiers::setData(QJsonObject data)
     setDataInt(data, "iduserenregistreur", m_iduserenregistreur);
     setDataDate(data, "dateremisecheques", m_dateremisecheques);
     setDataDouble(data, "encaissement", m_encaissement);
-
+    m_data = data;
 }
 
 QDate PaiementTiers::date() const                   { return m_date; }
