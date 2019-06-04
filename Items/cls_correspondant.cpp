@@ -151,9 +151,3 @@ void Correspondant::setData(QJsonObject data)
     setDataBool(data,   "isAllLoaded", m_isAllLoaded);
     m_data = data;
 }
-
-void Correspondant::setid(int id)
-{
-    m_id = id;
-}
-

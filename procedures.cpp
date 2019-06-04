@@ -3360,7 +3360,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         gAskUser                = new UpDialog();
         gAskUser                ->AjouteLayButtons();
         gAskUser                ->setAccessibleName(QString::number(m_userConnected->id()));
-        gAskUser                ->mData = m_userConnected;
+        gAskUser->setdata(m_userConnected);
         QVBoxLayout *boxlay     = new QVBoxLayout;
         gAskUser->dlglayout()   ->insertLayout(0,boxlay);
 
@@ -3540,7 +3540,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         gAskUser                = new UpDialog();
                         gAskUser                ->AjouteLayButtons();
                         gAskUser                ->setAccessibleName(QString::number(m_userConnected->getIdUserActeSuperviseur()));
-                        gAskUser->mData         = Datas::I()->users->getById( m_userConnected->getIdUserActeSuperviseur());
+                        gAskUser->setdata(Datas::I()->users->getById( m_userConnected->getIdUserActeSuperviseur()));
                         QVBoxLayout *boxlay     = new QVBoxLayout;
                         gAskUser->dlglayout()   ->insertLayout(0,boxlay);
                         QGroupBox*boxparent     = new QGroupBox(gAskUser);
@@ -3650,7 +3650,7 @@ bool Procedures::SetUserAllData(User *usr)
  */
 void Procedures::Slot_CalcUserSuperviseur()
 {
-    User *user = qobject_cast<User *>(gAskUser->mData);
+    User *user = qobject_cast<User *>(gAskUser->data());
     m_userConnected->setIdUserActeSuperviseur(User::ROLE_INDETERMINE);
     m_userConnected->setIdUserParent(User::ROLE_INDETERMINE);
     QGroupBox *ptbox = Q_NULLPTR;
@@ -3737,7 +3737,7 @@ void Procedures::Slot_CalcUserSuperviseur()
  */
 void Procedures::Slot_CalcUserParent()
 {
-    User *user = qobject_cast<User *>(gAskUser->mData);
+    User *user = qobject_cast<User *>(gAskUser->data());
     //gidUserSuperViseurProv = user->id();
     user->setIdUserActeSuperviseur( user->id() );
     QGroupBox *ptbox = Q_NULLPTR;
@@ -3877,7 +3877,6 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     else if (msgbox.clickedButton() == &BaseViergeBouton)
         protoc = BaseVierge;
 
-    gsettingsIni    = new QSettings(gnomFichIni, QSettings::IniFormat);
 
     // Création des dossiers
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_RESSOURCES);
@@ -3890,15 +3889,19 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE DIR_FACTURES);
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE DIR_ORIGINAUX DIR_FACTURES);
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE DIR_ORIGINAUX DIR_IMAGES);
+    gsettingsIni    = new QSettings(gnomFichIni, QSettings::IniFormat);
     if (protoc == BaseExistante)
     {
         if (VerifParamConnexion())
         {
-            int idusr = VerifUserBase(m_userConnected->getLogin(),m_userConnected->getPassword());
-            gdbOK = (idusr > -1);
+            m_userConnected->setSite( DetermineLieuExercice() );
+            SetUserAllData(m_userConnected);
+            Datas::I()->users->initListe();
+            gdbOK = (m_userConnected != Q_NULLPTR);
             if (!gdbOK)
                 return false;
             //gidUser     = idusr; //TODO : ICI
+            m_parametres = db->parametres();
             PremierParametrageMateriel();
             PremierParametrageRessources();
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
@@ -3920,12 +3923,15 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             UpMessageBox::Watch(Q_NULLPTR,tr("Connexion réussie"),
                                   tr("Bien, la connexion au serveur MySQL fonctionne,\n"));
             // Restauration de la base
+            m_parametres = db->parametres();
             if (!RestaureBase(false, true, false))
                 return false;
             PremierParametrageMateriel();
             PremierParametrageRessources();
-            int idusr = VerifUserBase(m_userConnected->getLogin(),m_userConnected->getPassword());
-            gdbOK = (idusr > -1);
+            m_userConnected->setSite( DetermineLieuExercice() );
+            SetUserAllData(m_userConnected);
+            Datas::I()->users->initListe();
+            gdbOK = (m_userConnected != Q_NULLPTR);
             if (!gdbOK)
                 return false;
             //gidUser     = idusr; //TODO : ICI
@@ -3946,6 +3952,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
                                        "et le programme va maintenant créer une base de données patients "
                                        "vierge de tout enregistrement."));
             // Création de la base
+            m_parametres = db->parametres();
             if (!RestaureBase(true, true))
                 return false;
             if (gMode2 == DataBase::ReseauLocal)
@@ -3955,6 +3962,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             gdbOK = CreerPremierUser(m_userConnected->getLogin(), m_userConnected->getPassword());
             db->login(m_userConnected->getLogin(), m_userConnected->getPassword());
             SetUserAllData(m_userConnected);
+            m_userConnected->setSite( DetermineLieuExercice() );
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
@@ -4209,7 +4217,7 @@ bool Procedures::VerifParamConnexion(bool OKAccesDistant, QString)
         gsettingsIni->setValue(Base + "/Active",    "YES");
         gsettingsIni->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
-        m_userConnected = new User(Dlg_ParamConnex->ui->LoginlineEdit->text(),Dlg_ParamConnex->ui->MDPlineEdit->text());
+        m_userConnected = DataBase::I()->getUserConnected();
 
         gdbOK = true;
         delete Dlg_ParamConnex;

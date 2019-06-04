@@ -565,6 +565,7 @@ QJsonObject DataBase::login(QString login, QString password)
     userData["prenom"] = usrdata.at(2).toString();
 
     m_userConnected = new User(login, password, userData);
+    m_userConnected->setData(loadUserData(usrdata.at(0).toInt()));
     return jrep;
 }
 

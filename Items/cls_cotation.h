@@ -24,7 +24,7 @@ class Cotation : public Item
 {
 
 private:
-    int m_iduser, m_frequence, m_idcotation;
+    int m_iduser, m_frequence;
     QString m_typeacte, m_descriptif;
     bool m_ccam;
     double m_montantoptam, m_montantnonoptam, m_montantpratique;
@@ -33,7 +33,6 @@ public:
     explicit Cotation(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int idcotation() const;
     QString typeacte() const;
     double montantoptam() const;
     double montantnonoptam() const;

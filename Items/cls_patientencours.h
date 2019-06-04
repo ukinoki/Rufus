@@ -58,7 +58,6 @@ public:
     int iduserencoursexam() const       { return m_iduserencoursexam; }
     int idsaldat() const                { return m_idsaldat; }
 
-    void setid(int id)                  { m_id = id; }
     void setiduser(int id)              { m_iduser = id; }
     void setstatut(QString txt)         { m_statut = txt; }
     void setheurestatut(QTime time)     { m_heurestatut = time; }

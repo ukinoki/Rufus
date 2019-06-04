@@ -296,6 +296,7 @@ bool dlg_paramconnexion::TestConnexion()
                             + "\n" + tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
         return false;
     }
+    DataBase::I()->login(Login, Password);
     return true;
 }
 

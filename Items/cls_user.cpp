@@ -99,8 +99,6 @@ QString User::getLogin() const                      { return m_login; }
 QString User::getPassword() const                   { return m_password; }
 void User::setPassword(QString psswd)               { m_password = psswd; }
 
-void User::setId( int value )                       { m_id = value; }
-
 QString User::getNom() const                        { return m_nom; }
 QString User::getPrenom() const                     { return m_prenom; }
 int User::getSoignant() const                       { return m_soignant; }                  //! 1 = ophtalmo 2 = orthoptiste 3 = autre 4 = Non soignant 5 = societe comptable

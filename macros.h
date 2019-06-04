@@ -88,6 +88,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 // Les champs
                             //! Table Actes
+#define CP_IDACTE_ACTES                              "idActe"
 #define CP_MOTIF_ACTES                               "ActeMotif"
 #define CP_TEXTE_ACTES                               "ActeTexte"
 #define CP_CONCLUSION_ACTES                          "ActeConclusion"
@@ -260,9 +261,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define FILE_PDF                                  "/Documents/Rufus/Ressources/pdf.pdf"
 #define FILE_TEST                                 "/Documents/Rufus/Ressources/test.txt"
 #define FILE_INI                                  "/Documents/Rufus/Rufus.ini"
-#define SCRIPTBACKUPFILE                            "/Documents/Rufus/RufusScriptBackup.sh"
-#define SCRIPTRESTOREFILE                           "/Documents/Rufus/RufusScriptRestore.sh"
-#define SCRIPTPLISTFILE                             "/Library/LaunchAgents/rufus.bup.plist"
+#define SCRIPTBACKUPFILE                          "/Documents/Rufus/RufusScriptBackup.sh"
+#define SCRIPTRESTOREFILE                         "/Documents/Rufus/RufusScriptRestore.sh"
+#define SCRIPTPLISTFILE                           "/Library/LaunchAgents/rufus.bup.plist"
 
 // Variables mysql
 #define MAX_ALLOWED_PACKET                          "16"

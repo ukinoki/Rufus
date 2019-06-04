@@ -112,9 +112,9 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         ActeSal = QString::number(m_currentact->id());
         if (m_currentact->idUser() < 1)
         {
-            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSER_ACTES,         Datas::I()->users->userconnected()->getIdUserActeSuperviseur());
-            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERPARENT_ACTES,   Datas::I()->users->userconnected()->getIdUserParent());
-            Datas::I()->actes->updateActeData(m_currentact, CP_IDUSERCOMPTABLE_ACTES,Datas::I()->users->userconnected()->getIdUserComptable());
+            ItemsList::update(m_currentact, CP_IDUSER_ACTES,         Datas::I()->users->userconnected()->getIdUserActeSuperviseur());
+            ItemsList::update(m_currentact, CP_IDUSERPARENT_ACTES,   Datas::I()->users->userconnected()->getIdUserParent());
+            ItemsList::update(m_currentact, CP_IDUSERCOMPTABLE_ACTES,Datas::I()->users->userconnected()->getIdUserComptable());
         }
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
@@ -137,12 +137,12 @@ void    dlg_salledattente::Slot_OKButtonClicked()
                                                  0);                                                                    //! idSalDat
     else
     {
-        m_patientsencours->updatePatientEnCoursData(pat, CP_STATUT_SALDAT, Statut);
-        m_patientsencours->updatePatientEnCoursData(pat, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
-        m_patientsencours->updatePatientEnCoursData(pat, CP_MESSAGE_SALDAT, Msg);
-        m_patientsencours->updatePatientEnCoursData(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
-        m_patientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAM_SALDAT);
-        m_patientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMEN_SALDAT);
+        ItemsList::update(pat, CP_STATUT_SALDAT, Statut);
+        ItemsList::update(pat, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
+        ItemsList::update(pat, CP_MESSAGE_SALDAT, Msg);
+        ItemsList::update(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
+        ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+        ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
     }
     Flags::I()->MAJFlagSalleDAttente();
     accept();

@@ -37,14 +37,12 @@ public:
 
     bool                        NouveauDocument();
     void                        setNouveauDocumentFalse();
-    void                        setsoustype(DocExterne* docmt, QString soustype = "");                  //!> actualise le soustype d'un document
 
     //!> actions sur les enregistrements
     void                SupprimeDocument(DocExterne *doc);
     DocExterne*         CreationDocument(int idUser, int idPat, QString TypeDoc, QString SousTypeDoc, QString Titre,
                                          QString TextEntete, QString TextCorps, QString TextOrigine, QString  TextPied, QDateTime DateImpression,
-                                         QByteArray pdf, bool Compression, QByteArray jpg, QByteArray autre, QString formatautre,
-                                         QString lienversfichier, int idRefraction, bool ALD, int UserEmetteur, QString Conclusion,
-                                         int EmisRecu, QString FormatDoc, int idLieu, int Importance);
+                                         QFile file, QString lienversfichier, int idRefraction, bool ALD, int UserEmetteur, int EmisRecu,
+                                         QString FormatDoc, int idLieu, int Importance);
 };
 #endif // CLS_DOCSEXTERNES_H

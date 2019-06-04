@@ -58,7 +58,7 @@ public:
 
     //!> actions sur les champs
     void    setMontantCotation(Acte *act, QString Cotation = "", double montant = 0.0);
-    void    updateActeData(Acte *act, QString nomchamp, QVariant value = QVariant());       //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour l'acte
+    //! géré pour le reste par la fonction update de la classe mère cls_itemslist
 
     //!> actions sur les enregistrements
     void    SupprimeActe(Acte *act);

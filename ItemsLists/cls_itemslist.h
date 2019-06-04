@@ -2,7 +2,11 @@
 #define CLS_ITEMSLIST_H
 
 #include "QObject"
-#include "cls_item.h"
+#include "cls_acte.h"
+#include "cls_docexterne.h"
+#include "cls_patientencours.h"
+#include "macros.h"
+#include "database.h"
 
 class ItemsList : public QObject
 {
@@ -11,6 +15,8 @@ public:
     explicit ItemsList(QObject *parent = Q_NULLPTR);
     enum ADDTOLIST {AddToList, NoAddToList};
     enum POSITION {Debut, Prec, Suiv, Fin};
+
+    static bool update(Item*item, QString field, QVariant newvalue = QVariant());
 
     /*!
      * \brief ItemsList::clearAll

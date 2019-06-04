@@ -47,8 +47,8 @@ public:
 
     //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
 
-    //!> actions sur les champs
-    void    updatePatientEnCoursData(PatientEnCours *pat, QString nomchamp, QVariant value = QVariant());              //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour le patient
+    //!> update sur les champs
+    //! géré par la fonction static update de cls_itemslist
 
     //!> actions sur les enregistrements
     void                SupprimePatientEnCours(PatientEnCours *pat);

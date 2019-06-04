@@ -275,7 +275,6 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
                 item->setIcon(Icons::icTampon());
             else
                 item->setIcon(QIcon());
-            docmt->setimportance(0);
             break;
         }
         case 1:{
@@ -294,14 +293,12 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
                 item->setIcon(Icons::icTampon());
             else
                 item->setIcon(QIcon());
-            docmt->setimportance(1);
             break;
         }
         case 2:{
             fontitem.setBold(true);
             item->setFont(fontitem);
             item->setIcon(Icons::icImportant());
-            docmt->setimportance(2);
             break;
         }
         }
@@ -321,7 +318,7 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     item = gmodeleTriParType->itemFromIndex(getIndexFromId(gmodeleTriParType,id));
     if (item != Q_NULLPTR)
         modifieitem(item, docmt, imp, gFont);
-    db->StandardSQL("update " TBL_IMPRESSIONS " set Importance = " + QString::number(imp) + " where idImpression = " + QString::number(id));
+    ItemsList::update(docmt, CP_IMPORTANCE_IMPRESSIONS, imp);
     int nimportants = 0;
     for(QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->constBegin(); itdoc != m_docsexternes->docsexternes()->constEnd(); ++itdoc )
     {
@@ -360,7 +357,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     double x;
     double y;
 
-    if (docmt->format() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais est un fichier sur le disque
+    if (docmt->format() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
     {
         if (DataBase::I()->getMode() == DataBase::Distant)
         {
@@ -1081,8 +1078,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     {
         if (dateedit->date().isValid())
         {
-            db->StandardSQL("update " TBL_IMPRESSIONS " set DateImpression = '" + dateedit->date().toString("yyyy-MM-dd") + "' where idimpression = " + QString::number(docmt->id()));
-            docmt->setDate(QDateTime(dateedit->date()));
+            ItemsList::update(docmt, CP_DATE_IMPRESSIONS, QDateTime(dateedit->date()));
             RemplirTreeView();
             dlg->accept();
         }
@@ -1121,10 +1117,10 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     {
         if (Line->text()!="")
         {
-            m_docsexternes->setsoustype(docmt, Line->text());
-            gmodele->itemFromIndex(idx)->setText(CalcTitre(docmt));
-            int id = docmt->id();
+            ItemsList::update(docmt, CP_SOUSTYPEDOC_IMPRESSIONS, Line->text());
             QString titre = CalcTitre(docmt);
+            gmodele->itemFromIndex(idx)->setText(titre);
+            int id = docmt->id();
             gmodeleTriParDate->itemFromIndex(getIndexFromId(gmodeleTriParDate,id))->setText(titre);
             gmodeleTriParType->itemFromIndex(getIndexFromId(gmodeleTriParType,id))->setText(titre);
             dlg->accept();

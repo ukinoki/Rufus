@@ -157,58 +157,6 @@ void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
     act->setmontant(montant);
 }
 
-void Actes::updateActeData(Acte *act, QString nomchamp, QVariant value)
-{
-    QString newvalue;
-    if (nomchamp == CP_MOTIF_ACTES)
-    {
-        act->setmotif(value.toString());
-        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
-    }
-    else if (nomchamp == CP_TEXTE_ACTES)
-    {
-        act->settexte(value.toString());
-        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
-    }
-    else if (nomchamp == CP_CONCLUSION_ACTES)
-    {
-        act->setconclusion(value.toString());
-        newvalue = (value.toString() != ""? "'" + Utils::correctquoteSQL(value.toString()) + "'" : "null");
-    }
-    else if (nomchamp == CP_ACTEDATE_ACTES)
-    {
-        act->setdate(value.toDate());
-        newvalue = (value.toDate().isValid()? "'" + value.toDate().toString("yyyy-MM-dd") + "'" : "null");
-    }
-    else if (nomchamp == CP_COURRIERAFAIRE_ACTES)
-    {
-        act->setcourrierafaire(value.toString()== "T" || value.toString()== "1");
-        newvalue = ((value.toString() == "T" || value.toString()== "1")? "'T'" : "null");
-    }
-    else if (nomchamp == CP_IDUSER_ACTES)
-    {
-        act->setiduser(value.toInt());
-        newvalue = (value.toInt() != 0? value.toString() : "null");
-
-    }
-    else if (nomchamp == CP_IDUSERPARENT_ACTES)
-    {
-        act->setiduserparent(value.toInt());
-        newvalue = (value.toInt() != 0? value.toString() : "null");
-
-    }
-    else if (nomchamp == CP_IDUSERCOMPTABLE_ACTES)
-    {
-        act->setidusercomptable(value.toInt());
-        newvalue = (value.toInt() != 0? value.toString() : "null");
-
-    }
-    QString requete = "UPDATE " TBL_ACTES
-                      " SET " + nomchamp + " = " + newvalue +
-                      " WHERE idActe = " + QString::number(act->id());
-    DataBase::I()->StandardSQL(requete);
-}
-
 void Actes::SupprimeActe(Acte* act)
 {
     DataBase::I()->StandardSQL("DELETE FROM " TBL_ACTES " WHERE idActe = " + QString::number(act->id()));

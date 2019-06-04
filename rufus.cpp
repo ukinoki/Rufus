@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("04-06-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("05-06-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -224,9 +224,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         if (pat != Q_NULLPTR)
             if (pat->iduser() == m_currentuser->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == QHostInfo::localHostName().left(60))
             {
-                m_listepatientsencours->updatePatientEnCoursData(pat, CP_STATUT_SALDAT, ARRIVE);
-                m_listepatientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMEN_SALDAT);
-                m_listepatientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+                ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
+                ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
+                ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
             }
     }
 
@@ -1206,12 +1206,12 @@ void Rufus::AppelPaiementDirect(Origin origin)
                                                      0);                                                //! idSalDat
         else
         {
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_STATUT_SALDAT, RETOURACCUEIL);
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_MESSAGE_SALDAT, Msg);
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAM_SALDAT);
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMEN_SALDAT);
+            ItemsList::update(pat, CP_STATUT_SALDAT, RETOURACCUEIL);
+            ItemsList::update(pat, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
+            ItemsList::update(pat, CP_MESSAGE_SALDAT, Msg);
+            ItemsList::update(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
+            ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+            ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
         }
         flags->MAJFlagSalleDAttente();
         ListidActeAPasser << m_currentact->id();
@@ -1239,10 +1239,10 @@ void Rufus::AppelPaiementDirect(Origin origin)
                                                      0);                                                //! idSalDat
         else
         {
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->getLogin());
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAM_SALDAT, m_currentuser->id());
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
+            ItemsList::update(pat, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->getLogin());
+            ItemsList::update(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
+            ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT, m_currentuser->id());
+            ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
         }
         flags->MAJFlagSalleDAttente();
     }
@@ -1495,7 +1495,7 @@ void Rufus::ConnectTimers(bool a)
 void Rufus::CourrierAFaireChecked()
 {
     QString cr = (ui->CourrierAFairecheckBox->isChecked()? "T" :"");
-    updateActeData(m_currentact, CP_COURRIERAFAIRE_ACTES, cr);
+    ItemsList::update(m_currentact, CP_COURRIERAFAIRE_ACTES, cr);
 }
 
 /*------------------------------------------------------------------------------------------------------------------
@@ -1599,19 +1599,19 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         Motif                           .insert(Motif.length()-2, findelimiter);
         Motif                           = paragraph + debutdelimiter + Motif + "</a></p>";
         ui->ActeMotiftextEdit           ->setText(Motif);
-        updateActeData(m_currentact, CP_MOTIF_ACTES, Motif);
+        ItemsList::update(m_currentact, CP_MOTIF_ACTES, Motif);
 
         // Compléter le Champ Texte et mettre à jour l'affichage de ActeTextetextEdit
         QString Reponse                 = Dlg_BlOrtho->calcReponsehTml(ui->ActeTextetextEdit->toHtml());
         ui->ActeTextetextEdit           ->setHtml(Reponse);
-        updateActeData(m_currentact, CP_TEXTE_ACTES, Reponse);
+        ItemsList::update(m_currentact, CP_TEXTE_ACTES, Reponse);
 
         // Compléter le Champ Conclusion et mettre à jour l'affichage de ActeConclusiontextEdit
         QString Concl                   = Dlg_BlOrtho->ui->ConclusiontextEdit->toPlainText();
         Concl                           .insert(Concl.length()-2, findelimiter);
         Concl                           = paragraph + debutdelimiter + Concl + "</p>";
         ui->ActeConclusiontextEdit      ->setText(Concl);
-        updateActeData(m_currentact, CP_CONCLUSION_ACTES, Concl);
+        ItemsList::update(m_currentact, CP_CONCLUSION_ACTES, Concl);
 
         //! Mettre à jour la table bilanortho
         QString deleteblorthorequete = "delete from " TBL_BILANORTHO " where idBilanOrtho = " + ui->idActelineEdit->text();
@@ -3580,10 +3580,10 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
                                                      0);                                                //! idSalDat
         else
         {
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_MOTIF_SALDAT, llist.at(0));
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_MESSAGE_SALDAT, llist.at(1));
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_HEURERDV_SALDAT, QTime().fromString(llist.at(2), "HH:mm"));
-            m_listepatientsencours->updatePatientEnCoursData(pat, CP_IDUSER_SALDAT, llist.at(3).toInt());
+            ItemsList::update(pat, CP_MOTIF_SALDAT, llist.at(0));
+            ItemsList::update(pat, CP_MESSAGE_SALDAT, llist.at(1));
+            ItemsList::update(pat, CP_HEURERDV_SALDAT, QTime().fromString(llist.at(2), "HH:mm"));
+            ItemsList::update(pat, CP_IDUSER_SALDAT, llist.at(3).toInt());
         }
         flags->MAJFlagSalleDAttente();
     }
@@ -5555,9 +5555,9 @@ void Rufus::VerifVerrouDossier()
                 if (pat != Q_NULLPTR)
                     if (pat->iduserencoursexam() == a && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == Poste)
                     {
-                        m_listepatientsencours->updatePatientEnCoursData(pat, CP_STATUT_SALDAT, ARRIVE);
-                        m_listepatientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMEN_SALDAT);
-                        m_listepatientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+                        ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
+                        ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
+                        ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
                     }
             }
 
@@ -5589,9 +5589,9 @@ void Rufus::VerifVerrouDossier()
                 QList<QVariantList> usr2list = db->StandardSelectSQL(req, ok);
                 if (usr2list.size()==0)
                 {
-                    m_listepatientsencours->updatePatientEnCoursData(pat, CP_STATUT_SALDAT, ARRIVE);
-                    m_listepatientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMEN_SALDAT);
-                    m_listepatientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+                    ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
+                    ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
+                    ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
                 }
             }
             // on retire de la salle d'attente les patients qui n'existent pas
@@ -5843,7 +5843,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     Corps.append(HTMLCOMMENT_MAC);
         #endif
                     if (objUpText->getTableCorrespondant() == TBL_ACTES)
-                        updateActeData(m_currentact, objUpText->getChampCorrespondant(), Corps);
+                        ItemsList::update(m_currentact, objUpText->getChampCorrespondant(), Corps);
                     else if (objUpText->getTableCorrespondant() == TBL_MESSAGES)
                     {
                         requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
@@ -5871,7 +5871,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     objUpLine->setText(Utils::trimcapitilize(objUpLine->text(),true));
                     if (objUpLine->getTableCorrespondant() == TBL_ACTES)
                     {
-                        updateActeData( m_currentact, objUpLine->getChampCorrespondant(),objUpLine->text());
+                        ItemsList::update( m_currentact, objUpLine->getChampCorrespondant(),objUpLine->text());
                     }
                     else if (objUpLine->getTableCorrespondant() == TBL_RENSEIGNEMENTSMEDICAUXPATIENTS)
                     {
@@ -5884,7 +5884,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             {
                 if (ui->ActeDatedateEdit->text() != gActeDate)
                 {
-                    updateActeData(m_currentact, CP_ACTEDATE_ACTES, ui->ActeDatedateEdit->date());
+                    ItemsList::update(m_currentact, CP_ACTEDATE_ACTES, ui->ActeDatedateEdit->date());
                     gActeDate       = ui->ActeDatedateEdit->text();
                 }
                 ui->ActeDatedateEdit->setEnabled(false);
@@ -6407,10 +6407,10 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
                                                  0);                                                //! idSalDat
     else
     {
-        m_listepatientsencours->updatePatientEnCoursData(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->getLogin());
-        m_listepatientsencours->updatePatientEnCoursData(patcours, CP_HEURESTATUT_SALDAT,  QTime::currentTime());
-        m_listepatientsencours->updatePatientEnCoursData(patcours, CP_IDUSERENCOURSEXAM_SALDAT, m_currentuser->id());
-        m_listepatientsencours->updatePatientEnCoursData(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
+        ItemsList::update(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->getLogin());
+        ItemsList::update(patcours, CP_HEURESTATUT_SALDAT,  QTime::currentTime());
+        ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT, m_currentuser->id());
+        ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
     }
 
     ui->AtcdtsPersostextEdit->setFocus();
@@ -7460,11 +7460,11 @@ bool Rufus::FermeDossier(Patient *patient)
                                                          0);                                                //! idSalDat
              else
             {
-                m_listepatientsencours->updatePatientEnCoursData(pat, CP_STATUT_SALDAT, ARRIVE);
-                m_listepatientsencours->updatePatientEnCoursData(pat, CP_IDUSERENCOURSEXAM_SALDAT);
-                m_listepatientsencours->updatePatientEnCoursData(pat, CP_POSTEEXAMEN_SALDAT);
-                m_listepatientsencours->updatePatientEnCoursData(pat, CP_MOTIF_SALDAT, Motif);
-                m_listepatientsencours->updatePatientEnCoursData(pat, CP_MESSAGE_SALDAT, Message);
+                ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
+                ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+                ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
+                ItemsList::update(pat, CP_MOTIF_SALDAT, Motif);
+                ItemsList::update(pat, CP_MESSAGE_SALDAT, Message);
             }
             //proc->Edit(saldatrequete);
         }
@@ -8541,7 +8541,7 @@ void    Rufus::Refraction()
                     "<p style = \"margin-top:0px; margin-bottom:0px;\">"
                   + Dlg_Refraction->ResultatObservation()
                   + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
-            updateActeData(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+            ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
             ui->ActeTextetextEdit->setFocus();
             ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         }
@@ -8562,7 +8562,7 @@ void    Rufus::Refraction()
             }
             QString ARajouterEnConcl =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Date + Dlg_Refraction->ResultatPrescription()  + "</p>"
                                          + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\">";
-            updateActeData(m_currentact, CP_CONCLUSION_ACTES, ui->ActeConclusiontextEdit->appendHtml(ARajouterEnConcl,"","",true));
+            ItemsList::update(m_currentact, CP_CONCLUSION_ACTES, ui->ActeConclusiontextEdit->appendHtml(ARajouterEnConcl,"","",true));
             ui->ActeConclusiontextEdit->setFocus();
             ui->ActeConclusiontextEdit->moveCursor(QTextCursor::End);
         }
@@ -9033,7 +9033,7 @@ void Rufus::Remplir_SalDat()
                          " and (soignant = 1 or soignant = 2 or soignant = 3)\n"
                          " order by UserLogin";
 
-    //UpMessageBox::Watch(this,bureauxreq);
+    //qDebug() << bureauxreq;
     QList<QVariantList> burlist = db->StandardSelectSQL(bureauxreq, ok , "bureauxreq");
 
     //UpMessageBox::Watch(this,userconnectreq + "\n- " + QString::number(userconnectQuery.size()) + " -\n- " + userconnectQuery.value(0).toString() + " -");
@@ -9665,7 +9665,7 @@ void Rufus::Tonometrie()
 
             QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Tono  + "</p>"
                     + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
-            updateActeData(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+            ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         }
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
@@ -9703,7 +9703,7 @@ bool Rufus::VerifCoherenceMontantPaiement()
 
 void Rufus::updateActeData(Acte *act, QString nomchamp, QVariant value)
 {
-    m_listeactes->updateActeData(act, nomchamp, value);
+    ItemsList::update(act, nomchamp, value);
     MAJActesPrecs();
 }
 
@@ -9792,7 +9792,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     if (TypeMesure == Procedures::Final || TypeMesure == Procedures::Subjectif)
     {
         QString ARajouterEnText= proc->HtmlRefracteur();
-        updateActeData(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         if (!proc->DonneesRefracteurFin().isEmpty() && !proc->DonneesRefracteurSubj().isEmpty())
@@ -9806,7 +9806,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     else if (TypeMesure == Procedures::Kerato)
     {
         QString ARajouterEnText= proc->HtmlKerato();
-        m_listeactes->updateActeData(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
         proc->InsertRefraction(m_currentpatient->id(), m_currentact->id(), Procedures::Kerato);
@@ -9814,14 +9814,14 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
     else if (TypeMesure == Procedures::Tono)
     {
         QString ARajouterEnText= proc->HtmlTono();
-        updateActeData(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }
     else if (TypeMesure == Procedures::Pachy)
     {
         QString ARajouterEnText= proc->HtmlPachy();
-        updateActeData(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
+        ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }
@@ -9871,7 +9871,7 @@ void Rufus::LireLaCPS()
             return;
             }
         // A REVOIR : faire tout ce qu'il faut pour nouveau user ... mais quoi ???
-        m_currentuser->setId(idusrdata.at(0).toInt());
+        m_currentuser->setid(idusrdata.at(0).toInt());
         setWindowTitle("Rufus - " + m_currentuser->getLogin() + " - " + m_currentuser->getFonction());
         }
 }

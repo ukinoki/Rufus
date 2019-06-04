@@ -73,15 +73,6 @@ void DocsExternes::setNouveauDocumentFalse()
     m_nouveaudocument = false;
 }
 
-void DocsExternes::setsoustype(DocExterne* docmt, QString soustype)
-{
-    if (soustype == "")
-        soustype = "null";
-    else
-        soustype = "'" + Utils::correctquoteSQL(soustype) + "'";
-    DataBase::I()->StandardSQL("update " TBL_IMPRESSIONS " set soustypedoc = " + soustype + " where idimpression = " + QString::number(docmt->id()));
-}
-
 void DocsExternes::addList(QList<DocExterne*> listdocs)
 {
     for(QList<DocExterne*>::const_iterator it = listdocs.constBegin(); it != listdocs.constEnd(); ++it )
@@ -116,59 +107,76 @@ void DocsExternes::SupprimeDocument(DocExterne *doc)
 
 DocExterne* DocsExternes::CreationDocument(int idUser, int idPat, QString TypeDoc, QString SousTypeDoc, QString Titre,
                                            QString TextEntete, QString TextCorps, QString TextOrigine, QString  TextPied, QDateTime DateImpression,
-                                           QByteArray pdf, bool Compression, QByteArray jpg, QByteArray autre, QString formatautre,
-                                           QString lienversfichier, int idRefraction, bool ALD, int UserEmetteur, QString Conclusion,
+                                           QFile file, QString lienversfichier, int idRefraction, bool ALD, int UserEmetteur,
                                            int EmisRecu, QString FormatDoc, int idLieu, int Importance)
 {
     DocExterne *doc = Q_NULLPTR;
     QString idusr           = QString::number(idUser);
     QString idpat           = QString::number(idPat);
-    QString typdoc          = (TypeDoc == ""?               "" : "'" + Utils::correctquoteSQL(TypeDoc) + "'");
-    QString sstypdoc        = (SousTypeDoc == ""?           "" : "'" + Utils::correctquoteSQL(SousTypeDoc) + "'");
-    QString titre           = (Titre == ""?                 "" : "'" + Utils::correctquoteSQL(Titre) + "'");
-    QString entete          = (TextEntete == ""?            "" : "'" + Utils::correctquoteSQL(TextEntete) + "'");
-    QString corps           = (TextCorps == ""?             "" : "'" + Utils::correctquoteSQL(TextCorps) + "'");
-    QString txtorigin       = (TextOrigine == ""?           "" : "'" + Utils::correctquoteSQL(TextOrigine) + "'");
-    QString pied            = (TextPied == ""?              "" : "'" + Utils::correctquoteSQL(TextPied) + "'");
-    QString date            = (DateImpression.isValid()?    "'" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") + "'" : "'" + DateImpression.toString("yyyy-MM-dd HH:mm:ss") + "'");
-    QString comprime        = (!Compression?                "null" : "1");
-    QString autreformat     = (formatautre == ""?           "" : "'" + Utils::correctquoteSQL(formatautre) + "'");
-    QString lienfichier     = (lienversfichier == ""?       "" : "'" + Utils::correctquoteSQL(lienversfichier) + "'");
-    QString idref           = (idRefraction == 0?           "null" : QString::number(idRefraction));
-    QString ald             = (!ALD?                        "null" : "1");
+    QVariant typdoc         = (TypeDoc == ""?               QVariant(QVariant::String) : (TypeDoc));
+    QVariant sstypdoc       = (SousTypeDoc == ""?           QVariant(QVariant::String) : (SousTypeDoc));
+    QVariant titre          = (Titre == ""?                 QVariant(QVariant::String) : (Titre));
+    QVariant entete         = (TextEntete == ""?            QVariant(QVariant::String) : (TextEntete));
+    QVariant corps          = (TextCorps == ""?             QVariant(QVariant::String) : (TextCorps));
+    QVariant txtorigin      = (TextOrigine == ""?           QVariant(QVariant::String) : (TextOrigine));
+    QVariant pied           = (TextPied == ""?              QVariant(QVariant::String) : (TextPied));
+    QString date            = (DateImpression.isValid()?    QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") : DateImpression.toString("yyyy-MM-dd HH:mm:ss"));
+    QVariant lienfichier    = (lienversfichier == ""?       QVariant(QVariant::String) : (lienversfichier));
+    QVariant idref          = (idRefraction == 0?           QVariant(QVariant::String) : QString::number(idRefraction));
+    QVariant ald            = (!ALD?                        QVariant(QVariant::String) : "1");
     QString idemetteur      = QString::number(UserEmetteur);
-    QString conclusion      = (Conclusion == ""?            "" : "'" + Utils::correctquoteSQL(Conclusion) + "'");
     QString emisrecu        = QString::number(EmisRecu);
-    QString formatdoc       = (FormatDoc == ""?             "" : "'" + Utils::correctquoteSQL(FormatDoc) + "'");
+    QVariant formatdoc      = (FormatDoc == ""?             QVariant(QVariant::String) : (FormatDoc));
     QString idlieu          = QString::number(idLieu);
-    QString importace       = QString::number(Importance);
-/*     bool ok;
-    QString req =     "INSERT INTO " TBL_DEPENSES
-            " (idUser, DateDep, RefFiscale, Objet, Montant, FamFiscale,"
-            " Monnaie, idRec, ModePaiement, Compte, Nocheque, idFacture)"
-            " VALUES (" +   idusr + "," +
-            date + "," +
-            ref + "," +
-            objet   + "," +
-            montant   + "," +
-            fam   + "," +
-            monnaie + "," +
-            idrec   + "," +
-            modpaiement   + "," +
-            idcpt   + "," +
-            nochq   + "," +
-            idfacture + ")";
-    qDebug() << req;
-    QString MsgErreur           = tr("Impossible d'enregistrer cette dépense");
-    DataBase::I()->locktables(QStringList() << TBL_DEPENSES);
-    if (!DataBase::I()->StandardSQL(req, MsgErreur))
+    QString importance      = QString::number(Importance);
+
+    bool ok;
+    DataBase::I()->locktables(QStringList() << TBL_IMPRESSIONS);
+    int idimpr = DataBase::I()->selectMaxFromTable(CP_IDIMPRESSION_IMPRESSIONS,  TBL_IMPRESSIONS, ok)+1;
+    QString suffixe = "";
+    QVariant ba = QVariant(QVariant::ByteArray);
+    if (file.exists())
+    {
+        suffixe = QFileInfo(file).suffix().toLower();
+        if (suffixe == "jpeg")
+            suffixe = JPG;
+        QString commentechec ("");
+        if (suffixe != PDF && suffixe != JPG)
+        {
+            commentechec = tr("format invalide") + " -> " + suffixe;
+            DataBase::I()->unlocktables();
+            return doc;
+        }
+        ba = file.readAll();
+    }
+    QHash<QString,QVariant> listbinds;
+    listbinds["idimpression"] =     idimpr;
+    listbinds["iduser"] =           DataBase::I()->getUserConnected()->id();
+    listbinds["idpat"] =            idpat;
+    listbinds["typeDoc"] =          typdoc;
+    listbinds["soustypedoc"] =      SousTypeDoc;
+    listbinds["titre"] =            titre;
+    listbinds["TextEntete"] =       entete;
+    listbinds["TextCorps"] =        corps;
+    listbinds["textorigine"] =      txtorigin;
+    listbinds["TextPied"] =         pied;
+    listbinds["dateimpression"] =   date;
+    listbinds["lienversfichier"] =  lienfichier;
+    listbinds["useremetteur"] =     DataBase::I()->getUserConnected()->id();
+    listbinds["ald"] =              ald;
+    if (suffixe != "")
+        listbinds[suffixe] =        ba;
+    listbinds["emisrecu"] =         emisrecu;
+    listbinds["formatdoc"] =        formatdoc;
+    listbinds["idlieu"] =           idlieu;
+
+
+    bool result = DataBase::I()->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds);
+    if (!result)
     {
         DataBase::I()->unlocktables();
-        return Q_NULLPTR;
+        return doc;
     }
-    // Récupération de l'idMotif créé ------------------------------------
-    int iddep = DataBase::I()->selectMaxFromTable(CP_IDDEPENSE_DEPENSES, TBL_DEPENSES, ok, tr("Impossible de sélectionner les enregistrements"));
-    DataBase::I()->unlocktables();*/
     return doc;
 }
 
