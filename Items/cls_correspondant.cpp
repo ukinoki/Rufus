@@ -17,6 +17,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_correspondant.h"
 
+int Correspondant::id() const
+{
+    return m_id;
+}
 QString Correspondant::nom() const
 {
     return m_nom;
@@ -110,9 +114,9 @@ QString Correspondant::mail() const
 {
     return m_mail;
 }
-int Correspondant::idspecialite() const
+int Correspondant::specialite() const
 {
-    return m_idspecialite;
+    return m_specialite;
 }
 
 Correspondant::Correspondant(QJsonObject data, QObject *parent) : Item(parent)
@@ -146,8 +150,13 @@ void Correspondant::setData(QJsonObject data)
     setDataString(data, "mail", m_mail);
     setDataString(data, "fax", m_fax);
     setDataString(data, "portable", m_portable);
-    setDataInt(data,    "specialite", m_idspecialite);
+    setDataInt(data,    "specialite", m_specialite);
 
     setDataBool(data,   "isAllLoaded", m_isAllLoaded);
-    m_data = data;
 }
+
+void Correspondant::setid(int id)
+{
+    m_id = id;
+}
+

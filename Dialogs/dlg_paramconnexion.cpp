@@ -243,9 +243,9 @@ bool dlg_paramconnexion::TestConnexion()
     QString error = "";
     DataBase::I()->initFromFirstConnexion(mode, gServeur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());  //à mettre avant le connectToDataBase() sinon une restaurationp llante parce qu'elle n'a pas les renseignements
 #ifdef ALEX
-    error = DataBase::I()->connectToDataBase(DB_CONSULTS, "rufusConnection", "rufuspassword");
+    error = DataBase::I()->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
 #else
-    error = DataBase::I()->connectToDataBase(DB_CONSULTS, Login, Password);
+    error = DataBase::I()->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
 #endif
 
     if( error.size() )
@@ -296,7 +296,8 @@ bool dlg_paramconnexion::TestConnexion()
                             + "\n" + tr("Revoyez la configuration du serveur MySQL pour corriger le problème.") + "\n");
         return false;
     }
-    DataBase::I()->login(Login, Password);
+    QJsonObject rep = DataBase::I()->login(Login, Password);
+    DataBase::I()->getUserConnected()->setData(DataBase::I()->loadUserData(DataBase::I()->getUserConnected()->id()));
     return true;
 }
 

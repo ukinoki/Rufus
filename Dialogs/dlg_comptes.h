@@ -25,7 +25,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uplabel.h"
 #include "cls_compte.h"
 #include "cls_archivebanque.h"
-#include "gbl_datas.h"
 
 namespace Ui {
 class dlg_comptes;
@@ -52,7 +51,7 @@ private:
     int             gidLigneASupprimer;
     Archives        *archivescptencours;
     Compte          *CompteEnCours;
-    QList<Compte*>  *comptesusr;
+    Comptes         *comptesusr;
     DataBase        *db;
     Procedures      *proc;
     QDate           Debut, Fin;

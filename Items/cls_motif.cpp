@@ -23,6 +23,7 @@ Motif::Motif(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
+int Motif::id() const               { return m_id; }
 QString Motif::motif() const        { return m_motif; }
 QString Motif::raccourci() const    { return m_raccourci; }
 QString Motif::couleur() const      { return m_couleur; }
@@ -43,7 +44,6 @@ void Motif::setData(QJsonObject data)
     setDataBool(data, "pardefaut", m_pardefaut);
     setDataBool(data, "utiliser", m_utiliser);
     setDataInt(data, "noordre", m_noordre);
-    m_data = data;
 }
 
 

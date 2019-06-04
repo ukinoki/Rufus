@@ -15,9 +15,10 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #include "cls_docsexternes.h"
 
-DocsExternes::DocsExternes(QObject *parent) : ItemsList(parent)
+DocsExternes::DocsExternes()
 {
     m_docsexternes = new QMap<int, DocExterne*>();
 }
@@ -33,7 +34,7 @@ QMap<int, DocExterne *> *DocsExternes::docsexternes()
  * \return Q_NULLPTR si aucun Document trouvée
  * \return DocExterne* le Document correspondant à l'id
  */
-DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLIST addToList)
+DocExterne* DocsExternes::getById(int id, bool loadDetails, bool addToList)
 {
     QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->find(id);
     DocExterne *result;
@@ -42,24 +43,21 @@ DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLI
     else
     {
         result = itdoc.value();
-        if (loadDetails == Item::NoLoadDetails)
+        if (!loadDetails)
             return result;
-        addToList = ItemsList::NoAddToList;
+        addToList = false;
     }
 
-    if( !result->isAllLoaded() )
+    if( loadDetails && !result->isAllLoaded() )
     {
         QJsonObject jsonDocExterne = DataBase::I()->loadDocExterneData(id);
         if( jsonDocExterne.isEmpty() )
-        {
-            delete result;
             return Q_NULLPTR;
-        }
         else
             result->setData(jsonDocExterne);
     }
-    if( addToList == ItemsList::AddToList)
-        add( m_docsexternes, result->id(), result );
+    if( addToList )
+        add( result );
     return result;
 }
 
@@ -73,110 +71,43 @@ void DocsExternes::setNouveauDocumentFalse()
     m_nouveaudocument = false;
 }
 
+DocExterne* DocsExternes::reload(DocExterne* docmt)
+{
+    docmt->setAllLoaded(false);
+    return getById(docmt->id());
+}
+
+bool DocsExternes::add(DocExterne *doc)
+{
+    if( doc == Q_NULLPTR)
+        return false;
+    if( m_docsexternes->contains(doc->id()) )
+        return false;
+    m_docsexternes->insert(doc->id(), doc);
+    m_nouveaudocument = true;
+    return true;
+}
+
 void DocsExternes::addList(QList<DocExterne*> listdocs)
 {
     for(QList<DocExterne*>::const_iterator it = listdocs.constBegin(); it != listdocs.constEnd(); ++it )
     {
         DocExterne *doc = const_cast<DocExterne*>(*it);
-        if(!m_docsexternes->contains(doc->id()))
-            m_nouveaudocument = true;
-        add(m_docsexternes, doc->id(), doc);
+        add(doc);
     }
 }
 
-/*!
- * \brief DocsExternes::initListeByPatient
- * Charge l'ensemble des documents externes pour un patient
- * et les ajoute à la classe Patients
- */
-void DocsExternes::initListeByPatient(Patient *pat)
+void DocsExternes::clearAll()
 {
-    clearAll(m_docsexternes);
-    addList(DataBase::I()->loadDoscExternesByPatient(pat));
+    for( QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->constBegin(); itdoc != m_docsexternes->constEnd(); ++itdoc)
+        delete itdoc.value();
+    m_docsexternes->clear();
 }
 
-
-void DocsExternes::SupprimeDocument(DocExterne *doc)
+void DocsExternes::remove(DocExterne *doc)
 {
-    DataBase::I()->StandardSQL("delete from " TBL_REFRACTION " where idrefraction = (select idrefraction from " TBL_IMPRESSIONS
-                    " where idimpression = " + QString::number(doc->id()) + ")");
-    DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));
-    DataBase::I()->SupprRecordFromTable(doc->id(), CP_IDIMPRESSION_IMPRESSIONS, TBL_IMPRESSIONS);
-    remove(m_docsexternes, doc);
+    if (doc == Q_NULLPTR)
+        return;
+    m_docsexternes->remove(doc->id());
+    delete doc;
 }
-
-DocExterne* DocsExternes::CreationDocument(int idUser, int idPat, QString TypeDoc, QString SousTypeDoc, QString Titre,
-                                           QString TextEntete, QString TextCorps, QString TextOrigine, QString  TextPied, QDateTime DateImpression,
-                                           QFile file, QString lienversfichier, int idRefraction, bool ALD, int UserEmetteur,
-                                           int EmisRecu, QString FormatDoc, int idLieu, int Importance)
-{
-    DocExterne *doc = Q_NULLPTR;
-    QString idusr           = QString::number(idUser);
-    QString idpat           = QString::number(idPat);
-    QVariant typdoc         = (TypeDoc == ""?               QVariant(QVariant::String) : (TypeDoc));
-    QVariant sstypdoc       = (SousTypeDoc == ""?           QVariant(QVariant::String) : (SousTypeDoc));
-    QVariant titre          = (Titre == ""?                 QVariant(QVariant::String) : (Titre));
-    QVariant entete         = (TextEntete == ""?            QVariant(QVariant::String) : (TextEntete));
-    QVariant corps          = (TextCorps == ""?             QVariant(QVariant::String) : (TextCorps));
-    QVariant txtorigin      = (TextOrigine == ""?           QVariant(QVariant::String) : (TextOrigine));
-    QVariant pied           = (TextPied == ""?              QVariant(QVariant::String) : (TextPied));
-    QString date            = (DateImpression.isValid()?    QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss") : DateImpression.toString("yyyy-MM-dd HH:mm:ss"));
-    QVariant lienfichier    = (lienversfichier == ""?       QVariant(QVariant::String) : (lienversfichier));
-    QVariant idref          = (idRefraction == 0?           QVariant(QVariant::String) : QString::number(idRefraction));
-    QVariant ald            = (!ALD?                        QVariant(QVariant::String) : "1");
-    QString idemetteur      = QString::number(UserEmetteur);
-    QString emisrecu        = QString::number(EmisRecu);
-    QVariant formatdoc      = (FormatDoc == ""?             QVariant(QVariant::String) : (FormatDoc));
-    QString idlieu          = QString::number(idLieu);
-    QString importance      = QString::number(Importance);
-
-    bool ok;
-    DataBase::I()->locktables(QStringList() << TBL_IMPRESSIONS);
-    int idimpr = DataBase::I()->selectMaxFromTable(CP_IDIMPRESSION_IMPRESSIONS,  TBL_IMPRESSIONS, ok)+1;
-    QString suffixe = "";
-    QVariant ba = QVariant(QVariant::ByteArray);
-    if (file.exists())
-    {
-        suffixe = QFileInfo(file).suffix().toLower();
-        if (suffixe == "jpeg")
-            suffixe = JPG;
-        QString commentechec ("");
-        if (suffixe != PDF && suffixe != JPG)
-        {
-            commentechec = tr("format invalide") + " -> " + suffixe;
-            DataBase::I()->unlocktables();
-            return doc;
-        }
-        ba = file.readAll();
-    }
-    QHash<QString,QVariant> listbinds;
-    listbinds["idimpression"] =     idimpr;
-    listbinds["iduser"] =           DataBase::I()->getUserConnected()->id();
-    listbinds["idpat"] =            idpat;
-    listbinds["typeDoc"] =          typdoc;
-    listbinds["soustypedoc"] =      SousTypeDoc;
-    listbinds["titre"] =            titre;
-    listbinds["TextEntete"] =       entete;
-    listbinds["TextCorps"] =        corps;
-    listbinds["textorigine"] =      txtorigin;
-    listbinds["TextPied"] =         pied;
-    listbinds["dateimpression"] =   date;
-    listbinds["lienversfichier"] =  lienfichier;
-    listbinds["useremetteur"] =     DataBase::I()->getUserConnected()->id();
-    listbinds["ald"] =              ald;
-    if (suffixe != "")
-        listbinds[suffixe] =        ba;
-    listbinds["emisrecu"] =         emisrecu;
-    listbinds["formatdoc"] =        formatdoc;
-    listbinds["idlieu"] =           idlieu;
-
-
-    bool result = DataBase::I()->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds);
-    if (!result)
-    {
-        DataBase::I()->unlocktables();
-        return doc;
-    }
-    return doc;
-}
-

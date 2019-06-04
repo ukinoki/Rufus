@@ -87,6 +87,7 @@ private:
     bool                    ModifPaiementEnCours;
     bool                    ModifLigneRecettePossible;
     //int                     gidUser;
+    int                     gidUserACrediter;
     int                     gFicheMode;
     int                     idRecette;
         enum gFicheMode     {Tiers, Direct};
@@ -107,8 +108,10 @@ private:
     QList<QString>          LigneRecetteAModifier;
     QList<QString>          LigneDepenseAModifier;
     QList<QString>          MontantActesAModifier;
-    User                    *m_useracrediter;
-    User                    *m_userconnected;
+    User                    *gDataUser;
+    User                    *m_userConnected;
+    QStandardItemModel      *glistComptesEncaissmt;
+    QStandardItemModel      *glistComptesEncaissmtAvecDesactive;
     QMap<int, User*>        *m_listeParents;
 
     int                     gidCompteBancaireParDefaut;
@@ -134,7 +137,7 @@ private:
     void                ReconstruitListeBanques();
     void                ReconstruitListeTiers();
     void                RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
-    void                RegleComptesComboBox(bool avecLesComptesInactifs = false);
+    void                RegleComptesComboBox(bool ActiveSeult = true);
     void                RemetToutAZero();
     void                RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QSqlQuery TableQuery, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
     void                RemplitLesTables(int Mode);

@@ -3578,7 +3578,7 @@ correspondants</string>
           <rect>
            <x>30</x>
            <y>280</y>
-           <width>781</width>
+           <width>771</width>
            <height>565</height>
           </rect>
          </property>
@@ -4664,19 +4664,6 @@ color : gray;
            <bool>false</bool>
           </property>
          </widget>
-         <widget class="QScrollBar" name="ScrollBar">
-          <property name="geometry">
-           <rect>
-            <x>765</x>
-            <y>27</y>
-            <width>16</width>
-            <height>529</height>
-           </rect>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-         </widget>
         </widget>
         <widget class="Line" name="line_9">
          <property name="geometry">
@@ -4887,7 +4874,7 @@ color : gray;
           <rect>
            <x>79</x>
            <y>286</y>
-           <width>725</width>
+           <width>721</width>
            <height>20</height>
           </rect>
          </property>
@@ -4942,21 +4929,6 @@ color : gray;
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
   <customwidget>
-   <class>UpSmallButton</class>
-   <extends>QPushButton</extends>
-   <header>upsmallbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLabel</class>
-   <extends>QLabel</extends>
-   <header>uplabel.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpTextEdit</class>
-   <extends>QTextEdit</extends>
-   <header>uptextedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpLineEdit</class>
    <extends>QLineEdit</extends>
    <header>uplineedit.h</header>
@@ -4972,9 +4944,24 @@ color : gray;
    <header>upcombobox.h</header>
   </customwidget>
   <customwidget>
+   <class>UpSmallButton</class>
+   <extends>QPushButton</extends>
+   <header>upsmallbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>uptextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLabel</class>
+   <extends>QLabel</extends>
+   <header>uplabel.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

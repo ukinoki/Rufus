@@ -36,15 +36,18 @@ class Acte : public Item
 {
 
 private:
-
+    int m_id;                   //!< Id de l'acte en base
+    int m_nbActes;              //!< nombres d'acte total
+    int m_noActe;               //!< numero de l'acte
+    int m_idActeMin;            //!< id du premier acte
+    int m_idActeMax;            //!< id du dernier acte
     int m_idPatient;            //!< id du Patient correspondant à l'acte
     int m_idUser;               //!< id du User
     int m_idCreatedBy;          //!< id du User qui a créé l'acte
-    int m_idUserParent;         //!< id du User remplacé si le user est remplaçant ( = iduser si pas remplacé)
+    int m_idUserParent;         //!< id du User remplacé si le user est ramplaçant ( = iduser si pas remplacé)
     int m_idUserComptable;      //!< id du User qui comptabilise l'acte
-    int m_numCentre;            //!< id du lieu où se trouve le serveur
-    int m_idLieu;               //!< id du lieu où l'acte est effectué
-    bool m_remplacant;          //!> le superviseur de l'acte est remplaçant au moment de la réalisation de l'acte
+    //TODO : ??? : différence idUser et idCreatedBy
+    //-> reponse = le user est le responsable médical de l'acte - le idcreatedby est le user qui a créé l'acte et c'est parfois différent en cas de travail avec un assistant
 
     double m_montant;           //!< montant total
 
@@ -58,21 +61,24 @@ private:
     QString m_paiementTiers;    //!< //TODO : à compléter : je ne sais pas
 
     QDateTime m_date;           //!< date de la création de l'acte
-    QTime m_heure;              //!< heure de la création de l'acte
-    QDateTime m_agePatient;     //!< age du Patient au moment de l'acte
+    QDateTime m_agePatient;     //!< date de naissance du Patient //TODO : MOVE to Patient
+
 
 
 public:
-    Acte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    Acte(QObject *parent = Q_NULLPTR);
+    Acte(int idActe, int nbActe, int noActe, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
+    bool isValid();
     bool courrierAFaire();
-    bool isFactureEnFranc() const;
+    bool isPayeEnFranc() const;
 
     /* GETTER / SETTER*/
-
+    int id() const;
+    int nbActes() const;
+    int noActe() const;
     QDate date() const;
-    QTime heure() const;
     QString motif() const;
     QString texte() const;
     QString conclusion() const;
@@ -85,24 +91,9 @@ public:
     QString paiementType() const;
     QString paiementTiers() const;
     int idUser() const;
-    bool effectueparremplacant() const;
-
-    int numcentre() const;
-    int idlieu() const;
 
     int idParent() const;
     int idComptable() const;
-
-    void setcotation(QString cot)           { m_cotation = cot; }
-    void setcourrierafaire(bool caf)        { m_courrierStatus = (caf? "T" : ""); }
-    void setdate(QDate date)                { m_date = QDateTime(date); }
-    void setmontant(double montant)         { m_montant = montant; }
-    void setiduser(int idusr)               { m_idUser = idusr; }
-    void setidusercomptable(int idusr)      { m_idUserComptable = idusr; }
-    void setiduserparent(int idusr)         { m_idUserParent = idusr; }
-    void setmotif(QString motif)            { m_motif = motif; }
-    void settexte(QString texte)            { m_texte = texte; }
-    void setconclusion(QString conclusion)  { m_conclusion = conclusion; }
 };
 
 #endif // CLS_ACTE_H
