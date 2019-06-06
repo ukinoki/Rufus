@@ -106,10 +106,6 @@ public:
 
     static QString                  ConvertitModePaiement(QString mode);            // convertit en clair les abréviations utilisées dans la compta pour les modes de paiement (B= carte de crédit, E = Espèces...etc...)
 
-    //! Calcule âge
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance);
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QDate datedujour);
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour = QDate::currentDate());
 };
 
 #endif // UTILS_H

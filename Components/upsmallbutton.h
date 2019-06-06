@@ -41,13 +41,14 @@ public:
     void        setText(QString);
     void        setData(QVariant var);
     QVariant    Data();
-    void        setImmediateToolTip(QString Msg);
+    void        setImmediateToolTip(QString Msg, bool  affichettipmemesidisabled = false);
 
 private:
     bool        eventFilter(QObject *obj, QEvent *event)  ;
     int         id;
     QVariant    gLuggage;
     void        AfficheToolTip();
+    bool        AfficheToolTipMemeSiDisabled = false;
     QString     gToolTipMsg;
 
 signals:

@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dlg_commentaires::dlg_commentaires(QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionCommentaires", parent),
+    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionCommentaires", parent),
     ui(new Ui::dlg_commentaires)
 {
     ui->setupUi(this);
@@ -356,7 +356,7 @@ void dlg_commentaires::ChoixMenuContextuel(QString choix)
                 b = "1";
                 lbldef->setPixmap(Icons::pxBlackCheck().scaled(15,15)); //WARNING : icon scaled
             }
-            db->StandardSQL ("update " TBL_COMMENTAIRESLUNETTES " set ParDefautComment = " + b +
+            db->StandardSQL ("update " NOM_TABLE_COMMENTAIRESLUNETTES " set ParDefautComment = " + b +
                              " where idCommentLunet = " + ui->ComupTableWidget->item(row,2)->text());
         }
     }
@@ -787,12 +787,12 @@ void dlg_commentaires::InsertCommentaire(int row)
         return;
     }
 
-    QString requete = "INSERT INTO " TBL_COMMENTAIRESLUNETTES
+    QString requete = "INSERT INTO " NOM_TABLE_COMMENTAIRESLUNETTES
             " (TextComment, ResumeComment, idUser, Pardefautcomment ) "
             " VALUES ('" + Utils::correctquoteSQL(ui->upTextEdit->toPlainText()) +
             "','" + Utils::correctquoteSQL(line->text().left(100)) +
             "'," + QString::number(gidUser) + ", null)";
-    db->StandardSQL(requete, tr("Erreur d'enregistrement du commentaire dans ") + TBL_COURRIERS);
+    db->StandardSQL(requete, tr("Erreur d'enregistrement du commentaire dans ") + NOM_TABLE_COURRIERS);
     Remplir_TableView();
 
     if (ui->ComupTableWidget->rowCount() == 0)
@@ -877,7 +877,7 @@ void dlg_commentaires::Remplir_TableView()
 
     ui->ComupTableWidget->clearContents();
     QString Remplirtablerequete = "SELECT ResumeComment, ParDefautComment, TextComment, idCommentLunet, idUser"
-              " FROM "  TBL_COMMENTAIRESLUNETTES
+              " FROM "  NOM_TABLE_COMMENTAIRESLUNETTES
               " WHERE idUser = " + QString::number(gidUser) +
                 (db->getUserConnected()->getIdUserActeSuperviseur() != gidUser? " Or idUser = " + QString::number(db->getUserConnected()->getIdUserActeSuperviseur()) : "") +
                 ((db->getUserConnected()->getIdUserParent() != db->getUserConnected()->getIdUserActeSuperviseur())&&(db->getUserConnected()->getIdUserParent() != gidUser)? " Or idUser = " + QString::number(db->getUserConnected()->getIdUserParent()) : "") +
@@ -966,7 +966,7 @@ void dlg_commentaires::SupprimmCommentaire(int row)
     {
         int idCom = ui->ComupTableWidget->item(row,2)->text().toInt();
         Msg = tr("Impossible de supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "\n ... " + tr("et je ne sais pas pourquoi...");
-        db->SupprRecordFromTable(idCom, "idcommentlunet", TBL_COMMENTAIRESLUNETTES, Msg);
+        db->SupprRecordFromTable(idCom, "idcommentlunet", NOM_TABLE_COMMENTAIRESLUNETTES, Msg);
         Remplir_TableView();
     }
     if (ui->ComupTableWidget->rowCount() == 0)
@@ -995,11 +995,11 @@ void dlg_commentaires::UpdateCommentaire(int row)
     }
 
     QString idAmodifier = ui->ComupTableWidget->item(row,2)->text();
-    QString req = "UPDATE " TBL_COMMENTAIRESLUNETTES
+    QString req = "UPDATE " NOM_TABLE_COMMENTAIRESLUNETTES
             " SET TextComment = '" + Utils::correctquoteSQL(ui->upTextEdit->toPlainText()) +
             "', ResumeComment = '" + Utils::correctquoteSQL(line->text().left(100)) +
             "' WHERE  idCommentLunet = " + idAmodifier;
-    db->StandardSQL(req, tr("Erreur de mise à jour du document dans ") +  TBL_COMMENTAIRESLUNETTES);
+    db->StandardSQL(req, tr("Erreur de mise à jour du document dans ") +  NOM_TABLE_COMMENTAIRESLUNETTES);
     Remplir_TableView();
 
     if (ui->ComupTableWidget->rowCount() == 0)

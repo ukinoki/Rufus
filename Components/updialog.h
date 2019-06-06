@@ -58,7 +58,6 @@ private:
     void            closeEvent(QCloseEvent *);
     void            UpdateTabOrder();
     double          stageheight = 35;
-    QObject*        mData;
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton;
@@ -72,9 +71,8 @@ public:
     QHBoxLayout*    buttonslayout();
     QWidget*        widgetbuttons();
     void            setStageCount(double stage =  0);
-    QObject*        data() { return mData; }
-    void            setdata(QObject* data) { mData = data; }
 
+    QObject     *mData;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_patient.h"
 
 //GETTER | SETTER
+int Patient::id() const                     { return m_id; }
 QString Patient::nom() const                { return m_nom; }
 QString Patient::prenom() const             { return m_prenom; }
 QString Patient::sexe() const               { return m_sexe; }
@@ -52,6 +53,7 @@ QString Patient::traitementgen()            { return m_traitementgen; }
 QString Patient::traitementoph()            { return m_traitementoph; }
 QString Patient::tabac()                    { return m_tabac; }
 QString Patient::toxiques()                 { return m_toxiques; }
+QString Patient::gencorresp()               { return m_gencorresp; }
 QString Patient::important()                { return m_important; }
 QString Patient::resume()                   { return m_resume; }
 
@@ -81,20 +83,23 @@ Patient::Patient(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
+
+
 void Patient::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, CP_IDPAT_PATIENTS, m_id);
-    setDataString(data, CP_NOM_PATIENTS, m_nom);
-    setDataString(data, CP_PRENOM_PATIENTS, m_prenom);
-    setDataString(data, CP_SEXE_PATIENTS, m_sexe);
-    setDataDate(data, CP_DATECREATION_PATIENTS, m_datecreation);
-    setDataInt(data, CP_IDCREATEUR_PATIENTS, m_idcreateur);
-    setDataDate(data, CP_DDN_PATIENTS, m_dateDeNaissance);
-    setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
-    setDataBool(data, CP_ISSOCIALlOADED, m_issocialloaded);
+    setDataInt(data, "id", m_id);
+
+    setDataString(data, "nom", m_nom);
+    setDataString(data, "prenom", m_prenom);
+    setDataString(data, "sexe", m_sexe);
+    setDataDate(data, "datecreation", m_datecreation);
+    setDataInt(data, "idcreateur", m_idcreateur);
+    setDataDate(data, "dateDeNaissance", m_dateDeNaissance);
+    setDataBool(data, "isMedicalLoaded", m_ismedicalloaded);
+    setDataBool(data, "isSocialLoaded", m_issocialloaded);
     if (m_issocialloaded)
     {
         setDataString(data, "adresse1", m_adresse1);
@@ -112,22 +117,22 @@ void Patient::setData(QJsonObject data)
     }
     if (m_ismedicalloaded)
     {
-        setDataInt(data, CP_IDMG_RMP, m_idmg);
-        setDataInt(data, CP_IDSPE1_RMP, m_idspe1);
-        setDataInt(data, CP_IDSPE2_RMP, m_idspe2);
-        setDataInt(data, CP_IDSPE3_RMP, m_idspe3);
-        setDataInt(data, CP_IDCORNONMED_RMP, m_idcornonmg);
-        setDataString(data, CP_ATCDTSPERSOS_RMP, m_atcdtspersos);
-        setDataString(data, CP_TRAITMTGEN_RMP, m_traitementgen);
-        setDataString(data, CP_ATCDTSFAMLXS_RMP, m_atcdtsfamiliaux);
-        setDataString(data, CP_ATCDTSOPH_RMP, m_atcdtsophtalmos);
-        setDataString(data, CP_TABAC_RMP, m_tabac);
-        setDataString(data, CP_AUTRESTOXIQUES_RMP, m_toxiques);
-        setDataString(data, CP_IMPORTANT_RMP, m_important);
-        setDataString(data, CP_RESUME_RMP, m_resume);
-        setDataString(data, CP_TRAITMTOPH_RMP, m_traitementoph);
+        setDataInt(data, "idMG", m_idmg);
+        setDataInt(data, "idSpe1", m_idspe1);
+        setDataInt(data, "idSpe2", m_idspe2);
+        setDataInt(data, "idSpe3", m_idspe3);
+        setDataInt(data, "idCornonMG", m_idcornonmg);
+        setDataString(data, "AtcdtsPerso", m_atcdtspersos);
+        setDataString(data, "TtGeneral", m_traitementgen);
+        setDataString(data, "AtcdtsFamiliaux", m_atcdtsfamiliaux);
+        setDataString(data, "AtcdstOph", m_atcdtsophtalmos);
+        setDataString(data, "Tabac", m_tabac);
+        setDataString(data, "Toxiques", m_toxiques);
+        setDataString(data, "GenCorresp", m_gencorresp);
+        setDataString(data, "Important", m_important);
+        setDataString(data, "Resume", m_resume);
+        setDataString(data, "TtOph", m_traitementoph);
     }
-    m_data = data;
 }
 
 void Patient::setSocialData(QJsonObject data)
@@ -146,28 +151,29 @@ void Patient::setSocialData(QJsonObject data)
     setDataBool(data, "ALD", m_ALD);
     setDataBool(data, "CMU", m_CMU);
     setDataString(data, "profession", m_profession);
-    setDataBool(data, CP_ISSOCIALlOADED, m_issocialloaded);
+    m_issocialloaded = data["isSocialLoaded"].toBool();
 }
 
 void Patient::setMedicalData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, CP_IDMG_RMP, m_idmg);
-    setDataInt(data, CP_IDSPE1_RMP, m_idspe1);
-    setDataInt(data, CP_IDSPE2_RMP, m_idspe2);
-    setDataInt(data, CP_IDSPE3_RMP, m_idspe3);
-    setDataInt(data, CP_IDCORNONMED_RMP, m_idcornonmg);
-    setDataString(data, CP_ATCDTSPERSOS_RMP, m_atcdtspersos);
-    setDataString(data, CP_TRAITMTGEN_RMP, m_traitementgen);
-    setDataString(data, CP_ATCDTSFAMLXS_RMP, m_atcdtsfamiliaux);
-    setDataString(data, CP_ATCDTSOPH_RMP, m_atcdtsophtalmos);
-    setDataString(data, CP_TABAC_RMP, m_tabac);
-    setDataString(data, CP_AUTRESTOXIQUES_RMP, m_toxiques);
-    setDataString(data, CP_IMPORTANT_RMP, m_important);
-    setDataString(data, CP_RESUME_RMP, m_resume);
-    setDataString(data, CP_TRAITMTOPH_RMP, m_traitementoph);
-    setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
+    setDataInt(data, "idMG", m_idmg);
+    setDataInt(data, "idSpe1", m_idspe1);
+    setDataInt(data, "idSpe2", m_idspe2);
+    setDataInt(data, "idSpe3", m_idspe3);
+    setDataInt(data, "idCornonMG", m_idcornonmg);
+    setDataString(data, "AtcdtsPerso", m_atcdtspersos);
+    setDataString(data, "TtGeneral", m_traitementgen);
+    setDataString(data, "AtcdtsFamiliaux", m_atcdtsfamiliaux);
+    setDataString(data, "AtcdstOph", m_atcdtsophtalmos);
+    setDataString(data, "Tabac", m_tabac);
+    setDataString(data, "Toxiques", m_toxiques);
+    setDataString(data, "GenCorresp", m_gencorresp);
+    setDataString(data, "Important", m_important);
+    setDataString(data, "Resume", m_resume);
+    setDataString(data, "TtOph", m_traitementoph);
+    m_ismedicalloaded = data["isMedicalLoaded"].toBool();
 }
 
 /*!

@@ -29,19 +29,43 @@ QMap<int, Correspondant *> *Correspondants::correspondants() const
  * \brief Correspondants::Correspondants
  * Initialise la map Correspondants
  */
-Correspondants::Correspondants(QObject *parent) : ItemsList(parent)
+Correspondants::Correspondants()
 {
     m_correspondants = new QMap<int, Correspondant*>();
 }
 
-void Correspondants::addList(QList<Correspondant*> listcor)
+void Correspondants::clearAll()
 {
-    QList<Correspondant*>::const_iterator it;
-    for( it = listcor.constBegin(); it != listcor.constEnd(); ++it )
-    {
-        Correspondant* item = const_cast<Correspondant*>(*it);
-        add( m_correspondants, item->id(), item );
-    }
+    for( QMap<int, Correspondant*>::const_iterator itcor = m_correspondants->constBegin(); itcor != m_correspondants->constEnd(); ++itcor)
+        delete itcor.value();
+    m_correspondants->clear();
+}
+
+void Correspondants::remove(Correspondant *cor)
+{
+    if (cor == Q_NULLPTR)
+        return;
+    m_correspondants->remove(cor->id());
+    delete cor;
+}
+
+/*!
+ * \brief Correspondants::add
+ * ajoute le correspondant passé en paramètre
+ * à la liste des correspondants
+ * \param Correspondant le correspondant que l'on veut ajouter
+ * \return true si le correspondant est ajouté
+ * \return false si le paramètre correspondant est un Q_NULLPTR
+ * \return false si le correspondant est déjà présent
+ */
+bool Correspondants::add(Correspondant *cor)
+{
+    if( cor == Q_NULLPTR)
+        return false;
+    if( m_correspondants->contains(cor->id()) )
+        return false;
+    m_correspondants->insert(cor->id(), cor);
+    return true;
 }
 
 /*!
@@ -52,7 +76,7 @@ void Correspondants::addList(QList<Correspondant*> listcor)
  * \return Q_NULLPTR si aucun correspondant trouvé
  * \return Correspondant* le correspondant correspondant à l'id
  */
-Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, ADDTOLIST addToList)
+Correspondant* Correspondants::getById(int id, bool loadDetails, bool addToList)
 {
     QMap<int, Correspondant*>::const_iterator itcor = m_correspondants->find(id);
     Correspondant *result;
@@ -61,24 +85,21 @@ Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, AD
     else
     {
         result = itcor.value();
-        if(loaddetails == Item::NoLoadDetails)
+        if(!loadDetails)
             return result;
-        addToList = ItemsList::NoAddToList;
+        addToList = false;
     }
 
-    if( !result->isAllLoaded())
+    if( !result->isAllLoaded() )
     {
         QJsonObject jsonCorrespondant = DataBase::I()->loadCorrespondantData(id);
         if( jsonCorrespondant.isEmpty() )
-        {
-            delete result;
             return Q_NULLPTR;
-        }
         else
             result->setData(jsonCorrespondant);
     }
-    if( addToList == ItemsList::AddToList)
-        add(m_correspondants, result->id(), result );
+    if( addToList )
+        add( result );
     return result;
 }
 
@@ -90,11 +111,16 @@ Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, AD
  */
 void Correspondants::initListe(bool all)
 {
-    clearAll(m_correspondants);
+    clearAll();
     QList<Correspondant*> listcorrespondants;
     if (all)
         listcorrespondants = DataBase::I()->loadCorrespondantsALL();
     else
         listcorrespondants = DataBase::I()->loadCorrespondants();
-    addList(listcorrespondants);
+    QList<Correspondant*>::const_iterator itcorrespondants;
+    for( itcorrespondants = listcorrespondants.constBegin(); itcorrespondants != listcorrespondants.constEnd(); ++itcorrespondants )
+    {
+        Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
+        add(cor);
+    }
 }

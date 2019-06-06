@@ -45,13 +45,14 @@ UpSmallButton::~UpSmallButton()
 
 void UpSmallButton::AfficheToolTip()
 {
-    if (gToolTipMsg != "" && isEnabled())
+    if (gToolTipMsg != "" && (isEnabled() || AfficheToolTipMemeSiDisabled))
         QToolTip::showText(cursor().pos(),gToolTipMsg);
 }
 
-void UpSmallButton::setImmediateToolTip(QString Msg)
+void UpSmallButton::setImmediateToolTip(QString Msg, bool affichettipmemesidisabled)
 {
     gToolTipMsg = Msg;
+    AfficheToolTipMemeSiDisabled = affichettipmemesidisabled;
 }
 
 void UpSmallButton::setUpButtonStyle(enum StyleBouton Style)
