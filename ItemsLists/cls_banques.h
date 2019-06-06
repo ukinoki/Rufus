@@ -20,23 +20,25 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "database.h"
 #include "cls_banque.h"
+#include "cls_itemslist.h"
 
-class Banques
+class Banques : public ItemsList
 {
 private:
     QMap<int, Banque*> *m_banques = Q_NULLPTR; //!< la liste des Banques
+    void    addList(QList<Banque*> listbanques);
 
 public:
-    explicit Banques();
+    explicit Banques(QObject *parent = Q_NULLPTR);
 
     QMap<int, Banque *> *banques() const;
 
-    void    add(Banque *banque);
-    void    addList(QList<Banque*> listbanques);
-    void    remove(Banque* banque);
-    void    clearAll();
     Banque* getById(int id);
     void    initListe();
+
+    //!> actions sur les enregistrements
+    void       SupprimeBanque(Banque *bq);
+    Banque*    CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque = 0);
 };
 
 #endif // CLS_BANQUES_H

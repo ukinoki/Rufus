@@ -45,7 +45,7 @@ private:
     DataBase                    *db;
     QStringList                 glistMoyensDePaiement;
     QStringList                 glistRefFiscales;
-    User                        *gDataUser;
+    User                        *m_userencours;
     UpTableWidget               *gBigTable;
     UpPushButton                *EnregupPushButton, *AnnulupPushButton;
 

@@ -22,7 +22,6 @@ Tiers::Tiers(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
-int Tiers::id() const                   { return m_id; }
 QString Tiers::nomtiers() const         { return m_nomtiers; }
 QString Tiers::adressetiers() const     { return m_adressetiers; }
 QString Tiers::codepostaltiers() const  { return m_codepostaltiers; }
@@ -41,6 +40,7 @@ void Tiers::setData(QJsonObject data)
     setDataString(data, "villetiers", m_villetiers);
     setDataString(data, "telephonetiers", m_telephonetiers);
     setDataString(data, "faxtiers", m_faxtiers);
+    m_data = data;
 }
 
 

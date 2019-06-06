@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_typestiers.h"
 
 
-TypesTiers::TypesTiers()
+TypesTiers::TypesTiers(QObject *parent) : ItemsList(parent)
 {
     m_typestiers = new QList<TypeTiers *>();
 }
@@ -28,18 +28,27 @@ QList<TypeTiers *> *TypesTiers::typestiers() const
     return m_typestiers;
 }
 
-void TypesTiers::add(TypeTiers *typetiers)
+bool TypesTiers::add(TypeTiers *typetiers)
 {
+    if (typetiers == Q_NULLPTR)
+        return false;
     if( m_typestiers->contains(typetiers) )
-        return;
+    {
+        delete typetiers;
+        return false;
+    }
     *m_typestiers << typetiers;
+    return true;
 }
 
 void TypesTiers::addList(QList<TypeTiers*> listTypesTiers)
 {
     QList<TypeTiers*>::const_iterator it;
     for( it = listTypesTiers.constBegin(); it != listTypesTiers.constEnd(); ++it )
-        add( *it );
+    {
+        TypeTiers* trs = const_cast<TypeTiers*>(*it);
+        add( trs );
+    }
 }
 
 void TypesTiers::remove(TypeTiers* typetiers)
@@ -47,6 +56,7 @@ void TypesTiers::remove(TypeTiers* typetiers)
     m_typestiers->removeOne(typetiers);
     delete  typetiers;
 }
+
 void TypesTiers::clearAll()
 {
     while (m_typestiers->size() >0)
@@ -62,12 +72,6 @@ void TypesTiers::clearAll()
 void TypesTiers::initListe()
 {
     clearAll();
-    QList<TypeTiers*> listtypes = DataBase::I()->loadTypesTiers();
-    QList<TypeTiers*>::const_iterator ittyp;
-    for( ittyp = listtypes.constBegin(); ittyp != listtypes.constEnd(); ++ittyp )
-    {
-        TypeTiers *typ = const_cast<TypeTiers*>(*ittyp);
-        add( typ );
-    }
+    addList(DataBase::I()->loadTypesTiers());
 }
 
