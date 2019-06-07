@@ -36,11 +36,7 @@ TcpSocket::TcpSocket()
 bool TcpSocket::TcpConnectToServer(QString ipadrserver)
 {
     if (ipadrserver == "")
-    {
-        bool ok = true;
-        QList<QVariantList> listadress = db->StandardSelectSQL("select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME, ok);
-        ipadrserver    = listadress.at(0).at(0).toString();
-    }
+        ipadrserver    = db->parametres()->adresseserveurtcp();
     if (ipadrserver == "")
         return false;
     QString port        = NOM_PORT_TCPSERVEUR;

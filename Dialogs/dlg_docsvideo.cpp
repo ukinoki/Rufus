@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsvideo.h"
 
 dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
-    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsVideo", parent)
+    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsVideo", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     proc            = Procedures::I();
@@ -253,7 +253,7 @@ void dlg_docsvideo::ValideFiche()
         return;
     }
     // on vérifie que le dossier de stockage des videos existe sinon on le crée
-    QString CheminVideoDir      = NomDirStockageImagerie + NOMDIR_VIDEOS;
+    QString CheminVideoDir      = NomDirStockageImagerie + DIR_VIDEOS;
     QDir VideoDir;
     if (!QDir(CheminVideoDir).exists())
         if (!VideoDir.mkdir(CheminVideoDir))
@@ -270,26 +270,25 @@ void dlg_docsvideo::ValideFiche()
     QHash<QString,QVariant> listbinds;
     bool b = false;
     bool ok;
-    int idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok) + 1;
+    int idimpr =  db->selectMaxFromTable("idimpression", TBL_IMPRESSIONS, ok) + 1;
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
-    listbinds["idImpression"] =     idimpr;
-    listbinds["idPat"] =            m_currentpatient->id();
-    listbinds["TypeDoc"] =          typeDocCombo->currentText();
-    listbinds["SousTypeDoc"] =      sstypedoc;
-    listbinds["Titre"] =            sstypedoc;
-    listbinds["DateImpression"] =   editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-    listbinds["UserEmetteur"] =     db->getUserConnected()->id();
-    listbinds["EmisRecu"] =         "1";
-    listbinds["formatautre"] =      VIDEO;
-    listbinds["lienversfichier"] =  NomFileVideoDoc;
-    listbinds["FormatDoc"] =        VIDEO;
-    b = db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds);
+    listbinds[CP_IDPAT_IMPRESSIONS] =            m_currentpatient->id();
+    listbinds[CP_TYPEDOC_IMPRESSIONS] =          typeDocCombo->currentText();
+    listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
+    listbinds[CP_TITRE_IMPRESSIONS] =            sstypedoc;
+    listbinds[CP_DATE_IMPRESSIONS] =             editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
+    listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       db->getUserConnected()->id();
+    listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
+    listbinds[CP_FORMATAUTRE_IMPRESSIONS] =      VIDEO;
+    listbinds[CP_LIENFICHIER_IMPRESSIONS] =      NomFileVideoDoc;
+    listbinds[CP_FORMATDOC_IMPRESSIONS] =        VIDEO;
+
+    DocExterne * doc = DocsExternes::CreationDocument(listbinds);
+    b = (doc != Q_NULLPTR);
+    delete doc;
     if(!b)
-    {
-        UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
         qFile.close ();
-    }
     else
     {
         qFile.copy(CheminVideoDir + "/" + NomFileVideoDoc);

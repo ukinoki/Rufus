@@ -21,8 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 static inline double mmToInches(double mm) { return mm * 0.039370147; }
 
-dlg_docsexternes::dlg_docsexternes(Patient *pat, bool UtiliseTCP, QWidget *parent) :
-    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsExternes", parent)
+dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent) :
+    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
     proc                = Procedures::I();
     db                  = DataBase::I();
@@ -117,7 +117,7 @@ dlg_docsexternes::dlg_docsexternes(Patient *pat, bool UtiliseTCP, QWidget *paren
     AvecPrevisu = proc  ->ApercuAvantImpression();
 
     /*Gestion des XML - exemple
-    QString adressexml = QDir::homePath() + NOMDIR_RUFUS + "/XML/" + QString::number(idpat) + "/Exam_Data.xml";
+    QString adressexml = QDir::homePath() + DIR_RUFUS + "/XML/" + QString::number(idpat) + "/Exam_Data.xml";
     QFile xmldoc(adressexml);
     if (xmldoc.open(QIODevice::ReadOnly))
     {
@@ -148,21 +148,20 @@ dlg_docsexternes::dlg_docsexternes(Patient *pat, bool UtiliseTCP, QWidget *paren
 
     gMode               = Normal;
     gModeTri            = parDate;
-    initOK = (ActualiseDocsExternes() > 0);
-    if(!initOK)
-        return;
+    m_docsexternes      = Docs;
+    conservealafin      = iscurrentpatient;
+    m_docsexternes->setNouveauDocumentFalse();
+    RemplirTreeView();
 }
 
 dlg_docsexternes::~dlg_docsexternes()
 {
     delete printer;
-    m_ListDocs.clearAll();
-    Datas::I()->docsexternes->clearAll();
-}
-
-bool dlg_docsexternes::InitOK()
-{
-    return initOK;
+    if (!conservealafin)
+    {
+        m_docsexternes->clearAll(m_docsexternes->docsexternes());
+        delete m_docsexternes;
+    }
 }
 
 void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
@@ -276,7 +275,6 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
                 item->setIcon(Icons::icTampon());
             else
                 item->setIcon(QIcon());
-            docmt->setimportance(0);
             break;
         }
         case 1:{
@@ -295,14 +293,12 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
                 item->setIcon(Icons::icTampon());
             else
                 item->setIcon(QIcon());
-            docmt->setimportance(1);
             break;
         }
         case 2:{
             fontitem.setBold(true);
             item->setFont(fontitem);
             item->setIcon(Icons::icImportant());
-            docmt->setimportance(2);
             break;
         }
         }
@@ -322,9 +318,9 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     item = gmodeleTriParType->itemFromIndex(getIndexFromId(gmodeleTriParType,id));
     if (item != Q_NULLPTR)
         modifieitem(item, docmt, imp, gFont);
-    db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set Importance = " + QString::number(imp) + " where idImpression = " + QString::number(id));
+    ItemsList::update(docmt, CP_IMPORTANCE_IMPRESSIONS, imp);
     int nimportants = 0;
-    for(QMap<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes()->constBegin(); itdoc != m_ListDocs.docsexternes()->constEnd(); ++itdoc )
+    for(QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->constBegin(); itdoc != m_docsexternes->docsexternes()->constEnd(); ++itdoc )
     {
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
         if (doc->importance() == 2)
@@ -361,7 +357,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     double x;
     double y;
 
-    if (docmt->format() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais est un fichier sur le disque
+    if (docmt->format() == VIDEO)  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
     {
         if (DataBase::I()->getMode() == DataBase::Distant)
         {
@@ -381,7 +377,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this,msg, msg2);
             return;
         }
-        QString filename = NomDirStockageImagerie + NOMDIR_VIDEOS "/" + docmt->lienversfichier();
+        QString filename = NomDirStockageImagerie + DIR_VIDEOS "/" + docmt->lienversfichier();
         QFile   qFile(filename);
         if (!qFile.open(QIODevice::ReadOnly))
         {
@@ -614,18 +610,18 @@ void dlg_docsexternes::BasculeTriListe(int a)
 
 int dlg_docsexternes::ActualiseDocsExternes()
 {
-    m_ListDocs.addList(db->loadDoscExternesByPatient(m_currentpatient));
-    if (m_ListDocs.NouveauDocument())
+    m_docsexternes->addList(db->loadDoscExternesByPatient(m_currentpatient));
+    if (m_docsexternes->NouveauDocument())
     {
-        m_ListDocs.setNouveauDocumentFalse();
+        m_docsexternes->setNouveauDocumentFalse();
         RemplirTreeView();
     }
-    return m_ListDocs.docsexternes()->size();
+    return m_docsexternes->docsexternes()->size();
 }
 
 void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 {
-    QString filename = proc->DirImagerie() + NOMDIR_IMAGES + docmt->lienversfichier();
+    QString filename = proc->DirImagerie() + DIR_IMAGES + docmt->lienversfichier();
     QFile img(filename);
     if (!img.open(QIODevice::ReadOnly))
     {
@@ -689,7 +685,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
      * result["ba"] est un QByteArray qui stocke le contenu du fichier
      * result["lien"] est le lien vers le fichier sur le disque dur du serveur
     */
-    DocExterne *docmt = m_ListDocs.getById(idimpression);
+    DocExterne *docmt = m_docsexternes->getById(idimpression);
     QMap<QString,QVariant> result;
     QString idimpr = QString::number(idimpression);
     QString filename = "";
@@ -713,27 +709,27 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
                     filesufx        = lst.at(lst.size()-1);
                 }
                 QString sfx = (filesufx == PDF? PDF : JPG);
-                QString req = "delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr + " and Facture is null";
+                QString req = "delete from " TBL_ECHANGEIMAGES " where idimpression = " + idimpr + " and Facture is null";
                 db->StandardSQL(req);
-                req = "INSERT INTO " NOM_TABLE_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
+                req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
                                "VALUES (" +
                                idimpr + ", " +
-                               " LOAD_FILE('" + Utils::correctquoteSQL(proc->DirImagerieServeur() + NOMDIR_IMAGES + filename) + "'), " +
+                               " LOAD_FILE('" + Utils::correctquoteSQL(proc->DirImagerieServeur() + DIR_IMAGES + filename) + "'), " +
                                QString::number(docmt->compression()) + ")";
                  db->StandardSQL(req);
             }
         }
         bool ok = false;
-        QList<QVariantList> listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr
+        QList<QVariantList> listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_ECHANGEIMAGES " where idimpression = " + idimpr
                                                                 , ok
-                                                                , tr("Impossible d'accéder à la table ") + NOM_TABLE_ECHANGEIMAGES);
+                                                                , tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
         if (!ok)
             return result;
         if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans impressions
         {
-            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr
+            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_IMPRESSIONS " where idimpression = " + idimpr
                                              , ok
-                                             , tr("Impossible d'accéder à la table ") + NOM_TABLE_IMPRESSIONS);
+                                             , tr("Impossible d'accéder à la table ") + TBL_IMPRESSIONS);
         }
         if (listimpr.size()==0)
             return result;
@@ -776,9 +772,9 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
         TexteAImprimer->setHeaderSize(TailleEnTete);
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(proc->TailleTopMarge());
-        QString ficpdf = QDir::homePath() + NOMFIC_PDF;
+        QString ficpdf = QDir::homePath() + FILE_PDF;
         TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
-        // le paramètre true de la fonction print() génère la création du fichier pdf NOMFIC_PDF et pas son impression
+        // le paramètre true de la fonction print() génère la création du fichier pdf FILE_PDF et pas son impression
         QFile filepdf(ficpdf);
         if (!filepdf.open( QIODevice::ReadOnly ))
             UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
@@ -794,7 +790,7 @@ QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imager
 int dlg_docsexternes::CompteNbreDocs()
 {
     bool ok = true;
-    QList<QVariantList> list = db->StandardSelectSQL("Select idImpression from " NOM_TABLE_IMPRESSIONS " where idpat = " + QString::number(m_currentpatient->id()), ok);
+    QList<QVariantList> list = db->StandardSelectSQL("Select idImpression from " TBL_IMPRESSIONS " where idpat = " + QString::number(m_currentpatient->id()), ok);
     if (!ok) return 0;
     return list.size();
 }
@@ -805,7 +801,7 @@ DocExterne* dlg_docsexternes::getDocumentFromIndex(QModelIndex idx)
     if (it == Q_NULLPTR || it->hasChildren())
         return Q_NULLPTR;
     int idimpr = it->data().toMap().value("id").toInt();
-    return m_ListDocs.getById(idimpr);
+    return m_docsexternes->getById(idimpr);
 }
 
 QModelIndex dlg_docsexternes::getIndexFromId(QStandardItemModel *modele, int id)
@@ -832,7 +828,7 @@ void dlg_docsexternes::ImprimeDoc()
 #ifndef QT_NO_PRINTER
     PrintButton         ->disconnect();  // pour éviter le doubles impressions en cas de double clic lent
     DocExterne * docmt  = getDocumentFromIndex(ListDocsTreeView->selectionModel()->selectedIndexes().at(0));
-    docmt               = m_ListDocs.getById(docmt->id());
+    docmt               = m_docsexternes->getById(docmt->id());
     if (docmt != Q_NULLPTR)
     {
         bool detruirealafin = false;
@@ -894,7 +890,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
     bool        ok;
 
-    User *userEntete = Datas::I()->users->getById(docmt->iduser(), true);
+    User *userEntete = Datas::I()->users->getById(docmt->iduser(), Item::LoadDetails);
     if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -941,35 +937,29 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         Utils::nettoieHTML(Corps);
 
         QHash<QString,QVariant> listbinds;
-        listbinds["iduser"] = docmt->iduser();
-        listbinds["idpat"] = docmt->idpatient();
-        listbinds["typeDoc"] = docmt->typedoc();
-        listbinds["soustypedoc"] = docmt->soustypedoc();
-        listbinds["titre"] = docmt->titre();
-        listbinds["textEntete"] = Entete;
-        listbinds["textCorps"] = Corps;
-        listbinds["textOrigine"] = txt;
-        listbinds["textPied"] = Pied;
-        listbinds["dateimpression"] = QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-        listbinds["formatdoc"] = docmt->format();
-        listbinds["idlieu"] = db->getUserConnected()->getSite()->id();
-        listbinds["ald"] = (ALD? "1" : QVariant(QVariant::String));
-        listbinds["useremetteur"] = db->getUserConnected()->id();
-        listbinds["importance"] = docmt->importance();
-        if (!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
+        listbinds[CP_IDUSER_IMPRESSIONS]        = docmt->iduser();
+        listbinds[CP_IDPAT_IMPRESSIONS]         = docmt->idpatient();
+        listbinds[CP_TYPEDOC_IMPRESSIONS]       = docmt->typedoc();
+        listbinds[CP_SOUSTYPEDOC_IMPRESSIONS]   = docmt->soustypedoc();
+        listbinds[CP_TITRE_IMPRESSIONS]         = docmt->titre();
+        listbinds[CP_TEXTENTETE_IMPRESSIONS]    = Entete;
+        listbinds[CP_TEXTCORPS_IMPRESSIONS]     = Corps;
+        listbinds[CP_TEXTORIGINE_IMPRESSIONS]   = txt;
+        listbinds[CP_TEXTPIED_IMPRESSIONS]      = Pied;
+        listbinds[CP_DATE_IMPRESSIONS]          = QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+        listbinds[CP_FORMATDOC_IMPRESSIONS]     = docmt->format();
+        listbinds[CP_IDLIEU_IMPRESSIONS]        = db->getUserConnected()->getSite()->id();
+        listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1" : QVariant(QVariant::String));
+        listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = db->getUserConnected()->id();
+        listbinds[CP_IMPORTANCE_IMPRESSIONS]    = docmt->importance();
+        DocExterne * doc = m_docsexternes->CreationDocument(listbinds);
+        if (doc != Q_NULLPTR)
         {
-            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
-            connect(PrintButton,        &QPushButton::clicked, this,   &dlg_docsexternes::ImprimeDoc);
-        }
-        else
-        {
+            int idimpr = doc->id();
+            delete doc;
             if (detruirealafin)
-            {
-                db->SupprRecordFromTable(docmt->id(),"idimpression",NOM_TABLE_IMPRESSIONS);
-                m_ListDocs.remove(docmt);
-            }
+                m_docsexternes->SupprimeDocument(docmt);
             ActualiseDocsExternes();
-            int idimpr = db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok);
             QModelIndex idx = getIndexFromId(gmodele, idimpr);
             ListDocsTreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
             ListDocsTreeView->setCurrentIndex(idx);
@@ -1085,8 +1075,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     {
         if (dateedit->date().isValid())
         {
-            db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set DateImpression = '" + dateedit->date().toString("yyyy-MM-dd") + "' where idimpression = " + QString::number(docmt->id()));
-            docmt->setDate(QDateTime(dateedit->date()));
+            ItemsList::update(docmt, CP_DATE_IMPRESSIONS, QDateTime(dateedit->date()));
             RemplirTreeView();
             dlg->accept();
         }
@@ -1125,10 +1114,10 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     {
         if (Line->text()!="")
         {
-            db->StandardSQL("update " NOM_TABLE_IMPRESSIONS " set soustypedoc = '" + Utils::correctquoteSQL(Line->text()) + "' where idimpression = " + QString::number(docmt->id()));
-            gmodele->itemFromIndex(idx)->setText(CalcTitre(m_ListDocs.reload(docmt)));
-            int id = docmt->id();
+            ItemsList::update(docmt, CP_SOUSTYPEDOC_IMPRESSIONS, Line->text());
             QString titre = CalcTitre(docmt);
+            gmodele->itemFromIndex(idx)->setText(titre);
+            int id = docmt->id();
             gmodeleTriParDate->itemFromIndex(getIndexFromId(gmodeleTriParDate,id))->setText(titre);
             gmodeleTriParType->itemFromIndex(getIndexFromId(gmodeleTriParType,id))->setText(titre);
             dlg->accept();
@@ -1180,7 +1169,6 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
     }
     if (docmt == Q_NULLPTR)
         return;
-    QString idimpr = QString::number(docmt->id());
     if (!db->getUserConnected()->isSoignant())         //le user n'est pas un soignant
     {
         if (docmt->useremetteur() != DataBase::I()->getUserConnected()->id())
@@ -1189,7 +1177,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
             return;
         }
     }
-    if (idimpr != "")
+    if (docmt->id() > 0)
     {
         UpMessageBox msgbox;
         UpSmallButton OKBouton(tr("Supprimer"));
@@ -1205,14 +1193,14 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         if (docmt->lienversfichier() != "")
         {
             QString filename = (docmt->format() == VIDEO? "/" : "") + docmt->lienversfichier();
-            QString cheminFichier = (docmt->format()== VIDEO? NOMDIR_VIDEOS : NOMDIR_IMAGES);
+            QString cheminFichier = (docmt->format()== VIDEO? DIR_VIDEOS : DIR_IMAGES);
             filename = cheminFichier + filename;
-            db->StandardSQL("insert into " NOM_TABLE_DOCSASUPPRIMER " (FilePath) VALUES ('" + Utils::correctquoteSQL(filename) + "')");
+            db->StandardSQL("insert into " TBL_DOCSASUPPRIMER " (FilePath) VALUES ('" + Utils::correctquoteSQL(filename) + "')");
         }
         QString idaafficher = "";
-        if (m_ListDocs.docsexternes()->size() > 1)    // on recherche le document sur qui va être mis en surbrillance après la suppression
+        if (m_docsexternes->docsexternes()->size() > 1)    // on recherche le document sur qui va être mis la surbrillance après la suppression
         {
-            QMap<int, DocExterne*>* listaexplorer = m_ListDocs.docsexternes();
+            QMap<int, DocExterne*>* listaexplorer = m_docsexternes->docsexternes();
             QMap<int, DocExterne*>::const_iterator itdoc = listaexplorer->find(docmt->id());
             if (itdoc == listaexplorer->constBegin())
                 ++itdoc;
@@ -1220,11 +1208,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
                 --itdoc;
             idaafficher = QString::number(itdoc.key());
         }
-        db->StandardSQL("delete from " NOM_TABLE_REFRACTION " where idrefraction = (select idrefraction from " NOM_TABLE_IMPRESSIONS
-                        " where idimpression = " + idimpr + ")");
-        db->StandardSQL("delete from " NOM_TABLE_IMPRESSIONS " where idimpression = " + idimpr);
-        db->StandardSQL("delete from " NOM_TABLE_ECHANGEIMAGES " where idimpression = " + idimpr);
-        m_ListDocs.remove(docmt);
+        m_docsexternes->SupprimeDocument(docmt);
         RemplirTreeView();
         ListDocsTreeView->expandAll();
         if (idaafficher != "")
@@ -1423,7 +1407,7 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
 
 void dlg_docsexternes::RemplirTreeView()
 {
-    if (m_ListDocs.docsexternes()->size() == 0){
+    if (m_docsexternes->docsexternes()->size() == 0){
         reject();
         return;  // si on ne met pas ça, le reject n'est pas effectué...
     }
@@ -1501,7 +1485,7 @@ void dlg_docsexternes::RemplirTreeView()
             typedocs << doc->typedoc();
     };
 
-    for(QMap<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes()->constBegin(); itdoc != m_ListDocs.docsexternes()->constEnd(); ++itdoc )
+    for(QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->constBegin(); itdoc != m_docsexternes->docsexternes()->constEnd(); ++itdoc )
     {
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
         // créations des entêtes par date et par type d'examen
@@ -1553,7 +1537,7 @@ void dlg_docsexternes::RemplirTreeView()
         rootNodeType->appendRow(typitem);
     }
 
-    for(QMap<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes()->constBegin(); itdoc != m_ListDocs.docsexternes()->constEnd(); ++itdoc )
+    for(QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->constBegin(); itdoc != m_docsexternes->docsexternes()->constEnd(); ++itdoc )
     {
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());      // rajout des items de chaque examen en child des dates et des types
         QString date = doc->date().toString(tr("dd-MM-yyyy"));
@@ -1674,8 +1658,8 @@ void dlg_docsexternes::RemplirTreeView()
     if (idimpraretrouver != "")
     {
         // la suite ne marche pas et provoque des plantages ????
-        //        QMap<int, DocExterne*>::const_iterator itdoc = m_ListDocs.docsexternes()->find(idimpraretrouver.toInt());
-        //        if (itdoc != m_ListDocs.docsexternes()->constEnd())
+        //        QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->find(idimpraretrouver.toInt());
+        //        if (itdoc != m_docsexternes->docsexternes()->constEnd())
         //        {
         //            qDebug() << itdoc.key();
         //            DocExterne *doc = itdoc.value();

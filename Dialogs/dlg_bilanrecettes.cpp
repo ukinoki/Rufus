@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 
 dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
-    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionRecettes", parent)
+    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionRecettes", parent)
 {
     InitOK = true;
     proc        = Procedures::I();
@@ -261,9 +261,9 @@ void dlg_bilanrecettes::ImprimeEtat()
 
     //création de l'entête
     if (gMode==SUPERVISEUR)
-        userEntete = Datas::I()->users->getById(gSupervBox->currentData().toInt(), true);
+        userEntete = Datas::I()->users->getById(gSupervBox->currentData().toInt(), Item::LoadDetails);
     else
-        userEntete = Datas::I()->users->getById(gidUser->id(), true);
+        userEntete = Datas::I()->users->getById(gidUser->id(), Item::LoadDetails);
 
     if(userEntete == Q_NULLPTR)
     {
@@ -273,7 +273,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
     if (Entete == "") return;
 
-    // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ceux sont les données d'un User qui sont utilisées ???
+    // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
     // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
     // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
     if (gMode == SUPERVISEUR)
@@ -290,7 +290,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     if (Pied == "") return;
 
     // creation du corps de la remise
-    QString couleur = "<font color = \"" + proc->CouleurTitres + "\">";
+    QString couleur = "<font color = \"" COULEUR_TITRES "\">";
     double c = CORRECTION_td_width;
     QTextEdit *Etat_textEdit = new QTextEdit;
     QString test4 = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
@@ -571,7 +571,7 @@ void dlg_bilanrecettes::ExportTable()
             ExportEtat.append("\n");
         }
     }
-    QString ExportFileName = QDir::homePath() + NOMDIR_RUFUS + "/"
+    QString ExportFileName = QDir::homePath() + DIR_RUFUS + "/"
                             + (gMode == COMPTABLE? tr("Recettes") + " " + gidUser->getLogin() : tr("Actes") + " " + gSupervBox->currentText())
                             + " " + tr("du") + " " + Debut.toString("d MMM yyyy") + " " + tr("au") + " " + Fin.toString(tr("d MMM yyyy"))
                             + ".csv";

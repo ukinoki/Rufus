@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_gestionusers.h"
 
 dlg_gestionusers::dlg_gestionusers(int idUser, int idlieu, bool mdpverified, QWidget *parent) :
-    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionGestionUsers", parent),
+    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionGestionUsers", parent),
     ui(new Ui::dlg_gestionusers)
 {
     ui->setupUi(this);
@@ -210,10 +210,10 @@ void dlg_gestionusers::Slot_Annulation()
 {
     if (gMode == Creer)
     {
-        db->SupprRecordFromTable(DataUser()->id(), "idUser", NOM_TABLE_UTILISATEURS);
-        db->SupprRecordFromTable(DataUser()->id(), "idUser", NOM_TABLE_COMPTES);
+        db->SupprRecordFromTable(DataUser()->id(), "idUser", TBL_UTILISATEURS);
+        db->SupprRecordFromTable(DataUser()->id(), "idUser", TBL_COMPTES);
         int b = -1;
-        QVariantList userdata = db->getFirstRecordFromStandardSelectSQL("select idUser from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(gidUserDepart),ok);
+        QVariantList userdata = db->getFirstRecordFromStandardSelectSQL("select idUser from " TBL_UTILISATEURS " where iduser = " + QString::number(gidUserDepart),ok);
         if (ok && userdata.size()>0)
             b = gidUserDepart;
         RemplirTableWidget(b);
@@ -381,7 +381,7 @@ void dlg_gestionusers::Slot_EnregistreNouvMDP()
         msgbox.setText(tr("Modifications enregistrées"));
         msgbox.setInformativeText(tr("Le nouveau mot de passe a été enregistré avec succès"));
         // Enregitrer le nouveau MDP de la base
-        db->StandardSQL("update " NOM_TABLE_UTILISATEURS " set userMDP = '" + nouv + "' where idUser = " + ui->idUseruplineEdit->text());
+        db->StandardSQL("update " TBL_UTILISATEURS " set userMDP = '" + nouv + "' where idUser = " + ui->idUseruplineEdit->text());
         // Enregitrer le nouveau MDP de connexion à MySQL
         db->StandardSQL("set password = '" + nouv + "'");
         QString AdressIP;
@@ -407,7 +407,7 @@ void dlg_gestionusers::Slot_EnregistreUser()
     if (!VerifFiche()) return;
     QString titre = (ui->OPHupRadioButton->isChecked()?       "'" + Utils::correctquoteSQL(ui->TitreupcomboBox->currentText()) + "'" : "null");
     QString actif = (ui->InactivUsercheckBox->isChecked()?  "1" : "null");
-    QString req = "update "         NOM_TABLE_UTILISATEURS
+    QString req = "update "         TBL_UTILISATEURS
             " set userNom = '"      + Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomuplineEdit->text()))        + "',\n"
             " userPrenom = "        + (ui->SocieteComptableupRadioButton->isChecked()? "null" : "'" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomuplineEdit->text())) + "'") + ",\n"
             " UserPortable = '"     + ui->PortableuplineEdit->text()   + "',\n"
@@ -672,18 +672,18 @@ void dlg_gestionusers::Slot_EnregistreUser()
     //Edit(req);
     db->StandardSQL(req);
     int idlieu=-1;
-    db->SupprRecordFromTable(ui->idUseruplineEdit->text().toInt(), "idUser", NOM_TABLE_JOINTURESLIEUX);
+    db->SupprRecordFromTable(ui->idUseruplineEdit->text().toInt(), "idUser", TBL_JOINTURESLIEUX);
     for(int i=0; i< ui->AdressupTableWidget->rowCount(); i++)
     {
         UpRadioButton *butt = static_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
         if (butt->isChecked())
         {
             idlieu = butt->iD();
-            db->StandardSQL("insert into " NOM_TABLE_JOINTURESLIEUX "(iduser, idlieu) values (" + ui->idUseruplineEdit->text() + ", " + QString::number(idlieu) + ")");
+            db->StandardSQL("insert into " TBL_JOINTURESLIEUX "(iduser, idlieu) values (" + ui->idUseruplineEdit->text() + ", " + QString::number(idlieu) + ")");
         }
     }
 
-    req = "update " NOM_TABLE_COMPTES " set partage = ";
+    req = "update " TBL_COMPTES " set partage = ";
     db->StandardSQL(req + (ui->SocieteComptableupRadioButton->isChecked()? "1" : "null") + " where iduser = " +  ui->idUseruplineEdit->text());
 
     if (Mode==PREMIERUSER || Mode == MODIFUSER)
@@ -777,8 +777,8 @@ void dlg_gestionusers::Slot_EnregistreNouvUser()
     }
     gAsk->accept();
     gMode                       = Creer;
-    db->StandardSQL("insert into " NOM_TABLE_UTILISATEURS " (UserLogin, UserMDP) VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(MDP) + "')");
-    QString req = "select idUser from " NOM_TABLE_UTILISATEURS " where UserLogin = '" + login + "' and UserMDP = '" + MDP + "'";
+    db->StandardSQL("insert into " TBL_UTILISATEURS " (UserLogin, UserMDP) VALUES ('" + Utils::correctquoteSQL(login) + "', '" + Utils::correctquoteSQL(MDP) + "')");
+    QString req = "select idUser from " TBL_UTILISATEURS " where UserLogin = '" + login + "' and UserMDP = '" + MDP + "'";
     int idUser = db->getFirstRecordFromStandardSelectSQL(req,ok).at(0).toInt();
     RemplirTableWidget(idUser);
     widgButtons                     ->setEnabled(false);
@@ -890,7 +890,7 @@ void dlg_gestionusers::Slot_GestLieux()
     ReconstruitListeLieuxExercice();
     delete gestLieux;
     int idUser = ui->ListUserstableWidget->item(ui->ListUserstableWidget->selectedItems().at(0)->row(),0)->text().toInt();
-    QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " NOM_TABLE_JOINTURESLIEUX " where iduser = " + QString::number(idUser), ok);
+    QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " TBL_JOINTURESLIEUX " where iduser = " + QString::number(idUser), ok);
     QList<int> idlieuxlist;
     for (int k=0; k< listlieux.size(); k++)
         idlieuxlist << listlieux.at(k).at(0).toInt();
@@ -1012,7 +1012,7 @@ void dlg_gestionusers::Slot_RegleAffichage()
 void dlg_gestionusers::SupprUser()
 {
     int idUser = DataUser()->id();
-    if (db->StandardSelectSQL("select iduser from " NOM_TABLE_UTILISATEURS
+    if (db->StandardSelectSQL("select iduser from " TBL_UTILISATEURS
                   " where iduser <> " + QString::number(idUser) +
                   " and (Soignant = 1 or Soignant = 2 or Soignant = 3)"
                   " and (UserEnregHonoraires = 1 or UserEnregHonoraires = 2 or UserEnregHonoraires = 4)", ok).size()==0)
@@ -1025,7 +1025,7 @@ void dlg_gestionusers::SupprUser()
     }
     // si l'utilisateur est une société comptable ou s'il est employeur, on vérifie s'il a des employés et on bloque la suppression du compte si c'est le cas
     if (DataUser()->isSocComptable() || DataUser()->isLiberal())
-        if (db->StandardSelectSQL("select iduser from " NOM_TABLE_UTILISATEURS " where UserEmployeur = " + QString::number(DataUser()->id()), ok).size()>0)
+        if (db->StandardSelectSQL("select iduser from " TBL_UTILISATEURS " where UserEmployeur = " + QString::number(DataUser()->id()), ok).size()>0)
         {
             UpMessageBox::Watch(this, tr("Impossible de supprimer ce compte d'utilisateur!"), tr("cet utilisateur est enregistré comme employeur d'autres utilisateurs"));
             return;
@@ -1059,23 +1059,23 @@ void dlg_gestionusers::SupprUser()
     msgbox.exec();
     if (msgbox.clickedpushbutton()==&AnnulBouton)
     {
-        QList<QVariantList> listcpt = db->StandardSelectSQL("select idcompte from " NOM_TABLE_COMPTES " where iduser = " + QString::number(idUser), ok);
+        QList<QVariantList> listcpt = db->StandardSelectSQL("select idcompte from " TBL_COMPTES " where iduser = " + QString::number(idUser), ok);
         if(listcpt.size()>0)
         {
             for (int i=0; i<listcpt.size();i++)
             {
                 QString icpt = listcpt.at(i).at(0).toString();
-                if (db->StandardSelectSQL("select idrecette from " NOM_TABLE_RECETTES " where comptevirement = " + icpt, ok).size()==0)
-                    if (db->StandardSelectSQL("select idligne from " NOM_TABLE_ARCHIVESBANQUE " where idcompte = " + icpt, ok).size()==0)
-                        if (db->StandardSelectSQL("select iddep from " NOM_TABLE_DEPENSES " where compte = " + icpt, ok).size()==0)
-                            if (db->StandardSelectSQL("select idremcheq from " NOM_TABLE_REMISECHEQUES " where idcompte = " + icpt, ok).size()==0)
-                                if (db->StandardSelectSQL("select idligne from " NOM_TABLE_LIGNESCOMPTES " where idcompte = " + icpt, ok).size()==0)
-                                    db->SupprRecordFromTable(icpt.toInt(), "idcompte", NOM_TABLE_COMPTES);
+                if (db->StandardSelectSQL("select idrecette from " TBL_RECETTES " where comptevirement = " + icpt, ok).size()==0)
+                    if (db->StandardSelectSQL("select idligne from " TBL_ARCHIVESBANQUE " where idcompte = " + icpt, ok).size()==0)
+                        if (db->StandardSelectSQL("select iddep from " TBL_DEPENSES " where compte = " + icpt, ok).size()==0)
+                            if (db->StandardSelectSQL("select idremcheq from " TBL_REMISECHEQUES " where idcompte = " + icpt, ok).size()==0)
+                                if (db->StandardSelectSQL("select idligne from " TBL_LIGNESCOMPTES " where idcompte = " + icpt, ok).size()==0)
+                                    db->SupprRecordFromTable(icpt.toInt(), "idcompte", TBL_COMPTES);
             }
         }
-        db->SupprRecordFromTable(idUser, "idUser", NOM_TABLE_COTATIONS);
-        db->SupprRecordFromTable(idUser, "idUser", NOM_TABLE_UTILISATEURS);
-        db->StandardSQL("delete from " NOM_TABLE_JOINTURESLIEUX " where iduser not in (select iduser from " NOM_TABLE_UTILISATEURS ")");
+        db->SupprRecordFromTable(idUser, "idUser", TBL_COTATIONS);
+        db->SupprRecordFromTable(idUser, "idUser", TBL_UTILISATEURS);
+        db->StandardSQL("delete from " TBL_JOINTURESLIEUX " where iduser not in (select iduser from " TBL_UTILISATEURS ")");
 
         QString req = "select user, host from mysql.user where user like '" + ui->ListUserstableWidget->selectedItems().at(1)->text() + "%'";
         QList<QVariantList> listusr = db->StandardSelectSQL(req, ok);
@@ -1087,7 +1087,7 @@ void dlg_gestionusers::SupprUser()
             UpMessageBox::Watch(this, tr("Cool ") + vamourir + "...", tr("Votre suicide s'est parfaitement déroulé et le programme va maintenant se fermer"));
             exit(0);
         }
-        int b = (db->StandardSelectSQL("select idUser from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(gidUserDepart), ok).size() == 0?
+        int b = (db->StandardSelectSQL("select idUser from " TBL_UTILISATEURS " where iduser = " + QString::number(gidUserDepart), ok).size() == 0?
                      -1:
                      gidUserDepart);
         RemplirTableWidget(b);
@@ -1103,7 +1103,7 @@ void dlg_gestionusers::ActualiseRsgnmtBanque(bool soccomptable)
 void dlg_gestionusers::CalcListitemsCompteActescomboBox(int iduser)
 {
     QString user = QString::number(iduser);
-    QString req = "select idCompte, IntituleCompte, NomCompteAbrege from \n" NOM_TABLE_BANQUES " as ban, " NOM_TABLE_COMPTES " as comp\n"
+    QString req = "select idCompte, IntituleCompte, NomCompteAbrege from \n" TBL_BANQUES " as ban, " TBL_COMPTES " as comp\n"
                   " where ban.idbanque = comp.idbanque \n"
                   " and (iduser = " + user + " or partage = 1)"
                   " and desactive is null";
@@ -1113,7 +1113,7 @@ void dlg_gestionusers::CalcListitemsCompteActescomboBox(int iduser)
     ui->CompteActescomboBox->clear();
     for (int i=0; i<listcpt.size(); i++)
         ui->CompteActescomboBox->insertItem(0, listcpt.at(i).at(1).toString() + " - " + listcpt.at(i).at(2).toString(), listcpt.at(i).at(0).toInt());
-    QVariantList idcptlst = db->getFirstRecordFromStandardSelectSQL("select idCompteEncaissHonoraires from " NOM_TABLE_UTILISATEURS
+    QVariantList idcptlst = db->getFirstRecordFromStandardSelectSQL("select idCompteEncaissHonoraires from " TBL_UTILISATEURS
                                                                        " where iduser = " + user + " and idCompteEncaissHonoraires is not null", ok);
     if (ok && idcptlst.size()>0)
         ui->CompteActescomboBox->setCurrentIndex(ui->CompteActescomboBox->findData(idcptlst.at(0)));
@@ -1122,7 +1122,7 @@ void dlg_gestionusers::CalcListitemsCompteActescomboBox(int iduser)
 void dlg_gestionusers::CalcListitemsCompteComptacomboBox(int iduser, bool soccomptable)
 {
     QString user = QString::number(iduser);
-    QString req = "select idCompte, IntituleCompte, NomCompteAbrege from \n" NOM_TABLE_BANQUES " as ban, " NOM_TABLE_COMPTES " as comp\n"
+    QString req = "select idCompte, IntituleCompte, NomCompteAbrege from \n" TBL_BANQUES " as ban, " TBL_COMPTES " as comp\n"
                   " where ban.idbanque = comp.idbanque \n"
                   " and iduser = " + user +
                   " and desactive is null";
@@ -1134,7 +1134,7 @@ void dlg_gestionusers::CalcListitemsCompteComptacomboBox(int iduser, bool soccom
     ui->CompteComptacomboBox->clear();
     for (int i=0; i<listcpt.size(); i++)
         ui->CompteComptacomboBox->insertItem(0, listcpt.at(i).at(1).toString() + " - " + listcpt.at(i).at(2).toString(), listcpt.at(i).at(0).toInt());
-    QVariantList idcptlst = db->getFirstRecordFromStandardSelectSQL("select idcomptepardefaut from " NOM_TABLE_UTILISATEURS
+    QVariantList idcptlst = db->getFirstRecordFromStandardSelectSQL("select idcomptepardefaut from " TBL_UTILISATEURS
                                                                        " where iduser = " + user + " and idcomptepardefaut is not null", ok);
     if (ok && idcptlst.size()>0)
         ui->CompteComptacomboBox->setCurrentIndex(ui->CompteComptacomboBox->findData(idcptlst.at(0)));
@@ -1145,7 +1145,7 @@ void dlg_gestionusers::CalcListitemsCompteComptacomboBox(int iduser, bool soccom
 void dlg_gestionusers::CalcListitemsEmployeurcomboBox(int iduser)
 {
     QString user = QString::number(iduser);
-    QString req = "select iduser, UserPrenom, UserNom from " NOM_TABLE_UTILISATEURS
+    QString req = "select iduser, UserPrenom, UserNom from " TBL_UTILISATEURS
                   " where (Soignant = 5"
                   " or (soignant < 4 and UserEnregHonoraires = 1))"
                   " and iduser <> " + user +
@@ -1157,7 +1157,7 @@ void dlg_gestionusers::CalcListitemsEmployeurcomboBox(int iduser)
     ui->EmployeurcomboBox->clear();
     for (int i=0; i<listusr.size(); i++)
         ui->EmployeurcomboBox->insertItem(0, (listusr.at(i).at(1).toString() != ""? listusr.at(i).at(1).toString() + " " + listusr.at(i).at(2).toString() : listusr.at(i).at(2).toString()), listusr.at(i).at(0).toInt());
-    QVariantList idusrlst = db->getFirstRecordFromStandardSelectSQL("select UserEmployeur from " NOM_TABLE_UTILISATEURS " where iduser = " + user, ok);
+    QVariantList idusrlst = db->getFirstRecordFromStandardSelectSQL("select UserEmployeur from " TBL_UTILISATEURS " where iduser = " + user, ok);
     if (ok && idusrlst.size()>0)
         ui->EmployeurcomboBox->setCurrentIndex(ui->EmployeurcomboBox->findData(idusrlst.at(0)));
 }
@@ -1165,7 +1165,7 @@ void dlg_gestionusers::CalcListitemsEmployeurcomboBox(int iduser)
 bool  dlg_gestionusers::AfficheParamUser(int idUser)
 {
     QString req;
-    if (db->StandardSelectSQL("select idUser from " NOM_TABLE_UTILISATEURS " where iduser = " + QString::number(idUser), ok).size() == 0)
+    if (db->StandardSelectSQL("select idUser from " TBL_UTILISATEURS " where iduser = " + QString::number(idUser), ok).size() == 0)
         return false;
     setDataUser(idUser);
 
@@ -1233,7 +1233,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     ui->NomuplineEdit               ->setText(DataUser()->getNom());
     ui->PrenomuplineEdit            ->setText(DataUser()->getPrenom());
 
-    QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " NOM_TABLE_JOINTURESLIEUX " where iduser = " + QString::number(idUser), ok);
+    QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " TBL_JOINTURESLIEUX " where iduser = " + QString::number(idUser), ok);
     QList<int> idlieuxlist;
     for (int k=0; k< listlieux.size(); k++)
         idlieuxlist << listlieux.at(k).at(0).toInt();
@@ -1371,16 +1371,27 @@ void   dlg_gestionusers::DefinitLesVariables()
 
 bool dlg_gestionusers::ExisteEmployeur(int iduser)
 {
-    return (db->StandardSelectSQL("select iduser from " NOM_TABLE_UTILISATEURS
+    return (db->StandardSelectSQL("select iduser from " TBL_UTILISATEURS
                       " where (((Soignant = 1 or Soignant = 2 or Soignant = 3) and UserEnregHonoraires = 1) or Soignant = 5)"
                       " and iduser <> " + QString::number(iduser), ok).size()>0);
 }
 bool dlg_gestionusers::setDataUser(int id)
 {
-    QJsonObject data = db->loadUserData(id); //TODO : !!! Chargement du lieu
-    if( data.isEmpty() )
-        return false;
-    OtherUser = new User( data );
+    OtherUser = Datas::I()->users->getById(id);
+    if (!OtherUser->isAllLoaded())
+    {
+        QJsonObject data = db->loadUserData(OtherUser->id());
+        if(data.isEmpty())
+        {
+            UpMessageBox::Watch(Q_NULLPTR,tr("Les paramètres de ")
+                                + OtherUser->getLogin() + tr("ne sont pas retrouvés"));
+            return false;
+        }
+        OtherUser->setData( data );
+    }
+    dlg_gestioncomptes::ReconstruitListeComptes(OtherUser);
+    OtherUser->setCompteParDefaut(Datas::I()->comptes->getById(OtherUser->getIdCompteParDefaut()));
+    OtherUser->setCompteEncaissement(Datas::I()->comptes->getById(OtherUser->getIdCompteEncaissHonoraires()));
     return true;
 }
 
@@ -1416,7 +1427,7 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
     upheader->reDim(0,0,3);
 
     QList<QVariantList> listadress = db->StandardSelectSQL("select idLieu, NomLieu, LieuAdresse1, LieuAdresse2, LieuAdresse3,"
-                                                              " LieuCodePostal, LieuVille, LieuTelephone from " NOM_TABLE_LIEUXEXERCICE, ok);
+                                                              " LieuCodePostal, LieuVille, LieuTelephone from " TBL_LIEUXEXERCICE, ok);
     ui->AdressupTableWidget->setRowCount(listadress.size());
     for (int i=0; i< listadress.size(); i++)
     {
@@ -1443,14 +1454,14 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
         connect(buttn, &QPushButton::clicked, this, [=]
         {
             int idlieu=-1;
-            db->SupprRecordFromTable(ui->idUseruplineEdit->text().toInt(), "idUser", NOM_TABLE_JOINTURESLIEUX);
+            db->SupprRecordFromTable(ui->idUseruplineEdit->text().toInt(), "idUser", TBL_JOINTURESLIEUX);
             for(int i=0; i< ui->AdressupTableWidget->rowCount(); i++)
             {
                 UpRadioButton *butt = static_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
                 if (butt->isChecked())
                 {
                     idlieu = butt->iD();
-                    db->StandardSQL("insert into " NOM_TABLE_JOINTURESLIEUX "(iduser, idlieu) values (" + ui->idUseruplineEdit->text() + ", " + QString::number(idlieu) + ")");
+                    db->StandardSQL("insert into " TBL_JOINTURESLIEUX "(iduser, idlieu) values (" + ui->idUseruplineEdit->text() + ", " + QString::number(idlieu) + ")");
                 }
             }
             Slot_EnableOKpushButton();
@@ -1486,13 +1497,13 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
     ui->ListUserstableWidget->verticalHeader()->setVisible(false);
     ui->ListUserstableWidget->setHorizontalHeaderLabels(QStringList()<<""<<"Login");
     ui->ListUserstableWidget->setGridStyle(Qt::NoPen);
-    QList<QVariantList> usrlst = db->StandardSelectSQL("select IdUser, UserLogin from " NOM_TABLE_UTILISATEURS " where userlogin <> '" NOM_ADMINISTRATEURDOCS "'",ok);
+    QList<QVariantList> usrlst = db->StandardSelectSQL("select IdUser, UserLogin from " TBL_UTILISATEURS " where userlogin <> '" NOM_ADMINISTRATEURDOCS "'",ok);
     ui->ListUserstableWidget->setRowCount(usrlst.size());
     for (int i=0; i<usrlst.size(); i++)
     {
         pitem0 = new QTableWidgetItem;
         pitem1 = new QTableWidgetItem;
-        QList<QVariantList> actlst = db->StandardSelectSQL("select count(idActe) from " NOM_TABLE_ACTES " where idUser = " + usrlst.at(i).at(0).toString() + " or creepar = " + usrlst.at(i).at(0).toString(), ok);
+        QList<QVariantList> actlst = db->StandardSelectSQL("select count(idActe) from " TBL_ACTES " where idUser = " + usrlst.at(i).at(0).toString() + " or creepar = " + usrlst.at(i).at(0).toString(), ok);
         if (actlst.size()>0)
         {
             int nbactes = actlst.at(0).at(0).toInt();

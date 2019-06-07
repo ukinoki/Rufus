@@ -29,7 +29,7 @@ class Depense : public Item
 {
 
 private: //Données de la dépense
-    int m_iddepense;            //!< id de la dépense
+
     int m_iduser;               //!< id du user qui a fait la dépense (ce user est comptable)
     QDate m_datedepepense;      //!< date le la dépense
     QString m_rubriquefiscale;  //!< la rubriquee fiscale 2035 de la dépense
@@ -53,7 +53,6 @@ private: //Données de la dépense
 public:
     enum m_auxarchives {NoLoSo, Oui, Non};
     //GETTER | SETTER
-    int     id() const;
     int     iduser() const;
     QDate   date() const;
     QString rubriquefiscale() const;

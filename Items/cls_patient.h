@@ -30,7 +30,7 @@ class Patient : public Item
 {
 
 private: //Données du patient
-    int m_id;                       //!< Id du patient en base
+    //!<m_id = Id du patient en base
     QString m_nom;                  //!< Nom du patient
     QString m_prenom;               //!< Prénom du patient
     QString m_sexe;                 //!< Sexe du patient
@@ -65,7 +65,6 @@ private: //Données du patient
     QString m_traitementoph;        //!< le traitement ophtalmo
     QString m_tabac;                //!< consommation de tabac /j
     QString m_toxiques;             //!< autres toxiques
-    QString m_gencorresp;           //!< nom du generaliste correspondant (plus utilisé)
     QString m_important;            //!< points importants du dossier
     QString m_resume;               //!< resumé du dossier
     bool    m_ismedicalloaded;      //!< les renseignements médicaux sont chargés
@@ -79,7 +78,6 @@ public:
     bool issocialloaded() const;
     bool isalloaded();
 
-    int     id() const;
     QString nom() const;
     QString prenom() const;
     QString sexe() const;
@@ -114,7 +112,6 @@ public:
     QString traitementoph();
     QString tabac();
     QString toxiques();
-    QString gencorresp();
     QString important();
     QString resume();
 
@@ -130,9 +127,18 @@ public:
     void addActe(Acte *acte);
 
     // Medical data
-    void    setmg(int id) {m_idmg = id;}
+    void    setmg(int id)   {m_idmg = id;}
     void    setspe1(int id) {m_idspe1 = id;}
     void    setspe2(int id) {m_idspe2 = id;}
+    void    setatcdtsoph(QString atcdts)    { m_atcdtsophtalmos = atcdts; }
+    void    setatcdtsgen(QString atcdts)    { m_atcdtspersos = atcdts; }
+    void    setatcdtsfam(QString atcdts)    { m_atcdtsfamiliaux = atcdts; }
+    void    settraitemntsoph(QString tts)   { m_traitementoph = tts; }
+    void    settraitemntsgen(QString tts)   { m_traitementgen = tts; }
+    void    setimportant(QString imp)       { m_important = imp; }
+    void    setresume(QString rsm)          { m_resume = rsm; }
+    void    settabac(QString tbc)           { m_tabac = tbc; }
+    void    setautrestoxiques(QString tox)  { m_toxiques = tox; }
 };
 
 #endif // CLS_PATIENT_H
