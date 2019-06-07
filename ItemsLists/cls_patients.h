@@ -72,11 +72,10 @@ public:
 
     //!> actions sur les enregistrements
     void                SupprimePatient(Patient *pat);
-    Patient*            CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe = "");
     static Patient*     CreationPatient(QHash<QString, QVariant> setpats);
 
     //!< action sur toutes les données
-    void    updatePatient(Patient* pat);                                                    //!> met à jour les datas d'un patient à partir des données enregistrées dans la base
+    static void    updatePatient(Patient* pat);                                                    //!> met à jour les datas d'un patient à partir des données enregistrées dans la base
 
 
 };

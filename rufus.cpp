@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("06-06-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("07-06-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1379,6 +1379,7 @@ void Rufus::ChangeTabBureau()
 
 void Rufus::ChoixMG()
 {
+    //ItemsList::update(m_currentpatient, CP_IDMG_RMP,ui->MGupComboBox->currentData().toInt());
     Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
     OKModifierTerrain(m_currentpatient, false);
     ui->MGupComboBox->setImmediateToolTip(CalcToolTipCorrespondant(ui->MGupComboBox->currentData().toInt()));
@@ -6366,7 +6367,6 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->CreerBOpushButton_2->setVisible(true);
         ui->idActelineEdit->clear();
         m_currentact = Q_NULLPTR;
-        return;
     }
     else
     {
@@ -7041,9 +7041,9 @@ void Rufus::CreerDossier()
     {
         // Récupération de nom, prénom et DDN puis création du dossier---------------------------------
         QHash<QString,QVariant> listbinds;
-        listbinds[CP_NOM_PATIENTS] =           PatNom;
-        listbinds[CP_PRENOM_PATIENTS] =        PatPrenom;
-        listbinds[CP_DDN_PATIENTS] =           ui->CreerDDNdateEdit->date();
+        listbinds[CP_NOM_PATIENTS]          = PatNom;
+        listbinds[CP_PRENOM_PATIENTS]       = PatPrenom;
+        listbinds[CP_DDN_PATIENTS]          = ui->CreerDDNdateEdit->date();
         Patient *pat  = Patients::CreationPatient(listbinds);
         if (pat == Q_NULLPTR)
             return;
@@ -7500,7 +7500,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
             //  Mise à jour de m_currentpatient et de l'affichage si le dossier modifié est le dossier en cours
             if (pat == m_currentpatient)
             {
-                db->loadPatientById(pat->id(), m_currentpatient, true);
+                Patients::updatePatient(m_currentpatient);;
                 ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(m_currentpatient));
                 ui->tabWidget->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),CalcIconPatient(m_currentpatient));
                 ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tabDossier) ,pat->nom() + " " + pat->prenom());

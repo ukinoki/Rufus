@@ -155,45 +155,6 @@ void Patients::SupprimePatient(Patient *pat)
     remove(m_patients, pat);
 }
 
-Patient* Patients::CreationPatient(QString nom, QString prenom, QDate datedenaissance, QString sexe)
-{
-    Patient *pat =  Q_NULLPTR;
-    bool ok;
-    QString req;
-    req =   "INSERT INTO " TBL_PATIENTS
-            " (PatNom, PatPrenom, PatDDN, PatCreele, PatCreePar, Sexe) "
-            " VALUES ('" +
-            Utils::correctquoteSQL(nom) + "', '" +
-            Utils::correctquoteSQL(prenom) + "', '" +
-            datedenaissance.toString("yyyy-MM-dd") +
-            "', NOW(), '" +
-            QString::number(DataBase::I()->getUserConnected()->id()) +"' , '" +
-            sexe +
-            "');";
-
-    DataBase::I()->locktables(QStringList() << TBL_PATIENTS << TBL_DONNEESSOCIALESPATIENTS << TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    if (!DataBase::I()->StandardSQL(req, tr("Impossible de créer le dossier")))
-    {
-        DataBase::I()->unlocktables();
-        return Q_NULLPTR;
-    }
-    // Récupération de l'idPatient créé ------------------------------------
-    int idpat = DataBase::I()->selectMaxFromTable("idPat", TBL_PATIENTS, ok, tr("Impossible de sélectionner les enregistrements"));
-    if (!ok ||  idpat == 0)
-    {
-        DataBase::I()->unlocktables();
-        return Q_NULLPTR;
-    }
-
-    pat = DataBase::I()->loadPatientById(idpat);
-    req = "INSERT INTO " TBL_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
-    DataBase::I()->StandardSQL(req,tr("Impossible de créer les données sociales"));
-    req = "INSERT INTO " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
-    DataBase::I()->StandardSQL(req,tr("Impossible de créer les renseignements médicaux"));
-    DataBase::I()->unlocktables();
-    return pat;
-}
-
 void Patients::updatePatient(Patient *pat)
 {
     pat->setData(DataBase::I()->loadPatientAllData(pat->id()));
@@ -305,7 +266,9 @@ void Patients::updateCorrespondant(Patient *pat, DataBase::typecorrespondant typ
 Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
 {
     Patient *pat = Q_NULLPTR;
-    DataBase::I()->locktables(QStringList() << TBL_PATIENTS );
+    DataBase::I()->locktables(QStringList() << TBL_PATIENTS << TBL_DONNEESSOCIALESPATIENTS << TBL_RENSEIGNEMENTSMEDICAUXPATIENTS );
+    sets[CP_DATECREATION_PATIENTS] = QDate::currentDate();
+    sets[CP_IDCREATEUR_PATIENTS]   = DataBase::I()->getUserConnected()->id();
     bool result = DataBase::I()->InsertSQLByBinds(TBL_PATIENTS, sets);
     if (!result)
     {

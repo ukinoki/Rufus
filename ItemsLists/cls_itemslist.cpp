@@ -12,7 +12,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     QString nomfieldid;
     DocExterne * doc = Q_NULLPTR;
     Acte* act = Q_NULLPTR;
-    PatientEnCours* pat = Q_NULLPTR;
+    PatientEnCours* patcrs = Q_NULLPTR;
+    Patient* pat = Q_NULLPTR;
 
     bool ok = false;
     bool loop = false;
@@ -32,13 +33,21 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             loop = true;
             break;
         }
-        pat = dynamic_cast<PatientEnCours*>(item);
-        if (pat != Q_NULLPTR)
+        patcrs = dynamic_cast<PatientEnCours*>(item);
+        if (patcrs != Q_NULLPTR)
         {
             table = TBL_SALLEDATTENTE;
             loop = true;
             break;
         }
+        pat = dynamic_cast<Patient*>(item);
+        if (pat != Q_NULLPTR)
+        {
+            table = TBL_SALLEDATTENTE;
+            loop = true;
+            return false;
+        }
+        return false;
     }
 
     if (table == TBL_IMPRESSIONS)
@@ -114,62 +123,62 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         nomfieldid = CP_IDPAT_SALDAT;
         if (field == CP_IDPAT_SALDAT)
         {
-            pat->setid(newvalue.toInt());
+            patcrs->setid(newvalue.toInt());
             value = (newvalue == QVariant()? "null" : newvalue.toString());
 
         }
         else if (field == CP_IDUSER_SALDAT)
         {
-            pat->setiduser(newvalue.toInt());
+            patcrs->setiduser(newvalue.toInt());
             value = (newvalue == QVariant()? "null" : newvalue.toString());
 
         }
         else if (field == CP_STATUT_SALDAT)
         {
-            pat->setstatut(newvalue.toString());
+            patcrs->setstatut(newvalue.toString());
             value = (newvalue == QVariant()? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
         }
         else if (field == CP_HEURESTATUT_SALDAT)
         {
-            pat->setheurestatut(newvalue.toTime());
+            patcrs->setheurestatut(newvalue.toTime());
             value = (newvalue == QVariant()? "null" : "'" + newvalue.toTime().toString("HH:mm:ss") + "'");
         }
         else if (field == CP_HEUREARRIVEE_SALDAT)
         {
-            pat->setheurerarrivee(newvalue.toTime());
+            patcrs->setheurerarrivee(newvalue.toTime());
             value = (newvalue == QVariant()? "null" : "'" + newvalue.toTime().toString("HH:mm:ss") + "'");
 
         }
         else if (field == CP_HEURERDV_SALDAT)
         {
-            pat->setheurerdv(newvalue.toTime());
+            patcrs->setheurerdv(newvalue.toTime());
             value = (newvalue == QVariant()? "null" : "'" + newvalue.toTime().toString("HH:mm:ss") + "'");
 
         }
         else if (field == CP_MOTIF_SALDAT)
         {
-            pat->setmotif(newvalue.toString());
+            patcrs->setmotif(newvalue.toString());
             value = (newvalue == QVariant()? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
         }
         else if (field == CP_MESSAGE_SALDAT)
         {
-            pat->setmessage(newvalue.toString());
+            patcrs->setmessage(newvalue.toString());
             value = (newvalue == QVariant()? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
         }
         else if (field == CP_IDACTEAPAYER_SALDAT)
         {
-            pat->setidacteapayer(newvalue.toInt());
+            patcrs->setidacteapayer(newvalue.toInt());
             value = (newvalue == QVariant()? "null" : newvalue.toString());
 
         }
         else if (field == CP_POSTEEXAMEN_SALDAT)
         {
-            pat->setposteexamen(newvalue.toString());
+            patcrs->setposteexamen(newvalue.toString());
             value = (newvalue == QVariant()? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
         }
         else if (field == CP_IDUSERENCOURSEXAM_SALDAT)
         {
-            pat->setiduserencoursexam(newvalue.toInt());
+            patcrs->setiduserencoursexam(newvalue.toInt());
             value = (newvalue == QVariant()? "null" : newvalue.toString());
         }
     }
