@@ -118,6 +118,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_PROFESSION_DSP                            "PatProfession"
 
                             //! Table Rufus.renseignementsmedicauxpatients
+#define CP_IDPAT_RMP                                 "idPat"
 #define CP_ATCDTSOPH_RMP                             "RMPAtcdtsOphs"
 #define CP_TRAITMTOPH_RMP                            "RMPTtOphs"
 #define CP_IMPORTANT_RMP                             "Important"

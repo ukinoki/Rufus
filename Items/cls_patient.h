@@ -126,10 +126,32 @@ public:
     void setMedicalData(QJsonObject data);
     void addActe(Acte *acte);
 
+    // basic data
+    void    setnom(QString str)             { m_nom = str; }
+    void    setprenom(QString str)          { m_prenom = str; }
+    void    setdatedenaissance(QDate date)  { m_dateDeNaissance = date; }
+    void    setsexe(QString str)            { m_sexe = str; }
+    void    setdatecreation(QDate date)     { m_datecreation = date; }
+    void    setidcreateur(int id)           { m_idcreateur = id;}
+
+    // Social data
+    void setadresse1(QString str)           { m_adresse1 = str; }
+    void setadresse2(QString str)           { m_adresse2 = str; }
+    void setadresse3(QString str)           { m_adresse3 = str; }
+    void setcodepostal(QString str)         { m_codepostal = str; }
+    void setville(QString str)              { m_ville = str; }
+    void settelephone(QString str)          { m_telephone = str; }
+    void setportable(QString str)           { m_portable = str; }
+    void setmail(QString str)               { m_mail = str; }
+    void setNNI(qlonglong str)              { m_NNI = str; }
+    void setald(bool logic)                 { m_ALD = logic; }
+    void setcmu(bool logic)                 { m_CMU = logic; }
+    void setprofession(QString str)         { m_profession = str; }
+
     // Medical data
-    void    setmg(int id)   {m_idmg = id;}
-    void    setspe1(int id) {m_idspe1 = id;}
-    void    setspe2(int id) {m_idspe2 = id;}
+    void    setmg(int id)                   { m_idmg = id; }
+    void    setspe1(int id)                 { m_idspe1 = id; }
+    void    setspe2(int id)                 { m_idspe2 = id; }
     void    setatcdtsoph(QString atcdts)    { m_atcdtsophtalmos = atcdts; }
     void    setatcdtsgen(QString atcdts)    { m_atcdtspersos = atcdts; }
     void    setatcdtsfam(QString atcdts)    { m_atcdtsfamiliaux = atcdts; }

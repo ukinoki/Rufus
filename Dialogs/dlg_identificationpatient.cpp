@@ -311,28 +311,19 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             reject();
 
         // Mise à jour de donneessocialespatients
-        requete = "UPDATE " TBL_DONNEESSOCIALESPATIENTS
-                         " SET PatAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text())) +
-                         "', PatAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text())) +
-                         "', PatAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text())) +
-                         "', PatCodePostal = '" + CPlineEdit->text() + "'";
-        requete +=       ", PatNNI = " + NNI;
-        requete +=       ", PatVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text())).left(70) +
-                         "', PatTelephone = '" + ui->TellineEdit->text() +
-                         "', PatPortable = '" + ui->PortablelineEdit->text() +
-                         "', PatMail = '" + ui->MaillineEdit->text() +
-                         "', PatProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->ProfessionlineEdit->text(), true)) + "'";
-        requete +=       ", PatALD = " + ALD;
-        requete +=       ", PatCMU = " + CMU;
-        requete +=       " WHERE idPat = " + QString::number(m_nouveaupatient->id());
-
-        db->StandardSQL(requete, tr("Impossible d'écrire dans la table des données sociales"));
-
-        // Mise à jour du medecin traitant
-        Datas::I()->patients->updateCorrespondant(m_nouveaupatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
-        // on met à jour les atcdts familiaux
-        QString req = "Update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " SET RMPAtcdtsFamiliaux = '" + m_currentpatient->atcdtsfamiliaux() + "' where idPat = " + QString::number(m_nouveaupatient->id());
-        db->StandardSQL(req);
+        ItemsList::update(m_currentpatient, CP_ADRESSE1_DSP,    Utils::trimcapitilize(ui->Adresse1lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_ADRESSE2_DSP,    Utils::trimcapitilize(ui->Adresse2lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_ADRESSE3_DSP,    Utils::trimcapitilize(ui->Adresse3lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_CODEPOSTAL_DSP,  CPlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_VILLE_DSP,       Utils::trimcapitilize(VillelineEdit->text().left(70)));
+        ItemsList::update(m_currentpatient, CP_TELEPHONE_DSP,   ui->TellineEdit->text());
+        ItemsList::update(m_currentpatient, CP_PORTABLE_DSP,    ui->PortablelineEdit->text());
+        ItemsList::update(m_currentpatient, CP_MAIL_DSP,        ui->MaillineEdit->text());
+        ItemsList::update(m_currentpatient, CP_PROFESSION_DSP,  ui->ProfessionlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_NNI_DSP,         ui->NNIlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_ALD_DSP,         ui->ALDcheckBox->isChecked());
+        ItemsList::update(m_currentpatient, CP_CMU_DSP,         ui->CMUcheckBox->isChecked());
+        ItemsList::update(m_currentpatient, CP_IDMG_RMP,        ui->MGupComboBox->currentData().toInt());
         accept();
     }
     else if (gMode == Modification)
@@ -353,67 +344,50 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
                 UpMessageBox::Watch(this,tr("Ce dossier existe déjà!"));
                 return;
             }
-        }            // Mise à jour SQL patients
+        }
         //1 - Mise à jour patients
-        requete =    "UPDATE " TBL_PATIENTS
-                     " SET PatNom = '" + Utils::correctquoteSQL(ui->NomlineEdit->text()) +
-                     "', PatPrenom = '" + Utils::correctquoteSQL(ui->PrenomlineEdit->text()) +
-                     "', PatDDN = '" + ui->DDNdateEdit->date().toString("yyyy-MM-dd");
+        ItemsList::update(m_currentpatient, CP_NOM_PATIENTS,    ui->NomlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_PRENOM_PATIENTS, ui->PrenomlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_DDN_PATIENTS,    ui->DDNdateEdit->date());
         if (Sexe != "")
-            requete += "', Sexe = '" + Sexe;
-        requete +=   "' WHERE idPat = " + QString::number(m_currentpatient->id());
-        db->StandardSQL(requete,tr("Impossible d'écrire dans la table PATIENTS"));
+            ItemsList::update(m_currentpatient, CP_SEXE_PATIENTS, Sexe);
 
         // Mise à jour de donneessocialespatients
-        requete =   "UPDATE " TBL_DONNEESSOCIALESPATIENTS
-                " SET PatAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text())) +
-                "', PatAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text())) +
-                "', PatAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text())) +
-                "', PatCodePostal = '" + CPlineEdit->text() + "'";
-        requete +=  ", PatNNI = " + NNI;
-        requete +=
-                ", PatVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text())).left(70) +
-                "', PatTelephone = '" + ui->TellineEdit->text() +
-                "', PatPortable = '" + ui->PortablelineEdit->text() +
-                "', PatMail = '" + ui->MaillineEdit->text() +
-                "', PatProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->ProfessionlineEdit->text())) + "'";
-        requete += ", PatALD = " + ALD;
-        requete += ", PatCMU = " + CMU;
-        requete += " WHERE idPat = " + QString::number(m_currentpatient->id());
-        db->StandardSQL(requete,tr("Impossible d'écrire dans la table des données sociales"));
+        ItemsList::update(m_currentpatient, CP_ADRESSE1_DSP,    Utils::trimcapitilize(ui->Adresse1lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_ADRESSE2_DSP,    Utils::trimcapitilize(ui->Adresse2lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_ADRESSE3_DSP,    Utils::trimcapitilize(ui->Adresse3lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_CODEPOSTAL_DSP,  CPlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_VILLE_DSP,       Utils::trimcapitilize(VillelineEdit->text().left(70)));
+        ItemsList::update(m_currentpatient, CP_TELEPHONE_DSP,   ui->TellineEdit->text());
+        ItemsList::update(m_currentpatient, CP_PORTABLE_DSP,    ui->PortablelineEdit->text());
+        ItemsList::update(m_currentpatient, CP_MAIL_DSP,        ui->MaillineEdit->text());
+        ItemsList::update(m_currentpatient, CP_PROFESSION_DSP,  ui->ProfessionlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_NNI_DSP,         ui->NNIlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_ALD_DSP,         ui->ALDcheckBox->isChecked());
+        ItemsList::update(m_currentpatient, CP_CMU_DSP,         ui->CMUcheckBox->isChecked());
+        ItemsList::update(m_currentpatient, CP_IDMG_RMP,        ui->MGupComboBox->currentData().toInt());
 
-        // Mise à jour du médecin traitant
-        Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
         accept();
     }
     else if (gMode == Creation)
     {
         //1 - Mise à jour patients
         if (Sexe != "")
-        {
-            QString requete =   "UPDATE " TBL_PATIENTS " SET Sexe = '" + Sexe + "' WHERE idPat = " + QString::number(m_currentpatient->id());
-            db->StandardSQL(requete,"Impossible d'écrire dans la table patients");
-        }
+            ItemsList::update(m_currentpatient, CP_SEXE_PATIENTS, Sexe);
         //2 - Mise à jour de donneessocialespatients
-        QString requete =   "UPDATE " TBL_DONNEESSOCIALESPATIENTS
-                " SET PatAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text())) +
-                "', PatAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text())) +
-                "', PatAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text())) +
-                "', PatCodePostal = '" + CPlineEdit->text() + "'";
-        requete += ", PatNNI = " + NNI;
-        requete +=
-                ", PatVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text())).left(70) +
-                "', PatTelephone = '" + ui->TellineEdit->text() +
-                "', PatPortable = '" + ui->PortablelineEdit->text() +
-                "', PatMail = '" + ui->MaillineEdit->text() +
-                "', PatProfession = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->ProfessionlineEdit->text())) + "'";
-        requete += ", PatALD = " + ALD;
-        requete += ", PatCMU = " + CMU;
-        requete += " WHERE idPat = " + QString::number(m_currentpatient->id());
-
-        db->StandardSQL(requete, tr("Impossible d'écrire dans la table des données sociales"));
-        //2 - Mise à jour de medecin traitant
-        Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+        ItemsList::update(m_currentpatient, CP_ADRESSE1_DSP,    Utils::trimcapitilize(ui->Adresse1lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_ADRESSE2_DSP,    Utils::trimcapitilize(ui->Adresse2lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_ADRESSE3_DSP,    Utils::trimcapitilize(ui->Adresse3lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_CODEPOSTAL_DSP,  CPlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_VILLE_DSP,       Utils::trimcapitilize(VillelineEdit->text().left(70)));
+        ItemsList::update(m_currentpatient, CP_TELEPHONE_DSP,   ui->TellineEdit->text());
+        ItemsList::update(m_currentpatient, CP_PORTABLE_DSP,    ui->PortablelineEdit->text());
+        ItemsList::update(m_currentpatient, CP_MAIL_DSP,        ui->MaillineEdit->text());
+        ItemsList::update(m_currentpatient, CP_PROFESSION_DSP,  ui->ProfessionlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_NNI_DSP,         ui->NNIlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_ALD_DSP,         ui->ALDcheckBox->isChecked());
+        ItemsList::update(m_currentpatient, CP_CMU_DSP,         ui->CMUcheckBox->isChecked());
+        ItemsList::update(m_currentpatient, CP_IDMG_RMP,        ui->MGupComboBox->currentData().toInt());
         accept();
     }
 }
