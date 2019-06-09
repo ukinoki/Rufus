@@ -1913,7 +1913,7 @@ QString Procedures::getSessionStatus()
         User *employeur = Datas::I()->users->getById(m_userConnected->getEmployeur(), Item::LoadDetails);
         employeur->setCompteEncaissement(Datas::I()->comptes->getById(employeur->getIdCompteEncaissHonoraires()));
         Compte *cptt= employeur->getCompteEncaissement();
-        txtstatut += cptt->nom() + " ";
+        txtstatut += cptt->nomabrege() + " ";
         txtstatut += tr("de") + " " + Datas::I()->users->getById(m_userConnected->getEmployeur())->getLogin();
     }
     else if (retrocession)
@@ -1938,7 +1938,7 @@ QString Procedures::getSessionStatus()
         QString cptabledefaut ("");
         if (m_userConnected->getCompteParDefaut() != Q_NULLPTR)
             cptabledefaut = tr("de") + " " + Datas::I()->users->getById(m_userConnected->getCompteParDefaut()->idUser())->getLogin();
-        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getCompteParDefaut()->nom() + " "
+        txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t") + m_userConnected->getCompteParDefaut()->nomabrege() + " "
                           + cptabledefaut;
     }
     if (respliberal)

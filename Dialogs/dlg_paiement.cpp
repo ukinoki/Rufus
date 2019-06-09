@@ -771,7 +771,7 @@ void dlg_paiement::RegleComptesComboBox(bool avecLesComptesInactifs)
     QList<Compte*> *listcomptes = m_useracrediter->getComptes(avecLesComptesInactifs);
     for (int i=0; i<listcomptes->size(); i++)
     {
-        ui->ComptesupComboBox->addItem(m_useracrediter->getLogin() + "/" + listcomptes->at(i)->nom(), listcomptes->at(i)->id());
+        ui->ComptesupComboBox->addItem(m_useracrediter->getLogin() + "/" + listcomptes->at(i)->nomabrege(), listcomptes->at(i)->id());
     }
 }
 

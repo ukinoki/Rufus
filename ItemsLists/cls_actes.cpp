@@ -205,19 +205,18 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
         return Q_NULLPTR;
     }
     DataBase::I()->unlocktables();
-    QJsonObject data{};
-    data["id"] = idacte;
-    data["idPatient"] = pat->id();
-    data["idUser"] = usr->getIdUserActeSuperviseur();
-    data["date"] = QDateTime(QDate::currentDate()).toMSecsSinceEpoch();
-    data["heure"] = QTime::currentTime().toString("HH:mm:ss");
-    data["idCreatedBy"] = usr->id();
-    data["idUserComptable"] = usr->getIdUserComptable();
-    data["idUserParent"] = usr->getIdUserParent();
-    data["remplacant"] = (rempla == "1");
-    data["NumCentre"] = idcentre;
-    data["idLieu"] = usr->getSite()->id();
-    act = new Acte(data);
+    act = new Acte();
+    act->setid(idacte);
+    act->setidpatient(pat->id());
+    act->setiduser(usr->getIdUserActeSuperviseur());
+    act->setdate(QDate::currentDate());
+    act->setheure(QTime::currentTime());
+    act->setidusercreateur(usr->id());
+    act->setidusercomptable(usr->getIdUserComptable());
+    act->setiduserparent(usr->getIdUserParent());
+    act->seteffectueparremplacant(rempla == "1");
+    act->setnumcentre(idcentre);
+    act->setidlieu(usr->getSite()->id());
     add(m_actes, idacte, act);
     return act;
 }

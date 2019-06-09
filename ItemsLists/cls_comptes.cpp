@@ -104,17 +104,16 @@ Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString 
     // Récupération de l'idMotif créé ------------------------------------
     int idcpt = DataBase::I()->selectMaxFromTable(CP_IDCOMPTE_COMPTES, TBL_COMPTES, ok, tr("Impossible de sélectionner les enregistrements"));
     DataBase::I()->unlocktables();
-    QJsonObject jData{};
-    jData[CP_IDCOMPTE_COMPTES]       = idcpt;
-    jData[CP_IDBANQUE_COMPTES]       = idBanque;
-    jData[CP_IDUSER_COMPTES]         = idUser;
-    jData[CP_IBAN_COMPTES]           = IBAN;
-    jData[CP_INTITULE_COMPTES]       = IntituleCompte;
-    jData[CP_NOMABREGE_COMPTES]      = NomCompteAbrege;
-    jData[CP_SOLDE_COMPTES]          = SoldeSurDernierReleve;
-    jData[CP_PARTAGE_COMPTES]        = Partage;
-    jData[CP_DESACTIVE_COMPTES]      = Desactive;
-    cpt = new Compte(jData);
+    cpt = new Compte();
+    cpt->setid(idcpt);
+    cpt->setidbanque(idBanque);
+    cpt->setiduser(idUser);
+    cpt->setiban(IBAN);
+    cpt->setintitulecompte(IntituleCompte);
+    cpt->setnomabrege(NomCompteAbrege);
+    cpt->setsolde(SoldeSurDernierReleve);
+    cpt->setpartage(Partage);
+    cpt->setdesactive(Desactive);
     add(m_comptes, cpt->id(), cpt);
     return cpt;
 }

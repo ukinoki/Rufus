@@ -52,7 +52,7 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         for (itcpt = comptesusr->constBegin(); itcpt != comptesusr->constEnd(); ++itcpt)
         {
             Compte *cpt = const_cast<Compte*>(*itcpt);
-            ui->BanquecomboBox->addItem(cpt->nom(),cpt->id());
+            ui->BanquecomboBox->addItem(cpt->nomabrege(),cpt->id());
             if (db->getUserConnected()->getCompteParDefaut() != Q_NULLPTR)
                 idcptprefer = db->getUserConnected()->getCompteParDefaut()->id();
         }
@@ -157,7 +157,7 @@ void dlg_comptes::AnnulArchive()
 
     db->commit();
     SoldeSurReleve = NouveauSolde;
-    CompteEnCours->setSolde(SoldeSurReleve);
+    CompteEnCours->setsolde(SoldeSurReleve);
     ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
     gBigTable->clearContents();
     RemplitLaTable(idCompte);
@@ -231,7 +231,7 @@ void dlg_comptes::Archiver()
 
     db->commit();
     SoldeSurReleve = QLocale().toDouble(ui->MontantSoldeConsolidelabel->text());
-    CompteEnCours->setSolde(SoldeSurReleve);
+    CompteEnCours->setsolde(SoldeSurReleve);
     ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
     gBigTable->clearContents();
     RemplitLaTable(idCompte);
@@ -456,7 +456,7 @@ void dlg_comptes::VoirArchives()
     gTableArchives      ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
     gTableArchives      ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    glbltitre           ->setText(tr("Liste des remises archivées sur le compte ") + CompteEnCours->nom() + " ");
+    glbltitre           ->setText(tr("Liste des remises archivées sur le compte ") + CompteEnCours->nomabrege() + " ");
     gFlecheHtButton     ->setIcon( Icons::icFlecheHaut() );
     gFlecheHtButton     ->setCursor(Qt::PointingHandCursor);
     gFlecheHtButton     ->setImmediateToolTip(tr("Voir les archives précédentes"));
@@ -613,7 +613,7 @@ void dlg_comptes::ChangeCompte(int idx)
     if (listsoldes.size() > 0)
     {
         SoldeSurReleve = listsoldes.at(0).at(0).toDouble();
-        CompteEnCours->setSolde(SoldeSurReleve);  // à tout hasard
+        CompteEnCours->setsolde(SoldeSurReleve);  // à tout hasard
         ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
         RemplitLaTable(idCompte);
     }

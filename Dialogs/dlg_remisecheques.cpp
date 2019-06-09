@@ -536,7 +536,7 @@ void dlg_remisecheques::ChangeCompte()
     int id = ui->ComptecomboBox->currentData().toInt();
     Compte *cpt = Datas::I()->comptes->getById(id);
     if (cpt != Q_NULLPTR)
-        ui->IntituleComptetextEdit->setText(cpt->nom() + "\n" + cpt->iban());
+        ui->IntituleComptetextEdit->setText(cpt->nomabrege() + "\n" + cpt->iban());
 }
 
 void dlg_remisecheques::Slot_ChangeUser()
@@ -1065,7 +1065,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
     if (EnTete == "") return false;
 
-    EnTete.replace("{{TITRE1}}"            , Datas::I()->banques->getById(cpt->idBanque())->NomBanqueAbrege().toUpper());
+    EnTete.replace("{{TITRE1}}"            , Datas::I()->banques->getById(cpt->idBanque())->nomabrege().toUpper());
     EnTete.replace("{{PRENOM PATIENT}}"    , "");
     EnTete.replace("{{NOM PATIENT}}"       , cpt->intitulecompte());
     EnTete.replace("{{TITRE}}"             , "Compte " + cpt->iban());
@@ -1184,10 +1184,10 @@ void dlg_remisecheques::ReconstruitListeComptes(bool avecinactif)
         if (!avecinactif)
         {
             if (!cpt->isDesactive())
-                ui->ComptecomboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
+                ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
         }
         else
-            ui->ComptecomboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
+            ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
     }
     ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_userencours->getIdCompteParDefaut()));
 }

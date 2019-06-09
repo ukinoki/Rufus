@@ -188,23 +188,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDLIEU_IMPRESSIONS                        "idLieu"
 #define CP_IMPORTANCE_IMPRESSIONS                    "Importance"
 
-                            //! Table Rufus.renseignementsmedicauxpatients
-#define CP_ATCDTSOPH_RMP                             "RMPAtcdtsOphs"
-#define CP_TRAITMTOPH_RMP                            "RMPTtOphs"
-#define CP_IMPORTANT_RMP                             "Important"
-#define CP_RESUME_RMP                                "Resume"
-#define CP_ATCDTSPERSOS_RMP                          "RMPAtcdtsPersos"
-#define CP_ATCDTSFAMLXS_RMP                          "RMPAtcdtsFamiliaux"
-#define CP_TRAITMTGEN_RMP                            "RMPTtGeneral"
-#define CP_AUTRESTOXIQUES_RMP                        "Autrestoxiques"
-#define CP_GENCORRESPONDANT_RMP                      "Gencorresp"
-#define CP_IDMG_RMP                                  "idCorMedMG"
-#define CP_IDSPE1_RMP                                "idCorMedSpe1"
-#define CP_IDSPE2_RMP                                "idCorMedSpe2"
-#define CP_IDSPE3_RMP                                "idCorMedSpe3"
-#define CP_IDCORNONMED_RMP                           "idCorNonMed"
-#define CP_TABAC_RMP                                 "Tabac"
-
                             //! Table Rufus.Messagerie
 #define CP_TEXTMSG_MESSAGERIE                        "TexteMessage"
 
@@ -224,9 +207,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
                             //! Table ComptaMedicale.banques
 #define CP_IDBANQUE_BANQUES                          "idBanque"
-#define CP_IDABREGE_BANQUES                          "idBanqueAbrege"
+#define CP_NOMABREGE_BANQUES                         "idBanqueAbrege"
 #define CP_NOMBANQUE_BANQUES                         "NomBanque"
-#define CP_NOMABREGE_BANQUES                         "Codeanque"
+#define CP_CODE_BANQUES                              "Codeanque"
 
                             //! Table ComptaMedicale.Comptes
 #define CP_IDCOMPTE_COMPTES                          "idCompte"

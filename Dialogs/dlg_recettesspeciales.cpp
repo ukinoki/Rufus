@@ -60,7 +60,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
 
     Datas::I()->banques->initListe();
     for(QMap<int, Banque*>::const_iterator itbq = Datas::I()->banques->banques()->constBegin(); itbq != Datas::I()->banques->banques()->constEnd(); ++itbq )
-        ui->BanqChequpComboBox->addItem(itbq.value()->NomBanqueAbrege(),itbq.value()->id());
+        ui->BanqChequpComboBox->addItem(itbq.value()->nomabrege(),itbq.value()->id());
 
     //TODO : SQL
     QStringList ListeRubriques;
@@ -445,10 +445,10 @@ void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
         if (ActiveSeult)
         {
             if (!cpt->isDesactive())
-                ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
+                ui->ComptesupComboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
         }
         else
-            ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
+            ui->ComptesupComboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
     }
 }
 
@@ -617,7 +617,7 @@ void dlg_recettesspeciales::MetAJourFiche()
                 int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getById(recette.at(6).toInt()));
                 if( idx > -1 )
                 {
-                    B = m_userencours->getComptes(true)->at(idx)->nom();
+                    B = m_userencours->getComptes(true)->at(idx)->nomabrege();
                     ui->Comptelabel->setVisible(true);
                     ui->ComptesupComboBox->setVisible(true);
                     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
@@ -1017,7 +1017,7 @@ void dlg_recettesspeciales::RemplitBigTable()
                 {
                     int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getById(recette.at(10).toInt()));
                     if( idx > -1 )
-                        B = m_userencours->getComptes(true)->at(idx)->nom();
+                        B = m_userencours->getComptes(true)->at(idx)->nomabrege();
                 }
                 A = VIREMENT + (B==""? "" : " " + B);
             }

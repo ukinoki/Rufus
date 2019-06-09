@@ -253,10 +253,10 @@ void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
         if (ActiveSeult)
         {
             if (!cpt->isDesactive())
-                ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
+                ui->ComptesupComboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
         }
         else
-            ui->ComptesupComboBox->addItem(cpt->nom(), QString::number(cpt->id()) );
+            ui->ComptesupComboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
     }
 }
 
@@ -964,7 +964,7 @@ void dlg_depenses::MetAJourFiche()
             {
                 //ATTENTION ERROR
             }
-            B = gDataUser->getComptes(true)->at(idx)->nom();
+            B = gDataUser->getComptes(true)->at(idx)->nomabrege();
             A = Utils::ConvertitModePaiement(A);
         }
         ui->PaiementcomboBox    ->setCurrentText(A);
@@ -1240,7 +1240,7 @@ void dlg_depenses::ModifierDepense()
             {
                 //ATTENTION ERROR
             }
-            B = gDataUser->getComptes(true)->at(idx)->nom();
+            B = gDataUser->getComptes(true)->at(idx)->nomabrege();
             A = Utils::ConvertitModePaiement(A);
             if (A == tr("Chèque"))
                 if (dep->nocheque() > 0)
@@ -1707,7 +1707,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
         {
             //ATTENTION ERROR
         }
-        B = gDataUser->getComptes(true)->at(idx)->nom();
+        B = gDataUser->getComptes(true)->at(idx)->nomabrege();
         if (A == tr("Chèque"))
             if (dep->nocheque() > 0)
                 C += " " + QString::number(dep->nocheque());

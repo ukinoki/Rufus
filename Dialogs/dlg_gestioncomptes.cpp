@@ -130,10 +130,10 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
 {
     int idCompte = ui->ComptesuptableWidget->item(pitem->row(),0)->text().toInt();
     m_comptencours = Datas::I()->comptes->getById(idCompte);
-    ui->BanqueupcomboBox            ->setCurrentText(Datas::I()->banques->getById(m_comptencours->idBanque())->NomBanqueAbrege());
+    ui->BanqueupcomboBox            ->setCurrentText(Datas::I()->banques->getById(m_comptencours->idBanque())->nomabrege());
     ui->IBANuplineEdit              ->setText(m_comptencours->iban());
     ui->IntituleCompteuplineEdit    ->setText(m_comptencours->intitulecompte());
-    ui->NomCompteAbregeuplineEdit   ->setText(m_comptencours->nom());
+    ui->NomCompteAbregeuplineEdit   ->setText(m_comptencours->nomabrege());
     ui->SoldeuplineEdit             ->setText(QLocale().toString(m_comptencours->solde(),'f',2));
     ui->idCompteupLineEdit          ->setText(QString::number(m_comptencours->id()));
     ui->DesactiveComptecheckBox     ->setChecked(m_comptencours->isDesactive());
@@ -488,7 +488,7 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
             pitem0 = new QTableWidgetItem;
             pitem1 = new QTableWidgetItem;
             pitem0->setText(QString::number(cpt->id()));
-            pitem1->setText(cpt->nom());
+            pitem1->setText(cpt->nomabrege());
             ui->ComptesuptableWidget->setItem(i,0,pitem0);
             ui->ComptesuptableWidget->setItem(i,1,pitem1);
             ui->ComptesuptableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));

@@ -22,18 +22,18 @@ Banque::Banque(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
-int Banque::CodeBanque() const            { return m_codebanque; }
-QString Banque::NomBanque() const         { return m_nombanque; }
-QString Banque::NomBanqueAbrege() const   { return m_idbanqueabrege; }
+int Banque::code() const            { return m_codebanque; }
+QString Banque::nom() const         { return m_nombanque; }
+QString Banque::nomabrege() const   { return m_idbanqueabrege; }
 
 void Banque::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, "id", m_id);
-    setDataString(data, "nombanque", m_nombanque);
-    setDataString(data, "idbanqueabrege", m_idbanqueabrege);
-    setDataInt(data, "codebanque", m_codebanque);
+    setDataInt(data, CP_IDBANQUE_BANQUES, m_id);
+    setDataString(data, CP_NOMBANQUE_BANQUES, m_nombanque);
+    setDataString(data, CP_NOMABREGE_BANQUES, m_idbanqueabrege);
+    setDataInt(data, CP_CODE_BANQUES, m_codebanque);
     m_data = data;
 }
 

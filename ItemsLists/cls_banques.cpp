@@ -86,13 +86,11 @@ void Banques::SupprimeBanque(Banque *bq)
     // Récupération de l'idMotif créé ------------------------------------
     int idbq = DataBase::I()->selectMaxFromTable(CP_IDBANQUE_BANQUES, TBL_BANQUES, ok, tr("Impossible de sélectionner les enregistrements"));
     DataBase::I()->unlocktables();
-    QJsonObject jData{};
-    jData["id"] = idbq;
-    jData["idbanqueabrege"] = idBanqueAbrege;
-    jData["nombanque"] = NomBanque;
-    jData["codebanque"] = CodeBanque;
-    bq = new Banque(jData);
-    if (bq != Q_NULLPTR)
-        add(m_banques, bq->id(), bq);
+    bq = new Banque();
+    bq->setid(idbq);
+    bq->setnomabrege(idBanqueAbrege);
+    bq->setnom(NomBanque);
+    bq->setcode(CodeBanque);
+    add(m_banques, bq->id(), bq);
     return bq;
 }

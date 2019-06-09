@@ -74,7 +74,20 @@ public:
     QString pdfoujpgfacture() const;
     QByteArray  imgfacture() const;
 
-    void    setArchivee(bool arch);
+    void    setiduser(int id)               { m_iduser = id; }
+    void    setdate(QDate date)             { m_datedepepense = date; }
+    void    setrubriquefiscale(QString txt) { m_rubriquefiscale = txt; }
+    void    setidrubriquefiscale(int id)    { m_idrubriquefiscale = id; }
+    void    setobjet(QString txt)           { m_objetdepense = txt; }
+    void    setmontant(double montant)      { m_montant = montant; }
+    void    setfamillefiscale(QString txt)  { m_famillefiscale = txt; }
+    void    setmonnaie(QString txt)         { m_monnaie = txt; }
+    void    setidrecette(int id)            { m_idRec = id; }
+    void    setmodepaiement(QString txt)    { m_modepaiement = txt; }
+    void    setidcomptebancaire(int id)     { m_compte = id; }
+    void    setnocheque(int id)             { m_nocheque = id; }
+
+    void    setarchivee(bool arch);
     void    setidfacture(int idfacture);
     void    setlienfacture(QString lien);
     void    setecheancier(bool ech);

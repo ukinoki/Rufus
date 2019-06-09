@@ -26,7 +26,7 @@ int Compte::idUser() const              { return m_iduser; }
 int Compte::idBanque() const            { return m_idbanque; }
 QString Compte::iban() const            { return m_iban; }
 QString Compte::intitulecompte() const  { return m_intitulecompte; }
-QString Compte::nom() const             { return m_nom; }
+QString Compte::nomabrege() const       { return m_nomabrege; }
 double Compte::solde() const            { return m_solde; }
 bool Compte::isDesactive() const        { return m_desactive; }
 bool Compte::isPartage() const          { return m_partage; }
@@ -42,14 +42,9 @@ void Compte::setData(QJsonObject data)
     setDataInt(data, CP_IDBANQUE_COMPTES, m_idbanque);
     setDataString(data, CP_IBAN_COMPTES, m_iban);
     setDataString(data, CP_INTITULE_COMPTES, m_intitulecompte);
-    setDataString(data, CP_NOMABREGE_COMPTES, m_nom);
+    setDataString(data, CP_NOMABREGE_COMPTES, m_nomabrege);
     setDataDouble(data, CP_SOLDE_COMPTES, m_solde);
     setDataBool(data, CP_DESACTIVE_COMPTES, m_desactive);
     setDataBool(data, CP_PARTAGE_COMPTES, m_partage);
     m_data = data;
-}
-
-void Compte::setSolde(double solde)
-{
-    m_solde = solde;
 }

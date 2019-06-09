@@ -1094,7 +1094,7 @@ void DataBase::loadDepenseArchivee(Depense *dep)
         arcdata = getFirstRecordFromStandardSelectSQL(req,ok);
         archivee = ok && arcdata.size() > 0;
     }
-    dep->setArchivee(archivee);
+    dep->setarchivee(archivee);
 }
 
 QStringList DataBase::ListeRubriquesFiscales()
@@ -1187,10 +1187,10 @@ QList<Banque*> DataBase::loadBanques()
     for (int i=0; i<banqlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"] = banqlist.at(i).at(0).toInt();
-        jData["idbanqueabrege"] = banqlist.at(i).at(1).toString();
-        jData["nombanque"] = banqlist.at(i).at(2).toString();
-        jData["codebanque"] = banqlist.at(i).at(3).toInt();
+        jData[CP_IDBANQUE_BANQUES] = banqlist.at(i).at(0).toInt();
+        jData[CP_NOMABREGE_BANQUES] = banqlist.at(i).at(1).toString();
+        jData[CP_NOMBANQUE_BANQUES] = banqlist.at(i).at(2).toString();
+        jData[CP_CODE_BANQUES] = banqlist.at(i).at(3).toInt();
         Banque *bq = new Banque(jData);
         if (bq != Q_NULLPTR)
             banques << bq;

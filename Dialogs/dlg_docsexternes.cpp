@@ -888,7 +888,6 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool        aa;
     bool        ALD             = (docmt->isALD());
     bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
-    bool        ok;
 
     User *userEntete = Datas::I()->users->getById(docmt->iduser(), Item::LoadDetails);
     if (userEntete == Q_NULLPTR)

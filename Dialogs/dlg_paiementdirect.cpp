@@ -1852,7 +1852,7 @@ void dlg_paiementdirect::ReconstruitListeBanques()
     {
         Banque *bq = const_cast<Banque*>(*itbanq);
         QList<QStandardItem *> items;
-        items << new QStandardItem(bq->NomBanqueAbrege()) << new QStandardItem(QString::number(bq->id()));
+        items << new QStandardItem(bq->nomabrege()) << new QStandardItem(QString::number(bq->id()));
             model->appendRow(items);
     }
     model->sort(0);
@@ -2168,7 +2168,7 @@ void dlg_paiementdirect::RegleComptesComboBox(bool avecLesComptesInactifs)
     QList<Compte*> *listcomptes = m_useracrediter->getComptes(avecLesComptesInactifs);
     for (int i=0; i<listcomptes->size(); i++)
     {
-        ui->ComptesupComboBox->addItem(m_useracrediter->getLogin() + "/" + listcomptes->at(i)->nom(), listcomptes->at(i)->id());
+        ui->ComptesupComboBox->addItem(m_useracrediter->getLogin() + "/" + listcomptes->at(i)->nomabrege(), listcomptes->at(i)->id());
     }
     if (m_useracrediter->getCompteParDefaut() != Q_NULLPTR)
         ui->ComptesupComboBox       ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteParDefaut()->id()));

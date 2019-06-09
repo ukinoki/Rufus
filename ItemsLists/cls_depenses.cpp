@@ -112,7 +112,7 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
             idcpt   + "," +
             nochq   + "," +
             idfacture + ")";
-    qDebug() << req;
+    //qDebug() << req;
     QString MsgErreur           = tr("Impossible d'enregistrer cette dépense");
     DataBase::I()->locktables(QStringList() << TBL_DEPENSES);
     if (!DataBase::I()->StandardSQL(req, MsgErreur))
@@ -123,21 +123,20 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
     // Récupération de l'idMotif créé ------------------------------------
     int iddep = DataBase::I()->selectMaxFromTable(CP_IDDEPENSE_DEPENSES, TBL_DEPENSES, ok, tr("Impossible de sélectionner les enregistrements"));
     DataBase::I()->unlocktables();
-    QJsonObject jData{};
-    jData["iddepense"]      = iddep;
-    jData["iduser"]         = idUser;
-    jData["date"]           = DateDep.toString("yyyy-MM-dd");
-    jData["reffiscale"]     = RefFiscale;
-    jData["objet"]          = Objet;
-    jData["montant"]        = Montant;
-    jData["famfiscale"]     = FamFiscale;
-    jData["monnaie"]        = Monnaie;
-    jData["idrecette"]      = idRec;
-    jData["modepaiement"]   = ModePaiement;
-    jData["compte"]         = Compte;
-    jData["nocheque"]       = Nocheque;
-    jData["idfacture"]      = idFacture;
-    dep = new Depense(jData);
+    dep = new Depense();
+    dep->setid(iddep);
+    dep->setiduser(idUser);
+    dep->setdate(DateDep);
+    dep->setrubriquefiscale(RefFiscale);
+    dep->setobjet(Objet);
+    dep->setmontant(Montant);
+    dep->setfamillefiscale(FamFiscale);
+    dep->setmonnaie(Monnaie);
+    dep->setidrecette(idRec);
+    dep->setmodepaiement(ModePaiement);
+    dep->setidcomptebancaire(Compte);
+    dep->setnocheque(Nocheque);
+    dep->setidfacture(idFacture);
     add(m_Depenses, dep->id(), dep);
     return dep;
 }
