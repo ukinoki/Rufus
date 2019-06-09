@@ -53,6 +53,8 @@ Compte* Comptes::getById(int id)
 
 void Comptes::reloadCompte(Compte *compte)
 {
+    if (compte == Q_NULLPTR)
+        return;
     compte->setData(DataBase::I()->loadCompteById(compte->id()));
 }
 
@@ -64,6 +66,8 @@ void Comptes::initListe()
 
 void Comptes::SupprimeCompte(Compte *cpt)
 {
+    if (cpt == Q_NULLPTR)
+        return;
     DataBase::I()->SupprRecordFromTable(cpt->id(), CP_IDCOMPTE_COMPTES, TBL_COMPTES);
     remove(m_comptes, cpt);
 

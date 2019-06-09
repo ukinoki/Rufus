@@ -149,9 +149,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     gOp             = new QGraphicsOpacityEffect();
     gTimerEfface    = new QTimer(this);
 
-    bool ok;
-    QString ALDrequete = "select idPat from " TBL_DONNEESSOCIALESPATIENTS " where idpat = " + QString::number(m_currentpatient->id()) + " and PatALD = 1";
-    ui->ALDcheckBox->setChecked(db->StandardSelectSQL(ALDrequete,ok).size()>0);
+    ui->ALDcheckBox->setChecked(m_currentpatient->isald());
 
     //nettoyage de la table metadocs
     db->StandardSQL("delete from " TBL_JOINTURESDOCS " where iddocument not in (select iddocument from " TBL_COURRIERS ")");

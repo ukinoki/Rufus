@@ -34,6 +34,8 @@ QMap<int, Acte *> *Actes::actes() const
  */
 void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
 {
+    if (pat == Q_NULLPTR)
+        return;
     if (upd == Item::NoUpdate)
         clearAll(m_actes);
     QList<Acte*> listActes;
@@ -132,6 +134,8 @@ QMap<int, Acte*>::const_iterator Actes::getAt(int idx)
 
 void Actes::updateActe(Acte* acte)
 {
+    if (acte == Q_NULLPTR)
+        return;
     acte->setData(DataBase::I()->loadActeAllData(acte->id()));
 }
 
@@ -159,6 +163,8 @@ void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
 
 void Actes::SupprimeActe(Acte* act)
 {
+    if (act == Q_NULLPTR)
+        return;
     DataBase::I()->StandardSQL("DELETE FROM " TBL_ACTES " WHERE idActe = " + QString::number(act->id()));
     remove(m_actes, act);
 }

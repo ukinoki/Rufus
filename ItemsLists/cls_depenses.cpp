@@ -75,6 +75,8 @@ void Depenses::initListeByUser(int iduser)
 
 void Depenses::SupprimeDepense(Depense *dep)
 {
+    if (dep == Q_NULLPTR)
+        return;
     DataBase::I()->SupprRecordFromTable(dep->id(), CP_IDDEPENSE_DEPENSES, TBL_DEPENSES);
     remove(m_Depenses, dep);
 }

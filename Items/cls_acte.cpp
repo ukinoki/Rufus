@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_acte.h"
 
-QDate Acte::date() const                { return m_date.date(); }
+QDate Acte::date() const                { return m_date; }
 QString Acte::motif() const             { return m_motif; }
 QString Acte::texte() const             { return m_texte; }
 QString Acte::conclusion() const        { return m_conclusion; }
@@ -46,29 +46,29 @@ void Acte::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, "id", m_id);
-    setDataInt(data, "idCreatedBy", m_idCreatedBy);
-    setDataInt(data, "idPatient", m_idPatient);
-    setDataInt(data, "idUser", m_idUser);
-    setDataInt(data, "idUserParent", m_idUserParent);
-    setDataInt(data, "idUserComptable", m_idUserComptable);
-    setDataInt(data, "NumCentre", m_numCentre);
-    setDataInt(data, "idLieu", m_idLieu);
+    setDataInt(data, CP_IDACTE_ACTES, m_id);
+    setDataInt(data, CP_IDUSERCREATEUR_ACTES, m_idCreatedBy);
+    setDataInt(data, CP_IDPAT_ACTES, m_idPatient);
+    setDataInt(data, CP_IDUSER_ACTES, m_idUser);
+    setDataInt(data, CP_IDUSERPARENT_ACTES, m_idUserParent);
+    setDataInt(data, CP_IDUSERCOMPTABLE_ACTES, m_idUserComptable);
+    setDataInt(data, CP_NUMCENTRE_ACTES, m_numCentre);
+    setDataInt(data, CP_IDLIEU_ACTES, m_idLieu);
 
-    setDataDouble(data, "montant", m_montant);
+    setDataDouble(data, CP_MONTANT_ACTES, m_montant);
 
-    setDataString(data, "motif", m_motif, true);
-    setDataString(data, "texte", m_texte, true);
-    setDataString(data, "conclusion", m_conclusion, true);
-    setDataString(data, "courrierStatus", m_courrierStatus);
-    setDataString(data, "cotation", m_cotation);
-    setDataString(data, "monnaie", m_monnaie);
+    setDataString(data, CP_MOTIF_ACTES, m_motif, true);
+    setDataString(data, CP_TEXTE_ACTES, m_texte, true);
+    setDataString(data, CP_CONCLUSION_ACTES, m_conclusion, true);
+    setDataString(data, CP_COURRIERAFAIRE_ACTES, m_courrierStatus);
+    setDataString(data, CP_COTATION_ACTES, m_cotation);
+    setDataString(data, CP_MONNNAIE_ACTES, m_monnaie);
     setDataString(data, "paiementType", m_paiementType);
     setDataString(data, "paiementTiers", m_paiementTiers);
 
-    setDataDateTime(data, "date", m_date);
-    setDataTime(data, "heure", m_heure);
-    setDataBool(data, "remplacant", m_remplacant);
+    setDataDate(data, CP_DATE_ACTES, m_date);
+    setDataTime(data, CP_HEURE_ACTES, m_heure);
+    setDataBool(data, CP_SUPERVISEURREMPLACANT_ACTES, m_remplacant);
     m_data = data;
 }
 

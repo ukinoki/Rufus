@@ -138,14 +138,27 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
                             //! Table Actes
 #define CP_IDACTE_ACTES                              "idActe"
+#define CP_IDPAT_ACTES                               "idPat"
+#define CP_IDUSER_ACTES                              "idUser"
+#define CP_IDSESSION_ACTES                           "idSession"    //!> pas utilisé
 #define CP_MOTIF_ACTES                               "ActeMotif"
 #define CP_TEXTE_ACTES                               "ActeTexte"
 #define CP_CONCLUSION_ACTES                          "ActeConclusion"
-#define CP_ACTEDATE_ACTES                            "ActeDate"
-#define CP_IDUSER_ACTES                              "idUser"
-#define CP_IDUSERPARENT_ACTES                        "UserParent"
-#define CP_IDUSERCOMPTABLE_ACTES                     "UserComptable"
 #define CP_COURRIERAFAIRE_ACTES                      "ActeCourrierafaire"
+#define CP_COTATION_ACTES                            "ActeCotation"
+#define CP_MONTANT_ACTES                             "ActeMontant"
+#define CP_MONNNAIE_ACTES                            "ActeMonnaie"
+#define CP_DATE_ACTES                                "ActeDate"
+#define CP_HEURE_ACTES                               "ActeHeure"
+#define CP_IDUSERCREATEUR_ACTES                      "CreePar"
+#define CP_IDUSERCOMPTABLE_ACTES                     "UserComptable"
+#define CP_IDUSERPARENT_ACTES                        "UserParent"
+#define CP_SUPERVISEURREMPLACANT_ACTES               "SuperViseurRemplacant"
+#define CP_NUMCENTRE_ACTES                           "NumCentre"
+#define CP_IDLIEU_ACTES                              "idLieu"
+#define CP_IMPORTANT_ACTES                           "PointImportant"
+#define CP_YEXTIMPORTANT_ACTES                       "CommentPointImportant"
+#define CP_NOCOTATION_ACTES                          "SansCotation"
 
                             //! Table Rufus.Impressions
 #define CP_IDIMPRESSION_IMPRESSIONS                  "idImpression"

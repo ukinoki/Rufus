@@ -58,6 +58,8 @@ void Motifs::initListe()
 
 void Motifs::SupprimeMotif(Motif *mf)
 {
+    if (mf == Q_NULLPTR)
+        return;
     DataBase::I()->SupprRecordFromTable(mf->id(), "idMotifsRDV", TBL_MOTIFSRDV);
     remove(m_motifs, mf);
 }

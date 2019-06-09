@@ -71,6 +71,8 @@ Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
 
 void Patients::loadAll(Patient *pat, Item::UPDATE upd)
 {
+    if (pat == Q_NULLPTR)
+        return;
     if (!pat->isalloaded() || upd == Item::ForceUpdate)
     {
         QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(pat->id());
@@ -84,6 +86,8 @@ void Patients::loadAll(Patient *pat, Item::UPDATE upd)
 
 void Patients::reloadMedicalData(Patient *pat)
 {
+    if (pat == Q_NULLPTR)
+        return;
     QJsonObject jData{};
     jData[CP_IDPAT_PATIENTS] = pat->id();
     bool ok;
@@ -94,6 +98,8 @@ void Patients::reloadMedicalData(Patient *pat)
 
 void Patients::reloadSocialData(Patient *pat)
 {
+    if (pat == Q_NULLPTR)
+        return;
     QJsonObject jData{};
     jData[CP_IDPAT_PATIENTS] = pat->id();
     bool ok;
@@ -132,6 +138,8 @@ void Patients::initListeByDDN(QDate DDN)
 
 void Patients::SupprimePatient(Patient *pat)
 {
+    if (pat == Q_NULLPTR)
+        return;
     //!. Suppression des bilans orthoptiques
     QString requete;
     DataBase::I()->StandardSQL("DELETE FROM " TBL_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " TBL_ACTES " where idPat = " + QString::number(pat->id()) + ")");
@@ -157,11 +165,15 @@ void Patients::SupprimePatient(Patient *pat)
 
 void Patients::updatePatient(Patient *pat)
 {
+    if (pat == Q_NULLPTR)
+        return;
     pat->setData(DataBase::I()->loadPatientAllData(pat->id()));
 }
 
 void Patients::updatePatientData(Patient *pat, QString nomchamp, QVariant value)
 {
+    if (pat == Q_NULLPTR)
+        return;
     QString table, newvalue;
     if (nomchamp == CP_ATCDTSOPH_RMP)
     {
@@ -243,6 +255,8 @@ void Patients::updatePatientData(Patient *pat, QString nomchamp, QVariant value)
 
 void Patients::updateCorrespondant(Patient *pat, DataBase::typecorrespondant type, Correspondant *cor)
 {
+    if (pat == Q_NULLPTR)
+        return;
     int id = (cor != Q_NULLPTR ? cor->id() : 0);
     QString field;
     switch (type) {

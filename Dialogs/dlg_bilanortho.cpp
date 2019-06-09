@@ -243,21 +243,15 @@ void dlg_bilanortho::ImprimeBOClicked()
     bool AvecPrevisu = true;
     bool AvecNumPage = false;
 
-    QString requete = " select Patnom, patprenom, actedate, creepar, idUser  from " TBL_PATIENTS " pat," TBL_ACTES " act"
-            " where act.idacte = " + QString::number(m_currentact->id()) + " and act.idpat = pat.idpat";
-    //UpMessageBox::Watch(this,requete);
-    bool ok;
-    QVariantList patientdata = db->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
-    if (!ok || patientdata.size() == 0) return;
-    User *userEntete = Datas::I()->users->getById(patientdata.at(4).toInt(), Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(m_currentact->idUser(), Item::LoadDetails);
     if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
         return;
     }
-    QString date = patientdata.at(2).toDate().toString(tr("d MMM yyyy"));
-    QString nom = patientdata.at(0).toString().toUpper();
-    QString prenom = patientdata.at(1).toString();
+    QString date = m_currentact->date().toString(tr("d MMM yyyy"));
+    QString nom = Datas::I()->patients->getById(m_currentact->idPatient())->nom().toUpper();
+    QString prenom = Datas::I()->patients->getById(m_currentact->idPatient())->prenom().toUpper();
 
     QString Entete, Pied;
 
@@ -299,7 +293,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     if (aa)
     {
         QHash<QString,QVariant> listbinds;
-        listbinds[CP_IDUSER_IMPRESSIONS] =           db->getUserConnected()->id();
+        listbinds[CP_IDUSER_IMPRESSIONS] =           Datas::I()->users->userconnected()->id();
         listbinds[CP_IDPAT_IMPRESSIONS] =            m_currentact->idPatient();
         listbinds[CP_TYPEDOC_IMPRESSIONS] =          "Orthoptie";
         listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      "Bilan";
@@ -307,11 +301,11 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds[CP_TEXTENTETE_IMPRESSIONS] =       Entete;
         listbinds[CP_TEXTCORPS_IMPRESSIONS] =        textHtml->toHtml();
         listbinds[CP_TEXTPIED_IMPRESSIONS] =         Pied;
-        listbinds[CP_DATE_IMPRESSIONS] =             patientdata.at(2).toDate().toString("yyyy-MM-dd");
-        listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       db->getUserConnected()->id();
+        listbinds[CP_DATE_IMPRESSIONS] =             m_currentact->date().toString("yyyy-MM-dd");
+        listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
         listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS] =        BILANORTHOPTIQUE;
-        listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->getSite()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->getSite()->id();
         DocExterne * doc = DocsExternes::CreationDocument(listbinds);
         if(doc != Q_NULLPTR)
             delete doc;

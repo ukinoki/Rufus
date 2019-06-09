@@ -7,6 +7,8 @@ ItemsList::ItemsList(QObject *parent) : QObject(parent)
 
 bool ItemsList::update(Item* item, QString field, QVariant newvalue)
 {
+    if (item == Q_NULLPTR)
+        return false;
     QString table;
     QString value;
     QString nomfieldid;
@@ -125,7 +127,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             act->setconclusion(newvalue.toString());
             value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
         }
-        else if (field == CP_ACTEDATE_ACTES)
+        else if (field == CP_DATE_ACTES)
         {
             act->setdate(newvalue.toDate());
             value = ((newvalue == QVariant() || !newvalue.toDate().isValid())? "null" : "'" + newvalue.toDate().toString("yyyy-MM-dd") + "'");

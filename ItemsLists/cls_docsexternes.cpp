@@ -98,6 +98,8 @@ void DocsExternes::initListeByPatient(Patient *pat)
 
 void DocsExternes::SupprimeDocument(DocExterne *doc)
 {
+    if (doc == Q_NULLPTR)
+        return;
     DataBase::I()->StandardSQL("delete from " TBL_REFRACTION " where idrefraction = (select idrefraction from " TBL_IMPRESSIONS
                     " where idimpression = " + QString::number(doc->id()) + ")");
     DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));

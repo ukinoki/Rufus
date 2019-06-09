@@ -52,12 +52,16 @@ LignePaiement* LignesPaiements::getById(QString stringid)
  */
 void LignesPaiements::initListeByPatient(Patient *pat)
 {
+    if (pat == Q_NULLPTR)
+        return;
     clearAll(m_lignespaiements);
     addList(DataBase::I()->loadlignespaiementsByPatient(pat));
 }
 
 void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
 {
+    if (act == Q_NULLPTR)
+        return;
     DataBase::I()->StandardSQL("DELETE FROM " TBL_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(act->id()));
     for (QMap<QString, LignePaiement*>::const_iterator itlign = m_lignespaiements->constBegin() ; itlign != m_lignespaiements->constEnd(); ++itlign)
     {

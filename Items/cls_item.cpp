@@ -61,35 +61,27 @@ void Item::setDataDateTime(QJsonObject data, QString key, QDateTime &prop)
     {
         double time = data[key].toDouble();
         QDateTime dt;
-        dt.setMSecsSinceEpoch( time );
+        dt.setMSecsSinceEpoch( qint64(time) );
         prop = dt;
     }
 }
 void Item::setDataTime(QJsonObject data, QString key, QTime &prop)
 {
     if( data.contains(key) )
-    {
         prop = QTime::fromString(data[key].toString(),"HH:mm:ss");
-    }
 }
 void Item::setDataDate(QJsonObject data, QString key, QDate &prop)
 {
     if( data.contains(key) )
-    {
         prop = QDate::fromString(data[key].toString(),"yyyy-MM-dd");
-    }
 }
 void Item::setDataByteArray(QJsonObject data, QString key, QByteArray &prop)
 {
     if( data.contains(key) )
-    {
         prop = data[key].toVariant().toByteArray();
-    }
 }
 void Item::setDataVariant(QJsonObject data, QString key, QVariant &prop)
 {
     if( data.contains(key) )
-    {
         prop = data[key].toVariant();
-    }
 }

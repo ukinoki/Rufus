@@ -522,7 +522,10 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->Adresse1lineEdit->clear();
         ui->Adresse2lineEdit->clear();
         ui->Adresse3lineEdit->clear();
-        CPlineEdit->setText(proc->getCodePostalParDefaut());
+        QString CP = proc->getCodePostalParDefaut();
+        CPlineEdit          ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
+        // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
+        CPlineEdit          ->setText(CP);
         VillelineEdit->setText(proc->getVilleParDefaut());
         ui->TellineEdit->clear();
         ui->PortablelineEdit->clear();

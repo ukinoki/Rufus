@@ -1918,20 +1918,20 @@ QString DataBase::getMDPAdmin()
 QJsonObject DataBase::loadActeData(QVariantList actdata)
 {
     QJsonObject data{};
-    data["id"] = actdata.at(0).toInt();
-    data["idPatient"] = actdata.at(1).toInt();
-    data["idUser"] = actdata.at(2).toInt();
-    data["date"] = QDateTime(actdata.at(3).toDate()).toMSecsSinceEpoch();
-    data["motif"] = actdata.at(4).toString();
-    data["texte"] = actdata.at(5).toString();
-    data["conclusion"] = actdata.at(6).toString();
-    data["courrierStatus"] = actdata.at(7).toString();
-    data["cotation"] = actdata.at(8).toString();
-    data["montant"] = actdata.at(9).toDouble();
-    data["monnaie"] = actdata.at(10).toString();
-    data["idCreatedBy"] = actdata.at(11).toInt();
-    data["idUserComptable"] = actdata.at(12).toInt();
-    data["idUserParent"] = actdata.at(13).toInt();
+    data[CP_IDACTE_ACTES] = actdata.at(0).toInt();
+    data[CP_IDPAT_ACTES] = actdata.at(1).toInt();
+    data[CP_IDUSER_ACTES] = actdata.at(2).toInt();
+    data[CP_DATE_ACTES] = actdata.at(3).toDate().toString("yyyy-MM-dd");
+    data[CP_MOTIF_ACTES] = actdata.at(4).toString();
+    data[CP_TEXTE_ACTES] = actdata.at(5).toString();
+    data[CP_CONCLUSION_ACTES] = actdata.at(6).toString();
+    data[CP_COURRIERAFAIRE_ACTES] = actdata.at(7).toString();
+    data[CP_COTATION_ACTES] = actdata.at(8).toString();
+    data[CP_MONTANT_ACTES] = actdata.at(9).toDouble();
+    data[CP_MONNNAIE_ACTES] = actdata.at(10).toString();
+    data[CP_IDUSERCREATEUR_ACTES] = actdata.at(11).toInt();
+    data[CP_IDUSERCOMPTABLE_ACTES] = actdata.at(12).toInt();
+    data[CP_IDUSERPARENT_ACTES] = actdata.at(13).toInt();
     if( actdata.at(14).isNull() )
         data["paiementType"] = "";
     else
@@ -1941,10 +1941,10 @@ QJsonObject DataBase::loadActeData(QVariantList actdata)
         data["paiementTiers"] = "";
     else
         data["paiementTiers"] = actdata.at(15).toString();
-    data["NumCentre"] = actdata.at(16).toInt();
-    data["idLieu"] = actdata.at(17).toInt();
-    data["heure"] = actdata.at(18).toTime().toString("HH:mm:ss");
-    data["remplacant"] = (actdata.at(19) == 1);
+    data[CP_NUMCENTRE_ACTES] = actdata.at(16).toInt();
+    data[CP_IDLIEU_ACTES] = actdata.at(17).toInt();
+    data[CP_HEURE_ACTES] = actdata.at(18).toTime().toString("HH:mm:ss");
+    data[CP_SUPERVISEURREMPLACANT_ACTES] = (actdata.at(19) == 1);
 
     return data;
 }
@@ -2016,7 +2016,7 @@ QList<Acte *> DataBase::loadIdActesByPat(Patient *pat)
     for (int i=0; i<actlist.size(); ++i)
     {
         QJsonObject data{};
-        data["id"] = actlist.at(i).at(0).toInt();
+        data[CP_IDACTE_ACTES] = actlist.at(i).at(0).toInt();
         Acte *acte = new Acte(data);
         if (acte != Q_NULLPTR)
             list << acte;

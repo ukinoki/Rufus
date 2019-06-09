@@ -53,6 +53,8 @@ void TypesTiers::addList(QList<TypeTiers*> listTypesTiers)
 
 void TypesTiers::remove(TypeTiers* typetiers)
 {
+    if (typetiers == Q_NULLPTR)
+        return;
     m_typestiers->removeOne(typetiers);
     delete  typetiers;
 }

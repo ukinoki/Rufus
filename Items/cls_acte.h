@@ -57,7 +57,7 @@ private:
     QString m_paiementType;     //!< moyen de paiement
     QString m_paiementTiers;    //!< //TODO : à compléter : je ne sais pas
 
-    QDateTime m_date;           //!< date de la création de l'acte
+    QDate m_date;               //!< date de la création de l'acte
     QTime m_heure;              //!< heure de la création de l'acte
 
 public:
@@ -90,9 +90,9 @@ public:
     int idParent() const;
     int idComptable() const;
 
+    void setdate(QDate date)                { m_date = date; }
     void setcotation(QString cot)           { m_cotation = cot; }
     void setcourrierafaire(bool caf)        { m_courrierStatus = (caf? "T" : ""); }
-    void setdate(QDate date)                { m_date = QDateTime(date); }
     void setmontant(double montant)         { m_montant = montant; }
     void setiduser(int idusr)               { m_idUser = idusr; }
     void setidusercomptable(int idusr)      { m_idUserComptable = idusr; }

@@ -58,6 +58,8 @@ Banque* Banques::getById(int id)
 
 void Banques::SupprimeBanque(Banque *bq)
 {
+    if (bq == Q_NULLPTR)
+        return;
     DataBase::I()->SupprRecordFromTable(bq->id(), CP_IDBANQUE_BANQUES, TBL_BANQUES);
     remove(m_banques, bq);
 }

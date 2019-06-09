@@ -70,6 +70,8 @@ void PatientsEnCours::initListeAll()
 
 void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat)
 {
+    if (pat == Q_NULLPTR)
+        return;
     //!. Suppression du patient
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_SALLEDATTENTE);
     remove(m_patientsencours, pat);
@@ -77,6 +79,8 @@ void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat)
 
 void PatientsEnCours::updatePatientEnCours(PatientEnCours *pat)
 {
+    if (pat == Q_NULLPTR)
+        return;
     pat->setData(DataBase::I()->loadPatientEnCoursDataById(pat->id()));
 }
 

@@ -75,8 +75,10 @@ void Utils::Pause(int msec)
  * Cette fonction va supprimer :
  * - les " ", "-" et "'" en début et fin du texte
  * - les " ", "-" et "'" en doublon dans le texte
+ * - les retour à la ligne en fin du texte
  * \param text le texte à nettoyer
- * \param end mettre false si on ne souhaite pas nettoyer la fin du texte
+ * \param end (true par défaut) mettre false si on ne souhaite pas nettoyer la fin du texte
+ * \param removereturnend (false par défaut) mettre true si on souhaite retirer les retours à la ligne à la fin du texte
  * \return le texte nettoyé
  */
 QString Utils::trim(QString text, bool end, bool removereturnend)

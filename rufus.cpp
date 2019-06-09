@@ -5885,7 +5885,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             {
                 if (ui->ActeDatedateEdit->text() != gActeDate)
                 {
-                    ItemsList::update(m_currentact, CP_ACTEDATE_ACTES, ui->ActeDatedateEdit->date());
+                    ItemsList::update(m_currentact, CP_DATE_ACTES, ui->ActeDatedateEdit->date());
                     gActeDate       = ui->ActeDatedateEdit->text();
                 }
                 ui->ActeDatedateEdit->setEnabled(false);
