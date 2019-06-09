@@ -185,7 +185,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         else if (field == CP_HEUREARRIVEE_SALDAT)
         {
-            patcrs->setheurerarrivee(newvalue.toTime());
+            patcrs->setheurearrivee(newvalue.toTime());
             value = ((newvalue == QVariant() || !newvalue.toTime().isValid())? "null" : "'" + newvalue.toTime().toString("HH:mm:ss") + "'");
 
         }

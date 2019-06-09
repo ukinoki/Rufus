@@ -90,7 +90,6 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
                                                  int idUserEnCours, int idSalDat)
 
 {
-    PatientEnCours *pat = Q_NULLPTR;
     bool ok;
     QString iduser          = (idUser == 0?             QString::number(DataBase::I()->getUserConnected()->getIdUserActeSuperviseur()) : QString::number(idUser));
     QString statut          = (Statut == ""?            "null" : "'" + Utils::correctquoteSQL(Statut) + "'");
@@ -103,7 +102,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
     QString posteexamen     = (PosteExamen == ""?       "null" : "'" + Utils::correctquoteSQL(PosteExamen) + "'");
     QString iduserencours   = (idUserEnCours == 0?      "null" : QString::number(idUserEnCours));
     QString idsaldat        = (idSalDat == 0?           "null" : QString::number(idSalDat));
-    QString req =     "INSERT INTO " TBL_SALLEDATTENTE
+    QString req = "INSERT INTO " TBL_SALLEDATTENTE
                         " (idPat, idUser, Statut, HeureStatut, heureRDV, heureArrivee, Motif, Message, idActeAPayer, PosteExamen, idUserEnCoursExam, idSalDat)"
                         " VALUES (" +   QString::number(idPat) + "," +
                                         iduser + "," +
@@ -117,7 +116,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
                                         posteexamen    + "," +
                                         iduserencours  + "," +
                                         idsaldat +")";
-    QString MsgErreur           = tr("Impossible de mettre ce dossier en salle d'attente");
+    QString MsgErreur = tr("Impossible de mettre ce dossier en salle d'attente");
     DataBase::I()->locktables(QStringList() << TBL_SALLEDATTENTE);
     if (!DataBase::I()->StandardSQL(req, MsgErreur))
     {
@@ -129,7 +128,29 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
     DataBase::I()->unlocktables();
     if (!ok ||  idpat == 0)
         return Q_NULLPTR;
-    pat =   DataBase::I()->loadPatientEnCoursById(idpat);
+    PatientEnCours *pat = new PatientEnCours();
+    pat->setid(idpat);
+    pat->setiduser(idUser == 0? DataBase::I()->getUserConnected()->getIdUserActeSuperviseur() : idUser);
+    if (Statut != "")
+        pat->setstatut(Statut);
+    if (heureStatut != QTime())
+        pat->setheurestatut(heureStatut);
+    if (heureRDV != QTime())
+        pat->setheurerdv(heureRDV);
+    if (heureArrivee != QTime())
+        pat->setheurearrivee(heureArrivee);
+    if (Motif != "")
+        pat->setmotif(Motif);
+    if (Message != "")
+        pat->setmessage(Message);
+    if (idActeAPayer != 0)
+        pat->setidacteapayer(idActeAPayer);
+    if (PosteExamen != "")
+        pat->setposteexamen(PosteExamen);
+    if (idUserEnCours != 0)
+        pat->setiduserencoursexam(idUserEnCours);
+    if (idSalDat != 0)
+        pat->setidsaldat(idSalDat);
     add(m_patientsencours, pat->id(), pat);
     return pat;
 }

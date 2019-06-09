@@ -21,9 +21,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 /**
 * \file DataBase.h
 * \brief Cette classe gére l'ensemble des requetes SQL
-* \author Alexanre.D
-* \version 0.1
-* \date 6 juin 2018
 *
 *
 */

@@ -19,8 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "icons.h"
 
-static inline double mmToInches(double mm) { return mm * 0.039370147; }
-
 dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
@@ -48,10 +46,10 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurr
     printer             ->setFullPage(true);
     rect                = printer->paperRect();
 
-    rect.adjust(mmToInches(margemm) * printer->logicalDpiX(),
-                mmToInches(margemm) * printer->logicalDpiY(),
-                -mmToInches(margemm) * printer->logicalDpiX(),
-                -mmToInches(margemm) * printer->logicalDpiY());
+    rect.adjust(Utils::mmToInches(margemm) * printer->logicalDpiX(),
+                Utils::mmToInches(margemm) * printer->logicalDpiY(),
+                -Utils::mmToInches(margemm) * printer->logicalDpiX(),
+                -Utils::mmToInches(margemm) * printer->logicalDpiY());
 
     Scene               = new QGraphicsScene(this);
     ListDocsTreeView    = new QTreeView(this);

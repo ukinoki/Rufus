@@ -51,13 +51,6 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
 
     gChgUsr             = ChgUser;
     ui->LoginlineEdit   ->setFocus();
-
-
-#ifdef ALEX //mare de mettre le login et password tout le temps
-    ui->LoginlineEdit->setText("");
-    ui->MDPlineEdit->setText("");
-#endif
-
 }
 
 dlg_identificationuser::~dlg_identificationuser()
@@ -146,11 +139,7 @@ int dlg_identificationuser::ControleDonnees()
     {
 //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
         QString error = "";
-#ifdef ALEX
-        error = db->connectToDataBase(DB_CONSULTS, "rufusConnection", "rufuspassword");
-#else
         error = db->connectToDataBase(DB_CONSULTS, Login, Password);
-#endif
 
         if( error.size() )
         {
@@ -164,9 +153,6 @@ int dlg_identificationuser::ControleDonnees()
             return -1;
         }
 
-#ifdef ALEX
-        req = "show grants for 'rufusConnection'@'localhost'";
-#else
         QString Client;
         if (db->getBase() == "BDD_DISTANT")
                 Client = "%";
@@ -184,7 +170,7 @@ int dlg_identificationuser::ControleDonnees()
             Client = db->getServer();
         req = "show grants for '" + Login + (db->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
         //qDebug() << req;
-#endif
+
         QVariantList grantsdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (!ok || grantsdata.size()==0)
         {
