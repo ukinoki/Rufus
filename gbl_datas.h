@@ -34,6 +34,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_typestiers.h"
 #include "cls_tierspayants.h"
 #include "cls_users.h"
+#include "cls_usersconnectes.h"
 #include "cls_documents.h"
 #include "cls_villes.h"
 #include "cls_sites.h"
@@ -70,6 +71,7 @@ public:
     TiersPayants *tiers;                //!< tous les tiers payants
     TypesTiers *typestiers;             //!< tous les types tiers payants
     Users *users;                       //!< Les users
+    UsersConnectes *usersconnectes;     //!< Les usersconnectes
     Villes *villes;                     //!< toutes les villes
 };
 

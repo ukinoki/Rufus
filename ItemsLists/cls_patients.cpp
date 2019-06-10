@@ -281,7 +281,7 @@ Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
 {
     Patient *pat = Q_NULLPTR;
     DataBase::I()->locktables(QStringList() << TBL_PATIENTS << TBL_DONNEESSOCIALESPATIENTS << TBL_RENSEIGNEMENTSMEDICAUXPATIENTS );
-    sets[CP_DATECREATION_PATIENTS] = QDate::currentDate();
+    sets[CP_DATECREATION_PATIENTS] = DataBase::I()->ServerDateTime().date();
     sets[CP_IDCREATEUR_PATIENTS]   = DataBase::I()->getUserConnected()->id();
     bool result = DataBase::I()->InsertSQLByBinds(TBL_PATIENTS, sets);
     if (!result)

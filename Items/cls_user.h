@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_site.h"
 #include "cls_compte.h"
 #include "macros.h"
+#include "log.h"
 
 /*!
  * \brief The User class

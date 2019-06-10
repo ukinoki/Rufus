@@ -142,6 +142,12 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     return m_db.lastError().text();
 }
 
+QDateTime DataBase::ServerDateTime()
+{
+    bool ok;
+    return getFirstRecordFromStandardSelectSQL("select now()",ok).at(0).toDateTime();
+}
+
 bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
 {
     bool a = true;
@@ -670,6 +676,70 @@ QList<User*> DataBase::loadUsers()
         jData["nomCompteAbrege"]            = usrlist.at(i).at(8).toString();
         jData["isAllLoaded"]                = false;
         User *usr = new User(jData);
+        users << usr;
+    }
+    return users;
+}
+
+/*
+ * Users connectes
+*/
+QJsonObject DataBase::loadUserConnecteData(int iduser, QString macadress)
+{
+    QJsonObject userData{};
+    QString req = "select NomPosteConnecte, AccesDistant, UserSuperviseur,"
+                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat,"
+                  " NewIdModifSalDat, LastIdModifSaldat"
+                  " from " TBL_USERSCONNECTES
+                  " where idUser = " + QString::number(iduser) +
+                  " and " CP_MACADRESS_USRCONNECT " = " + macadress;
+    QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
+    if( !ok || usrlist.size()==0 )
+        return userData;
+    for (int i=0; i<usrlist.size(); ++i)
+    {
+        userData[CP_IDUSER_USRCONNECT]                     = iduser;
+        userData[CP_NOMPOSTE_USRCONNECT]                   = usrlist.at(i).at(0).toString();
+        userData[CP_MACADRESS_USRCONNECT]                  = macadress;
+        userData[CP_DISTANT_USRCONNECT]                    = usrlist.at(i).at(1).toInt() == 1;
+        userData[CP_IDUSERSUPERVISEUR_USRCONNECT]          = usrlist.at(i).at(2).toInt();
+        userData[CP_IDUSERCOMPTABLE_USRCONNECT]            = usrlist.at(i).at(3).toInt();
+        userData[CP_IDUSERPARENT_USRCONNECT]               = usrlist.at(i).at(4).toInt();
+        userData[CP_IDLIEU_USRCONNECT]                     = usrlist.at(i).at(5).toInt();
+        userData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = usrlist.at(i).at(6).toTime().toString("HH:mm:ss");
+        userData[CP_IDPATENCOURS_USRCONNECT]               = usrlist.at(i).at(7).toInt();
+        userData[CP_IDNEWMODIFSALDAT_USRCONNECT]           = usrlist.at(i).at(8).toInt();
+        userData[CP_IDLASTMODIFSALDAT_USRCONNECT]          = usrlist.at(i).at(9).toInt();
+    }
+    return userData;
+}
+
+QList<UserConnecte*> DataBase::loadUsersConnectes()
+{
+    QList<UserConnecte*> users;
+    QString req = "select idUser, NomPosteConnecte, MACAdressePosteConnecte, AccesDistant, UserSuperviseur,"
+                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat,"
+                  " NewIdModifSalDat, LastIdModifSaldat"
+                  " from " TBL_USERSCONNECTES ;
+    QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
+    if( !ok || usrlist.size()==0 )
+        return users;
+    for (int i=0; i<usrlist.size(); ++i)
+    {
+        QJsonObject jData{};
+        jData[CP_IDUSER_USRCONNECT]                     = usrlist.at(i).at(0).toInt();
+        jData[CP_NOMPOSTE_USRCONNECT]                   = usrlist.at(i).at(1).toString();
+        jData[CP_MACADRESS_USRCONNECT]                  = usrlist.at(i).at(2).toString();
+        jData[CP_DISTANT_USRCONNECT]                    = usrlist.at(i).at(3).toInt() == 1;
+        jData[CP_IDUSERSUPERVISEUR_USRCONNECT]          = usrlist.at(i).at(4).toInt();
+        jData[CP_IDUSERCOMPTABLE_USRCONNECT]            = usrlist.at(i).at(5).toInt();
+        jData[CP_IDUSERPARENT_USRCONNECT]               = usrlist.at(i).at(6).toInt();
+        jData[CP_IDLIEU_USRCONNECT]                     = usrlist.at(i).at(7).toInt();
+        jData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = usrlist.at(i).at(8).toTime().toString("HH:mm:ss");
+        jData[CP_IDPATENCOURS_USRCONNECT]               = usrlist.at(i).at(9).toInt();
+        jData[CP_IDNEWMODIFSALDAT_USRCONNECT]           = usrlist.at(i).at(10).toInt();
+        jData[CP_IDLASTMODIFSALDAT_USRCONNECT]          = usrlist.at(i).at(11).toInt();
+        UserConnecte *usr = new UserConnecte(jData);
         users << usr;
     }
     return users;

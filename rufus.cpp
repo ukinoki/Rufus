@@ -115,19 +115,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             UtiliseTCP = TcPConnect->TcpConnectToServer();
             if (!UtiliseTCP)
             {
-                log = tr("Echec 1ere connexion");
-                Logs::LogToFile(QDir::homePath() + DIR_RUFUS "/logtcp.txt", ba.append(log + " - " + QTime::currentTime().toString("HH:mm::ss")) );
-                // on réessaie une 2ème fois (parfois le serveur met du temps à se réveiller)
-                delete TcPConnect;
-                Utils::Pause(100);
-                dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Nouvelle tentative de connexion au serveur ") + m_parametres->adresseserveurtcp() , 5000, false);
-                Utils::Pause(2000);
-                TcPConnect = TcpSocket::I();
-                UtiliseTCP = TcPConnect->TcpConnectToServer();
-            }
-            if (!UtiliseTCP)
-            {
-                log = tr("Echec 2ème connexion");
+                log = tr("Echec connexion");
                 Logs::LogToFile(QDir::homePath() + DIR_RUFUS "/logtcp.txt", ba.append(log + " - " + QTime::currentTime().toString("HH:mm::ss")) );
                 dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Fonctionnement sans Tcpsocket"), 5000, false);
             }
@@ -1195,7 +1183,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
             m_listepatientsencours->CreationPatient(m_currentpatient->id(),                             //! idPat
                                                      m_currentuser->getIdUserActeSuperviseur(),         //! idUser
                                                      RETOURACCUEIL,                                     //! Statut
-                                                     QTime::currentTime(),                              //! heureStatut
+                                                     db->ServerDateTime().time(),                       //! heureStatut
                                                      QTime(),                                           //! heureRDV
                                                      QTime(),                                           //! heureArrivee
                                                      "",                                                //! Motif
@@ -1228,7 +1216,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
             m_listepatientsencours->CreationPatient(m_currentpatient->id(),                             //! idPat
                                                      m_currentuser->getIdUserActeSuperviseur(),         //! idUser
                                                      ENCOURSEXAMEN + m_currentuser->getLogin(),         //! Statut
-                                                     QTime::currentTime(),                              //! heureStatut
+                                                     db->ServerDateTime().time(),                       //! heureStatut
                                                      QTime(),                                           //! heureRDV
                                                      QTime(),                                           //! heureArrivee
                                                      "",                                                //! Motif
@@ -2816,7 +2804,7 @@ bool Rufus::InscritEnSalDat(Patient *pat)
                                                  ARRIVE,                                            //! Statut
                                                  QTime(),                                           //! heureStatut
                                                  QTime().fromString(llist.at(2),"HH:mm"),           //! heureRDV
-                                                 QTime::currentTime(),                              //! heureArrivee
+                                                 db->ServerDateTime().time(),                       //! heureArrivee
                                                  llist.at(0),                                       //! Motif
                                                  llist.at(1),                                       //! Message
                                                  0,                                                 //! idActeAPayer
@@ -3572,7 +3560,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
                                                      ARRIVE,                                            //! Statut
                                                      QTime(),                                           //! heureStatut
                                                      QTime().fromString(llist.at(2), "HH:mm"),          //! heureRDV
-                                                     QTime::currentTime(),                              //! heureArrivee
+                                                     db->ServerDateTime().time(),                       //! heureArrivee
                                                      llist.at(0),                                       //! Motif
                                                      llist.at(1),                                       //! Message
                                                      0,                                                 //! idActeAPayer
@@ -6398,7 +6386,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
                                                  ENCOURSEXAMEN + m_currentuser->getLogin(),         //! Statut
                                                  QTime::currentTime(),                              //! heureStatut
                                                  QTime(),                                           //! heureRDV
-                                                 QTime::currentTime(),                              //! heureArrivee
+                                                 db->ServerDateTime().time(),                       //! heureArrivee
                                                  "",                                                //! Motif
                                                  "",                                                //! Message
                                                  0,                                                 //! idActeAPayer
@@ -7455,7 +7443,7 @@ bool Rufus::FermeDossier(Patient *patient)
                                                          ARRIVE,                                            //! Statut
                                                          QTime(),                                           //! heureStatut
                                                          QTime(),                                           //! heureRDV
-                                                         QTime::currentTime(),                              //! heureArrivee
+                                                         db->ServerDateTime().time(),                       //! heureArrivee
                                                          Motif,                                             //! Motif
                                                          Message,                                           //! Message
                                                          0,                                                 //! idActeAPayer
@@ -8195,7 +8183,7 @@ void    Rufus::OuvrirDocuments(bool AffichDocsExternes)
             return;
 
         QString     Entete;
-        QDate DateDoc           = Dlg_Docs->ui->dateEdit->date();
+        QDate DateDoc = Dlg_Docs->ui->dateEdit->date();
         //création de l'entête
         QMap<QString,QString> EnteteMap = proc->ImpressionEntete(DateDoc, userEntete);
 

@@ -16,8 +16,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cls_user.h"
-#include "log.h"
-#include "database.h"
 
 int User::ROLE_NON_RENSEIGNE = -1;
 int User::ROLE_VIDE = -2;

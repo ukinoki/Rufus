@@ -943,7 +943,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_TEXTCORPS_IMPRESSIONS]     = Corps;
         listbinds[CP_TEXTORIGINE_IMPRESSIONS]   = txt;
         listbinds[CP_TEXTPIED_IMPRESSIONS]      = Pied;
-        listbinds[CP_DATE_IMPRESSIONS]          = QDate::currentDate().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
+        listbinds[CP_DATE_IMPRESSIONS]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
         listbinds[CP_FORMATDOC_IMPRESSIONS]     = docmt->format();
         listbinds[CP_IDLIEU_IMPRESSIONS]        = db->getUserConnected()->getSite()->id();
         listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1" : QVariant(QVariant::String));

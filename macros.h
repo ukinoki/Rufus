@@ -205,6 +205,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDUSERENCOURSEXAM_SALDAT                  "idUserEnCoursExam"
 #define CP_IDSALDAT_SALDAT                           "idSalDat"
 
+                            //! Table Rufus.Utilisateurs connectes
+#define CP_IDUSER_USRCONNECT                          "idUser"
+#define CP_NOMPOSTE_USRCONNECT                        "NomPosteConnecte"
+#define CP_MACADRESS_USRCONNECT                       "MACAdressePosteConnecte"
+#define CP_DISTANT_USRCONNECT                         "AccesDistant"
+#define CP_IDUSERSUPERVISEUR_USRCONNECT               "UserSuperviseur"
+#define CP_IDUSERCOMPTABLE_USRCONNECT                 "UserComptable"
+#define CP_IDUSERPARENT_USRCONNECT                    "UserParent"
+#define CP_IDLIEU_USRCONNECT                          "idLieu"
+#define CP_HEUREDERNIERECONNECTION_USRCONNECT         "HeureDerniereConnexion"
+#define CP_IDPATENCOURS_USRCONNECT                    "idPat"
+#define CP_IDNEWMODIFSALDAT_USRCONNECT                "NewIdModifSalDat"
+#define CP_IDLASTMODIFSALDAT_USRCONNECT               "LastIdModifSaldat"
+
                             //! Table ComptaMedicale.banques
 #define CP_IDBANQUE_BANQUES                          "idBanque"
 #define CP_NOMABREGE_BANQUES                         "idBanqueAbrege"
