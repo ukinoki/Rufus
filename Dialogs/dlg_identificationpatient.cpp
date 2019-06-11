@@ -311,19 +311,19 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             reject();
 
         // Mise à jour de donneessocialespatients
-        ItemsList::update(m_currentpatient, CP_ADRESSE1_DSP,    Utils::trimcapitilize(ui->Adresse1lineEdit->text()));
-        ItemsList::update(m_currentpatient, CP_ADRESSE2_DSP,    Utils::trimcapitilize(ui->Adresse2lineEdit->text()));
-        ItemsList::update(m_currentpatient, CP_ADRESSE3_DSP,    Utils::trimcapitilize(ui->Adresse3lineEdit->text()));
-        ItemsList::update(m_currentpatient, CP_CODEPOSTAL_DSP,  CPlineEdit->text());
-        ItemsList::update(m_currentpatient, CP_VILLE_DSP,       Utils::trimcapitilize(VillelineEdit->text().left(70)));
-        ItemsList::update(m_currentpatient, CP_TELEPHONE_DSP,   ui->TellineEdit->text());
-        ItemsList::update(m_currentpatient, CP_PORTABLE_DSP,    ui->PortablelineEdit->text());
-        ItemsList::update(m_currentpatient, CP_MAIL_DSP,        ui->MaillineEdit->text());
-        ItemsList::update(m_currentpatient, CP_PROFESSION_DSP,  ui->ProfessionlineEdit->text());
-        ItemsList::update(m_currentpatient, CP_NNI_DSP,         ui->NNIlineEdit->text());
-        ItemsList::update(m_currentpatient, CP_ALD_DSP,         ui->ALDcheckBox->isChecked());
-        ItemsList::update(m_currentpatient, CP_CMU_DSP,         ui->CMUcheckBox->isChecked());
-        ItemsList::update(m_currentpatient, CP_IDMG_RMP,        ui->MGupComboBox->currentData().toInt());
+        ItemsList::update(m_nouveaupatient, CP_ADRESSE1_DSP,    Utils::trimcapitilize(ui->Adresse1lineEdit->text()));
+        ItemsList::update(m_nouveaupatient, CP_ADRESSE2_DSP,    Utils::trimcapitilize(ui->Adresse2lineEdit->text()));
+        ItemsList::update(m_nouveaupatient, CP_ADRESSE3_DSP,    Utils::trimcapitilize(ui->Adresse3lineEdit->text()));
+        ItemsList::update(m_nouveaupatient, CP_CODEPOSTAL_DSP,  CPlineEdit->text());
+        ItemsList::update(m_nouveaupatient, CP_VILLE_DSP,       Utils::trimcapitilize(VillelineEdit->text().left(70)));
+        ItemsList::update(m_nouveaupatient, CP_TELEPHONE_DSP,   ui->TellineEdit->text());
+        ItemsList::update(m_nouveaupatient, CP_PORTABLE_DSP,    ui->PortablelineEdit->text());
+        ItemsList::update(m_nouveaupatient, CP_MAIL_DSP,        ui->MaillineEdit->text());
+        ItemsList::update(m_nouveaupatient, CP_PROFESSION_DSP,  ui->ProfessionlineEdit->text());
+        ItemsList::update(m_nouveaupatient, CP_NNI_DSP,         ui->NNIlineEdit->text());
+        ItemsList::update(m_nouveaupatient, CP_ALD_DSP,         ui->ALDcheckBox->isChecked());
+        ItemsList::update(m_nouveaupatient, CP_CMU_DSP,         ui->CMUcheckBox->isChecked());
+        ItemsList::update(m_nouveaupatient, CP_IDMG_RMP,        ui->MGupComboBox->currentData().toInt());
         accept();
     }
     else if (gMode == Modification)
