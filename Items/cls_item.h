@@ -22,21 +22,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QVariant>
 #include <QDate>
-#include "macros.h"
 
 class Item : public QObject
 {
     Q_OBJECT
+public: //STATIC
+    static QMap<QString,QVariant> CalculAge(QDate datedenaissance);
+    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QDate datedujour);
+    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour = QDate::currentDate());
+
 
 public:
-    enum LOADDETAILS {LoadDetails, NoLoadDetails};
-    enum UPDATE {NoUpdate, ForceUpdate};
     explicit Item(QObject *parent = Q_NULLPTR);
-    int id() const                      { return m_id; }
-    void setid(int id)                  { m_id = id; }
-    QString stringid() const            { return m_stringid; }
-    void setstringid(QString stringid)  { m_stringid = stringid; }
-    QJsonObject datas() const           { return m_data; }
+
 
 protected:
 
@@ -47,13 +45,14 @@ protected:
     void setDataBool(QJsonObject data, QString key, bool &prop);
     void setDataDateTime(QJsonObject data, QString key, QDateTime &prop);
     void setDataDate(QJsonObject data, QString key, QDate &prop);
-    void setDataTime(QJsonObject data, QString key, QTime &prop);
     void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     void setDataVariant(QJsonObject data, QString key, QVariant &prop);
 
-    int m_id;
-    QString  m_stringid;
-    QJsonObject m_data;         //!< les datas d'un item
+private:
+
+signals:
+
+public slots:
 };
 
 #endif // CLS_ITEM_H

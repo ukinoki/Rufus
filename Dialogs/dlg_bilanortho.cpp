@@ -196,6 +196,8 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
     ui->HMaddoxVPSCDcomboBox->setVisible(false);
     ui->HMaddoxVPASCDcomboBox->setVisible(false);
 
+    CouleurTitres = proc->CouleurTitres;
+
     connect(ui->OKupPushButton,         &QPushButton::clicked,                                  [=] {accept();});
     connect(ui->AnnulupPushButton,      &QPushButton::clicked,                                  [=] {reject();});
     connect(ui->ImprimeupPushButton,    &QPushButton::clicked,                                  [=] {ImprimeBOClicked();});
@@ -243,15 +245,21 @@ void dlg_bilanortho::ImprimeBOClicked()
     bool AvecPrevisu = true;
     bool AvecNumPage = false;
 
-    User *userEntete = Datas::I()->users->getById(m_currentact->idUser(), Item::LoadDetails);
+    QString requete = " select Patnom, patprenom, actedate, creepar, idUser  from " NOM_TABLE_PATIENTS " pat," NOM_TABLE_ACTES " act"
+            " where act.idacte = " + QString::number(m_currentact->id()) + " and act.idpat = pat.idpat";
+    //UpMessageBox::Watch(this,requete);
+    bool ok;
+    QVariantList patientdata = db->getFirstRecordFromStandardSelectSQL(requete, ok , tr("erreur dans dlg_bilanortho") + " - Slot_ImprimeBOClicekd()");
+    if (!ok || patientdata.size() == 0) return;
+    User *userEntete = Datas::I()->users->getById(patientdata.at(4).toInt(), true);
     if (userEntete == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
         return;
     }
-    QString date = m_currentact->date().toString(tr("d MMM yyyy"));
-    QString nom = Datas::I()->patients->getById(m_currentact->idPatient())->nom().toUpper();
-    QString prenom = Datas::I()->patients->getById(m_currentact->idPatient())->prenom().toUpper();
+    QString date = patientdata.at(2).toDate().toString(tr("d MMM yyyy"));
+    QString nom = patientdata.at(0).toString().toUpper();
+    QString prenom = patientdata.at(1).toString();
 
     QString Entete, Pied;
 
@@ -259,7 +267,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
     if (Entete == "") return;
     Entete.replace("{{TITRE1}}"            , "");
-    Entete.replace("{{TITRE}}"             , "<font color = \"" COULEUR_TITRES "\">" + tr("BILAN ORTHOPTIQUE DU ") + date + "</font>");
+    Entete.replace("{{TITRE}}"             , "<font color = \"" + proc->CouleurTitres + "\">" + tr("BILAN ORTHOPTIQUE DU ") + date + "</font>");
     Entete.replace("{{PRENOM PATIENT}}"    , prenom);
     Entete.replace("{{NOM PATIENT}}"       , nom);
     Entete.replace("{{DDN}}"               , "");
@@ -275,13 +283,13 @@ void dlg_bilanortho::ImprimeBOClicked()
     //Motif
     QString Motif= ui->MotiftextEdit->toPlainText();
     if (Motif != "")
-         Motif = "<p><td width=\"70\"><font color = \"" COULEUR_TITRES "\">" + tr("MOTIF") + "</font></td></p>"
+         Motif = "<p><td width=\"70\"><font color = \"" + CouleurTitres + "\">" + tr("MOTIF") + "</font></td></p>"
                  + "<p><td width=\"40\"></td><td width=\"400\">" + ui->MotiftextEdit->toHtml() + "</td></p><p></p>";
 
     textHtml->setText(Motif + calcReponsehTml() + "<p></p>");
 
     if (ui->ConclusiontextEdit->toPlainText() != "")
-        textHtml->setText(textHtml->toHtml() + "<p></p><p><td width=\"140\"><font color = \"" COULEUR_TITRES "\">" + tr("CONCLUSION") + "</font></td></p>"
+        textHtml->setText(textHtml->toHtml() + "<p></p><p><td width=\"140\"><font color = \"" + CouleurTitres + "\">" + tr("CONCLUSION") + "</font></td></p>"
                           +"<p><td width=\"40\"></td><td width=\"400\">" + ui->ConclusiontextEdit->toHtml() + "</td></p>");
     textHtml->setText(textHtml->toHtml().replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt"));
 
@@ -293,22 +301,21 @@ void dlg_bilanortho::ImprimeBOClicked()
     if (aa)
     {
         QHash<QString,QVariant> listbinds;
-        listbinds[CP_IDUSER_IMPRESSIONS] =           Datas::I()->users->userconnected()->id();
-        listbinds[CP_IDPAT_IMPRESSIONS] =            m_currentact->idPatient();
-        listbinds[CP_TYPEDOC_IMPRESSIONS] =          "Orthoptie";
-        listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      "Bilan";
-        listbinds[CP_TITRE_IMPRESSIONS] =            "Bilan orthoptique";
-        listbinds[CP_TEXTENTETE_IMPRESSIONS] =       Entete;
-        listbinds[CP_TEXTCORPS_IMPRESSIONS] =        textHtml->toHtml();
-        listbinds[CP_TEXTPIED_IMPRESSIONS] =         Pied;
-        listbinds[CP_DATE_IMPRESSIONS] =             m_currentact->date().toString("yyyy-MM-dd");
-        listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
-        listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
-        listbinds[CP_FORMATDOC_IMPRESSIONS] =        BILANORTHOPTIQUE;
-        listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->getSite()->id();
-        DocExterne * doc = DocsExternes::CreationDocument(listbinds);
-        if(doc != Q_NULLPTR)
-            delete doc;
+        listbinds["idUser"] =           db->getUserConnected()->id();
+        listbinds["idPat"] =            m_currentact->idPatient();
+        listbinds["TypeDoc"] =          "Orthoptie";
+        listbinds["SousTypeDoc"] =      "Bilan";
+        listbinds["Titre"] =            "Bilan orthoptique";
+        listbinds["TextEntete"] =       Entete;
+        listbinds["TextCorps"] =        textHtml->toHtml();
+        listbinds["TextPied"] =         Pied;
+        listbinds["Dateimpression"] =   patientdata.at(2).toDate().toString("yyyy-MM-dd");
+        listbinds["UserEmetteur"] =     db->getUserConnected()->id();
+        listbinds["EmisRecu"] =         "0";
+        listbinds["FormatDoc"] =        BILANORTHOPTIQUE;
+        listbinds["idlieu"] =           db->getUserConnected()->getSite()->id();
+        if(!db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds))
+            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
     }
     delete textHtml;
  }
@@ -661,7 +668,7 @@ void dlg_bilanortho::closeEvent(QCloseEvent *event)
 
 void dlg_bilanortho::AfficheBilan(Acte *acte)
 {
-    QString chborequete = "select idBilanOrtho from " TBL_BILANORTHO " where idBilanOrtho = " + QString::number(acte->id());
+    QString chborequete = "select idBilanOrtho from " NOM_TABLE_BILANORTHO " where idBilanOrtho = " + QString::number(acte->id());
     bool ok;
     QVariantList BOid = db->getFirstRecordFromStandardSelectSQL(chborequete, ok);
     if(!ok || BOid.size()==0)
@@ -684,7 +691,7 @@ void dlg_bilanortho::AfficheBilan(Acte *acte)
                 ", HEcranVLASC, HEcranVLASCD, HEcranfixresVLASC, HEcranVPASC, HEcranVPASCD"                 // 55,56,57,58,59
                 ", HEcranfixresVPASC, HMaddoxVLSC, HMaddoxVLSCD, HMaddoxVPSC, HMaddoxVPSCD"                 // 60,61,62,63,64
                 ", HMaddoxVLASC, HMaddoxVLASCD, HMaddoxVPASC, HMaddoxVPASCD, Motilite"                      // 65,66,67,68,69
-                " from " TBL_BILANORTHO     // 65,66,67,68
+                " from " NOM_TABLE_BILANORTHO     // 65,66,67,68
                 " where idBilanOrtho = " + QString::number(acte->id());
         //UpMessageBox::Watch(this,affichBOrequete);
         QVariantList BOdata = db->getFirstRecordFromStandardSelectSQL(affichBOrequete, ok);
@@ -1206,13 +1213,13 @@ void dlg_bilanortho::ExtraitRefraction(QString textorigin, QString &ReponseaModi
         if (AVOD + AVOG != "")
         {
             QString paragraph = "<p style=\" margin-top:0px; margin-bottom:0px;\">"; /*! debut de paragraphe*/
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Acuité visuelle") + "</font></td>";
+            Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Acuité visuelle") + "</font></td>";
             if (AVOD != "" && AVOG == "")
-                Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("OD") + "</font></td><td width=\"300\">" + AVOD + "</td></p>";
+                Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("OD") + "</font></td><td width=\"300\">" + AVOD + "</td></p>";
             else if (AVOD == "" && AVOG !="")
-                Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("OG") + "</font></td><td width=\"300\">" + AVOG + "</td></p>";
+                Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("OG") + "</font></td><td width=\"300\">" + AVOG + "</td></p>";
             else if (AVOD != "" && AVOG !="")
-                Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("OD") + "<br>" + tr("OG") + "</font></td><td width=\"300\">" + AVOD +"<br>" + AVOG + "</td></p>";
+                Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("OD") + "<br>" + tr("OG") + "</font></td><td width=\"300\">" + AVOD +"<br>" + AVOG + "</td></p>";
         }
     }
     ReponseaModifier = Reponse + ReponseaModifier;
@@ -1226,28 +1233,28 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     // l'occlusion alternée ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     QString OcclAltern = ui->OcclAlterncomboBox->currentText();
     if (OcclAltern != "-")
-        Reponse += paragraph + "<td width=\"400\"><font color = \"" COULEUR_TITRES "\">" + tr("Occlusion alternée ") + "</font>" + OcclAltern + "</td></p>";
+        Reponse += paragraph + "<td width=\"400\"><font color = \"" + CouleurTitres + "\">" + tr("Occlusion alternée ") + "</font>" + OcclAltern + "</td></p>";
 
     // la vision stereoscopique - Wirt, Lang, TNO  ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     QString Wirt = ui->WirtcomboBox->currentText();
     QString Lang = ui->LangcomboBox->currentText();
     QString TNO  = ui->TNOcomboBox->currentText();
     if (Wirt.length() > 4)
-        Wirt = "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">Wirt </font></td><td width=\"100\">" + Wirt + "</td>";
+        Wirt = "<td width=\"30\"><font color = \"" + CouleurTitres + "\">Wirt </font></td><td width=\"100\">" + Wirt + "</td>";
     else if (Wirt != "-")
     {
-        Wirt = "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">Wirt</font></td><td width=\"45\">pion " + Wirt + "</td>";
+        Wirt = "<td width=\"30\"><font color = \"" + CouleurTitres + "\">Wirt</font></td><td width=\"45\">pion " + Wirt + "</td>";
         if (ui->AnimauxWirtcomboBox->isEnabled() && ui->AnimauxWirtcomboBox->currentText() != "-")
-            Wirt += "<td width=\"90\"><font color = \"" COULEUR_TITRES "\">" + tr("animaux ") + "</font>" + ui->AnimauxWirtcomboBox->currentText() + "</td>";
+            Wirt += "<td width=\"90\"><font color = \"" + CouleurTitres + "\">" + tr("animaux ") + "</font>" + ui->AnimauxWirtcomboBox->currentText() + "</td>";
     }
     if (Lang != "-")
-        Lang = "<td width=\"110\"><font color = \"" COULEUR_TITRES "\">Lang </font>" + Lang + "</td>";
+        Lang = "<td width=\"110\"><font color = \"" + CouleurTitres + "\">Lang </font>" + Lang + "</td>";
     if (TNO != "-")
-        TNO = "<td width=\"110\"><font color = \"" COULEUR_TITRES "\">TNO </font>" + TNO + "</td>";
+        TNO = "<td width=\"110\"><font color = \"" + CouleurTitres + "\">TNO </font>" + TNO + "</td>";
 
     if (Wirt != "-" || Lang != "-" || TNO != "-")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Vision stereo") + "</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Vision stereo") + "</font></td>";
         if (Wirt != "-")
             Reponse += Wirt;
         if (Lang != "-")
@@ -1273,9 +1280,9 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     {
         Reponse += paragraph;
         if (ODirecteur != "-")
-            Reponse += "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Oeil directeur ") + "</font></td><td width=\"80\">" + ODirecteur + "</td>";
+            Reponse += "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Oeil directeur ") + "</font></td><td width=\"80\">" + ODirecteur + "</td>";
         if (Orientation != "-")
-            Reponse += "<td width=\"90\"><font color = \"" COULEUR_TITRES "\">" + tr("Orientation ") + "</font></td><td width=\"80\">" + Orientation + "</td>";
+            Reponse += "<td width=\"90\"><font color = \"" + CouleurTitres + "\">" + tr("Orientation ") + "</font></td><td width=\"80\">" + Orientation + "</td>";
         Reponse += "</p>";
     }
 
@@ -1323,7 +1330,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
         QString longtabfixresVP = "190";
         QString longtabfixresAVL = "190";
         QString longtabfixresAVP = "190";
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Ecran horiz.") + "</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Ecran horiz.") + "</font></td>";
         if (EcranSC  != "" && EcranASC == "")
         {
             a = ui->EcranVLSCcomboBox->currentText();
@@ -1342,10 +1349,10 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
             }
             else
                 EcranfixresSCVP = " - " + EcranfixresSCVP;
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">SC</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">VL</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">SC</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">VL</font></td>";
             Reponse += "<td width=\"" + longtabfixresVL + "\">" + EcranSCVL + EcranfixresSCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">VP</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">VP</font></td>";
             Reponse += "<td width=\"" + longtabfixresVL + "\">" + EcranSCVP + EcranfixresSCVP + "</td></p>";
         }
         else if (EcranSC == "" && EcranASC != "")
@@ -1366,10 +1373,10 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
             }
             else
                 EcranfixresASCVP = " - " + EcranfixresASCVP;
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("ASC") + "</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("ASC") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"" + longtabfixresAVL + "\">" + EcranASCVL + EcranfixresASCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + longtabfixresAVP + "\">" + EcranASCVP + EcranfixresASCVP + "</td></p>";
         }
         else if (EcranSC != "" && EcranASC != "")
@@ -1406,10 +1413,10 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
                 EcranfixresASCVP = " - " + EcranfixresASCVP;
                 if (longtabfixresVP == "55") longtabfixresVL = "190";
             }
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("SC") + "<br>ASC</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "<br>VL</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("SC") + "<br>ASC</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "<br>VL</font></td>";
             Reponse += "<td width=\"" + longtabfixresVL + "\">" + EcranSCVL + EcranfixresSCVL + "<br>" + EcranASCVL + EcranfixresASCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "<br>VP</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "<br>VP</font></td>";
             Reponse += "<td width=\"" + longtabfixresVP + "\">" + EcranSCVP + EcranfixresSCVP + "<br>" + EcranASCVP + EcranfixresASCVP + "</td></p>";
         }
     }
@@ -1458,7 +1465,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
         QString longtabfixresVP = "190";
         QString longtabfixresAVL = "190";
         QString longtabfixresAVP = "190";
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Ecran vertic.") + "</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Ecran vertic.") + "</font></td>";
         if (HEcranSC  != "" && HEcranASC == "")
         {
             a = ui->HEcranVLSCcomboBox->currentText();
@@ -1477,10 +1484,10 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
             }
             else
                 HEcranfixresSCVP = " - " + HEcranfixresSCVP;
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("SC") + "</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("SC") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"" + longtabfixresVL + "\">" + HEcranSCVL + HEcranfixresSCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + longtabfixresVL + "\">" + HEcranSCVP + HEcranfixresSCVP + "</td></p>";
         }
         else if (HEcranSC == "" && HEcranASC != "")
@@ -1501,10 +1508,10 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
             }
             else
                 HEcranfixresASCVP = " - " + HEcranfixresASCVP;
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("ASC") + "</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("ASC") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"" + longtabfixresAVL + "\">" + HEcranASCVL + HEcranfixresASCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + longtabfixresAVP + "\">" + HEcranASCVP + HEcranfixresASCVP + "</td></p>";
         }
         else if (HEcranSC != "" && HEcranASC != "")
@@ -1541,10 +1548,10 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
                 HEcranfixresASCVP = " - " + HEcranfixresASCVP;
                 if (longtabfixresVP == "55") longtabfixresVL = "190";
             }
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("SC") + "<br>ASC</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "<br>VL</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("SC") + "<br>ASC</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "<br>VL</font></td>";
             Reponse += "<td width=\"" + longtabfixresVL + "\">" + HEcranSCVL + HEcranfixresSCVL + "<br>" + HEcranASCVL + HEcranfixresASCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "<br>" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "<br>" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + longtabfixresVP + "\">" + HEcranSCVP + HEcranfixresSCVP + "<br>" + HEcranASCVP + HEcranfixresASCVP + "</td></p>";
         }
     }
@@ -1583,25 +1590,25 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
 
     if (MaddoxSC + MaddoxASC != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Maddox horiz.</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Maddox horiz.</font></td>";
         if (MaddoxSC  != "" && MaddoxASC == "")
         {
             if (MaddoxSCVLD.length()<4) lengMaddoxSCVL = "55";
             if (MaddoxSCVPD.length()<4) lengMaddoxSCVP = "55";
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("SC") + "</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("SC") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"" + lengMaddoxSCVL + "\">" + MaddoxSCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + lengMaddoxSCVP + "\">" + MaddoxSCVP + "</td></p>";
         }
         else if (MaddoxSC == "" && MaddoxASC != "")
         {
             if (MaddoxASCVLD.length()<4) lengMaddoxASCVL = "55";
             if (MaddoxASCVPD.length()<4) lengMaddoxASCVP = "55";
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("ASC") + "</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("ASC") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"" + lengMaddoxASCVL + "\">" + MaddoxASCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + lengMaddoxASCVP + "\">" + MaddoxASCVP + "</td></p>";
         }
         else if (MaddoxSC  != "" && MaddoxASC != "")
@@ -1610,10 +1617,10 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
             if (MaddoxSCVPD.length()<4) lengMaddoxSCVP = "55";
             if (MaddoxASCVLD.length()>4) lengMaddoxSCVL = "190";
             if (MaddoxASCVPD.length()>4) lengMaddoxSCVP = "190";
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("SC") + "<br>" + tr("ASC") + "</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "<br>VP</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("SC") + "<br>" + tr("ASC") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "<br>VP</font></td>";
             Reponse += "<td width=\"" + lengMaddoxSCVL + "\">" + MaddoxSCVL + "<br>" + MaddoxASCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "<br>" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "<br>" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + lengMaddoxSCVP + "\">" + MaddoxSCVP + "<br>" + MaddoxASCVP + "</td></p>";
         }
     }
@@ -1658,25 +1665,25 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
 
     if (HMaddoxSC + HMaddoxASC != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Maddox vertic.</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Maddox vertic.</font></td>";
         if (HMaddoxSC  != "" && HMaddoxASC == "")
         {
             if (HMaddoxSCVLD.length()<4) lengHMaddoxSCVL = "55";
             if (HMaddoxSCVPD.length()<4) lengHMaddoxSCVP = "55";
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("SC") + "</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("SC") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"" + lengHMaddoxSCVL + "\">" + HMaddoxSCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + lengHMaddoxSCVP + "\">" + HMaddoxSCVP + "</td></p>";
         }
         else if (HMaddoxSC == "" && HMaddoxASC != "")
         {
             if (HMaddoxASCVLD.length()<4) lengHMaddoxASCVL = "55";
             if (HMaddoxASCVPD.length()<4) lengHMaddoxASCVP = "55";
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("ASC") + "</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("ASC") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"" + lengHMaddoxASCVL + "\">" + HMaddoxASCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + lengHMaddoxASCVP + "\">" + HMaddoxASCVP + "</td></p>";
         }
         else if (HMaddoxSC  != "" && HMaddoxASC != "")
@@ -1685,10 +1692,10 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
             if (HMaddoxSCVPD.length()<4) lengHMaddoxSCVP = "55";
             if (HMaddoxASCVLD.length()>4) lengHMaddoxSCVL = "190";
             if (HMaddoxASCVPD.length()>4) lengHMaddoxSCVP = "190";
-            Reponse += "<td width=\"30\"><font color = \"" COULEUR_TITRES "\">" + tr("SC") + "<br>" + tr("ASC") + "</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "<br>" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"30\"><font color = \"" + CouleurTitres + "\">" + tr("SC") + "<br>" + tr("ASC") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "<br>" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + lengHMaddoxSCVL + "\">" + HMaddoxSCVL + "<br>" + HMaddoxASCVL + "</td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "<br>" + tr("VP") + "</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "<br>" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"" + lengHMaddoxSCVP + "\">" + HMaddoxSCVP + "<br>" + HMaddoxASCVP + "</td></p>";
         }
     }
@@ -1699,7 +1706,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     {
         //for (int i= 0; i<Motilite.size();i++)
         //if (Motilite.at(i).unicode() == 10) Motilite.replace(Motilite.at(i),"<br>");
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Motilité") + "</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Motilité") + "</font></td>";
         Reponse += "<td width=\"300\">" + ui->MotilitetextEdit->toHtml() + "</td></p>";
     }
 
@@ -1707,7 +1714,7 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     QString PPC = ui->PPCcomboBox->currentText();
     if (PPC != "-")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("PPC") + "</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("PPC") + "</font></td>";
         Reponse += "<td width=\"300\">" + PPC + " " + ui->PPClineEdit->text() + "</td></p>";
     }
 
@@ -1716,12 +1723,12 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     QString Poursuite = ui->PoursuitelineEdit->text();
     if (Saccades != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Saccades") + "</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Saccades") + "</font></td>";
         Reponse += "<td width=\"300\">" + Saccades + "</td></p>";
     }
     if (Poursuite != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">" + tr("Poursuite") + "</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">" + tr("Poursuite") + "</font></td>";
         Reponse += "<td width=\"300\">" + Poursuite + "</td></p>";
     }
 
@@ -1732,22 +1739,22 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     {
         if (Worth1 != "" && Worth2 == "")
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Worth</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
+            Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Worth</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"300\">" + Worth1 + "</td>";
             Reponse += "</p>";
         }
         else if (Worth1 == "" && Worth2 != "")
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Worth</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
+            Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Worth</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"300\">" + Worth2 + "</td>";
             Reponse += "</p>";
         }
         else
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Worth</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "<br>" + tr("VP") + "</font></td>";
+            Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Worth</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "<br>" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"300\">" + Worth1 + "<br>" + Worth2 + "</td>";
             Reponse += "</p>";
         }
@@ -1760,22 +1767,22 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     {
         if (Bagolini1 != "" && Bagolini2 == "")
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Bagolini</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td>";
+            Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Bagolini</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td>";
             Reponse += "<td width=\"300\">" + Bagolini1 + "</td>";
             Reponse += "</p>";
         }
         else if (Bagolini1 == "" && Bagolini2 != "")
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Bagolini</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td>";
+            Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Bagolini</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"300\">" + Bagolini2 + "</td>";
             Reponse += "</p>";
         }
         else
         {
-            Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Bagolini</font></td>";
-            Reponse += "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "<br>" + tr("VP") + "</font></td>";
+            Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Bagolini</font></td>";
+            Reponse += "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "<br>" + tr("VP") + "</font></td>";
             Reponse += "<td width=\"300\">" + Bagolini1 + "<br>" + Bagolini2 + "</td>";
             Reponse += "</p>";
         }
@@ -1798,9 +1805,9 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
         VergenceVP += ui->VergenceRestDPcomboBox->currentText();
     if (VergenceVL + VergenceVP !="")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Vergences</font></td>";
-        if (VergenceVL  != "")  VergenceVL = "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VL") + "</font></td><td width=\"100\">" + VergenceVL + "</td>";
-        if (VergenceVP != "")   VergenceVP = "<td width=\"17\"><font color = \"" COULEUR_TITRES "\">" + tr("VP") + "</font></td><td width=\"100\">" + VergenceVP + "</td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Vergences</font></td>";
+        if (VergenceVL  != "")  VergenceVL = "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VL") + "</font></td><td width=\"100\">" + VergenceVL + "</td>";
+        if (VergenceVP != "")   VergenceVP = "<td width=\"17\"><font color = \"" + CouleurTitres + "\">" + tr("VP") + "</font></td><td width=\"100\">" + VergenceVP + "</td>";
         if (VergenceVL  != "")
         {
             Reponse += VergenceVL;
@@ -1817,21 +1824,21 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
     QString Synopt3 = ui->Degre3lineEdit->text();
     if (Synopt1 + Synopt2 + Synopt3 != "")
     {
-        Reponse += paragraph + "<td width=\"100\"><font color = \"" COULEUR_TITRES "\">Synoptophore</font></td>";
+        Reponse += paragraph + "<td width=\"100\"><font color = \"" + CouleurTitres + "\">Synoptophore</font></td>";
         if (Synopt1 !="" && Synopt2 =="" && Synopt3 == "")
-            Reponse += "<td width=\"80\"><font color = \"" COULEUR_TITRES "\">" + tr("1er degré") + "</font></td><td width=\"350\">" + Synopt1 + "</td></p>";
+            Reponse += "<td width=\"80\"><font color = \"" + CouleurTitres + "\">" + tr("1er degré") + "</font></td><td width=\"350\">" + Synopt1 + "</td></p>";
         else if (Synopt1 =="" && Synopt2 !="" && Synopt3 == "")
-            Reponse += "<td width=\"80\"><font color = \"" COULEUR_TITRES "\">" + tr("2ème degré") + "</font></td><td width=\"350\">" + Synopt2 + "</td></p>";
+            Reponse += "<td width=\"80\"><font color = \"" + CouleurTitres + "\">" + tr("2ème degré") + "</font></td><td width=\"350\">" + Synopt2 + "</td></p>";
         else if (Synopt1 =="" && Synopt2 =="" && Synopt3 != "")
-            Reponse += "<td width=\"80\"><font color = \"" COULEUR_TITRES "\">" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt3 + "</td></p>";
+            Reponse += "<td width=\"80\"><font color = \"" + CouleurTitres + "\">" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt3 + "</td></p>";
         else if (Synopt1 !="" && Synopt2 !="" && Synopt3 == "")
-            Reponse += "<td width=\"80\"><font color = \"" COULEUR_TITRES "\">" + tr("1er degré") + "<br>" + tr("2ème degré") + "</font></td><td width=\"350\">" + Synopt1 + "<br>" + Synopt2 + "</td></p>";
+            Reponse += "<td width=\"80\"><font color = \"" + CouleurTitres + "\">" + tr("1er degré") + "<br>" + tr("2ème degré") + "</font></td><td width=\"350\">" + Synopt1 + "<br>" + Synopt2 + "</td></p>";
         else if (Synopt1 !="" && Synopt2 =="" && Synopt3 != "")
-            Reponse += "<td width=\"80\"><font color = \"" COULEUR_TITRES "\">" + tr("1er degré") + "<br>" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt1 + "<br>" + Synopt3 + "</td></p>";
+            Reponse += "<td width=\"80\"><font color = \"" + CouleurTitres + "\">" + tr("1er degré") + "<br>" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt1 + "<br>" + Synopt3 + "</td></p>";
         else if (Synopt1 =="" && Synopt2 !="" && Synopt3 != "")
-            Reponse += "<td width=\"80\"><font color = \"" COULEUR_TITRES "\">" + tr("2ème degré") + "<br>" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt2 + "<br>" + Synopt3 + "</td></p>";
+            Reponse += "<td width=\"80\"><font color = \"" + CouleurTitres + "\">" + tr("2ème degré") + "<br>" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt2 + "<br>" + Synopt3 + "</td></p>";
         else if (Synopt1 !="" && Synopt2 !="" && Synopt3 != "")
-            Reponse += "<td width=\"80\"><font color = \"" COULEUR_TITRES "\">" + tr("1er degré") + "<br>" + tr("2ème degré") + "<br>" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt1 + "<br>" + Synopt2 + "<br>" + Synopt3 + "</td></p>";
+            Reponse += "<td width=\"80\"><font color = \"" + CouleurTitres + "\">" + tr("1er degré") + "<br>" + tr("2ème degré") + "<br>" + tr("3ème degré") + "</font></td><td width=\"350\">" + Synopt1 + "<br>" + Synopt2 + "<br>" + Synopt3 + "</td></p>";
     }
     QStringList listrep = Reponse.split(QRegExp("<td width=\"[0-9]{1,3}\">"));
     if (listrep.size()>1)

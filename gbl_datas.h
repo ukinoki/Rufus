@@ -21,20 +21,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include "cls_actes.h"
 #include "cls_banques.h"
-#include "cls_comptes.h"
+#include "cls_compte.h"
 #include "cls_correspondants.h"
 #include "cls_cotations.h"
 #include "cls_depenses.h"
-#include "cls_lignespaiements.h"
 #include "cls_docsexternes.h"
 #include "cls_motifs.h"
 #include "cls_paiementstiers.h"
 #include "cls_patients.h"
-#include "cls_patientsencours.h"
 #include "cls_typestiers.h"
 #include "cls_tierspayants.h"
 #include "cls_users.h"
-#include "cls_usersconnectes.h"
 #include "cls_documents.h"
 #include "cls_villes.h"
 #include "cls_sites.h"
@@ -53,25 +50,22 @@ public:
     User *userConnected;
     Site *sitedetravail;
     Actes *actes;                       //!< la liste d'actes pour un patient
-    Banques *banques;                   //!< toutes les banques
-    Documents *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
-    Comptes *comptes;                   //!< tous les comptes bancaires d'un utilisateur
+    Users *users;                       //!< Les users
+    Patients *patients;                 //!< Les patients
     Correspondants *correspondants;     //!< Les correspondants
     Cotations *cotations;               //!< Les cotations
     Depenses *depenses;                 //!< les depenses pour un user et une  année donnée
-    DocsExternes *docsexternes;         //!< Les documents externes
-    LignesPaiements *lignespaiements;   //!< Les lignes de paiement des actes d'un patient
-    MetaDocuments *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Comptes *comptes;                   //!< tous les comptes bancaires d'un utilisateur
+    Banques *banques;                   //!< toutes les banques
     Motifs *motifs;                     //!< tous les motifs d'actes
-    PaiementsTiers *paiementstiers;     //!< tous les paiements par tiers payants
-    Patients *patients;                 //!< Les patients
-    PatientsEnCours *patientsencours;   //! les patients en cours : patients dont les dossiers sont ouverts, ou présents en salle d'attente ou à l'accueil ou en cours d'examen
-    Recettes *recettes;                 //!> toutes les recettes sur une période donnée
-    Sites *sites;                       //!< Les lieux de travail
     TiersPayants *tiers;                //!< tous les tiers payants
     TypesTiers *typestiers;             //!< tous les types tiers payants
-    Users *users;                       //!< Les users
-    UsersConnectes *usersconnectes;     //!< Les usersconnectes
+    PaiementsTiers *paiementstiers;     //!< tous les paiements par tiers payants
+    DocsExternes *docsexternes;         //!< Les documents externes
+    Sites *sites;                       //!< Les lieux de travail
+    Documents *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
+    MetaDocuments *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Recettes *recettes;                 //!> toutes les recettes sur une période donnée
     Villes *villes;                     //!< toutes les villes
 };
 

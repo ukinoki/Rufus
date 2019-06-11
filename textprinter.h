@@ -32,16 +32,13 @@
 #ifndef TEXTPRINTER_H
 #define TEXTPRINTER_H
 
+#include <QObject>
 #include <QPrinter>
 #include <QPrinterInfo>
 #include <procedures.h>
-#include <QAbstractTextDocumentLayout>
-#include <QPainter>
-#include <QPrintDialog>
-#include <QTextDocument>
-#include <QTextFrame>
 
-#include <QPrintPreviewDialog>
+class QTextDocument;
+class QWidget;
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \class TextPrinter

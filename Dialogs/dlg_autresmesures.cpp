@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_autresmesures.h"
 
 dlg_autresmesures::dlg_autresmesures(Patient *pat, mode mod,  QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionTono", parent)
+    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionTono", parent)
 {
     m_currentpatient    = pat;
     m_mode            = mod;
@@ -95,7 +95,7 @@ void dlg_autresmesures::EnregistreTono()
     if (widgto->ui->AutreRadioButton->isChecked())      Methode = "Autre";
     if (widgto->ui->AplanationRadioButton->isChecked()) Methode = "Aplanation";
 
-    QString req = "INSERT INTO " TBL_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  (" + QString::number(m_currentpatient->id()) + "," + TOD + "," + TOG + ", now(),'" + Methode + "')";
+    QString req = "INSERT INTO " NOM_TABLE_TONOMETRIE " (idPat, TOOD, TOOG, TODate, TOType) VALUES  (" + QString::number(m_currentpatient->id()) + "," + TOD + "," + TOG + ", now(),'" + Methode + "')";
     DataBase::I()->StandardSQL(req,tr("Impossible de sauvegarder la mesure!"));
 
     accept();

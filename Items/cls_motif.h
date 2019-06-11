@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
 #ifndef CLS_MOTIF_H
 #define CLS_MOTIF_H
 
@@ -29,7 +30,7 @@ class Motif : public Item
 {
 
 private:
-    int m_duree, m_noordre;
+    int m_id, m_duree, m_noordre;
     QString m_motif, m_raccourci, m_couleur;
     bool m_pardefaut, m_utiliser;
 
@@ -37,6 +38,7 @@ public:
     explicit Motif(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
+    int id() const;
     QString motif() const;
     QString raccourci() const;
     QString couleur() const;
