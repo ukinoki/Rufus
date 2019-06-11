@@ -166,7 +166,7 @@ private:
     int                     gidCentre;
     bool                    gUseCotation;
     bool                    avecLaComptaProv;
-    bool                    gisPosteImpotDocs;                       // le poste est celui qui importe les documents
+    bool                    gisPosteImportDocs;                       // le poste est celui qui importe les documents
     bool                    DefinitRoleUser();                       /* definit les iduser pour lequel le user travaille
                                                                         . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                             . lui-même s'il est responsable de ses actes

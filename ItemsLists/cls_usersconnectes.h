@@ -24,17 +24,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class UsersConnectes : public ItemsList
 {
+    /*! la classe userconnecté gère les connexions des utilisateurs
+     * un utilisateur peut -être connecté sur plusieurs posts en même temps dans la même session
+     * la clé de la table correspond au couple iduser-macadress qui ne peut donc qu'être unique
+     * la clé n'du QMap des userconnectés est de fait un QString concaténant l'id du user et l'adresse mac du poste sur lequel le user est connecté,
+     * ces 2 éléments séparés par le séparateur TCPMSG_Separator
+     * la recherche d'un couple user-macadress ne se fait donc pas par getById(int) mais par getByKey(QString)
+     */
 public:
-    QMap<int, UserConnecte*> *m_usersconnectes = Q_NULLPTR;  //!< la liste de tous les usersconnectes
+    QMap<QString, UserConnecte*> *m_usersconnectes = Q_NULLPTR;  //!< la liste de tous les usersconnectes
     void addList(QList<UserConnecte*> listusr);
 
 public:
     explicit UsersConnectes(QObject *parent = Q_NULLPTR);
     ~UsersConnectes();
 
-    QMap<int, UserConnecte*>* usersconnectes() const;
+    QMap<QString, UserConnecte*>* usersconnectes() const;
 
-    UserConnecte* getById(int id);
+    UserConnecte* getByKey(QString key);
     void initListe();
 
     //!> actions sur les enregistrements

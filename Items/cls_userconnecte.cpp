@@ -27,7 +27,7 @@ void UserConnecte::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, "id", m_id);
+    setDataInt(data, CP_IDUSER_USRCONNECT, m_iduser);
     setDataString(data, CP_NOMPOSTE_USRCONNECT, m_nomposte);
     setDataString(data, CP_MACADRESS_USRCONNECT, m_macadress);
     setDataBool(data, CP_DISTANT_USRCONNECT, m_accesdistant);
@@ -39,6 +39,8 @@ void UserConnecte::setData(QJsonObject data)
     setDataInt(data, CP_IDNEWMODIFSALDAT_USRCONNECT, m_idnewmodifsaldat);
     setDataInt(data, CP_IDLASTMODIFSALDAT_USRCONNECT, m_idlastmodifsaldat);
     setDataTime(data, CP_HEUREDERNIERECONNECTION_USRCONNECT, m_heurederniereconnexion);
+    data["stringid"] = QString::number(m_iduser) + TCPMSG_Separator + m_macadress;
+    setDataString(data, "stringid", m_stringid);
     m_data = data;
 }
 

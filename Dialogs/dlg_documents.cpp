@@ -1605,7 +1605,6 @@ void dlg_documents::Validation()
                         PrescriptionAImprimerList       << (getDocumentFromRow(row)->isprescription()? "1": "");
                         DupliAImprimerList              << ((getDocumentFromRow(row)->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": "");
                         AdministratifAImprimerList      << ((getDocumentFromRow(row)->ismedical())? "1": "");
-                        qDebug() << getDocumentFromRow(row)->ismedical();
                         // on visualise le document pour correction s'il est éditable
                         txtdoc                          = (getDocumentFromRow(row)->iseditable()? proc->Edit(txtdoc, titre): txtdoc);
                         if (txtdoc == "")               // si le texte du document est vide, on annule l'impression de cette itération
@@ -2733,7 +2732,6 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
 
     QString form = NOCOR, form2 = NOCOR;
     Correspondant * cor = Datas::I()->correspondants->getById(m_currentpatient->idmg());
-    qDebug() << m_currentpatient->idmg();
     if (cor != Q_NULLPTR)
     {
         if (cor->sexe() == "F")

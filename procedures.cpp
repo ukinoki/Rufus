@@ -2123,12 +2123,12 @@ void Procedures::setPosteImportDocs(bool a)
           BEGIN\n\
           SELECT '" + IpAdress + "';\n\
           END ;";
-    gisPosteImpotDocs = db->StandardSQL(req);
+    gisPosteImportDocs = db->StandardSQL(req);
 }
 
 bool Procedures::isPosteImportDocs()
 {
-    return gisPosteImpotDocs;
+    return gisPosteImportDocs;
 }
 
 QString Procedures::PosteImportDocs()

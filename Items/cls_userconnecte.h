@@ -25,13 +25,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class UserConnecte : public Item
 {
+
+    /*! la classe userconnecté gère les connexions des utilisateurs
+     * un utilisateur peut -être connecté sur plusieurs posts en même temps dans la même session
+     * la clé de la table correspond au couple iduser-macadress qui ne peut donc qu'être unique
+     */
 public:
     explicit UserConnecte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
 private:
-    //!< m_id = Id de l'utilsateur en base
+    //!< m_id = Id de l'utilisateur en base
 
+    int m_iduser;                       //!> l'id du user
     QString m_nomposte;                 //!< nom du poste connexté
     QString m_macadress;                //!< macadress du poste connecté
     bool m_accesdistant;                //!> le poste connecte est en accès distant
@@ -42,14 +48,14 @@ private:
     int m_idpatencours;                 //!> l'id du patient en train d'être examiné par le user
 
     /*! Quand le tcp n'est pas utilisé, les déconnexions sont surveillées par un système de timer
-     * le couple user-poste actualise l'heure de dernière connexion toutes les 10 secondes
+     * le couple user-macadress actualise l'heure de dernière connexion toutes les 10 secondes
      * un poste désigné par la fonction Procedures::setPosteImportDocs(bool a) surveille les users connectes toutes les mintutes
-     * si un couple user-poste n'a pas remis à jour sa connection depuis plus d'une minute, il est supprimé de la liste des users connectés */
+     * si un couple user-macadress n'a pas remis à jour sa connection depuis plus d'une minute, il est supprimé de la liste des users connectés */
 
     QTime   m_heurederniereconnexion;   //!> l'heure de la connexion
 
     /*! Quand le tcp n'est pas utilisé, les changements de la salle d'attente sont surveillées par un système de timer
-     * Quand un poste modifie la salle d'attente, il incrémente \param m_idnewmodifsaldat sur tous les enregistrements de la yable
+     * Quand un poste modifie la salle d'attente, il incrémente \param m_idnewmodifsaldat sur tous les enregistrements de la table
      * chaque poste surveille la valeur du  \param m_idnewmodifsaldat et la compare à la valeur de \param m_idlastmodifsaldat toutes les 10 secondes
      * si elles sont differentes, il recharge la salle d'attente */
 
@@ -58,6 +64,7 @@ private:
 
 public:
 
+    int iduser() const                          { return m_iduser; }
     QString nomposte() const                    { return m_nomposte; }
     QString macadress() const                   { return m_macadress; }
     bool isdistant() const                      { return m_accesdistant; }
@@ -70,6 +77,7 @@ public:
     int idnewmodifsaldat() const                { return m_idnewmodifsaldat; }
     int idlastmodifsaldat() const               { return m_idlastmodifsaldat; }
 
+    void setiduser(int id)                      { m_iduser = id; }
     void setnomposte(QString txt)               { m_nomposte = txt; }
     void setmacadress(QString txt)              { m_macadress = txt; }
     void setisdistant(bool logic)               { m_accesdistant = logic; }
