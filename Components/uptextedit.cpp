@@ -278,7 +278,7 @@ QString UpTextEdit::getValeurApres() const
     return ValeurApres;
 }
 
-void UpTextEdit::setChamp(QString champcorrespondant)
+void UpTextEdit::setChampCorrespondant(QString champcorrespondant)
 {
     Champ = champcorrespondant;
 }
@@ -288,7 +288,7 @@ QString UpTextEdit::getChampCorrespondant() const
     return Champ;
 }
 
-void UpTextEdit::setTable(QString tablecorrespondant)
+void UpTextEdit::setTableCorrespondant(QString tablecorrespondant)
 {
     Table = tablecorrespondant;
 }

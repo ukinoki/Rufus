@@ -59,7 +59,7 @@ PlayerControls::~PlayerControls()
 
 QString PlayerControls::format(QMediaPlayer *plyr)
 {
-    return (plyr->duration()/1000 > 3600? "HH:mm:ss" : "mm:ss");
+    return (plyr->duration()/1000 > 3600? "hh:mm:ss" : "mm:ss");
 }
 
 void PlayerControls::setPlayer(QMediaPlayer *md)

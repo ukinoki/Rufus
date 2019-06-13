@@ -24,32 +24,50 @@ class Compte : public Item
 {
 
 private:
-    int m_idbanque, m_iduser;
-    QString m_nomabrege, m_iban, m_intitulecompte;
-    bool m_desactive, m_partage;
+    int m_id, m_idbanque, m_iduser;
+    QString m_nom, m_iban, m_intitulecompte, m_nombanque;
+    bool m_desactive, m_partage, m_prefere;
     double m_solde;
 
 public:
     explicit Compte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
+    void setSolde(double solde);
 
+    int id() const;
     int idBanque() const;
     int idUser() const;                         //!< l'utilisateur qui a créé le compte
     QString iban() const;
     QString intitulecompte() const;
-    QString nomabrege() const;
+    QString nom() const;
     double solde() const;
     bool isPartage() const;
     bool isDesactive() const;
+    QString nombanque() const;
+    bool isPrefere() const;
+};
 
-    void setidbanque(int id)            { m_idbanque = id; }
-    void setiduser(int id)              { m_iduser = id; }
-    void setiban(QString txt)           { m_iban = txt; }
-    void setintitulecompte(QString txt) { m_intitulecompte = txt; }
-    void setnomabrege(QString txt)      { m_nomabrege = txt; }
-    void setsolde(double solde)         { m_solde = solde; }
-    void setpartage(bool logic)         { m_partage = logic; }
-    void setdesactive(bool logic)       { m_desactive = logic; }
+
+class Comptes
+{
+private:
+    QMultiMap<int, Compte*> *m_comptes = Q_NULLPTR;          //!< la liste des comptes actifs d'un user
+    QMultiMap<int, Compte*> *m_comptesAll = Q_NULLPTR;       //!< la liste de tous les comptes même inactifs d'un user
+    QMultiMap<int, Compte*> *m_comptesAllusers = Q_NULLPTR;  //!< la liste de tous les comptes actifs de tous les utsers
+
+public:
+    explicit Comptes();
+    ~Comptes();
+
+    QMultiMap<int, Compte *>* comptes() const;
+    QMultiMap<int, Compte *>* comptesAll() const;
+    QMultiMap<int, Compte *>* comptesAllUsers() const;
+
+    void addCompte(Compte *compte);
+    void addCompte(QList<Compte*> listCompte);
+    void removeCompte(Compte* cpt);
+    void clearAll();
+    Compte* getCompteById(int id);
 };
 
 #endif // CLS_COMPTE_H

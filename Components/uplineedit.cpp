@@ -142,7 +142,7 @@ QString UpLineEdit::getValeurApres() const
     return ValeurApres;
 }
 
-void UpLineEdit::setChamp(QString champcorrespondant)
+void UpLineEdit::setChampCorrespondant(QString champcorrespondant)
 {
     Champ = champcorrespondant;
 }
@@ -152,7 +152,7 @@ QString UpLineEdit::getChampCorrespondant() const
     return Champ;
 }
 
-void UpLineEdit::setTable(QString tablecorrespondant)
+void UpLineEdit::setTableCorrespondant(QString tablecorrespondant)
 {
     Table = tablecorrespondant;
 }

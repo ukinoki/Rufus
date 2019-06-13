@@ -66,7 +66,6 @@ private:
     Procedures              *proc;
     UpDialog                *gAskAppareil, *gAskMDP;
     User                    *gDataUser;
-    ParametresSysteme       *m_parametres;
     DataBase                *db;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
     QStringList             glistAppareils;

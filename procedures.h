@@ -90,6 +90,7 @@ public:
     bool                ok;
 
     QSettings           *gsettingsIni;
+    QString             CouleurTitres;
 
     void                    ab(int i = 1);
 
@@ -166,7 +167,7 @@ private:
     int                     gidCentre;
     bool                    gUseCotation;
     bool                    avecLaComptaProv;
-    bool                    gisPosteImportDocs;                       // le poste est celui qui importe les documents
+    bool                    gisPosteImpotDocs;                       // le poste est celui qui importe les documents
     bool                    DefinitRoleUser();                       /* definit les iduser pour lequel le user travaille
                                                                         . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                             . lui-même s'il est responsable de ses actes
@@ -182,8 +183,6 @@ private slots:
     void                    Slot_CalcUserSuperviseur();
     void                    Slot_CalcUserParent();
 public:
-    bool                    SetUserAllData(User* usr);
-    void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
     int                     idCentre();
     int                     idLieuExercice();
     QString                 getSessionStatus();
@@ -214,10 +213,16 @@ public:
     QString                 DirImagerieServeur();
     void                    setFicheRefractionOuverte(bool a);
     bool                    FicheRefractionOuverte();
+    QStandardItemModel*     getListeComptesEncaissmtUser();
+    QStandardItemModel*     getListeComptesEncaissmtUserAvecDesactive();
+    void                    setListeComptesEncaissmtUser(int);
 
     bool                    isPosteImportDocs();
 
     void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes
+    void                    setmg(Patient* pat, int idcor = 0);
+    void                    setspe1(Patient* pat, int idcor = 0);
+    void                    setspe2(Patient* pat, int idcor = 0);
 
     QString                 getMDPAdmin();
     void                    setNomImprimante(QString NomImprimante);
@@ -257,7 +262,8 @@ private:
     dlg_paramconnexion      *Dlg_ParamConnex;
     QFont                   gAppFont;
     User *m_userConnected = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
-    ParametresSysteme      *m_parametres;
+    QStandardItemModel      *ListeComptesEncaissUser;
+    QStandardItemModel      *ListeComptesEncaissUserAvecDesactive;
 
     QString                 DirStockageImages, DirStockageImagesServeur;
     QString                 lCPParDefaut, lVilleParDefaut;
@@ -271,7 +277,7 @@ private:
     QRectF                  rect;
     void                    Print(QPrinter*, QImage image);
     void                    PrintPdf(QPrinter*, Poppler::Document* document, bool &printok);
-    bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = TBL_UTILISATEURS);
+    bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     QString                 gLogin, gConfirmMDP, gNouvMDP;
