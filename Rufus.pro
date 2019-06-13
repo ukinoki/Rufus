@@ -22,7 +22,7 @@ OSX {
 TARGET = /Applications/Rufus
 }
 LINUX {
-TARGET = /home/alexandre/RufusApp
+TARGET = /home/serge/RufusApp
 }
 
 TEMPLATE = app

@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "widgetbuttonframe.h"
 #include "gbl_datas.h"
 #include "cls_user.h"
+#include "cls_site.h"
 #include "icons.h"
 
 namespace Ui {
@@ -145,6 +146,7 @@ private:
     QString PROVENANCE          = tr("PROVENANCE");
     QString TYPESEJOUR          = tr("SEJOUR");
     QString COTE                = tr("COTE");
+    QString SITE                = tr("SITE");
 
     QString NOCOR               = tr("PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT");
 

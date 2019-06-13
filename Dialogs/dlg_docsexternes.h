@@ -39,16 +39,17 @@ class dlg_docsexternes : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_docsexternes(Patient *pat, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsexternes(DocsExternes* Docs, Patient *pat, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
-    bool                    InitOK();
+    Patient*                getPatient() { return m_currentpatient; }   //!> renseigne sur le patient en cours d'affichage
 
 private:
     Procedures              *proc;
-    DocsExternes            m_ListDocs;
+    DocsExternes            *m_docsexternes;
     DocExterne              *docencours;
     DataBase                *db;
     Patient                 *m_currentpatient;
+    bool                    conservealafin;
 
     QGraphicsScene          *Scene;
     QGraphicsVideoItem      *videoItem;

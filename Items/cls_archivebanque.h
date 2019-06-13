@@ -24,7 +24,7 @@ class Archive : public Item
 {
 
 private:
-    int m_idligne, m_idcompte;
+    int m_idcompte;
     int m_iddepense, m_idrecette, m_idrecettespeciale, m_idremisecheque;
     QDate m_lignedate, m_lignedateconsolidation;
     QString m_lignelibelle, m_lignetypeoperation;
@@ -35,7 +35,6 @@ public:
     explicit Archive(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int id() const;
     int idcompte() const;
     int iddepense() const;
     int idrecette() const;

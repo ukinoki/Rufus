@@ -44,9 +44,9 @@ public:
     QString     getValeurAvant() const;
     void        setValeurApres(QString valpost);
     QString     getValeurApres() const;
-    void        setChampCorrespondant(QString champcorrespondant);
+    void        setChamp(QString champcorrespondant);
     QString     getChampCorrespondant() const;
-    void        setTableCorrespondant(QString tablecorrespondant);
+    void        setTable(QString tablecorrespondant);
     QString     getTableCorrespondant() const;
     void        setText(const QString &text);
     QString     appendHtml(QString &appendtext, QString ancredebut = "", QString ancrefin = "",  bool supprimeLesLignesVidesDuMilieu = false);

@@ -134,7 +134,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     connect(tarifpratiqueline,  &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
     connect(tipline,            &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
 
-    QString req = "select distinct typeacte from " NOM_TABLE_COTATIONS " where CCAM = ";
+    QString req = "select distinct typeacte from " TBL_COTATIONS " where CCAM = ";
     req += (gTypeActe == Association? "2" : "3");
     if (gMode == Creation)
     {
@@ -151,7 +151,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     }
     else
     {
-        req = " select montantoptam, montantnonoptam, montantpratique, tip from " NOM_TABLE_COTATIONS
+        req = " select montantoptam, montantnonoptam, montantpratique, tip from " TBL_COTATIONS
               " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
         bool ok;
         QVariantList listcot = db->getFirstRecordFromStandardSelectSQL(req, ok);
@@ -200,7 +200,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (gMode == Creation)
         {
-            req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = '" + codeline->text() + "' and CCAM = 2 and idUser = " + QString::number(gidUser);
+            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + codeline->text() + "' and CCAM = 2 and idUser = " + QString::number(gidUser);
             bool ok;
             QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && actdata.size()>0)
@@ -213,7 +213,7 @@ bool dlg_gestioncotations::VerifFiche()
            break;
         if (gMode == Creation)
         {
-            req = "insert into " NOM_TABLE_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, tip) VALUES ('"
+            req = "insert into " TBL_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, tip) VALUES ('"
                     + codeline->text() + "', "
                     + QString::number(QLocale().toDouble(tarifoptamline->text())) + ", "
                     + QString::number(QLocale().toDouble(tarifnooptamline->text())) + ", "
@@ -223,7 +223,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         else
         {
-            req = "update " NOM_TABLE_COTATIONS " set "
+            req = "update " TBL_COTATIONS " set "
                   " MontantOPTAM = "    + QString::number(QLocale().toDouble(tarifoptamline->text())) + ", " +
                   " MontantNonOPTAM = " + QString::number(QLocale().toDouble(tarifnooptamline->text())) + ", " +
                   " MontantPratique = " + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", " +
@@ -243,7 +243,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (gMode == Creation)
         {
-            req = "select idcotation from " NOM_TABLE_COTATIONS " where typeacte = '" + codeline->text() + "' and CCAM = 3 and idUser = " + QString::number(gidUser);
+            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + codeline->text() + "' and CCAM = 3 and idUser = " + QString::number(gidUser);
             bool ok;
             QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && cotdata.size()>0)
@@ -258,7 +258,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (gMode == Creation)
         {
-            req = "insert into " NOM_TABLE_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, tip) VALUES ('"
+            req = "insert into " TBL_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, tip) VALUES ('"
                     + codeline->text() + "', "
                     + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", "
                     + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", "
@@ -268,7 +268,7 @@ bool dlg_gestioncotations::VerifFiche()
         }
         else
         {
-            req = "update " NOM_TABLE_COTATIONS " set "
+            req = "update " TBL_COTATIONS " set "
                   " MontantOPTAM = "    + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", " +
                   " MontantNonOPTAM = " + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", " +
                   " MontantPratique = " + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", " +

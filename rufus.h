@@ -31,7 +31,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <poppler-qt5.h>
 
 #include "dlg_actesprecedents.h"
+#include "dlg_autresmesures.h"
 #include "dlg_bilanortho.h"
+#include "dlg_bilanrecettes.h"
 #include "ui_dlg_bilanortho.h"
 #include "dlg_comptes.h"
 #include "dlg_depenses.h"
@@ -49,33 +51,34 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listecorrespondants.h"
 #include "dlg_listemotscles.h"
 #include "dlg_paiement.h"
+#include "dlg_paiementdirect.h"
+#include "dlg_paiementtiers.h"
 #include "dlg_param.h"
 #include "ui_dlg_param.h"
 #include "dlg_refraction.h"
-#include "dlg_bilanrecettes.h"
 #include "dlg_recettesspeciales.h"
 #include "ui_dlg_recettesspeciales.h"
 #include "dlg_remisecheques.h"
 #include "dlg_salledattente.h"
 #include "ui_dlg_salledattente.h"
-#include "dlg_autresmesures.h"
-#include "dlg_paiementdirect.h"
-#include "dlg_paiementtiers.h"
-#include "tcpsocket.h"
 
-#include "flags.h"
-#include "importdocsexternesthread.h"
-#include "log.h"
-
-#include "conversionbase.h"
-#include "pyxinterf.h"
-
-#include "cls_item.h"
 #include "cls_user.h"
 #include "cls_motif.h"
 #include "cls_cotation.h"
+#include "cls_itemslist.h"
 
 #include "upstandarditem.h"
+#include "conversionbase.h"
+#include "database.h"
+#include "flags.h"
+#include "gbl_datas.h"
+#include "icons.h"
+#include "importdocsexternesthread.h"
+#include "log.h"
+#include "pyxinterf.h"
+#include "styles.h"
+#include "tcpsocket.h"
+
 
 namespace Ui {
 class Rufus;
@@ -119,6 +122,8 @@ private:
     UpLineEdit                      *AutresCorresp1LineEdit, *AutresCorresp2LineEdit;
     DataBase                        *db;
     Flags                           *flags;
+    ParametresSysteme               *m_parametres;
+    PatientsEnCours                 *m_listepatientsencours = Datas::I()->patientsencours;
     bool                            ok;
 
     pyxinterf                       *pyxi;     // CZ001
@@ -155,7 +160,6 @@ private:
     void        CreerDossierpushButtonClicked();
     void        DropPatient(QByteArray);
     void        EnableButtons();
-    void        EnregistreMontantActe(QString Cotation, double montant, Acte *acte);
     void        ExporteDocs();                                  /* exporte les documents d'imagerie inscrits dans la base pra les postes idstants
                                                                 pour les archiver en fichiers standards sur le HD du serveur*/
     void        FiltreAccueil(int idx);
@@ -233,8 +237,6 @@ private:
 
 private:
     bool                    gAutorModifConsult, closeFlag;
-    bool                    gIdentificationOK;
-    int                     nbActes, noActe;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     int                     idRefraction;
     int                     gMode;
@@ -254,15 +256,20 @@ private:
     QSortFilterProxyModel   *m_listepatientsproxymodel, *m_DDNsortmodel, *m_prenomfiltersortmodel;
     QStandardItemModel      *m_listesuperviseursmodel, *m_listeparentsmodel;
     QTabBar                 *gSalDatTab, *gAccueilTab;
-    QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerVerifConnexion, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
+    QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
 
     Acte                    *m_currentact;
     User                    *m_currentuser;
+    UserConnecte            *m_currentuserconnecte;
     Patient                 *m_currentpatient;
     Patient                 *m_dossierpatientaouvrir;
     Patients                *m_listepatients;
+    Actes                   *m_listeactes;
+    LignesPaiements         *m_listepaiements;
+    UsersConnectes          *m_listeuserconnectes;
+
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
     UpLabel                 *gAskinflabel;
@@ -298,10 +305,9 @@ private:
     void                CalcMotsCles(Patient *pat);
     void                CalcNbDossiers();
     QString             CalcToolTipCorrespondant(int);
-    bool                ChargeDataUser();
-    void                ChercheNomFiltre();                                 //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
+    void                FiltreTable(QString nom = "", QString prenom = "");      //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
     void                ChoixDossier(Patient *pat, int idacte = 0);
-    Acte *              CreerActe(Patient *pat = Q_NULLPTR);
+    void CreerActe(Patient *pat = Q_NULLPTR);
     void                ChercherDepuisListe();
     void                CreerDossier();
     void                CreerMenu();
@@ -324,21 +330,21 @@ private:
     void                InitMenus();
     void                InitVariables();
     bool                InscritEnSalDat(Patient *pat);
-    int                 LectureMesure(QString lIdPatient, QString lPatNom, QString lPatPrenom, QString lPatDDN, QString lPatCreeLe, QString lPatCreePar, QString MessageErreur);
     void                MAJActesPrecs();
     void                MAJDocsExternes();
     void                MAJCorrespondant(QObject*);
     void                MonteUneLigne();
     void                Monte20Lignes();
     QStringList         MotifRDV(QString Motif = "", QString Message = "", QTime heurerdv = QTime::currentTime());
-    bool                NavigationConsult(int i);
+    bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
-    void                OuvrirDocsExternes(Patient *pat, bool depuismenucontextuel = false);
+    void                OuvrirDocsExternes(Patient *pat);
     void                OuvrirDocuments(bool AffichDocsExternes = true);
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
     void                RecopierDossier(Patient *patient = Q_NULLPTR);
     void                RecaleTableView(Patient *pat, QAbstractItemView::ScrollHint scrollhint = QAbstractItemView::PositionAtCenter);
+    int                 RecherchePatient(QString lPatNom, QString lPatPrenom, QString lPatDDN, QString MessageErreur);
     void                Refraction();
     void                ConnectCotationComboBox();  //!> reconnecte la box des cotations à 2 signaux
                                                     //!> si une cotation est choisie, le montant de l'acte est recherché est affiché dans la ligne MontantLineEdit
@@ -358,6 +364,7 @@ private:
     void                SupprimerDossier(Patient *pat);
     void                Tonometrie();
     void                TrouverDDN();
+    void                updateActeData(Acte *act, QString nomchamp, QVariant value);                     //! met à jour la valeur d'un champ de la table, sa propriété correspondante pour l'acte et la fiche dlg_actesprecedents
     bool                ValideActeMontantLineEdit(QString NouveauMontant = "0,00", QString AncienMontant = "0.00");
     bool                VerifCoherenceMontantPaiement();        /*! Vérifie que le montant facturé pour l'acte en cours n'est pas inférieur à la somme des paiements déjà enregistrés */
 

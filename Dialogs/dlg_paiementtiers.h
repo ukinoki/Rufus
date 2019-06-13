@@ -101,13 +101,10 @@ private:
     QList<QString>          LigneRecetteAModifier;
     QList<QString>          LigneDepenseAModifier;
     QList<QString>          MontantActesAModifier;
-    User                    *gDataUser;
-    User                    *m_userConnected;
-    QStandardItemModel      *glistComptesEncaissmt;
-    QStandardItemModel      *glistComptesEncaissmtAvecDesactive;
+    User                    *m_useracrediter;
+    User                    *m_userconnected;
     QMap<int, User*>        *m_listeParents;
 
-    int                     gidCompteBancaireParDefaut;
     QString                 gNomUser;
     QString                 ValeurAvantChangement, ValeurMaxi;
     QTimer                  *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;
@@ -128,7 +125,7 @@ private:
     void                ReconstruitListeBanques();
     void                ReconstruitListeTiers();
     void                RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
-    void                RegleComptesComboBox(bool ActiveSeult = true);
+    void                RegleComptesComboBox(bool avecLesComptesInactifs = false);
     void                RemetToutAZero();
     void                RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QVariantList> reclist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
     void                RemplitLesTables(int Mode);
