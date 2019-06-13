@@ -61,31 +61,42 @@ QVariant VilleListModel::data(const QModelIndex& index, int role) const
 /*
  * Villes
 */
-Villes::Villes()
+Villes::Villes(QObject *parent) : ItemsList(parent)
 {
 }
 
 void Villes::initListe()
 {
     QList<Ville*> listvilles;
-    listvilles = DataBase::I()->loadVilles();
-    QList<Ville*>::const_iterator itvilles;
-    for( itvilles = listvilles.constBegin(); itvilles != listvilles.constEnd(); ++itvilles )
+    addList(DataBase::I()->loadVilles());
+}
+
+bool Villes::add(Ville *ville)
+{
+    if (ville == Q_NULLPTR)
+        return false;
+
+    if( m_codePostal.contains(ville->codePostal()) )
     {
-        Ville *ville = const_cast<Ville*>(*itvilles);
-        add(ville);
+        delete ville;
+        return false;
+    }
+    m_villes.insert(ville->nom(), ville);
+    m_codePostal.insert(ville->codePostal(), ville);
+    return true;
+}
+
+void Villes::addList(QList<Ville*> listvilles)
+{
+    QList<Ville*>::const_iterator it;
+    for( it = listvilles.constBegin(); it != listvilles.constEnd(); ++it )
+    {
+        Ville* ville = const_cast<Ville*>(*it);
+        add( ville );
     }
 }
 
-void Villes::add(Ville *ville)
-{
-    /*
-    if( m_villes.contains(ville->id()) )
-        return;
-    */
-    m_villes.insert(ville->nom(), ville);
-    m_codePostal.insert(ville->codePostal(), ville);
-}
+
 
 QStringList Villes::getListVilles()
 {

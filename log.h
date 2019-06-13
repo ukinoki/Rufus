@@ -45,7 +45,7 @@ public:
     static void trace(QString type, QString msg, QString infoMsg = "")
     {
         QDir DirRssces;
-        QString dirlog = QDir::homePath() + NOMDIR_RUFUS NOMDIR_LOGS;
+        QString dirlog = QDir::homePath() + DIR_RUFUS DIR_LOGS;
         if (!DirRssces.exists(dirlog))
             DirRssces.mkdir(dirlog);
         QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
@@ -70,7 +70,7 @@ public:
     static void tracesocket(QString type, QString msg, QString infoMsg = "")
     {
         QDir DirRssces;
-        QString dirlog = QDir::homePath() + NOMDIR_RUFUS NOMDIR_LOGS;
+        QString dirlog = QDir::homePath() + DIR_RUFUS DIR_LOGS;
         if (!DirRssces.exists(dirlog))
             DirRssces.mkdir(dirlog);
         QString datelog = QDate::currentDate().toString("yyyy-MM-dd");

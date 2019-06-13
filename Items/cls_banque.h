@@ -30,17 +30,21 @@ class Banque : public Item
 {
 
 private:
-    int m_id, m_codebanque;
+    int  m_codebanque;
     QString m_idbanqueabrege, m_nombanque;
 
 public:
     explicit Banque(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int id() const;
-    int CodeBanque() const;
-    QString NomBanqueAbrege() const;
-    QString NomBanque() const;
+    int code() const;
+    QString nomabrege() const;
+    QString nom() const;
+
+    void setnom(QString txt)        { m_nombanque = txt; }
+    void setnomabrege(QString txt)  { m_idbanqueabrege = txt; }
+    void setcode(int cod)           { m_codebanque = cod; }
+
 };
 
 
