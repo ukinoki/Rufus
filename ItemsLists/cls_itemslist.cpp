@@ -457,16 +457,6 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             usr->setidpatencours(newvalue.toInt());
             value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
         }
-        else if (field == CP_IDNEWMODIFSALDAT_USRCONNECT )
-        {
-            usr->setidnewmodifsaldat(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
-        }
-        else if (field == CP_IDLASTMODIFSALDAT_USRCONNECT )
-        {
-            usr->setidlastmodifsaldat(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
-        }
     }
     if (ok)
     {

@@ -47,7 +47,16 @@ Compte* Comptes::getById(int id)
 {
     QMap<int, Compte*>::const_iterator itcpt = m_comptes->find(id);
     if( itcpt == m_comptes->constEnd() )
+    {
+        QJsonObject data = DataBase::I()->loadCompteDataById(id);
+        if (data != QJsonObject{})
+        {
+            Compte * cpt = new Compte(data);
+            add( m_comptes, cpt->id(), cpt );
+            return cpt;
+        }
         return Q_NULLPTR;
+    }
     return itcpt.value();
 }
 
@@ -55,7 +64,7 @@ void Comptes::reloadCompte(Compte *compte)
 {
     if (compte == Q_NULLPTR)
         return;
-    compte->setData(DataBase::I()->loadCompteById(compte->id()));
+    compte->setData(DataBase::I()->loadCompteDataById(compte->id()));
 }
 
 void Comptes::initListe()

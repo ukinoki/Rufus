@@ -25,7 +25,7 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
     EnCours         = false;
     db              = DataBase::I();
     Acces           = (db->getMode()!=DataBase::Distant? Local : Distant);
-    idLieuExercice  = db->getUserConnected()->getSite()->id();
+    idLieuExercice  = Datas::I()->users->userconnected()->getSite()->id();
     thread          .start();
 }
 
@@ -40,7 +40,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
         return;
     EnCours = true;
     listmsg.clear();
-    datetransfer            = QDate::currentDate().toString("yyyy-MM-dd");
+    datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
     if (!DefinitDossiers())
     {
         EnCours = false;

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("13-06-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("14-06-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -7403,8 +7403,7 @@ bool Rufus::FermeDossier(Patient *patient)
     {
         QString Message(""), Motif(""), idUser ("");
         QStringList llist;
-        PatientEnCours *pat = Q_NULLPTR;
-        pat = m_listepatientsencours->getById(patient->id());
+        PatientEnCours *pat = m_listepatientsencours->getById(patient->id());
         if (pat != Q_NULLPTR)
         {
             Motif = pat->motif();

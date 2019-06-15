@@ -36,8 +36,6 @@ void UserConnecte::setData(QJsonObject data)
     setDataInt(data, CP_IDUSERCOMPTABLE_USRCONNECT, m_idcomptable);
     setDataInt(data, CP_IDLIEU_USRCONNECT, m_idlieu);
     setDataInt(data, CP_IDPATENCOURS_USRCONNECT, m_idpatencours);
-    setDataInt(data, CP_IDNEWMODIFSALDAT_USRCONNECT, m_idnewmodifsaldat);
-    setDataInt(data, CP_IDLASTMODIFSALDAT_USRCONNECT, m_idlastmodifsaldat);
     setDataDateTime(data, CP_HEUREDERNIERECONNECTION_USRCONNECT, m_heurederniereconnexion);
     setDataString(data, "stringid", m_stringid);
     m_data = data;

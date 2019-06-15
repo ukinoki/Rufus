@@ -235,7 +235,7 @@ public:
      * Compta
     */
     QList<Compte*>          loadComptesAll();                           //! charge tous les comptes bancaires sans exception
-    QJsonObject             loadCompteById(int id);                     //! charge les datas d'un compte bancaire défini par son id
+    QJsonObject             loadCompteDataById(int id);                 //! charge les datas d'un compte bancaire défini par son id
     QList<Depense*>         loadDepensesByUser(int idUser);             //! charge toutes les dépenses d'un utilisateur à partir de la table depenses
     void                    loadDepenseArchivee(Depense *dep);          //! charge tous renseignements sur une dépense archivée
     QStringList             ListeRubriquesFiscales();                   //! charge la liste de toutes les rubriques fiscales à partir de la table rubriques2035

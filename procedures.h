@@ -49,9 +49,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
-// #include <QWebEngineView>    /* abandonné parce QWebEngine pèse beaucoup trop lourd
-
-
 #include "uppushbutton.h"
 #include "upcheckbox.h"
 #include "textprinter.h"
@@ -177,7 +174,7 @@ private:
                                                                         . s'il enregistre une compta                     (bool AvecLaComptaProv)
                                                                        */
     Site*                   DetermineLieuExercice();
-    void                    RestoreFontAppliAndGeometry();
+
 private slots:
     void                    Slot_CalcUserSuperviseur();
     void                    Slot_CalcUserParent();
@@ -256,7 +253,7 @@ private:
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_paramconnexion      *Dlg_ParamConnex;
     QFont                   gAppFont;
-    User *m_userConnected = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
+    User *m_currentuser = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
     ParametresSysteme      *m_parametres;
 
     QString                 DirStockageImages, DirStockageImagesServeur;

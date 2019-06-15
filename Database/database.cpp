@@ -680,8 +680,7 @@ QJsonObject DataBase::loadUserConnecteData(int iduser, QString macadress)
 {
     QJsonObject userData{};
     QString req = "select NomPosteConnecte, AccesDistant, UserSuperviseur,"
-                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat,"
-                  " NewIdModifSalDat, LastIdModifSaldat"
+                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat"
                   " from " TBL_USERSCONNECTES
                   " where idUser = " + QString::number(iduser) +
                   " and " CP_MACADRESS_USRCONNECT " = " + macadress;
@@ -700,8 +699,6 @@ QJsonObject DataBase::loadUserConnecteData(int iduser, QString macadress)
         userData[CP_IDLIEU_USRCONNECT]                     = usrlist.at(i).at(5).toInt();
         userData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = QDateTime(usrlist.at(i).at(6).toDate(), usrlist.at(i).at(6).toTime()).toMSecsSinceEpoch();
         userData[CP_IDPATENCOURS_USRCONNECT]               = usrlist.at(i).at(7).toInt();
-        userData[CP_IDNEWMODIFSALDAT_USRCONNECT]           = usrlist.at(i).at(8).toInt();
-        userData[CP_IDLASTMODIFSALDAT_USRCONNECT]          = usrlist.at(i).at(9).toInt();
         userData["stringid"]                               = macadress.split(" ").at(0);
     }
     return userData;
@@ -711,8 +708,7 @@ QList<UserConnecte*> DataBase::loadUsersConnectes()
 {
     QList<UserConnecte*> users;
     QString req = "select idUser, NomPosteConnecte, MACAdressePosteConnecte, AccesDistant, UserSuperviseur,"
-                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat,"
-                  " NewIdModifSalDat, LastIdModifSaldat"
+                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat"
                   " from " TBL_USERSCONNECTES ;
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
     if( !ok || usrlist.size()==0 )
@@ -730,8 +726,6 @@ QList<UserConnecte*> DataBase::loadUsersConnectes()
         jData[CP_IDLIEU_USRCONNECT]                     = usrlist.at(i).at(7).toInt();
         jData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = QDateTime(usrlist.at(i).at(8).toDate(), usrlist.at(i).at(8).toTime()).toMSecsSinceEpoch();
         jData[CP_IDPATENCOURS_USRCONNECT]               = usrlist.at(i).at(9).toInt();
-        jData[CP_IDNEWMODIFSALDAT_USRCONNECT]           = usrlist.at(i).at(10).toInt();
-        jData[CP_IDLASTMODIFSALDAT_USRCONNECT]          = usrlist.at(i).at(11).toInt();
         jData["stringid"]                               = usrlist.at(i).at(2).toString().split(" ").at(0);
         UserConnecte *usr = new UserConnecte(jData);
         users << usr;
@@ -1064,7 +1058,7 @@ QList<Compte*> DataBase::loadComptesAll()
     return listcomptes;
 }
 
-QJsonObject DataBase::loadCompteById(int id)
+QJsonObject DataBase::loadCompteDataById(int id)
 {
     QJsonObject jData{};
     bool ok;
@@ -1076,7 +1070,7 @@ QJsonObject DataBase::loadCompteById(int id)
         return jData;
     for (int i=0; i<cptlist.size(); ++i)
     {
-        jData[CP_IDCOMPTE_COMPTES]  = cptlist.at(i).at(0).toInt();
+        jData[CP_IDCOMPTE_COMPTES]  = id;
         jData[CP_IDBANQUE_COMPTES]  = cptlist.at(i).at(1).toInt();
         jData[CP_IDUSER_COMPTES]    = cptlist.at(i).at(2).toInt();
         jData[CP_IBAN_COMPTES]      = cptlist.at(i).at(3).toString();
