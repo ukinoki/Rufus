@@ -51,7 +51,6 @@ private:
      * le couple user-macadress actualise l'heure de dernière connexion toutes les 10 secondes
      * un poste désigné par la fonction Procedures::setPosteImportDocs(bool a) surveille les users connectes toutes les mintutes
      * si un couple user-macadress n'a pas remis à jour sa connection depuis plus d'une minute, il est supprimé de la liste des users connectés */
-
     QDateTime   m_heurederniereconnexion;   //!> la date et l'heure de la connexion
 
 public:
