@@ -75,6 +75,7 @@ private:
     void                        EnregistreDepense();
     void                        EnregistreFacture(QString typedoc);
     void                        ExportTable();
+    void                        PrintTable();
     void                        FiltreTable();
     Depense*                    getDepenseFromRow(int row);
     bool                        initializeUserSelected();

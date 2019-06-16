@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("14-06-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("16-06-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -122,12 +122,15 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             }
             else
             {
+                QString msg;
                 dlg_message(QStringList() << tr("Connexion TCP OK"), 3000, false);
                 connect(TcPConnect, &TcpSocket::tcpmessage, this, [=](QString msg) {TraiteTCPMessage(msg);});  // traitement des messages reçus
                 // envoi iduser
-                envoieMessage(QString::number(m_currentuser->id()) + TCPMSG_idUser);
+                msg = QString::number(m_currentuser->id()) + TCPMSG_idUser;
+                envoieMessage(msg);
                 // envoi adresse IP, adresse MAC, nom d'hôte
-                envoieMessage(Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket);
+                msg = Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket;
+                envoieMessage(msg);
             }
         }
     }

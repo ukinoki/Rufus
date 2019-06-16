@@ -89,6 +89,10 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     AnnulupPushButton->setIcon(Icons::icAnnuler());
     AnnulupPushButton->setIconSize(QSize(25,25));
 
+    ui->PrintupSmallButton  ->setText("");
+    ui->PrintupSmallButton  ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
+    ui->PrintupSmallButton  ->setShortcut(QKeySequence("Meta+P"));
+
     boxbutt = new QHBoxLayout();
     boxbutt->addWidget(AnnulupPushButton);
     boxbutt->addSpacerItem(new QSpacerItem(0,0));
@@ -147,6 +151,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->FactureupPushButton,           &QPushButton::clicked,          this,   [=] {EnregistreFacture(FACTURE);});
     connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=] {EnregistreFacture(ECHEANCIER);});
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
+    connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   &dlg_depenses::PrintTable);
     connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   &dlg_depenses::ChoixPaiement);
@@ -165,6 +170,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     gBigTable->setFocus();
     ui->ExportupPushButton->setEnabled(gBigTable->rowCount()>0);
+    ui->PrintupSmallButton->setEnabled(gBigTable->rowCount()>0);
     setFixedWidth(gBigTable->width() + ui->VisuDocupTableWidget->width() + layout()->contentsMargins().left() + layout()->contentsMargins().right() +layout()->spacing());
 
     //ui->Facturewidget->setVisible(false);
@@ -241,6 +247,94 @@ void dlg_depenses::ExportTable()
     else
         exportOK = false;
     UpMessageBox::Watch(this, (exportOK? tr("Exportation réussie") : tr("Echec exportation")), (exportOK? msg : tr("Les données n'ont pas pu être exportées")));
+}
+
+void dlg_depenses::PrintTable()
+{
+    QString            Entete, Pied;
+    bool AvecDupli   = false;
+    bool AvecPrevisu = true;
+    bool AvecNumPage = false;
+
+    User *userEntete = Q_NULLPTR;
+
+    //création de l'entête
+    userEntete = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt(), Item::LoadDetails);
+
+    if(userEntete == Q_NULLPTR)
+    {
+        UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
+        return;
+    }
+    Entete = proc->ImpressionEntete(QDate::currentDate(), userEntete).value("Norm");
+    if (Entete == "") return;
+
+    // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
+    // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
+    // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
+        Entete.replace("{{PRENOM PATIENT}}"    , ui->TotallineEdit->text());
+    Entete.replace("{{NOM PATIENT}}"       , "");
+    Entete.replace("{{TITRE1}}"            , windowTitle());
+    Entete.replace("{{TITRE}}"             , "");
+    Entete.replace("{{DDN}}"               , "");
+
+    // création du pied
+    Pied = proc->ImpressionPied(userEntete);
+    if (Pied == "") return;
+
+    // creation du corps
+    QString couleur = "<font color = \"" COULEUR_TITRES "\">";
+    double c = CORRECTION_td_width;
+    QTextEdit *Etat_textEdit = new QTextEdit;
+    QString test4 = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
+                    "</style></head>"
+                    "<body LANG=\"fr-FR\" DIR=\"LTR\">"
+                    "<table width=\"" + QString::number(int(c*510)) + "\" border=\"1\"  cellspacing=\"0\" cellpadding=\"2\">";
+    for (int i=0;i< gBigTable->rowCount(); i++)
+    {
+        if (!gBigTable->isRowHidden(i))
+        {
+            Depense *dep = getDepenseFromRow(i);
+            if (dep->rubriquefiscale() != "Amortissements")
+            {
+                test4 += "<tr>"
+                         "<td width=\"" + QString::number(int(c*45))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + dep->date().toString(tr("d MMM yy")) + "</div></span></font></td>"   //! date
+                         "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->objet() + "</span></td>"                                                             //! Libelle
+                         "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->rubriquefiscale() + "</span></td>"                                                   //! rubrique fiscale
+                         "<td width=\"" + QString::number(int(c*35))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale().toString(dep->montant(),'f',2) + "</div></span></td>"      //! montant
+                         "<td width=\"" + QString::number(int(c*60)) + "\"><span style=\"font-size:6pt\">" + Utils::ConvertitModePaiement(dep->modepaiement()) + "</span></td>"                         //! mode de paiement
+                         "</tr>";
+             }
+        }
+    }
+    for (int i=0;i< gBigTable->rowCount(); i++)
+    {
+        if (!gBigTable->isRowHidden(i))
+        {
+            Depense *dep = getDepenseFromRow(i);
+            if (dep->rubriquefiscale() == "Amortissements")
+            {
+                test4 += "<tr>"
+                         "<td width=\"" + QString::number(int(c*45))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + dep->date().toString(tr("d MMM yy")) + "</div></span></font></td>"   //! date
+                         "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->objet() + "</span></td>"                                                             //! Libelle
+                         "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->rubriquefiscale() + "</span></td>"                                                   //! rubrique fiscale
+                         "<td width=\"" + QString::number(int(c*35))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale().toString(dep->montant(),'f',2) + "</div></span></td>"      //! montant
+                         "<td width=\"" + QString::number(int(c*60)) + "\"><span style=\"font-size:6pt\">" + Utils::ConvertitModePaiement(dep->modepaiement()) + "</span></td>"                         //! mode de paiement
+                         "</tr>";
+             }
+        }
+    }
+    test4 += "</table>";
+    test4 += "</body></html>";
+
+    Etat_textEdit->setHtml(test4);
+
+    proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       AvecDupli, AvecPrevisu, AvecNumPage);
+    delete Etat_textEdit;
+    Etat_textEdit = Q_NULLPTR;
+
 }
 
 void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
@@ -833,6 +927,7 @@ void dlg_depenses::CalculTotalDepenses()
         AnneeRubrique2035 = tr("Total ") + ui->Rubriques2035comboBox->currentText();
     ui->TotallineEdit->setText(AnneeRubrique2035 + " " + ui->AnneecomboBox->currentText() + " -> " + TotalRemise);
     ui->ExportupPushButton->setEnabled(gBigTable->rowCount()>0);
+    ui->PrintupSmallButton->setEnabled(gBigTable->rowCount()>0);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

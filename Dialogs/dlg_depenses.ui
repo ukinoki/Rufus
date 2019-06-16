@@ -160,7 +160,7 @@
       <layout class="QHBoxLayout" name="horizontalLayout_3"/>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,1,5,15">
+      <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="2,0,1,5,15">
        <item>
         <widget class="UpPushButton" name="ExportupPushButton">
          <property name="minimumSize">
@@ -181,6 +181,13 @@
            <width>20</width>
            <height>20</height>
           </size>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="UpSmallButton" name="PrintupSmallButton">
+         <property name="text">
+          <string>print</string>
          </property>
         </widget>
        </item>
@@ -854,7 +861,7 @@ un échéancier</string>
            <string>Gestion des comptes bancaires</string>
           </property>
           <property name="icon">
-           <iconset resource="../assets/Images/images.qrc">
+           <iconset>
             <normaloff>:/credit_cards_256.png</normaloff>:/credit_cards_256.png</iconset>
           </property>
           <property name="iconSize">
@@ -988,6 +995,11 @@ dépense</string>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpSmallButton</class>
+   <extends>QPushButton</extends>
+   <header>upsmallbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
