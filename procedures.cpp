@@ -199,17 +199,17 @@ void Procedures::ModifTailleFont(QObject *obj, int siz, QFont font)
 
 bool Procedures::VerifAutresPostesConnectes(bool msg)
 {
-    UserConnecte *m_currentuserconnecte = Datas::I()->usersconnectes->getById(Utils::getMACAdress());
+    PosteConnecte *m_currentposteconnecte = Datas::I()->postesconnectes->getById(Utils::getMACAdress());
     bool autrespostesconnectes = false;
     QString nomposte = "";
-    for (QMap<QString, UserConnecte*>::const_iterator itusr = Datas::I()->usersconnectes->usersconnectes()->constBegin(); itusr != Datas::I()->usersconnectes->usersconnectes()->constEnd(); ++itusr)
+    for (QMap<QString, PosteConnecte*>::const_iterator itusr = Datas::I()->postesconnectes->postesconnectes()->constBegin(); itusr != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++itusr)
     {
-        UserConnecte *usr = const_cast<UserConnecte*>(itusr.value());
-        if (usr->stringid() != m_currentuserconnecte->stringid())
+        PosteConnecte *usr = const_cast<PosteConnecte*>(itusr.value());
+        if (usr->stringid() != m_currentposteconnecte->stringid())
         {
             autrespostesconnectes = true;
             nomposte = usr->nomposte();
-            itusr = Datas::I()->usersconnectes->usersconnectes()->constEnd();
+            itusr = Datas::I()->postesconnectes->postesconnectes()->constEnd();
         }
     }
     if (autrespostesconnectes)
@@ -1478,52 +1478,6 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
     return result;
 }
 
-/* abandonné parce QWebEngine pèse beaucoup trop lourd */
-void Procedures::DisplayWebPage(QUrl)
-{
-    /*
-    QString         rep("");
-    QString         geometry("PositionsFiches/PositionDisplayWebPage");
-    UpDialog        *gAsk           = new UpDialog();
-    QWebEngineView  *WebView        = new QWebEngineView(gAsk);
-    UpSmallButton   *QwButt         = new UpSmallButton(gAsk);
-    UpSmallButton   *HomeButt       = new UpSmallButton(gAsk);
-    UpToolBar       *toolbar        = new UpToolBar(false, true);
-
-    int x = qApp->desktop()->availableGeometry().width();
-    int y = qApp->desktop()->availableGeometry().height();
-
-    gAsk->setModal(true);
-    gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-    gAsk->setMaximumWidth(x);
-    gAsk->setMaximumHeight(y);
-
-    QwButt  ->setUpButtonStyle(UpSmallButton::QWANTBUTTON);
-    HomeButt->setUpButtonStyle(UpSmallButton::HOMEBUTTON);
-    gAsk->dlglayout()->insertWidget(0,WebView);
-    gAsk->AjouteLayButtons();
-    gAsk->AjouteWidgetLayButtons(toolbar,false);
-    gAsk->AjouteWidgetLayButtons(HomeButt,false);
-    gAsk->AjouteWidgetLayButtons(QwButt,false);
-    connect(WebView,        &QWebEngineView::loadFinished,  this,   [=] { gAsk->setWindowTitle(WebView->page()->title());
-                                                                          gAsk->setWindowIcon(WebView->page()->icon()); });
-    connect(HomeButt,       &QPushButton::clicked,          this,   [=] { WebView->setUrl(QUrl(LIEN_CCAM));});
-    connect(QwButt,         &QPushButton::clicked,          this,   [=] { WebView->setUrl(QUrl("https://www.qwant.com"));});
-    connect(toolbar,        &UpToolBar::TBSignal,           this,   [=] { if (toolbar->action == "Précédent")   WebView->back();
-                                                                     else if (toolbar->action == "Suivant")     WebView->forward();
-                                                                     else if (toolbar->action == "Recharger")   WebView->reload();
-                                                                     });
-
-    connect(gAsk->OKButton, &UpPushButton::clicked,         gAsk,   &UpDialog::accept);
-    gAsk->restoreGeometry(gsettingsIni->value(geometry).toByteArray());
-    WebView->setUrl(webpage);
-    gAsk->exec();
-
-    gsettingsIni->setValue(geometry,gAsk->saveGeometry());
-    delete gAsk;
-    */
-}
-
 QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal)
 {
     QString         rep("");
@@ -2129,7 +2083,7 @@ void Procedures::setPosteImportDocs(bool a)
     db->StandardSQL(req);
 
     if (a)
-        IpAdress = QHostInfo::localHostName()  + ((gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() ==  "YES")? " - prioritaire" : "");
+        IpAdress = QHostInfo::localHostName() + ((gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() ==  "YES")? " - prioritaire" : "");
     req = "CREATE PROCEDURE " NOM_POSTEIMPORTDOCS "()\n\
           BEGIN\n\
           SELECT '" + IpAdress + "';\n\
@@ -2160,7 +2114,13 @@ QString Procedures::PosteImportDocs()
 
 bool Procedures::Verif_secure_file_priv()
 {
-    if (Var_secure_file_priv()==QString())
+    QString msg = QString();
+    QVariantList vardata = db->getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", ok);
+    if (ok && vardata.size()>0)
+        msg = vardata.at(1).toString();
+    if (msg == "NULL")
+        msg = QString();
+    if (msg==QString())
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
                             tr("La variable MySQL 'secure_file_priv' est positionnée à 'NULL'\n"
@@ -2193,18 +2153,6 @@ void Procedures::setoktcp(bool oktcp)
     OKTCP = oktcp;
     if (!oktcp && !OKAdmin)
         db->setadresseserveurtcp("");
-}
-
-QString Procedures::Var_secure_file_priv()
-{
-    QString msg = QString();
-    QVariantList vardata = db->getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", ok);
-    if (ok && vardata.size()>0)
-        msg = vardata.at(1).toString();
-    if (msg == "NULL")
-        msg = QString();
-    //qDebug() << msg;
-    return msg;
 }
 
 bool Procedures::ReinitBase()
@@ -2307,7 +2255,7 @@ void Procedures::Slot_CalcTimeBupRestore()
     gAskBupRestore->OKButton->setEnabled(FreeSpace>volume);
 }
 
-bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifUserConnectes)
+bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes)
 {
     UpMessageBox    msgbox;
     UpSmallButton   AnnulBouton;
@@ -2383,7 +2331,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     }
     else
     {
-        if (VerifUserConnectes)
+        if (VerifPostesConnectes)
         {
             QString req = "select NomPosteConnecte from " TBL_USERSCONNECTES " where NomPosteConnecte <> '" + QHostInfo::localHostName().left(60) + "'";
             QVariantList nompostedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
@@ -2743,6 +2691,7 @@ bool Procedures::VerifBaseEtRessources()
             if (DumpFile.exists())
             {
                 QString NomDumpFile = QDir::homePath() + "/Documents/Rufus/Ressources/majbase" + QString::number(Version) + ".sql";
+                QFile::remove(NomDumpFile);
                 DumpFile.copy(NomDumpFile);
                 QFile base(NomDumpFile);
                 QStringList listinstruct = Utils::DecomposeScriptSQL(NomDumpFile);
@@ -3267,7 +3216,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
         if( (msgbox.clickedButton() == &RestaureBaseBouton) && RestaureBase(false,false,false))
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
-            Datas::I()->usersconnectes->SupprimeAllUsersConnectes();
+            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
 
             exit(0);
         }
@@ -3281,7 +3230,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             gdbOK = CreerPremierUser(m_currentuser->getLogin(), m_currentuser->getPassword());
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
-            Datas::I()->usersconnectes->SupprimeAllUsersConnectes();
+            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
             exit(0);
         }
     }
@@ -3887,7 +3836,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
                                       "puissent être prises en compte\n"));
-            Datas::I()->usersconnectes->SupprimeAllUsersConnectes();
+            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
 
             exit(0);
         }
@@ -3917,7 +3866,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
                                       "puissent être prises en compte\n"));
-            Datas::I()->usersconnectes->SupprimeAllUsersConnectes();
+            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
 
             exit(0);
         }
@@ -4115,7 +4064,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
         else
             UpMessageBox::Watch(Q_NULLPTR,tr("Restauration impossible de la base"));
-        Datas::I()->usersconnectes->SupprimeAllUsersConnectes();
+        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
 
         exit(0);
     }
@@ -4130,7 +4079,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
         else
             UpMessageBox::Watch(Q_NULLPTR,tr("Restauration impossible de la base"));
-        Datas::I()->usersconnectes->SupprimeAllUsersConnectes();
+        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
 
         exit(0);
     }

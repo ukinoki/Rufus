@@ -48,7 +48,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_recette.h"
 #include "cls_tiers.h"
 #include "cls_user.h"
-#include "cls_userconnecte.h"
+#include "cls_posteconnecte.h"
 #include "cls_site.h"
 #include "cls_ville.h"
 #include "cls_compte.h"
@@ -199,10 +199,10 @@ public:
     QJsonObject             loadAdminData();                            //! complète tous les renseignements concernant l'utilisateur admin
 
     /*
-     * Users connectés
+     * Postes connectés
     */
-    QList<UserConnecte*>    loadUsersConnectes();                                           //! charge tous les couples poste-utilisateurs connectés à la base
-    QJsonObject             loadUserConnecteData(int idUser, QString macadress);            //! complète tous les renseignements concernant le couple poste-utilisateur défini par l'id
+    QList<PosteConnecte*>   loadPostesConnectes();                                          //! charge tous les postes connectés à la base
+    QJsonObject             loadPosteConnecteData(int idUser, QString macadress);            //! complète tous les renseignements concernant le poste défini par l'id
 
     /*
      * Correspondants

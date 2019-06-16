@@ -48,7 +48,7 @@ Datas::Datas()
     tiers           = new TiersPayants();
     typestiers      = new TypesTiers();
     users           = new Users();
-    usersconnectes  = new UsersConnectes();
+    postesconnectes = new PostesConnectes();
     villes          = new Villes();
 }
 

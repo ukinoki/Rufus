@@ -1951,7 +1951,7 @@ void dlg_param::Slot_RestaureBase()
     if (proc->RestaureBase())
     {
         UpMessageBox::Watch(this,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
-        Datas::I()->usersconnectes->SupprimeAllUsersConnectes();
+        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
         exit(0);
     }
 }

@@ -15,14 +15,14 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cls_userconnecte.h"
+#include "cls_posteconnecte.h"
 
-UserConnecte::UserConnecte(QJsonObject data, QObject *parent) : Item(parent)
+PosteConnecte::PosteConnecte(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
 }
 
-void UserConnecte::setData(QJsonObject data)
+void PosteConnecte::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
@@ -30,6 +30,7 @@ void UserConnecte::setData(QJsonObject data)
     setDataInt(data, CP_IDUSER_USRCONNECT, m_id);
     setDataString(data, CP_NOMPOSTE_USRCONNECT, m_nomposte);
     setDataString(data, CP_MACADRESS_USRCONNECT, m_macadress_login);
+    setDataString(data, CP_IPADRESS_USRCONNECT, m_ipadress);
     setDataBool(data, CP_DISTANT_USRCONNECT, m_accesdistant);
     setDataInt(data, CP_IDUSERSUPERVISEUR_USRCONNECT, m_idsuperviseur);
     setDataInt(data, CP_IDUSERPARENT_USRCONNECT, m_idparent);

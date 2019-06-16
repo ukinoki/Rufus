@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                                56  // version de la base de données
+#define VERSION_BASE                                57  // version de la base de données
 #define VERSION_RESSOURCES                          34  // version des fichiers de ressources
 
 // Les bases
@@ -209,6 +209,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDUSER_USRCONNECT                          "idUser"
 #define CP_NOMPOSTE_USRCONNECT                        "NomPosteConnecte"
 #define CP_MACADRESS_USRCONNECT                       "MACAdressePosteConnecte"
+#define CP_IPADRESS_USRCONNECT                        "IPAdress"
 #define CP_DISTANT_USRCONNECT                         "AccesDistant"
 #define CP_IDUSERSUPERVISEUR_USRCONNECT               "UserSuperviseur"
 #define CP_IDUSERCOMPTABLE_USRCONNECT                 "UserComptable"
@@ -221,7 +222,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDBANQUE_BANQUES                          "idBanque"
 #define CP_NOMABREGE_BANQUES                         "idBanqueAbrege"
 #define CP_NOMBANQUE_BANQUES                         "NomBanque"
-#define CP_CODE_BANQUES                              "Codeanque"
+#define CP_CODE_BANQUES                              "CodeBanque"
 
                             //! Table ComptaMedicale.Comptes
 #define CP_IDCOMPTE_COMPTES                          "idCompte"

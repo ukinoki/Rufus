@@ -92,7 +92,6 @@ public:
 
     QMap<QString,QVariant>  CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher = true);
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
-    void                    DisplayWebPage(QUrl);    /* abandonné parce QWebEngine pèse beaucoup trop lourd */
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
@@ -188,19 +187,21 @@ public:
 
 
 public:
-    bool                    VerifRessources(QString Nomfile = "");
-
     bool                    Connexion_A_La_Base();
     bool                    ReinitBase();
-    bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifUserConnectes = true);
-    bool                    VerifBaseEtRessources();
-    void                    VideDatabases();
+    bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true);
+
+private:
     qint64                  BaseSize, ImagesSize, VideosSize, FacturesSize, FreeSpace;
     UpDialog                *gAskBupRestore;
     UpLabel                 *labelResume, *labelVolumeLibre, *inflabel;
     QList<QImage>           listimage;
     qint64                  CalcBaseSize();
+    bool                    VerifBaseEtRessources();
+    bool                    VerifRessources(QString Nomfile = "");
+    void                    VideDatabases();
 
+public:
     bool                    Init();
     bool                    ApercuAvantImpression();
     // Les accesseurs
@@ -230,7 +231,6 @@ public:
     QString                 PosteImportDocs();
     bool                    VerifAutresPostesConnectes(bool msg = true);
     bool                    Verif_secure_file_priv();
-    QString                 Var_secure_file_priv();
 
     bool                    Connexion();
 

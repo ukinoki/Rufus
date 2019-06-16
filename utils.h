@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QHostInfo>
+#include <QProcess>
 #include <cmath>
 
 #include "uplineedit.h"
@@ -85,6 +86,7 @@ public:
     static QByteArray               IntToArray(int source);
     static QString                  getIpAdress();
     static QString                  getMACAdress();
+    static QString                  getMacForIP(QString ipAddress);
     static bool                     VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
 
     //! Fichiers

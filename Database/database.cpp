@@ -676,61 +676,63 @@ QList<User*> DataBase::loadUsers()
 /*
  * Users connectes
 */
-QJsonObject DataBase::loadUserConnecteData(int iduser, QString macadress)
+QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
 {
     QJsonObject userData{};
     QString req = "select NomPosteConnecte, AccesDistant, UserSuperviseur,"
-                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat"
+                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat, IPAdress"
                   " from " TBL_USERSCONNECTES
                   " where idUser = " + QString::number(iduser) +
                   " and " CP_MACADRESS_USRCONNECT " = " + macadress;
-    QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
-    if( !ok || usrlist.size()==0 )
+    QList<QVariantList> postlist = StandardSelectSQL(req, ok);
+    if( !ok || postlist.size()==0 )
         return userData;
-    for (int i=0; i<usrlist.size(); ++i)
+    for (int i=0; i<postlist.size(); ++i)
     {
         userData[CP_IDUSER_USRCONNECT]                     = iduser;
-        userData[CP_NOMPOSTE_USRCONNECT]                   = usrlist.at(i).at(0).toString();
+        userData[CP_NOMPOSTE_USRCONNECT]                   = postlist.at(i).at(0).toString();
         userData[CP_MACADRESS_USRCONNECT]                  = macadress;
-        userData[CP_DISTANT_USRCONNECT]                    = usrlist.at(i).at(1).toInt() == 1;
-        userData[CP_IDUSERSUPERVISEUR_USRCONNECT]          = usrlist.at(i).at(2).toInt();
-        userData[CP_IDUSERCOMPTABLE_USRCONNECT]            = usrlist.at(i).at(3).toInt();
-        userData[CP_IDUSERPARENT_USRCONNECT]               = usrlist.at(i).at(4).toInt();
-        userData[CP_IDLIEU_USRCONNECT]                     = usrlist.at(i).at(5).toInt();
-        userData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = QDateTime(usrlist.at(i).at(6).toDate(), usrlist.at(i).at(6).toTime()).toMSecsSinceEpoch();
-        userData[CP_IDPATENCOURS_USRCONNECT]               = usrlist.at(i).at(7).toInt();
+        userData[CP_DISTANT_USRCONNECT]                    = postlist.at(i).at(1).toInt() == 1;
+        userData[CP_IDUSERSUPERVISEUR_USRCONNECT]          = postlist.at(i).at(2).toInt();
+        userData[CP_IDUSERCOMPTABLE_USRCONNECT]            = postlist.at(i).at(3).toInt();
+        userData[CP_IDUSERPARENT_USRCONNECT]               = postlist.at(i).at(4).toInt();
+        userData[CP_IDLIEU_USRCONNECT]                     = postlist.at(i).at(5).toInt();
+        userData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = QDateTime(postlist.at(i).at(6).toDate(), postlist.at(i).at(6).toTime()).toMSecsSinceEpoch();
+        userData[CP_IDPATENCOURS_USRCONNECT]               = postlist.at(i).at(7).toInt();
         userData["stringid"]                               = macadress.split(" ").at(0);
+        userData[CP_IPADRESS_USRCONNECT]                   = postlist.at(i).at(8).toString();
     }
     return userData;
 }
 
-QList<UserConnecte*> DataBase::loadUsersConnectes()
+QList<PosteConnecte*> DataBase::loadPostesConnectes()
 {
-    QList<UserConnecte*> users;
+    QList<PosteConnecte*> postes;
     QString req = "select idUser, NomPosteConnecte, MACAdressePosteConnecte, AccesDistant, UserSuperviseur,"
-                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat"
+                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat, IPAdress"
                   " from " TBL_USERSCONNECTES ;
-    QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
-    if( !ok || usrlist.size()==0 )
-        return users;
-    for (int i=0; i<usrlist.size(); ++i)
+    QList<QVariantList> postlist = StandardSelectSQL(req, ok);
+    if( !ok || postlist.size()==0 )
+        return postes;
+    for (int i=0; i<postlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData[CP_IDUSER_USRCONNECT]                     = usrlist.at(i).at(0).toInt();
-        jData[CP_NOMPOSTE_USRCONNECT]                   = usrlist.at(i).at(1).toString();
-        jData[CP_MACADRESS_USRCONNECT]                  = usrlist.at(i).at(2).toString();
-        jData[CP_DISTANT_USRCONNECT]                    = usrlist.at(i).at(3).toInt() == 1;
-        jData[CP_IDUSERSUPERVISEUR_USRCONNECT]          = usrlist.at(i).at(4).toInt();
-        jData[CP_IDUSERCOMPTABLE_USRCONNECT]            = usrlist.at(i).at(5).toInt();
-        jData[CP_IDUSERPARENT_USRCONNECT]               = usrlist.at(i).at(6).toInt();
-        jData[CP_IDLIEU_USRCONNECT]                     = usrlist.at(i).at(7).toInt();
-        jData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = QDateTime(usrlist.at(i).at(8).toDate(), usrlist.at(i).at(8).toTime()).toMSecsSinceEpoch();
-        jData[CP_IDPATENCOURS_USRCONNECT]               = usrlist.at(i).at(9).toInt();
-        jData["stringid"]                               = usrlist.at(i).at(2).toString().split(" ").at(0);
-        UserConnecte *usr = new UserConnecte(jData);
-        users << usr;
+        jData[CP_IDUSER_USRCONNECT]                     = postlist.at(i).at(0).toInt();
+        jData[CP_NOMPOSTE_USRCONNECT]                   = postlist.at(i).at(1).toString();
+        jData[CP_MACADRESS_USRCONNECT]                  = postlist.at(i).at(2).toString();
+        jData[CP_DISTANT_USRCONNECT]                    = postlist.at(i).at(3).toInt() == 1;
+        jData[CP_IDUSERSUPERVISEUR_USRCONNECT]          = postlist.at(i).at(4).toInt();
+        jData[CP_IDUSERCOMPTABLE_USRCONNECT]            = postlist.at(i).at(5).toInt();
+        jData[CP_IDUSERPARENT_USRCONNECT]               = postlist.at(i).at(6).toInt();
+        jData[CP_IDLIEU_USRCONNECT]                     = postlist.at(i).at(7).toInt();
+        jData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = QDateTime(postlist.at(i).at(8).toDate(), postlist.at(i).at(8).toTime()).toMSecsSinceEpoch();
+        jData[CP_IDPATENCOURS_USRCONNECT]               = postlist.at(i).at(9).toInt();
+        jData["stringid"]                               = postlist.at(i).at(2).toString().split(" ").at(0);
+        jData[CP_IPADRESS_USRCONNECT]                   = postlist.at(i).at(10).toString();
+        PosteConnecte *post = new PosteConnecte(jData);
+        postes << post;
     }
-    return users;
+    return postes;
 }
 
 /*

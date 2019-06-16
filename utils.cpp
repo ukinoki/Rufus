@@ -491,8 +491,8 @@ QString Utils::getMACAdress()
             IPadress = address.toString();
     QString MACAddress = "";
        QString localNetmask;
-       foreach (const QNetworkInterface& networkInterface, QNetworkInterface::allInterfaces()) {
-           foreach (const QNetworkAddressEntry& entry, networkInterface.addressEntries()) {
+       foreach (const QNetworkInterface &networkInterface, QNetworkInterface::allInterfaces()) {
+           foreach (const QNetworkAddressEntry &entry, networkInterface.addressEntries()) {
                if (entry.ip().toString() == IPadress) {
                    MACAddress = networkInterface.hardwareAddress();
                    break;
@@ -500,6 +500,21 @@ QString Utils::getMACAdress()
            }
        }
     return MACAddress;
+}
+
+QString Utils::getMacForIP(QString ipAddress)
+{
+    QString MAC;
+    QProcess process;
+    process.start(QString("arp -a %1").arg(ipAddress));
+    if(process.waitForFinished())
+    {
+        QString result = process.readAll();
+        QStringList list = result.split(QRegularExpression("\\s+"));
+        if(list.contains(ipAddress))
+            MAC = list.at(list.indexOf(ipAddress) + 1);
+    }
+    return MAC;
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------

@@ -16,7 +16,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Acte* act = Q_NULLPTR;
     PatientEnCours* patcrs = Q_NULLPTR;
     Patient* pat = Q_NULLPTR;
-    UserConnecte* usr = Q_NULLPTR;
+    PosteConnecte* usr = Q_NULLPTR;
 
     bool ok = false;
     bool loop = false;
@@ -84,7 +84,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             loop = false;
             break;;
         }
-        usr = dynamic_cast<UserConnecte*>(item);
+        usr = dynamic_cast<PosteConnecte*>(item);
         if (usr != Q_NULLPTR)
         {
             table = TBL_USERSCONNECTES;
@@ -420,6 +420,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         else if (field == CP_MACADRESS_USRCONNECT)
         {
             usr->setmacadresslogin(newvalue.toString());
+            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+        }
+        else if (field == CP_IPADRESS_USRCONNECT)
+        {
+            usr->setipadress(newvalue.toString());
             value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
         }
         if (field == CP_DISTANT_USRCONNECT )

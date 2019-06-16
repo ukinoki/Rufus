@@ -229,7 +229,7 @@ private:
 
     //fonctions lancées par des timers
     void        ActualiseDocsExternes();
-    void        MetAJourUserConnectes();
+    void        MetAJourPosteConnecte();
     void        VerifCorrespondants();
     void        VerifMessages();
     void        VerifSalleDAttente();
@@ -256,19 +256,19 @@ private:
     QSortFilterProxyModel   *m_listepatientsproxymodel, *m_DDNsortmodel, *m_prenomfiltersortmodel;
     QStandardItemModel      *m_listesuperviseursmodel, *m_listeparentsmodel;
     QTabBar                 *gSalDatTab, *gAccueilTab;
-    QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerUserConnecte, *gTimerVerifVerrou, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
+    QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerPosteConnecte, *gTimerVerifVerrou, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
 
     Acte                    *m_currentact;
     User                    *m_currentuser;
-    UserConnecte            *m_currentuserconnecte;
+    PosteConnecte           *m_currentposteconnecte;
     Patient                 *m_currentpatient;
     Patient                 *m_dossierpatientaouvrir;
     Patients                *m_listepatients;
     Actes                   *m_listeactes;
     LignesPaiements         *m_listepaiements;
-    UsersConnectes          *m_listeuserconnectes;
+    PostesConnectes         *m_listepostesconnectes;
 
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;

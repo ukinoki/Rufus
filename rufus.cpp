@@ -86,8 +86,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ReconstruitCombosCorresp();                 //! initialisation de la liste
 
     FiltreTable();                         //! InitTables()
-    m_listeuserconnectes->initListe();
-    MetAJourUserConnectes();
+    m_listepostesconnectes->initListe();
+    MetAJourPosteConnecte();
 
     QJsonObject jadmin = db->loadAdminData();
     if (jadmin.size() == 0)
@@ -138,7 +138,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente                                                          utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants                                                 utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerVerifMessages         = new QTimer(this);     // scrutation des nouveaux message                                                                      utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
-    gTimerUserConnecte          = new QTimer(this);     // mise à jour de la connexion à la base de données
+    gTimerPosteConnecte          = new QTimer(this);     // mise à jour de la connexion à la base de données
     gTimerVerifImportateurDocs  = new QTimer(this);     // vérifie que le poste importateur des documents externes est toujours là
     gTimerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base
     gTimerActualiseDocsExternes = new QTimer(this);     // actualise l'affichage des documents externes si un dossier est ouvert
@@ -176,7 +176,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
     }
 
-    gTimerUserConnecte->start(10000);// "toutes les 10 secondes - remet à jour le statut connecté du poste dans la base - tables utilisateursconnectes"
+    gTimerPosteConnecte->start(10000);// "toutes les 10 secondes - remet à jour le statut connecté du poste dans la base - tables utilisateursconnectes"
 
     if (!UtiliseTCP)
     {
@@ -193,7 +193,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             connect(gTimerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
     }
-    connect (gTimerUserConnecte,            &QTimer::timeout,   this,   &Rufus::MetAJourUserConnectes);
+    connect (gTimerPosteConnecte,            &QTimer::timeout,   this,   &Rufus::MetAJourPosteConnecte);
     connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
     connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
 
@@ -1429,10 +1429,10 @@ void Rufus::ConnectTimers(bool a)
             gTimerVerifMessages         ->start(10000);
             gTimerSupprDocs             ->start(60000);
         }
-        gTimerUserConnecte  ->start(10000);
+        gTimerPosteConnecte  ->start(10000);
         gTimerVerifVerrou   ->start(60000);
 
-        connect (gTimerUserConnecte,                &QTimer::timeout,   this,   &Rufus::MetAJourUserConnectes);
+        connect (gTimerPosteConnecte,                &QTimer::timeout,   this,   &Rufus::MetAJourPosteConnecte);
         connect (gTimerActualiseDocsExternes,       &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
         if (!UtiliseTCP)
         {
@@ -1456,7 +1456,7 @@ void Rufus::ConnectTimers(bool a)
         gTimerActualiseDocsExternes ->disconnect();
         gTimerImportDocsExternes    ->disconnect();
         gTimerVerifMessages         ->disconnect();
-        gTimerUserConnecte          ->disconnect();
+        gTimerPosteConnecte          ->disconnect();
         gTimerVerifVerrou           ->disconnect();
         gTimerSupprDocs             ->disconnect();
         gTimerVerifImportateurDocs  ->stop();
@@ -1466,7 +1466,7 @@ void Rufus::ConnectTimers(bool a)
         gTimerActualiseDocsExternes ->stop();
         gTimerImportDocsExternes    ->stop();
         gTimerVerifMessages         ->stop();
-        gTimerUserConnecte          ->stop();
+        gTimerPosteConnecte          ->stop();
         gTimerVerifVerrou           ->stop();
         gTimerSupprDocs             ->stop();
     }
@@ -3698,20 +3698,19 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
 }
 
 
-void Rufus::MetAJourUserConnectes()
+void Rufus::MetAJourPosteConnecte()
 {
     // On en profite au passage pour sauvegarder la position de la fenêtre principale
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
     proc->gsettingsIni->setValue("PositionsFiches/Rufus", saveGeometry());
 
-    m_listeuserconnectes->initListe();
-    m_currentuserconnecte = m_listeuserconnectes->getById(Utils::getMACAdress());
+    m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
 
-    if (m_currentuserconnecte != Q_NULLPTR)
-        ItemsList::update(m_currentuserconnecte, CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
+    if (m_currentposteconnecte != Q_NULLPTR)
+        ItemsList::update(m_currentposteconnecte, CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
     else
     {
-        m_currentuserconnecte = m_listeuserconnectes->CreationUserConnecte();
+        m_currentposteconnecte = m_listepostesconnectes->CreationPosteConnecte();
         flags->MAJFlagSalleDAttente();
     }
 
@@ -5493,12 +5492,12 @@ void Rufus::VerifVerrouDossier()
      *
      on fait la liste des utilisateurs qui n'ont pas remis à jour leur connexion depuis plus de 60 secondes,
      on retire les verrous qu'ils auraient pu poser et on les déconnecte*/
-    m_listeuserconnectes->initListe();
-    m_currentuserconnecte = m_listeuserconnectes->getById(Utils::getMACAdress());
+    m_listepostesconnectes->initListe();
+    m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
     QDateTime timenow = db->ServerDateTime();
-    for (QMap<QString, UserConnecte*>::const_iterator itusr = m_listeuserconnectes->usersconnectes()->constBegin(); itusr != m_listeuserconnectes->usersconnectes()->constEnd(); ++itusr)
+    for (QMap<QString, PosteConnecte*>::const_iterator itusr = m_listepostesconnectes->postesconnectes()->constBegin(); itusr != m_listepostesconnectes->postesconnectes()->constEnd(); ++itusr)
     {
-        UserConnecte *usr = const_cast<UserConnecte*>(itusr.value());
+        PosteConnecte *usr = const_cast<PosteConnecte*>(itusr.value());
         qint64 tempsecouledepuisactualisation = usr->heurederniereconnexion().secsTo(timenow);
         if (tempsecouledepuisactualisation > 60)
         {
@@ -5523,7 +5522,7 @@ void Rufus::VerifVerrouDossier()
                     }
             }
             QString nomposte = usr->nomposte();
-            m_listeuserconnectes->SupprimeUserConnecte(usr);
+            m_listepostesconnectes->SupprimePosteConnecte(usr);
             flags->MAJFlagSalleDAttente();
             proc->Message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
 
@@ -5541,9 +5540,9 @@ void Rufus::VerifVerrouDossier()
         {
             if (pat->statut().left(length) == ENCOURSEXAMEN)
             {
-                for (QMap<QString, UserConnecte*>::const_iterator itusr = m_listeuserconnectes->usersconnectes()->constBegin(); itusr != m_listeuserconnectes->usersconnectes()->constEnd(); ++itusr)
+                for (QMap<QString, PosteConnecte*>::const_iterator itusr = m_listepostesconnectes->postesconnectes()->constBegin(); itusr != m_listepostesconnectes->postesconnectes()->constEnd(); ++itusr)
                 {
-                    UserConnecte *usr = const_cast<UserConnecte*>(itusr.value());
+                    PosteConnecte *usr = const_cast<PosteConnecte*>(itusr.value());
                     if (usr->id() == pat->iduser() && usr->nomposte() == pat->posteexamen())
                     {
                         ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
@@ -5565,13 +5564,13 @@ bool Rufus::isPosteImport()
     return PosteImport;
 }
 
-void Rufus::VerifImportateur()
+void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas utilisé et ne mode réseau local ou monoposte
 {
      /* s'il n'existe pas de poste défini comme importateur des documents, on prend la place si on est accrédite et qu'on n'est pas en accès distant
      * s'il existe un poste défini comme importateur des docs et qu'il est différent de ce poste,
      * on vérifie
-        * qu'il est toujours actif
-        * qu'il n'est pas prioritaire
+        * s'il est toujours actif
+        * et si oui, s'il est prioritaire
      * si ce n'est pas le cas, on prend sa place
         * si on est prioritaire et pas lui
         * s'il n'est pas administrateur
@@ -5588,7 +5587,7 @@ void Rufus::VerifImportateur()
     }
 
     bool statut = isPosteImport();
-    QString ImportateurDocs       = proc->PosteImportDocs(); //le nom du poste importateur des docs externes
+    QString ImportateurDocs = proc->PosteImportDocs(); //le nom du poste importateur des docs externes
     if (ImportateurDocs.toUpper() == "NULL")
     {
         if ((proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "YES" || proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() == "NORM")
@@ -5597,31 +5596,31 @@ void Rufus::VerifImportateur()
     }
     else
     {
-        QString IpAdr = "";
+        QString Adr = "";
         QString B = proc->gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString();
         if (B=="YES")
-            IpAdr = QHostInfo::localHostName() + " - prioritaire";
+            Adr = QHostInfo::localHostName() + " - prioritaire";
         else if (B=="NORM")
-            IpAdr = QHostInfo::localHostName();
+            Adr = QHostInfo::localHostName();
 
-        if (ImportateurDocs != IpAdr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'est pas prioritaire
+        if (ImportateurDocs != Adr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'est pas prioritaire
         {
             // on vérifie que l'importateur est toujours connecté
-            m_listeuserconnectes->initListe();
-            m_currentuserconnecte = m_listeuserconnectes->getById(Utils::getMACAdress());
+            m_listepostesconnectes->initListe();
+            m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
             int idx = -1;
-            for (QMap<QString, UserConnecte*>::const_iterator itusr = m_listeuserconnectes->usersconnectes()->constBegin(); itusr != m_listeuserconnectes->usersconnectes()->constEnd(); ++itusr)
+            for (QMap<QString, PosteConnecte*>::const_iterator itusr = m_listepostesconnectes->postesconnectes()->constBegin(); itusr != m_listepostesconnectes->postesconnectes()->constEnd(); ++itusr)
             {
-                UserConnecte *usr = const_cast<UserConnecte*>(itusr.value());
+                PosteConnecte *usr = const_cast<PosteConnecte*>(itusr.value());
                 if (usr->nomposte() == ImportateurDocs.remove(" - prioritaire"))
                 {
-                    idx = m_listeuserconnectes->usersconnectes()->values().indexOf(usr);
-                    itusr = m_listeuserconnectes->usersconnectes()->constEnd();
+                    idx = m_listepostesconnectes->postesconnectes()->values().indexOf(usr);
+                    itusr = m_listepostesconnectes->postesconnectes()->constEnd();
                 }
             }
             if (idx<0)
             {
-                /*Si le poste défini comme importateur des docs externes n'est pas connecté,
+                /*Le poste défini comme importateur des docs externes n'est pas connecté,
                  on prend la place si
                     on n'est pas en accès distant
                     et si on est importateur
@@ -6568,16 +6567,15 @@ bool Rufus::AutorSortieAppli()
      * 1. C'est le seul poste connecté pour cet utilisateur
      * 2. cet utilisateur est connecté sur d'autres postes, on peut partir
     */
-        m_listeuserconnectes->initListe();
-        m_currentuserconnecte = m_listeuserconnectes->getById(Utils::getMACAdress());
+        m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
         bool IlResteDesPostesConnectesAvecCeUser = false;
-        for (QMap<QString, UserConnecte*>::const_iterator itusr = m_listeuserconnectes->usersconnectes()->constBegin(); itusr != m_listeuserconnectes->usersconnectes()->constEnd(); ++itusr)
+        for (QMap<QString, PosteConnecte*>::const_iterator itusr = m_listepostesconnectes->postesconnectes()->constBegin(); itusr != m_listepostesconnectes->postesconnectes()->constEnd(); ++itusr)
         {
-            UserConnecte *usr = const_cast<UserConnecte*>(itusr.value());
-            if (usr->nomposte() != m_currentuserconnecte->nomposte() && usr->id() == m_currentuserconnecte->id())
+            PosteConnecte *usr = const_cast<PosteConnecte*>(itusr.value());
+            if (usr->nomposte() != m_currentposteconnecte->nomposte() && usr->id() == m_currentposteconnecte->id())
             {
                 IlResteDesPostesConnectesAvecCeUser = true;
-                itusr = m_listeuserconnectes->usersconnectes()->constEnd();
+                itusr = m_listepostesconnectes->postesconnectes()->constEnd();
             }
         }
         if (IlResteDesPostesConnectesAvecCeUser)
@@ -6612,9 +6610,9 @@ bool Rufus::AutorSortieAppli()
             }
     }
     // on retire cet utilisateur de la table des utilisateurs connectés
-    m_listeuserconnectes->SupprimeUserConnecte(m_currentuserconnecte);
+    m_listepostesconnectes->SupprimePosteConnecte(m_currentposteconnecte);
     flags->MAJFlagSalleDAttente();
-    if (proc->PosteImportDocs().remove(" - prioritaire")==QHostInfo::localHostName())
+    if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::getIpAdress())
         proc->setPosteImportDocs(false);
 
     req = "update " TBL_UTILISATEURS " set datederniereconnexion = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
@@ -7890,11 +7888,11 @@ void Rufus::InitVariables()
 {
     gAutorModifConsult          = false;
     m_currentpatient            = Q_NULLPTR;
-    m_currentuserconnecte       = Q_NULLPTR;
+    m_currentposteconnecte      = Q_NULLPTR;
     m_listepatients             = Datas::I()->patients;
     m_listeactes                = Datas::I()->actes;
     m_listepaiements            = Datas::I()->lignespaiements;
-    m_listeuserconnectes        = Datas::I()->usersconnectes;
+    m_listepostesconnectes      = Datas::I()->postesconnectes;
     m_currentact                = Q_NULLPTR;
     m_listepatientsproxymodel   = new QSortFilterProxyModel();
     m_dossierpatientaouvrir     = Q_NULLPTR;
@@ -10015,6 +10013,7 @@ void Rufus::TraiteTCPMessage(QString msg)
             //qDebug() << data;
         }
         ResumeStatut();
+        m_listepostesconnectes->initListe();
     }
 }
 

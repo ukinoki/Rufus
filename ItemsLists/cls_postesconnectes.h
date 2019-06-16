@@ -15,36 +15,36 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLS_USERSCONNECTES_H
-#define CLS_USERSCONNECTES_H
+#ifndef CLS_POSTESCONNECTES_H
+#define CLS_POSTESCONNECTES_H
 
 #include "cls_itemslist.h"
-#include "cls_userconnecte.h"
+#include "cls_posteconnecte.h"
 #include "database.h"
 
-class UsersConnectes : public ItemsList
+class PostesConnectes : public ItemsList
 {
     /*! la classe userconnecté gère les connexions des utilisateurs
      * un utilisateur peut-être connecté sur plusieurs postes en même temps dans la même session
      * la clé n'du QMap des userconnectés est l'adresse mac du poste sur lequel le user est connecté,
      */
 public:
-    QMap<QString, UserConnecte*> *m_usersconnectes = Q_NULLPTR;  //!< la liste de tous les usersconnectes
-    void addList(QList<UserConnecte*> listusr);
+    QMap<QString, PosteConnecte*> *m_postesconnectes = Q_NULLPTR;  //!< la liste de tous les postesconnectes
+    void addList(QList<PosteConnecte*> listpost);
 
 public:
-    explicit UsersConnectes(QObject *parent = Q_NULLPTR);
-    ~UsersConnectes();
+    explicit PostesConnectes(QObject *parent = Q_NULLPTR);
+    ~PostesConnectes();
 
-    QMap<QString, UserConnecte*>* usersconnectes() const;
+    QMap<QString, PosteConnecte*>* postesconnectes() const;
 
-    UserConnecte* getById(QString stringid);
-    void initListe();
+    PosteConnecte*  getById(QString stringid);
+    void            initListe();
 
     //!> actions sur les enregistrements
-    void             SupprimeAllUsersConnectes();
-    void             SupprimeUserConnecte(UserConnecte *cpt);
-    UserConnecte*    CreationUserConnecte();
+    void             SupprimeAllPostesConnectes();
+    void             SupprimePosteConnecte(PosteConnecte *cpt);
+    PosteConnecte*   CreationPosteConnecte();
 };
 
 #endif // CLS_USERSCONNECTES_H

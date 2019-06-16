@@ -15,15 +15,15 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLS_USERCONNECTE_H
-#define CLS_USERCONNECTE_H
+#ifndef CLS_POSTECONNECTE_H
+#define CLS_POSTECONNECTE_H
 
 #include <QMap>
 #include <QVariant>
 #include <QDate>
 #include "cls_item.h"
 
-class UserConnecte : public Item
+class PosteConnecte : public Item
 {
 
     /*! la classe userconnecté gère les connexions des utilisateurs
@@ -31,7 +31,7 @@ class UserConnecte : public Item
      * la clé de la table correspond au couple iduser-macadress qui ne peut donc qu'être unique
      */
 public:
-    explicit UserConnecte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit PosteConnecte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
 private:
@@ -39,7 +39,8 @@ private:
     //!< m_stringid = l'adresses mac du poste connecté
 
     QString m_nomposte;                 //!< nom du poste connexté
-    QString m_macadress_login;          //!< macadress+login du poste connecté
+    QString m_macadress_login;          //!< macadress+login du poste connectéadresse IP du poste connecté
+    QString m_ipadress;                 //!> l'adresse IP du poste connecté
     bool m_accesdistant;                //!> le poste connecte est en accès distant
     int m_idsuperviseur;                //!> l'id du superviseur
     int m_idparent;                     //!> l'id du parent
@@ -64,9 +65,11 @@ public:
     int idlieu() const                          { return m_idlieu; }
     int idpatencours() const                    { return m_idpatencours; }
     QDateTime heurederniereconnexion() const    { return m_heurederniereconnexion; }
+    QString ipadress() const                    { return m_ipadress; }
 
     void setnomposte(QString txt)                       { m_nomposte = txt; }
     void setmacadresslogin(QString txt)                 { m_macadress_login = txt; }
+    void setipadress(QString txt)                       { m_ipadress = txt; }
     void setisdistant(bool logic)                       { m_accesdistant = logic; }
     void setidsuperviseur(int id)                       { m_idsuperviseur = id; }
     void setidparent(int id)                            { m_idparent = id; }
@@ -76,4 +79,4 @@ public:
     void setheurederniereconnexion(QDateTime datetime)  { m_heurederniereconnexion = datetime; }
 };
 
-#endif // CLS_USERCONNECTE_H
+#endif // CLS_POSTECONNECTE_H

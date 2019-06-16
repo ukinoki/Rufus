@@ -624,7 +624,7 @@ CREATE TABLE `ParametresSysteme` (
 ) ENGINE=InnoDB;
 
 LOCK TABLES `ParametresSysteme` WRITE;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,56,
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,57,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL,NULL,
                                         NULL,NULL,NULL,NULL);
@@ -1018,6 +1018,7 @@ CREATE TABLE `UtilisateursConnectes` (
   `idUser` int(11) NOT NULL DEFAULT '0',
   `NomPosteConnecte` varchar(70) CHARACTER SET latin1 DEFAULT NULL,
   `MACAdressePosteConnecte` varchar(45) DEFAULT NULL,
+  `IPAdress` VARCHAR(15) DEFAULT NULL,
   `AccesDistant` int(1) DEFAULT NULL COMMENT '1 = acces distant',
   `UserSuperviseur` int(11) DEFAULT NULL,
   `UserComptable` int(11) DEFAULT NULL,
