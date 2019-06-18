@@ -62,7 +62,7 @@ void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont p
                                  * parce qu'il arrive (rarement) qu'on saisisse un acte a posteriori dont la date sera antérieure à celle du dernier acte
                                  * si on continue à défiler par id, cet acte n'apparaîtra pas en ordre chronologique mais en dernier. */
 {
-    // toute la manip qui suit sert à remetre les acteses par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
+    // toute la manip qui suit sert à remetre les actes par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
     if (m_actesmodel == Q_NULLPTR)
         m_actesmodel = new QStandardItemModel();
     else

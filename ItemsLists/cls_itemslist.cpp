@@ -241,7 +241,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             pat->setnom(newvalue.toString());
             value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
         }
-        if (field == CP_PRENOM_PATIENTS)
+        else if (field == CP_PRENOM_PATIENTS)
         {
             pat->setprenom(newvalue.toString());
             value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
@@ -251,7 +251,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             pat->setdatedenaissance(newvalue.toDate());
             value = ((newvalue == QVariant() || !newvalue.toDate().isValid())? "null" : "'" + newvalue.toDateTime().toString("yyyy-MM-dd") + "'");
         }
-        if (field == CP_SEXE_PATIENTS)
+        else if (field == CP_SEXE_PATIENTS)
         {
             pat->setsexe(newvalue.toString());
             value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
@@ -427,7 +427,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             usr->setipadress(newvalue.toString());
             value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
         }
-        if (field == CP_DISTANT_USRCONNECT )
+        else if (field == CP_DISTANT_USRCONNECT )
         {
             usr->setisdistant(newvalue.toBool());
             value = (newvalue.toBool()? "1" : "null");

@@ -31,6 +31,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurr
     installEventFilter(this);
     setMaximumHeight(qApp->desktop()->availableGeometry().height());
     setWindowTitle(tr("Documents de ") + m_currentpatient->prenom() + " " + m_currentpatient->nom());
+    setModal(!iscurrentpatient); //quand la fiche ne concerne pas le patient en cours
 
     QFont font          = qApp->font();
     font                .setPointSize(font.pointSize()+2);

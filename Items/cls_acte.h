@@ -46,7 +46,7 @@ private:
     int m_idLieu;               //!< id du lieu où l'acte est effectué
     bool m_remplacant;          //!> le superviseur de l'acte est remplaçant au moment de la réalisation de l'acte
 
-    double m_montant;           //!< montant total
+    double m_montant = 0.0;     //!< montant total
 
     QString m_motif;            //!< motif
     QString m_texte;            //!< détail

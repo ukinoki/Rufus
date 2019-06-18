@@ -253,6 +253,7 @@ private:
     QString                 grequeteSalDat;
     QString                 gDirSauv;
     QStandardItemModel      *m_listepatientsmodel;
+    QStandardItemModel      *m_listepatientsencoursmodel;
     QSortFilterProxyModel   *m_listepatientsproxymodel, *m_DDNsortmodel, *m_prenomfiltersortmodel;
     QStandardItemModel      *m_listesuperviseursmodel, *m_listeparentsmodel;
     QTabBar                 *gSalDatTab, *gAccueilTab;

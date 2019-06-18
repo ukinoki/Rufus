@@ -1619,7 +1619,8 @@ void dlg_documents::Validation()
                 }
             }
         }
-        accept();
+        if (TitreDocumentAImprimerList.size() > 0)
+            accept();
         break;
     default:
         break;
