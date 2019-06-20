@@ -43,7 +43,7 @@ public:
 
     //!> actions sur les enregistrements
     void             SupprimeAllPostesConnectes();
-    void             SupprimePosteConnecte(PosteConnecte *cpt);
+    void             SupprimePosteConnecte(PosteConnecte *post);
     PosteConnecte*   CreationPosteConnecte();
 };
 

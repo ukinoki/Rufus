@@ -5501,16 +5501,17 @@ void Rufus::VerifVerrouDossier()
     m_listepostesconnectes->initListe();
     m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
     QDateTime timenow = db->ServerDateTime();
-    for (QMap<QString, PosteConnecte*>::const_iterator itusr = m_listepostesconnectes->postesconnectes()->constBegin(); itusr != m_listepostesconnectes->postesconnectes()->constEnd(); ++itusr)
+    QList<PosteConnecte*> listpostsAEliminer = QList<PosteConnecte*>();
+    for (QMap<QString, PosteConnecte*>::const_iterator itpost = m_listepostesconnectes->postesconnectes()->constBegin(); itpost != m_listepostesconnectes->postesconnectes()->constEnd(); ++itpost)
     {
-        PosteConnecte *usr = const_cast<PosteConnecte*>(itusr.value());
-        qint64 tempsecouledepuisactualisation = usr->heurederniereconnexion().secsTo(timenow);
+        PosteConnecte *post = const_cast<PosteConnecte*>(itpost.value());
+        qint64 tempsecouledepuisactualisation = post->heurederniereconnexion().secsTo(timenow);
         if (tempsecouledepuisactualisation > 60)
         {
             qDebug() << timenow;
-            qDebug() << usr->heurederniereconnexion();
+            qDebug() << post->heurederniereconnexion();
             qDebug() << tempsecouledepuisactualisation;
-            qDebug() << usr->macadresslogin();
+            qDebug() << post->macadresslogin();
             //l'utilisateur n'a pas remis sa connexion aà jour depuis plus de 60 secondes
             //on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             QString blabla              = ENCOURSEXAMEN;
@@ -5520,23 +5521,32 @@ void Rufus::VerifVerrouDossier()
             {
                 PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.value());
                 if (pat != Q_NULLPTR)
-                    if (pat->iduserencoursexam() == usr->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == usr->nomposte())
+                    if (pat->iduserencoursexam() == post->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == post->nomposte())
                     {
                         ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
                         ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
                         ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
                     }
             }
-            QString nomposte = usr->nomposte();
-            m_listepostesconnectes->SupprimePosteConnecte(usr);
-            flags->MAJFlagSalleDAttente();
-            proc->Message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
+            if (!listpostsAEliminer.contains(post))
+                listpostsAEliminer << post;
         }
+    }
+    if (listpostsAEliminer.size() > 0)
+    {
+       for (int i=0; i< listpostsAEliminer.size();i ++)
+       {
+           QString nomposte = listpostsAEliminer.at(i)->nomposte();
+           m_listepostesconnectes->SupprimePosteConnecte(listpostsAEliminer.at(i));
+           proc->Message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
+       }
+       flags->MAJFlagSalleDAttente();
     }
 
     // on donne le statut "arrivé" aux patients en salle d'attente dont le iduserencourssexam n'est plus present sur ce poste examen dans la liste des users connectes
     QString blabla              = ENCOURSEXAMEN;
     int length                  = blabla.size();
+    QList<PatientEnCours*> listpatasupprimer = QList<PatientEnCours*>();
     for (QMap<int, PatientEnCours*>::const_iterator itpat = m_listepatientsencours->patientsencours()->constBegin();
             itpat != m_listepatientsencours->patientsencours()->constEnd(); ++itpat)
     {
@@ -5558,9 +5568,12 @@ void Rufus::VerifVerrouDossier()
             }
             // on retire de la salle d'attente les patients qui n'existent pas
             if (m_listepatients->getById(pat->id(), Item::NoLoadDetails) == Q_NULLPTR)
-                m_listepatientsencours->SupprimePatientEnCours(pat);
+                listpatasupprimer << pat;
         }
     }
+    if (listpatasupprimer.size() > 0)
+        for (int i=0; i<listpatasupprimer.size(); i++)
+            m_listepatientsencours->SupprimePatientEnCours(listpatasupprimer.at(i));
 
 }
 

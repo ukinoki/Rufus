@@ -63,24 +63,25 @@ void PostesConnectes::SupprimeAllPostesConnectes()
     DataBase::I()->StandardSQL("delete from " TBL_USERSCONNECTES);
 }
 
-void PostesConnectes::SupprimePosteConnecte(PosteConnecte *usr)
+void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
 {
-    if (usr == Q_NULLPTR)
+    if (post == Q_NULLPTR)
         return;
     bool canremoveverrouactes = true;
-    DataBase::I()->StandardSQL("delete from " TBL_USERSCONNECTES " where " CP_IDUSER_USRCONNECT " = " + QString::number(usr->id()) + " and " CP_MACADRESS_USRCONNECT " like '" + usr->stringid() + "%'");
-    for (QMap<QString, PosteConnecte*>::const_iterator itusr = m_postesconnectes->constBegin(); itusr != m_postesconnectes->constEnd(); ++itusr)
+    DataBase::I()->StandardSQL("delete from " TBL_USERSCONNECTES " where " CP_IDUSER_USRCONNECT " = " + QString::number(post->id()) + " and " CP_MACADRESS_USRCONNECT " like '" + post->stringid() + "%'");
+    for (QMap<QString, PosteConnecte*>::const_iterator itpost = m_postesconnectes->constBegin(); itpost != m_postesconnectes->constEnd(); ++itpost)
     {
-        PosteConnecte *usrit = const_cast<PosteConnecte*>(itusr.value());
-        if (usrit->id() == usr->id() && usrit->nomposte() != usr->nomposte())
-        {
-            canremoveverrouactes = false;
-            itusr = m_postesconnectes->constEnd();
-        }
+        PosteConnecte *postit = const_cast<PosteConnecte*>(itpost.value());
+        if (postit != Q_NULLPTR)
+            if (postit->id() == post->id() && postit->nomposte() != post->nomposte())
+            {
+                canremoveverrouactes = false;
+                itpost = m_postesconnectes->constEnd();
+            }
     }
     if (canremoveverrouactes)
-        DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(usr->id()));
-    remove(m_postesconnectes, usr);
+        DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(post->id()));
+    remove(m_postesconnectes, post);
 }
 
 PosteConnecte* PostesConnectes::CreationPosteConnecte()
