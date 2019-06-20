@@ -81,8 +81,8 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *usr)
     if (canremoveverrouactes)
         DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(usr->id()));
     remove(m_postesconnectes, usr);
-
 }
+
 PosteConnecte* PostesConnectes::CreationPosteConnecte()
 {
     QString macadress =  Utils::getMACAdress();

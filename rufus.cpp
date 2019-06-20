@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("18-06-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("20-06-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -4584,18 +4584,16 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     UpLabel *lab4   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,4));
     UpLabel *lab5   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
     UpLabel *lab6   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
-    QString req = "select saldat.Motif, HeureArrivee, HeureRDV, Couleur from " TBL_SALLEDATTENTE " saldat left outer join " TBL_MOTIFSRDV " rdv on saldat.motif = rdv.raccourci "
-                  "where idpat = " + QString::number(idpat);
-    //qDebug() << req;
-    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
-    if(!ok)
-        return;
-    if (patdata.size()>0)
+    PatientEnCours *pat = Q_NULLPTR;
+    m_listepatientsencours->initListeAll();
+    QMap<int, PatientEnCours*>::const_iterator itpat = m_listepatientsencours->patientsencours()->find(idpat);
+    if (itpat != m_listepatientsencours->patientsencours()->constEnd())
     {
-        Msg = patdata.at(0).toString();
-        if (patdata.at(1).toTime().toString("HH:mm") != "")
+        pat = const_cast<PatientEnCours*>(itpat.value());
+        Msg = pat->message();
+        if (pat->heurerarrivee().isValid())
         {
-            QTime heureArriv = patdata.at(1).toTime();
+            QTime heureArriv = pat->heurerarrivee();
             if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
                 color = "color: green";
             else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)
@@ -4603,9 +4601,9 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
             else
                color = "color: red";
         }
-        if (patdata.at(2).toTime().toString("HH:mm") != "")
+        if (pat->heurerdv().isValid())
         {
-            QTime heureRDV = patdata.at(2).toTime();
+            QTime heureRDV = pat->heurerdv();
             if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
                 colorRDV = "color: green";
             else if (heureRDV.secsTo(QTime::currentTime())/60 < 30)
@@ -4629,8 +4627,12 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
         else
         {
             QString background = "background:#FFFFEE";
-            if (patdata.at(3).toString() != "")
-                background = "background:#" + patdata.at(3).toString();
+            if (pat != Q_NULLPTR)
+            {
+                Motif *mtf = Datas::I()->motifs->getMotifFromRaccourci(pat->motif());
+                if (mtf != Q_NULLPTR)
+                background = "background:#" + mtf->couleur();
+            }
             lab0->setStyleSheet(background + "; color: black");
             lab1->setStyleSheet(background + "; color: black");
             lab2->setStyleSheet(background + "; color: black");
@@ -4655,18 +4657,16 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                 UpLabel *labi4   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,4));
                 UpLabel *labi5   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,5));
                 UpLabel *labi6   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
-                QString req = "select saldat.Motif, HeureArrivee, HeureRDV, Couleur from " TBL_SALLEDATTENTE " saldat left outer join " TBL_MOTIFSRDV " rdv on saldat.motif = rdv.raccourci "
-                              "where idpat = " + QString::number(labi0->getData()["idpat"].toInt());
-                QVariantList rdvdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
-                if(!ok)
-                    return;
                 QString color2, colorRDV2;
-                if (rdvdata.size()>0)
+                pat = Q_NULLPTR;
+                QMap<int, PatientEnCours*>::const_iterator itpat = m_listepatientsencours->patientsencours()->find(labi0->getData()["idpat"].toInt());
+                if (itpat != m_listepatientsencours->patientsencours()->constEnd())
                 {
-                    Msgi = rdvdata.at(0).toString();
-                    if (rdvdata.at(1).toTime().toString("HH:mm") != "")
+                    pat = const_cast<PatientEnCours*>(itpat.value());
+                    Msgi = pat->message();
+                    if (pat->heurerarrivee().isValid())
                     {
-                        QTime heureArriv = rdvdata.at(1).toTime();
+                        QTime heureArriv = pat->heurerarrivee();
                         if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
                             color2 = "color: green";
                         else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)
@@ -4674,9 +4674,9 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                         else
                            color2 = "color: red";
                     }
-                    if (rdvdata.at(2).toTime().toString("HH:mm") != "")
+                    if (pat->heurerdv().isValid())
                     {
-                        QTime heureRDV = rdvdata.at(2).toTime();
+                        QTime heureRDV = pat->heurerdv();
                         if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
                             colorRDV2 = "color: green";
                         else if (heureRDV.secsTo(QTime::currentTime())/60 < 30)
@@ -4697,7 +4697,12 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                 }
                 else
                 {
-                    background = "background:#" + rdvdata.at(3).toString();
+                    if (pat != Q_NULLPTR)
+                    {
+                        Motif *mtf = Datas::I()->motifs->getMotifFromRaccourci(pat->motif());
+                        if (mtf != Q_NULLPTR)
+                        background = "background:#" + mtf->couleur();
+                    }
                     labi0->setStyleSheet(background + "; color: black");
                     labi1->setStyleSheet(background + "; color: black");
                     labi2->setStyleSheet(background + "; color: black");
@@ -5490,7 +5495,7 @@ void Rufus::VerifCorrespondants()
 void Rufus::VerifVerrouDossier()
 {
     /* Cette fonction sert à déconnecter et lever les verrous d'un utilisateur qui se serait déconnecté accidentellement
-     *
+     * elle n'est utilisée qu'en cas de non utilisation du tcp
      on fait la liste des utilisateurs qui n'ont pas remis à jour leur connexion depuis plus de 60 secondes,
      on retire les verrous qu'ils auraient pu poser et on les déconnecte*/
     m_listepostesconnectes->initListe();
@@ -5526,7 +5531,6 @@ void Rufus::VerifVerrouDossier()
             m_listepostesconnectes->SupprimePosteConnecte(usr);
             flags->MAJFlagSalleDAttente();
             proc->Message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
-
         }
     }
 
@@ -5607,7 +5611,6 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         if (ImportateurDocs != Adr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'est pas prioritaire
         {
             // on vérifie que l'importateur est toujours connecté
-            m_listepostesconnectes->initListe();
             m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
             int idx = -1;
             for (QMap<QString, PosteConnecte*>::const_iterator itusr = m_listepostesconnectes->postesconnectes()->constBegin(); itusr != m_listepostesconnectes->postesconnectes()->constEnd(); ++itusr)
@@ -8439,51 +8442,44 @@ void Rufus::ReconstruitCombosCorresp(bool reconstruireliste)
     if (m_currentpatient == Q_NULLPTR)
         return;
 
-    QString req = "SELECT idPat, idCorMedMG, idCorMedSpe1, idCorMedSpe2, idCorMedSpe3, idCorNonMed FROM " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS
-              " WHERE idPat = " + QString::number(m_currentpatient->id());
-    //qDebug() << requete;
-    QVariantList meddata = db->getFirstRecordFromStandardSelectSQL(req,ok, tr("Impossible de retrouver les correspondants"));
-    if (ok && meddata.size()>0)
+    QString tooltp = "";
+    if (m_currentpatient->idmg()>0)
     {
-        QString tooltp = "";
-        if (meddata.at(1).toInt()>0)
-        {
-            int id = meddata.at(1).toInt();
-            ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(id));
-            tooltp = CalcToolTipCorrespondant(id);
-        }
-        else
-            ui->MGupComboBox->setCurrentIndex(-1);
-        ui->MGupComboBox->setImmediateToolTip(tooltp);
-        tooltp = "";
-        if (meddata.at(2).toInt()>0)
-        {
-            int id = meddata.at(2).toInt();
-            ui->AutresCorresp1upComboBox->setCurrentIndex
-                    (ui->AutresCorresp1upComboBox->findData(id));
-            tooltp = CalcToolTipCorrespondant(id);
-        }
-        else
-            ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
-        ui->AutresCorresp1upComboBox->setImmediateToolTip(tooltp);
-        tooltp = "";
-        if (meddata.at(3).toInt()>0)
-        {
-            int id = meddata.at(3).toInt();
-            ui->AutresCorresp2upComboBox->setCurrentIndex
-                    (ui->AutresCorresp2upComboBox->findData(id));
-            tooltp = CalcToolTipCorrespondant(id);
-        }
-        else
-            ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
-        ui->AutresCorresp2upComboBox->setImmediateToolTip(tooltp);
+        ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(m_currentpatient->idmg()));
+        tooltp = CalcToolTipCorrespondant(m_currentpatient->idmg());
     }
     else
     {
         MGlineEdit->clear();
-        AutresCorresp1LineEdit->clear();
-        AutresCorresp2LineEdit->clear();
+        ui->MGupComboBox->setCurrentIndex(-1);
     }
+    ui->MGupComboBox->setImmediateToolTip(tooltp);
+    tooltp = "";
+    if (m_currentpatient->idspe1()>0)
+    {
+        ui->AutresCorresp1upComboBox->setCurrentIndex
+                (ui->AutresCorresp1upComboBox->findData(m_currentpatient->idspe1()));
+        tooltp = CalcToolTipCorrespondant(m_currentpatient->idspe1());
+    }
+    else
+    {
+        AutresCorresp1LineEdit->clear();
+        ui->AutresCorresp1upComboBox->setCurrentIndex(-1);
+    }
+    ui->AutresCorresp1upComboBox->setImmediateToolTip(tooltp);
+    tooltp = "";
+    if (m_currentpatient->idspe2()>0)
+    {
+        ui->AutresCorresp2upComboBox->setCurrentIndex
+                (ui->AutresCorresp2upComboBox->findData(m_currentpatient->idspe2()));
+        tooltp = CalcToolTipCorrespondant(m_currentpatient->idspe2());
+    }
+    else
+    {
+        AutresCorresp2LineEdit->clear();
+        ui->AutresCorresp2upComboBox->setCurrentIndex(-1);
+    }
+    ui->AutresCorresp2upComboBox->setImmediateToolTip(tooltp);
     OKModifierTerrain(m_currentpatient);
 }
 
@@ -8795,7 +8791,7 @@ void Rufus::Remplir_SalDat()
             PatientEnCours *pat = dynamic_cast<PatientEnCours*>(itm->item());
             if (pat != Q_NULLPTR)
             {
-                //qDebug() << m_listepatients->getById(pat->id())->nom() + " " + m_listepatients->getById(pat->id())->prenom();
+                //qDebug() << m_listepatients->getById(pat->id())->nom() + " " + m_listepatients->getById(pat->id())->prenom() + " " + pat->statut();
                 listpat << pat;
             }
         }
@@ -8870,7 +8866,7 @@ void Rufus::Remplir_SalDat()
         label6->setAlignment(Qt::AlignCenter);
 
         QString Msg = patencours->message();
-        NomPrenom = " " + pat->nom() + " " + pat->prenom();
+        NomPrenom = " " + pat->nom().toUpper() + " " + pat->prenom();
         label0->setText(NomPrenom);                                                     // Nom + Prénom
         label1->setText(patencours->statut());                                          // Statut
         label4->setText(patencours->motif());                                           // Motif
@@ -8925,15 +8921,9 @@ void Rufus::Remplir_SalDat()
         }
         else
         {
-            for (QMap<int, Motif*>::const_iterator itmtf = Datas::I()->motifs->motifs()->constBegin() ; itmtf != Datas::I()->motifs->motifs()->constEnd() ; ++itmtf)
-            {
-                Motif *mtf = const_cast<Motif*>(*itmtf);
-                if (mtf->raccourci() == patencours->motif())
-                {
-                    background = "background:#" + mtf->couleur();
-                    break;
-                }
-            }
+            Motif *mtf = Datas::I()->motifs->getMotifFromRaccourci(patencours->motif());
+            if (mtf != Q_NULLPTR)
+                background = "background:#" + mtf->couleur();
             label0->setStyleSheet(background);
             label1->setStyleSheet(background);
             label2->setStyleSheet(background);
@@ -9025,20 +9015,15 @@ void Rufus::Remplir_SalDat()
         for (int j=0; j<listuptext.size();j++)
             delete listuptext.at(j);
     ui->scrollArea->takeWidget();
-    db->commit();
-    QString bureauxreq = "SELECT usc.idUser, UserLogin, NomPosteConnecte, PatNom, PatPreNom, HeureArrivee, saldat.idPat FROM " TBL_USERSCONNECTES " AS usc\n"
-                         " INNER JOIN " TBL_UTILISATEURS " ON " TBL_UTILISATEURS ".idUser = usc.idUser\n"
-                         " LEFT OUTER JOIN " TBL_SALLEDATTENTE " as saldat on (idUserEnCoursExam = usc.idUser and saldat.posteexamen = usc.NomPosteConnecte)\n"
-                         " LEFT OUTER JOIN " TBL_PATIENTS " ON " TBL_PATIENTS ".idPat = saldat.idPat\n"
-                         " where time_to_sec(timediff(NOW(), HeureDerniereConnexion)) < 60\n"
-                         " and (soignant = 1 or soignant = 2 or soignant = 3)\n"
-                         " order by UserLogin";
-
-    //qDebug() << bureauxreq;
-    QList<QVariantList> burlist = db->StandardSelectSQL(bureauxreq, ok , "bureauxreq");
-
-    //UpMessageBox::Watch(this,userconnectreq + "\n- " + QString::number(userconnectQuery.size()) + " -\n- " + userconnectQuery.value(0).toString() + " -");
-    if (burlist.size() >0)
+    QList<PosteConnecte*> listpostsoignant;
+    for (QMap<QString, PosteConnecte*>::const_iterator itpost = m_listepostesconnectes->postesconnectes()->constBegin(); itpost != m_listepostesconnectes->postesconnectes()->constEnd(); ++itpost)
+    {
+        PosteConnecte* post = const_cast<PosteConnecte*>(itpost.value());
+        if (post != Q_NULLPTR)
+        if (Datas::I()->users->getById(post->id())->isSoignant())
+            listpostsoignant << post;
+    }
+    if (listpostsoignant.size() >0)
     {
         ui->scrollArea->setWidgetResizable(true);
         QHBoxLayout *lay = new QHBoxLayout();
@@ -9048,15 +9033,26 @@ void Rufus::Remplir_SalDat()
         int a = 0;
         lay->setContentsMargins(a,a,a,a);
         lay->setSpacing(2);
-        for (int i=0;i<burlist.size();i++)
+        for (int i=0;i<listpostsoignant.size();i++)
         {
-            QString UserLogin = burlist.at(i).at(1).toString();
-            QString PosteLog  = burlist.at(i).at(2).toString().remove(".local");
+            PosteConnecte *post = listpostsoignant.at(i);
+            User *usr = Datas::I()->users->getById(post->id());
+            QString PosteLog  = post->nomposte().remove(".local");
+            PatientEnCours *patencours = Q_NULLPTR;
+            for (QMap<int, PatientEnCours*>::const_iterator itpat = m_listepatientsencours->patientsencours()->constBegin(); itpat != m_listepatientsencours->patientsencours()->constEnd(); ++itpat)
+            {
+                PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.value());
+                if (pat != Q_NULLPTR)
+                {
+                    if (pat->iduserencoursexam() == post->id() && pat->posteexamen() == post->nomposte())
+                        patencours = pat;
+                }
+            }
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
             UserBureau->disconnect();; // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
-            UserBureau->setObjectName(UserLogin + "BureauupTextEdit");
-            UserBureau->setIdUser(burlist.at(i).at(0).toInt());
+            UserBureau->setObjectName(usr->getLogin() + "BureauupTextEdit");
+            UserBureau->setIdUser(post->id());
             ui->scrollArea->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
             UserBureau->setStyleSheet("background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 255, 200, 50));"
                                       "border: 1px solid gray;  border-radius: 10px;");
@@ -9070,10 +9066,12 @@ void Rufus::Remplir_SalDat()
               "</style>"
             "</head>"
             "<body LANG=\"fr-FR\" DIR=\"LTR\">";
-            html += "<p class=\"p10\"><b>" + PosteLog + "</b></p><p class=\"p2\"><b><span style=\"color:green;\">" + UserLogin + "</b></p>";
-            if (burlist.at(i).at(3).toString() != "")
+            html += "<p class=\"p10\"><b>" + PosteLog + "</b></p><p class=\"p2\"><b><span style=\"color:green;\">" + usr->getLogin() + "</b></p>";
+            if (patencours == Q_NULLPTR)
+                html += "<p class=\"p2\">ZZzzz...</p>";
+            else if (m_listepatients->getById(patencours->id()) != Q_NULLPTR)
             {
-                UserBureau->setId(burlist.at(i).at(6).toInt());
+                UserBureau->setId(post->idpatencours());
                 if( UserBureau->getIdUser() == m_currentuser->id() )
                     connect(UserBureau, &UpTextEdit::dblclick, this,  [=] {if (m_currentuser->isSecretaire()) ChoixDossier(m_listepatients->getById(UserBureau->getId()));});
                 else
@@ -9081,17 +9079,16 @@ void Rufus::Remplir_SalDat()
                     connect(UserBureau,         &QWidget::customContextMenuRequested,   [=] {MenuContextuelBureaux(UserBureau);});
                     connect(UserBureau,         &UpTextEdit::dblclick,                  [=] {AutreDossier(m_listepatients->getById(UserBureau->getId()));});
                 }
-                html += "<p class=\"p2\">" +  burlist.at(i).at(3).toString() + " " + burlist.at(i).at(4).toString() + "</p>";      //Nom Prenom
+                html += "<p class=\"p2\">" +  m_listepatients->getById(patencours->id())->nom() + " " + m_listepatients->getById(patencours->id())->prenom() + "</p>";      //Nom Prenom
                 QString color = "black";
-                if (burlist.at(i).at(5).toTime().toString("HH:mm") != "")
+                if (patencours->heurerarrivee().isValid())
                 {
-                    QTime heureArriv = burlist.at(i).at(5).toTime();
+                    QTime heureArriv = patencours->heurerarrivee();
                     if (heureArriv.secsTo(QTime::currentTime())/60 < 15)        color = "green";
                     else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)   color = "orange";
                     else                                                        color ="red";
                 }
-                //html += "<p class=\"p2\">" +  Remplirburlist.at(i).at(4).toTime().toString("HH:mm") + "</p>";                                      //heure arrivée
-                html += "<p class=\"p2\"><span style=\"color:" + color + ";\">" +  burlist.at(i).at(5).toTime().toString("HH:mm") + "</span></p>";                                      //heure arrivée
+                html += "<p class=\"p2\"><span style=\"color:" + color + ";\">" +  patencours->heurerarrivee().toString("HH:mm") + "</span></p>";                                      //heure arrivée
             }
             else
                 html += "<p class=\"p2\">ZZzzz...</p>";
@@ -9103,38 +9100,37 @@ void Rufus::Remplir_SalDat()
 
 
     // ACCUEIL ----------------------------------------------------------------------------------------------------------
-    QString PaiementsEnAttenterequete  =    "SELECT saldat.IdPat, PatNom, PatPrenom, UserLogin, ActeCotation,"                      // 0,1,2,3,4
-                                            " ActeMontant, ActeHeure, saldat.idActeAPayer, Message, saldat.idUser,"                 // 5,6,7,8,9
-                                            " UserParent, saldat.motif, PatDDN, rdv.motif, saldat.iduser,"                          // 10, 11, 12, 13, 14
-                                            " UserComptable "                                                                       // 15
-                                            " FROM " TBL_SALLEDATTENTE " AS saldat"
-                                            " INNER JOIN " TBL_PATIENTS " ON " TBL_PATIENTS ".idPat = saldat.idPat "
-                                            " INNER JOIN " TBL_UTILISATEURS " ON " TBL_UTILISATEURS ".idUser = saldat.idUser"
-                                            " INNER JOIN " TBL_ACTES " ON " TBL_ACTES ".idActe = saldat.idActeAPayer"
-                                            " left outer join " TBL_MOTIFSRDV " rdv on saldat.motif = rdv.raccourci "
-                                            " WHERE saldat.Statut = '" RETOURACCUEIL "'"
-                                            " ORDER BY UserLogin, HeureArrivee";
-    //qDebug() << PaiementsEnAttenterequete;
-
     TableAMettreAJour = ui->AccueilupTableWidget;
-    QList<QVariantList> acclist = db->StandardSelectSQL(PaiementsEnAttenterequete, ok , tr("Impossible de remplir la salle d'attente!"));
     TableAMettreAJour->clearContents();
-    TableAMettreAJour->setRowCount(acclist.size());
-    m_listeparentsmodel = new QStandardItemModel;
+    QList<PatientEnCours*> listpatvus;
+    for (QList<PatientEnCours*>::const_iterator itpat =listpat.constBegin(); itpat != listpat.constEnd(); ++itpat)
+    {
+        PatientEnCours *pat = const_cast<PatientEnCours*>(*itpat);
+        //qDebug() << m_listepatients->getById(pat->id())->nom() + " " + m_listepatients->getById(pat->id())->prenom() + " " + pat->statut();
+        if (pat->statut() == RETOURACCUEIL)
+            listpatvus << pat;
+    }
+    TableAMettreAJour   ->setRowCount(listpatvus.size());
+    if (m_listeparentsmodel == Q_NULLPTR)
+        m_listeparentsmodel = new QStandardItemModel();
+    else
+        m_listeparentsmodel->clear();
     QStandardItem       *oitem0, *oitem1;
     QList<int>          listidparents;
-
-    for (i = 0; i < acclist.size(); i++)
+    for (i = 0; i < listpatvus.size(); i++)
     {
+        PatientEnCours *patencours  = listpatvus.at(i);
+        Patient *pat                = m_listepatients->getById(patencours->id());
+        Acte* actapayer             = Datas::I()->actes->getById(patencours->idacteapayer());
         QMap<QString, QVariant> rsgnmt;
-        rsgnmt["idpat"] = acclist.at(i).at(0).toInt();
-        rsgnmt["motif"] = acclist.at(i).at(13).toString();
-        rsgnmt["ddnpat"] = acclist.at(i).at(12).toDate();
-        rsgnmt["idsuperviseur"] = acclist.at(i).at(14).toInt();
-        rsgnmt["loginsuperviseur"] = acclist.at(i).at(3).toString();
-        rsgnmt["urgence"] = (acclist.at(i).at(11).toString()=="URG");
-        rsgnmt["message"] = acclist.at(i).at(8).toString();
-        rsgnmt["idComptable"] = acclist.at(i).at(15).toInt();
+        rsgnmt["idpat"]             = patencours->id();
+        rsgnmt["motif"]             = patencours->motif();
+        rsgnmt["ddnpat"]            = pat->datedenaissance();
+        rsgnmt["idsuperviseur"]     = patencours->iduser();
+        rsgnmt["loginsuperviseur"]  = Datas::I()->users->getById(patencours->iduser())->getLogin();
+        rsgnmt["urgence"]           = (patencours->motif() == "URG");
+        rsgnmt["message"]           = patencours->message();
+        rsgnmt["idComptable"]       = actapayer->idComptable();
 
         UpLabel *label0, *label1, *label2, *label3, *label4, *label5;
         label0 = new UpLabel;
@@ -9160,12 +9156,12 @@ void Rufus::Remplir_SalDat()
 
         QTableWidgetItem *pItem = new QTableWidgetItem;
 
-        label0->setId(acclist.at(i).at(0).toInt());                      // idPat
-        label1->setId(acclist.at(i).at(0).toInt());                      // idPat
-        label2->setId(acclist.at(i).at(0).toInt());                      // idPat
-        label3->setId(acclist.at(i).at(0).toInt());                      // idPat
-        label4->setId(acclist.at(i).at(0).toInt());                      // idPat
-        label5->setId(acclist.at(i).at(0).toInt());                      // idPat
+        label0->setId(patencours->id());                      // idPat
+        label1->setId(patencours->id());                      // idPat
+        label2->setId(patencours->id());                      // idPat
+        label3->setId(patencours->id());                      // idPat
+        label4->setId(patencours->id());                      // idPat
+        label5->setId(patencours->id());                      // idPat
 
         label0->setContextMenuPolicy(Qt::CustomContextMenu);
         label1->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -9174,23 +9170,23 @@ void Rufus::Remplir_SalDat()
         label4->setContextMenuPolicy(Qt::CustomContextMenu);
         label5->setContextMenuPolicy(Qt::CustomContextMenu);
 
-        NomPrenom = acclist.at(i).at(1).toString().toUpper()
-                + " " + acclist.at(i).at(2).toString();
-        zw = acclist.at(i).at(6).toTime().toString("HH:mm");
-        label0->setText(" " + zw);                                                                                // Heure acte
-        label1->setText(" " + NomPrenom);                                                                         // Nom + Prénom
-        QString Soignant  = acclist.at(i).at(3).toString();
-        if (acclist.at(i).at(9).toString() != acclist.at(i).at(10).toString())
-            Soignant +=  " / " + Datas::I()->users->getById(acclist.at(i).at(10).toInt())->getLogin();
-        label2->setText(" " + acclist.at(i).at(3).toString());                                 // Soignant
-        label3->setText(" " + acclist.at(i).at(4).toString());                                 // Cotation
-        label4->setText(QLocale().toString(acclist.at(i).at(5).toDouble(),'f',2) + " ");       // Montant
-        label5->setText(acclist.at(i).at(10).toString());                                      // idParent
+        NomPrenom = pat->nom().toUpper() + " " + pat->prenom();
+        zw = actapayer->heure().toString("HH:mm");
+        int idparent = actapayer->idParent();
+        label0->setText(" " + zw);                                                              // Heure acte
+        label1->setText(" " + NomPrenom);                                                       // Nom + Prénom
+        QString Soignant  = Datas::I()->users->getById(patencours->iduser())->getLogin();
+        if (patencours->iduser() != idparent)
+            Soignant +=  " / " + Datas::I()->users->getById(idparent)->getLogin();
+        label2->setText(" " + Datas::I()->users->getById(patencours->iduser())->getLogin());    // Soignant
+        label3->setText(" " + actapayer->cotation());                                           // Cotation
+        label4->setText(QLocale().toString(actapayer->montant(),'f',2) + " ");                  // Montant
+        label5->setText(QString::number(idparent));                      // Parent
         QString typpaiement = "";
-        if (acclist.at(i).at(5).toDouble() == 0.0)
+        if (actapayer->montant() == 0.0)
             typpaiement = "Gratuit";
         label4->setAlignment(Qt::AlignRight);
-        if (acclist.at(i).at(8).toString()!="")
+        if (patencours->message()!="")
         {
             QString color = "color:green";
             label0->setStyleSheet(color);
@@ -9200,14 +9196,14 @@ void Rufus::Remplir_SalDat()
             label4->setStyleSheet(color);
             label5->setStyleSheet(color);
         }
-        if (!listidparents.contains(acclist.at(i).at(10).toInt()))
+        if (!listidparents.contains(idparent))
         {
-            listidparents           << acclist.at(i).at(10).toInt();
-            oitem0                  = new QStandardItem(acclist.at(i).at(10).toString());
-            oitem1                  = new QStandardItem(Datas::I()->users->getById(acclist.at(i).at(10).toInt())->getLogin());
+            listidparents           << idparent;
+            oitem0                  = new QStandardItem(QString::number(idparent));
+            oitem1                  = new QStandardItem(Datas::I()->users->getById(idparent)->getLogin());
             QList<QStandardItem*>   listitems;
             listitems               << oitem0 << oitem1;
-            m_listeparentsmodel      ->appendRow(listitems);
+            m_listeparentsmodel     ->appendRow(listitems);
         }
 
         connect (label0,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDatPaiemt(label0);});
@@ -9227,7 +9223,7 @@ void Rufus::Remplir_SalDat()
         TableAMettreAJour   ->setCellWidget(i,2,label2);
         TableAMettreAJour   ->setCellWidget(i,3,label3);
         TableAMettreAJour   ->setCellWidget(i,4,label4);
-        pItem               ->setText(acclist.at(i).at(7).toString());
+        pItem               ->setText(QString::number(patencours->idacteapayer()));
         TableAMettreAJour   ->setItem(i,5,pItem);
         TableAMettreAJour   ->setCellWidget(i,6,label5);
         TableAMettreAJour   ->setRowHeight(i,int(fm.height()*1.1));

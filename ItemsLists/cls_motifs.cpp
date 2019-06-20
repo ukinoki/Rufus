@@ -45,6 +45,17 @@ Motif* Motifs::getById(int id)
     return itcpt.value();
 }
 
+Motif* Motifs::getMotifFromRaccourci(QString txt)
+{
+    for (QMap<int, Motif*>::const_iterator itmtf = motifs()->constBegin() ; itmtf != motifs()->constEnd() ; ++itmtf)
+    {
+        Motif *mtf = const_cast<Motif*>(*itmtf);
+        if (mtf->raccourci() == txt)
+            return mtf;
+    }
+    return Q_NULLPTR;
+}
+
 /*!
  * \brief Motifs::initListe
  * Charge l'ensemble des motifs

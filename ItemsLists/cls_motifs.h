@@ -34,6 +34,7 @@ public:
     QMap<int, Motif *> *motifs() const;
 
     Motif* getById(int id);
+    Motif* getMotifFromRaccourci(QString txt);
     void initListe();
 
     //!> actions sur les enregistrements

@@ -23,14 +23,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 /*!
  * \brief Patientencours class
- * l'ensemble des patients présents dans le centre à l'instant: salle d'attente, en cours d'exame, ou en cours de paperasserie post-acte médical à l'accueil
+ * l'ensemble des patients présents dans le centre à l'instant: salle d'attente, en cours d'examen, ou en cours de paperasserie post-acte médical à l'accueil
  */
 
 class PatientEnCours : public Item
 {
 
 private:
-    int m_iduser;
+    int m_iduser;                       //!< le user surperviseur pour lequel le patient consulte
     QString m_statut;
     QTime m_heurestatut;
     QTime m_heurerdv;
@@ -39,7 +39,7 @@ private:
     QString m_message;
     int m_idacteapayer;
     QString m_posteexamen;
-    int m_iduserencoursexam;
+    int m_iduserencoursexam;            //!< le user en train d'examiner le patient
     int m_idsaldat;
 
 public:

@@ -145,7 +145,13 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 QDateTime DataBase::ServerDateTime()
 {
     bool ok;
-    return getFirstRecordFromStandardSelectSQL("select now()",ok).at(0).toDateTime();
+    QVariantList now = getFirstRecordFromStandardSelectSQL("select now()",ok);
+    if (!ok || now.size() == 0)
+        return QDateTime::currentDateTime();
+    else if (!now.at(0).toDateTime().isValid())
+        return QDateTime::currentDateTime();
+    else
+        return now.at(0).toDateTime();
 }
 
 bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
