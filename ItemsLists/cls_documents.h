@@ -48,7 +48,6 @@ public:
 
     QMap<int, MetaDocument *> *metadocuments() const;
 
-    void clearAll();
     MetaDocument* getById(int id);
     void initListe();
 };

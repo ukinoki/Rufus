@@ -61,14 +61,6 @@ void MetaDocuments::addList(QList<MetaDocument*> listMetaDocs)
     }
 }
 
-void MetaDocuments::clearAll()
-{
-    QList<MetaDocument*> listdocs;
-    for( QMap<int, MetaDocument*>::const_iterator itdoc = m_metadocuments->constBegin(); itdoc != m_metadocuments->constEnd(); ++itdoc)
-        delete itdoc.value();
-    m_metadocuments->clear();
-}
-
 MetaDocument* MetaDocuments::getById(int id)
 {
     QMap<int, MetaDocument*>::const_iterator itdoc = m_metadocuments->find(id);
@@ -84,7 +76,7 @@ MetaDocument* MetaDocuments::getById(int id)
  */
 void MetaDocuments::initListe()
 {
-    clearAll();
+    clearAll(m_metadocuments);
     addList(DataBase::I()->loadMetaDocuments());
 }
 

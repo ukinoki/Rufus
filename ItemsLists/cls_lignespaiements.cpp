@@ -63,10 +63,14 @@ void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
     if (act == Q_NULLPTR)
         return;
     DataBase::I()->StandardSQL("DELETE FROM " TBL_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(act->id()));
+    QList<LignePaiement*> listlignesasupprimer = QList<LignePaiement*>();
     for (QMap<QString, LignePaiement*>::const_iterator itlign = m_lignespaiements->constBegin() ; itlign != m_lignespaiements->constEnd(); ++itlign)
     {
         LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
-        remove(m_lignespaiements, lign);
+        listlignesasupprimer << lign;
     }
+    if (listlignesasupprimer.size() > 0)
+        for (int i=0; i<listlignesasupprimer.size(); ++i)
+            remove(m_lignespaiements, listlignesasupprimer.at(i));
 }
 
