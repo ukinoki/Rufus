@@ -121,7 +121,6 @@ private:
     UpLineEdit                      *MGlineEdit;
     UpLineEdit                      *AutresCorresp1LineEdit, *AutresCorresp2LineEdit;
     DataBase                        *db;
-    Flags                           *flags;
     ParametresSysteme               *m_parametres;
     PatientsEnCours                 *m_listepatientsencours = Datas::I()->patientsencours;
     bool                            ok;

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("21-06-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("22-06-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -57,7 +57,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
     }
     db = DataBase::I();
-    flags = Flags::I();
     m_parametres = db->parametres();
     proc->setDirImagerie();                                              //! lit l'emplacement du dossier d'imagerie sur le serveur
 
@@ -183,9 +182,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     if (!UtiliseTCP)
     {
-        m_flagcorrespondants    = flags->flagCorrespondants();
-        m_flagsalledattente     = flags->flagSalleDAttente();
-        m_flagmessages          = flags->flagMessages();
+        m_flagcorrespondants    = Flags::I()->flagCorrespondants();
+        m_flagsalledattente     = Flags::I()->flagSalleDAttente();
+        m_flagmessages          = Flags::I()->flagMessages();
         connect (gTimerSalDat,              &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
         connect (gTimerCorrespondants,      &QTimer::timeout,   this,   &Rufus::VerifCorrespondants);
         connect (gTimerVerifImportateurDocs,&QTimer::timeout,   this,   &Rufus::VerifImportateur);
@@ -355,21 +354,21 @@ void Rufus::Connect_Slots()
     connect (proc,                                                  &Procedures::ConnectTimers,                         this,   [=] {ConnectTimers(proc->Connexion());});
 
     // MAJ Salle d'attente ----------------------------------------------------------------------------------
-    connect(flags,                                                  &Flags::UpdSalleDAttente,                           this,   [=](int a)  {   if (UtiliseTCP)
+    connect(Flags::I(),                                             &Flags::UpdSalleDAttente,                           this,   [=](int a)  {   if (UtiliseTCP)
                                                                                                                                                     envoieMessage(TCPMSG_MAJSalAttente);
                                                                                                                                                 else
                                                                                                                                                     m_flagsalledattente = a;
                                                                                                                                                 Remplir_SalDat();
                                                                                                                                             } );
     // MAJ Correspondants ----------------------------------------------------------------------------------
-    connect(flags,                                                  &Flags::UpdCorrespondants,                          this,   [=](int a)  {   if (UtiliseTCP)
+    connect(Flags::I(),                                             &Flags::UpdCorrespondants,                          this,   [=](int a)  {   if (UtiliseTCP)
                                                                                                                                                     envoieMessage(TCPMSG_MAJCorrespondants);
                                                                                                                                                 else
                                                                                                                                                     m_flagcorrespondants = a;
                                                                                                                                                 ReconstruitCombosCorresp(false);
                                                                                                                                             } );
     // MAJ messages ----------------------------------------------------------------------------------
-    connect(flags,                                                  &Flags::UpdMessages,                                this,   [=](int a)  {   if (!UtiliseTCP)
+    connect(Flags::I(),                                             &Flags::UpdMessages,                                this,   [=](int a)  {   if (!UtiliseTCP)
                                                                                                                                                     m_flagmessages = a;
                                                                                                                                                 ReconstruitListeMessages();
                                                                                                                                             } );
@@ -1199,7 +1198,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
             ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
             ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
         }
-        flags->MAJFlagSalleDAttente();
+        Flags::I()->MAJFlagSalleDAttente();
         ListidActeAPasser << m_currentact->id();
     }
 
@@ -1230,7 +1229,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
             ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT, m_currentuser->id());
             ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
         }
-        flags->MAJFlagSalleDAttente();
+        Flags::I()->MAJFlagSalleDAttente();
     }
     if (m_currentpatient != Q_NULLPTR)
     {
@@ -2803,7 +2802,7 @@ bool Rufus::InscritEnSalDat(Patient *pat)
                                                  "",                                                //! PosteExamen
                                                  0,                                                 //! idUserEnCoursExamen
                                                  0);                                                //! idSalDat
-        flags->MAJFlagSalleDAttente();
+        Flags::I()->MAJFlagSalleDAttente();
         RecaleTableView(pat);
     }
     return true;
@@ -3514,7 +3513,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
     else if (choix == "Retirer" || choix == "Fermer")
     {
         m_listepatientsencours->SupprimePatientEnCours(m_listepatientsencours->getById(m_dossierpatientaouvrir->id()));
-        flags->MAJFlagSalleDAttente();
+        Flags::I()->MAJFlagSalleDAttente();
     }
     else if (choix == "Copie")
         RecopierDossier(m_dossierpatientaouvrir);
@@ -3566,7 +3565,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
             ItemsList::update(pat, CP_HEURERDV_SALDAT, QTime().fromString(llist.at(2), "HH:mm"));
             ItemsList::update(pat, CP_IDUSER_SALDAT, llist.at(3).toInt());
         }
-        flags->MAJFlagSalleDAttente();
+        Flags::I()->MAJFlagSalleDAttente();
     }
 }
 
@@ -3712,7 +3711,7 @@ void Rufus::MetAJourPosteConnecte()
     else
     {
         m_currentposteconnecte = m_listepostesconnectes->CreationPosteConnecte();
-        flags->MAJFlagSalleDAttente();
+        Flags::I()->MAJFlagSalleDAttente();
     }
 
     if (isPosteImport() && proc->isadminpresent() && !UtiliseTCP)
@@ -5438,7 +5437,7 @@ void Rufus::VerifMessages()
 {
     if (!QSystemTrayIcon::isSystemTrayAvailable())
         return;
-    int flagmsg = flags->flagMessages();
+    int flagmsg = Flags::I()->flagMessages();
     if (m_flagmessages < flagmsg)
     {
         ReconstruitListeMessages();
@@ -5448,7 +5447,7 @@ void Rufus::VerifMessages()
 
 void Rufus::VerifSalleDAttente()
 {
-    int flagsaldat = flags->flagSalleDAttente();
+    int flagsaldat = Flags::I()->flagSalleDAttente();
 
     if (m_flagsalledattente < flagsaldat)
     {
@@ -5461,7 +5460,7 @@ void Rufus::VerifCorrespondants()
 {
     if (m_currentpatient == Q_NULLPTR)
         return;
-    int flagcor = flags->flagCorrespondants();
+    int flagcor = Flags::I()->flagCorrespondants();
     if (m_flagcorrespondants < flagcor)
     {
         m_flagcorrespondants = flagcor;
@@ -5540,7 +5539,7 @@ void Rufus::VerifVerrouDossier()
            m_listepostesconnectes->SupprimePosteConnecte(listpostsAEliminer.at(i));
            proc->Message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
        }
-       flags->MAJFlagSalleDAttente();
+       Flags::I()->MAJFlagSalleDAttente();
     }
 
     // on donne le statut "arrivé" aux patients en salle d'attente dont le iduserencourssexam n'est plus present sur ce poste examen dans la liste des users connectes
@@ -6399,7 +6398,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     ui->AtcdtsPersostextEdit->setFocus();
     RecaleTableView(m_currentpatient);
     CalcMotsCles(m_currentpatient);
-    flags->MAJFlagSalleDAttente();
+    Flags::I()->MAJFlagSalleDAttente();
 
     if (m_currentuser->id() > 1) return;
     QString Sexe = "";
@@ -6569,7 +6568,7 @@ bool Rufus::AutorSortieAppli()
         {
             FermeDlgActesPrecedentsEtDocsExternes();
             ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
-            flags->MAJFlagSalleDAttente();
+            Flags::I()->MAJFlagSalleDAttente();
         }
         else
             return false;
@@ -6628,7 +6627,7 @@ bool Rufus::AutorSortieAppli()
     }
     // on retire cet utilisateur de la table des utilisateurs connectés
     m_listepostesconnectes->SupprimePosteConnecte(m_currentposteconnecte);
-    flags->MAJFlagSalleDAttente();
+    Flags::I()->MAJFlagSalleDAttente();
     if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::getIpAdress())
         proc->setPosteImportDocs(false);
 
@@ -7446,7 +7445,7 @@ bool Rufus::FermeDossier(Patient *patient)
         m_currentpatient = Q_NULLPTR;
         m_currentact = Q_NULLPTR;
     }
-    flags->MAJFlagSalleDAttente();
+    Flags::I()->MAJFlagSalleDAttente();
     return a;
 }
 
@@ -7495,7 +7494,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
                 QMap<QString,QVariant>  NewAge = Utils::CalculAge(m_currentpatient->datedenaissance(), ui->ActeDatedateEdit->date());
                 ui->AgelineEdit->setText(NewAge["toString"].toString());
             }
-            flags->MAJFlagSalleDAttente();
+            Flags::I()->MAJFlagSalleDAttente();
             delete Dlg_IdentPatient;
             return true;
         }
@@ -9619,7 +9618,7 @@ void Rufus::SupprimerDossier(Patient *pat)
     m_listepaiements->clearAll(m_listepaiements->lignespaiements());
     m_currentpatient = Q_NULLPTR;
     FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
-    flags->MAJFlagSalleDAttente();
+    Flags::I()->MAJFlagSalleDAttente();
     ModeSelectDepuisListe();
 
     //!. Fermeture de la fiche dlg_actesprecedents
@@ -10083,7 +10082,7 @@ void Rufus::envoieMessage(QString msg)
 
 void Rufus::envoieMessageA(QList<int> listidusr)
 {
-    flags->MAJflagMessages();
+    Flags::I()->MAJflagMessages();
     if (!UtiliseTCP)
         return;
     QString listid;

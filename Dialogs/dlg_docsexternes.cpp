@@ -134,7 +134,12 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurr
     connect (SupprButton,                   &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
     connect (AllDocsupCheckBox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(AllDocsupCheckBox);});
     connect (OnlyImportantDocsupCheckBox,   &QCheckBox::toggled,            this,   [=] {FiltrerListe(OnlyImportantDocsupCheckBox);});
-    connect (playctrl,                      &PlayerControls::ctrl,          this,   [=] {PlayerCtrl(playctrl->State());});
+    connect (playctrl,                      &PlayerControls::ctrl,          this,   [=] (PlayerControls::State  state) {    switch (state){
+                                                                                                                                case PlayerControls::Stop:  player->stop();     break;
+                                                                                                                                case PlayerControls::Pause: player->pause();    break;
+                                                                                                                                case PlayerControls::Play:  player->play();
+                                                                                                                                }
+                                                                                                                        });
     connect (proc,                          &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
     connect (PrintButton,                   &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
 
@@ -406,7 +411,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         x = videoItem->size().width();
         y = videoItem->size().height();
         Scene->setSceneRect(1,1,x-1,y-1);
-        player                  ->play();
+        playctrl                ->startplay();
     }
     else                                    // le document est une image ou un document écrit (ordonnance, certificat...)
     {
@@ -1132,23 +1137,6 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     Line->setMaxLength(60);
     dlg->exec();
     delete dlg;
-}
-
-void dlg_docsexternes::PlayerCtrl(int ctrl)
-{
-    switch (ctrl){
-    case 0: player->stop();     break;
-    case 1: player->pause();    break;
-    case 2:
-        player     ->setVideoOutput(videoItem);
-        player->play();
-        break;
-    case 3:
-        player  ->stop();
-        player  ->setVideoOutput(videoItem);
-        player  ->play();
-        break;
-    }
 }
 
 void dlg_docsexternes::Print(QPrinter *Imprimante)

@@ -110,7 +110,6 @@ private:
     bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin);
     void                    ModifierDate(QModelIndex idx);
     void                    ModifierItem(QModelIndex idx);
-    void                    PlayerCtrl(int);
     void                    Print(QPrinter*);
 
     bool                    ReImprimeDoc(DocExterne *docmt);
