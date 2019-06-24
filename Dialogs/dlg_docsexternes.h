@@ -49,6 +49,7 @@ private:
     DocExterne              *docencours;
     DataBase                *db;
     Patient                 *m_currentpatient;
+    User                    *m_currentuser;
     bool                    conservealafin;
 
     QGraphicsScene          *Scene;
@@ -89,14 +90,12 @@ private:
 
     bool                    eventFilter(QObject *, QEvent *);
 
-    int                     ActualiseDocsExternes();
+    void                    ActualiseDocsExternes();
     void                    AfficheCustomMenu(DocExterne *docmt);
     void                    AfficheDoc(QModelIndex idx);
     void                    BasculeTriListe(int);
-    QMap<QString,QVariant>  CalcImage(int idimpression, bool imagerie, bool afficher = true);
 
     QString                 CalcTitre(DocExterne *docmt);
-    int                     CompteNbreDocs();
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
     void                    EnregistreImage(DocExterne* docmt);
     void                    EnregistreVideo();

@@ -63,8 +63,8 @@ Depense* Depenses::getById(int id)
 
 /*!
  * \brief Depenseses::initListeByUser
- * Charge l'ensemble des cotations pour le user
- * et les ajoute à la classe Correspondants
+ * Charge l'ensemble des depenses pour le user
+ * et les ajoute à la classe Depenses
  */
 void Depenses::initListeByUser(int iduser)
 {

@@ -1,6 +1,7 @@
 #ifndef CLS_ITEMSLIST_H
 #define CLS_ITEMSLIST_H
 
+#include <QMapIterator>
 #include "QObject"
 #include "cls_acte.h"
 #include "cls_docexterne.h"

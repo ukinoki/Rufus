@@ -19,8 +19,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 DocsExternes::DocsExternes(QObject *parent) : ItemsList(parent)
 {
-    m_docsexternes = new QMap<int, DocExterne*>();
-    m_nouveaudocument = false;
+    m_docsexternes      = new QMap<int, DocExterne*>();
+    m_nouveaudocument   = false;
+    m_patient           = Q_NULLPTR;
 }
 
 QMap<int, DocExterne *> *DocsExternes::docsexternes()
@@ -92,10 +93,16 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
  */
 void DocsExternes::initListeByPatient(Patient *pat)
 {
+    m_patient = pat;
     clearAll(m_docsexternes);
     addList(DataBase::I()->loadDoscExternesByPatient(pat));
 }
 
+void DocsExternes::actualise()
+{
+    m_nouveaudocument = false;
+    addList(DataBase::I()->loadDoscExternesByPatient(m_patient));
+}
 
 void DocsExternes::SupprimeDocument(DocExterne *doc)
 {

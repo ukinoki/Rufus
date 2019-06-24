@@ -43,12 +43,16 @@ QString DocExterne::lienversfichier() const         { return m_lienversfichier;}
 bool DocExterne::isALD() const                      { return m_ald==1;}
 int DocExterne::useremetteur() const                { return m_useremetteur;}
 QString DocExterne::format() const                  { return m_formatdoc;}
+QByteArray DocExterne::imageblob() const            { return m_blob;}
+QString DocExterne::imageformat() const             { return m_formatimage;}
 
 int DocExterne::importance() const                  { return m_importance;}
 
 void DocExterne::setDate(QDateTime date)            { m_dateimpression = date;}
 void DocExterne::setimportance(int imptce)          { m_importance = imptce;}
 void DocExterne::setAllLoaded(bool AllLoaded)       { m_isAllLoaded = AllLoaded;}
+void DocExterne::setimageblob(QByteArray blob)      { m_blob = blob; }
+void DocExterne::setimageformat(QString format)     { m_formatimage = format; }
 
 void DocExterne::setData(QJsonObject data)
 {

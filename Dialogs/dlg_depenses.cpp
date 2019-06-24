@@ -37,8 +37,10 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     int index = 0;
     bool foundUser = false;
     int currentIdUser = db->getUserConnected()->id(); //Utilisateur connecte
-    for( QMap<int, User*>::const_iterator itUser = m_listUserLiberaux->constBegin(); itUser != m_listUserLiberaux->constEnd(); ++itUser )
+    QMapIterator<int, User*> itUser (*m_listUserLiberaux);
+    while (itUser.hasNext())
     {
+        itUser.next();
         User *user = const_cast<User*>(itUser.value());
         ui->UserscomboBox->addItem(user->getLogin(), QString::number(user->id()) );
         if( !foundUser )
@@ -893,19 +895,10 @@ void dlg_depenses::AfficheFacture(Depense *dep)
         else
         {
             QMap<QString,QVariant> doc;
-            if (m_depenseencours->pdfoujpgfacture() == "" && m_depenseencours->imgfacture() == QByteArray())
-            {
-                doc = proc->CalcImage(dep->id(), FACTURE, true, true);
-                m_depenseencours->setpdfoujpgfacture(doc["type"].toString());
-                m_depenseencours->setimgfacture(doc["ba"].toByteArray());
-            }
-            else
-            {
-                doc["type"] = m_depenseencours->pdfoujpgfacture();
-                doc["ba"]   = m_depenseencours->imgfacture();
-            }
-            if (doc["type"].toString() == "" || doc["ba"].toByteArray() == QByteArray())
-                UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible"));
+            if (m_depenseencours->factureformat() == "" && m_depenseencours->factureblob() == QByteArray())
+                proc->CalcImage(dep, true, true);
+            doc.insert("ba", m_depenseencours->factureblob());
+            doc.insert("type", m_depenseencours->factureformat());
             glistImg =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
         }
     }
@@ -944,7 +937,10 @@ void dlg_depenses::ZoomDoc()
 {
     disconnect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
     connect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
-    QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
+    QMap<QString,QVariant> doc;
+    doc.insert("ba", m_depenseencours->factureblob());
+    doc.insert("type", m_depenseencours->factureformat());
+    proc->CalcImage(m_depenseencours, true, true);
     proc->EditDocument(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
                     (m_depenseencours->isecheancier()? tr("Echéancier") : tr("Facture")),
@@ -1025,8 +1021,8 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     dep->setidfacture(0);
     dep->setlienfacture("");
     dep->setecheancier(false);
-    dep->setpdfoujpgfacture("");
-    dep->setimgfacture(QByteArray());
+    dep->setfactureformat("");
+    dep->setfactureblob(QByteArray());
     SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
 }
 
@@ -1532,10 +1528,11 @@ void dlg_depenses::ReconstruitListeAnnees()
 {
     ui->AnneecomboBox->disconnect();
     QStringList ListeAnnees;
-
-    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->depenses()->constBegin(); itDepense != Datas::I()->depenses->depenses()->constEnd(); ++itDepense )
+    QMapIterator<int, Depense*> itdep (*Datas::I()->depenses->depenses());
+    while (itdep.hasNext())
     {
-        Depense *dep = const_cast<Depense*>(itDepense.value());
+        itdep.next();
+        Depense *dep = const_cast<Depense*>(itdep.value());
         if (!ListeAnnees.contains(QString::number(dep->annee())))
             ListeAnnees << QString::number(dep->annee());
     }
@@ -1577,9 +1574,11 @@ void dlg_depenses::RemplitBigTable()
     gBigTable->setRowCount(0);
     QList<Depense*> listDepenses;
 
-    for( QMap<int, Depense*>::const_iterator itDepense = Datas::I()->depenses->depenses()->constBegin(); itDepense != Datas::I()->depenses->depenses()->constEnd(); ++itDepense )
+    QMapIterator<int, Depense*> it(*Datas::I()->depenses->depenses());
+    while (it.hasNext())
     {
-        Depense *dep = const_cast<Depense*>(itDepense.value());
+        it.next();
+        Depense *dep = const_cast<Depense*>(it.value());
         if (dep->annee() == ui->AnneecomboBox->currentText().toInt())
             listDepenses << dep;
     }
@@ -1686,9 +1685,10 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                     ui->FactureupPushButton     ->setVisible(false);
                     ui->EcheancierupPushButton  ->setVisible(false);
                     ui->VisuDocupTableWidget    ->setVisible(true);
-                    QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
-                    m_depenseencours->setpdfoujpgfacture(doc["type"].toString());
-                    m_depenseencours->setimgfacture(doc["ba"].toByteArray());
+                    proc->CalcImage(m_depenseencours, true, true);
+                    QMap<QString,QVariant> doc;
+                    doc.insert("ba", m_depenseencours->factureblob());
+                    doc.insert("type", m_depenseencours->factureformat());
                     glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
                     SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
                     return;
@@ -1702,7 +1702,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
     if (Dlg_DocsScan->exec() > 0)
     {
         QMap<QString, QVariant> map = Dlg_DocsScan->getdataFacture();
-        int idfact = map["idfacture"].toInt();
+        int idfact = map.value("idfacture").toInt();
         if (idfact>-1)
         {
             QString req = "update " TBL_DEPENSES " set idFacture = " + QString::number(idfact) + " where idDep = " + QString::number(m_depenseencours->id());
@@ -1715,9 +1715,10 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
             ui->FactureupPushButton     ->setVisible(false);
             ui->EcheancierupPushButton  ->setVisible(false);
             ui->VisuDocupTableWidget    ->setVisible(true);
-            QMap<QString,QVariant> doc = proc->CalcImage(m_depenseencours->id(), FACTURE, true, true);
-            m_depenseencours->setpdfoujpgfacture(doc["type"].toString());
-            m_depenseencours->setimgfacture(doc["ba"].toByteArray());
+            proc->CalcImage(m_depenseencours, true, true);
+            QMap<QString,QVariant> doc;
+            doc.insert("ba", m_depenseencours->factureblob());
+            doc.insert("type", m_depenseencours->factureformat());
             glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
             SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
         }

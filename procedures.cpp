@@ -1279,21 +1279,29 @@ void Procedures::Imprimer_Etat(QWidget *Formu, QPlainTextEdit *Etat)
     #endif
 }
 
-QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher)
+void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
 {
-    /* Cette fonction sert à stocker dans un QByteArray le contenu des documents d'imagerie ou des courriers émis par le logiciel pour pouvoir les afficher
-     * la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
-     *      pour afficher un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
-     *      pour afficher un document d'imagerie stocké directement dans la base, dans la table impressions - on va extraire le ByteArray directement de la base, de la table impressions
-     * la fonction est applée par ImprimeDoc() - on utilise la table echangeimages
+    /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
+     *  pour pouvoir les afficher ou les imprimer
+
+   * \param afficher = true -> la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
+     *      imagerie = false -> Le document est un document texte (ordo, certificat...etc).
+     *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
+     *                          Ces champs vont être utilisés pour l'impression vers un fichier pdf.
+     *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
+     *      imagerie = true ->  le document est un document d'imagerie stocké sur un fichier. On va le transférer dans la table echangeimages et le transformer en bytearray
+
+   * \param afficher = false -> la fonction est applée par ImprimeDoc() - on utilise la table echangeimages
      *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
      *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base de la table echangeimages
-     * la fonction renvoie un QMap<QString,QVariant> result
-     * result["type"] est un QString qui donne le type de document, jpg ou pdf
-     * result["ba"] est un QByteArray qui stocke le contenu du fichier
+     * La fonction est aussi appelée par la table dépenses pour afficher les factures
     */
-    DocExterne *docmt = Q_NULLPTR;
+    DocExterne *docmt = dynamic_cast<DocExterne*>(item);
     Depense *dep = Q_NULLPTR;
+    if (docmt == Q_NULLPTR)
+        dep = dynamic_cast<Depense*>(item);
+    if (docmt == Q_NULLPTR && dep == Q_NULLPTR)
+        return;
     QString iditem;
     QString date ("");
     QString sstitre;
@@ -1303,37 +1311,31 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
     QString objet ("");
     QString filename = "";
 
-    if (typedoc != FACTURE)
+    if (docmt != Q_NULLPTR)
     {
-        docmt = Datas::I()->docsexternes->getById(idimpression);
-        iditem = QString::number(idimpression);
+        iditem = QString::number(docmt->id());
         date = docmt->date().toString(tr("d-M-yyyy"));
         typedocmt = docmt->typedoc();
         soustypedocmt = docmt->soustypedoc();
         filename = docmt->lienversfichier();
     }
-    else
+    else if (dep != Q_NULLPTR)
     {
-        dep = Datas::I()->depenses->getById(idimpression);
         iditem = QString::number(dep->idfacture());
         date = dep->date().toString(tr("d-M-yyyy"));
         objet = dep->objet();
         filename = dep->lienfacture();
     }
-    QMap<QString,QVariant> result;
     QByteArray ba;
     QLabel inflabel;
-    result["type"]    = "";
-    result["ba"]      = QByteArray("");
-    result["lien"]    = "";
-    if (imagerie)                                                  // il s'agit d'un fichier image
+    if (imagerie)                                           //!> il s'agit d'un fichier image
     {
-        if (afficher)                               // si on veut afficher une image, on la charge dans une table SQL
-                                                    // pour pouvoir véhiculer son contenu dans le tunnel SQL et profiter du crypatge en cas d'accès distant
+        if (afficher)                                       //! si on veut afficher une image, on la charge dans une table SQL
+                                                            //! pour pouvoir véhiculer son contenu dans le tunnel SQL et profiter du cryptage en cas d'accès distant
         {
-            if (typedoc != FACTURE)
+            if (docmt != Q_NULLPTR)
                 sstitre = "<font color='magenta'>" + date + " - " + typedocmt + " - " + soustypedocmt + "</font>";
-            else
+            else if (dep != Q_NULLPTR)
                 sstitre = "<font color='magenta'>" + date + " - " + objet + "</font>";
             inflabel   .setText(sstitre);
             if (filename != "")
@@ -1345,30 +1347,27 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                     filesufx        = lst.at(lst.size()-1);
                 }
                 QString sfx = (filesufx == PDF? PDF : JPG);
-                if (typedoc != FACTURE)
+                if (docmt != Q_NULLPTR)
                     imgs = "select idimpression from " TBL_ECHANGEIMAGES " where idimpression = " + iditem + " and (pdf is not null or jpg is not null)";
                 else
                     imgs = "select idfacture from " TBL_FACTURES " where idfacture = " + iditem + " and (pdf is not null or jpg is not null)";
                 //qDebug() << imgs;
                 QList<QVariantList> listid = db->StandardSelectSQL(imgs, ok);
                 if (!ok)
-                    UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'accéder à la table ") + (typedoc != FACTURE? TBL_ECHANGEIMAGES : TBL_FACTURES));
+                    UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'accéder à la table ") + (docmt != Q_NULLPTR? TBL_ECHANGEIMAGES : TBL_FACTURES));
                 if (listid.size()==0)
                 {
-                    if (typedoc != FACTURE)
+                    if (docmt != Q_NULLPTR)
                     {
-                        if (docmt != Q_NULLPTR)
-                        {
-                            db->StandardSQL("delete from " TBL_ECHANGEIMAGES
-                                            " where idimpression = " + iditem +
-                                            " and facture is null");
-                            QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression)"
-                                          " VALUES (" +
-                                          iditem + ", " +
-                                          " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
-                                          QString::number(docmt->compression()) + ")";
-                            db->StandardSQL(req);
-                        }
+                        db->StandardSQL("delete from " TBL_ECHANGEIMAGES
+                                        " where idimpression = " + iditem +
+                                        " and facture is null");
+                        QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression)"
+                                                                                                  " VALUES (" +
+                                iditem + ", " +
+                                " LOAD_FILE('" + Utils::correctquoteSQL(DirImagerieServeur() + DIR_IMAGES + Utils::correctquoteSQL(filename)) + "'), " +
+                                QString::number(docmt->compression()) + ")";
+                        db->StandardSQL(req);
                     }
                     else
                     {
@@ -1385,23 +1384,19 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                 }
             }
         }
-        // On charge ensuite le contenu des champs longblob des tables concernées en mémoire pour les afficher
+        //! On charge ensuite le contenu des champs longblob des tables concernées en mémoire pour les afficher
         QList<QVariantList> listimpr;
-        if (typedoc != FACTURE)
+        if (docmt != Q_NULLPTR)
         {
             listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_ECHANGEIMAGES " where idimpression = " + iditem + " and facture is null"
                                                                   , ok
                                                                   , tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
             if (!ok)
-            {
-                return result;
-            }
+                return;
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans impressions
-            {
                 listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_IMPRESSIONS " where idimpression = " + iditem
                                                                       , ok
                                                                       , tr("Impossible d'accéder à la table ") + TBL_IMPRESSIONS);
-            }
         }
         else
         {
@@ -1409,44 +1404,46 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
                                                                   , ok
                                                                   , tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
             if (!ok)
-            {
-                return result;
-            }
+                return;
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans factures
-            {
                 listimpr = db->StandardSelectSQL("select pdf, jpg  from " TBL_FACTURES " where idfacture = " + iditem
                                                                       , ok
                                                                       , tr("Impossible d'accéder à la table ") + TBL_FACTURES);
-            }
         }
 
         if (listimpr.size()==0)
-        {
-            return result;
-        }
+            return;
         QVariantList impr = listimpr.at(0);
-        if (impr.at(0).toByteArray().size()>0)            // c'est le champ SQL pdf de la requête qui est exploré et s'il n'est pas vide, c'est un pdf
+        if (impr.at(0).toByteArray().size()>0)            //! le champ SQL pdf de la requête qui est exploré et s'il n'est pas vide, c'est un pdf
         {
-            if (typedoc != FACTURE)
+            if (docmt != Q_NULLPTR)
             {
                 if (impr.at(2).toString()=="1")
                     ba.append(qUncompress(impr.at(0).toByteArray()));
                 else
                     ba.append(impr.at(0).toByteArray());
+                docmt->setimageformat(PDF);
             }
             else
+            {
                 ba.append(impr.at(0).toByteArray());
-            result["type"]    = PDF;
-        }
-        else if (impr.at(1).toByteArray().size()>0)       // c'est le champ SQL jpg de la requête qui est exploré et s'il n'est pas vide, c'est un jpg
+                dep->setfactureformat(PDF);
+            }
+         }
+        else if (impr.at(1).toByteArray().size()>0)       //! le champ SQL jpg de la requête qui est exploré et s'il n'est pas vide, c'est un jpg
         {
             ba.append(impr.at(1).toByteArray());
-            result["type"]    = JPG;
+            if (docmt != Q_NULLPTR)
+                docmt->setimageformat(JPG);
+            else
+                dep->setfactureformat(JPG);
         }
-        result["ba"]      = ba;
-        result["lien"]    = filename;
+        if (docmt != Q_NULLPTR)
+            docmt->setimageblob(ba);
+        else
+            dep->setfactureblob(ba);
     }
-    else                                                  // il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
+    else                                                    //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
     {
         inflabel    .setText("");
         QByteArray ba;
@@ -1472,10 +1469,9 @@ QMap<QString,QVariant> Procedures::CalcImage(int idimpression, QString typedoc, 
             UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
         ba = filepdf.readAll();
         filepdf.close ();
-        result["type"]    = PDF;
-        result["ba"]      = ba;
+        docmt->setimageformat(PDF);
+        docmt->setimageblob(ba);
     }
-    return result;
 }
 
 QString Procedures::Edit(QString txt, QString titre, bool editable, bool ConnectAuSignal)

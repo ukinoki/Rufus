@@ -27,6 +27,7 @@ class DocsExternes : public ItemsList
 private:
     QMap<int, DocExterne*> *m_docsexternes = Q_NULLPTR; //!< la liste des DocExternes pour un patient donné
     bool m_nouveaudocument;
+    Patient *m_patient;
 
 public:
     explicit                    DocsExternes(QObject *parent = Q_NULLPTR);
@@ -34,6 +35,7 @@ public:
     DocExterne*                 getById(int id, Item::LOADDETAILS loadDetails = Item::LoadDetails, ItemsList::ADDTOLIST addToList = ItemsList::AddToList);
     void                        addList(QList<DocExterne*> listdocs);
     void                        initListeByPatient(Patient *pat);
+    void                        actualise();
 
     bool                        NouveauDocument();
     void                        setNouveauDocumentFalse();

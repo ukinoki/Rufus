@@ -90,7 +90,7 @@ public:
 
     void                    ab(int i = 1);
 
-    QMap<QString,QVariant>  CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher = true);
+    void                    CalcImage(Item *item, bool imagerie, bool afficher = true);
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);

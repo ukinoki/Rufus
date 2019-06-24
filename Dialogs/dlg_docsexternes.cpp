@@ -24,7 +24,8 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurr
 {
     proc                = Procedures::I();
     db                  = DataBase::I();
-    m_currentpatient     = pat;
+    m_currentpatient    = pat;
+    m_currentuser       = Datas::I()->users->userconnected();
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
@@ -185,7 +186,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         paction_ImportantNorm->setIcon(icon);
     else if (imptce == 2)
         paction_ImportantMax->setIcon(icon);
-    if (db->getUserConnected()->isMedecin())
+    if (m_currentuser->isMedecin())
     {
         menu->addAction(paction_ImportantMin);
         menu->addAction(paction_ImportantNorm);
@@ -218,7 +219,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, false, false);});
 
         // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
-        if (db->getUserConnected()->isMedecin()
+        if (m_currentuser->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
         {   // si le document a été émis aujourd'hui, on propose de le modifier - dans ce cas, on va créer une copie qu'on va modifier et on détruira le document d'origine à la fin
             if (QDate::currentDate() == docmt->date().date())
@@ -235,7 +236,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 #endif
     QAction *paction_Poubelle   = new QAction(Icons::icPoubelle(), tr("Supprimer"));
     connect (paction_Poubelle,  &QAction::triggered,    this,  [=] {SupprimeDoc(docmt);});
-    if (db->getUserConnected()->isMedecin())
+    if (m_currentuser->isMedecin())
         menu->addAction(paction_Poubelle);
 
     menu->exec(cursor().pos());
@@ -324,8 +325,11 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
         modifieitem(item, docmt, imp, gFont);
     ItemsList::update(docmt, CP_IMPORTANCE_IMPRESSIONS, imp);
     int nimportants = 0;
-    for(QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->constBegin(); itdoc != m_docsexternes->docsexternes()->constEnd(); ++itdoc )
+
+    QMapIterator<int, DocExterne*> itdoc (*m_docsexternes->docsexternes());
+    while (itdoc.hasNext())
     {
+        itdoc.next();
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
         if (doc->importance() == 2)
         {
@@ -416,16 +420,16 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     else                                    // le document est une image ou un document écrit (ordonnance, certificat...)
     {
         bool pict = (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU);
-        QMap<QString,QVariant> doc = CalcImage(docmt->id(), pict, true);
-        QByteArray bapdf = doc.value("ba").toByteArray();
+        if (docmt->imageformat() == QByteArray())
+            proc->CalcImage(docmt, pict, true);
         connect (RecordButton,  &QPushButton::clicked,   this,  [=] {EnregistreImage(docmt);});
-        if (doc.value("Type").toString() == JPG)     // le document est un JPG
+        if (docmt->imageformat() == JPG)     // le document est un JPG
         {
             inflabel->setParent(GraphicView);
             gTypeDoc                = JPG;
             GraphicView             ->setVisible(true);
             QImage image;
-            if (!image.loadFromData(bapdf))
+            if (!image.loadFromData(docmt->imageblob()))
             {
                 UpMessageBox::Watch(this,tr("Impossible de charger le document"));
                 return;
@@ -444,9 +448,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             y = pix.size().height();
             Scene   ->setSceneRect(1,1,x-1,y-1);
         }
-        else if (doc.value("Type").toString() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
+        else if (docmt->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
         {
-            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
+            Poppler::Document* document = Poppler::Document::loadFromData(docmt->imageblob());
             if (!document || document->isLocked()) {
                 UpMessageBox::Watch(this,tr("Impossible de charger le document"));
                 delete document;
@@ -612,15 +616,14 @@ void dlg_docsexternes::BasculeTriListe(int a)
     });
 }
 
-int dlg_docsexternes::ActualiseDocsExternes()
+void dlg_docsexternes::ActualiseDocsExternes()
 {
-    m_docsexternes->addList(db->loadDoscExternesByPatient(m_currentpatient));
+    m_docsexternes->actualise();
     if (m_docsexternes->NouveauDocument())
     {
         m_docsexternes->setNouveauDocumentFalse();
         RemplirTreeView();
     }
-    return m_docsexternes->docsexternes()->size();
 }
 
 void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
@@ -670,135 +673,6 @@ void dlg_docsexternes::FiltrerListe(UpCheckBox *chk)
     RemplirTreeView();                              // après FiltrerListe()
 }
 
-QMap<QString,QVariant> dlg_docsexternes::CalcImage(int idimpression, bool imagerie, bool afficher)
-{
-    /* Cette fonction sert à stocker dans un QByteArray le contenu des documents d'imagerie ou des courriers émis par le logiciel pour pouvoir les afficher
-
-   * la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
-     *      imagerie = false -> Le document est un document texte (ordo, certificat...etc).
-     *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
-     *                          Ces champs vont être utilisés pour l'impression vers un fichier pdf.
-     *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
-     *      imagerie = true ->  le document est un document d'imagerie stocké sur un fichier. On va le transférer dans la table echangeimages et le transformer en bytearray
-
-   * la fonction est applée par ImprimeDoc() - on utilise la table echangeimages
-     *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
-     *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base de la table echangeimages
-     * la fonction renvoie un QMap<QString,QVariant> result
-     * result["Type"] est un QString qui donne le type de document, jpg ou pdf
-     * result["ba"] est un QByteArray qui stocke le contenu du fichier
-     * result["lien"] est le lien vers le fichier sur le disque dur du serveur
-    */
-    DocExterne *docmt = m_docsexternes->getById(idimpression);
-    QMap<QString,QVariant> result;
-    QString idimpr = QString::number(idimpression);
-    QString filename = "";
-    QByteArray bapdf;
-    result["Type"]    = "";
-    result["ba"]      = QByteArray("");
-    result["lien"]    = "";
-    if (imagerie)
-    {
-        if (afficher)
-        {
-            QString sstitre = "<font color='magenta'>" + docmt->date().toString(tr("d-M-yyyy")) + " - " + docmt->typedoc() + " - " + docmt->soustypedoc() + "</font>";
-            inflabel    ->setText(sstitre);
-            filename = docmt->lienversfichier();
-            if (filename != "")
-            {
-                QString filesufx;
-                if (filename.contains("."))
-                {
-                    QStringList lst = filename.split(".");
-                    filesufx        = lst.at(lst.size()-1);
-                }
-                QString sfx = (filesufx == PDF? PDF : JPG);
-                QString req = "delete from " TBL_ECHANGEIMAGES " where idimpression = " + idimpr + " and Facture is null";
-                db->StandardSQL(req);
-                req = "INSERT INTO " TBL_ECHANGEIMAGES " (idimpression, " + sfx + ", compression) "
-                               "VALUES (" +
-                               idimpr + ", " +
-                               " LOAD_FILE('" + Utils::correctquoteSQL(proc->DirImagerieServeur() + DIR_IMAGES + filename) + "'), " +
-                               QString::number(docmt->compression()) + ")";
-                 db->StandardSQL(req);
-            }
-        }
-        bool ok = false;
-        QList<QVariantList> listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_ECHANGEIMAGES " where idimpression = " + idimpr
-                                                                , ok
-                                                                , tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
-        if (!ok)
-            return result;
-        if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans impressions
-        {
-            listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_IMPRESSIONS " where idimpression = " + idimpr
-                                             , ok
-                                             , tr("Impossible d'accéder à la table ") + TBL_IMPRESSIONS);
-        }
-        if (listimpr.size()==0)
-            return result;
-        QVariantList impr = listimpr.at(0);
-        if (impr.at(0).toByteArray().size()>0)                                                 // c'est un pdf
-        {
-            if (impr.at(2).toString()=="1")
-                bapdf.append(qUncompress(impr.at(0).toByteArray()));
-            else
-                bapdf.append(impr.at(0).toByteArray());
-            result["Type"]    = PDF;
-            result["ba"]      = bapdf;
-            result["lien"]    = filename;
-        }
-        else if (impr.at(1).toByteArray().size()>0)                                            // c'est un jpg
-        {
-            bapdf.append(impr.at(1).toByteArray());
-            result["Type"]    = JPG;
-            result["ba"]      = bapdf;
-            result["lien"]    = filename;
-        }
-    }
-    else                                                                                                    // il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
-    {
-        inflabel    ->setText("");
-        QByteArray bapdf;
-        QString Entete  = docmt->textentete();
-        QString Corps   = docmt->textcorps();
-        QString Pied    = docmt->textpied();
-        QTextEdit   *Etat_textEdit = new QTextEdit;
-        Etat_textEdit->setHtml(Corps);
-        TextPrinter *TexteAImprimer = new TextPrinter();
-        if (docmt->format() == PRESCRIPTIONLUNETTES)
-            TexteAImprimer->setFooterSize(proc->TaillePieddePageOrdoLunettes());
-        else
-            TexteAImprimer->setFooterSize(proc->TaillePieddePage());
-        TexteAImprimer->setHeaderText(Entete);
-        int TailleEnTete = proc->TailleEnTete();
-        if (docmt->isALD()) TailleEnTete = proc->TailleEnTeteALD();
-        TexteAImprimer->setHeaderSize(TailleEnTete);
-        TexteAImprimer->setFooterText(Pied);
-        TexteAImprimer->setTopMargin(proc->TailleTopMarge());
-        QString ficpdf = QDir::homePath() + FILE_PDF;
-        TexteAImprimer->print(Etat_textEdit->document(), ficpdf, "", false, true);
-        // le paramètre true de la fonction print() génère la création du fichier pdf FILE_PDF et pas son impression
-        QFile filepdf(ficpdf);
-        if (!filepdf.open( QIODevice::ReadOnly ))
-            UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + ficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
-        bapdf = filepdf.readAll();
-        filepdf.close ();
-        result["Type"]    = PDF;
-        result["ba"]      = bapdf;
-        result["lien"]    = "";
-    }
-    return result;
-}
-
-int dlg_docsexternes::CompteNbreDocs()
-{
-    bool ok = true;
-    QList<QVariantList> list = db->StandardSelectSQL("Select idImpression from " TBL_IMPRESSIONS " where idpat = " + QString::number(m_currentpatient->id()), ok);
-    if (!ok) return 0;
-    return list.size();
-}
-
 DocExterne* dlg_docsexternes::getDocumentFromIndex(QModelIndex idx)
 {
     QStandardItem *it = gmodele->itemFromIndex(idx);
@@ -846,7 +720,7 @@ void dlg_docsexternes::ImprimeDoc()
         msgbox.setIcon(UpMessageBox::Print);
 
         msgbox.addButton(&AnnulBouton,UpSmallButton::CANCELBUTTON);
-        if (db->getUserConnected()->isMedecin()
+        if (m_currentuser->isMedecin()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))   // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
         {
             if (QDate::currentDate() == docmt->date().date())           // si le document a été émis aujourd'hui, on propose de le modifier
@@ -951,9 +825,9 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_TEXTPIED_IMPRESSIONS]      = Pied;
         listbinds[CP_DATE_IMPRESSIONS]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
         listbinds[CP_FORMATDOC_IMPRESSIONS]     = docmt->format();
-        listbinds[CP_IDLIEU_IMPRESSIONS]        = db->getUserConnected()->getSite()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->getSite()->id();
         listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1" : QVariant(QVariant::String));
-        listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = db->getUserConnected()->id();
+        listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = m_currentuser->id();
         listbinds[CP_IMPORTANCE_IMPRESSIONS]    = docmt->importance();
         DocExterne * doc = m_docsexternes->CreationDocument(listbinds);
         if (doc != Q_NULLPTR)
@@ -976,11 +850,11 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
 bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
 {
     bool pict = (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU);
-    QMap<QString,QVariant> doc = CalcImage(docmt->id(), pict, false);
-    QByteArray bapdf = doc.value("ba").toByteArray();
-    if (doc.value("Type").toString() == PDF)     // le document est un pdf ou un document texte
+    if (docmt->imageblob() == QByteArray())
+        proc->CalcImage(docmt, pict, false);
+    if (docmt->imageformat() == PDF)     // le document est un pdf ou un document texte
     {
-        Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
+        Poppler::Document* document = Poppler::Document::loadFromData(docmt->imageblob());
         if (!document || document->isLocked()) {
             UpMessageBox::Watch(this,tr("Impossible de charger le document"));
             delete document;
@@ -1032,10 +906,10 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         }
         delete document;
     }
-    if (doc.value("Type").toString() == JPG)     // le document est un jpg
+    else if (docmt->imageformat() == JPG)     // le document est un jpg
     {
         QPixmap pix;
-        pix.loadFromData(bapdf);
+        pix.loadFromData(docmt->imageblob());
         image= pix.toImage();
         if (AvecPrevisu)
         {
@@ -1155,7 +1029,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
     }
     if (docmt == Q_NULLPTR)
         return;
-    if (!db->getUserConnected()->isSoignant())         //le user n'est pas un soignant
+    if (!m_currentuser->isSoignant())         //le user n'est pas un soignant
     {
         if (docmt->useremetteur() != DataBase::I()->getUserConnected()->id())
         {
@@ -1168,7 +1042,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         UpMessageBox msgbox;
         UpSmallButton OKBouton(tr("Supprimer"));
         UpSmallButton NoBouton(tr("Annuler"));
-        msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin());
+        msgbox.setText("Euuhh... " + m_currentuser->getLogin());
         msgbox.setInformativeText(tr("Etes vous certain de vouloir supprimer ce document?"));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(&NoBouton,UpSmallButton::CANCELBUTTON);
@@ -1187,11 +1061,9 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         if (m_docsexternes->docsexternes()->size() > 1)    // on recherche le document sur qui va être mis la surbrillance après la suppression
         {
             QMap<int, DocExterne*>* listaexplorer = m_docsexternes->docsexternes();
-            QMap<int, DocExterne*>::const_iterator itdoc = listaexplorer->find(docmt->id());
-            if (itdoc == listaexplorer->constBegin())
-                ++itdoc;
-            else
-                --itdoc;
+            QMapIterator<int, DocExterne*> itdoc (*listaexplorer);
+            if (!itdoc.findPrevious(docmt))
+                itdoc.next();
             idaafficher = QString::number(itdoc.key());
         }
         m_docsexternes->SupprimeDocument(docmt);
@@ -1471,8 +1343,10 @@ void dlg_docsexternes::RemplirTreeView()
             typedocs << doc->typedoc();
     };
 
-    for(QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->constBegin(); itdoc != m_docsexternes->docsexternes()->constEnd(); ++itdoc )
+    QMapIterator<int, DocExterne*> itdoc (*m_docsexternes->docsexternes());
+    while (itdoc.hasNext())
     {
+        itdoc.next();
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
         // créations des entêtes par date et par type d'examen
         {
@@ -1523,8 +1397,10 @@ void dlg_docsexternes::RemplirTreeView()
         rootNodeType->appendRow(typitem);
     }
 
-    for(QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->constBegin(); itdoc != m_docsexternes->docsexternes()->constEnd(); ++itdoc )
+    itdoc.toFront();
+    while (itdoc.hasNext())
     {
+        itdoc.next();
         DocExterne *doc = const_cast<DocExterne*>(itdoc.value());      // rajout des items de chaque examen en child des dates et des types
         QString date = doc->date().toString(tr("dd-MM-yyyy"));
         QString a = doc->typedoc();
@@ -1533,7 +1409,7 @@ void dlg_docsexternes::RemplirTreeView()
         pitemtridated        = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
         pitemtridatet        = new QStandardItem(doc->date().toString("yyyyMMddHHmmss"));
         QMap<QString, QVariant> data;
-        data["id"]          = QString::number(doc->id());
+        data.insert("id", QString::number(doc->id()));
         QFont fontitem      = gFont;
         fontitem            .setBold(doc->importance()==2);
         fontitem            .setItalic(doc->importance()==0);

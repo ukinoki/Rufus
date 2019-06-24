@@ -47,8 +47,8 @@ private: //Données de la dépense
     bool m_echeancier;          //!< bool -> true = echeancier - false = facture
     int m_auxarchives;          //!< depense par operation bancaire et dont l'operation bancaire est consolidée
     QString m_objetecheancier;  //!< l'intitule de l'échéancier correspondant sur le disque dur
-    QString m_pdfoujpgfacture;  //!< la facture est un jpg ou un pdf
-    QByteArray m_imgfacture;    //!< le contenu du fichier image de la facture
+    QString m_formatfacture;    //!< la facture est un jpg ou un pdf
+    QByteArray m_blob;          //!< le contenu du fichier image de la facture
 
 public:
     enum m_auxarchives {NoLoSo, Oui, Non};
@@ -71,8 +71,8 @@ public:
     QString objetecheancier() const;
     int     annee() const;
     int     isArchivee() const;
-    QString pdfoujpgfacture() const;
-    QByteArray  imgfacture() const;
+    QString factureformat() const;
+    QByteArray  factureblob() const;
 
     void    setiduser(int id)               { m_iduser = id; }
     void    setdate(QDate date)             { m_datedepepense = date; }
@@ -92,8 +92,8 @@ public:
     void    setlienfacture(QString lien);
     void    setecheancier(bool ech);
     void    setobjetecheancier(QString obj);
-    void    setpdfoujpgfacture(QString typeimg);
-    void    setimgfacture(QByteArray ba);
+    void    setfactureformat(QString typeimg);
+    void    setfactureblob(QByteArray ba);
 
     explicit Depense(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
