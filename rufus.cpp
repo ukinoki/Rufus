@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("24-06-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("26-06-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -58,6 +58,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
     db = DataBase::I();
     m_parametres = db->parametres();
+    Logs::MSGSOCKET("adresse serveur TCP = " + m_parametres->adresseserveurtcp());
     proc->setDirImagerie();                                              //! lit l'emplacement du dossier d'imagerie sur le serveur
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
@@ -92,34 +93,31 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (jadmin.size() == 0)
         idAdministrateur = -1;
     else
-        idAdministrateur = jadmin["id"].toInt();
+        idAdministrateur = jadmin.value("id").toInt();
 
     //! 5 - lancement du TCP
     UtiliseTCP = false;
+    QString log;
     if (proc->isadminpresent())
     {
-        QByteArray ba;
-        QString log;
+        log = tr("RufusAdmin présent");
+        Logs::MSGSOCKET(log);
         if (m_parametres->adresseserveurtcp() == "")
         {
-            log = tr("Aucun serveur TCP enregistré");
-            Logs::LogToFile(QDir::homePath() + DIR_RUFUS "/logtcp.txt", ba.append(log + " - " +QTime::currentTime().toString("HH:mm::ss")) );
+            log = tr("Aucun serveur TCP enregistré dans la base");
+            Logs::MSGSOCKET(log);
             dlg_message(QStringList() << log, false);
         }
         else
         {
             Utils::Pause(100);
-            dlg_message(QStringList() << tr("Connexion au serveur TCP ") + m_parametres->adresseserveurtcp(), false);
+            log = tr("Connexion au serveur TCP");
+            dlg_message(QStringList() << log + " - " + m_parametres->adresseserveurtcp(), false);
+            Logs::MSGSOCKET(log);
             Utils::Pause(100);
             TcPConnect = TcpSocket::I();
-            UtiliseTCP = TcPConnect->TcpConnectToServer();
-            if (!UtiliseTCP)
-            {
-                log = tr("Echec connexion");
-                Logs::LogToFile(QDir::homePath() + DIR_RUFUS "/logtcp.txt", ba.append(log + " - " + QTime::currentTime().toString("HH:mm::ss")) );
-                dlg_message(QStringList() << "<b>" + tr("Le serveur enregistré dans la base ne répond pas.") + "</b><br/>"+ tr("Fonctionnement sans Tcpsocket"), 5000, false);
-            }
-            else
+            UtiliseTCP = TcPConnect->TcpConnectToServer(m_parametres->adresseserveurtcp());
+            if (UtiliseTCP)
             {
                 QString msg;
                 dlg_message(QStringList() << tr("Connexion TCP OK"), 3000, false);
@@ -131,8 +129,18 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 msg = Utils::getIpAdress() + TCPMSG_Separator + Utils::getMACAdress() + TCPMSG_Separator + QHostInfo::localHostName() + TCPMSG_DataSocket;
                 envoieMessage(msg);
             }
+            else {
+                log = tr("RufusAdmin présent mais échec connexion");
+                Logs::MSGSOCKET(log);
+            }
         }
     }
+    else
+    {
+        log = tr("RufusAdmin absent");
+        Logs::MSGSOCKET(log);
+    }
+
     proc->setoktcp(UtiliseTCP);
 
     //! 6 - mettre en place le TcpSocket et/ou les timer
@@ -140,7 +148,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente                                                          utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants                                                 utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerVerifMessages         = new QTimer(this);     // scrutation des nouveaux message                                                                      utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
-    gTimerPosteConnecte          = new QTimer(this);     // mise à jour de la connexion à la base de données
+    gTimerPosteConnecte          = new QTimer(this);    // mise à jour de la connexion à la base de données
     gTimerVerifImportateurDocs  = new QTimer(this);     // vérifie que le poste importateur des documents externes est toujours là
     gTimerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base
     gTimerActualiseDocsExternes = new QTimer(this);     // actualise l'affichage des documents externes si un dossier est ouvert
@@ -195,7 +203,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             connect(gTimerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
     }
-    connect (gTimerPosteConnecte,            &QTimer::timeout,   this,   &Rufus::MetAJourPosteConnecte);
+    connect (gTimerPosteConnecte,           &QTimer::timeout,   this,   &Rufus::MetAJourPosteConnecte);
     connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
     connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
 
@@ -273,7 +281,7 @@ void Rufus::closeEvent(QCloseEvent *event)
         {
             if (UtiliseTCP && TcPConnect->state() == QAbstractSocket::ConnectedState)
             {
-                TcPConnect->disconnectFromHost();
+                TcPConnect->close();
                 delete TcPConnect;
             }
             exit(0);
@@ -5625,13 +5633,15 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
             // on vérifie que l'importateur est toujours connecté
             m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
             int idx = -1;
-            for (QMap<QString, PosteConnecte*>::const_iterator itusr = m_listepostesconnectes->postesconnectes()->constBegin(); itusr != m_listepostesconnectes->postesconnectes()->constEnd(); ++itusr)
+            QMapIterator<QString, PosteConnecte*> itpost(*m_listepostesconnectes->postesconnectes());
+            while (itpost.hasNext())
             {
-                PosteConnecte *usr = const_cast<PosteConnecte*>(itusr.value());
+                itpost.next();
+                PosteConnecte *usr = const_cast<PosteConnecte*>(itpost.value());
                 if (usr->nomposte() == ImportateurDocs.remove(" - prioritaire"))
                 {
                     idx = m_listepostesconnectes->postesconnectes()->values().indexOf(usr);
-                    itusr = m_listepostesconnectes->postesconnectes()->constEnd();
+                    itpost.toBack();
                 }
             }
             if (idx<0)
@@ -6932,6 +6942,9 @@ void    Rufus::ChercherDepuisListe()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::CreerDossier()
 {
+    if (ui->tabWidget->indexOf(ui->tabDossier) > 0)
+        if (!AutorDepartConsult(true))
+            return;
     QString PatNom, PatPrenom, PatDDN, PatCreePar, PatCreeLe;
     int idPat; // on n'utilise pas m_currentpatient->id() qui ne sera initialisé qu'après que le dossier ait été réellement affiché.
 
@@ -8772,7 +8785,7 @@ bool Rufus::Remplir_ListePatients_TableView(Patients *patients)
 void Rufus::Remplir_SalDat()
 {
     QTableWidget        *TableAMettreAJour;
-    int                 i;
+    int                 i=0;
     QString             NomPrenom, zw, A;
     QFontMetrics        fm(qApp->font());
     m_listepatientsencours->initListeAll();
@@ -8782,9 +8795,10 @@ void Rufus::Remplir_SalDat()
         m_listepatientsencoursmodel = new QStandardItemModel();
     else
         m_listepatientsencoursmodel->clear();
-    for (QMap<int, PatientEnCours*>::const_iterator itpat = m_listepatientsencours->patientsencours()->constBegin();
-         itpat != m_listepatientsencours->patientsencours()->constEnd(); ++itpat)
+    QMapIterator<int, PatientEnCours*> itpat(*m_listepatientsencours->patientsencours());
+    while (itpat.hasNext())
     {
+        itpat.next();
         QList<QStandardItem *> items;
         PatientEnCours* pat = const_cast<PatientEnCours*>(itpat.value());
         UpStandardItem *itempat = new UpStandardItem(QString::number(pat->id()));
@@ -8811,12 +8825,12 @@ void Rufus::Remplir_SalDat()
 
     // SALLE D'ATTENTE ---------------------------------------------------------------------------------------------------
     TableAMettreAJour = ui->SalleDAttenteupTableWidget;
-    for (int i =0; i< ui->SalleDAttenteupTableWidget->rowCount();i++)
-        ui->SalleDAttenteupTableWidget->removeRow(i);
+    ui->SalleDAttenteupTableWidget->clearAllRowsExceptHeader();
     QList<PatientEnCours*> listpatsaldat;
-    for (QList<PatientEnCours*>::const_iterator itpat =listpat.constBegin(); itpat != listpat.constEnd(); ++itpat)
+    QListIterator<PatientEnCours*> itpatlist(listpat);
+    while (itpatlist.hasNext())
     {
-        PatientEnCours *pat = const_cast<PatientEnCours*>(*itpat);
+        PatientEnCours *pat = const_cast<PatientEnCours*>(itpatlist.next());
         if (pat->statut() == ARRIVE || pat->statut() == ENCOURS || pat->statut().contains(ENATTENTENOUVELEXAMEN))
             listpatsaldat << pat;
     }
@@ -8824,10 +8838,10 @@ void Rufus::Remplir_SalDat()
     m_listesuperviseursmodel->clear();
     QStandardItem       *pitem0, *pitem1;
     QList<int>          listidusers;
-
-    for (i = 0; i < listpatsaldat.size(); i++)
+    QListIterator<PatientEnCours*> itpatlistsaldat(listpatsaldat);
+    while (itpatlistsaldat.hasNext())
     {
-        PatientEnCours *patencours  = listpatsaldat.at(i);
+        PatientEnCours *patencours  = const_cast<PatientEnCours*>(itpatlistsaldat.next());
         Patient *pat                = m_listepatients->getById(patencours->id());
         QMap<QString, QVariant> rsgnmt;
         rsgnmt["idpat"]             = patencours->id();
@@ -8984,7 +8998,8 @@ void Rufus::Remplir_SalDat()
         TableAMettreAJour->setCellWidget(i,5,label5);
         TableAMettreAJour->setCellWidget(i,6,label6);
         TableAMettreAJour->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.1));
-   }
+        ++i;
+    }
     while (gSalDatTab->count()>0)
         gSalDatTab->removeTab(0);
     int k =0;
@@ -9028,9 +9043,10 @@ void Rufus::Remplir_SalDat()
             delete listuptext.at(j);
     ui->scrollArea->takeWidget();
     QList<PosteConnecte*> listpostsoignant;
-    for (QMap<QString, PosteConnecte*>::const_iterator itpost = m_listepostesconnectes->postesconnectes()->constBegin(); itpost != m_listepostesconnectes->postesconnectes()->constEnd(); ++itpost)
+    QMapIterator<QString, PosteConnecte*> itpost(*m_listepostesconnectes->postesconnectes());
+    while (itpost.hasNext())
     {
-        PosteConnecte* post = const_cast<PosteConnecte*>(itpost.value());
+        PosteConnecte* post = const_cast<PosteConnecte*>(itpost.next().value());
         if (post != Q_NULLPTR)
         if (Datas::I()->users->getById(post->id())->isSoignant())
             listpostsoignant << post;

@@ -283,7 +283,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TCPMSG_MAJListePatients                     "MajListePatients"                                  /*! fin du message invitant à mettre à jour la liste des patients */
 #define TCPMSG_MsgBAL                               "MsgRecuDansBAL"                                    /*! fin du message informant de la réception d'un message de messagerie instantanée */
 #define TCPMSG_Separator                            "triumphspeedtriple1050"                            /*! separateur au sein d'un message */
-#define TCPMSG_DataSocket                           "DataSocket"                                        /*! fin du message fournissant IP et MAC d'un client */
+#define TCPMSG_DataSocket                           "DataSocket"                                        /*! fin du message fournissant IP et MAC et nom d'un client */
 #define TCPMSG_ListeSockets                         "ListeSockets"                                      /*! fin du message informant le client que ce message contient la liste des TcpSockets */
 #define TCPMSG_EnvoieListSocket                     "EnvoieListe"                                       /*! fin du message demandant l'envoi de la liste des sockets à un client */
 #define TCPMSG_Disconnect                           "Deconnexion"                                       /*! fin du message demandant la deconnexion et la fermeture d'un socket */

@@ -144,6 +144,12 @@ void UpTableWidget::clearSelection()
     setRangeSelected(QTableWidgetSelectionRange(0,0,rowCount()-1,columnCount()-1),false);
 }
 
+void UpTableWidget::clearAllRowsExceptHeader()
+{
+    for (int i =0; i<rowCount(); i++)
+        removeRow(i);
+}
+
 int UpTableWidget::FixLargeurTotale()
 {
     int larg = 0;

@@ -65,7 +65,8 @@ public:
     }
     static void MSGSOCKET(QString msg, QString infoMsg = "")
     {
-        tracesocket("MSG", msg, infoMsg);
+        QByteArray ba, bainfo;
+        tracesocket("MSG", ba.append(msg), bainfo.append(infoMsg));
     }
     static void tracesocket(QString type, QString msg, QString infoMsg = "")
     {
@@ -80,7 +81,7 @@ public:
         {
             QTextStream out(&testfile);
             QString timelog = QTime::currentTime().toString();
-            out << timelog << " - " << type << "\n     -> " << msg.replace(TCPMSG_Separator, ":::") << (infoMsg==""? "" : " : " + infoMsg.replace(TCPMSG_Separator, ":::")) << "\n";
+            out << timelog << " - " << type << "\t-> " << msg.replace(TCPMSG_Separator, ":::") << (infoMsg == ""? "" : " : " + infoMsg.replace(TCPMSG_Separator, ":::")) << "\n";
             testfile.close();
         }
     }

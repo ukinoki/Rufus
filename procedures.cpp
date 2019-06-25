@@ -2148,7 +2148,10 @@ void Procedures::setoktcp(bool oktcp)
 {
     OKTCP = oktcp;
     if (!oktcp && !OKAdmin)
+    {
         db->setadresseserveurtcp("");
+        Logs::MSGSOCKET("effacement adressetcpserveur");
+    }
 }
 
 bool Procedures::ReinitBase()
