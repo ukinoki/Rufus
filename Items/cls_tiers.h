@@ -36,13 +36,11 @@ class Tiers : public Item
 {
 
 private:
-    int m_id;
     QString m_nomtiers, m_adressetiers, m_villetiers, m_codepostaltiers, m_telephonetiers, m_faxtiers;
 public:
     explicit Tiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int id() const;
     QString nomtiers() const;
     QString codepostaltiers() const;
     QString villetiers() const;

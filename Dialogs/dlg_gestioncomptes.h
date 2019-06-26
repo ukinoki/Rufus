@@ -40,20 +40,19 @@ class dlg_gestioncomptes : public UpDialog
 public:
     explicit dlg_gestioncomptes(User *user,
                                 bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
+    static void             ReconstruitListeComptes (User *usr);    //! reconstruit la liste des comptes d'un utilisateur
     ~dlg_gestioncomptes();
 
 private:
     Ui::dlg_gestioncomptes  *ui;
     DataBase                *db;
-    User                    *gDataUser;
-    Comptes                 *comptesusr;
-    Compte                  *CompteEnCours;
+    User                    *m_userencours;
+    Compte                  *m_comptencours;
     dlg_gestionbanques      *Dlg_Banq;
     bool                    gAfficheLeSolde;
     bool                    gSociete;
     bool                    gVisible;
     int                     gidUser, gMode;
-    int                     gidCompteParDefaut;
     enum gMode              {Norm, Modif, Nouv};
     QString                 gUserLogin;
     QTimer                  *gTimer;

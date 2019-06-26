@@ -20,24 +20,27 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_motif.h"
 #include "database.h"
+#include "cls_itemslist.h"
 
-class Motifs
+class Motifs : public ItemsList
 {
 private:
     QMap<int, Motif*> *m_motifs; //!< la liste des Motifs
+    void addList(QList<Motif*> listMotifs);
 
 public:
-    explicit Motifs();
+    explicit Motifs(QObject *parent = Q_NULLPTR);
 
     QMap<int, Motif *> *motifs() const;
 
-    void add(Motif *Motif);
-    void addList(QList<Motif*> listMotifs);
-    void remove(Motif* motif);
     Motif* getById(int id);
-    void clearAll();
+    Motif* getMotifFromRaccourci(QString txt);
     void initListe();
-};
 
+    //!> actions sur les enregistrements
+    void        SupprimeMotif(Motif *motif);
+    Motif*      CreationMotif(QString Motif, QString Raccourci, QString Couleur, int Duree, bool ParDefaut, bool Utiliser, int NoOrdre);
+
+};
 
 #endif // CLS_MOTIFS_H

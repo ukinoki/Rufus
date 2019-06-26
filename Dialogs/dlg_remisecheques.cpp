@@ -140,22 +140,22 @@ void dlg_remisecheques::Slot_CorrigeRemise()
     int idRemise = MapRemise["idRemise"].toInt();
     bool a = true;
     while (a) {
-        a = db->createtransaction(QStringList()    << NOM_TABLE_REMISECHEQUES
-                                                << NOM_TABLE_RECETTESSPECIALES
-                                                << NOM_TABLE_RECETTES
-                                                << NOM_TABLE_LIGNESCOMPTES);
+        a = db->createtransaction(QStringList()    << TBL_REMISECHEQUES
+                                                << TBL_RECETTESSPECIALES
+                                                << TBL_RECETTES
+                                                << TBL_LIGNESCOMPTES);
         if (!a) break;
         // supprimer la remise dans la table Remises
-        a = db->SupprRecordFromTable(idRemise, "idRemcheq", NOM_TABLE_REMISECHEQUES);
+        a = db->SupprRecordFromTable(idRemise, "idRemcheq", TBL_REMISECHEQUES);
         if (!a) break;
         // supprimer l'idRemise dans les lignes de la table lignesrecettes
-        a = db->StandardSQL("update " NOM_TABLE_RECETTES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
+        a = db->StandardSQL("update " TBL_RECETTES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
         if (!a) break;
         // supprimer l'idRemise dans les lignes de la table autresrecettes
-        a = db->StandardSQL("update " NOM_TABLE_RECETTESSPECIALES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
+        a = db->StandardSQL("update " TBL_RECETTESSPECIALES " set idremise = null, DateEnregistrement = null where idremise = " + QString::number(idRemise));
         if (!a) break;
         // supprimer la remise dans la table lignescomptes
-        a = db->SupprRecordFromTable(idRemise, "idremcheq", NOM_TABLE_LIGNESCOMPTES);
+        a = db->SupprRecordFromTable(idRemise, "idremcheq", TBL_LIGNESCOMPTES);
         break;
     }
     if (!a)
@@ -232,17 +232,17 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         }
 
         // On verrouille les table RemisesCheques
-        if (!db->createtransaction(QStringList()    << NOM_TABLE_REMISECHEQUES
-                                                    << NOM_TABLE_RECETTESSPECIALES
-                                                    << NOM_TABLE_RECETTES
-                                                    << NOM_TABLE_LIGNESCOMPTES
-                                                    << NOM_TABLE_BANQUES
-                                                    << NOM_TABLE_ARCHIVESBANQUE))
+        if (!db->createtransaction(QStringList()    << TBL_REMISECHEQUES
+                                                    << TBL_RECETTESSPECIALES
+                                                    << TBL_RECETTES
+                                                    << TBL_LIGNESCOMPTES
+                                                    << TBL_BANQUES
+                                                    << TBL_ARCHIVESBANQUE))
             return;
         //On récupére l'idRemise
-        int idRemise = db->selectMaxFromTable("idRemCheq", NOM_TABLE_REMISECHEQUES, ok) + 1;
+        int idRemise = db->selectMaxFromTable("idRemCheq", TBL_REMISECHEQUES, ok) + 1;
         // on enregistre la remise dans la table remisecheques
-        if (!db->StandardSQL(" INSERT INTO " NOM_TABLE_REMISECHEQUES " (idRemCheq, Montant, RCDate, idCompte) VALUES (" + QString::number(idRemise) +
+        if (!db->StandardSQL(" INSERT INTO " TBL_REMISECHEQUES " (idRemCheq, Montant, RCDate, idCompte) VALUES (" + QString::number(idRemise) +
                                 "," + QString::number(Total) + ", NOW(),'" + ui->ComptecomboBox->currentData().toString() +"')"))
         {
             db->rollback();
@@ -264,9 +264,9 @@ void dlg_remisecheques::Slot_ImprimepushButton()
             QString RecSpec = ui->ListeChequesupTableWidget->item(k,6)->text();
             int idChequeAMettreAJour = ui->ListeChequesupTableWidget->item(k,5)->text().toInt();
             if (RecSpec=="1")
-                req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET idRemise = " + QString::number(idRemise) + ", EnAttente = null WHERE idRecette = " + QString::number(idChequeAMettreAJour);
+                req = "UPDATE " TBL_RECETTESSPECIALES " SET idRemise = " + QString::number(idRemise) + ", EnAttente = null WHERE idRecette = " + QString::number(idChequeAMettreAJour);
             else
-                req = "UPDATE " NOM_TABLE_RECETTES " SET idRemise = " + QString::number(idRemise) + ", EnAttente = null WHERE idRecette = " + QString::number(idChequeAMettreAJour);
+                req = "UPDATE " TBL_RECETTES " SET idRemise = " + QString::number(idRemise) + ", EnAttente = null WHERE idRecette = " + QString::number(idChequeAMettreAJour);
             if (!db->StandardSQL(req))
             {
                 db->rollback();
@@ -276,7 +276,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         }
 
         // On enregitre dans la table GestionComptes cettte remise
-        req =  "INSERT INTO " NOM_TABLE_LIGNESCOMPTES " (idLigne, idCompte,LigneDate,LigneLibelle,LigneMontant,LigneDebitCredit,LigneTypeOperation, idremcheq) VALUES (" +
+        req =  "INSERT INTO " TBL_LIGNESCOMPTES " (idLigne, idCompte,LigneDate,LigneLibelle,LigneMontant,LigneDebitCredit,LigneTypeOperation, idremcheq) VALUES (" +
                 QString::number(db->getIdMaxTableComptesTableArchives()) + "," +
                 ui->ComptecomboBox->currentData().toString() +
                 ", NOW(),"
@@ -296,10 +296,10 @@ void dlg_remisecheques::Slot_ImprimepushButton()
             QString RecSpec = ui->ListeChequesupTableWidget->item(l,6)->text();
             QString AB = ui->ListeChequesupTableWidget->item(l,3)->text();
             if (RecSpec=="1")
-                req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::correctquoteSQL(ui->ListeChequesupTableWidget->item(l,2)->text()) +
+                req = "UPDATE " TBL_RECETTESSPECIALES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::correctquoteSQL(ui->ListeChequesupTableWidget->item(l,2)->text()) +
                     + "', DateEnregistrement = NOW() WHERE idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
             else
-                req = "UPDATE " NOM_TABLE_RECETTES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::correctquoteSQL(ui->ListeChequesupTableWidget->item(l,2)->text()) +
+                req = "UPDATE " TBL_RECETTES " SET BanqueCheque = '" + AB  + "', TireurCheque = '" + Utils::correctquoteSQL(ui->ListeChequesupTableWidget->item(l,2)->text()) +
                         + "', DateEnregistrement = NOW() WHERE idRecette = " + ui->ListeChequesupTableWidget->item(l,5)->text();
             if (!db->StandardSQL(req))
             {
@@ -322,7 +322,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         if (chqatt!= "")
         {
             chqatt = chqatt.left(chqatt.size()-1);
-            req = "UPDATE " NOM_TABLE_RECETTES " SET EnAttente = 1 WHERE idRecette in (" + chqatt + ")";
+            req = "UPDATE " TBL_RECETTES " SET EnAttente = 1 WHERE idRecette in (" + chqatt + ")";
             if (!db->StandardSQL(req))
             {
                 db->rollback();
@@ -333,7 +333,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         if (chqatt!= "")
         {
             chqattrecspec = chqattrecspec.left(chqattrecspec.size()-1);
-            req = "UPDATE " NOM_TABLE_RECETTESSPECIALES " SET EnAttente = 1 WHERE idRecette in (" + chqattrecspec + ")";
+            req = "UPDATE " TBL_RECETTESSPECIALES " SET EnAttente = 1 WHERE idRecette in (" + chqattrecspec + ")";
             if (!db->StandardSQL(req))
             {
                 db->rollback();
@@ -423,9 +423,9 @@ void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)
         //mise à jour de la table lignesrecettes ou recettesspeciales
         QString UpdateidRec;
         if (RecSpec == "1")
-            UpdateidRec = "update " NOM_TABLE_RECETTESSPECIALES " set EnAttente = 1 where idRecette = " + idRec;
+            UpdateidRec = "update " TBL_RECETTESSPECIALES " set EnAttente = 1 where idRecette = " + idRec;
         else
-            UpdateidRec = "update " NOM_TABLE_RECETTES " set EnAttente = 1 where idRecette = " + idRec;
+            UpdateidRec = "update " TBL_RECETTES " set EnAttente = 1 where idRecette = " + idRec;
         db->StandardSQL(UpdateidRec, "void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
     }
 }
@@ -502,9 +502,9 @@ void dlg_remisecheques::Slot_ItemChequeEnAttenteClicked(int A, int B)
         //mise à jour de la table lignesrecettes
         QString UpdateidRec;
         if (RecSpec == "1")
-            UpdateidRec = "update " NOM_TABLE_RECETTESSPECIALES " set EnAttente = null where idRecette = " + idRec;
+            UpdateidRec = "update " TBL_RECETTESSPECIALES " set EnAttente = null where idRecette = " + idRec;
         else
-            UpdateidRec = "update " NOM_TABLE_RECETTES " set EnAttente = null where idRecette = " + idRec;
+            UpdateidRec = "update " TBL_RECETTES " set EnAttente = null where idRecette = " + idRec;
         db->StandardSQL(UpdateidRec, "void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)");
     }
 }
@@ -533,17 +533,16 @@ void dlg_remisecheques::Slot_MiseEnFormeMontant(int A, int B, int C, int D)
 
 void dlg_remisecheques::ChangeCompte()
 {
-    QMap<int, Compte*>::const_iterator itcpt = m_comptes.find(ui->ComptecomboBox->currentData().toInt());
-    if(itcpt != m_comptes.end())
-    {
-        Compte *cpt = const_cast<Compte*>(itcpt.value());
-        ui->IntituleComptetextEdit->setText(cpt->nom() + "\n" + cpt->iban());
-    }
+    int id = ui->ComptecomboBox->currentData().toInt();
+    Compte *cpt = Datas::I()->comptes->getById(id);
+    if (cpt != Q_NULLPTR)
+        ui->IntituleComptetextEdit->setText(cpt->nomabrege() + "\n" + cpt->iban());
 }
 
 void dlg_remisecheques::Slot_ChangeUser()
 {
-    gUser = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
+    m_userencours = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
+    proc->SetUserAllData(m_userencours);
     if (!VoirNouvelleRemise())
         if (!VoirRemisesPrecs())
         {
@@ -565,11 +564,11 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
     int idCompte = MapRemise["idCompte"].toInt();
     ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(idCompte));
     QString req = "select idRecette, TireurCheque, BanqueCheque, Montant, null as recspec"
-                  " from " NOM_TABLE_RECETTES
+                  " from " TBL_RECETTES
                   " where idRemise = " + QString::number(idRemise);
     req +=        " union"
                   " select idRecette, TireurCheque, BanqueCheque, Montant, 1 as recspec"
-                  " from " NOM_TABLE_RECETTESSPECIALES
+                  " from " TBL_RECETTESSPECIALES
                   " where idRemise = " + QString::number(idRemise) +
                   " order by Tireurcheque";
     bool ok = true;
@@ -626,7 +625,7 @@ void dlg_remisecheques::Slot_RemplirRemisesPrecs(int id)
             Total += QLocale().toDouble(ui->ListeChequesupTableWidget->item(k,4)->text());
         ui->TotallineEdit->setText(QString::number(ui->ListeChequesupTableWidget->rowCount()) + tr(" chèques -> ") + QLocale().toString(Total,'f',2) + tr(" euros"));
     }
-    req = "select idligne from " NOM_TABLE_ARCHIVESBANQUE " where idremcheq = " + MapRemise["idRemise"].toString();
+    req = "select idligne from " TBL_ARCHIVESBANQUE " where idremcheq = " + MapRemise["idRemise"].toString();
     QList<QVariantList> listlignes = db->StandardSelectSQL(req, ok);
     ui->RemisesPrecsPushButton->setEnabled(listlignes.size()==0 && ok);
 }
@@ -652,10 +651,10 @@ void dlg_remisecheques::Slot_ToolTip(int A, int B)
         {
             QString requete;
             if (RecSpec == "1")
-                requete = "SELECT Libelle, Daterecette From " NOM_TABLE_RECETTESSPECIALES " WHERE idRecette = " + tabl->item(A,col)->text();
+                requete = "SELECT Libelle, Daterecette From " TBL_RECETTESSPECIALES " WHERE idRecette = " + tabl->item(A,col)->text();
             else
-                requete = "SELECT PatNom, PatPrenom, ActeCotation, ActeDate From " NOM_TABLE_PATIENTS " pat, " NOM_TABLE_ACTES " act WHERE act.idActe in (SELECT idActe FROM "
-                        NOM_TABLE_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat.idPat = act.idPat";
+                requete = "SELECT PatNom, PatPrenom, ActeCotation, ActeDate From " TBL_PATIENTS " pat, " TBL_ACTES " act WHERE act.idActe in (SELECT idActe FROM "
+                        TBL_LIGNESPAIEMENTS " WHERE idRecette = " + tabl->item(A,col)->text() + ") AND pat.idPat = act.idPat";
             bool ok = true;
             QList<QVariantList> listtips = db->StandardSelectSQL(requete,ok);
             QString ABC;
@@ -712,16 +711,16 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              Q_NULLPTR, Q_NULLPTR);
 
     QString idlist;
-    for( QMap<int, Compte*>::const_iterator itcpt = m_comptes.constBegin(); itcpt != m_comptes.constEnd(); ++itcpt )
+    for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
     {
-        Compte *cpt = const_cast<Compte*>(itcpt.value());
+        Compte *cpt = const_cast<Compte*>(itcpt.i->t());
         idlist += QString::number(cpt->id());
-        if (itcpt != m_comptes.constEnd()-1)
+        if (itcpt != m_comptes->constEnd()-1)
             idlist += ", ";
     }
 
     bool ok = true;
-    QList<QVariantList> listremisesprecedentes = db->StandardSelectSQL("select idRemCheq, RCDate, Montant, idcompte from " NOM_TABLE_REMISECHEQUES
+    QList<QVariantList> listremisesprecedentes = db->StandardSelectSQL("select idRemCheq, RCDate, Montant, idcompte from " TBL_REMISECHEQUES
                                                                           " where idcompte in (" + idlist + ") order by idremcheq desc",ok);
     if (listremisesprecedentes.size() == 0)
     {
@@ -840,14 +839,14 @@ bool dlg_remisecheques::VoirNouvelleRemise()
 
         QString req;
         //1, on recherche les chèques à déposer
-        req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec  FROM " NOM_TABLE_RECETTES " pai"
-                " WHERE pai.idRecette in (SELECT lig.idRecette FROM " NOM_TABLE_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE UserComptable = " + QString::number(gUser->id()) + "))"
+        req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec  FROM " TBL_RECETTES " pai"
+                " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
+                " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(m_userencours->id()) + "))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NULL"
                 " AND ModePaiement = 'C'";
         req +=  " union"
-                " SELECT idRecette, TireurCheque, BanqueCheque, Montant, 1 as recspec  FROM " NOM_TABLE_RECETTESSPECIALES
+                " SELECT idRecette, TireurCheque, BanqueCheque, Montant, 1 as recspec  FROM " TBL_RECETTESSPECIALES
                 " WHERE IdRemise IS NULL"
                 " AND EnAttente IS NULL"
                 " AND Paiement = 'C'";
@@ -857,14 +856,14 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         QList<QVariantList> listchequesaremettre = db->StandardSelectSQL(req,ok);
 
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
-        req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " NOM_TABLE_RECETTES " pai"
-                " WHERE pai.idRecette in (SELECT lig.idRecette FROM " NOM_TABLE_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE UserComptable = " + QString::number(gUser->id()) +"))"
+        req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " TBL_RECETTES " pai"
+                " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
+                " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(m_userencours->id()) +"))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NOT NULL"
                 " AND ModePaiement = 'C'";
         req +=  " union"
-                " SELECT idRecette, TireurCheque, BanqueCheque, Montant, 1 as recspec  FROM " NOM_TABLE_RECETTESSPECIALES
+                " SELECT idRecette, TireurCheque, BanqueCheque, Montant, 1 as recspec  FROM " TBL_RECETTESSPECIALES
                 " WHERE IdRemise IS NULL"
                 " AND EnAttente IS NOT NULL"
                 " AND Paiement = 'C'"
@@ -1036,9 +1035,16 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     int iduser = ui->UserComboBox->currentData().toInt();
     QDate date;
     QString req;
-    QMap<int, Compte*>::const_iterator itcpt = m_comptes.find(ui->ComptecomboBox->currentData().toInt());
-    if(itcpt != m_comptes.end())
-        cpt = const_cast<Compte*>(itcpt.value());
+    int id = ui->ComptecomboBox->currentData().toInt();
+    for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
+    {
+        Compte *icpt = const_cast<Compte*>(itcpt.i->t());
+        if (icpt->id() == id)
+        {
+            cpt = icpt;
+            break;
+        }
+    }
 
     if (gMode == RevoirRemisesPrecs) {
         QMap<QString, QVariant> MapRemise =  ui->RemisePrecsupComboBox->currentData().toMap();
@@ -1046,24 +1052,24 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
         AvecPrevisu = true;
     }
     else if (gMode == NouvelleRemise) {
-        iduser      = gUser->id();
+        iduser      = m_userencours->id();
         date        = QDate::currentDate();
     }
 
     //création de l'entête
     QString EnTete;
     if (iduser == -1) return false;
-    User *userEntete = Datas::I()->users->getById(iduser, true);
+    User *userEntete = Datas::I()->users->getById(iduser, Item::LoadDetails);
     if(userEntete == Q_NULLPTR)
         return false;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
     if (EnTete == "") return false;
 
-    EnTete.replace("{{TITRE1}}"            , cpt->nombanque().toUpper());
+    EnTete.replace("{{TITRE1}}"            , Datas::I()->banques->getById(cpt->idBanque())->nomabrege().toUpper());
     EnTete.replace("{{PRENOM PATIENT}}"    , "");
     EnTete.replace("{{NOM PATIENT}}"       , cpt->intitulecompte());
     EnTete.replace("{{TITRE}}"             , "Compte " + cpt->iban());
-    EnTete.replace("{{DDN}}"               , "<font color = \"" + proc->CouleurTitres + "\">Remise de chèques n° " + QString::number(idRemise) + "</font>");
+    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">Remise de chèques n° " + QString::number(idRemise) + "</font>");
 
     // création du pied
     QString Pied = proc->ImpressionPied(userEntete);
@@ -1130,9 +1136,9 @@ void dlg_remisecheques::ReconstruitListeUsers()
     {
         //TODO il faudrait trouver un moyen d'accélérer cette requête qui est vraiment très lente
         User *user = const_cast<User*>(itUser.value());
-        QString req =   "SELECT idRecette FROM " NOM_TABLE_RECETTES " pai"
-                        " WHERE pai.idRecette in (SELECT lig.idRecette FROM " NOM_TABLE_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                        " (SELECT act.idActe FROM " NOM_TABLE_ACTES " act WHERE UserComptable = " + QString::number(user->id()) + "))"
+        QString req =   "SELECT idRecette FROM " TBL_RECETTES " pai"
+                        " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
+                        " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(user->id()) + "))"
                         " AND pai.IdRemise IS NULL"
                         " AND pai.ModePaiement = 'C'"
                         " ORDER BY TireurCheque";
@@ -1151,39 +1157,37 @@ void dlg_remisecheques::ReconstruitListeUsers()
         InitOK = false;
         return;
     }
-    gUser = db->getUserConnected();
+    m_userencours = db->getUserConnected();
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
-    if (gUser->getUserComptable())
+    if (m_userencours->getUserComptable())
     {
-        QMap<int, User*>::const_iterator itusr = m_comptablesavecchequesenattente->find(gUser->id());
+        QMap<int, User*>::const_iterator itusr = m_comptablesavecchequesenattente->find(m_userencours->id());
         if(itusr != m_comptablesavecchequesenattente->end())
-            ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(gUser->id()));
+            ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_userencours->id()));
     }
     else
     {
         ui->UserComboBox->setCurrentIndex(0);
         int idusr = ui->UserComboBox->currentData().toInt();
-        gUser = Datas::I()->users->getById(idusr);
-        gUser->setData(db->loadUserData(idusr));
+        m_userencours = Datas::I()->users->getById(idusr);
+        proc->SetUserAllData(m_userencours);
     }
 }
 
 void dlg_remisecheques::ReconstruitListeComptes(bool avecinactif)
 {
     ui->ComptecomboBox->clear();
-    QList<Compte*> listcomptes = db->loadComptesByUser(gUser->id());
-    for (int i=0; i< listcomptes.size(); i++)
+    m_comptes = m_userencours->getComptes();
+    for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
     {
-        Compte *compte = listcomptes.at(i);
-        if (avecinactif)
-        m_comptes.insert(compte->id(),compte);
-        else if (!compte->isDesactive())
-            m_comptes.insert(compte->id(),compte);
+        Compte *cpt = const_cast<Compte*>(*itcpt);
+        if (!avecinactif)
+        {
+            if (!cpt->isDesactive())
+                ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
+        }
+        else
+            ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
     }
-    for( QMap<int, Compte*>::const_iterator itCompte = m_comptes.constBegin(); itCompte != m_comptes.constEnd(); ++itCompte )
-    {
-        Compte *cpt = const_cast<Compte*>(itCompte.value());
-        ui->ComptecomboBox->addItem(cpt->nom(), cpt->id() );
-    }
-    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(gUser->getIdCompteParDefaut()));
+    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_userencours->getIdCompteParDefaut()));
 }

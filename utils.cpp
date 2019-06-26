@@ -75,8 +75,10 @@ void Utils::Pause(int msec)
  * Cette fonction va supprimer :
  * - les " ", "-" et "'" en début et fin du texte
  * - les " ", "-" et "'" en doublon dans le texte
+ * - les retour à la ligne en fin du texte
  * \param text le texte à nettoyer
- * \param end mettre false si on ne souhaite pas nettoyer la fin du texte
+ * \param end (true par défaut) mettre false si on ne souhaite pas nettoyer la fin du texte
+ * \param removereturnend (false par défaut) mettre true si on souhaite retirer les retours à la ligne à la fin du texte
  * \return le texte nettoyé
  */
 QString Utils::trim(QString text, bool end, bool removereturnend)
@@ -319,14 +321,14 @@ QSize Utils::CalcSize(QString txt, QFont fm)
  * \param QDate datetransfert date utilisée en cas d'échec pour faire le log
  * \return true si réussi, false si échec de l'enregistrement du fichier
  * en cas d'échec
-    * un fichier de log est utilisé ou créé au besoin dans le répertoire NOMDIR_ECHECSTRANSFERTS
+    * un fichier de log est utilisé ou créé au besoin dans le répertoire DIR_ECHECSTRANSFERTS
     * et une ligne résumant l'échec est ajoutée en fin de ce fichier
     * le fichier d'origine est ajouté dans ce même répertoire
  */
 bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfert)
 {
     /* on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
-    QString CheminEchecTransfrDir   = Dirprov + NOMDIR_ECHECSTRANSFERTS;
+    QString CheminEchecTransfrDir   = Dirprov + DIR_ECHECSTRANSFERTS;
     if (!mkpath(CheminEchecTransfrDir))
     {
         QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + QObject::tr(" invalide");
@@ -336,7 +338,7 @@ bool Utils::CompressFileJPG(QString nomfile, QString Dirprov, QDate datetransfer
         return false;
     }
     /* on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin*/
-    QString DirStockProvPath = Dirprov + NOMDIR_PROV;
+    QString DirStockProvPath = Dirprov + DIR_PROV;
     if (!mkpath(DirStockProvPath))
     {
         QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + DirStockProvPath + "</b></font>" + QObject::tr(" invalide");
@@ -479,27 +481,55 @@ QString Utils::getIpAdress()
         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
             IPadress = address.toString();
     return IPadress;
+
+    //autre méthode
+    /*
+    // use the first non-localhost IPv4 address
+    for (int i = 0; i < ipAddressesList.size(); ++i) {
+        if (ipAddressesList.at(i) != QHostAddress::LocalHost &&
+            ipAddressesList.at(i).toIPv4Address()) {
+            ipAddress = ipAddressesList.at(i).toString();
+            break;
+        }
+    }
+    // if we did not find one, use IPv4 localhost
+    if (ipAddress.isEmpty())
+        ipAddress = QHostAddress(QHostAddress::LocalHost).toString();
+    */
 }
 
 QString Utils::getMACAdress()
 {
-    QString localhostname =  QHostInfo::localHostName();
     QString IPadress = "";
     foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
             IPadress = address.toString();
     QString MACAddress = "";
        QString localNetmask;
-       foreach (const QNetworkInterface& networkInterface, QNetworkInterface::allInterfaces()) {
-           foreach (const QNetworkAddressEntry& entry, networkInterface.addressEntries()) {
+       foreach (const QNetworkInterface &networkInterface, QNetworkInterface::allInterfaces()) {
+           foreach (const QNetworkAddressEntry &entry, networkInterface.addressEntries()) {
                if (entry.ip().toString() == IPadress) {
                    MACAddress = networkInterface.hardwareAddress();
                    break;
                }
            }
        }
-    //qDebug() << "MacAdress = " + MACAddress;
     return MACAddress;
+}
+
+QString Utils::getMacForIP(QString ipAddress)
+{
+    QString MAC;
+    QProcess process;
+    process.start(QString("arp -a %1").arg(ipAddress));
+    if(process.waitForFinished())
+    {
+        QString result = process.readAll();
+        QStringList list = result.split(QRegularExpression("\\s+"));
+        if(list.contains(ipAddress))
+            MAC = list.at(list.indexOf(ipAddress) + 1);
+    }
+    return MAC;
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -716,6 +746,102 @@ QString Utils::ConvertitModePaiement(QString mode)
     else if (mode == "V")  mode = QObject::tr("Virement");
     else if (mode == "P")  mode = QObject::tr("Prélèvement");
     else if (mode == "C")  mode = QObject::tr("Chèque");
+    else if (mode == "G")  mode = QObject::tr("Acte gratuit");
+    else if (mode == "I")  mode = QObject::tr("Impayé");
     return mode;
+}
+
+/*!
+ *  \brief Calcul de l'âge
+ *
+ *  Methode qui permet ????
+ *
+ *  \param datedenaissance : la date de naissance
+ *  \param Sexe : le sexe de la personne [""]
+ *  \param datedujour : la date du jour [Date du jour]
+ *
+ *  \return un object contenant :
+ * toString : une chaine de caractères ( ex: 2 ans 3 mois )
+ * annee : l'age brut de la personne
+ * mois :
+ * icone : l'icone à utiliser [man women, girl, boy, kid, baby]
+ * formule : une valeur parmi [l'enfant, la jeune, le jeune, madame, monsieur]
+ *
+ */
+QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance)
+{
+    return Utils::CalculAge(datedenaissance, "", QDate::currentDate());
+}
+QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QDate datedujour)
+{
+    return Utils::CalculAge(datedenaissance, "", datedujour);
+}
+QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour)
+{
+    QMap<QString,QVariant>  Age;
+    int         AnneeNaiss, MoisNaiss, JourNaiss;
+    int         AnneeCurrent, MoisCurrent, JourCurrent;
+    int         AgeAnnee, AgeMois;
+    int         FormuleMoisJourNaissance, FormuleMoisJourAujourdhui;
+
+    AnneeNaiss                  = datedenaissance.toString("yyyy").toInt();
+    MoisNaiss                   = datedenaissance.toString("MM").toInt();
+    JourNaiss                   = datedenaissance.toString("dd").toInt();
+    AnneeCurrent                = datedujour.toString("yyyy").toInt();
+    MoisCurrent                 = datedujour.toString("MM").toInt();
+    JourCurrent                 = datedujour.toString("dd").toInt();
+    FormuleMoisJourNaissance    = (MoisNaiss*100) + JourNaiss;
+    FormuleMoisJourAujourdhui   = (MoisCurrent*100) + JourCurrent;
+    AgeAnnee                    = AnneeCurrent - AnneeNaiss;
+    AgeMois                     = MoisCurrent - MoisNaiss;
+    if (FormuleMoisJourAujourdhui < FormuleMoisJourNaissance)   AgeAnnee --;
+    if (JourNaiss > JourCurrent)                                AgeMois --;
+    if (AgeMois < 0)                                            AgeMois = AgeMois + 12;
+
+    Age["annee"] = AgeAnnee;
+    Age["mois"]  = AgeMois;
+
+    // On formate l'âge pour l'affichage
+    switch (AgeAnnee) {
+    case 0:
+        if (datedenaissance.daysTo(datedujour) > 31)
+            Age["toString"]               = QString::number(AgeMois) + " mois";
+        else
+            Age["toString"]               = QString::number(datedenaissance.daysTo(datedujour)) + " jours";
+        break;
+    case 1: case 2: case 3: case 4:
+        Age["toString"]                    = QString::number(AgeAnnee) + " an";
+        if (AgeAnnee > 1) Age["toString"]  = Age["toString"].toString() + "s";
+        if (AgeMois > 0)  Age["toString"]  = Age["toString"].toString() + " " + QString::number(AgeMois) + " mois";
+        break;
+    default:
+        Age["toString"]                    = QString::number(AgeAnnee) + " ans";
+        break;
+    }
+
+    // On cherche l'icone correspondant au mieux à la personne
+    QString img = "silhouette";
+    if (AgeAnnee < 2)                       img = "baby";
+    else if (AgeAnnee < 8)                  img = "kid";
+    else if (AgeAnnee < 16 && Sexe == "M")  img = "boy";
+    else if (AgeAnnee < 16 && Sexe == "F")  img = "girl";
+    else if (Sexe =="M")                    img = "man";
+    else if (Sexe =="F")                    img = "women";
+    Age["icone"] = img;
+
+    // On cherche la formule de polistesse correspondant au mieux à la personne
+    QString formule = "";
+    if (AgeAnnee < 11)                  formule = "l'enfant";
+    else if (AgeAnnee < 18) {
+        if (Sexe == "F")                formule = "la jeune";
+        if (Sexe == "M")                formule = "le jeune";
+    }
+    else {
+        if (Sexe == "F")                formule = "madame";
+        if (Sexe == "M")                formule = "monsieur";
+    }
+    Age["formule"] = formule;
+
+    return Age;
 }
 

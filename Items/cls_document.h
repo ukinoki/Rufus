@@ -24,7 +24,7 @@ class Document : public Item
 {
 
 private:
-    int m_iddocument, m_iduser;
+    int m_iduser;
     QString m_texte, m_resume, m_conclusion;
     bool m_public, m_prescription, m_editable, m_medical;
 
@@ -32,7 +32,6 @@ public:
     explicit Document(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int id() const;
     int iduser() const;
     QString texte() const;
     QString resume() const;

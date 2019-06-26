@@ -49,9 +49,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
-// #include <QWebEngineView>    /* abandonné parce QWebEngine pèse beaucoup trop lourd
-
-
 #include "uppushbutton.h"
 #include "upcheckbox.h"
 #include "textprinter.h"
@@ -90,13 +87,11 @@ public:
     bool                ok;
 
     QSettings           *gsettingsIni;
-    QString             CouleurTitres;
 
     void                    ab(int i = 1);
 
-    QMap<QString,QVariant>  CalcImage(int idimpression, QString typedoc, bool imagerie, bool afficher = true);
+    void                    CalcImage(Item *item, bool imagerie, bool afficher = true);
     QMap<QString, QDate>    ChoixDate(QWidget *parent=Q_NULLPTR);
-    void                    DisplayWebPage(QUrl);    /* abandonné parce QWebEngine pèse beaucoup trop lourd */
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false);
     void                    EditHtml(QString txt);
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
@@ -167,7 +162,7 @@ private:
     int                     gidCentre;
     bool                    gUseCotation;
     bool                    avecLaComptaProv;
-    bool                    gisPosteImpotDocs;                       // le poste est celui qui importe les documents
+    bool                    gisPosteImportDocs;                       // le poste est celui qui importe les documents
     bool                    DefinitRoleUser();                       /* definit les iduser pour lequel le user travaille
                                                                         . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                             . lui-même s'il est responsable de ses actes
@@ -178,11 +173,13 @@ private:
                                                                         . s'il enregistre une compta                     (bool AvecLaComptaProv)
                                                                        */
     Site*                   DetermineLieuExercice();
-    void                    RestoreFontAppliAndGeometry();
+
 private slots:
     void                    Slot_CalcUserSuperviseur();
     void                    Slot_CalcUserParent();
 public:
+    bool                    SetUserAllData(User* usr);
+    void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
     int                     idCentre();
     int                     idLieuExercice();
     QString                 getSessionStatus();
@@ -190,19 +187,21 @@ public:
 
 
 public:
-    bool                    VerifRessources(QString Nomfile = "");
-
     bool                    Connexion_A_La_Base();
     bool                    ReinitBase();
-    bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifUserConnectes = true);
-    bool                    VerifBaseEtRessources();
-    void                    VideDatabases();
+    bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true);
+
+private:
     qint64                  BaseSize, ImagesSize, VideosSize, FacturesSize, FreeSpace;
     UpDialog                *gAskBupRestore;
     UpLabel                 *labelResume, *labelVolumeLibre, *inflabel;
     QList<QImage>           listimage;
     qint64                  CalcBaseSize();
+    bool                    VerifBaseEtRessources();
+    bool                    VerifRessources(QString Nomfile = "");
+    void                    VideDatabases();
 
+public:
     bool                    Init();
     bool                    ApercuAvantImpression();
     // Les accesseurs
@@ -213,16 +212,10 @@ public:
     QString                 DirImagerieServeur();
     void                    setFicheRefractionOuverte(bool a);
     bool                    FicheRefractionOuverte();
-    QStandardItemModel*     getListeComptesEncaissmtUser();
-    QStandardItemModel*     getListeComptesEncaissmtUserAvecDesactive();
-    void                    setListeComptesEncaissmtUser(int);
 
     bool                    isPosteImportDocs();
 
     void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes
-    void                    setmg(Patient* pat, int idcor = 0);
-    void                    setspe1(Patient* pat, int idcor = 0);
-    void                    setspe2(Patient* pat, int idcor = 0);
 
     QString                 getMDPAdmin();
     void                    setNomImprimante(QString NomImprimante);
@@ -238,7 +231,6 @@ public:
     QString                 PosteImportDocs();
     bool                    VerifAutresPostesConnectes(bool msg = true);
     bool                    Verif_secure_file_priv();
-    QString                 Var_secure_file_priv();
 
     bool                    Connexion();
 
@@ -261,9 +253,8 @@ private:
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_paramconnexion      *Dlg_ParamConnex;
     QFont                   gAppFont;
-    User *m_userConnected = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
-    QStandardItemModel      *ListeComptesEncaissUser;
-    QStandardItemModel      *ListeComptesEncaissUserAvecDesactive;
+    User *m_currentuser = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
+    ParametresSysteme      *m_parametres;
 
     QString                 DirStockageImages, DirStockageImagesServeur;
     QString                 lCPParDefaut, lVilleParDefaut;
@@ -277,7 +268,7 @@ private:
     QRectF                  rect;
     void                    Print(QPrinter*, QImage image);
     void                    PrintPdf(QPrinter*, Poppler::Document* document, bool &printok);
-    bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = NOM_TABLE_UTILISATEURS);
+    bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = TBL_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     QString                 gLogin, gConfirmMDP, gNouvMDP;
