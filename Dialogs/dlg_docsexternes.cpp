@@ -329,8 +329,7 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     QMapIterator<int, DocExterne*> itdoc (*m_docsexternes->docsexternes());
     while (itdoc.hasNext())
     {
-        itdoc.next();
-        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
+        DocExterne *doc = const_cast<DocExterne*>(itdoc.next().value());
         if (doc->importance() == 2)
         {
             nimportants ++;
@@ -1346,8 +1345,7 @@ void dlg_docsexternes::RemplirTreeView()
     QMapIterator<int, DocExterne*> itdoc (*m_docsexternes->docsexternes());
     while (itdoc.hasNext())
     {
-        itdoc.next();
-        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());
+        DocExterne *doc = const_cast<DocExterne*>(itdoc.next().value());
         // créations des entêtes par date et par type d'examen
         {
             if (doc->importance()>0)

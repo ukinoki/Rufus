@@ -5636,8 +5636,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
             QMapIterator<QString, PosteConnecte*> itpost(*m_listepostesconnectes->postesconnectes());
             while (itpost.hasNext())
             {
-                itpost.next();
-                PosteConnecte *usr = const_cast<PosteConnecte*>(itpost.value());
+                PosteConnecte *usr = const_cast<PosteConnecte*>(itpost.next().value());
                 if (usr->nomposte() == ImportateurDocs.remove(" - prioritaire"))
                 {
                     idx = m_listepostesconnectes->postesconnectes()->values().indexOf(usr);
@@ -8798,9 +8797,8 @@ void Rufus::Remplir_SalDat()
     QMapIterator<int, PatientEnCours*> itpat(*m_listepatientsencours->patientsencours());
     while (itpat.hasNext())
     {
-        itpat.next();
         QList<QStandardItem *> items;
-        PatientEnCours* pat = const_cast<PatientEnCours*>(itpat.value());
+        PatientEnCours* pat = const_cast<PatientEnCours*>(itpat.next().value());
         UpStandardItem *itempat = new UpStandardItem(QString::number(pat->id()));
         itempat->setItem(pat);
         items << new UpStandardItem(pat->heurerdv().toString("HHmm"))

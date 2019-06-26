@@ -561,9 +561,9 @@ void dlg_motifs::RemplirTableWidget()
 
     int i=0;
     ui->MotifsupTableWidget->setRowCount(m_motifs->size());
-    for (QMap<int, Motif*>::const_iterator itmtf = m_motifs->constBegin() ; itmtf != m_motifs->constEnd() ; ++itmtf)
-    {
-        Motif *mtf = const_cast<Motif*>(*itmtf);
+    QMapIterator<int, Motif*> itmtf(*m_motifs);
+    while (itmtf.hasNext()) {
+        Motif *mtf = const_cast<Motif*>(itmtf.next().value());
         SetMotifToRow(mtf, i);
         ++i;
     }

@@ -40,8 +40,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     QMapIterator<int, User*> itUser (*m_listUserLiberaux);
     while (itUser.hasNext())
     {
-        itUser.next();
-        User *user = const_cast<User*>(itUser.value());
+        User *user = const_cast<User*>(itUser.next().value());
         ui->UserscomboBox->addItem(user->getLogin(), QString::number(user->id()) );
         if( !foundUser )
         {
@@ -1531,8 +1530,7 @@ void dlg_depenses::ReconstruitListeAnnees()
     QMapIterator<int, Depense*> itdep (*Datas::I()->depenses->depenses());
     while (itdep.hasNext())
     {
-        itdep.next();
-        Depense *dep = const_cast<Depense*>(itdep.value());
+        Depense *dep = const_cast<Depense*>(itdep.next().value());
         if (!ListeAnnees.contains(QString::number(dep->annee())))
             ListeAnnees << QString::number(dep->annee());
     }
@@ -1577,8 +1575,7 @@ void dlg_depenses::RemplitBigTable()
     QMapIterator<int, Depense*> it(*Datas::I()->depenses->depenses());
     while (it.hasNext())
     {
-        it.next();
-        Depense *dep = const_cast<Depense*>(it.value());
+        Depense *dep = const_cast<Depense*>(it.next().value());
         if (dep->annee() == ui->AnneecomboBox->currentText().toInt())
             listDepenses << dep;
     }
