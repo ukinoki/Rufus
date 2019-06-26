@@ -20,34 +20,39 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "database.h"
 #include "cls_document.h"
-#include "cls_itemslist.h"
 
-class Documents : public ItemsList
+class Documents
 {
 private:
     QMap<int, Document*> *m_documents = Q_NULLPTR;      //!< la liste des Documents
-    void addList(QList<Document*> listDocuments);
 
 public:
-    explicit Documents(QObject *parent = Q_NULLPTR);
+    explicit Documents();
 
     QMap<int, Document *> *documents() const;
 
+    void add(Document *Document);
+    void addList(QList<Document*> listDocuments);
+    void remove(Document* Document);
+    void clearAll();
     Document* getById(int id);
     void initListe();
 };
 
-class MetaDocuments : public ItemsList
+class MetaDocuments
 {
 private:
     QMap<int, MetaDocument*> *m_metadocuments = Q_NULLPTR;      //!< la liste des metadocuments
-    void addList(QList<MetaDocument*> listmetaDocs);
 
 public:
     explicit MetaDocuments();
 
     QMap<int, MetaDocument *> *metadocuments() const;
 
+    void add(MetaDocument *MetaDoc);
+    void addList(QList<MetaDocument*> listmetaDocs);
+    void remove(MetaDocument* MetaDoc);
+    void clearAll();
     MetaDocument* getById(int id);
     void initListe();
 };

@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_paiementstiers.h"
 #include "database.h"
 
-PaiementsTiers::PaiementsTiers(QObject *parent) : ItemsList(parent)
+PaiementsTiers::PaiementsTiers()
 {
     m_paiementstiers = new QMap<int, PaiementTiers*>();
 }
@@ -29,14 +29,18 @@ QMap<int, PaiementTiers *> *PaiementsTiers::paiementstiers() const
     return m_paiementstiers;
 }
 
+void PaiementsTiers::add(PaiementTiers *PaiementTiers)
+{
+    if( m_paiementstiers->contains(PaiementTiers->id()) )
+        return;
+    m_paiementstiers->insert(PaiementTiers->id(), PaiementTiers);
+}
+
 void PaiementsTiers::addList(QList<PaiementTiers*> listpaiementtiers)
 {
     QList<PaiementTiers*>::const_iterator it;
     for( it = listpaiementtiers.constBegin(); it != listpaiementtiers.constEnd(); ++it )
-    {
-        PaiementTiers* item = const_cast<PaiementTiers*>(*it);
-        add( m_paiementstiers, item->id(), item );
-    }
+        add( *it );
 }
 
 PaiementTiers* PaiementsTiers::getById(int id)
@@ -47,6 +51,21 @@ PaiementTiers* PaiementsTiers::getById(int id)
     return itcpt.value();
 }
 
+void PaiementsTiers::clearAll()
+{
+    for( QMap<int, PaiementTiers*>::const_iterator itmtf = m_paiementstiers->constBegin(); itmtf != m_paiementstiers->constEnd(); ++itmtf)
+        delete itmtf.value();
+    m_paiementstiers->clear();
+}
+
+void PaiementsTiers::remove(PaiementTiers *PaiementTiers)
+{
+    if (PaiementTiers == Q_NULLPTR)
+        return;
+    m_paiementstiers->remove(PaiementTiers->id());
+    delete PaiementTiers;
+}
+
 /*!
  * \brief PaiementsTiers::initListe
  * Charge l'ensemble des paiements par tiers
@@ -54,6 +73,6 @@ PaiementTiers* PaiementsTiers::getById(int id)
  */
 void PaiementsTiers::initListe(User* usr)
 {
-    clearAll(m_paiementstiers);
-    addList(DataBase::I()->loadPaiementTiersByUser(usr));
+    clearAll();
+    m_paiementstiers = DataBase::I()->loadPaiementTiersByUser(usr);
 }

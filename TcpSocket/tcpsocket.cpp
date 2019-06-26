@@ -28,6 +28,7 @@ TcpSocket* TcpSocket::I()
 
 TcpSocket::TcpSocket()
 {
+    db = DataBase::I();
     buffer.clear();
     sizedata = 0;
 }
@@ -35,7 +36,11 @@ TcpSocket::TcpSocket()
 bool TcpSocket::TcpConnectToServer(QString ipadrserver)
 {
     if (ipadrserver == "")
-        ipadrserver    = DataBase::I()->parametres()->adresseserveurtcp();
+    {
+        bool ok = true;
+        QList<QVariantList> listadress = db->StandardSelectSQL("select AdresseTCPServeur from " NOM_TABLE_PARAMSYSTEME, ok);
+        ipadrserver    = listadress.at(0).at(0).toString();
+    }
     if (ipadrserver == "")
         return false;
     QString port        = NOM_PORT_TCPSERVEUR;
@@ -48,21 +53,24 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     disconnect();
     if (state() == QAbstractSocket::ConnectedState || state() == QAbstractSocket::ConnectingState)
         disconnectFromHost();
-    connect(this,     &QTcpSocket::hostFound, this,   [=] { Logs::MSGSOCKET("Connexion OK"); });
+    connect(this,     &QTcpSocket::hostFound, this,   [=] {
+                                                            qDebug() << "Serveur trouvé";
+                                                            Logs::MSGSOCKET("Serveur trouvé");
+                                                          });
     connectToHost(ipadrserver,PortTCPServer);     // On se connecte au serveur
-    bool a = waitForConnected();
-    if (a)
+    if (waitForConnected(30000))
     {
         connect(this,                 &QTcpSocket::readyRead,                                              this,   &TcpSocket::TraiteDonneesRecues);
         connect(this,                 QOverload<QAbstractSocket::SocketError>::of(&QAbstractSocket::error),this,   &TcpSocket::erreurSocket);
+        return true;
     }
     else
     {
         disconnect();
-        close();
+        disconnectFromHost();
         instance = Q_NULLPTR;
+        return false;
     }
-    return a;
 }
 
 void TcpSocket::TraiteDonneesRecues()

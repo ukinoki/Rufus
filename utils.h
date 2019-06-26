@@ -23,7 +23,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QHostInfo>
-#include <QProcess>
 #include <cmath>
 
 #include "uplineedit.h"
@@ -86,7 +85,6 @@ public:
     static QByteArray               IntToArray(int source);
     static QString                  getIpAdress();
     static QString                  getMACAdress();
-    static QString                  getMacForIP(QString ipAddress);
     static bool                     VerifMDP(QString MDP, QString Msg, bool mdpverified=false);
 
     //! Fichiers
@@ -108,10 +106,6 @@ public:
 
     static QString                  ConvertitModePaiement(QString mode);            // convertit en clair les abréviations utilisées dans la compta pour les modes de paiement (B= carte de crédit, E = Espèces...etc...)
 
-    //! Calcule âge
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance);
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QDate datedujour);
-    static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour = QDate::currentDate());
 };
 
 #endif // UTILS_H

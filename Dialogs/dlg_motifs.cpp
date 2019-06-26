@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_motifs.h"
 
 dlg_motifs::dlg_motifs(QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionMotifs", parent),
+    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionMotifs", parent),
     ui(new Ui::dlg_motifs)
 {
     ui->setupUi(this);
@@ -491,16 +491,18 @@ void dlg_motifs::CreeMotif()
     ui->MotifsupTableWidget->clearSelection();
 
     int row = ui->MotifsupTableWidget->rowCount();
-    Motif *motif = Datas::I()->motifs->CreationMotif(tr("Nouveau motif"),   //! Motif
-                                             "NM",                          //! Raccourci
-                                             "FFFFFF",                      //! Couleur
-                                             0,                             //! duree
-                                             false,                         //! pardefaut
-                                             true,                          //! utiliser
-                                             row+1);                        //! noOrdre
-    if (motif == Q_NULLPTR)
-        return;
     ui->MotifsupTableWidget->insertRow(row);
+    QJsonObject jmotif{};
+    jmotif["id"] = 0;
+    jmotif["motif"] = tr("Nouveau motif");
+    jmotif["raccourci"] = "NM";
+    jmotif["couleur"] = "FFFFFF";
+    jmotif["duree"] = 0;
+    jmotif["pardefaut"] = false;
+    jmotif["utiliser"] = true;
+    jmotif["noordre"] = row+1;
+    Motif *motif = new Motif(jmotif);
+    Datas::I()->motifs->add(motif);
     SetMotifToRow(motif,row);
 
     QFontMetrics fm(qApp->font());
@@ -522,9 +524,9 @@ void dlg_motifs::Slot_EnregistreMotifs()
         }
     }
     //vider la table MotifsRDV
-    DataBase::I()->StandardSQL("delete from " TBL_MOTIFSRDV);
+    DataBase::I()->StandardSQL("delete from " NOM_TABLE_MOTIFSRDV);
     //la remplir avec les nouvelles valeurs
-    QString req = "insert into " TBL_MOTIFSRDV " (Utiliser, Motif, raccourci, couleur, ParDefaut, NoOrdre) Values\n";
+    QString req = "insert into " NOM_TABLE_MOTIFSRDV " (Utiliser, Motif, raccourci, couleur, ParDefaut, NoOrdre) Values\n";
     for (int j=0; j<ui->MotifsupTableWidget->rowCount(); j++)
     {
         if (j>0)

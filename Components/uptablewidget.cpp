@@ -60,7 +60,7 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
 {
     QList<QImage> listimage = QList<QImage>();
     QPixmap     pix;
-    QByteArray ba = doc.value("ba").toByteArray();
+    QByteArray ba = doc["ba"].toByteArray();
 
     clear();
     setColumnCount(1);
@@ -71,7 +71,7 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     QString suffixe;
-    if (doc.value("type").toString() == PDF)
+    if (doc["type"].toString() == PDF)
     {
         Poppler::Document* document = Poppler::Document::loadFromData(ba);
         if (!document || document->isLocked()) {
@@ -116,7 +116,7 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
         }
         delete document;
     }
-    else if (doc.value("type").toString() == JPG)
+    else if (doc["type"].toString() == JPG)
     {
         QImage image;
         if (!image.loadFromData(ba))
@@ -142,12 +142,6 @@ QByteArray UpTableWidget::dropData()
 void UpTableWidget::clearSelection()
 {
     setRangeSelected(QTableWidgetSelectionRange(0,0,rowCount()-1,columnCount()-1),false);
-}
-
-void UpTableWidget::clearAllRowsExceptHeader()
-{
-    for (int i =0; i<rowCount(); i++)
-        removeRow(i);
 }
 
 int UpTableWidget::FixLargeurTotale()

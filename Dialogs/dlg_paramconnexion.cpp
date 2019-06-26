@@ -241,8 +241,12 @@ bool dlg_paramconnexion::TestConnexion()
 
     //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
     QString error = "";
-    DataBase::I()->initFromFirstConnexion(mode, gServeur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());  //à mettre avant le connectToDataBase() sinon une restaurationp plante parce qu'elle n'a pas les renseignements
-    error = DataBase::I()->connectToDataBase(DB_CONSULTS, Login, Password);
+    DataBase::I()->initFromFirstConnexion(mode, gServeur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());  //à mettre avant le connectToDataBase() sinon une restaurationp llante parce qu'elle n'a pas les renseignements
+#ifdef ALEX
+    error = DataBase::I()->connectToDataBase(NOM_BASE_CONSULTS, "rufusConnection", "rufuspassword");
+#else
+    error = DataBase::I()->connectToDataBase(NOM_BASE_CONSULTS, Login, Password);
+#endif
 
     if( error.size() )
     {
@@ -254,6 +258,9 @@ bool dlg_paramconnexion::TestConnexion()
         return false;
     }
 
+#ifdef ALEX
+    req = "show grants for 'rufusConnection'@'localhost'";
+#else
     QString Client;
     if (DataBase::I()->getBase() == "BDD_DISTANT")
         Client = "%";
@@ -270,7 +277,7 @@ bool dlg_paramconnexion::TestConnexion()
     else
         Client = DataBase::I()->getServer();
     req = "show grants for '" + Login + (DataBase::I()->getBase() == "BDD_DISTANT"? "SSL" : "")  + "'@'" + Client + "'";
-
+#endif
     bool ok;
     QVariantList grantsdata = DataBase::I()->getFirstRecordFromStandardSelectSQL(req,ok);
     if (!ok || grantsdata.size()==0)

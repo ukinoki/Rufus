@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_depense.h"
 
+int         Depense::id() const                 { return  m_iddepense;}
 int         Depense::iduser() const             { return  m_iduser;}
 QDate       Depense::date() const               { return  m_datedepepense;}
 QString     Depense::rubriquefiscale() const    { return  m_rubriquefiscale;}
@@ -36,22 +37,22 @@ bool        Depense::isecheancier() const       { return  m_echeancier;}
 QString     Depense::objetecheancier() const    { return  m_objetecheancier;}
 int         Depense::annee() const              { return  m_datedepepense.toString("yyyy").toInt();}
 int         Depense::isArchivee() const         { return  m_auxarchives;}
-QString     Depense::factureformat() const      { return  m_formatfacture;}
-QByteArray  Depense::factureblob() const        { return  m_blob;}
+QString     Depense::pdfoujpgfacture() const    { return  m_pdfoujpgfacture;}
+QByteArray  Depense::imgfacture() const         { return  m_imgfacture;}
 
-void    Depense::setarchivee(bool arch)             { m_auxarchives = (arch? Depense::Oui : Depense::Non);}
+void    Depense::setArchivee(bool arch)             { m_auxarchives = (arch? Depense::Oui : Depense::Non);}
 void    Depense::setidfacture(int idfact)           { m_idfacture = idfact;}
 void    Depense::setlienfacture(QString lien)       { m_lienfacture = lien;}
 void    Depense::setecheancier(bool ech)            { m_echeancier = ech;}
 void    Depense::setobjetecheancier(QString obj)    { m_objetecheancier = obj;}
-void    Depense::setfactureformat(QString typeimg)  { m_formatfacture = typeimg;}
-void    Depense::setfactureblob(QByteArray ba)      { m_blob = ba;}
+void    Depense::setpdfoujpgfacture(QString typeimg){ m_pdfoujpgfacture = typeimg;}
+void    Depense::setimgfacture(QByteArray ba)       { m_imgfacture = ba;}
 
 Depense::Depense(QJsonObject data, QObject *parent) : Item(parent)
 {
     m_auxarchives = Depense::NoLoSo;
-    m_formatfacture = "";
-    m_blob = QByteArray();
+    m_pdfoujpgfacture = "";
+    m_imgfacture  = QByteArray();
     setData(data);
 }
 
@@ -60,7 +61,7 @@ void Depense::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data, "iddepense", m_id);
+    setDataInt(data, "iddepense", m_iddepense);
     setDataInt(data, "iduser", m_iduser);
     setDataDate(data, "date", m_datedepepense);
     setDataString(data, "reffiscale", m_rubriquefiscale);
@@ -77,7 +78,6 @@ void Depense::setData(QJsonObject data)
     setDataBool(data, "echeancier", m_echeancier);
     setDataString(data, "objetecheancier", m_objetecheancier);
     setDataInt(data, "idrubrique", m_idrubriquefiscale);
-    m_data = data;
 }
 
 

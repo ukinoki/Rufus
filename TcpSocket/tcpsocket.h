@@ -54,29 +54,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
                 * avec ou sans RufusAdmin, les postes distants fonctionnent sans TCP
             * RufusAdmin continue à surveiller et à mettre à jour les flags correspondants pour informer/surveiller les postes distants qui fonctionnent sans TCP
             */
-
-            /*! LES MESSAGES
-             * 1. TCPMSG_IDUSER
-                * envoyé immédiatement après la connexion, composé de iduser puis TCPMSG_IDUSER
-             * 2. TCPMSG_DataSocket
-                * envoyé immédiatement après le précédent, composé de adresseIP, adresseMac, LoaclhostName() puis  TCPMSG_IDUSER
-             * 3. TCPMSG_MAJSalAttente
-                * utilisé seul, envoyé au serveurTCP pour inviter à faire une MAJ de la salle d'attente
-             * 4. TCPMSG_MAJCorrespondants
-                * utilisé seul, envoyé au serveurTCP pour inviter à faire une MAJ de la liste des correspondants
-             * 5. TCPMSG_MAJDocsExternes
-                * message reçu du serveurTCP, composé de idpatient puis TCPMSG_MAJDocsExternes -> incite à mettre à jour les documents externes du patient idpatient
-             * 6. TCPMSG_MsgBAL
-                * gère la BAL
-                    * message reçu du serveur      -> composé de nombre de messages puis TCPMSG_MsgBAL -> indique que le nombre de messages vient d'être reçu
-                    * message envoyé au serveur    -> composé de la liste des idUser destinataires séparés par des virgules puis separateur puis nombre de messages puis TCPMSG_MsgBAL
-             * 7. TCPMSG_ListeSockets
-                * message reçu du serveur, composé des dats de chaque poste connecté, séparés par {}
-                * chaque data contient adresseIP, adresseMac, LoaclhostName(), idUser puis  TCPMSG_ListeSockets
-             * 8.TCPMSG_Separator
-                * le séparateur des éléments d'un message
-             */
-
 class TcpSocket : public QTcpSocket
 {
     Q_OBJECT
@@ -88,6 +65,7 @@ public:
 private:
     TcpSocket();
     static TcpSocket    *instance;
+    DataBase            *db;
     QString             currentmsg, erreurmsg;
     QStringList         gListSockets;
     quint16             PortTCPServer;

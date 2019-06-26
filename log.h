@@ -45,7 +45,7 @@ public:
     static void trace(QString type, QString msg, QString infoMsg = "")
     {
         QDir DirRssces;
-        QString dirlog = QDir::homePath() + DIR_RUFUS DIR_LOGS;
+        QString dirlog = QDir::homePath() + NOMDIR_RUFUS NOMDIR_LOGS;
         if (!DirRssces.exists(dirlog))
             DirRssces.mkdir(dirlog);
         QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
@@ -65,13 +65,12 @@ public:
     }
     static void MSGSOCKET(QString msg, QString infoMsg = "")
     {
-        QByteArray ba, bainfo;
-        tracesocket("MSG", ba.append(msg), bainfo.append(infoMsg));
+        tracesocket("MSG", msg, infoMsg);
     }
     static void tracesocket(QString type, QString msg, QString infoMsg = "")
     {
         QDir DirRssces;
-        QString dirlog = QDir::homePath() + DIR_RUFUS DIR_LOGS;
+        QString dirlog = QDir::homePath() + NOMDIR_RUFUS NOMDIR_LOGS;
         if (!DirRssces.exists(dirlog))
             DirRssces.mkdir(dirlog);
         QString datelog = QDate::currentDate().toString("yyyy-MM-dd");
@@ -81,7 +80,7 @@ public:
         {
             QTextStream out(&testfile);
             QString timelog = QTime::currentTime().toString();
-            out << timelog << " - " << type << "\t-> " << msg.replace(TCPMSG_Separator, ":::") << (infoMsg == ""? "" : " : " + infoMsg.replace(TCPMSG_Separator, ":::")) << "\n";
+            out << timelog << " - " << type << "\n     -> " << msg.replace(TCPMSG_Separator, ":::") << (infoMsg==""? "" : " : " + infoMsg.replace(TCPMSG_Separator, ":::")) << "\n";
             testfile.close();
         }
     }

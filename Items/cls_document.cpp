@@ -23,6 +23,7 @@ Document::Document(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
+int Document::id() const                            { return m_iddocument; }
 int Document::iduser() const                        { return m_iduser; }
 QString Document::texte() const                     { return m_texte; }
 QString Document::resume() const                    { return m_resume; }
@@ -44,7 +45,7 @@ void Document::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, "iddocument", m_id);
+    setDataInt(data, "iddocument", m_iddocument);
     setDataInt(data, "iduser", m_iduser);
 
     setDataString(data, "texte", m_texte);
@@ -55,7 +56,6 @@ void Document::setData(QJsonObject data)
     setDataBool(data, "prescription", m_prescription);
     setDataBool(data, "editable", m_editable);
     setDataBool(data, "medical", m_medical);
-    m_data = data;
 }
 
 

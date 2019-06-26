@@ -642,15 +642,9 @@
     <rect>
      <x>10</x>
      <y>589</y>
-     <width>130</width>
+     <width>121</width>
      <height>16</height>
     </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>130</width>
-     <height>0</height>
-    </size>
    </property>
    <property name="text">
     <string>Dossier n°</string>
@@ -664,15 +658,9 @@
     <rect>
      <x>10</x>
      <y>620</y>
-     <width>130</width>
+     <width>111</width>
      <height>16</height>
     </rect>
-   </property>
-   <property name="minimumSize">
-    <size>
-     <width>130</width>
-     <height>0</height>
-    </size>
    </property>
    <property name="text">
     <string>Créé le</string>
