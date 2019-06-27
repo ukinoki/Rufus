@@ -17,8 +17,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_docsscanner.h"
 
-dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *parent) :
-    UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsScanner", parent)
+dlg_docsscanner::dlg_docsscanner(Item *item, int mode, QString titre, QWidget *parent) :
+    UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionDocsScanner", parent)
 {
     proc            = Procedures::I();
     gMode           = mode;
@@ -332,11 +332,11 @@ void dlg_docsscanner::ValideFiche()
     QString user("");
     if (gMode != Document)
         user = Datas::I()->users->getLoginById(Datas::I()->depenses->getById(iditem)->iduser());
-    QString CheminBackup = NomDirStockageImagerie + DIR_ORIGINAUX + (gMode==Document? DIR_IMAGES : DIR_FACTURES) + "/" + (gMode==Document? datetransfer : user);
+    QString CheminBackup = NomDirStockageImagerie + NOMDIR_ORIGINAUX + (gMode==Document? NOMDIR_IMAGES : NOMDIR_FACTURES) + "/" + (gMode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
     qFileOrigin.copy(CheminBackup + "/" + fichierimageencours);
 
-    QString CheminOKTransfrDir  = NomDirStockageImagerie + (gMode == Document? DIR_IMAGES "/" + datetransfer : DIR_FACTURES "/" + user) ;
+    QString CheminOKTransfrDir  = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES "/" + datetransfer : NOMDIR_FACTURES "/" + user) ;
     if (!Utils::mkpath(CheminOKTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
@@ -368,8 +368,7 @@ void dlg_docsscanner::ValideFiche()
 
     if (gMode == Document)      // c'est un document scanné
     {
-        DataBase::I()->locktables(QStringList() << TBL_IMPRESSIONS);
-        idimpr =  db->selectMaxFromTable("idimpression", TBL_IMPRESSIONS, ok) + 1;
+        idimpr =  db->selectMaxFromTable("idimpression", NOM_TABLE_IMPRESSIONS, ok) + 1;
         QString NomFileDoc = QString::number(iditem) + "_"
                 + typeDocCombo->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
@@ -377,44 +376,37 @@ void dlg_docsscanner::ValideFiche()
         lien = "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
         if (!AccesDistant)
         {
-            listbinds[CP_IDIMPRESSION_IMPRESSIONS] =     idimpr;
-            listbinds[CP_IDPAT_IMPRESSIONS] =            iditem;
-            listbinds[CP_TYPEDOC_IMPRESSIONS] =          typeDocCombo->currentText();
-            listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
-            listbinds[CP_TITRE_IMPRESSIONS] =            typeDocCombo->currentText();
-            listbinds[CP_DATE_IMPRESSIONS] =             editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-            listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       db->getUserConnected()->id();
-            listbinds[CP_LIENFICHIER_IMPRESSIONS] =      lien;
-            listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
-            listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->getSite()->id();
+            listbinds["idImpression"] =     idimpr;
+            listbinds["idPat"] =            iditem;
+            listbinds["TypeDoc"] =          typeDocCombo->currentText();
+            listbinds["SousTypeDoc"] =      sstypedoc;
+            listbinds["Titre"] =            typeDocCombo->currentText();
+            listbinds["DateImpression"] =   editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
+            listbinds["UserEmetteur"] =     db->getUserConnected()->id();
+            listbinds["lienversfichier"] =  lien;
+            listbinds["EmisRecu"] =         "1";
+            listbinds["FormatDoc"] =        DOCUMENTRECU;
+            listbinds["idLieu"] =           db->getUserConnected()->getSite()->id();
         }
         else
         {
-            if (suffixe == "pdf")
-                suffixe = CP_PDF_IMPRESSIONS;
-            else if (suffixe== "jpg" || suffixe == "jpeg")
-                suffixe = CP_JPG_IMPRESSIONS;
-            listbinds[CP_IDIMPRESSION_IMPRESSIONS] =     idimpr;
-            listbinds[CP_IDPAT_IMPRESSIONS] =            iditem;
-            listbinds[CP_TYPEDOC_IMPRESSIONS] =          typeDocCombo->currentText();
-            listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
-            listbinds[CP_TITRE_IMPRESSIONS] =            typeDocCombo->currentText();
-            listbinds[CP_DATE_IMPRESSIONS] =             editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-            listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       db->getUserConnected()->id();
-            listbinds[suffixe] =                         ba;
-            listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
-            listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->getSite()->id();
+            listbinds["idImpression"] =     idimpr;
+            listbinds["idPat"] =            iditem;
+            listbinds["TypeDoc"] =          typeDocCombo->currentText();
+            listbinds["SousTypeDoc"] =      sstypedoc;
+            listbinds["Titre"] =            typeDocCombo->currentText();
+            listbinds["DateImpression"] =   editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
+            listbinds["UserEmetteur"] =     db->getUserConnected()->id();
+            listbinds[suffixe] =            ba;
+            listbinds["EmisRecu"] =         "1";
+            listbinds["FormatDoc"] =        DOCUMENTRECU;
+            listbinds["idLieu"] =           db->getUserConnected()->getSite()->id();
         }
-        DocExterne * doc = DocsExternes::CreationDocument(listbinds);
-        b = (doc != Q_NULLPTR);
-        delete doc;
-        doc = Q_NULLPTR;
+        b = db->InsertSQLByBinds(NOM_TABLE_IMPRESSIONS, listbinds);
     }
     else                        // c'est une facture ou un échéancier
     {
-        idimpr =  db->selectMaxFromTable("idFacture", TBL_FACTURES, ok) + 1;
+        idimpr =  db->selectMaxFromTable("idFacture", NOM_TABLE_FACTURES, ok) + 1;
         QString NomFileDoc = QString::number(idimpr) + "_"
                 + typeDocCombo->currentText() + "_"
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
@@ -440,22 +432,21 @@ void dlg_docsscanner::ValideFiche()
             listbinds[suffixe] =            ba;
             datafacture["lien"] =           "";
         }
-        b = db->InsertSQLByBinds(TBL_FACTURES, listbinds);
-        if(!b)
-            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
+        b = db->InsertSQLByBinds(NOM_TABLE_FACTURES, listbinds);
         datafacture["idfacture"] = idimpr;
         datafacture["echeancier"] = (gMode == Echeancier);
         datafacture["objetecheancier"] = (gMode == Echeancier? sstypedoc : "");
     }
     if(!b)
     {
+        UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
         qFileOrigin.close ();
         reject();
         return;
     }
     else if (!AccesDistant)
     {
-        QString CheminOKTransfrDoc = NomDirStockageImagerie + (gMode == Document? DIR_IMAGES : DIR_FACTURES) + lien;
+        QString CheminOKTransfrDoc = NomDirStockageImagerie + (gMode == Document? NOMDIR_IMAGES : NOMDIR_FACTURES) + lien;
         if (suffixe == JPG)
         {
             QFile CF(filename);

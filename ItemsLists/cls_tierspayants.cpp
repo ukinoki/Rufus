@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_tierspayants.h"
 
-TiersPayants::TiersPayants(QObject *parent) : ItemsList(parent)
+TiersPayants::TiersPayants()
 {
     m_tierspayants = new QMap<int, Tiers *>();
 }
@@ -27,14 +27,18 @@ QMap<int, Tiers *> *TiersPayants::tierspayants() const
     return m_tierspayants;
 }
 
+void TiersPayants::add(Tiers *Tiers)
+{
+    if( m_tierspayants->contains(Tiers->id()) )
+        return;
+    m_tierspayants->insert(Tiers->id(), Tiers);
+}
+
 void TiersPayants::addList(QList<Tiers*> listTiersPayants)
 {
     QList<Tiers*>::const_iterator it;
     for( it = listTiersPayants.constBegin(); it != listTiersPayants.constEnd(); ++it )
-    {
-        Tiers* trs = const_cast<Tiers*>(*it);
-        add( m_tierspayants, trs->id(), trs );
-    }
+        add( *it );
 }
 
 Tiers* TiersPayants::getById(int id)
@@ -45,6 +49,21 @@ Tiers* TiersPayants::getById(int id)
     return itcpt.value();
 }
 
+void TiersPayants::clearAll()
+{
+    for( QMap<int, Tiers*>::const_iterator ittrs = m_tierspayants->constBegin(); ittrs != m_tierspayants->constEnd(); ++ittrs)
+        delete ittrs.value();
+    m_tierspayants->clear();
+}
+
+void TiersPayants::remove(Tiers *tiers)
+{
+    if (tiers == Q_NULLPTR)
+        return;
+    m_tierspayants->remove(tiers->id());
+    delete tiers;
+}
+
 /*!
  * \brief TiersPayants::initListe
  * Charge l'ensemble des tiers payants
@@ -52,6 +71,12 @@ Tiers* TiersPayants::getById(int id)
  */
 void TiersPayants::initListe()
 {
-    clearAll(m_tierspayants);
-    addList(DataBase::I()->loadTiersPayants());
+    clearAll();
+    QList<Tiers*> listtiers = DataBase::I()->loadTiersPayants();
+    QList<Tiers*>::const_iterator ittrs;
+    for( ittrs = listtiers.constBegin(); ittrs != listtiers.constEnd(); ++ittrs )
+    {
+        Tiers *trs = const_cast<Tiers*>(*ittrs);
+        add( trs );
+    }
 }

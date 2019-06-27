@@ -20,53 +20,25 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "database.h"
 #include "cls_acte.h"
-#include "cls_itemslist.h"
-#include <QStandardItemModel>
-#include <QSortFilterProxyModel>
-#include <QModelIndex>
-#include "upstandarditem.h"
 
-class Actes: public ItemsList
+class Actes
 
 {
 private:
     QMap<int, Acte*> *m_actes = Q_NULLPTR; //!< une liste d'actes
-    QSortFilterProxyModel* m_actesortmodel;
-    QSortFilterProxyModel* m_heuresortmodel;
-    QStandardItemModel *m_actesmodel;
-    void    addList(QList<Acte*> listActes, Item::UPDATE upd = Item::NoUpdate);
 
 public:
-    explicit Actes(QObject *parent = Q_NULLPTR);
+    explicit Actes();
 
     QMap<int, Acte *> *actes() const;
 
-    Acte*   getById(int id, ADDTOLIST add = AddToList);                                     //!> crée un acte à partir de son id
-    QMap<int, Acte*>::const_iterator   getLast();                                           //!> renvoie le dernier acte de la liste
-    QMap<int, Acte*>::const_iterator   getAt(int idx);                                      //!> renvoie l'acte de la liste à l'index idx
-    void    initListeByPatient(Patient *pat, Item::UPDATE upd = Item::NoUpdate, bool quelesid = false);
-                                                                                            //!> charge tous les actes d'un patient
-
-    void    sortActesByDate();                                                              /*! > trie la liste des actes par date, heure et met le résultat dans un QSortFilterProxyModel
-                                                                                             * il arrive que la liste d'actes ne soit pas triée dans le bon ordre
-                                                                                             * (acte créé a posteriori ou erreur sur la date) */
-    Acte* getActeFromRow(int row);
-    Acte* getActeFromIndex(QModelIndex idx);
-
-
-    //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
-
-    //!> actions sur les champs
-    void    setMontantCotation(Acte *act, QString Cotation = "", double montant = 0.0);
-    //! géré pour le reste par la fonction update de la classe mère cls_itemslist
-
-    //!> actions sur les enregistrements
-    void    SupprimeActe(Acte *act);
-    Acte*   CreationActe(Patient *pat, int idcentre);
-
-    //!< action sur toutes les données
-    void    updateActe(Acte* acte);                                                         //!> met à jour les datas d'un acte à partir des données enregistrées dans la base
-
+    void    add(Acte *acte);
+    void    addList(QList<Acte*> listActes);
+    void    remove(Acte* acte);
+    void    clearAll();
+    Acte*   getById(int id);
+    void    reloadActe(Acte* acte);
+    void    initListeByPatient(Patient *pat);
 };
 
 

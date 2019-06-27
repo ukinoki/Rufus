@@ -24,6 +24,7 @@ PlayerControls::PlayerControls(QWidget *parent)
 {
     playButton = new QToolButton(this);
     playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    state = 2;
 
     stopButton = new QToolButton(this);
     stopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
@@ -46,8 +47,8 @@ PlayerControls::PlayerControls(QWidget *parent)
 
     player = Q_NULLPTR;
 
-    connect(playButton, &QAbstractButton::clicked, this,    &PlayerControls::playClicked);
-    connect(stopButton, &QAbstractButton::clicked, this,    &PlayerControls::stopClicked);
+    connect(playButton,     SIGNAL(clicked()),                  this, SLOT(playClicked()));
+    connect(stopButton,     SIGNAL(clicked()),                  this, SLOT(stopClicked()));
     setFixedWidth(450);
 }
 
@@ -58,7 +59,7 @@ PlayerControls::~PlayerControls()
 
 QString PlayerControls::format(QMediaPlayer *plyr)
 {
-    return (plyr->duration()/1000 > 3600? "HH:mm:ss" : "mm:ss");
+    return (plyr->duration()/1000 > 3600? "hh:mm:ss" : "mm:ss");
 }
 
 void PlayerControls::setPlayer(QMediaPlayer *md)
@@ -68,14 +69,9 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
     player->disconnect();
     slider->disconnect();
     player = md;
-    connect(player, &QMediaPlayer::positionChanged, this, [=] (qint64 a) { positionChanged(a); });
-    connect(slider, &QSlider::sliderMoved,          this, [=] (int a) { playSeek(a);});
+    connect(player,         SIGNAL(positionChanged(qint64)),    this, SLOT(positionChanged(qint64)));
+    connect(slider,         SIGNAL(sliderMoved(int)),           this, SLOT(playSeek(int)));
     labelDuration->setFixedSize(Utils::CalcSize(QTime(0,0,0).toString(format(player)) + " / " + QTime(0,0,0).toString(format(player))));
-}
-
-void PlayerControls::startplay()
-{
-    emit ctrl(Play);
 }
 
 void PlayerControls::playClicked()
@@ -84,13 +80,19 @@ void PlayerControls::playClicked()
     if (player->state() == QMediaPlayer::PlayingState)
     {
         playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        emit ctrl(Pause);
+        state = 1;
     }
     else
     {
         playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
-        emit ctrl(Play);
+        state = 2;
     }
+    emit ctrl();
+}
+
+int PlayerControls::State()
+{
+    return state;
 }
 
 void PlayerControls::stopClicked()
@@ -99,28 +101,20 @@ void PlayerControls::stopClicked()
     {
         stopButton->setEnabled(false);
         playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        player->setPosition(0);
-        emit ctrl(Stop);
+        state = 0;
+        emit ctrl();
     }
 }
 
 void PlayerControls::playSeek(int progress)
 {
-    double position = (progress < 1? 0 : (double(progress)/Utils::MaxInt())*player->duration());
-    if (position > player->duration())
-        position = player->duration();
-    player->setPosition(qint64(position));
+    player->setPosition(qint64((double(progress)/Utils::MaxInt())*player->duration()));
 }
 
 void PlayerControls::positionChanged(qint64 progress)
 {
     if (!slider->isSliderDown())
-    {
-        double position = progress*(double(Utils::MaxInt())/player->duration());
-        if (position > Utils::MaxInt())
-            position = Utils::MaxInt();
-        slider->setValue(int(position));
-    }
+        slider->setValue(int(progress*(double(Utils::MaxInt())/player->duration())));
     updateDurationInfo(progress);
     if (progress == player->duration())
         stopClicked();

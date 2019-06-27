@@ -34,10 +34,16 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
 
     // On reconstruit le combobox des comptes de l'utilisateur
     if (db->getUserConnected()->getComptes() == Q_NULLPTR)
-        proc->SetUserAllData(db->getUserConnected());
-    comptesusr = db->getUserConnected()->getComptes(true);
+    {
+        comptesusr = new Comptes();
+        comptesusr->addCompte( db->loadComptesByUser(db->getUserConnected()->id()) );
+        db->getUserConnected()->setComptes(comptesusr);
+    }
+    else
+        comptesusr = db->getUserConnected()->getComptes();
 
-    if (comptesusr->size() == 0)
+
+    if (comptesusr->comptesAll()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas de compte bancaire enregistré!"));
         InitOK = false;
@@ -48,17 +54,17 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         CompteEnCours = new Compte();
         ui->BanquecomboBox->clear();
         int idcptprefer = -1;
-        QList<Compte*>::const_iterator itcpt;
-        for (itcpt = comptesusr->constBegin(); itcpt != comptesusr->constEnd(); ++itcpt)
+        QMultiMap<int, Compte*>::const_iterator itcpt;
+        for (itcpt = comptesusr->comptes()->constBegin(); itcpt != comptesusr->comptes()->constEnd(); ++itcpt)
         {
-            Compte *cpt = const_cast<Compte*>(*itcpt);
-            ui->BanquecomboBox->addItem(cpt->nomabrege(),cpt->id());
-            if (db->getUserConnected()->getCompteParDefaut() != Q_NULLPTR)
-                idcptprefer = db->getUserConnected()->getCompteParDefaut()->id();
+            Compte *cpt = const_cast<Compte*>(itcpt.value());
+            ui->BanquecomboBox->addItem(cpt->nom(),cpt->id());
+            if (cpt->isPrefere())
+                idcptprefer = cpt->id();
         }
         ui->BanquecomboBox->setCurrentIndex(ui->BanquecomboBox->findData(idcptprefer));
         idCompte = ui->BanquecomboBox->currentData().toInt();
-        CompteEnCours = Datas::I()->comptes->getById(idCompte);
+        CompteEnCours = comptesusr->getCompteById(idCompte);
         if (CompteEnCours != Q_NULLPTR)
         {
             SoldeSurReleve = CompteEnCours->solde();
@@ -99,20 +105,20 @@ dlg_comptes::~dlg_comptes()
 void dlg_comptes::AnnulArchive()
 {
     bool ok;
-    if (!db->createtransaction(QStringList() <<  TBL_ARCHIVESBANQUE << TBL_LIGNESCOMPTES << TBL_COMPTES))
+    if (!db->createtransaction(QStringList() <<  NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_COMPTES))
         return;
 
-    int max = db->selectMaxFromTable("idArchive", TBL_ARCHIVESBANQUE, ok);
+    int max = db->selectMaxFromTable("idArchive", NOM_TABLE_ARCHIVESBANQUE, ok);
     if (!ok || max==0)
     {
         db->rollback();
         return;
     }
 
-    if (!db->StandardSQL("insert into " TBL_LIGNESCOMPTES
+    if (!db->StandardSQL("insert into " NOM_TABLE_LIGNESCOMPTES
                                " select * from"
                                "  (select idLigne, idCompte, idDep, idRec, idrecspec, idremcheq, LigneDate, LigneLibelle, LigneMontant,"
-                               "LigneDebitCredit, LigneTypeOperation, 1 as ligneConsolide from " TBL_ARCHIVESBANQUE
+                               "LigneDebitCredit, LigneTypeOperation, 1 as ligneConsolide from " NOM_TABLE_ARCHIVESBANQUE
                                " where idarchive = " + QString::number(max) + ")"
                                " as tet",
                                tr("Impossible d'ouvrir la table des archives bancaires")))
@@ -124,7 +130,7 @@ void dlg_comptes::AnnulArchive()
     // recalculer le solde
     double NouveauSolde = QLocale().toDouble(ui->MontantSoldeBrutlabel->text());
     QList<QVariantList> listsoldes = db->SelectRecordsFromTable(QStringList() << "LigneMontant" << "LigneDebitCredit",
-                                                              TBL_LIGNESCOMPTES, ok,
+                                                              NOM_TABLE_LIGNESCOMPTES, ok,
                                                               " where idcompte = " + QString::number(idCompte));
     if (listsoldes.size() == 0)
     {
@@ -139,14 +145,14 @@ void dlg_comptes::AnnulArchive()
             NouveauSolde += listsoldes.at(i).at(0).toDouble();
     }
 
-    if (!db->SupprRecordFromTable(max, "idarchive", TBL_ARCHIVESBANQUE))
+    if (!db->SupprRecordFromTable(max, "idarchive", NOM_TABLE_ARCHIVESBANQUE))
     {
         db->rollback();
         return;
     }
 
 
-    if (!db->StandardSQL("update " TBL_COMPTES
+    if (!db->StandardSQL("update " NOM_TABLE_COMPTES
                                " set SoldeSurDernierReleve = "
                                + QString::number(NouveauSolde,'f',2)
                                + " where idCompte = " + QString::number(idCompte)))
@@ -157,7 +163,7 @@ void dlg_comptes::AnnulArchive()
 
     db->commit();
     SoldeSurReleve = NouveauSolde;
-    CompteEnCours->setsolde(SoldeSurReleve);
+    CompteEnCours->setSolde(SoldeSurReleve);
     ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
     gBigTable->clearContents();
     RemplitLaTable(idCompte);
@@ -192,19 +198,19 @@ void dlg_comptes::Archiver()
 
     QStringList listlock;
     bool ok;
-    listlock << TBL_ARCHIVESBANQUE << TBL_LIGNESCOMPTES << TBL_COMPTES;
+    listlock << NOM_TABLE_ARCHIVESBANQUE << NOM_TABLE_LIGNESCOMPTES << NOM_TABLE_COMPTES;
     if (!db->createtransaction(listlock))
         return;
-    int max = db->selectMaxFromTable("idArchive", TBL_ARCHIVESBANQUE, ok);
+    int max = db->selectMaxFromTable("idArchive", NOM_TABLE_ARCHIVESBANQUE, ok);
     if (!ok)
     {
         db->rollback();
         return;
     }
 
-    QString Archiverequete = "insert into " TBL_ARCHIVESBANQUE " select * from  (select idLigne, idCompte, idDep, idRec, idrecspec, idremcheq, LigneDate, LigneLibelle, LigneMontant,"
+    QString Archiverequete = "insert into " NOM_TABLE_ARCHIVESBANQUE " select * from  (select idLigne, idCompte, idDep, idRec, idrecspec, idremcheq, LigneDate, LigneLibelle, LigneMontant,"
             "LigneDebitCredit, LigneTypeOperation, date(now()) as LigneDateConsolidation, "
-            + QString::number(max+1) + " as idArchive from " TBL_LIGNESCOMPTES
+            + QString::number(max+1) + " as idArchive from " NOM_TABLE_LIGNESCOMPTES
             " where idLigne in ";
     QString reponse = "(" + QString::number(ListeActesAArchiver.at(0));
     for (int i = 1; i < ListeActesAArchiver.size();i++)
@@ -216,12 +222,12 @@ void dlg_comptes::Archiver()
         db->rollback();
         return;
     }
-    if (!db->StandardSQL(" delete from " TBL_LIGNESCOMPTES " where idligne in " + reponse + ")"))
+    if (!db->StandardSQL(" delete from " NOM_TABLE_LIGNESCOMPTES " where idligne in " + reponse + ")"))
     {
         db->rollback();
         return;
     }
-    if (!db->StandardSQL("update " TBL_COMPTES " set SoldeSurDernierReleve = "
+    if (!db->StandardSQL("update " NOM_TABLE_COMPTES " set SoldeSurDernierReleve = "
                                + QString::number(QLocale().toDouble(ui->MontantSoldeConsolidelabel->text()),'f',2)
                                + " where idCompte = " + QString::number(idCompte)))
     {
@@ -231,7 +237,7 @@ void dlg_comptes::Archiver()
 
     db->commit();
     SoldeSurReleve = QLocale().toDouble(ui->MontantSoldeConsolidelabel->text());
-    CompteEnCours->setsolde(SoldeSurReleve);
+    CompteEnCours->setSolde(SoldeSurReleve);
     ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
     gBigTable->clearContents();
     RemplitLaTable(idCompte);
@@ -249,7 +255,7 @@ void dlg_comptes::AnnulConsolidations()
                 allCheck.at(n)->setCheckState(Qt::Unchecked);
         }
     }
-    db->StandardSQL("update " TBL_LIGNESCOMPTES " set Ligneconsolide = null");
+    db->StandardSQL("update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = null");
     CalculeTotal();
 }
 
@@ -268,14 +274,13 @@ void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
     delete menuContextuel;
-    menuContextuel = Q_NULLPTR;
 }
 
 void dlg_comptes::RenvoieRangee(bool Coche, UpCheckBox* Check)
 {
     int R = Check->getRowTable();
     QLabel* lbl = dynamic_cast<QLabel*>(gBigTable->cellWidget(R,0));
-    QString requete = "update " TBL_LIGNESCOMPTES " set Ligneconsolide = ";
+    QString requete = "update " NOM_TABLE_LIGNESCOMPTES " set Ligneconsolide = ";
     requete += (Coche? "1" : "null");
     requete += " where idligne = " + lbl->text();
     db->StandardSQL(requete);
@@ -438,7 +443,7 @@ void dlg_comptes::RemplirTableArchives()
 }
 void dlg_comptes::VoirArchives()
 {
-    gArchives       = new UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionArchives", this);
+    gArchives       = new UpDialog(QDir::homePath() + NOMFIC_INI, "PositionsFiches/PositionArchives", this);
     gTableArchives  = new UpTableWidget();
     glistArchCombo  = new QComboBox();
     glbltitre       = new UpLabel();
@@ -457,7 +462,7 @@ void dlg_comptes::VoirArchives()
     gTableArchives      ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
     gTableArchives      ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    glbltitre           ->setText(tr("Liste des remises archivées sur le compte ") + CompteEnCours->nomabrege() + " ");
+    glbltitre           ->setText(tr("Liste des remises archivées sur le compte ") + CompteEnCours->nom() + " ");
     gFlecheHtButton     ->setIcon( Icons::icFlecheHaut() );
     gFlecheHtButton     ->setCursor(Qt::PointingHandCursor);
     gFlecheHtButton     ->setImmediateToolTip(tr("Voir les archives précédentes"));
@@ -534,10 +539,8 @@ void dlg_comptes::VoirArchives()
     gArchives->exec();
     dateencours = QDate::currentDate();
     delete gArchives;
-
     archivescptencours->clearAll();
     delete archivescptencours;
-    archivescptencours = Q_NULLPTR;
 }
 
 void dlg_comptes::SupprimerEcriture(QString msg)
@@ -559,7 +562,7 @@ void dlg_comptes::SupprimerEcriture(QString msg)
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        db->StandardSQL("delete from " TBL_LIGNESCOMPTES " where idligne = " + QString::number(gidLigneASupprimer));
+        db->StandardSQL("delete from " NOM_TABLE_LIGNESCOMPTES " where idligne = " + QString::number(gidLigneASupprimer));
         RemplitLaTable(idCompte);
     }
 }
@@ -607,16 +610,16 @@ void dlg_comptes::CalculeTotal()
 void dlg_comptes::ChangeCompte(int idx)
 {
     idCompte = ui->BanquecomboBox->itemData(idx).toInt();
-    CompteEnCours = Datas::I()->comptes->getById(idCompte);
-    // on doit refaire la requête parce que le solde s'il est null est passé en 0 par loadcomptesbyUser()
+    CompteEnCours = comptesusr->getCompteById(idCompte);
+    // on doit refaire la requête parce que le sole s'il est null est passé en 0 par loadcomptesbyUser()
     bool ok = true;
     QList<QVariantList> listsoldes = db->SelectRecordsFromTable(QStringList() << "SoldeSurDernierReleve",
-                                                                   TBL_COMPTES, ok,
+                                                                   NOM_TABLE_COMPTES, ok,
                                                                    "where idcompte = " + QString::number(idCompte));
     if (listsoldes.size() > 0)
     {
         SoldeSurReleve = listsoldes.at(0).at(0).toDouble();
-        CompteEnCours->setsolde(SoldeSurReleve);  // à tout hasard
+        CompteEnCours->setSolde(SoldeSurReleve);  // à tout hasard
         ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
         RemplitLaTable(idCompte);
     }
@@ -739,7 +742,7 @@ void dlg_comptes::RemplitLaTable(int idCompteAVoir)
     bool ok = true;
     QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << "idLigne" << "idCompte" << "idDep" << "idRec" << "LigneDate" << "LigneLibelle"
                                                                        << "LigneMontant" << "LigneDebitCredit" << "LigneTypeOperation" << "LigneConsolide",
-                                                                       TBL_LIGNESCOMPTES, ok,
+                                                                       NOM_TABLE_LIGNESCOMPTES, ok,
                                                                        "where idCompte = " + QString::number(idCompteAVoir),
                                                                        "order by LigneDate, lignelibelle, ligneMontant");
 

@@ -35,7 +35,6 @@ public:
 
     QList<QImage>   AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom = false);
     void            clearSelection();
-    void            clearAllRowsExceptHeader();                 //! supprime toutes les rangées d'une table (clearContents() vide le contenu des rangées mais ne supprime pas les rangées)
     int             FixLargeurTotale();
     QString         Attribut();
     void            setAttribut(QString attrib);

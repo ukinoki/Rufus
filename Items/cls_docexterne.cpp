@@ -26,6 +26,7 @@ DocExterne::DocExterne(QJsonObject data, QObject *parent) : Item(parent)
 
 bool DocExterne::isAllLoaded() const                { return m_isAllLoaded;}
 
+int DocExterne::id() const                          { return m_idimpression;}
 int DocExterne::iduser() const                      { return m_iduser;}
 int DocExterne::idpatient() const                   { return m_idpatient;}
 QString DocExterne::typedoc() const                 { return m_typedoc;}
@@ -40,48 +41,41 @@ QDateTime DocExterne::date() const                  { return m_dateimpression;}
 
 int DocExterne::compression() const                 { return m_compression;}
 QString DocExterne::lienversfichier() const         { return m_lienversfichier;}
-bool DocExterne::isALD() const                      { return m_ald==1;}
+bool DocExterne::isALD() const                      { return m_ald;}
 int DocExterne::useremetteur() const                { return m_useremetteur;}
 QString DocExterne::format() const                  { return m_formatdoc;}
-QByteArray DocExterne::imageblob() const            { return m_blob;}
-QString DocExterne::imageformat() const             { return m_formatimage;}
 
 int DocExterne::importance() const                  { return m_importance;}
 
 void DocExterne::setDate(QDateTime date)            { m_dateimpression = date;}
 void DocExterne::setimportance(int imptce)          { m_importance = imptce;}
 void DocExterne::setAllLoaded(bool AllLoaded)       { m_isAllLoaded = AllLoaded;}
-void DocExterne::setimageblob(QByteArray blob)      { m_blob = blob; }
-void DocExterne::setimageformat(QString format)     { m_formatimage = format; }
 
 void DocExterne::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataBool(data, CP_ISALLLOADED, m_isAllLoaded);
+    setDataBool(data, "isallloaded", m_isAllLoaded);
 
-    setDataInt(data, CP_IDIMPRESSION_IMPRESSIONS, m_id);
-    setDataInt(data, CP_IDUSER_IMPRESSIONS, m_iduser);
-    setDataInt(data, CP_IDPAT_IMPRESSIONS, m_idpatient);
-    setDataString(data, CP_TYPEDOC_IMPRESSIONS, m_typedoc);
-    setDataString(data, CP_SOUSTYPEDOC_IMPRESSIONS, m_soustypedoc);
+    setDataInt(data, "id", m_idimpression);
+    setDataInt(data, "iduser", m_iduser);
+    setDataInt(data, "idpat", m_idpatient);
+    setDataString(data, "typedoc", m_typedoc);
+    setDataString(data, "soustypedoc", m_soustypedoc);
 
-    setDataString(data, CP_TITRE_IMPRESSIONS, m_titre);
-    setDataString(data, CP_TEXTENTETE_IMPRESSIONS, m_textentete);
-    setDataString(data, CP_TEXTCORPS_IMPRESSIONS, m_textcorps);
-    setDataString(data, CP_TEXTORIGINE_IMPRESSIONS, m_textorigine);
-    setDataString(data, CP_TEXTPIED_IMPRESSIONS, m_textpied);
+    setDataString(data, "titre", m_titre);
+    setDataString(data, "textentete", m_textentete);
+    setDataString(data, "textcorps", m_textcorps);
+    setDataString(data, "textorigine", m_textorigine);
+    setDataString(data, "textpied", m_textpied);
 
-    setDataDateTime(data, CP_DATE_IMPRESSIONS, m_dateimpression);
-    setDataInt(data, CP_COMPRESSION_IMPRESSIONS, m_compression);
-    setDataString(data, CP_LIENFICHIER_IMPRESSIONS, m_lienversfichier);
-    setDataInt(data, CP_ALD_IMPRESSIONS, m_ald);
-    setDataInt(data, CP_IDEMETTEUR_IMPRESSIONS, m_useremetteur);
+    setDataDateTime(data, "dateimpression", m_dateimpression);
+    setDataInt(data, "compression", m_compression);
+    setDataString(data, "lienversfichier", m_lienversfichier);
+    setDataBool(data, "ALD", m_ald);
+    setDataInt(data, "useremetteur", m_useremetteur);
 
-    setDataString(data, CP_FORMATDOC_IMPRESSIONS, m_formatdoc);
-    setDataInt(data, CP_IMPORTANCE_IMPRESSIONS, m_importance);
-    setDataInt(data, CP_EMISORRECU_IMPRESSIONS, m_emisrecu);
-    setDataInt(data, CP_IDLIEU_IMPRESSIONS, m_idlieu);
-    m_data = data;
+    setDataString(data, "formatdoc", m_formatdoc);
+    setDataInt(data, "importance", m_importance);
 }
 

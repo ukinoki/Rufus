@@ -44,11 +44,10 @@ public:
     PlayerControls(QWidget *parent = Q_NULLPTR);
     ~PlayerControls();
     void        setPlayer(QMediaPlayer*);
-    void        startplay();
-    enum State {Pause, Stop, Play};
+    int         State();
 
 signals:
-    void ctrl(State);
+    void ctrl();
 
 private slots:
     void playClicked();
@@ -64,6 +63,7 @@ private:
     QAbstractButton *stopButton;
     QSlider         *slider;
     QLabel          *labelDuration;
+    int             state;
 };
 
 #endif // PLAYERCONTROLS_H

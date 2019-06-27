@@ -22,7 +22,7 @@ OSX {
 TARGET = /Applications/Rufus
 }
 LINUX {
-TARGET = /home/serge/RufusApp
+TARGET = /home/alexandre/RufusApp
 }
 
 TEMPLATE = app
@@ -97,9 +97,9 @@ include(Widgets/widgets.pri)
 TRANSLATIONS    = rufus_en.ts
 
 RESOURCES += \
-    assets/Fichiers/Fichiers.qrc \
     assets/Images/images.qrc \
     assets/Sons/sons.qrc \
+    assets/Fichiers/Fichiers.qrc \
 
 ICON += \
     Sunglasses.icns
@@ -120,3 +120,7 @@ DISTFILES += \
     _Diagrams/Recuperation_CCAM-howto.txt \
     _Diagrams/Creer_des_procedures_mysql_avec_Qt.rtf \
     assets/A_faire.odt
+ALEX {
+    DEFINES += ALEX
+}
+

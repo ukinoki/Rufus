@@ -8,6 +8,18 @@
 
 #include "textprinter.h"
 
+#include <QAbstractTextDocumentLayout>
+#include <QDate>
+#include <QFileDialog>
+#include <QLocale>
+#include <QPainter>
+#include <QPrintDialog>
+#include <QTextDocument>
+#include <QTextFrame>
+
+#include <QPrintPreviewDialog>
+
+static inline double mmToInches(double mm) { return mm * 0.039370147; }
 
 TextPrinter::TextPrinter(QObject *parent)
     : QObject(parent), parent_(Q_NULLPTR),
@@ -378,20 +390,20 @@ QRectF TextPrinter::contentRect(QPaintDevice *device)
     // calculate size of content (paper - margins)
     QRectF rect = paperRect(device);
 
-    rect.adjust(Utils::mmToInches(leftmargin_) * device->logicalDpiX(),
-                Utils::mmToInches(topmargin_) * device->logicalDpiY(),
-                -Utils::mmToInches(rightmargin_) * device->logicalDpiX(),
-                -Utils::mmToInches(bottommargin_) * device->logicalDpiY());
+    rect.adjust(mmToInches(leftmargin_) * device->logicalDpiX(),
+                mmToInches(topmargin_) * device->logicalDpiY(),
+                -mmToInches(rightmargin_) * device->logicalDpiX(),
+                -mmToInches(bottommargin_) * device->logicalDpiY());
 
     // header
     if (headersize_ > 0) {
-        rect.adjust(0, Utils::mmToInches(headersize_) * device->logicalDpiY(), 0, 0);
-        rect.adjust(0, Utils::mmToInches(spacing_) * device->logicalDpiY(), 0, 0);
+        rect.adjust(0, mmToInches(headersize_) * device->logicalDpiY(), 0, 0);
+        rect.adjust(0, mmToInches(spacing_) * device->logicalDpiY(), 0, 0);
     }
     // footer
     if (footersize_ > 0) {
-        rect.adjust(0, 0, 0, -Utils::mmToInches(footersize_) * device->logicalDpiY());
-        rect.adjust(0, 0, 0, -Utils::mmToInches(spacing_) * device->logicalDpiY());
+        rect.adjust(0, 0, 0, -mmToInches(footersize_) * device->logicalDpiY());
+        rect.adjust(0, 0, 0, -mmToInches(spacing_) * device->logicalDpiY());
     }
 
     return rect;
@@ -403,14 +415,14 @@ QRectF TextPrinter::contentRect(QPaintDevice *device)
 QRectF TextPrinter::headerRect(QPaintDevice *device)
 {
     QRectF rect = paperRect(device);
-    rect.adjust(Utils::mmToInches(leftmargin_) * device->logicalDpiX(),
-                Utils::mmToInches(topmargin_) * device->logicalDpiY(),
-                -Utils::mmToInches(rightmargin_) * device->logicalDpiX(), 0);
+    rect.adjust(mmToInches(leftmargin_) * device->logicalDpiX(),
+                mmToInches(topmargin_) * device->logicalDpiY(),
+                -mmToInches(rightmargin_) * device->logicalDpiX(), 0);
 
     headerrule_ = (headerrule_ / 144.0);
 
     rect.setBottom(rect.top() + 
-                   Utils::mmToInches(headersize_) * device->logicalDpiY());
+                   mmToInches(headersize_) * device->logicalDpiY());
 
     return rect;
 }
@@ -421,12 +433,12 @@ QRectF TextPrinter::headerRect(QPaintDevice *device)
 QRectF TextPrinter::footerRect(QPaintDevice *device)
 {
     QRectF rect = paperRect(device);
-    rect.adjust(Utils::mmToInches(leftmargin_) * device->logicalDpiX(), 0,
-                -Utils::mmToInches(rightmargin_) * device->logicalDpiX(),
-                -Utils::mmToInches(bottommargin_) * device->logicalDpiY());
+    rect.adjust(mmToInches(leftmargin_) * device->logicalDpiX(), 0,
+                -mmToInches(rightmargin_) * device->logicalDpiX(),
+                -mmToInches(bottommargin_) * device->logicalDpiY());
 
     rect.setTop(rect.bottom() -
-                Utils::mmToInches(footersize_) * device->logicalDpiY());
+                mmToInches(footersize_) * device->logicalDpiY());
 
     return rect;
 }
