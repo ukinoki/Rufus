@@ -39,16 +39,18 @@ class dlg_docsexternes : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_docsexternes(Patient *pat, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsexternes(DocsExternes* Docs, Patient *pat, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
-    bool                    InitOK();
+    Patient*                getPatient() { return m_currentpatient; }   //!> renseigne sur le patient en cours d'affichage
 
 private:
     Procedures              *proc;
-    DocsExternes            m_ListDocs;
+    DocsExternes            *m_docsexternes;
     DocExterne              *docencours;
     DataBase                *db;
     Patient                 *m_currentpatient;
+    User                    *m_currentuser;
+    bool                    conservealafin;
 
     QGraphicsScene          *Scene;
     QGraphicsVideoItem      *videoItem;
@@ -88,14 +90,12 @@ private:
 
     bool                    eventFilter(QObject *, QEvent *);
 
-    int                     ActualiseDocsExternes();
+    void                    ActualiseDocsExternes();
     void                    AfficheCustomMenu(DocExterne *docmt);
     void                    AfficheDoc(QModelIndex idx);
     void                    BasculeTriListe(int);
-    QMap<QString,QVariant>  CalcImage(int idimpression, bool imagerie, bool afficher = true);
 
     QString                 CalcTitre(DocExterne *docmt);
-    int                     CompteNbreDocs();
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
     void                    EnregistreImage(DocExterne* docmt);
     void                    EnregistreVideo();
@@ -109,7 +109,6 @@ private:
     bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin);
     void                    ModifierDate(QModelIndex idx);
     void                    ModifierItem(QModelIndex idx);
-    void                    PlayerCtrl(int);
     void                    Print(QPrinter*);
 
     bool                    ReImprimeDoc(DocExterne *docmt);

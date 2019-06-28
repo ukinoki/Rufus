@@ -22,7 +22,6 @@ Recette::Recette(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
-int Recette::id() const                             { return m_id; }
 int Recette::idacte() const                         { return m_idacte; }
 QDate Recette::date() const                         { return m_date; }
 QString Recette::payeur() const                     { return m_nompayeur; }
@@ -59,4 +58,5 @@ void Recette::setData(QJsonObject data)
     setDataDouble(data, "encaissementautrerecette", m_montantautrerecettes);
     setDataBool(data, "apportpraticien", m_isapportparticien);
     setDataBool(data, "autrerecette", m_isautrerecette);
+    m_data = data;
 }

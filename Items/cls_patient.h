@@ -30,7 +30,7 @@ class Patient : public Item
 {
 
 private: //Données du patient
-    int m_id;                       //!< Id du patient en base
+    //!<m_id = Id du patient en base
     QString m_nom;                  //!< Nom du patient
     QString m_prenom;               //!< Prénom du patient
     QString m_sexe;                 //!< Sexe du patient
@@ -65,7 +65,6 @@ private: //Données du patient
     QString m_traitementoph;        //!< le traitement ophtalmo
     QString m_tabac;                //!< consommation de tabac /j
     QString m_toxiques;             //!< autres toxiques
-    QString m_gencorresp;           //!< nom du generaliste correspondant (plus utilisé)
     QString m_important;            //!< points importants du dossier
     QString m_resume;               //!< resumé du dossier
     bool    m_ismedicalloaded;      //!< les renseignements médicaux sont chargés
@@ -79,7 +78,6 @@ public:
     bool issocialloaded() const;
     bool isalloaded();
 
-    int     id() const;
     QString nom() const;
     QString prenom() const;
     QString sexe() const;
@@ -114,7 +112,6 @@ public:
     QString traitementoph();
     QString tabac();
     QString toxiques();
-    QString gencorresp();
     QString important();
     QString resume();
 
@@ -129,10 +126,41 @@ public:
     void setMedicalData(QJsonObject data);
     void addActe(Acte *acte);
 
+    // basic data
+    void    setnom(QString str)             { m_nom = str; }
+    void    setprenom(QString str)          { m_prenom = str; }
+    void    setdatedenaissance(QDate date)  { m_dateDeNaissance = date; }
+    void    setsexe(QString str)            { m_sexe = str; }
+    void    setdatecreation(QDate date)     { m_datecreation = date; }
+    void    setidcreateur(int id)           { m_idcreateur = id;}
+
+    // Social data
+    void setadresse1(QString str)           { m_adresse1 = str; }
+    void setadresse2(QString str)           { m_adresse2 = str; }
+    void setadresse3(QString str)           { m_adresse3 = str; }
+    void setcodepostal(QString str)         { m_codepostal = str; }
+    void setville(QString str)              { m_ville = str; }
+    void settelephone(QString str)          { m_telephone = str; }
+    void setportable(QString str)           { m_portable = str; }
+    void setmail(QString str)               { m_mail = str; }
+    void setNNI(qlonglong str)              { m_NNI = str; }
+    void setald(bool logic)                 { m_ALD = logic; }
+    void setcmu(bool logic)                 { m_CMU = logic; }
+    void setprofession(QString str)         { m_profession = str; }
+
     // Medical data
-    void    setmg(int id) {m_idmg = id;}
-    void    setspe1(int id) {m_idspe1 = id;}
-    void    setspe2(int id) {m_idspe2 = id;}
+    void    setmg(int id)                   { m_idmg = id; }
+    void    setspe1(int id)                 { m_idspe1 = id; }
+    void    setspe2(int id)                 { m_idspe2 = id; }
+    void    setatcdtsoph(QString atcdts)    { m_atcdtsophtalmos = atcdts; }
+    void    setatcdtsgen(QString atcdts)    { m_atcdtspersos = atcdts; }
+    void    setatcdtsfam(QString atcdts)    { m_atcdtsfamiliaux = atcdts; }
+    void    settraitemntsoph(QString tts)   { m_traitementoph = tts; }
+    void    settraitemntsgen(QString tts)   { m_traitementgen = tts; }
+    void    setimportant(QString imp)       { m_important = imp; }
+    void    setresume(QString rsm)          { m_resume = rsm; }
+    void    settabac(QString tbc)           { m_tabac = tbc; }
+    void    setautrestoxiques(QString tox)  { m_toxiques = tox; }
 };
 
 #endif // CLS_PATIENT_H

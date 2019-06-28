@@ -35,18 +35,21 @@ Datas::Datas()
     correspondants  = new Correspondants();
     cotations       = new Cotations();
     depenses        = new Depenses();
-    motifs          = new Motifs();
-    patients        = new Patients();
-    tiers           = new TiersPayants();
-    typestiers      = new TypesTiers();
-    users           = new Users();
     docsexternes    = new DocsExternes();
     documents       = new Documents();
+    lignespaiements = new LignesPaiements();
     metadocuments   = new MetaDocuments();
+    motifs          = new Motifs();
     paiementstiers  = new PaiementsTiers();
-    villes          = new Villes();
-    sites           = new Sites();
+    patients        = new Patients();
+    patientsencours = new PatientsEnCours();
     recettes        = new Recettes();
+    sites           = new Sites();
+    tierspayants    = new TiersPayants();
+    typestiers      = new TypesTiers();
+    users           = new Users();
+    postesconnectes = new PostesConnectes();
+    villes          = new Villes();
 }
 
 

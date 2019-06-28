@@ -44,7 +44,6 @@ private:
     Procedures              *proc;
     DataBase                *db;
     Acte                    *m_currentact;
-    QString                 CouleurTitres;
     QDate                   DateBO;
 
     void                    AfficheCombobox(int i, QWidget *widg);

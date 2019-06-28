@@ -181,13 +181,11 @@ QList<QStandardItem*> dlg_listecorrespondants::ListeMetiers()
 {
     QList<QStandardItem*> listmetiers;
     QStringList list;
-    QMap<int, Correspondant *> *Correspondants = Datas::I()->correspondants->correspondants();
-    QMap<int, Correspondant *>::const_iterator itcorrespondants;
     QStandardItem *metieritem;
     QString metier  = "";
-    for( itcorrespondants = Correspondants->constBegin(); itcorrespondants != Correspondants->constEnd(); ++itcorrespondants )
-    {
-        Correspondant *cor = const_cast<Correspondant*>(*itcorrespondants);
+    QMapIterator<int, Correspondant *> itcor(*Datas::I()->correspondants->correspondants());
+    while (itcor.hasNext()) {
+        Correspondant *cor = const_cast<Correspondant*>(itcor.next().value());
         QString metier  = Utils::trimcapitilize(cor->metier(), true, false);
         if (!list.contains(metier))
         {
@@ -209,9 +207,7 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
     treeCor->disconnect();
     gmodele->clear();
 
-    QMap<int, Correspondant *> *Correspondants = Datas::I()->correspondants->correspondants();
     QStandardItem *pitem;
-
     QList<QStandardItem*> listmetiers = ListeMetiers();
     for (int i=0; i<listmetiers.size(); i++)
     {
@@ -219,10 +215,9 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
         //qDebug() << gmodele->item(i)->text();
     }
 
-    QMap<int, Correspondant *>::const_iterator itcor;
-    for( itcor = Correspondants->constBegin(); itcor != Correspondants->constEnd(); ++itcor )
-    {
-        Correspondant *cor = const_cast<Correspondant*>(*itcor);
+    QMapIterator<int, Correspondant *> itcor(*Datas::I()->correspondants->correspondants());
+    while (itcor.hasNext()) {
+        Correspondant *cor = const_cast<Correspondant*>(itcor.next().value());
         if (cor->nomprenom().startsWith(filtre))
         {
             pitem   = new QStandardItem(cor->nomprenom());

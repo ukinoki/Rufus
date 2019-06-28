@@ -80,8 +80,8 @@ void dlg_message::AfficheMsg(QStringList listmes, int pause, bool bottom)
         dlg                 ->setLayout(lay);
         dlg                 ->setWindowFlags(Qt::SplashScreen);
 
-        int yy          = qApp->desktop()->availableGeometry().height();
-        int xx          = qApp->desktop()->availableGeometry().width();
+        int yy          = QGuiApplication::screens().first()->geometry().height();
+        int xx          = QGuiApplication::screens().first()->geometry().width();
         if (bottom)
             dlg             ->move(xx - w - 45 - (marge*2) - lay->spacing()-15, yy - (int(hauteurligne)*nlignes) - marge*2 - decalage);
         dlg                 ->show();

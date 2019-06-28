@@ -4,6 +4,7 @@
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/cls_correspondants.cpp \
         $$PWD/cls_patients.cpp \
+    $$PWD/cls_postesconnectes.cpp \
         $$PWD/cls_users.cpp \
         $$PWD/cls_villes.cpp \
     $$PWD/cls_depenses.cpp \
@@ -18,10 +19,14 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_actes.cpp \
     $$PWD/cls_sites.cpp \
     $$PWD/cls_recettes.cpp \
-    $$PWD/cls_paiementstiers.cpp
+    $$PWD/cls_paiementstiers.cpp \
+    $$PWD/cls_comptes.cpp \
+    $$PWD/cls_patientsencours.cpp \
+    $$PWD/cls_lignespaiements.cpp
 
 HEADERS += $$PWD/cls_correspondants.h \
         $$PWD/cls_patients.h \
+    $$PWD/cls_postesconnectes.h \
         $$PWD/cls_users.h \
         $$PWD/cls_villes.h \
     $$PWD/cls_depenses.h \
@@ -36,4 +41,7 @@ HEADERS += $$PWD/cls_correspondants.h \
     $$PWD/cls_actes.h \
     $$PWD/cls_sites.h \
     $$PWD/cls_recettes.h \
-    $$PWD/cls_paiementstiers.h
+    $$PWD/cls_paiementstiers.h \
+    $$PWD/cls_comptes.h \
+    $$PWD/cls_patientsencours.h \
+    $$PWD/cls_lignespaiements.h

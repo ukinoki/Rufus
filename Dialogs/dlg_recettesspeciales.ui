@@ -629,7 +629,7 @@ Recette</string>
          <string>Gestion des comptes bancaires</string>
         </property>
         <property name="icon">
-         <iconset resource="../assets/Images/images.qrc">
+         <iconset>
           <normaloff>:/credit_cards_256.png</normaloff>:/credit_cards_256.png</iconset>
         </property>
         <property name="iconSize">
