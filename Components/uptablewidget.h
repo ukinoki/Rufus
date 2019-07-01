@@ -42,6 +42,7 @@ public:
     int             rowNoHiddenCount();
     int             FirstRowNoHidden();
     int             LastRowNoHidden();
+    void            setAllRowHeight(int h);
     void            selectRow(int row);
     QByteArray      dropData();
 

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("28-06-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("01-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1253,37 +1253,6 @@ void Rufus::AppelPaiementDirect(Origin origin)
 
 void Rufus::AppelPaiementTiers()
 {
-    QList<dlg_paiement *> PaimtList = findChildren<dlg_paiement*>();
-    if (PaimtList.size()>0)
-        for (int i=0; i<PaimtList.size();i++)
-            if (PaimtList.at(i)->isVisible())
-            {
-                QSound::play(NOM_ALARME);
-                PaimtList.at(i)->raise();
-                return;
-            }
-    int Mode = 3;
-    QList<int> ListidActeAPasser;
-    ListidActeAPasser << 0;
-    Dlg_PaimtTiers = new dlg_paiement(ListidActeAPasser, Mode, proc, 0, 0, this); //NOTE : New Paiement
-    if(Dlg_PaimtTiers->getInitOK())
-    {
-        Dlg_PaimtTiers->setWindowTitle(tr("Gestion des tiers payants"));
-        Dlg_PaimtTiers->show();
-        connect(Dlg_PaimtTiers, &QDialog::finished, this, [=]{
-            if (m_currentpatient != Q_NULLPTR)
-            {
-                m_listepaiements->initListeByPatient(m_currentpatient);
-                if (m_currentact->id()>0 && ui->tabDossier->isVisible())
-                    AfficheActeCompta(m_currentact);
-            }
-        });
-    }
-
-}
-
-void Rufus::AppelPaiementTiers2()
-{
     QList<dlg_paiementtiers *> PaimtList = findChildren<dlg_paiementtiers*>();
     if (PaimtList.size()>0)
         for (int i=0; i<PaimtList.size();i++)
@@ -1298,7 +1267,7 @@ void Rufus::AppelPaiementTiers2()
     {
         Dlg_PmtTiers->setWindowTitle(tr("Gestion des tiers payants"));
         Dlg_PmtTiers->show();
-        connect(Dlg_PaimtTiers, &QDialog::finished, this, [=]{
+        connect(Dlg_PmtTiers, &QDialog::finished, this, [=]{
             if (m_currentpatient != Q_NULLPTR)
             {
                 m_listepaiements->initListeByPatient(m_currentpatient);
@@ -6566,7 +6535,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
 -----------------------------------------------------------------------------------------------------------------*/
 bool Rufus::AutorSortieAppli()
 {
-    QList<dlg_paiement *> PaimtList = findChildren<dlg_paiement*>();
+    QList<dlg_paiementtiers *> PaimtList = findChildren<dlg_paiementtiers*>();
     if (PaimtList.size()>0)
         for (int i=0; i<PaimtList.size();i++)
             if (PaimtList.at(i)->isVisible())
@@ -7135,7 +7104,6 @@ void Rufus::CreerMenu()
 
     actionPaiementDirect            = new QAction(tr("Gestion des paiements directs"));
     actionPaiementTiers             = new QAction(tr("Gestion des tiers payants"));
-    actionPaiementTiers2            = new QAction(tr("Gestion des tiers payants2"));
     actionBilanRecettes             = new QAction(tr("Bilan des recettes"));
     actionRecettesSpeciales         = new QAction(tr("Enregistrement des recettes spéciales"));
     actionJournalDepenses           = new QAction(tr("Journal des dépenses"));
@@ -7183,7 +7151,6 @@ void Rufus::CreerMenu()
     connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   &Rufus::GestionComptes);
     connect (actionPaiementDirect,              &QAction::triggered,        this,                   [=] {AppelPaiementDirect(Menu);});
     connect (actionPaiementTiers,               &QAction::triggered,        this,                   &Rufus::AppelPaiementTiers);
-    connect (actionPaiementTiers2,              &QAction::triggered,        this,                   &Rufus::AppelPaiementTiers2);
     connect (actionRecettesSpeciales,           &QAction::triggered,        this,                   &Rufus::RecettesSpeciales);
     connect (actionBilanRecettes,               &QAction::triggered,        this,                   &Rufus::BilanRecettes);
     connect (actionJournalDepenses,             &QAction::triggered,        this,                   &Rufus::OuvrirJournalDepenses);
@@ -7236,9 +7203,6 @@ void Rufus::CreerMenu()
 
     menuComptabilite->addAction(actionPaiementDirect);
     menuComptabilite->addAction(actionPaiementTiers);
-//-------------------------------------------------------------------------------------------------------------------------------------
-//    menuComptabilite->addAction(actionPaiementTiers2);
-//-------------------------------------------------------------------------------------------------------------------------------------
     menuComptabilite->addAction(actionBilanRecettes);
     menuComptabilite->addAction(actionRecettesSpeciales);
     menuComptabilite->addSeparator();
@@ -7922,7 +7886,6 @@ void Rufus::InitMenus()
 {
     bool a = (m_currentuser->isLiberal() || m_currentuser->isSecretaire());
     actionPaiementTiers             ->setVisible(a);
-    actionPaiementTiers2            ->setVisible(a);
     actionPaiementDirect            ->setVisible(a || (m_currentuser->isSalarie() && !m_currentuser->isAssistant()) || m_currentuser->isRemplacant());
     actionBilanRecettes             ->setVisible(a);
     actionRecettesSpeciales         ->setVisible(m_currentuser->isComptable());
@@ -8520,7 +8483,9 @@ void    Rufus::Refraction()
 {
     if (findChildren<dlg_refraction*>().size()>0)
         return;
-    if (ui->tabWidget->currentIndex() != 1)
+    if (m_currentpatient == Q_NULLPTR || m_currentact == Q_NULLPTR)
+        return;
+    if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
 
     Dlg_Refraction     = new dlg_refraction(m_currentpatient, m_currentact, this);
@@ -9814,11 +9779,13 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
 
 void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
 {
-    if (!ui->Acteframe->isVisible())
+    if (findChildren<dlg_refraction*>().size()>0)
         return;
-    for (int i= 0; i<findChildren<QDialog*>().size(); i++)
-        if (findChildren<QDialog*>().at(i)->inherits("dlg_refraction"))
-            return;
+    if (m_currentpatient == Q_NULLPTR || m_currentact == Q_NULLPTR)
+        return;
+    if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
+        return;
+
     Procedures::TypeMesure TypeMesure = proc->TypeMesureRefraction();
     if (TypeMesure == Procedures::Final || TypeMesure == Procedures::Subjectif)
     {

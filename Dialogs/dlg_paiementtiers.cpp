@@ -35,7 +35,6 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     db              = DataBase::I();
     m_userconnected  = db->getUserConnected();
     m_useracrediter = Q_NULLPTR;
-    gidUserACrediter = -1;
     //ui->UserscomboBox->setEnabled(db->getUserConnected().isSecretaire());
     QFont font = qApp->font();
     font.setBold(true);
@@ -70,7 +69,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     proc        ->SetUserAllData(m_useracrediter);
     if( m_useracrediter->getComptes()->size() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + Datas::I()->users->getById(gidUserACrediter)->getLogin());
+        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->getLogin());
         InitOK = false;
         return;
     }
@@ -98,12 +97,12 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     connect (ui->dateEdit,                              SIGNAL(dateChanged(QDate)),                     this,           SLOT (Slot_EnableOKButton()));
     connect (ui->EspecesradioButton,                    SIGNAL(clicked()),                              this,           SLOT (Slot_RegleAffichageTypePaiementframe()));
     connect (ui->ListPaiementsTiersupPushButton,        SIGNAL(clicked()),                              this,           SLOT (Slot_VoirListePaiementsTiers()));
-//    connect (ui->ListeupTableWidget,                    SIGNAL(customContextMenuRequested(QPoint)),     this,           SLOT (Slot_ModifGratuit(QPoint)));
-//    connect (ui->ListeupTableWidget,                    SIGNAL(itemEntered(QTableWidgetItem*)),         this,           SLOT (Slot_AfficheDDN(QTableWidgetItem*)));
+    connect (ui->ListeupTableWidget,                    SIGNAL(itemEntered(QTableWidgetItem*)),         this,           SLOT (Slot_AfficheDDN(QTableWidgetItem*)));
     connect (ui->MontantlineEdit,                       SIGNAL(editingFinished()),                      this,           SLOT (Slot_ConvertitDoubleMontant()));
     connect (ui->MontantlineEdit,                       SIGNAL(textEdited(QString)),                    this,           SLOT (Slot_EnableOKButton()));
     connect (ui->OrdreupPushButton,                     SIGNAL(clicked()),                              this,           SLOT (Slot_ClassementListes()));
     connect (ui->NouvTiersupPushButton,                 SIGNAL(clicked()),                              this,           SLOT (Slot_EnregistrePaiementTiers()));
+    connect (ui->SupprimupPushButton,                   SIGNAL(clicked()),                              this,           SLOT (Slot_SupprimerPaiement()));
     connect (ui->TierscomboBox,                         SIGNAL(editTextChanged(QString)),               this,           SLOT (Slot_RecopieNomTiers(QString)));
     connect (ui->TireurChequelineEdit,                  SIGNAL(editingFinished()),                      this,           SLOT (Slot_MajusculeCreerNom()));
     connect (ui->UserscomboBox,                         SIGNAL(currentIndexChanged(int)),               this,           SLOT (Slot_ChangeUtilisateur()));
@@ -122,6 +121,9 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     ui->BanqueChequecomboBox->setValidator(new QRegExpValidator(Utils::rgx_MajusculeSeul));
     ui->BanqueChequecomboBox->lineEdit()->setMaxLength(10);
     ui->TierscomboBox->lineEdit()->setMaxLength(30);
+    ui->TierscomboBox->lineEdit()->setAlignment(Qt::AlignRight);
+    ui->BanqueChequecomboBox->lineEdit()->setAlignment(Qt::AlignRight);
+    ui->ComptesupComboBox->lineEdit()->setAlignment(Qt::AlignRight);
 
     ReconstruitListeBanques();
     ReconstruitListeTiers();
@@ -132,11 +134,10 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     gtimerRecord->start(750);
     connect (gtimerRecord,                              SIGNAL(timeout()),                              this,           SLOT (Slot_AfficheRecord()));
 
-    SupprimerBouton = Q_NULLPTR;
     ui->VerrouilleParlabel->setVisible(false);
     gtimerAfficheActeVerrouilleClignotant = new QTimer();
     gtimerAfficheActeVerrouille = new QTimer();
-    QList<UpPushButton *> allUpButtons = ui->Buttonsframe->findChildren<UpPushButton *>();
+    QList<UpPushButton *> allUpButtons = ui->Buttonswidget->findChildren<UpPushButton *>();
     for (int n = 0; n <  allUpButtons.size(); n++)
     {
         allUpButtons.at(n)->installEventFilter(this);
@@ -161,10 +162,6 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
 dlg_paiementtiers::~dlg_paiementtiers()
 {
     delete ui;
-    proc = Q_NULLPTR;
-    db   = Q_NULLPTR;
-    delete proc;
-    delete db;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -338,7 +335,7 @@ void dlg_paiementtiers::Slot_Annul()
         // 3.       restaurer les types de paiement quand il s'agit d'un paiement direct
         ModifPaiementEnCours = false;
         gMode = Accueil;
-//        disconnect (ui->ListeupTableWidget,           SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+        disconnect (ui->ListeupTableWidget,           SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
         ui->RecImageLabel->setVisible(false);
         Slot_RegleAffichageFiche();
         ui->AnnulupPushButton->setText("Annuler");
@@ -373,7 +370,7 @@ void dlg_paiementtiers::Slot_Annul()
         else
         {
             gMode = Accueil;
-//            disconnect (ui->ListeupTableWidget,           SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+            disconnect (ui->ListeupTableWidget,           SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
             ui->RecImageLabel->setVisible(false);
             Slot_RegleAffichageFiche();
             TraiteparCloseFlag = false;
@@ -431,7 +428,7 @@ void dlg_paiementtiers::Slot_ChangeUtilisateur()
         return;
     }
 
-    gidUserACrediter =  ui->UserscomboBox->currentData().toInt();
+    m_useracrediter =  Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
     RegleComptesComboBox();
     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteEncaissement()->id()));
     gMode = Accueil;
@@ -454,7 +451,7 @@ void dlg_paiementtiers::Slot_ClassementListes()
         ui->OrdreupPushButton->setText(tr("Ordre alphabétique"));
         gOrdreTri = Chronologique;
     }
-//    TrieListe(ui->ListeupTableWidget);
+    TrieListe(ui->ListeupTableWidget);
 }
 
 void dlg_paiementtiers::Slot_ConvertitDoubleMontant()
@@ -479,23 +476,23 @@ void dlg_paiementtiers::Slot_EnableOKButton()
 void dlg_paiementtiers::Slot_EnregistrePaiementTiers()
 {
     gMode = EnregistrePaiementTiers;
-    RemplitLesTables(gMode);
-//    if (ui->ListeupTableWidget->rowCount() == 0
-//            && ui->DetailupTableWidget->rowCount() == 0)
-//    {
-//        gMode = Accueil;
-//        disconnect (ui->ListeupTableWidget,           SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
-//        ui->RecImageLabel->setVisible(false);
-//        Slot_RegleAffichageFiche();
-//        TraiteparCloseFlag = false;
-//    }
-//    else
-//    {
-//        Slot_RegleAffichageFiche();
-//        ui->VirementradioButton->setChecked(true);
-//        RegleAffichageTypePaiementframe(true,true);
-//        ui->PaiementgroupBox->setFocus();
-//    }
+    RemplitLesTables();
+    if (ui->ListeupTableWidget->rowCount() == 0
+            && ui->DetailupTableWidget->rowCount() == 0)
+    {
+        gMode = Accueil;
+        disconnect (ui->ListeupTableWidget,           SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+        ui->RecImageLabel->setVisible(false);
+        Slot_RegleAffichageFiche();
+        TraiteparCloseFlag = false;
+    }
+    else
+    {
+        Slot_RegleAffichageFiche();
+        ui->VirementradioButton->setChecked(true);
+        RegleAffichageTypePaiementframe(true,true);
+        ui->PaiementgroupBox->setFocus();
+    }
 }
 
 void dlg_paiementtiers::Slot_MajusculeCreerNom()
@@ -509,66 +506,14 @@ void dlg_paiementtiers::Slot_MajusculeCreerNom()
 }
 
 
-/*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Créer le menu contextuel pour transformer un acte gratuit en acte payant                                                  --------------------------------------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementtiers::Slot_ModifGratuit(QPoint pos)
-{
-//    QTableWidgetItem *titem = dynamic_cast<QTableWidgetItem*>(ui->ListeupTableWidget->itemAt(pos));
-//    if (titem)
-//    {
-//        int ro = titem->row();
-//        if (ui->ListeupTableWidget->item(ro,5)->text() == tr("Gratuit"))
-//        {
-//            QMenu           *menuContextuel = new QMenu(this);
-
-//            QAction         *pAction_ModifGratuit = menuContextuel->addAction(tr("Ne plus considérer comme gratuit")) ;
-//            connect (pAction_ModifGratuit, &QAction::triggered,    [=] {ModifGratuitChoixMenu("Modifier");});
-
-//            // ouvrir le menu
-//            menuContextuel->exec(QCursor::pos());
-//            delete menuContextuel;
-//        }
-//        titem = Q_NULLPTR;
-//        delete titem;
-//    }
-}
-
-/*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Transfomer un acte gratuit en acte payant (modifier le montant et supprimer la ligne correspondante de typespaiementActes) -------------------------------------------------------------------------------------------------------------------------------------------------------
------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementtiers::ModifGratuitChoixMenu(QString Choix)
-{
-//    if (Choix == "Modifier")
-//    {
-//        QList<QTableWidgetSelectionRange>  RangeeSelectionne = ui->ListeupTableWidget->selectedRanges();
-//        if (RangeeSelectionne.size() > 0)
-//        {
-//            int ab = RangeeSelectionne.at(0).topRow();
-//            UpLineEdit *LigneMontant = new UpLineEdit();
-//            LigneMontant->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-//            QDoubleValidator *val= new QDoubleValidator(this);
-//            val->setDecimals(2);
-//            LigneMontant->setValidator(val);
-//            LigneMontant->setText("0,00");
-//            LigneMontant->setRowTable(ab);
-//            LigneMontant->setColumnTable(4);
-//            ui->ListeupTableWidget->takeItem(ab,4);
-//            ui->ListeupTableWidget->setCellWidget(ab,4,LigneMontant);
-//            LigneMontant->installEventFilter(this);
-//            LigneMontant->setFocus();
-//            LigneMontant->selectAll();
-//        }
-//    }
-}
-
 void dlg_paiementtiers::Slot_VoirListePaiementsTiers()
 {
-//    gMode = VoirListePaiementsTiers;
-//    RemplitLesTables(gMode);
-//    Slot_RegleAffichageFiche();
-//    ui->ListeupTableWidget->setCurrentCell(0,1);
-//    ui->ListeupTableWidget->setFocus();
+    gMode = VoirListePaiementsTiers;
+    RemplitLesTables();
+    Slot_RegleAffichageFiche();
+    ui->ListeupTableWidget->selectRow(0);
+    CompleteDetailsTable(ui->ListeupTableWidget, 0);
+    ui->ListeupTableWidget->setFocus();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -597,8 +542,6 @@ void dlg_paiementtiers::RegleComptesComboBox(bool avecLesComptesInactifs)
 void dlg_paiementtiers::Slot_RegleAffichageFiche()
 {
     ui->AnnulupPushButton->setText("Annuler");
-    ui->NouvTiersupPushButton->move(10,110);
-    ui->ListPaiementsTiersupPushButton->move(10,60);
 
     bool g = false;
     ui->dateEdit->setDate(QDate::currentDate());
@@ -609,9 +552,6 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
         setFixedHeight(HAUTEUR_MINI);
         ui->Utilisateurlabel    ->setGeometry(10,15,470,20);
         ui->line0               ->setGeometry(10,50,480,15);
-        ui->line_4              ->setGeometry(140,70,20,190);
-        ui->Buttonsframe        ->setGeometry(490,10,200,250);
-        ui->AnnulupPushButton   ->move(10,150);
         ui->UserscomboBox       ->setEnabled(m_userconnected->isSecretaire());
 
         QList<QRadioButton *> allRButtons = ui->PaiementgroupBox->findChildren<QRadioButton *>();
@@ -626,7 +566,7 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
         ui->ActesEnAttentelabel_3       ->setVisible(false);
         ui->ActesEnAttentelabel         ->setText(tr("Salle d'attente"));
         ui->ActesEnAttentelabel_2       ->setVisible(false);
-//        ui->ListeupTableWidget          ->setVisible(false);
+        ui->ListeupTableWidget          ->setVisible(false);
         ui->OrdreupPushButton           ->setVisible(false);
         ui->OKupPushButton              ->setText(tr("Fermer"));
         ui->OKupPushButton              ->setIcon(Icons::icOK());
@@ -635,30 +575,25 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
             ui->NouvTiersupPushButton           ->setVisible(true);
             ui->ListPaiementsTiersupPushButton  ->setVisible(true);
         g = true;
-        if (SupprimerBouton!=Q_NULLPTR)
-                SupprimerBouton ->setVisible(false);
+        ui->SupprimupPushButton         ->setVisible(false);
         RegleComptesComboBox();
-        ui->ComptesupComboBox            ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteEncaissement()->id()));
+        ui->ComptesupComboBox           ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteEncaissement()->id()));
     }
     else
     {
-        setMinimumSize(QSize(800,950));
-        setMaximumSize(QSize(800,950));
+        setFixedHeight(950);
         ui->Utilisateurlabel                ->setGeometry(10,15,590,20);
         ui->line0                           ->setGeometry(10,50,600,15);
-        ui->line_4                          ->setGeometry(140,70,20,190);
         ui->UserscomboBox                   ->setEnabled(false);
         ui->Detailsframe                    ->setVisible(true);
         ui->line2                           ->setVisible(true);
         ui->ActesEnAttentelabel_3           ->setVisible(true);
-//        ui->ListeupTableWidget              ->setVisible(true);
+        ui->ListeupTableWidget              ->setVisible(true);
         ui->OrdreupPushButton               ->setVisible(true);
         ui->NouvTiersupPushButton           ->setVisible(false);
         ui->ListPaiementsTiersupPushButton  ->setVisible(false);
-        ui->OrdreupPushButton               ->move(605,610);
         ui->OrdreupPushButton               ->setIcon(Icons::icTri());
         ui->OrdreupPushButton               ->setIconSize(QSize(20,20));
-        ui->Buttonsframe                    ->setGeometry(610,10,190,250);
 
         switch (gMode) {
         case EnregistrePaiementTiers:
@@ -667,17 +602,8 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
             ui->OKupPushButton              ->setText(tr("Valider\net fermer"));
             ui->OKupPushButton              ->setIcon(Icons::icOK());
             ui->OKupPushButton              ->setIconSize(QSize(30,30));
-            ui->AnnulupPushButton           ->move(10,150);
-            ui->Detailsframe                ->setGeometry(5,280,790,670);
-            ui->line2                       ->setGeometry(144,0,636,20);
-            ui->DetailupTableWidget         ->setGeometry(0,25,790,160);
             ui->ActesEnAttentelabel         ->setText(tr("Actes enregistrés en tiers payant en attente de paiement"));
-            ui->ActesEnAttentelabel         ->move(0,215);
-            ui->ActesEnAttentelabel_2       ->move(0,335);
             ui->ActesEnAttentelabel_2       ->setVisible(false);
-//            ui->ListeupTableWidget          ->setGeometry(0,240,790,370);
-            ui->Totallabel                  ->move(665,190);
-            ui->TotallineEdit               ->move(715,190);
             ui->PaiementgroupBox            ->setFocusProxy(ui->VirementradioButton);
             RegleComptesComboBox();
             ui->ComptesupComboBox           ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteEncaissement()->id()));
@@ -689,17 +615,9 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
             ui->OKupPushButton              ->setText("Modifier");
             ui->OKupPushButton              ->setIcon(Icons::icMarteau());
             ui->OKupPushButton              ->setIconSize(QSize(30,30));
-            ui->AnnulupPushButton           ->move(10,150);
-            ui->Detailsframe                ->setGeometry(5,280,790,670);
-            ui->line2                       ->setGeometry(144,0,636,20);
-            ui->DetailupTableWidget         ->setGeometry(0,25,790,160);
             ui->ActesEnAttentelabel         ->setText(tr("Tous les paiements enregistrés en tiers payant"));
-            ui->ActesEnAttentelabel         ->move(0,215);
             ui->ActesEnAttentelabel_2       ->setVisible(false);
             ui->ActesEnAttentelabel_2       ->setText(tr("Tous les actes ayant reçu un paiement ou en attente de paiement"));
-//            ui->ListeupTableWidget          ->setGeometry(0,240,555,370);
-            ui->Totallabel                  ->move(665,190);
-            ui->TotallineEdit               ->move(715,190);
             RegleComptesComboBox(false);
             break;
         }
@@ -725,8 +643,7 @@ void dlg_paiementtiers::Slot_RegleAffichageTypePaiementframe()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::Slot_RenvoieRangee(bool Coche)
 {
-
-    QTableWidget*           TableOrigine = dynamic_cast<QTableWidget*>(focusWidget());
+    QTableWidget*  TableOrigine = dynamic_cast<QTableWidget*>(focusWidget());
     if (TableOrigine != Q_NULLPTR)
     {
         switch (gMode) {
@@ -736,7 +653,7 @@ void dlg_paiementtiers::Slot_RenvoieRangee(bool Coche)
             if(Check)
             {
                 int R = Check->getRowTable();
-                if (Check->parent()->parent() == ui->DetailupTableWidget)
+                if (ui->DetailupTableWidget->isAncestorOf(Check))
                     VideDetailsTable(R);
                 else
                     CompleteDetailsTable(TableOrigine,R,Coche);
@@ -814,11 +731,11 @@ void dlg_paiementtiers::Slot_ValidePaiement()
                 ModifPaiementEnCours = false;
                 RemetToutAZero();
                 gMode = Accueil;
-//                disconnect (ui->ListeupTableWidget,           SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+                disconnect (ui->ListeupTableWidget,           SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
                 ui->RecImageLabel->setVisible(false);
                 ModifLigneRecettePossible = true;
                 Slot_RegleAffichageFiche();
-                if (SupprimerBouton!=Q_NULLPTR) SupprimerBouton->setVisible(false);
+                ui->SupprimupPushButton->setVisible(false);
                 ui->AnnulupPushButton->setText("Annuler");
                 NettoieVerrousCompta();
                 break;
@@ -833,35 +750,33 @@ void dlg_paiementtiers::Slot_ValidePaiement()
     {
         NettoieVerrousCompta();
         ModifPaiementEnCours = false;
-//        QString ModePaiement;
-//        // On retrouve l'idRecette de LignesRecettes correspondant au paiement à modifier
-//        QList<QTableWidgetSelectionRange>  RangeeSelectionne = ui->ListeupTableWidget->selectedRanges();
-//        int ab      = RangeeSelectionne.at(0).topRow();
-//        idRecette   = ui->ListeupTableWidget->item(ab,0)->text().toInt();
-//        requete = "SELECT idRecette FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(idRecette);
-//        QList<QVariantList> reclist = db->StandardSelectSQL(requete,ok);
-//        if (reclist.size() == 0)
-//        {
-//            UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment"),
-//                                tr("Il est en cours de modification par un autre utilisateur."));
-//            RemplitLesTables(gMode);
-//            return;
-//        }
-//        requete = "SELECT idActe FROM " TBL_LIGNESPAIEMENTS
-//                " WHERE idRecette = " + QString::number(idRecette) +
-//                " AND idActe IN (SELECT idActe FROM " TBL_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userconnected->id()) + ")";
-//        QList<QVariantList> actlist = db->StandardSelectSQL(requete,ok);
-//        if (actlist.size() > 0)
-//        {
-//            UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment."),
-//                                tr("Certains actes qui le composent sont actuellement verrouillés par d'autres utilisateurs."));
-//            return;
-//        }
-//        ModifPaiementTiers(idRecette);
+        QString ModePaiement;
+        // On retrouve l'idRecette de LignesRecettes correspondant au paiement à modifier
+        QList<QTableWidgetSelectionRange>  RangeeSelectionne = ui->ListeupTableWidget->selectedRanges();
+        int ab      = RangeeSelectionne.at(0).topRow();
+        idRecette   = ui->ListeupTableWidget->item(ab,0)->text().toInt();
+        requete = "SELECT idRecette FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(idRecette);
+        QList<QVariantList> reclist = db->StandardSelectSQL(requete,ok);
+        if (reclist.size() == 0)
+        {
+            UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment"),
+                                tr("Il est en cours de modification par un autre utilisateur."));
+            RemplitLesTables();
+            return;
+        }
+        requete = "SELECT idActe FROM " TBL_LIGNESPAIEMENTS
+                " WHERE idRecette = " + QString::number(idRecette) +
+                " AND idActe IN (SELECT idActe FROM " TBL_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(m_userconnected->id()) + ")";
+        QList<QVariantList> actlist = db->StandardSelectSQL(requete,ok);
+        if (actlist.size() > 0)
+        {
+            UpMessageBox::Watch(this,tr("Vous ne pouvez pas modifier ce paiement pour le moment."),
+                                tr("Certains actes qui le composent sont actuellement verrouillés par d'autres utilisateurs."));
+            return;
+        }
+        ModifPaiementTiers(idRecette);
         break;
         }
-    default:
-        break;
     }
 }
 
@@ -1017,7 +932,7 @@ void dlg_paiementtiers::setInitOK(bool init)
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Définit l'architecture des TableView (SelectionMode, nombre de colonnes, avec Widgets UpcheckBox et UplineBox) ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementtiers::DefinitArchitectureTableView(QTableWidget *TableARemplir, int TypeTable)
+void dlg_paiementtiers::DefinitArchitectureTableView(UpTableWidget *TableARemplir, TypeTable Type)
 {
     QStringList         LabelARemplir;
     QString             A;
@@ -1028,11 +943,11 @@ void dlg_paiementtiers::DefinitArchitectureTableView(QTableWidget *TableARemplir
     TableARemplir->clear();
     TableARemplir->verticalHeader()->hide();
 
-    // ces 2 lignes sont nécessairs pour éviter un pb d'affichage des tables quand on les redéfinit
+    // ces 2 lignes sont nécessaires pour éviter un pb d'affichage des tables quand on les redéfinit
     TableARemplir->setRowCount(0);
     TableARemplir->setColumnCount(0);
     
-    switch (TypeTable) {
+    switch (Type) {
     case Paiements:
     {
         ColCount = 7;
@@ -1045,155 +960,150 @@ void dlg_paiementtiers::DefinitArchitectureTableView(QTableWidget *TableARemplir
         LabelARemplir << tr("Mode de paiement");
         LabelARemplir << tr("Enregistré le");
         LabelARemplir << tr("Payé");
-        LabelARemplir << "Classementpardate";
+        LabelARemplir << "";
 
         TableARemplir->setHorizontalHeaderLabels(LabelARemplir);
         TableARemplir->horizontalHeader()->setVisible(true);
-        int li = 0;                                                                         // Réglage de la largeur et du nombre des colonnes
-        TableARemplir->setColumnWidth(li,25);                                               // idActe ou idPaiement
+        int li = 0;
+        TableARemplir->setColumnWidth(li,0);                                                // idActe ou idPaiement
         li++;
         TableARemplir->setColumnWidth(li,90);                                               // Date
         li++;
         TableARemplir->setColumnWidth(li,163);                                              // Payeur
         li++;
-        TableARemplir->setColumnWidth(li,130);                                               // Mode de paiement
+        TableARemplir->setColumnWidth(li,130);                                              // Mode de paiement
         li++;
         TableARemplir->setColumnWidth(li,95);                                               // Enregistré le
         li++;
         TableARemplir->setColumnWidth(li,75);                                               // Payé
         li++;
-        TableARemplir->setColumnWidth(li,70);                                               // ActeDate ou PaiementDate
+        TableARemplir->setColumnWidth(li,0);                                                // PaiementDate format yyyy-MM-dd pour le tri par date
 
         break;
     }
     default:
     {
-//        if (TableARemplir == ui->DetailupTableWidget)
-//        {
-//            ColCount = 9;
-//            TableARemplir->setColumnCount(ColCount);
-//            TableARemplir->setSelectionMode(QAbstractItemView::NoSelection);
+        if (TableARemplir == ui->DetailupTableWidget)
+        {
+            ColCount = 9;
+            if (gMode == EnregistrePaiementTiers)
+                ColCount ++;
+            TableARemplir->setColumnCount(ColCount);
+            TableARemplir->setSelectionMode(QAbstractItemView::NoSelection);
 
-//            LabelARemplir << "";
-//            LabelARemplir << "";
-//            LabelARemplir << tr("Date");
-//            LabelARemplir << tr("Nom Prénom");
-//            LabelARemplir << tr("Cotation");
-//            LabelARemplir << tr("Montant");
-//            LabelARemplir << tr("Reste dû");
-//                LabelARemplir << tr("Payé");
-//            LabelARemplir << "Classementpardate";
-//            TableARemplir->setHorizontalHeaderLabels(LabelARemplir);
-//            TableARemplir->horizontalHeader()->setVisible(true);
-////----------------------------------------------------------------------------------------------------------// Réglage de la largeur et du nombre des colonnes
-//            int li = 0;
-//            TableARemplir->setColumnWidth(li,25);                                               // idActe ou idPaiement
-//            li++;
-//            if (gMode == EnregistrePaiementTiers)
-//                TableARemplir->setColumnWidth(li,20);                                           // Checkbox
-//            else
-//                TableARemplir->setColumnWidth(li,0);                                            // Checkbox
-//            li++;
-//            TableARemplir->setColumnWidth(li,90);                                               // Date
-//            li++;
-//            TableARemplir->setColumnWidth(li,193);                                              // Nom Prenom ou Payeur
-//            li++;
-//            TableARemplir->setColumnWidth(li,160);                                              // Cotation
-//            li++;
-//            switch (gMode) {
-//            case VoirListePaiementsTiers:
-//            {
-//                TableARemplir->setColumnWidth(li,75);                                               // Montant
-//                li++;
-//                if (TypeTable == ActesTiers)                                                        // Type tiers
-//                {
-//                    TableARemplir->setColumnWidth(li,120);
-//                    li ++;
-//                }
-//                TableARemplir->setColumnWidth(li,75);                                               // Reste dû
-//                break;
-//            }
-//            default:
-//            {
-//                TableARemplir->setColumnWidth(li,75);                                               // Montant
-//                li++;
-//                if (TypeTable == ActesTiers)                                                        // Type tiers
-//                {
-//                    TableARemplir->setColumnWidth(li,100);
-//                    li ++;
-//                }
-//                TableARemplir->setColumnWidth(li,75);                                               // Reste dû
-//                break;
-//            }
-//            }
-//            li++;
-//            TableARemplir->setColumnWidth(li,75);                                               // Réglé ou A payer
-//            li++;
-//            TableARemplir->setColumnWidth(li,75);                                               // ActeDate
-//        }
+            LabelARemplir << "";
+            if (gMode == EnregistrePaiementTiers)
+                LabelARemplir << "";
+            LabelARemplir << tr("Date");
+            LabelARemplir << tr("Nom Prénom");
+            LabelARemplir << tr("Cotation");
+            LabelARemplir << tr("Montant");
+            LabelARemplir << tr("Type tiers");
+            LabelARemplir << tr("Reste dû");
+            LabelARemplir << tr("Payé");
+            LabelARemplir << "";
+            TableARemplir->setHorizontalHeaderLabels(LabelARemplir);
+            TableARemplir->horizontalHeader()->setVisible(true);
 
-//        if (TableARemplir == ui->ListeupTableWidget)
-//        {
-//            ColCount = 9;
-//            if (gMode == EnregistrePaiementTiers)
-//                ColCount ++;
-//            TableARemplir->setColumnCount(ColCount);
-//            if (gMode == EnregistrePaiementTiers)
-//                TableARemplir->setSelectionMode(QAbstractItemView::NoSelection);
-//            else
-//                TableARemplir->setSelectionMode(QAbstractItemView::SingleSelection);
+            int li = 0;
+            TableARemplir->setColumnWidth(li,0);                                                    // idActe ou idPaiement
+            li++;
+            if (gMode == EnregistrePaiementTiers)
+            {
+                TableARemplir->setColumnWidth(li,20);                                               // Checkbox
+                li++;
+            }
+            TableARemplir->setColumnWidth(li,90);                                                   // Date
+            li++;
+            TableARemplir->setColumnWidth(li,193);                                                  // Nom Prenom
+            li++;
+            TableARemplir->setColumnWidth(li,160);                                                  // Cotation
+            li++;
+            switch (gMode) {
+            case VoirListePaiementsTiers:
+            {
+                TableARemplir->setColumnWidth(li,75);                                               // Montant
+                li++;
+                TableARemplir->setColumnWidth(li,120);                                              // Type tiers
+                li ++;
+                TableARemplir->setColumnWidth(li,75);                                               // Reste dû
+                break;
+            }
+            default:
+            {
+                TableARemplir->setColumnWidth(li,75);                                               // Montant
+                li++;
+                TableARemplir->setColumnWidth(li,100);                                              // Type tiers
+                li ++;
+                TableARemplir->setColumnWidth(li,75);                                               // Reste dû
+                break;
+            }
+            }
+            li++;
+            TableARemplir->setColumnWidth(li,75);                                                   // Payé
+            li++;
+            TableARemplir->setColumnWidth(li,0);                                                    // ActeDate format yyyy-MM-dd pour le tri par date
+        }
 
-//            LabelARemplir << "";
-//            if (gMode == EnregistrePaiementTiers)
-//                LabelARemplir << "";
-//            LabelARemplir << tr("Date");
-//            LabelARemplir << tr("Nom Prénom");
-//            LabelARemplir << tr("Cotation");
-//            LabelARemplir << tr("Montant");
-//            if (gMode == EnregistrePaiementTiers)
-//                LabelARemplir << tr("Type tiers");
-//            else
-//                LabelARemplir << tr("Payé");
-//            LabelARemplir << tr("Reste dû");
-//            LabelARemplir << "Classementpardate";
-//            TableARemplir->setHorizontalHeaderLabels(LabelARemplir);
-//            TableARemplir->horizontalHeader()->setVisible(true);
-//            int li = 0;                                                                         // Réglage de la largeur et du nombre des colonnes
-//            TableARemplir->setColumnWidth(li,25);                                               // idActe ou idPaiement
-//            li++;
-//            if (gMode == EnregistrePaiementTiers)
-//            {
-//                TableARemplir->setColumnWidth(li,20);                                           // Checkbox
-//                li++;
-//                TableARemplir->setColumnWidth(li,90);                                           // Date
-//            }
-//            else
-//                TableARemplir->setColumnWidth(li,90);
-//            li++;
-//            TableARemplir->setColumnWidth(li,193);                                              // Nom Prenom ou Payeur
-//            li++;
-//            TableARemplir->setColumnWidth(li,160);                                              // Cotation
-//            li++;
-//            TableARemplir->setColumnWidth(li,75);                                               // Montant
-//            li++;
-//            if (TypeTable == ActesTiers)                                                        // Type tiers
-//            {
-//                TableARemplir->setColumnWidth(li,100);
-//                li ++;
-//            }
-//            TableARemplir->setColumnWidth(li,75);                                               // Impayé
-//            li++;
-//            TableARemplir->setColumnWidth(li,75);                                               // Réglé
-//            li++;
-//            TableARemplir->setColumnWidth(li,75);                                               // ActeDate
-//        }
-//        break;
+        if (TableARemplir == ui->ListeupTableWidget)
+        {
+            ColCount = 9;
+            if (gMode == EnregistrePaiementTiers)
+                ColCount ++;
+            TableARemplir->setColumnCount(ColCount);
+            if (gMode == EnregistrePaiementTiers)
+                TableARemplir->setSelectionMode(QAbstractItemView::NoSelection);
+            else
+                TableARemplir->setSelectionMode(QAbstractItemView::SingleSelection);
+
+            LabelARemplir << "";
+            if (gMode == EnregistrePaiementTiers)
+                LabelARemplir << "";
+            LabelARemplir << tr("Date");
+            LabelARemplir << tr("Nom Prénom");
+            LabelARemplir << tr("Cotation");
+            LabelARemplir << tr("Montant");
+            LabelARemplir << tr("Type tiers");
+            LabelARemplir << tr("Payé");
+            LabelARemplir << tr("Reste dû");
+            LabelARemplir << "";
+            TableARemplir->setHorizontalHeaderLabels(LabelARemplir);
+            TableARemplir->horizontalHeader()->setVisible(true);
+            int li = 0;
+            TableARemplir->setColumnWidth(li,0);                                                    // idActe
+            li++;
+            if (gMode == EnregistrePaiementTiers)
+            {
+                TableARemplir->setColumnWidth(li,20);                                               // Checkbox
+                li++;
+                TableARemplir->setColumnWidth(li,90);                                               // Date
+            }
+            else
+                TableARemplir->setColumnWidth(li,90);
+            li++;
+            TableARemplir->setColumnWidth(li,193);                                                  // Nom Prenom ou Payeur
+            li++;
+            TableARemplir->setColumnWidth(li,160);                                                  // Cotation
+            li++;
+            TableARemplir->setColumnWidth(li,75);                                                   // Montant
+            li++;
+            TableARemplir->setColumnWidth(li,100);                                                  // Typetiers
+            li ++;
+            TableARemplir->setColumnWidth(li,75);                                                   // Payé
+            li++;
+            TableARemplir->setColumnWidth(li,75);                                                   // Reste dû
+            li++;
+            TableARemplir->setColumnWidth(li,0);                                                    // ActeDate format yyyy-MM-dd pour le tri par date
+        }
+        break;
     }
     }
     TableARemplir->setColumnHidden(0,true);
     TableARemplir->setColumnHidden(ColCount-1,true);
-    //TableARemplir->setShowGrid(false);
     TableARemplir->setGridStyle(Qt::SolidLine);
+    int l = TableARemplir->FixLargeurTotale();
+    if (Type != Paiements)
+        setFixedWidth(l + 20);
 }
 
 
@@ -1218,7 +1128,7 @@ int dlg_paiementtiers::EnregistreRecette()
             // Mise à jour lignesRecettes
             QString EnregRecetterequete = "INSERT INTO " TBL_RECETTES
                     " (idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, BanqueCheque, EnAttente, CompteVirement, EnregistrePar, TypeRecette, TiersPayant, NomTiers, Commission) VALUES (";
-            EnregRecetterequete +=  QString::number(gidUserACrediter);                                                  // idUser
+            EnregRecetterequete +=  QString::number(m_useracrediter->id());                                                  // idUser
             EnregRecetterequete +=  ", '" + ui->dateEdit->date().toString("yyyy-MM-dd");                                // DatePaiement
             EnregRecetterequete +=  "', DATE(NOW())";                                                                   // DateEnregistrement
             EnregRecetterequete +=  ", " + QString::number(QLocale().toDouble(ui->MontantlineEdit->text()));              // Montant
@@ -1239,40 +1149,14 @@ int dlg_paiementtiers::EnregistreRecette()
                 EnregRecetterequete += "," + idCompte;
             }
 
-            EnregRecetterequete += "," + QString::number(m_userconnected->id());                                                      // EnregistrePar
+            EnregRecetterequete += "," + QString::number(m_userconnected->id());                                        // EnregistrePar
             EnregRecetterequete += ",1";                                                                                // TypeRecette
-                EnregRecetterequete += ",'O'";
+            EnregRecetterequete += ",'O'";                                                                              // Tierspayant
 
-            QString NomTiers = "";
-            switch (gMode) {
-            case EnregistrePaiementTiers:{
-                if ((ui->ChequeradioButton->isChecked()) || (ui->VirementradioButton->isChecked()))
-                    NomTiers = ui->TierscomboBox->currentText();
-                break;
-            }
-            default:{
-                if (ui->DetailupTableWidget->rowCount() > 0)
-                {
-                    QString ChercheNomPat = "SELECT PatNom FROM " TBL_PATIENTS " pat, " TBL_ACTES " act"
-                                            " WHERE pat.idPat = act.idPat"
-                                            " AND act.idActe = " + ui->DetailupTableWidget->item(0,0)->text();
-                    QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(ChercheNomPat, ok);
-                    if (!ok || patdata.size()==0)
-                    {
-                        db->rollback();
-                        return Impossible;
-                    }
-                    NomTiers = patdata.at(0).toString();
-                }
-                break;
-            }
-
-            }
-            EnregRecetterequete += ",'" + Utils::correctquoteSQL(NomTiers);
-            if (ui->CommissionlineEdit->text() =="")
-                EnregRecetterequete += "',null)";
-            else
-                EnregRecetterequete += "'," + QString::number(QLocale().toDouble(ui->CommissionlineEdit->text())) +")";
+            QString NomTiers = ui->TierscomboBox->currentText();
+            EnregRecetterequete += ",'" + Utils::correctquoteSQL(NomTiers);                                             // Nomtiers
+            QString commission = (ui->CommissionlineEdit->text() ==""? "null" : QString::number(QLocale().toDouble(ui->CommissionlineEdit->text())));
+            EnregRecetterequete += "'," + commission +")";                                                              // Commission
             //proc->Edit(EnregRecetterequete);
             if (!db->StandardSQL(EnregRecetterequete,"Impossible d'enregistrer cette ligne de recette"))
             {
@@ -1319,7 +1203,7 @@ int dlg_paiementtiers::EnregistreRecette()
 
                 QString InsertDeprequete = "INSERT INTO " TBL_DEPENSES "(iddep, idUser, DateDep, RefFiscale, Objet, Montant, FamFiscale, idRec, ModePaiement,Compte) VALUES (";
                 InsertDeprequete += max;                                                                                        // idDep
-                InsertDeprequete +=  "," + QString::number(gidUserACrediter);                                                   // idUser
+                InsertDeprequete +=  "," + QString::number(m_useracrediter->id());                                                   // idUser
                 InsertDeprequete +=  ", '" + ui->dateEdit->date().toString("yyyy-MM-dd");                                       // DateDep
                 // on va rechercher l'id2035:
                 // si c'est une carte de crédit, l'id2035 correspondra à "frais financiers", sinon, ce sera "honoraires rétrocédés"
@@ -1371,16 +1255,7 @@ int dlg_paiementtiers::EnregistreRecette()
                  Updaterequete += "TireurCheque = '" + Utils::correctquoteSQL(ui->TireurChequelineEdit->text()) + "', ";                   // Tireur chèque
                  Updaterequete += "BanqueCheque = '" + Utils::correctquoteSQL(ui->BanqueChequecomboBox->currentText()) + "'";              // BanqueCheque
              }
-            QString NomTiers = "";
-            switch (gMode) {
-            case EnregistrePaiementTiers:{
-                if ((ui->ChequeradioButton->isChecked()) || (ui->VirementradioButton->isChecked()))
-                    NomTiers = ui->TierscomboBox->currentText();
-                break;
-            }
-            default:
-                break;
-            }
+            QString NomTiers = ui->TierscomboBox->currentText();
             if (updatelignerecettes && NomTiers != "")
                 Updaterequete += ", ";
             if (NomTiers != "")
@@ -1407,8 +1282,7 @@ int dlg_paiementtiers::EnregistreRecette()
             {
                 QString ActeAInserer = ui->DetailupTableWidget->item(i,0)->text();
                 QString PayeAInserer = "0";
-                int ColonneMontantPaye;
-                    ColonneMontantPaye = 8;
+                int ColonneMontantPaye = 8;
                 UpLineEdit* Line = dynamic_cast<UpLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ColonneMontantPaye));
                 if (Line)
                     PayeAInserer = QString::number(QLocale().toDouble(Line->text()));
@@ -1495,9 +1369,6 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
             ui->DetailupTableWidget->setItem(i,7,pItem6);                  //Reste dû
             ui->DetailupTableWidget->setCellWidget(i,8,LigneMontant);      //Payé
             ui->DetailupTableWidget->setItem(i,9,pItem7);                  //Date format yyyy--MM-dd pour le tri par ordre chronologique
-
-            ui->DetailupTableWidget->setRowHeight(i,int(fm.height()*1.1));
-
             PoseVerrouCompta(TableOrigine->item(Rangee,0)->text().toInt());
          }
         else
@@ -1593,8 +1464,6 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
                     ui->DetailupTableWidget->setItem(l,7,pItem7);                  //Reste dû
                     ui->DetailupTableWidget->setCellWidget(l,8,LigneMontant);      //Payé
                     ui->DetailupTableWidget->setItem(l,9,pItem8);                  //Date format yyyy--MM-dd pour le tri par ordre chronologique
-
-                    ui->DetailupTableWidget->setRowHeight(l,int(fm.height()*1.1));
                 }
             }
         }
@@ -1612,8 +1481,6 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
             allRButtons.at(n)->setChecked(false);
             allRButtons.at(n)->setAutoExclusive(true);
         }
-        if (gMode == VoirListePaiementsTiers) gTypeTable = ActesTiers;
-
         QString TextidRecette   = TableOrigine->item(Rangee,0)->text();
 
         requete =   "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation, ActeMontant, ActeMonnaie, Paye, TypePaiement, Tiers, TotalPaye\n"
@@ -1631,7 +1498,7 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
 
         //UpMessageBox::Watch(this,requete);
         QList<QVariantList> detpmtlist = db->StandardSelectSQL(requete,ok);
-        RemplirTableWidget(ui->DetailupTableWidget,"Actes",detpmtlist,false,Qt::Unchecked);
+        RemplirTableWidget(ui->DetailupTableWidget, Actes, detpmtlist, false, Qt::Unchecked);
 
         // Remplir les infos sur la recette concernée
         requete =   "SELECT idRecette, idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, CompteVirement, BanqueCheque, TiersPayant, NomTiers, Commission, Monnaie, idRemise, EnAttente, EnregistrePar, TypeRecette FROM " TBL_RECETTES
@@ -1666,10 +1533,13 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
         ui->MontantlineEdit->setText(Montant);
         break;
     }
+    default:
+        break;
     } // fin switch
     Slot_CalculTotalDetails();
     RegleAffichageTypePaiementframe(false);
     RegleAffichageTypePaiementframe(true,false);
+    ui->DetailupTableWidget->setAllRowHeight(int(fm.height()*1.1));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1969,20 +1839,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
                       }
                   }
             }
-            if (SupprimerBouton == Q_NULLPTR)
-            {
-                SupprimerBouton = new UpPushButton(ui->Buttonsframe);
-                SupprimerBouton->setText(tr("Supprimer"));
-                SupprimerBouton->setIcon(Icons::icPoubelle());
-                SupprimerBouton->setIconSize(QSize(30,30));
-                SupprimerBouton->move(10,10);
-                SupprimerBouton->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Large);
-                SupprimerBouton->setObjectName("SupprimerupPushButton");
-                SupprimerBouton->setVisible(true);
-                connect (SupprimerBouton, SIGNAL(clicked()), this, SLOT (Slot_SupprimerPaiement()));
-            }
-            else SupprimerBouton->setVisible(true);
-
+            ui->SupprimupPushButton->setVisible(true);
         }
     }
 
@@ -1991,7 +1848,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
     db->StandardSQL(requete);
 
     gListidActe = ListeActesAModifier;
-    RemplitLesTables(gMode);
+    RemplitLesTables();
     Slot_RegleAffichageFiche();
     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recdata.at(7)));
     ui->dateEdit->setDate(recdata.at(2).toDate());
@@ -2123,16 +1980,11 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
     {
         for (int i=0; i<ui->TypePaiementframe->findChildren<QWidget*>().size(); i++)
             ui->TypePaiementframe->findChildren<QWidget*>().at(i)->setEnabled(true);
-        ui->TiersPayeurlabel->setVisible(false);
-        ui->TierscomboBox->setVisible(false);
-        ui->Banquelabel->setVisible(false);
-        ui->BanqueChequecomboBox->setVisible(false);
-        ui->Tireurlabel->setVisible(false);
-        ui->TireurChequelineEdit->setVisible(false);
-        ui->Commissionlabel->setVisible(false);
-        ui->CommissionlineEdit->setVisible(false);
-        ui->ComptesupComboBox->setVisible(false);
-        ui->CompteCreditelabel->setVisible(false);
+        ui->TiersWidget->setVisible(false);
+        ui->BanqueWidget->setVisible(false);
+        ui->TireurWidget->setVisible(false);
+        ui->CommissionWidget->setVisible(false);
+        ui->CompteWidget->setVisible(false);
         ui->dateEdit->setVisible(false);
 
         if (gMode == Accueil)
@@ -2151,28 +2003,18 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
         {
             ui->TypePaiementframe->setVisible(true);
             ui->PaiementgroupBox->setVisible(true);
-            ui->MontantlineEdit->setVisible(true);
-            ui->Montantlabel->setVisible(true);
+            ui->MontantWidget->setVisible(true);
             ui->dateEdit->setVisible(true);
             switch (gMode) {
             case EnregistrePaiementTiers:
             {
-                ui->TierscomboBox->setVisible(true);
-                ui->PaiementgroupBox->setGeometry(0,35,150,110);
-                ui->VirementradioButton->setVisible(true);
-                ui->VirementradioButton->move(5,30);
+                ui->TiersWidget->setVisible(true);
                 ui->PaiementgroupBox->setFocusProxy(ui->VirementradioButton);
-                ui->ChequeradioButton->move(5,55);
-                ui->EspecesradioButton->move(5,80);
                 break;
             }
             case VoirListePaiementsTiers:
             {
-                ui->PaiementgroupBox->setGeometry(0,35,150,110);
                 ui->VirementradioButton->setVisible(true);
-                ui->VirementradioButton->move(5,30);
-                ui->ChequeradioButton->move(5,55);
-                ui->EspecesradioButton->move(5,80);
                 break;
             }
             default:
@@ -2184,26 +2026,20 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
     {
         if (Emetteur == ui->ChequeradioButton)
         {
-            ui->TireurChequelineEdit->setVisible(true);
-            ui->Tireurlabel         ->setVisible(true);
-            ui->Banquelabel         ->setVisible(true);
-            ui->BanqueChequecomboBox->setVisible(true);
-            ui->TiersPayeurlabel    ->setVisible(gMode == EnregistrePaiementTiers || gMode == VoirListePaiementsTiers);
-            ui->TierscomboBox       ->setVisible(gMode == EnregistrePaiementTiers || gMode == VoirListePaiementsTiers);
-            ui->Montantlabel        ->setVisible(true);
-            ui->MontantlineEdit     ->setVisible(true);
+            ui->TireurWidget        ->setVisible(true);
+            ui->BanqueWidget        ->setVisible(true);
+            ui->TiersWidget         ->setVisible(true);
+            ui->MontantWidget     ->setVisible(true);
             ui->Montantlabel        ->setEnabled(true);
             ui->MontantlineEdit     ->setEnabled(true);
-            ui->ComptesupComboBox   ->setVisible(false);
-            ui->CompteCreditelabel  ->setVisible(false);
+            ui->CompteWidget        ->setVisible(false);
             // Si la Table Details n'est pas vide , on récupère le nom du premier de la liste pour remplir la case Tireur du chèque;
             if (gMode == EnregistrePaiementTiers)
             {
                 if (AppeleParClicK)
                     ui->TireurChequelineEdit->setText(ui->TierscomboBox->currentText());
             }
-            ui->Commissionlabel->setVisible(false);
-            ui->CommissionlineEdit->setVisible(false);
+            ui->CommissionWidget    ->setVisible(false);
 
             if (gMode == EnregistrePaiementTiers && AppeleParClicK)
             {
@@ -2218,20 +2054,14 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
         }
         else if (Emetteur == ui->EspecesradioButton)
         {
-            ui->TireurChequelineEdit->setVisible(false);
-            ui->Tireurlabel         ->setVisible(false);
-            ui->Banquelabel         ->setVisible(false);
-            ui->BanqueChequecomboBox->setVisible(false);
-            ui->TiersPayeurlabel    ->setVisible(false);
-            ui->TierscomboBox       ->setVisible(false);
-            ui->Montantlabel        ->setVisible(true);
-            ui->MontantlineEdit     ->setVisible(true);
+            ui->TireurWidget        ->setVisible(false);
+            ui->BanqueWidget        ->setVisible(false);
+            ui->TiersWidget         ->setVisible(false);
+            ui->MontantWidget       ->setVisible(true);
             ui->Montantlabel        ->setEnabled(true);
             ui->MontantlineEdit     ->setEnabled(true);
-            ui->ComptesupComboBox   ->setVisible(false);
-            ui->CompteCreditelabel  ->setVisible(false);
-            ui->Commissionlabel     ->setVisible(false);
-            ui->CommissionlineEdit  ->setVisible(false);
+            ui->CompteWidget        ->setVisible(false);
+            ui->CommissionWidget    ->setVisible(false);
             if (gMode == EnregistrePaiementTiers && AppeleParClicK)
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
@@ -2245,20 +2075,14 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
         }
         else if (Emetteur == ui->VirementradioButton)
         {
-            ui->TireurChequelineEdit->setVisible(false);
-            ui->Tireurlabel         ->setVisible(false);
-            ui->Banquelabel         ->setVisible(false);
-            ui->BanqueChequecomboBox->setVisible(false);
-            ui->TiersPayeurlabel    ->setVisible(true);
-            ui->TierscomboBox       ->setVisible(true);
-            ui->Montantlabel        ->setVisible(true);
-            ui->MontantlineEdit     ->setVisible(true);
+            ui->TireurWidget        ->setVisible(false);
+            ui->BanqueWidget        ->setVisible(false);
+            ui->TiersWidget         ->setVisible(true);
+            ui->MontantWidget       ->setVisible(true);
             ui->Montantlabel        ->setEnabled(true);
             ui->MontantlineEdit     ->setEnabled(true);
-            ui->ComptesupComboBox   ->setVisible(true);
-            ui->CompteCreditelabel  ->setVisible(true);
-            ui->Commissionlabel     ->setVisible(true);
-            ui->CommissionlineEdit  ->setVisible(true);
+            ui->CompteWidget        ->setVisible(true);
+            ui->CommissionWidget    ->setVisible(true);
         }
         ui->OKupPushButton->setEnabled(true);
     }
@@ -2279,7 +2103,7 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
     }
     case VoirListePaiementsTiers:
     {
-//        ui->OKupPushButton      ->setEnabled(ui->ListeupTableWidget->selectedRanges().size() > 0);
+        ui->OKupPushButton      ->setEnabled(ui->ListeupTableWidget->selectedRanges().size() > 0);
         break;
     }
     case Accueil:
@@ -2287,8 +2111,6 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
         ui->OKupPushButton->setEnabled(true);
         break;
     }
-    default:
-        break;
     }
     if (!ui->VirementradioButton->isChecked())
         ui->CommissionlineEdit->setText("0,00");
@@ -2321,29 +2143,28 @@ void dlg_paiementtiers::RemetToutAZero()
     ui->BanqueChequecomboBox        ->clearEditText();
     ui->TireurChequelineEdit        ->clear();
     gListidActe.clear();
-    RemplitLesTables(gMode);
+    RemplitLesTables();
     ui->OKupPushButton              ->setEnabled(false);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Remplir les TableWidget ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementtiers::RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QVariantList> reclist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas)
+void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTable Type, QList<QVariantList> reclist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas)
 {
     QTableWidgetItem    *pItem1, *pItem2, *pItem3, *pItem4, *pItem5, *pItem6, *pItem7;
     QString             A;
-    QFontMetrics fm(qApp->font());
+    QFontMetrics        fm(qApp->font());
 
     disconnect (TableARemplir,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
     TableARemplir->clearContents();
     TableARemplir->verticalHeader()->hide();
 
-    // cette ligne est nécessaire pour éviter un pb d'affichage des tables quand on les redéfiniit
+    // cette ligne est nécessaire pour éviter un pb d'affichage des tables quand on les redéfinit
     TableARemplir->setRowCount(0);
     TableARemplir->setRowCount(reclist.size());
 
-    if (TypeTable == "Actes")                                                               // Table affichant des actes
-    {
+    if (Type == Actes)                                                               // Table affichant des actes
         for (int i = 0; i < reclist.size(); i++)
         {
             QTableWidgetItem    *pItem8, *pItem9;
@@ -2368,7 +2189,7 @@ void dlg_paiementtiers::RemplirTableWidget(QTableWidget *TableARemplir, QString 
                 CheckItem->installEventFilter(this);
                 TableARemplir->setCellWidget(i,col,CheckItem);
             }
-            if (TableARemplir == ui->DetailupTableWidget || AvecUpcheckBox)
+            if (AvecUpcheckBox)
                 col++;
 
             A = reclist.at(i).at(1).toDate().toString(tr("dd-MM-yyyy"));                            // Date
@@ -2409,80 +2230,80 @@ void dlg_paiementtiers::RemplirTableWidget(QTableWidget *TableARemplir, QString 
                 // col = 6 / Type tiers
                 TableARemplir->setItem(i,col,pItem6);                                           // Tiers
                 col++;
-//                if (TableARemplir == ui->ListeupTableWidget)
-//                {
-//                    if (reclist.at(i).at(6).toString() == "F")
-//                        A = QLocale().toString((QLocale().toDouble(Montant) - reclist.at(i).at(7).toDouble())/6.55957,'f',2);   // Payé en F converti en euros
-//                    else
-//                        A = QLocale().toString(QLocale().toDouble(Montant) - reclist.at(i).at(7).toDouble(),'f',2);             // Payé
-//                    pItem7 = new QTableWidgetItem;
-//                    pItem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-//                    pItem7->setText(A);
-//                    // col = 7 Reste du
-//                    TableARemplir->setItem(i,col,pItem7);
-//                    col++;
+                if (TableARemplir == ui->ListeupTableWidget)
+                {
+                    if (reclist.at(i).at(6).toString() == "F")
+                        A = QLocale().toString((QLocale().toDouble(Montant) - reclist.at(i).at(7).toDouble())/6.55957,'f',2);   // Payé en F converti en euros
+                    else
+                        A = QLocale().toString(QLocale().toDouble(Montant) - reclist.at(i).at(7).toDouble(),'f',2);             // Payé
+                    pItem7 = new QTableWidgetItem;
+                    pItem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+                    pItem7->setText(A);
+                    // col = 7 Reste du
+                    TableARemplir->setItem(i,col,pItem7);
+                    col++;
 
-//                    pItem8 = new QTableWidgetItem;
-//                    pItem8->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-//                    if (reclist.at(i).at(6).toString() == "F")
-//                        A = QLocale().toString(reclist.at(i).at(7).toDouble()/6.55957,'f',2);
-//                    else
-//                        A = QLocale().toString(reclist.at(i).at(7).toDouble(),'f',2);
-//                    pItem8->setText(A);
-//                    // col = 8 Payé
-//                    TableARemplir->setItem(i,col,pItem8);                                           // Reste dû
-//                }
-//                else
-//                {
-//                    QDoubleValidator *val;
-//                    if (reclist.at(i).at(6).toString() == "F")
-//                        A = QLocale().toString(reclist.at(i).at(7).toDouble()/6.55957,'f',2);                     // Reste dû en F converti en euros
-//                    else
-//                        A = QLocale().toString(reclist.at(i).at(7).toDouble(),'f',2);                             // Reste dû
-//                    pItem7 = new QTableWidgetItem;
-//                    pItem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-//                    pItem7->setText(A);
-//                    // col = 7 Reste du
-//                    TableARemplir->setItem(i,col,pItem7);
-//                    col++;
-//                    UpLineEdit *LignePaye = new UpLineEdit();
-//                    val = new QDoubleValidator(this);
-//                    val->setDecimals(2);
-//                    LignePaye->setValidator(val);
-//                    LignePaye->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-//                    LignePaye->setText(A);                                                    // Payé
-//                    LignePaye->setRowTable(i);
-//                    LignePaye->setColumnTable(col);
-//                    LignePaye->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
-//                                             "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
-//                    connect (LignePaye, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
-//                    LignePaye->installEventFilter(this);
-//                    TableARemplir->setCellWidget(i,col,LignePaye);
-//                }
-//                col++;
+                    pItem8 = new QTableWidgetItem;
+                    pItem8->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+                    if (reclist.at(i).at(6).toString() == "F")
+                        A = QLocale().toString(reclist.at(i).at(7).toDouble()/6.55957,'f',2);
+                    else
+                        A = QLocale().toString(reclist.at(i).at(7).toDouble(),'f',2);
+                    pItem8->setText(A);
+                    // col = 8 Payé
+                    TableARemplir->setItem(i,col,pItem8);                                           // Reste dû
+                }
+                else
+                {
+                    QDoubleValidator *val;
+                    if (reclist.at(i).at(6).toString() == "F")
+                        A = QLocale().toString(reclist.at(i).at(7).toDouble()/6.55957,'f',2);                     // Reste dû en F converti en euros
+                    else
+                        A = QLocale().toString(reclist.at(i).at(7).toDouble(),'f',2);                             // Reste dû
+                    pItem7 = new QTableWidgetItem;
+                    pItem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+                    pItem7->setText(A);
+                    // col = 7 Reste du
+                    TableARemplir->setItem(i,col,pItem7);
+                    col++;
+                    UpLineEdit *LignePaye = new UpLineEdit();
+                    val = new QDoubleValidator(this);
+                    val->setDecimals(2);
+                    LignePaye->setValidator(val);
+                    LignePaye->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
+                    LignePaye->setText(A);                                                    // Payé
+                    LignePaye->setRowTable(i);
+                    LignePaye->setColumnTable(col);
+                    LignePaye->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
+                                             "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
+                    connect (LignePaye, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
+                    LignePaye->installEventFilter(this);
+                    TableARemplir->setCellWidget(i,col,LignePaye);
+                }
+                col++;
             }
 
             if (gMode == VoirListePaiementsTiers)
             {
                 pItem6 = new QTableWidgetItem() ;
-//                if (TableARemplir == ui->ListeupTableWidget)
-//                {
-//                    A = reclist.at(i).at(8).toString();
-//                    if (A == "T") A = reclist.at(i).at(9).toString();
-//                    if (A == "E") A = tr("Espèces");
-//                    if (A == "C") A = tr("Chèque");
-//                    if (A == "CB")  A = tr("Carte bancaire");
-//                    pItem6->setTextAlignment(Qt::AlignCenter);
-//                    pItem6->setText(A);
-//                    TableARemplir->setItem(i,col,pItem6);                                                       // Type paiement
-//                    col++;
-//                    A = QLocale().toString(reclist.at(i).at(7).toDouble(),'f',2);
-//                    pItem7 = new QTableWidgetItem;
-//                    pItem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
-//                    pItem7->setText(A);
-//                    TableARemplir->setItem(i,col,pItem7);                                                       // Payé
-//                    col++;
-//                }
+                if (TableARemplir == ui->ListeupTableWidget)
+                {
+                    A = reclist.at(i).at(8).toString();
+                    if (A == "T") A = reclist.at(i).at(9).toString();
+                    if (A == "E") A = tr("Espèces");
+                    if (A == "C") A = tr("Chèque");
+                    if (A == "CB")  A = tr("Carte bancaire");
+                    pItem6->setTextAlignment(Qt::AlignCenter);
+                    pItem6->setText(A);
+                    TableARemplir->setItem(i,col,pItem6);                                                       // Type paiement
+                    col++;
+                    A = QLocale().toString(reclist.at(i).at(7).toDouble(),'f',2);
+                    pItem7 = new QTableWidgetItem;
+                    pItem7->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
+                    pItem7->setText(A);
+                    TableARemplir->setItem(i,col,pItem7);                                                       // Payé
+                    col++;
+                }
                 if (TableARemplir == ui->DetailupTableWidget)
                 {
                     A = reclist.at(i).at(9).toString();
@@ -2520,13 +2341,9 @@ void dlg_paiementtiers::RemplirTableWidget(QTableWidget *TableARemplir, QString 
             pItem9 = new QTableWidgetItem() ;
             pItem9->setText(A);
             TableARemplir->setItem(i,col,pItem9);
-
-            TableARemplir->setRowHeight(i,int(fm.height()*1.1));
         }
-    }
 
-    if (TypeTable == "Paiements")                                                                   // Table affichant des paiements
-    {
+    else if (Type == Paiements)                                                                   // Table affichant des paiements
         for (int i = 0; i < reclist.size(); i++)
         {
             int col = 0;
@@ -2601,39 +2418,21 @@ void dlg_paiementtiers::RemplirTableWidget(QTableWidget *TableARemplir, QString 
             pItem7 = new QTableWidgetItem() ;
             pItem7->setText(A);
             TableARemplir->setItem(i,col,pItem7);
-
-            TableARemplir->setRowHeight(i,int(fm.height()*1.1));
         }
-    }
+    TableARemplir->setAllRowHeight(int(fm.height()*1.1));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Remplir les tables en fonction du mode appelé ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementtiers::RemplitLesTables(int Mode)
+void dlg_paiementtiers::RemplitLesTables()
 {
     QString             requete;
-//    disconnect (ui->ListeupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+    disconnect (ui->ListeupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
 
-    QString user =  " AND act.UserComptable = ";
-    if (m_userconnected->isLiberal())
-        // l'utilisateur est un soignant liberal et responsable - il enregistre ses actes et ceux de ses éventuels salariés
-        user = " AND act.UserComptable = "  + QString::number(gidUserACrediter) + "\n";
-    else if (m_userconnected->isSalarie() && !m_userconnected->isAssistant())
-        // l'utilisateur est un soignant salarie et responsable
-        user = " AND act.UserComptable = "  + QString::number(m_userconnected->getIdUserComptable()) + "\n"
-               " AND act.UserParent = "     + QString::number(m_userconnected->id()) + "\n";
-    else if (m_userconnected->isRemplacant())
-        // l'utilisateur est un remplacant
-        user = " AND act.UserComptable = "  + QString::number(m_userconnected->getIdUserComptable()) + "\n"
-               " AND act.UserParent = "     + QString::number(m_userconnected->id()) + "\n";
-    else if (m_userconnected->isSecretaire())
-        // l'utilisateur est un secretaire
-        user = " AND act.UserComptable = "  + QString::number(gidUserACrediter) + "\n";
-    else
-        user = " AND act.UserComptable = "  + QString::number(gidUserACrediter) + "\n";
+    QString user =  " AND act.UserComptable = "  + QString::number(m_useracrediter->id()) + "\n";
 
-    switch (Mode)
+    switch (gMode)
     {
 
     /* -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2647,7 +2446,7 @@ void dlg_paiementtiers::RemplitLesTables(int Mode)
         . pour lesquels la somme des montants versés est inférieure au prix de l'acte
         . ou dont le type de paiement enregistré est "tiers"
         */
-//        DefinitArchitectureTableView(ui->ListeupTableWidget, ActesTiers);
+        DefinitArchitectureTableView(ui->ListeupTableWidget, Actes);
         requete =   "select * from (\n"
                     "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation, ActeMontant, ActeMonnaie, Actemontant -SUM(Paye) as tot, Tiers\n"
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ, " TBL_LIGNESPAIEMENTS " lig\n"
@@ -2665,19 +2464,21 @@ void dlg_paiementtiers::RemplitLesTables(int Mode)
                     " WHERE act.idActe = typ.idActe\n"
                     " AND act.idacte not in (select idacte from " TBL_LIGNESPAIEMENTS ")\n"
                     " AND TypePaiement = 'T'\n"
-                    " AND act.idPat = pat.idPat\n";
-        requete +=  user + ")\n";
-        requete +=  " order by acteDate desc, PatNom, PatPrenom";
+                    " AND act.idPat = pat.idPat\n"
+                    " AND act.UserComptable = "  + QString::number(m_useracrediter->id()) + "\n"
+                    ")\n"
+                    " order by acteDate desc, PatNom, PatPrenom";
+
         //UpMessageBox::Watch(this,requete);
 
         QList<QVariantList> actlist = db->StandardSelectSQL(requete,ok);
-//        RemplirTableWidget(ui->ListeupTableWidget,"Actes", actlist, true, Qt::Unchecked);
+        RemplirTableWidget(ui->ListeupTableWidget, Actes, actlist, true, Qt::Unchecked);
         ui->DetailupTableWidget->setRowCount(0);
         ui->DetailupTableWidget->setColumnCount(0);
         ui->DetailupTableWidget->horizontalHeader()->hide();
 
         //Remplissage de la table Details en cas de modification de paiement en cours
-        DefinitArchitectureTableView(ui->DetailupTableWidget,ActesTiers);
+        DefinitArchitectureTableView(ui->DetailupTableWidget,Actes);
         if (gListidActe.size() > 0 && ModifPaiementEnCours)
         {
             NettoieVerrousListeActesAAfficher();
@@ -2712,39 +2513,38 @@ void dlg_paiementtiers::RemplitLesTables(int Mode)
 
             //UpMessageBox::Watch(this,requete);
             QList<QVariantList> detlist = db->StandardSelectSQL(requete,ok);
-            RemplirTableWidget(ui->DetailupTableWidget,"Actes", detlist, true, Qt::Checked);
+            RemplirTableWidget(ui->DetailupTableWidget, Actes, detlist, true, Qt::Checked);
         }
         break;
     }
 
      /* -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    -- Modification d'un paiement direct ou par tiers ------------------------------------------------------------------------------------------------------------------------------------------
+    -- Modification d'un paiement par tiers ------------------------------------------------------------------------------------------------------------------------------------------
     ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- */
     case VoirListePaiementsTiers:      // on reconstruit la liste des tiers
     {
         // On sélectionne tous les paiements sans exception
-//        DefinitArchitectureTableView(ui->ListeupTableWidget,Paiements);
+        DefinitArchitectureTableView(ui->ListeupTableWidget,Paiements);
         requete =   "SELECT idRecette, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, CompteVirement, BanqueCheque, TiersPayant, NomTiers, Commission, Monnaie, idRemise, EnAttente, EnregistrePar, TypeRecette, RCDate, Montant as Paye FROM " TBL_RECETTES
                 "\n LEFT OUTER JOIN (SELECT RCDate, idRemCheq FROM " TBL_REMISECHEQUES ") AS rc\n"
                 " ON rc.idRemCheq = idRemise\n"
-                " WHERE idUser = " + QString::number(gidUserACrediter) +
+                " WHERE idUser = " + QString::number(m_useracrediter->id()) +
                 "\n AND TiersPayant = 'O'\n"
                 " ORDER BY DatePaiement DESC, NomTiers";
 
         //UpMessageBox::Watch(this,requete);
         QList<QVariantList> detpmtlist = db->StandardSelectSQL(requete,ok);
-//        RemplirTableWidget(ui->ListeupTableWidget,"Paiements", detpmtlist, false, Qt::Unchecked);
+        RemplirTableWidget(ui->ListeupTableWidget, Paiements, detpmtlist, false, Qt::Unchecked);
 
         ui->DetailupTableWidget->setRowCount(0);
         ui->DetailupTableWidget->setColumnCount(0);
         ui->DetailupTableWidget->horizontalHeader()->hide();
-//        connect (ui->ListeupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
-            DefinitArchitectureTableView(ui->DetailupTableWidget,ActesTiers);
-         break;
+        connect (ui->ListeupTableWidget,    SIGNAL(itemSelectionChanged()), this, SLOT(Slot_RenvoieRangee()));
+        DefinitArchitectureTableView(ui->DetailupTableWidget,Actes);
+        break;
      }
     default:
         break;
-
     }
     Slot_CalculTotalDetails();
 }
@@ -2762,21 +2562,21 @@ void dlg_paiementtiers::TrieListe(QTableWidget *TableATrier )
     else
         ColonneATrier = 2;
 
-//    if (TableATrier == ui->ListeupTableWidget)
-//    {
-//        if (gOrdreTri == Chronologique)
-//        {
-//            TableATrier->sortItems(ncol - 1,Qt::DescendingOrder);
-//            ui->OrdreupPushButton->setIcon(Icons::icTri());
-//            ui->OrdreupPushButton->setIconSize(QSize(20,20));
-//        }
-//        else
-//        {
-//            TableATrier->sortItems(ColonneATrier,Qt::AscendingOrder);
-//            ui->OrdreupPushButton->setIcon(Icons::icDate());
-//            ui->OrdreupPushButton->setIconSize(QSize(20,20));
-//        }
-//    }
+    if (TableATrier == ui->ListeupTableWidget)
+    {
+        if (gOrdreTri == Chronologique)
+        {
+            TableATrier->sortItems(ncol - 1,Qt::DescendingOrder);
+            ui->OrdreupPushButton->setIcon(Icons::icTri());
+            ui->OrdreupPushButton->setIconSize(QSize(20,20));
+        }
+        else
+        {
+            TableATrier->sortItems(ColonneATrier,Qt::AscendingOrder);
+            ui->OrdreupPushButton->setIcon(Icons::icDate());
+            ui->OrdreupPushButton->setIconSize(QSize(20,20));
+        }
+    }
     if (TableATrier == ui->DetailupTableWidget)
     {
         TableATrier->sortItems(ColonneATrier,Qt::AscendingOrder);
@@ -2841,7 +2641,7 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
             break;
         }
         // Le montant inscrit est supérieur au montant calculé
-        if (ui->MontantlineEdit->isVisible() && (QLocale().toDouble(ui->MontantlineEdit->text()) > QLocale().toDouble(ui->TotallineEdit->text())))
+        if (ui->MontantWidget->isVisible() && (QLocale().toDouble(ui->MontantlineEdit->text()) > QLocale().toDouble(ui->TotallineEdit->text())))
         {
             if (ui->DetailupTableWidget->rowCount() > 0)
                 Msg = tr("Le montant enregistré est supérieur au montant total calculé!\nEnregistrer quand même?");
@@ -2864,7 +2664,7 @@ bool dlg_paiementtiers::VerifCoherencePaiement()
             }
         }
         // Le montant inscrit est inférieur au montant calculé
-        if (ui->MontantlineEdit->isVisible() && (QLocale().toDouble(ui->MontantlineEdit->text()) < QLocale().toDouble(ui->TotallineEdit->text())))
+        if (ui->MontantWidget->isVisible() && (QLocale().toDouble(ui->MontantlineEdit->text()) < QLocale().toDouble(ui->TotallineEdit->text())))
         {
             Msg = tr("Le montant versé est différent de la somme calculée!");
             ui->MontantlineEdit->setFocus();
@@ -2999,7 +2799,6 @@ bool dlg_paiementtiers::VerifVerrouCompta(QTableWidget *TableAVerifier, int Rang
     if (ok && usrdata.size() > 0)
     {
         ui->VerrouilleParlabel->setText(tr("Acte Verrouillé par ") + usrdata.at(0).toString());
-        ui->VerrouilleParlabel->setGeometry(200,190,250,16);
         ui->VerrouilleParlabel->setStyleSheet("color: magenta");
         ui->VerrouilleParlabel->setVisible(true);
         gtimerAfficheActeVerrouilleClignotant->start(100);
@@ -3024,33 +2823,33 @@ bool dlg_paiementtiers::VerifVerrouCompta(QTableWidget *TableAVerifier, int Rang
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::VideDetailsTable(int Rangee)
 {
-//    bool                    idActeTrouve = false;
+    bool                    idActeTrouve = false;
 
-//    // on récupère l'idActe de l'item concerné
-//    QString ActeAVirer = ui->DetailupTableWidget->item(Rangee,0)->text();
-//    //UpMessageBox::Watch(this,ui->DetailupTableWidget->item(Rangee,3)->text()+"\n"+ActeAVirer);
-//    //on décoche les items correspondants dans ui->ListeupTableWidget et TableSalDat
-//        QList<QTableWidgetItem*> items;
-//        items = ui->ListeupTableWidget->findItems(ActeAVirer,Qt::MatchExactly);
-//        for (int j = 0; j < items.size(); j++)
-//        {
-//            int i = items.at(j)->row();
-//            idActeTrouve = true;
-//            UpCheckBox *CheckItem = new UpCheckBox;
-//            CheckItem->setCheckState(Qt::Unchecked);
-//            CheckItem->setRowTable(i);
-//            CheckItem->setFocusPolicy(Qt::NoFocus);
-//            connect(CheckItem,      SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
-//            CheckItem->installEventFilter(this);
-//            ui->ListeupTableWidget->removeCellWidget(i,1);
-//            ui->ListeupTableWidget->setCellWidget(i,1,CheckItem);
-//            RetireVerrouCompta(ActeAVirer.toInt());
-//        }
-//    if (!idActeTrouve) RemplitLesTables(gMode);
-//    // on supprime la rangée de la ui->DetailupTableWidget et on reindexe les upcheckbox et les uplinetext
-//    ui->DetailupTableWidget->removeRow(Rangee);
-//    TrieListe(ui->DetailupTableWidget);
-//    Slot_CalculTotalDetails();
-//    RegleAffichageTypePaiementframe();
+    // on récupère l'idActe de l'item concerné
+    QString ActeAVirer = ui->DetailupTableWidget->item(Rangee,0)->text();
+    //UpMessageBox::Watch(this,ui->DetailupTableWidget->item(Rangee,3)->text()+"\n"+ActeAVirer);
+    //on décoche les items correspondants dans ui->ListeupTableWidget et TableSalDat
+        QList<QTableWidgetItem*> items;
+        items = ui->ListeupTableWidget->findItems(ActeAVirer,Qt::MatchExactly);
+        for (int j = 0; j < items.size(); j++)
+        {
+            int i = items.at(j)->row();
+            idActeTrouve = true;
+            UpCheckBox *CheckItem = new UpCheckBox;
+            CheckItem->setCheckState(Qt::Unchecked);
+            CheckItem->setRowTable(i);
+            CheckItem->setFocusPolicy(Qt::NoFocus);
+            connect(CheckItem,      SIGNAL(uptoggled(bool)),      this,       SLOT (Slot_RenvoieRangee(bool)));
+            CheckItem->installEventFilter(this);
+            ui->ListeupTableWidget->removeCellWidget(i,1);
+            ui->ListeupTableWidget->setCellWidget(i,1,CheckItem);
+            RetireVerrouCompta(ActeAVirer.toInt());
+        }
+    if (!idActeTrouve) RemplitLesTables();
+    // on supprime la rangée de la ui->DetailupTableWidget et on reindexe les upcheckbox et les uplinetext
+    ui->DetailupTableWidget->removeRow(Rangee);
+    TrieListe(ui->DetailupTableWidget);
+    Slot_CalculTotalDetails();
+    RegleAffichageTypePaiementframe();
 }
 

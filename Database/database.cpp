@@ -1288,7 +1288,7 @@ QList<Tiers*> DataBase::loadTiersPayants()
     {
         QJsonObject jData{};
         jData["id"] = tierslist.at(i).at(0).toInt();
-        jData["nomtiers"] = tierslist.at(i).at(1).toInt();
+        jData["nomtiers"] = tierslist.at(i).at(1).toString();
         jData["adressetiers"] = tierslist.at(i).at(2).toString();
         jData["codepostaltiers"] = tierslist.at(i).at(3).toString();
         jData["villetiers"] = tierslist.at(i).at(4).toString();

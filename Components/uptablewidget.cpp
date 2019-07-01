@@ -155,7 +155,10 @@ int UpTableWidget::FixLargeurTotale()
     int larg = 0;
     for (int i=0; i < columnCount(); i++)
         if (!isColumnHidden(i))
+        {
             larg += columnWidth(i);
+            //qDebug() << columnWidth(i) << larg;
+        }
     setFixedWidth(larg+2);
     return larg+2;
 }
@@ -191,6 +194,12 @@ int UpTableWidget::LastRowNoHidden()
             break;
         }
     return row;
+}
+
+void UpTableWidget::setAllRowHeight(int h)
+{
+    for (int i=0; i<rowCount(); i++)
+        setRowHeight(i, h);
 }
 
 void UpTableWidget::selectRow(int row)

@@ -1,5 +1,5 @@
 #--------------------
-# DATABASE
+# DIALOGS
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/dlg_actesprecedents.cpp \
@@ -24,7 +24,6 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_listemotscles.cpp \
     $$PWD/dlg_message.cpp \
     $$PWD/dlg_motifs.cpp \
-    $$PWD/dlg_paiement.cpp \
     $$PWD/dlg_paramconnexion.cpp \
     $$PWD/dlg_param.cpp \
     $$PWD/dlg_recettesspeciales.cpp \
@@ -60,7 +59,6 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_listemotscles.h \
     $$PWD/dlg_message.h \
     $$PWD/dlg_motifs.h \
-    $$PWD/dlg_paiement.h \
     $$PWD/dlg_paramconnexion.h \
     $$PWD/dlg_param.h \
     $$PWD/dlg_recettesspeciales.h \
@@ -87,7 +85,6 @@ FORMS += $$PWD/dlg_actesprecedents.ui \
     $$PWD/dlg_identificationpatient.ui \
     $$PWD/dlg_identificationuser.ui \
     $$PWD/dlg_motifs.ui \
-    $$PWD/dlg_paiement.ui \
     $$PWD/dlg_paramconnexion.ui \
     $$PWD/dlg_param.ui \
     $$PWD/dlg_recettesspeciales.ui \

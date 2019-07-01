@@ -30,7 +30,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
     * On ne comptabilisera aucun encaissement direct, ni aucun paiement par tiers.
     * On se contente de faire la somme des montants facturés par acte.
     * Ce décompte est utile pour faire par exemple le total des actes facturés par un remplaçant pour juger son activité et calculer les reversements d'honoraires
- * l'activité comptatle: qui a encaissé quoi et de qui?
+ * l'activité comptable: qui a encaissé quoi et de qui?
      * on fait la liste des honoraires pour un comptable.
      * Ne figureront ddonc pas dans cette liste les actes payés par tiers payant
      * Par contre, on y trouvera tous les paiements par tiers, les recettes spéciales et les actes payés directement, en chèque ou en espèces.

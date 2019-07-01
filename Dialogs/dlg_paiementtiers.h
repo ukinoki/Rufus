@@ -55,7 +55,6 @@ private slots:
     void                Slot_EnableOKButton();
     void                Slot_EnregistrePaiementTiers();
     void                Slot_MajusculeCreerNom();
-    void                Slot_ModifGratuit(QPoint pos);
     void                Slot_RecopieNomTiers(QString);
     void                Slot_SupprimerPaiement();
     void                Slot_VoirListePaiementsTiers();
@@ -65,7 +64,6 @@ private slots:
     void                Slot_ValidePaiement();
 
 private:
-    void                    ModifGratuitChoixMenu(QString Choix);
     /*bool                  ophtalmo;
     bool                    orthoptist;
     bool                    autresoignant;
@@ -81,15 +79,13 @@ private:
     bool                    TraiteparCloseFlag;
     bool                    ModifPaiementEnCours;
     bool                    ModifLigneRecettePossible;
-    int                     gidUserACrediter;
     int                     idRecette;
-    int                     gMode;
-        enum gMode          {Accueil, EnregistrePaiementTiers, VoirListePaiementsTiers};
-    int                     gOrdreTri;
-        enum gOrdreTri      {Alphabetique, Chronologique};
-    int                     gTypeTable;
-        enum gTypeTable     {ActesDirects,ActesTiers,Paiements};                    // définit les 3 types de tables possibles dans la fiche
-    dlg_gestionbanques       *Dlg_Banq;
+    enum Mode               {Accueil, EnregistrePaiementTiers, VoirListePaiementsTiers};
+    Mode                    gMode;
+    enum OrdreTri           {Alphabetique, Chronologique};
+    OrdreTri                gOrdreTri;
+    enum TypeTable          {Actes,Paiements};                    // définit les 2 types de tables possibles dans la fiche
+    dlg_gestionbanques      *Dlg_Banq;
     Procedures              *proc;
     DataBase                *db;
     bool                    ok;
@@ -108,12 +104,11 @@ private:
     QString                 gNomUser;
     QString                 ValeurAvantChangement, ValeurMaxi;
     QTimer                  *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;
-    UpPushButton            *SupprimerBouton;
 
     void                closeEvent(QCloseEvent *event);
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                CompleteDetailsTable(QTableWidget *TableOrigine, int Rangee, bool Coche = true);
-    void                DefinitArchitectureTableView(QTableWidget *TableARemplir, int TypeTable = 0);
+    void                DefinitArchitectureTableView(UpTableWidget *TableARemplir, TypeTable Type);
     int                 EnregistreRecette();
     int                 ResultEnregRecette;
         enum ResultEnregRecette {Impossible, Annul, OK};
@@ -127,8 +122,8 @@ private:
     void                RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
     void                RegleComptesComboBox(bool avecLesComptesInactifs = false);
     void                RemetToutAZero();
-    void                RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QVariantList> reclist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
-    void                RemplitLesTables(int Mode);
+    void                RemplirTableWidget(UpTableWidget *TableARemplir, TypeTable Type, QList<QVariantList> reclist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
+    void                RemplitLesTables();
     void                TrieListe(QTableWidget *TableATrier);
     bool                VerifCoherencePaiement();
     bool                VerifVerrouCompta(QTableWidget *TableAVerifier, int Rangee);
