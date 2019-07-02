@@ -2774,7 +2774,7 @@ int dlg_paiementdirect::EnregistreRecette()
             QString idCompte = "";
             // Mise à jour lignesRecettes
             QString EnregRecetterequete = "INSERT INTO " TBL_RECETTES
-                    " (idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, BanqueCheque, EnAttente, CompteVirement, EnregistrePar, TypeRecette, TiersPayant, NomTiers, Commission) VALUES (";
+                    " (idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, BanqueCheque, EnAttente, CompteVirement, EnregistrePar, TypeRecette, NomTiers, Commission) VALUES (";
             EnregRecetterequete +=  QString::number(m_useracrediter->id());                                      // idUser
             EnregRecetterequete +=  ", '" + ui->dateEdit->date().toString("yyyy-MM-dd");                                // DatePaiement
             EnregRecetterequete +=  "', DATE(NOW())";                                                                   // DateEnregistrement
@@ -2803,10 +2803,6 @@ int dlg_paiementdirect::EnregistreRecette()
 
             EnregRecetterequete += "," + QString::number(m_userConnected->id());                                        // EnregistrePar
             EnregRecetterequete += ",1";                                                                                // TypeRecette
-            if (gMode == EnregistrePaiement)                                                                            // TiersPayant
-                EnregRecetterequete += ",null";
-            else
-                EnregRecetterequete += ",'O'";
 
             QString NomTiers = "";
             switch (gMode) {

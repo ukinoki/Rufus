@@ -38,7 +38,6 @@ private:
     bool m_aveccompta;                  //!> utilise ou non la compta
     QString m_adresseserveurlocal;      //!> l'adresse du serveur dans le réseau local
     QString m_adresseserveurdistant;    //!> l'adresse IP ou DNS du lieu où se trouve le serveur
-    QString m_adresseserveurtcp;        //!> l'adresse du serveur TCP dans le réseau local
     QString m_dirimagerie;              //!> adresse du dossier d'imagerie depuis le serveur
     bool m_lundibkup;                   //!> sauvegarde le lundi
     bool m_mardibkup;                   //!> sauvegarde le mardi
@@ -62,7 +61,6 @@ public:
     bool aveccompta() const;
     QString adresseserveurlocal() const;
     QString adresseserveurdistant() const;
-    QString adresseserveurtcp() const;
     QString dirimagerie() const;
     bool lundibkup() const;
     bool mardibkup() const;
@@ -82,7 +80,6 @@ public:
     void setaveccompta(bool one);
     void setadresseserveurlocal(QString  adress);
     void setadresseserveurdistant(QString adress);
-    void setadresseserveurtcp(QString adress);
     void setdirimagerie(QString adress);
     void setlundibkup(bool one);
     void setmardibkup(bool one);

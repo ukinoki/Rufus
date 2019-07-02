@@ -35,7 +35,7 @@ TcpSocket::TcpSocket()
 bool TcpSocket::TcpConnectToServer(QString ipadrserver)
 {
     if (ipadrserver == "")
-        ipadrserver    = DataBase::I()->parametres()->adresseserveurtcp();
+        ipadrserver    = DataBase::I()->parametres()->adresseserveurlocal();
     if (ipadrserver == "")
         return false;
     QString port        = NOM_PORT_TCPSERVEUR;

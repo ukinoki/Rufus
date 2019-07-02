@@ -382,8 +382,6 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
         ui->NonPrioritaireImportDocscheckBox->setChecked(true);
         proc->gsettingsIni->setValue("BDD_LOCAL/PrioritaireGestionDocs","NORM");
     }
-    gTimerVerifTCP.start(5000);
-    connect (&gTimerVerifTCP,               &QTimer::timeout,           this,   &dlg_param::VerifTCP);
     gTimerVerifPosteImportDocs.start(500);
     connect (&gTimerVerifPosteImportDocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
     connect (proc,                          &Procedures::ConnectTimers,     this,       [=] {ConnectTimers(proc->Connexion());});
@@ -491,6 +489,13 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     ui->VendrediradioButton ->setChecked(m_parametres->vendredibkup());
     ui->SamediradioButton   ->setChecked(m_parametres->samedibkup());
     ui->DimancheradioButton ->setChecked(m_parametres->dimanchebkup());
+    if (Datas::I()->postesconnectes->admin() != Q_NULLPTR)
+        ui->TCPlabel->setText("<font color=\"black\">" + tr("Serveur") + " </font>"
+                            + "<font color=\"green\"><b>" + Datas::I()->postesconnectes->admin()->ipadress() + "</b></font>"
+                            + "<font color=\"black\"> " + " - " + tr("Port") + " " + "</font>"
+                            + "<font color=\"green\"><b> " NOM_PORT_TCPSERVEUR "</b></font>");
+    else
+        ui->TCPlabel->setText("");
     Remplir_Tables();
     ConnectSlots();
 }
@@ -778,16 +783,12 @@ void dlg_param::ConnectTimers(bool a)
     if (a)
     {
         gTimerVerifPosteImportDocs  .start(5000);
-        gTimerVerifTCP              .start(5000);
         connect (&gTimerVerifPosteImportDocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
-        connect (&gTimerVerifTCP,               &QTimer::timeout,           this,   &dlg_param::VerifTCP);
     }
     else
     {
         gTimerVerifPosteImportDocs  .disconnect();
-        gTimerVerifTCP              .disconnect();
         gTimerVerifPosteImportDocs  .stop();
-        gTimerVerifTCP              .stop();
     }
 }
 
@@ -1959,16 +1960,6 @@ void dlg_param::Slot_RestaureBase()
 void dlg_param::Slot_ReinitBase()
 {
     proc->ReinitBase();
-}
-
-void dlg_param::VerifTCP()
-{
-    if(m_parametres->adresseserveurtcp() == "")
-        return;
-    ui->TCPlabel->setText("<font color=\"black\">" + tr("Serveur") + " </font>"
-                        + "<font color=\"green\"><b>" + m_parametres->adresseserveurtcp() + "</b></font>"
-                        + "<font color=\"black\"> " + " - " + tr("Port") + " " + "</font>"
-                        + "<font color=\"green\"><b> " NOM_PORT_TCPSERVEUR "</b></font>");
 }
 
 void dlg_param::VerifPosteImportDocs()

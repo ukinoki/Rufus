@@ -237,7 +237,6 @@ private:
     int                     idRefraction;
     int                     gMode;
     int                     gTotalMessages, gTotalNvxMessages;
-    int                     idAdministrateur;
     bool                    gAffichTotalMessages;
     enum gMode              {NouveauDossier, Liste, RechercheDDN};
     QDate                   gdateParDefaut;
@@ -265,7 +264,6 @@ private:
     Patients                *m_listepatients;
     Actes                   *m_listeactes;
     LignesPaiements         *m_listepaiements;
-    PostesConnectes         *m_listepostesconnectes;
 
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
@@ -298,11 +296,11 @@ private:
     bool                AutorDepartConsult(bool ChgtDossier);
     bool                AutorSortieAppli();
     QString             CalcHtmlIdentificationPatient(Patient *pat);
-    QIcon               CalcIconPatient(Patient *pat);                      //!> renvoie l'icone qui représente le patient dans le html et sur le tab
+    QIcon               CalcIconPatient(Patient *pat);                              //!> renvoie l'icone qui représente le patient dans le html et sur le tab
     void                CalcMotsCles(Patient *pat);
     void                CalcNbDossiers();
     QString             CalcToolTipCorrespondant(int);
-    void                FiltreTable(QString nom = "", QString prenom = "");      //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
+    void                FiltreTable(QString nom = "", QString prenom = "");         //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
     void                ChoixDossier(Patient *pat, int idacte = 0);
     void CreerActe(Patient *pat = Q_NULLPTR);
     void                ChercherDepuisListe();

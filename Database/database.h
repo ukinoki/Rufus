@@ -123,7 +123,6 @@ public:
 
     bool                    locktables(QStringList ListTables, QString ModeBlocage = "WRITE");          //!> comme son nom l'indique
     void                    unlocktables();                                                             //!> comme son nom l'indique
-    bool                    testconnexionbase();                                                        //!> comme son nom l'indique
 
     //     REQUETES ------------------------------------------------------------------------------------------------------------------------------------------------------------------
     bool                    erreurRequete(QSqlError type, QString requete, QString ErrorMessage = "");
@@ -175,7 +174,6 @@ public:
     void setaveccompta(bool one);
     void setadresseserveurlocal(QString  adress = "");
     void setadresseserveurdistant(QString adress = "");
-    void setadresseserveurtcp(QString adress = "");
     void setporttcp(int port);
     void setdirimagerie(QString adress = "");
     void setlundibkup(bool one);

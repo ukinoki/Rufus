@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("01-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("02-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -58,8 +58,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     }
     db = DataBase::I();
     m_parametres = db->parametres();
-    Logs::MSGSOCKET("adresse serveur TCP = " + m_parametres->adresseserveurtcp());
-    proc->setDirImagerie();                                              //! lit l'emplacement du dossier d'imagerie sur le serveur
+    proc->setDirImagerie();                                //! lit l'emplacement du dossier d'imagerie sur le serveur
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/Rufus").toByteArray());
@@ -86,23 +85,18 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ReconstruitCombosCorresp();                 //! initialisation de la liste
 
     FiltreTable();                         //! InitTables()
-    m_listepostesconnectes->initListe();
+    Datas::I()->postesconnectes->initListe();
+    m_currentposteconnecte = Datas::I()->postesconnectes->getById(Utils::getMACAdress());
     MetAJourPosteConnecte();
-
-    QJsonObject jadmin = db->loadAdminData();
-    if (jadmin.size() == 0)
-        idAdministrateur = -1;
-    else
-        idAdministrateur = jadmin.value("id").toInt();
 
     //! 5 - lancement du TCP
     UtiliseTCP = false;
     QString log;
-    if (proc->isadminpresent())
+    if (Datas::I()->postesconnectes->admin() != Q_NULLPTR)
     {
         log = tr("RufusAdmin présent");
         Logs::MSGSOCKET(log);
-        if (m_parametres->adresseserveurtcp() == "")
+        if (Datas::I()->postesconnectes->admin()->ipadress() == "")
         {
             log = tr("Aucun serveur TCP enregistré dans la base");
             Logs::MSGSOCKET(log);
@@ -111,12 +105,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         else
         {
             Utils::Pause(100);
-            log = tr("Connexion au serveur TCP");
-            dlg_message(QStringList() << log + " - " + m_parametres->adresseserveurtcp(), false);
-            Logs::MSGSOCKET(log);
-            Utils::Pause(100);
             TcPConnect = TcpSocket::I();
-            UtiliseTCP = TcPConnect->TcpConnectToServer(m_parametres->adresseserveurtcp());
+            UtiliseTCP = TcPConnect->TcpConnectToServer(Datas::I()->postesconnectes->admin()->ipadress());
             if (UtiliseTCP)
             {
                 QString msg;
@@ -140,8 +130,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         log = tr("RufusAdmin absent");
         Logs::MSGSOCKET(log);
     }
-
-    proc->setoktcp(UtiliseTCP);
 
     //! 6 - mettre en place le TcpSocket et/ou les timer
     gTimerPatientsVus           = new QTimer(this);     // effacement automatique de la liste des patients vus - réglé à 20"
@@ -1443,7 +1431,7 @@ void Rufus::ConnectTimers(bool a)
         gTimerActualiseDocsExternes ->stop();
         gTimerImportDocsExternes    ->stop();
         gTimerVerifMessages         ->stop();
-        gTimerPosteConnecte          ->stop();
+        gTimerPosteConnecte         ->stop();
         gTimerVerifVerrou           ->stop();
         gTimerSupprDocs             ->stop();
     }
@@ -3683,22 +3671,12 @@ void Rufus::MetAJourPosteConnecte()
     // On en profite au passage pour sauvegarder la position de la fenêtre principale
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
     proc->gsettingsIni->setValue("PositionsFiches/Rufus", saveGeometry());
-
-    m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
-
     if (m_currentposteconnecte != Q_NULLPTR)
         ItemsList::update(m_currentposteconnecte, CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
     else
     {
-        m_currentposteconnecte = m_listepostesconnectes->CreationPosteConnecte();
+        m_currentposteconnecte = Datas::I()->postesconnectes->CreationPosteConnecte();
         Flags::I()->MAJFlagSalleDAttente();
-    }
-
-    if (isPosteImport() && proc->isadminpresent() && !UtiliseTCP)
-    {
-        proc->TestAdminPresent();
-        if (!proc->isadminpresent())
-            proc->setoktcp(false);
     }
 }
 
@@ -5477,11 +5455,10 @@ void Rufus::VerifVerrouDossier()
      * elle n'est utilisée qu'en cas de non utilisation du tcp
      on fait la liste des utilisateurs qui n'ont pas remis à jour leur connexion depuis plus de 60 secondes,
      on retire les verrous qu'ils auraient pu poser et on les déconnecte*/
-    m_listepostesconnectes->initListe();
-    m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
+    Datas::I()->postesconnectes->initListe();
     QDateTime timenow = db->ServerDateTime();
     QList<PosteConnecte*> listpostsAEliminer = QList<PosteConnecte*>();
-    QMapIterator<QString, PosteConnecte*> itpost(*m_listepostesconnectes->postesconnectes());
+    QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
     while (itpost.hasNext())
     {
         itpost.next();
@@ -5518,7 +5495,7 @@ void Rufus::VerifVerrouDossier()
        for (int i=0; i< listpostsAEliminer.size();i ++)
        {
            QString nomposte = listpostsAEliminer.at(i)->nomposte();
-           m_listepostesconnectes->SupprimePosteConnecte(listpostsAEliminer.at(i));
+           Datas::I()->postesconnectes->SupprimePosteConnecte(listpostsAEliminer.at(i));
            proc->Message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
        }
        Flags::I()->MAJFlagSalleDAttente();
@@ -5607,15 +5584,14 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         if (ImportateurDocs != Adr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'est pas prioritaire
         {
             // on vérifie que l'importateur est toujours connecté
-            m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
             int idx = -1;
-            QMapIterator<QString, PosteConnecte*> itpost(*m_listepostesconnectes->postesconnectes());
+            QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
             while (itpost.hasNext())
             {
                 PosteConnecte *usr = const_cast<PosteConnecte*>(itpost.next().value());
                 if (usr->nomposte() == ImportateurDocs.remove(" - prioritaire"))
                 {
-                    idx = m_listepostesconnectes->postesconnectes()->values().indexOf(usr);
+                    idx = Datas::I()->postesconnectes->postesconnectes()->values().indexOf(usr);
                     itpost.toBack();
                 }
             }
@@ -6568,9 +6544,8 @@ bool Rufus::AutorSortieAppli()
      * 1. C'est le seul poste connecté pour cet utilisateur
      * 2. cet utilisateur est connecté sur d'autres postes, on peut partir
     */
-        m_currentposteconnecte = m_listepostesconnectes->getById(Utils::getMACAdress());
         bool IlResteDesPostesConnectesAvecCeUser = false;
-        QMapIterator<QString, PosteConnecte*> itpost(*m_listepostesconnectes->postesconnectes());
+        QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
         while (itpost.hasNext())
         {
             PosteConnecte *post = const_cast<PosteConnecte*>(itpost.next().value());
@@ -6612,7 +6587,7 @@ bool Rufus::AutorSortieAppli()
             }
     }
     // on retire cet utilisateur de la table des utilisateurs connectés
-    m_listepostesconnectes->SupprimePosteConnecte(m_currentposteconnecte);
+    Datas::I()->postesconnectes->SupprimePosteConnecte(m_currentposteconnecte);
     Flags::I()->MAJFlagSalleDAttente();
     if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::getIpAdress())
         proc->setPosteImportDocs(false);
@@ -7907,7 +7882,6 @@ void Rufus::InitVariables()
     m_listepatients             = Datas::I()->patients;
     m_listeactes                = Datas::I()->actes;
     m_listepaiements            = Datas::I()->lignespaiements;
-    m_listepostesconnectes      = Datas::I()->postesconnectes;
     m_currentact                = Q_NULLPTR;
     m_listepatientsproxymodel   = new QSortFilterProxyModel();
     m_dossierpatientaouvrir     = Q_NULLPTR;
@@ -9013,7 +8987,7 @@ void Rufus::Remplir_SalDat()
             delete listuptext.at(j);
     ui->scrollArea->takeWidget();
     QList<PosteConnecte*> listpostsoignant;
-    QMapIterator<QString, PosteConnecte*> itpost(*m_listepostesconnectes->postesconnectes());
+    QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
     while (itpost.hasNext())
     {
         PosteConnecte* post = const_cast<PosteConnecte*>(itpost.next().value());
@@ -10059,7 +10033,7 @@ void Rufus::TraiteTCPMessage(QString msg)
             //qDebug() << data;
         }
         ResumeStatut();
-        m_listepostesconnectes->initListe();
+        Datas::I()->postesconnectes->initListe();
     }
 }
 

@@ -2132,28 +2132,6 @@ bool Procedures::Verif_secure_file_priv()
     return true;
 }
 
-void Procedures::TestAdminPresent()             // Vérifie si RufusAdmin est utilisé
-{
-    QString req = "select iduser from " TBL_USERSCONNECTES " where iduser = (select iduser from " TBL_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
-    QVariantList tcpdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    OKAdmin = (ok && tcpdata.size()>0  && db->getMode() != DataBase::Distant);
-}
-
-bool Procedures::isadminpresent()
-{
-    return OKAdmin;
-}
-
-void Procedures::setoktcp(bool oktcp)
-{
-    OKTCP = oktcp;
-    if (!oktcp && !OKAdmin)
-    {
-        db->setadresseserveurtcp("");
-        Logs::MSGSOCKET("effacement adressetcpserveur");
-    }
-}
-
 bool Procedures::ReinitBase()
 {
     if (!VerifAutresPostesConnectes())
@@ -2863,7 +2841,6 @@ bool Procedures::Connexion_A_La_Base()
 
     // on recherche si rufusadmin est en fonction auquel cas on utilise les TCPsocket
     QString req = "select iduser from " TBL_USERSCONNECTES " where iduser = (select iduser from " TBL_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
-    TestAdminPresent();
     return gdbOK;
 }
 

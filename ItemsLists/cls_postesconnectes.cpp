@@ -63,12 +63,39 @@ void PostesConnectes::SupprimeAllPostesConnectes()
     DataBase::I()->StandardSQL("delete from " TBL_USERSCONNECTES);
 }
 
+PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
+{
+    if (adminset && upd == Item::NoUpdate)
+        return m_admin;
+    initListe();
+    m_admin = Q_NULLPTR;
+    if (DataBase::I()->getMode() != DataBase::Distant)
+    {
+        int idAdministrateur = -1;
+        QJsonObject jadmin = DataBase::I()->loadAdminData();
+        if (jadmin.size() > 0)
+            idAdministrateur = jadmin.value("id").toInt();
+         QMapIterator<QString, PosteConnecte*> itpost(*m_postesconnectes);
+        while (itpost.hasNext()) {
+            itpost.next();
+            PosteConnecte *post = itpost.value();
+            if(post->id() == idAdministrateur && idAdministrateur > -1)
+            {
+                m_admin = post;
+                itpost.toBack();
+            }
+        }
+    }
+    adminset = true;
+    return m_admin;
+}
+
 void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
 {
     if (post == Q_NULLPTR)
         return;
     bool canremoveverrouactes = true;
-    DataBase::I()->StandardSQL("delete from " TBL_USERSCONNECTES " where " CP_IDUSER_USRCONNECT " = " + QString::number(post->id()) + " and " CP_MACADRESS_USRCONNECT " like '" + post->stringid() + "%'");
+    DataBase::I()->StandardSQL("delete from " TBL_USERSCONNECTES " where " CP_IDUSER_USRCONNECT " = " + QString::number(post->id()) + " and " CP_MACADRESS_USRCONNECT " = '" + post->stringid() + "'");
     QMapIterator<QString, PosteConnecte*> itpost(*m_postesconnectes);
     while (itpost.hasNext())
     {

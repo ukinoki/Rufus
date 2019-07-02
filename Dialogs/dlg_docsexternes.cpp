@@ -1374,7 +1374,7 @@ void dlg_docsexternes::RemplirTreeView()
 
     QStandardItem       *dateitem, *typitem, *pitemdate, *pitemtype, *pitemtridated, *pitemtridatet;
     // Tri par date
-    qSort(listdates);
+    std::sort(listdates.begin(), listdates.end());
     for (int i=0; i<listdates.size(); ++i)
     {
         QString datestring = listdates.at(i).toString("dd-MM-yyyy");
@@ -1385,7 +1385,7 @@ void dlg_docsexternes::RemplirTreeView()
         rootNodeDate->appendRow(dateitem);
     }
     // Tri par type
-    qSort(listtypes);
+    std::sort(listtypes.begin(), listtypes.end());
     for (int i=0; i<listtypes.size(); ++i)
     {
         typitem     = new QStandardItem(listtypes.at(i));

@@ -70,7 +70,7 @@ private:
     DataBase                *db;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
     QStringList             glistAppareils;
-    QTimer                  gTimerVerifPosteImportDocs, gTimerVerifTCP;
+    QTimer                  gTimerVerifPosteImportDocs;
     WidgetButtonFrame       *widgHN, *widgAssocCCAM, *widgAppareils;
     QWidget*                widgCCAM;
 
@@ -99,7 +99,6 @@ private:
     void                SupprAppareil();
     bool                VerifDirStockageImagerie();
     void                VerifPosteImportDocs();
-    void                VerifTCP();
 
     void                ConnectTimers(bool = true);
 

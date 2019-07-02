@@ -34,7 +34,6 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataBool(data, "aveccompta", m_aveccompta);
     setDataString(data, "adresseserveurlocal", m_adresseserveurlocal);
     setDataString(data, "adresseserveurdistant", m_adresseserveurdistant);
-    setDataString(data, "adresseserveurtcp", m_adresseserveurtcp);
     setDataString(data, "dirimagerie", m_dirimagerie);
     setDataBool(data, "lundibkup", m_lundibkup);
     setDataBool(data, "mardibkup", m_mardibkup);
@@ -47,25 +46,24 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataString(data, "dirbkup", m_dirbkup);
 }
 
-QString ParametresSysteme::mdpadmin() const                 { return m_mdpdmin; }
-int ParametresSysteme::numcentre() const                    { return m_numcentre; }
-int ParametresSysteme::idlieupardefaut() const              { return m_idlieupardefaut; }
-bool ParametresSysteme::docscomprimes() const               { return m_docscomprimes; }
-int ParametresSysteme::versionbase() const                  { return m_versionbase; }
-bool ParametresSysteme::aveccompta() const                  { return m_aveccompta; }
-QString ParametresSysteme::adresseserveurlocal() const      { return m_adresseserveurlocal; }
-QString ParametresSysteme::adresseserveurdistant() const    { return m_adresseserveurdistant; }
-QString ParametresSysteme::adresseserveurtcp() const        { return m_adresseserveurtcp; }
-QString ParametresSysteme::dirimagerie() const              { return m_dirimagerie; }
-bool ParametresSysteme::lundibkup() const                   { return m_lundibkup; }
-bool ParametresSysteme::mardibkup() const                   { return m_mardibkup; }
-bool ParametresSysteme::mercredibkup() const                { return m_credibkup; }
-bool ParametresSysteme::jeudibkup() const                   { return m_jeudibkup; }
-bool ParametresSysteme::vendredibkup() const                { return m_dredibkup; }
-bool ParametresSysteme::samedibkup() const                  { return m_medibkup; }
-bool ParametresSysteme::dimanchebkup() const                { return m_dimanchebkup; }
-QTime ParametresSysteme::heurebkup() const                  { return m_heurebkup; }
-QString ParametresSysteme::dirbkup() const                  { return m_dirbkup; }
+QString ParametresSysteme::mdpadmin() const                     { return m_mdpdmin; }
+int ParametresSysteme::numcentre() const                        { return m_numcentre; }
+int ParametresSysteme::idlieupardefaut() const                  { return m_idlieupardefaut; }
+bool ParametresSysteme::docscomprimes() const                   { return m_docscomprimes; }
+int ParametresSysteme::versionbase() const                      { return m_versionbase; }
+bool ParametresSysteme::aveccompta() const                      { return m_aveccompta; }
+QString ParametresSysteme::adresseserveurlocal() const          { return m_adresseserveurlocal; }
+QString ParametresSysteme::adresseserveurdistant() const        { return m_adresseserveurdistant; }
+QString ParametresSysteme::dirimagerie() const                  { return m_dirimagerie; }
+bool ParametresSysteme::lundibkup() const                       { return m_lundibkup; }
+bool ParametresSysteme::mardibkup() const                       { return m_mardibkup; }
+bool ParametresSysteme::mercredibkup() const                    { return m_credibkup; }
+bool ParametresSysteme::jeudibkup() const                       { return m_jeudibkup; }
+bool ParametresSysteme::vendredibkup() const                    { return m_dredibkup; }
+bool ParametresSysteme::samedibkup() const                      { return m_medibkup; }
+bool ParametresSysteme::dimanchebkup() const                    { return m_dimanchebkup; }
+QTime ParametresSysteme::heurebkup() const                      { return m_heurebkup; }
+QString ParametresSysteme::dirbkup() const                      { return m_dirbkup; }
 
 void ParametresSysteme::setmdpadmin(QString mdp)                { m_mdpdmin = mdp; }
 void ParametresSysteme::setnumcentre(int id)                    { m_numcentre = id; }
@@ -75,7 +73,6 @@ void ParametresSysteme::setversionbase(int version)             { m_versionbase 
 void ParametresSysteme::setaveccompta(bool one)                 { m_aveccompta = one; }
 void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserveurlocal = adress; }
 void ParametresSysteme::setadresseserveurdistant(QString adress){ m_adresseserveurdistant = adress; }
-void ParametresSysteme::setadresseserveurtcp(QString adress)    { m_adresseserveurtcp = adress; }
 void ParametresSysteme::setdirimagerie(QString adress)          { m_dirimagerie = adress; }
 void ParametresSysteme::setlundibkup(bool one)                  { m_lundibkup = one; }
 void ParametresSysteme::setmardibkup(bool one)                  { m_mardibkup = one; }

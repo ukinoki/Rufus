@@ -32,6 +32,10 @@ public:
     QMap<QString, PosteConnecte*> *m_postesconnectes = Q_NULLPTR;  //!< la liste de tous les postesconnectes
     void addList(QList<PosteConnecte*> listpost);
 
+private:
+    PosteConnecte   *m_admin;
+    bool            adminset = false;
+
 public:
     explicit PostesConnectes(QObject *parent = Q_NULLPTR);
     ~PostesConnectes();
@@ -40,6 +44,8 @@ public:
 
     PosteConnecte*  getById(QString stringid);
     void            initListe();
+
+    PosteConnecte*   admin(Item::UPDATE upd = Item::NoUpdate);                           //!> le poste sur lequel est connecté RufusAdmmin
 
     //!> actions sur les enregistrements
     void             SupprimeAllPostesConnectes();

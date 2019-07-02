@@ -140,8 +140,8 @@ void Patients::SupprimePatient(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    //!. Suppression des bilans orthoptiques
     QString requete;
+    //!. Suppression des bilans orthoptiques
     DataBase::I()->StandardSQL("DELETE FROM " TBL_BILANORTHO " WHERE idbilanortho in (SELECT idActe from " TBL_ACTES " where idPat = " + QString::number(pat->id()) + ")");
     //!. Suppression des actes
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_ACTES);

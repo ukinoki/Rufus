@@ -234,10 +234,6 @@ public:
 
     bool                    Connexion();
 
-    void                    TestAdminPresent();
-    bool                    isadminpresent();
-    void                    setoktcp(bool  ok);
-
 signals:
     void                    UpdDocsExternes();
     void                    ModifEdit(QString txt);
@@ -248,13 +244,12 @@ signals:
 private:
     bool                    initOK;
     bool                    connexion;
-    bool                    OKTCP, OKAdmin;
     dlg_choixdate           *Dlg_ChxDate;
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_paramconnexion      *Dlg_ParamConnex;
     QFont                   gAppFont;
     User *m_currentuser = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
-    ParametresSysteme      *m_parametres;
+    ParametresSysteme       *m_parametres;
 
     QString                 DirStockageImages, DirStockageImagesServeur;
     QString                 lCPParDefaut, lVilleParDefaut;
