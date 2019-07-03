@@ -45,7 +45,8 @@ public:
     PosteConnecte*  getById(QString stringid);
     void            initListe();
 
-    PosteConnecte*   admin(Item::UPDATE upd = Item::NoUpdate);                           //!> le poste sur lequel est connecté RufusAdmmin
+    PosteConnecte*   admin(Item::UPDATE upd = Item::NoUpdate);                          //!> le poste sur lequel est connecté RufusAdmmin
+    PosteConnecte*   currentpost();                                                     //!> le poste en cours d'utilisation
 
     //!> actions sur les enregistrements
     void             SupprimeAllPostesConnectes();

@@ -3111,11 +3111,17 @@ bool Procedures::IdentificationUser(bool ChgUsr)
 
     if( result > 0 )
     {
-        m_currentuser = db->getUserConnected();
         m_parametres = db->parametres();
-        Datas::I()->villes->initListe();
-        Datas::I()->sites->initListe();
-        Datas::I()->comptes->initListe();
+        Datas::I()->villes          ->initListe();
+        Datas::I()->sites           ->initListe();
+        Datas::I()->comptes         ->initListe();
+        Datas::I()->users           ->initListe();
+        Datas::I()->postesconnectes ->initListe();
+        Datas::I()->banques         ->initListe();
+        Datas::I()->tierspayants    ->initListe();
+        Datas::I()->typestiers      ->initListe();
+        Datas::I()->motifs          ->initListe();
+        m_currentuser = Datas::I()->users->userconnected();
         SetUserAllData(m_currentuser);
         if (!VerifBaseEtRessources())
         {
@@ -3123,7 +3129,6 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             exit(0);
         }
         Verif_secure_file_priv();
-        Datas::I()->users->initListe();
         if (DefinitRoleUser()) //NOTE : User Role
         {
             /* definit les iduser pour lequel le user travaille

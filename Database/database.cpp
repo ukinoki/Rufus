@@ -702,7 +702,7 @@ QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
         userData[CP_IDLIEU_USRCONNECT]                     = postlist.at(i).at(5).toInt();
         userData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = QDateTime(postlist.at(i).at(6).toDate(), postlist.at(i).at(6).toTime()).toMSecsSinceEpoch();
         userData[CP_IDPATENCOURS_USRCONNECT]               = postlist.at(i).at(7).toInt();
-        userData["stringid"]                               = macadress.split(" ").at(0);
+        userData["stringid"]                               = macadress.split(" ").at(0) + " - " + postlist.at(i).at(0).toString();
         userData[CP_IPADRESS_USRCONNECT]                   = postlist.at(i).at(8).toString();
     }
     return userData;
@@ -730,7 +730,7 @@ QList<PosteConnecte*> DataBase::loadPostesConnectes()
         jData[CP_IDLIEU_USRCONNECT]                     = postlist.at(i).at(7).toInt();
         jData[CP_HEUREDERNIERECONNECTION_USRCONNECT]    = QDateTime(postlist.at(i).at(8).toDate(), postlist.at(i).at(8).toTime()).toMSecsSinceEpoch();
         jData[CP_IDPATENCOURS_USRCONNECT]               = postlist.at(i).at(9).toInt();
-        jData["stringid"]                               = postlist.at(i).at(2).toString().split(" ").at(0);
+        jData["stringid"]                               = postlist.at(i).at(2).toString().split(" ").at(0) + " - " + postlist.at(i).at(0).toString();
         jData[CP_IPADRESS_USRCONNECT]                   = postlist.at(i).at(10).toString();
         PosteConnecte *post = new PosteConnecte(jData);
         postes << post;

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("02-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("03-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -65,7 +65,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     setWindowIcon(Icons::icSunglasses());
 
     //! 2 - charge les data du user connecté
-    m_currentuser = db->getUserConnected();
+    m_currentuser = Datas::I()->users->userconnected();
     if (m_currentuser == Q_NULLPTR)
     {
         UpMessageBox::Watch(this, tr("Pas d'utilisateur identifié!\nSortie du programme"));
@@ -85,9 +85,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ReconstruitCombosCorresp();                 //! initialisation de la liste
 
     FiltreTable();                         //! InitTables()
-    Datas::I()->postesconnectes->initListe();
-    m_currentposteconnecte = Datas::I()->postesconnectes->getById(Utils::getMACAdress());
-    MetAJourPosteConnecte();
+    MAJPosteConnecte();
 
     //! 5 - lancement du TCP
     UtiliseTCP = false;
@@ -136,7 +134,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente                                                          utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants                                                 utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerVerifMessages         = new QTimer(this);     // scrutation des nouveaux message                                                                      utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
-    gTimerPosteConnecte          = new QTimer(this);    // mise à jour de la connexion à la base de données
+    gTimerPosteConnecte         = new QTimer(this);    // mise à jour de la connexion à la base de données
     gTimerVerifImportateurDocs  = new QTimer(this);     // vérifie que le poste importateur des documents externes est toujours là
     gTimerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base
     gTimerActualiseDocsExternes = new QTimer(this);     // actualise l'affichage des documents externes si un dossier est ouvert
@@ -191,7 +189,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             connect(gTimerSupprDocs,        &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
     }
-    connect (gTimerPosteConnecte,           &QTimer::timeout,   this,   &Rufus::MetAJourPosteConnecte);
+    connect (gTimerPosteConnecte,           &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
     connect (gTimerActualiseDocsExternes,   &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
     connect (gTimerPatientsVus,             &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
 
@@ -230,10 +228,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     closeFlag = false;
 
     setTitre();
-    Datas::I()->banques     ->initListe();
-    Datas::I()->tierspayants->initListe();
-    Datas::I()->typestiers  ->initListe();
-    Datas::I()->motifs      ->initListe();
     if (m_currentuser->isSoignant())
         ReconstruitListesCotations();
 
@@ -261,26 +255,6 @@ Rufus::~Rufus()
     delete ui;
 }
 
-void Rufus::closeEvent(QCloseEvent *event)
-{
-    if (proc->gdbOK)
-    {
-        if (AutorSortieAppli())
-        {
-            if (UtiliseTCP && TcPConnect->state() == QAbstractSocket::ConnectedState)
-            {
-                TcPConnect->close();
-                delete TcPConnect;
-            }
-            exit(0);
-        }
-        else
-            event->ignore();
-    }
-    else
-        exit(0);
-}
-
 /*-----------------------------------------------------------------------------------------------------------------
 -- Connexion des actions associees a chaque objet du formulaire et aux menus --------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
@@ -302,10 +276,10 @@ void Rufus::Connect_Slots()
     connect (ui->CreerDossierpushButton,                            &QPushButton::clicked,                              this,   [=] {CreerDossierpushButtonClicked();});
     connect (ui->DernierActepushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(ItemsList::Fin);});
     connect (ui->EnregistrePaiementpushButton,                      &QPushButton::clicked,                              this,   [=] {AppelPaiementDirect(BoutonPaiement);});
-    connect (ui->FermepushButton,                                   &QPushButton::clicked,                              this,   [=] {close();});
+    connect (ui->FermepushButton,                                   &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
     connect (ui->FSEpushButton,                                     &QPushButton::clicked,                              this,   [=] {SaisieFSE();});       // CZ001
     connect (ui->IdentPatienttextEdit,                              &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelIdentPatient();});
-    connect (ui->LFermepushButton,                                  &QPushButton::clicked,                              this,   [=] {close();});
+    connect (ui->LFermepushButton,                                  &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
     connect (ui->ListepushButton,                                   &QPushButton::clicked,                              this,   [=] {ModeSelectDepuisListe();});
     connect (ui->LListepushButton,                                  &QPushButton::clicked,                              this,   [=] {ModeSelectDepuisListe();});
     connect (ui->LNouvDossierpushButton,                            &QPushButton::clicked,                              this,   [=] {ModeCreationDossier();;});
@@ -1397,7 +1371,7 @@ void Rufus::ConnectTimers(bool a)
         gTimerPosteConnecte  ->start(10000);
         gTimerVerifVerrou   ->start(60000);
 
-        connect (gTimerPosteConnecte,                &QTimer::timeout,   this,   &Rufus::MetAJourPosteConnecte);
+        connect (gTimerPosteConnecte,               &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
         connect (gTimerActualiseDocsExternes,       &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
         if (!UtiliseTCP)
         {
@@ -3666,16 +3640,16 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
 }
 
 
-void Rufus::MetAJourPosteConnecte()
+void Rufus::MAJPosteConnecte()
 {
     // On en profite au passage pour sauvegarder la position de la fenêtre principale
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
     proc->gsettingsIni->setValue("PositionsFiches/Rufus", saveGeometry());
-    if (m_currentposteconnecte != Q_NULLPTR)
-        ItemsList::update(m_currentposteconnecte, CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
+    if (Datas::I()->postesconnectes->currentpost() != Q_NULLPTR)
+        ItemsList::update(Datas::I()->postesconnectes->currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
     else
     {
-        m_currentposteconnecte = Datas::I()->postesconnectes->CreationPosteConnecte();
+        Datas::I()->postesconnectes->CreationPosteConnecte();
         Flags::I()->MAJFlagSalleDAttente();
     }
 }
@@ -5469,7 +5443,7 @@ void Rufus::VerifVerrouDossier()
             qDebug() << timenow;
             qDebug() << post->heurederniereconnexion();
             qDebug() << tempsecouledepuisactualisation;
-            qDebug() << post->macadresslogin();
+            qDebug() << post->stringid();
             //l'utilisateur n'a pas remis sa connexion aà jour depuis plus de 60 secondes
             //on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             QString blabla              = ENCOURSEXAMEN;
@@ -6507,10 +6481,12 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
 
 
 /*-----------------------------------------------------------------------------------------------------------------
--- Autorisation de sortie de l'application - appelé par closeevent()  ---------------------------------------------
+-- Sortie de l'application  ---------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Rufus::AutorSortieAppli()
+void Rufus::SortieAppli()
 {
+    if (!proc->gdbOK)
+        exit(0);
     QList<dlg_paiementtiers *> PaimtList = findChildren<dlg_paiementtiers*>();
     if (PaimtList.size()>0)
         for (int i=0; i<PaimtList.size();i++)
@@ -6518,7 +6494,7 @@ bool Rufus::AutorSortieAppli()
             {
                 QSound::play(NOM_ALARME);
                 PaimtList.at(i)->raise();
-                return false;
+                return;
             }
 
     // si le tab dossier est ouvert, on vérifie le droit de fermer le dossier en cours
@@ -6532,7 +6508,7 @@ bool Rufus::AutorSortieAppli()
             Flags::I()->MAJFlagSalleDAttente();
         }
         else
-            return false;
+            return;;
     }
 
     // le tab dossier est fermé, on vérifie s'il y a du monde en salle d'attente
@@ -6540,7 +6516,7 @@ bool Rufus::AutorSortieAppli()
     QList<QVariantList> saldatlist = db->StandardSelectSQL(req,ok);
     if (ok && saldatlist.size()>0)
     {
-     /* 2 possibilités
+        /* 2 possibilités
      * 1. C'est le seul poste connecté pour cet utilisateur
      * 2. cet utilisateur est connecté sur d'autres postes, on peut partir
     */
@@ -6549,7 +6525,7 @@ bool Rufus::AutorSortieAppli()
         while (itpost.hasNext())
         {
             PosteConnecte *post = const_cast<PosteConnecte*>(itpost.next().value());
-            if (post->nomposte() != m_currentposteconnecte->nomposte() && post->id() == m_currentposteconnecte->id())
+            if (post->nomposte() != Datas::I()->postesconnectes->currentpost()->nomposte() && post->id() == Datas::I()->postesconnectes->currentpost()->id())
             {
                 IlResteDesPostesConnectesAvecCeUser = true;
                 itpost.toBack();
@@ -6580,14 +6556,17 @@ bool Rufus::AutorSortieAppli()
                     if (msgbox.clickedButton() != &NoBouton)
                     {
                         ui->tabWidget->setCurrentIndex(ui->tabWidget->indexOf(ui->tabList));
-                        return false;
+                        return;
                     }
                     else i = saldatlist.size();
                 }
             }
     }
+
     // on retire cet utilisateur de la table des utilisateurs connectés
-    Datas::I()->postesconnectes->SupprimePosteConnecte(m_currentposteconnecte);
+    PosteConnecte *post = Datas::I()->postesconnectes->currentpost();
+    if (post != Q_NULLPTR)
+        Datas::I()->postesconnectes->SupprimePosteConnecte(post);
     Flags::I()->MAJFlagSalleDAttente();
     if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::getIpAdress())
         proc->setPosteImportDocs(false);
@@ -6595,8 +6574,12 @@ bool Rufus::AutorSortieAppli()
     req = "update " TBL_UTILISATEURS " set datederniereconnexion = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
             + "' where idUser = " + QString::number(m_currentuser->id());
     db->StandardSQL(req);
-
-    return true;
+    if (UtiliseTCP && TcPConnect->state() == QAbstractSocket::ConnectedState)
+    {
+        TcPConnect->close();
+        delete TcPConnect;
+    }
+    exit(0);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -7878,7 +7861,6 @@ void Rufus::InitVariables()
 {
     gAutorModifConsult          = false;
     m_currentpatient            = Q_NULLPTR;
-    m_currentposteconnecte      = Q_NULLPTR;
     m_listepatients             = Datas::I()->patients;
     m_listeactes                = Datas::I()->actes;
     m_listepaiements            = Datas::I()->lignespaiements;

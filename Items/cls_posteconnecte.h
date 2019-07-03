@@ -36,10 +36,10 @@ public:
 
 private:
     //!< m_id = Id de l'utilisateur en base
-    //!< m_stringid = l'adresses mac du poste connecté
+    //!< m_stringid = l'adresses mac du poste connecté suivi du login de l'utilisateur séparé par " - "
 
     QString m_nomposte;                 //!< nom du poste connexté
-    QString m_macadress_login;          //!< macadress+login du poste connectéadresse IP du poste connecté
+    QString m_macadress;                //!< macadress+login du poste connectéadresse IP du poste connecté
     QString m_ipadress;                 //!> l'adresse IP du poste connecté
     bool m_accesdistant;                //!> le poste connecte est en accès distant
     int m_idsuperviseur;                //!> l'id du superviseur
@@ -57,7 +57,7 @@ private:
 public:
 
     QString nomposte() const                    { return m_nomposte; }
-    QString macadresslogin() const              { return m_macadress_login; }
+    QString macadress() const                   { return m_macadress; }
     bool isdistant() const                      { return m_accesdistant; }
     int idsuperviseur() const                   { return m_idsuperviseur; }
     int idparent() const                        { return m_idparent; }
@@ -68,7 +68,7 @@ public:
     QString ipadress() const                    { return m_ipadress; }
 
     void setnomposte(QString txt)                       { m_nomposte = txt; }
-    void setmacadresslogin(QString txt)                 { m_macadress_login = txt; }
+    void setmacadress(QString txt)                      { m_macadress = txt; }
     void setipadress(QString txt)                       { m_ipadress = txt; }
     void setisdistant(bool logic)                       { m_accesdistant = logic; }
     void setidsuperviseur(int id)                       { m_idsuperviseur = id; }

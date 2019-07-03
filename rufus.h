@@ -225,7 +225,7 @@ private:
 
     //fonctions lancées par des timers
     void        ActualiseDocsExternes();
-    void        MetAJourPosteConnecte();
+    void        MAJPosteConnecte();
     void        VerifCorrespondants();
     void        VerifMessages();
     void        VerifSalleDAttente();
@@ -258,7 +258,6 @@ private:
 
     Acte                    *m_currentact;
     User                    *m_currentuser;
-    PosteConnecte           *m_currentposteconnecte;
     Patient                 *m_currentpatient;
     Patient                 *m_dossierpatientaouvrir;
     Patients                *m_listepatients;
@@ -287,14 +286,12 @@ private:
     void                Connect_Slots();
 
                     // Fonctions ---------------------------------------------------------------------------------------------------
-    void                closeEvent(QCloseEvent *);
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                keyPressEvent ( QKeyEvent * event );
     void                AfficheActe(Acte *acte);
     void                AfficheActeCompta(Acte *acte);
     void                AfficheDossier(Patient *pat, int idacte = 0);
     bool                AutorDepartConsult(bool ChgtDossier);
-    bool                AutorSortieAppli();
     QString             CalcHtmlIdentificationPatient(Patient *pat);
     QIcon               CalcIconPatient(Patient *pat);                              //!> renvoie l'icone qui représente le patient dans le html et sur le tab
     void                CalcMotsCles(Patient *pat);
@@ -354,6 +351,7 @@ private:
     bool                RetourSalleDattente(QString Titre);
     void                SendMessage(QMap<QString,QVariant>, int id = -1 , int idMsg = -1);
     void                setTitre();
+    void                SortieAppli();
     void                SupprimerActe(Acte *act);
     void                SupprimerDocsEtFactures();
     void                SupprimerDossier(Patient *pat);

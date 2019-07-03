@@ -406,7 +406,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     else if (table == TBL_USERSCONNECTES)
     {
         ok = true;
-        clause = CP_IDUSER_USRCONNECT " = " + QString::number(item->id()) + " and " CP_MACADRESS_USRCONNECT " like '" + usr->stringid() + "%'";
+        clause = CP_IDUSER_USRCONNECT " = " + QString::number(item->id()) + " and " CP_MACADRESS_USRCONNECT " = '" + usr->macadress() + "'";
         if (field == CP_IDUSER_USRCONNECT )
         {
             usr->setid(newvalue.toInt());
@@ -419,7 +419,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         }
         else if (field == CP_MACADRESS_USRCONNECT)
         {
-            usr->setmacadresslogin(newvalue.toString());
+            usr->setstringid(newvalue.toString());
             value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
         }
         else if (field == CP_IPADRESS_USRCONNECT)

@@ -29,7 +29,7 @@ void PosteConnecte::setData(QJsonObject data)
 
     setDataInt(data, CP_IDUSER_USRCONNECT, m_id);
     setDataString(data, CP_NOMPOSTE_USRCONNECT, m_nomposte);
-    setDataString(data, CP_MACADRESS_USRCONNECT, m_macadress_login);
+    setDataString(data, CP_MACADRESS_USRCONNECT, m_macadress);
     setDataString(data, CP_IPADRESS_USRCONNECT, m_ipadress);
     setDataBool(data, CP_DISTANT_USRCONNECT, m_accesdistant);
     setDataInt(data, CP_IDUSERSUPERVISEUR_USRCONNECT, m_idsuperviseur);
