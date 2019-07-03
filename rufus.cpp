@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("03-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("04-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -3205,8 +3205,8 @@ void Rufus::MenuContextuelListePatients()
     Patient *pat = getPatientFromCursorPositionInTable();
     if (pat == Q_NULLPTR)
         return;
-    if (!pat->isalloaded())
-        pat = m_listepatients->getById(pat->id(), Item::LoadDetails);
+    //if (!pat->isalloaded())
+    pat = m_listepatients->getById(pat->id(), Item::LoadDetails);
     m_dossierpatientaouvrir = pat;
 
     gmenuContextuel = new QMenu(this);
@@ -6201,8 +6201,8 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     if (pat == Q_NULLPTR)
         return;
     m_currentpatient = pat;
-    if (!m_currentpatient->isalloaded())
-        m_currentpatient = m_listepatients->getById(m_currentpatient->id(), Item::LoadDetails);
+    //if (!m_currentpatient->isalloaded())
+    m_currentpatient = m_listepatients->getById(m_currentpatient->id(), Item::LoadDetails);
     QString     Msg;
 
     //qDebug() << "AfficheDossier() " +  m_currentpatient->nom() + " " + m_currentpatient->prenom() + " - id = " + QString::number(m_currentpatient->id());
@@ -8240,8 +8240,8 @@ void    Rufus::RecopierDossier(Patient *patient)
 {
     if (patient != Q_NULLPTR)
     {
-        if (!patient->isalloaded())
-            patient = m_listepatients->getById(patient->id(), Item::LoadDetails);
+        //if (!patient->isalloaded())
+        patient = m_listepatients->getById(patient->id(), Item::LoadDetails);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, patient);
         return;
@@ -8258,8 +8258,8 @@ void    Rufus::RecopierDossier(Patient *patient)
             UpMessageBox::Watch(this, tr("Aucun dossier sélectionné!"), tr("Sélectionnez d'abord un dossier à recopier."));
             return;
         }
-        if (!pat->isalloaded())
-            pat = m_listepatients->getById(pat->id(), Item::LoadDetails);
+        //if (!pat->isalloaded())
+        pat = m_listepatients->getById(pat->id(), Item::LoadDetails);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, pat);
     }
@@ -8374,11 +8374,11 @@ void Rufus::ReconstruitCombosCorresp(bool reconstruireliste)
             idcorA2 = ui->AutresCorresp2upComboBox->currentData().toInt();
     }
     ui->MGupComboBox->clear();
-    proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
+    proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
     ui->AutresCorresp1upComboBox->clear();
     ui->AutresCorresp2upComboBox->clear();
-    proc->ReconstruitComboCorrespondants(ui->AutresCorresp1upComboBox);
-    proc->ReconstruitComboCorrespondants(ui->AutresCorresp2upComboBox);
+    proc->ReconstruitComboCorrespondants(ui->AutresCorresp1upComboBox, Correspondants::TousLesCorrespondants);
+    proc->ReconstruitComboCorrespondants(ui->AutresCorresp2upComboBox, Correspondants::TousLesCorrespondants);
     if (ui->tabWidget->currentIndex() == ui->tabWidget->indexOf(ui->tabDossier))
     {
         ui->MGupComboBox            ->setCurrentIndex( idcor>-1?     ui->MGupComboBox               ->findData(idcor)   : -1 );
@@ -8969,6 +8969,10 @@ void Rufus::Remplir_SalDat()
             delete listuptext.at(j);
     ui->scrollArea->takeWidget();
     QList<PosteConnecte*> listpostsoignant;
+    /*! sans TCP, on réinitialise la liste des postes connectés à chaque modif de la salle d'attente -
+     *  avec TCP, c'est inutile puisque la réinitialisation se fait chaque fois qu'un poste se connecte ou se déconnecte */
+    if (!UtiliseTCP)
+        Datas::I()->postesconnectes->initListe();
     QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
     while (itpost.hasNext())
     {

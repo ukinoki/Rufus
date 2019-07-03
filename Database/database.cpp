@@ -1394,6 +1394,42 @@ QList<Recette*> DataBase::loadRecettesByDate(QDate datedebut, QDate datefin)
 }
 
 /*
+ * Recettes comptables
+*/
+RecetteComptable* DataBase::loadRecetteComptablebyId(int id)
+{
+    QString req =   "SELECT idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement,"
+                    " TireurCheque, CompteVirement, BanqueCheque, TiersPayant, NomTiers,"
+                    " Commission, Monnaie, idRemise, EnAttente, EnregistrePar,"
+                    " TypeRecette FROM " TBL_RECETTES
+                    " WHERE idRecette = " + QString::number(id);
+    QVariantList recette = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || recette.size()==0)
+        return Q_NULLPTR;
+    QJsonObject jData{};
+    jData["id"] = id;
+    jData[CP_IDUSER_LIGNRECETTES]               = recette.at(0).toInt();
+    jData[CP_DATE_LIGNRECETTES]                 = recette.at(1).toDate().toString("yyyy-MM-dd");
+    jData[CP_DATEENREGISTREMENT_LIGNRECETTES]   = recette.at(2).toDate().toString("yyyy-MM-dd");
+    jData[CP_MONTANT_LIGNRECETTES]              = recette.at(3).toDouble();
+    jData[CP_MODEPAIEMENT_LIGNRECETTES]         = recette.at(4).toString();
+    jData[CP_TIREURCHEQUE_LIGNRECETTES]         = recette.at(5).toString();
+    jData[CP_IDCPTEVIREMENT_LIGNRECETTES]       = recette.at(6).toInt();
+    jData[CP_BANQUECHEQUE_LIGNRECETTES]         = recette.at(7).toString();
+    jData[CP_TIERSPAYANT_LIGNRECETTES]          = (recette.at(8).toString() == "O");
+    jData[CP_NOMPAYEUR_LIGNRECETTES]            = recette.at(9).toString();
+    jData[CP_COMMISSION_LIGNRECETTES]           = recette.at(10).toDouble();
+    jData[CP_MONNAIE_LIGNRECETTES]              = recette.at(11).toString();
+    jData[CP_IDREMISECHQ_LIGNRECETTES]          = recette.at(12).toInt();
+    jData[CP_CHQENATTENTE_LIGNRECETTES]         = (recette.at(13).toInt() == 1);
+    jData[CP_IDUSERENREGISTREUR_LIGNRECETTES]   = recette.at(14).toInt();
+    jData[CP_TYPERECETTE_LIGNRECETTES]          = recette.at(15).toInt();
+    RecetteComptable *rec = new RecetteComptable(jData);
+    return rec;
+}
+
+
+/*
  * PaiementsTiers
 */
 QList<PaiementTiers*> DataBase::loadPaiementTiersByUser(User* usr)

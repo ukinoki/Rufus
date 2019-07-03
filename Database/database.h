@@ -49,6 +49,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_tiers.h"
 #include "cls_user.h"
 #include "cls_posteconnecte.h"
+#include "cls_recettecomptable.h"
 #include "cls_site.h"
 #include "cls_ville.h"
 #include "cls_compte.h"
@@ -248,6 +249,7 @@ public:
 
     QList<Recette*>         loadRecettesByDate(QDate datedebut, QDate datefin);
                                                                         //! charge toutes les recettes pour la période spécifiée
+    RecetteComptable*       loadRecetteComptablebyId(int id);           //! charge une recette comptable par son id
 
     QList<PaiementTiers *>  loadPaiementTiersByUser(User *usr);    //! charge tous les paiements par tiers pour un utilisateur pour la période spécifiée
 

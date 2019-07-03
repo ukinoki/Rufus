@@ -67,7 +67,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     ui->MGupComboBox    ->setLineEdit(MGLineEdit);
     ui->MGupComboBox    ->setMaxVisibleItems(15);
     ui->MGupComboBox    ->setContextMenuPolicy(Qt::CustomContextMenu);
-    proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
+    proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
     ui->MGupComboBox    ->setCurrentIndex(-1);
 
     VilleCPwidg         = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
@@ -191,7 +191,7 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
     {
         m_flagcorrespondants = flag;
         // on reconstruit la liste des MG
-        proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
+        proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
         m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), Item::LoadDetails);
         if (m_currentpatient->idmg() > 0 && ui->MGupComboBox->currentData().toInt() != m_currentpatient->idmg())
             ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(m_currentpatient->idmg()));
@@ -419,7 +419,7 @@ void dlg_identificationpatient::ModifCorrespondant()
     Dlg_IdentCorresp->ui->MGradioButton ->setChecked(true);
     if (Dlg_IdentCorresp->exec()>0)
     {
-        proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
+        proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
         ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
         ListeCorModifiee = Dlg_IdentCorresp->identcorrespondantmodifiee();
     }
@@ -639,7 +639,7 @@ void dlg_identificationpatient::MAJMG()
                 if (idcor >= 0)
                 {
                     m_flagcorrespondants = Flags::I()->flagCorrespondants();
-                    proc->ReconstruitComboCorrespondants(ui->MGupComboBox,false);
+                    proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
                     Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
                 }

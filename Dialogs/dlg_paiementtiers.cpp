@@ -1501,16 +1501,16 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
         RemplirTableWidget(ui->DetailupTableWidget, Actes, detpmtlist, false, Qt::Unchecked);
 
         // Remplir les infos sur la recette concernée
-        requete =   "SELECT idRecette, idUser, DatePaiement, DateEnregistrement, Montant, ModePaiement, TireurCheque, CompteVirement, BanqueCheque, TiersPayant, NomTiers, Commission, Monnaie, idRemise, EnAttente, EnregistrePar, TypeRecette FROM " TBL_RECETTES
-                    " WHERE idRecette = " + TextidRecette;
-        QVariantList recdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
-        ui->dateEdit->setDate(recdata.at(2).toDate());
+        RecetteComptable* rec = db->loadRecetteComptablebyId(TextidRecette.toInt());
+        if (rec == Q_NULLPTR)
+            break;
+        ui->dateEdit->setDate(rec->date());
         QRadioButton *RadioAClicker = Q_NULLPTR;
-        QString mp = recdata.at(5).toString();
+        QString mp = rec->modepaiement();
         if (mp == "V")
         {
             RadioAClicker = ui->VirementradioButton;
-            QString Commission = QLocale().toString(recdata.at(11).toDouble(),'f',2);
+            QString Commission = QLocale().toString(rec->commission(),'f',2);
             ui->CommissionlineEdit->setText(Commission);
         }
         if (mp == "E") RadioAClicker = ui->EspecesradioButton;
@@ -1518,19 +1518,20 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
         if (RadioAClicker != Q_NULLPTR)
             RadioAClicker->setChecked(true);
         ui->ComptesupComboBox->clearEditText();
-        if (recdata.at(7).toString() != "0")
+        if (rec->compteid() > 0)
         {
-            ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recdata.at(7)));
+            ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
             //qDebug() << recdata.at(7).toString() + " - " + ui->ComptesupComboBox->currentData().toString() + " - " + ui->ComptesupComboBox->currentText();
         }
-        ui->TierscomboBox->setCurrentText(recdata.at(10).toString());
+        ui->TierscomboBox->setCurrentText(rec->payeur());
         if (mp == "C")
         {
-            ui->TireurChequelineEdit->setText(recdata.at(6).toString());
-            ui->BanqueChequecomboBox->setCurrentText(recdata.at(8).toString());
+            ui->TireurChequelineEdit->setText(rec->tireurcheque());
+            ui->BanqueChequecomboBox->setCurrentText(rec->banquecheaque());
         }
-        QString Montant = QLocale().toString(recdata.at(4).toDouble(),'f',2);
+        QString Montant = QLocale().toString(rec->montant(),'f',2);
         ui->MontantlineEdit->setText(Montant);
+        delete rec;
         break;
     }
     default:
@@ -1564,52 +1565,46 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
         MontantActesAModifier   << actlist.at(i).at(1).toString();
     }
 
-
-    QString RetrouveRecetterequete = "SELECT idRecette, idUser, DatePaiement, DateEnregistrement, Montant,"                 // 0, 1, 2, 3, 4
-                                     " ModePaiement, TireurCheque, CompteVirement, BanqueCheque, TiersPayant,"              // 5, 6, 7, 8 ,9
-                                     " NomTiers, Commission, Monnaie, idRemise, EnAttente,"                                 // 10, 11, 12, 13, 14
-                                     " EnregistrePar, TypeRecette, datediff(DateEnregistrement,NOW()) as Delai"             // 15, 16, 17
-                                     " FROM " TBL_RECETTES
-                                     " WHERE idRecette = " + QString::number(idRecette);
-    QVariantList recdata = db->getFirstRecordFromStandardSelectSQL(RetrouveRecetterequete,ok);
-    if (!ok || recdata.size() == 0)
-        return;
     // Remplir les infos sur la recette concernée
-    ui->dateEdit->setDate(recdata.at(2).toDate());                                                          // DatePaiement
+    RecetteComptable* rec = db->loadRecetteComptablebyId(idRecette);
+    if (rec == Q_NULLPTR)
+        return;
+    ui->dateEdit->setDate(rec->date());
     QRadioButton *RadioAClicker = Q_NULLPTR;
-    QString mp = recdata.at(5).toString();                                                                  // ModePaiement
+    QString mp = rec->modepaiement();
     if (mp == "V")
     {
-            RadioAClicker = ui->VirementradioButton;
-            QString Commission = QLocale().toString(recdata.at(11).toDouble(),'f',2);
-            ui->CommissionlineEdit->setText(Commission);
+        RadioAClicker = ui->VirementradioButton;
+        QString Commission = QLocale().toString(rec->commission(),'f',2);
+        ui->CommissionlineEdit->setText(Commission);
     }
     if (mp == "E") RadioAClicker = ui->EspecesradioButton;
     if (mp == "C") RadioAClicker = ui->ChequeradioButton;
     if (RadioAClicker != Q_NULLPTR)
         RadioAClicker->setChecked(true);
-    if (!recdata.at(7).isNull())                                                                            // CompteVirement
-        ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recdata.at(7)));
-    ui->TierscomboBox->setCurrentText(recdata.at(10).toString());                                           //  TiersPayant
+    ui->ComptesupComboBox->clearEditText();
+    if (rec->compteid() > 0)
+        ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
+    ui->TierscomboBox->setCurrentText(rec->payeur());
     if (mp == "C")
     {
-        ui->TireurChequelineEdit->setText(recdata.at(6).toString());                                        // TireurCheque
-        ui->BanqueChequecomboBox->setCurrentText(recdata.at(8).toString());                                 // BanqueCheque
+        ui->TireurChequelineEdit->setText(rec->tireurcheque());
+        ui->BanqueChequecomboBox->setCurrentText(rec->banquecheaque());
     }
-    QString Montant = QLocale().toString(recdata.at(4).toDouble(),'f',2);                                   // Montant
+    QString Montant = QLocale().toString(rec->montant(),'f',2);
     ui->MontantlineEdit->setText(Montant);
 
     /* Verifier si on peut modifier la recette - impossible si:
  . la date d'enregistrement remonte à plus de 90 jours
  . c'est un chèque et il a été déposé en banque
  . c'est un virement et il a été pointé sur le compte*/
-    if (recdata.at(17).toInt() > 90)                                                            //             . la date d'enregistrement remonte à plus de 90 jours
+    if (rec->dateenregistrement().daysTo(QDate::currentDate()) > 90)                                                            //             . la date d'enregistrement remonte à plus de 90 jours
     {
         UpMessageBox::Watch(this,tr("Vous ne pourrez pas modifier les données comptables de ce paiement"),
                                   tr("Il a été enregistré il y a plus de 90 jours!"));
         ModifLigneRecettePossible = false;
     }
-    else if (recdata.at(5).toString() == "C" && recdata.at(13).toInt() > 0)     //             . c'est un chèque et il a été déposé en banque
+    else if (rec->modepaiement() == "C" && rec->idremisecheque() > 0)     //             . c'est un chèque et il a été déposé en banque
 
     {
         UpMessageBox::Watch(this,tr("Vous ne pourrez pas modifier les données comptables de ce paiement"),
@@ -1644,65 +1639,65 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
         {
             // nettoyer LinesRecettes et le mettre en mémoire au cas où on devrait le restaurer
             LigneRecetteAModifier.clear();
-            LigneRecetteAModifier << recdata.at(0).toString();                                              //idRecette
-            LigneRecetteAModifier << recdata.at(1).toString();                                              //idUser
-            if (recdata.at(2).toString().isEmpty())                                                         //DatePaiement
+            LigneRecetteAModifier << QString::number(idRecette);                                            //idRecette
+            LigneRecetteAModifier << QString::number(rec->iduser());                                        //idUser
+            if (!rec->date().isValid())                                                                     //DatePaiement
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + recdata.at(2).toDate().toString("yyyy-MM-dd") + "'";
-            if (recdata.at(3).toString().isEmpty())                                                         //DateEnregistrement
+                LigneRecetteAModifier << "'" + rec->date().toString("yyyy-MM-dd") + "'";
+            if (!rec->dateenregistrement().isValid())                                                       //DateEnregistrement
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + recdata.at(3).toDate().toString("yyyy-MM-dd") + "'";
-            LigneRecetteAModifier << recdata.at(4).toString();                                              //Montant
-            if (recdata.at(5).toString().isEmpty())                                                         //ModePaiement
+                LigneRecetteAModifier << "'" + rec->dateenregistrement().toString("yyyy-MM-dd") + "'";
+            LigneRecetteAModifier << QString::number(rec->montant(),'f',2);                                 //Montant
+            if (rec->modepaiement() == "")                                                                  //ModePaiement
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + recdata.at(5).toString() + "'";
-            if (recdata.at(6).toString().isEmpty())                                                         //TireurCheque
+                LigneRecetteAModifier << "'" + rec->modepaiement() + "'";
+            if (rec->tireurcheque() == "")                                                                  //TireurCheque
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(recdata.at(6).toString()) + "'";
-            if (recdata.at(7).toString().isEmpty())                                                         //CompteVirement
+                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(rec->tireurcheque()) + "'";
+            if (rec->compteid() == 0)                                                                       //CompteVirement
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << recdata.at(7).toString() ;
-            if (recdata.at(8).toString().isEmpty())                                                         //BanqueCheque
+                LigneRecetteAModifier << QString::number(rec->compteid()) ;
+            if (rec->banquecheaque() == "")                                                                 //BanqueCheque
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(recdata.at(8).toString()) + "'";
-            if (recdata.at(9).toString().isEmpty())                                                         //TiersPayant
+                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(rec->banquecheaque()) + "'";
+            if (!rec->istierspayant())                                                                      //TiersPayant
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(recdata.at(9).toString()) + "'";
-            if (recdata.at(10).toString().isEmpty())                                                        //NomTiers
+                LigneRecetteAModifier << "'O'";
+            if (rec->payeur() == "")                                                                        //NomTiers
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(recdata.at(10).toString()) + "'";
-            if (recdata.at(11).toString().isEmpty())                                                        //Commission
+                LigneRecetteAModifier << "'" + Utils::correctquoteSQL(rec->payeur()) + "'";
+            if (rec->commission() == 0.0)                                                                   //Commission
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << recdata.at(11).toString();
-            if (recdata.at(12).toString().isEmpty())                                                        //Monnaie
+                LigneRecetteAModifier << QString::number(rec->commission(), 'f', 2);
+            if (rec->monnaie() == "")                                                                       //Monnaie
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << "'" + recdata.at(12).toString() + "'";
-            if (recdata.at(13).toInt() == 0)                                                                //IdRemise
+                LigneRecetteAModifier << "'" + rec->monnaie() + "'";
+            if (rec->idremisecheque() == 0)                                                                 //IdRemise
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << recdata.at(13).toString();
-            if (recdata.at(14).toInt() == 0)                                                                //EnAttente
+                LigneRecetteAModifier << QString::number(rec->idremisecheque());
+            if (!rec->ischeqenattente())                                                                    //EnAttente
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << recdata.at(14).toString();
-            if (recdata.at(15).toInt() == 0)                                                                //EnregistrePar
+                LigneRecetteAModifier << "1";
+            if (rec->iduserenregistreur() == 0)                                                             //EnregistrePar
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << recdata.at(15).toString();
-            if (recdata.at(16).toInt() == 0)                                                                //TypeRecette
+                LigneRecetteAModifier << QString::number(rec->iduserenregistreur());
+            if (rec->typerecette() == 0)                                                                    //TypeRecette
                 LigneRecetteAModifier << "null";
             else
-                LigneRecetteAModifier << recdata.at(16).toString();
+                LigneRecetteAModifier << QString::number(rec->typerecette());
             requete = "DELETE FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(idRecette);
             db->StandardSQL(requete);
 
@@ -1744,7 +1739,7 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
 
             }
             //Nettoyer Depenses  et comptes au besoin si une commission avait été enregistrée
-            if (recdata.at(11).toDouble() > 0)
+            if (rec->commission() > 0)
             {
                   if (mp == "V")
                 {
@@ -1850,8 +1845,9 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
     gListidActe = ListeActesAModifier;
     RemplitLesTables();
     Slot_RegleAffichageFiche();
-    ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recdata.at(7)));
-    ui->dateEdit->setDate(recdata.at(2).toDate());
+    ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
+    ui->dateEdit->setDate(rec->date());
+    delete rec;
     RegleAffichageTypePaiementframe(false);
     RegleAffichageTypePaiementframe(true,false);
     for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)

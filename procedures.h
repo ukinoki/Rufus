@@ -215,7 +215,7 @@ public:
 
     bool                    isPosteImportDocs();
 
-    void                    ReconstruitComboCorrespondants(QComboBox* box, bool All = true); // si all = false => que les generalistes
+    void                    ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
 
     QString                 getMDPAdmin();
     void                    setNomImprimante(QString NomImprimante);

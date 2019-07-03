@@ -1990,7 +1990,7 @@ bool Procedures::eventFilter(QObject *obj, QEvent *event)
     return true;
 }
 
-void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
+void Procedures::ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT typ)
 {
     box->clear();
     QMap<int, Correspondant *> *listcor = Datas::I()->correspondants->correspondants();
@@ -2002,7 +2002,7 @@ void Procedures::ReconstruitComboCorrespondants(QComboBox* box, bool all)
         Correspondant *cor = const_cast<Correspondant*>(*itcor);
         QList<QStandardItem *> items;
         items << new QStandardItem(cor->nom() + " "  + cor->prenom()) << new QStandardItem(QString::number(cor->id()));
-        if (all)
+        if (typ == Correspondants::TousLesCorrespondants)
             model->appendRow(items);
         else if (cor->ismedecin())
             model->appendRow(items);

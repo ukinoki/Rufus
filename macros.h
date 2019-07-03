@@ -251,6 +251,25 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_NUMCHEQUE_DEPENSES                       "Nocheque"
 #define CP_IDFACTURE_DEPENSES                       "idFacture"
 
+                            //! Table ComptaMedicale.lignesrecettes
+#define CP_IDRECETTE_LIGNRECETTES                   "idRecette"
+#define CP_IDUSER_LIGNRECETTES                      "idUser"
+#define CP_DATE_LIGNRECETTES                        "DatePaiement"
+#define CP_DATEENREGISTREMENT_LIGNRECETTES          "DateEnregistrement"
+#define CP_MONTANT_LIGNRECETTES                     "Montant"
+#define CP_MODEPAIEMENT_LIGNRECETTES                "ModePaiement"
+#define CP_TIREURCHEQUE_LIGNRECETTES                "TireurCheque"
+#define CP_IDCPTEVIREMENT_LIGNRECETTES              "CompteVirement"
+#define CP_BANQUECHEQUE_LIGNRECETTES                "BanqueCheque"
+#define CP_TIERSPAYANT_LIGNRECETTES                 "TiersPayant"
+#define CP_NOMPAYEUR_LIGNRECETTES                   "NomTiers"
+#define CP_COMMISSION_LIGNRECETTES                  "Commission"
+#define CP_MONNAIE_LIGNRECETTES                     "Monnaie"
+#define CP_IDREMISECHQ_LIGNRECETTES                 "idRemise"
+#define CP_CHQENATTENTE_LIGNRECETTES                "EnAttente"
+#define CP_IDUSERENREGISTREUR_LIGNRECETTES          "EnregistrePar"
+#define CP_TYPERECETTE_LIGNRECETTES                 "TypeRecette"
+
 // Divers
 #define PDF                                         "pdf"
 #define JPG                                         "jpg"

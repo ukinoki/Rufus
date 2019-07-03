@@ -8,6 +8,7 @@ SOURCES += $$PWD/cls_acte.cpp \
         $$PWD/cls_item.cpp \
         $$PWD/cls_patient.cpp \
     $$PWD/cls_posteconnecte.cpp \
+    $$PWD/cls_recettecomptable.cpp \
         $$PWD/cls_user.cpp \
     $$PWD/cls_depense.cpp \
     $$PWD/cls_archivebanque.cpp \
@@ -31,6 +32,7 @@ HEADERS += $$PWD/cls_acte.h \
         $$PWD/cls_item.h \
         $$PWD/cls_patient.h \
     $$PWD/cls_posteconnecte.h \
+    $$PWD/cls_recettecomptable.h \
         $$PWD/cls_user.h \
     $$PWD/cls_depense.h \
     $$PWD/cls_archivebanque.h \

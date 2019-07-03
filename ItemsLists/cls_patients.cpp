@@ -57,14 +57,13 @@ Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
     {
         pat = itpat.value();
         if (loadDetails == Item::LoadDetails)
-            if (!pat->isalloaded())
-            {
-                QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(id);
-                if( jsonPatient.isEmpty() )
-                    return Q_NULLPTR;
-                else
-                    pat->setData(jsonPatient);
-            }
+        {
+            QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(id);
+            if( jsonPatient.isEmpty() )
+                return Q_NULLPTR;
+            else
+                pat->setData(jsonPatient);
+        }
     }
     return pat;
 }
