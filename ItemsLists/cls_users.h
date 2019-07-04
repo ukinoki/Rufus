@@ -50,7 +50,6 @@ public:
     QString getLoginById(int id);
     void initListe();
     User*   userconnected()             { return DataBase::I()->getUserConnected(); }
-
 };
 
 #endif // CLS_USERS_H

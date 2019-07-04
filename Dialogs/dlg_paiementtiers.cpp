@@ -65,7 +65,6 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
         InitOK = false;
         return;
     }
-    gNomUser    = m_useracrediter->getLogin();
     proc        ->SetUserAllData(m_useracrediter);
     if( m_useracrediter->getComptes()->size() == 0)
     {
@@ -412,10 +411,7 @@ void dlg_paiementtiers::Slot_ChangeUtilisateur()
     int id = m_useracrediter->id();
     m_useracrediter = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
     if (m_useracrediter != Q_NULLPTR)
-    {
-        gNomUser    = m_useracrediter->getLogin();
         proc        ->SetUserAllData(m_useracrediter);
-    }
     if (m_useracrediter == Q_NULLPTR || m_useracrediter->getComptes()->size() == 0)
     {
         UpMessageBox::Watch                 (this,tr("Impossible de changer d'utilisateur!") , tr("Les paramètres de") + ui->UserscomboBox->currentText() + tr("ne sont pas retrouvés"));
@@ -423,7 +419,6 @@ void dlg_paiementtiers::Slot_ChangeUtilisateur()
         ui->UserscomboBox                   ->setCurrentIndex(ui->UserscomboBox->findData(id));
         connect (ui->UserscomboBox,         SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUtilisateur()));
         m_useracrediter                     = Datas::I()->users->getById(id);
-        gNomUser                            = m_useracrediter->getLogin();
         proc                                ->SetUserAllData(m_useracrediter);
         return;
     }
@@ -1193,7 +1188,7 @@ int dlg_paiementtiers::EnregistreRecette()
             if (QLocale().toDouble(ui->CommissionlineEdit->text()) > 0)
             {
                 QString SelectMaxrequete = "select max(iddep) + 1 from " TBL_DEPENSES;
-                QVariantList maxdepdata = db->getFirstRecordFromStandardSelectSQL(ChercheMaxrequete, ok);
+                QVariantList maxdepdata = db->getFirstRecordFromStandardSelectSQL(SelectMaxrequete, ok);
                 if (!ok || maxdepdata.size()==0)
                 {
                     db->rollback();
@@ -1513,16 +1508,13 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
             QString Commission = QLocale().toString(rec->commission(),'f',2);
             ui->CommissionlineEdit->setText(Commission);
         }
-        if (mp == "E") RadioAClicker = ui->EspecesradioButton;
-        if (mp == "C") RadioAClicker = ui->ChequeradioButton;
+        else if (mp == "E") RadioAClicker = ui->EspecesradioButton;
+        else if (mp == "C") RadioAClicker = ui->ChequeradioButton;
         if (RadioAClicker != Q_NULLPTR)
             RadioAClicker->setChecked(true);
         ui->ComptesupComboBox->clearEditText();
         if (rec->compteid() > 0)
-        {
             ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(rec->compteid()));
-            //qDebug() << recdata.at(7).toString() + " - " + ui->ComptesupComboBox->currentData().toString() + " - " + ui->ComptesupComboBox->currentText();
-        }
         ui->TierscomboBox->setCurrentText(rec->payeur());
         if (mp == "C")
         {
@@ -1578,8 +1570,8 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
         QString Commission = QLocale().toString(rec->commission(),'f',2);
         ui->CommissionlineEdit->setText(Commission);
     }
-    if (mp == "E") RadioAClicker = ui->EspecesradioButton;
-    if (mp == "C") RadioAClicker = ui->ChequeradioButton;
+    else if (mp == "E") RadioAClicker = ui->EspecesradioButton;
+    else if (mp == "C") RadioAClicker = ui->ChequeradioButton;
     if (RadioAClicker != Q_NULLPTR)
         RadioAClicker->setChecked(true);
     ui->ComptesupComboBox->clearEditText();
@@ -1598,14 +1590,13 @@ void dlg_paiementtiers::ModifPaiementTiers(int idRecetteAModifier)
  . la date d'enregistrement remonte à plus de 90 jours
  . c'est un chèque et il a été déposé en banque
  . c'est un virement et il a été pointé sur le compte*/
-    if (rec->dateenregistrement().daysTo(QDate::currentDate()) > 90)                                                            //             . la date d'enregistrement remonte à plus de 90 jours
+    if (rec->dateenregistrement().daysTo(QDate::currentDate()) > 90)                                            //!> la date d'enregistrement remonte à plus de 90 jours
     {
         UpMessageBox::Watch(this,tr("Vous ne pourrez pas modifier les données comptables de ce paiement"),
                                   tr("Il a été enregistré il y a plus de 90 jours!"));
         ModifLigneRecettePossible = false;
     }
-    else if (rec->modepaiement() == "C" && rec->idremisecheque() > 0)     //             . c'est un chèque et il a été déposé en banque
-
+    if (rec->modepaiement() == "C" && rec->idremisecheque() > 0)                                                //!> c'est un chèque et il a été déposé en banque
     {
         UpMessageBox::Watch(this,tr("Vous ne pourrez pas modifier les données comptables de ce paiement"),
                                 tr("Le chèque a été déposé en banque!"));

@@ -81,6 +81,21 @@ void Comptes::SupprimeCompte(Compte *cpt)
     remove(m_comptes, cpt);
 
 }
+
+QList<Compte*> Comptes::initListeComptesByIdUser (int id)
+{
+    QList<Compte*> listcomptes;
+    QMapIterator<int, Compte*> itcpt(*m_comptes);
+    while (itcpt.hasNext())
+    {
+        itcpt.next();
+        if (itcpt.value()->idUser() == id)
+            listcomptes << itcpt.value();
+    }
+    return listcomptes;
+}
+
+
 Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString IntituleCompte, QString NomCompteAbrege, double SoldeSurDernierReleve, bool Partage, bool Desactive)
 {
     Compte *cpt = Q_NULLPTR;

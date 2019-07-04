@@ -3507,7 +3507,7 @@ bool Procedures::SetUserAllData(User *usr)
         }
         usr->setData( data ); //on charge le reste des données
     }
-    dlg_gestioncomptes::ReconstruitListeComptes(usr);
+    usr->setComptes(Datas::I()->comptes->initListeComptesByIdUser(usr->id()));
     int idcompte = usr->getIdCompteParDefaut();
     usr->setCompteParDefaut(Datas::I()->comptes->getById(idcompte));
     if (usr->isLiberal())
@@ -3773,6 +3773,12 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     {
         if (VerifParamConnexion())
         {
+            Datas::I()->banques->initListe();
+            Datas::I()->users->initListe();
+            Datas::I()->comptes->initListe();
+            m_parametres = db->parametres();
+            PremierParametrageMateriel();
+            PremierParametrageRessources();
             m_currentuser->setSite( DetermineLieuExercice() );
             SetUserAllData(m_currentuser);
             Datas::I()->users->initListe();
@@ -3780,9 +3786,6 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             if (!gdbOK)
                 return false;
             //gidUser     = idusr; //TODO : ICI
-            m_parametres = db->parametres();
-            PremierParametrageMateriel();
-            PremierParametrageRessources();
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne,\n"
                                        "le login ") + m_currentuser->getLogin() + tr(" est reconnu") + ".\n" +
@@ -3802,6 +3805,9 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Restauration de la base
             if (!RestaureBase(false, true, false))
                 return false;
+            Datas::I()->banques->initListe();
+            Datas::I()->users->initListe();
+            Datas::I()->comptes->initListe();
             m_parametres = db->parametres();
             PremierParametrageMateriel();
             PremierParametrageRessources();

@@ -169,7 +169,7 @@ public:
     void setSite(Site *Site);
 
     QList<Compte*>* getComptes(bool avecdesactive = false) const;
-    void setComptes(QList<Compte*> *listcomptes);
+    void setComptes(QList<Compte*> listcomptes);
     Compte* getCompteParDefaut() const          { return m_comptepardefaut; }
     void setCompteParDefaut(Compte *compte)     { m_comptepardefaut = compte; }
     Compte* getCompteEncaissement() const       { return m_compteencaissement; }

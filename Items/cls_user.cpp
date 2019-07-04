@@ -143,10 +143,8 @@ QList<Compte*>* User::getComptes(bool avecdesactive) const
     return (avecdesactive? m_comptesall : m_comptes);
 }
 
-void User::setComptes(QList<Compte *> *comptes)
+void User::setComptes(QList<Compte *> comptes)
 {
-    if (comptes == Q_NULLPTR)
-        return;
     if (m_comptes != Q_NULLPTR)
         m_comptes->clear();
     else
@@ -155,9 +153,9 @@ void User::setComptes(QList<Compte *> *comptes)
         m_comptesall->clear();
     else
         m_comptesall = new QList<Compte*>();       //! si on le laisse à Q_NULLPTR, le append() qui suit plantera le prg
-    for( QList<Compte*>::const_iterator itcpt = comptes->constBegin(); itcpt != comptes->constEnd(); ++itcpt )
-    {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
+    QListIterator<Compte*> itcpt(comptes);
+    while (itcpt.hasNext()) {
+        Compte *cpt = const_cast<Compte*>(itcpt.next());
         m_comptesall->append(cpt);
         if (!cpt->isDesactive())
             m_comptes->append(cpt);

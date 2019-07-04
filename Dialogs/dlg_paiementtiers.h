@@ -101,7 +101,6 @@ private:
     User                    *m_userconnected;
     QMap<int, User*>        *m_listecomptables;
 
-    QString                 gNomUser;
     QString                 ValeurAvantChangement, ValeurMaxi;
     QTimer                  *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;
 

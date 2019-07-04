@@ -40,7 +40,6 @@ class dlg_gestioncomptes : public UpDialog
 public:
     explicit dlg_gestioncomptes(User *user,
                                 bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
-    static void             ReconstruitListeComptes (User *usr);    //! reconstruit la liste des comptes d'un utilisateur
     ~dlg_gestioncomptes();
 
 private:

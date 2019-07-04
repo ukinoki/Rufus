@@ -351,17 +351,6 @@ void dlg_gestioncomptes::NouvCompte()
     ui->DesactiveComptecheckBox     ->setVisible(false);
 }
 
-void dlg_gestioncomptes::ReconstruitListeComptes (User *usr)
-{
-    QList<Compte*> listcomptes;
-    for (QMap<int, Compte*>::const_iterator itcpt = Datas::I()->comptes->comptes()->constBegin(); itcpt != Datas::I()->comptes->comptes()->constEnd(); ++itcpt)
-    {
-        if (itcpt.value()->idUser() == usr->id())
-            listcomptes << itcpt.value();
-    }
-    usr->setComptes(&listcomptes);
-}
-
 void dlg_gestioncomptes::SupprCompte()
 {
     /* si on est à ce point, c'est qu'aucune écriture n'a été saisie sur ce compte
@@ -379,7 +368,7 @@ void dlg_gestioncomptes::SupprCompte()
         return;
 
     Datas::I()->comptes->SupprimeCompte(Datas::I()->comptes->getById(ui->idCompteupLineEdit->text().toInt()));
-    ReconstruitListeComptes(m_userencours);
+    m_userencours->setComptes(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()));
     RemplirTableView();
 }
 
@@ -436,7 +425,7 @@ void dlg_gestioncomptes::ValidCompte()
                                             QLocale().toDouble(ui->SoldeuplineEdit->text()),   //! SoldeSurDernierReleve
                                             gSociete,                                          //! Partage
                                             ui->DesactiveComptecheckBox->isChecked());         //! Partage
-    ReconstruitListeComptes(m_userencours);
+    m_userencours->setComptes(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()));
     m_comptencours = Datas::I()->comptes->getById(idcompte);
 
     RemplirTableView(idcompte);

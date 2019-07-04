@@ -37,6 +37,7 @@ public:
     Compte* getById(int id);
     void reloadCompte(Compte*compte);
     void initListe();
+    QList<Compte*> initListeComptesByIdUser(int id);    //! reconstruit la liste des comptes d'un utilisateur
 
     //!> actions sur les enregistrements
     void       SupprimeCompte(Compte *cpt);

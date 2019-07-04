@@ -1389,7 +1389,7 @@ bool dlg_gestionusers::setDataUser(int id)
         }
         OtherUser->setData( data );
     }
-    dlg_gestioncomptes::ReconstruitListeComptes(OtherUser);
+    OtherUser->setComptes(Datas::I()->comptes->initListeComptesByIdUser(OtherUser->id()));
     OtherUser->setCompteParDefaut(Datas::I()->comptes->getById(OtherUser->getIdCompteParDefaut()));
     OtherUser->setCompteEncaissement(Datas::I()->comptes->getById(OtherUser->getIdCompteEncaissHonoraires()));
     return true;
