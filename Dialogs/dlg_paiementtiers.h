@@ -50,10 +50,11 @@ private slots:
     void                Slot_Annul();
     void                Slot_CalculTotalDetails();
     void                Slot_ChangeUtilisateur();
-    void                Slot_ClassementListes();
+    void                Slot_ClassementListes(int col);
     void                Slot_ConvertitDoubleMontant();
     void                Slot_EnableOKButton();
     void                Slot_EnregistrePaiementTiers();
+    void                Slot_FiltreListe(QString filtre);
     void                Slot_MajusculeCreerNom();
     void                Slot_RecopieNomTiers(QString);
     void                Slot_SupprimerPaiement();

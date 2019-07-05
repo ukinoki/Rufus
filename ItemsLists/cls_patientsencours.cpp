@@ -102,8 +102,20 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, int idUser , QString
     QString posteexamen     = (PosteExamen == ""?       "null" : "'" + Utils::correctquoteSQL(PosteExamen) + "'");
     QString iduserencours   = (idUserEnCours == 0?      "null" : QString::number(idUserEnCours));
     QString idsaldat        = (idSalDat == 0?           "null" : QString::number(idSalDat));
+
     QString req = "INSERT INTO " TBL_SALLEDATTENTE
-                        " (idPat, idUser, Statut, HeureStatut, heureRDV, heureArrivee, Motif, Message, idActeAPayer, PosteExamen, idUserEnCoursExam, idSalDat)"
+                        " (" CP_IDPAT_SALDAT ","
+                             CP_IDUSER_SALDAT ","
+                             CP_STATUT_SALDAT ","
+                             CP_HEURESTATUT_SALDAT ","
+                             CP_HEURERDV_SALDAT ","
+                             CP_HEUREARRIVEE_SALDAT ","
+                             CP_MOTIF_SALDAT ","
+                             CP_MESSAGE_SALDAT ","
+                             CP_IDACTEAPAYER_SALDAT ","
+                             CP_POSTEEXAMEN_SALDAT ","
+                             CP_IDUSERENCOURSEXAM_SALDAT ","
+                             CP_IDSALDAT_SALDAT ")"
                         " VALUES (" +   QString::number(idPat) + "," +
                                         iduser + "," +
                                         statut + "," +

@@ -175,7 +175,7 @@ void dlg_bilanrecettes::FiltreTable(int idx)
         }
         else
         {
-            QMultiMap<int, User*>::iterator userFind = Datas::I()->users->superviseurs()->find(idx);
+            QMap<int, User*>::iterator userFind = Datas::I()->users->superviseurs()->find(idx);
             if( userFind != Datas::I()->users->superviseurs()->end() )
             {
                 for(int i=0; i<m_recettesmodel->rowCount(); i++)
@@ -194,7 +194,7 @@ void dlg_bilanrecettes::FiltreTable(int idx)
     }
     else if (gMode==COMPTABLE)
     {
-            QMultiMap<int, User*>::iterator userFind = Datas::I()->users->comptables()->find(idx);
+            QMap<int, User*>::iterator userFind = Datas::I()->users->comptables()->find(idx);
             if( userFind != Datas::I()->users->comptables()->end() )
             {
                 for(int i=0; i<m_recettesmodel->rowCount(); i++)

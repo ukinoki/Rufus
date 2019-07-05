@@ -44,6 +44,7 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataBool(data, "dimanchebkup", m_dimanchebkup);
     setDataTime(data, "heurebkup", m_heurebkup);
     setDataString(data, "dirbkup", m_dirbkup);
+    m_data = data;
 }
 
 QString ParametresSysteme::mdpadmin() const                     { return m_mdpdmin; }

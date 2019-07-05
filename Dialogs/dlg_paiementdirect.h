@@ -94,7 +94,7 @@ private:
     bool                        eventFilter(QObject *obj, QEvent *event)  ;
     void                        ChangeComptable(User *comptable, bool depuislecombo = false);
     void                        CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche = true);
-    void                        DefinitArchitectureTableView(UpTableWidget *TableARemplir, int TypeTable = 0);
+    void                        DefinitArchitectureTable(UpTableWidget *TableARemplir, int TypeTable = 0);
     int                         EnregistreRecette();
     void                        FiltreLesTables();
     void                        ModifGratuitChoixMenu(QString Choix);

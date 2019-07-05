@@ -1494,13 +1494,13 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         {
             if (tiersdata.at(0).toString() == "O")
             {
-                DefinitArchitectureTableView(ui->DetailupTableWidget,ActesTiers);
+                DefinitArchitectureTable(ui->DetailupTableWidget,ActesTiers);
                 ui->ModifierupPushButton->setEnabled(false);
                 gTypeTable = ActesTiers;
             }
             else
             {
-                DefinitArchitectureTableView(ui->DetailupTableWidget,ActesDirects);
+                DefinitArchitectureTable(ui->DetailupTableWidget,ActesDirects);
                 ui->ModifierupPushButton->setEnabled(true);
                 gTypeTable = ActesDirects;
             }
@@ -1583,7 +1583,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Définit l'architecture des TableView (SelectionMode, nombre de colonnes, avec Widgets UpcheckBox et UplineBox) ----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::DefinitArchitectureTableView(UpTableWidget *TableARemplir, int TypeTable)
+void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, int TypeTable)
 {
     QStringList         LabelARemplir;
     QString             A;
@@ -2201,7 +2201,7 @@ void dlg_paiementdirect::RemplitLesTables()
         . ET qui ne sont pas en salle d'attente en attente de paiement
         . ET dont le montant de l'acte n'est pas nul
         */
-        DefinitArchitectureTableView(ui->ListeupTableWidget, ActesDirects);
+        DefinitArchitectureTable(ui->ListeupTableWidget, ActesDirects);
 
         requete =
                     "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                 // 0, 1, 2, 3, 4
@@ -2256,7 +2256,7 @@ void dlg_paiementdirect::RemplitLesTables()
             connect (ui->ListeupTableWidget,    SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
 
         //2. Remplissage ui->SalleDAttenteupTableWidget
-        DefinitArchitectureTableView(ui->SalleDAttenteupTableWidget,ActesDirects);
+        DefinitArchitectureTable(ui->SalleDAttenteupTableWidget,ActesDirects);
         requete =   "SELECT idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                // 0, 1, 2, 3, 4
                     " ActeMontant, ActeMonnaie, ActeMontant as CalculPaiement, UserComptable,"                 // 5, 6, 7, 8, 9
                     " idUser"                                                                                  // 10
@@ -2270,7 +2270,7 @@ void dlg_paiementdirect::RemplitLesTables()
         RemplirTableWidget(ui->SalleDAttenteupTableWidget,"Actes", actlist, true, Qt::Unchecked);
 
         //3. Remplissage ui->DetailupTableWidget
-        DefinitArchitectureTableView(ui->DetailupTableWidget,ActesDirects);
+        DefinitArchitectureTable(ui->DetailupTableWidget,ActesDirects);
         if (gListidActe.size() > 0)
         {
             for (int i = 0; i < ui->SalleDAttenteupTableWidget->rowCount();i++)
@@ -2308,7 +2308,7 @@ void dlg_paiementdirect::RemplitLesTables()
     case VoirListeActes:
     {
         // On sélectionne tous les actes sans exception, sauf les gratuits et les impayés
-        DefinitArchitectureTableView(ui->ListeupTableWidget, ActesTiers);
+        DefinitArchitectureTable(ui->ListeupTableWidget, ActesTiers);
         requete =   "select * from (\n"
                     "SELECT act.idActe, ActeDate, PatNom, PatPrenom, ActeCotation,"                                 // 0, 1, 2, 3, 4
                     " ActeMontant, ActeMonnaie, SUM(Paye) as tot, TypePaiement, Tiers,"                             // 5, 6, 7, 8, 9
@@ -2343,8 +2343,8 @@ void dlg_paiementdirect::RemplitLesTables()
             connect (ui->ListeupTableWidget,            SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
             connect (ui->SalleDAttenteupTableWidget,    SIGNAL(itemEntered(QTableWidgetItem*)), this,   SLOT(Slot_AfficheToolTip(QTableWidgetItem*)));
         }
-        DefinitArchitectureTableView(ui->SalleDAttenteupTableWidget,Paiements);
-        DefinitArchitectureTableView(ui->DetailupTableWidget,ActesTiers);
+        DefinitArchitectureTable(ui->SalleDAttenteupTableWidget,Paiements);
+        DefinitArchitectureTable(ui->DetailupTableWidget,ActesTiers);
         break;
     }
 

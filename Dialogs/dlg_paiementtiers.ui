@@ -1262,7 +1262,7 @@ tiers payant</string>
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,8,1,1,10,1">
+     <layout class="QVBoxLayout" name="verticalLayout_5" stretch="1,8,1,10">
       <property name="spacing">
        <number>5</number>
       </property>
@@ -1374,6 +1374,29 @@ tiers payant</string>
          </widget>
         </item>
         <item>
+         <spacer name="horizontalSpacer_8">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="Loupelabel">
+          <property name="text">
+           <string>TextLabel</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="UpLineEdit" name="CherchePatientupLineEdit"/>
+        </item>
+        <item>
          <spacer name="horizontalSpacer_12">
           <property name="orientation">
            <enum>Qt::Horizontal</enum>
@@ -1430,16 +1453,6 @@ tiers payant</string>
          </widget>
         </item>
        </layout>
-      </item>
-      <item>
-       <widget class="QLabel" name="ActesEnAttentelabel_2">
-        <property name="focusPolicy">
-         <enum>Qt::NoFocus</enum>
-        </property>
-        <property name="text">
-         <string>Actes en attente</string>
-        </property>
-       </widget>
       </item>
       <item>
        <widget class="UpTableWidget" name="ListeupTableWidget">
@@ -1499,46 +1512,6 @@ tiers payant</string>
         </attribute>
        </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_12">
-        <item>
-         <spacer name="horizontalSpacer_8">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="UpPushButton" name="OrdreupPushButton">
-          <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
-          </property>
-          <property name="text">
-           <string>Ordre alphabétique</string>
-          </property>
-          <property name="icon">
-           <iconset resource="../assets/Images/images.qrc">
-            <normaloff>:/tri.png</normaloff>:/tri.png</iconset>
-          </property>
-          <property name="iconSize">
-           <size>
-            <width>20</width>
-            <height>20</height>
-           </size>
-          </property>
-          <property name="autoDefault">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
      </layout>
     </widget>
    </item>
@@ -1554,6 +1527,11 @@ tiers payant</string>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

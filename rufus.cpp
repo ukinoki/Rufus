@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("04-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("05-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1164,7 +1164,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
             ItemsList::update(pat, CP_STATUT_SALDAT, RETOURACCUEIL);
             ItemsList::update(pat, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
             ItemsList::update(pat, CP_MESSAGE_SALDAT, Msg);
-            ItemsList::update(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
+            ItemsList::update(pat, CP_HEURESTATUT_SALDAT, db->ServerDateTime().time());
             ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
             ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
         }
@@ -1195,7 +1195,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         else
         {
             ItemsList::update(pat, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->getLogin());
-            ItemsList::update(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
+            ItemsList::update(pat, CP_HEURESTATUT_SALDAT, db->ServerDateTime().time());
             ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT, m_currentuser->id());
             ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
         }
@@ -5430,6 +5430,7 @@ void Rufus::VerifVerrouDossier()
      on fait la liste des utilisateurs qui n'ont pas remis à jour leur connexion depuis plus de 60 secondes,
      on retire les verrous qu'ils auraient pu poser et on les déconnecte*/
     Datas::I()->postesconnectes->initListe();
+    Datas::I()->patientsencours->initListeAll();
     QDateTime timenow = db->ServerDateTime();
     QList<PosteConnecte*> listpostsAEliminer = QList<PosteConnecte*>();
     QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
@@ -5438,13 +5439,13 @@ void Rufus::VerifVerrouDossier()
         itpost.next();
         PosteConnecte *post = const_cast<PosteConnecte*>(itpost.value());
         qint64 tempsecouledepuisactualisation = post->heurederniereconnexion().secsTo(timenow);
-        if (tempsecouledepuisactualisation > 60)
+        if (tempsecouledepuisactualisation > 120)
         {
             qDebug() << timenow;
             qDebug() << post->heurederniereconnexion();
             qDebug() << tempsecouledepuisactualisation;
             qDebug() << post->stringid();
-            //l'utilisateur n'a pas remis sa connexion aà jour depuis plus de 60 secondes
+            //l'utilisateur n'a pas remis sa connexion aà jour depuis plus de 120 secondes
             //on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             QString blabla              = ENCOURSEXAMEN;
             int length                  = blabla.size();
@@ -5487,6 +5488,7 @@ void Rufus::VerifVerrouDossier()
         {
             if (pat->statut().left(length) == ENCOURSEXAMEN)
             {
+                bool posttrouve = false;
                 itpost.toFront();
                 while (itpost.hasNext())
                 {
@@ -5494,16 +5496,21 @@ void Rufus::VerifVerrouDossier()
                     PosteConnecte *post = const_cast<PosteConnecte*>(itpost.value());
                     if (post->id() == pat->iduser() && post->nomposte() == pat->posteexamen())
                     {
-                        ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
-                        ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
-                        ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+                        posttrouve = true;
+                        itpost.toBack();
                     }
                 }
+                if (!posttrouve)
+                {
+                    ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
+                    ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
+                    ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+                }
             }
-            // on retire de la salle d'attente les patients qui n'existent pas
-            if (m_listepatients->getById(pat->id(), Item::NoLoadDetails) == Q_NULLPTR)
-                listpatasupprimer << pat;
         }
+        // on retire de la salle d'attente les patients qui n'existent pas
+        if (m_listepatients->getById(pat->id(), Item::NoLoadDetails) == Q_NULLPTR)
+            listpatasupprimer << pat;
     }
     if (listpatasupprimer.size() > 0)
         for (int i=0; i<listpatasupprimer.size(); i++)
@@ -6309,13 +6316,14 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     //5 - mise à jour du dossier en salle d'attente
     PatientEnCours *patcours = Q_NULLPTR;
     patcours = m_listepatientsencours->getById(m_currentpatient->id());
+    QTime currenttime = db->ServerDateTime().time();
     if (patcours == Q_NULLPTR)
         m_listepatientsencours->CreationPatient(pat->id(),                                          //! idPat
                                                  m_currentuser->getIdUserActeSuperviseur(),         //! idUser
                                                  ENCOURSEXAMEN + m_currentuser->getLogin(),         //! Statut
-                                                 QTime::currentTime(),                              //! heureStatut
+                                                 currenttime,                                       //! heureStatut
                                                  QTime(),                                           //! heureRDV
-                                                 db->ServerDateTime().time(),                       //! heureArrivee
+                                                 currenttime,                                       //! heureArrivee
                                                  "",                                                //! Motif
                                                  "",                                                //! Message
                                                  0,                                                 //! idActeAPayer
@@ -6325,7 +6333,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     else
     {
         ItemsList::update(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->getLogin());
-        ItemsList::update(patcours, CP_HEURESTATUT_SALDAT,  QTime::currentTime());
+        ItemsList::update(patcours, CP_HEURESTATUT_SALDAT, currenttime);
         ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT, m_currentuser->id());
         ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
     }

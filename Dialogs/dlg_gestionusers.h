@@ -112,8 +112,7 @@ private:
     void                    ReconstruitListeLieuxExercice();
     bool                    VerifFiche();
 
-    bool                    setDataUser(int id);
-    User*                   DataUser();
+    void                    setDataUser(int id);
     WidgetButtonFrame       *widgButtons;
     void                    CreerUser();
     void                    ModifUser();

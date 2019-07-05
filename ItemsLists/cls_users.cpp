@@ -47,11 +47,11 @@ QMap<int, User *> *Users::comptables() const
  */
 Users::Users(QObject *parent) : ItemsList(parent)
 {
-    m_users = new QMultiMap<int, User*>();
-    m_superviseurs = new QMultiMap<int, User*>();
-    m_liberaux = new QMultiMap<int, User*>();
-    m_parents = new QMultiMap<int, User*>();
-    m_comptables = new QMultiMap<int, User*>();
+    m_users = new QMap<int, User*>();
+    m_superviseurs = new QMap<int, User*>();
+    m_liberaux = new QMap<int, User*>();
+    m_parents = new QMap<int, User*>();
+    m_comptables = new QMap<int, User*>();
 }
 
 /*!
@@ -69,13 +69,20 @@ bool Users::add(User *usr)
     if( usr == Q_NULLPTR)
         return false;
 
-    if( m_users->contains(usr->id()) )
+    QMap<int, User*>::const_iterator itusr = m_users->find(usr->id());
+    if( itusr != m_users->constEnd() )
     {
+        User *result = const_cast<User*>(itusr.value());
+        result->setData(usr->datas());
         delete usr;
-        return false;
     }
+    else
+        m_users->insert(usr->id(), usr);
 
-    m_users->insert(usr->id(), usr);
+    m_superviseurs  ->remove(usr->id());
+    m_liberaux      ->remove(usr->id());
+    m_parents       ->remove(usr->id());
+    m_comptables    ->remove(usr->id());
 
     if( usr->isResponsable() || usr->isResponsableEtAssistant())
         m_superviseurs->insert(usr->id(), usr);

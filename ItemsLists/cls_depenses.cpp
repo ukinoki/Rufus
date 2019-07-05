@@ -86,7 +86,7 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
     Depense *dep = Q_NULLPTR;
     bool ok;
     QString idusr           = (idUser == 0?                 "null" : QString::number(idUser));
-    QString date            = (DateDep.isValid()?           "NOW()" : "'" + DateDep.toString("yyyy-MM-dd") + "'");
+    QString date            = (!DateDep.isValid()?          "NOW()" : "'" + DateDep.toString("yyyy-MM-dd") + "'");
     QString ref             = (RefFiscale == ""?            "" : "'" + Utils::correctquoteSQL(RefFiscale) + "'");
     QString objet           = (Objet == ""?                 "" : "'" + Utils::correctquoteSQL(Objet) + "'");
     QString montant         = QString::number(Montant, 'f',2);

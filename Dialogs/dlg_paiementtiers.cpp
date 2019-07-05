@@ -86,6 +86,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     // idem pour les comptes
     RegleComptesComboBox();
     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteParDefaut()->id()));
+    connect (ui->ListeupTableWidget->horizontalHeader(), SIGNAL(sectionClicked(int)),                   this,           SLOT (Slot_ClassementListes(int)));
 
     connect (ui->AnnulupPushButton,                     SIGNAL(clicked()),                              this,           SLOT (Slot_Annul()));
     connect (ui->BanqueChequecomboBox,                  SIGNAL(editTextChanged(QString)),               this,           SLOT (Slot_EnableOKButton()));
@@ -99,7 +100,6 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     connect (ui->ListeupTableWidget,                    SIGNAL(itemEntered(QTableWidgetItem*)),         this,           SLOT (Slot_AfficheDDN(QTableWidgetItem*)));
     connect (ui->MontantlineEdit,                       SIGNAL(editingFinished()),                      this,           SLOT (Slot_ConvertitDoubleMontant()));
     connect (ui->MontantlineEdit,                       SIGNAL(textEdited(QString)),                    this,           SLOT (Slot_EnableOKButton()));
-    connect (ui->OrdreupPushButton,                     SIGNAL(clicked()),                              this,           SLOT (Slot_ClassementListes()));
     connect (ui->NouvTiersupPushButton,                 SIGNAL(clicked()),                              this,           SLOT (Slot_EnregistrePaiementTiers()));
     connect (ui->SupprimupPushButton,                   SIGNAL(clicked()),                              this,           SLOT (Slot_SupprimerPaiement()));
     connect (ui->TierscomboBox,                         SIGNAL(editTextChanged(QString)),               this,           SLOT (Slot_RecopieNomTiers(QString)));
@@ -107,6 +107,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     connect (ui->UserscomboBox,                         SIGNAL(currentIndexChanged(int)),               this,           SLOT (Slot_ChangeUtilisateur()));
     connect (ui->OKupPushButton,                        SIGNAL(clicked()),                              this,           SLOT (Slot_ValidePaiement()));
     connect (ui->VirementradioButton,                   SIGNAL(clicked()),                              this,           SLOT (Slot_RegleAffichageTypePaiementframe()));
+    connect (ui->CherchePatientupLineEdit,              SIGNAL(textEdited(QString)),                    this,           SLOT (Slot_FiltreListe(QString)));
 
 
     ui->TireurChequelineEdit->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -123,6 +124,8 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     ui->TierscomboBox->lineEdit()->setAlignment(Qt::AlignRight);
     ui->BanqueChequecomboBox->lineEdit()->setAlignment(Qt::AlignRight);
     ui->ComptesupComboBox->lineEdit()->setAlignment(Qt::AlignRight);
+    ui->Loupelabel->setPixmap(Icons::pxLoupe().scaled(30,30)); //WARNING : icon scaled : pxLoupe 20,20
+    ui->Loupelabel->setText("");
 
     ReconstruitListeBanques();
     ReconstruitListeTiers();
@@ -434,19 +437,16 @@ void dlg_paiementtiers::Slot_ChangeUtilisateur()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Modifie l'ordre de tri des tables ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementtiers::Slot_ClassementListes()
+void dlg_paiementtiers::Slot_ClassementListes(int col)
 {
+    if (gMode==VoirListePaiementsTiers && col!= 2) return;
+    if (gMode==EnregistrePaiementTiers && col!= 3) return;
     if (gOrdreTri == Chronologique)
-    {
-        ui->OrdreupPushButton->setText(tr("Ordre chronologique"));
         gOrdreTri = Alphabetique;
-    }
     else
-    {
-        ui->OrdreupPushButton->setText(tr("Ordre alphabétique"));
         gOrdreTri = Chronologique;
-    }
     TrieListe(ui->ListeupTableWidget);
+    Slot_FiltreListe(ui->CherchePatientupLineEdit->text());
 }
 
 void dlg_paiementtiers::Slot_ConvertitDoubleMontant()
@@ -488,6 +488,34 @@ void dlg_paiementtiers::Slot_EnregistrePaiementTiers()
         RegleAffichageTypePaiementframe(true,true);
         ui->PaiementgroupBox->setFocus();
     }
+}
+
+/*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Filtrer la liste                                                 --------------------------------------------------------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
+void dlg_paiementtiers::Slot_FiltreListe(QString filtre)
+{
+    QList<QTableWidgetItem*> listitems = ui->ListeupTableWidget->findItems(filtre, Qt::MatchStartsWith);
+    if (listitems.size()>0)
+    {
+        int col = (gMode == VoirListePaiementsTiers? 2 : 3);
+        for (int i=0; i<listitems.size(); ++i)
+        {
+            if (listitems.at(i)->column() == col)
+            {
+                if (gMode == VoirListePaiementsTiers)
+                {
+                    ui->ListeupTableWidget->scrollToItem(listitems.at(i), QAbstractItemView::PositionAtCenter);
+                    ui->ListeupTableWidget->selectRow(listitems.at(i)->row());
+                }
+                else
+                    ui->ListeupTableWidget->scrollToItem(listitems.at(i), QAbstractItemView::PositionAtTop);
+                break;
+            }
+        }
+    }
+    else
+        ui->ListeupTableWidget->clearSelection();
 }
 
 void dlg_paiementtiers::Slot_MajusculeCreerNom()
@@ -540,6 +568,7 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
 
     bool g = false;
     ui->dateEdit->setDate(QDate::currentDate());
+    ui->CherchePatientupLineEdit    ->clear();
 
     if (gMode == Accueil)
     {
@@ -560,9 +589,7 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
         ui->line2                       ->setVisible(false);
         ui->ActesEnAttentelabel_3       ->setVisible(false);
         ui->ActesEnAttentelabel         ->setText(tr("Salle d'attente"));
-        ui->ActesEnAttentelabel_2       ->setVisible(false);
         ui->ListeupTableWidget          ->setVisible(false);
-        ui->OrdreupPushButton           ->setVisible(false);
         ui->OKupPushButton              ->setText(tr("Fermer"));
         ui->OKupPushButton              ->setIcon(Icons::icOK());
         ui->OKupPushButton              ->setIconSize(QSize(30,30));
@@ -584,11 +611,8 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
         ui->line2                           ->setVisible(true);
         ui->ActesEnAttentelabel_3           ->setVisible(true);
         ui->ListeupTableWidget              ->setVisible(true);
-        ui->OrdreupPushButton               ->setVisible(true);
         ui->NouvTiersupPushButton           ->setVisible(false);
         ui->ListPaiementsTiersupPushButton  ->setVisible(false);
-        ui->OrdreupPushButton               ->setIcon(Icons::icTri());
-        ui->OrdreupPushButton               ->setIconSize(QSize(20,20));
 
         switch (gMode) {
         case EnregistrePaiementTiers:
@@ -598,7 +622,6 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
             ui->OKupPushButton              ->setIcon(Icons::icOK());
             ui->OKupPushButton              ->setIconSize(QSize(30,30));
             ui->ActesEnAttentelabel         ->setText(tr("Actes enregistrés en tiers payant en attente de paiement"));
-            ui->ActesEnAttentelabel_2       ->setVisible(false);
             ui->PaiementgroupBox            ->setFocusProxy(ui->VirementradioButton);
             RegleComptesComboBox();
             ui->ComptesupComboBox           ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteEncaissement()->id()));
@@ -611,8 +634,6 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
             ui->OKupPushButton              ->setIcon(Icons::icMarteau());
             ui->OKupPushButton              ->setIconSize(QSize(30,30));
             ui->ActesEnAttentelabel         ->setText(tr("Tous les paiements enregistrés en tiers payant"));
-            ui->ActesEnAttentelabel_2       ->setVisible(false);
-            ui->ActesEnAttentelabel_2       ->setText(tr("Tous les actes ayant reçu un paiement ou en attente de paiement"));
             RegleComptesComboBox(false);
             break;
         }
@@ -1103,14 +1124,15 @@ void dlg_paiementtiers::DefinitArchitectureTableView(UpTableWidget *TableARempli
 
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
--- Enregistrer une recette dans les tables Recettes, LignesPaiements , TypePiaiemntACte et mettre à jour SalleDAttente -----------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Enregistrer une recette dans les tables Recettes, LignesPaiements , TypePiaiemntACte -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 int dlg_paiementtiers::EnregistreRecette()
 {
-    QStringList locklist;
-    locklist << TBL_RECETTES << TBL_LIGNESCOMPTES << TBL_PATIENTS <<
-                TBL_ACTES << TBL_DEPENSES << TBL_SALLEDATTENTE << TBL_RUBRIQUES2035  <<
-                TBL_LIGNESPAIEMENTS << TBL_TYPEPAIEMENTACTES << TBL_ARCHIVESBANQUE << TBL_USERSCONNECTES;
+    QStringList locklist = QStringList() << TBL_RECETTES << TBL_LIGNESCOMPTES << TBL_DEPENSES << TBL_RUBRIQUES2035 << TBL_LIGNESPAIEMENTS;
+
+//    locklist << TBL_RECETTES << TBL_LIGNESCOMPTES << TBL_PATIENTS <<
+//                TBL_ACTES << TBL_DEPENSES << TBL_SALLEDATTENTE << TBL_RUBRIQUES2035  <<
+//                TBL_LIGNESPAIEMENTS << TBL_TYPEPAIEMENTACTES << TBL_ARCHIVESBANQUE << TBL_USERSCONNECTES;
     if (!db->createtransaction(locklist))
         return Impossible;
 
@@ -2552,17 +2574,9 @@ void dlg_paiementtiers::TrieListe(QTableWidget *TableATrier )
     if (TableATrier == ui->ListeupTableWidget)
     {
         if (gOrdreTri == Chronologique)
-        {
             TableATrier->sortItems(ncol - 1,Qt::DescendingOrder);
-            ui->OrdreupPushButton->setIcon(Icons::icTri());
-            ui->OrdreupPushButton->setIconSize(QSize(20,20));
-        }
         else
-        {
             TableATrier->sortItems(ColonneATrier,Qt::AscendingOrder);
-            ui->OrdreupPushButton->setIcon(Icons::icDate());
-            ui->OrdreupPushButton->setIconSize(QSize(20,20));
-        }
     }
     if (TableATrier == ui->DetailupTableWidget)
     {

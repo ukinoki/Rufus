@@ -126,7 +126,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         pat = m_patientsencours->CreationPatient(m_currentpatient->id(),                                                //! idPat
                                                  DataBase::I()->getUserConnected()->getIdUserActeSuperviseur(),         //! idUser
                                                  Statut,                                                                //! Statut
-                                                 QTime::currentTime(),                                                  //! heureStatut
+                                                 QTime(0,0,0,0),                                                        //! heureStatut
                                                  QTime(),                                                               //! heureRDV
                                                  QTime(),                                                               //! heureArrivee
                                                  "",                                                                    //! Motif
