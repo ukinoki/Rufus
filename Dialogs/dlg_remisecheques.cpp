@@ -1132,25 +1132,39 @@ void dlg_remisecheques::ReconstruitListeUsers()
     m_comptables    = Datas::I()->users->comptables();
     m_comptablesavecchequesenattente    = new QMap<int, User*>();
 
-    for( QMap<int, User*>::const_iterator itUser = m_comptables->constBegin(); itUser != m_comptables->constEnd(); ++itUser )
-    {
-        //TODO il faudrait trouver un moyen d'accélérer cette requête qui est vraiment très lente
-        User *user = const_cast<User*>(itUser.value());
-        QString req =   "SELECT idRecette FROM " TBL_RECETTES " pai"
-                        " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                        " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(user->id()) + "))"
-                        " AND pai.IdRemise IS NULL"
-                        " AND pai.ModePaiement = 'C'"
-                        " ORDER BY TireurCheque";
-        //qDebug() << req;
-        bool ok = true;
-        QList<QVariantList> listidrecettes = db->StandardSelectSQL(req,ok);
-        if (listidrecettes.size()>0)
+    QString req = "SELECT distinct iduser from " TBL_RECETTES " WHERE IdRemise IS NULL AND ModePaiement = 'C'";
+    bool ok = true;
+    QList<QVariantList> listiduser = db->StandardSelectSQL(req,ok);
+    QListIterator<QVariantList> itusr(listiduser);
+    while (itusr.hasNext()) {
+        QVariantList listitem = itusr.next();
+        if (listitem.at(0).toInt() > 0)
         {
+            User *user = Datas::I()->users->getById(listitem.at(0).toInt());
             m_comptablesavecchequesenattente->insert(user->id(), user);
             ui->UserComboBox->addItem(user->getLogin(), user->id() );
         }
     }
+
+//    for( QMap<int, User*>::const_iterator itUser = m_comptables->constBegin(); itUser != m_comptables->constEnd(); ++itUser )
+//    {
+//        //TODO il faudrait trouver un moyen d'accélérer cette requête qui est vraiment très lente
+//        User *user = const_cast<User*>(itUser.value());
+//        QString req =   "SELECT idRecette FROM " TBL_RECETTES " pai"
+//                        " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
+//                        " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(user->id()) + "))"
+//                        " AND pai.IdRemise IS NULL"
+//                        " AND pai.ModePaiement = 'C'"
+//                        " ORDER BY TireurCheque";
+//        qDebug() << req;
+//        bool ok = true;
+//        QList<QVariantList> listidrecettes = db->StandardSelectSQL(req,ok);
+//        if (listidrecettes.size()>0)
+//        {
+//            m_comptablesavecchequesenattente->insert(user->id(), user);
+//            ui->UserComboBox->addItem(user->getLogin(), user->id() );
+//        }
+//    }
     if (m_comptablesavecchequesenattente->count()<1)
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Pas de remise de chèque en attente"));

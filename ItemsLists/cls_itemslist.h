@@ -56,7 +56,7 @@ protected:
      * \param Item::UPDATE - si ForceUpdate, force l'update de l'item s'il est déjà présent dans le QMap
      * \return true si l'item est ajouté
      * \return false si l'item est un Q_NULLPTR
-     * \return false si l'item est déjà présent dans le QMap et delete l'item dans ce cas
+     * \return false si l'item est déjà présent dans le QMap et delete l'item passé en paramètre dans ce cas
      */
     template <typename T>
     bool add(QMap<int, T*> *m_map, int id, T* item, Item::UPDATE upd = Item::NoUpdate)

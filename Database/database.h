@@ -50,6 +50,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_user.h"
 #include "cls_posteconnecte.h"
 #include "cls_recettecomptable.h"
+#include "cls_refraction.h"
 #include "cls_site.h"
 #include "cls_ville.h"
 #include "cls_compte.h"
@@ -327,6 +328,14 @@ public:
     QList<Acte*>            loadIdActesByPat(Patient *pat);                     //! chrage les actes d'un patient en ne retenant que les id
     double                  getActePaye(int idActe);                            //! retrouve le total des paiements pour un acte
 
+    /*
+     * Refractions
+    */
+private:
+    QJsonObject             loadRefractionData(QVariantList refdata);           //! attribue le liste des datas à une refraction
+public:
+    QList<Refraction*>      loadRefractionByPat(Patient *pat);                  //! charge toutes les refractions d'un patient
+    QJsonObject             loadRefractionAllData(int idref);                   //! charge toutes les données d'une refraction définie par son id - utilisé pour renouveler les données en cas de modification
 };
 
 #endif // DataBase_H

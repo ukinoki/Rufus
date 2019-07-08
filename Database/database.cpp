@@ -2144,3 +2144,88 @@ double DataBase::getActePaye(int idActe)
     }
     return montant;
 }
+
+/*
+ * Refractions
+*/
+
+QJsonObject             DataBase::loadRefractionData(QVariantList refdata)           //! attribue le liste des datas à une refraction
+{
+    return QJsonObject{};
+}
+
+QList<Refraction*>      DataBase::loadRefractionByPat(Patient *pat)                  //! charge toutes les refractions d'un patient
+{
+    QList<Refraction*> list = QList<Refraction*> ();
+    if( pat == Q_NULLPTR )
+        return list;
+    QString req = "SELECT  idRefraction, idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance, "           // 0-1-2-3-4-5
+        " Cycloplegie, ODcoche, SphereOD, CylindreOD, AxeCylindreOD, AVLOD, "                   // 6-7-8-9-10-11
+        " AddVPOD, AVPOD, PrismeOD, BasePrismeOD, BasePrismeTextOD, PressOnOD,"                 // 12-13-14-15-16-17
+        " DepoliOD, PlanOD, RyserOD, FormuleOD, OGcoche, SphereOG, CylindreOG,"                 // 18-19-20-21-22-23-24
+        " AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "                       // 25-26-27-28-29-30
+        " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "                  // 31-32-34-35-36
+        " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte, PD"             // 37-38-39-40-41-42
+        " FROM " TBL_REFRACTION ;
+    req += " WHERE  IdPat = " + QString::number(pat->id()) ;
+    req += " ORDER BY DateRefraction, idRefraction";
+    QList<QVariantList> reflist = StandardSelectSQL(req,ok);
+    if(!ok || reflist.size()==0)
+        return list;
+    for (int i=0; i<reflist.size(); ++i)
+    {
+        QJsonObject data{};
+        data[CP_ID_REFRACTIONS]                 = reflist.at(i).at(0).toInt();
+        data[CP_IDPAT_REFRACTIONS]              = pat->id();
+        data[CP_IDACTE_REFRACTIONS]             = reflist.at(i).at(2).toInt();
+        data[CP_DATE_REFRACTIONS]               = reflist.at(i).at(3).toDate().toString("yyyy-MM-dd");
+        data[CP_TYPEMESURE_REFRACTIONS]         = reflist.at(i).at(4).toString();
+        data[CP_DISTANCEMESURE_REFRACTIONS]     = reflist.at(i).at(5).toString();
+        data[CP_CYCLOPLEGIE_REFRACTIONS]        = (reflist.at(i).at(6).toInt() == 1);
+        data[CP_ODMESURE_REFRACTIONS]           = (reflist.at(i).at(7).toInt() == 1);
+        data[CP_SPHEREOD_REFRACTIONS]           = reflist.at(i).at(8).toDouble();
+        data[CP_CYLINDREOD_REFRACTIONS]         = reflist.at(i).at(9).toDouble();
+        data[CP_AXECYLOD_REFRACTIONS]           = reflist.at(i).at(10).toInt();
+        data[CP_AVLOD_REFRACTIONS]              = reflist.at(i).at(11).toString();
+        data[CP_ADDVPOD_REFRACTIONS]            = reflist.at(i).at(12).toDouble();
+        data[CP_AVPOD_REFRACTIONS]              = reflist.at(i).at(13).toString();
+        data[CP_PRISMEOD_REFRACTIONS]           = reflist.at(i).at(14).toDouble();
+        data[CP_BASEPRISMEOD_REFRACTIONS]       = reflist.at(i).at(15).toInt();
+        data[CP_BASEPRISMETEXTOD_REFRACTIONS]   = reflist.at(i).at(16).toString();
+        data[CP_PRESSONOD_REFRACTIONS]          = (reflist.at(i).at(17).toInt() == 1);
+        data[CP_DEPOLIOD_REFRACTIONS]           = (reflist.at(i).at(18).toInt() == 1);
+        data[CP_PLANOD_REFRACTIONS]             = (reflist.at(i).at(19).toInt() == 1);
+        data[CP_RYSEROD_REFRACTIONS]            = reflist.at(i).at(20).toInt();
+        data[CP_FORMULEOD_REFRACTIONS]          = reflist.at(i).at(21).toString();
+        data[CP_OGMESURE_REFRACTIONS]           = (reflist.at(i).at(22).toInt() == 1);
+        data[CP_SPHEREOG_REFRACTIONS]           = reflist.at(i).at(23).toDouble();
+        data[CP_CYLINDREOG_REFRACTIONS]         = reflist.at(i).at(24).toDouble();
+        data[CP_AXECYLOG_REFRACTIONS]           = reflist.at(i).at(25).toInt();
+        data[CP_AVLOG_REFRACTIONS]              = reflist.at(i).at(26).toString();
+        data[CP_ADDVPOG_REFRACTIONS]            = reflist.at(i).at(27).toDouble();
+        data[CP_AVPOG_REFRACTIONS]              = reflist.at(i).at(28).toString();
+        data[CP_PRISMEOG_REFRACTIONS]           = reflist.at(i).at(29).toDouble();
+        data[CP_BASEPRISMEOG_REFRACTIONS]       = reflist.at(i).at(30).toInt();
+        data[CP_BASEPRISMETEXTOG_REFRACTIONS]   = reflist.at(i).at(31).toString();
+        data[CP_PRESSONOG_REFRACTIONS]          = (reflist.at(i).at(32).toInt() == 1);
+        data[CP_DEPOLIOG_REFRACTIONS]           = (reflist.at(i).at(33).toInt() == 1);
+        data[CP_PLANOG_REFRACTIONS]             = (reflist.at(i).at(34).toInt() == 1);
+        data[CP_RYSEROG_REFRACTIONS]            = reflist.at(i).at(35).toInt();
+        data[CP_FORMULEOG_REFRACTIONS]          = reflist.at(i).at(36).toString();
+        data[CP_COMMENTAIREORDO_REFRACTIONS]    = reflist.at(i).at(37).toString();
+        data[CP_TYPEVERRES_REFRACTIONS]         = reflist.at(i).at(38).toString();
+        data[CP_OEIL_REFRACTIONS]               = reflist.at(i).at(39).toString();
+        data[CP_MONTURE_REFRACTIONS]            = reflist.at(i).at(40).toString();
+        data[CP_VERRETEINTE_REFRACTIONS]        = (reflist.at(i).at(41).toInt() == 1);
+        data[CP_PD_REFRACTIONS]                 = reflist.at(i).at(42).toInt();
+        Refraction *ref = new Refraction(data);
+        if (ref != Q_NULLPTR)
+            list << ref;
+    }
+    return list;
+}
+
+QJsonObject             DataBase::loadRefractionAllData(int idref)                   //! charge toutes les données d'une refraction définie par son id - utilisé pour renouveler les données en cas de modification
+{
+    return QJsonObject{};
+}
