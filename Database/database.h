@@ -334,8 +334,8 @@ public:
 private:
     QJsonObject             loadRefractionData(QVariantList refdata);           //! attribue le liste des datas à une refraction
 public:
-    QList<Refraction*>      loadRefractionByPat(Patient *pat);                  //! charge toutes les refractions d'un patient
-    QJsonObject             loadRefractionAllData(int idref);                   //! charge toutes les données d'une refraction définie par son id - utilisé pour renouveler les données en cas de modification
+    QList<Refraction*>      loadRefractionByPatId(int id);                      //! charge toutes les refractions d'un patient
+    Refraction*             loadRefractionById(int idref);                      //! charge une refraction définie par son id - utilisé pour renouveler les données en cas de modification
 };
 
 #endif // DataBase_H

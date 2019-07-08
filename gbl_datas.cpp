@@ -44,6 +44,7 @@ Datas::Datas()
     patients        = new Patients();
     patientsencours = new PatientsEnCours();
     recettes        = new Recettes();
+    refractions     = new Refractions();
     sites           = new Sites();
     tierspayants    = new TiersPayants();
     typestiers      = new TypesTiers();

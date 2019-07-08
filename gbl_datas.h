@@ -36,6 +36,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_users.h"
 #include "cls_postesconnectes.h"
 #include "cls_documents.h"
+#include "cls_refractions.h"
 #include "cls_villes.h"
 #include "cls_sites.h"
 #include "cls_recettes.h"
@@ -67,6 +68,7 @@ public:
     Patients *patients;                 //!< Les patients
     PatientsEnCours *patientsencours;   //! les patients en cours : patients dont les dossiers sont ouverts, ou présents en salle d'attente ou à l'accueil ou en cours d'examen
     Recettes *recettes;                 //!> toutes les recettes sur une période donnée
+    Refractions *refractions;           //!> toutes les refractions d'un patient
     Sites *sites;                       //!< Les lieux de travail
     TiersPayants *tierspayants;         //!< tous les tiers payants
     TypesTiers *typestiers;             //!< tous les types tiers payants

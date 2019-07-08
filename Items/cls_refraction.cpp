@@ -95,5 +95,5 @@ void Refraction::setData(QJsonObject data)
     setDataInt(data, CP_MONTURE_REFRACTIONS, m_monture);                        //!> le nombre de montures
     setDataBool(data, CP_VERRETEINTE_REFRACTIONS, m_isverreteinte);             //!> les verres sont teintés
     setDataInt(data, CP_PD_REFRACTIONS, m_ecartIP);                             //!> ecart interpuppilaire
-
+    m_data = data;
 }

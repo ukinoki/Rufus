@@ -5,6 +5,7 @@ INCLUDEPATH += $$PWD
 SOURCES += $$PWD/cls_correspondants.cpp \
         $$PWD/cls_patients.cpp \
     $$PWD/cls_postesconnectes.cpp \
+    $$PWD/cls_refractions.cpp \
         $$PWD/cls_users.cpp \
         $$PWD/cls_villes.cpp \
     $$PWD/cls_depenses.cpp \
@@ -27,6 +28,7 @@ SOURCES += $$PWD/cls_correspondants.cpp \
 HEADERS += $$PWD/cls_correspondants.h \
         $$PWD/cls_patients.h \
     $$PWD/cls_postesconnectes.h \
+    $$PWD/cls_refractions.h \
         $$PWD/cls_users.h \
         $$PWD/cls_villes.h \
     $$PWD/cls_depenses.h \

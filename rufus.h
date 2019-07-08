@@ -61,11 +61,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_salledattente.h"
 #include "ui_dlg_salledattente.h"
 
-#include "cls_user.h"
-#include "cls_motif.h"
-#include "cls_cotation.h"
-#include "cls_itemslist.h"
-
 #include "upstandarditem.h"
 #include "conversionbase.h"
 #include "database.h"
@@ -337,7 +332,7 @@ private:
     void                RecopierDossier(Patient *patient = Q_NULLPTR);
     void                RecaleTableView(Patient *pat, QAbstractItemView::ScrollHint scrollhint = QAbstractItemView::PositionAtCenter);
     int                 RecherchePatient(QString lPatNom, QString lPatPrenom, QString lPatDDN, QString MessageErreur);
-    void                Refraction();
+    void                RefractionMesure();
     void                ConnectCotationComboBox();  //!> reconnecte la box des cotations à 2 signaux
                                                     //!> si une cotation est choisie, le montant de l'acte est recherché est affiché dans la ligne MontantLineEdit
                                                     //!> un tooltip est affiché décrivant le descriptif de la cotation mise en surbrillance dans la liste déroulante

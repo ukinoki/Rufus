@@ -80,7 +80,7 @@ void Patients::loadAll(Patient *pat, Item::UPDATE upd)
     }
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(pat->id());
     if (itpat == m_patients->constEnd())
-        add (m_patients, pat->id(), pat);
+        add (m_patients, pat->id(), pat, upd);
 }
 
 void Patients::reloadMedicalData(Patient *pat)
