@@ -2795,19 +2795,34 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     }
     if (texte.contains("{{" + REFRACT + "}}"))
     {
-        QString req = "select FormuleOD, FormuleOG from " TBL_REFRACTION
-              " where idpat = " + QString::number(m_currentpatient->id()) + " and (FormuleOD <> 'null' or FormuleOG <> 'null') and QuelleMesure = 'R'";
-        QList<QVariantList> listref = db->StandardSelectSQL(req,ok);
-        if (listref.size()>0)
+        QString formuleOD (""), formuleOG(""), refract ("");
+        bool okOD (false), okOG (false);
+        QMapIterator<int, Refraction*> itref(*Datas::I()->refractions->refractions());
+        itref.toBack();
+        while (itref.hasPrevious() && !okOD && !okOG) {
+            itref.previous();
+            if (itref.value()->mesure() == Refraction::Acuite)
+            {
+                if (!okOD)
+                {
+                    formuleOD = itref.value()->formuleOD();
+                    okOD = true;
+                }
+                if (!okOG)
+                {
+                    formuleOG = itref.value()->formuleOG();
+                    okOG = true;
+                }
+            }
+        }
+        if (okOD || okOG)
         {
-            QVariantList ref = listref.last();
-            QString refract = "";
-            if (ref.at(0).toString() != "")
-                refract += "<font color = " COULEUR_TITRES "><b>" + tr("OD:") + "</b></font> " + ref.at(0).toString();
-            if (ref.at(0).toString() != ""&& ref.at(1).toString() != "")
+            if (okOD)
+                refract += "<font color = " COULEUR_TITRES "><b>" + tr("OD:") + "</b></font> " + formuleOD;
+            if (okOD && okOG)
                 refract += "<br />";
-            if (ref.at(1).toString() != "")
-                refract += "<font color = " COULEUR_TITRES "><b>" + tr("OG:") + "</b></font> " + ref.at(1).toString();
+            if (okOG)
+                refract += "<font color = " COULEUR_TITRES "><b>" + tr("OG:") + "</b></font> " + formuleOG;
             texte.replace("{{" + REFRACT + "}}",refract);
         }
         else

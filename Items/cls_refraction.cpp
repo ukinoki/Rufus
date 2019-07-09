@@ -25,7 +25,7 @@ void Refraction::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, "id", m_id);
+    setDataInt(data, CP_ID_REFRACTIONS, m_id);
 
     setDataInt(data, CP_IDPAT_REFRACTIONS, m_idpat);                            //!> l'id du patient
     setDataInt(data, CP_IDACTE_REFRACTIONS, m_idacte);                          //!> l'id de l'acte aucours duquel la mesure a été faite

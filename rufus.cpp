@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("08-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("09-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -6325,9 +6325,9 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->ActeMotiftextEdit->setFocus();
     }
     //4 - réglage du refracteur
+    Datas::I()->refractions->initListebyPatId(m_currentpatient->id());
     if (proc->PortRefracteur()!=Q_NULLPTR)
     {
-        Datas::I()->refractions->initListebyPatId(m_currentpatient->id());
         gMesureFronto.clear();
         gMesureAutoref.clear();
         RegleRefracteur("P");
@@ -7890,16 +7890,11 @@ void Rufus::InitMenus()
 void Rufus::InitVariables()
 {
     gAutorModifConsult          = false;
-    m_currentpatient            = Q_NULLPTR;
     m_listepatients             = Datas::I()->patients;
     m_listeactes                = Datas::I()->actes;
     m_listepaiements            = Datas::I()->lignespaiements;
-    m_currentact                = Q_NULLPTR;
-    m_listepatientsproxymodel   = new QSortFilterProxyModel();
-    m_dossierpatientaouvrir     = Q_NULLPTR;
     gdateParDefaut              = QDate::fromString("2000-01-01", "yyyy-MM-dd");
     gAffichTotalMessages        = true;
-    m_listesuperviseursmodel    = new QStandardItemModel();
 
     MGlineEdit                  = new UpLineEdit();
     AutresCorresp1LineEdit      = new UpLineEdit();
@@ -8536,20 +8531,26 @@ void Rufus::RegleRefracteur(QString TypeMesure)
     itref.toBack();
     while (itref.hasPrevious()) {
         itref.previous();
-        if (TypeMesure == "P")
+        qDebug() << itref.value()->id();
+        if (itref.value()->distance() != Refraction::Pres)
         {
-            if (itref.value()->mesure() == Refraction::Prescription || itref.value()->mesure() == Refraction::Porte)
-            {
-                ref= const_cast<Refraction*>(itref.value());
-                itref.toFront();
-            }
+                if (TypeMesure == "R")
+                {
+                    if (itref.value()->mesure() == Refraction::Acuite)
+                    {
+                        ref= const_cast<Refraction*>(itref.value());
+                        itref.toFront();
+                    }
+                }
+                else if (TypeMesure == "P")
+                {
+                    if (itref.value()->mesure() == Refraction::Prescription || itref.value()->mesure() == Refraction::Porte)
+                    {
+                        ref= const_cast<Refraction*>(itref.value());
+                        itref.toFront();
+                    }
+                }
         }
-        else if (TypeMesure == "R")
-            if (itref.value()->mesure() == Refraction::Acuite)
-            {
-                ref= const_cast<Refraction*>(itref.value());
-                itref.toFront();
-            }
     }
     if (ref == Q_NULLPTR)
         return;
@@ -8648,139 +8649,14 @@ void Rufus::RegleRefracteur(QString TypeMesure)
         Mesure["AddOG"] = "+0" + QString::number(ref->addVPOG(),'f',2);
 
     // Les formules
-        Mesure["FormuleOD"] = ref->formuleOD();
-        Mesure["FormuleOG"] = ref->formuleOG();
-    /*QString AB;
-    if (TypeMesure == "R")
-        AB = "Autoref";
-    if (TypeMesure == "P")
-        AB = "Fronto";
-    qDebug() << AB << Mesure["SphereOD"].toString() << Mesure["CylOD"].toString() << Mesure["AxeOD"].toString() << Mesure["AddOD"].toString()
-            << Mesure["SphereOG"].toString() << Mesure["CylOG"].toString() << Mesure["AxeOG"].toString() << Mesure["AddOG"].toString();
-    */
+    Mesure["FormuleOD"] = ref->formuleOD();
+    Mesure["FormuleOG"] = ref->formuleOG();
 
-//    QString req = "SELECT SphereOD, CylindreOD, AxeCylindreOD, AddVPOD, SphereOG, CylindreOG, AxeCylindreOG, AddVPOG, FormuleOD, FormuleOG FROM " TBL_REFRACTION
-//            " WHERE IdPat = " + QString::number(m_currentpatient->id());
-//    if (TypeMesure=="P")
-//        req += " and (QuelleMesure = '" + TypeMesure + "' or quellemesure = 'O')";
-//    else if (TypeMesure=="R")
-//        req += " and QuelleMesure = '" + TypeMesure + "'";
-//    req += " And quelledistance <> 'P' order by idrefraction desc";
-//    //qDebug() << req;
-//    QVariantList refdata = db->getFirstRecordFromStandardSelectSQL(req,ok);
-//    if (ok && refdata.size()>0)
-//    {
-//        QString prefix = "";
-//        // Les axes
-//        if (refdata.at(2).toDouble()!=0.0)
-//        {
-//            if (refdata.at(2).toInt()<10)
-//                prefix = "  ";
-//            else if (refdata.at(2).toInt()<100)
-//                prefix = " ";
-//            Mesure["AxeOD"] = prefix + refdata.at(2).toString();
-//        }
-//        prefix = "";
-//        if (refdata.at(6).toDouble()!=0.0)
-//        {
-//            if (refdata.at(6).toInt()<10)
-//                prefix = "  ";
-//            else if (refdata.at(6).toInt()<100)
-//                prefix = " ";
-//            Mesure["AxeOG"] = prefix + refdata.at(6).toString();
-//        }
-
-//        // Les spheres
-//        prefix = "";
-//        if (refdata.at(0).toDouble()>0)
-//        {
-//            if (refdata.at(0).toDouble()<10)
-//                prefix = "+0";
-//            else
-//                prefix = "+";
-//            Mesure["SphereOD"] = prefix + QString::number(refdata.at(0).toDouble(),'f',2);
-//        }
-//        else if (refdata.at(0).toDouble()<0)
-//        {
-//            prefix = QString::number(refdata.at(0).toDouble(),'f',2);
-//            if (refdata.at(0).toDouble()>-10)
-//                prefix.replace("-", "-0");
-//            Mesure["SphereOD"] = prefix;
-//        }
-//        prefix = "";
-//        if (refdata.at(4).toDouble()>0)
-//        {
-//            if (refdata.at(4).toDouble()<10)
-//                prefix = "+0";
-//            else
-//                prefix = "+";
-//            Mesure["SphereOG"] = prefix + QString::number(refdata.at(4).toDouble(),'f',2);
-//        }
-//        else if (refdata.at(4).toDouble()<0)
-//        {
-//            prefix = QString::number(refdata.at(4).toDouble(),'f',2);
-//            if (refdata.at(4).toDouble()>-10)
-//                prefix.replace("-", "-0");
-//            Mesure["SphereOG"] = prefix;
-//        }
-
-//        // Les cylindres
-//        prefix = "";
-//        if (refdata.at(1).toDouble()>0)
-//        {
-//            if (refdata.at(1).toDouble()<10)
-//                prefix = "+0";
-//            else
-//                prefix = "+";
-//            Mesure["CylOD"] = prefix + QString::number(refdata.at(1).toDouble(),'f',2);
-//        }
-//        else if (refdata.at(1).toDouble()<0)
-//        {
-//            prefix = QString::number(refdata.at(1).toDouble(),'f',2);
-//            if (refdata.at(1).toDouble()>-10)
-//                prefix.replace("-", "-0");
-//            Mesure["CylOD"] = prefix;
-//        }
-//        prefix = "";
-//        if (refdata.at(5).toDouble()>0)
-//        {
-//            if (refdata.at(5).toDouble()<10)
-//                prefix = "+0";
-//            else
-//                prefix = "+0";
-//            Mesure["CylOG"] = prefix + QString::number(refdata.at(5).toDouble(),'f',2);
-//        }
-//        else if (refdata.at(5).toDouble()<0)
-//        {
-//            prefix = QString::number(refdata.at(5).toDouble(),'f',2);
-//            if (refdata.at(5).toDouble()>-10)
-//                prefix.replace("-", "-0");
-//            Mesure["CylOG"] = prefix;
-//        }
-
-//        // Les additions
-//        if (refdata.at(3).toDouble()!=0.0)
-//            Mesure["AddOD"] = "+0" + QString::number(refdata.at(3).toDouble(),'f',2);
-//        if (refdata.at(7).toDouble()!=0.0)
-//            Mesure["AddOG"] = "+0" + QString::number(refdata.at(7).toDouble(),'f',2);
-
-//        // Les formules
-//            Mesure["FormuleOD"] = refdata.at(8).toString();
-//            Mesure["FormuleOG"] = refdata.at(9).toString();
-//        /*QString AB;
-//        if (TypeMesure == "R")
-//            AB = "Autoref";
-//        if (TypeMesure == "P")
-//            AB = "Fronto";
-//        qDebug() << AB << Mesure["SphereOD"].toString() << Mesure["CylOD"].toString() << Mesure["AxeOD"].toString() << Mesure["AddOD"].toString()
-//                << Mesure["SphereOG"].toString() << Mesure["CylOG"].toString() << Mesure["AxeOG"].toString() << Mesure["AddOG"].toString();
-//        */
-//    }
     if (TypeMesure == "R")
         gMesureAutoref = Mesure;
     if (TypeMesure == "P")
         gMesureFronto = Mesure;
- }
+}
 
 /*-----------------------------------------------------------------------------------------------------------------
 -- Remise de chèques ----------------------------------------------------------------------------------------------
@@ -8835,15 +8711,19 @@ bool Rufus::Remplir_ListePatients_TableView(Patients *patients)
     itDDN->setTextAlignment(Qt::AlignLeft);
     m_listepatientsmodel->setHorizontalHeaderItem(2,itDDN);
 
-    m_DDNsortmodel = new QSortFilterProxyModel();
+    if (m_DDNsortmodel == Q_NULLPTR)
+        m_DDNsortmodel = new QSortFilterProxyModel();
     m_DDNsortmodel->setSourceModel(m_listepatientsmodel);
     m_DDNsortmodel->sort(3);
 
-    m_prenomfiltersortmodel = new QSortFilterProxyModel();
+    if (m_prenomfiltersortmodel == Q_NULLPTR)
+        m_prenomfiltersortmodel = new QSortFilterProxyModel();
     m_prenomfiltersortmodel->setSourceModel(m_DDNsortmodel);
     m_prenomfiltersortmodel->sort(5);
     m_prenomfiltersortmodel->setFilterKeyColumn(5);
 
+    if (m_listepatientsproxymodel == Q_NULLPTR)
+        m_listepatientsproxymodel = new QSortFilterProxyModel();
     m_listepatientsproxymodel->setSourceModel(m_prenomfiltersortmodel);
     m_listepatientsproxymodel->sort(4);
     m_listepatientsproxymodel->setFilterKeyColumn(4);
@@ -8919,7 +8799,10 @@ void Rufus::Remplir_SalDat()
             listpatsaldat << pat;
     }
     TableAMettreAJour   ->setRowCount(listpatsaldat.size());
-    m_listesuperviseursmodel->clear();
+    if (m_listesuperviseursmodel == Q_NULLPTR)
+        m_listesuperviseursmodel = new QStandardItemModel();
+    else
+        m_listesuperviseursmodel->clear();
     QStandardItem       *pitem0, *pitem1;
     QList<int>          listidusers;
     QListIterator<PatientEnCours*> itpatlistsaldat(listpatsaldat);

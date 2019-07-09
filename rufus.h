@@ -242,22 +242,25 @@ private:
     QString                 gActeDate;
     QString                 grequeteSalDat;
     QString                 gDirSauv;
-    QStandardItemModel      *m_listepatientsmodel;
-    QStandardItemModel      *m_listepatientsencoursmodel;
-    QSortFilterProxyModel   *m_listepatientsproxymodel, *m_DDNsortmodel, *m_prenomfiltersortmodel;
-    QStandardItemModel      *m_listesuperviseursmodel, *m_listeparentsmodel;
+    QStandardItemModel      *m_listepatientsmodel = Q_NULLPTR;
+    QStandardItemModel      *m_listepatientsencoursmodel = Q_NULLPTR;
+    QStandardItemModel      *m_listesuperviseursmodel = Q_NULLPTR;
+    QStandardItemModel      *m_listeparentsmodel = Q_NULLPTR;
+    QSortFilterProxyModel   *m_listepatientsproxymodel = Q_NULLPTR;
+    QSortFilterProxyModel   *m_DDNsortmodel = Q_NULLPTR;
+    QSortFilterProxyModel   *m_prenomfiltersortmodel = Q_NULLPTR;
     QTabBar                 *gSalDatTab, *gAccueilTab;
     QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerPosteConnecte, *gTimerVerifVerrou, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
     QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
     Procedures              *proc;
 
-    Acte                    *m_currentact;
-    User                    *m_currentuser;
-    Patient                 *m_currentpatient;
-    Patient                 *m_dossierpatientaouvrir;
-    Patients                *m_listepatients;
-    Actes                   *m_listeactes;
-    LignesPaiements         *m_listepaiements;
+    Acte                    *m_currentact = Q_NULLPTR;
+    User                    *m_currentuser = Q_NULLPTR;
+    Patient                 *m_currentpatient = Q_NULLPTR;
+    Patient                 *m_dossierpatientaouvrir = Q_NULLPTR;
+    Patients                *m_listepatients = Q_NULLPTR;
+    Actes                   *m_listeactes = Q_NULLPTR;
+    LignesPaiements         *m_listepaiements = Q_NULLPTR;
 
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
