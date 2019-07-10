@@ -53,7 +53,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define TBL_BIOMETRIES                        "Ophtalmologie.biometries"
 #define TBL_COMMENTAIRESLUNETTES              "Ophtalmologie.commentaireslunettes"
 #define TBL_DONNEES_OPHTA_PATIENTS            "Ophtalmologie.DonneesOphtaPatients"
-#define TBL_REFRACTION                        "Ophtalmologie.refractions"
+#define TBL_REFRACTIONS                       "Ophtalmologie.refractions"
 #define TBL_TONOMETRIE                        "Ophtalmologie.tonometries"
 
 #define TBL_ACTES                             "rufus.Actes"

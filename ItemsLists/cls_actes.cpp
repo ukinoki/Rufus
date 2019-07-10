@@ -53,7 +53,7 @@ void Actes::addList(QList<Acte*> listActes, Item::UPDATE upd)
     for( it = listActes.constBegin(); it != listActes.constEnd(); ++it )
     {
         Acte* item = const_cast<Acte*>(*it);
-        add( m_actes, item->id(), item, upd );
+        add( m_actes, item, upd );
     }
 }
 
@@ -218,6 +218,6 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     act->seteffectueparremplacant(rempla == "1");
     act->setnumcentre(idcentre);
     act->setidlieu(usr->getSite()->id());
-    add(m_actes, idacte, act);
+    add(m_actes, act);
     return act;
 }

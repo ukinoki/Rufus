@@ -38,7 +38,7 @@ private:
     enum gMode {Supprimer, Recuperer};
     Patient         *m_currentpatient;
     Procedures      *proc;
-    void            DetruireLaMesure(int IdRefract);
+    void            DetruireLaMesure(Refraction* ref);
     int             Nombre_Mesure_Selected();
     DataBase        *db;
     void            RemplirTableView();

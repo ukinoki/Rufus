@@ -44,7 +44,7 @@ void Banques::addList(QList<Banque*> listbanques)
     for( it = listbanques.constBegin(); it != listbanques.constEnd(); ++it )
     {
         Banque* item = const_cast<Banque*>(*it);
-        add( m_banques, item->id(), item );
+        add( m_banques, item );
     }
 }
 
@@ -91,6 +91,6 @@ void Banques::SupprimeBanque(Banque *bq)
     bq->setnomabrege(idBanqueAbrege);
     bq->setnom(NomBanque);
     bq->setcode(CodeBanque);
-    add(m_banques, bq->id(), bq);
+    add(m_banques, bq);
     return bq;
 }

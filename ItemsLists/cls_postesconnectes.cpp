@@ -39,7 +39,7 @@ void PostesConnectes::addList(QList<PosteConnecte*> listpost)
     for( it = listpost.constBegin(); it != listpost.constEnd(); ++it )
     {
         PosteConnecte* item = const_cast<PosteConnecte*>(*it);
-        add( m_postesconnectes, item->stringid(), item );
+        add( m_postesconnectes, item );
     }
 }
 
@@ -150,6 +150,6 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte()
     post->setnomposte(QHostInfo::localHostName().left(60));
     post->setmacadress(macadress);
     post->setipadress(Utils::getIpAdress());
-    add( m_postesconnectes, post->stringid(), post );
+    add( m_postesconnectes, post );
     return post;
 }

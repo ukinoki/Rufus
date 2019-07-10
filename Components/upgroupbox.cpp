@@ -19,17 +19,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpGroupBox::UpGroupBox(QWidget *parent) : QGroupBox(parent)
 {
-    installEventFilter(this);
+    //installEventFilter(this);
     setStyleSheet(STYLE_UPGROUBOXINACTIVE);
 }
 
-UpGroupBox::UpGroupBox(const QString Title, QWidget *parent) : QGroupBox(Title, parent)
-{
-    installEventFilter(this);
-    setStyleSheet(STYLE_UPGROUBOXINACTIVE);
-}
-
-bool UpGroupBox::eventFilter(QObject *obj, QEvent *event)
+bool UpGroupBox::eventFilter(QObject *obj, QEvent *event)           //!> ce code ne marche pas et provoque un plantage sous MacOS à partir de Qt5.10 - pas sous Linux (XCode?)
 {
     if (event->type() == QEvent::ChildAdded || event->type() == QEvent::ChildRemoved)
     {

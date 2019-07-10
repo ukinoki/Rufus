@@ -40,7 +40,7 @@ void Correspondants::addList(QList<Correspondant*> listcor)
     for( it = listcor.constBegin(); it != listcor.constEnd(); ++it )
     {
         Correspondant* item = const_cast<Correspondant*>(*it);
-        add( m_correspondants, item->id(), item );
+        add( m_correspondants, item );
     }
 }
 
@@ -78,7 +78,7 @@ Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, AD
             result->setData(jsonCorrespondant);
     }
     if( addToList == ItemsList::AddToList)
-        add(m_correspondants, result->id(), result );
+        add(m_correspondants, result );
     return result;
 }
 

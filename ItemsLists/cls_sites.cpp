@@ -40,7 +40,7 @@ void Sites::addList(QList<Site*> listSites)
     for( it = listSites.constBegin(); it != listSites.constEnd(); ++it )
     {
         Site* sit = const_cast<Site*>(*it);
-        add( m_sites, sit->id(), sit );
+        add( m_sites, sit );
     }
 }
 

@@ -34,7 +34,7 @@ void Cotations::addList(QList<Cotation*> listcot)
     for( it = listcot.constBegin(); it != listcot.constEnd(); ++it )
     {
         Cotation* item = const_cast<Cotation*>(*it);
-        add( m_cotations, item->id(), item );
+        add( m_cotations, item );
     }
 }
 

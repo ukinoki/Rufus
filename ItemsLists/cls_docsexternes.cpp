@@ -61,7 +61,7 @@ DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLI
             result->setData(jsonDocExterne);
     }
     if( addToList == ItemsList::AddToList)
-        add( m_docsexternes, result->id(), result );
+        add( m_docsexternes, result );
     return result;
 }
 
@@ -82,7 +82,7 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
         DocExterne *doc = const_cast<DocExterne*>(*it);
         if(!m_docsexternes->contains(doc->id()))
             m_nouveaudocument = true;
-        add(m_docsexternes, doc->id(), doc);
+        add(m_docsexternes, doc);
     }
 }
 
@@ -108,8 +108,6 @@ void DocsExternes::SupprimeDocument(DocExterne *doc)
 {
     if (doc == Q_NULLPTR)
         return;
-    DataBase::I()->StandardSQL("delete from " TBL_REFRACTION " where idrefraction = (select idrefraction from " TBL_IMPRESSIONS
-                    " where idimpression = " + QString::number(doc->id()) + ")");
     DataBase::I()->StandardSQL("delete from " TBL_ECHANGEIMAGES " where idimpression = " + QString::number(doc->id()));
     DataBase::I()->SupprRecordFromTable(doc->id(), CP_IDIMPRESSION_IMPRESSIONS, TBL_IMPRESSIONS);
     remove(m_docsexternes, doc);

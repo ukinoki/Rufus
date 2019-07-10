@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 DocExterne::DocExterne(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
+    m_data = data;
 }
 
 bool DocExterne::isAllLoaded() const                { return m_isAllLoaded;}
@@ -47,6 +48,8 @@ QByteArray DocExterne::imageblob() const            { return m_blob;}
 QString DocExterne::imageformat() const             { return m_formatimage;}
 
 int DocExterne::importance() const                  { return m_importance;}
+
+int DocExterne::idrefraction() const                { return m_idrefraction; }
 
 void DocExterne::setDate(QDateTime date)            { m_dateimpression = date;}
 void DocExterne::setimportance(int imptce)          { m_importance = imptce;}
@@ -82,6 +85,6 @@ void DocExterne::setData(QJsonObject data)
     setDataInt(data, CP_IMPORTANCE_IMPRESSIONS, m_importance);
     setDataInt(data, CP_EMISORRECU_IMPRESSIONS, m_emisrecu);
     setDataInt(data, CP_IDLIEU_IMPRESSIONS, m_idlieu);
-    m_data = data;
+    setDataInt(data, CP_IDREFRACTION_IMPRESSIONS, m_idrefraction);
 }
 

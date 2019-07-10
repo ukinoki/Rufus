@@ -33,7 +33,7 @@ void Refractions::addList(QList<Refraction*> listRefractions)
     for( it = listRefractions.constBegin(); it != listRefractions.constEnd(); ++it )
     {
         Refraction* ref = const_cast<Refraction*>(*it);
-        add( m_refractions, ref->id(), ref );
+        add( m_refractions, ref );
     }
 }
 
@@ -44,7 +44,7 @@ Refraction* Refractions::getById(int id)
     {
         Refraction * ref = DataBase::I()->loadRefractionById(id);
         if (ref != Q_NULLPTR)
-            add( m_refractions, ref->id(), ref );
+            add( m_refractions, ref );
         return ref;
     }
     return itref.value();
@@ -61,4 +61,12 @@ void Refractions::initListebyPatId(int id)
     addList(DataBase::I()->loadRefractionByPatId(id));
 }
 
+
+void Refractions::SupprimeRefraction(Refraction* ref)
+{
+    if (ref == Q_NULLPTR)
+        return;
+    DataBase::I()->StandardSQL("DELETE FROM " TBL_REFRACTIONS " WHERE " CP_ID_REFRACTIONS " = " + QString::number(ref->id()));
+    remove(m_refractions, ref);
+}
 

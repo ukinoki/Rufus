@@ -39,7 +39,7 @@ void Comptes::addList(QList<Compte*> listCompte)
     for( it = listCompte.constBegin(); it != listCompte.constEnd(); ++it )
     {
         Compte* item = const_cast<Compte*>(*it);
-        add( m_comptes, item->id(), item );
+        add( m_comptes, item );
     }
 }
 
@@ -52,7 +52,7 @@ Compte* Comptes::getById(int id)
         if (data != QJsonObject{})
         {
             Compte * cpt = new Compte(data);
-            add( m_comptes, cpt->id(), cpt );
+            add( m_comptes, cpt );
             return cpt;
         }
         return Q_NULLPTR;
@@ -138,6 +138,6 @@ Compte* Comptes::CreationCompte(int idBanque, int idUser, QString IBAN, QString 
     cpt->setsolde(SoldeSurDernierReleve);
     cpt->setpartage(Partage);
     cpt->setdesactive(Desactive);
-    add(m_comptes, cpt->id(), cpt);
+    add(m_comptes, cpt);
     return cpt;
 }

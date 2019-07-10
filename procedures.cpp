@@ -6307,7 +6307,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             mAxeOG          = QString::number(MapMesure["AxeOG"].toInt());
             mAddOG          = Utils::PrefixePlus(MapMesure["AddOG"].toString());
             zQuelleMesure = "P";
-            QString requete = "delete from " TBL_REFRACTION
+            QString requete = "delete from " TBL_REFRACTIONS
                     " where idPat = " + QString::number(idPatient) +
                     " and idacte = " + QString::number(idActe) +
                     " and QuelleMesure = 'P'" +
@@ -6315,7 +6315,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
                     " and FormuleOG = '" + Utils::CalculeFormule(MapMesure,"G") + "'";
             db->StandardSQL(requete);
 
-            requete = "INSERT INTO " TBL_REFRACTION
+            requete = "INSERT INTO " TBL_REFRACTIONS
                     " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
                     " SphereOD, CylindreOD, AxeCylindreOD, AddVPOD, FormuleOD,"
                     " SphereOG, CylindreOG, AxeCylindreOG, AddVPOG, FormuleOG)"
@@ -6336,7 +6336,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
                     (QLocale().toDouble(mAddOG)>0? QString::number(QLocale().toDouble(mAddOG)) : "null") + ",'" +
                     Utils::CalculeFormule(MapMesure,"G") + "')";
 
-            db->StandardSQL (requete, tr("Erreur de création de données fronto dans ") + TBL_REFRACTION);
+            db->StandardSQL (requete, tr("Erreur de création de données fronto dans ") + TBL_REFRACTIONS);
         }
     }
     if (!MesureAutoref.isEmpty() && Mesure == Autoref && NouvMesureAutoref)
@@ -6364,13 +6364,13 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             if (PD == "")
                 PD = "null";
             zQuelleMesure = "A";
-            QString requete = "delete from " TBL_REFRACTION
+            QString requete = "delete from " TBL_REFRACTIONS
                     " where idPat = " + QString::number(idPatient) +
                     " and idacte = " + QString::number(idActe) +
                     " and QuelleMesure = 'A'" ;
             db->StandardSQL(requete);
 
-            requete = "INSERT INTO " TBL_REFRACTION
+            requete = "INSERT INTO " TBL_REFRACTIONS
                     " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
                     " SphereOD, CylindreOD, AxeCylindreOD, FormuleOD,"
                     " SphereOG, CylindreOG, AxeCylindreOG, FormuleOG, PD)"
@@ -6389,7 +6389,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
                     mAxeOG     + ",'" +
                     Utils::CalculeFormule(MapMesure,"G") + "', " + PD + ")";
 
-            db->StandardSQL (requete, tr("Erreur de création de données autoref dans ") + TBL_REFRACTION);
+            db->StandardSQL (requete, tr("Erreur de création de données autoref dans ") + TBL_REFRACTIONS);
             requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
             QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
             if (!ok)
@@ -6520,12 +6520,12 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             if (PD == "")
                 PD = "null";
             zQuelleMesure = "R";
-            QString requete = "delete from " TBL_REFRACTION
+            QString requete = "delete from " TBL_REFRACTIONS
                     " where idPat = " + QString::number(idPatient) +
                     " and idacte = " + QString::number(idActe) +
                     " and QuelleMesure = 'R'" ;
             db->StandardSQL(requete);
-            requete = "INSERT INTO " TBL_REFRACTION
+            requete = "INSERT INTO " TBL_REFRACTIONS
                     " (idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance,"
                     " SphereOD, CylindreOD, AxeCylindreOD, AddVPOD, FormuleOD, AVLOD, AVPOD,"
                     " SphereOG, CylindreOG, AxeCylindreOG, AddVPOG, FormuleOG, AVLOG, AVPOG, PD)"
@@ -6551,7 +6551,7 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
                     mAVPOG + "'," +
                     PD + ")";
 
-            db->StandardSQL(requete, tr("Erreur de création  de données de refraction dans ") + TBL_REFRACTION);
+            db->StandardSQL(requete, tr("Erreur de création  de données de refraction dans ") + TBL_REFRACTIONS);
             requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'R'";
             QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
             if (!ok)

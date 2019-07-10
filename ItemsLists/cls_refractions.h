@@ -35,7 +35,9 @@ public:
 
     Refraction* getById(int id);
     void initListebyPatId(int id);
-public:
+
+    //!> actions sur les enregistrements
+    void    SupprimeRefraction(Refraction *ref);
 };
 
 #endif // CLS_REFRACTIONS_H

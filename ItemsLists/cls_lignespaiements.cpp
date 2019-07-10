@@ -33,7 +33,7 @@ void LignesPaiements::addList(QList<LignePaiement*> listlignes)
     for( it = listlignes.constBegin(); it != listlignes.constEnd(); ++it )
     {
         LignePaiement* item = const_cast<LignePaiement*>(*it);
-        add( m_lignespaiements, item->stringid(), item );
+        add( m_lignespaiements, item );
     }
 }
 

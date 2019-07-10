@@ -66,6 +66,8 @@ private:
     QByteArray m_blob = QByteArray();   //!< le contenu du fichier image
     QString m_formatimage;              //!< le format du fichier image
 
+    int m_idrefraction;                 //!> l'id de la refraction concernée quand il s'agit d'une prescription de verres correcteurs
+
 public:
     explicit DocExterne(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
@@ -90,6 +92,7 @@ public:
     QString imageformat() const;
     QString imagelien() const;
     bool isAllLoaded() const;
+    int idrefraction() const;
 
     void setDate(QDateTime date);
     void setimportance(int imptce);

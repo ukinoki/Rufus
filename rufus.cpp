@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("09-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("10-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1493,7 +1493,7 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         QString RefractionOG    = "";
         Dlg_BlOrtho             ->setDateBO(QDate::currentDate());
 
-        QString Refrequete    = "select idrefraction, formuleOD, formuleOG, idActe from " TBL_REFRACTION " where quelleMesure = 'R' and idPat = " + QString::number(pat->id()) + " order by idrefraction desc";
+        QString Refrequete    = "select idrefraction, formuleOD, formuleOG, idActe from " TBL_REFRACTIONS " where quelleMesure = 'R' and idPat = " + QString::number(pat->id()) + " order by idrefraction desc";
         QVariantList Refdata = db->getFirstRecordFromStandardSelectSQL(Refrequete, ok);
         if (ok && Refdata.size()>0)
         {
@@ -8509,6 +8509,7 @@ void    Rufus::RefractionMesure()
             ui->ActeConclusiontextEdit->setFocus();
             ui->ActeConclusiontextEdit->moveCursor(QTextCursor::End);
         }
+        Datas::I()->refractions->initListebyPatId(m_currentpatient->id());
     }
     delete Dlg_Refraction;
 }
@@ -8531,25 +8532,20 @@ void Rufus::RegleRefracteur(QString TypeMesure)
     itref.toBack();
     while (itref.hasPrevious()) {
         itref.previous();
-        qDebug() << itref.value()->id();
         if (itref.value()->distance() != Refraction::Pres)
         {
                 if (TypeMesure == "R")
                 {
                     if (itref.value()->mesure() == Refraction::Acuite)
-                    {
                         ref= const_cast<Refraction*>(itref.value());
-                        itref.toFront();
-                    }
                 }
                 else if (TypeMesure == "P")
                 {
                     if (itref.value()->mesure() == Refraction::Prescription || itref.value()->mesure() == Refraction::Porte)
-                    {
                         ref= const_cast<Refraction*>(itref.value());
-                        itref.toFront();
-                    }
                 }
+                if (ref != Q_NULLPTR)
+                    itref.toFront();
         }
     }
     if (ref == Q_NULLPTR)
@@ -9444,7 +9440,7 @@ void Rufus::SupprimerActe(Acte *act)
     }
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
-    QString req = "DELETE FROM " TBL_REFRACTION " WHERE idActe  = " + QString::number(act->id());
+    QString req = "DELETE FROM " TBL_REFRACTIONS " WHERE idActe  = " + QString::number(act->id());
     db->StandardSQL(req);
 
     // on supprime les éventuels bilans orthoptiques liés à cette consultation -----------------------------------------------------------

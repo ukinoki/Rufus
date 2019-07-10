@@ -62,7 +62,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         db->StandardSQL("delete from " TBL_LIGNESPAIEMENTS);
         db->StandardSQL("delete from " TBL_RECETTES);
         db->StandardSQL("delete from " TBL_CORRESPONDANTS);
-        db->StandardSQL("delete from " TBL_REFRACTION);
+        db->StandardSQL("delete from " TBL_REFRACTIONS);
         db->StandardSQL("delete from " TBL_IMPRESSIONS);
 
         QDate DDN,DateCreation;
@@ -211,11 +211,11 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
                     + reflist.at(i).at(14).toString() + "','"
                     + reflist.at(i).at(15).toString() + "'"
                     + ")";
-            insertreq = "insert into " TBL_REFRACTION " (idPat, idActe, DateRefraction, QuelleMesure, SphereOD, CylindreOD, AxeCylindreOD, SphereOG, CylindreOG, AxeCylindreOG, AddVPOD, AddVPOG,"
+            insertreq = "insert into " TBL_REFRACTIONS " (idPat, idActe, DateRefraction, QuelleMesure, SphereOD, CylindreOD, AxeCylindreOD, SphereOG, CylindreOG, AxeCylindreOG, AddVPOD, AddVPOG,"
                                                             "AVLOD, AVLOG, AVPOD, AVPOG) values " + ref;
             db->StandardSQL(insertreq);
         }
-        proc->Message("table " TBL_REFRACTION " importée",1000);
+        proc->Message("table " TBL_REFRACTIONS " importée",1000);
 
         // - Importation des données patients -------------------------------------------------------------------------------------------------------------------------------------------
         req = "select Numéropatient, nompatient, prénom, datenaiss, sexe, DateCréation,"

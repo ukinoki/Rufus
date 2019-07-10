@@ -834,7 +834,11 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
             int idimpr = doc->id();
             delete doc;
             if (detruirealafin)
+            {
+                if (docmt->idrefraction() > 0)
+                    Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(docmt->idrefraction()));
                 m_docsexternes->SupprimeDocument(docmt);
+            }
             ActualiseDocsExternes();
             QModelIndex idx = getIndexFromId(gmodele, idimpr);
             ListDocsTreeView->scrollTo(idx, QAbstractItemView::PositionAtCenter);
@@ -1065,6 +1069,8 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
                 itdoc.next();
             idaafficher = QString::number(itdoc.key());
         }
+        if (docmt->idrefraction() > 0)
+            Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(docmt->idrefraction()));
         m_docsexternes->SupprimeDocument(docmt);
         RemplirTreeView();
         ListDocsTreeView->expandAll();

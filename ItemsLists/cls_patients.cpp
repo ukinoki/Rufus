@@ -51,7 +51,7 @@ Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
     {
         pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
         if (pat != Q_NULLPTR)
-            add(m_patients, pat->id(), pat);
+            add(m_patients, pat);
     }
     else
     {
@@ -80,7 +80,7 @@ void Patients::loadAll(Patient *pat, Item::UPDATE upd)
     }
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(pat->id());
     if (itpat == m_patients->constEnd())
-        add (m_patients, pat->id(), pat, upd);
+        add (m_patients, pat, upd);
 }
 
 void Patients::reloadMedicalData(Patient *pat)
@@ -113,7 +113,7 @@ void Patients::addList(QList<Patient*> listpatients)
     for( it = listpatients.constBegin(); it != listpatients.constEnd(); ++it )
     {
         Patient* pat = const_cast<Patient*>(*it);
-        add( m_patients, pat->id(), pat );
+        add( m_patients, pat );
     }
 }
 
@@ -150,7 +150,7 @@ void Patients::SupprimePatient(Patient *pat)
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_MOTSCLESJOINTURES);
 
     //! Suppression dans la base OPhtalmologie
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_REFRACTION);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_REFRACTIONS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_DONNEES_OPHTA_PATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_BIOMETRIES);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_TONOMETRIE);

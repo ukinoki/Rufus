@@ -33,7 +33,7 @@ void TiersPayants::addList(QList<Tiers*> listTiersPayants)
     for( it = listTiersPayants.constBegin(); it != listTiersPayants.constEnd(); ++it )
     {
         Tiers* trs = const_cast<Tiers*>(*it);
-        add( m_tierspayants, trs->id(), trs );
+        add( m_tierspayants, trs );
     }
 }
 

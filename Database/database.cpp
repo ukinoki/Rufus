@@ -909,7 +909,7 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
     QString req = "Select idImpression, idUser, idPat, TypeDoc, SousTypeDoc,"
                   " Titre, TextEntete, TextCorps, TextOrigine, TextPied,"
                   " Dateimpression, compression, lienversfichier, ALD, UserEmetteur,"
-                  " formatdoc, Importance from " TBL_IMPRESSIONS
+                  " formatdoc, Importance, idRefraction from " TBL_IMPRESSIONS
                   " where idimpression = " + QString::number(idDoc);
     QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)
@@ -936,6 +936,7 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
 
     jData[CP_FORMATDOC_IMPRESSIONS]        = docdata.at(15).toString();
     jData[CP_IMPORTANCE_IMPRESSIONS]       = docdata.at(16).toInt();
+    jData[CP_IDREFRACTION_IMPRESSIONS]     = docdata.at(17).toInt();
 
     return jData;
 }
@@ -2208,7 +2209,7 @@ QList<Refraction*> DataBase::loadRefractionByPatId(int id)                  //! 
         " AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "                       // 25-26-27-28-29-30
         " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "                  // 31-32-34-35-36
         " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte, PD"             // 37-38-39-40-41-42
-        " FROM " TBL_REFRACTION ;
+        " FROM " TBL_REFRACTIONS ;
     req += " WHERE  IdPat = " + QString::number(id) ;
     req += " order by idrefraction desc";
     QList<QVariantList> reflist = StandardSelectSQL(req,ok);
@@ -2234,7 +2235,7 @@ Refraction* DataBase::loadRefractionById(int idref)                   //! charge
         " AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "                       // 25-26-27-28-29-30
         " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "                  // 31-32-34-35-36
         " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte, PD"             // 37-38-39-40-41-42
-        " FROM " TBL_REFRACTION ;
+        " FROM " TBL_REFRACTIONS ;
     req += " WHERE  IdRefraction = " + QString::number(idref) ;
     QVariantList refdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || refdata.size()==0)

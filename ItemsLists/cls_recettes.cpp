@@ -44,7 +44,7 @@ void Recettes::addList(QList<Recette*> listRecettes)
     for( it = listRecettes.constBegin(); it != listRecettes.constEnd(); ++it )
     {
         Recette* item = const_cast<Recette*>(*it);
-        add( m_recettes, item->id(), item );
+        add( m_recettes, item );
     }
 }
 

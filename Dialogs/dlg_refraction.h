@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_commentaires.h"
 #include "dlg_refractionlistemesures.h"
 
+
 namespace Ui {
     class dlg_refraction;
 }
@@ -140,7 +141,7 @@ private:
     bool                    ControleCoherence();
     double                  ConvDouble(QString textdouble);
     bool                    DeplaceVers(QWidget *widget, QString FinOuDebut = "");
-    int                     DetruireLaMesure(int IdRefract);
+    void                    DetruireLaMesure(class Refraction* ref);
     void                    FermeFiche(enum ModeSortie);
     void                    InitDivers();
     void                    InitEventFilters();

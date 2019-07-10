@@ -45,12 +45,10 @@ public:
         m_map->clear();
     }
 
-protected:
-
     /*!
-     * \brief ItemsList::add
-     * Cette fonction va ajouter un item et sa key spassé en paramètre dans un QMap
-     * \param m_map le QMap dnas lequel on veut ajouter l'item
+     * \brief ItemsList::supprime
+     * Cette fonction va supprimer un item et sa key spassé en paramètre dans un QMap
+     * \param m_map le QMap dans lequel on veut ajouter l'item
      * \param id l'id de l'item que l'on veut ajouter en key du QMap
      * \param item l'item que l'on veut ajouter
      * \param Item::UPDATE - si ForceUpdate, force l'update de l'item s'il est déjà présent dans le QMap
@@ -59,43 +57,81 @@ protected:
      * \return false si l'item est déjà présent dans le QMap et delete l'item passé en paramètre dans ce cas
      */
     template <typename T>
-    bool add(QMap<int, T*> *m_map, int id, T* item, Item::UPDATE upd = Item::NoUpdate)
+    bool Supprime(QMap<int, T*> *m_map, T* item)
     {
         if (item == Q_NULLPTR)
             return false;
-        if( m_map->contains(id) )
+        QString table, idname;
+        DocExterne * doc = Q_NULLPTR;
+        bool loop = false;
+        while (!loop)
+        {
+            doc = dynamic_cast<DocExterne*>(item);
+            if (doc != Q_NULLPTR)
+            {
+                table = TBL_IMPRESSIONS;
+                idname = CP_IDIMPRESSION_IMPRESSIONS;
+                loop = true;
+                break;
+            }
+        }
+        if (loop)
+        DataBase::I()->SupprRecordFromTable(item->id(), idname, table);
+        m_map->remove(item->id());
+        return true;
+    }
+
+
+protected:
+
+    /*!
+     * \brief ItemsList::add
+     * Cette fonction va ajouter un item dans un QMap
+     * \param m_map le QMap dans lequel on veut ajouter l'item
+     * \param item l'item que l'on veut ajouter
+     * \param Item::UPDATE - si ForceUpdate, force l'update de l'item s'il est déjà présent dans le QMap
+     * \return true si l'item est ajouté
+     * \return false si l'item est un Q_NULLPTR
+     * \return false si l'item est déjà présent dans le QMap et delete l'item passé en paramètre dans ce cas
+     */
+    template <typename T>
+    bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
+    {
+        if (item == Q_NULLPTR)
+            return false;
+        if( m_map->contains(item->id()) )
         {
             if (upd == Item::ForceUpdate)
             {
-                typename QMap<int, T*>::const_iterator it = m_map->find(id);
+                typename QMap<int, T*>::const_iterator it = m_map->find(item->id());
                 if (it != m_map->constEnd())
                     it.value()->setData(item->datas());
             }
             delete item;
             return false;
         }
-        m_map->insert(id, item);
+        m_map->insert(item->id(), item);
         return true;
     }
 
     /*! le même avec des QString en key */
     template <typename T>
-    bool add(QMap<QString, T*> *m_map, QString stringid, T* item, Item::UPDATE upd = Item::NoUpdate)
+    bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
     {
         if (item == Q_NULLPTR)
             return false;
-        if( m_map->contains(stringid) )
+        if( m_map->contains(item->stringid()) )
         {
             if (upd == Item::ForceUpdate)
             {
-                typename QMap<QString, T*>::const_iterator it = m_map->find(stringid);
+                typename QMap<QString, T*>::const_iterator it = m_map->find(item->stringid());
                 if (it != m_map->constEnd())
                     it.value()->setData(item->datas());
             }
             delete item;
             return false;
         }
-        m_map->insert(stringid, item);
+        m_map->insert(item->stringid(), item);
         return true;
     }
 
@@ -114,9 +150,9 @@ protected:
         m_map->remove(item->id());
         delete item;
     }
-    template <typename T>
 
     /*! le même avec des QString en key */
+    template <typename T>
     void remove(QMap<QString, T*> *m_map, T* item)
     {
         if (item == Q_NULLPTR)

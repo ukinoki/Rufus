@@ -43,7 +43,7 @@ void Depenses::addList(QList<Depense*> listDepense)
     for( it = listDepense.constBegin(); it != listDepense.constEnd(); ++it )
     {
         Depense* item = const_cast<Depense*>(*it);
-        add( m_Depenses, item->id(), item );
+        add( m_Depenses, item );
     }
 }
 
@@ -137,7 +137,7 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
     dep->setidcomptebancaire(Compte);
     dep->setnocheque(Nocheque);
     dep->setidfacture(idFacture);
-    add(m_Depenses, dep->id(), dep);
+    add(m_Depenses, dep);
     return dep;
 }
 

@@ -35,7 +35,7 @@ void PaiementsTiers::addList(QList<PaiementTiers*> listpaiementtiers)
     for( it = listpaiementtiers.constBegin(); it != listpaiementtiers.constEnd(); ++it )
     {
         PaiementTiers* item = const_cast<PaiementTiers*>(*it);
-        add( m_paiementstiers, item->id(), item );
+        add( m_paiementstiers, item );
     }
 }
 

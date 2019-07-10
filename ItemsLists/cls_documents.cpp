@@ -34,7 +34,7 @@ void Documents::addList(QList<Document*> listDocuments)
     for( it = listDocuments.constBegin(); it != listDocuments.constEnd(); ++it )
     {
         Document* item = const_cast<Document*>(*it);
-        add( m_documents, item->id(), item );
+        add( m_documents, item );
     }
 }
 
@@ -74,7 +74,7 @@ void MetaDocuments::addList(QList<MetaDocument*> listMetaDocs)
     for( it = listMetaDocs.constBegin(); it != listMetaDocs.constEnd(); ++it )
     {
         MetaDocument* item = const_cast<MetaDocument*>(*it);
-        add( m_metadocuments, item->id(), item );
+        add( m_metadocuments, item );
     }
 }
 

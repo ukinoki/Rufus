@@ -33,7 +33,7 @@ void Motifs::addList(QList<Motif*> listMotifs)
     for( it = listMotifs.constBegin(); it != listMotifs.constEnd(); ++it )
     {
         Motif* item = const_cast<Motif*>(*it);
-        add( m_motifs, item->id(), item );
+        add( m_motifs, item );
     }
 }
 
@@ -115,6 +115,6 @@ Motif*  Motifs::CreationMotif(QString Motf, QString Raccourci, QString Couleur, 
     jmotif["utiliser"] = Utiliser;
     jmotif["noordre"] = NoOrdre;
     motf = new Motif(jmotif);
-    add(m_motifs, motf->id(), motf);
+    add(m_motifs, motf);
     return motf;
 }

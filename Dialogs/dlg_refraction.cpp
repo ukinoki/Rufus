@@ -613,7 +613,7 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
         int IDMesure = LectureMesure("JOUR",QuelleMesure(),"",Cycloplegie,"","","","","");
         if (IDMesure > 0)
             // suppression de la mesure dans table Refraction
-            DetruireLaMesure(IDMesure);
+            DetruireLaMesure(Datas::I()->refractions->getById(IDMesure));
         InscriptRefraction();
         FermeFiche(OK);
     }
@@ -695,10 +695,16 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             objUpSpin->selectAll();
             objUpSpin = Q_NULLPTR;
         }
+        UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
+        if (box!=Q_NULLPTR)
+            box->setStyleSheet(STYLE_UPGROUBOXACTIVE);
     }
 
     if (event->type() == QEvent::FocusOut )
     {
+        UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
+        if (box!=Q_NULLPTR)
+            box->setStyleSheet(STYLE_UPGROUBOXINACTIVE);
         if (obj == ui->CylindreOD)          if (ui->CylindreOD->value() == 0.0)   ui->AxeCylindreOD->setValue(0);
         if (obj == ui->CylindreOG)          if (ui->CylindreOG->value() == 0.0)   ui->AxeCylindreOG->setValue(0);
         if (obj == ui->AddVPOG) QuitteAddVP(ui->AddVPOG);
@@ -943,52 +949,19 @@ void dlg_refraction::InitEventFilters()
     QList<UpSpinBox *> listspin = this->findChildren<UpSpinBox*>();
     for (int i=0; i<listspin.size(); i++)
         listspin.at(i)->installEventFilter(this);
+    QList<UpGroupBox *> listbox = this->findChildren<UpGroupBox*>();
+    for (int i=0; i<listbox.size(); i++)
+        foreach (QWidget* widg, listbox.at(i)->findChildren<QWidget*>())
+            widg->installEventFilter(this);
 
-    AVLOD->installEventFilter(this);
-    AVPOD->installEventFilter(this);
-    ui->AVPODupComboBox->installEventFilter(this);
-    ui->AVLODupComboBox->installEventFilter(this);
-    AVLOG->installEventFilter(this);
-    AVPOG->installEventFilter(this);
-    ui->AVPOGupComboBox->installEventFilter(this);
-    ui->AVLOGupComboBox->installEventFilter(this);
-
-    ui->V2RadioButton->installEventFilter(this);
-    ui->VLRadioButton->installEventFilter(this);
-    ui->VPRadioButton->installEventFilter(this);
-
-    //ui->QuelleDistanceGroupBox->installEventFilter(this);
     ui->CommentairePrescriptionTextEdit->installEventFilter(this);
-    ui->VPPrescritRadioButton->installEventFilter(this);
-    ui->VLPrescritRadioButton->installEventFilter(this);
-    ui->V2PrescritRadioButton->installEventFilter(this);
     ui->VerresTeintesCheckBox->installEventFilter(this);
-    ui->UneMonturePrescritRadioButton->installEventFilter(this);
-    ui->DeuxMonturesPrescritRadioButton->installEventFilter(this);
 
-    ui->PorteRadioButton->installEventFilter(this);
-    ui->AutorefRadioButton->installEventFilter(this);
-    ui->PrescriptionRadioButton->installEventFilter(this);
-    ui->RefractionRadioButton->installEventFilter(this);
-
-    //ui->QuelleMesureGroupBox->installEventFilter(this); // ????
     ui->OKPushButton->installEventFilter(this); // ????
     ui->AnnulPushButton->installEventFilter(this); // ????
     ui->AppelCommentPushButton->installEventFilter(this); // ????
 
-    ui->ODPrescritCheckBox->installEventFilter(this);
-    ui->OGPrescritCheckBox->installEventFilter(this);
     ui->DateDateEdit->installEventFilter(this);
-    ui->BasePrismeTextODComboBox->installEventFilter(this);
-    ui->PressonODCheckBox->installEventFilter(this);
-    ui->AxeKOD->installEventFilter(this);
-    ui->K1OD->installEventFilter(this);
-    ui->K2OD->installEventFilter(this);
-    ui->BasePrismeTextOGComboBox->installEventFilter(this);
-    ui->PressonOGCheckBox->installEventFilter(this);
-    ui->AxeKOG->installEventFilter(this);
-    ui->K1OG->installEventFilter(this);
-    ui->K2OG->installEventFilter(this);
 }
 
 //----------------------------------------------------------------------------------
@@ -1320,7 +1293,7 @@ void dlg_refraction::AfficherLaMesure()
             setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_SANS_DETAIL);
         ResumePrescription();
     }
-    QString LocalRequete = "SELECT  idRefraction FROM " TBL_REFRACTION " WHERE  idPat = " + QString::number(m_currentpatient->id()) ;
+    QString LocalRequete = "SELECT  idRefraction FROM " TBL_REFRACTIONS " WHERE  idPat = " + QString::number(m_currentpatient->id()) ;
     QList<QVariantList> ListeRefractions = db->StandardSelectSQL(LocalRequete,ok);
     ui->OupsPushButton->setEnabled(ListeRefractions.size() > 0);
     ui->ReprendrePushButton->setEnabled(ListeRefractions.size() > 0);
@@ -1697,20 +1670,18 @@ bool dlg_refraction::DeplaceVers(QWidget *widget, QString FinOuDebut)
 //---------------------------------------------------------------------------------
 // Suppression d'une mesure en base
 //---------------------------------------------------------------------------------
-int dlg_refraction::DetruireLaMesure(int IdRefract)
+void dlg_refraction::DetruireLaMesure(class Refraction* ref)
 {
+    if (ref == Q_NULLPTR)
+        return;
 //1. On supprime la mesure de la table
-    db->SupprRecordFromTable(IdRefract,"idRefraction", TBL_REFRACTION, tr("Impossible de supprimer la mesure"));
+    Datas::I()->refractions->SupprimeRefraction(ref);
 
 //2. s'il n'y a plus de mesures pour le patient => on cache les boutons Oups, Resume et Reprendre
-    QString LocalRequete = "SELECT  idRefraction"
-              " FROM " TBL_REFRACTION
-              " WHERE  idPat = " + QString::number(m_currentpatient->id()) ;
-    QList<QVariantList> ListeRefractions = db->StandardSelectSQL(LocalRequete,ok);
-    ui->OupsPushButton->setEnabled(ListeRefractions.size() > 0);
-    ui->ReprendrePushButton->setEnabled(ListeRefractions.size() > 0);
-    ui->ResumePushButton->setEnabled(ListeRefractions.size() > 0);
-    return 0;
+    int n = Datas::I()->refractions->refractions()->size();
+    ui->OupsPushButton->setEnabled(n > 0);
+    ui->ReprendrePushButton->setEnabled(n > 0);
+    ui->ResumePushButton->setEnabled(n > 0);
 }
 
 //--------------------------------------------------------------------------------
@@ -1944,7 +1915,7 @@ void dlg_refraction::Init_Value_DoubleSpin(QDoubleSpinBox *DoubleSpinBox, double
 void dlg_refraction::InscriptRefraction()
 {
     bool a = InsertRefraction();
-    QString req = "select max(idrefraction) from " TBL_REFRACTION " where idpat = " + QString::number(m_currentpatient->id());
+    QString req = "select max(idrefraction) from " TBL_REFRACTIONS " where idpat = " + QString::number(m_currentpatient->id());
     QVariantList refractdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     if (ok && refractdata.size()>0)
         gidRefraction = refractdata.at(0).toInt();
@@ -2127,7 +2098,7 @@ bool dlg_refraction::InsertRefraction()
         listbinds["VerreTeinte"]                = ui->VerresTeintesCheckBox->isChecked()? 1 : 0;
     }
     listbinds["PrimKeyDocMed"]              = m_currentpatient->id();
-    return db->InsertSQLByBinds(TBL_REFRACTION, listbinds, tr("Erreur de création dans ") + TBL_REFRACTION);
+    return db->InsertSQLByBinds(TBL_REFRACTIONS, listbinds, tr("Erreur de création dans ") + TBL_REFRACTIONS);
 }
 
 //---------------------------------------------------------------------------------
@@ -2151,7 +2122,7 @@ int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun,
             " AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "                       // 24-25-26-27-28-29
             " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "                  // 30-31-32-34-35
             " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte, PrimKeyDocMed"  // 36-37-38-39-40-41
-            " FROM " TBL_REFRACTION ;
+            " FROM " TBL_REFRACTIONS ;
 
     // On relit la mesure après selection dans la liste mesure (reprendre)
     if (IdRefraction.length() > 0)
@@ -2439,7 +2410,7 @@ void dlg_refraction::RechercheMesureEnCours()
     QString Reponse ="";
 
     // On cherche si le patient est enregistré dans la table réfractions - sinon, on sort de la procédure
-    QString selrequete = "SELECT idActe FROM " TBL_REFRACTION
+    QString selrequete = "SELECT idActe FROM " TBL_REFRACTIONS
               " WHERE IdPat = " + QString::number(m_currentpatient->id()) + " and quellemesure <> 'null'" ;
     //proc->Edit(selrequete);
     QList<QVariantList> mesurelist = db->StandardSelectSQL(selrequete, ok);
@@ -2461,7 +2432,7 @@ void dlg_refraction::RechercheMesureEnCours()
     // recherche d'une mesure du jour
     while (i == 0)
     {
-        selrequete = "SELECT idActe, QuelleMesure FROM " TBL_REFRACTION   // recherche d'une mesure pour le jour en cours
+        selrequete = "SELECT idActe, QuelleMesure FROM " TBL_REFRACTIONS   // recherche d'une mesure pour le jour en cours
                   " WHERE DateRefraction = '" + QDate::currentDate().toString("yyyy-MM-dd") +
                   "' AND   IdPat = " + QString::number(m_currentpatient->id()) ;
         QList<QVariantList> mesurelist2 = db->StandardSelectSQL(selrequete, ok);
@@ -2561,7 +2532,7 @@ QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, Q
 
     QString requeteBase, zdate;
     requeteBase =   "SELECT ODcoche, OGcoche, DateRefraction, FormuleOD, FormuleOG "     // 0-1-2-3-4
-                    " FROM " TBL_REFRACTION
+                    " FROM " TBL_REFRACTIONS
                     " WHERE  idPat        =  " + QString::number(m_currentpatient->id()) +
                     " AND    QuelleMesure = '" + Mesure     + "'"
                     " AND    Cycloplegie  =  " + Cycloplegie   ;
@@ -2639,7 +2610,7 @@ QString dlg_refraction::RechercheVerres()
     QString     zdate, Formule, TypeMesure;
 
     QString requete     =   "SELECT ODcoche, OGcoche, DateRefraction, FormuleOD, FormuleOG, QuelleMesure "     // 0-1-2-3-4-5
-                    " FROM " TBL_REFRACTION
+                    " FROM " TBL_REFRACTIONS
                     " WHERE  idPat        =  "+ QString::number(m_currentpatient->id()) +
                     " AND (QuelleMesure = 'P' OR QuelleMesure = 'O') "
                     " ORDER  BY DateRefraction DESC ";

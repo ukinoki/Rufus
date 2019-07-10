@@ -55,7 +55,7 @@ protected:
 
     int m_id;
     QString  m_stringid;
-    QJsonObject m_data;         //!< les datas d'un item
+    QJsonObject m_data;         //!> les datas d'un item
 };
 
 #endif // CLS_ITEM_H
