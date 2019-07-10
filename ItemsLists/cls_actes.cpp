@@ -164,10 +164,7 @@ void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
 
 void Actes::SupprimeActe(Acte* act)
 {
-    if (act == Q_NULLPTR)
-        return;
-    DataBase::I()->StandardSQL("DELETE FROM " TBL_ACTES " WHERE idActe = " + QString::number(act->id()));
-    remove(m_actes, act);
+    Supprime(m_actes, act);
 }
 
 Acte* Actes::CreationActe(Patient *pat, int idcentre)

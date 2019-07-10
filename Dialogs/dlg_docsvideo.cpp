@@ -267,7 +267,7 @@ void dlg_docsvideo::ValideFiche()
                              + sstypedoc.replace("/",".") + "_"
                              + editdate->date().toString("yyyyMMdd") + "-" + QFileInfo(qFile).created().toString("HHmmss");
 
-    QHash<QString,QVariant> listbinds;
+    QJsonObject listbinds;
     bool ok;
     int idimpr =  db->selectMaxFromTable(CP_IDIMPRESSION_IMPRESSIONS, TBL_IMPRESSIONS, ok) + 1;
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();

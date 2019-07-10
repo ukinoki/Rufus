@@ -301,10 +301,10 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             return;
         }
         // D - le dossier n'existe pas, on le crée
-        QHash<QString,QVariant> listbinds;
+        QJsonObject listbinds;
         listbinds[CP_NOM_PATIENTS]          = ui->NomlineEdit->text();
         listbinds[CP_PRENOM_PATIENTS]       = ui->PrenomlineEdit->text();
-        listbinds[CP_DDN_PATIENTS]          = ui->DDNdateEdit->date();
+        listbinds[CP_DDN_PATIENTS]          = ui->DDNdateEdit->date().toString("yyyy-MM-dd");
         listbinds[CP_SEXE_PATIENTS]         = Sexe;
         m_nouveaupatient = Patients::CreationPatient(listbinds);
         if (m_nouveaupatient == Q_NULLPTR)

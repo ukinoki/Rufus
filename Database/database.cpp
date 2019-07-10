@@ -271,29 +271,26 @@ bool DataBase::InsertIntoTable(QString nomtable,
 }
 
 bool DataBase::InsertSQLByBinds(QString nomtable,
-                                QHash<QString, QVariant> sets,
+                                QJsonObject data,
                                 QString errormsg)
 {
     QSqlQuery query = QSqlQuery(m_db);
     QString champs, champs2;
     QString valeurs;
-    QHashIterator<QString, QVariant> itset(sets);
-    while (itset.hasNext())
+    QJsonObject::iterator itjson;
+    for (itjson = data.begin(); itjson != data.end(); ++itjson)
     {
-        itset.next();
-        champs  += itset.key() + ",";
-        champs2  += ":" + itset.key() + ",";
+        champs  += itjson.key() + ",";
+        champs2  += ":" + itjson.key() + ",";
     }
     champs = champs.left(champs.size()-1);
     champs2 = champs2.left(champs2.size()-1);
     QString prepare = "insert into " + nomtable + " (" + champs + ") values (" + champs2 + ")";
     query.prepare(prepare);
-    itset.toFront();
-    while (itset.hasNext())
+    for (itjson = data.begin(); itjson != data.end(); ++itjson)
     {
-        itset.next();
-        query.bindValue(":" + itset.key(), itset.value());
-        //qDebug() << "query.bindValue("":" + itset.key() + "," + itset.value().toString() + ")";
+        query.bindValue(":" + itjson.key(), itjson.value().toVariant());
+        //qDebug() << "query.bindValue("":" + itjson.key(), itjson.value().toString() + ")";
     }
     query.exec();
     bool a = true;
@@ -1408,7 +1405,7 @@ RecetteComptable* DataBase::loadRecetteComptablebyId(int id)
     if(!ok || recette.size()==0)
         return Q_NULLPTR;
     QJsonObject jData{};
-    jData["id"] = id;
+    jData[CP_IDRECETTE_LIGNRECETTES]            = id;
     jData[CP_IDUSER_LIGNRECETTES]               = recette.at(0).toInt();
     jData[CP_DATE_LIGNRECETTES]                 = recette.at(1).toDate().toString("yyyy-MM-dd");
     jData[CP_DATEENREGISTREMENT_LIGNRECETTES]   = recette.at(2).toDate().toString("yyyy-MM-dd");

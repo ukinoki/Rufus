@@ -1780,7 +1780,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     // stockage de l'ordonnance dans la base de donnees - table impressions
     if (a)
     {
-        QHash<QString,QVariant> listbinds;
+        QJsonObject listbinds;
         listbinds[CP_IDUSER_IMPRESSIONS] =           gidUser;
         listbinds[CP_IDPAT_IMPRESSIONS] =            m_currentpatient->id();
         listbinds[CP_TYPEDOC_IMPRESSIONS] =          PRESCRIPTION;
@@ -1792,7 +1792,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds[CP_TEXTPIED_IMPRESSIONS] =         Pied;
         listbinds[CP_DATE_IMPRESSIONS] =             ui->DateDateEdit->date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       gidUser;
-        listbinds[CP_ALD_IMPRESSIONS] =              QVariant(QVariant::String);
+        listbinds[CP_ALD_IMPRESSIONS] =              QJsonValue::fromVariant(QVariant(QVariant::String));
         listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS] =        PRESCRIPTIONLUNETTES;
         listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->getSite()->id();
@@ -1959,7 +1959,7 @@ QString dlg_refraction::InsertCommentaireObligatoire()
 //---------------------------------------------------------------------------------
 void dlg_refraction::InsertDonneesOphtaPatient()
 {
-   QHash<QString,QVariant> listbinds;
+   QJsonObject listbinds;
    listbinds["idPat"]           = m_currentpatient->id();
    listbinds["QuelleMesure"]    = QuelleMesure();
    listbinds["QuelleDistance"]  = QuelleDistance();
@@ -2021,7 +2021,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
 //---------------------------------------------------------------------------------
 bool dlg_refraction::InsertRefraction()
 {
-    QHash<QString,QVariant> listbinds;
+    QJsonObject listbinds;
     listbinds["idPat"]              = m_currentpatient->id();
     listbinds["idActe"]             = gACteEnCours->id();
     listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");

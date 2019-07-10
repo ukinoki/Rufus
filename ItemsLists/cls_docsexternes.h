@@ -43,7 +43,7 @@ public:
 
     //!> actions sur les enregistrements
     void                        SupprimeDocument(DocExterne *doc);
-    static DocExterne*          CreationDocument(QHash<QString, QVariant> sets);
+    static DocExterne*          CreationDocument(QJsonObject sets);
 
 };
 #endif // CLS_DOCSEXTERNES_H

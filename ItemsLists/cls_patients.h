@@ -72,7 +72,7 @@ public:
 
     //!> actions sur les enregistrements
     void                SupprimePatient(Patient *pat);
-    static Patient*     CreationPatient(QHash<QString, QVariant> setpats);
+    static Patient*     CreationPatient(QJsonObject data);
 
     //!< action sur toutes les données
     static void    updatePatient(Patient* pat);                                                    //!> met à jour les datas d'un patient à partir des données enregistrées dans la base

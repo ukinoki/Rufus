@@ -24,7 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 QMap<int, Depense *> *Depenses::depenses() const
 {
-    return m_Depenses;
+    return m_depenses;
 }
 
 
@@ -34,7 +34,7 @@ QMap<int, Depense *> *Depenses::depenses() const
  */
 Depenses::Depenses(QObject *parent) : ItemsList(parent)
 {
-    m_Depenses = new QMap<int, Depense*>();
+    m_depenses = new QMap<int, Depense*>();
 }
 
 void Depenses::addList(QList<Depense*> listDepense)
@@ -43,7 +43,7 @@ void Depenses::addList(QList<Depense*> listDepense)
     for( it = listDepense.constBegin(); it != listDepense.constEnd(); ++it )
     {
         Depense* item = const_cast<Depense*>(*it);
-        add( m_Depenses, item );
+        add( m_depenses, item );
     }
 }
 
@@ -55,8 +55,8 @@ void Depenses::addList(QList<Depense*> listDepense)
  */
 Depense* Depenses::getById(int id)
 {
-    QMap<int, Depense*>::const_iterator Depense = m_Depenses->find(id);
-    if( Depense == m_Depenses->constEnd() )
+    QMap<int, Depense*>::const_iterator Depense = m_depenses->find(id);
+    if( Depense == m_depenses->constEnd() )
         return Q_NULLPTR;
     return Depense.value();
 }
@@ -68,18 +68,16 @@ Depense* Depenses::getById(int id)
  */
 void Depenses::initListeByUser(int iduser)
 {
-    clearAll(m_Depenses);
+    clearAll(m_depenses);
     QList<Depense*> listdepenses = DataBase::I()->loadDepensesByUser(iduser);
     addList(listdepenses);
 }
 
 void Depenses::SupprimeDepense(Depense *dep)
 {
-    if (dep == Q_NULLPTR)
-        return;
-    DataBase::I()->SupprRecordFromTable(dep->id(), CP_IDDEPENSE_DEPENSES, TBL_DEPENSES);
-    remove(m_Depenses, dep);
+    Supprime(m_depenses, dep);
 }
+
 Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale, QString Objet, double Montant, QString FamFiscale,
                                    QString Monnaie, int idRec, QString ModePaiement, int Compte, int Nocheque, int  idFacture)
 {
@@ -137,7 +135,7 @@ Depense* Depenses::CreationDepense(int idUser, QDate DateDep, QString RefFiscale
     dep->setidcomptebancaire(Compte);
     dep->setnocheque(Nocheque);
     dep->setidfacture(idFacture);
-    add(m_Depenses, dep);
+    add(m_depenses, dep);
     return dep;
 }
 

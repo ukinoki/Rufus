@@ -75,10 +75,7 @@ void Comptes::initListe()
 
 void Comptes::SupprimeCompte(Compte *cpt)
 {
-    if (cpt == Q_NULLPTR)
-        return;
-    DataBase::I()->SupprRecordFromTable(cpt->id(), CP_IDCOMPTE_COMPTES, TBL_COMPTES);
-    remove(m_comptes, cpt);
+    Supprime(m_comptes, cpt);
 
 }
 

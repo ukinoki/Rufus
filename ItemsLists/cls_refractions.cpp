@@ -64,9 +64,6 @@ void Refractions::initListebyPatId(int id)
 
 void Refractions::SupprimeRefraction(Refraction* ref)
 {
-    if (ref == Q_NULLPTR)
-        return;
-    DataBase::I()->StandardSQL("DELETE FROM " TBL_REFRACTIONS " WHERE " CP_ID_REFRACTIONS " = " + QString::number(ref->id()));
-    remove(m_refractions, ref);
+    Supprime(m_refractions, ref);
 }
 

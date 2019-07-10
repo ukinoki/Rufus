@@ -139,7 +139,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
             Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
 
-            QHash<QString,QVariant> listbinds;
+            QJsonObject listbinds;
             listbinds["iduser"] = idUser;
             listbinds["idpat"] = idPat;
             listbinds["typeDoc"] = Typeprescription;
@@ -151,7 +151,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             listbinds["useremetteur"] = idUser;
             QVariant ALD100 = QVariant(QVariant::String);
             if (ALDQ) ALD100 = "1";
-            listbinds["ald"] = ALD100;
+            listbinds["ald"] = QJsonValue::fromVariant(ALD100);
 
             db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds, "problème pour enregistrer une prescription du patient " + nom.toUpper() + " " + prenom);
             if (b==100)
