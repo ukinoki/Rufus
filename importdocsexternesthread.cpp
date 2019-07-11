@@ -543,7 +543,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     else if (formatdoc== "jpg" || formatdoc == "jpeg")
                         formatdoc = CP_JPG_IMPRESSIONS;
                     // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
-                    QJsonObject listbinds;
+                    QHash<QString, QVariant> listbinds;
                     listbinds[CP_IDIMPRESSION_IMPRESSIONS] =    idimpr;
                     listbinds[CP_IDUSER_IMPRESSIONS] =          db->getUserConnected()->id();
                     listbinds[CP_IDPAT_IMPRESSIONS] =           idPatient;
@@ -552,7 +552,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     listbinds[CP_TITRE_IMPRESSIONS] =           Titredoc;
                     listbinds[CP_DATE_IMPRESSIONS] =            datestring + " " + QTime::currentTime().toString("HH:mm:ss");
                     listbinds[CP_IDEMETTEUR_IMPRESSIONS] =      db->getUserConnected()->id();
-                    listbinds[formatdoc] =                      QJsonValue::fromVariant(ba);
+                    listbinds[formatdoc] =                      ba;
                     listbinds[CP_EMISORRECU_IMPRESSIONS] =      "0";
                     listbinds[CP_FORMATDOC_IMPRESSIONS] =       IMAGERIE;
                     listbinds[CP_IDLIEU_IMPRESSIONS] =          idLieuExercice;

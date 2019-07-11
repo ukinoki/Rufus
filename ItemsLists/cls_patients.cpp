@@ -276,13 +276,13 @@ void Patients::updateCorrespondant(Patient *pat, DataBase::typecorrespondant typ
                 " where idpat = " + QString::number(pat->id()));
 }
 
-Patient* Patients::CreationPatient(QJsonObject data)
+Patient* Patients::CreationPatient(QHash<QString, QVariant> sets)
 {
     Patient *pat = Q_NULLPTR;
     DataBase::I()->locktables(QStringList() << TBL_PATIENTS << TBL_DONNEESSOCIALESPATIENTS << TBL_RENSEIGNEMENTSMEDICAUXPATIENTS );
-    data[CP_DATECREATION_PATIENTS] = DataBase::I()->ServerDateTime().date().toString("yyyy-MM-dd");
-    data[CP_IDCREATEUR_PATIENTS]   = DataBase::I()->getUserConnected()->id();
-    bool result = DataBase::I()->InsertSQLByBinds(TBL_PATIENTS, data);
+    sets[CP_DATECREATION_PATIENTS] = DataBase::I()->ServerDateTime().date();
+    sets[CP_IDCREATEUR_PATIENTS]   = DataBase::I()->getUserConnected()->id();
+    bool result = DataBase::I()->InsertSQLByBinds(TBL_PATIENTS, sets);
     if (!result)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce patient dans la base!"));
@@ -291,8 +291,8 @@ Patient* Patients::CreationPatient(QJsonObject data)
     }
     // Récupération de l'idpatient créé ------------------------------------
     int id = 0;
-    QJsonObject::iterator itx = data.find(CP_IDPAT_PATIENTS);
-    if (itx != data.end())
+    QHash<QString, QVariant>::const_iterator itx = sets.find(CP_IDPAT_PATIENTS);
+    if (itx != sets.constEnd())
         id = itx.value().toInt();
     else
     {
@@ -309,9 +309,24 @@ Patient* Patients::CreationPatient(QJsonObject data)
         DataBase::I()->unlocktables();
         return Q_NULLPTR;
     }
+    QJsonObject  data = QJsonObject{};
     data[CP_IDPAT_PATIENTS] = id;
     data[CP_IDCREATEUR_PATIENTS] = DataBase::I()->getUserConnected()->id();
     data[CP_DATECREATION_PATIENTS] = QDate::currentDate().toString("yyyy-MM-dd");
+    QString champ;
+    QVariant value;
+    for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        champ  = itset.key();
+        if (champ == CP_NOM_PATIENTS)                   data[champ] = itset.value().toString();
+        else if (champ == CP_PRENOM_PATIENTS)           data[champ] = itset.value().toString();
+        else if (champ == CP_DDN_PATIENTS)              data[champ] = itset.value().toDate().toString("yyyy-MM-dd");
+        else if (champ == CP_SEXE_PATIENTS)             data[champ] = itset.value().toString();
+        else if (champ == CP_DATECREATION_PATIENTS)     data[champ] = itset.value().toDate().toString("yyyy-MM-dd");
+        else if (champ == CP_IDCREATEUR_PATIENTS)       data[champ] = itset.value().toInt();
+        else if (champ == CP_IDLIEU_PATIENTS)           data[champ] = itset.value().toInt();
+        else if (champ == CP_COMMENTAIRE_PATIENTS)      data[champ] = itset.value().toString();
+    }
     pat = new Patient(data);
     QString req = "INSERT INTO " TBL_DONNEESSOCIALESPATIENTS " (idPat) VALUES ('" + QString::number(pat->id()) + "')";
     DataBase::I()->StandardSQL(req,tr("Impossible de créer les données sociales"));
@@ -320,5 +335,3 @@ Patient* Patients::CreationPatient(QJsonObject data)
     DataBase::I()->unlocktables();
     return pat;
 }
-
-

@@ -292,7 +292,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        QJsonObject listbinds;
+        QHash<QString, QVariant> listbinds;
         listbinds[CP_IDUSER_IMPRESSIONS] =           Datas::I()->users->userconnected()->id();
         listbinds[CP_IDPAT_IMPRESSIONS] =            m_currentact->idPatient();
         listbinds[CP_TYPEDOC_IMPRESSIONS] =          "Orthoptie";

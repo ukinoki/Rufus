@@ -271,26 +271,29 @@ bool DataBase::InsertIntoTable(QString nomtable,
 }
 
 bool DataBase::InsertSQLByBinds(QString nomtable,
-                                QJsonObject data,
+                                QHash<QString, QVariant> sets,
                                 QString errormsg)
 {
     QSqlQuery query = QSqlQuery(m_db);
     QString champs, champs2;
     QString valeurs;
-    QJsonObject::iterator itjson;
-    for (itjson = data.begin(); itjson != data.end(); ++itjson)
+    QHashIterator<QString, QVariant> itset(sets);
+    while (itset.hasNext())
     {
-        champs  += itjson.key() + ",";
-        champs2  += ":" + itjson.key() + ",";
+        itset.next();
+        champs  += itset.key() + ",";
+        champs2  += ":" + itset.key() + ",";
     }
     champs = champs.left(champs.size()-1);
     champs2 = champs2.left(champs2.size()-1);
     QString prepare = "insert into " + nomtable + " (" + champs + ") values (" + champs2 + ")";
     query.prepare(prepare);
-    for (itjson = data.begin(); itjson != data.end(); ++itjson)
+    itset.toFront();
+    while (itset.hasNext())
     {
-        query.bindValue(":" + itjson.key(), itjson.value().toVariant());
-        //qDebug() << "query.bindValue("":" + itjson.key(), itjson.value().toString() + ")";
+        itset.next();
+        query.bindValue(":" + itset.key(), itset.value());
+        //qDebug() << "query.bindValue("":" + itset.key() + "," + itset.value().toString() + ")";
     }
     query.exec();
     bool a = true;

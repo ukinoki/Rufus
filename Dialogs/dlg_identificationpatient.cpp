@@ -301,7 +301,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             return;
         }
         // D - le dossier n'existe pas, on le crée
-        QJsonObject listbinds;
+        QHash<QString, QVariant> listbinds;
         listbinds[CP_NOM_PATIENTS]          = ui->NomlineEdit->text();
         listbinds[CP_PRENOM_PATIENTS]       = ui->PrenomlineEdit->text();
         listbinds[CP_DDN_PATIENTS]          = ui->DDNdateEdit->date().toString("yyyy-MM-dd");

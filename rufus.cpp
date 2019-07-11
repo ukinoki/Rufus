@@ -2673,7 +2673,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
                               AvecDupli, AvecPrevisu, AvecNumPage);
    if (aa)
    {
-       QJsonObject listbinds;
+       QHash<QString, QVariant> listbinds;
        listbinds["iduser"] =            m_currentuser->id();
        listbinds["idpat"] =             pat->id();
        listbinds["typeDoc"] =           COURRIER;
@@ -7000,7 +7000,7 @@ void Rufus::CreerDossier()
     if (idPat == 0)
     {
         // Récupération de nom, prénom et DDN puis création du dossier---------------------------------
-        QJsonObject listbinds;
+        QHash<QString, QVariant> listbinds;
         listbinds[CP_NOM_PATIENTS]          = PatNom;
         listbinds[CP_PRENOM_PATIENTS]       = PatPrenom;
         listbinds[CP_DDN_PATIENTS]          = ui->CreerDDNdateEdit->date().toString("yyyy-MM-dd");
@@ -7580,7 +7580,7 @@ bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QStr
         else
             idpat = m_dossierpatientaouvrir->id();
 
-        QJsonObject listbinds;
+        QHash<QString, QVariant> listbinds;
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
         listbinds[CP_IDUSER_IMPRESSIONS]        = user->id();
         listbinds[CP_IDPAT_IMPRESSIONS]         = idpat;
@@ -7593,7 +7593,7 @@ bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QStr
         listbinds[CP_TEXTPIED_IMPRESSIONS]      = Pied;
         listbinds[CP_DATE_IMPRESSIONS]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = m_currentuser->id();
-        listbinds[CP_ALD_IMPRESSIONS]           = QJsonValue::fromVariant(ALD? "1": QVariant(QVariant::String));
+        listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1": QVariant(QVariant::String));
         listbinds[CP_EMISORRECU_IMPRESSIONS]    = "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
         listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->getSite()->id();

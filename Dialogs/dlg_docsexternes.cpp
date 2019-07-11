@@ -812,7 +812,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     {
         Utils::nettoieHTML(Corps);
 
-        QJsonObject listbinds;
+        QHash<QString, QVariant> listbinds;
         listbinds[CP_IDUSER_IMPRESSIONS]        = docmt->iduser();
         listbinds[CP_IDPAT_IMPRESSIONS]         = docmt->idpatient();
         listbinds[CP_TYPEDOC_IMPRESSIONS]       = docmt->typedoc();
@@ -825,7 +825,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_DATE_IMPRESSIONS]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
         listbinds[CP_FORMATDOC_IMPRESSIONS]     = docmt->format();
         listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->getSite()->id();
-        listbinds[CP_ALD_IMPRESSIONS]           = QJsonValue::fromVariant(ALD? "1" : QVariant(QVariant::String));
+        listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1" : QVariant(QVariant::String));
         listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = m_currentuser->id();
         listbinds[CP_IMPORTANCE_IMPRESSIONS]    = docmt->importance();
         DocExterne * doc = m_docsexternes->CreationDocument(listbinds);

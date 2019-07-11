@@ -112,7 +112,7 @@ void DocsExternes::SupprimeDocument(DocExterne *doc)
     Supprime(m_docsexternes, doc);
 }
 
-DocExterne* DocsExternes::CreationDocument(QJsonObject sets)
+DocExterne* DocsExternes::CreationDocument(QHash<QString, QVariant> sets)
 {
     DocExterne *doc = Q_NULLPTR;
     DataBase::I()->locktables(QStringList() << TBL_IMPRESSIONS);
@@ -125,8 +125,8 @@ DocExterne* DocsExternes::CreationDocument(QJsonObject sets)
     }
     // Récupération de l'iddocument créé ------------------------------------
     int iddoc = 0;
-    QJsonObject::iterator itx = sets.find(CP_IDIMPRESSION_IMPRESSIONS);
-    if (itx != sets.end())
+    QHash<QString, QVariant>::const_iterator itx = sets.find(CP_IDIMPRESSION_IMPRESSIONS);
+    if (itx != sets.constEnd())
         iddoc = itx.value().toInt();
     else
     {
@@ -143,7 +143,30 @@ DocExterne* DocsExternes::CreationDocument(QJsonObject sets)
         return Q_NULLPTR;
     QJsonObject  data = QJsonObject{};
     data[CP_IDIMPRESSION_IMPRESSIONS] = iddoc;
+    QString champ;
+    QVariant value;
+    for (QHash<QString, QVariant>::const_iterator itset = sets.constBegin(); itset != sets.constEnd(); ++itset)
+    {
+        champ  = itset.key();
+        if (champ == CP_IDUSER_IMPRESSIONS)                 data[champ] = itset.value().toInt();
+        else if (champ == CP_IDPAT_IMPRESSIONS)             data[champ] = itset.value().toInt();
+        else if (champ == CP_TYPEDOC_IMPRESSIONS)           data[champ] = itset.value().toString();
+        else if (champ == CP_SOUSTYPEDOC_IMPRESSIONS)       data[champ] = itset.value().toString();
+        else if (champ == CP_TITRE_IMPRESSIONS)             data[champ] = itset.value().toString();
+        else if (champ == CP_TEXTENTETE_IMPRESSIONS)        data[champ] = itset.value().toString();
+        else if (champ == CP_TEXTCORPS_IMPRESSIONS)         data[champ] = itset.value().toString();
+        else if (champ == CP_TEXTORIGINE_IMPRESSIONS)       data[champ] = itset.value().toString();
+        else if (champ == CP_TEXTPIED_IMPRESSIONS)          data[champ] = itset.value().toString();
+        else if (champ == CP_DATE_IMPRESSIONS)              data[champ] = QDateTime(itset.value().toDate(), itset.value().toTime()).toMSecsSinceEpoch();
+        else if (champ == CP_COMPRESSION_IMPRESSIONS)       data[champ] = itset.value().toInt();
+        else if (champ == CP_LIENFICHIER_IMPRESSIONS)       data[champ] = itset.value().toString();
+        else if (champ == CP_ALD_IMPRESSIONS)               data[champ] = itset.value().toInt();
+        else if (champ == CP_IDEMETTEUR_IMPRESSIONS)        data[champ] = itset.value().toInt();
+        else if (champ == CP_FORMATDOC_IMPRESSIONS)         data[champ] = itset.value().toString();
+        else if (champ == CP_IMPORTANCE_IMPRESSIONS)        data[champ] = itset.value().toInt();
+        else if (champ == CP_EMISORRECU_IMPRESSIONS)        data[champ] = itset.value().toInt();
+        else if (champ == CP_IDLIEU_IMPRESSIONS)            data[champ] = itset.value().toInt();
+    }
     doc = new DocExterne(data);
     return doc;
 }
-

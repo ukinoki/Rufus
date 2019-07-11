@@ -361,7 +361,7 @@ void dlg_docsscanner::ValideFiche()
 
     QString sstypedoc = linetitre->text();
     int idimpr (0);
-    QJsonObject listbinds;
+    QHash<QString,QVariant> listbinds;
     bool b = false;
     bool ok;
     QString lien;
@@ -402,7 +402,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_TITRE_IMPRESSIONS] =            typeDocCombo->currentText();
             listbinds[CP_DATE_IMPRESSIONS] =             editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
             listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       db->getUserConnected()->id();
-            listbinds[suffixe] =                         QJsonValue::fromVariant(ba);
+            listbinds[suffixe] =                         ba;
             listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
             listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
             listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->getSite()->id();
@@ -426,8 +426,8 @@ void dlg_docsscanner::ValideFiche()
             listbinds["DateFacture"] =      editdate->date().toString("yyyy-MM-dd");
             listbinds["Intitule"] =         sstypedoc;
             listbinds["LienFichier"] =      lien;
-            listbinds["Echeancier"] =       QJsonValue::fromVariant(gMode== Echeancier? "1" : QVariant(QVariant::String));
-            listbinds["idDepense"] =        QJsonValue::fromVariant(gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem));
+            listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
+            listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem));
             datafacture["lien"] =           lien;
         }
         else
@@ -435,9 +435,9 @@ void dlg_docsscanner::ValideFiche()
             listbinds["idFacture"] =        idimpr;
             listbinds["DateFacture"] =      editdate->date().toString("yyyy-MM-dd");
             listbinds["Intitule"] =         sstypedoc;
-            listbinds["Echeancier"] =       QJsonValue::fromVariant(gMode== Echeancier? "1" : QVariant(QVariant::String));
-            listbinds["idDepense"] =        QJsonValue::fromVariant(gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem));
-            listbinds[suffixe] =            QJsonValue::fromVariant(ba);
+            listbinds["Echeancier"] =       (gMode== Echeancier? "1" : QVariant(QVariant::String));
+            listbinds["idDepense"] =        (gMode== Echeancier? QVariant(QVariant::String) : QString::number(iditem));
+            listbinds[suffixe] =            ba;
             datafacture["lien"] =           "";
         }
         b = db->InsertSQLByBinds(TBL_FACTURES, listbinds);

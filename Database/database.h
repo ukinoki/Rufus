@@ -147,7 +147,7 @@ public:
                                                                 * le hash énumère les couples nomchamp, valeur à écrire
                                                                 *  avec la clause where
                                                                 * affiche le message errormsg en cas de pb */
-    bool                    InsertSQLByBinds(QString nomtable,  QJsonObject data, QString errormsg="");
+    bool                    InsertSQLByBinds(QString nomtable,  QHash<QString, QVariant> sets, QString errormsg="");
                                                                 /*! Insertion dans la table nomtable en utilisant la fonction bindvalue de Qt
                                                                 * - obligatoire pour insérer un QByteArray - ça ne fonctionne pas sinon
                                                                 * le hash énumère les couples nomchamp, valeur à écrire
