@@ -29,7 +29,20 @@ public:
     explicit Patients(QObject *parent = Q_NULLPTR);
 
     //GETTER
-    QMap<int, Patient*> *patients() const;
+    QMap<int, Patient*> *patients() const           { return m_patients; }
+    QMap<int, Patient*> *patientstable() const      { return m_patientstable; }
+    QMap<int, Patient*> *patientssaldat() const     { return m_patientssaldat; }
+    QMap<int, Patient*> *patientsbyDDN() const      { return m_patientsbyDDN; }
+    Patient* currentpatient() const                 { return m_currentpatient; }
+    Patient* dossierpatientaouvrir() const          { return m_dossierpatientaouvrir; }
+    void setcurrentpatient(int id)                  { if (id==0)
+                                                        m_currentpatient->erasedatas();
+                                                      else
+                                                        m_currentpatient = getById(id, Item::LoadDetails); }
+    void setdossierpatientaouvrir(int id)           { if (id==0)
+                                                        m_dossierpatientaouvrir->erasedatas();
+                                                      else
+                                                        m_dossierpatientaouvrir = getById(id, Item::LoadDetails); }
 
 
     Patient* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails);          /*! charge les données du patient corresondant à l'id
@@ -45,16 +58,31 @@ public:
                                                                                              */
     void reloadMedicalData(Patient* pat);                                                   //!> recharge les données médicales d'un patient
     void reloadSocialData(Patient* pat);                                                    //!> recharge les données sociales d'un patient
-    void initListeAll(QString nom = "", QString prenom = "", bool filtre = false);          /*! crée une liste de patients
+
+    void initListeTable(QString nom = "", QString prenom = "", bool filtre = false);        /*! crée la liste de patients de la table
                                                                                             * \param patnom filtrer sur le nom de patient
                                                                                             * \param patprenom filtrer sur le prénom de patient
                                                                                             * \param le filtre se fait sur des valeurs aprrochantes */
 
+    void initListeSalDat(QList<int> listidpatients);                                                /*! crée la liste de patients en cours (pateintsen cours d'examen, en salle d'attente ou à l'accueil
+                                                                                            * \param list id = la liste des idpatient en cours */
+
     void initListeByDDN(QDate DDN = QDate());                                               /*! crée une liste de tous les patients pour une date de naissance
                                                                                             * \param DDN la date de naissance */
 private:
-    QMap<int, Patient*> *m_patients;                                                        //!< une liste de patients
-    void addList(QList<Patient*> listpatientss);
+    /*! > il y a 3 listes de patients:
+     * la liste des patients de la table de rechercher
+     * la liste des patients en cours de la table salle d'attente
+     * les 2 patients actifs sur le poste: patient en cours d'examen et patient à ouvir (menu contextuel de la table)
+    */
+    QMap<int, Patient*> *m_patients;                                                        //!< tous les patients actuellement en mémoire
+    QMap<int, Patient*> *m_patientsbyDDN;                                                   //!< la liste des patients pour une même date de naissance (utilisé dans la recherche par DDN)
+    QMap<int, Patient*> *m_patientstable;                                                   //!< la liste des patients de la table listepatients
+    QMap<int, Patient*> *m_patientssaldat;                                                  //!< la liste des patients en salle d'attente
+    Patient *m_currentpatient           = Q_NULLPTR;                                        //!> le patient dont le dossier est ouvert
+    Patient *m_dossierpatientaouvrir    = Q_NULLPTR;                                        //!> le dossier de patient à ouvrir
+    void addList(QList<Patient*> listpatients);
+
     bool m_full;                                                                            //! la liste contient tous les patients de la base
 
 

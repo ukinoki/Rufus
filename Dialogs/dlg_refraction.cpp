@@ -1293,11 +1293,9 @@ void dlg_refraction::AfficherLaMesure()
             setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_SANS_DETAIL);
         ResumePrescription();
     }
-    QString LocalRequete = "SELECT  idRefraction FROM " TBL_REFRACTIONS " WHERE  idPat = " + QString::number(m_currentpatient->id()) ;
-    QList<QVariantList> ListeRefractions = db->StandardSelectSQL(LocalRequete,ok);
-    ui->OupsPushButton->setEnabled(ListeRefractions.size() > 0);
-    ui->ReprendrePushButton->setEnabled(ListeRefractions.size() > 0);
-    ui->ResumePushButton->setEnabled(ListeRefractions.size() > 0);
+    ui->OupsPushButton->setEnabled(Datas::I()->refractions->refractions()->size() > 0);
+    ui->ReprendrePushButton->setEnabled(Datas::I()->refractions->refractions()->size() > 0);
+    ui->ResumePushButton->setEnabled(Datas::I()->refractions->refractions()->size() > 0);
     MasquerObjetsOeilDecoche();
 }
 
@@ -1796,7 +1794,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS] =        PRESCRIPTIONLUNETTES;
         listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->getSite()->id();
-        DocExterne * doc = DocsExternes::CreationDocument(listbinds);
+        DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
             delete doc;
     }
@@ -2098,7 +2096,8 @@ bool dlg_refraction::InsertRefraction()
         listbinds["VerreTeinte"]                = ui->VerresTeintesCheckBox->isChecked()? 1 : 0;
     }
     listbinds["PrimKeyDocMed"]              = m_currentpatient->id();
-    return db->InsertSQLByBinds(TBL_REFRACTIONS, listbinds, tr("Erreur de création dans ") + TBL_REFRACTIONS);
+    bool a = db->InsertSQLByBinds(TBL_REFRACTIONS, listbinds, tr("Erreur de création dans ") + TBL_REFRACTIONS);
+    return a;
 }
 
 //---------------------------------------------------------------------------------
@@ -2115,6 +2114,12 @@ int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun,
 {
     bool ok;
     QString a;
+//    QString Dilatation ("");
+//    switch (Cyclo) {
+//    case Refraction::Cycloplegie: Dilatation = "1";
+//    case Refraction::NoCycloplegie: Dilatation = "0";
+//    default: break;
+//    }
     QString requete = "SELECT  idRefraction, idPat, DateRefraction, QuelleMesure, QuelleDistance, "           // 0-1-2-3-4
             " Cycloplegie, ODcoche, SphereOD, CylindreOD, AxeCylindreOD, AVLOD, "                   // 5-6-7-8-9-10
             " AddVPOD, AVPOD, PrismeOD, BasePrismeOD, BasePrismeTextOD, PressOnOD,"                 // 11-12-13-14-15-16

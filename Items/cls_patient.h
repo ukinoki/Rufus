@@ -67,10 +67,10 @@ private: //Données du patient
     QString m_toxiques;             //!< autres toxiques
     QString m_important;            //!< points importants du dossier
     QString m_resume;               //!< resumé du dossier
-    bool    m_ismedicalloaded;      //!< les renseignements médicaux sont chargés
-    bool    m_issocialloaded;       //!< les renseignements sociaux sont chargés
+    bool    m_ismedicalloaded   = false;      //!< les renseignements médicaux sont chargés
+    bool    m_issocialloaded    = false;       //!< les renseignements sociaux sont chargés
 
-    QMap<int, Acte*> *m_actes;      //!< ensemble des actes du patient
+    QMap<int, Acte*> *m_actes = new QMap<int, Acte*>();      //!< ensemble des actes du patient
 
 public:
     //GETTER | SETTER
@@ -120,6 +120,8 @@ public:
     void setSexe(QString sex);
 
     explicit Patient(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    ~Patient();
+
 
     void setData(QJsonObject data);
     void setSocialData(QJsonObject data);
@@ -161,6 +163,8 @@ public:
     void    setresume(QString rsm)          { m_resume = rsm; }
     void    settabac(QString tbc)           { m_tabac = tbc; }
     void    setautrestoxiques(QString tox)  { m_toxiques = tox; }
+
+    void erasedatas();
 };
 
 #endif // CLS_PATIENT_H

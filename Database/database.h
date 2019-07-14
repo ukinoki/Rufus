@@ -31,6 +31,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 #include <QSqlDatabase>
 #include <QSqlRecord>
+#include <QJsonDocument>
 
 #include "cls_acte.h"
 #include "cls_archivebanque.h"
@@ -306,6 +307,9 @@ public:
                                                                                                             * \param patnom filtrer sur le nom de patient
                                                                                                             * \param patprenom filtrer sur le prénom de patient
                                                                                                             * \param le filtre se fait sur des valeurs aprrochantes */
+
+    QList<Patient*>         loadPatientsByListId(QList<int> listid);                                        /*! charge la liste des patients à partir d'e la table patients'une liste d'id
+                                                                                                            * \param QList<int> la liste des id */
 
     QList<Patient *>        loadPatientsByDDN(QDate DDN);                                                   /*! charge la liste de tous les patients pour une date de naissance
                                                                                                              * \param DDN la date de naissance */

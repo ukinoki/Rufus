@@ -33,7 +33,7 @@ void Refractions::addList(QList<Refraction*> listRefractions)
     for( it = listRefractions.constBegin(); it != listRefractions.constEnd(); ++it )
     {
         Refraction* ref = const_cast<Refraction*>(*it);
-        add( m_refractions, ref );
+        add( m_refractions, ref, Item::ForceUpdate );
     }
 }
 

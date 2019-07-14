@@ -38,12 +38,12 @@ public:
     void                        initListeByPatient(Patient *pat);
     void                        actualise();
 
-    bool                        NouveauDocument();
-    void                        setNouveauDocumentFalse();
+    bool                        NouveauDocumentExterne();
+    void                        setNouveauDocumentExterneFalse();
 
     //!> actions sur les enregistrements
-    void                        SupprimeDocument(DocExterne *doc);
-    static DocExterne*          CreationDocument(QHash<QString, QVariant> sets);
+    void                        SupprimeDocumentExterne(DocExterne *doc);
+    static DocExterne*          CreationDocumentExterne(QHash<QString, QVariant> sets);
 
 };
 #endif // CLS_DOCSEXTERNES_H

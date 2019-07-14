@@ -53,9 +53,9 @@ protected:
     void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
     void setDataVariant(QJsonObject data, QString key, QVariant &prop);
 
-    int m_id;
-    QString  m_stringid;
-    QJsonObject m_data;         //!> les datas d'un item
+    int m_id = 0;
+    QString  m_stringid = "";
+    QJsonObject m_data = QJsonObject{};         //!> les datas d'un item
 };
 
 #endif // CLS_ITEM_H

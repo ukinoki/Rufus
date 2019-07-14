@@ -375,6 +375,8 @@ void dlg_docsscanner::ValideFiche()
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
                 + editdate->dateTime().toString("yyyy-MM-dd");
         lien = "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
+//        QJsonValue val = QJsonValue::fromVariant(ba);
+//        qDebug() << "val" << val;
         if (!AccesDistant)
         {
             listbinds[CP_IDIMPRESSION_IMPRESSIONS] =     idimpr;
@@ -402,12 +404,16 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_TITRE_IMPRESSIONS] =            typeDocCombo->currentText();
             listbinds[CP_DATE_IMPRESSIONS] =             editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
             listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       db->getUserConnected()->id();
+            //QJsonValue val = QJsonDocument::fromBinaryData(ba)[suffixe];
+            //            if (val.isObject())
+            //                QJsonDocument doc(val.toObject());
+            //listbinds[suffixe] =                         val;
             listbinds[suffixe] =                         ba;
             listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
             listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
             listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->getSite()->id();
         }
-        DocExterne * doc = DocsExternes::CreationDocument(listbinds);
+        DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         b = (doc != Q_NULLPTR);
         delete doc;
         doc = Q_NULLPTR;

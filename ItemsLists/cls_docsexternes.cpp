@@ -65,12 +65,12 @@ DocExterne* DocsExternes::getById(int id, Item::LOADDETAILS loadDetails, ADDTOLI
     return result;
 }
 
-bool DocsExternes::NouveauDocument()
+bool DocsExternes::NouveauDocumentExterne()
 {
     return m_nouveaudocument;
 }
 
-void DocsExternes::setNouveauDocumentFalse()
+void DocsExternes::setNouveauDocumentExterneFalse()
 {
     m_nouveaudocument = false;
 }
@@ -104,7 +104,7 @@ void DocsExternes::actualise()
     addList(DataBase::I()->loadDoscExternesByPatient(m_patient));
 }
 
-void DocsExternes::SupprimeDocument(DocExterne *doc)
+void DocsExternes::SupprimeDocumentExterne(DocExterne *doc)
 {
     if (doc == Q_NULLPTR)
         return;
@@ -112,7 +112,7 @@ void DocsExternes::SupprimeDocument(DocExterne *doc)
     Supprime(m_docsexternes, doc);
 }
 
-DocExterne* DocsExternes::CreationDocument(QHash<QString, QVariant> sets)
+DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)
 {
     DocExterne *doc = Q_NULLPTR;
     DataBase::I()->locktables(QStringList() << TBL_IMPRESSIONS);

@@ -306,7 +306,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS] =        BILANORTHOPTIQUE;
         listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->getSite()->id();
-        DocExterne * doc = DocsExternes::CreationDocument(listbinds);
+        DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if(doc != Q_NULLPTR)
             delete doc;
         doc = Q_NULLPTR;

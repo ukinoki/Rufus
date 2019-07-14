@@ -28,6 +28,7 @@ public:
     enum TypeMesure {Porte, Autoref, Acuite, Prescription};
     enum Distance {Loin, Pres, AllDistance};
     enum Oeil {Droit, Gauche, Les2};
+    enum Dilatation {Cycloplegie, NoCycloplegie, NoLoSo};
     void setData(QJsonObject data);
 
 private:

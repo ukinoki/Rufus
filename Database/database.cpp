@@ -1892,8 +1892,6 @@ Patient* DataBase::loadPatientById(int idPat, Patient *pat, bool all)
     jData[CP_SEXE_PATIENTS]         = patdata.at(3).toString();
     jData[CP_DATECREATION_PATIENTS] = patdata.at(4).toDate().toString("yyyy-MM-dd");
     jData[CP_IDCREATEUR_PATIENTS]   = patdata.at(5).toInt();
-    jData[CP_ISSOCIALlOADED]        = all;
-    jData[CP_ISMEDICALlOADED]       = all;
     if (all)
     {
         bool ok;
@@ -1960,8 +1958,40 @@ QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filt
         jData[CP_SEXE_PATIENTS] = patlist.at(i).at(4).toString();
         jData[CP_DATECREATION_PATIENTS] = patlist.at(i).at(5).toDate().toString("yyyy-MM-dd");
         jData[CP_IDCREATEUR_PATIENTS] = patlist.at(i).at(6).toInt();
-        jData[CP_ISMEDICALlOADED] = false;
-        jData[CP_ISSOCIALlOADED] = false;
+        Patient *patient = new Patient(jData);
+        if (patient != Q_NULLPTR)
+            listpatients << patient;
+    }
+    return listpatients;
+}
+
+QList<Patient*> DataBase::loadPatientsByListId(QList<int> listid)
+{
+    QList<Patient*> listpatients =  QList<Patient*>();
+    if (listid.size() == 0)
+        return listpatients;
+    QString stringlistid;
+    for (int i = 0; i < listid.size(); ++i)
+    {
+        stringlistid += QString::number(listid.at(i));
+        if (i < listid.size()-1)
+            stringlistid += ",";
+    }
+    QString req = "select idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar from " TBL_PATIENTS " where idpat in (" + stringlistid + ")";
+    //qDebug() << req;
+    QList<QVariantList> patlist = StandardSelectSQL(req,ok);
+    if( !ok || patlist.size()==0 )
+        return listpatients;
+    for (int i=0; i<patlist.size(); ++i)
+    {
+        QJsonObject jData{};
+        jData[CP_IDPAT_PATIENTS] = patlist.at(i).at(0).toInt();
+        jData[CP_NOM_PATIENTS] = patlist.at(i).at(1).toString();
+        jData[CP_PRENOM_PATIENTS] = patlist.at(i).at(2).toString();
+        jData[CP_DDN_PATIENTS] = patlist.at(i).at(3).toDate().toString("yyyy-MM-dd");
+        jData[CP_SEXE_PATIENTS] = patlist.at(i).at(4).toString();
+        jData[CP_DATECREATION_PATIENTS] = patlist.at(i).at(5).toDate().toString("yyyy-MM-dd");
+        jData[CP_IDCREATEUR_PATIENTS] = patlist.at(i).at(6).toInt();
         Patient *patient = new Patient(jData);
         if (patient != Q_NULLPTR)
             listpatients << patient;
@@ -1988,8 +2018,6 @@ QList<Patient *> DataBase::loadPatientsByDDN(QDate DDN)
         jData[CP_DDN_PATIENTS] = patlist.at(i).at(3).toDate().toString("yyyy-MM-dd");
         jData[CP_DATECREATION_PATIENTS] = patlist.at(i).at(5).toDate().toString("yyyy-MM-dd");
         jData[CP_IDCREATEUR_PATIENTS] = patlist.at(i).at(6).toInt();
-        jData[CP_ISMEDICALlOADED] = false;
-        jData[CP_ISSOCIALlOADED] = false;
         Patient *patient = new Patient(jData);
         if (patient != Q_NULLPTR)
             listpatients << patient;

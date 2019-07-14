@@ -23,6 +23,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Item::Item(QObject *parent) : QObject(parent)
 {
+    m_id = 0;
+    m_stringid = "";
 }
 
 void Item::setDataString(QJsonObject data, QString key, QString &prop, bool useTrim)

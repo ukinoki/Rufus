@@ -283,7 +283,7 @@ void dlg_docsvideo::ValideFiche()
     listbinds[CP_LIENFICHIER_IMPRESSIONS] =      NomFileVideoDoc;
     listbinds[CP_FORMATDOC_IMPRESSIONS] =        VIDEO;
 
-    DocExterne * doc = DocsExternes::CreationDocument(listbinds);
+    DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
     bool b = (doc != Q_NULLPTR);
     delete doc;
     if(!b)

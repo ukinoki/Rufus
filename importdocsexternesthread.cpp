@@ -556,7 +556,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     listbinds[CP_EMISORRECU_IMPRESSIONS] =      "0";
                     listbinds[CP_FORMATDOC_IMPRESSIONS] =       IMAGERIE;
                     listbinds[CP_IDLIEU_IMPRESSIONS] =          idLieuExercice;
-                    DocExterne * doc = DocsExternes::CreationDocument(listbinds);
+                    DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
                     if(doc != Q_NULLPTR)
                     {
                         delete doc;

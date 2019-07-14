@@ -65,8 +65,8 @@ public:
     MetaDocuments *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
     Motifs *motifs;                     //!< tous les motifs d'actes
     PaiementsTiers *paiementstiers;     //!< tous les paiements par tiers payants
-    Patients *patients;                 //!< Les patients
-    PatientsEnCours *patientsencours;   //! les patients en cours : patients dont les dossiers sont ouverts, ou présents en salle d'attente ou à l'accueil ou en cours d'examen
+    Patients *patients;                 //!> tous les patients en mémoire
+    PatientsEnCours *patientsencours;   //!> les patients en cours : patients dont les dossiers sont ouverts, ou présents en salle d'attente ou à l'accueil ou en cours d'examen
     Recettes *recettes;                 //!> toutes les recettes sur une période donnée
     Refractions *refractions;           //!> toutes les refractions d'un patient
     Sites *sites;                       //!< Les lieux de travail

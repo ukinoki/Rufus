@@ -155,7 +155,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurr
     gModeTri            = parDate;
     m_docsexternes      = Docs;
     conservealafin      = iscurrentpatient;
-    m_docsexternes->setNouveauDocumentFalse();
+    m_docsexternes->setNouveauDocumentExterneFalse();
     RemplirTreeView();
 }
 
@@ -618,9 +618,9 @@ void dlg_docsexternes::BasculeTriListe(int a)
 void dlg_docsexternes::ActualiseDocsExternes()
 {
     m_docsexternes->actualise();
-    if (m_docsexternes->NouveauDocument())
+    if (m_docsexternes->NouveauDocumentExterne())
     {
-        m_docsexternes->setNouveauDocumentFalse();
+        m_docsexternes->setNouveauDocumentExterneFalse();
         RemplirTreeView();
     }
 }
@@ -828,7 +828,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1" : QVariant(QVariant::String));
         listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = m_currentuser->id();
         listbinds[CP_IMPORTANCE_IMPRESSIONS]    = docmt->importance();
-        DocExterne * doc = m_docsexternes->CreationDocument(listbinds);
+        DocExterne * doc = m_docsexternes->CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
         {
             int idimpr = doc->id();
@@ -837,7 +837,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
             {
                 if (docmt->idrefraction() > 0)
                     Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(docmt->idrefraction()));
-                Datas::I()->docsexternes->SupprimeDocument(docmt);
+                Datas::I()->docsexternes->SupprimeDocumentExterne(docmt);
             }
             ActualiseDocsExternes();
             QModelIndex idx = getIndexFromId(gmodele, idimpr);
@@ -1071,7 +1071,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         }
         if (docmt->idrefraction() > 0)
             Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(docmt->idrefraction()));
-        Datas::I()->docsexternes->SupprimeDocument(docmt);
+        Datas::I()->docsexternes->SupprimeDocumentExterne(docmt);
         RemplirTreeView();
         ListDocsTreeView->expandAll();
         if (idaafficher != "")

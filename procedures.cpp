@@ -6607,4 +6607,5 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             }
         }
     }
+    Datas::I()->refractions->initListebyPatId(idPatient);
 }

@@ -81,6 +81,14 @@ Patient::Patient(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
+Patient::~Patient()
+{
+    QMapIterator<int, Acte*> it(*m_actes);
+    while (it.hasNext())
+        delete it.next().value();
+    delete m_actes;
+}
+
 void Patient::setData(QJsonObject data)
 {
     if( data.isEmpty() )
@@ -180,4 +188,49 @@ void Patient::addActe(Acte *acte)
     if( m_actes->contains(acte->id()) )
         return;
     m_actes->insert(acte->id(), acte);
+}
+
+void Patient::erasedatas()
+{
+    m_id                = 0;
+    m_nom               = QString();
+    m_prenom            = QString();
+    m_sexe              = QString();
+    m_datecreation      = QDate();
+    m_idcreateur        = 0;
+
+    m_dateDeNaissance   = QDate();
+
+    m_adresse1          = QString();
+    m_adresse2          = QString();
+    m_adresse3          = QString();
+    m_codepostal        = QString();
+    m_ville             = QString();
+    m_telephone         = QString();
+    m_portable          = QString();
+    m_mail              = QString();
+    m_NNI               = 0;
+    m_ALD               = false;
+    m_CMU               = false;
+    m_profession        = QString();
+
+    m_idmg              = 0;
+    m_idspe1            = 0;
+    m_idspe2            = 0;
+    m_idspe3            = 0;
+    m_idcornonmg        = 0;
+    m_atcdtspersos      = QString();
+    m_atcdtsfamiliaux   = QString();
+    m_atcdtsophtalmos   = QString();
+    m_traitementgen     = QString();
+    m_traitementoph     = QString();
+    m_tabac             = QString();
+    m_toxiques          = QString();
+    m_important         = QString();
+    m_resume            = QString();
+    m_ismedicalloaded   = false;
+    m_issocialloaded    = false;
+    QMapIterator<int, Acte*> it(*m_actes);
+    while (it.hasNext())
+        delete it.next().value();
 }
