@@ -26,7 +26,6 @@ class Refractions : public ItemsList
 {
 private:
     QMap<int, Refraction*> *m_refractions = Q_NULLPTR;      //!< la liste des refractions
-    void addList(QList<Refraction*> listRefractionss);
 
 public:
     explicit Refractions(QObject *parent = Q_NULLPTR);

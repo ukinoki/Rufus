@@ -28,16 +28,6 @@ QMap<int, Document *> *Documents::documents() const
     return m_documents;
 }
 
-void Documents::addList(QList<Document*> listDocuments)
-{
-    QList<Document*>::const_iterator it;
-    for( it = listDocuments.constBegin(); it != listDocuments.constEnd(); ++it )
-    {
-        Document* item = const_cast<Document*>(*it);
-        add( m_documents, item );
-    }
-}
-
 Document* Documents::getById(int id)
 {
     QMap<int, Document*>::const_iterator itdoc = m_documents->find(id);
@@ -54,7 +44,7 @@ Document* Documents::getById(int id)
 void Documents::initListe()
 {
     clearAll(m_documents);
-    addList(DataBase::I()->loadDocuments());
+    addList(m_documents, DataBase::I()->loadDocuments());
 }
 
 
@@ -66,16 +56,6 @@ MetaDocuments::MetaDocuments()
 QMap<int, MetaDocument *> *MetaDocuments::metadocuments() const
 {
     return m_metadocuments;
-}
-
-void MetaDocuments::addList(QList<MetaDocument*> listMetaDocs)
-{
-    QList<MetaDocument*>::const_iterator it;
-    for( it = listMetaDocs.constBegin(); it != listMetaDocs.constEnd(); ++it )
-    {
-        MetaDocument* item = const_cast<MetaDocument*>(*it);
-        add( m_metadocuments, item );
-    }
 }
 
 MetaDocument* MetaDocuments::getById(int id)
@@ -94,6 +74,6 @@ MetaDocument* MetaDocuments::getById(int id)
 void MetaDocuments::initListe()
 {
     clearAll(m_metadocuments);
-    addList(DataBase::I()->loadMetaDocuments());
+    addList(m_metadocuments, DataBase::I()->loadMetaDocuments());
 }
 

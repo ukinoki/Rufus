@@ -71,46 +71,46 @@ private: //Données du patient
 
 public:
     //GETTER | SETTER
-    bool ismedicalloaded();
-    bool issocialloaded();
+    bool ismedicalloaded() const;
+    bool issocialloaded() const;
     bool isalloaded();
 
-    QString nom();
-    QString prenom();
-    QString sexe();
-    QDate   datecreationdossier();
-    QDate   datedenaissance();
-    int     idcreateur();
+    QString nom() const;
+    QString prenom() const;
+    QString sexe() const;
+    QDate   datecreationdossier() const;
+    QDate   datedenaissance() const;
+    int     idcreateur() const;
 
     // Social data
-    QString adresse1();
-    QString adresse2();
-    QString adresse3();
-    QString codepostal();
-    QString ville();
-    QString telephone();
-    QString portable();
-    QString mail();
-    qlonglong NNI();
-    bool isald();
-    bool iscmu();
-    QString profession();
+    QString adresse1() const;
+    QString adresse2() const;
+    QString adresse3() const;
+    QString codepostal() const;
+    QString ville() const;
+    QString telephone() const;
+    QString portable() const;
+    QString mail() const;
+    qlonglong NNI() const;
+    bool isald() const;
+    bool iscmu() const;
+    QString profession() const;
 
     // Medical data
-    int idmg();
-    int idspe1();
-    int idspe2();
-    int idspe3();
-    int idcornonmg();
-    QString atcdtspersos();
-    QString atcdtsfamiliaux();
-    QString atcdtsophtalmos();
-    QString traitementgen();
-    QString traitementoph();
-    QString tabac();
-    QString toxiques();
-    QString important();
-    QString resume();
+    int idmg() const;
+    int idspe1() const;
+    int idspe2() const;
+    int idspe3()const;
+    int idcornonmg() const;
+    QString atcdtspersos() const;
+    QString atcdtsfamiliaux() const;
+    QString atcdtsophtalmos() const;
+    QString traitementgen() const;
+    QString traitementoph() const;
+    QString tabac() const;
+    QString toxiques() const;
+    QString important() const;
+    QString resume() const;
 
     void setSexe(QString sex);
 

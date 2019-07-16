@@ -26,7 +26,6 @@ class Documents : public ItemsList
 {
 private:
     QMap<int, Document*> *m_documents = Q_NULLPTR;      //!< la liste des Documents
-    void addList(QList<Document*> listDocuments);
 
 public:
     explicit Documents(QObject *parent = Q_NULLPTR);
@@ -41,7 +40,6 @@ class MetaDocuments : public ItemsList
 {
 private:
     QMap<int, MetaDocument*> *m_metadocuments = Q_NULLPTR;      //!< la liste des metadocuments
-    void addList(QList<MetaDocument*> listmetaDocs);
 
 public:
     explicit MetaDocuments();

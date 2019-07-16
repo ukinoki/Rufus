@@ -33,7 +33,6 @@ class TiersPayants : public ItemsList
 {
 private:
     QMap<int, Tiers*> *m_tierspayants; //!< la liste des tiers payants
-    void addList(QList<Tiers*> listTierss);
 
 public:
     explicit TiersPayants(QObject *parent = Q_NULLPTR);

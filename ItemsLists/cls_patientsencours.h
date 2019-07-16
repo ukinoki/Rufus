@@ -41,7 +41,6 @@ public:
 
 private:
     QMap<int, PatientEnCours*> *m_patientsencours;                                          //!< la liste des patientsencours
-    void addList(QList<PatientEnCours*> listpatientss);
 
 public:
 

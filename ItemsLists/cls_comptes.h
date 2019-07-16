@@ -26,7 +26,6 @@ class Comptes : public ItemsList
 {
 private:
     QMap<int, Compte*> *m_comptes = Q_NULLPTR;  //!< la liste de tous les comptes
-    void addList(QList<Compte*> listCompte);
 
 public:
     explicit Comptes(QObject *parent = Q_NULLPTR);

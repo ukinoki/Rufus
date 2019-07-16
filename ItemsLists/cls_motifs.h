@@ -26,7 +26,6 @@ class Motifs : public ItemsList
 {
 private:
     QMap<int, Motif*> *m_motifs; //!< la liste des Motifs
-    void addList(QList<Motif*> listMotifs);
 
 public:
     explicit Motifs(QObject *parent = Q_NULLPTR);

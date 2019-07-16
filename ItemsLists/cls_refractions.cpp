@@ -27,16 +27,6 @@ QMap<int, Refraction *>* Refractions::refractions() const
     return m_refractions;
 }
 
-void Refractions::addList(QList<Refraction*> listRefractions)
-{
-    QList<Refraction*>::const_iterator it;
-    for( it = listRefractions.constBegin(); it != listRefractions.constEnd(); ++it )
-    {
-        Refraction* ref = const_cast<Refraction*>(*it);
-        add( m_refractions, ref, Item::ForceUpdate );
-    }
-}
-
 Refraction* Refractions::getById(int id)
 {
     QMap<int, Refraction*>::const_iterator itref = m_refractions->find(id);
@@ -58,7 +48,7 @@ Refraction* Refractions::getById(int id)
 void Refractions::initListebyPatId(int id)
 {
     clearAll(m_refractions);
-    addList(DataBase::I()->loadRefractionByPatId(id));
+    addList(m_refractions, DataBase::I()->loadRefractionByPatId(id));
 }
 
 

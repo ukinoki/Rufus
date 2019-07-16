@@ -35,17 +35,7 @@ QMap<int, Banque *> *Banques::banques() const
 void Banques::initListe()
 {
     clearAll(m_banques);
-    addList(DataBase::I()->loadBanques());
-}
-
-void Banques::addList(QList<Banque*> listbanques)
-{
-    QList<Banque*>::const_iterator it;
-    for( it = listbanques.constBegin(); it != listbanques.constEnd(); ++it )
-    {
-        Banque* item = const_cast<Banque*>(*it);
-        add( m_banques, item );
-    }
+    addList(m_banques, DataBase::I()->loadBanques());
 }
 
 Banque* Banques::getById(int id)

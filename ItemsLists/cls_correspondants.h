@@ -26,7 +26,6 @@ class Correspondants : public ItemsList
 {
 private:
     QMap<int, Correspondant*> *m_correspondants;    //!<Collection de tous les correspondants sans exception, généralistes ou pas
-    void addList(QList<Correspondant*> listcor);
 
 public:
     //GETTER

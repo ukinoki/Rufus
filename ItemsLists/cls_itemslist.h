@@ -70,6 +70,23 @@ public:
         }
     }
 
+    template <typename T>
+    void addList(QMap<QString, T*> *m_map, QList<T*> listitems, Item::UPDATE upd = Item::NoUpdate)
+    {
+        for(auto it = listitems.begin(); it != listitems.end(); )
+        {
+            T* item = const_cast<T*>(*it);
+            if (!add( m_map, item, upd))
+            {
+                it = listitems.erase(it);
+                if (item != Q_NULLPTR)
+                    delete item;
+            }
+            else
+                 ++it;
+        }
+    }
+
 
 protected:
 

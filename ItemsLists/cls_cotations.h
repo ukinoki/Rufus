@@ -26,7 +26,6 @@ class Cotations : public ItemsList
 {
 private:
     QMap<int, Cotation*> *m_cotations;    //!< la liste des cotations pratiquées par un utilisateur
-    void addList(QList<Cotation*> listcot);
 
 public:
     explicit Cotations(QObject *parent = Q_NULLPTR);

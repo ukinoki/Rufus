@@ -24,45 +24,45 @@ Patient::Patient(QJsonObject data, QObject *parent) : Item(parent)
 }
 
 //GETTER | SETTER
-QString Patient::nom()                { return m_nom; }
-QString Patient::prenom()             { return m_prenom; }
-QString Patient::sexe()               { return m_sexe; }
-QDate Patient::datedenaissance()      { return m_dateDeNaissance; }
-QDate Patient::datecreationdossier()  { return m_datecreation; }
-int Patient::idcreateur()             { return m_idcreateur; }
+QString Patient::nom() const                { return m_nom; }
+QString Patient::prenom() const             { return m_prenom; }
+QString Patient::sexe() const               { return m_sexe; }
+QDate Patient::datedenaissance() const      { return m_dateDeNaissance; }
+QDate Patient::datecreationdossier() const  { return m_datecreation; }
+int Patient::idcreateur() const             { return m_idcreateur; }
 
 // Social data
-QString Patient::adresse1()           { return m_adresse1; }
-QString Patient::adresse2()           { return m_adresse2; }
-QString Patient::adresse3()           { return m_adresse3; }
-QString Patient::codepostal()         { return m_codepostal; }
-QString Patient::ville()              { return m_ville; }
-QString Patient::telephone()          { return m_telephone; }
-QString Patient::portable()           { return m_portable; }
-QString Patient::mail()               { return m_mail; }
-qlonglong Patient::NNI()              { return m_NNI; }
-bool Patient::isald()                 { return m_ALD; }
-bool Patient::iscmu()                 { return m_CMU; }
-QString Patient::profession()         { return m_profession; }
+QString Patient::adresse1() const           { return m_adresse1; }
+QString Patient::adresse2() const           { return m_adresse2; }
+QString Patient::adresse3() const           { return m_adresse3; }
+QString Patient::codepostal() const         { return m_codepostal; }
+QString Patient::ville() const              { return m_ville; }
+QString Patient::telephone() const          { return m_telephone; }
+QString Patient::portable() const           { return m_portable; }
+QString Patient::mail() const               { return m_mail; }
+qlonglong Patient::NNI() const              { return m_NNI; }
+bool Patient::isald() const                 { return m_ALD; }
+bool Patient::iscmu() const                 { return m_CMU; }
+QString Patient::profession() const         { return m_profession; }
 
 // Medical data
-int Patient::idmg()                   { return m_idmg; }
-int Patient::idspe1()                 { return m_idspe1; }
-int Patient::idspe2()                 { return m_idspe2; }
-int Patient::idspe3()                 { return m_idspe3; }
-int Patient::idcornonmg()             { return m_idcornonmg; }
-QString Patient::atcdtspersos()             { return m_atcdtspersos; }
-QString Patient::atcdtsfamiliaux()          { return m_atcdtsfamiliaux; }
-QString Patient::atcdtsophtalmos()          { return m_atcdtsophtalmos; }
-QString Patient::traitementgen()            { return m_traitementgen; }
-QString Patient::traitementoph()            { return m_traitementoph; }
-QString Patient::tabac()                    { return m_tabac; }
-QString Patient::toxiques()                 { return m_toxiques; }
-QString Patient::important()                { return m_important; }
-QString Patient::resume()                   { return m_resume; }
+int Patient::idmg() const                   { return m_idmg; }
+int Patient::idspe1() const                 { return m_idspe1; }
+int Patient::idspe2() const                 { return m_idspe2; }
+int Patient::idspe3() const                 { return m_idspe3; }
+int Patient::idcornonmg() const             { return m_idcornonmg; }
+QString Patient::atcdtspersos() const       { return m_atcdtspersos; }
+QString Patient::atcdtsfamiliaux() const    { return m_atcdtsfamiliaux; }
+QString Patient::atcdtsophtalmos() const    { return m_atcdtsophtalmos; }
+QString Patient::traitementgen() const      { return m_traitementgen; }
+QString Patient::traitementoph() const      { return m_traitementoph; }
+QString Patient::tabac() const              { return m_tabac; }
+QString Patient::toxiques() const           { return m_toxiques; }
+QString Patient::important() const          { return m_important; }
+QString Patient::resume() const             { return m_resume; }
 
-bool Patient::ismedicalloaded()       { return m_ismedicalloaded; }
-bool Patient::issocialloaded()        { return m_issocialloaded; }
+bool Patient::ismedicalloaded() const       { return m_ismedicalloaded; }
+bool Patient::issocialloaded() const        { return m_issocialloaded; }
 bool Patient::isalloaded()
 {
     return (m_issocialloaded && m_ismedicalloaded);

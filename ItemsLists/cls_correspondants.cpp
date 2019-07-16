@@ -34,16 +34,6 @@ Correspondants::Correspondants(QObject *parent) : ItemsList(parent)
     m_correspondants = new QMap<int, Correspondant*>();
 }
 
-void Correspondants::addList(QList<Correspondant*> listcor)
-{
-    QList<Correspondant*>::const_iterator it;
-    for( it = listcor.constBegin(); it != listcor.constEnd(); ++it )
-    {
-        Correspondant* item = const_cast<Correspondant*>(*it);
-        add( m_correspondants, item );
-    }
-}
-
 /*!
  * \brief Correspondants::getById
  * \param id l'id du correspondant recherché
@@ -96,5 +86,5 @@ void Correspondants::initListe(bool all)
         listcorrespondants = DataBase::I()->loadCorrespondantsALL();
     else
         listcorrespondants = DataBase::I()->loadCorrespondants();
-    addList(listcorrespondants);
+    addList(m_correspondants, listcorrespondants);
 }

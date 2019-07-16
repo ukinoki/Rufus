@@ -29,16 +29,6 @@ QMap<int, PaiementTiers *> *PaiementsTiers::paiementstiers() const
     return m_paiementstiers;
 }
 
-void PaiementsTiers::addList(QList<PaiementTiers*> listpaiementtiers)
-{
-    QList<PaiementTiers*>::const_iterator it;
-    for( it = listpaiementtiers.constBegin(); it != listpaiementtiers.constEnd(); ++it )
-    {
-        PaiementTiers* item = const_cast<PaiementTiers*>(*it);
-        add( m_paiementstiers, item );
-    }
-}
-
 PaiementTiers* PaiementsTiers::getById(int id)
 {
     QMap<int, PaiementTiers*>::const_iterator itcpt = m_paiementstiers->find(id);
@@ -55,5 +45,5 @@ PaiementTiers* PaiementsTiers::getById(int id)
 void PaiementsTiers::initListe(User* usr)
 {
     clearAll(m_paiementstiers);
-    addList(DataBase::I()->loadPaiementTiersByUser(usr));
+    addList(m_paiementstiers, DataBase::I()->loadPaiementTiersByUser(usr));
 }

@@ -31,7 +31,6 @@ private:
                                                         * dans la table ComptaMedicale.lignesaiements correspondant à cette classe (erreur du début de la rédaction du programme)
                                                         * par contre, le couple idActe/idRecette est unique pour chaque enregistrement
                                                         * la key est donc la concaténation de ces 2 champs séparés par un séparateur */
-    void                            addList(QList<LignePaiement*> listlignes);
 
 public:
     explicit                        LignesPaiements(QObject *parent = Q_NULLPTR);

@@ -33,16 +33,6 @@ QMap<int, Compte*>* Comptes::comptes() const
     return m_comptes;
 }
 
-void Comptes::addList(QList<Compte*> listCompte)
-{
-    QList<Compte*>::const_iterator it;
-    for( it = listCompte.constBegin(); it != listCompte.constEnd(); ++it )
-    {
-        Compte* item = const_cast<Compte*>(*it);
-        add( m_comptes, item );
-    }
-}
-
 Compte* Comptes::getById(int id)
 {
     QMap<int, Compte*>::const_iterator itcpt = m_comptes->find(id);
@@ -70,7 +60,7 @@ void Comptes::reloadCompte(Compte *compte)
 void Comptes::initListe()
 {
     QList<Compte*> listcomptes;
-    addList(DataBase::I()->loadComptesAll());
+    addList(m_comptes, DataBase::I()->loadComptesAll());
 }
 
 void Comptes::SupprimeCompte(Compte *cpt)

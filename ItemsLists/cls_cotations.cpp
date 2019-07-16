@@ -28,16 +28,6 @@ QMap<int, Cotation *> *Cotations::cotations() const
     return m_cotations;
 }
 
-void Cotations::addList(QList<Cotation*> listcot)
-{
-    QList<Cotation*>::const_iterator it;
-    for( it = listcot.constBegin(); it != listcot.constEnd(); ++it )
-    {
-        Cotation* item = const_cast<Cotation*>(*it);
-        add( m_cotations, item );
-    }
-}
-
 /*!
  * \brief Cotationss::initListeByUser
  * Charge l'ensemble des cotations pour le user
@@ -46,6 +36,6 @@ void Cotations::addList(QList<Cotation*> listcot)
 void Cotations::initListeByUser(int iduser)
 {
     clearAll(m_cotations);
-    addList(DataBase::I()->loadCotationsByUser(iduser));
+    addList(m_cotations, DataBase::I()->loadCotationsByUser(iduser));
 }
 

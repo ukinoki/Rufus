@@ -27,16 +27,6 @@ QMap<int, Motif *> *Motifs::motifs() const
     return m_motifs;
 }
 
-void Motifs::addList(QList<Motif*> listMotifs)
-{
-    QList<Motif*>::const_iterator it;
-    for( it = listMotifs.constBegin(); it != listMotifs.constEnd(); ++it )
-    {
-        Motif* item = const_cast<Motif*>(*it);
-        add( m_motifs, item );
-    }
-}
-
 Motif* Motifs::getById(int id)
 {
     QMap<int, Motif*>::const_iterator itcpt = m_motifs->find(id);
@@ -64,7 +54,7 @@ Motif* Motifs::getMotifFromRaccourci(QString txt)
 void Motifs::initListe()
 {
     clearAll(m_motifs);
-    addList(DataBase::I()->loadMotifs());
+    addList(m_motifs, DataBase::I()->loadMotifs());
 }
 
 void Motifs::SupprimeMotif(Motif *mf)

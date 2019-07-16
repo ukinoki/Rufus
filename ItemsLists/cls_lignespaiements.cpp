@@ -27,16 +27,6 @@ QMap<QString, LignePaiement *>* LignesPaiements::lignespaiements() const
     return m_lignespaiements;
 }
 
-void LignesPaiements::addList(QList<LignePaiement*> listlignes)
-{
-    QList<LignePaiement*>::const_iterator it;
-    for( it = listlignes.constBegin(); it != listlignes.constEnd(); ++it )
-    {
-        LignePaiement* item = const_cast<LignePaiement*>(*it);
-        add( m_lignespaiements, item );
-    }
-}
-
 LignePaiement* LignesPaiements::getById(QString stringid)
 {
     QMap<QString, LignePaiement*>::const_iterator itcpt = m_lignespaiements->find(stringid);
@@ -55,7 +45,7 @@ void LignesPaiements::initListeByPatient(Patient *pat)
     if (pat == Q_NULLPTR)
         return;
     clearAll(m_lignespaiements);
-    addList(DataBase::I()->loadlignespaiementsByPatient(pat));
+    addList(m_lignespaiements, DataBase::I()->loadlignespaiementsByPatient(pat));
 }
 
 void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)

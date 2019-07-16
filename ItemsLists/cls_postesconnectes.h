@@ -30,7 +30,6 @@ class PostesConnectes : public ItemsList
      */
 public:
     QMap<QString, PosteConnecte*> *m_postesconnectes = Q_NULLPTR;  //!< la liste de tous les postesconnectes
-    void addList(QList<PosteConnecte*> listpost);
 
 private:
     PosteConnecte   *m_admin;

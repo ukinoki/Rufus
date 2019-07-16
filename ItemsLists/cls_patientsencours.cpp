@@ -52,20 +52,10 @@ PatientEnCours* PatientsEnCours::getById(int id)
     return pat;
 }
 
-void PatientsEnCours::addList(QList<PatientEnCours*> listPatientsEnCours)
-{
-    QList<PatientEnCours*>::const_iterator it;
-    for( it = listPatientsEnCours.constBegin(); it != listPatientsEnCours.constEnd(); ++it )
-    {
-        PatientEnCours* item = const_cast<PatientEnCours*>(*it);
-        add( m_patientsencours, item );
-    }
-}
-
 void PatientsEnCours::initListeAll()
 {
     clearAll(m_patientsencours);
-    addList(DataBase::I()->loadPatientsenCoursAll());
+    addList(m_patientsencours, DataBase::I()->loadPatientsenCoursAll());
 }
 
 void PatientsEnCours::SupprimePatientEnCours(PatientEnCours *pat)

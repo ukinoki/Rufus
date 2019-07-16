@@ -26,7 +26,6 @@ class Sites : public ItemsList
 {
 private:
     QMap<int, Site*> *m_sites;    //!<Collection de tous les sites sans exception, généralistes ou pas
-    void addList(QList<Site*> listSites);
 
 public:
     //GETTER

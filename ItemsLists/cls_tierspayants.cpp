@@ -27,16 +27,6 @@ QMap<int, Tiers *> *TiersPayants::tierspayants() const
     return m_tierspayants;
 }
 
-void TiersPayants::addList(QList<Tiers*> listTiersPayants)
-{
-    QList<Tiers*>::const_iterator it;
-    for( it = listTiersPayants.constBegin(); it != listTiersPayants.constEnd(); ++it )
-    {
-        Tiers* trs = const_cast<Tiers*>(*it);
-        add( m_tierspayants, trs );
-    }
-}
-
 Tiers* TiersPayants::getById(int id)
 {
     QMap<int, Tiers*>::const_iterator itcpt = m_tierspayants->find(id);
@@ -53,5 +43,5 @@ Tiers* TiersPayants::getById(int id)
 void TiersPayants::initListe()
 {
     clearAll(m_tierspayants);
-    addList(DataBase::I()->loadTiersPayants());
+    addList(m_tierspayants, DataBase::I()->loadTiersPayants());
 }

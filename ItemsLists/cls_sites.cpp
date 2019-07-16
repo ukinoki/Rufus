@@ -34,16 +34,6 @@ Sites::Sites(QObject *parent) : ItemsList(parent)
     m_sites = new QMap<int, Site*>();
 }
 
-void Sites::addList(QList<Site*> listSites)
-{
-    QList<Site*>::const_iterator it;
-    for( it = listSites.constBegin(); it != listSites.constEnd(); ++it )
-    {
-        Site* sit = const_cast<Site*>(*it);
-        add( m_sites, sit );
-    }
-}
-
 /*!
  * \brief Sites::getById
  * \param id l'id du site recherché
@@ -68,5 +58,5 @@ Site* Sites::getById(int id)
 void Sites::initListe()
 {
     clearAll(m_sites);
-    addList(DataBase::I()->loadSitesAll());
+    addList(m_sites, DataBase::I()->loadSitesAll());
 }

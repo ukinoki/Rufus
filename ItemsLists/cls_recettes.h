@@ -26,7 +26,6 @@ class Recettes : public ItemsList
 {
 private:
     QMap<int, Recette*> *m_recettes = Q_NULLPTR; //!< la liste des recettes
-    void    addList(QList<Recette*> listRecettes);
 
 public:
     explicit Recettes(QObject *parent = Q_NULLPTR);

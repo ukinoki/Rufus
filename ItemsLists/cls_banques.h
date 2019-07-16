@@ -26,7 +26,6 @@ class Banques : public ItemsList
 {
 private:
     QMap<int, Banque*> *m_banques = Q_NULLPTR; //!< la liste des Banques
-    void    addList(QList<Banque*> listbanques);
 
 public:
     explicit Banques(QObject *parent = Q_NULLPTR);

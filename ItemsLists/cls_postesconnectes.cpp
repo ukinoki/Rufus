@@ -33,16 +33,6 @@ QMap<QString, PosteConnecte*>* PostesConnectes::postesconnectes() const
     return m_postesconnectes;
 }
 
-void PostesConnectes::addList(QList<PosteConnecte*> listpost)
-{
-    QList<PosteConnecte*>::const_iterator it;
-    for( it = listpost.constBegin(); it != listpost.constEnd(); ++it )
-    {
-        PosteConnecte* item = const_cast<PosteConnecte*>(*it);
-        add( m_postesconnectes, item );
-    }
-}
-
 PosteConnecte* PostesConnectes::getById(QString stringid)
 {
     QMap<QString, PosteConnecte*>::const_iterator itcpt = m_postesconnectes->find(stringid) ;
@@ -54,7 +44,7 @@ PosteConnecte* PostesConnectes::getById(QString stringid)
 void PostesConnectes::initListe()
 {
     clearAll(m_postesconnectes);
-    addList(DataBase::I()->loadPostesConnectes());
+    addList(m_postesconnectes, DataBase::I()->loadPostesConnectes());
 }
 
 void PostesConnectes::SupprimeAllPostesConnectes()
