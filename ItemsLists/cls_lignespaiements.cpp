@@ -54,13 +54,24 @@ void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
         return;
     DataBase::I()->StandardSQL("DELETE FROM " TBL_LIGNESPAIEMENTS " WHERE idActe = " + QString::number(act->id()));
     QList<LignePaiement*> listlignesasupprimer = QList<LignePaiement*>();
-    for (QMap<QString, LignePaiement*>::const_iterator itlign = m_lignespaiements->constBegin() ; itlign != m_lignespaiements->constEnd(); ++itlign)
+    for (auto itlign = m_lignespaiements->begin() ; itlign != m_lignespaiements->end();)
     {
         LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
-        listlignesasupprimer << lign;
+        if (lign->idacte() == act->id())
+        {
+            itlign = m_lignespaiements->erase(itlign);
+            delete lign;
+        }
+        else
+            ++ itlign;
     }
-    if (listlignesasupprimer.size() > 0)
-        for (int i=0; i<listlignesasupprimer.size(); ++i)
-            remove(m_lignespaiements, listlignesasupprimer.at(i));
+//    for (QMap<QString, LignePaiement*>::const_iterator itlign = m_lignespaiements->constBegin() ; itlign != m_lignespaiements->constEnd(); ++itlign)
+//    {
+//        LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
+//        listlignesasupprimer << lign;
+//    }
+//    if (listlignesasupprimer.size() > 0)
+//        for (int i=0; i<listlignesasupprimer.size(); ++i)
+//            remove(m_lignespaiements, listlignesasupprimer.at(i));
 }
 
