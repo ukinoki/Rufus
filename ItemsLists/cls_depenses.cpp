@@ -37,16 +37,6 @@ Depenses::Depenses(QObject *parent) : ItemsList(parent)
     m_depenses = new QMap<int, Depense*>();
 }
 
-void Depenses::addList(QList<Depense*> listDepense)
-{
-    QList<Depense*>::const_iterator it;
-    for( it = listDepense.constBegin(); it != listDepense.constEnd(); ++it )
-    {
-        Depense* item = const_cast<Depense*>(*it);
-        add( m_depenses, item );
-    }
-}
-
 /*!
  * \brief Depenses::getById
  * \param id l'id du Depense recherché
@@ -70,7 +60,7 @@ void Depenses::initListeByUser(int iduser)
 {
     clearAll(m_depenses);
     QList<Depense*> listdepenses = DataBase::I()->loadDepensesByUser(iduser);
-    addList(listdepenses);
+    addList(m_depenses, listdepenses);
 }
 
 void Depenses::SupprimeDepense(Depense *dep)

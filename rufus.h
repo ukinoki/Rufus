@@ -343,7 +343,7 @@ private:
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
     void                RegleRefracteur(QString TypeMesure);
     void                RemiseCheques();
-    bool                Remplir_ListePatients_TableView(QMap<int, Patient *> *listpatients);
+    bool                Remplir_ListePatients_TableView();
     QTabWidget*         Remplir_MsgTabWidget();
     void                Remplir_SalDat();
     bool                RetourSalleDattente(QString Titre);
@@ -354,7 +354,7 @@ private:
     void                SupprimerDocsEtFactures();
     void                SupprimerDossier(Patient *pat);
     void                Tonometrie();
-    void                TrouverDDN();
+    void                FiltreTableparDDN();
     void                updateActeData(Acte *act, QString nomchamp, QVariant value);                     //! met à jour la valeur d'un champ de la table, sa propriété correspondante pour l'acte et la fiche dlg_actesprecedents
     bool                ValideActeMontantLineEdit(QString NouveauMontant = "0,00", QString AncienMontant = "0.00");
     bool                VerifCoherenceMontantPaiement();        /*! Vérifie que le montant facturé pour l'acte en cours n'est pas inférieur à la somme des paiements déjà enregistrés */

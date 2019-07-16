@@ -288,7 +288,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         if (patdata.size() > 0)
         {
             UpMessageBox::Watch(this,tr("Ce dossier existe déjà!"));
-            db->loadPatientById(patdata.at(0).toInt(), m_currentpatient, true);
+            db->loadPatientById(patdata.at(0).toInt(), m_currentpatient, Item::LoadDetails);
             AfficheDossierAlOuverture();
             disconnect (OKButton, SIGNAL(clicked()), this, SLOT (Slot_OKpushButtonClicked()));
             connect (OKButton, SIGNAL(clicked(bool)),this,SLOT(Slot_AnnulpushButtonClicked()));

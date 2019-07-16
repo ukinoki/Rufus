@@ -28,8 +28,8 @@ Patients::Patients(QObject *parent) : ItemsList(parent)
     m_patientssaldat        = new QMap<int, Patient*>();
     m_currentpatient        = new Patient();
     m_dossierpatientaouvrir = new Patient();
-    m_currentpatient        ->erasedatas();
-    m_dossierpatientaouvrir ->erasedatas();
+    m_currentpatient        ->resetdatas();
+    m_dossierpatientaouvrir ->resetdatas();
     m_full                  = false;
 }
 
@@ -37,6 +37,20 @@ bool Patients::isfull()
 {
     return m_full;
 }
+
+void Patients::setcurrentpatient(int id)
+{
+    m_currentpatient->resetdatas();
+    DataBase::I()->loadPatientById(id, m_currentpatient, Item::LoadDetails);
+}
+
+void Patients::setdossierpatientaouvrir(int id)
+{
+    m_dossierpatientaouvrir->resetdatas();
+    DataBase::I()->loadPatientById(id, m_dossierpatientaouvrir, Item::LoadDetails);
+}
+
+
 
 /*! charge les données du patient corresondant à l'id * \brief Patients::getById
  * \param id l'id du patient recherché
@@ -79,7 +93,10 @@ void Patients::loadAll(Patient *pat, Item::UPDATE upd)
     {
         QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(pat->id());
         if( !jsonPatient.isEmpty() )
+        {
+            pat->resetdatas();
             pat->setData(jsonPatient);
+        }
     }
     QMap<int, Patient*>::const_iterator itpat = m_patients->find(pat->id());
     if (itpat == m_patients->constEnd())
@@ -110,75 +127,6 @@ void Patients::reloadSocialData(Patient *pat)
         pat->setSocialData(jData);
 }
 
-void Patients::addList(QList<Patient*> listpatients)
-{
-    QList<Patient*>::const_iterator it;
-    for( it = listpatients.constBegin(); it != listpatients.constEnd(); ++it )
-    {
-        Patient* pat = const_cast<Patient*>(*it);
-        add( m_patients, pat );
-    }
-}
-
-void Patients::initListeTable(QString nom, QString prenom, bool filtre)
-{
-    /*! on recrée une liste des patients pour remplir la table
-     */
-    QList<Patient*> listpatients = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
-    QList<int> listidaajouter;
-    for (int i=0; i<listpatients.size(); ++i)
-        listidaajouter << listpatients.at(i)->id();
-
-    /*! on supprime de la liste globale de patients et on delete chaque patient
-     * qui n'est ni dans la nouvelle liste
-     * ni dans la liste des patients en cours
-     * ni dans la liste par date de naissance
-     * et qui n'est ni le current patient,
-     * ni le dossier à ouvrir
-     */
-    QMapIterator<int, Patient*> itpat(*m_patients);
-    while(itpat.hasNext()){
-        itpat.next();
-        if (!listidaajouter.contains(itpat.key()))
-        {
-            Patient *pat = const_cast<Patient*>(itpat.value());
-            if (pat != Q_NULLPTR)
-                if (pat->id() != m_currentpatient->id()
-                        && pat->id() != m_currentpatient->id()
-                        && pat->id() != m_dossierpatientaouvrir->id()
-                        && m_patientssaldat->find(pat->id()) == m_patientssaldat->constEnd()
-                        && m_patientsbyDDN->find(pat->id()) == m_patientsbyDDN->constEnd())
-                {
-                    m_patients->remove(pat->id());
-                    delete pat;
-                }
-        }
-    }
-    /*! on ajoute les patients dans la liste des patients */
-    QList<Patient*>::const_iterator it;
-    for( it = listpatients.constBegin(); it != listpatients.constEnd(); ++it )
-    {
-        Patient* pat = const_cast<Patient*>(*it);
-        add( m_patients, pat, Item::ForceUpdate );
-    }
-    m_full = (nom == "" && prenom == "");
-
-    /*! on supprime de l'ancienne liste des patients de la table tous les patients qui ne sont pas dans la nouvelle liste
-     */
-    QMapIterator<int, Patient*> itpattable(*m_patientstable);
-    while (itpattable.hasNext()) {
-        itpattable.next();
-        if (!listidaajouter.contains(itpattable.key()))
-            m_patientstable->remove(itpattable.key());
-    }
-    /*! on ajoute les patients dans la liste des patients de la table*/
-    for( it = listpatients.constBegin(); it != listpatients.constEnd(); ++it )
-    {
-        Patient* pat = const_cast<Patient*>(*it);
-        add( m_patientstable, pat );
-    }
-}
-
 void Patients::initListeSalDat(QList<int> listidaajouter)
 {
     /*! on recrée la liste des patients en cours
@@ -192,45 +140,60 @@ void Patients::initListeSalDat(QList<int> listidaajouter)
      * et qui ni le current patient,
      * ni le dossier à ouvrir
      */
-    QMapIterator<int, Patient*> itpat(*m_patients);
-    while(itpat.hasNext()){
-        itpat.next();
-        if (!listidaajouter.contains(itpat.key()))
+    for (auto it = m_patients->begin(); it != m_patients->end();)
+    {
+        if (!listidaajouter.contains(it.key())
+          && m_patientstable->find(it.key()) == m_patientstable->constEnd())
         {
-            Patient *pat = const_cast<Patient*>(itpat.value());
+            Patient *pat = const_cast<Patient*>(it.value());
             if (pat != Q_NULLPTR)
-                if (pat->id() != m_currentpatient->id()
-                        && pat->id() != m_dossierpatientaouvrir->id()
-                        && m_patientstable->find(pat->id()) == m_patientstable->constEnd()
-                        && m_patientsbyDDN->find(pat->id()) == m_patientsbyDDN->constEnd())
-                {
-                    m_patients->remove(pat->id());
-                    delete pat;
-                }
+                delete pat;
+            it = m_patients->erase(it);
         }
+        else
+            ++it;
     }
     /*! on ajoute les patients dans la liste des patients */
-    QList<Patient*>::const_iterator it;
-    for( it = listpatients.constBegin(); it != listpatients.constEnd(); ++it )
+    for(auto itz = listpatients.begin(); itz != listpatients.end(); ++itz)
     {
-        Patient* pat = const_cast<Patient*>(*it);
-        add( m_patients, pat, Item::ForceUpdate );
+        Patient* pat = const_cast<Patient*>(*itz);
+        add( m_patients, pat );
     }
 
     /*! on supprime de l'ancienne liste des patients en cours tous les patients qui ne sont pas dans la nouvelle liste
      */
-    QMapIterator<int, Patient*> itpatsaldat(*m_patientssaldat);
-    while (itpatsaldat.hasNext()) {
-        itpatsaldat.next();
-        if (!listidaajouter.contains(itpatsaldat.key()))
-            m_patientssaldat->remove(itpatsaldat.key());
+    for (auto ity = m_patientssaldat->begin(); ity != m_patientssaldat->end();)
+    {
+        if (!listidaajouter.contains(ity.key()))
+            ity = m_patientssaldat->erase(ity);
+        else
+            ++ ity;
     }
     /*! on ajoute les patients dans la liste des patients de la table*/
-    for( it = listpatients.constBegin(); it != listpatients.constEnd(); ++it )
+    for(auto itx = listpatients.begin(); itx != listpatients.end();)
     {
-        Patient* pat = const_cast<Patient*>(*it);
-        add( m_patientssaldat, pat );
+        Patient* pat = const_cast<Patient*>(*itx);
+        if (!add( m_patientssaldat, pat ))
+        {
+            itx = listpatients.erase(itx);
+            if (pat != Q_NULLPTR)
+                delete pat;
+        }
+        else
+             ++itx;
     }
+}
+
+void Patients::initListeTable(QString nom, QString prenom, bool filtre)
+{
+    /*! on recrée une liste des patients pour remplir la table
+     */
+    QList<Patient*> listpatients = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
+    QList<int> listidaajouter;
+    for (int i=0; i<listpatients.size(); ++i)
+        listidaajouter << listpatients.at(i)->id();
+    m_full = (nom == "" && prenom == "");
+    completemaptable(listpatients);
 }
 
 void Patients::initListeByDDN(QDate DDN)
@@ -241,57 +204,66 @@ void Patients::initListeByDDN(QDate DDN)
         listpatients = DataBase::I()->loadPatientsAll();
     else
         listpatients = DataBase::I()->loadPatientsByDDN(DDN);
+    m_full = (DDN == QDate());
+    completemaptable(listpatients);
+}
+
+void Patients::completemaptable (QList<Patient*> listpatients)
+{
+
     QList<int> listidaajouter;
     for (int i=0; i<listpatients.size(); ++i)
         listidaajouter << listpatients.at(i)->id();
 
     /*! on supprime de la liste globale de patients et on delete chaque patient
      * qui n'est ni dans la nouvelle liste
-     * ni dans la liste table
      * ni dans la liste des patients en cours
-     * et qui ni le current patient,
-     * ni le dossier à ouvrir
      */
-    QMapIterator<int, Patient*> itpat(*m_patients);
-    while(itpat.hasNext()){
-        itpat.next();
-        if (!listidaajouter.contains(itpat.key()))
-        {
-            Patient *pat = const_cast<Patient*>(itpat.value());
-            if (pat != Q_NULLPTR)
-                if (pat->id() != m_currentpatient->id()
-                        && pat->id() != m_dossierpatientaouvrir->id()
-                        && m_patientstable->find(pat->id()) == m_patientstable->constEnd()
-                        && m_patientssaldat->find(pat->id()) == m_patientssaldat->constEnd())
-                {
-                    m_patients->remove(pat->id());
-                    delete pat;
-                }
-        }
-    }
-    /*! on ajoute les patients dans la liste des patients */
-    QList<Patient*>::const_iterator it;
-    for( it = listpatients.constBegin(); it != listpatients.constEnd(); ++it )
+    for (auto it = m_patients->begin(); it != m_patients->end();)
     {
-        Patient* pat = const_cast<Patient*>(*it);
-        add( m_patients, pat, Item::ForceUpdate );
+        if (!listidaajouter.contains(it.key())
+          && m_patientssaldat->find(it.key()) == m_patientssaldat->constEnd())
+        {
+            Patient *pat = const_cast<Patient*>(it.value());
+            if (pat != Q_NULLPTR)
+                delete pat;
+            it = m_patients->erase(it);
+        }
+        else
+            ++it;
     }
-    m_full = (DDN == QDate());
 
-    /*! on supprime de l'ancienne liste des patients de la table tous les patients qui ne sont pas dans la nouvelle liste     */
-     QMapIterator<int, Patient*> itpattable(*m_patientstable);
-        while (itpattable.hasNext()) {
-        itpattable.next();
-        if (!listidaajouter.contains(itpattable.key()))
-            m_patientsbyDDN->remove(itpattable.key());
+    /*! on ajoute les patients dans la liste des patients */
+    for(auto itz = listpatients.begin(); itz != listpatients.end(); ++itz)
+    {
+        Patient* pat = const_cast<Patient*>(*itz);
+        add( m_patients, pat );
+    }
+
+    /*! on supprime de l'ancienne liste des patients de la table tous les patients qui ne sont pas dans la nouvelle liste
+     */
+    for (auto ity = m_patientstable->begin(); ity != m_patientstable->end();)
+    {
+        if (!listidaajouter.contains(ity.key()))
+            ity = m_patientstable->erase(ity);
+        else
+            ++ ity;
     }
     /*! on ajoute les patients dans la liste des patients de la table*/
-    for( it = listpatients.constBegin(); it != listpatients.constEnd(); ++it )
+    for(auto itx = listpatients.begin(); itx != listpatients.end();)
     {
-        Patient* pat = const_cast<Patient*>(*it);
-        add( m_patientsbyDDN, pat );
+        Patient* pat = const_cast<Patient*>(*itx);
+        if (!add( m_patientstable, pat ))
+        {
+            if (pat != Q_NULLPTR)
+                delete pat;
+            itx = listpatients.erase(itx);
+        }
+        else
+             ++itx;
     }
 }
+
 
 void Patients::SupprimePatient(Patient *pat)
 {
@@ -317,7 +289,10 @@ void Patients::SupprimePatient(Patient *pat)
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_PATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_DONNEESSOCIALESPATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    remove(m_patients, pat);
+    if (pat != m_currentpatient || pat != m_dossierpatientaouvrir)
+        remove(m_patients, pat);
+    else
+        pat->resetdatas();
 }
 
 void Patients::updatePatient(Patient *pat)

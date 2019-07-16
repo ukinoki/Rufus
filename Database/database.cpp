@@ -1876,7 +1876,7 @@ QJsonObject DataBase::loadPatientAllData(int idPat)
     return jData;
 }
 
-Patient* DataBase::loadPatientById(int idPat, Patient *pat, bool all)
+Patient* DataBase::loadPatientById(int idPat, Patient *pat, Item::LOADDETAILS details)
 {
     if (pat == Q_NULLPTR)
         pat = new Patient();
@@ -1892,7 +1892,7 @@ Patient* DataBase::loadPatientById(int idPat, Patient *pat, bool all)
     jData[CP_SEXE_PATIENTS]         = patdata.at(3).toString();
     jData[CP_DATECREATION_PATIENTS] = patdata.at(4).toDate().toString("yyyy-MM-dd");
     jData[CP_IDCREATEUR_PATIENTS]   = patdata.at(5).toInt();
-    if (all)
+    if (details == Item::LoadDetails)
     {
         bool ok;
         loadMedicalDataPatient(jData, ok);

@@ -297,7 +297,8 @@ public:
     QJsonObject             loadPatientAllData(int idPat);                                                  //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
     void                    loadSocialDataPatient(QJsonObject &jData, bool &ok);                            //! charge les donnéess sociales d'un patient à partir de la table donneessocialespatients
     void                    loadMedicalDataPatient(QJsonObject &jData, bool &ok);                           //! charge les donnéess médicales d'un patient à partir de la table renseignementsmedicauxpatients
-    Patient*                loadPatientById(int idPat, Patient *pat = Q_NULLPTR, bool all = false);         //! charge un patient par son id à partir de la table patients
+    Patient*                loadPatientById(int idPat, Patient *pat = Q_NULLPTR,
+                                            Item::LOADDETAILS details = Item::NoLoadDetails);               //! charge un patient par son id à partir de la table patients
 
     qint64                  countPatientsAll(QString nom = "", QString prenom = "");                        /*! compte le nombre de patients
                                                                                                             * \param patnom filtrer sur le nom de patient

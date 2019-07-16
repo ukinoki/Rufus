@@ -26,7 +26,6 @@ class Depenses : public ItemsList
 {
 private:
     QMap<int, Depense*> *m_depenses = Q_NULLPTR;    //!< Collection de toutes les depenses pour un user et une année donnée
-    void        addList(QList<Depense*> listdep);
 
 public:
     //GETTER

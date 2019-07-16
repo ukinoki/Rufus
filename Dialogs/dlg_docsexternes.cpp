@@ -19,12 +19,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "icons.h"
 
-dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent) :
+dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionDocsExternes", parent)
 {
     proc                = Procedures::I();
     db                  = DataBase::I();
-    m_currentpatient    = pat;
+    if (iscurrentpatient)
+    m_currentpatient    = (iscurrentpatient? Datas::I()->patients->currentpatient() : Datas::I()->patients->dossierpatientaouvrir());
     m_currentuser       = Datas::I()->users->userconnected();
     setAttribute(Qt::WA_ShowWithoutActivating);
     setAttribute(Qt::WA_DeleteOnClose);
@@ -154,7 +155,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurr
     gMode               = Normal;
     gModeTri            = parDate;
     m_docsexternes      = Docs;
-    conservealafin      = iscurrentpatient;
     m_docsexternes->setNouveauDocumentExterneFalse();
     RemplirTreeView();
 }
@@ -162,7 +162,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, Patient *pat, bool iscurr
 dlg_docsexternes::~dlg_docsexternes()
 {
     delete printer;
-    if (!conservealafin)
+    if (m_currentpatient != Datas::I()->patients->currentpatient())
     {
         m_docsexternes->clearAll(m_docsexternes->docsexternes());
         delete m_docsexternes;
@@ -1063,10 +1063,11 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         QString idaafficher = "";
         if (m_docsexternes->docsexternes()->size() > 1)    // on recherche le document sur qui va être mis la surbrillance après la suppression
         {
-            QMap<int, DocExterne*>* listaexplorer = m_docsexternes->docsexternes();
-            QMapIterator<int, DocExterne*> itdoc (*listaexplorer);
-            if (!itdoc.findPrevious(docmt))
-                itdoc.next();
+            QMap<int, DocExterne*>::const_iterator itdoc =  m_docsexternes->docsexternes()->find(docmt->id());
+            if (itdoc != m_docsexternes->docsexternes()->constBegin())
+                itdoc --;
+            else
+                itdoc ++;
             idaafficher = QString::number(itdoc.key());
         }
         if (docmt->idrefraction() > 0)

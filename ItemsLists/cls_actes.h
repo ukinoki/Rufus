@@ -34,7 +34,7 @@ private:
     QSortFilterProxyModel* m_actesortmodel;
     QSortFilterProxyModel* m_heuresortmodel;
     QStandardItemModel *m_actesmodel;
-    void    addList(QList<Acte*> listActes, Item::UPDATE upd = Item::NoUpdate);
+//    void    addList(QList<Acte*> listActes, Item::UPDATE upd = Item::NoUpdate);
 
 public:
     explicit Actes(QObject *parent = Q_NULLPTR);

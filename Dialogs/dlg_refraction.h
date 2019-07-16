@@ -38,7 +38,7 @@ class dlg_refraction : public QDialog
     Q_OBJECT
 
 public:
-    dlg_refraction(Patient *pat, Acte *acte, QWidget *parent = Q_NULLPTR);
+    dlg_refraction(Acte *acte, QWidget *parent = Q_NULLPTR);
     ~dlg_refraction();
     Ui::dlg_refraction      *ui;
     dlg_listemesures        *Dlg_ListeMes;

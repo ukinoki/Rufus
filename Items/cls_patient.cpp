@@ -17,34 +17,40 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_patient.h"
 
+Patient::Patient(QJsonObject data, QObject *parent) : Item(parent)
+{
+    resetdatas();
+    setData(data);
+}
+
 //GETTER | SETTER
-QString Patient::nom() const                { return m_nom; }
-QString Patient::prenom() const             { return m_prenom; }
-QString Patient::sexe() const               { return m_sexe; }
-QDate Patient::datedenaissance() const      { return m_dateDeNaissance; }
-QDate Patient::datecreationdossier() const  { return m_datecreation; }
-int Patient::idcreateur() const             { return m_idcreateur; }
+QString Patient::nom()                { return m_nom; }
+QString Patient::prenom()             { return m_prenom; }
+QString Patient::sexe()               { return m_sexe; }
+QDate Patient::datedenaissance()      { return m_dateDeNaissance; }
+QDate Patient::datecreationdossier()  { return m_datecreation; }
+int Patient::idcreateur()             { return m_idcreateur; }
 
 // Social data
-QString Patient::adresse1() const           { return m_adresse1; }
-QString Patient::adresse2() const           { return m_adresse2; }
-QString Patient::adresse3() const           { return m_adresse3; }
-QString Patient::codepostal() const         { return m_codepostal; }
-QString Patient::ville() const              { return m_ville; }
-QString Patient::telephone() const          { return m_telephone; }
-QString Patient::portable() const           { return m_portable; }
-QString Patient::mail() const               { return m_mail; }
-qlonglong Patient::NNI() const              { return m_NNI; }
-bool Patient::isald() const                 { return m_ALD; }
-bool Patient::iscmu() const                 { return m_CMU; }
-QString Patient::profession() const         { return m_profession; }
+QString Patient::adresse1()           { return m_adresse1; }
+QString Patient::adresse2()           { return m_adresse2; }
+QString Patient::adresse3()           { return m_adresse3; }
+QString Patient::codepostal()         { return m_codepostal; }
+QString Patient::ville()              { return m_ville; }
+QString Patient::telephone()          { return m_telephone; }
+QString Patient::portable()           { return m_portable; }
+QString Patient::mail()               { return m_mail; }
+qlonglong Patient::NNI()              { return m_NNI; }
+bool Patient::isald()                 { return m_ALD; }
+bool Patient::iscmu()                 { return m_CMU; }
+QString Patient::profession()         { return m_profession; }
 
 // Medical data
-int Patient::idmg() const                   { return m_idmg; }
-int Patient::idspe1() const                 { return m_idspe1; }
-int Patient::idspe2() const                 { return m_idspe2; }
-int Patient::idspe3()const                  { return m_idspe3; }
-int Patient::idcornonmg() const             { return m_idcornonmg; }
+int Patient::idmg()                   { return m_idmg; }
+int Patient::idspe1()                 { return m_idspe1; }
+int Patient::idspe2()                 { return m_idspe2; }
+int Patient::idspe3()                 { return m_idspe3; }
+int Patient::idcornonmg()             { return m_idcornonmg; }
 QString Patient::atcdtspersos()             { return m_atcdtspersos; }
 QString Patient::atcdtsfamiliaux()          { return m_atcdtsfamiliaux; }
 QString Patient::atcdtsophtalmos()          { return m_atcdtsophtalmos; }
@@ -55,38 +61,16 @@ QString Patient::toxiques()                 { return m_toxiques; }
 QString Patient::important()                { return m_important; }
 QString Patient::resume()                   { return m_resume; }
 
-bool Patient::ismedicalloaded() const       { return m_ismedicalloaded; }
-bool Patient::issocialloaded() const        { return m_issocialloaded; }
+bool Patient::ismedicalloaded()       { return m_ismedicalloaded; }
+bool Patient::issocialloaded()        { return m_issocialloaded; }
 bool Patient::isalloaded()
 {
     return (m_issocialloaded && m_ismedicalloaded);
 }
 
-QMap<int, Acte *> *Patient::actes() const
-{
-    return m_actes;
-}
-void Patient::setActes(QMap<int, Acte *> *actes)
-{
-    m_actes = actes;
-}
-
 void Patient::setSexe(QString sex)
 {
     m_sexe = sex;
-}
-
-Patient::Patient(QJsonObject data, QObject *parent) : Item(parent)
-{
-    setData(data);
-}
-
-Patient::~Patient()
-{
-    QMapIterator<int, Acte*> it(*m_actes);
-    while (it.hasNext())
-        delete it.next().value();
-    delete m_actes;
 }
 
 void Patient::setData(QJsonObject data)
@@ -178,59 +162,52 @@ void Patient::setMedicalData(QJsonObject data)
     setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
 }
 
-/*!
- * \brief Patient::addActe
- * ajout un acte au patient
- * \param acte
-*/
-void Patient::addActe(Acte *acte)
+/*! comme son nom l'indique */
+void Patient::resetdatas()
 {
-    if( m_actes->contains(acte->id()) )
-        return;
-    m_actes->insert(acte->id(), acte);
-}
+    QJsonObject data;
+    data[CP_IDPAT_PATIENTS]        = 0;
+    data[CP_NOM_PATIENTS]          = "";
+    data[CP_PRENOM_PATIENTS]       = "";
+    data[CP_DDN_PATIENTS]          = QDate(1900,1,1).toString("yyyy-MM-dd");
+    data[CP_SEXE_PATIENTS]         = "";
+    data[CP_DATECREATION_PATIENTS] = QDate(1900,1,1).toString("yyyy-MM-dd");
+    data[CP_IDCREATEUR_PATIENTS]   = 0;
+    data[CP_IDMG_RMP]              = 0;
+    data[CP_IDSPE1_RMP]            = 0;
+    data[CP_IDSPE2_RMP]            = 0;
+    data[CP_IDSPE3_RMP]            = 0;
+    data[CP_IDCORNONMED_RMP]       = 0;
+    data[CP_ATCDTSPERSOS_RMP]      = "";
+    data[CP_TRAITMTGEN_RMP]        = "";
+    data[CP_ATCDTSFAMLXS_RMP]      = "";
+    data[CP_ATCDTSOPH_RMP]         = "";
+    data[CP_TABAC_RMP]             = "";
+    data[CP_AUTRESTOXIQUES_RMP]    = "";
+    data[CP_GENCORRESPONDANT_RMP]  = "";
+    data[CP_IMPORTANT_RMP]         = "";
+    data[CP_RESUME_RMP]            = "";
+    data[CP_TRAITMTOPH_RMP]        = "";
+    data[CP_ISMEDICALlOADED]       = true;
+    data[CP_ADRESSE1_DSP]          = "";
+    data[CP_ADRESSE2_DSP]          = "";
+    data[CP_ADRESSE3_DSP]       = "";
+    data[CP_CODEPOSTAL_DSP]     = "";
+    data[CP_VILLE_DSP]          = "";
+    data[CP_TELEPHONE_DSP]      = "";
+    data[CP_PORTABLE_DSP]       = "";
+    data[CP_MAIL_DSP]           = "";
+    data[CP_NNI_DSP]            = "";
+    data[CP_ALD_DSP]            = false;
+    data[CP_CMU_DSP]            = false;
+    data[CP_PROFESSION_DSP]     = "";
+    data[CP_ISSOCIALlOADED]     = true;
+    setData(data);
 
-void Patient::erasedatas()
-{
-    m_id                = 0;
-    m_nom               = QString();
-    m_prenom            = QString();
-    m_sexe              = QString();
-    m_datecreation      = QDate();
-    m_idcreateur        = 0;
+    data[CP_ISMEDICALlOADED]    = false;
+    data[CP_ISSOCIALlOADED]     = false;
+    setDataBool(data, CP_ISSOCIALlOADED, m_issocialloaded);
+    setDataBool(data, CP_ISMEDICALlOADED, m_ismedicalloaded);
 
-    m_dateDeNaissance   = QDate();
-
-    m_adresse1          = QString();
-    m_adresse2          = QString();
-    m_adresse3          = QString();
-    m_codepostal        = QString();
-    m_ville             = QString();
-    m_telephone         = QString();
-    m_portable          = QString();
-    m_mail              = QString();
-    m_NNI               = 0;
-    m_ALD               = false;
-    m_CMU               = false;
-    m_profession        = QString();
-
-    m_idmg              = 0;
-    m_idspe1            = 0;
-    m_idspe2            = 0;
-    m_idspe3            = 0;
-    m_idcornonmg        = 0;
-    m_atcdtspersos      = QString();
-    m_atcdtsfamiliaux   = QString();
-    m_atcdtsophtalmos   = QString();
-    m_traitementgen     = QString();
-    m_traitementoph     = QString();
-    m_tabac             = QString();
-    m_toxiques          = QString();
-    m_important         = QString();
-    m_resume            = QString();
-    m_ismedicalloaded   = false;
-    m_issocialloaded    = false;
-    QMapIterator<int, Acte*> it(*m_actes);
-    while (it.hasNext())
-        delete it.next().value();
+    m_data = data;
 }

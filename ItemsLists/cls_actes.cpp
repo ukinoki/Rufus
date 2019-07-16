@@ -44,18 +44,18 @@ void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
         listActes = DataBase::I()->loadIdActesByPat(pat);
     else
         listActes = DataBase::I()->loadActesByPat(pat);
-    addList(listActes, upd);
+    addList(m_actes, listActes, upd);
 }
 
-void Actes::addList(QList<Acte*> listActes, Item::UPDATE upd)
-{
-    QList<Acte*>::const_iterator it;
-    for( it = listActes.constBegin(); it != listActes.constEnd(); ++it )
-    {
-        Acte* item = const_cast<Acte*>(*it);
-        add( m_actes, item, upd );
-    }
-}
+//void Actes::addList(QList<Acte*> listActes, Item::UPDATE upd)
+//{
+//    QList<Acte*>::const_iterator it;
+//    for( it = listActes.constBegin(); it != listActes.constEnd(); ++it )
+//    {
+//        Acte* item = const_cast<Acte*>(*it);
+//        add( m_actes, item, upd );
+//    }
+//}
 
 void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont pour l'instant pas utilisées.
                                  * elles sont prévues pour réorganiser le tri des actes en fonction de leur date et pas en fonction de leur id

@@ -19,7 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_PATIENT_H
 
 #include "cls_item.h"
-#include "cls_acte.h"
 
 /*!
  * \brief The Patient class
@@ -67,44 +66,42 @@ private: //Données du patient
     QString m_toxiques;             //!< autres toxiques
     QString m_important;            //!< points importants du dossier
     QString m_resume;               //!< resumé du dossier
-    bool    m_ismedicalloaded   = false;      //!< les renseignements médicaux sont chargés
-    bool    m_issocialloaded    = false;       //!< les renseignements sociaux sont chargés
-
-    QMap<int, Acte*> *m_actes = new QMap<int, Acte*>();      //!< ensemble des actes du patient
+    bool m_ismedicalloaded = false; //!< les renseignements médicaux sont chargés
+    bool m_issocialloaded  = false; //!< les renseignements sociaux sont chargés
 
 public:
     //GETTER | SETTER
-    bool ismedicalloaded() const;
-    bool issocialloaded() const;
+    bool ismedicalloaded();
+    bool issocialloaded();
     bool isalloaded();
 
-    QString nom() const;
-    QString prenom() const;
-    QString sexe() const;
-    QDate   datecreationdossier() const;
-    QDate   datedenaissance() const;
-    int     idcreateur() const;
+    QString nom();
+    QString prenom();
+    QString sexe();
+    QDate   datecreationdossier();
+    QDate   datedenaissance();
+    int     idcreateur();
 
     // Social data
-    QString adresse1() const;
-    QString adresse2() const;
-    QString adresse3() const;
-    QString codepostal() const;
-    QString ville() const;
-    QString telephone() const;
-    QString portable() const;
-    QString mail() const;
-    qlonglong NNI() const;
-    bool isald() const;
-    bool iscmu() const;
-    QString profession() const;
+    QString adresse1();
+    QString adresse2();
+    QString adresse3();
+    QString codepostal();
+    QString ville();
+    QString telephone();
+    QString portable();
+    QString mail();
+    qlonglong NNI();
+    bool isald();
+    bool iscmu();
+    QString profession();
 
     // Medical data
-    int idmg() const;
-    int idspe1() const;
-    int idspe2() const;
-    int idspe3()const;
-    int idcornonmg() const;
+    int idmg();
+    int idspe1();
+    int idspe2();
+    int idspe3();
+    int idcornonmg();
     QString atcdtspersos();
     QString atcdtsfamiliaux();
     QString atcdtsophtalmos();
@@ -115,18 +112,13 @@ public:
     QString important();
     QString resume();
 
-    void setActes(QMap<int, Acte *> *actes);
-    QMap<int, Acte *> *actes() const;
     void setSexe(QString sex);
 
     explicit Patient(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    ~Patient();
-
 
     void setData(QJsonObject data);
     void setSocialData(QJsonObject data);
     void setMedicalData(QJsonObject data);
-    void addActe(Acte *acte);
 
     // basic data
     void    setnom(QString str)             { m_nom = str; }
@@ -164,7 +156,7 @@ public:
     void    settabac(QString tbc)           { m_tabac = tbc; }
     void    setautrestoxiques(QString tox)  { m_toxiques = tox; }
 
-    void erasedatas();
+    void resetdatas();
 };
 
 #endif // CLS_PATIENT_H

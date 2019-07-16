@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("14-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("15-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -269,7 +269,7 @@ void Rufus::Connect_Slots()
     connect (ui->CreerActepushButton_2,                             &QPushButton::clicked,                              this,   [=] {CreerActe(Datas::I()->patients->currentpatient());});
     connect (ui->CreerBOpushButton,                                 &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho(Datas::I()->patients->currentpatient());});
     connect (ui->CreerBOpushButton_2,                               &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho(Datas::I()->patients->currentpatient());});
-    connect (ui->CreerDDNdateEdit,                                  &QDateEdit::dateChanged,                            this,   [=] {if (gMode == RechercheDDN) TrouverDDN();});
+    connect (ui->CreerDDNdateEdit,                                  &QDateEdit::dateChanged,                            this,   [=] {if (gMode == RechercheDDN) FiltreTableparDDN();});
     connect (ui->ChercherDepuisListepushButton,                     &QPushButton::clicked,                              this,   [=] {ChercherDepuisListe();});
     connect (ui->CreerNomlineEdit,                                  &QLineEdit::textEdited,                             this,   [=] {MajusculeCreerNom();});
     connect (ui->CreerPrenomlineEdit,                               &QLineEdit::textEdited,                             this,   [=] {MajusculeCreerPrenom();});
@@ -369,7 +369,7 @@ void Rufus::OuvrirDocsExternes(Patient *pat)
     docs->initListeByPatient(pat);
     if (docs->docsexternes()->size()>0)
     {
-        Dlg_DocsExt = new dlg_docsexternes(docs, pat, (pat == Datas::I()->patients->currentpatient()), UtiliseTCP, this);
+        Dlg_DocsExt = new dlg_docsexternes(docs, (pat == Datas::I()->patients->currentpatient()), UtiliseTCP, this);
         ui->OuvreDocsExternespushButton->setEnabled(true);
         Dlg_DocsExt->show();
     }
@@ -409,7 +409,7 @@ void Rufus::MAJDocsExternes()
     {
         if (Datas::I()->docsexternes->docsexternes()->size()>0)
         {
-            Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, Datas::I()->patients->currentpatient(), true, UtiliseTCP, this);
+            Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, true, UtiliseTCP, this);
             Dlg_DocsExt->show();
             ui->OuvreDocsExternespushButton->setEnabled(true);
         }
@@ -1201,7 +1201,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         }
         Flags::I()->MAJFlagSalleDAttente();
     }
-    if (Datas::I()->patients->currentpatient() != Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient()->id() > 0)
     {
         m_listepaiements->initListeByPatient(Datas::I()->patients->currentpatient());
         if (m_currentact->id()>0)
@@ -1230,7 +1230,7 @@ void Rufus::AppelPaiementTiers()
         Dlg_PmtTiers->setWindowTitle(tr("Gestion des tiers payants"));
         Dlg_PmtTiers->show();
         connect(Dlg_PmtTiers, &QDialog::finished, this, [=]{
-            if (Datas::I()->patients->currentpatient() != Q_NULLPTR)
+            if (Datas::I()->patients->currentpatient()->id() > 0)
             {
                 m_listepaiements->initListeByPatient(Datas::I()->patients->currentpatient());
                 if (m_currentact->id()>0 && ui->tabDossier->isVisible())
@@ -2837,7 +2837,7 @@ void Rufus::MenuContextuelMotsCles()
 
 void Rufus::ChoixMenuContextuelMotsCles()
 {
-    if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient()->id() == 0)
         return;
     dlg_listemotscles *ListMCDialog = new dlg_listemotscles(Datas::I()->patients->currentpatient());
     if (ListMCDialog->exec()==0)
@@ -3469,7 +3469,7 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
 
 void Rufus::ChoixMenuContextuelSalDat(QString choix)
 {
-    if (Datas::I()->patients->dossierpatientaouvrir() == Q_NULLPTR)
+    if (Datas::I()->patients->dossierpatientaouvrir()->id() == 0)
         return;
     if (choix == "Reprendre")
         ChoixDossier(Datas::I()->patients->dossierpatientaouvrir());
@@ -4016,7 +4016,7 @@ void Rufus::RecettesSpeciales()
 
 void Rufus::RetrouveMontantActe()
 {
-    if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient()->id() == 0)
         return;
     //TODO : SQL
     QString Cotation = ui->ActeCotationcomboBox->currentText();
@@ -5417,7 +5417,7 @@ void Rufus::VerifSalleDAttente()
 
 void Rufus::VerifCorrespondants()
 {
-    if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient()->id() == 0)
         return;
     int flagcor = Flags::I()->flagCorrespondants();
     if (m_flagcorrespondants < flagcor)
@@ -6419,7 +6419,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
     UpMessageBox    msgbox;
     bool            AutorDepart = true;
      // 1. On se repositionne sur le tab dossier
-                                                                    //! qDebug() << "AutorDepartConsult() " << Datas::I()->patients->currentpatient()->nom()  << Datas::I()->patients->currentpatient()->prenom() << Datas::I()->patients->currentpatient()->id();
+    //! qDebug() << "AutorDepartConsult() " << Datas::I()->patients->currentpatient()->nom()  << Datas::I()->patients->currentpatient()->prenom() << Datas::I()->patients->currentpatient()->id();
     if (ui->tabWidget->indexOf(ui->tabDossier) < 0)
         return true;
     ui->tabWidget->setCurrentWidget(ui->tabDossier);
@@ -6788,7 +6788,7 @@ void Rufus::FiltreTable(QString nom, QString prenom)
 {
     m_patients->initListeTable(nom, prenom, true);
                 //! mettre en place un filtre directement sur la liste est moins rapide que de réinterroger la BDD directement en SQL
-    Remplir_ListePatients_TableView(m_patients->patientstable()) ;   //FiltreTable()
+    Remplir_ListePatients_TableView() ;   //FiltreTable()
     if (m_listepatientsmodel->rowCount()>0)
         RecaleTableView(getPatientFromRow(0), QAbstractItemView::PositionAtCenter);
     EnableButtons();
@@ -7353,7 +7353,7 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     for (int n = 0; n <  ListDialogDocs.size(); n++)
         ListDialogDocs.at(n)->close();
-    if (Datas::I()->patients->currentpatient() != Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient()->id() > 0)
         ui->OuvreDocsExternespushButton->setEnabled(Datas::I()->docsexternes->docsexternes()->size()>0);
 }
 
@@ -7410,7 +7410,7 @@ bool Rufus::FermeDossier(Patient *patient)
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) {
-        Datas::I()->patients->setcurrentpatient(0);
+        Datas::I()->patients->currentpatient()->resetdatas();
         m_currentact = Q_NULLPTR;
     }
     Flags::I()->MAJFlagSalleDAttente();
@@ -8207,11 +8207,8 @@ void    Rufus::ModeSelectDepuisListe()
     ui->LListepushButton->setEnabled(false);
     ui->LNouvDossierpushButton->setEnabled(true);
     ui->LRecopierpushButton->setEnabled(false);
-    if (Datas::I()->patients->currentpatient() != Q_NULLPTR)
-    {
-        if (Datas::I()->patients->currentpatient()->id() > 0)
-            RecaleTableView(Datas::I()->patients->currentpatient());
-    }
+    if (Datas::I()->patients->currentpatient()->id() > 0)
+        RecaleTableView(Datas::I()->patients->currentpatient());
     else if (m_listepatientsmodel->rowCount() > 0)
         RecaleTableView(getPatientFromRow(0), QAbstractItemView::PositionAtTop);
     gMode = Liste;
@@ -8409,8 +8406,6 @@ void Rufus::ReconstruitCombosCorresp(bool reconstruireliste)
     //Actualisation des combobox des correspondants
     if (ui->tabWidget->indexOf(ui->tabDossier) == -1)
         return;
-    if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
-        return;
 
     QString tooltp = "";
     if (Datas::I()->patients->currentpatient()->idmg()>0)
@@ -8460,12 +8455,12 @@ void    Rufus::RefractionMesure()
 {
     if (findChildren<dlg_refraction*>().size()>0)
         return;
-    if (Datas::I()->patients->currentpatient() == Q_NULLPTR || m_currentact == Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient()->id() == 0 || m_currentact == Q_NULLPTR)
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
 
-    Dlg_Refraction     = new dlg_refraction(Datas::I()->patients->currentpatient(), m_currentact, this);
+    Dlg_Refraction     = new dlg_refraction(m_currentact, this);
     proc->setFicheRefractionOuverte(true);
     int result = Dlg_Refraction->exec();
     proc->setFicheRefractionOuverte(false);
@@ -8478,8 +8473,8 @@ void    Rufus::RefractionMesure()
             //qDebug() << Dlg_Refraction->ResultatObservation();
             QString ARajouterEnText =
                     "<p style = \"margin-top:0px; margin-bottom:0px;\">"
-                  + Dlg_Refraction->ResultatObservation()
-                  + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
+                    + Dlg_Refraction->ResultatObservation()
+                    + "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>";
             ItemsList::update(m_currentact, CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
             ui->ActeTextetextEdit->setFocus();
             ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
@@ -8512,7 +8507,7 @@ void    Rufus::RefractionMesure()
 
 void Rufus::RegleRefracteur(QString TypeMesure)
 {
-    if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient()->id() == 0)
         return;
     QMap<QString,QVariant>      Mesure;
     Mesure["AxeOD"]     = "180";
@@ -8667,7 +8662,7 @@ void Rufus::RemiseCheques()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Remplir la liste avec les noms, prénoms et DDN des patients ----------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Rufus::Remplir_ListePatients_TableView(QMap<int, Patient*> *listpatients)
+bool Rufus::Remplir_ListePatients_TableView()
 {
     UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4, *pitem5;
     m_listepatientsmodel = dynamic_cast<QStandardItemModel*>(ui->PatientsListeTableView->model());
@@ -8675,7 +8670,7 @@ bool Rufus::Remplir_ListePatients_TableView(QMap<int, Patient*> *listpatients)
         m_listepatientsmodel->clear();
     else
         m_listepatientsmodel = new QStandardItemModel;
-    QMapIterator<int, Patient*> itpat(*listpatients);
+    QMapIterator<int, Patient*> itpat(*m_patients->patientstable());
     while (itpat.hasNext())
     {
         Patient *pat = itpat.next().value();
@@ -8728,7 +8723,7 @@ bool Rufus::Remplir_ListePatients_TableView(QMap<int, Patient*> *listpatients)
     ui->PatientsListeTableView->setColumnWidth(5,0 );         //prénom utilisé pour le tri
 
     QFontMetrics fm(qApp->font());
-    for (int j=0; j<listpatients->size(); j++)
+    for (int j=0; j<Datas::I()->patients->patientstable()->size(); j++)
          ui->PatientsListeTableView->setRowHeight(j,int(fm.height()*1.3));
 
     ui->PatientsListeTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
@@ -9607,7 +9602,6 @@ void Rufus::SupprimerDossier(Patient *pat)
     m_patients->SupprimePatient(pat);
     m_listeactes->clearAll(m_listeactes->actes());
     m_listepaiements->clearAll(m_listepaiements->lignespaiements());
-    Datas::I()->patients->setcurrentpatient(0);
     FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
     Flags::I()->MAJFlagSalleDAttente();
     ModeSelectDepuisListe();
@@ -9675,10 +9669,10 @@ void Rufus::Tonometrie()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Trouver un dossier d'après la DDN ------------------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::TrouverDDN()
+void Rufus::FiltreTableparDDN()
 {
     m_patients->initListeByDDN(ui->CreerDDNdateEdit->date());
-    Remplir_ListePatients_TableView(m_patients->patientsbyDDN());
+    Remplir_ListePatients_TableView();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9783,7 +9777,7 @@ void Rufus::NouvelleMesureRefraction() //utilisé pour ouvrir la fiche refractio
 {
     if (findChildren<dlg_refraction*>().size()>0)
         return;
-    if (Datas::I()->patients->currentpatient() == Q_NULLPTR || m_currentact == Q_NULLPTR)
+    if (Datas::I()->patients->currentpatient()->id() == 0 || m_currentact == Q_NULLPTR)
         return;
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
@@ -10044,9 +10038,8 @@ void Rufus::TraiteTCPMessage(QString msg)
         /* le message a le format suivant idpatient + TCPMSG_MAJDocsExternes) */
         msg.remove(TCPMSG_MAJDocsExternes);
         if (m_currentuser->isSoignant())
-            if (Datas::I()->patients->currentpatient() != Q_NULLPTR)
-                if (Datas::I()->patients->currentpatient()->id() == msg.toInt())
-                    MAJDocsExternes();                  // depuis le tcpsocket
+            if (Datas::I()->patients->currentpatient()->id() == msg.toInt())
+                MAJDocsExternes();                  // depuis le tcpsocket
     }
     else if (msg.contains(TCPMSG_ListeSockets))
     {

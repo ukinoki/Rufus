@@ -22,6 +22,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "database.h"
 #include "cls_itemslist.h"
 
+ /*! La classe patients initialise
+  * une QMap de patients \variable m_patients
+  * et 2 autres QMap de patients
+    * \variable m_patientstable qui corresond à la liste des patients affichés dans la table ui->PatientsListeTableView de rufus.ui
+    * \variable m_patientssaldat qui correspond à tous les patients en cours, ceux qui sont inscrits dans la table rufus.salledattente
+    * chaque patient d'une de ces QMap est aussi inscrit dans m_patients
+  * le patient en cours d'examen sur le poste, \variable m_currentpatient
+  * le dossier du patient à ouvrir \variable m_dossierpatientaouvrir pour les recherches sur des patients qui ne sont pas le patient courant, par le biais des menus contextuels
+  */
+
 class Patients : public ItemsList
 {
 
@@ -29,20 +39,13 @@ public:
     explicit Patients(QObject *parent = Q_NULLPTR);
 
     //GETTER
-    QMap<int, Patient*> *patients() const           { return m_patients; }
-    QMap<int, Patient*> *patientstable() const      { return m_patientstable; }
-    QMap<int, Patient*> *patientssaldat() const     { return m_patientssaldat; }
-    QMap<int, Patient*> *patientsbyDDN() const      { return m_patientsbyDDN; }
-    Patient* currentpatient() const                 { return m_currentpatient; }
-    Patient* dossierpatientaouvrir() const          { return m_dossierpatientaouvrir; }
-    void setcurrentpatient(int id)                  { if (id==0)
-                                                        m_currentpatient->erasedatas();
-                                                      else
-                                                        m_currentpatient = getById(id, Item::LoadDetails); }
-    void setdossierpatientaouvrir(int id)           { if (id==0)
-                                                        m_dossierpatientaouvrir->erasedatas();
-                                                      else
-                                                        m_dossierpatientaouvrir = getById(id, Item::LoadDetails); }
+    QMap<int, Patient*> *patients()           { return m_patients; }
+    QMap<int, Patient*> *patientstable()      { return m_patientstable; }
+    QMap<int, Patient*> *patientssaldat()     { return m_patientssaldat; }
+    Patient* currentpatient()                 { return m_currentpatient; }
+    Patient* dossierpatientaouvrir()          { return m_dossierpatientaouvrir; }
+    void setcurrentpatient(int id);
+    void setdossierpatientaouvrir(int id);
 
 
     Patient* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails);          /*! charge les données du patient corresondant à l'id
@@ -76,12 +79,11 @@ private:
      * les 2 patients actifs sur le poste: patient en cours d'examen et patient à ouvir (menu contextuel de la table)
     */
     QMap<int, Patient*> *m_patients;                                                        //!< tous les patients actuellement en mémoire
-    QMap<int, Patient*> *m_patientsbyDDN;                                                   //!< la liste des patients pour une même date de naissance (utilisé dans la recherche par DDN)
     QMap<int, Patient*> *m_patientstable;                                                   //!< la liste des patients de la table listepatients
     QMap<int, Patient*> *m_patientssaldat;                                                  //!< la liste des patients en salle d'attente
     Patient *m_currentpatient           = Q_NULLPTR;                                        //!> le patient dont le dossier est ouvert
     Patient *m_dossierpatientaouvrir    = Q_NULLPTR;                                        //!> le dossier de patient à ouvrir
-    void addList(QList<Patient*> listpatients);
+    void completemaptable (QList<Patient*> listpatients);                                   //!> complète la QMap \variable m_patientstable à partir des fonctions initListeTable et initListeByDDN
 
     bool m_full;                                                                            //! la liste contient tous les patients de la base
 
