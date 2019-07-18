@@ -67,7 +67,6 @@ public:
     enum m_mode { Poste, ReseauLocal, Distant };
     int comparateur;
     enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };
-    enum typecorrespondant {MG, Spe1, Spe2};                    //! les 3 types de correspondants MG = médecin traitant, Spe1 ou Spe2 = tout autre type de correpondant
 
 private:
     DataBase();

@@ -165,7 +165,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
             m_useracrediter = Datas::I()->users->getById(act->idComptable());
     }
     else                                            // la fiche a été appelée par le menu et il n'y a pas d'acte prédéterminé à enregistrer
-        m_useracrediter = (m_listeComptables->size() == 1? m_listeComptables->begin().value() : Datas::I()->users->getById(m_userConnected->getIdUserComptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+        m_useracrediter = (m_listeComptables->size() == 1? m_listeComptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->getIdUserComptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
 
     if( m_useracrediter == Q_NULLPTR)
     {
@@ -1404,7 +1404,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 m_useracrediter = Q_NULLPTR;
                 RemplitLesTables();
             }
-            m_useracrediter   = (m_listeComptables->size() == 1? m_listeComptables->begin().value() : Datas::I()->users->getById(m_userConnected->getIdUserComptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+            m_useracrediter   = (m_listeComptables->size() == 1? m_listeComptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->getIdUserComptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
             ui->TireurChequelineEdit->setText("");
         }
         else

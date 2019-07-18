@@ -73,7 +73,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
              * 7. TCPMSG_ListeSockets
                 * message reçu du serveur, composé des dats de chaque poste connecté, séparés par {}
                 * chaque data contient adresseIP, adresseMac, LoaclhostName(), idUser puis  TCPMSG_ListeSockets
-             * 8.TCPMSG_Separator
+             * 8.TCPMSG_MAJPatient
+                * utilisé seul, envoyé au serveurTCP pour inviter à faire une MAJ d'e la liste des correspondants d'un patient
+             * 9.TCPMSG_Separator
                 * le séparateur des éléments d'un message
              */
 

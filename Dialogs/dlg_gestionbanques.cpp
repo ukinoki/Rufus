@@ -239,7 +239,7 @@ void dlg_gestionbanques::ValideModifBanque()
 
     if (gMode == Nouv)
     {
-        for (QMap<int, Banque*>::const_iterator itbanq = Datas::I()->banques->banques()->constBegin(); itbanq != Datas::I()->banques->banques()->constEnd(); ++itbanq)
+        for (auto itbanq = Datas::I()->banques->banques()->cbegin(); itbanq != Datas::I()->banques->banques()->cend(); ++itbanq)
         {
             Banque *bq = const_cast<Banque*>(itbanq.value());
             if (bq->nom().toUpper() == ui->NomBanqueupLineEdit->text().toUpper())

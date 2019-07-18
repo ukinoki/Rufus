@@ -18,16 +18,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_salledattente.h"
 #include "ui_dlg_salledattente.h"
 
-dlg_salledattente::dlg_salledattente(Patient* pat, Acte* act, QString Titre, QWidget *parent):
+dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionSalDat", parent),
     ui(new Ui::dlg_salledattente)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    m_currentpatient     = pat;
     m_currentact        = act;
 
-    ui->MessagetextEdit->setText(m_currentpatient->nom() + " " + m_currentpatient->prenom() + "\n" + Titre);
+    ui->MessagetextEdit->setText(Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom() + "\n" + Titre);
 
     ui->MessagetextEdit->document()->setTextWidth(width()-dlglayout()->contentsMargins().left()*2-2);
     ui->MessagetextEdit->setFixedSize(int(width()-dlglayout()->contentsMargins().left()*2), int(ui->MessagetextEdit->document()->size().height()+2));
@@ -121,9 +120,9 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     }
 
     QString MsgErreur;
-    PatientEnCours *pat = m_patientsencours->getById(m_currentpatient->id());
+    PatientEnCours *pat = Datas::I()->patientsencours->getById(Datas::I()->patients->currentpatient()->id());
     if (pat == Q_NULLPTR)
-        pat = m_patientsencours->CreationPatient(m_currentpatient->id(),                                                //! idPat
+        pat = Datas::I()->patientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                                                //! idPat
                                                  DataBase::I()->getUserConnected()->getIdUserActeSuperviseur(),         //! idUser
                                                  Statut,                                                                //! Statut
                                                  QTime(0,0,0,0),                                                        //! heureStatut

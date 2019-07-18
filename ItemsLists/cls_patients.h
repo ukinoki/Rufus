@@ -83,7 +83,8 @@ private:
     QMap<int, Patient*> *m_patientssaldat;                                                  //!< la liste des patients en salle d'attente
     Patient *m_currentpatient           = Q_NULLPTR;                                        //!> le patient dont le dossier est ouvert
     Patient *m_dossierpatientaouvrir    = Q_NULLPTR;                                        //!> le dossier de patient à ouvrir
-    void completemaptable (QList<Patient*> listpatients);                                   //!> complète la QMap \variable m_patientstable à partir des fonctions initListeTable et initListeByDDN
+    void completemaptable (QList<Patient*> listpatients,                                    /*! complète la QMap \variable m_patientstable à partir des fonctions initListeTable et initListeByDDN */
+                           QMap<int, Patient *> *mapacompleter);                            /*! \param la map dans laquelle on veut ajouter les patients */
 
     bool m_full;                                                                            //! la liste contient tous les patients de la base
 
@@ -96,7 +97,7 @@ public:
     //!> actions sur les champs
     void    updatePatientData(Patient *pat, QString nomchamp, QVariant value = QVariant()); //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour le patient
     void    updateCorrespondant(Patient *pat,                                               //! met à jour un des correspondants d'un patient
-                                DataBase::typecorrespondant type,
+                                Correspondant::typecorrespondant type,
                                 Correspondant *cor = Q_NULLPTR);
 
 

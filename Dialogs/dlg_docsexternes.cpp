@@ -1063,8 +1063,8 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         QString idaafficher = "";
         if (m_docsexternes->docsexternes()->size() > 1)    // on recherche le document sur qui va être mis la surbrillance après la suppression
         {
-            QMap<int, DocExterne*>::const_iterator itdoc =  m_docsexternes->docsexternes()->find(docmt->id());
-            if (itdoc != m_docsexternes->docsexternes()->constBegin())
+            auto itdoc =  m_docsexternes->docsexternes()->find(docmt->id());
+            if (itdoc != m_docsexternes->docsexternes()->cbegin())
                 itdoc --;
             else
                 itdoc ++;

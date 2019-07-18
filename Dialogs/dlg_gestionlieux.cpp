@@ -374,7 +374,7 @@ void dlg_GestionLieux::ReconstruitModel()
     else
         tabModel = new QStandardItemModel;
 
-    for( QMap<int, Site*>::const_iterator itsite = listsites->constBegin(); itsite != listsites->constEnd(); ++itsite )
+    for( auto itsite = listsites->cbegin(); itsite != listsites->cend(); ++itsite )
     {
         Site *sit = const_cast<Site*>(itsite.value());
         UpStandardItem *pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom());

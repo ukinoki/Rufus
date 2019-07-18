@@ -30,7 +30,7 @@ class dlg_salledattente : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_salledattente(Patient *pat, Acte *act, QString Titre, QWidget *parent = Q_NULLPTR);
+    explicit dlg_salledattente(Acte *act, QString Titre, QWidget *parent = Q_NULLPTR);
     ~dlg_salledattente();
     Ui::dlg_salledattente *ui;
 
@@ -39,8 +39,6 @@ private slots:
     void                Slot_EnableOKButton();
 
 private:
-    Patient             *m_currentpatient;
-    PatientsEnCours     *m_patientsencours = Datas::I()->patientsencours;
     Acte                *m_currentact;
 };
 

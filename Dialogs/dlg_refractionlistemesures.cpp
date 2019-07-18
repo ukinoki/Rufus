@@ -17,11 +17,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_refractionlistemesures.h"
 
-dlg_listemesures::dlg_listemesures(Patient *pat, QString mode, QWidget *parent) :
+dlg_listemesures::dlg_listemesures(QString mode, QWidget *parent) :
     UpDialog (QDir::homePath() + FILE_INI, "PositionsFiches/PositionListeMes", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    m_currentpatient  = pat;
     proc        = Procedures::I();
     if (mode == "SUPPR")
         gMode       = Supprimer;
@@ -189,7 +188,6 @@ int dlg_listemesures::Nombre_Mesure_Selected()
 //--------------------------------------------------------------------------------------
 void dlg_listemesures::RemplirTableView()
 {
-    bool ok;
     QString zw;
     if (gMode == Recuperer)
         OKButton->setEnabled(false);

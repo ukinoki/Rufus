@@ -85,17 +85,18 @@ void Archives::addArchive(QList<Archive*> listarchives)
 void Archives::clearAll()
 {
     QList<Archive*> listarchs;
-    for( QMap<int, Archive*>::const_iterator itbq = m_archives->constBegin(); itbq != m_archives->constEnd(); ++itbq)
-        delete itbq.value();
-    m_archives->clear();
+    for( auto it = m_archives->begin(); it != m_archives->end(); )
+    {
+        delete it.value();
+        it = m_archives->erase(it);
+    }
 }
 
 void Archives::removeArchive(Archive *arch)
 {
     if (arch == Q_NULLPTR)
         return;
-    QMap<int, Archive*>::const_iterator itarch = m_archives->find(arch->id());
-    if( itarch == m_archives->constEnd() )
+    if( m_archives->find(arch->id()) == m_archives->end() )
         return;
     m_archives->remove(arch->id());
     delete arch;

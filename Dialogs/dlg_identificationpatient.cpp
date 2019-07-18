@@ -157,7 +157,7 @@ dlg_identificationpatient::~dlg_identificationpatient()
 void dlg_identificationpatient::ChoixMG()
 {
     OKButton->setEnabled(true);
-    Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+    Datas::I()->patients->updateCorrespondant(m_currentpatient, Correspondant::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
 }
 
 void    dlg_identificationpatient::Slot_EnableOKpushButton()
@@ -641,7 +641,7 @@ void dlg_identificationpatient::MAJMG()
                     m_flagcorrespondants = Flags::I()->flagCorrespondants();
                     proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
-                    Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
+                    Datas::I()->patients->updateCorrespondant(m_currentpatient, Correspondant::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
                 }
                 else
                     ui->MGupComboBox->setCurrentText(anc);
@@ -651,7 +651,7 @@ void dlg_identificationpatient::MAJMG()
             msgbox.close();
         }
         else if (ui->MGupComboBox->getValeurAvant() != "" && gMode != Copie)
-            Datas::I()->patients->updateCorrespondant(m_currentpatient, DataBase::MG);
+            Datas::I()->patients->updateCorrespondant(m_currentpatient, Correspondant::MG);
     }
 }
 

@@ -29,12 +29,14 @@ public:
     template <typename T>
     void clearAll(QMap<int, T*> *m_map)
     {
-        QMapIterator<int, T*> it(*m_map);
-        while (it.hasNext())
+        for (auto it = m_map->begin(); it != m_map->end();)
         {
-            it.next();
             if (it.value() != Q_NULLPTR)
-                delete it.value();
+            {
+                T* item = const_cast<T*>(it.value());
+                delete item;
+            }
+            it = m_map->erase(it);
         }
         m_map->clear();
     }
@@ -43,16 +45,27 @@ public:
     template <typename T>
     void clearAll(QMap<QString, T*> *m_map)
     {
-        QMapIterator<QString, T*> it(*m_map);
-        while (it.hasNext())
+        for (auto it = m_map->begin(); it != m_map->end();)
         {
-            it.next();
             if (it.value() != Q_NULLPTR)
-                delete it.value();
+            {
+                T* item = const_cast<T*>(it.value());
+                delete item;
+            }
+            it = m_map->erase(it);
         }
         m_map->clear();
     }
 
+protected:
+
+    /*!
+     * \brief ItemsList::addList
+     * Cette fonction rajoute une liste d'items à un QMap
+     * Les items dont l'id est déjà présent ne sont pas remplacés
+     * \param Item::UPDATE upd - si un item est déjà présent, il n'est pas remplacé mais il est mis à jour si upd = Item::ForceUpdate)
+     * \param m_map le QMap que l'on veut vider
+     */
     template <typename T>
     void addList(QMap<int, T*> *m_map, QList<T*> listitems, Item::UPDATE upd = Item::NoUpdate)
     {
@@ -87,12 +100,13 @@ public:
         }
     }
 
-
-protected:
-
 /*!
      * \brief ItemsList::add
-     * Cette fonction va ajouter un item dans un QMap
+     * Cette fonction va ajouter un item dans un QMap.
+     * Si un item avec le même id est présent dans le QMap,
+        * il n'est pas remplacé mais ses datas sont remplacées par celle de l'item à ajouter
+        * l'item à ajouter est deleté
+        * la fonction renvoie false
      * \param m_map le QMap dans lequel on veut ajouter l'item
      * \param item l'item que l'on veut ajouter
      * \param Item::UPDATE - si ForceUpdate, force l'update de l'item s'il est déjà présent dans le QMap
@@ -109,7 +123,7 @@ bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
     {
         if (upd == Item::ForceUpdate)
         {
-            typename QMap<int, T*>::const_iterator it = m_map->find(item->id());
+            auto it = m_map->find(item->id());
             if (it.value() == Q_NULLPTR)
             {
                 m_map->insert(it.key(), item);
@@ -134,7 +148,7 @@ bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
     {
         if (upd == Item::ForceUpdate)
         {
-            typename QMap<QString, T*>::const_iterator it = m_map->find(item->stringid());
+            auto it = m_map->find(item->stringid());
             if (it.value() == Q_NULLPTR)
             {
                 m_map->insert(it.key(), item);

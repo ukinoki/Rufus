@@ -1081,7 +1081,7 @@ void dlg_documents::ChoixMenuContextuel(QString choix)
         tabChamps->setColumnWidth(1,0); // si on met setcolumnhidden, ça ne rentre pas dans les selecteditems()
         QTableWidgetItem        *pitem0, *pitem1;
         int                     i = 0;
-        for(QMap<QString, QString>::iterator it = gChampsMap.begin(); it!=gChampsMap.end(); ++it)
+        for(auto it = gChampsMap.cbegin(); it!=gChampsMap.cend(); ++it)
         {
             tabChamps   ->insertRow(i);
             pitem0       = new QTableWidgetItem;

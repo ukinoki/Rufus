@@ -1173,9 +1173,9 @@ void dlg_remisecheques::ReconstruitListeUsers()
     }
     m_userencours = db->getUserConnected();
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
-    if (m_userencours->getUserComptable())
+    if (m_userencours->getUserComptable() != Q_NULLPTR)
     {
-        QMap<int, User*>::const_iterator itusr = m_comptablesavecchequesenattente->find(m_userencours->id());
+        auto itusr = m_comptablesavecchequesenattente->find(m_userencours->id());
         if(itusr != m_comptablesavecchequesenattente->end())
             ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_userencours->id()));
     }

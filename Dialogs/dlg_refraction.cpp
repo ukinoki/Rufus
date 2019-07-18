@@ -2296,7 +2296,7 @@ void dlg_refraction::OuvrirListeMesures(QString SupOuRecup)
     QString nuRefraction = "";
 
     // Creation du formulaire Dlg Liste Mesures
-    Dlg_ListeMes    = new dlg_listemesures(Datas::I()->patients->currentpatient(), SupOuRecup);
+    Dlg_ListeMes    = new dlg_listemesures(SupOuRecup);
     Dlg_ListeMes->setWindowTitle(tr("Liste des mesures : ") + Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom() );
 
     RetourListe = Dlg_ListeMes->exec();

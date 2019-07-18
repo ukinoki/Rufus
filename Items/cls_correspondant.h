@@ -51,6 +51,7 @@ private:
 
 public:
     //GETTER | SETTER
+    enum typecorrespondant {MG, Spe1, Spe2};                    //! les 3 types de correspondants MG = médecin traitant, Spe1 ou Spe2 = tout autre type de correpondant
     bool isMG() const;
     bool ismedecin() const;
     QString nom() const;

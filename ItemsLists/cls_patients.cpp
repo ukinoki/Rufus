@@ -132,97 +132,40 @@ void Patients::initListeSalDat(QList<int> listidaajouter)
     /*! on recrée la liste des patients en cours
      */
     QList<Patient*> listpatients = DataBase::I()->loadPatientsByListId(listidaajouter);
-
-    /*! on supprime de la liste globale de patients et on delete chaque patient
-     * qui n'est ni dans la nouvelle liste
-     * ni dans la liste table
-     * ni dans la liste par date de naissance
-     * et qui ni le current patient,
-     * ni le dossier à ouvrir
-     */
-    for (auto it = m_patients->begin(); it != m_patients->end();)
-    {
-        if (!listidaajouter.contains(it.key())
-          && m_patientstable->find(it.key()) == m_patientstable->constEnd())
-        {
-            Patient *pat = const_cast<Patient*>(it.value());
-            if (pat != Q_NULLPTR)
-                delete pat;
-            it = m_patients->erase(it);
-        }
-        else
-            ++it;
-    }
-    /*! on ajoute les patients dans la liste des patients */
-    for(auto itz = listpatients.begin(); itz != listpatients.end(); ++itz)
-    {
-        Patient* pat = const_cast<Patient*>(*itz);
-        add( m_patients, pat );
-    }
-
-    /*! on supprime de l'ancienne liste des patients en cours tous les patients qui ne sont pas dans la nouvelle liste
-     */
-    for (auto ity = m_patientssaldat->begin(); ity != m_patientssaldat->end();)
-    {
-        if (!listidaajouter.contains(ity.key()))
-            ity = m_patientssaldat->erase(ity);
-        else
-            ++ ity;
-    }
-    /*! on ajoute les patients dans la liste des patients de la table*/
-    for(auto itx = listpatients.begin(); itx != listpatients.end();)
-    {
-        Patient* pat = const_cast<Patient*>(*itx);
-        if (!add( m_patientssaldat, pat ))
-        {
-            itx = listpatients.erase(itx);
-            if (pat != Q_NULLPTR)
-                delete pat;
-        }
-        else
-             ++itx;
-    }
-}
+    completemaptable(listpatients, m_patientssaldat);
+ }
 
 void Patients::initListeTable(QString nom, QString prenom, bool filtre)
 {
     /*! on recrée une liste des patients pour remplir la table
      */
     QList<Patient*> listpatients = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
-    QList<int> listidaajouter;
-    for (int i=0; i<listpatients.size(); ++i)
-        listidaajouter << listpatients.at(i)->id();
     m_full = (nom == "" && prenom == "");
-    completemaptable(listpatients);
+    completemaptable(listpatients, m_patientstable);
 }
 
 void Patients::initListeByDDN(QDate DDN)
 {
-    QList<Patient*> listpatients;
-    clearAll(m_patients);
-    if (DDN == QDate())
-        listpatients = DataBase::I()->loadPatientsAll();
-    else
-        listpatients = DataBase::I()->loadPatientsByDDN(DDN);
+    QList<Patient*> listpatients = (DDN == QDate()? DataBase::I()->loadPatientsAll() : DataBase::I()->loadPatientsByDDN(DDN));
     m_full = (DDN == QDate());
-    completemaptable(listpatients);
+    completemaptable(listpatients, m_patientstable);
 }
 
-void Patients::completemaptable (QList<Patient*> listpatients)
+void Patients::completemaptable (QList<Patient*> listpatients, QMap<int, Patient*> *mapacompleter)
 {
-
+    QMap<int, Patient*> *mapaverifier = (mapacompleter == m_patientssaldat? m_patientstable : m_patientssaldat);
     QList<int> listidaajouter;
     for (int i=0; i<listpatients.size(); ++i)
         listidaajouter << listpatients.at(i)->id();
 
     /*! on supprime de la liste globale de patients et on delete chaque patient
      * qui n'est ni dans la nouvelle liste
-     * ni dans la liste des patients en cours
+     * ni dans la liste  à vérifier
      */
     for (auto it = m_patients->begin(); it != m_patients->end();)
     {
         if (!listidaajouter.contains(it.key())
-          && m_patientssaldat->find(it.key()) == m_patientssaldat->constEnd())
+          && mapaverifier->find(it.key()) == m_patientssaldat->constEnd())
         {
             Patient *pat = const_cast<Patient*>(it.value());
             if (pat != Q_NULLPTR)
@@ -237,15 +180,15 @@ void Patients::completemaptable (QList<Patient*> listpatients)
     for(auto itz = listpatients.begin(); itz != listpatients.end(); ++itz)
     {
         Patient* pat = const_cast<Patient*>(*itz);
-        add( m_patients, pat );
+        add( m_patients, pat, Item::ForceUpdate );
     }
 
     /*! on supprime de l'ancienne liste des patients de la table tous les patients qui ne sont pas dans la nouvelle liste
      */
-    for (auto ity = m_patientstable->begin(); ity != m_patientstable->end();)
+    for (auto ity = mapacompleter->begin(); ity != mapacompleter->end();)
     {
         if (!listidaajouter.contains(ity.key()))
-            ity = m_patientstable->erase(ity);
+            ity = mapacompleter->erase(ity);
         else
             ++ ity;
     }
@@ -253,7 +196,7 @@ void Patients::completemaptable (QList<Patient*> listpatients)
     for(auto itx = listpatients.begin(); itx != listpatients.end();)
     {
         Patient* pat = const_cast<Patient*>(*itx);
-        if (!add( m_patientstable, pat ))
+        if (!add( mapacompleter, pat, Item::ForceUpdate ))
         {
             if (pat != Q_NULLPTR)
                 delete pat;
@@ -385,22 +328,22 @@ void Patients::updatePatientData(Patient *pat, QString nomchamp, QVariant value)
     DataBase::I()->StandardSQL(requete);
 }
 
-void Patients::updateCorrespondant(Patient *pat, DataBase::typecorrespondant type, Correspondant *cor)
+void Patients::updateCorrespondant(Patient *pat, Correspondant::typecorrespondant type, Correspondant *cor)
 {
     if (pat == Q_NULLPTR)
         return;
     int id = (cor != Q_NULLPTR ? cor->id() : 0);
     QString field;
     switch (type) {
-    case DataBase::MG:
+    case Correspondant::MG:
         field = CP_IDMG_RMP;
         pat->setmg(id);
         break;
-    case DataBase::Spe1:
+    case Correspondant::Spe1:
         field = CP_IDSPE1_RMP;
         pat->setspe1(id);
         break;
-    case DataBase::Spe2:
+    case Correspondant::Spe2:
         pat->setspe2(id);
         field = CP_IDSPE2_RMP;
     }

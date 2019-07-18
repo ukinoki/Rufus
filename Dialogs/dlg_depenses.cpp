@@ -36,7 +36,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     int index = 0;
     bool foundUser = false;
-    int currentIdUser = db->getUserConnected()->id(); //Utilisateur connecte
+    int currentIdUser = Datas::I()->users->userconnected()->id(); //Utilisateur connecte
     QMapIterator<int, User*> itUser (*m_listUserLiberaux);
     while (itUser.hasNext())
     {
@@ -1526,10 +1526,9 @@ void dlg_depenses::ReconstruitListeAnnees()
 {
     ui->AnneecomboBox->disconnect();
     QStringList ListeAnnees;
-    QMapIterator<int, Depense*> itdep (*Datas::I()->depenses->depenses());
-    while (itdep.hasNext())
+    for (auto it = Datas::I()->depenses->depenses()->cbegin() ; it != Datas::I()->depenses->depenses()->cend(); ++it)
     {
-        Depense *dep = const_cast<Depense*>(itdep.next().value());
+        Depense *dep = const_cast<Depense*>(it.value());
         if (!ListeAnnees.contains(QString::number(dep->annee())))
             ListeAnnees << QString::number(dep->annee());
     }
@@ -1571,27 +1570,24 @@ void dlg_depenses::RemplitBigTable()
     gBigTable->setRowCount(0);
     QList<Depense*> listDepenses;
 
-    QMapIterator<int, Depense*> it(*Datas::I()->depenses->depenses());
-    while (it.hasNext())
+    foreach (Depense* dep, Datas::I()->depenses->depenses()->values())
     {
-        Depense *dep = const_cast<Depense*>(it.next().value());
         if (dep->annee() == ui->AnneecomboBox->currentText().toInt())
             listDepenses << dep;
     }
-
-    int i=0;
     if (listDepenses.size() == 0)
     {
         RegleAffichageFiche(TableVide);
         return;
     }
     gBigTable->setRowCount(listDepenses.size());
-    for (QList<Depense*>::const_iterator itdep = listDepenses.constBegin() ; itdep != listDepenses.constEnd() ; ++itdep)
+    int i=0;
+    foreach(Depense *dep, listDepenses)
     {
-        Depense *dep = const_cast<Depense*>(*itdep);
         SetDepenseToRow(dep, i);
         ++i;
     }
+
     gBigTable->sortItems(7);
     SupprimerupPushButton->setEnabled(false);
     connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
