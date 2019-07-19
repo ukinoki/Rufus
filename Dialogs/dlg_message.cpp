@@ -27,6 +27,17 @@ dlg_message::dlg_message(QStringList listmsg, int pause, bool bottom)
     thread.wait();
 }
 
+dlg_message::dlg_message(QString msg, int pause, bool bottom)
+{
+    QThread thread;
+    moveToThread(&thread);
+    thread.start();
+    QStringList listmsg = QStringList() << msg;
+    AfficheMsg(listmsg, pause, bottom);
+    thread.exit();
+    thread.wait();
+}
+
 dlg_message::~dlg_message()
 {
 }

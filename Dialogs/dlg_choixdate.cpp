@@ -24,6 +24,7 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    m_datemap = QMap<QString, QDate>();
 
     ui->JourradioButton             ->setChecked(true);
     ui->DepuisdateEdit              ->setDate(QDate::currentDate());
@@ -36,19 +37,22 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
     ui->PlusDebutPeriodepushButton  ->setVisible(false);
     ui->MoinsFinPeriodepushButton   ->setVisible(false);
 
-    connect(ui->OKupPushButton,                 &QPushButton::clicked, [=] {accept();});
-    connect(ui->AnnulupPushButton,              &QPushButton::clicked, [=] {reject();});
-    connect(ui->JourradioButton,                &QPushButton::clicked, [=] {AfficheDates(ui->JourradioButton);});
-    connect(ui->SemaineradioButton,             &QPushButton::clicked, [=] {AfficheDates(ui->SemaineradioButton);});
-    connect(ui->MoisradioButton,                &QPushButton::clicked, [=] {AfficheDates(ui->MoisradioButton);});
-    connect(ui->AnneeradioButton,               &QPushButton::clicked, [=] {AfficheDates(ui->AnneeradioButton);});
+    connect(ui->OKupPushButton,                 &QPushButton::clicked,  this,    [=] {
+        m_datemap["DateDebut"] = ui->DepuisdateEdit->date();
+        m_datemap["DateFin"] = (ui->JourradioButton->isChecked()? m_datemap["DateDebut"] : ui->JusquAdateEdit->date());
+        accept();});
+    connect(ui->AnnulupPushButton,              &QPushButton::clicked,  this,    [=] {reject();});
+    connect(ui->JourradioButton,                &QPushButton::clicked,  this,    [=] {AfficheDates(ui->JourradioButton);});
+    connect(ui->SemaineradioButton,             &QPushButton::clicked,  this,    [=] {AfficheDates(ui->SemaineradioButton);});
+    connect(ui->MoisradioButton,                &QPushButton::clicked,  this,    [=] {AfficheDates(ui->MoisradioButton);});
+    connect(ui->AnneeradioButton,               &QPushButton::clicked,  this,    [=] {AfficheDates(ui->AnneeradioButton);});
 
-    connect(ui->PlusDateDebutpushButton,        &QPushButton::clicked, [=] {ModifDate(ui->PlusDateDebutpushButton);});
-    connect(ui->MoinsDateDebutpushButton,       &QPushButton::clicked, [=] {ModifDate(ui->MoinsDateDebutpushButton);});
-    connect(ui->PlusDateFinpushButton,          &QPushButton::clicked, [=] {ModifDate(ui->PlusDateFinpushButton);});
-    connect(ui->MoinsDateFinpushButton,         &QPushButton::clicked, [=] {ModifDate(ui->MoinsDateFinpushButton);});
-    connect(ui->PlusDebutPeriodepushButton,     &QPushButton::clicked, [=] {ModifDate(ui->PlusDebutPeriodepushButton);});
-    connect(ui->MoinsFinPeriodepushButton,      &QPushButton::clicked, [=] {ModifDate(ui->MoinsFinPeriodepushButton);});
+    connect(ui->PlusDateDebutpushButton,        &QPushButton::clicked,  this,    [=] {ModifDate(ui->PlusDateDebutpushButton);});
+    connect(ui->MoinsDateDebutpushButton,       &QPushButton::clicked,  this,    [=] {ModifDate(ui->MoinsDateDebutpushButton);});
+    connect(ui->PlusDateFinpushButton,          &QPushButton::clicked,  this,    [=] {ModifDate(ui->PlusDateFinpushButton);});
+    connect(ui->MoinsDateFinpushButton,         &QPushButton::clicked,  this,    [=] {ModifDate(ui->MoinsDateFinpushButton);});
+    connect(ui->PlusDebutPeriodepushButton,     &QPushButton::clicked,  this,    [=] {ModifDate(ui->PlusDebutPeriodepushButton);});
+    connect(ui->MoinsFinPeriodepushButton,      &QPushButton::clicked,  this,    [=] {ModifDate(ui->MoinsFinPeriodepushButton);});
 
     ui->AnnulupPushButton           ->setFixedSize(100,46);
     ui->OKupPushButton              ->setFixedSize(105,46);
@@ -58,6 +62,11 @@ dlg_choixdate::dlg_choixdate(QWidget *parent) :
 dlg_choixdate::~dlg_choixdate()
 {
     delete ui;
+}
+
+QMap<QString, QDate> dlg_choixdate::map()
+{
+    return m_datemap;
 }
 
 void    dlg_choixdate::AfficheDates(QWidget *widg)

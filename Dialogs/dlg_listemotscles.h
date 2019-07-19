@@ -38,7 +38,6 @@ private:
     int                 gMode;
     enum gMode {Creation, Modif};
     QTableView          *tabMC;
-    Procedures          *proc;
     DataBase            *db;
 
     QHBoxLayout         *editlayout;

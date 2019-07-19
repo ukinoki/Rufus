@@ -99,8 +99,6 @@ public:
     bool                    FicheChoixConnexion();
     QString                 getDossierDocuments(QString Appareil, int mod = DataBase::ReseauLocal);
     void                    EnChantier(bool avecMsg = false);
-    void                    Message(QStringList listmsg, int pause = 1000, bool bottom = true);
-    void                    Message(QString mess, int pause = 1000, bool bottom = true);
 
     void                    ModifTailleFont(QObject *obj, int siz, QFont font=qApp->font());
     QString                 ImpressionCorps(QString text, bool ALD = false);
@@ -206,7 +204,6 @@ public:
     bool                    ApercuAvantImpression();
     // Les accesseurs
     QString                 getCodePostalParDefaut();
-    void                    setCodePostalParDefaut(QString CPParDefaut);
     void                    setDirImagerie();
     QString                 DirImagerie();
     QString                 DirImagerieServeur();

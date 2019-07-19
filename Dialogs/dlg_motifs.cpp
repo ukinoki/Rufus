@@ -160,6 +160,39 @@ void dlg_motifs::Slot_ChoixButtonFrame(int i)
 
 void dlg_motifs::Slot_DropMotif(QByteArray data)
 {
+    /*! Dans le mimedata du qabstractitemmodeldatalist se succédent row(), column() et datas de chaque item
+     * stream << rowitem1 << colitem1 << datasitem1 << rowitem2 << colitem2 << datasitem2 << rowitem3 << colitem3 << datasitem3...etc...
+     * les datas de l'item sont sous forme de QMap<int, QVariant> à un seul élémént, key() = 0 et value() = le QVariant du contenu de l'item
+
+    \code
+    QDataStream         datastream(&data, QIODevice::ReadOnly);
+    while (!datastream.atEnd())
+    {
+        //! on découpe le datatsream 3 éléménts par 3 éléménts: row, col et dataMap
+        int                 row, col;
+        QMap<int,QVariant>  dataMap;
+        datastream >> row >> col >> dataMap;
+        QString ab = "col = " + QString::number(col) + " row = " + QString::number(row);
+        foreach (int val, dataMap.keys())
+        {
+            QString bc = ab + " datamap = " + QString::number(val) + " / " + dataMap.find(val).value().toString();
+            qDebug() << bc;
+        {
+    }
+         * ça donne ça
+                col = 0 row = 235 datamap = 0 / 11510                       Le contenu de la colonne 0 et de la ligne 235 = l'id du patient
+                col = 1 row = 235 datamap = 0 / DUPONT Marcel               Le contenu de la colonne 1 et de la ligne 235 = NOM prénom
+                col = 2 row = 235 datamap = 0 / 10-06-1957                  Le contenu de la colonne 2 et de la ligne 235 = DDN du patient
+                col = 3 row = 235 datamap = 0 / 19570610                    Le contenu de la colonne 3 et de la ligne 235 = DDN du patient au format yyyyMMdd pour le tri
+                col = 4 row = 235 datamap = 0 / Dupont                      Le contenu de la colonne 4 et de la ligne 235 = le nom du patient pour le tri
+                col = 5 row = 235 datamap = 0 / Marcel                      Le contenu de la colonne 5 et de la ligne 235 = le prénom du patient pour le tri
+    */
+
+    /*! en l'occurence, on ne relève que le troisième élément du datastream
+     * qui correspond à la colonne 0 du qabstractitemmodel et donc ici à l'id du motif
+     * mais on est obligé de faire sortir row et col (qui ne servent à rien pour ce qu'on veut faire)
+    */
+
     QDataStream stream(&data, QIODevice::ReadOnly);
     int id = 0;
     int anc = 0;

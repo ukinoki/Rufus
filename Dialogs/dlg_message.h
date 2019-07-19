@@ -43,6 +43,7 @@ class dlg_message : public QObject
     Q_OBJECT
 public:
     explicit        dlg_message(QStringList listmsg, int pause = 1000, bool bottom = true);
+    explicit        dlg_message(QString msg, int pause = 1000, bool bottom = true);
     ~dlg_message();
 private:
     void            AfficheMsg(QStringList listmes, int pause, bool bottom);

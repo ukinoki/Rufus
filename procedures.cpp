@@ -133,17 +133,10 @@ void Procedures::ab(int i)
 --------------------------------------------------------------------------------------------------------------*/
 QMap<QString, QDate> Procedures::ChoixDate(QWidget *parent)
 {
-    QMap<QString, QDate> DateMap;
-    Dlg_ChxDate            = new dlg_choixdate(parent);
-    Dlg_ChxDate->setWindowTitle(tr("Choisir une période"));
-    if (Dlg_ChxDate->exec()> 0)
-    {
-        DateMap["DateDebut"] = Dlg_ChxDate->ui->DepuisdateEdit->date();
-        if (!Dlg_ChxDate->ui->JourradioButton->isChecked())
-            DateMap["DateFin"] = Dlg_ChxDate->ui->JusquAdateEdit->date();
-        else
-            DateMap["DateFin"] = DateMap["DateDebut"];
-    }
+    Dlg_ChxDate = new dlg_choixdate(parent);
+    Dlg_ChxDate ->setWindowTitle(tr("Choisir une période"));
+    Dlg_ChxDate ->exec();
+    QMap<QString, QDate> DateMap = Dlg_ChxDate->map();
     delete Dlg_ChxDate;
     return DateMap;
 }
@@ -167,18 +160,6 @@ void Procedures::EnChantier(bool avecMsg)
     msgbox.setInformativeText(tr("Le code qui suit n'est pas achevé et entraînera\nassez rapidement un plantage du programme\navec un risque élevé de corruption des données"));
     msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
     msgbox.exec();
-}
-
-void Procedures::Message(QStringList listmsg, int pause, bool bottom)
-{
-    dlg_message(listmsg, pause, bottom);
-}
-
-void Procedures::Message(QString mess, int pause, bool bottom)
-{
-    QStringList listmsg;
-    listmsg << mess;
-    dlg_message(listmsg, pause, bottom);
 }
 
 // ----------------------------------------------------------------------------------
@@ -428,7 +409,7 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
         OKFactures = false;
     }
 
-    Message(tr("Sauvegarde en cours"),3000,false);
+    dlg_message(tr("Sauvegarde en cours"),3000,false);
     connexion = false;
     emit ConnectTimers();
 
@@ -449,7 +430,7 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
             msg = tr("Sauvegarde effectuée avec succès");
         else
             msg = tr("Incident pendant la sauvegarde");
-        Message(msg,3000,false);
+        dlg_message(msg,3000,false);
         if (b)
         {
             QString NomDirDestination;
@@ -475,25 +456,25 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
         {
             QString Msg = (tr("Sauvegarde des fichiers d'imagerie\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-            Message(Msg, 3000);
+            dlg_message(Msg, 3000);
             QProcess::execute("cp -R " + NomDirStockageImagerie + DIR_IMAGES + " " + dest);
-            Message(tr("Fichiers d'imagerie sauvegardés!"), 3000, false);
+            dlg_message(tr("Fichiers d'imagerie sauvegardés!"), 3000, false);
         }
         if (OKFactures)
         {
             QString Msg = (tr("Sauvegarde des factures\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-            Message(Msg, 3000);
+            dlg_message(Msg, 3000);
             QProcess::execute("cp -R " + NomDirStockageImagerie + DIR_FACTURES + " " + dest);
-            Message(tr("Fichiers factures sauvegardés!"), 3000, false);
+            dlg_message(tr("Fichiers factures sauvegardés!"), 3000, false);
         }
         if (OKVideos)
         {
             QString Msg = (tr("Sauvegarde des fichiers videos\n")
                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-            Message(Msg, 3000);
+            dlg_message(Msg, 3000);
             QProcess::execute("cp -R " + NomDirStockageImagerie + DIR_VIDEOS + " " + dest);
-            Message(tr("Fichiers video sauvegardés!"), 3000, false);
+            dlg_message(tr("Fichiers video sauvegardés!"), 3000, false);
         }
     }
     connexion = true;
@@ -1787,11 +1768,6 @@ QString Procedures::getCodePostalParDefaut()
     return lCPParDefaut;
 }
 
-void Procedures::setCodePostalParDefaut(QString CPParDefaut)
-{
-    lCPParDefaut = CPParDefaut;
-}
-
 QString Procedures::getSessionStatus()
 {
     // statut de l'utilisateur pour cette session
@@ -2472,7 +2448,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         {
                             //Suppression de toutes les tables
                             QString Msg = tr("Suppression de l'ancienne base Rufus en cours");
-                            Message(Msg, 3000, false);
+                            dlg_message(Msg, 3000, false);
                             VideDatabases();
                             int a = 99;
                             //Restauration à partir du dossier sélectionné
@@ -2484,7 +2460,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                              if (dumpProcess.exitStatus() == QProcess::NormalExit)
                                 a = dumpProcess.exitCode();
                             if (a != 0)
-                                Message(tr("Incident pendant la sauvegarde"),3000,false);
+                                dlg_message(tr("Incident pendant la sauvegarde"),3000,false);
                             QFile::remove(QDir::homePath() + SCRIPTRESTOREFILE);
                        }
                     }
@@ -2503,7 +2479,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         QFile rufusini(fileini);
                         rufusini.copy(gnomFichIni);
                         msg += tr("Fichier de paramétrage Rufus.ini restauré\n");
-                        Message(tr("Fichier de paramétrage Rufus.ini restauré"), 3000, false);
+                        dlg_message(tr("Fichier de paramétrage Rufus.ini restauré"), 3000, false);
                     }
                 }
             }
@@ -2525,7 +2501,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             ficACopier.copy(QDir::homePath() + DIR_RUFUS DIR_RESSOURCES + "/" + nomficACopier);
                         }
                         msg += tr("Fichiers de ressources d'impression restaurés\n");
-                        Message(tr("Fichiers de ressources d'impression restaurés"), 3000, false);
+                        dlg_message(tr("Fichiers de ressources d'impression restaurés"), 3000, false);
                     }
                 }
             }
@@ -2543,18 +2519,18 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         if (!DirDestImg.mkdir(dirdestinationimg))
                         {
                             QString Msg = tr("le dossier de destination de l'imagerie n'existe pas");
-                            Message(Msg, 3000, false);
+                            dlg_message(Msg, 3000, false);
                         }
                         else
                         {
                             QString Msg = (tr("Restauration des fichiers d'imagerie\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-                            Message(Msg, 3000);
+                            dlg_message(Msg, 3000);
                             Msg = "cp -R " + dirrestaureimagerie.absolutePath() + " " + NomDirStockageImagerie;
                             //qDebug() << Msg;
                             QProcess::execute(Msg);
                             msg += tr("Fichiers d'imagerie restaurés\n");
-                            Message(tr("Fichiers d'imagerie restaurés"), 3000, false);
+                            dlg_message(tr("Fichiers d'imagerie restaurés"), 3000, false);
                         }
                     }
                 }
@@ -2573,17 +2549,17 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         if (!DirDestVid.mkdir(dirdestinationvid))
                         {
                             QString Msg = tr("le dossier de destination des videos n'existe pas");
-                            Message(Msg, 3000, false);
+                            dlg_message(Msg, 3000, false);
                         }
                         else
                         {
                             QString Msg = (tr("Restauration des fichiers videos\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille du dosseir"));
-                            Message(Msg, 3000, false);
+                            dlg_message(Msg, 3000, false);
                             Msg = "cp -R " + dirrestaurevideo.absolutePath() + " " + NomDirStockageImagerie;
                             QProcess::execute(Msg);
                             msg += tr("Fichiers videos restaurés\n");
-                            Message(tr("Fichiers videos restaurés"), 3000);
+                            dlg_message(tr("Fichiers videos restaurés"), 3000);
                         }
                     }
                 }
@@ -2602,17 +2578,17 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         if (!DirDestFac.mkdir(dirdestinationfactures))
                         {
                             QString Msg = tr("le dossier de destination des factures n'existe pas");
-                            Message(Msg, 3000, false);
+                            dlg_message(Msg, 3000, false);
                         }
                         else
                         {
                             QString Msg = (tr("Restauration des fichiers facturess\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille du dossier"));
-                            Message(Msg, 3000, false);
+                            dlg_message(Msg, 3000, false);
                             Msg = "cp -R " + dirrestaurefactures.absolutePath() + " " + NomDirStockageImagerie;
                             QProcess::execute(Msg);
                             msg += tr("Factures restaurées\n");
-                            Message(tr("Factures restaurées"), 3000);
+                            dlg_message(tr("Factures restaurées"), 3000);
                         }
                     }
                 }
@@ -2662,7 +2638,7 @@ bool Procedures::VerifBaseEtRessources()
                         return false;
                 BupDone = true;
             }
-            Message(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000, false);
+            dlg_message(tr("Mise à jour de la base vers la version ") + "<font color=\"red\"><b>" + QString::number(Version) + "</b></font>", 1000, false);
             QString Nomfic = "://majbase" + QString::number(Version) + ".sql";
             QFile DumpFile(Nomfic);
             if (DumpFile.exists())
@@ -2727,7 +2703,7 @@ bool Procedures::VerifBaseEtRessources()
         PremierParametrageRessources();
         gsettingsIni->setValue("Param_Imprimante/TailleEnTeteALD","63");
         gsettingsIni->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
-        Message(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000, false);
+        dlg_message(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000, false);
     }
     return true;
 }
@@ -4232,7 +4208,7 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
 
 void Procedures::VideDatabases()
 {
-    Message(tr("Suppression de l'ancienne base Rufus en cours"));
+    dlg_message(tr("Suppression de l'ancienne base Rufus en cours"));
     db->StandardSQL ("drop database if exists " DB_COMPTA );
     db->StandardSQL ("drop database if exists " DB_OPHTA );
     db->StandardSQL ("drop database if exists " DB_CONSULTS );

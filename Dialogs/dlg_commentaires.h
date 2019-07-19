@@ -54,7 +54,7 @@ private:
     void                        Modif_Com();
     bool                        gModifSurvol;
     bool                        gModeSurvol;
-    int                         gidUser;
+    User*                       m_currentuser;
     int                         gMode;
     enum gMode                  {Selection, Modification, Creation};
     WidgetButtonFrame           *widgButtons;
@@ -63,7 +63,6 @@ private:
     DataBase                    *db;
     QString                     textDocument, resumeDocument;
     QTimer                      *gTimerEfface;
-    Procedures                  *proc;
 
     bool                        eventFilter(QObject *, QEvent *);
     void                        keyPressEvent   (QKeyEvent * event );
@@ -81,7 +80,7 @@ private:
 
     //anciens slots
     void                        Annulation();
-    void                        ChoixButtonFrame(int);
+    void                        ChoixButtonFrame();
     void                        MenuContextuel(UpLineEdit *line);
     void                        dblClicktextEdit();
     void                        EnableOKPushbutton();

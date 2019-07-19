@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include <QTimer>
+#include <QMap>
 
 namespace Ui {
 class dlg_choixdate;
@@ -32,7 +33,9 @@ public:
     explicit            dlg_choixdate(QWidget *parent = Q_NULLPTR);
     ~dlg_choixdate();
     Ui::dlg_choixdate   *ui;
+    QMap<QString, QDate> map();
 private:
+    QMap<QString, QDate> m_datemap;
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                AfficheDates(QWidget *widg);
     void                ModifDate(QWidget *widg);

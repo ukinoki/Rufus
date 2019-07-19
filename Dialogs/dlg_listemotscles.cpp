@@ -22,7 +22,6 @@ dlg_listemotscles::dlg_listemotscles(Patient *pat, QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     gPatientEncours    = pat;
-    proc               = Procedures::I();
     db                 = DataBase::I();
 
     tabMC              = new QTableView();
@@ -121,12 +120,12 @@ void dlg_listemotscles::Slot_VerifMC()
     QString nouvMC= gAskDialog->findChildren<UpLineEdit*>().at(0)->text();
     if (nouvMC == "")
     {
-        proc->Message(tr("Vous n'avez pas rempli le mot clé"),2000,false);
+        dlg_message(tr("Vous n'avez pas rempli le mot clé"),2000,false);
         return;
     }
     if (glistMC.contains(nouvMC, Qt::CaseInsensitive))
     {
-        proc->Message(tr("Ce mot-clé existe déjà"),2000,false);
+        dlg_message(tr("Ce mot-clé existe déjà"),2000,false);
         if (gmodele->findItems(nouvMC, Qt::MatchExactly).size()>0)
             tabMC->scrollTo(gmodele->findItems(nouvMC, Qt::MatchExactly).at(0)->index());
         return;

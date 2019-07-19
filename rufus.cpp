@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("18-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("19-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -72,7 +72,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         exit(0);
     }
     qApp->setStyleSheet(Styles::StyleAppli());
-    proc->Message(m_currentuser->getStatus(), 3000);
+    dlg_message(m_currentuser->getStatus(), 3000);
 
     //! 3 Initialisation de tout
     InitVariables();
@@ -566,7 +566,7 @@ void Rufus::Moulinette()
             QTime dieTime= QTime::currentTime().addMSecs(1);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            proc->Message("correction des actes - acte n° " + imp.value(0).toString());
+            dlg_message("correction des actes - acte n° " + imp.value(0).toString());
         }
         b+=1;
     }
@@ -594,7 +594,7 @@ void Rufus::Moulinette()
             QTime dieTime= QTime::currentTime().addMSecs(1);
             while (QTime::currentTime() < dieTime)
                 QCoreApplication::processEvents(QEventLoop::AllEvents, 1);
-            proc->Message("correction des impressions - impression n° " + imp2.value(0).toString());
+            dlg_message("correction des impressions - impression n° " + imp2.value(0).toString());
         }
         b+=1;
     }
@@ -658,7 +658,7 @@ void Rufus::Moulinette()
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL("select patnom, patprenom from " TBL_PATIENTS " where idPat = " + idpat, ok);
         if (patdata.size()>0)
             AncNom = patdata.at(0).toString();
-            //proc->Message(quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s), 1);
+            //dlg_message(quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s), 1);
             //qDebug() << quernom.value(1).toString() + " " + AncNom + " - " + QString::number(k) + "/" + QString::number(s);
         copierequete = "update rufus.patients2 set patnom = '" + Utils::correctquoteSQL(listNoms.at(idauhasard)) + "' where idPat = " + idpat;
         db->StandardSQL(copierequete);
@@ -2703,7 +2703,6 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
 
 void Rufus::DropPatient(QByteArray data)
 {
-
     /*! Dans le mimedata du qabstractitemmodeldatalist se succédent row(), column() et datas de chaque item
      * stream << rowitem1 << colitem1 << datasitem1 << rowitem2 << colitem2 << datasitem2 << rowitem3 << colitem3 << datasitem3...etc...
      * les datas de l'item sont sous forme de QMap<int, QVariant> à un seul élémént, key() = 0 et value() = le QVariant du contenu de l'item
@@ -2717,12 +2716,11 @@ void Rufus::DropPatient(QByteArray data)
         QMap<int,QVariant>  dataMap;
         datastream >> row >> col >> dataMap;
         QString ab = "col = " + QString::number(col) + " row = " + QString::number(row);
-        QMapIterator<int,QVariant> itmap(dataMap);
-        if (itmap.hasNext()) {
-            itmap.next();
-            QString bc = ab + " datamap = " + QString::number(itmap.key()) + " / " + itmap.value().toString();
+        foreach (int val, dataMap.keys())
+        {
+            QString bc = ab + " datamap = " + QString::number(val) + " / " + dataMap.find(val).value().toString();
             qDebug() << bc;
-        }
+        {
     }
          * ça donne ça
                 col = 0 row = 235 datamap = 0 / 11510                       Le contenu de la colonne 0 et de la ligne 235 = l'id du patient
@@ -4327,7 +4325,7 @@ void Rufus::VerifSendMessage(int idMsg)
     //TODO : SQL
     if (gAsk->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
     {
-        proc->Message(tr("Vous avez oublié de rédiger le texte de votre message!"),2000,false);
+        dlg_message(tr("Vous avez oublié de rédiger le texte de votre message!"),2000,false);
         return;
     }
     bool checkusr = false;
@@ -4340,7 +4338,7 @@ void Rufus::VerifSendMessage(int idMsg)
         }
     if (!checkusr)
     {
-        proc->Message(tr("Vous avez oublié de choisir un destinataire!"),2000,false);
+        dlg_message(tr("Vous avez oublié de choisir un destinataire!"),2000,false);
         return;
     }
     QStringList locklist;
@@ -4490,7 +4488,7 @@ void Rufus::VerifSendMessage(int idMsg)
         }
         db->commit();
     }
-    proc->Message(tr("Message enregistré"),1000,false);
+    dlg_message(tr("Message enregistré"),1000,false);
     gAsk->accept();
 }
 
@@ -5183,7 +5181,7 @@ void Rufus::EnregMsgResp(int idmsg)
 {
      if (gMsgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText()=="")
     {
-        proc->Message(tr("Vous avez oublié de rédiger le texte de votre message!"),2000,false);
+        dlg_message(tr("Vous avez oublié de rédiger le texte de votre message!"),2000,false);
         return;
     }
     QString req = "select idemetteur, tache, datelimite, urge from " TBL_MESSAGES " where idmessage = " + QString::number(idmsg);
@@ -5230,7 +5228,7 @@ void Rufus::EnregMsgResp(int idmsg)
     }
     else
     {
-        proc->Message(tr("Message enregistré"),1000,false);
+        dlg_message(tr("Message enregistré"),1000,false);
         db->commit();
         envoieMessageA(QList<int>() << iddest);
     }
@@ -5498,7 +5496,7 @@ void Rufus::VerifVerrouDossier()
        {
            QString nomposte = listpostsAEliminer.at(i)->nomposte();
            Datas::I()->postesconnectes->SupprimePosteConnecte(listpostsAEliminer.at(i));
-           proc->Message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
+           dlg_message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
        }
        Flags::I()->MAJFlagSalleDAttente();
     }

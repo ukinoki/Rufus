@@ -299,7 +299,7 @@ void dlg_docsvideo::ValideFiche()
                           | QFileDevice::ReadUser   | QFileDevice::WriteUser);
         if (QFileInfo(qFile).absoluteFilePath() != CheminVideoDir + "/" + NomFileVideoDoc)
             qFile.remove();
-        proc->Message(tr("Video ") + sstypedoc +  tr(" enregistrée"), 1000, false);
+        dlg_message(tr("Video ") + sstypedoc +  tr(" enregistrée"), 1000, false);
         accept();
     }
 }
