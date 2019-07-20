@@ -248,15 +248,15 @@ void dlg_gestionbanques::ValideModifBanque()
                 return;
             }
         }
-        bool ok = true;
-        QList<QVariantList> listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege",
-                                                                      TBL_BANQUES, ok,
-                                                                      "where idbanqueabrege = '" + ui->NomAbregeupLineEdit->text() + "'");
-        if(listabreges.size()>0)
+        for (auto itbanq = Datas::I()->banques->banques()->cbegin(); itbanq != Datas::I()->banques->banques()->cend(); ++itbanq)
         {
-            UpMessageBox::Watch(this,tr("Cette abréviation est déjà utilisée!"));
-            ui->NomAbregeupLineEdit->setFocus();
-            return;
+            Banque *bq = const_cast<Banque*>(itbanq.value());
+            if (bq->nomabrege().toUpper() == ui->NomBanqueupLineEdit->text().toUpper())
+            {
+                UpMessageBox::Watch(this,tr("Cette abréviation est déjà utilisée!"));
+                ui->NomAbregeupLineEdit->setFocus();
+                return;
+            }
         }
         Banque *banq = Datas::I()->banques->CreationBanque(ui->NomAbregeupLineEdit->text(),   //! idBanqueAbrege
                                                             nombanque);                        //! NomBanque
@@ -334,24 +334,19 @@ void dlg_gestionbanques::RemplirTableView()
 {
     QTableWidgetItem    *pitem0;
     UpLabel             *label1;
-    bool ok = true;
-    QList<QVariantList> listbanques = db->SelectRecordsFromTable(QStringList() << "idbanque" << "nombanque",
-                                                                                         TBL_BANQUES, ok,
-                                                                                         "",
-                                                                                         "order by nomBanque");
-    if (listbanques.size() > 0)
+    int rowcount = Datas::I()->banques->banques()->size();
+    int i = 0;
+    if (rowcount > 0)
+        foreach(Banque* bq, Datas::I()->banques->banques()->values())
     {
-        uptablebanq->setRowCount(listbanques.size());
-        for (int i=0; i<listbanques.size(); i++)
-        {
+            uptablebanq->setRowCount(rowcount);
             pitem0 = new QTableWidgetItem;
             label1 = new UpLabel;
-            pitem0->setText(listbanques.at(i).at(0).toString());
-            label1->setText(listbanques.at(i).at(1).toString());
+            pitem0->setText(QString::number(bq->id()));
+            label1->setText(bq->nom());
             label1->setRow(i);
             uptablebanq->setItem(i,0,pitem0);
             uptablebanq->setCellWidget(i,1,label1);
             uptablebanq->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
         }
-    }
 }

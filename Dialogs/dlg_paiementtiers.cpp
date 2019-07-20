@@ -33,7 +33,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     proc            = Procedures::I();
     db              = DataBase::I();
-    m_userconnected  = db->getUserConnected();
+    m_userconnected = Datas::I()->users->userconnected();
     m_useracrediter = Q_NULLPTR;
     //ui->UserscomboBox->setEnabled(db->getUserConnected().isSecretaire());
     QFont font = qApp->font();
@@ -1130,9 +1130,6 @@ int dlg_paiementtiers::EnregistreRecette()
 {
     QStringList locklist = QStringList() << TBL_RECETTES << TBL_LIGNESCOMPTES << TBL_DEPENSES << TBL_RUBRIQUES2035 << TBL_LIGNESPAIEMENTS;
 
-//    locklist << TBL_RECETTES << TBL_LIGNESCOMPTES << TBL_PATIENTS <<
-//                TBL_ACTES << TBL_DEPENSES << TBL_SALLEDATTENTE << TBL_RUBRIQUES2035  <<
-//                TBL_LIGNESPAIEMENTS << TBL_TYPEPAIEMENTACTES << TBL_ARCHIVESBANQUE << TBL_USERSCONNECTES;
     if (!db->createtransaction(locklist))
         return Impossible;
 

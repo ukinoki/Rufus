@@ -39,14 +39,12 @@ public:
 
 private:
     dlg_identificationcorresp   *Dlg_IdentCorresp;
-    Procedures              *proc;
-    DataBase                *db;
     QTreeView               *treeCor;
 
     UpLineEdit              *ChercheUplineEdit;
     UpLabel                 *label;
     QStandardItemModel      *gmodele;
-    QList<QStandardItem*>   ListeMetiers();                // la liste des metiers
+    QList<UpStandardItem *> ListeMetiers();                // la liste des metiers
     bool                    ListeCorModifiee;
 
     WidgetButtonFrame   *widgButtons;

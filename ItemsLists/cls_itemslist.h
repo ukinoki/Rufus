@@ -255,12 +255,20 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
             loop = true;
             break;
         }
+        if (dynamic_cast<Correspondant*>(item) != Q_NULLPTR)
+        {
+            table = TBL_CORRESPONDANTS;
+            idname = CP_ID_CORRESP;
+            loop = true;
+            break;
+        }
         loop = true;
     }
     if (table != "" && idname != "")
     {
         DataBase::I()->SupprRecordFromTable(item->id(), idname, table);
         m_map->remove(item->id());
+        delete item;
         return true;
     }
     return false;

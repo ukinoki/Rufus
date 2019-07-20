@@ -224,15 +224,10 @@ void dlg_bilanrecettes::FiltreTable(int idx)
 Recette* dlg_bilanrecettes::getRecetteFromIndex(QModelIndex idx)
 {
     UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_recettesmodel->itemFromIndex(idx));
-    if (upitem == Q_NULLPTR)
+    if (upitem != Q_NULLPTR)
+        return dynamic_cast<Recette *>(upitem->item());
+    else
         return Q_NULLPTR;
-    if (upitem->item() == Q_NULLPTR)
-    {
-        qDebug() << "erreur sur l'item - row = " << upitem->row() << " - col = " << upitem->column() << upitem->text();
-        return Q_NULLPTR;
-    }
-    Recette *rec = dynamic_cast<Recette *>(upitem->item());
-    return rec;
 }
 
 Recette* dlg_bilanrecettes::getRecetteFromRow(int row)

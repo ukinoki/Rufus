@@ -741,7 +741,7 @@ QList<PosteConnecte*> DataBase::loadPostesConnectes()
 /*
  * Correspondants
 */
-QList<Correspondant*> DataBase::loadCorrespondants()                             // tous les correspondants sans exception
+QList<Correspondant*> DataBase::loadCorrespondants()                             //! tous les correspondants sans exception
 {
     QList<Correspondant*> correspondants;
     QString req = "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin, corspecialite FROM " TBL_CORRESPONDANTS " order by cornom, corprenom";
@@ -765,7 +765,7 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
     return correspondants;
 }
 
-QList<Correspondant*> DataBase::loadCorrespondantsALL()                             // tous les correspondants sans exception avec plus de renseignements
+QList<Correspondant*> DataBase::loadCorrespondantsALL()                             //! tous les correspondants sans exception avec plus de renseignements
 {
     QList<Correspondant*> correspondants;
     QString req = "SELECT idCor, CorNom, CorPrenom, nomspecialite as metier, CorAdresse1,"
@@ -807,7 +807,7 @@ QList<Correspondant*> DataBase::loadCorrespondantsALL()                         
     return correspondants;
 }
 
-QJsonObject DataBase::loadCorrespondantData(int idcor)                             // toutes les données d'un correspondant
+QJsonObject DataBase::loadCorrespondantData(int idcor)                             //! toutes les données d'un correspondant
 {
     QJsonObject jData{};
     QString req = "SELECT CorNom, CorPrenom, nomspecialite as metier, CorAdresse1, CorAdresse2,"
@@ -1244,7 +1244,7 @@ QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int inte
 QList<Banque*> DataBase::loadBanques()
 {
     QList<Banque*> banques;
-    QString req = "SELECT idBanque, idBanqueAbrege, NomBanque, CodeBanque FROM " TBL_BANQUES;
+    QString req = "SELECT idBanque, idBanqueAbrege, NomBanque, CodeBanque FROM " TBL_BANQUES " order by nomBanque";
     QList<QVariantList> banqlist = StandardSelectSQL(req,ok);
     if(!ok || banqlist.size()==0)
         return banques;

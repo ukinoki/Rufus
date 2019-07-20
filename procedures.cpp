@@ -1761,11 +1761,10 @@ bool Procedures::ApercuAvantImpression()
     return (gsettingsIni->value("Param_Imprimante/ApercuAvantImpression").toString() == "YES");
 }
 
-QString Procedures::getCodePostalParDefaut()
+QString Procedures::CodePostalParDefaut()
 {
-    if (lCPParDefaut != "") return lCPParDefaut;
-    lCPParDefaut = gsettingsIni->value("Param_Poste/CodePostalParDefaut").toString();
-    return lCPParDefaut;
+    QSettings set(QDir::homePath() + FILE_INI, QSettings::IniFormat);
+    return set.value("Param_Poste/CodePostalParDefaut").toString();
 }
 
 QString Procedures::getSessionStatus()
@@ -2031,11 +2030,10 @@ int Procedures::TailleTopMarge()
     return gsettingsIni->value("Param_Imprimante/TailleTopMarge").toInt();
 }
 
-QString Procedures::getVilleParDefaut()
+QString Procedures::VilleParDefaut()
 {
-    if (lVilleParDefaut != "") return lVilleParDefaut;
-    lVilleParDefaut = gsettingsIni->value("Param_Poste/VilleParDefaut").toString();
-    return lVilleParDefaut;
+    QSettings set(QDir::homePath() + FILE_INI, QSettings::IniFormat);
+    return set.value("Param_Poste/VilleParDefaut").toString();
 }
 
 void Procedures::setPosteImportDocs(bool a)

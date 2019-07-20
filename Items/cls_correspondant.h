@@ -45,7 +45,7 @@ private: //Données du correspondant
     bool    m_medecin;              //!< medecin?
     bool    m_generaliste;          //!< generaliste?
     bool    m_isAllLoaded = false;  //!< tous les renseignements concernant ce correspondant sont chargés
-    int     m_idspecialite;           //!< id de la specialite correspondant en base
+    int     m_idspecialite;         //!< id de la specialite correspondant en base
 
 private:
 
@@ -70,7 +70,7 @@ public:
     QString fax() const;
     QString mail() const;
     int idspecialite() const;
-    bool isAllLoaded() const;
+    bool isallloaded() const;
 
     explicit Correspondant(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 

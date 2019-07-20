@@ -56,7 +56,7 @@ Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, AD
         addToList = ItemsList::NoAddToList;
     }
 
-    if( !result->isAllLoaded())
+    if( !result->isallloaded())
     {
         QJsonObject jsonCorrespondant = DataBase::I()->loadCorrespondantData(id);
         if( jsonCorrespondant.isEmpty() )
@@ -70,6 +70,20 @@ Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, AD
     if( addToList == ItemsList::AddToList)
         add(m_correspondants, result );
     return result;
+}
+
+void Correspondants::loadAll(Correspondant *cor, Item::UPDATE upd)
+{
+    if (cor == Q_NULLPTR)
+        return;
+    if (!cor->isallloaded() || upd == Item::ForceUpdate)
+    {
+        QJsonObject jsoncor = DataBase::I()->loadCorrespondantData(cor->id());
+        if( !jsoncor.isEmpty() )
+            cor->setData(jsoncor);
+    }
+    if (m_correspondants->find(cor->id()) == m_correspondants->cend())
+        add (m_correspondants, cor);
 }
 
 
@@ -88,3 +102,22 @@ void Correspondants::initListe(bool all)
         listcorrespondants = DataBase::I()->loadCorrespondants();
     addList(m_correspondants, listcorrespondants);
 }
+
+QStringList Correspondants::autresprofessions()
+{
+    bool ok;
+    QStringList listprof = QStringList();
+    QList<QVariantList> proflist = DataBase::I()->StandardSelectSQL("select distinct corautreprofession from " TBL_CORRESPONDANTS " where corautreprofession is not NULL", ok);
+    if (ok && proflist.size()>0)
+        for (int i=0; i<proflist.size(); i++)
+            listprof << proflist.at(i).at(0).toString();
+    return listprof;
+}
+
+void Correspondants::SupprimeCorrespondant(Correspondant *cor)
+{
+    if (cor == Q_NULLPTR)
+        return;
+    Supprime(m_correspondants, cor);
+}
+

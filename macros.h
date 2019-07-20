@@ -136,7 +136,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_TABAC_RMP                                 "Tabac"
 
 
-                            //! Table Actes
+                            //! Table Rufus.Actes
 #define CP_IDACTE_ACTES                              "idActe"
 #define CP_IDPAT_ACTES                               "idPat"
 #define CP_IDUSER_ACTES                              "idUser"
@@ -217,6 +217,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDLIEU_USRCONNECT                          "idLieu"
 #define CP_HEUREDERNIERECONNECTION_USRCONNECT         "HeureDerniereConnexion"
 #define CP_IDPATENCOURS_USRCONNECT                    "idPat"
+
+                            //! Table Rufus.correspondants
+#define CP_ID_CORRESP                                   "idCor"
+#define CP_NOM_CORRESP                                  "CorNom"
+#define CP_PRENOM_CORRESP                               "CorPreNom"
+#define CP_SEXE_CORRESP                                 "CorSexe"
+#define CP_ADRESSE1_CORRESP                             "CorAdresse1"
+#define CP_ADRESSE2_CORRESP                             "CorAdresse2"
+#define CP_ADRESSE3_CORRESP                             "CorAdresse3"
+#define CP_CODEPOSTAL_CORRESP                           "CorCodepostal"
+#define CP_VILLE_CORRESP                                "CorVille"
+#define CP_TELEPHONE_CORRESP                            "CorTelephone"
+#define CP_PORTABLE_CORRESP                             "CorPortable"
+#define CP_FAX_CORRESP                                  "CorFax"
+#define CP_MAIL_CORRESP                                 "CorMail"
+#define CP_ISMEDECIN_CORRESP                            "CorMedecin"
+#define CP_SPECIALITE_CORRESP                           "CorSpecialite"
+#define CP_AUTREPROFESSION_CORRESP                      "CorAutreProfession"
 
                             //! Table ComptaMedicale.banques
 #define CP_IDBANQUE_BANQUES                          "idBanque"

@@ -50,7 +50,6 @@ private:
     DataBase                *db;
     int                     ControleDonnees();
     int                     gidUser, gPort;
-    //QTimer                  *gTimerControl;
     bool                    gChgUsr;
     bool                    eventFilter(QObject *, QEvent *);
 };

@@ -24,8 +24,6 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
-    proc            = Procedures::I();
-    db              = DataBase::I();
     gmodele         = new QStandardItemModel(this);
 
     ListeCorModifiee   = false;
@@ -79,8 +77,8 @@ dlg_listecorrespondants::~dlg_listecorrespondants()
 
 void dlg_listecorrespondants::Enablebuttons()
 {
-    widgButtons->modifBouton->setEnabled(gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt()>0);
-    widgButtons->moinsBouton->setEnabled(gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt()>0);
+    widgButtons->modifBouton->setEnabled(getCorrespondantFromIndex(treeCor->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
+    widgButtons->moinsBouton->setEnabled(getCorrespondantFromIndex(treeCor->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
 }
 
 
@@ -128,7 +126,11 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
 // ------------------------------------------------------------------------------------------
 Correspondant* dlg_listecorrespondants::getCorrespondantFromIndex(QModelIndex idx )
 {
-    return Datas::I()->correspondants->getById(gmodele->itemFromIndex(idx)->data().toMap().value("id").toInt());
+    UpStandardItem *it = dynamic_cast<UpStandardItem*>(gmodele->itemFromIndex(idx));
+    if (it != Q_NULLPTR)
+        return dynamic_cast<Correspondant *>(it->item());
+    else
+        return Q_NULLPTR;
 }
 
 
@@ -160,7 +162,7 @@ void dlg_listecorrespondants::SupprCorresp()
             gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->text() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->getLogin() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton NoBouton(tr("Annuler"));
@@ -170,27 +172,25 @@ void dlg_listecorrespondants::SupprCorresp()
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        int idCor   = gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->data().toMap()["id"].toInt();
-        db->SupprCorrespondant(idCor);
+        Datas::I()->correspondants->SupprimeCorrespondant(getCorrespondantFromIndex(treeCor->selectionModel()->selectedIndexes().at(0)));
         ListeCorModifiee = true;
         ReconstruitTreeViewCorrespondants(true);
     }
 }
 
-QList<QStandardItem*> dlg_listecorrespondants::ListeMetiers()
+QList<UpStandardItem*> dlg_listecorrespondants::ListeMetiers()
 {
-    QList<QStandardItem*> listmetiers;
+    QList<UpStandardItem*> listmetiers;
     QStringList list;
-    QStandardItem *metieritem;
+    UpStandardItem *metieritem;
     QString metier  = "";
-    QMapIterator<int, Correspondant *> itcor(*Datas::I()->correspondants->correspondants());
-    while (itcor.hasNext()) {
-        Correspondant *cor = const_cast<Correspondant*>(itcor.next().value());
+    foreach(Correspondant *cor, Datas::I()->correspondants->correspondants()->values())
+    {
         QString metier  = Utils::trimcapitilize(cor->metier(), true, false);
         if (!list.contains(metier))
         {
             list << metier;
-            metieritem  = new QStandardItem(metier);
+            metieritem  = new UpStandardItem(metier);
             metieritem  ->setForeground(QBrush(QColor(Qt::red)));
             metieritem  ->setEditable(false);
             metieritem  ->setEnabled(false);
@@ -207,24 +207,16 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
     treeCor->disconnect();
     gmodele->clear();
 
-    QStandardItem *pitem;
-    QList<QStandardItem*> listmetiers = ListeMetiers();
-    for (int i=0; i<listmetiers.size(); i++)
-    {
-        gmodele->appendRow(listmetiers.at(i));
-        //qDebug() << gmodele->item(i)->text();
-    }
+    UpStandardItem *pitem;
+    foreach(UpStandardItem *item, ListeMetiers())
+        gmodele->appendRow(item);
 
-    QMapIterator<int, Correspondant *> itcor(*Datas::I()->correspondants->correspondants());
-    while (itcor.hasNext()) {
-        Correspondant *cor = const_cast<Correspondant*>(itcor.next().value());
+    foreach(Correspondant *cor, Datas::I()->correspondants->correspondants()->values())
+    {
         if (cor->nomprenom().startsWith(filtre))
         {
-            pitem   = new QStandardItem(cor->nomprenom());
-            QMap<QString, QVariant> data;
-            data["adr"] = cor->adresseComplete();
-            data["id"]  = cor->id();
-            pitem   ->setData(data);
+            pitem   = new UpStandardItem(cor->nomprenom());
+            pitem->setItem(cor);
             pitem   ->setEditable(false);
             QList<QStandardItem *> listitems = gmodele->findItems(Utils::trimcapitilize(cor->metier(), true, false));
             if (listitems.size()>0)

@@ -26,7 +26,6 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
-    proc                = Procedures::I();
     m_currentpatient    = pat;
     gMode               = mode;
     db                  = DataBase::I();
@@ -67,7 +66,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     ui->MGupComboBox    ->setLineEdit(MGLineEdit);
     ui->MGupComboBox    ->setMaxVisibleItems(15);
     ui->MGupComboBox    ->setContextMenuPolicy(Qt::CustomContextMenu);
-    proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
+    Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
     ui->MGupComboBox    ->setCurrentIndex(-1);
 
     VilleCPwidg         = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
@@ -191,7 +190,7 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
     {
         m_flagcorrespondants = flag;
         // on reconstruit la liste des MG
-        proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
+        Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
         m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), Item::LoadDetails);
         if (m_currentpatient->idmg() > 0 && ui->MGupComboBox->currentData().toInt() != m_currentpatient->idmg())
             ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(m_currentpatient->idmg()));
@@ -306,24 +305,24 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         listbinds[CP_PRENOM_PATIENTS]       = ui->PrenomlineEdit->text();
         listbinds[CP_DDN_PATIENTS]          = ui->DDNdateEdit->date().toString("yyyy-MM-dd");
         listbinds[CP_SEXE_PATIENTS]         = Sexe;
-        m_nouveaupatient = Patients::CreationPatient(listbinds);
-        if (m_nouveaupatient == Q_NULLPTR)
+        m_currentpatient = Patients::CreationPatient(listbinds);
+        if (m_currentpatient == Q_NULLPTR)
             reject();
 
         // Mise à jour de donneessocialespatients
-        ItemsList::update(m_nouveaupatient, CP_ADRESSE1_DSP,    Utils::trimcapitilize(ui->Adresse1lineEdit->text()));
-        ItemsList::update(m_nouveaupatient, CP_ADRESSE2_DSP,    Utils::trimcapitilize(ui->Adresse2lineEdit->text()));
-        ItemsList::update(m_nouveaupatient, CP_ADRESSE3_DSP,    Utils::trimcapitilize(ui->Adresse3lineEdit->text()));
-        ItemsList::update(m_nouveaupatient, CP_CODEPOSTAL_DSP,  CPlineEdit->text());
-        ItemsList::update(m_nouveaupatient, CP_VILLE_DSP,       Utils::trimcapitilize(VillelineEdit->text().left(70)));
-        ItemsList::update(m_nouveaupatient, CP_TELEPHONE_DSP,   ui->TellineEdit->text());
-        ItemsList::update(m_nouveaupatient, CP_PORTABLE_DSP,    ui->PortablelineEdit->text());
-        ItemsList::update(m_nouveaupatient, CP_MAIL_DSP,        ui->MaillineEdit->text());
-        ItemsList::update(m_nouveaupatient, CP_PROFESSION_DSP,  ui->ProfessionlineEdit->text());
-        ItemsList::update(m_nouveaupatient, CP_NNI_DSP,         ui->NNIlineEdit->text());
-        ItemsList::update(m_nouveaupatient, CP_ALD_DSP,         ui->ALDcheckBox->isChecked());
-        ItemsList::update(m_nouveaupatient, CP_CMU_DSP,         ui->CMUcheckBox->isChecked());
-        ItemsList::update(m_nouveaupatient, CP_IDMG_RMP,        ui->MGupComboBox->currentData().toInt());
+        ItemsList::update(m_currentpatient, CP_ADRESSE1_DSP,    Utils::trimcapitilize(ui->Adresse1lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_ADRESSE2_DSP,    Utils::trimcapitilize(ui->Adresse2lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_ADRESSE3_DSP,    Utils::trimcapitilize(ui->Adresse3lineEdit->text()));
+        ItemsList::update(m_currentpatient, CP_CODEPOSTAL_DSP,  CPlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_VILLE_DSP,       Utils::trimcapitilize(VillelineEdit->text().left(70)));
+        ItemsList::update(m_currentpatient, CP_TELEPHONE_DSP,   ui->TellineEdit->text());
+        ItemsList::update(m_currentpatient, CP_PORTABLE_DSP,    ui->PortablelineEdit->text());
+        ItemsList::update(m_currentpatient, CP_MAIL_DSP,        ui->MaillineEdit->text());
+        ItemsList::update(m_currentpatient, CP_PROFESSION_DSP,  ui->ProfessionlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_NNI_DSP,         ui->NNIlineEdit->text());
+        ItemsList::update(m_currentpatient, CP_ALD_DSP,         ui->ALDcheckBox->isChecked());
+        ItemsList::update(m_currentpatient, CP_CMU_DSP,         ui->CMUcheckBox->isChecked());
+        ItemsList::update(m_currentpatient, CP_IDMG_RMP,        ui->MGupComboBox->currentData().toInt());
         accept();
     }
     else if (gMode == Modification)
@@ -419,7 +418,7 @@ void dlg_identificationpatient::ModifCorrespondant()
     Dlg_IdentCorresp->ui->MGradioButton ->setChecked(true);
     if (Dlg_IdentCorresp->exec()>0)
     {
-        proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
+        Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
         ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
         ListeCorModifiee = Dlg_IdentCorresp->identcorrespondantmodifiee();
     }
@@ -522,11 +521,11 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->Adresse1lineEdit->clear();
         ui->Adresse2lineEdit->clear();
         ui->Adresse3lineEdit->clear();
-        QString CP = proc->getCodePostalParDefaut();
+        QString CP = Procedures::CodePostalParDefaut();
         CPlineEdit          ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
         // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
         CPlineEdit          ->setText(CP);
-        VillelineEdit->setText(proc->getVilleParDefaut());
+        VillelineEdit->setText(Procedures::VilleParDefaut());
         ui->TellineEdit->clear();
         ui->PortablelineEdit->clear();
         ui->MaillineEdit->clear();
@@ -552,7 +551,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->Adresse3lineEdit->setText(m_currentpatient->adresse3());
         QString CP;
         if (m_currentpatient->codepostal() == "")
-            CP = proc->getCodePostalParDefaut();
+            CP = Procedures::CodePostalParDefaut();
         else
             CP = m_currentpatient->codepostal();
         CPlineEdit          ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
@@ -560,7 +559,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
 
         CPlineEdit          ->setText(CP);
         if (m_currentpatient->ville() == "")
-            VillelineEdit   ->setText(proc->getVilleParDefaut());
+            VillelineEdit   ->setText(Procedures::VilleParDefaut());
         else
             VillelineEdit   ->setText(m_currentpatient->ville());
         ui->TellineEdit     ->setText(m_currentpatient->telephone());
@@ -605,7 +604,7 @@ bool dlg_identificationpatient::listecorrespondantsmodifiee()
 
 Patient* dlg_identificationpatient::getPatient()
 {
-    return m_nouveaupatient;
+    return m_currentpatient;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -639,7 +638,7 @@ void dlg_identificationpatient::MAJMG()
                 if (idcor >= 0)
                 {
                     m_flagcorrespondants = Flags::I()->flagCorrespondants();
-                    proc->ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
+                    Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
                     ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(idcor));
                     Datas::I()->patients->updateCorrespondant(m_currentpatient, Correspondant::MG, Datas::I()->correspondants->getById(ui->MGupComboBox->currentData().toInt()));
                 }

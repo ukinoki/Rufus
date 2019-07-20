@@ -203,7 +203,9 @@ public:
     bool                    Init();
     bool                    ApercuAvantImpression();
     // Les accesseurs
-    QString                 getCodePostalParDefaut();
+    static QString          CodePostalParDefaut();
+    static QString          VilleParDefaut();
+
     void                    setDirImagerie();
     QString                 DirImagerie();
     QString                 DirImagerieServeur();
@@ -212,7 +214,7 @@ public:
 
     bool                    isPosteImportDocs();
 
-    void                    ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
+    static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
 
     QString                 getMDPAdmin();
     void                    setNomImprimante(QString NomImprimante);
@@ -222,7 +224,6 @@ public:
     int                     TaillePieddePage();
     int                     TaillePieddePageOrdoLunettes();
     int                     TailleTopMarge();
-    QString                 getVilleParDefaut();
 
     void                    setPosteImportDocs(bool a = true);
     QString                 PosteImportDocs();

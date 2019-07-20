@@ -50,11 +50,9 @@ public:
 
 private:
     Patient                         *m_currentpatient;
-    Patient                         *m_nouveaupatient = Q_NULLPTR;                  //! le nouveau patient créé par la fiche en mode copie
     dlg_identificationcorresp       *Dlg_IdentCorresp;
     bool                            ListeCorModifiee;
     Mode                            gMode;
-    Procedures                      *proc;
     DataBase                        *db;
     bool                            ok;
     QMenu                           *gmenuContextuel;

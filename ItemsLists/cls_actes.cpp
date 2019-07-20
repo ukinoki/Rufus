@@ -99,15 +99,10 @@ Acte* Actes::getActeFromIndex(QModelIndex idx)
     QModelIndex pindx       = m_heuresortmodel->mapToSource(heureindx);               //  -> m_actesmodel
 
     UpStandardItem *item = dynamic_cast<UpStandardItem *>(m_actesmodel->itemFromIndex(pindx));
-    if (item == Q_NULLPTR)
+    if (item != Q_NULLPTR)
+        return dynamic_cast<Acte *>(item->item());
+    else
         return Q_NULLPTR;
-    if (item->item() == Q_NULLPTR)
-    {
-        qDebug() << "erreur sur l'item - row = " << item->row() << " - col = " << item->column() << item->text();
-        return Q_NULLPTR;
-    }
-    Acte *act = dynamic_cast<Acte *>(item->item());
-    return act;
 }
 
 Acte* Actes::getById(int id, ADDTOLIST add)

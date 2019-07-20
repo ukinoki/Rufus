@@ -25,14 +25,13 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    proc                = Procedures::I();
     db                  = DataBase::I();
     m_correspondant      = Q_NULLPTR;
     if (cor != Q_NULLPTR)
     {
         m_correspondant  = cor;
-        if (!m_correspondant->isAllLoaded())
-            m_correspondant->setData(db->loadCorrespondantData(m_correspondant->id()));
+        if (!m_correspondant->isallloaded())
+            Datas::I()->correspondants->loadAll(m_correspondant);
     }
     gMode               = mode;
     OnlyDoctors         = quelesmedecins;
@@ -114,18 +113,10 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     CancelButton->setText(tr("Annuler"));
     setStageCount(1);
 
-    bool ok;
-    QList<QVariantList> proflist = db->StandardSelectSQL("select distinct corautreprofession from " TBL_CORRESPONDANTS " where corautreprofession is not NULL", ok);
-    if (ok && proflist.size()>0)
-    {
-        QStringList listprof;
-        for (int i=0; i<proflist.size(); i++)
-            listprof << proflist.at(i).at(0).toString();
-        QCompleter *profcpl = new QCompleter(listprof);
-        profcpl             ->setCaseSensitivity(Qt::CaseInsensitive);
-        profcpl             ->setCompletionMode(QCompleter::InlineCompletion);
-        ui->AutreupLineEdit->setCompleter(profcpl);
-    }
+    QCompleter *profcpl = new QCompleter(Datas::I()->correspondants->autresprofessions(), this);
+    profcpl             ->setCaseSensitivity(Qt::CaseInsensitive);
+    profcpl             ->setCompletionMode(QCompleter::InlineCompletion);
+    ui->AutreupLineEdit->setCompleter(profcpl);
 }
 
 dlg_identificationcorresp::~dlg_identificationcorresp()
@@ -208,7 +199,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     bool ok;
     QString requete = "select idcor, corspecialite, cormedecin from " TBL_CORRESPONDANTS
             " where CorNom LIKE '" + CorNom + "%' and CorPrenom LIKE '" + CorPrenom + "%'";
-    QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des patients!"));
+    QVariantList cordata = db->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des correspondants!"));
     if (!ok)
     {
         reject();
@@ -414,8 +405,8 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
     }
     else if (gMode == Creation)
     {
-        CPlineEdit              ->setText(proc->getCodePostalParDefaut());
-        VillelineEdit           ->setText(proc->getVilleParDefaut());
+        CPlineEdit              ->setText(Procedures::CodePostalParDefaut());
+        VillelineEdit           ->setText(Procedures::VilleParDefaut());
     }
 }
 
@@ -432,7 +423,7 @@ void dlg_identificationcorresp::ReconstruitListeSpecialites()
         ListSpec << speclist.at(i).at(1).toString();
         ui->SpecomboBox->insertItem(i, speclist.at(i).at(1).toString(), speclist.at(i).at(0).toInt());
     }
-    QCompleter *speccompl   = new QCompleter(ListSpec);
+    QCompleter *speccompl   = new QCompleter(ListSpec, this);
     speccompl               ->setCaseSensitivity(Qt::CaseInsensitive);
     speccompl               ->setCompletionMode(QCompleter::InlineCompletion);
     ui->SpecomboBox         ->setCompleter(speccompl);

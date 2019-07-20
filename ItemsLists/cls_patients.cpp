@@ -98,9 +98,8 @@ void Patients::loadAll(Patient *pat, Item::UPDATE upd)
             pat->setData(jsonPatient);
         }
     }
-    QMap<int, Patient*>::const_iterator itpat = m_patients->find(pat->id());
-    if (itpat == m_patients->constEnd())
-        add (m_patients, pat, upd);
+    if (m_patients->find(pat->id()) == m_patients->cend())
+        add (m_patients, pat);
 }
 
 void Patients::reloadMedicalData(Patient *pat)

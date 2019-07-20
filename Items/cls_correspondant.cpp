@@ -120,7 +120,7 @@ Correspondant::Correspondant(QJsonObject data, QObject *parent) : Item(parent)
     setData(data);
 }
 
-bool Correspondant::isAllLoaded() const
+bool Correspondant::isallloaded() const
 {
     return m_isAllLoaded;
 }

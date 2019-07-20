@@ -54,7 +54,6 @@ private:
     QString             lCreatModif;
     bool                OnlyDoctors;
     QString             gNomCor, gPrenomCor, Sexe;
-    Procedures          *proc;
     DataBase            *db;
     void                AfficheDossierAlOuverture();
     VilleCPWidget       *VilleCPwidg;

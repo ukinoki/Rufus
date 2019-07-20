@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("19-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("20-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -5466,10 +5466,10 @@ void Rufus::VerifVerrouDossier()
         qint64 tempsecouledepuisactualisation = post->heurederniereconnexion().secsTo(timenow);
         if (tempsecouledepuisactualisation > 120)
         {
-            qDebug() << timenow;
-            qDebug() << post->heurederniereconnexion();
-            qDebug() << tempsecouledepuisactualisation;
-            qDebug() << post->stringid();
+            qDebug() << "VerifVerrouDossier()" << timenow;
+            qDebug() << "VerifVerrouDossier()" << post->heurederniereconnexion();
+            qDebug() << "VerifVerrouDossier()" << tempsecouledepuisactualisation;
+            qDebug() << "VerifVerrouDossier()" << post->stringid();
             //l'utilisateur n'a pas remis sa connexion aà jour depuis plus de 120 secondes
             //on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             QString blabla              = ENCOURSEXAMEN;
@@ -5550,7 +5550,7 @@ bool Rufus::isPosteImport()
 
 void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas utilisé et ne mode réseau local ou monoposte
 {
-     /* s'il n'existe pas de poste défini comme importateur des documents, on prend la place si on est accrédite et qu'on n'est pas en accès distant
+     /*! s'il n'existe pas de poste défini comme importateur des documents, on prend la place si on est accrédite et qu'on n'est pas en accès distant
      * s'il existe un poste défini comme importateur des docs et qu'il est différent de ce poste,
      * on vérifie
         * s'il est toujours actif
