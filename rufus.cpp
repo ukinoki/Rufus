@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("20-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("21-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1148,7 +1148,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         PatientEnCours *pat = m_listepatientsencours->getById(Datas::I()->patients->currentpatient()->id());
         if (pat == Q_NULLPTR)
             m_listepatientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                             //! idPat
-                                                     m_currentuser->getIdUserActeSuperviseur(),         //! idUser
+                                                     m_currentuser->idSuperviseurActes(),         //! idUser
                                                      RETOURACCUEIL,                                     //! Statut
                                                      db->ServerDateTime().time(),                       //! heureStatut
                                                      QTime(),                                           //! heureRDV
@@ -1181,8 +1181,8 @@ void Rufus::AppelPaiementDirect(Origin origin)
         PatientEnCours *pat = m_listepatientsencours->getById(Datas::I()->patients->currentpatient()->id());
         if (pat == Q_NULLPTR)
             m_listepatientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                             //! idPat
-                                                     m_currentuser->getIdUserActeSuperviseur(),         //! idUser
-                                                     ENCOURSEXAMEN + m_currentuser->getLogin(),         //! Statut
+                                                     m_currentuser->idSuperviseurActes(),         //! idUser
+                                                     ENCOURSEXAMEN + m_currentuser->login(),         //! Statut
                                                      db->ServerDateTime().time(),                       //! heureStatut
                                                      QTime(),                                           //! heureRDV
                                                      QTime(),                                           //! heureArrivee
@@ -1194,7 +1194,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
                                                      0);                                                //! idSalDat
         else
         {
-            ItemsList::update(pat, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->getLogin());
+            ItemsList::update(pat, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->login());
             ItemsList::update(pat, CP_HEURESTATUT_SALDAT, db->ServerDateTime().time());
             ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT, m_currentuser->id());
             ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
@@ -1444,7 +1444,7 @@ void Rufus::CreerBilanOrtho(Patient *pat)
                 UpSmallButton ReprendreBOBouton(tr("Reprendre"));
                 UpSmallButton NouveauBOBouton(tr("Créer un nouveau\nbilan orthoptique"));
                 UpSmallButton AnnulBouton(tr("Annuler"));
-                msgbox.setText("Euuhh... " + m_currentuser->getLogin());
+                msgbox.setText("Euuhh... " + m_currentuser->login());
                 msgbox.setInformativeText(tr("Voulez-vous reprendre le bilan affiché\nou créer un nouveau bilan à la date d'aujourd'hui?"));
                 msgbox.setIcon(UpMessageBox::Quest);
                 msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
@@ -2330,7 +2330,7 @@ void Rufus::ImportDocsExternes()
         if (isPosteImport())
         {
             QString req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
-                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number( m_currentuser->getSite()->id() );
+                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number( m_currentuser->sitedetravail()->id() );
             //qDebug()<< req;
             QList<QVariantList> listdocs = db->StandardSelectSQL(req, ok);
             if (ok && listdocs.size()>0)
@@ -2584,7 +2584,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
             reponsevide = false;
             Reponse += "<p><td width=\"140\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + act->date().toString(tr("d MMMM yyyy")) +"</b></u></font></td>"
                     "<td width=\"400\">"
-                    + Datas::I()->users->getById(act->idUser())->getTitre() + " " + Datas::I()->users->getById(act->idUser())->getPrenom() + " " + Datas::I()->users->getById(act->idUser())->getNom() + "</td></p>";
+                    + Datas::I()->users->getById(act->idUser())->titre() + " " + Datas::I()->users->getById(act->idUser())->prenom() + " " + Datas::I()->users->getById(act->idUser())->nom() + "</td></p>";
             if (act->motif() != "")
             {
                 QString texte = act->motif();
@@ -2621,7 +2621,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    bool     AvecNumPage = true;
 
    //création de l'entête
-   User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), Item::LoadDetails);
+   User *userEntete = Datas::I()->users->getById(m_currentuser->idparent(), Item::LoadDetails);
    if (!userEntete)
    {
        UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
@@ -2693,7 +2693,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        listbinds["useremetteur"] =      m_currentuser->id();
        listbinds["emisrecu"] =          "0";
        listbinds["formatdoc"] =         COURRIER;
-       listbinds["idlieu"] =            m_currentuser->getSite()->id();
+       listbinds["idlieu"] =            m_currentuser->sitedetravail()->id();
        if(!db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds))
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
@@ -3147,7 +3147,7 @@ void Rufus::ImprimeListPatients(QVariant var)
 
     //création de l'entête
     QString EnTete;
-    User *userEntete = Datas::I()->users->getById(m_currentuser->getIdUserParent(), Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(m_currentuser->idparent(), Item::LoadDetails);
     if (userEntete == Q_NULLPTR)
         return;
     EnTete = proc->ImpressionEntete(date, userEntete).value("Norm");
@@ -3454,7 +3454,7 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
         QAction *pAction_EmettreDoc = gmenuContextuel->addAction(tr("Emettre un document"));
         connect (pAction_EmettreDoc,            &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat("Document");});
     }
-    if (m_currentuser->isSecretaire() || labelClicked->getData().value("idComptable").toInt()==m_currentuser->getIdUserComptable())
+    if (m_currentuser->isSecretaire() || labelClicked->getData().value("idComptable").toInt()==m_currentuser->idcomptable())
     {
         QAction *pAction_EnregistrePaiement = gmenuContextuel->addAction(tr("Enregistrer le paiement"));
         connect (pAction_EnregistrePaiement,    &QAction::triggered,    this, [=] {ChoixMenuContextuelSalDat("Payer");});
@@ -3555,7 +3555,7 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
 
     for( QMap<int, User*>::const_iterator itUser = Datas::I()->users->superviseurs()->constBegin();
          itUser != Datas::I()->users->superviseurs()->constEnd(); ++itUser )
-        ComboSuperviseurs->addItem(itUser.value()->getLogin(), QString::number(itUser.value()->id()) );
+        ComboSuperviseurs->addItem(itUser.value()->login(), QString::number(itUser.value()->id()) );
     ComboSuperviseurs->setFixedWidth(100);
 
     QHBoxLayout *soignantlayout     = new QHBoxLayout();
@@ -3913,7 +3913,7 @@ void Rufus::OuvrirParametres()
     Dlg_Param->setWindowTitle(tr("Paramètres"));
     Dlg_Param->exec();
     if (Dlg_Param->DataUserModifiees())
-        setWindowTitle("Rufus - " + m_currentuser->getLogin() + " - " + m_currentuser->getFonction());
+        setWindowTitle("Rufus - " + m_currentuser->login() + " - " + m_currentuser->fonction());
     if (Dlg_Param->CotationsModifiees())
     {
         QString req = "insert into " TBL_COTATIONS " (typeacte, MontantOPTAM, MontantNonOPTAM, montantpratique, CCAM, iduser, tip) values \n";
@@ -3936,7 +3936,7 @@ void Rufus::OuvrirParametres()
                         else
                             montantprat = mtconv;
                     }
-                    QString mtprat = (m_currentuser->getSecteur() >1 ? montantprat : mtconv);
+                    QString mtprat = (m_currentuser->secteurconventionnel() >1 ? montantprat : mtconv);
                     QString montantpratique = QString::number(QLocale().toDouble(mtprat));
                     req += "('" + codeCCAM +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 1, " + QString::number(m_currentuser->id()) + ", null),\n";
                 }
@@ -3967,7 +3967,7 @@ void Rufus::OuvrirParametres()
                         else
                             montantprat = mtconv;
                     }
-                    QString mtprat = (m_currentuser->getSecteur() >1? montantprat : mtconv);
+                    QString mtprat = (m_currentuser->secteurconventionnel() >1? montantprat : mtconv);
                     QString montantpratique = QString::number(QLocale().toDouble(mtprat));
                     req += "('" + codeCCAM +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 2, " + QString::number(m_currentuser->id()) + ", '" + tip + "'),\n";
                 }
@@ -4025,7 +4025,7 @@ void Rufus::RetrouveMontantActe()
     {
         QStringList listMontantActe = ui->ActeCotationcomboBox->itemData(idx).toStringList();
         QString MontantActe;
-        if( m_currentuser->getSecteur()>1 && !Datas::I()->patients->currentpatient()->iscmu())
+        if( m_currentuser->secteurconventionnel()>1 && !Datas::I()->patients->currentpatient()->iscmu())
             MontantActe = QLocale().toString(listMontantActe.at(1).toDouble(),'f',2);
         else
             MontantActe = QLocale().toString(listMontantActe.at(0).toDouble(),'f',2);
@@ -4042,14 +4042,14 @@ void Rufus::RetrouveMontantActe()
         QString req =
                 "SELECT " + tarifconventionne + ", montantpratique FROM " TBL_COTATIONS " cot, " TBL_CCAM " cc"
                 " where Typeacte = codeccam"
-                " and iduser = " + QString::number(m_currentuser->getIdUserParent()) +
+                " and iduser = " + QString::number(m_currentuser->idparent()) +
                 " and codeccam like '" + Utils::correctquoteSQL(Cotation) + "%'";
         //qDebug() << req;
         QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (ok && cotdata.size()>0)
         {
             QString MontantActe;
-            if (m_currentuser->getSecteur()>1 && !Datas::I()->patients->currentpatient()->iscmu())
+            if (m_currentuser->secteurconventionnel()>1 && !Datas::I()->patients->currentpatient()->iscmu())
                 MontantActe = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
             else
                 MontantActe = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
@@ -4067,7 +4067,7 @@ void Rufus::RetrouveMontantActe()
             if (ok && cot2data.size()>0)
             {
                 QString MontantActe;
-                if (m_currentuser->getSecteur()>1 && !Datas::I()->patients->currentpatient()->iscmu() && !m_currentuser->isOPTAM())
+                if (m_currentuser->secteurconventionnel()>1 && !Datas::I()->patients->currentpatient()->iscmu() && !m_currentuser->isOPTAM())
                     MontantActe = QLocale().toString(cot2data.at(1).toDouble(),'f',2);
                 else
                     MontantActe = QLocale().toString(cot2data.at(0).toDouble(),'f',2);
@@ -4517,7 +4517,7 @@ void Rufus::setTitre()
         else
             modeconnexion += tr("non cryptée");
     }
-    QString windowtitle = "Rufus - " + m_currentuser->getLogin() + " - " + m_currentuser->getFonction() + " - " + modeconnexion + " - " + qApp->applicationVersion();
+    QString windowtitle = "Rufus - " + m_currentuser->login() + " - " + m_currentuser->fonction() + " - " + modeconnexion + " - " + qApp->applicationVersion();
     if (db->getMode() != DataBase::Distant)
         windowtitle +=  (UtiliseTCP? " - TCP" : "");
     setWindowTitle(windowtitle);
@@ -4827,7 +4827,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Titredoc->setStyleSheet("color: red");
             QString txt = destlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + destlist.at(i).at(6).toTime().toString("h:mm");
             if (destlist.at(i).at(1).toInt()>0)
-                txt += tr(" de ") + Datas::I()->users->getById(destlist.at(i).at(1).toInt())->getLogin();
+                txt += tr(" de ") + Datas::I()->users->getById(destlist.at(i).at(1).toInt())->login();
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
@@ -4983,7 +4983,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Titredoc->setStyleSheet("color: red");
             QString txt = emetlist.at(i).at(6).toDate().toString(tr("d-MMM-yy")) + " " + emetlist.at(i).at(6).toTime().toString("h:mm");
             if (emetlist.at(i).at(1).toInt()>0)
-                txt += tr(" pour ") + Datas::I()->users->getById(emetlist.at(i).at(1).toInt())->getLogin();
+                txt += tr(" pour ") + Datas::I()->users->getById(emetlist.at(i).at(1).toInt())->login();
             Titredoc->setText(txt);
             titrelay->addWidget(Titredoc);
             UpCheckBox *Rdchk = new UpCheckBox();
@@ -5200,7 +5200,7 @@ void Rufus::EnregMsgResp(int idmsg)
     req  = "insert into " TBL_MESSAGES " (idEmetteur, " CP_TEXTMSG_MESSAGERIE ", CreeLe, ReponseA, Tache, Datelimite, Urge)\n values(";
     req += QString::number(m_currentuser->id()) + ", ";
     QString Reponse = "<font color = " COULEUR_TITRES ">" + gMsgRepons->findChildren<UpLabel*>().at(0)->text() + "</font>"
-            + "------<br><b>" + m_currentuser->getLogin() + ":</b> " + gMsgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText().replace("\n","<br>");
+            + "------<br><b>" + m_currentuser->login() + ":</b> " + gMsgRepons->findChildren<UpTextEdit*>().at(0)->toPlainText().replace("\n","<br>");
     UpTextEdit txt;
     txt.setText(Reponse);
     req += "'" + Utils::correctquoteSQL(txt.toHtml()) + "', ";
@@ -6068,8 +6068,8 @@ void Rufus::AfficheActe(Acte* acte)
         ui->AgelineEdit             ->setAlignment(Qt::AlignCenter);
 
         //2. retrouver le créateur de l'acte et le médecin superviseur de l'acte
-        ui->CreeParlineEdit         ->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->getLogin()
-                                     + tr(" pour ") + Datas::I()->users->getById(acte->idUser())->getLogin());
+        ui->CreeParlineEdit         ->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->login()
+                                     + tr(" pour ") + Datas::I()->users->getById(acte->idUser())->login());
 
         //3. Mettre à jour le numéro d'acte
         if (m_listeactes->actes()->size() > 0)           // Il y a des consultations
@@ -6244,7 +6244,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->tabWidget->setCurrentIndex(ui->tabWidget->indexOf(ui->tabDossier));
     }
 
-    ui->IdCreateurDossierlineEdit->setText(Datas::I()->users->getById(Datas::I()->patients->currentpatient()->idcreateur())->getLogin());
+    ui->IdCreateurDossierlineEdit->setText(Datas::I()->users->getById(Datas::I()->patients->currentpatient()->idcreateur())->login());
 
     ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(Datas::I()->patients->currentpatient()));
     ui->tabWidget->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),CalcIconPatient(Datas::I()->patients->currentpatient()));
@@ -6343,8 +6343,8 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     QTime currenttime = db->ServerDateTime().time();
     if (patcours == Q_NULLPTR)
         m_listepatientsencours->CreationPatient(pat->id(),                                          //! idPat
-                                                 m_currentuser->getIdUserActeSuperviseur(),         //! idUser
-                                                 ENCOURSEXAMEN + m_currentuser->getLogin(),         //! Statut
+                                                 m_currentuser->idSuperviseurActes(),         //! idUser
+                                                 ENCOURSEXAMEN + m_currentuser->login(),         //! Statut
                                                  currenttime,                                       //! heureStatut
                                                  QTime(),                                           //! heureRDV
                                                  currenttime,                                       //! heureArrivee
@@ -6356,7 +6356,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
                                                  0);                                                //! idSalDat
     else
     {
-        ItemsList::update(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->getLogin());
+        ItemsList::update(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + m_currentuser->login());
         ItemsList::update(patcours, CP_HEURESTATUT_SALDAT, currenttime);
         ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT, m_currentuser->id());
         ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
@@ -6581,7 +6581,7 @@ void Rufus::SortieAppli()
                 if (Statut == ENCOURS
                         || Statut == ARRIVE
                         || Statut.contains(blabla)
-                        || Statut == ENCOURSEXAMEN + m_currentuser->getLogin()
+                        || Statut == ENCOURSEXAMEN + m_currentuser->login()
                         || Statut == RETOURACCUEIL)
                 {
                     // il y a du monde en salle d'attente, on refuse la fermeture
@@ -6589,7 +6589,7 @@ void Rufus::SortieAppli()
                     UpMessageBox msgbox;
                     UpSmallButton OKBouton("OK");
                     UpSmallButton NoBouton(tr("Fermer quand même"));
-                    msgbox.setText("Euuhh... " + m_currentuser->getLogin() + ", " + tr("vous ne pouvez pas fermer l'application."));
+                    msgbox.setText("Euuhh... " + m_currentuser->login() + ", " + tr("vous ne pouvez pas fermer l'application."));
                     msgbox.setInformativeText(tr("Vous avez encore des patients en salle d'attente dont la consultation n'est pas terminée."));
                     msgbox.setIcon(UpMessageBox::Warning);
                     msgbox.addButton(&NoBouton, UpSmallButton::CLOSEBUTTON);
@@ -6940,7 +6940,7 @@ void Rufus::CreerDossier()
         UpMessageBox msgbox;
         UpSmallButton OKBouton(tr("Je confirme"));
         UpSmallButton NoBouton(tr("Annuler"));
-        msgbox.setText("Euuhh... " + m_currentuser->getLogin());
+        msgbox.setText("Euuhh... " + m_currentuser->login());
         msgbox.setInformativeText(tr("Confirmez vous la date de naissance?") + "\n" + ui->CreerDDNdateEdit->date().toString(tr("d-MMM-yyyy")));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
@@ -7598,7 +7598,7 @@ bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QStr
         listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1": QVariant(QVariant::String));
         listbinds[CP_EMISORRECU_IMPRESSIONS]    = "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
-        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->getSite()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->sitedetravail()->id();
         listbinds[CP_IMPORTANCE_IMPRESSIONS]    = (Administratif? "0" : "1");
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         ui->OuvreDocsExternespushButton->setEnabled(doc != Q_NULLPTR);
@@ -7989,7 +7989,7 @@ void Rufus::MAJCorrespondant(QObject *obj)
         if (nou != anc)
         {
             UpMessageBox msgbox;
-            msgbox.setText("Euuhh... " + m_currentuser->getLogin());
+            msgbox.setText("Euuhh... " + m_currentuser->login());
             msgbox.setInformativeText(tr("Correspondant inconnu! Souhaitez-vous l'enregistrer?"));
             msgbox.setIcon(UpMessageBox::Warning);
             UpSmallButton OKBouton(tr("Enregistrer"));
@@ -8323,7 +8323,7 @@ void    Rufus::ReconstruitListesCotations()
             . le texte de l'item -> la cotation de l'acte
             . en data, une QStringList contenant dans l'ordre le montant (optam ou non), le montant pratiqué, le descriptif de l'acte CCAM
     */
-    Datas::I()->cotations->initListeByUser(m_currentuser->getIdUserParent());
+    Datas::I()->cotations->initListeByUser(m_currentuser->idparent());
     QString req;
     QString champ = (m_currentuser->isOPTAM()? "montantoptam" : "montantnonoptam");
     // il faut d'abord reconstruire la table des cotations
@@ -8810,7 +8810,7 @@ void Rufus::Remplir_SalDat()
         rsgnmt["motif"]             = patencours->motif();
         rsgnmt["ddnpat"]            = pat->datedenaissance();
         rsgnmt["idsuperviseur"]     = patencours->iduser();
-        rsgnmt["loginsuperviseur"]  = Datas::I()->users->getById(patencours->iduser())->getLogin();
+        rsgnmt["loginsuperviseur"]  = Datas::I()->users->getById(patencours->iduser())->login();
         rsgnmt["urgence"]           = (patencours->motif() == "URG");
         rsgnmt["message"]           = patencours->message();
 
@@ -8873,12 +8873,12 @@ void Rufus::Remplir_SalDat()
             else
                color = "color: red";
         }
-        label6->setText(Datas::I()->users->getById(patencours->iduser())->getLogin());  // Superviseur
+        label6->setText(Datas::I()->users->getById(patencours->iduser())->login());  // Superviseur
         if (!listidusers.contains(patencours->iduser()))
         {
             listidusers << patencours->iduser();
             pitem0 = new QStandardItem(QString::number(patencours->iduser()));
-            pitem1 = new QStandardItem(Datas::I()->users->getById(patencours->iduser())->getLogin());
+            pitem1 = new QStandardItem(Datas::I()->users->getById(patencours->iduser())->login());
             QList<QStandardItem*> listitems;
             listitems << pitem0 << pitem1;
             m_listesuperviseursmodel    ->appendRow(listitems);
@@ -8985,7 +8985,7 @@ void Rufus::Remplir_SalDat()
         bool a = false;
         for (int i=0; i<gSalDatTab->count(); i++)
         {
-            if (gSalDatTab->tabData(i).toInt() == m_currentuser->getIdUserActeSuperviseur())
+            if (gSalDatTab->tabData(i).toInt() == m_currentuser->idSuperviseurActes())
             {
                 gSalDatTab->setCurrentIndex(i);
                 a = true;
@@ -9046,7 +9046,7 @@ void Rufus::Remplir_SalDat()
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
             UserBureau->disconnect();; // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
-            UserBureau->setObjectName(usr->getLogin() + "BureauupTextEdit");
+            UserBureau->setObjectName(usr->login() + "BureauupTextEdit");
             UserBureau->setIdUser(post->id());
             ui->scrollArea->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
             UserBureau->setStyleSheet("background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 255, 200, 50));"
@@ -9061,7 +9061,7 @@ void Rufus::Remplir_SalDat()
               "</style>"
             "</head>"
             "<body LANG=\"fr-FR\" DIR=\"LTR\">";
-            html += "<p class=\"p10\"><b>" + PosteLog + "</b></p><p class=\"p2\"><b><span style=\"color:green;\">" + usr->getLogin() + "</b></p>";
+            html += "<p class=\"p10\"><b>" + PosteLog + "</b></p><p class=\"p2\"><b><span style=\"color:green;\">" + usr->login() + "</b></p>";
             if (patencours == Q_NULLPTR)
                 html += "<p class=\"p2\">ZZzzz...</p>";
             else if (m_patients->getById(patencours->id()) != Q_NULLPTR)
@@ -9123,7 +9123,7 @@ void Rufus::Remplir_SalDat()
         rsgnmt["motif"]             = patencours->motif();
         rsgnmt["ddnpat"]            = pat->datedenaissance();
         rsgnmt["idsuperviseur"]     = patencours->iduser();
-        rsgnmt["loginsuperviseur"]  = Datas::I()->users->getById(patencours->iduser())->getLogin();
+        rsgnmt["loginsuperviseur"]  = Datas::I()->users->getById(patencours->iduser())->login();
         rsgnmt["urgence"]           = (patencours->motif() == "URG");
         rsgnmt["message"]           = patencours->message();
         rsgnmt["idComptable"]       = actapayer->idComptable();
@@ -9171,10 +9171,10 @@ void Rufus::Remplir_SalDat()
         int idparent = actapayer->idParent();
         label0->setText(" " + zw);                                                              // Heure acte
         label1->setText(" " + NomPrenom);                                                       // Nom + Prénom
-        QString Soignant  = Datas::I()->users->getById(patencours->iduser())->getLogin();
+        QString Soignant  = Datas::I()->users->getById(patencours->iduser())->login();
         if (patencours->iduser() != idparent)
-            Soignant +=  " / " + Datas::I()->users->getById(idparent)->getLogin();
-        label2->setText(" " + Datas::I()->users->getById(patencours->iduser())->getLogin());    // Soignant
+            Soignant +=  " / " + Datas::I()->users->getById(idparent)->login();
+        label2->setText(" " + Datas::I()->users->getById(patencours->iduser())->login());    // Soignant
         label3->setText(" " + actapayer->cotation());                                           // Cotation
         label4->setText(QLocale().toString(actapayer->montant(),'f',2) + " ");                  // Montant
         label5->setText(QString::number(idparent));                      // Parent
@@ -9196,7 +9196,7 @@ void Rufus::Remplir_SalDat()
         {
             listidparents           << idparent;
             oitem0                  = new QStandardItem(QString::number(idparent));
-            oitem1                  = new QStandardItem(Datas::I()->users->getById(idparent)->getLogin());
+            oitem1                  = new QStandardItem(Datas::I()->users->getById(idparent)->login());
             QList<QStandardItem*>   listitems;
             listitems               << oitem0 << oitem1;
             m_listeparentsmodel     ->appendRow(listitems);
@@ -9240,7 +9240,7 @@ void Rufus::Remplir_SalDat()
         {
             bool a = false;
             for (int i=0; i<gAccueilTab->count(); i++)
-                if (gAccueilTab->tabData(i).toInt() == m_currentuser->getIdUserParent())
+                if (gAccueilTab->tabData(i).toInt() == m_currentuser->idparent())
                 {
                     gAccueilTab->setCurrentIndex(i);
                     a = true;
@@ -9400,12 +9400,12 @@ void Rufus::SupprimerActe(Acte *act)
 
     if (Messg != "")
     {
-        UpMessageBox::Watch(this, "Euuhh... " + m_currentuser->getLogin(), Messg);
+        UpMessageBox::Watch(this, "Euuhh... " + m_currentuser->login(), Messg);
         return;
     }
 
     // On demande confirmation de la suppression de l'acte
-    msgbox.setText("Euuhh... " + m_currentuser->getLogin());
+    msgbox.setText("Euuhh... " + m_currentuser->login());
     msgbox.setInformativeText(tr("Etes vous sûr de vouloir supprimer cet acte?"));
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton OKBouton  (tr("Supprimer"));
@@ -9535,12 +9535,12 @@ void Rufus::SupprimerDossier(Patient *pat)
     }
     if (Messg != "")
     {
-        UpMessageBox::Watch(this, "Euuhh... " + m_currentuser->getLogin(), Messg);
+        UpMessageBox::Watch(this, "Euuhh... " + m_currentuser->login(), Messg);
         return;
     }
 
     //2. On commence par demander la confirmation de la suppression du dossier
-    msgbox.setText("Euuhh... " + m_currentuser->getLogin());
+    msgbox.setText("Euuhh... " + m_currentuser->login());
     msgbox.setInformativeText(tr("Etes vous sûr de vouloir supprimer le dossier de ") + pat->nom() + " " + pat->prenom() + "?");
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton OKBouton  (tr("Supprimer"));
@@ -9650,15 +9650,15 @@ void Rufus::Tonometrie()
 
             QString Tono;
             if (TOD.toInt() == 0 && TOG.toInt() > 0)
-                Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->getLogin() + "</td>";
+                Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TOG:") + "</b></font></td><td width=\"80\">" + TOGcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td>";
             if (TOG.toInt() == 0 && TOD.toInt() > 0)
-                Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->getLogin() + "</td>";
+                Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TOD:") + "</b></font></td><td width=\"80\">" + TODcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td>";
             if (TOD.toInt() > 0 && TOG.toInt() > 0)
             {
                 if (TOD.toInt() == TOG.toInt())
-                    Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->getLogin() + "</td>";
+                    Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TODG:") + "</b></font></td><td width=\"80\">" + TODcolor + " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td>";
                 else
-                    Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TO:") +"</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->getLogin() + "</td>";
+                    Tono = "<td width=\"60\"><font color = \"" COULEUR_TITRES "\"><b>" + tr("TO:") +"</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ " à " + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td>";
             }
 
             QString ARajouterEnText =  "<p style = \"margin-top:0px; margin-bottom:0px;\" >" + Tono  + "</p>"
@@ -9872,7 +9872,7 @@ void Rufus::LireLaCPS()
             }
         // A REVOIR : faire tout ce qu'il faut pour nouveau user ... mais quoi ???
         m_currentuser->setid(idusrdata.at(0).toInt());
-        setWindowTitle("Rufus - " + m_currentuser->getLogin() + " - " + m_currentuser->getFonction());
+        setWindowTitle("Rufus - " + m_currentuser->login() + " - " + m_currentuser->fonction());
         }
 }
 /*-----------------------------------------------------------------------------------------------------------------

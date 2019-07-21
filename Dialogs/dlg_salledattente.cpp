@@ -111,9 +111,9 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         ActeSal = QString::number(m_currentact->id());
         if (m_currentact->idUser() < 1)
         {
-            ItemsList::update(m_currentact, CP_IDUSER_ACTES,         Datas::I()->users->userconnected()->getIdUserActeSuperviseur());
-            ItemsList::update(m_currentact, CP_IDUSERPARENT_ACTES,   Datas::I()->users->userconnected()->getIdUserParent());
-            ItemsList::update(m_currentact, CP_IDUSERCOMPTABLE_ACTES,Datas::I()->users->userconnected()->getIdUserComptable());
+            ItemsList::update(m_currentact, CP_IDUSER_ACTES,         Datas::I()->users->userconnected()->idSuperviseurActes());
+            ItemsList::update(m_currentact, CP_IDUSERPARENT_ACTES,   Datas::I()->users->userconnected()->idparent());
+            ItemsList::update(m_currentact, CP_IDUSERCOMPTABLE_ACTES,Datas::I()->users->userconnected()->idcomptable());
         }
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
@@ -123,7 +123,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     PatientEnCours *pat = Datas::I()->patientsencours->getById(Datas::I()->patients->currentpatient()->id());
     if (pat == Q_NULLPTR)
         pat = Datas::I()->patientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                                                //! idPat
-                                                 DataBase::I()->getUserConnected()->getIdUserActeSuperviseur(),         //! idUser
+                                                 DataBase::I()->getUserConnected()->idSuperviseurActes(),         //! idUser
                                                  Statut,                                                                //! Statut
                                                  QTime(0,0,0,0),                                                        //! heureStatut
                                                  QTime(),                                                               //! heureRDV

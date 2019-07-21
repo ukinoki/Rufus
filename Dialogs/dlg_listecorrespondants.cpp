@@ -162,7 +162,7 @@ void dlg_listecorrespondants::SupprCorresp()
             gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->text() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton NoBouton(tr("Annuler"));

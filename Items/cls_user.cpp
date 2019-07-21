@@ -70,7 +70,6 @@ void User::setData(QJsonObject data)
 
     setDataInt(data, "soignant", m_soignant);
     setDataInt(data, "responsableActes", m_responsableActes);
-    setDataInt(data, "userenreghonoraires", m_userenreghonoraires);
     setDataInt(data, "userccam", m_userccam);
     setDataLongLongInt(data, "numPS", m_numPS);
     setDataInt(data, "noSpecialite", m_noSpecialite);
@@ -85,7 +84,7 @@ void User::setData(QJsonObject data)
     setDataBool(data, "AGA", m_AGA);
     setDataBool(data, "desactive", m_desactive);
     setDataBool(data, "OPTAM", m_OPTAM);
-    setDataBool(data, "cotation", m_cotation);
+    setDataBool(data, "ccam", m_ccam);
 
     setDataDateTime(data, "dateDerniereConnexion", m_dateDerniereConnexion);
     m_data = data;
@@ -93,52 +92,80 @@ void User::setData(QJsonObject data)
 
 
 
-QString User::getLogin() const                      { return m_login; }
-QString User::getPassword() const                   { return m_password; }
+QString User::login() const                      { return m_login; }
+QString User::password() const                   { return m_password; }
 void User::setPassword(QString psswd)               { m_password = psswd; }
 
-QString User::getNom() const                        { return m_nom; }
-QString User::getPrenom() const                     { return m_prenom; }
-int User::getSoignant() const                       { return m_soignant; }                  //! 1 = ophtalmo 2 = orthoptiste 3 = autre 4 = Non soignant 5 = societe comptable
-int User::getResponsableactes() const               { return m_responsableActes; }
-int User::getUserenreghonoraires() const            { return m_userenreghonoraires; }       //! 1 = liberal 2 = salarie 3 = retrocession 4 = pas de comptabilite
+QString User::nom() const                        { return m_nom; }
+QString User::prenom() const                     { return m_prenom; }
+User::METIER User::metier() const
+{
+    switch (m_soignant) {
+    case 1: return Ophtalmo;
+    case 2: return Orthoptiste;
+    case 3: return AutreSoignant;
+    case 4: return NonSoignant;
+    case 5: return SocieteComptable;
+    }
+    return Ophtalmo;
+}
+User::RESPONSABLE User::responsableactes() const           /*! 1 = effectue exclusivement des actes sous sa responsabilite
+                                                               *  2 = effectue des actes sous sa responsabilite et sous celle des autres users
+                                                               *  3 = n'effectue aucun acte sous sa responsabilite */
+{
+    switch (m_responsableActes) {
+    case 1: return Responsable;
+    case 2: return AlterneResponsablePasResponsable;
+    case 3: return PasResponsable;
+    }
+    return Responsable;
+}
 int User::getUserccam() const                       { return m_userccam; }
-int User::getEnregHonoraires() const                { return m_enregHonoraires; }
-QString User::getTitre() const                      { return m_titre; }
-int User::getNoSpecialite() const                   { return m_noSpecialite; }
-QString User::getSpecialite() const                 { return m_specialite; }
+User::ENREGISTREMENTHONORAIRES User::modeenregistrementhonoraires() const
+{
+    switch (m_enregHonoraires) {
+    case 1: return Liberal;
+    case 2: return Salarie;
+    case 3: return Retrocession;
+    case 4: return NoCompta;
+    }
+    return NoCompta;
+}
+QString User::titre() const                         { return m_titre; }
+int User::numspecialite() const                     { return m_noSpecialite; }
+QString User::specialite() const                    { return m_specialite; }
 qlonglong User::getNumPS() const                    { return m_numPS; }
-QString User::getNumCO() const                      { return m_numCO; }
+QString User::numOrdre() const                      { return m_numCO; }
 bool User::isAGA() const                            { return m_AGA; }
-int User::getEmployeur() const                      { return m_employeur; }
-int User::getIdCompteEncaissHonoraires() const      { return m_idCompteEncaissHonoraires; }
-QString User::getFonction() const                   { return m_fonction; }
+int User::idemployeur() const                       { return m_employeur; }
+int User::idCompteEncaissHonoraires() const         { return m_idCompteEncaissHonoraires; }
+QString User::fonction() const                      { return m_fonction; }
 
-int User::getIdUserActeSuperviseur() const          { return m_idUserActeSuperviseur; }
+int User::idSuperviseurActes() const                { return m_idUserActeSuperviseur; }
 void User::setIdUserActeSuperviseur(int idusr)      { m_idUserActeSuperviseur = idusr; }
 bool User::ishisownsupervisor()                     { return (m_idUserActeSuperviseur == m_id); }
 
-int User::getIdUserParent() const                   { return m_idUserParent; }
+int User::idparent() const                          { return m_idUserParent; }
 void User::setIdUserParent(int idusr)               { m_idUserParent = idusr; }
-int User::getIdUserComptable() const                { return m_idUserComptable; }
+int User::idcomptable() const                       { return m_idUserComptable; }
 void User::setIdUserComptable(int idusr)            { m_idUserComptable = idusr; }
 
-User *User::getUserSuperviseur() const              { return m_userSuperviseur; }
+User *User::superviseur() const                     { return m_userSuperviseur; }
 void User::setUserSuperviseur(User *usr)            { m_userSuperviseur = usr; }
-User *User::getUserParent() const                   { return m_userParent; }
+User *User::userparent() const                      { return m_userParent; }
 void User::setUserParent(User *usr)                 { m_userParent = usr; }
-User *User::getUserComptable() const                { return m_userComptable; }
+User *User::comptable() const                       { return m_userComptable; }
 void User::setUserComptable(User *usr)              { m_userComptable = usr; }
 
-int User::getSecteur() const                        { return m_secteur; }
-int User::getIdCompteParDefaut() const              { return m_idCompteParDefaut; }
-QString User::getMail() const                       { return m_mail; }
-QString User::getPortable() const                   { return m_portable; }
+int User::secteurconventionnel() const              { return m_secteur; }
+int User::idcompteParDefaut() const                 { return m_idCompteParDefaut; }
+QString User::mail() const                          { return m_mail; }
+QString User::portable() const                      { return m_portable; }
 
-Site* User::getSite() const                         { return m_Site; }
+Site* User::sitedetravail() const                   { return m_Site; }
 void User::setSite(Site *Site)                      { m_Site = Site; }
 
-QList<Compte*>* User::getComptes(bool avecdesactive) const
+QList<Compte*>* User::comptesbancaires(bool avecdesactive) const
 {
     return (avecdesactive? m_comptesall : m_comptes);
 }
@@ -153,38 +180,37 @@ void User::setComptes(QList<Compte *> comptes)
         m_comptesall->clear();
     else
         m_comptesall = new QList<Compte*>();       //! si on le laisse à Q_NULLPTR, le append() qui suit plantera le prg
-    QListIterator<Compte*> itcpt(comptes);
-    while (itcpt.hasNext()) {
-        Compte *cpt = const_cast<Compte*>(itcpt.next());
+    foreach (Compte* cpt, comptes)
+    {
         m_comptesall->append(cpt);
         if (!cpt->isDesactive())
             m_comptes->append(cpt);
     }
 }
 
-int User::getTypeCompta() const                     { return m_typeCompta; }
+int User::typecompta() const                        { return m_typeCompta; }
 void User::setTypeCompta(int typeCompta )           { m_typeCompta = typeCompta; }
 
 bool User::isOPTAM()                                { return m_OPTAM; }
-bool User::isCotation()                             { return m_cotation; }
+bool User::useCCAM()                                { return m_ccam; }
 
 bool User::isSecretaire()                           { return m_droits == SECRETAIRE; }
 bool User::isAutreFonction()                        { return m_droits == AUTREFONCTION; }
 bool User::isMedecin()                              { return m_medecin == 1; }
-bool User::isOpthalmo()                             { return m_soignant == 1; }
-bool User::isOrthoptist()                           { return m_soignant == 2; }
-bool User::isAutreSoignant()                        { return m_soignant == 3; }
-bool User::isNonSoignant()                          { return m_soignant == 4; }
-bool User::isSocComptable()                         { return m_soignant == 5; }
+bool User::isOpthalmo()                             { return metier() == Ophtalmo; }
+bool User::isOrthoptist()                           { return metier() == Orthoptiste; }
+bool User::isAutreSoignant()                        { return metier() == AutreSoignant; }
+bool User::isNonSoignant()                          { return metier() == NonSoignant; }
+bool User::isSocComptable()                         { return metier() == SocieteComptable; }
 bool User::isComptable()                            { return isLiberal() || isSocComptable(); }
 bool User::isSoignant()                             { return isOpthalmo() || isOrthoptist() || isAutreSoignant(); }
-bool User::isLiberal()                              { return isSoignant() && m_enregHonoraires == 1; }
-bool User::isSalarie()                              { return isSoignant() && m_enregHonoraires == 2; }
-bool User::isRemplacant()                           { return isSoignant() && m_enregHonoraires == 3; }
-bool User::isSansCompta()                           { return m_enregHonoraires == 4; }
-bool User::isResponsable()                          { return isSoignant() && m_responsableActes == 1; }
-bool User::isResponsableEtAssistant()               { return isSoignant() && m_responsableActes == 2; }
-bool User::isAssistant()                            { return isSoignant() && m_responsableActes == 3; }
+bool User::isLiberal()                              { return isSoignant() && modeenregistrementhonoraires() == Liberal; }
+bool User::isSalarie()                              { return isSoignant() && modeenregistrementhonoraires() == Salarie; }
+bool User::isRemplacant()                           { return isSoignant() && modeenregistrementhonoraires() == Retrocession; }
+bool User::isSansCompta()                           { return modeenregistrementhonoraires() == NoCompta; }
+bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }
+bool User::isResponsableEtAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
+bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
 //bool User::isAssistant() { return isSoignant() && m_idUserActeSuperviseur != m_id; }
 bool User::isDesactive()                            { return m_desactive; }
 
@@ -211,7 +237,7 @@ QString User::getStatus() const
     else if( m_idUserActeSuperviseur == User::ROLE_INDETERMINE )        // jamais utilisé
         strSup = tr("indéterminé");
     else if( m_userSuperviseur )
-        strSup = m_userSuperviseur->getLogin();
+        strSup = m_userSuperviseur->login();
     str += tr("superviseur") + "\t\t= " + strSup + "\n";
 
     QString strParent = "";
@@ -222,7 +248,7 @@ QString User::getStatus() const
     else if( m_idUserParent == User::ROLE_INDETERMINE )                 // jamais utilisé
         strParent = tr("indéterminé");
     else if( m_userParent )
-        strParent = m_userParent->getLogin();
+        strParent = m_userParent->login();
     str += tr("parent") + "\t\t= " + strParent + "\n";
 
     QString strComptable = "";
@@ -233,7 +259,7 @@ QString User::getStatus() const
     else if( m_idUserComptable == User::ROLE_INDETERMINE )
         strComptable = tr("indéterminé");
     else if( m_userComptable )
-        strComptable = m_userComptable->getLogin();
+        strComptable = m_userComptable->login();
     str += tr("comptable") + "\t\t= " + strComptable + "\n";
     if( m_userComptable )
         str += tr("cpte banque") + "\t= " + m_nomCompteEncaissHonoraires + "\n";

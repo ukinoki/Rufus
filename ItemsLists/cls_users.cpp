@@ -153,7 +153,7 @@ QString Users::getLoginById(int id)
 {
     User* user = getById(id);
     if( user != Q_NULLPTR)
-        return user->getLogin();
+        return user->login();
     return "";
 }
 

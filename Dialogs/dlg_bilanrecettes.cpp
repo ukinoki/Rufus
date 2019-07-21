@@ -568,7 +568,7 @@ void dlg_bilanrecettes::ExportTable()
         }
     }
     QString ExportFileName = QDir::homePath() + DIR_RUFUS + "/"
-                            + (gMode == COMPTABLE? tr("Recettes") + " " + gidUser->getLogin() : tr("Actes") + " " + gSupervBox->currentText())
+                            + (gMode == COMPTABLE? tr("Recettes") + " " + gidUser->login() : tr("Actes") + " " + gSupervBox->currentText())
                             + " " + tr("du") + " " + Debut.toString("d MMM yyyy") + " " + tr("au") + " " + Fin.toString(tr("d MMM yyyy"))
                             + ".csv";
     QFile   ExportFile(ExportFileName);

@@ -33,9 +33,9 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
-    if (db->getUserConnected()->getComptes() == Q_NULLPTR)
+    if (db->getUserConnected()->comptesbancaires() == Q_NULLPTR)
         proc->SetUserAllData(db->getUserConnected());
-    comptesusr = db->getUserConnected()->getComptes(true);
+    comptesusr = db->getUserConnected()->comptesbancaires(true);
 
     if (comptesusr->size() == 0)
     {

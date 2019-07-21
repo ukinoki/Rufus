@@ -744,7 +744,12 @@ QList<PosteConnecte*> DataBase::loadPostesConnectes()
 QList<Correspondant*> DataBase::loadCorrespondants()                             //! tous les correspondants sans exception
 {
     QList<Correspondant*> correspondants;
-    QString req = "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin, corspecialite FROM " TBL_CORRESPONDANTS " order by cornom, corprenom";
+    QString req =   "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin, corspecialite, nomspecialite as metier FROM " TBL_CORRESPONDANTS ", " TBL_SPECIALITES
+                    " where cormedecin = 1 and corspecialite = idspecialite"
+                    " union "
+                    "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin, -1 as corspecialite, corautreprofession as metier from "  TBL_CORRESPONDANTS
+                    " where cormedecin <> 1 or cormedecin is null"
+                    " order by cornom, corprenom";
 
     QList<QVariantList> corlist = StandardSelectSQL(req,ok);
     if(!ok || corlist.size()==0)
@@ -752,13 +757,14 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
     for (int i=0; i<corlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"]             = corlist.at(i).at(0).toInt();
-        jData["nom"]            = corlist.at(i).at(1).toString();
-        jData["prenom"]         = corlist.at(i).at(2).toString();
-        jData["sexe"]           = corlist.at(i).at(3).toString();
-        jData["medecin"]        = (corlist.at(i).at(4).toInt()==1);
-        jData["generaliste"]    = (corlist.at(i).at(5).toInt() > 0);
-        jData["isAllLoaded"]    = false;
+        jData[CP_ID_CORRESP]             = corlist.at(i).at(0).toInt();
+        jData[CP_NOM_CORRESP]            = corlist.at(i).at(1).toString();
+        jData[CP_PRENOM_CORRESP]         = corlist.at(i).at(2).toString();
+        jData[CP_SEXE_CORRESP]           = corlist.at(i).at(3).toString();
+        jData[CP_ISMEDECIN]              = (corlist.at(i).at(4).toInt()==1);
+        jData[CP_ISGENERALISTE]          = (corlist.at(i).at(5).toInt() > 0);
+        jData[CP_METIER]                 = corlist.at(i).at(6).toString();
+        jData[CP_ISALLLOADED]            = false;
         Correspondant *cor = new Correspondant(jData);
         correspondants << cor;
     }
@@ -786,21 +792,21 @@ QList<Correspondant*> DataBase::loadCorrespondantsALL()                         
     for (int i=0; i<corlist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["id"]             = corlist.at(i).at(0).toInt();
-        jData["nom"]            = corlist.at(i).at(1).toString();
-        jData["prenom"]         = corlist.at(i).at(2).toString();
-        jData["metier"]         = corlist.at(i).at(3).toString();
-        jData["adresse1"]       = corlist.at(i).at(4).toString();
-        jData["adresse2"]       = corlist.at(i).at(5).toString();
-        jData["adresse3"]       = corlist.at(i).at(6).toString();
-        jData["codepostal"]     = corlist.at(i).at(7).toString();
-        jData["ville"]          = corlist.at(i).at(8).toString();
-        jData["telephone"]      = corlist.at(i).at(9).toString();
-        jData["sexe"]           = corlist.at(i).at(10).toString();
-        jData["medecin"]        = (corlist.at(i).at(11).toInt() == 1);
-        jData["generaliste"]    = (corlist.at(i).at(12).toInt() == 0);
-        jData["specialite"]     = corlist.at(i).at(12).toInt();
-        jData["isAllLoaded"]    = false;
+        jData[CP_ID_CORRESP]             = corlist.at(i).at(0).toInt();
+        jData[CP_NOM_CORRESP]            = corlist.at(i).at(1).toString();
+        jData[CP_PRENOM_CORRESP]         = corlist.at(i).at(2).toString();
+        jData[CP_METIER]                 = corlist.at(i).at(3).toString();
+        jData[CP_ADRESSE1_CORRESP]       = corlist.at(i).at(4).toString();
+        jData[CP_ADRESSE2_CORRESP]       = corlist.at(i).at(5).toString();
+        jData[CP_ADRESSE3_CORRESP]       = corlist.at(i).at(6).toString();
+        jData[CP_CODEPOSTAL_CORRESP]     = corlist.at(i).at(7).toString();
+        jData[CP_VILLE_CORRESP]          = corlist.at(i).at(8).toString();
+        jData[CP_TELEPHONE_CORRESP]      = corlist.at(i).at(9).toString();
+        jData[CP_SEXE_CORRESP]           = corlist.at(i).at(10).toString();
+        jData[CP_ISMEDECIN]              = (corlist.at(i).at(11).toInt() == 1);
+        jData[CP_ISGENERALISTE]          = (corlist.at(i).at(12).toInt() == 0);
+        jData[CP_SPECIALITE_CORRESP]     = corlist.at(i).at(12).toInt();
+        jData[CP_ISALLLOADED]            = false;
         Correspondant *cor = new Correspondant(jData);
         correspondants << cor;
     }
@@ -832,35 +838,26 @@ QJsonObject DataBase::loadCorrespondantData(int idcor)                          
 
     for (int i=0; i<cordata.size(); ++i)
     {
-        jData["id"]         = idcor;
-        jData["nom"]        = cordata.at(0).toString();
-        jData["prenom"]     = cordata.at(1).toString();
-        jData["metier"]     = cordata.at(2).toString();
-        jData["adresse1"]   = cordata.at(3).toString();
-        jData["adresse2"]   = cordata.at(4).toString();
-        jData["adresse3"]   = cordata.at(5).toString();
-        jData["codepostal"] = cordata.at(6).toString();
-        jData["ville"]      = cordata.at(7).toString();
-        jData["telephone"]  = cordata.at(8).toString();
-        jData["sexe"]       = cordata.at(9).toString();
-        jData["medecin"]    = (cordata.at(10).toInt()==1);
-        jData["portable"]   = cordata.at(11).toString();
-        jData["fax"]        = cordata.at(12).toString();
-        jData["mail"]       = cordata.at(13).toString();
-        jData["specialite"] = cordata.at(14).toInt();
-        jData["isAllLoaded"]= true;
+        jData[CP_ID_CORRESP]         = idcor;
+        jData[CP_NOM_CORRESP]        = cordata.at(0).toString();
+        jData[CP_PRENOM_CORRESP]     = cordata.at(1).toString();
+        jData[CP_METIER]             = cordata.at(2).toString();
+        jData[CP_ADRESSE1_CORRESP]   = cordata.at(3).toString();
+        jData[CP_ADRESSE2_CORRESP]   = cordata.at(4).toString();
+        jData[CP_ADRESSE3_CORRESP]   = cordata.at(5).toString();
+        jData[CP_CODEPOSTAL_CORRESP] = cordata.at(6).toString();
+        jData[CP_VILLE_CORRESP]      = cordata.at(7).toString();
+        jData[CP_TELEPHONE_CORRESP]  = cordata.at(8).toString();
+        jData[CP_SEXE_CORRESP]       = cordata.at(9).toString();
+        jData[CP_ISMEDECIN]          = (cordata.at(10).toInt()==1);
+        jData[CP_PORTABLE_CORRESP]   = cordata.at(11).toString();
+        jData[CP_FAX_CORRESP]        = cordata.at(12).toString();
+        jData[CP_MAIL_CORRESP]       = cordata.at(13).toString();
+        jData[CP_ISGENERALISTE]      = (cordata.at(14).toInt() == 0);
+        jData[CP_SPECIALITE_CORRESP] = cordata.at(14).toInt();
+        jData[CP_ISALLLOADED]        = true;
     }
     return jData;
-}
-
-void DataBase::SupprCorrespondant(int idcor)
-{
-    QString id = QString::number(idcor);
-    StandardSQL("delete from " TBL_CORRESPONDANTS " where idcor = " + id);
-    StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg  = null where idcormedmg  = " + id);
-    StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = null where idcormedspe1 = " + id);
-    StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = null where idcormedspe2 = " + id);
-    StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe3 = null where idcormedspe3 = " + id);
 }
 
 /*
@@ -941,12 +938,6 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
     return jData;
 }
 
-void DataBase::SupprDocExterne(DocExterne* doc)
-{
-    SupprRecordFromTable(doc->id(), "idImpression", TBL_IMPRESSIONS);
-}
-
-
 /*
  * Documents
 */
@@ -978,12 +969,6 @@ QList<Document*> DataBase::loadDocuments()
     }
     return documents;
 }
-
-void DataBase::SupprDocument(Document* doc)
-{
-    SupprRecordFromTable(doc->id(), "idDocument", TBL_COURRIERS);
-}
-
 
 /*
  * MetaDocuments
@@ -1021,13 +1006,6 @@ QList<MetaDocument*> DataBase::loadMetaDocuments()
     }
     return metadocuments;
 }
-
-void DataBase::SupprMetaDocument(Document* doc)
-{
-    SupprRecordFromTable(doc->id(), "idDocument", TBL_METADOCUMENTS);
-}
-
-
 
 
 /*******************************************************************************************************************************************************************

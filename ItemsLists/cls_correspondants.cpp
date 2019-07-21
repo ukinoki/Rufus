@@ -105,12 +105,12 @@ void Correspondants::initListe(bool all)
 
 QStringList Correspondants::autresprofessions()
 {
-    bool ok;
     QStringList listprof = QStringList();
-    QList<QVariantList> proflist = DataBase::I()->StandardSelectSQL("select distinct corautreprofession from " TBL_CORRESPONDANTS " where corautreprofession is not NULL", ok);
-    if (ok && proflist.size()>0)
-        for (int i=0; i<proflist.size(); i++)
-            listprof << proflist.at(i).at(0).toString();
+    foreach  (const Correspondant *cor, m_correspondants->values())
+    {
+        if (!cor->ismedecin())
+            listprof << cor->metier();
+    }
     return listprof;
 }
 
@@ -118,6 +118,11 @@ void Correspondants::SupprimeCorrespondant(Correspondant *cor)
 {
     if (cor == Q_NULLPTR)
         return;
+    QString id = QString::number(cor->id());
     Supprime(m_correspondants, cor);
+    DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedmg  = null where idcormedmg  = " + id);
+    DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe1 = null where idcormedspe1 = " + id);
+    DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe2 = null where idcormedspe2 = " + id);
+    DataBase::I()->StandardSQL("update " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " set idcormedspe3 = null where idcormedspe3 = " + id);
 }
 

@@ -30,7 +30,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     proc      = Procedures::I();
     db        = DataBase::I();
 
-    ui->Userlabel->setText(tr("Recettes spéciales de ") + db->getUserConnected()->getLogin());
+    ui->Userlabel->setText(tr("Recettes spéciales de ") + db->getUserConnected()->login());
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDepenses").toByteArray());
 
@@ -159,7 +159,7 @@ void    dlg_recettesspeciales::RegleAffichageFiche(enum gMode mode)
     ui->GestionComptesupPushButton  ->setEnabled(gMode == Lire || gMode == TableVide);
     ui->SupprimerupPushButton       ->setVisible(gMode == Lire);
     ui->ModifierupPushButton        ->setVisible(gMode == Lire);
-    int sz = m_userencours->getComptes()->size();
+    int sz = m_userencours->comptesbancaires()->size();
     ui->NouvelleRecetteupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && sz>0);
     ui->NouvelleRecetteupPushButton->setToolTip((gMode == Lire || gMode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
     EnregupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
@@ -192,15 +192,15 @@ bool dlg_recettesspeciales::initializeUserSelected()
 {
     m_userencours = db->getUserConnected();
     proc->SetUserAllData(m_userencours);
-    if( m_userencours->getComptes(true)->size() == 0)
+    if( m_userencours->comptesbancaires(true)->size() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + m_userencours->getLogin());
+        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + m_userencours->login());
         return false;
     }
     if (m_userencours->getCompteParDefaut() == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche recettes spéciales!"), tr("Pas de compte bancaire enregistré pour ")
-                                     + m_userencours->getLogin());
+                                     + m_userencours->login());
         return false;
     }
 
@@ -438,7 +438,7 @@ void dlg_recettesspeciales::ChoixMenu(QString choix)
 void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
-    QList<Compte*> *model = m_userencours->getComptes();
+    QList<Compte*> *model = m_userencours->comptesbancaires();
     for( QList<Compte*>::const_iterator itcpt = model->constBegin(); itcpt != model->constEnd(); ++itcpt )
     {
         Compte *cpt = const_cast<Compte*>(*itcpt);
@@ -614,10 +614,10 @@ void dlg_recettesspeciales::MetAJourFiche()
         {
             if (recette.at(6).toInt()>0)
             {
-                int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getById(recette.at(6).toInt()));
+                int idx = m_userencours->comptesbancaires(true)->indexOf(Datas::I()->comptes->getById(recette.at(6).toInt()));
                 if( idx > -1 )
                 {
-                    B = m_userencours->getComptes(true)->at(idx)->nomabrege();
+                    B = m_userencours->comptesbancaires(true)->at(idx)->nomabrege();
                     ui->Comptelabel->setVisible(true);
                     ui->ComptesupComboBox->setVisible(true);
                     ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(recette.at(6).toInt()));
@@ -1015,9 +1015,9 @@ void dlg_recettesspeciales::RemplitBigTable()
             {
                 if (recette.at(10).toInt() > 0)
                 {
-                    int idx = m_userencours->getComptes(true)->indexOf(Datas::I()->comptes->getById(recette.at(10).toInt()));
+                    int idx = m_userencours->comptesbancaires(true)->indexOf(Datas::I()->comptes->getById(recette.at(10).toInt()));
                     if( idx > -1 )
-                        B = m_userencours->getComptes(true)->at(idx)->nomabrege();
+                        B = m_userencours->comptesbancaires(true)->at(idx)->nomabrege();
                 }
                 A = VIREMENT + (B==""? "" : " " + B);
             }

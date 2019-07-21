@@ -60,3 +60,12 @@ void Sites::initListe()
     clearAll(m_sites);
     addList(m_sites, DataBase::I()->loadSitesAll());
 }
+
+/*!
+ * \brief Sites::initListeByUser sites
+ * Charge l'ensemble des sites utilisés par un utilisateur
+ */
+QList<Site*> Sites::initListeByUser(int idusr)
+{
+    return DataBase::I()->loadSitesByUser(idusr);
+}

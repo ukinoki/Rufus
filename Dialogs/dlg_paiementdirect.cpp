@@ -146,7 +146,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 
     ui->RecImageLabel->setPixmap( Icons::pxEnregistrer() );
 
-    ui->ComptablescomboBox->setEnabled(m_userConnected->getUserComptable()==Q_NULLPTR && m_listeComptables->size()>1);
+    ui->ComptablescomboBox->setEnabled(m_userConnected->comptable()==Q_NULLPTR && m_listeComptables->size()>1);
 
     // On reconstruit le combobox des utilisateurs avec la liste des comptables
     if( m_listeComptables->size() > 1 )
@@ -156,7 +156,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     }
     QMap<int, User*>::const_iterator itcptable;
     for( itcptable = m_listeComptables->constBegin(); itcptable != m_listeComptables->constEnd(); ++itcptable )
-        ui->ComptablescomboBox->addItem(itcptable.value()->getLogin(), QString::number(itcptable.value()->id()) );
+        ui->ComptablescomboBox->addItem(itcptable.value()->login(), QString::number(itcptable.value()->id()) );
     // on cherche le comptable à créditer
     if (gListidActe.size() > 0)                     // il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis l'accueil ou par le bouton enregistrepaiement
     {
@@ -165,7 +165,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
             m_useracrediter = Datas::I()->users->getById(act->idComptable());
     }
     else                                            // la fiche a été appelée par le menu et il n'y a pas d'acte prédéterminé à enregistrer
-        m_useracrediter = (m_listeComptables->size() == 1? m_listeComptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->getIdUserComptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+        m_useracrediter = (m_listeComptables->size() == 1? m_listeComptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
 
     if( m_useracrediter == Q_NULLPTR)
     {
@@ -175,9 +175,9 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     }
 
     proc->SetUserAllData(m_useracrediter);
-    if( m_useracrediter != Q_NULLPTR && m_useracrediter->getComptes()->size() == 0)
+    if( m_useracrediter != Q_NULLPTR && m_useracrediter->comptesbancaires()->size() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->getLogin());
+        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->login());
         InitOK = false;
         return;
     }
@@ -882,7 +882,7 @@ void dlg_paiementdirect::Slot_RegleAffichageFiche()
     ui->PasdePaiementlabel          ->setVisible(false);
     ui->Comptablelabel              ->setVisible(gMode!=Accueil);
     ui->ComptablescomboBox          ->setVisible(gMode!=Accueil);
-    ui->ComptablescomboBox          ->setEnabled(m_userConnected->getUserComptable()==Q_NULLPTR
+    ui->ComptablescomboBox          ->setEnabled(m_userConnected->comptable()==Q_NULLPTR
                                                  && (gMode == VoirListeActes || (gMode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0))
                                                  && m_listeComptables->size()>1);
     ui->SupprimerupPushButton       ->setVisible(false);
@@ -1399,12 +1399,12 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         if (ui->DetailupTableWidget->rowCount() == 0)
         {
             // si la liste des actes n'était pas vide au départ, il est possible que le comptable du user connecte soit différent du comptable des actes de la liste
-            if (m_userConnected->getIdUserComptable() > 0 && m_userConnected->getIdUserComptable() != m_useracrediter->id())
+            if (m_userConnected->idcomptable() > 0 && m_userConnected->idcomptable() != m_useracrediter->id())
             {
                 m_useracrediter = Q_NULLPTR;
                 RemplitLesTables();
             }
-            m_useracrediter   = (m_listeComptables->size() == 1? m_listeComptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->getIdUserComptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+            m_useracrediter   = (m_listeComptables->size() == 1? m_listeComptables->cbegin().value() : Datas::I()->users->getById(m_userConnected->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
             ui->TireurChequelineEdit->setText("");
         }
         else
@@ -1417,7 +1417,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         ChangeComptable(m_useracrediter);
 
         ui->ComptablescomboBox->setEnabled(m_userConnected->isSecretaire() && (gMode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0));
-        ui->ComptablescomboBox          ->setEnabled(m_userConnected->getUserComptable()==Q_NULLPTR
+        ui->ComptablescomboBox          ->setEnabled(m_userConnected->comptable()==Q_NULLPTR
                                                      && ui->DetailupTableWidget->rowCount()==0
                                                      && m_listeComptables->size()>1);
         break;
@@ -2165,10 +2165,10 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
 void dlg_paiementdirect::RegleComptesComboBox(bool avecLesComptesInactifs)
 {
     ui->ComptesupComboBox->clear();
-    QList<Compte*> *listcomptes = m_useracrediter->getComptes(avecLesComptesInactifs);
+    QList<Compte*> *listcomptes = m_useracrediter->comptesbancaires(avecLesComptesInactifs);
     for (int i=0; i<listcomptes->size(); i++)
     {
-        ui->ComptesupComboBox->addItem(m_useracrediter->getLogin() + "/" + listcomptes->at(i)->nomabrege(), listcomptes->at(i)->id());
+        ui->ComptesupComboBox->addItem(m_useracrediter->login() + "/" + listcomptes->at(i)->nomabrege(), listcomptes->at(i)->id());
     }
     if (m_useracrediter->getCompteParDefaut() != Q_NULLPTR)
         ui->ComptesupComboBox       ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteParDefaut()->id()));
@@ -2418,8 +2418,8 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                 if (TableARemplir == ui->ListeupTableWidget)
                 {
                     pItem3->setData(Qt::UserRole, QStringList()
-                    << tr("superviseur -> ") + Datas::I()->users->getById(Tablelist.at(i).at(12).toInt())->getLogin()
-                    << tr("comptable -> ") + Datas::I()->users->getById(Tablelist.at(i).at(11).toInt())->getLogin()
+                    << tr("superviseur -> ") + Datas::I()->users->getById(Tablelist.at(i).at(12).toInt())->login()
+                    << tr("comptable -> ") + Datas::I()->users->getById(Tablelist.at(i).at(11).toInt())->login()
                     << tr("DDN ") + Tablelist.at(i).at(10).toDate().toString(tr("dd-MM-yyyy"))
                     << Tablelist.at(i).at(2).toString());                                             // Nom
                 }

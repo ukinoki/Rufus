@@ -1142,7 +1142,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
         {
             User *user = Datas::I()->users->getById(listitem.at(0).toInt());
             m_comptablesavecchequesenattente->insert(user->id(), user);
-            ui->UserComboBox->addItem(user->getLogin(), user->id() );
+            ui->UserComboBox->addItem(user->login(), user->id() );
         }
     }
 
@@ -1173,7 +1173,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
     }
     m_userencours = db->getUserConnected();
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
-    if (m_userencours->getUserComptable() != Q_NULLPTR)
+    if (m_userencours->comptable() != Q_NULLPTR)
     {
         auto itusr = m_comptablesavecchequesenattente->find(m_userencours->id());
         if(itusr != m_comptablesavecchequesenattente->end())
@@ -1191,7 +1191,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
 void dlg_remisecheques::ReconstruitListeComptes(bool avecinactif)
 {
     ui->ComptecomboBox->clear();
-    m_comptes = m_userencours->getComptes();
+    m_comptes = m_userencours->comptesbancaires();
     for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
     {
         Compte *cpt = const_cast<Compte*>(*itcpt);
@@ -1203,5 +1203,5 @@ void dlg_remisecheques::ReconstruitListeComptes(bool avecinactif)
         else
             ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
     }
-    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_userencours->getIdCompteParDefaut()));
+    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_userencours->idcompteParDefaut()));
 }

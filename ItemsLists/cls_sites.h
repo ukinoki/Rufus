@@ -35,6 +35,7 @@ public:
 
     Site* getById(int id);
     void initListe();
+    QList<Site*> initListeByUser(int idusr);
 };
 
 #endif // SITES_H

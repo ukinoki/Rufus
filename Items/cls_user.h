@@ -47,7 +47,9 @@ public: //static
     static int COMPTA_AVEC_COTATION_SANS_COMPTABILITE; //2
     static int COMPTA_SANS_COTATION_AVEC_COMPTABILITE; //3
 
-
+    enum ENREGISTREMENTHONORAIRES {Liberal, Salarie, Retrocession, NoCompta};
+    enum METIER {Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable};
+    enum RESPONSABLE {Responsable, AlterneResponsablePasResponsable, PasResponsable};
 
 
 private:
@@ -76,7 +78,6 @@ private:
     int m_responsableActes; //!< 1 : responsable
                             //!< 2 : responsable et assistant
                             //!< 3 : assistant
-    int m_userenreghonoraires;
     int m_userccam;
     qlonglong m_numPS;
     int m_noSpecialite;
@@ -93,7 +94,7 @@ private:
     bool m_AGA;
     bool m_desactive = false;
     bool m_OPTAM;
-    bool m_cotation;
+    bool m_ccam;
 
     bool m_useCompta;
 
@@ -127,61 +128,60 @@ public:
 
     void setData(QJsonObject data);
 
-    QString getLogin() const;
-    QString getPassword() const;
+    QString login() const;
+    QString password() const;
     void setPassword(QString psswd);
 
-    QString getNom() const;
-    QString getPrenom() const;
-    int getSoignant() const;
-    int getResponsableactes() const;
-    int getUserenreghonoraires() const;
+    QString nom() const;
+    QString prenom() const;
+    METIER metier() const;
+    RESPONSABLE responsableactes() const;
     int getUserccam() const;
-    int getEnregHonoraires() const;
-    QString getTitre() const;
-    int getNoSpecialite() const;
-    QString getSpecialite() const;
+    ENREGISTREMENTHONORAIRES modeenregistrementhonoraires() const;
+    QString titre() const;
+    int numspecialite() const;
+    QString specialite() const;
     qlonglong getNumPS() const;
-    QString getNumCO() const;
+    QString numOrdre() const;
     bool isAGA() const;
-    int getEmployeur() const;
+    int idemployeur() const;
     int getIdLieu() const;
-    int getIdCompteEncaissHonoraires() const;
-    QString getFonction() const;
+    int idCompteEncaissHonoraires() const;
+    QString fonction() const;
 
-    int getIdUserActeSuperviseur() const;
+    int idSuperviseurActes() const;
     void setIdUserActeSuperviseur(int idusr);
     bool ishisownsupervisor();
-    int getIdUserParent() const;
+    int idparent() const;
     void setIdUserParent(int idusr);
-    int getIdUserComptable() const;
+    int idcomptable() const;
     void setIdUserComptable(int idusr);
     int getidUserCompteParDefaut() const;
 
-    int getSecteur() const;
-    int getIdCompteParDefaut() const;
-    QString getMail() const;
-    QString getPortable() const;
+    int secteurconventionnel() const;
+    int idcompteParDefaut() const;
+    QString mail() const;
+    QString portable() const;
 
     QString getStatus() const;
 
-    Site* getSite() const;
+    Site* sitedetravail() const;
     void setSite(Site *Site);
 
-    QList<Compte*>* getComptes(bool avecdesactive = false) const;
+    QList<Compte*>* comptesbancaires(bool avecdesactive = false) const;
     void setComptes(QList<Compte*> listcomptes);
     Compte* getCompteParDefaut() const          { return m_comptepardefaut; }
     void setCompteParDefaut(Compte *compte)     { m_comptepardefaut = compte; }
     Compte* getCompteEncaissement() const       { return m_compteencaissement; }
     void setCompteEncaissement(Compte *compte)  { m_compteencaissement = compte; }
 
-    int getTypeCompta() const;
+    int typecompta() const;
     void setTypeCompta(int typeCompta);
 
     bool isAllLoaded() const;
 
     bool isOPTAM();
-    bool isCotation();
+    bool useCCAM();
 
 
     bool isSecretaire();
@@ -204,13 +204,13 @@ public:
 
     bool isDesactive();
 
-    User *getUserSuperviseur() const;
+    User *superviseur() const;
     void setUserSuperviseur(User *usr);
 
-    User *getUserParent() const;
+    User *userparent() const;
     void setUserParent(User *usr);
 
-    User *getUserComptable() const;
+    User *comptable() const;
     void setUserComptable(User *usr);
 
 signals:

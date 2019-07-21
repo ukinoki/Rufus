@@ -169,21 +169,21 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     Acte *act = Q_NULLPTR;
     bool ok;
     User* usr = DataBase::I()->getUserConnected();
-    QString rempla = (usr->getEnregHonoraires()==3? "1" : "null");
+    QString rempla = (usr->modeenregistrementhonoraires() == User::Retrocession? "1" : "null");
     QString creerrequete =
             "INSERT INTO " TBL_ACTES
             " (idPat, idUser, ActeDate, ActeHeure, CreePar, UserComptable, UserParent, SuperViseurRemplacant, NumCentre, idLieu)"
             " VALUES (" +
             QString::number(pat->id()) + ", " +
-            QString::number(usr->getIdUserActeSuperviseur()) + ", "
+            QString::number(usr->idSuperviseurActes()) + ", "
             "NOW(), "
             "NOW(), " +
             QString::number(usr->id()) + ", " +
-            QString::number(usr->getIdUserComptable()) + ", " +
-            QString::number(usr->getIdUserParent()) + ", " +
+            QString::number(usr->idcomptable()) + ", " +
+            QString::number(usr->idparent()) + ", " +
             rempla + ", " +
             QString::number(idcentre) + ", " +
-            QString::number(usr->getSite()->id()) +")";
+            QString::number(usr->sitedetravail()->id()) +")";
     //qDebug() << creerrequete;
     DataBase::I()->locktables(QStringList() << TBL_ACTES);
     if (!DataBase::I()->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + TBL_ACTES))
@@ -201,15 +201,15 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     act = new Acte();
     act->setid(idacte);
     act->setidpatient(pat->id());
-    act->setiduser(usr->getIdUserActeSuperviseur());
+    act->setiduser(usr->idSuperviseurActes());
     act->setdate(QDate::currentDate());
     act->setheure(QTime::currentTime());
     act->setidusercreateur(usr->id());
-    act->setidusercomptable(usr->getIdUserComptable());
-    act->setiduserparent(usr->getIdUserParent());
+    act->setidusercomptable(usr->idcomptable());
+    act->setiduserparent(usr->idparent());
     act->seteffectueparremplacant(rempla == "1");
     act->setnumcentre(idcentre);
-    act->setidlieu(usr->getSite()->id());
+    act->setidlieu(usr->sitedetravail()->id());
     add(m_actes, act);
     return act;
 }

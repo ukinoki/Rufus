@@ -130,24 +130,24 @@ void Correspondant::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    setDataInt(data,    "id", m_id);
-    setDataBool(data,   "generaliste", m_generaliste);
-    setDataBool(data,   "medecin", m_medecin);
-    setDataString(data, "nom", m_nom);
-    setDataString(data, "prenom", m_prenom);
-    setDataString(data, "sexe", m_sexe);
-    setDataString(data, "metier", m_metier);
-    setDataString(data, "adresse1", m_adresse1);
-    setDataString(data, "adresse2", m_adresse2);
-    setDataString(data, "adresse3", m_adresse3);
-    setDataString(data, "codepostal", m_codepostal);
-    setDataString(data, "ville", m_ville);
-    setDataString(data, "telephone", m_telephone);
-    setDataString(data, "mail", m_mail);
-    setDataString(data, "fax", m_fax);
-    setDataString(data, "portable", m_portable);
-    setDataInt(data,    "specialite", m_idspecialite);
+    setDataInt(data,    CP_ID_CORRESP, m_id);
+    setDataBool(data,   CP_ISGENERALISTE, m_generaliste);
+    setDataBool(data,   CP_ISMEDECIN, m_medecin);
+    setDataString(data, CP_NOM_CORRESP, m_nom);
+    setDataString(data, CP_PRENOM_CORRESP, m_prenom);
+    setDataString(data, CP_SEXE_CORRESP, m_sexe);
+    setDataString(data, CP_METIER, m_metier);
+    setDataString(data, CP_ADRESSE1_DSP, m_adresse1);
+    setDataString(data, CP_ADRESSE2_CORRESP, m_adresse2);
+    setDataString(data, CP_ADRESSE3_CORRESP, m_adresse3);
+    setDataString(data, CP_CODEPOSTAL_CORRESP, m_codepostal);
+    setDataString(data, CP_VILLE_CORRESP, m_ville);
+    setDataString(data, CP_TELEPHONE_CORRESP, m_telephone);
+    setDataString(data, CP_MAIL_CORRESP, m_mail);
+    setDataString(data, CP_FAX_CORRESP, m_fax);
+    setDataString(data, CP_PORTABLE_CORRESP, m_portable);
+    setDataInt(data,    CP_SPECIALITE_CORRESP, m_idspecialite);
 
-    setDataBool(data,   "isAllLoaded", m_isAllLoaded);
+    setDataBool(data,   CP_ISALLLOADED, m_isAllLoaded);
     m_data = data;
 }

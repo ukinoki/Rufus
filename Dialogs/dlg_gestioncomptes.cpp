@@ -69,7 +69,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     val->setDecimals(2);
     ui->SoldeuplineEdit->setValidator(val);
 
-    gUserLogin          = m_userencours->getLogin();
+    gUserLogin          = m_userencours->login();
     setWindowTitle(tr("Comptes bancaires de ") + gUserLogin);
 
     MetAJourListeBanques();
@@ -265,9 +265,9 @@ void dlg_gestioncomptes::CompteFactice()
         MetAJourListeBanques();
         ui->BanqueupcomboBox->setCurrentIndex(ui->BanqueupcomboBox->findData(idbanq));
         QString intit;
-        if (m_userencours->getTitre().size() )
-            intit += m_userencours->getTitre() + " ";
-        intit += m_userencours->getPrenom() + " " + m_userencours->getNom();
+        if (m_userencours->titre().size() )
+            intit += m_userencours->titre() + " ";
+        intit += m_userencours->prenom() + " " + m_userencours->nom();
         if (Utils::trim(intit) == "")
             intit = "DR EDWARD SNOWDEN";
         ui->IntituleCompteuplineEdit    ->setText(intit);
@@ -466,12 +466,12 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
     ui->ComptesuptableWidget->horizontalHeader()->setIconSize(QSize(25,25));
     ui->ComptesuptableWidget->setGridStyle(Qt::DotLine);
 
-    if (m_userencours->getComptes(true)->size()>0)
+    if (m_userencours->comptesbancaires(true)->size()>0)
     {
         ui->Compteframe->setVisible(true);
-        ui->ComptesuptableWidget->setRowCount(m_userencours->getComptes(true)->size());
+        ui->ComptesuptableWidget->setRowCount(m_userencours->comptesbancaires(true)->size());
         int i=0;
-        for (QList<Compte*>::const_iterator itcpt = m_userencours->getComptes(true)->constBegin(); itcpt!=m_userencours->getComptes(true)->constEnd(); ++itcpt)
+        for (QList<Compte*>::const_iterator itcpt = m_userencours->comptesbancaires(true)->constBegin(); itcpt!=m_userencours->comptesbancaires(true)->constEnd(); ++itcpt)
         {
             Compte *cpt = const_cast<Compte*>(*itcpt);
             pitem0 = new QTableWidgetItem;

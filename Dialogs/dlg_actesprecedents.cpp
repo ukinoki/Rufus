@@ -230,7 +230,7 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
     QString textHTML = "<p style = \"margin-top:0px; margin-bottom:10px;\">"
                       "<td width=\"130\"><font color = \"" COULEUR_TITRES "\" ><u><b>" + acte->date().toString(tr("d MMMM yyyy")) + "</b></u></font></td>"
                       "<td width=\"60\">" + Utils::CalculAge(m_currentpatient->datedenaissance(), acte->date())["toString"].toString() + "</td>"
-                      "<td width=\"400\">" + usr->getPrenom() + " " + usr->getNom() + "</td></p>";
+                      "<td width=\"400\">" + usr->prenom() + " " + usr->nom() + "</td></p>";
     ui->EnteteupLabel->setText(textHTML);
     if( acte->motif().size() || acte->texte().size() || acte->conclusion().size() )
     {
@@ -269,8 +269,8 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
 
     //2. retrouver le créateur de l'acte
     //idUser = ActesPrecsQuery.value(2).toInt();
-    ui->CreateurConsultlineEdit->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->getLogin() +
-                                         tr(" pour ") + usr->getLogin()); //Avant idPatient
+    ui->CreateurConsultlineEdit->setText(tr("Créé par ") + Datas::I()->users->getById(acte->idCreatedBy())->login() +
+                                         tr(" pour ") + usr->login()); //Avant idPatient
 
     //3. Mettre à jour le numéro d'acte
     if( m_listeactes->actes()->size() > 1 )

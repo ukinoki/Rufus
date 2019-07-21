@@ -206,7 +206,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
     PatPrenom   = Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text(),true));
     PatDDN      = ui->DDNdateEdit->date().toString("yyyy-MM-dd");
     PatCreeLe   = QDateTime::currentDateTime().date().toString("yyyy-MM-dd");
-    PatCreePar  = QString::number(db->getUserConnected()->id());
+    PatCreePar  = QString::number(Datas::I()->users->userconnected()->id());
 
     if (CPlineEdit->text() == "" && VillelineEdit->text() == "")
     {
@@ -245,7 +245,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
             UpMessageBox msgbox;
             UpSmallButton OKBouton(tr("Je confirme"));
             UpSmallButton NoBouton(tr("Annuler"));
-            msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin());
+            msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login());
             msgbox.setInformativeText(tr("Confirmez vous la date de naissance?") + "\n" + ui->DDNdateEdit->date().toString(tr("d-MMM-yyyy")));
             msgbox.setIcon(UpMessageBox::Warning);
             msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
@@ -287,7 +287,7 @@ void    dlg_identificationpatient::Slot_OKpushButtonClicked()
         if (patdata.size() > 0)
         {
             UpMessageBox::Watch(this,tr("Ce dossier existe déjà!"));
-            db->loadPatientById(patdata.at(0).toInt(), m_currentpatient, Item::LoadDetails);
+            Datas::I()->patients->loadAll(m_currentpatient, Item::ForceUpdate);
             AfficheDossierAlOuverture();
             disconnect (OKButton, SIGNAL(clicked()), this, SLOT (Slot_OKpushButtonClicked()));
             connect (OKButton, SIGNAL(clicked(bool)),this,SLOT(Slot_AnnulpushButtonClicked()));
@@ -432,7 +432,7 @@ void dlg_identificationpatient::Slot_AnnulpushButtonClicked()
         UpMessageBox *msgbox = new UpMessageBox(this);
         UpSmallButton OKBouton(tr("Annuler la création"));
         UpSmallButton NoBouton(tr("Revenir à la fiche"));
-        msgbox->setText("Euuhh... " + db->getUserConnected()->getLogin());
+        msgbox->setText("Euuhh... " + Datas::I()->users->userconnected()->login());
         msgbox->setInformativeText(tr("Annuler la création de ce dossier ?"));
         msgbox->setIcon(UpMessageBox::Warning);
         msgbox->addButton(&NoBouton, UpSmallButton::OUPSBUTTON);
@@ -517,7 +517,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->DDNdateEdit->setEnabled(false);
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
         ui->Createurlabel->setText(tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")) + "\n" +
-                                   tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->getLogin());
+                                   tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login());
         ui->Adresse1lineEdit->clear();
         ui->Adresse2lineEdit->clear();
         ui->Adresse3lineEdit->clear();
@@ -545,7 +545,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->FradioButton->setChecked(m_currentpatient->sexe() == "F");
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
         ui->Createurlabel->setText(tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")) + "\n" +
-                                   tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->getLogin());
+                                   tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login());
         ui->Adresse1lineEdit->setText(m_currentpatient->adresse1());
         ui->Adresse2lineEdit->setText(m_currentpatient->adresse2());
         ui->Adresse3lineEdit->setText(m_currentpatient->adresse3());
@@ -626,7 +626,7 @@ void dlg_identificationpatient::MAJMG()
             UpMessageBox msgbox;
             UpSmallButton OKBouton(tr("Enregistrer le correspondant"));
             UpSmallButton NoBouton(tr("Annuler"));
-            msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin());
+            msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login());
             msgbox.setInformativeText(tr("Correspondant inconnu! Souhaitez-vous l'enregistrer?"));
             msgbox.setIcon(UpMessageBox::Warning);
             msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);

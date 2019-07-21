@@ -41,7 +41,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     while (itUser.hasNext())
     {
         User *user = const_cast<User*>(itUser.next().value());
-        ui->UserscomboBox->addItem(user->getLogin(), QString::number(user->id()) );
+        ui->UserscomboBox->addItem(user->login(), QString::number(user->id()) );
         if( !foundUser )
         {
             if(currentIdUser != user->id())
@@ -341,7 +341,7 @@ void dlg_depenses::PrintTable()
 void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
-    QListIterator<Compte*> itcpt(*gDataUser->getComptes());
+    QListIterator<Compte*> itcpt(*gDataUser->comptesbancaires());
     while (itcpt.hasNext()) {
         Compte *cpt = const_cast<Compte*>(itcpt.next());
         if (ActiveSeult)
@@ -389,9 +389,9 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     EnregupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
     AnnulupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
     ui->Facturewidget               ->setVisible(gMode == Lire);
-    ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->getComptes()->size() > 0 );
+    ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && gDataUser->comptesbancaires()->size() > 0 );
     QString ttip = "";
-    if( gDataUser->getComptes()->size() == 0)
+    if( gDataUser->comptesbancaires()->size() == 0)
         ttip = tr("Vous ne pouvez pas enregistrer de dépenses.\nAucun compte bancaire n'est enregistré.");
     ui->NouvelleDepenseupPushButton->setToolTip(ttip);
     SupprimerupPushButton   ->setVisible(gMode == Lire);
@@ -482,16 +482,16 @@ bool dlg_depenses::initializeUserSelected()
     gDataUser = m_listUserLiberaux->find(id).value();
     proc->SetUserAllData(gDataUser);
     Datas::I()->depenses->initListeByUser(gDataUser->id());
-    m_comptesusr = gDataUser->getComptes();
-    if( gDataUser->getComptes()->size() == 0)
+    m_comptesusr = gDataUser->comptesbancaires();
+    if( gDataUser->comptesbancaires()->size() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gDataUser->getLogin());
+        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + gDataUser->login());
         return false;
     }
     if (gDataUser->getCompteParDefaut() == Q_NULLPTR)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir le journal des dépenses!"), tr("Pas de compte bancaire enregistré pour ")
-                                     + gDataUser->getLogin());
+                                     + gDataUser->login());
         return false;
     }
 
@@ -1048,12 +1048,12 @@ void dlg_depenses::MetAJourFiche()
         if (A == "E")           A = tr("Espèces");
         else
         {
-            int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getById(m_depenseencours->comptebancaire()));
+            int idx = gDataUser->comptesbancaires(true)->indexOf(Datas::I()->comptes->getById(m_depenseencours->comptebancaire()));
             if( idx == -1 )
             {
                 //ATTENTION ERROR
             }
-            B = gDataUser->getComptes(true)->at(idx)->nomabrege();
+            B = gDataUser->comptesbancaires(true)->at(idx)->nomabrege();
             A = Utils::ConvertitModePaiement(A);
         }
         ui->PaiementcomboBox    ->setCurrentText(A);
@@ -1324,12 +1324,12 @@ void dlg_depenses::ModifierDepense()
         if (A == "E")  A = tr("Espèces");
         else
         {
-            int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getById(dep->comptebancaire()));
+            int idx = gDataUser->comptesbancaires(true)->indexOf(Datas::I()->comptes->getById(dep->comptebancaire()));
             if( idx == -1 )
             {
                 //ATTENTION ERROR
             }
-            B = gDataUser->getComptes(true)->at(idx)->nomabrege();
+            B = gDataUser->comptesbancaires(true)->at(idx)->nomabrege();
             A = Utils::ConvertitModePaiement(A);
             if (A == tr("Chèque"))
                 if (dep->nocheque() > 0)
@@ -1792,12 +1792,12 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     QString mode = Utils::ConvertitModePaiement(A);
     if (A != "E")
     {
-        int idx = gDataUser->getComptes(true)->indexOf(Datas::I()->comptes->getById(dep->comptebancaire()));
+        int idx = gDataUser->comptesbancaires(true)->indexOf(Datas::I()->comptes->getById(dep->comptebancaire()));
         if( idx == -1 )
         {
             //ATTENTION ERROR
         }
-        B = gDataUser->getComptes(true)->at(idx)->nomabrege();
+        B = gDataUser->comptesbancaires(true)->at(idx)->nomabrege();
         if (A == tr("Chèque"))
             if (dep->nocheque() > 0)
                 C += " " + QString::number(dep->nocheque());

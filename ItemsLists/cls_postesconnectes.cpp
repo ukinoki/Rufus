@@ -111,7 +111,7 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
 PosteConnecte* PostesConnectes::CreationPosteConnecte()
 {
     QString macadressid =  Utils::getMACAdress() + " - " + QString::number(DataBase::I()->getUserConnected()->id());
-    QString macadress = Utils::getMACAdress() +  (DataBase::I()->getUserConnected()->getLogin() == NOM_ADMINISTRATEURDOCS? DataBase::I()->getUserConnected()->getLogin() : "");
+    QString macadress = Utils::getMACAdress() +  (DataBase::I()->getUserConnected()->login() == NOM_ADMINISTRATEURDOCS? DataBase::I()->getUserConnected()->login() : "");
     QString MAJConnexionRequete = "insert into " TBL_USERSCONNECTES "(" CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
                                                                         CP_IDUSER_USRCONNECT ", "
                                                                         CP_IDUSERSUPERVISEUR_USRCONNECT ", "
@@ -122,9 +122,9 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte()
                                                                         CP_IPADRESS_USRCONNECT ")"
                                " VALUES(NOW()," +
                                QString::number(DataBase::I()->getUserConnected()->id()) + "," +
-                               QString::number(DataBase::I()->getUserConnected()->getIdUserActeSuperviseur()) + "," +
-                               QString::number(DataBase::I()->getUserConnected()->getIdUserComptable()) + "," +
-                               QString::number(DataBase::I()->getUserConnected()->getIdUserParent()) +",'" +
+                               QString::number(DataBase::I()->getUserConnected()->idSuperviseurActes()) + "," +
+                               QString::number(DataBase::I()->getUserConnected()->idcomptable()) + "," +
+                               QString::number(DataBase::I()->getUserConnected()->idparent()) +",'" +
                                QHostInfo::localHostName().left(60) + "', '" +
                                macadress + "', '" +
                                Utils::getIpAdress() + "')";
@@ -133,9 +133,9 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte()
     PosteConnecte *post = new PosteConnecte();
     post->setstringid(macadressid);
     post->setid(DataBase::I()->getUserConnected()->id());
-    post->setidsuperviseur(DataBase::I()->getUserConnected()->getIdUserActeSuperviseur());
-    post->setidcomptable(DataBase::I()->getUserConnected()->getIdUserComptable());
-    post->setidparent(DataBase::I()->getUserConnected()->getIdUserParent());
+    post->setidsuperviseur(DataBase::I()->getUserConnected()->idSuperviseurActes());
+    post->setidcomptable(DataBase::I()->getUserConnected()->idcomptable());
+    post->setidparent(DataBase::I()->getUserConnected()->idparent());
     post->setheurederniereconnexion(DataBase::I()->ServerDateTime());
     post->setnomposte(QHostInfo::localHostName().left(60));
     post->setmacadress(macadress);

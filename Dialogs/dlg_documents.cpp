@@ -1257,7 +1257,7 @@ void dlg_documents::Validation()
         }
         if (c == 0)
         {
-            UpMessageBox::Watch(this,"Euuhh... " + db->getUserConnected()->getLogin() + ", " + tr("il doit y avoir une erreur..."), tr("Vous n'avez sélectionné aucun document."));
+            UpMessageBox::Watch(this,"Euuhh... " + db->getUserConnected()->login() + ", " + tr("il doit y avoir une erreur..."), tr("Vous n'avez sélectionné aucun document."));
             break;
         }
 
@@ -1357,7 +1357,7 @@ void dlg_documents::Validation()
                     {
                         User* usr = const_cast<User*>(itusr.next().value());
                         if (usr->isSoignant())
-                            Combo->addItem(usr->getLogin(), usr->id());
+                            Combo->addItem(usr->login(), usr->id());
                     }
                     lay->addWidget(Combo);
                 }
@@ -1463,7 +1463,7 @@ void dlg_documents::Validation()
                 while (itusr.hasNext())
                 {
                     itusr.next();
-                    Combo->addItem(itusr.value()->getLogin(), QString::number(itusr.key()) );
+                    Combo->addItem(itusr.value()->login(), QString::number(itusr.key()) );
                 }
 
                 Combo->setAccessibleDescription(listusers);
@@ -1556,7 +1556,7 @@ void dlg_documents::Validation()
                                     {
                                         int idusr = linecombo->currentData().toInt();
                                         User* usr = Datas::I()->users->getById(idusr, Item::LoadDetails);
-                                        QString babar = (usr->isMedecin()? usr->getTitre() : "") + " " + usr->getPrenom() + " " + usr->getNom();
+                                        QString babar = (usr->isMedecin()? usr->titre() : "") + " " + usr->prenom() + " " + usr->nom();
                                         Rempla          << babar;
                                         ExpARemplacer   << minidou + "//SOIGNANT))";
                                     }
@@ -1914,7 +1914,7 @@ bool dlg_documents::ChercheDoublon(QString str, int row)
                 a = true;
                 QString b = "vous";
                 if (listdocs.at(i).at(1).toInt() != gUserEnCours->id())
-                    b = Datas::I()->users->getById(listdocs.at(i).at(1).toInt())->getLogin();
+                    b = Datas::I()->users->getById(listdocs.at(i).at(1).toInt())->login();
                 UpMessageBox::Watch(this,tr("Il existe déjà un") + " " + nom + " " + tr("portant ce nom créé par ") + b);
                 break;
             }
@@ -2702,7 +2702,7 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     m_listedestinataires.clear();
     glisttxt.clear();
 
-    User *userEntete = (gUserEnCours->getUserSuperviseur() == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : gUserEnCours->getUserSuperviseur());
+    User *userEntete = (gUserEnCours->superviseur() == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : gUserEnCours->superviseur());
     if (userEntete == Q_NULLPTR)
         return;
 
@@ -2717,10 +2717,10 @@ void dlg_documents::MetAJour(QString texte, bool pourVisu)
     texte.replace("{{" + PRENOMPAT + "}},"      , m_currentpatient->prenom() + ",");
     texte.replace("{{" + PRENOMPAT + "}} "      , m_currentpatient->prenom() + " ");
     texte.replace("{{" + PRENOMPAT + "}}"       , m_currentpatient->prenom());
-    if (userEntete->getTitre().size())
-        texte.replace("{{" + TITRUSER + "}}"    , userEntete->getTitre() + " " + userEntete->getPrenom() + " " + userEntete->getNom());
+    if (userEntete->titre().size())
+        texte.replace("{{" + TITRUSER + "}}"    , userEntete->titre() + " " + userEntete->prenom() + " " + userEntete->nom());
     else
-        texte.replace("{{" + TITRUSER + "}}"    , userEntete->getPrenom() + " " + userEntete->getNom());
+        texte.replace("{{" + TITRUSER + "}}"    , userEntete->prenom() + " " + userEntete->nom());
     texte.replace("{{" + DDNPAT + "}}"          , m_currentpatient->datedenaissance().toString((tr("d MMMM yyyy"))));
     texte.replace("{{" + TITREPAT + "}} "       , formule + " ");
     texte.replace("{{" + TITREPAT + "}}"        , formule);
@@ -3218,7 +3218,7 @@ void dlg_documents::SupprimmDocument(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le document\n") + getDocumentFromRow(row)->resume() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + db->getUserConnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton NoBouton(tr("Annuler"));
@@ -3251,7 +3251,7 @@ void dlg_documents::SupprimmDossier(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le  dossier\n") + getMetaDocumentFromRow(row)->resume() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + db->getUserConnected()->getLogin() + "?");
+    msgbox.setText("Euuhh... " + db->getUserConnected()->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton OKBouton(tr("Supprimer le dosssier"));

@@ -824,7 +824,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_TEXTPIED_IMPRESSIONS]      = Pied;
         listbinds[CP_DATE_IMPRESSIONS]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
         listbinds[CP_FORMATDOC_IMPRESSIONS]     = docmt->format();
-        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->getSite()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->sitedetravail()->id();
         listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1" : QVariant(QVariant::String));
         listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = m_currentuser->id();
         listbinds[CP_IMPORTANCE_IMPRESSIONS]    = docmt->importance();
@@ -1045,7 +1045,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         UpMessageBox msgbox;
         UpSmallButton OKBouton(tr("Supprimer"));
         UpSmallButton NoBouton(tr("Annuler"));
-        msgbox.setText("Euuhh... " + m_currentuser->getLogin());
+        msgbox.setText("Euuhh... " + m_currentuser->login());
         msgbox.setInformativeText(tr("Etes vous certain de vouloir supprimer ce document?"));
         msgbox.setIcon(UpMessageBox::Warning);
         msgbox.addButton(&NoBouton,UpSmallButton::CANCELBUTTON);

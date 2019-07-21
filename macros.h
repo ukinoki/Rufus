@@ -90,6 +90,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_ISALLLOADED                               "isallloaded"
 #define CP_ISMEDICALlOADED                           "ismedicalloaded"
 #define CP_ISSOCIALlOADED                            "issocialloaded"
+#define CP_ISGENERALISTE                             "isgeneraliste"
+#define CP_ISMEDECIN                                 "ismedecin"
+#define CP_METIER                                    "metier"
 
                             //! Table Rufus.Patients
 #define CP_IDPAT_PATIENTS                            "idPat"

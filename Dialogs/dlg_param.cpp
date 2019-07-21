@@ -467,7 +467,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     for (int i=0; i<ui->AppareilsConnectesupTableWidget->columnCount(); i++)
         ui->AppareilsConnectesupTableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignLeft);
     ui->AppareilsConnectesupTableWidget->FixLargeurTotale();
-    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + gDataUser->getSite()->nom() + "</b></font> ");
+    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + gDataUser->sitedetravail()->nom() + "</b></font> ");
     QVBoxLayout *applay = new QVBoxLayout();
     applay      ->addWidget(ui->AppareilsconnectesupLabel);
     applay      ->addWidget(widgAppareils->widgButtonParent());
@@ -828,7 +828,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedUser = Utils::VerifMDP(db->getUserConnected()->getPassword(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
+            MDPVerifiedUser = Utils::VerifMDP(db->getUserConnected()->password(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
             if (MDPVerifiedUser)
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
@@ -976,7 +976,7 @@ void dlg_param::Slot_GestionBanques()
 void dlg_param::Slot_GestDataPersoUser()
 {
     Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), MDPVerifiedAdmin);
-    Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  gDataUser->getLogin());
+    Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  gDataUser->login());
     Dlg_GestUsr->setConfig(dlg_gestionusers::MODIFUSER);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
     if(DonneesUserModifiees)
@@ -1138,7 +1138,7 @@ void dlg_param::NouvAppareil()
 
 void dlg_param::Slot_ImmediateBackup()
 {
-    if (!proc->VerifAutresPostesConnectes())
+    if (proc->AutresPostesConnectes())
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     QString dirSauv         = QFileDialog::getExistingDirectory(this,
@@ -1170,7 +1170,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
         }
         else
         {
-            int secteur = gDataUser->getSecteur();
+            int secteur = gDataUser->secteurconventionnel();
             if (secteur>1)
             {
                 UpLineEdit *line = dynamic_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(row,5));
@@ -1259,7 +1259,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
         }
         else
         {
-            int secteur = gDataUser->getSecteur();
+            int secteur = gDataUser->secteurconventionnel();
             QString montantOPTAM(""), montantNonOPTAM("");
             UpLineEdit *lineOPTAM = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,2));
             if (lineOPTAM != Q_NULLPTR)
@@ -1407,7 +1407,7 @@ void dlg_param::SupprAppareil()
     {
         req = "delete from " TBL_APPAREILSCONNECTESCENTRE " where idAppareil = "
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
-              + " and idLieu = " + QString::number(gDataUser->getSite()->id());
+              + " and idLieu = " + QString::number(gDataUser->sitedetravail()->id());
         db->StandardSQL(req);
         QString Base;
         if (db->getMode() == DataBase::Poste)
@@ -1541,7 +1541,7 @@ void dlg_param::Slot_EnregistreAppareil()
     if (!gAskAppareil) return;
     QString req = "insert into " TBL_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
                   " (select idappareil from " TBL_LISTEAPPAREILS " where NomAppareil = '" + gAskAppareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
-                  + QString::number(gDataUser->getSite()->id()) + ")";
+                  + QString::number(gDataUser->sitedetravail()->id()) + ")";
     db->StandardSQL(req);
     gAskAppareil->done(0);
     Remplir_Tables();
@@ -2038,17 +2038,17 @@ void dlg_param::AfficheParamUser()
 {
     bool ok;
     ui->idUseruplineEdit                ->setText(QString::number(gDataUser->id()));
-    ui->LoginuplineEdit                 ->setText(gDataUser->getLogin());
-    ui->MDPuplineEdit                   ->setText(gDataUser->getPassword());
-    ui->NomuplineEdit                   ->setText(gDataUser->getNom());
-    ui->PrenomuplineEdit                ->setText(gDataUser->getPrenom());
+    ui->LoginuplineEdit                 ->setText(gDataUser->login());
+    ui->MDPuplineEdit                   ->setText(gDataUser->password());
+    ui->NomuplineEdit                   ->setText(gDataUser->nom());
+    ui->PrenomuplineEdit                ->setText(gDataUser->prenom());
     QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " TBL_JOINTURESLIEUX " where iduser = " + QString::number(gidUser), ok);
     QList<int> idlieuxlist;
     for (int k=0; k< listlieux.size(); k++)
         idlieuxlist << listlieux.at(k).at(0).toInt();
 
-    ui->PortableuplineEdit              ->setText(gDataUser->getPortable());
-    ui->MailuplineEdit                  ->setText(gDataUser->getMail());
+    ui->PortableuplineEdit              ->setText(gDataUser->portable());
+    ui->MailuplineEdit                  ->setText(gDataUser->mail());
     ui->Titrelabel                      ->setVisible(gDataUser->isMedecin());
     ui->Cotationswidget                 ->setVisible(!gDataUser->isSecretaire() && !gDataUser->isAutreFonction());
 
@@ -2064,10 +2064,10 @@ void dlg_param::AfficheParamUser()
     ui->PrenomuplineEdit            ->setVisible(!soccomptable);
 
     ui->idUseruplineEdit            ->setText(QString::number(gDataUser->id()));
-    ui->LoginuplineEdit             ->setText(gDataUser->getLogin());
-    ui->MDPuplineEdit               ->setText(gDataUser->getPassword());
+    ui->LoginuplineEdit             ->setText(gDataUser->login());
+    ui->MDPuplineEdit               ->setText(gDataUser->password());
     if (medecin)
-        ui->TitreuplineEdit         ->setText(gDataUser->getTitre());
+        ui->TitreuplineEdit         ->setText(gDataUser->titre());
 
     if (!gDataUser->isSecretaire() && !gDataUser->isAutreFonction())
     {
@@ -2154,7 +2154,7 @@ bool dlg_param::DataUserModifiees()
 void dlg_param::EnableActesCCAM(bool enable)
 {
     ui->OphtaSeulcheckBox   ->setEnabled(enable);
-    bool autormodif         = enable && (gDataUser->getIdUserParent() == gidUser);            // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif         = enable && (gDataUser->idparent() == gidUser);            // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
@@ -2170,7 +2170,7 @@ void dlg_param::EnableActesCCAM(bool enable)
 
 void dlg_param::EnableAssocCCAM(bool enable)
 {
-    bool autormodif = enable && gDataUser->getIdUserParent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif = enable && gDataUser->idparent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
@@ -2197,7 +2197,7 @@ void dlg_param::EnableAssocCCAM(bool enable)
 
 void dlg_param::EnableHorsNomenclature(bool enable)
 {
-    bool autormodif = enable && gDataUser->getIdUserParent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif = enable && gDataUser->idparent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
@@ -2337,7 +2337,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
     ui->ActesCCAMupTableWidget->verticalHeader()->setVisible(false);
     ui->ActesCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->ActesCCAMupTableWidget->setMouseTracking(true);
-    int ncol = (gDataUser->getSecteur()>1? 6 : 5);
+    int ncol = (gDataUser->secteurconventionnel()>1? 6 : 5);
     ui->ActesCCAMupTableWidget->setColumnCount(ncol);
     ui->ActesCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
     ui->ActesCCAMupTableWidget->setColumnWidth(1,90);           //code CCAM
@@ -2447,7 +2447,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     ui->AssocCCAMupTableWidget->verticalHeader()->setVisible(false);
     ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->AssocCCAMupTableWidget->setMouseTracking(true);
-    int ncol = (gDataUser->getSecteur() > 1 ? 5 : 4);
+    int ncol = (gDataUser->secteurconventionnel() > 1 ? 5 : 4);
     ui->AssocCCAMupTableWidget->setColumnCount(ncol);
     ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
     ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
@@ -2724,7 +2724,7 @@ void dlg_param::Remplir_Tables()
 
     QString  req = "SELECT list.idAppareil, list.TitreExamen, list.NomAppareil, Format"
               " FROM "  TBL_APPAREILSCONNECTESCENTRE " appcon , " TBL_LISTEAPPAREILS " list"
-              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(gDataUser->getSite()->id()) +
+              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(gDataUser->sitedetravail()->id()) +
               " ORDER BY TitreExamen";
 
     QList<QVariantList> Applist = db->StandardSelectSQL(req, ok);
@@ -2852,7 +2852,7 @@ void dlg_param::Remplir_Tables()
 
     glistAppareils.clear();
     req = "select NomAppareil from " TBL_LISTEAPPAREILS
-          " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(gDataUser->getSite()->id()) + ")";
+          " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(gDataUser->sitedetravail()->id()) + ")";
     QList<QVariantList> Appareilslist = db->StandardSelectSQL(req, ok);
     if (!ok)
         return;

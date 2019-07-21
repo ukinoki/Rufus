@@ -210,26 +210,22 @@ public:
     QList<Correspondant *>  loadCorrespondants();                       //! charge tous les correspondants référencés dans la table correspondants avec des renseignements succincts
     QList<Correspondant*>   loadCorrespondantsALL();                    //! charge tous les correspondants référencés dans la table correspondants avec tous les renseignements
     QJsonObject             loadCorrespondantData(int idcor);           //! complète tous les renseignements concernant le correspondant défini par l'id
-    void                    SupprCorrespondant(int idcor);              //! supprime un correspondant défini par l'id
 
     /*
      * DocsExternes
     */
     QList<DocExterne*>      loadDoscExternesByPatient(Patient *pat);    //! charge tous les documents externes d'un patient référencés dans la table impressionss avec des renseignements succincts
     QJsonObject             loadDocExterneData(int idDoc);              //! complète tous les renseignements concernant le document externe défini par l'id
-    void                    SupprDocExterne(DocExterne* doc);           //! supprime un document externe défini par l'id
 
     /*
      * Documents émis
     */
     QList<Document*>        loadDocuments();                            //! charge tous les documents imprimables de la  table courriers
-    void                    SupprDocument(Document *doc);               //! supprime un document défini par l'id
 
     /*
      * MetaDocuments
     */
     QList<MetaDocument*>    loadMetaDocuments();                        //! charge tous les dossiers de documents imprimables de la  table courriers
-    void                    SupprMetaDocument(Document *doc);           //! supprime un dossier de document défini par l'id
 
     /*
      * Compta
@@ -282,17 +278,17 @@ public:
     */
     QList<Ville *>          loadVilles();                                //! charge toutes les villes et leur code postal à partir de la table villes
 
-    /*
-     * PatientsEnCours r
-    */
+/*
+ * PatientsEnCours r
+ */
     PatientEnCours*             loadPatientEnCoursById(int idPat);                                          //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
     QJsonObject                 loadPatientEnCoursData(QVariantList patdata);                               //! crée le QJsonObject des data d'un patient à partir des résultats de la requête en BDD
     QJsonObject                 loadPatientEnCoursDataById(int idPat);                                   //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
     QList<PatientEnCours *>     loadPatientsenCoursAll();                                                   /*! charge la liste de tous les patients à partir de la table salledattente*/
 
-    /*
-     * Patients
-    */
+/*
+ * Patients
+ */
     QJsonObject             loadPatientAllData(int idPat);                                                  //! charge toutes les données d'un patient défini par son id - utilisé pour renouveler les données en cas de modification
     void                    loadSocialDataPatient(QJsonObject &jData, bool &ok);                            //! charge les donnéess sociales d'un patient à partir de la table donneessocialespatients
     void                    loadMedicalDataPatient(QJsonObject &jData, bool &ok);                           //! charge les donnéess médicales d'un patient à partir de la table renseignementsmedicauxpatients

@@ -38,7 +38,7 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     CancelButton    ->disconnect();
 
-    setWindowTitle(tr("Liste des commentaires prédéfinis de ") + m_currentuser->getLogin());
+    setWindowTitle(tr("Liste des commentaires prédéfinis de ") + m_currentuser->login());
 
     // Initialisation des slots.
     connect (OKButton,          &QPushButton::clicked,      this,   &dlg_commentaires::Validation);
@@ -540,7 +540,7 @@ bool dlg_commentaires::ChercheDoublon(QString str, int row)
                     QString b = "vous";
                     int iduser = ui->ComupTableWidget->item(i,3)->text().toInt();
                     if (iduser != m_currentuser->id())
-                        b = Datas::I()->users->getById(iduser)->getLogin();
+                        b = Datas::I()->users->getById(iduser)->login();
                     UpMessageBox::Watch(this, tr("Il existe déjà un commentaire portant ce nom créé par ") + b);
                     break;
                 }
@@ -876,10 +876,10 @@ void dlg_commentaires::Remplir_TableView()
 
     ui->ComupTableWidget->clearContents();
     QString req = "SELECT ResumeComment, ParDefautComment, TextComment, idCommentLunet, idUser FROM " TBL_COMMENTAIRESLUNETTES " WHERE idUser = " + QString::number(m_currentuser->id());
-    if (m_currentuser->getIdUserActeSuperviseur() != m_currentuser->id())
-        req += " Or idUser = " + QString::number(m_currentuser->getIdUserActeSuperviseur());
-    if ((m_currentuser->getIdUserParent() != m_currentuser->getIdUserActeSuperviseur()) && (m_currentuser->getIdUserParent() != m_currentuser->id()))
-        req += " Or idUser = " + QString::number(m_currentuser->getIdUserParent());
+    if (m_currentuser->idSuperviseurActes() != m_currentuser->id())
+        req += " Or idUser = " + QString::number(m_currentuser->idSuperviseurActes());
+    if ((m_currentuser->idparent() != m_currentuser->idSuperviseurActes()) && (m_currentuser->idparent() != m_currentuser->id()))
+        req += " Or idUser = " + QString::number(m_currentuser->idparent());
         req += " ORDER BY ResumeComment";
     bool ok;
     QList<QVariantList> listcom = db->StandardSelectSQL(req, ok);
@@ -950,7 +950,7 @@ void dlg_commentaires::SupprimmCommentaire(int row)
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer le commentaire") + "\n" + static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(row,1))->text().toUpper() + "?";
     UpMessageBox msgbox;
-    msgbox.setText("Euuhh... " + m_currentuser->getLogin() + "?");
+    msgbox.setText("Euuhh... " + m_currentuser->login() + "?");
     msgbox.setInformativeText(Msg);
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton OKBouton;

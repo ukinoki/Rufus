@@ -227,7 +227,7 @@ public:
 
     void                    setPosteImportDocs(bool a = true);
     QString                 PosteImportDocs();
-    bool                    VerifAutresPostesConnectes(bool msg = true);
+    bool                    AutresPostesConnectes(bool msg = true);
     bool                    Verif_secure_file_priv();
 
     bool                    Connexion();

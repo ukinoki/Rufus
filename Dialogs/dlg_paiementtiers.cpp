@@ -48,14 +48,14 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     if (m_userconnected->isLiberal())
         m_useracrediter = m_userconnected;
     else if (m_userconnected->isSalarie() && !m_userconnected->isAssistant())// l'utilisateur est un soignant salarie et responsable
-        m_useracrediter = Datas::I()->users->getById(m_userconnected->getIdUserComptable());
+        m_useracrediter = Datas::I()->users->getById(m_userconnected->idcomptable());
     else if (m_userconnected->isRemplacant())                                // l'utilisateur est un soignant remplacant et responsable
     {
-        User *parent = Datas::I()->users->getById(m_userconnected->getIdUserParent());
+        User *parent = Datas::I()->users->getById(m_userconnected->idparent());
         if (parent->isLiberal())
             m_useracrediter = parent;
         else if (m_userconnected->isSalarie() && !m_userconnected->isAssistant())// l'utilisateur est un soignant salarie et responsable
-            m_useracrediter = Datas::I()->users->getById(parent->getIdUserComptable());
+            m_useracrediter = Datas::I()->users->getById(parent->idcomptable());
     }
     else if(m_userconnected->isSecretaire())
         m_useracrediter = Datas::I()->users->getById(m_listecomptables->firstKey());
@@ -66,9 +66,9 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
         return;
     }
     proc        ->SetUserAllData(m_useracrediter);
-    if( m_useracrediter->getComptes()->size() == 0)
+    if( m_useracrediter->comptesbancaires()->size() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->getLogin());
+        UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->login());
         InitOK = false;
         return;
     }
@@ -78,7 +78,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     QMapIterator<int, User*> itusr(*m_listecomptables);
     while (itusr.hasNext()) {
         itusr.next();
-        ui->UserscomboBox->addItem(itusr.value()->getLogin(), QString::number(itusr.key()));
+        ui->UserscomboBox->addItem(itusr.value()->login(), QString::number(itusr.key()));
     }
     int idx = ui->UserscomboBox->findData(m_useracrediter->id());
     ui->UserscomboBox->setCurrentIndex(idx==-1? 0 : idx);
@@ -415,7 +415,7 @@ void dlg_paiementtiers::Slot_ChangeUtilisateur()
     m_useracrediter = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
     if (m_useracrediter != Q_NULLPTR)
         proc        ->SetUserAllData(m_useracrediter);
-    if (m_useracrediter == Q_NULLPTR || m_useracrediter->getComptes()->size() == 0)
+    if (m_useracrediter == Q_NULLPTR || m_useracrediter->comptesbancaires()->size() == 0)
     {
         UpMessageBox::Watch                 (this,tr("Impossible de changer d'utilisateur!") , tr("Les paramètres de") + ui->UserscomboBox->currentText() + tr("ne sont pas retrouvés"));
         disconnect (ui->UserscomboBox,      SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUtilisateur()));
@@ -552,10 +552,10 @@ void dlg_paiementtiers::Slot_RecopieNomTiers(QString b)
 void dlg_paiementtiers::RegleComptesComboBox(bool avecLesComptesInactifs)
 {
     ui->ComptesupComboBox->clear();
-    QListIterator<Compte*> itcpt(*m_useracrediter->getComptes(avecLesComptesInactifs));
+    QListIterator<Compte*> itcpt(*m_useracrediter->comptesbancaires(avecLesComptesInactifs));
     while (itcpt.hasNext()) {
         Compte *cpt = const_cast<Compte*>(itcpt.next());
-        ui->ComptesupComboBox->addItem(m_useracrediter->getLogin() + "/" + cpt->nomabrege(), cpt->id());
+        ui->ComptesupComboBox->addItem(m_useracrediter->login() + "/" + cpt->nomabrege(), cpt->id());
     }
 }
 

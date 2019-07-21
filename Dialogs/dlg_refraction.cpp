@@ -1752,7 +1752,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    User *userEntete = Datas::I()->users->getById(db->getUserConnected()->getIdUserActeSuperviseur(), Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(db->getUserConnected()->idSuperviseurActes(), Item::LoadDetails);
     Entete = proc->ImpressionEntete(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
@@ -1792,7 +1792,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds[CP_ALD_IMPRESSIONS] =              QVariant(QVariant::String);
         listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS] =        PRESCRIPTIONLUNETTES;
-        listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->getSite()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->sitedetravail()->id();
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
             delete doc;
@@ -3304,11 +3304,11 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
             case 4:
-                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + db->getUserConnected()->getLogin() + "</td>";
+                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + db->getUserConnected()->login() + "</td>";
                 gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             case 5:
-                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->getLogin() + "</td>";
+                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->login() + "</td>";
                 gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             default:
