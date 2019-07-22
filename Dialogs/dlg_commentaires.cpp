@@ -418,7 +418,7 @@ void dlg_commentaires::Validation()
     {
         UpCheckBox *Check   = Q_NULLPTR;
         QWidget *Widg       = Q_NULLPTR;
-        gReponseResumePrescription = "";
+        m_commentaire = "";
         for (int i =0 ; i < ui->ComupTableWidget->rowCount(); i++)
         {
             Widg =  dynamic_cast<QWidget*>(ui->ComupTableWidget->cellWidget(i,0));
@@ -427,10 +427,10 @@ void dlg_commentaires::Validation()
                 Check = Widg->findChildren<UpCheckBox*>().at(0);
                 if (Check->isChecked())
                 {
-                    if (gReponseResumePrescription != "") gReponseResumePrescription += "\n";
-                    line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(Check->getRowTable(),1));
-                    gReponseResumePrescription  += line->getData().toString();
-                    gReponseResumeDossier       += " - " + line->text();
+                    if (m_commentaire != "") m_commentaire += "\n";
+                    line = static_cast<UpLineEdit*>(ui->ComupTableWidget->cellWidget(Check->rowTable(),1));
+                    m_commentaire       += line->getData().toString();
+                    m_commentaireresume += " - " + line->text();
                 }
             }
         }
@@ -445,9 +445,9 @@ bool dlg_commentaires::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress)
     {
-        if (obj->objectName() == "textEdit_Com")
+        if (obj == ui->upTextEdit)
         {
-            if (ui->upTextEdit->toPlainText() != textDocument)
+            if (ui->upTextEdit->toPlainText() != "")
                 OKButton->setEnabled(true);
         }
     }

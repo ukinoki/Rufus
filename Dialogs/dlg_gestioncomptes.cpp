@@ -138,9 +138,9 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
     ui->idCompteupLineEdit          ->setText(QString::number(m_comptencours->id()));
     ui->DesactiveComptecheckBox     ->setChecked(m_comptencours->isDesactive());
 
-    widgButtons->modifBouton    ->setEnabled(m_comptencours->idUser() == DataBase::I()->getUserConnected()->id());
-    ui->SoldeuplineEdit         ->setVisible(m_comptencours->idUser() == DataBase::I()->getUserConnected()->id());
-    ui->Soldelabel              ->setVisible(m_comptencours->idUser() == DataBase::I()->getUserConnected()->id());
+    widgButtons->modifBouton    ->setEnabled(m_comptencours->idUser() == Datas::I()->users->userconnected()->id());
+    ui->SoldeuplineEdit         ->setVisible(m_comptencours->idUser() == Datas::I()->users->userconnected()->id());
+    ui->Soldelabel              ->setVisible(m_comptencours->idUser() == Datas::I()->users->userconnected()->id());
 
     /*On ne peut pas supprimer un compte s'il est utilisé ou s'il y a déjà eu des ecritures bancaires*/
     bool autorsupprimer = false;
@@ -471,9 +471,8 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
         ui->Compteframe->setVisible(true);
         ui->ComptesuptableWidget->setRowCount(m_userencours->comptesbancaires(true)->size());
         int i=0;
-        for (QList<Compte*>::const_iterator itcpt = m_userencours->comptesbancaires(true)->constBegin(); itcpt!=m_userencours->comptesbancaires(true)->constEnd(); ++itcpt)
+        foreach (Compte* cpt, *m_userencours->comptesbancaires(true))
         {
-            Compte *cpt = const_cast<Compte*>(*itcpt);
             pitem0 = new QTableWidgetItem;
             pitem1 = new QTableWidgetItem;
             pitem0->setText(QString::number(cpt->id()));

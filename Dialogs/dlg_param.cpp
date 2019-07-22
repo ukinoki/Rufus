@@ -32,7 +32,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     m_parametres    = db->parametres();
 
     gModifPoste     = false;
-    gDataUser       = db->getUserConnected();
+    m_currentuser       = Datas::I()->users->userconnected();
 
     gNouvMDP        = "nouv";
     gAncMDP         = "anc";
@@ -467,7 +467,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     for (int i=0; i<ui->AppareilsConnectesupTableWidget->columnCount(); i++)
         ui->AppareilsConnectesupTableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignLeft);
     ui->AppareilsConnectesupTableWidget->FixLargeurTotale();
-    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + gDataUser->sitedetravail()->nom() + "</b></font> ");
+    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + m_currentuser->sitedetravail()->nom() + "</b></font> ");
     QVBoxLayout *applay = new QVBoxLayout();
     applay      ->addWidget(ui->AppareilsconnectesupLabel);
     applay      ->addWidget(widgAppareils->widgButtonParent());
@@ -749,7 +749,7 @@ void dlg_param::Slot_ChoixFontpushButtonClicked()
     {
         QString fontrequete = "update " TBL_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->getFont().toString()
                                 + "', UserPoliceAttribut = '" + Dlg_Fonts->getFontAttribut()
-                                + "' where idUser = " + QString::number(db->getUserConnected()->id());
+                                + "' where idUser = " + QString::number(Datas::I()->users->userconnected()->id());
         db->StandardSQL(fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
     }
     delete Dlg_Fonts;
@@ -828,7 +828,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedUser = Utils::VerifMDP(db->getUserConnected()->password(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
+            MDPVerifiedUser = Utils::VerifMDP(Datas::I()->users->userconnected()->password(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
             if (MDPVerifiedUser)
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
@@ -976,14 +976,14 @@ void dlg_param::Slot_GestionBanques()
 void dlg_param::Slot_GestDataPersoUser()
 {
     Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), MDPVerifiedAdmin);
-    Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  gDataUser->login());
+    Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  m_currentuser->login());
     Dlg_GestUsr->setConfig(dlg_gestionusers::MODIFUSER);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
     if(DonneesUserModifiees)
     {
-        db->getUserConnected()->setData(db->loadUserData(gidUser));
-        proc->SetUserAllData(db->getUserConnected());
-        gDataUser = db->getUserConnected();
+        Datas::I()->users->userconnected()->setData(db->loadUserData(gidUser));
+        proc->SetUserAllData(Datas::I()->users->userconnected());
+        m_currentuser = Datas::I()->users->userconnected();
         AfficheParamUser();
     }
     if (!MDPVerifiedUser)
@@ -999,9 +999,9 @@ void dlg_param::Slot_GestUser()
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
     if(DonneesUserModifiees)
     {
-        db->getUserConnected()->setData(db->loadUserData(gidUser));
-        proc->SetUserAllData(db->getUserConnected());
-        gDataUser = db->getUserConnected();
+        Datas::I()->users->userconnected()->setData(db->loadUserData(gidUser));
+        proc->SetUserAllData(Datas::I()->users->userconnected());
+        m_currentuser = Datas::I()->users->userconnected();
         AfficheParamUser();
     }
     delete Dlg_GestUsr;
@@ -1161,7 +1161,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
     UpCheckBox* check = dynamic_cast<UpCheckBox*>(sender());
     if (check)
     {
-        int row = check->getRowTable();
+        int row = check->rowTable();
         QString codeccam = ui->ActesCCAMupTableWidget->item(row,1)->text();
         QString montantpratique="";
         if (check->checkState() == Qt::Unchecked)
@@ -1170,7 +1170,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
         }
         else
         {
-            int secteur = gDataUser->secteurconventionnel();
+            int secteur = m_currentuser->secteurconventionnel();
             if (secteur>1)
             {
                 UpLineEdit *line = dynamic_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(row,5));
@@ -1179,7 +1179,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                 else
                 {
                     UpLineEdit *lbl = new UpLineEdit();
-                    if (gDataUser->isOPTAM())
+                    if (m_currentuser->isOPTAM())
                         lbl->setText(ui->ActesCCAMupTableWidget->item(row,2)->text());
                     else
                         lbl->setText(ui->ActesCCAMupTableWidget->item(row,3)->text());
@@ -1195,7 +1195,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     montantpratique = QString::number(QLocale().toDouble(lbl->text()));
                 }
              }
-            else if (gDataUser->isOPTAM())
+            else if (m_currentuser->isOPTAM())
                 montantpratique = QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,2)->text()));
             else
                 montantpratique = QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,3)->text()));
@@ -1239,7 +1239,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
     UpCheckBox* check = dynamic_cast<UpCheckBox*>(sender());
     if (check)
     {
-        int row                 = check->getRowTable();
+        int row                 = check->rowTable();
         QString codeccam        = ui->AssocCCAMupTableWidget->item(row,1)->text();
         QString montantpratique = "";
         if (check->checkState() == Qt::Unchecked)
@@ -1259,7 +1259,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
         }
         else
         {
-            int secteur = gDataUser->secteurconventionnel();
+            int secteur = m_currentuser->secteurconventionnel();
             QString montantOPTAM(""), montantNonOPTAM("");
             UpLineEdit *lineOPTAM = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,2));
             if (lineOPTAM != Q_NULLPTR)
@@ -1275,7 +1275,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                 else
                 {
                     UpLineEdit *lbl = new UpLineEdit();
-                    if (gDataUser->isOPTAM())
+                    if (m_currentuser->isOPTAM())
                         lbl->setText(ui->AssocCCAMupTableWidget->item(row,2)->text());
                     else
                         lbl->setText(ui->AssocCCAMupTableWidget->item(row,3)->text());
@@ -1291,7 +1291,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     montantpratique = QString::number(QLocale().toDouble(lbl->text()));
                 }
             }
-            else if (gDataUser->isOPTAM())
+            else if (m_currentuser->isOPTAM())
                 montantpratique = montantOPTAM;
             else
                 montantpratique = montantNonOPTAM;
@@ -1340,7 +1340,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
     UpCheckBox* check = dynamic_cast<UpCheckBox*>(sender());
     if (check)
     {
-        int row                 = check->getRowTable();
+        int row                 = check->rowTable();
         QString codeccam        = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
         QString montantpratique = "";
         if (check->checkState() == Qt::Unchecked)
@@ -1407,7 +1407,7 @@ void dlg_param::SupprAppareil()
     {
         req = "delete from " TBL_APPAREILSCONNECTESCENTRE " where idAppareil = "
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
-              + " and idLieu = " + QString::number(gDataUser->sitedetravail()->id());
+              + " and idLieu = " + QString::number(m_currentuser->sitedetravail()->id());
         db->StandardSQL(req);
         QString Base;
         if (db->getMode() == DataBase::Poste)
@@ -1437,7 +1437,7 @@ void dlg_param::Slot_RegleAssocBoutons()
         {
             if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
             {
-                if (check0->getRowTable()==ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow())
+                if (check0->rowTable()==ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow())
                     modifboutonsAssoc = true;
             }
             if (!modifboutonsAssoc)
@@ -1454,7 +1454,7 @@ void dlg_param::Slot_RegleAssocBoutons()
         {
             if (ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0)
             {
-                if (check0->getRowTable()==ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow())
+                if (check0->rowTable()==ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow())
                     modifboutonsHN = true;
             }
             if (!modifboutonsHN)
@@ -1541,7 +1541,7 @@ void dlg_param::Slot_EnregistreAppareil()
     if (!gAskAppareil) return;
     QString req = "insert into " TBL_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
                   " (select idappareil from " TBL_LISTEAPPAREILS " where NomAppareil = '" + gAskAppareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
-                  + QString::number(gDataUser->sitedetravail()->id()) + ")";
+                  + QString::number(m_currentuser->sitedetravail()->id()) + ")";
     db->StandardSQL(req);
     gAskAppareil->done(0);
     Remplir_Tables();
@@ -2037,24 +2037,24 @@ bool dlg_param::eventFilter(QObject *obj, QEvent *event)
 void dlg_param::AfficheParamUser()
 {
     bool ok;
-    ui->idUseruplineEdit                ->setText(QString::number(gDataUser->id()));
-    ui->LoginuplineEdit                 ->setText(gDataUser->login());
-    ui->MDPuplineEdit                   ->setText(gDataUser->password());
-    ui->NomuplineEdit                   ->setText(gDataUser->nom());
-    ui->PrenomuplineEdit                ->setText(gDataUser->prenom());
+    ui->idUseruplineEdit                ->setText(QString::number(m_currentuser->id()));
+    ui->LoginuplineEdit                 ->setText(m_currentuser->login());
+    ui->MDPuplineEdit                   ->setText(m_currentuser->password());
+    ui->NomuplineEdit                   ->setText(m_currentuser->nom());
+    ui->PrenomuplineEdit                ->setText(m_currentuser->prenom());
     QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " TBL_JOINTURESLIEUX " where iduser = " + QString::number(gidUser), ok);
     QList<int> idlieuxlist;
     for (int k=0; k< listlieux.size(); k++)
         idlieuxlist << listlieux.at(k).at(0).toInt();
 
-    ui->PortableuplineEdit              ->setText(gDataUser->portable());
-    ui->MailuplineEdit                  ->setText(gDataUser->mail());
-    ui->Titrelabel                      ->setVisible(gDataUser->isMedecin());
-    ui->Cotationswidget                 ->setVisible(!gDataUser->isSecretaire() && !gDataUser->isAutreFonction());
+    ui->PortableuplineEdit              ->setText(m_currentuser->portable());
+    ui->MailuplineEdit                  ->setText(m_currentuser->mail());
+    ui->Titrelabel                      ->setVisible(m_currentuser->isMedecin());
+    ui->Cotationswidget                 ->setVisible(!m_currentuser->isSecretaire() && !m_currentuser->isAutreFonction());
 
 //    ui->ModeExercicegroupBox->setVisible(false);
-    bool soccomptable   = gDataUser->isSocComptable();
-    bool medecin        = gDataUser->isMedecin();
+    bool soccomptable   = m_currentuser->isSocComptable();
+    bool medecin        = m_currentuser->isMedecin();
 
     ui->StatutComptaupTextEdit->setText(proc->getSessionStatus());
 
@@ -2063,13 +2063,13 @@ void dlg_param::AfficheParamUser()
     ui->Prenomlabel                 ->setVisible(!soccomptable);
     ui->PrenomuplineEdit            ->setVisible(!soccomptable);
 
-    ui->idUseruplineEdit            ->setText(QString::number(gDataUser->id()));
-    ui->LoginuplineEdit             ->setText(gDataUser->login());
-    ui->MDPuplineEdit               ->setText(gDataUser->password());
+    ui->idUseruplineEdit            ->setText(QString::number(m_currentuser->id()));
+    ui->LoginuplineEdit             ->setText(m_currentuser->login());
+    ui->MDPuplineEdit               ->setText(m_currentuser->password());
     if (medecin)
-        ui->TitreuplineEdit         ->setText(gDataUser->titre());
+        ui->TitreuplineEdit         ->setText(m_currentuser->titre());
 
-    if (!gDataUser->isSecretaire() && !gDataUser->isAutreFonction())
+    if (!m_currentuser->isSecretaire() && !m_currentuser->isAutreFonction())
     {
         ui->Cotationswidget->setVisible(true);
         Remplir_TableActesCCAM();
@@ -2083,7 +2083,7 @@ void dlg_param::AfficheParamUser()
     }
     else
         ui->Cotationswidget->setVisible(false);
-    ReconstruitListeLieuxExerciceUser(gDataUser);
+    ReconstruitListeLieuxExerciceUser(m_currentuser);
 }
 
 void dlg_param::ConnectSlots()
@@ -2154,7 +2154,7 @@ bool dlg_param::DataUserModifiees()
 void dlg_param::EnableActesCCAM(bool enable)
 {
     ui->OphtaSeulcheckBox   ->setEnabled(enable);
-    bool autormodif         = enable && (gDataUser->idparent() == gidUser);            // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif         = enable && (m_currentuser->idparent() == gidUser);            // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
@@ -2170,7 +2170,7 @@ void dlg_param::EnableActesCCAM(bool enable)
 
 void dlg_param::EnableAssocCCAM(bool enable)
 {
-    bool autormodif = enable && gDataUser->idparent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif = enable && m_currentuser->idparent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
@@ -2197,7 +2197,7 @@ void dlg_param::EnableAssocCCAM(bool enable)
 
 void dlg_param::EnableHorsNomenclature(bool enable)
 {
-    bool autormodif = enable && gDataUser->idparent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif = enable && m_currentuser->idparent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
@@ -2337,7 +2337,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
     ui->ActesCCAMupTableWidget->verticalHeader()->setVisible(false);
     ui->ActesCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->ActesCCAMupTableWidget->setMouseTracking(true);
-    int ncol = (gDataUser->secteurconventionnel()>1? 6 : 5);
+    int ncol = (m_currentuser->secteurconventionnel()>1? 6 : 5);
     ui->ActesCCAMupTableWidget->setColumnCount(ncol);
     ui->ActesCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
     ui->ActesCCAMupTableWidget->setColumnWidth(1,90);           //code CCAM
@@ -2447,7 +2447,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     ui->AssocCCAMupTableWidget->verticalHeader()->setVisible(false);
     ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->AssocCCAMupTableWidget->setMouseTracking(true);
-    int ncol = (gDataUser->secteurconventionnel() > 1 ? 5 : 4);
+    int ncol = (m_currentuser->secteurconventionnel() > 1 ? 5 : 4);
     ui->AssocCCAMupTableWidget->setColumnCount(ncol);
     ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
     ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
@@ -2724,7 +2724,7 @@ void dlg_param::Remplir_Tables()
 
     QString  req = "SELECT list.idAppareil, list.TitreExamen, list.NomAppareil, Format"
               " FROM "  TBL_APPAREILSCONNECTESCENTRE " appcon , " TBL_LISTEAPPAREILS " list"
-              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(gDataUser->sitedetravail()->id()) +
+              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(m_currentuser->sitedetravail()->id()) +
               " ORDER BY TitreExamen";
 
     QList<QVariantList> Applist = db->StandardSelectSQL(req, ok);
@@ -2852,7 +2852,7 @@ void dlg_param::Remplir_Tables()
 
     glistAppareils.clear();
     req = "select NomAppareil from " TBL_LISTEAPPAREILS
-          " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(gDataUser->sitedetravail()->id()) + ")";
+          " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(m_currentuser->sitedetravail()->id()) + ")";
     QList<QVariantList> Appareilslist = db->StandardSelectSQL(req, ok);
     if (!ok)
         return;

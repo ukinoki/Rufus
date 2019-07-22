@@ -65,7 +65,7 @@ void UpCheckBox::setRowTable(int val)
 {
     RowTable    = val;
 }
-int UpCheckBox::getRowTable() const
+int UpCheckBox::rowTable() const
 {
     return RowTable;
 }

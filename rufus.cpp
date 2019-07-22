@@ -198,10 +198,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     // on donne le statut "arrivé" aux patients en salle d'attente dont le iduserencourssexam est l'utilisateur actuel et qui n'auraient pas été supprimés (plantage)
     QString blabla              = ENCOURSEXAMEN;
     int length                  = blabla.size();
-    QMapIterator<int, PatientEnCours*> itpat(*m_listepatientsencours->patientsencours());
-    while (itpat.hasNext())
+    foreach (PatientEnCours *pat, m_listepatientsencours->patientsencours()->values())
     {
-        PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.next().value());
         if (pat != Q_NULLPTR)
             if (pat->iduser() == m_currentuser->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == QHostInfo::localHostName().left(60))
             {
@@ -2360,20 +2358,18 @@ void Rufus::ImprimeDossier(Patient *pat)
         {
             QDate dateencours = QDate::fromString(box->currentText(),"dd-MMM-yyyy");
             box->clear();
-            QMapIterator<int, Acte*> itactes(*listeactes);
-            while (itactes.hasNext())
+            foreach (Acte* act, listeactes->values())
             {
-                itactes.next();
-                QString dateacte = itactes.value()->date().toString("dd-MMM-yyyy");
+                QString dateacte = act->date().toString("dd-MMM-yyyy");
                 if (verslehaut)
                 {
-                    if (itactes.value()->date() >= date)
-                        box->addItem(dateacte, itactes.value()->id());
+                    if (act->date() >= date)
+                        box->addItem(dateacte, act->id());
                 }
                 else
                 {
-                    if (itactes.value()->date() <= date)
-                        box->addItem(dateacte, itactes.value()->id());
+                    if (act->date() <= date)
+                        box->addItem(dateacte, act->id());
                 }
             }
             if (verslehaut)
@@ -2394,13 +2390,11 @@ void Rufus::ImprimeDossier(Patient *pat)
         auto recalcallitems     = [] (UpComboBox *debutbox, UpComboBox *finbox, QMap<int, Acte*> *listeactes)
         {
             // remplissage des combobox de date des actes
-            QMapIterator<int, Acte*> itactes(*listeactes);
-            while (itactes.hasNext())
+            foreach (Acte* act, listeactes->values())
             {
-                itactes.next();
-                QString dateacte = itactes.value()->date().toString("dd-MMM-yyyy");
-                debutbox    ->addItem(dateacte, itactes.value()->id());
-                finbox      ->addItem(dateacte, itactes.value()->id());
+                QString dateacte = act->date().toString("dd-MMM-yyyy");
+                debutbox    ->addItem(dateacte, act->id());
+                finbox      ->addItem(dateacte, act->id());
             }
             debutbox    ->setCurrentIndex(0);
             finbox      ->setCurrentIndex(finbox->count()-1);
@@ -2459,13 +2453,11 @@ void Rufus::ImprimeDossier(Patient *pat)
             return;
         }
         QList<Acte*> listeactesaimprimer;
-        QMapIterator<int, Acte*> itactes(*listeactes);
-        while (itactes.hasNext())
+        foreach (Acte* act, listeactes->values())
         {
-            itactes.next();
-            int idacte = itactes.value()->id();
+            int idacte = act->id();
             if (idacte >= combodebut->currentData().toInt() && idacte <= combofin->currentData().toInt())
-                listeactesaimprimer << itactes.value();
+                listeactesaimprimer << act;
         }
         delete gAsk;
         if (listeactesaimprimer.size() > 0)
@@ -2567,15 +2559,13 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
 
     bool reponsevide = true;
     QString datedebut, datefin;
-    QList<Acte*>::const_iterator itacte;
-    for( itacte = listeactes.constBegin(); itacte != listeactes.constEnd(); ++itacte )
+    foreach (Acte* act, listeactes)
     {
-        Acte* act = const_cast<Acte*>(*itacte);
         if (act == Q_NULLPTR)
                 continue;
-        if (itacte == listeactes.constBegin())
+        if (act == listeactes.first())
             datedebut = act->date().toString(tr("d MMM yyyy"));
-        if (itacte == listeactes.constEnd())
+        if (act == listeactes.last())
             datefin = act->date().toString(tr("d MMM yyyy"));
         if (act->motif() != ""
             || act->texte() != ""
@@ -3553,9 +3543,8 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     QStringList     llist;
     grpBox      ->setTitle(tr("Motif de l'acte"));
 
-    for( QMap<int, User*>::const_iterator itUser = Datas::I()->users->superviseurs()->constBegin();
-         itUser != Datas::I()->users->superviseurs()->constEnd(); ++itUser )
-        ComboSuperviseurs->addItem(itUser.value()->login(), QString::number(itUser.value()->id()) );
+    foreach (User *usr, Datas::I()->users->superviseurs()->values() )
+        ComboSuperviseurs->addItem(usr->login(), QString::number(usr->id()) );
     ComboSuperviseurs->setFixedWidth(100);
 
     QHBoxLayout *soignantlayout     = new QHBoxLayout();
@@ -3572,10 +3561,9 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     }
     int defaut = -1;
     int k = -1;
-    for (QMap<int, Motif*>::const_iterator itmtf = Datas::I()->motifs->motifs()->constBegin() ; itmtf != Datas::I()->motifs->motifs()->constEnd() ; ++itmtf)
+    foreach (Motif *mtf, Datas::I()->motifs->motifs()->values())
     {
         ++k;
-        Motif *mtf = const_cast<Motif*>(*itmtf);
         QRadioButton *radiobut = new QRadioButton(grpBox);
         radiobut->setAutoExclusive(true);
         radiobut->setText(mtf->motif());
@@ -3588,9 +3576,9 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     UrgButton   ->setText(tr("Urgence"));
     UrgButton   ->setChecked(motif=="URG");
     bool b = false;
-    for (int l=0; l<grpBox->findChildren<QRadioButton*>().size(); l++)
+    foreach (QRadioButton *butt, grpBox->findChildren<QRadioButton*>())
     {
-        if (grpBox->findChildren<QRadioButton*>().at(l)->isChecked())
+        if (butt->isChecked())
         {
             b = true;
             break;
@@ -3649,9 +3637,8 @@ QStringList Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
             motif= "URG";
         else
         {
-            for (QMap<int, Motif*>::const_iterator itmtf = Datas::I()->motifs->motifs()->constBegin() ; itmtf != Datas::I()->motifs->motifs()->constEnd() ; ++itmtf)
+            foreach (Motif *mtf, Datas::I()->motifs->motifs()->values())
             {
-                Motif *mtf = const_cast<Motif*>(*itmtf);
                 if (mtf->motif()==motif)
                 {
                     motif = mtf->raccourci();
@@ -3782,13 +3769,13 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
         pItem1->setFirstColumnSpanned(true);
         listhash = hash.split("\n");
         pItem1->setExpanded(listhash.size() > 0);
-        for (int i=0;i<listhash.size();i++)
+        foreach(const QString &txt, listhash)
         {
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem1);
             pit->setText(0,"");
-            pit->setText(1,listhash.at(i));
-            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                pit->setToolTip(1, listhash.at(i));
+            pit->setText(1,txt);
+            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                pit->setToolTip(1, txt);
         }
     }
     listhash.clear();
@@ -3800,13 +3787,13 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
         pItem2->setFirstColumnSpanned(true);
         listhash = hash.split("\n");
         pItem2->setExpanded(listhash.size() > 0);
-        for (int i=0;i<listhash.size();i++)
+        foreach(const QString &txt, listhash)
         {
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem2);
             pit->setText(0,"");
-            pit->setText(1,listhash.at(i));
-            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                pit->setToolTip(1, listhash.at(i));
+            pit->setText(1,txt);
+            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                pit->setToolTip(1, txt);
         }
     }
     listhash.clear();
@@ -3833,13 +3820,13 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
         pItem4->setFirstColumnSpanned(true);
         listhash = hash.split("\n");
         pItem4->setExpanded(listhash.size() > 0);
-        for (int i=0;i<listhash.size();i++)
+        foreach(const QString &txt, listhash)
         {
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem4);
             pit->setText(0,"");
-            pit->setText(1,listhash.at(i));
-            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
-                pit->setToolTip(1, listhash.at(i));
+            pit->setText(1,txt);
+            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+                pit->setToolTip(1, txt);
         }
     }
     if (pat->idmg()>0)
@@ -4153,7 +4140,7 @@ void Rufus::SalleDAttente()
 void Rufus::AllusrChkBoxSendMsg(bool a)
 {
     for (int i=0; i< gAsk->findChildren<UpCheckBox*>().size(); i++)
-        if (gAsk->findChildren<UpCheckBox*>().at(i)->getRowTable() == 1)
+        if (gAsk->findChildren<UpCheckBox*>().at(i)->rowTable() == 1)
             gAsk->findChildren<UpCheckBox*>().at(i)->setChecked(a);
 }
 
@@ -4163,19 +4150,19 @@ void Rufus::OneusrChkBoxSendMsg(bool a)
     {
         bool allchk = true;
         for (int i=0; i< gAsk->findChildren<UpCheckBox*>().size(); i++)
-            if (gAsk->findChildren<UpCheckBox*>().at(i)->getRowTable() == 1)
+            if (gAsk->findChildren<UpCheckBox*>().at(i)->rowTable() == 1)
             {
                 allchk = gAsk->findChildren<UpCheckBox*>().at(i)->isChecked();
                 if (!allchk)
                     break;
             }
         for (int j=0; j< gAsk->findChildren<UpCheckBox*>().size(); j++)
-            if (gAsk->findChildren<UpCheckBox*>().at(j)->getRowTable() == 2)
+            if (gAsk->findChildren<UpCheckBox*>().at(j)->rowTable() == 2)
                 gAsk->findChildren<UpCheckBox*>().at(j)->setChecked(allchk);
     }
     else
         for (int j=0; j< gAsk->findChildren<UpCheckBox*>().size(); j++)
-            if (gAsk->findChildren<UpCheckBox*>().at(j)->getRowTable() == 2)
+            if (gAsk->findChildren<UpCheckBox*>().at(j)->rowTable() == 2)
                 gAsk->findChildren<UpCheckBox*>().at(j)->setChecked(false);
 }
 
@@ -4330,7 +4317,7 @@ void Rufus::VerifSendMessage(int idMsg)
     }
     bool checkusr = false;
     for (int j=0; j< gAsk->findChildren<UpCheckBox*>().size(); j++)
-        if (gAsk->findChildren<UpCheckBox*>().at(j)->getRowTable() == 1)
+        if (gAsk->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)
         {
             checkusr = gAsk->findChildren<UpCheckBox*>().at(j)->isChecked();
             if (checkusr)
@@ -4398,7 +4385,7 @@ void Rufus::VerifSendMessage(int idMsg)
         int idmsg = msgdata.at(0).toInt();
         QList<int> listidusr;
         for (int j=0; j< gAsk->findChildren<UpCheckBox*>().size(); j++)
-            if (gAsk->findChildren<UpCheckBox*>().at(j)->getRowTable() == 1)       // c'est le checkbox d'un user
+            if (gAsk->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)       // c'est le checkbox d'un user
                 if (gAsk->findChildren<UpCheckBox*>().at(j)->isChecked())
                     listidusr << gAsk->findChildren<UpCheckBox*>().at(j)->iD();
         if (listidusr.size()==0)
@@ -4466,7 +4453,7 @@ void Rufus::VerifSendMessage(int idMsg)
         db->StandardSQL("delete from " TBL_MESSAGESJOINTURES " where idmessage = " + QString::number(idMsg));
         QList<int> listidusr;
         for (int j=0; j< gAsk->findChildren<UpCheckBox*>().size(); j++)
-            if (gAsk->findChildren<UpCheckBox*>().at(j)->getRowTable() == 1)       // c'est le checkbox d'un user
+            if (gAsk->findChildren<UpCheckBox*>().at(j)->rowTable() == 1)       // c'est le checkbox d'un user
                 if (gAsk->findChildren<UpCheckBox*>().at(j)->isChecked())
                     listidusr << gAsk->findChildren<UpCheckBox*>().at(j)->iD();
         if (listidusr.size()==0)
@@ -4542,8 +4529,8 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     UpLabel *lab5   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
     UpLabel *lab6   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
     PatientEnCours *pat = Q_NULLPTR;
-    QMap<int, PatientEnCours*>::const_iterator itpat = m_listepatientsencours->patientsencours()->find(idpat);
-    if (itpat != m_listepatientsencours->patientsencours()->constEnd())
+    auto itpat = m_listepatientsencours->patientsencours()->find(idpat);
+    if (itpat != m_listepatientsencours->patientsencours()->cend())
     {
         pat = const_cast<PatientEnCours*>(itpat.value());
         Msg = pat->message();
@@ -4615,8 +4602,8 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                 UpLabel *labi6   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
                 QString color2, colorRDV2;
                 pat = Q_NULLPTR;
-                QMap<int, PatientEnCours*>::const_iterator itpat = m_listepatientsencours->patientsencours()->find(labi0->getData()["idpat"].toInt());
-                if (itpat != m_listepatientsencours->patientsencours()->constEnd())
+                auto itpat = m_listepatientsencours->patientsencours()->find(labi0->getData()["idpat"].toInt());
+                if (itpat != m_listepatientsencours->patientsencours()->cend())
                 {
                     pat = const_cast<PatientEnCours*>(itpat.value());
                     Msgi = pat->message();
@@ -5474,10 +5461,8 @@ void Rufus::VerifVerrouDossier()
             //on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             QString blabla              = ENCOURSEXAMEN;
             int length                  = blabla.size();
-            QMapIterator<int, PatientEnCours*> itpat(*m_listepatientsencours->patientsencours());
-            while (itpat.hasNext())
+            foreach (PatientEnCours* pat, m_listepatientsencours->patientsencours()->values())
             {
-                PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.next().value());
                 if (pat != Q_NULLPTR)
                     if (pat->iduserencoursexam() == post->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == post->nomposte())
                     {
@@ -5505,10 +5490,8 @@ void Rufus::VerifVerrouDossier()
     QString blabla              = ENCOURSEXAMEN;
     int length                  = blabla.size();
     QList<PatientEnCours*> listpatasupprimer = QList<PatientEnCours*>();
-    QMapIterator<int, PatientEnCours*> itpat(*m_listepatientsencours->patientsencours());
-    while (itpat.hasNext())
+    foreach (PatientEnCours *pat, m_listepatientsencours->patientsencours()->values())
     {
-        PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.next().value());
         if (pat != Q_NULLPTR)
         {
             if (pat->statut().left(length) == ENCOURSEXAMEN)
@@ -5591,14 +5574,12 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         {
             // on vérifie que l'importateur est toujours connecté
             int idx = -1;
-            QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
-            while (itpost.hasNext())
+            foreach (PosteConnecte* post, Datas::I()->postesconnectes->postesconnectes()->values())
             {
-                PosteConnecte *usr = const_cast<PosteConnecte*>(itpost.next().value());
-                if (usr->nomposte() == ImportateurDocs.remove(" - prioritaire"))
+                if (post->nomposte() == ImportateurDocs.remove(" - prioritaire"))
                 {
-                    idx = Datas::I()->postesconnectes->postesconnectes()->values().indexOf(usr);
-                    itpost.toBack();
+                    idx = Datas::I()->postesconnectes->postesconnectes()->values().indexOf(post);
+                    break;
                 }
             }
             if (idx<0)
@@ -6172,9 +6153,8 @@ void Rufus::AfficheActeCompta(Acte *acte)
     if (acte->paiementType() != "G" || acte->paiementType() != "I")
     {
         double TotalPaye = 0;
-        for (QMap<QString, LignePaiement*>::const_iterator itlig = m_listepaiements->lignespaiements()->constBegin(); itlig != m_listepaiements->lignespaiements()->constEnd(); ++itlig)
+        foreach (LignePaiement *lign, m_listepaiements->lignespaiements()->values())
         {
-            LignePaiement *lign = const_cast<LignePaiement*>(itlig.value());
             if (lign->idacte() == acte->id())
             {
                 if (lign->monnaie() == "F")
@@ -6563,14 +6543,12 @@ void Rufus::SortieAppli()
      * 2. cet utilisateur est connecté sur d'autres postes, on peut partir
     */
         bool IlResteDesPostesConnectesAvecCeUser = false;
-        QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
-        while (itpost.hasNext())
+        foreach (PosteConnecte *post, Datas::I()->postesconnectes->postesconnectes()->values())
         {
-            PosteConnecte *post = const_cast<PosteConnecte*>(itpost.next().value());
             if (post->nomposte() != Datas::I()->postesconnectes->currentpost()->nomposte() && post->id() == Datas::I()->postesconnectes->currentpost()->id())
             {
                 IlResteDesPostesConnectesAvecCeUser = true;
-                itpost.toBack();
+                break;
             }
         }
         if (IlResteDesPostesConnectesAvecCeUser)
@@ -6832,10 +6810,8 @@ void    Rufus::ChoixDossier(Patient *pat, int idacte)  // appelée depuis la tab
             QString blabla = ENCOURSEXAMEN;
             int length = blabla.size();
             m_listepatientsencours->initListeAll(); //TODO si on utilise le TCP, on peut se passer de ça parce qu'on peut mettre en place un message tcp pour chaque modif de la salle d'attente
-            QMapIterator<int, PatientEnCours*> itpat(*m_listepatientsencours->patientsencours());
-            while (itpat.hasNext())
+            foreach (PatientEnCours *patcrs, m_listepatientsencours->patientsencours()->values())
             {
-                PatientEnCours *patcrs = const_cast<PatientEnCours*>(itpat.next().value());
                 if (patcrs->id() == pat->id() && patcrs->statut().left(length) == ENCOURSEXAMEN
                         && (patcrs->iduserencoursexam() != m_currentuser->id() || (patcrs->iduserencoursexam() == m_currentuser->id() && patcrs->posteexamen() != QHostInfo::localHostName().left(60))))
                 {
@@ -8334,10 +8310,8 @@ void    Rufus::ReconstruitListesCotations()
     pitem0 = new UpStandardItem(tr("Acte gratuit"));
     pitem0->setData(QStringList() << "0.00" << "0.00" << tr("Acte gratuit"));
     cotationmodel->appendRow(QList<QStandardItem*>() << pitem0);
-    QMapIterator<int, Cotation*> itcot(*Datas::I()->cotations->cotations());
-    while (itcot.hasNext())
+    foreach (Cotation* cot, Datas::I()->cotations->cotations()->values())
     {
-        Cotation *cot = const_cast<Cotation*>(itcot.next().value());
         QStringList list;
         QString champ = (m_currentuser->isOPTAM()? QString::number(cot->montantoptam(),'f',2) : QString::number(cot->montantnonoptam(), 'f', 2));
         list << champ << QString::number(cot->montantpratique(), 'f', 2) << cot->descriptif();
@@ -8347,10 +8321,8 @@ void    Rufus::ReconstruitListesCotations()
     }
 
     ui->ActeCotationcomboBox->addItem(tr("Acte gratuit"),QStringList() << "0.00" << "0.00" << tr("Acte gratuit"));
-    itcot.toFront();
-    while (itcot.hasNext())
+    foreach (Cotation* cot, Datas::I()->cotations->cotations()->values())
     {
-        Cotation *cot = const_cast<Cotation*>(itcot.next().value());
         QStringList list;
         QString champ = (m_currentuser->isOPTAM()? QString::number(cot->montantoptam(),'f',2) : QString::number(cot->montantnonoptam(), 'f', 2));
         list << champ << QString::number(cot->montantpratique(), 'f', 2) << cot->descriptif();
@@ -8676,10 +8648,8 @@ bool Rufus::Remplir_ListePatients_TableView()
         m_listepatientsmodel->clear();
     else
         m_listepatientsmodel = new QStandardItemModel;
-    QMapIterator<int, Patient*> itpat(*m_patients->patientstable());
-    while (itpat.hasNext())
+    foreach (Patient *pat, m_patients->patientstable()->values())
     {
-        Patient *pat = itpat.next().value();
         pitem0  = new UpStandardItem(QString::number(pat->id()));                                   // id                           -> utilisé pour le drop event
         pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom());                   // Nom + Prénom
         pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")));            // date de naissance
@@ -8753,11 +8723,9 @@ void Rufus::Remplir_SalDat()
         m_listepatientsencoursmodel = new QStandardItemModel();
     else
         m_listepatientsencoursmodel->clear();
-    QMapIterator<int, PatientEnCours*> itpat(*m_listepatientsencours->patientsencours());
-    while (itpat.hasNext())
+    foreach (PatientEnCours *pat, m_listepatientsencours->patientsencours()->values())
     {
         QList<QStandardItem *> items;
-        PatientEnCours* pat = const_cast<PatientEnCours*>(itpat.next().value());
         listidpat << pat->id();
         UpStandardItem *itempat = new UpStandardItem(QString::number(pat->id()));
         itempat->setItem(pat);
@@ -8786,10 +8754,8 @@ void Rufus::Remplir_SalDat()
     TableAMettreAJour = ui->SalleDAttenteupTableWidget;
     ui->SalleDAttenteupTableWidget->clearAllRowsExceptHeader();
     QList<PatientEnCours*> listpatsaldat;
-    QListIterator<PatientEnCours*> itpatlist(listpat);
-    while (itpatlist.hasNext())
+    foreach (PatientEnCours* pat, listpat)
     {
-        PatientEnCours *pat = const_cast<PatientEnCours*>(itpatlist.next());
         if (pat->statut() == ARRIVE || pat->statut() == ENCOURS || pat->statut().contains(ENATTENTENOUVELEXAMEN))
             listpatsaldat << pat;
     }
@@ -8800,10 +8766,8 @@ void Rufus::Remplir_SalDat()
         m_listesuperviseursmodel->clear();
     QStandardItem       *pitem0, *pitem1;
     QList<int>          listidusers;
-    QListIterator<PatientEnCours*> itpatlistsaldat(listpatsaldat);
-    while (itpatlistsaldat.hasNext())
+    foreach (PatientEnCours* patencours, listpatsaldat)
     {
-        PatientEnCours *patencours  = const_cast<PatientEnCours*>(itpatlistsaldat.next());
         Patient *pat                = m_patients->getById(patencours->id());
         QMap<QString, QVariant> rsgnmt;
         rsgnmt["idpat"]             = patencours->id();
@@ -9009,10 +8973,8 @@ void Rufus::Remplir_SalDat()
      *  avec TCP, c'est inutile puisque la réinitialisation se fait chaque fois qu'un poste se connecte ou se déconnecte */
     if (!UtiliseTCP)
         Datas::I()->postesconnectes->initListe();
-    QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
-    while (itpost.hasNext())
+    foreach (PosteConnecte* post, Datas::I()->postesconnectes->postesconnectes()->values())
     {
-        PosteConnecte* post = const_cast<PosteConnecte*>(itpost.next().value());
         if (post != Q_NULLPTR)
         if (Datas::I()->users->getById(post->id())->isSoignant())
             listpostsoignant << post;
@@ -9027,9 +8989,8 @@ void Rufus::Remplir_SalDat()
         int a = 0;
         lay->setContentsMargins(a,a,a,a);
         lay->setSpacing(2);
-        for (int i=0;i<listpostsoignant.size();i++)
+        foreach (PosteConnecte *post, listpostsoignant)
         {
-            PosteConnecte *post = listpostsoignant.at(i);
             User *usr = Datas::I()->users->getById(post->id());
             QString PosteLog  = post->nomposte().remove(".local");
             PatientEnCours *patencours = Q_NULLPTR;
@@ -9098,10 +9059,8 @@ void Rufus::Remplir_SalDat()
     TableAMettreAJour = ui->AccueilupTableWidget;
     TableAMettreAJour->clearContents();
     QList<PatientEnCours*> listpatvus;
-    QListIterator<PatientEnCours*> itpatcrs(listpat);
-    while (itpatcrs.hasNext())
+    foreach (PatientEnCours* pat, listpat)
     {
-        PatientEnCours *pat = const_cast<PatientEnCours*>(itpatcrs.next());
         //qDebug() << m_patients->getById(pat->id())->nom() + " " + m_patients->getById(pat->id())->prenom() + " " + pat->statut();
         if (pat->statut() == RETOURACCUEIL)
             listpatvus << pat;
@@ -9113,9 +9072,8 @@ void Rufus::Remplir_SalDat()
         m_listeparentsmodel->clear();
     QStandardItem       *oitem0, *oitem1;
     QList<int>          listidparents;
-    for (i = 0; i < listpatvus.size(); i++)
+    foreach (PatientEnCours *patencours, listpatvus)
     {
-        PatientEnCours *patencours  = listpatvus.at(i);
         Patient *pat                = m_patients->getById(patencours->id());
         Acte* actapayer             = Datas::I()->actes->getById(patencours->idacteapayer());
         QMap<QString, QVariant> rsgnmt;
@@ -9366,9 +9324,8 @@ void Rufus::SupprimerActe(Acte *act)
     QString Messg ="";
 
     QList<LignePaiement*> listlignespaiement;
-    for (QMap<QString, LignePaiement*>::const_iterator itlign = m_listepaiements->lignespaiements()->constBegin() ; itlign != m_listepaiements->lignespaiements()->constEnd(); ++itlign)
+    foreach (LignePaiement* lign, m_listepaiements->lignespaiements()->values())
     {
-        LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
         if (lign->idacte() == act->id())
             listlignespaiement << lign;
     }
@@ -9434,21 +9391,14 @@ void Rufus::SupprimerActe(Acte *act)
         if (a < m_listeactes->actes()->size() - 1)
             ++a;    //on est au milieu des actes -> on va rechercher l'idActe suivant
         else
-            --a;    //on est sur le dernier acte -> on va rechercher l'idActe précédant
+            --a;    //on est sur le dernier acte -> on va rechercher l'idActe précédent
         nouvact = m_listeactes->actes()->values().at(a);
     }
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
-    QList<int> listrefractionsid;
-    QMapIterator<int, Refraction*> itref (*Datas::I()->refractions->refractions());
-    while (itref.hasNext()) {
-        itref.next();
-        Refraction* ref = const_cast<Refraction*>(itref.value());
+    foreach (Refraction* ref, Datas::I()->refractions->refractions()->values())
         if (ref->idacte() == act->id())
-            listrefractionsid << ref->id();
-    }
-    for (int i=0; i<listrefractionsid.size(); ++i)
-        Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(listrefractionsid.at(i)));
+            Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(ref->id()));
 
     // on supprime les éventuels bilans orthoptiques liés à cette consultation -----------------------------------------------------------
     QString req = "DELETE FROM " TBL_BILANORTHO " WHERE idBilanOrtho  = " + QString::number(act->id());
@@ -9513,9 +9463,8 @@ void Rufus::SupprimerDossier(Patient *pat)
 
     //1. On recherche les actes de ce dossier qui seraient en tiers payant et qui auraient déjà reçu des versements auquel cas, on ne peut pas supprimer les actes ni le dossier
     QString Messg = "";
-    for (QMap<QString, LignePaiement*>::const_iterator itlign = m_listepaiements->lignespaiements()->constBegin() ; itlign != m_listepaiements->lignespaiements()->constEnd(); ++itlign)
+    foreach (LignePaiement* lign, m_listepaiements->lignespaiements()->values())
     {
-        LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
         // on vérifie pour chaque ligne s'il s'agit d'un virement ou d'une carte bleue ou d'un chèque enregistré
         QString requete = "SELECT ModePaiement, NomTiers, idRemise FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(lign->idrecette());
         QVariantList pmydata = db->getFirstRecordFromStandardSelectSQL(requete,ok);
@@ -9531,7 +9480,7 @@ void Rufus::SupprimerDossier(Patient *pat)
             Messg = tr("Je crains de ne pas pouvoir supprimer ce dossier\nIl y a des paiements par chèque enregistrés."
                     "\nCe ou ces chèques ne sont pas encaissés."
                     "\nVous devez modifier l'écriture correspondante pour pouvoir supprimer l'acte.");
-        if (Messg != "") itlign = m_listepaiements->lignespaiements()->constEnd();
+        if (Messg != "") break;
     }
     if (Messg != "")
     {
@@ -9581,10 +9530,8 @@ void Rufus::SupprimerDossier(Patient *pat)
         }
         //4, On actualise la table des lignes de paiement el la table des Type de paieement
         QList<Acte*> listactes;
-        QMapIterator<int, Acte*> itact(*m_listeactes->actes());
-        while (itact.hasNext())
+        foreach (Acte* act, m_listeactes->actes()->values())
         {
-            Acte *act = const_cast<Acte *>(itact.next().value());
             m_listepaiements->SupprimeActeLignesPaiements(act);
             listactes << act;
         }

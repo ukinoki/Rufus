@@ -2931,7 +2931,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     Datas::I()->comptes->initListe();
 
     db->setUserConnected( new User(db->loadUserData(1)) );
-    m_currentuser = db->getUserConnected();
+    m_currentuser = Datas::I()->users->userconnected();
     SetUserAllData(m_currentuser);
     m_currentuser->setIdUserActeSuperviseur(1);
     m_currentuser->setIdUserComptable(1);

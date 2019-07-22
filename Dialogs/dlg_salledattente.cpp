@@ -123,7 +123,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     PatientEnCours *pat = Datas::I()->patientsencours->getById(Datas::I()->patients->currentpatient()->id());
     if (pat == Q_NULLPTR)
         pat = Datas::I()->patientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                                                //! idPat
-                                                 DataBase::I()->getUserConnected()->idSuperviseurActes(),         //! idUser
+                                                 Datas::I()->users->userconnected()->idSuperviseurActes(),              //! idUser
                                                  Statut,                                                                //! Statut
                                                  QTime(0,0,0,0),                                                        //! heureStatut
                                                  QTime(),                                                               //! heureRDV

@@ -385,11 +385,11 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
             listbinds[CP_TITRE_IMPRESSIONS] =            typeDocCombo->currentText();
             listbinds[CP_DATE_IMPRESSIONS] =             editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-            listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       db->getUserConnected()->id();
+            listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
             listbinds[CP_LIENFICHIER_IMPRESSIONS] =      lien;
             listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
             listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->sitedetravail()->id();
+            listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->sitedetravail()->id();
         }
         else
         {
@@ -403,7 +403,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
             listbinds[CP_TITRE_IMPRESSIONS] =            typeDocCombo->currentText();
             listbinds[CP_DATE_IMPRESSIONS] =             editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-            listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       db->getUserConnected()->id();
+            listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
             //QJsonValue val = QJsonDocument::fromBinaryData(ba)[suffixe];
             //            if (val.isObject())
             //                QJsonDocument doc(val.toObject());
@@ -411,7 +411,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds[suffixe] =                         ba;
             listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
             listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->sitedetravail()->id();
+            listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->sitedetravail()->id();
         }
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         b = (doc != Q_NULLPTR);

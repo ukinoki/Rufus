@@ -30,7 +30,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     proc      = Procedures::I();
     db        = DataBase::I();
 
-    ui->Userlabel->setText(tr("Recettes spéciales de ") + db->getUserConnected()->login());
+    ui->Userlabel->setText(tr("Recettes spéciales de ") + Datas::I()->users->userconnected()->login());
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDepenses").toByteArray());
 
@@ -59,8 +59,8 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
     Datas::I()->banques->initListe();
-    for(QMap<int, Banque*>::const_iterator itbq = Datas::I()->banques->banques()->constBegin(); itbq != Datas::I()->banques->banques()->constEnd(); ++itbq )
-        ui->BanqChequpComboBox->addItem(itbq.value()->nomabrege(),itbq.value()->id());
+    foreach (Banque* bq, Datas::I()->banques->banques()->values())
+        ui->BanqChequpComboBox->addItem(bq->nomabrege(), bq->id());
 
     //TODO : SQL
     QStringList ListeRubriques;
@@ -190,7 +190,7 @@ void dlg_recettesspeciales::AnnulEnreg()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_recettesspeciales::initializeUserSelected()
 {
-    m_userencours = db->getUserConnected();
+    m_userencours = Datas::I()->users->userconnected();
     proc->SetUserAllData(m_userencours);
     if( m_userencours->comptesbancaires(true)->size() == 0)
     {
@@ -439,9 +439,8 @@ void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptesupComboBox->clear();
     QList<Compte*> *model = m_userencours->comptesbancaires();
-    for( QList<Compte*>::const_iterator itcpt = model->constBegin(); itcpt != model->constEnd(); ++itcpt )
+    foreach (Compte* cpt, *model )
     {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
         if (ActiveSeult)
         {
             if (!cpt->isDesactive())

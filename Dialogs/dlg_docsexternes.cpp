@@ -1034,7 +1034,7 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         return;
     if (!m_currentuser->isSoignant())         //le user n'est pas un soignant
     {
-        if (docmt->useremetteur() != DataBase::I()->getUserConnected()->id())
+        if (docmt->useremetteur() != Datas::I()->users->userconnected()->id())
         {
             UpMessageBox::Watch(this,tr("Suppression refusée"), tr("Vous ne pouvez pas supprimer un document dont vous n'êtes pas l'auteur"));
             return;

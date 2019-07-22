@@ -541,12 +541,12 @@ void dlg_remisecheques::ChangeCompte()
 
 void dlg_remisecheques::Slot_ChangeUser()
 {
-    m_userencours = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
-    proc->SetUserAllData(m_userencours);
+    m_currentuser = Datas::I()->users->getById(ui->UserComboBox->currentData().toInt());
+    proc->SetUserAllData(m_currentuser);
     if (!VoirNouvelleRemise())
         if (!VoirRemisesPrecs())
         {
-            ReconstruitListeComptes();
+            RegleComptesComboBox();
             UpMessageBox::Watch(this,tr("Pas d'archive de remises de chèques non plus"));
         }
 }
@@ -691,7 +691,7 @@ bool dlg_remisecheques::VoirRemisesPrecs()
 {
     gMode = RevoirRemisesPrecs;
     ui->ComptecomboBox  ->setEnabled(false);
-    ReconstruitListeComptes(true);
+    RegleComptesComboBox(false);
     ui->ChequesEnAttentelabel           ->setVisible(false);
     ui->ChequesEnAttenteupTableWidget   ->setVisible(false);
     ui->ListeChequesupTableWidget       ->setFixedSize(ui->ListeChequesupTableWidget->width(),580);
@@ -819,7 +819,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
     ui->ComptecomboBox  ->setEnabled(gMode == NouvelleRemise);
     ui->UserComboBox    ->setEnabled(gMode == NouvelleRemise);
 
-        ReconstruitListeComptes();
+        RegleComptesComboBox();
         ui->ChequesEnAttentelabel           ->setVisible(true);
         ui->ChequesEnAttenteupTableWidget   ->setVisible(true);
         ui->ListeChequesupTableWidget       ->setFixedSize(ui->ListeChequesupTableWidget->width(),360);
@@ -841,7 +841,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         //1, on recherche les chèques à déposer
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec  FROM " TBL_RECETTES " pai"
                 " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(m_userencours->id()) + "))"
+                " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(m_currentuser->id()) + "))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NULL"
                 " AND ModePaiement = 'C'";
@@ -858,7 +858,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         //1, on recherche les chèques à déposer mais dont le tireur à indiqué qu'il souhaitait qu'on attende pour le remettre en banque
         req =   "SELECT idRecette, TireurCheque, BanqueCheque, Montant, null as recspec FROM " TBL_RECETTES " pai"
                 " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-                " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(m_userencours->id()) +"))"
+                " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(m_currentuser->id()) +"))"
                 " AND pai.IdRemise IS NULL"
                 " AND EnAttente IS NOT NULL"
                 " AND ModePaiement = 'C'";
@@ -1036,9 +1036,8 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     QDate date;
     QString req;
     int id = ui->ComptecomboBox->currentData().toInt();
-    for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
+    foreach (Compte* icpt, *m_comptes)
     {
-        Compte *icpt = const_cast<Compte*>(itcpt.i->t());
         if (icpt->id() == id)
         {
             cpt = icpt;
@@ -1052,7 +1051,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
         AvecPrevisu = true;
     }
     else if (gMode == NouvelleRemise) {
-        iduser      = m_userencours->id();
+        iduser      = m_currentuser->id();
         date        = QDate::currentDate();
     }
 
@@ -1146,56 +1145,36 @@ void dlg_remisecheques::ReconstruitListeUsers()
         }
     }
 
-//    for( QMap<int, User*>::const_iterator itUser = m_comptables->constBegin(); itUser != m_comptables->constEnd(); ++itUser )
-//    {
-//        //TODO il faudrait trouver un moyen d'accélérer cette requête qui est vraiment très lente
-//        User *user = const_cast<User*>(itUser.value());
-//        QString req =   "SELECT idRecette FROM " TBL_RECETTES " pai"
-//                        " WHERE pai.idRecette in (SELECT lig.idRecette FROM " TBL_LIGNESPAIEMENTS " lig WHERE lig.idActe in"
-//                        " (SELECT act.idActe FROM " TBL_ACTES " act WHERE UserComptable = " + QString::number(user->id()) + "))"
-//                        " AND pai.IdRemise IS NULL"
-//                        " AND pai.ModePaiement = 'C'"
-//                        " ORDER BY TireurCheque";
-//        qDebug() << req;
-//        bool ok = true;
-//        QList<QVariantList> listidrecettes = db->StandardSelectSQL(req,ok);
-//        if (listidrecettes.size()>0)
-//        {
-//            m_comptablesavecchequesenattente->insert(user->id(), user);
-//            ui->UserComboBox->addItem(user->getLogin(), user->id() );
-//        }
-//    }
     if (m_comptablesavecchequesenattente->count()<1)
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Pas de remise de chèque en attente"));
         InitOK = false;
         return;
     }
-    m_userencours = db->getUserConnected();
+    m_currentuser = Datas::I()->users->userconnected();
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
-    if (m_userencours->comptable() != Q_NULLPTR)
+    if (m_currentuser->comptable() != Q_NULLPTR)
     {
-        auto itusr = m_comptablesavecchequesenattente->find(m_userencours->id());
+        auto itusr = m_comptablesavecchequesenattente->find(m_currentuser->id());
         if(itusr != m_comptablesavecchequesenattente->end())
-            ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_userencours->id()));
+            ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_currentuser->id()));
     }
     else
     {
         ui->UserComboBox->setCurrentIndex(0);
         int idusr = ui->UserComboBox->currentData().toInt();
-        m_userencours = Datas::I()->users->getById(idusr);
-        proc->SetUserAllData(m_userencours);
+        m_currentuser = Datas::I()->users->getById(idusr);
+        proc->SetUserAllData(m_currentuser);
     }
 }
 
-void dlg_remisecheques::ReconstruitListeComptes(bool avecinactif)
+void dlg_remisecheques::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptecomboBox->clear();
-    m_comptes = m_userencours->comptesbancaires();
-    for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
+    m_comptes = m_currentuser->comptesbancaires();
+    foreach (Compte* cpt, *m_comptes )
     {
-        Compte *cpt = const_cast<Compte*>(*itcpt);
-        if (!avecinactif)
+        if (ActiveSeult)
         {
             if (!cpt->isDesactive())
                 ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
@@ -1203,5 +1182,5 @@ void dlg_remisecheques::ReconstruitListeComptes(bool avecinactif)
         else
             ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
     }
-    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_userencours->idcompteParDefaut()));
+    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_currentuser->idcompteParDefaut()));
 }

@@ -77,9 +77,8 @@ void DocsExternes::setNouveauDocumentExterneFalse()
 
 void DocsExternes::addList(QList<DocExterne*> listdocs)
 {
-    for(QList<DocExterne*>::const_iterator it = listdocs.constBegin(); it != listdocs.constEnd(); ++it )
+    foreach (DocExterne* doc, listdocs)
     {
-        DocExterne *doc = const_cast<DocExterne*>(*it);
         if(!m_docsexternes->contains(doc->id()))
             m_nouveaudocument = true;
         add(m_docsexternes, doc);

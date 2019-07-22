@@ -374,9 +374,8 @@ void dlg_GestionLieux::ReconstruitModel()
     else
         tabModel = new QStandardItemModel;
 
-    for( auto itsite = listsites->cbegin(); itsite != listsites->cend(); ++itsite )
+    foreach (Site* sit, listsites->values() )
     {
-        Site *sit = const_cast<Site*>(itsite.value());
         UpStandardItem *pitem0 = new UpStandardItem(sit->nom()==""? tr("non défini") : sit->nom());
         pitem0->setItem(sit);
         tabModel->appendRow(QList<QStandardItem*>() << pitem0);

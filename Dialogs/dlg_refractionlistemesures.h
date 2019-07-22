@@ -31,7 +31,7 @@ public:
     ~dlg_listemesures();
     QTableView              *tabLM;
     QStandardItemModel      *gmodele;
-    QString                 IdRefractAOuvrir();
+    int             idRefractionAOuvrir();
 
 private:
     int             gMode;
@@ -41,7 +41,7 @@ private:
     int             Nombre_Mesure_Selected();
     DataBase        *db;
     void            RemplirTableView();
-    QString         itemSelectionne;
+    int             idrefractionSelectionne;
 
 private slots:
     void            Slot_Validation();

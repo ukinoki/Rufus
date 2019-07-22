@@ -54,7 +54,7 @@ protected:
 
 private:
     DataBase                    *db             = DataBase::I();
-    User                        *gUserEnCours   = db->getUserConnected();
+    User                        *m_currentuser   = Datas::I()->users->userconnected();
     Procedures                  *proc           = Procedures::I();
     Patient                     *m_currentpatient;
     User                        *gUserEntete;

@@ -65,13 +65,5 @@ void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
         else
             ++ itlign;
     }
-//    for (QMap<QString, LignePaiement*>::const_iterator itlign = m_lignespaiements->constBegin() ; itlign != m_lignespaiements->constEnd(); ++itlign)
-//    {
-//        LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
-//        listlignesasupprimer << lign;
-//    }
-//    if (listlignesasupprimer.size() > 0)
-//        for (int i=0; i<listlignesasupprimer.size(); ++i)
-//            remove(m_lignespaiements, listlignesasupprimer.at(i));
 }
 

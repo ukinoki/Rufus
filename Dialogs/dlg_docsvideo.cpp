@@ -277,7 +277,7 @@ void dlg_docsvideo::ValideFiche()
     listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
     listbinds[CP_TITRE_IMPRESSIONS] =            sstypedoc;
     listbinds[CP_DATE_IMPRESSIONS] =             editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
-    listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       db->getUserConnected()->id();
+    listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
     listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
     listbinds[CP_FORMATAUTRE_IMPRESSIONS] =      VIDEO;
     listbinds[CP_LIENFICHIER_IMPRESSIONS] =      NomFileVideoDoc;

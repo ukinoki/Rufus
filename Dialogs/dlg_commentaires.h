@@ -42,7 +42,9 @@ public:
     ~dlg_commentaires();
     Ui::dlg_commentaires *ui;
 
-    QString                 gReponseResumePrescription, gReponseResumeDossier;
+
+    QString Commentaire()           { return m_commentaire; }
+    QString CommentaireResume()     { return m_commentaireresume; }
 
 protected:
     void                    changeEvent(QEvent *e);
@@ -61,7 +63,7 @@ private:
 
     QGraphicsOpacityEffect      gOp;
     DataBase                    *db;
-    QString                     textDocument, resumeDocument;
+    QString                     m_commentaire, m_commentaireresume;
     QTimer                      *gTimerEfface;
 
     bool                        eventFilter(QObject *, QEvent *);

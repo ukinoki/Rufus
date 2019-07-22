@@ -27,8 +27,7 @@ dlg_refraction::dlg_refraction(Acte *acte, QWidget *parent) :
     ui->setupUi(this);
     proc            = Procedures::I();
     db              = DataBase::I();
-    gidUser         = db->getUserConnected()->id();
-    gACteEnCours    = acte;
+    m_currentacte   = acte;
 
     setWindowTitle("Refraction - " + Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom());
     setWindowIcon(Icons::icLunettes());
@@ -89,10 +88,8 @@ void dlg_refraction::closeEvent(QCloseEvent *)
 //----------------------------------------------------------------------------------
 void dlg_refraction::Connect_Slots()
 {
-    QList<UpDoubleSpinBox *> listdblSpin = findChildren<UpDoubleSpinBox *>();
-    for (int i=0; i<listdblSpin.size(); i++){
-        connect (listdblSpin.at(i),                 SIGNAL(valueChanged(double)),               this,     SLOT (Slot_Refraction_ValueChanged()));
-    }
+    foreach (UpDoubleSpinBox* spinbox, findChildren<UpDoubleSpinBox *>())
+        connect (spinbox,                           SIGNAL(valueChanged(double)),               this,     SLOT (Slot_Refraction_ValueChanged()));
     connect (ui->PorteRadioButton,                  SIGNAL(clicked()),                          this,     SLOT (Slot_PorteRadioButton_Clicked()) );
     connect (ui->AutorefRadioButton,                SIGNAL(clicked()),                          this,     SLOT (Slot_AutorefRadioButton_Clicked()) );
     connect (ui->ConvODPushButton,                  SIGNAL(clicked()),                          this,     SLOT (Slot_ConvODPushButton_Clicked()) );
@@ -165,17 +162,17 @@ void dlg_refraction::Connect_Slots()
 void dlg_refraction::Slot_AutorefRadioButton_Clicked()
 {
     gMode = Autoref;
-    AfficherLaMesure();
+    RegleAffichageFiche();
 }
 void dlg_refraction::Slot_CycloplegieCheckBox_Clicked()
 {
     if (ui->RefractionRadioButton->isChecked())
-        AfficherLaMesure();
+        RegleAffichageFiche();
 }
 void dlg_refraction::Slot_PorteRadioButton_Clicked()
 {
     gMode = Porte;
-    AfficherLaMesure();
+    RegleAffichageFiche();
 }
 void dlg_refraction::Slot_PressonCheckBox_Changed()
 {
@@ -184,15 +181,16 @@ void dlg_refraction::Slot_PressonCheckBox_Changed()
 
 void dlg_refraction::Slot_QuelleDistance_Clicked()
 {
-    AfficherLaMesure();
-   // TabulationVersOK(); // Modif 17/04
+    RegleAffichageFiche();
 }
+
 void dlg_refraction::Slot_RefractionRadioButton_Clicked()
 {
     gMode = Refraction;
     if(!ui->CycloplegieCheckBox->isChecked())   ui->V2RadioButton->setChecked(true);
-    AfficherLaMesure();
+    RegleAffichageFiche();
 }
+
 void dlg_refraction::Slot_BasePrismeTextODComboBox_Changed(int index)
 {
     switch (index) {
@@ -259,7 +257,7 @@ void dlg_refraction::Slot_DepoliCheckBox_Clicked(int etat)
         break;
     }
     // si depoli on masque les mesures
-    AfficherLaMesure();
+    RegleAffichageFiche();
     if (gMode == Prescription) ResumePrescription();
     if (ui->PrismeOD->value()>0 || ui->PrismeOG->value()>0
         || ui->DepoliODCheckBox->isChecked() || ui->DepoliOGCheckBox->isChecked()
@@ -314,7 +312,7 @@ void dlg_refraction::Slot_ODGCheckBox_Changed(int etat)
     default:
         break;
     }
-    AfficherLaMesure();
+    RegleAffichageFiche();
     check = Q_NULLPTR;
     delete check;
 }
@@ -378,7 +376,7 @@ void dlg_refraction::Slot_PlanCheckBox_Changed(int etat)
         }
     }
 
-    AfficherLaMesure();
+    RegleAffichageFiche();
     if (gMode == Prescription) ResumePrescription();
     if (ui->PrismeOD->value()>0 || ui->PrismeOG->value()>0
         || ui->DepoliODCheckBox->isChecked() || ui->DepoliOGCheckBox->isChecked()
@@ -503,9 +501,9 @@ void dlg_refraction::Slot_Commentaires()
     Dlg_Comments    = new dlg_commentaires();
     if (Dlg_Comments->exec() > 0)
     {
-        gResultatCommPreDef =  Dlg_Comments->gReponseResumePrescription;
+        m_commentaire =  Dlg_Comments->Commentaire();
         ResumePrescription();
-        gResultatCommResumOrdo = Dlg_Comments->gReponseResumeDossier;
+        m_commentaireresume = Dlg_Comments->CommentaireResume();
     }
     Dlg_Comments->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_Comments;
@@ -598,7 +596,7 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
     if (gMode == Porte)
     {
         // On vérifie dans Refractions s'il existe un enregistrement identique au meme jour pour ne pas surcharger la table
-        IdRefract = (LectureMesure("JOUR","P","","","","","",CalculFormule_OD(),CalculFormule_OG()));
+        IdRefract = (LectureMesure(Aujourdhui, MFronto, NoDilatation, 0, false, CalculFormule_OD(), CalculFormule_OG()));
         if (IdRefract == 0) // il n'y en a pas - on suit la procédure normale
             InscriptRefraction();
         FermeFiche(OK);
@@ -607,9 +605,8 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
     else if (gMode == Autoref || gMode == Refraction)
     {
         // On vérifie dans Refractions s'il existe un enregistrement identique et si oui, on l'écrase
-        QString Cycloplegie = "0";
-        if (ui->CycloplegieCheckBox->isChecked()) Cycloplegie = "1";
-        int IDMesure = LectureMesure("JOUR",QuelleMesure(),"",Cycloplegie,"","","","","");
+        Cycloplegie dilat = (ui->CycloplegieCheckBox->isChecked()? Dilatation : NoDilatation);
+        int IDMesure = LectureMesure(Aujourdhui, ConvertMesure(QuelleMesure()), dilat, 0, false);
         if (IDMesure > 0)
             // suppression de la mesure dans table Refraction
             DetruireLaMesure(Datas::I()->refractions->getById(IDMesure));
@@ -640,7 +637,7 @@ void dlg_refraction::Slot_PrescriptionRadionButton_clicked()
             ui->VLPrescritRadioButton->setChecked(true);
         else ui->V2PrescritRadioButton->setChecked(true);
     }
-    AfficherLaMesure();
+    RegleAffichageFiche();
 }
 
 void dlg_refraction::Slot_NouvMesureRefraction()
@@ -673,30 +670,32 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 {
     if (event->type() == QEvent::FocusIn )
     {
-        if (obj->inherits("UpLineEdit"))        {
-            UpLineEdit* objUpLine = static_cast<UpLineEdit*>(obj);
+        UpLineEdit* objUpLine = dynamic_cast<UpLineEdit*>(obj);
+        if (objUpLine != Q_NULLPTR)        {
             objUpLine->selectAll();
-            objUpLine = Q_NULLPTR;
+            return false;
         }
-        if (obj->inherits("UpDoubleSpinBox"))   {
-            UpDoubleSpinBox* objUpdSpin = static_cast<UpDoubleSpinBox*>(obj);
+        UpDoubleSpinBox* objUpdSpin = dynamic_cast<UpDoubleSpinBox*>(obj);
+        if (objUpdSpin != Q_NULLPTR)   {
             objUpdSpin->setPrefix("");
             objUpdSpin->selectAll();
-            objUpdSpin = Q_NULLPTR;
+            return false;
         }
-        if (obj->inherits("UpComboBox"))   {
-            UpComboBox* objUpCombo = static_cast<UpComboBox*>(obj);
+        UpComboBox* objUpCombo = dynamic_cast<UpComboBox*>(obj);
+        if (objUpCombo != Q_NULLPTR)   {
             objUpCombo->setCurrentIndex(objUpCombo->findText(objUpCombo->currentText()));
-            objUpCombo = Q_NULLPTR;
+            return false;
         }
-        if (obj->inherits("UpSpinBox"))   {
-            UpSpinBox* objUpSpin = static_cast<UpSpinBox*>(obj);
+        UpSpinBox* objUpSpin = dynamic_cast<UpSpinBox*>(obj);
+        if (objUpSpin != Q_NULLPTR)   {
             objUpSpin->selectAll();
-            objUpSpin = Q_NULLPTR;
+            return false;
         }
         UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
-        if (box!=Q_NULLPTR)
+        if (box != Q_NULLPTR){
             box->setStyleSheet(STYLE_UPGROUBOXACTIVE);
+            return false;
+        }
     }
 
     if (event->type() == QEvent::FocusOut )
@@ -972,8 +971,8 @@ void dlg_refraction::Init_variables()
     gAfficheDetail          = false;
 
     ui->DateDateEdit        ->setDate(QDate::currentDate());
-    gResultatCommPreDef     = InsertCommentaireObligatoire();
-    gResultatCommResumOrdo  = "";
+    m_commentaire           = CommentaireObligatoire();
+    m_commentaireresume     = "";
     EscapeFlag              = true;
     gDioptrAstOD            = 0;
     gDioptrAstOG            = 0;
@@ -1050,252 +1049,6 @@ void dlg_refraction::Afficher_AVP(bool TrueFalse)
     ui->label_POD->setVisible(TrueFalse);
     ui->label_POG->setVisible(TrueFalse);
     ui->labelAVP->setVisible(TrueFalse);
-}
-
-//---------------------------------------------------------------------------------
-// Masque ou pas les champs en fonction de type de mesure
-//---------------------------------------------------------------------------------
-void dlg_refraction::AfficherLaMesure()
-{
-
-    // on affiche tous les widgets
-    Afficher_AVL_AVP(true);
-    Afficher_AddVP(true);
-    ui->CycloplegieCheckBox->setVisible(true);
-    ui->QuelleDistanceGroupBox->setVisible(true);
-    ui->VPRadioButton->setVisible(true);
-    ui->VLRadioButton->setChecked(false);
-    ui->V2RadioButton->setVisible(true);
-    ui->DetailsPushButton->setVisible(true);
-    ui->DetailsPushButton->setEnabled(true);
-    Afficher_Oeil_Droit(true);
-    Afficher_Oeil_Gauche(true);
-
-    // on masque les objets inutiles selon les cas
-    if (gMode == Porte)      // mode Porte
-    {
-        ui->AnnulPushButton->setVisible(true);
-        ui->OKPushButton->setIcon(Icons::icOK());
-        ui->OKPushButton->setText( tr("Enregistrer\net fermer"));
-        ui->ODCheckBox->setVisible(true);
-        ui->OGCheckBox->setVisible(true);
-        ui->KeratometrieGroupBox->setVisible(false);
-        ui->frame_Prescription->setVisible(false);
-        ui->V2RadioButton->setEnabled(true);
-        ui->VPRadioButton->setEnabled(true);
-        ui->VLRadioButton->setEnabled(true);
-        ui->PorteRadioButton->setChecked(true);
-        ui->QuelleDistanceGroupBox->setGeometry(735,10,120,95);
-        ui->QuelleDistanceGroupBox->setVisible(true);
-        Afficher_AVL_AVP(false);
-        if (ui->VLRadioButton->isChecked() || ui->VPRadioButton->isChecked())
-            Afficher_AddVP(false);
-        ui->CycloplegieCheckBox->setVisible(false);
-        gAfficheDetail =
-            (ui->PrismeOD->value() != 0.0         || ui->PrismeOG->value() != 0.0          ||
-            ui->RyserODCheckBox->isChecked()      || ui->RyserOGCheckBox->isChecked()       ||
-            ui->PlanODCheckBox->isChecked()     || ui->PlanOGCheckBox->isChecked()      ||
-            ui->DepoliODCheckBox->isChecked()   || ui->DepoliOGCheckBox->isChecked());
-        if (gAfficheDetail && ui->DetailsPushButton->text() ==  tr("- de détails"))
-            ui->DetailsPushButton->setEnabled(false);
-        if (ui->DetailsPushButton->text() ==  tr("- de détails")) gAfficheDetail = true;
-        AfficherDetail(gAfficheDetail);
-        if(gAfficheDetail)
-        {
-            ui->PrismeGroupBox->setVisible(true);
-            ui->VerresSpeciauxGroupBox->setVisible(true);
-            ui->RyserGroupBox->setVisible(true);
-            if (ui->RyserODCheckBox->isChecked() || ui->RyserOGCheckBox->isChecked())
-                ui->RyserSpinBox->setVisible(true);
-            else
-                ui->RyserSpinBox->setVisible(false);
-            if (ui->DepoliODCheckBox->isChecked())                 // si depoli on masque les mesures
-            {
-                Afficher_Oeil_Droit(false);
-                if (ui->RyserODCheckBox->isChecked())
-                    ui->RyserODCheckBox->setChecked(false);
-                if (ui->RyserOGCheckBox->isChecked())
-                    ui->RyserOGCheckBox->setChecked(false);
-                ui->RyserGroupBox->setVisible(false);
-            }
-            if (ui->DepoliOGCheckBox->isChecked())                 // si depoli on masque les mesures
-            {
-                Afficher_Oeil_Gauche(false);
-                if (ui->RyserODCheckBox->isChecked())
-                    ui->RyserODCheckBox->setChecked(false);
-                if (ui->RyserOGCheckBox->isChecked())
-                    ui->RyserOGCheckBox->setChecked(false);
-                ui->RyserGroupBox->setVisible(false);
-            }
-            if (ui->PlanODCheckBox->isChecked())
-            {
-                ui->SphereOD->setVisible(false);
-                ui->CylindreOD->setVisible(false);
-                ui->AxeCylindreOD->setVisible(false);
-                ui->label_POD->setVisible(false);
-                ui->AddVPOD->setVisible(false);
-                ui->ConvODPushButton->setVisible(false);
-            }
-            if (ui->PlanOGCheckBox->isChecked())
-            {
-                ui->SphereOG->setVisible(false);
-                ui->CylindreOG->setVisible(false);
-                ui->AxeCylindreOG->setVisible(false);
-                ui->label_POG->setVisible(false);
-                ui->AddVPOG->setVisible(false);
-                ui->ConvOGPushButton->setVisible(false);
-            }
-        }
-        if (gAfficheDetail)
-            setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_AVEC_DETAIL);
-        else
-            setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
-    } // fin mode Porte
-
-    if (gMode == Autoref)    // mode AutoRef
-    {
-        ui->AnnulPushButton->setVisible(true);
-        ui->OKPushButton->setIcon(Icons::icOK());
-        ui->OKPushButton->setText( tr("Enregistrer\net fermer"));
-        ui->ODCheckBox->setVisible(true);
-        ui->OGCheckBox->setVisible(true);
-        ui->KeratometrieGroupBox->setVisible(true);
-        ui->frame_Prescription->setVisible(false);
-        ui->AutorefRadioButton->setChecked(true);
-        ui->DetailsPushButton->setVisible(false);
-        AfficherDetail(false);
-        ui->KeratometrieGroupBox->setVisible(true);
-        Afficher_AVL_AVP(false);
-        Afficher_AddVP(false);
-        ui->QuelleDistanceGroupBox->setVisible(false);
-        setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
-    }
-
-    if (gMode == Refraction) // mode Refraction
-    {
-        ui->AnnulPushButton->setVisible(true);
-        ui->OKPushButton->setIcon(Icons::icOK());
-        ui->OKPushButton->setText( tr("Enregistrer\net fermer"));
-        ui->ODCheckBox->setVisible(true);
-        ui->OGCheckBox->setVisible(true);
-        ui->KeratometrieGroupBox->setVisible(false);
-        ui->frame_Prescription->setVisible(false);
-        ui->V2RadioButton->setEnabled(true);
-        ui->VLRadioButton->setEnabled(true);
-        ui->RefractionRadioButton->setChecked(true);
-        ui->VPRadioButton->setVisible(false);
-        ui->QuelleDistanceGroupBox->setGeometry(735,10,120,65);
-        if (ui->CycloplegieCheckBox->isChecked())
-        {
-            Afficher_AVP(false);
-            Afficher_AddVP(false);
-            ui->QuelleDistanceGroupBox->setVisible(false);
-        }
-        ui->DetailsPushButton->setVisible(false);
-        if (ui->VLRadioButton->isChecked())
-        {
-            Afficher_AVP(false);
-            Afficher_AddVP(false);
-        }
-        if (ui->VPRadioButton->isChecked())
-        {
-            ui->V2RadioButton->setChecked(true);
-            Afficher_AVP(true);
-            Afficher_AddVP(true);
-        }
-        AfficherDetail(false);
-        setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
-    }
-
-    if (gMode == Prescription)   // mode Prescription
-    {
-        Afficher_AVL_AVP(false);
-        ui->OKPushButton->setIcon(Icons::icImprimer());
-        ui->OKPushButton->setText( tr("Imprimer"));
-        ui->CycloplegieCheckBox->setVisible(false);
-        ui->KeratometrieGroupBox->setVisible(false);
-        ui->ODCheckBox->setVisible(false);
-        ui->OGCheckBox->setVisible(false);
-        gAfficheDetail =
-            (ui->PrismeOD->value() != 0.0          || ui->PrismeOG->value() != 0.0      ||
-            ui->RyserODCheckBox->isChecked()      || ui->RyserOGCheckBox->isChecked()   ||
-            ui->PlanODCheckBox->isChecked()     || ui->PlanOGCheckBox->isChecked()  ||
-            ui->DepoliODCheckBox->isChecked()   || ui->DepoliOGCheckBox->isChecked());
-        if (gAfficheDetail && ui->DetailsPushButton->text() ==  tr("- de détails"))
-            ui->DetailsPushButton->setEnabled(false);
-        if (ui->DetailsPushButton->text() ==  tr("- de détails")) gAfficheDetail = true;
-        AfficherDetail(gAfficheDetail);
-        if(gAfficheDetail)
-        {
-            ui->PrismeGroupBox->setVisible(true);
-            ui->VerresSpeciauxGroupBox->setVisible(true);
-            ui->KeratometrieGroupBox->setVisible(false);
-            ui->RyserGroupBox->setVisible(true);
-            if (ui->RyserODCheckBox->isChecked() || ui->RyserOGCheckBox->isChecked())
-                ui->RyserSpinBox->setVisible(true);
-            else
-                ui->RyserSpinBox->setVisible(false);
-            if (ui->DepoliODCheckBox->isChecked())                 // si depoli on masque les mesures
-            {
-                Afficher_Oeil_Droit(false);
-                if (ui->RyserODCheckBox->isChecked())
-                    ui->RyserODCheckBox->setChecked(false);
-                if (ui->RyserOGCheckBox->isChecked())
-                    ui->RyserOGCheckBox->setChecked(false);
-                ui->RyserGroupBox->setVisible(false);
-            }
-            if (ui->DepoliOGCheckBox->isChecked())                 // si depoli on masque les mesures
-            {
-                Afficher_Oeil_Gauche(false);
-                if (ui->RyserODCheckBox->isChecked())
-                    ui->RyserODCheckBox->setChecked(false);
-                if (ui->RyserOGCheckBox->isChecked())
-                    ui->RyserOGCheckBox->setChecked(false);
-                ui->RyserGroupBox->setVisible(false);
-            }
-            if (ui->PlanODCheckBox->isChecked())
-            {
-                ui->SphereOD->setVisible(false);
-                ui->CylindreOD->setVisible(false);
-                ui->AxeCylindreOD->setVisible(false);
-                ui->label_POD->setVisible(false);
-                ui->AddVPOD->setVisible(false);
-                ui->ConvODPushButton->setVisible(false);
-            }
-            if (ui->PlanOGCheckBox->isChecked())
-            {
-                ui->SphereOG->setVisible(false);
-                ui->CylindreOG->setVisible(false);
-                ui->AxeCylindreOG->setVisible(false);
-                ui->label_POG->setVisible(false);
-                ui->AddVPOG->setVisible(false);
-                ui->ConvOGPushButton->setVisible(false);
-            }
-        }
-
-        ui->frame_Prescription->setVisible(true);
-        if (!ui->ODCheckBox->isChecked()) ui->ODPrescritCheckBox->setChecked(false);
-        ui->ODPrescritCheckBox->setVisible(ui->ODCheckBox->isChecked());
-        if (!ui->OGCheckBox->isChecked()) ui->OGPrescritCheckBox->setChecked(false);
-        ui->OGPrescritCheckBox->setVisible(ui->OGCheckBox->isChecked());
-
-        ui->V2RadioButton->setEnabled(false);
-        ui->VPRadioButton->setEnabled(false);
-        ui->VLRadioButton->setEnabled(false);
-        ui->PrescriptionRadioButton->setChecked(true);
-        ui->OupsPushButton->setEnabled(false);
-        ui->ReprendrePushButton->setEnabled(true);
-
-        if (gAfficheDetail)
-            setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_AVEC_DETAIL);
-        else
-            setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_SANS_DETAIL);
-        ResumePrescription();
-    }
-    ui->OupsPushButton->setEnabled(Datas::I()->refractions->refractions()->size() > 0);
-    ui->ReprendrePushButton->setEnabled(Datas::I()->refractions->refractions()->size() > 0);
-    ui->ResumePushButton->setEnabled(Datas::I()->refractions->refractions()->size() > 0);
-    MasquerObjetsOeilDecoche();
 }
 
 // ----------------------------------------------------------------------------
@@ -1555,6 +1308,26 @@ double dlg_refraction::ConvDouble(QString textdouble)
      return (ntextdouble.toDouble());
 }
 
+dlg_refraction::TypeMesure dlg_refraction::ConvertMesure(QString Mesure)
+{
+    if (Mesure == "P") return MFronto;
+    if (Mesure == "A") return MAutoref;
+    if (Mesure == "O") return MPrescription;
+    if (Mesure == "R") return MRefraction;
+    return NoMesure;
+}
+
+QString dlg_refraction::ConvertMesure(TypeMesure Mesure)
+{
+    switch (Mesure) {
+    case MFronto:       return "P";
+    case MAutoref:      return "A";
+    case MPrescription: return "0";
+    case MRefraction:   return "R";
+    default: return "";
+    }
+}
+
 //---------------------------------------------------------------------------------
 // Deplacement du curseur sur un des GroupBox
 //---------------------------------------------------------------------------------
@@ -1720,7 +1493,7 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
         if (Imprimer_Ordonnance())
         {
             ResumeObservation();
-            if (LectureMesure("JOUR","O","","","","","",CalculFormule_OD(),CalculFormule_OG()) == 0)
+            if (LectureMesure(Aujourdhui, MPrescription, NoDilatation, 0, false, CalculFormule_OD(), CalculFormule_OG()) == 0)
                 InscriptRefraction();
         }
         else
@@ -1752,7 +1525,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    User *userEntete = Datas::I()->users->getById(db->getUserConnected()->idSuperviseurActes(), Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idSuperviseurActes(), Item::LoadDetails);
     Entete = proc->ImpressionEntete(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
@@ -1778,7 +1551,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     if (a)
     {
         QHash<QString, QVariant> listbinds;
-        listbinds[CP_IDUSER_IMPRESSIONS] =           gidUser;
+        listbinds[CP_IDUSER_IMPRESSIONS] =           Datas::I()->users->userconnected()->id();
         listbinds[CP_IDPAT_IMPRESSIONS] =            Datas::I()->patients->currentpatient()->id();
         listbinds[CP_TYPEDOC_IMPRESSIONS] =          PRESCRIPTION;
         listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      CORRECTION;
@@ -1788,11 +1561,11 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds[CP_TEXTORIGINE_IMPRESSIONS] =      ui->ResumePrescriptionTextEdit->toPlainText();
         listbinds[CP_TEXTPIED_IMPRESSIONS] =         Pied;
         listbinds[CP_DATE_IMPRESSIONS] =             ui->DateDateEdit->date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
-        listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       gidUser;
+        listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
         listbinds[CP_ALD_IMPRESSIONS] =              QVariant(QVariant::String);
         listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS] =        PRESCRIPTIONLUNETTES;
-        listbinds[CP_IDLIEU_IMPRESSIONS] =           db->getUserConnected()->sitedetravail()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->sitedetravail()->id();
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
             delete doc;
@@ -1889,12 +1662,12 @@ void dlg_refraction::InitDivers()
     ui->frame_Detail->setVisible(false);
     ui->frame_Prescription->setVisible(false);
 
-    PrefixePlus(ui->SphereOD);               // 11-07-2014
-    PrefixePlus(ui->SphereOG);               // 11-07-2014
-    PrefixePlus(ui->CylindreOD);             // 11-07-2014
-    PrefixePlus(ui->CylindreOG);             // 11-07-2014
-    PrefixePlus(ui->AddVPOD);                // 11-07-2014
-    PrefixePlus(ui->AddVPOG);                // 11-07-2014
+    PrefixePlus(ui->SphereOD);
+    PrefixePlus(ui->SphereOG);
+    PrefixePlus(ui->CylindreOD);
+    PrefixePlus(ui->CylindreOG);
+    PrefixePlus(ui->AddVPOD);
+    PrefixePlus(ui->AddVPOG);
 }
 
 //-----------------------------------------------------------------------------------------
@@ -1931,21 +1704,21 @@ void dlg_refraction::InscriptRefraction()
     }
 }
 
-QString dlg_refraction::InsertCommentaireObligatoire()
+QString dlg_refraction::CommentaireObligatoire()
 {
     QString rep ("");
     bool ok;
     QString req = "SELECT TextComment"
                   " FROM "  TBL_COMMENTAIRESLUNETTES
-                  " WHERE idUser = " + QString::number(gidUser) +
+                  " WHERE idUser = " + QString::number(Datas::I()->users->userconnected()->id()) +
                   " and ParDefautComment = 1"
                   " ORDER BY ResumeComment";
     QList<QVariantList> commentlist = db->StandardSelectSQL(req,ok);
     if (ok && commentlist.size()>0)
-        for (int i=0; i<commentlist.size(); i++)
+        foreach (const QVariant &comment, commentlist)
         {
-            rep += commentlist.at(i).at(0).toString();
-            if (i<commentlist.size()-1)
+            rep += comment.toString();
+            if (comment != commentlist.last())
                 rep += "\n";
         }
     return rep;
@@ -2020,7 +1793,7 @@ bool dlg_refraction::InsertRefraction()
 {
     QHash<QString, QVariant> listbinds;
     listbinds["idPat"]              = Datas::I()->patients->currentpatient()->id();
-    listbinds["idActe"]             = gACteEnCours->id();
+    listbinds["idActe"]             = m_currentacte->id();
     listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
     listbinds["QuelleMesure"]       = QuelleMesure();
     if(QuelleMesure() != "A")
@@ -2099,17 +1872,16 @@ bool dlg_refraction::InsertRefraction()
     return a;
 }
 
-//---------------------------------------------------------------------------------
-// Lecture d'une mesure en base
-// Quand = JOUR - AVANT
-// Mesure = P - A - R - O
-// TypLun = L - P - 2
-// Cycloplegie = true - false
-// IdRefraction = N° Enregistrement a lire
-// Affichage = QM remplir ou pas le formulaire avec la mesure trouvee
-// OeilCoche = Pour un oeil particulier
-//---------------------------------------------------------------------------------
-int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun, QString Cycloplegie, QString IdRefraction, QString Affichage, QString OeilCoche, QString FormuleOD, QString FormuleOG)
+/*! ---------------------------------------------------------------------------------
+Lecture d'une mesure en base
+\param DateMesure               -> mesure faite ce jour ou mesures antérieures
+\param TypeMesureMesure         -> MFronto, MAutoref, MRefraction ou Mprescription
+\param Cycloplegie dilatation   -> Dilatation = que les mesures avec dilatation  - NoDilatation = toutes les mesures, dilatées ou pas
+\param int idrefraction         -> idrefraction à lire
+\param bool Affichage           -> remplir ou pas le formulaire avec la mesure trouvee
+\param OeilCoche = Pour un oeil particulier
+---------------------------------------------------------------------------------*/
+int dlg_refraction::LectureMesure(DateMesure Quand, TypeMesure Mesure, Cycloplegie dilatation, int idrefraction, bool Affichage, QString FormuleOD, QString FormuleOG)
 {
     bool ok;
     QString a;
@@ -2129,61 +1901,33 @@ int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun,
             " FROM " TBL_REFRACTIONS ;
 
     // On relit la mesure après selection dans la liste mesure (reprendre)
-    if (IdRefraction.length() > 0)
-        requete += " WHERE idRefraction = "    + IdRefraction ;
+    if (idrefraction > 0)
+        requete += " WHERE idRefraction = "    + QString::number(idrefraction) ;
     else
         // fabrication des criteres de recherche selon le cas de lecture
     {
         requete += " WHERE  IdPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) ;
-        if (Quand == "JOUR")
+        if (Quand == Aujourdhui)
             requete += " AND DateRefraction = '" + QDate::currentDate().toString("yyyy-MM-dd") + "'";
-        if (Quand == "AVANT")
+        else if (Quand == Avant)
             requete += " AND DateRefraction < '" + QDate::currentDate().toString("yyyy-MM-dd") + "'";
-        if (Mesure.length() > 0)
-            requete += " AND QuelleMesure = '"   + Mesure + "'";
-        if (TypLun.length() > 0)
-            requete += " AND QuelleDistance = '" + TypLun + "'";
-        if (Cycloplegie.length() > 0)
-            requete += " AND Cycloplegie =  "    + Cycloplegie ;
-        if (OeilCoche.length() > 0)
-            requete += OeilCoche;
+        if (Mesure != NoMesure)
+            requete += " AND QuelleMesure = '"   + ConvertMesure(Mesure) + "'";
+        if (dilatation == Dilatation)
+            requete += " AND Cycloplegie =  1";
         if (FormuleOD.length() > 0)                                  // 10-07-2014
             requete += " AND FormuleOD =  '"    + FormuleOD + "'";
         if (FormuleOG.length() > 0)                                  // 10-07-2014
             requete += " AND FormuleOG =  '"    + FormuleOG + "'";
     }
-
-    // on ajoute un tri sur la date, du plus rescent au plus ancien.
     requete += " ORDER BY DateRefraction, idRefraction";
 
     QList<QVariantList> mesureslist = db->StandardSelectSQL(requete, ok, tr("Impossible d'accéder à la liste table des mesures!"));
     if (!ok || mesureslist.size()==0)
         return 0;
 
-    if (Affichage != "")
+    if (Affichage)
     {
-        if (Affichage != "QUNOEIL")
-        {
-            if (mesureslist.last().at(3).toString() == "P")  gMode = Porte;                                              // QuelleMesure
-            if (mesureslist.last().at(3).toString() == "A")  gMode = Autoref;                                            // QuelleMesure
-            if (mesureslist.last().at(3).toString() == "R")  gMode = Refraction;                                         // QuelleMesure
-            if (mesureslist.last().at(3).toString() == "O")  gMode = Prescription;                                       // QuelleMesure
-            if (mesureslist.last().at(4).toString() == "L")   ui->VLRadioButton->setChecked(true);                       // QuelleDistance
-            if (mesureslist.last().at(4).toString() == "P")   ui->VPRadioButton->setChecked(true);                       // QuelleDistance
-            if (mesureslist.last().at(4).toString() == "2")   ui->V2RadioButton->setChecked(true);                       // QuelleDistance
-            ui->CycloplegieCheckBox->setChecked(mesureslist.last().at(5).toBool());                                      // Cycloplegie
-
-            ui->CommentairePrescriptionTextEdit->setPlainText(mesureslist.last().at(36).toString());                     // CommentaireOrdoLunettes
-            if (mesureslist.last().at(37).toString() == "L")   ui->VLPrescritRadioButton->setChecked(true);              // QuelsVerres
-            if (mesureslist.last().at(37).toString() == "P")   ui->VPPrescritRadioButton->setChecked(true);              // QuelsVerres
-            if (mesureslist.last().at(37).toString() == "2")   ui->V2PrescritRadioButton->setChecked(true);              // QuelsVerres
-            if (mesureslist.last().at(38).toString() == "D")   ui->OGPrescritCheckBox->setChecked(false);                // QuelsYeux
-            if (mesureslist.last().at(38).toString() == "G")   ui->ODPrescritCheckBox->setChecked(false);                // QuelsYeux
-            if (mesureslist.last().at(39).toString() == "2")   ui->DeuxMonturesPrescritRadioButton->setChecked(true);    // Monture
-            if (mesureslist.last().at(39).toString() == "1")   ui->UneMonturePrescritRadioButton->setChecked(true);      // Monture
-            ui->VerresTeintesCheckBox->setChecked(mesureslist.last().at(40).toBool());                                   // VerreTeinte
-        } // fin affiche non partiel
-
         // Remplissage des champs Oeil Droit
         if (mesureslist.last().at(6).toInt() == 1)
             ui->ODCheckBox->setChecked(true);                                                               // ODcoche
@@ -2237,8 +1981,7 @@ int dlg_refraction::LectureMesure(QString Quand, QString Mesure, QString TypLun,
 
         } // fin Oeil gauche coche
     }
-    int w = mesureslist.last().at(0).toInt();              // retourne idRefraction
-    return w;
+    return mesureslist.last().at(0).toInt();              // retourne idRefraction
 }
 
 //---------------------------------------------------------------------------------
@@ -2293,7 +2036,7 @@ else
 void dlg_refraction::OuvrirListeMesures(QString SupOuRecup)
 {
     int RetourListe = 0;
-    QString nuRefraction = "";
+    int idrefraction;
 
     // Creation du formulaire Dlg Liste Mesures
     Dlg_ListeMes    = new dlg_listemesures(SupOuRecup);
@@ -2304,18 +2047,18 @@ void dlg_refraction::OuvrirListeMesures(QString SupOuRecup)
     // relecture et affichage de la mesure selectionnee
     if (RetourListe > 0 && SupOuRecup == "RECUP")
     {
-        nuRefraction = Dlg_ListeMes->IdRefractAOuvrir();
-        if (nuRefraction.toInt() > 0)
+        idrefraction = Dlg_ListeMes->idRefractionAOuvrir();
+        if (idrefraction > 0)
         {
-            LectureMesure("","","","",nuRefraction,"QM","","","");
-            AfficherLaMesure();
+            LectureMesure(NoDate, NoMesure, NoDilatation, idrefraction, true);
+            RegleAffichageFiche();
         }
     }
     if (RetourListe > 0 && SupOuRecup == "SUPP")
         RechercheMesureEnCours();
     Dlg_ListeMes->close(); // nécessaire pour enregistrer la géométrie
     delete Dlg_ListeMes;
-    AfficherLaMesure();
+    RegleAffichageFiche();
 }
 
 //---------------------------------------------------------------------------------------------------------
@@ -2410,108 +2153,103 @@ void    dlg_refraction::QuitteAddVP(UpDoubleSpinBox *obj)
 void dlg_refraction::RechercheMesureEnCours()
 {
     bool ok;
-    int i = 0;
     QString Reponse ="";
 
-    // On cherche si le patient est enregistré dans la table réfractions - sinon, on sort de la procédure
-    QString selrequete = "SELECT idActe FROM " TBL_REFRACTIONS
-              " WHERE IdPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " and quellemesure <> 'null'" ;
-    //proc->Edit(selrequete);
-    QList<QVariantList> mesurelist = db->StandardSelectSQL(selrequete, ok);
-    if (ok && mesurelist.size() == 0)
+    if (Datas::I()->refractions->refractions()->isEmpty())
     {
         gMode = Porte;
         ui->ReprendrePushButton->setEnabled(false);
         ui->OupsPushButton->setEnabled(false);
         ui->ResumePushButton->setEnabled(false);
-        QMap<QString,QVariant>  Age = Utils::CalculAge(Datas::I()->patients->currentpatient()->datedenaissance(), QDate::currentDate());
+        QMap<QString,QVariant>  Age = Utils::CalculAge(Datas::I()->patients->currentpatient()->datedenaissance());
         if (Age["annee"].toInt() < 45)
             ui->VLRadioButton->setChecked(true);
         else
             ui->V2RadioButton->setChecked(true);
-        AfficherLaMesure();
+        RegleAffichageFiche();
         return;
     }
 
     // recherche d'une mesure du jour
-    while (i == 0)
+    bool mesuretrouvee = false;
+    QString requete = "SELECT idActe, QuelleMesure FROM " TBL_REFRACTIONS   // recherche d'une mesure pour le jour en cours
+              " WHERE DateRefraction = '" + QDate::currentDate().toString("yyyy-MM-dd") +
+              "' AND   IdPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) ;
+    QList<QVariantList> listmesure = db->StandardSelectSQL(requete, ok);
+    if (!ok || listmesure.size() == 0)
+        mesuretrouvee = true;
+    foreach (const QVariant &mesure, listmesure)
     {
-        selrequete = "SELECT idActe, QuelleMesure FROM " TBL_REFRACTIONS   // recherche d'une mesure pour le jour en cours
-                  " WHERE DateRefraction = '" + QDate::currentDate().toString("yyyy-MM-dd") +
-                  "' AND   IdPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) ;
-        QList<QVariantList> mesurelist2 = db->StandardSelectSQL(selrequete, ok);
-        if (mesurelist2.size() == 0)  break;
-        for (int i = 0; i<mesurelist2.size();i++)
+        if (mesure.toString() == "O")
         {
-            if (mesurelist2.at(i).at(1).toString() == "O")
-            {
-                Reponse = "O";
-                i = mesurelist2.size();
-            }
+            Reponse = "O";
+            mesuretrouvee = true;
+            break;
         }
-        if (Reponse == "O")  break;
-        for (int i = 0; i<mesurelist2.size();i++)
+    }
+    if (!mesuretrouvee)
+        foreach (const QVariant &mesure, listmesure)
         {
-            if (mesurelist2.at(i).at(1).toString() == "R")
+            if (mesure.toString() == "R")
             {
                 Reponse = "R";
-                i = mesurelist2.size();
+                mesuretrouvee = true;
+                break;
             }
         }
-        if (Reponse == "R") break;
-        for (int i = 0; i<mesurelist2.size();i++)
+    if (!mesuretrouvee)
+        foreach (const QVariant &mesure, listmesure)
         {
-            if (mesurelist2.at(i).at(1).toString() == "A")
+            if (mesure.toString() == "A")
             {
                 Reponse = "A";
-                i = mesurelist2.size();
+                mesuretrouvee = true;
+                break;
             }
         }
-        if (Reponse == "A") break;
-        for (int i = 0; i<mesurelist2.size();i++)
+    if (!mesuretrouvee)
+        foreach (const QVariant &mesure, listmesure)
         {
-            if (mesurelist2.at(i).at(1).toString() == "P")
+            if (mesure.toString() == "P")
             {
                 Reponse = "P";
-                i = mesurelist2.size();
+                mesuretrouvee = true;
+                break;
             }
         }
-        if (Reponse == "P") break;
-        i = 1;
-    }
     if (Reponse != "")
-        if (LectureMesure("JOUR",Reponse,"","","","QM","","","") > 0)            // on affiche la mesure du jour trouvée
+        if (LectureMesure(Aujourdhui, ConvertMesure(Reponse), NoDilatation, 0, true) > 0)            // on affiche la mesure du jour trouvée
         {
             if (gMode == Refraction || gMode == Prescription)    Slot_PrescriptionRadionButton_clicked();
             if (gMode == Autoref)       gMode = Refraction;
             if (gMode == Porte)         gMode = Autoref;
-            AfficherLaMesure();
+            RegleAffichageFiche();
             return ;
         }
 
     // On n'a rien trouvé pour le jour >> on cherche la dernière mesure de réfraction
-    if (LectureMesure("AVANT","R","","","","QM","","","") > 0)
+    if (LectureMesure(Avant, MRefraction, NoDilatation, 0, true) > 0)
     {
-        AfficherLaMesure();
+        RegleAffichageFiche();
         return ;
     }
 
-    // on n'a rien trouvé en réfraction - on cherche la dernière mesure de prescription
-    if (LectureMesure("AVANT","O","","","","QM","","","") > 0)
+    // on n'a rien trouvé en réfraction - on cherche la dernière prescription
+    if (LectureMesure(Avant, MPrescription, NoDilatation, 0, true) > 0)
     {
-        AfficherLaMesure();
+        RegleAffichageFiche();
         return ;
     }
-    // on n'a rien trouvé en réfraction - on cherche la dernière mesure Autoref
-    if (LectureMesure("AVANT","A","","","","QM","","","") > 0)
+    // on n'a rien trouvé en prescription - on cherche la dernière mesure Autoref
+    if (LectureMesure(Avant, MAutoref, NoDilatation, 0, true) > 0)
     {
-        AfficherLaMesure();
+        RegleAffichageFiche();
         return ;
     }
-    // on n'a rien trouvé en réfraction - on cherche la dernière mesure de fronto
-    if (LectureMesure("AVANT","P","","","","QM","","","") > 0)
+    // on n'a rien trouvé en autoref - on cherche la dernière mesure de fronto
+    if (LectureMesure(Avant, MFronto, NoDilatation, 0, true) > 0)
     {
-        AfficherLaMesure();
+        RegleAffichageFiche();
         return ;
     }
 }
@@ -3304,11 +3042,11 @@ void dlg_refraction::ResumeObservation()
         switch (IMesure)
         {
             case 4:
-                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + db->getUserConnected()->login() + "</td>";
+                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
                 gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             case 5:
-                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + db->getUserConnected()->login() + "</td>";
+                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
                 gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
                 break;
             default:
@@ -3319,7 +3057,7 @@ void dlg_refraction::ResumeObservation()
     // Consolidation de tous les résultats dans un même QString
 
     gResultatObservation = gResultatPO + gResultatAnondil + gResultatAdil + gResultatRnondil + gResultatRdil;
-    gResultatPR = gResultatPR + gResultatCommResumOrdo;
+    gResultatPR = gResultatPR + m_commentaireresume;
 }
 
 // -------------------------------------------------------------------------------------
@@ -3756,7 +3494,7 @@ void dlg_refraction::ResumePrescription()
         Resultat = Resultat + "\n" + tr("2 montures");
 
     //4-6 Les commentaires
-    Resultat = Resultat + "\n" + gResultatCommPreDef;
+    Resultat = Resultat + "\n" + m_commentaire;
     if (ui->CommentairePrescriptionTextEdit->document()->toPlainText() > "")
         Resultat = Resultat + "\n" + ui->CommentairePrescriptionTextEdit->document()->toPlainText();
 
@@ -3833,6 +3571,252 @@ void dlg_refraction::ResumeRefraction()
         ResultatRefraction += "\n\n" + ResultatVerres;
         }
     proc->Edit(ResultatRefraction, tr("Historique réfractions ") + Datas::I()->patients->currentpatient()->prenom() + " " + Datas::I()->patients->currentpatient()->nom(), false);
+}
+
+//---------------------------------------------------------------------------------
+// Masque ou pas les champs en fonction de type de mesure
+//---------------------------------------------------------------------------------
+void dlg_refraction::RegleAffichageFiche()
+{
+
+    // on affiche tous les widgets
+    Afficher_AVL_AVP(true);
+    Afficher_AddVP(true);
+    ui->CycloplegieCheckBox->setVisible(true);
+    ui->QuelleDistanceGroupBox->setVisible(true);
+    ui->VPRadioButton->setVisible(true);
+    ui->VLRadioButton->setChecked(false);
+    ui->V2RadioButton->setVisible(true);
+    ui->DetailsPushButton->setVisible(true);
+    ui->DetailsPushButton->setEnabled(true);
+    Afficher_Oeil_Droit(true);
+    Afficher_Oeil_Gauche(true);
+
+    // on masque les objets inutiles selon les cas
+    if (gMode == Porte)      // mode Porte
+    {
+        ui->AnnulPushButton->setVisible(true);
+        ui->OKPushButton->setIcon(Icons::icOK());
+        ui->OKPushButton->setText( tr("Enregistrer\net fermer"));
+        ui->ODCheckBox->setVisible(true);
+        ui->OGCheckBox->setVisible(true);
+        ui->KeratometrieGroupBox->setVisible(false);
+        ui->frame_Prescription->setVisible(false);
+        ui->V2RadioButton->setEnabled(true);
+        ui->VPRadioButton->setEnabled(true);
+        ui->VLRadioButton->setEnabled(true);
+        ui->PorteRadioButton->setChecked(true);
+        ui->QuelleDistanceGroupBox->setGeometry(735,10,120,95);
+        ui->QuelleDistanceGroupBox->setVisible(true);
+        Afficher_AVL_AVP(false);
+        if (ui->VLRadioButton->isChecked() || ui->VPRadioButton->isChecked())
+            Afficher_AddVP(false);
+        ui->CycloplegieCheckBox->setVisible(false);
+        gAfficheDetail =
+            (ui->PrismeOD->value() != 0.0         || ui->PrismeOG->value() != 0.0          ||
+            ui->RyserODCheckBox->isChecked()      || ui->RyserOGCheckBox->isChecked()       ||
+            ui->PlanODCheckBox->isChecked()     || ui->PlanOGCheckBox->isChecked()      ||
+            ui->DepoliODCheckBox->isChecked()   || ui->DepoliOGCheckBox->isChecked());
+        if (gAfficheDetail && ui->DetailsPushButton->text() ==  tr("- de détails"))
+            ui->DetailsPushButton->setEnabled(false);
+        if (ui->DetailsPushButton->text() ==  tr("- de détails")) gAfficheDetail = true;
+        AfficherDetail(gAfficheDetail);
+        if(gAfficheDetail)
+        {
+            ui->PrismeGroupBox->setVisible(true);
+            ui->VerresSpeciauxGroupBox->setVisible(true);
+            ui->RyserGroupBox->setVisible(true);
+            if (ui->RyserODCheckBox->isChecked() || ui->RyserOGCheckBox->isChecked())
+                ui->RyserSpinBox->setVisible(true);
+            else
+                ui->RyserSpinBox->setVisible(false);
+            if (ui->DepoliODCheckBox->isChecked())                 // si depoli on masque les mesures
+            {
+                Afficher_Oeil_Droit(false);
+                if (ui->RyserODCheckBox->isChecked())
+                    ui->RyserODCheckBox->setChecked(false);
+                if (ui->RyserOGCheckBox->isChecked())
+                    ui->RyserOGCheckBox->setChecked(false);
+                ui->RyserGroupBox->setVisible(false);
+            }
+            if (ui->DepoliOGCheckBox->isChecked())                 // si depoli on masque les mesures
+            {
+                Afficher_Oeil_Gauche(false);
+                if (ui->RyserODCheckBox->isChecked())
+                    ui->RyserODCheckBox->setChecked(false);
+                if (ui->RyserOGCheckBox->isChecked())
+                    ui->RyserOGCheckBox->setChecked(false);
+                ui->RyserGroupBox->setVisible(false);
+            }
+            if (ui->PlanODCheckBox->isChecked())
+            {
+                ui->SphereOD->setVisible(false);
+                ui->CylindreOD->setVisible(false);
+                ui->AxeCylindreOD->setVisible(false);
+                ui->label_POD->setVisible(false);
+                ui->AddVPOD->setVisible(false);
+                ui->ConvODPushButton->setVisible(false);
+            }
+            if (ui->PlanOGCheckBox->isChecked())
+            {
+                ui->SphereOG->setVisible(false);
+                ui->CylindreOG->setVisible(false);
+                ui->AxeCylindreOG->setVisible(false);
+                ui->label_POG->setVisible(false);
+                ui->AddVPOG->setVisible(false);
+                ui->ConvOGPushButton->setVisible(false);
+            }
+        }
+        if (gAfficheDetail)
+            setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_AVEC_DETAIL);
+        else
+            setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
+    } // fin mode Porte
+
+    if (gMode == Autoref)    // mode AutoRef
+    {
+        ui->AnnulPushButton->setVisible(true);
+        ui->OKPushButton->setIcon(Icons::icOK());
+        ui->OKPushButton->setText( tr("Enregistrer\net fermer"));
+        ui->ODCheckBox->setVisible(true);
+        ui->OGCheckBox->setVisible(true);
+        ui->KeratometrieGroupBox->setVisible(true);
+        ui->frame_Prescription->setVisible(false);
+        ui->AutorefRadioButton->setChecked(true);
+        ui->DetailsPushButton->setVisible(false);
+        AfficherDetail(false);
+        ui->KeratometrieGroupBox->setVisible(true);
+        Afficher_AVL_AVP(false);
+        Afficher_AddVP(false);
+        ui->QuelleDistanceGroupBox->setVisible(false);
+        setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
+    }
+
+    if (gMode == Refraction) // mode Refraction
+    {
+        ui->AnnulPushButton->setVisible(true);
+        ui->OKPushButton->setIcon(Icons::icOK());
+        ui->OKPushButton->setText( tr("Enregistrer\net fermer"));
+        ui->ODCheckBox->setVisible(true);
+        ui->OGCheckBox->setVisible(true);
+        ui->KeratometrieGroupBox->setVisible(false);
+        ui->frame_Prescription->setVisible(false);
+        ui->V2RadioButton->setEnabled(true);
+        ui->VLRadioButton->setEnabled(true);
+        ui->RefractionRadioButton->setChecked(true);
+        ui->VPRadioButton->setVisible(false);
+        ui->QuelleDistanceGroupBox->setGeometry(735,10,120,65);
+        if (ui->CycloplegieCheckBox->isChecked())
+        {
+            Afficher_AVP(false);
+            Afficher_AddVP(false);
+            ui->QuelleDistanceGroupBox->setVisible(false);
+        }
+        ui->DetailsPushButton->setVisible(false);
+        if (ui->VLRadioButton->isChecked())
+        {
+            Afficher_AVP(false);
+            Afficher_AddVP(false);
+        }
+        if (ui->VPRadioButton->isChecked())
+        {
+            ui->V2RadioButton->setChecked(true);
+            Afficher_AVP(true);
+            Afficher_AddVP(true);
+        }
+        AfficherDetail(false);
+        setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
+    }
+
+    if (gMode == Prescription)   // mode Prescription
+    {
+        Afficher_AVL_AVP(false);
+        ui->OKPushButton->setIcon(Icons::icImprimer());
+        ui->OKPushButton->setText( tr("Imprimer"));
+        ui->CycloplegieCheckBox->setVisible(false);
+        ui->KeratometrieGroupBox->setVisible(false);
+        ui->ODCheckBox->setVisible(false);
+        ui->OGCheckBox->setVisible(false);
+        gAfficheDetail =
+            (ui->PrismeOD->value() != 0.0          || ui->PrismeOG->value() != 0.0      ||
+            ui->RyserODCheckBox->isChecked()      || ui->RyserOGCheckBox->isChecked()   ||
+            ui->PlanODCheckBox->isChecked()     || ui->PlanOGCheckBox->isChecked()  ||
+            ui->DepoliODCheckBox->isChecked()   || ui->DepoliOGCheckBox->isChecked());
+        if (gAfficheDetail && ui->DetailsPushButton->text() ==  tr("- de détails"))
+            ui->DetailsPushButton->setEnabled(false);
+        if (ui->DetailsPushButton->text() ==  tr("- de détails")) gAfficheDetail = true;
+        AfficherDetail(gAfficheDetail);
+        if(gAfficheDetail)
+        {
+            ui->PrismeGroupBox->setVisible(true);
+            ui->VerresSpeciauxGroupBox->setVisible(true);
+            ui->KeratometrieGroupBox->setVisible(false);
+            ui->RyserGroupBox->setVisible(true);
+            if (ui->RyserODCheckBox->isChecked() || ui->RyserOGCheckBox->isChecked())
+                ui->RyserSpinBox->setVisible(true);
+            else
+                ui->RyserSpinBox->setVisible(false);
+            if (ui->DepoliODCheckBox->isChecked())                 // si depoli on masque les mesures
+            {
+                Afficher_Oeil_Droit(false);
+                if (ui->RyserODCheckBox->isChecked())
+                    ui->RyserODCheckBox->setChecked(false);
+                if (ui->RyserOGCheckBox->isChecked())
+                    ui->RyserOGCheckBox->setChecked(false);
+                ui->RyserGroupBox->setVisible(false);
+            }
+            if (ui->DepoliOGCheckBox->isChecked())                 // si depoli on masque les mesures
+            {
+                Afficher_Oeil_Gauche(false);
+                if (ui->RyserODCheckBox->isChecked())
+                    ui->RyserODCheckBox->setChecked(false);
+                if (ui->RyserOGCheckBox->isChecked())
+                    ui->RyserOGCheckBox->setChecked(false);
+                ui->RyserGroupBox->setVisible(false);
+            }
+            if (ui->PlanODCheckBox->isChecked())
+            {
+                ui->SphereOD->setVisible(false);
+                ui->CylindreOD->setVisible(false);
+                ui->AxeCylindreOD->setVisible(false);
+                ui->label_POD->setVisible(false);
+                ui->AddVPOD->setVisible(false);
+                ui->ConvODPushButton->setVisible(false);
+            }
+            if (ui->PlanOGCheckBox->isChecked())
+            {
+                ui->SphereOG->setVisible(false);
+                ui->CylindreOG->setVisible(false);
+                ui->AxeCylindreOG->setVisible(false);
+                ui->label_POG->setVisible(false);
+                ui->AddVPOG->setVisible(false);
+                ui->ConvOGPushButton->setVisible(false);
+            }
+        }
+
+        ui->frame_Prescription->setVisible(true);
+        if (!ui->ODCheckBox->isChecked()) ui->ODPrescritCheckBox->setChecked(false);
+        ui->ODPrescritCheckBox->setVisible(ui->ODCheckBox->isChecked());
+        if (!ui->OGCheckBox->isChecked()) ui->OGPrescritCheckBox->setChecked(false);
+        ui->OGPrescritCheckBox->setVisible(ui->OGCheckBox->isChecked());
+
+        ui->V2RadioButton->setEnabled(false);
+        ui->VPRadioButton->setEnabled(false);
+        ui->VLRadioButton->setEnabled(false);
+        ui->PrescriptionRadioButton->setChecked(true);
+        ui->OupsPushButton->setEnabled(false);
+        ui->ReprendrePushButton->setEnabled(true);
+
+        if (gAfficheDetail)
+            setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_AVEC_DETAIL);
+        else
+            setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_SANS_DETAIL);
+        ResumePrescription();
+    }
+    ui->OupsPushButton->setEnabled(Datas::I()->refractions->refractions()->size() > 0);
+    ui->ReprendrePushButton->setEnabled(Datas::I()->refractions->refractions()->size() > 0);
+    ui->ResumePushButton->setEnabled(Datas::I()->refractions->refractions()->size() > 0);
+    MasquerObjetsOeilDecoche();
 }
 
 QString dlg_refraction::ResultatPrescription()

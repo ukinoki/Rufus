@@ -37,12 +37,9 @@ Motif* Motifs::getById(int id)
 
 Motif* Motifs::getMotifFromRaccourci(QString txt)
 {
-    for (QMap<int, Motif*>::const_iterator itmtf = motifs()->constBegin() ; itmtf != motifs()->constEnd() ; ++itmtf)
-    {
-        Motif *mtf = const_cast<Motif*>(*itmtf);
+    foreach (Motif* mtf, motifs()->values())
         if (mtf->raccourci() == txt)
             return mtf;
-    }
     return Q_NULLPTR;
 }
 

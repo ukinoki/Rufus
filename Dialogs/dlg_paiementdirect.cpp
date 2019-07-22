@@ -68,7 +68,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
         InitOK = false;
         return;
     }
-    m_userConnected           = db->getUserConnected();
+    m_userConnected           = Datas::I()->users->userconnected();
 
     gOrdreTri = Chronologique;
     ui->ListeupTableWidget->horizontalHeader()->setSectionsClickable(true);
@@ -154,9 +154,8 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
         int nulitem = -2;
         ui->ComptablescomboBox->addItem(tr("Tout le monde"), nulitem);
     }
-    QMap<int, User*>::const_iterator itcptable;
-    for( itcptable = m_listeComptables->constBegin(); itcptable != m_listeComptables->constEnd(); ++itcptable )
-        ui->ComptablescomboBox->addItem(itcptable.value()->login(), QString::number(itcptable.value()->id()) );
+    foreach (User* usr, m_listeComptables->values())
+        ui->ComptablescomboBox->addItem(usr->login(), QString::number(usr->id()) );
     // on cherche le comptable à créditer
     if (gListidActe.size() > 0)                     // il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis l'accueil ou par le bouton enregistrepaiement
     {
@@ -966,7 +965,7 @@ void dlg_paiementdirect::Slot_RenvoieRangee(bool Coche)
         UpCheckBox* Check = dynamic_cast<UpCheckBox*>(sender());
         if(Check)
         {
-            int R = Check->getRowTable();
+            int R = Check->rowTable();
             if (Check->parent()->parent() == ui->DetailupTableWidget)
                 VideDetailsTable(R);
             else
@@ -1135,7 +1134,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
                         && !CheckBox->isChecked())
                     {
                         UpTableWidget *TableAVerifier = static_cast<UpTableWidget*>(CheckBox->parent()->parent());
-                        if (!VerifVerrouCompta(TableAVerifier,CheckBox->getRowTable()))
+                        if (!VerifVerrouCompta(TableAVerifier,CheckBox->rowTable()))
                             return true;
                     }
                     CheckBox->setChecked(!CheckBox->isChecked());
@@ -1218,12 +1217,10 @@ void dlg_paiementdirect::ReconstruitListeTiers()
     QStringList ListTiers;
 
     ui->TypeTierscomboBox->clear();
-    QList<TypeTiers*>::const_iterator ittyp;
     // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel *model = new QStandardItemModel();
-    for( ittyp = m_typestiers->constBegin(); ittyp != m_typestiers->constEnd(); ++ittyp )
+    foreach (TypeTiers* typ, *m_typestiers)
     {
-        TypeTiers *typ = const_cast<TypeTiers*>(*ittyp);
         QList<QStandardItem *> items;
         items << new QStandardItem(typ->typetiers());
             model->appendRow(items);
@@ -1845,12 +1842,10 @@ void dlg_paiementdirect::DefinitArchitectureTable(UpTableWidget *TableARemplir, 
 void dlg_paiementdirect::ReconstruitListeBanques()
 {
     ui->BanqueChequecomboBox->clear();
-    QMap<int, Banque*>::const_iterator itbanq;
     // toute la manip qui suit sert à remettre les banques par ordre alphabétique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel *model = new QStandardItemModel();
-    for( itbanq = m_banques->constBegin(); itbanq != m_banques->constEnd(); ++itbanq )
+    foreach (Banque* bq, m_banques->values())
     {
-        Banque *bq = const_cast<Banque*>(*itbanq);
         QList<QStandardItem *> items;
         items << new QStandardItem(bq->nomabrege()) << new QStandardItem(QString::number(bq->id()));
             model->appendRow(items);
@@ -2280,7 +2275,7 @@ void dlg_paiementdirect::RemplitLesTables()
                 {
                     if (Check->checkState() == Qt::Checked)
                     {
-                        int R = Check->getRowTable();
+                        int R = Check->rowTable();
                         CompleteDetailsTable(ui->SalleDAttenteupTableWidget,R,Check->checkState());
                         PoseVerrouCompta(ui->SalleDAttenteupTableWidget->item(i,0)->text().toInt());
                     }
@@ -2293,7 +2288,7 @@ void dlg_paiementdirect::RemplitLesTables()
                 {
                     if (Check->checkState()==Qt::Checked)
                     {
-                        int R = Check->getRowTable();
+                        int R = Check->rowTable();
                         CompleteDetailsTable(ui->ListeupTableWidget,R,Check->checkState());
                      }
                 }

@@ -53,7 +53,7 @@ private:
     UpPushButton                *ExportButt;
     UpRadioButton               *ComptableRadio;
     UpRadioButton               *SupervRadio;
-    User                        *gidUser;
+    User                        *m_currentuser;
     void                        CalcBilan();
     double                      TotalMontant;
     double                      TotalRecu;

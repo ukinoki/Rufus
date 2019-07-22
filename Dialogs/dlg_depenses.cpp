@@ -28,7 +28,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     proc            = Procedures::I();
     db              = DataBase::I();
-    ui->UserscomboBox->setEnabled(db->getUserConnected()->isSecretaire() );
+    ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire() );
     AccesDistant    = (db->getMode()==DataBase::Distant);
     m_listUserLiberaux = Datas::I()->users->liberaux();
     gDataUser       = Q_NULLPTR;
@@ -398,7 +398,7 @@ void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
     ModifierupPushButton    ->setVisible(gMode == Lire);
     gBigTable               ->setEnabled(gMode == Lire);
 
-    ui->UserscomboBox        ->setEnabled(db->getUserConnected()->isSecretaire() && gMode==Lire);
+    ui->UserscomboBox        ->setEnabled(Datas::I()->users->userconnected()->isSecretaire() && gMode==Lire);
 
 
     switch (gMode) {
@@ -1526,9 +1526,8 @@ void dlg_depenses::ReconstruitListeAnnees()
 {
     ui->AnneecomboBox->disconnect();
     QStringList ListeAnnees;
-    for (auto it = Datas::I()->depenses->depenses()->cbegin() ; it != Datas::I()->depenses->depenses()->cend(); ++it)
+    foreach (Depense* dep, Datas::I()->depenses->depenses()->values())
     {
-        Depense *dep = const_cast<Depense*>(it.value());
         if (!ListeAnnees.contains(QString::number(dep->annee())))
             ListeAnnees << QString::number(dep->annee());
     }

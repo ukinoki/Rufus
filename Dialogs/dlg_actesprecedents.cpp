@@ -327,9 +327,8 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         if (acte->paiementType() != "G" || acte->paiementType() != "I")
         {
             double TotalPaye = 0;
-            for (QMap<QString, LignePaiement*>::const_iterator itlig = m_listepaiements->lignespaiements()->constBegin(); itlig != m_listepaiements->lignespaiements()->constEnd(); ++itlig)
+            foreach (LignePaiement* lign, m_listepaiements->lignespaiements()->values())
             {
-                LignePaiement *lign = const_cast<LignePaiement*>(itlig.value());
                 if (lign->idacte() == acte->id())
                 {
                     if (lign->monnaie() == "F")

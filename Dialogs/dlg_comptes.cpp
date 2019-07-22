@@ -33,9 +33,9 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
-    if (db->getUserConnected()->comptesbancaires() == Q_NULLPTR)
-        proc->SetUserAllData(db->getUserConnected());
-    comptesusr = db->getUserConnected()->comptesbancaires(true);
+    if (Datas::I()->users->userconnected()->comptesbancaires() == Q_NULLPTR)
+        proc->SetUserAllData(Datas::I()->users->userconnected());
+    comptesusr = Datas::I()->users->userconnected()->comptesbancaires(true);
 
     if (comptesusr->size() == 0)
     {
@@ -53,8 +53,8 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
         {
             Compte *cpt = const_cast<Compte*>(itcpt.next());
             ui->BanquecomboBox->addItem(cpt->nomabrege(),cpt->id());
-            if (db->getUserConnected()->getCompteParDefaut() != Q_NULLPTR)
-                idcptprefer = db->getUserConnected()->getCompteParDefaut()->id();
+            if (Datas::I()->users->userconnected()->getCompteParDefaut() != Q_NULLPTR)
+                idcptprefer = Datas::I()->users->userconnected()->getCompteParDefaut()->id();
         }
         ui->BanquecomboBox->setCurrentIndex(ui->BanquecomboBox->findData(idcptprefer));
         idCompte = ui->BanquecomboBox->currentData().toInt();
@@ -273,7 +273,7 @@ void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
 
 void dlg_comptes::RenvoieRangee(bool Coche, UpCheckBox* Check)
 {
-    int R = Check->getRowTable();
+    int R = Check->rowTable();
     QLabel* lbl = dynamic_cast<QLabel*>(gBigTable->cellWidget(R,0));
     QString requete = "update " TBL_LIGNESCOMPTES " set Ligneconsolide = ";
     requete += (Coche? "1" : "null");

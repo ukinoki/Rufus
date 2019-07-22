@@ -668,7 +668,7 @@ void dlg_paiementtiers::Slot_RenvoieRangee(bool Coche)
             UpCheckBox* Check = dynamic_cast<UpCheckBox*>(sender());
             if(Check)
             {
-                int R = Check->getRowTable();
+                int R = Check->rowTable();
                 if (ui->DetailupTableWidget->isAncestorOf(Check))
                     VideDetailsTable(R);
                 else

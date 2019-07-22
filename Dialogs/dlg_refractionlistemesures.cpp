@@ -129,7 +129,7 @@ void dlg_listemesures::Slot_Item_Liste_Clicked(QModelIndex mod)
                 if (gmodele->item(i,0)->checkState() == Qt::Checked && i != pitem->row())
                     gmodele->item(i,0)->setCheckState(Qt::Unchecked);
             }
-            itemSelectionne = gmodele->item(pitem->row(),4)->text();
+            idrefractionSelectionne = gmodele->item(pitem->row(),4)->text().toInt();
         }
         OKButton->setEnabled(Nombre_Mesure_Selected() > 0);
     }
@@ -166,9 +166,9 @@ void dlg_listemesures::DetruireLaMesure(Refraction *ref)
     Datas::I()->refractions->SupprimeRefraction(ref);
 }
 
-QString dlg_listemesures::IdRefractAOuvrir()
+int dlg_listemesures::idRefractionAOuvrir()
 {
-    return itemSelectionne;
+    return idrefractionSelectionne;
 }
 
 // ----------------------------------------------------------------------------------

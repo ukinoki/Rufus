@@ -43,12 +43,8 @@ bool TypesTiers::add(TypeTiers *typetiers)
 
 void TypesTiers::addList(QList<TypeTiers*> listTypesTiers)
 {
-    QList<TypeTiers*>::const_iterator it;
-    for( it = listTypesTiers.constBegin(); it != listTypesTiers.constEnd(); ++it )
-    {
-        TypeTiers* trs = const_cast<TypeTiers*>(*it);
+    foreach (TypeTiers* trs, listTypesTiers)
         add( trs );
-    }
 }
 
 void TypesTiers::remove(TypeTiers* typetiers)

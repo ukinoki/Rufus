@@ -90,18 +90,16 @@ private slots:
 private:
     Procedures              *proc;
     Patient                 *m_currentpatient;
-    Acte                    *gACteEnCours;
-    int                     gidUser;
+    Acte                    *m_currentacte;
     QStringList             gstringListe1, gstringListe2;
     DataBase                *db;
     int                     gMode;
     int                     gidRefraction;
     enum gMode              {Porte, Autoref, Refraction, Prescription};
-    enum ModeSortie {
-                Annul       ,
-                Imprime     ,
-                OK
-                };
+    enum ModeSortie         {Annul, Imprime, OK};
+    enum DateMesure         {Aujourdhui, Avant, NoDate};
+    enum TypeMesure         {MFronto, MAutoref, MRefraction, MPrescription, NoMesure};
+    enum Cycloplegie        {Dilatation, NoDilatation};
     bool                    ok;
     bool                    gAfficheDetail;
     double                  gSphereOD;
@@ -114,7 +112,7 @@ private:
     double                  gAddVPOG;
     int                     gFlagBugValidEnter; // Modif 17/04
     QMenu                   *qQmenuSup;
-    QString                 gResultatP, gResultatPO, gResultatAnondil, gResultatA, gResultatAdil, gResultatR, gResultatRdil, gResultatRnondil, gResultatCommPreDef, gResultatCommResumOrdo;
+    QString                 gResultatP, gResultatPO, gResultatAnondil, gResultatA, gResultatAdil, gResultatR, gResultatRdil, gResultatRnondil, m_commentaire, m_commentaireresume;
     QString                 gResultatPR, gResultatObservation;
     bool                    EscapeFlag;
     bool                    FermeComment;
@@ -130,7 +128,7 @@ private:
     void                    AfficherDetail(bool typ);
     void                    Afficher_AddVP(bool TrueFalse);
     void                    Afficher_AVP(bool);
-    void                    AfficherLaMesure();
+    void                    RegleAffichageFiche();
     void                    Afficher_Oeil_Droit(bool TrueFalse);
     void                    Afficher_Oeil_Gauche(bool TrueFalse);
     QString                 CalculFormule_OD();
@@ -138,8 +136,11 @@ private:
     QString                 CalculCommentaire();
     void                    Connect_Slots();
 
+    QString                 CommentaireObligatoire();
     bool                    ControleCoherence();
     double                  ConvDouble(QString textdouble);
+    TypeMesure              ConvertMesure(QString Mesure);
+    QString                 ConvertMesure(TypeMesure Mesure);
     bool                    DeplaceVers(QWidget *widget, QString FinOuDebut = "");
     void                    DetruireLaMesure(class Refraction* ref);
     void                    FermeFiche(enum ModeSortie);
@@ -148,10 +149,9 @@ private:
     void                    Init_Value_DoubleSpin(QDoubleSpinBox *DoubleSpinBox, double ValeurDouble);
     void                    Init_variables();
     void                    InscriptRefraction();
-    QString                 InsertCommentaireObligatoire();
     void                    InsertDonneesOphtaPatient();
     bool                    InsertRefraction();
-    int                     LectureMesure(QString Quand, QString Mesure, QString TypLun, QString Cyclope, QString IdRefraction, QString Affichage, QString OeilCoche, QString FormuleOD, QString FormuleOG);
+    int                     LectureMesure(DateMesure Quand, TypeMesure Mesure, Cycloplegie dilatation, int idrefraction, bool Affichage, QString FormuleOD = "", QString FormuleOG = "");
     void                    OuvrirListeMesures(QString SupOuRecup);
     void                    MajDonneesOphtaPatient();
     void                    MasquerObjetsOeilDecoche();

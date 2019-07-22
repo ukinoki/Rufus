@@ -238,7 +238,7 @@ void dlg_motifs::DeplaceVersRow(int id, int anc, int nouv)
         PDCheckSender = UpchkFromTableW(ui->MotifsupTableWidget,row,6)->isChecked();
     else return;
 
-    int rowtodel      = UpchkFromTableW(ui->MotifsupTableWidget,row,0)->getRowTable();
+    int rowtodel      = UpchkFromTableW(ui->MotifsupTableWidget,row,0)->rowTable();
     MotifSender       = ui->MotifsupTableWidget->item(row,1)->text();
     RaccourciSender   = ui->MotifsupTableWidget->item(row,2)->text();
     idSender          = ui->MotifsupTableWidget->item(row,3)->text();
@@ -320,7 +320,7 @@ void dlg_motifs::DeplaceVersRow(int id, int anc, int nouv)
     QFontMetrics fm(qApp->font());
     ui->MotifsupTableWidget->setRowHeight(Rrow,int(fm.height()*1.3));
     for (int i=0; i<ui->MotifsupTableWidget->rowCount(); i++)
-        if (UpchkFromTableW(ui->MotifsupTableWidget,i,0)->getRowTable() == rowtodel)
+        if (UpchkFromTableW(ui->MotifsupTableWidget,i,0)->rowTable() == rowtodel)
         {
             ui->MotifsupTableWidget->removeRow(i);
             break;
@@ -441,7 +441,7 @@ void dlg_motifs::Slot_ParDefaut()
     UpCheckBox *check = dynamic_cast<UpCheckBox*>(sender());
     if (!check)
         return;
-    int row = check->getRowTable();
+    int row = check->rowTable();
     for (int i=0; i< ui->MotifsupTableWidget->rowCount(); i++)
     {
         if (UpchkFromTableW(ui->MotifsupTableWidget,i,6)!=Q_NULLPTR)
@@ -474,7 +474,7 @@ void dlg_motifs::Slot_Utiliser(bool a)
     UpCheckBox *chk = dynamic_cast<UpCheckBox*>(sender());
     if (!chk)
         return;
-    if (row == chk->getRowTable())
+    if (row == chk->rowTable())
         ui->UtiliserupCheckBox->setChecked(a);
     OKButton->setEnabled(true);
 }

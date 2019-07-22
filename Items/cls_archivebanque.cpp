@@ -77,9 +77,8 @@ void Archives::addArchive(Archive *archive)
 }
 void Archives::addArchive(QList<Archive*> listarchives)
 {
-    QList<Archive*>::const_iterator it;
-    for( it = listarchives.constBegin(); it != listarchives.constEnd(); ++it )
-        addArchive( *it );
+    foreach (Archive* arch, listarchives)
+        addArchive( arch );
 }
 
 void Archives::clearAll()

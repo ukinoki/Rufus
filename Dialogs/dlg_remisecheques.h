@@ -69,11 +69,11 @@ private:
     bool                    ImprimerRemise(int);
     QMap<int, User *>       *m_comptables, *m_comptablesavecchequesenattente;
     QList<Compte*>          *m_comptes = Q_NULLPTR;
-    User                    *m_userencours;
+    User                    *m_currentuser;
     QString                 ValeurAvantChangement;
     void                    ChangeCompte();
     void                    ReconstruitListeUsers();
-    void                    ReconstruitListeComptes(bool avecinactif = false);
+    void                    RegleComptesComboBox(bool ActiveSeult = true);
     bool                    VoirNouvelleRemise();
     bool                    VoirRemisesPrecs();
 };

@@ -239,18 +239,16 @@ void dlg_gestionbanques::ValideModifBanque()
 
     if (gMode == Nouv)
     {
-        for (auto itbanq = Datas::I()->banques->banques()->cbegin(); itbanq != Datas::I()->banques->banques()->cend(); ++itbanq)
+        foreach (Banque* bq, Datas::I()->banques->banques()->values())
         {
-            Banque *bq = const_cast<Banque*>(itbanq.value());
             if (bq->nom().toUpper() == ui->NomBanqueupLineEdit->text().toUpper())
             {
                 UpMessageBox::Watch(this,tr("Cette banque est déjà enregistrée!"));
                 return;
             }
         }
-        for (auto itbanq = Datas::I()->banques->banques()->cbegin(); itbanq != Datas::I()->banques->banques()->cend(); ++itbanq)
+        foreach (Banque* bq, Datas::I()->banques->banques()->values())
         {
-            Banque *bq = const_cast<Banque*>(itbanq.value());
             if (bq->nomabrege().toUpper() == ui->NomBanqueupLineEdit->text().toUpper())
             {
                 UpMessageBox::Watch(this,tr("Cette abréviation est déjà utilisée!"));
@@ -337,9 +335,10 @@ void dlg_gestionbanques::RemplirTableView()
     int rowcount = Datas::I()->banques->banques()->size();
     int i = 0;
     if (rowcount > 0)
-        foreach(Banque* bq, Datas::I()->banques->banques()->values())
     {
-            uptablebanq->setRowCount(rowcount);
+        uptablebanq->setRowCount(rowcount);
+        foreach (Banque* bq, Datas::I()->banques->banques()->values())
+        {
             pitem0 = new QTableWidgetItem;
             label1 = new UpLabel;
             pitem0->setText(QString::number(bq->id()));
@@ -348,5 +347,7 @@ void dlg_gestionbanques::RemplirTableView()
             uptablebanq->setItem(i,0,pitem0);
             uptablebanq->setCellWidget(i,1,label1);
             uptablebanq->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
+            ++i;
         }
+    }
 }

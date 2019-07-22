@@ -65,7 +65,7 @@ private:
     bool                    MDPVerifiedAdmin, MDPVerifiedUser;
     Procedures              *proc;
     UpDialog                *gAskAppareil, *gAskMDP;
-    User                    *gDataUser;
+    User                    *m_currentuser;
     ParametresSysteme       *m_parametres;
     DataBase                *db;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;

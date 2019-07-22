@@ -31,7 +31,7 @@ public:
     ~UpCheckBox();
 
     void    setRowTable(int val);
-    int     getRowTable() const;
+    int     rowTable() const;
     void    setiD(int val);
     int     iD() const;
     void    setToggleable(bool val);

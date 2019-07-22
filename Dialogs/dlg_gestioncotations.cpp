@@ -25,8 +25,8 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     gCodeActe   = CodeActe;
 
     db                      = DataBase::I();
-    gidUser                 = db->getUserConnected()->id();
-    gSecteurUser            = db->getUserConnected()->secteurconventionnel();
+    gidUser                 = Datas::I()->users->userconnected()->id();
+    gSecteurUser            = Datas::I()->users->userconnected()->secteurconventionnel();
     QDoubleValidator *val   = new QDoubleValidator(this);
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);

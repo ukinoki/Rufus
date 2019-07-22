@@ -478,13 +478,13 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                                                                " UserEmetteur, lienversfichier, EmisRecu, FormatDoc, idLieu)"
                                                                " values("
                             + QString::number(idimpr) + ", "
-                            + QString::number(db->getUserConnected()->id()) + ", "
+                            + QString::number(Datas::I()->users->userconnected()->id()) + ", "
                             + idPatient + ", '"
                             + Typedoc + "', '"
                             + SousTypeDoc + "', '"
                             + Titredoc + "', '"
                             + datestring + " " + QTime::currentTime().toString("HH:mm:ss") + "', "
-                            + QString::number(db->getUserConnected()->id()) + ", '"
+                            + QString::number(Datas::I()->users->userconnected()->id()) + ", '"
                             + "/" + datetransfer + "/" + NomFileDoc + "', "
                             + "0" + ", '"
                             IMAGERIE "', "
@@ -545,13 +545,13 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
                     QHash<QString, QVariant> listbinds;
                     listbinds[CP_IDIMPRESSION_IMPRESSIONS] =    idimpr;
-                    listbinds[CP_IDUSER_IMPRESSIONS] =          db->getUserConnected()->id();
+                    listbinds[CP_IDUSER_IMPRESSIONS] =          Datas::I()->users->userconnected()->id();
                     listbinds[CP_IDPAT_IMPRESSIONS] =           idPatient;
                     listbinds[CP_TYPEDOC_IMPRESSIONS] =         Typedoc;
                     listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =     SousTypeDoc;
                     listbinds[CP_TITRE_IMPRESSIONS] =           Titredoc;
                     listbinds[CP_DATE_IMPRESSIONS] =            datestring + " " + QTime::currentTime().toString("HH:mm:ss");
-                    listbinds[CP_IDEMETTEUR_IMPRESSIONS] =      db->getUserConnected()->id();
+                    listbinds[CP_IDEMETTEUR_IMPRESSIONS] =      Datas::I()->users->userconnected()->id();
                     listbinds[formatdoc] =                      ba;
                     listbinds[CP_EMISORRECU_IMPRESSIONS] =      "0";
                     listbinds[CP_FORMATDOC_IMPRESSIONS] =       IMAGERIE;
