@@ -33,8 +33,8 @@ public:
     void                    setValeurAvant(double valprec);
     double                  getValeurAvant() const;
     void                    setAutorCorrigeDioptr(bool);
-    int                     gUpDown;
     enum gUpDown            {Up,Down,Near};
+    Q_ENUM(gUpDown)
     bool                    gCorrigeDioptr;
     void                    CorrigeDioptrie(int UpDownNear);
 

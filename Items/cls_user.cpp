@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cls_user.h"
+#include <QMetaEnum>
 
 int User::ROLE_NON_RENSEIGNE = -1;
 int User::ROLE_VIDE = -2;
@@ -88,6 +89,15 @@ void User::setData(QJsonObject data)
 
     setDataDateTime(data, "dateDerniereConnexion", m_dateDerniereConnexion);
     m_data = data;
+    qDebug() << login();
+    qDebug() << "m_responsableActes" << m_responsableActes;
+    qDebug() << "responsableactes()" << Utils::EnumDescription(QMetaEnum::fromType<RESPONSABLE>(), responsableactes());
+    qDebug() << "isResponsable()" << isResponsable();
+    qDebug() << "isResponsableOuAssistant()" << isResponsableOuAssistant();
+    qDebug() << "metier()" << metier();
+    qDebug() << "isSoignant()" << isSoignant();
+    qDebug() << "isRemplacant()" << isRemplacant();
+    qDebug() << "modeenregistrementhonoraires()" << modeenregistrementhonoraires();
 }
 
 
@@ -101,29 +111,32 @@ QString User::prenom() const                     { return m_prenom; }
 User::METIER User::metier() const
 {
     switch (m_soignant) {
+    case 0: return NoMetier;
     case 1: return Ophtalmo;
     case 2: return Orthoptiste;
     case 3: return AutreSoignant;
     case 4: return NonSoignant;
     case 5: return SocieteComptable;
     }
-    return Ophtalmo;
+    return NoMetier;
 }
 User::RESPONSABLE User::responsableactes() const           /*! 1 = effectue exclusivement des actes sous sa responsabilite
                                                                *  2 = effectue des actes sous sa responsabilite et sous celle des autres users
                                                                *  3 = n'effectue aucun acte sous sa responsabilite */
 {
     switch (m_responsableActes) {
+    case 0: return PasResponsable;
     case 1: return Responsable;
     case 2: return AlterneResponsablePasResponsable;
     case 3: return PasResponsable;
     }
-    return Responsable;
+    return PasResponsable;
 }
 int User::getUserccam() const                       { return m_userccam; }
 User::ENREGISTREMENTHONORAIRES User::modeenregistrementhonoraires() const
 {
     switch (m_enregHonoraires) {
+    case 0: return NoCompta;
     case 1: return Liberal;
     case 2: return Salarie;
     case 3: return Retrocession;
@@ -142,7 +155,7 @@ int User::idCompteEncaissHonoraires() const         { return m_idCompteEncaissHo
 QString User::fonction() const                      { return m_fonction; }
 
 int User::idSuperviseurActes() const                { return m_idUserActeSuperviseur; }
-void User::setIdUserActeSuperviseur(int idusr)      { m_idUserActeSuperviseur = idusr; }
+void User::setIdUserSuperviseur(int idusr)          { m_idUserActeSuperviseur = idusr; }
 bool User::ishisownsupervisor()                     { return (m_idUserActeSuperviseur == m_id); }
 
 int User::idparent() const                          { return m_idUserParent; }
@@ -209,7 +222,7 @@ bool User::isSalarie()                              { return isSoignant() && mod
 bool User::isRemplacant()                           { return isSoignant() && modeenregistrementhonoraires() == Retrocession; }
 bool User::isSansCompta()                           { return modeenregistrementhonoraires() == NoCompta; }
 bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }
-bool User::isResponsableEtAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
+bool User::isResponsableOuAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
 bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
 //bool User::isAssistant() { return isSoignant() && m_idUserActeSuperviseur != m_id; }
 bool User::isDesactive()                            { return m_desactive; }

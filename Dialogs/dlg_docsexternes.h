@@ -42,6 +42,10 @@ public:
     explicit dlg_docsexternes(DocsExternes* Docs, bool iscurrentpatient, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
     Patient*                getPatient() { return m_currentpatient; }   //!> renseigne sur le patient en cours d'affichage
+    enum Mode               {Zoom, Normal};                                     Q_ENUM(Mode)
+    enum Importance         {Min, Norm, Max};                                   Q_ENUM(Importance)
+    enum ModeTri            {parDate, parType};                                 Q_ENUM(ModeTri)
+    enum ModeFiltre         {FiltreSans, NormalFiltre, ImportantFiltre};        Q_ENUM(ModeFiltre)
 
 private:
     Procedures              *proc;
@@ -76,14 +80,10 @@ private:
     bool                    initOK;
     int                     hdelta , wdelta;
     int                     hdeltaframe, wdeltaframe;
-    int                     gMode;
-    enum gMode              {Zoom, Normal};
-    int                     Importance;
-    enum Importance         {Min, Norm, Max};
-    int                     gModeTri;
-    enum gModeTri           {parDate, parType};
-    int                     gModeFiltre;
-    enum gModeFiltre        {FiltreSans, NormalFiltre, ImportantFiltre};
+    Mode                    gMode;
+    ModeTri                 gModeTri;
+    ModeFiltre              gModeFiltre;
+
     double                  idealproportion;
     QString                 gTypeDoc;
 

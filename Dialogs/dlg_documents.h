@@ -47,6 +47,8 @@ public:
     QStringList                 TextDocumentsAImprimerList, TitreDocumentAImprimerList, PrescriptionAImprimerList, DupliAImprimerList, AdministratifAImprimerList;
     QStringList                 glistid;
     User*                       getUserEntete();
+    enum Mode                  {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS,SuppressionDOSS};     Q_ENUM(Mode)
+
 
 protected:
     void                        changeEvent(QEvent *e);
@@ -64,8 +66,7 @@ private:
     void                        keyPressEvent   (QKeyEvent * event );
     WidgetButtonFrame           *widgButtonsDocs, *widgButtonsDossiers;
     double                      gOpacity;
-    int                         gMode;
-    enum gMode                  {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS,SuppressionDOSS};
+    Mode                        gMode;
     QGraphicsOpacityEffect      *gOp;
     QList<Correspondant*>       m_listedestinataires;
     QMap<QString,QString>       gChampsMap;
@@ -85,7 +86,7 @@ private:
     bool                        ChercheDoublon(QString, int row);
     void                        ChoixCorrespondant(QList<Correspondant*> listcor);
     void                        CocheLesDocs(int iddoss, bool A);
-    void                        ConfigMode(int mode, int row = 0);
+    void                        ConfigMode(Mode mode, int row = 0);
     void                        dblClicktextEdit();
     void                        DisableLines();
     void                        DocCellDblClick(UpLineEdit *line);

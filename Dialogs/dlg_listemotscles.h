@@ -32,11 +32,11 @@ public:
     explicit dlg_listemotscles(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_listemotscles();
     QStringList         listMCDepart();
+    enum Mode {Creation, Modif};    Q_ENUM(Mode)
 
 private:
     Patient             *gPatientEncours;
-    int                 gMode;
-    enum gMode {Creation, Modif};
+    Mode                 gMode;
     QTableView          *tabMC;
     DataBase            *db;
 
@@ -49,7 +49,7 @@ private:
     void                DisableLines();
     void                RemplirTableView();
     WidgetButtonFrame   *widgButtons;
-    void                CreationModifMC(enum gMode);
+    void                CreationModifMC(enum Mode);
     void                SupprMC();
 
 private slots:

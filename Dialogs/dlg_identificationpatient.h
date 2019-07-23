@@ -40,7 +40,7 @@ public:
         Copie,
         Creation,
         Modification
-    };
+    };    Q_ENUM(Mode)
     explicit dlg_identificationpatient(enum Mode mode, Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_identificationpatient();
     Ui::dlg_identificationpatient   *ui;
@@ -61,8 +61,6 @@ private:
     VilleCPWidget                   *VilleCPwidg;
 
 
-    int                             CloseReason;
-    enum                            CloseReason {Accept,Reject};
     int                             m_flagcorrespondants;
 
     bool                            eventFilter(QObject *obj, QEvent *event)  ;

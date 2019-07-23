@@ -2005,7 +2005,7 @@ void dlg_documents::CocheLesDocs(int iddoss, bool A)
 // ----------------------------------------------------------------------------------
 // Configuration de le fiche en fonction du mode de fonctionnement
 // ----------------------------------------------------------------------------------
-void dlg_documents::ConfigMode(int mode, int row)
+void dlg_documents::ConfigMode(Mode mode, int row)
 {
     gMode = mode;
     ui->ChercheupLineEdit->setEnabled       (gMode == Selection);

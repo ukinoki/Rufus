@@ -354,7 +354,7 @@ void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
     }
 }
 
-void    dlg_depenses::RegleAffichageFiche(enum gMode mode)
+void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
 {
     gMode = mode;
     Depense *dep = (gBigTable->rowCount()>0? getDepenseFromRow(gBigTable->currentRow()) : Q_NULLPTR);

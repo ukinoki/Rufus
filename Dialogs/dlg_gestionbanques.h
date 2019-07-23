@@ -47,13 +47,14 @@ public:
     ~dlg_gestionbanques();
     Ui::dlg_gestionbanques  *ui;
     UpTableWidget   *uptablebanq;
+    enum Mode                              {Norm, Modif, Nouv, Suppr};    Q_ENUM(Mode)
+
 
 private:
-    int                                     gMode;
     bool                                    gFermeApresValidation;
-    enum gMode                              {Norm, Modif, Nouv, Suppr};
     DataBase                                *db;
     WidgetButtonFrame                       *widgButtons;
+    Mode                                    gMode;
 
     void            RemetEnNorm();
     void            RemplirTableView();

@@ -29,7 +29,7 @@ UpSmallButton::UpSmallButton(QWidget *parent) : QPushButton(parent)
     setFlat(true);
     setFocusPolicy(Qt::NoFocus);
 
-    StyleBouton         = NOBUTTON;
+    m_style             = NOBUTTON;
     gLuggage            = -1;
     gToolTipMsg         = "";
     setStyleSheet(STYLE_UPSMALLBUTTON);
@@ -76,7 +76,7 @@ void UpSmallButton::setUpButtonStyle(enum StyleBouton Style)
     case SUPPRBUTTON:           setIcon( Icons::icPoubelle() );     break;
     default:                                                        break;
     }
-    StyleBouton = Style;
+    m_style = Style;
     setCursor(Qt::PointingHandCursor);
     if (Style==CANCELBUTTON)
         setIconSize(QSize(25,25));
@@ -118,9 +118,9 @@ int UpSmallButton::getId()
     return id;
 }
 
-int UpSmallButton::ButtonStyle()
+UpSmallButton::StyleBouton UpSmallButton::ButtonStyle()
 {
-    return StyleBouton;
+    return m_style;
 }
 
 bool UpSmallButton::eventFilter(QObject *obj, QEvent *event)

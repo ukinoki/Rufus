@@ -132,7 +132,7 @@ public:
                 Vendredi    = 0x10,
                 Samedi      = 0x20,
                 Dimanche    = 0x40
-              };
+              };    Q_ENUM(Day)
     Q_DECLARE_FLAGS(Days, Day)
     QTimer                  gTimerBackup;
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
@@ -160,8 +160,8 @@ private:
     int                     gidCentre;
     bool                    gUseCotation;
     bool                    avecLaComptaProv;
-    bool                    gisPosteImportDocs;                       // le poste est celui qui importe les documents
-    bool                    DefinitRoleUser();                       /* definit les iduser pour lequel le user travaille
+    bool                    gisPosteImportDocs;                      //! le poste est celui qui importe les documents
+    bool                    DefinitRoleUser();                       /*! definit les iduser pour lequel le user travaille
                                                                         . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                             . lui-même s'il est responsable de ses actes
                                                                             . un autre user s'il est assistant
@@ -169,12 +169,10 @@ private:
                                                                         . idUser soignant remplacé si le superviseur est remplaçant (int gidUserParent)
                                                                         . s'il cote les actes                            (bool gUseCotation)
                                                                         . s'il enregistre une compta                     (bool AvecLaComptaProv)
-                                                                       */
+                                                                      */
     Site*                   DetermineLieuExercice();
-
-private slots:
-    void                    Slot_CalcUserSuperviseur();
-    void                    Slot_CalcUserParent();
+    void                    CalcUserSuperviseur();
+    void                    CalcUserParent();
 public:
     bool                    SetUserAllData(User* usr);
     void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
@@ -311,7 +309,7 @@ public:
                 Final,
                 Tono,
                 Pachy
-                };
+                };  Q_ENUM(TypeMesure)
 
     SerialThread            *ThreadFronto, *ThreadRefracteur, *ThreadAutoref;
     QSerialPort*            PortAutoref();

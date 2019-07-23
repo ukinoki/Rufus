@@ -41,6 +41,8 @@ public:
     explicit dlg_gestioncomptes(User *user,
                                 bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncomptes();
+    enum Mode              {Norm, Modif, Nouv};    Q_ENUM(Mode)
+
 
 private:
     Ui::dlg_gestioncomptes  *ui;
@@ -51,8 +53,8 @@ private:
     bool                    gAfficheLeSolde;
     bool                    gSociete;
     bool                    gVisible;
-    int                     gidUser, gMode;
-    enum gMode              {Norm, Modif, Nouv};
+    int                     gidUser;
+    Mode                    gMode;
     QString                 gUserLogin;
     QTimer                  *gTimer;
     void                    closeEvent(QCloseEvent *);

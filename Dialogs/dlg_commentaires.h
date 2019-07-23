@@ -45,6 +45,8 @@ public:
 
     QString Commentaire()           { return m_commentaire; }
     QString CommentaireResume()     { return m_commentaireresume; }
+    enum Mode                  {Selection, Modification, Creation};
+    Q_ENUM(Mode)
 
 protected:
     void                    changeEvent(QEvent *e);
@@ -57,8 +59,7 @@ private:
     bool                        gModifSurvol;
     bool                        gModeSurvol;
     User*                       m_currentuser;
-    int                         gMode;
-    enum gMode                  {Selection, Modification, Creation};
+    Mode                        gMode;
     WidgetButtonFrame           *widgButtons;
 
     QGraphicsOpacityEffect      gOp;
@@ -70,7 +71,7 @@ private:
     void                        keyPressEvent   (QKeyEvent * event );
     QString                     CalcToolTip(QString ab);
     bool                        ChercheDoublon(QString str, int row);
-    void                        ConfigMode(int mode, int row = 0);
+    void                        ConfigMode(Mode mode, int row = 0);
     void                        EffaceWidget(QWidget* widg, bool AvecOuSansPause = true);
     void                        DisableLines();
     void                        EnableLines();

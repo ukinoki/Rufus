@@ -41,6 +41,10 @@ public:
     Ui::dlg_paiementtiers    *ui;
     bool                getInitOK();
     void                setInitOK(bool init);
+    enum Mode           {Accueil, EnregistrePaiementTiers, VoirListePaiementsTiers};    Q_ENUM(Mode)
+    enum OrdreTri       {Alphabetique, Chronologique};                                  Q_ENUM(OrdreTri)
+    enum TypeTable      {Actes,Paiements};                                              Q_ENUM(TypeTable)
+    enum ResultEnregRecette{Impossible, Annul, OK};                                     Q_ENUM(ResultEnregRecette)
 
 private slots:
     void                Slot_AfficheActeVerrouille();
@@ -81,11 +85,8 @@ private:
     bool                    ModifPaiementEnCours;
     bool                    ModifLigneRecettePossible;
     int                     idRecette;
-    enum Mode               {Accueil, EnregistrePaiementTiers, VoirListePaiementsTiers};
     Mode                    gMode;
-    enum OrdreTri           {Alphabetique, Chronologique};
     OrdreTri                gOrdreTri;
-    enum TypeTable          {Actes,Paiements};                    // définit les 2 types de tables possibles dans la fiche
     dlg_gestionbanques      *Dlg_Banq;
     Procedures              *proc;
     DataBase                *db;
@@ -109,9 +110,7 @@ private:
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                CompleteDetailsTable(QTableWidget *TableOrigine, int Rangee, bool Coche = true);
     void                DefinitArchitectureTableView(UpTableWidget *TableARemplir, TypeTable Type);
-    int                 EnregistreRecette();
-    int                 ResultEnregRecette;
-        enum ResultEnregRecette {Impossible, Annul, OK};
+    dlg_paiementtiers::ResultEnregRecette EnregistreRecette();
     void                ModifPaiementTiers(int idRecetteAModifier);
     void                NettoieVerrousListeActesAAfficher();
     void                NettoieVerrousCompta();

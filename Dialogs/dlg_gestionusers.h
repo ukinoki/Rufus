@@ -56,19 +56,19 @@ public:
      */
     ~dlg_gestionusers();
     Ui::dlg_gestionusers    *ui;
-    int                     Mode;
-    enum                    Mode {PREMIERUSER, ADMIN, MODIFUSER};
+    enum                    UserMode {PREMIERUSER, ADMIN, MODIFUSER};     Q_ENUM(UserMode)
+    enum                    Mode {Creer, Modifier, PremierUsr};
     /* correspond aux 3 modes d'utilisation de la fiche
      * PREMIERUSER -> la fiche est appelée au premier lancement du programme pour créer le premier utilisateur -> on peut tout modifier
      * MODIFUSER   -> appelé par l'utilisateur dans le premier onglet de la fiche dlg_param -> on ne peut modifier que les données d'identité, geographiques et bancaires
      * ADMIN       -> appelé par l'administrateur, on peut tout modidier, y compris le statut
     */
-    void                    setConfig(enum Mode);
+    void                    setConfig(UserMode mode);
     bool                    isMDPverified();
 
 private:
     bool                    MDPverified;
-
+    UserMode                UsrMode;
     bool                    ophtalmo;
     bool                    orthoptist;
     bool                    autresoignant;
@@ -92,7 +92,6 @@ private:
     DataBase                *db;
     QBrush                  gcolor;
     int                     gMode;
-        enum gMode          {Creer, Modifier, PremierUsr};
     int                     gidUserDepart;
     int                     gidLieu;
     User                    *OtherUser;

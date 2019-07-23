@@ -526,9 +526,9 @@ void dlg_bilanrecettes::CalculeTotal()
     }
 }
 
-void dlg_bilanrecettes::ChangeMode(enum gMode Mode)
+void dlg_bilanrecettes::ChangeMode(enum Mode mode)
 {
-    gMode = Mode;
+    gMode = mode;
     gSupervBox      ->setVisible(gMode == SUPERVISEUR);
     int hauteurrow      = int(QFontMetrics(qApp->font()).height()*1.3);
     gBigTable->horizontalHeader()->setFixedHeight(hauteurrow*(gMode==SUPERVISEUR? 1 : 2));

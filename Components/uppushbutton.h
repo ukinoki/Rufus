@@ -31,10 +31,10 @@ public:
     explicit    UpPushButton(QString text, QWidget *parent = Q_NULLPTR);
     ~UpPushButton();
 
-    int         StyleBouton;
     enum        StyleBouton {OKBUTTON,ANNULBUTTON,NORMALBUTTON,IMPRIMEBUTTON};
-    int         TailleBouton;
+    Q_ENUM(StyleBouton)
     enum        TailleBouton {Large, Mid, Small};
+    Q_ENUM(TailleBouton)
     void        setUpButtonStyle(enum StyleBouton, enum TailleBouton);
     void        setId(int id);
     int         getId() const;

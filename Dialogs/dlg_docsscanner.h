@@ -31,7 +31,7 @@ class dlg_docsscanner : public UpDialog
 {
     Q_OBJECT
 public:
-    enum Mode          {Document, Facture, Echeancier};
+    enum Mode          {Document, Facture, Echeancier};    Q_ENUM(Mode)
     Mode                gMode;
     explicit dlg_docsscanner(Item *item, Mode mode = Document, QString titre = "", QWidget *parent = Q_NULLPTR);
     ~dlg_docsscanner();

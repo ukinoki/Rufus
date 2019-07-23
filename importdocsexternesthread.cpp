@@ -24,7 +24,7 @@ ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
     proc            = proced;
     EnCours         = false;
     db              = DataBase::I();
-    Acces           = (db->getMode()!=DataBase::Distant? Local : Distant);
+    gAcces           = (db->getMode()!=DataBase::Distant? Local : Distant);
     idLieuExercice  = Datas::I()->users->userconnected()->sitedetravail()->id();
     thread          .start();
 }
@@ -472,7 +472,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                         + "-" + QString::number(idimpr)
                         + "." + QFileInfo(nomdoc).suffix();
 
-                if (Acces == Local)
+                if (gAcces == Local)
                 {
                     req = "insert into " TBL_IMPRESSIONS " (idimpression, idUser,  idpat,  TypeDoc,  SousTypeDoc, Titre, Dateimpression,"
                                                                " UserEmetteur, lienversfichier, EmisRecu, FormatDoc, idLieu)"
@@ -536,7 +536,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                         EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
                     }
                 }
-                else if (Acces == Distant)
+                else if (gAcces == Distant)
                 {
                     if (formatdoc == "pdf")
                         formatdoc = CP_PDF_IMPRESSIONS;
@@ -652,7 +652,7 @@ bool ImportDocsExternesThread::DefinitDossiers()
         return false;
     }
 
-    if (Acces==Local)
+    if (gAcces == Local)
     {
         CheminOKTransfrDirOrigin    = NomDirStockageImagerie + DIR_ORIGINAUX DIR_IMAGES + "/" + datetransfer;
         if (!Utils::mkpath(CheminOKTransfrDirOrigin))

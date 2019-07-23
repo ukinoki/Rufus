@@ -693,7 +693,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
         }
         UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
         if (box != Q_NULLPTR){
-            box->setStyleSheet(STYLE_UPGROUBOXACTIVE);
+            //box->setStyleSheet(STYLE_UPGROUBOXACTIVE);
             return false;
         }
     }
@@ -701,8 +701,8 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
     if (event->type() == QEvent::FocusOut )
     {
         UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
-        if (box!=Q_NULLPTR)
-            box->setStyleSheet(STYLE_UPGROUBOXINACTIVE);
+//        if (box!=Q_NULLPTR)
+//            box->setStyleSheet(STYLE_UPGROUBOXINACTIVE);
         if (obj == ui->CylindreOD)          if (ui->CylindreOD->value() == 0.0)   ui->AxeCylindreOD->setValue(0);
         if (obj == ui->CylindreOG)          if (ui->CylindreOG->value() == 0.0)   ui->AxeCylindreOG->setValue(0);
         if (obj == ui->AddVPOG) QuitteAddVP(ui->AddVPOG);
@@ -2260,7 +2260,7 @@ void dlg_refraction::RechercheMesureEnCours()
 QString dlg_refraction::RechercheResultat(QString Mesure, QString Cycloplegie, QString TypLun)
  {
     bool ok;
-    QString     Resultat    ="";
+    QString     Resultat    = "";
     QString     ResultatOD  = "";
     QString     ResultatOG  = "";
     QString     Separateur  = "";
@@ -2384,7 +2384,6 @@ QString dlg_refraction::RechercheVerres()
 //--------------------------------------------------------------------------------------
 void dlg_refraction::ResumeObservation()
 {
-
     QString VerreSpecialOD, VerreSpecialOG;
     QString ResultatOD, ResultatVLOD, ResultatVPOD, ResultatPrismeOD;
     QString ResultatOG, ResultatVLOG, ResultatVPOG, ResultatPrismeOG;
@@ -2394,8 +2393,7 @@ void dlg_refraction::ResumeObservation()
     QString DelimiterFin    = "<a name=\"fin" + QString::number(gidRefraction) + "\"></a>";
     // QString TagAncre, numIDref; // 07-07-2014 08-08-2014
 
-    int IDistance = 0;
-    int IMesure   = 0;
+    DistanceMesure Distance = Les2;
 
     // Génération du code html pour TAG Ancre avec ID refraction            // 07-07-2014 // 08-08-2014
     //numIDref = QString::number(gListeRefractionID.at(gListeRefractionID.size()-1));
@@ -2407,28 +2405,21 @@ void dlg_refraction::ResumeObservation()
     if (ui->AddVPOD->hasFocus())        PrefixePlus(ui->AddVPOD);
     if (ui->AddVPOG->hasFocus())        PrefixePlus(ui->AddVPOG);
 
-    if (gMode == Porte)                                                     IMesure = 1;
-    if (gMode == Autoref && !ui->CycloplegieCheckBox->isChecked())          IMesure = 2;
-    if (gMode == Autoref && ui->CycloplegieCheckBox->isChecked())           IMesure = 3;
-    if (gMode == Refraction && !ui->CycloplegieCheckBox->isChecked())       IMesure = 4;
-    if (gMode == Refraction && ui->CycloplegieCheckBox->isChecked())        IMesure = 5;
-    if (gMode == Prescription)                                              IMesure = 6;
-
-    if (IMesure != 6)
+    if (gMode == Prescription)
     {
-        if (ui->V2RadioButton->isChecked()) IDistance = 1;
-        if (ui->VLRadioButton->isChecked()) IDistance = 2;
-        if (ui->VPRadioButton->isChecked()) IDistance = 3;
-        if (gMode == Refraction && ui->CycloplegieCheckBox->isChecked())        IDistance = 2;
+        if (ui->V2PrescritRadioButton->isChecked()) Distance = Les2;
+        if (ui->VLPrescritRadioButton->isChecked()) Distance = Loin;
+        if (ui->VPPrescritRadioButton->isChecked()) Distance = Pres;
     }
     else
     {
-        if (ui->V2PrescritRadioButton->isChecked()) IDistance = 1;
-        if (ui->VLPrescritRadioButton->isChecked()) IDistance = 2;
-        if (ui->VPPrescritRadioButton->isChecked()) IDistance = 3;
+        if (ui->V2RadioButton->isChecked()) Distance = Les2;
+        if (ui->VLRadioButton->isChecked()) Distance = Loin;
+        if (ui->VPRadioButton->isChecked()) Distance = Pres;
+        if (gMode == Refraction && ui->CycloplegieCheckBox->isChecked())        Distance = Loin;
     }
 
-    if (IMesure == 1 || IMesure == 6)
+    if (gMode == Porte || gMode == Prescription)
         //EN MODE PORTE  ou Prescription --  détermination de gResultatPO ou gResultatPR  ---------------------------------------------------------------------------
     {
         // - 1 - détermination des verres
@@ -2508,9 +2499,9 @@ void dlg_refraction::ResumeObservation()
         gResultatP = "";
 
         // Détermination de gResultatP
-        switch (IDistance)
+        switch (Distance)
         {
-        case 1: // Mesure ou prescription de verres multifocaux
+        case Les2: // Mesure ou prescription de verres multifocaux
             if (ResultatOD == ResultatOG)
             {
                 if (ResultatVPOD != tr("plan") || VerreSpecialOD != "non")
@@ -2580,8 +2571,7 @@ void dlg_refraction::ResumeObservation()
 
             }
             break;
-
-        case 2: // Mesure ou prescription de verres de loin
+        case Loin: // Mesure ou prescription de verres de loin
             if (ResultatOD == ResultatOG)
             {
                 if (VerreSpecialOD != "non")
@@ -2618,10 +2608,9 @@ void dlg_refraction::ResumeObservation()
                 }
             }
             break;
-
-        case 3: // Mesure ou prescription de verres de près
-            switch (IMesure) {
-            case 1:                                     // Calcul des verres de près en mode porte
+        case Pres: // Mesure ou prescription de verres de près
+            if (gMode == Porte)                                     // Calcul des verres de près en mode porte
+            {
                 if (ResultatOD == ResultatOG)
                 {
                     if (VerreSpecialOD != "non")
@@ -2659,9 +2648,9 @@ void dlg_refraction::ResumeObservation()
                             gResultatP = ResultatVLOG +  tr(" OG VP");
                     }
                 }
-                break;
-
-            case 6: // Calcul des verres de près en mode impression
+            }
+            else if (gMode == Prescription) // Calcul des verres de près en mode impression
+            {
                 ResultatGlobalSphereOD = QString::number((ui->SphereOD->value() + ui->AddVPOD->value()) ,'f',2).toDouble();
                 ResultatGlobalSphereOG = QString::number((ui->SphereOG->value() + ui->AddVPOG->value()) ,'f',2).toDouble();
                 ResultatVLOD = Valeur(QString::number(ResultatGlobalSphereOD,'f',2));
@@ -2726,14 +2715,7 @@ void dlg_refraction::ResumeObservation()
                             gResultatP = ResultatVLOG +  tr(" OG VP");
                     }
                 }
-                break;
-            default:
-                break;
             }
-
-            break;
-        default:
-            break;
         }
 
 
@@ -2814,22 +2796,19 @@ void dlg_refraction::ResumeObservation()
                         "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Ryser " + ui->RyserSpinBox->text() + tr(" OG") + "</td>";
 
         // 4 - détermination du resultat final
-        switch (IMesure)
+        if (gMode == Porte)
         {
-        case 1:
             gResultatPO =  "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Porte:</b></font></td><td>" + gResultatP + "</td>" + ResultatPrisme + ResultatRyser;
             gResultatPO.insert(gResultatPO.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
-            break;
-        case 6:
+        }
+        else if (gMode == Prescription)
+        {
             gResultatPR =  "<td width=\"30\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>VP:</b></font></td><td>" + gResultatP + " " + ui->CommentairePrescriptionTextEdit->toPlainText() + "</td>" + ResultatPrisme + ResultatRyser;
             gResultatPR.insert(gResultatPR.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
-            break;
-        default:
-            break;
         }
     }
 
-    if (IMesure == 2 || IMesure == 3)
+    if (gMode == Autoref)
         //EN MODE Autoref --  détermination de gResultatA  ---------------------------------------------------------------------------
     {
         gResultatA = "";
@@ -2888,22 +2867,19 @@ void dlg_refraction::ResumeObservation()
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() +  tr(" à ") + ui->AxeKOG->text() + "°/" + ui->K2OG->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2) + "</td>";
         }
-        switch (IMesure)
+        if (ui->CycloplegieCheckBox->isChecked())
         {
-        case 2:
+            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">" + tr("(dilaté)") + "</font></td>" + kerato;
+            gResultatAdil.insert(gResultatAdil.lastIndexOf("</font></td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
+        }
+        else
+        {
             gResultatAnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>" + tr("(non dilaté)") + "</td>" + kerato;
             gResultatAnondil.insert(gResultatAnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
-            break;
-        case 3:
-            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">" + tr("(dilaté)") + "</font></td>" + kerato;
-            gResultatAdil.insert(gResultatAdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
-            break;
-        default:
-            break;
         }
     }
 
-    if (IMesure == 4 || IMesure == 5)
+    if (gMode == Refraction)
         //EN MODE Refraction --  détermination de gResultatR  ---------------------------------------------------------------------------
     {
         // - 1 - détermination des verres
@@ -2977,9 +2953,9 @@ void dlg_refraction::ResumeObservation()
 
 
         // Détermination de gResultatR
-        switch (IDistance)
+        switch (Distance)
         {
-        case 1: // Refraction de loin et de près
+        case Les2: // Refraction de loin et de près
             if (ResultatOD != "Rien")
             {
                 if (ui->AddVPOD->value() == 0.0)
@@ -3023,7 +2999,7 @@ void dlg_refraction::ResumeObservation()
                     gResultatR = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG");
             }
             break;
-        case 2: // Réfraction de loin ou sous cycloplégie
+        case Loin: // Réfraction de loin ou sous cycloplégie
             if (ResultatOD != "Rien")
             {
                 if (ResultatOG == "Rien")
@@ -3039,18 +3015,15 @@ void dlg_refraction::ResumeObservation()
         default:
             break;
         }
-        switch (IMesure)
+        if (ui->CycloplegieCheckBox->isChecked())
         {
-            case 4:
-                gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
-                gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
-                break;
-            case 5:
-                gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
-                gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
-                break;
-            default:
-            break;
+            gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
+            gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
+        }
+        else
+        {
+            gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
+            gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
         }
     }
 
@@ -3497,7 +3470,6 @@ void dlg_refraction::ResumePrescription()
     Resultat = Resultat + "\n" + m_commentaire;
     if (ui->CommentairePrescriptionTextEdit->document()->toPlainText() > "")
         Resultat = Resultat + "\n" + ui->CommentairePrescriptionTextEdit->document()->toPlainText();
-
 
     ui->ResumePrescriptionTextEdit->setText(Resultat);
 }

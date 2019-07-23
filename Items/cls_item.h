@@ -31,8 +31,8 @@ class Item : public QObject
     Q_OBJECT
 
 public:
-    enum LOADDETAILS {LoadDetails, NoLoadDetails};
-    enum UPDATE {NoUpdate, ForceUpdate};
+    enum LOADDETAILS {LoadDetails, NoLoadDetails};  Q_ENUM(LOADDETAILS)
+    enum UPDATE {NoUpdate, ForceUpdate};            Q_ENUM(UPDATE)
     explicit Item(QObject *parent = Q_NULLPTR);
     int id() const                      { return m_id; }
     void setid(int id)                  { m_id = id; }

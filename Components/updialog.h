@@ -44,6 +44,7 @@ public:
                 ButtonOups              = 0x80
                 };
     Q_DECLARE_FLAGS(Buttons, Button)
+    Q_ENUM(Button)
 
 private:
     bool            EnregPosition;

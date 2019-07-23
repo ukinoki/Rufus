@@ -41,6 +41,7 @@ public:
     Ui::dlg_comptes *ui;
     bool            getInitOK();
     void            setInitOK(bool init);
+    enum ModeArchives {TOUT, PARARCHIVE};       Q_ENUM(ModeArchives)
 
 private:
     int             intervalledate;
@@ -68,7 +69,7 @@ private:
     QComboBox       *glistArchCombo;
     UpLabel         *glbltitre;
     UpSmallButton   *gloupButton, *gFlecheHtButton;
-    int             gModeArchives; enum gModeArchives {TOUT, PARARCHIVE};
+    ModeArchives    gModeArchives;
     void            RemplirTableArchives();
     void            RedessineFicheArchives();
 

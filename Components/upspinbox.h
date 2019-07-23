@@ -31,7 +31,8 @@ public:
     ~UpSpinBox();
     void            setValeurAvant(int ValPrec);
     int             getValeurAvant() const;
-    int             gUpDown;    enum gUpDown    {Up,Down};
+    enum gUpDown    {Up,Down};
+    Q_ENUM(gUpDown)
     void            setAutorCorrigeAxe(bool);
     void            CorrigeAxe(int UpDown);
 

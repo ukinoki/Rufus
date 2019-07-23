@@ -555,7 +555,7 @@ bool dlg_commentaires::ChercheDoublon(QString str, int row)
 // ----------------------------------------------------------------------------------
 // Configuration de la fiche en fonction du mode de fonctionnement
 // ----------------------------------------------------------------------------------
-void dlg_commentaires::ConfigMode(int mode, int row)
+void dlg_commentaires::ConfigMode(Mode mode, int row)
 {
     gMode = mode;
 

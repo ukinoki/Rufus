@@ -48,9 +48,11 @@ public: //static
     static int COMPTA_SANS_COTATION_AVEC_COMPTABILITE; //3
 
     enum ENREGISTREMENTHONORAIRES {Liberal, Salarie, Retrocession, NoCompta};
-    enum METIER {Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable};
+    enum METIER {Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier};
     enum RESPONSABLE {Responsable, AlterneResponsablePasResponsable, PasResponsable};
-
+    Q_ENUM(RESPONSABLE)
+    Q_ENUM(METIER)
+    Q_ENUM(ENREGISTREMENTHONORAIRES)
 
 private:
     bool m_isAllLoaded = false;
@@ -150,7 +152,7 @@ public:
     QString fonction() const;
 
     int idSuperviseurActes() const;
-    void setIdUserActeSuperviseur(int idusr);
+    void setIdUserSuperviseur(int idusr);
     bool ishisownsupervisor();
     int idparent() const;
     void setIdUserParent(int idusr);
@@ -199,7 +201,7 @@ public:
     bool isRemplacant();
     bool isSansCompta();
     bool isResponsable();
-    bool isResponsableEtAssistant();
+    bool isResponsableOuAssistant();
     bool isAssistant();
 
     bool isDesactive();
@@ -212,10 +214,6 @@ public:
 
     User *comptable() const;
     void setUserComptable(User *usr);
-
-signals:
-
-public slots:
 };
 
 #endif // CLS_USER_H

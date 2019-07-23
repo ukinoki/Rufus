@@ -1126,7 +1126,7 @@ void dlg_paiementtiers::DefinitArchitectureTableView(UpTableWidget *TableARempli
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 -- Enregistrer une recette dans les tables Recettes, LignesPaiements , TypePiaiemntACte -----------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-int dlg_paiementtiers::EnregistreRecette()
+dlg_paiementtiers::ResultEnregRecette dlg_paiementtiers::EnregistreRecette()
 {
     QStringList locklist = QStringList() << TBL_RECETTES << TBL_LIGNESCOMPTES << TBL_DEPENSES << TBL_RUBRIQUES2035 << TBL_LIGNESPAIEMENTS;
 

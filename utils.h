@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHostAddress>
 #include <QNetworkInterface>
 #include <QHostInfo>
+#include <QMetaEnum>
 #include <QProcess>
 #include <cmath>
 
@@ -112,6 +113,14 @@ public:
     static QMap<QString,QVariant> CalculAge(QDate datedenaissance);
     static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QDate datedujour);
     static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour = QDate::currentDate());
+
+    //! renvoie la valeur littérale d'un enum (à condition d'avoir placé la macro Q_ENUM(nomdelenum) dans la définition de l'enum
+    static QString EnumDescription(QMetaEnum metaEnum, int val)
+    {
+        return metaEnum.valueToKey(val);
+    }
+
+
 };
 
 #endif // UTILS_H

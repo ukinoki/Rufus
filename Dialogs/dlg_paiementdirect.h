@@ -49,6 +49,10 @@ public:
     explicit dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *parent = Q_NULLPTR);
     ~dlg_paiementdirect();
     bool                        getInitOK();
+    enum Mode              {Accueil, EnregistrePaiement, VoirListeActes};   Q_ENUM(Mode)
+    enum OrdreTri          {Alphabetique, Chronologique};                   Q_ENUM(OrdreTri)
+    enum TypeTable         {ActesDirects,ActesTiers,Paiements};             Q_ENUM(TypeTable)                    // définit les 3 types de tables possibles dans la fiche
+    enum ResultEnregRecette{Impossible, Annul, OK};                         Q_ENUM(ResultEnregRecette)
 
 private:
     Ui::dlg_paiementdirect      *ui;
@@ -62,14 +66,10 @@ private:
     bool                        ModifPaiementEnCours;
     bool                        TraiteparCloseFlag;
     int                         gidRecette;
-    int                     gMode;
-        enum gMode              {Accueil, EnregistrePaiement, VoirListeActes};
-    int                     gOrdreTri;
-        enum gOrdreTri          {Alphabetique, Chronologique};
-    int                     gTypeTable;
-        enum gTypeTable         {ActesDirects,ActesTiers,Paiements};                    // définit les 3 types de tables possibles dans la fiche
-    int                     ResultEnregRecette;
-        enum ResultEnregRecette {Impossible, Annul, OK};
+    Mode                        gMode;
+    OrdreTri                    gOrdreTri;
+    TypeTable                   gTypeTable;
+    ResultEnregRecette          gResultEnregRecette;
     QString                     ModePaiementDirectAModifier;
     QString                     ValeurAvantChangement, ValeurMaxi;
 
@@ -95,7 +95,7 @@ private:
     void                        ChangeComptable(User *comptable, bool depuislecombo = false);
     void                        CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche = true);
     void                        DefinitArchitectureTable(UpTableWidget *TableARemplir, int TypeTable = 0);
-    int                         EnregistreRecette();
+    dlg_paiementdirect::ResultEnregRecette EnregistreRecette();
     void                        FiltreLesTables();
     void                        ModifGratuitChoixMenu(QString Choix);
     void                        NettoieVerrousCompta();

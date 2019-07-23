@@ -35,6 +35,7 @@ class ImportDocsExternesThread : public QObject
 public:
     explicit ImportDocsExternesThread(Procedures *proced);
     void                        RapatrieDocumentsThread(QList<QVariantList> listdocs);
+    enum Acces                  {Local, Distant};   Q_ENUM(Acces)
 
 signals:
     void                        emitmsg(QStringList listmsg, int pause, bool bottom);
@@ -51,8 +52,7 @@ private:
     DataBase                    *db;
     QThread                     thread;
 
-    int                         Acces;
-    enum Acces                  {Local, Distant};
+    Acces                       gAcces;
 
     QString                     NomDirStockageProv, NomDirStockageImagerie, CheminOKTransfrDir, CheminOKTransfrDirOrigin;
     QString                     datetransfer, CheminEchecTransfrDir;

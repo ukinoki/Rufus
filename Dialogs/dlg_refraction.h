@@ -46,6 +46,7 @@ public:
 
     QString                 ResultatPrescription(), ResultatObservation();
     int                     getidRefraction();
+    enum Mode               {Porte, Autoref, Refraction, Prescription}; Q_ENUM(Mode)
 
 private slots:
 
@@ -86,19 +87,18 @@ private slots:
     void                    Slot_ReprendreButtonClicked();
     void                    Slot_CommentairePrescriptionTextEdit_Changed() ; //01.07.2014
 
-
 private:
     Procedures              *proc;
     Patient                 *m_currentpatient;
     Acte                    *m_currentacte;
     QStringList             gstringListe1, gstringListe2;
     DataBase                *db;
-    int                     gMode;
     int                     gidRefraction;
-    enum gMode              {Porte, Autoref, Refraction, Prescription};
+    Mode                    gMode;
     enum ModeSortie         {Annul, Imprime, OK};
     enum DateMesure         {Aujourdhui, Avant, NoDate};
     enum TypeMesure         {MFronto, MAutoref, MRefraction, MPrescription, NoMesure};
+    enum DistanceMesure     {Loin, Pres, Les2};
     enum Cycloplegie        {Dilatation, NoDilatation};
     bool                    ok;
     bool                    gAfficheDetail;

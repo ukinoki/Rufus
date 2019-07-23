@@ -31,11 +31,12 @@ public:
     explicit    UpSmallButton(QString text, QWidget *parent = Q_NULLPTR);
     explicit    UpSmallButton(QWidget *parent = Q_NULLPTR);
     ~UpSmallButton();
-    int         StyleBouton;
     enum        StyleBouton {BACKBUTTON, CALENDARBUTTON, CANCELBUTTON, CLOSEBUTTON, COPYBUTTON,
                              DONOTRECORDBUTTON, EDITBUTTON, HOMEBUTTON, LOUPEBUTTON, NOBUTTON, OUPSBUTTON, QWANTBUTTON, PRINTBUTTON ,RECEPTIONBUTTON, RECORDBUTTON, STARTBUTTON, SUPPRBUTTON};
+    Q_ENUM(StyleBouton)
     void        setUpButtonStyle(enum StyleBouton);
-    int         ButtonStyle();
+    StyleBouton m_style;
+    StyleBouton ButtonStyle();
     void        setId(int);
     int         getId();
     void        setText(QString);

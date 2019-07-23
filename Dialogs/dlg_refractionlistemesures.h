@@ -32,10 +32,10 @@ public:
     QTableView              *tabLM;
     QStandardItemModel      *gmodele;
     int             idRefractionAOuvrir();
+    enum Mode {Supprimer, Recuperer};   Q_ENUM(Mode)
 
 private:
-    int             gMode;
-    enum gMode {Supprimer, Recuperer};
+    Mode            gMode;
     Procedures      *proc;
     void            DetruireLaMesure(Refraction* ref);
     int             Nombre_Mesure_Selected();

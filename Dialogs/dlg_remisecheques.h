@@ -40,6 +40,7 @@ public:
     ~dlg_remisecheques();
     Ui::dlg_remisecheques   *ui;
     bool                    getInitOK();
+    enum Mode              {NouvelleRemise, RevoirRemisesPrecs, ReprendreRemise};   Q_ENUM(Mode)
 
 private slots:
     void            Slot_ImprimepushButton();
@@ -59,8 +60,7 @@ private:
     DataBase                *db;
     Procedures              *proc;
     bool                    InitOK;
-    int                     gMode;
-    enum gMode              {NouvelleRemise, RevoirRemisesPrecs, ReprendreRemise};
+    Mode                    gMode;
     bool                    gBloqueCellChanged;  // ce flag sert à empêcher le déclenchement du slot cellchanged sur les tables quand on utilise certianes fonctions
     void                    closeEvent(QCloseEvent *event);
     bool                    eventFilter(QObject *obj, QEvent *event)  ;

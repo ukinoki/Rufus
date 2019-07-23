@@ -16,8 +16,8 @@ class ItemsList : public QObject
     Q_OBJECT
 public:
     explicit ItemsList(QObject *parent = Q_NULLPTR);
-    enum ADDTOLIST {AddToList, NoAddToList};
-    enum POSITION {Debut, Prec, Suiv, Fin};
+    enum ADDTOLIST {AddToList, NoAddToList};    Q_ENUM(ADDTOLIST)
+    enum POSITION {Debut, Prec, Suiv, Fin};     Q_ENUM(POSITION)
 
     static bool update(Item*item, QString field, QVariant newvalue = QVariant());
 

@@ -1782,7 +1782,7 @@ QString Procedures::getSessionStatus()
 
     bool assistant      = m_currentuser->isAssistant();
     bool responsable    = m_currentuser->isResponsable();
-    bool responsableles2= m_currentuser->isResponsableEtAssistant();
+    bool responsableles2= m_currentuser->isResponsableOuAssistant();
 
     bool liberal        = m_currentuser->isLiberal();
     bool pasliberal     = m_currentuser->isSalarie();
@@ -2933,7 +2933,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->setUserConnected( new User(db->loadUserData(1)) );
     m_currentuser = Datas::I()->users->userconnected();
     SetUserAllData(m_currentuser);
-    m_currentuser->setIdUserActeSuperviseur(1);
+    m_currentuser->setIdUserSuperviseur(1);
     m_currentuser->setIdUserComptable(1);
     m_currentuser->setIdUserParent(1);
 
@@ -3229,18 +3229,18 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
         // le user est responsable de ses actes - on cherche à savoir qui comptabilise ses actes
         if( m_currentuser->isResponsable() )
-            Slot_CalcUserParent();
+            CalcUserParent();
 
         // le user alterne entre responsable des actes et assistant suivant la session
         // on lui demande son rôle pour cette session
-        else if( m_currentuser->isResponsableEtAssistant() )
+        else if( m_currentuser->isResponsableOuAssistant() )
         {
             bool found = false;
             foreach (User *us, Datas::I()->users->all()->values())
             {
                 if( us->id() == m_currentuser->id() )
                     continue;
-                if( !us->isResponsable() && !us->isResponsableEtAssistant() )
+                if( !us->isResponsable() && !us->isResponsableOuAssistant() )
                     continue;
                 found = true;
                 break;
@@ -3258,19 +3258,19 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 pbuttResp               ->setText(tr("Responsable de mes actes"));
                 pbuttResp               ->setAccessibleName("buttresp");
                 vbox                    ->addWidget(pbuttResp);
-                connect(pbuttResp, &QRadioButton::clicked, this, &Procedures::Slot_CalcUserParent);
+                connect(pbuttResp, &QRadioButton::clicked, this, &Procedures::CalcUserParent);
 
                 QRadioButton *pbuttAss  = new QRadioButton(boxrole);
                 pbuttAss                ->setText(tr("Assistant"));
                 pbuttAss                ->setAccessibleName("buttass");
                 pbuttAss                ->setChecked(true);      // le user est défini par défaut comme assistant -> on cherche qui supervise les actes
                 vbox                    ->addWidget(pbuttAss);
-                connect(pbuttAss, &QRadioButton::clicked, this, &Procedures::Slot_CalcUserSuperviseur);
+                connect(pbuttAss, &QRadioButton::clicked, this, &Procedures::CalcUserSuperviseur);
 
                 vbox                    ->setContentsMargins(8,0,8,0);
                 boxrole                 ->setLayout(vbox);
                 dynamic_cast<QVBoxLayout*>(gAskUser->layout())->setSizeConstraint(QLayout::SetFixedSize);
-                Slot_CalcUserSuperviseur();
+                CalcUserSuperviseur();
             }
             else
             {
@@ -3281,13 +3281,13 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                     tr("Vous étes enregistré comme pouvant être assistant\n"
                                        "mais il n'y a aucun utilisateur susceptible de superviser\n"
                                        "vos actes enregistré dans la base de données"));
-                Slot_CalcUserParent();
+                CalcUserParent();
             }
         }
 
         // le user est assistant - on lui demande qui supervise ses actes
         else if( m_currentuser->isAssistant() )
-            Slot_CalcUserSuperviseur();
+            CalcUserSuperviseur();
 
         gAskUser                ->setModal(true);
         gAskUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
@@ -3311,7 +3311,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                     for (int j=0; j<listbutt.size(); j++)
                         if (listbutt.at(j)->isChecked())
                         {
-                            m_currentuser->setIdUserActeSuperviseur(listbutt.at(j)->accessibleName().toInt());
+                            m_currentuser->setIdUserSuperviseur(listbutt.at(j)->accessibleName().toInt());
                             break;
                         }
                 }
@@ -3382,7 +3382,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         boxparent               ->setVisible(false);
                         boxlay                  ->addWidget(boxparent);
 
-                        Slot_CalcUserParent();
+                        CalcUserParent();
                         gAskUser                ->setModal(true);
                         gAskUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
                         connect(gAskUser->OKButton,   SIGNAL(clicked(bool)),  gAskUser, SLOT(accept()));
@@ -3427,7 +3427,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     }
 
     // il s'agit d'un administratif ou d'une société comptable
-    m_currentuser->setIdUserActeSuperviseur(User::ROLE_VIDE);
+    m_currentuser->setIdUserSuperviseur(User::ROLE_VIDE);
     m_currentuser->setIdUserComptable(User::ROLE_VIDE);
     m_currentuser->setIdUserParent(User::ROLE_VIDE);
     gUseCotation     = true;
@@ -3475,10 +3475,10 @@ bool Procedures::SetUserAllData(User *usr)
  * gidUserParentProv = -3
  * gidUserSuperViseurProv = -3 || id
  */
-void Procedures::Slot_CalcUserSuperviseur()
+void Procedures::CalcUserSuperviseur()
 {
     User *user = qobject_cast<User *>(gAskUser->data());
-    m_currentuser->setIdUserActeSuperviseur(User::ROLE_INDETERMINE);
+    m_currentuser->setIdUserSuperviseur(User::ROLE_INDETERMINE);
     m_currentuser->setIdUserParent(User::ROLE_INDETERMINE);
     QGroupBox *ptbox = Q_NULLPTR;
     QList<QGroupBox*> Listgroupbx   = gAskUser->findChildren<QGroupBox*>();
@@ -3497,21 +3497,18 @@ void Procedures::Slot_CalcUserSuperviseur()
     delete ptbox->layout();
 
     QList<User*> listUserFound;
-    foreach (User *us, Datas::I()->users->all()->values())
+    foreach (User *us, Datas::I()->users->superviseurs()->values())
     {
         if( us->id() == user->id() )
             continue;
-        if( !us->isResponsable() && !us->isResponsableEtAssistant() )
-            continue;
         if( m_currentuser->isMedecin() && !us->isMedecin() )
             continue;
-
         listUserFound << us;
     }
 
     if( listUserFound.size() == 1 )
     {
-        m_currentuser->setIdUserActeSuperviseur( listUserFound.first()->id() );
+        m_currentuser->setIdUserSuperviseur( listUserFound.first()->id() );
     }
     else if( !listUserFound.isEmpty() )
     {
@@ -3558,11 +3555,11 @@ void Procedures::Slot_CalcUserSuperviseur()
  * gidUserSuperViseurProv = user->id()
  * gidUserParentProv = id || -3 || user->id()
  */
-void Procedures::Slot_CalcUserParent()
+void Procedures::CalcUserParent()
 {
     User *user = qobject_cast<User *>(gAskUser->data());
     //gidUserSuperViseurProv = user->id();
-    user->setIdUserActeSuperviseur( user->id() );
+    user->setIdUserSuperviseur( user->id() );
     QGroupBox *ptbox = Q_NULLPTR;
     foreach (QGroupBox * box, gAskUser->findChildren<QGroupBox*>())
     {

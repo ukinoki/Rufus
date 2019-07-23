@@ -80,7 +80,7 @@ void dlg_listemotscles::Slot_ChoixButtonFrame(int i)
     }
 }
 
-void dlg_listemotscles::CreationModifMC(enum gMode mode)
+void dlg_listemotscles::CreationModifMC(Mode mode)
 {
     gAskDialog                      = new UpDialog(this);
     QWidget     *widg               = new QWidget(gAskDialog);

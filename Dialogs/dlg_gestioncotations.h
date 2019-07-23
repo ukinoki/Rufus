@@ -29,11 +29,11 @@ public:
     enum Mode   {
         Creation,
         Modification
-    };
+    };    Q_ENUM(Mode)
     enum TypeActe   {
         Association,
         HorsNomenclature
-    };
+    };    Q_ENUM(TypeActe)
     explicit dlg_gestioncotations(enum TypeActe type, enum Mode mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncotations();
 

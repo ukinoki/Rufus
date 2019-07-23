@@ -25,10 +25,10 @@ class Refraction : public Item
     Q_OBJECT
 public:
     explicit Refraction(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    enum TypeMesure {Porte, Autoref, Acuite, Prescription};
-    enum Distance {Loin, Pres, AllDistance};
-    enum Oeil {Droit, Gauche, Les2};
-    enum Dilatation {Cycloplegie, NoCycloplegie, NoLoSo};
+    enum TypeMesure {Porte, Autoref, Acuite, Prescription};     Q_ENUM(TypeMesure)
+    enum Distance {Loin, Pres, AllDistance};                    Q_ENUM(Distance)
+    enum Oeil {Droit, Gauche, Les2};                            Q_ENUM(Oeil)
+    enum Dilatation {Cycloplegie, NoCycloplegie, NoLoSo};       Q_ENUM(Dilatation)
     void setData(QJsonObject data);
 
 private:

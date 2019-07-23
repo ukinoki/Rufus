@@ -45,7 +45,7 @@ public:
     ~PlayerControls();
     void        setPlayer(QMediaPlayer*);
     void        startplay();
-    enum State {Pause, Stop, Play};
+    enum State {Pause, Stop, Play}; Q_ENUM(State)
 
 signals:
     void ctrl(State);

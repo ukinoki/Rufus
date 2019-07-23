@@ -28,6 +28,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Depense : public Item
 {
 
+
+public:
+    enum AuxArchives {NoLoSo, Oui, Non};    Q_ENUM(AuxArchives)
 private: //Données de la dépense
 
     int m_iduser;               //!< id du user qui a fait la dépense (ce user est comptable)
@@ -45,13 +48,12 @@ private: //Données de la dépense
     int m_idfacture;            //!< l'id de la facture ou de l'échéancier correspondant dans la table Facture
     QString m_lienfacture;      //!< l'emplacement de la facture ou de l'échéancier correspondant sur le disque dur
     bool m_echeancier;          //!< bool -> true = echeancier - false = facture
-    int m_auxarchives;          //!< depense par operation bancaire et dont l'operation bancaire est consolidée
+    AuxArchives m_auxarchives;  //!< depense par operation bancaire et dont l'operation bancaire est consolidée
     QString m_objetecheancier;  //!< l'intitule de l'échéancier correspondant sur le disque dur
     QString m_formatfacture;    //!< la facture est un jpg ou un pdf
     QByteArray m_blob;          //!< le contenu du fichier image de la facture
 
 public:
-    enum m_auxarchives {NoLoSo, Oui, Non};
     //GETTER | SETTER
     int     iduser() const;
     QDate   date() const;

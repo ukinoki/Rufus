@@ -44,6 +44,7 @@ public:
     ~dlg_depenses();
     Ui::dlg_depenses            *ui;
     bool                        getInitOK();
+    enum Mode                   {Lire, Modifier, Enregistrer, TableVide};       Q_ENUM(Mode)
 
 private:
     dlg_comptes                 *Dlg_Cmpt;
@@ -63,9 +64,7 @@ private:
     QList<QImage>               glistImg;
 
     bool                        InitOK, AccesDistant;
-    int                         gMode;
-    enum gMode                  {Lire, Modifier, Enregistrer, TableVide};
-
+    Mode                        gMode;
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );
     void                        AfficheFacture(Depense *dep = Q_NULLPTR);
@@ -81,7 +80,7 @@ private:
     bool                        initializeUserSelected();
     void                        ReconstruitListeAnnees();
     void                        ReconstruitListeRubriques(int idx = 0);
-    void                        RegleAffichageFiche(enum gMode);
+    void                        RegleAffichageFiche(Mode);
     void                        RegleComptesComboBox(bool ActiveSeult = true);
     void                        RemplitBigTable();
     void                        SetDepenseToRow(Depense *dep, int row);

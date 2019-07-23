@@ -34,6 +34,7 @@ public:
     explicit dlg_bilanrecettes(QWidget *parent = Q_NULLPTR);
     ~dlg_bilanrecettes();
     bool                        getInitOK();
+    enum Mode                  {SUPERVISEUR, COMPTABLE};    Q_ENUM(Mode)
 
 private:
     Procedures                  *proc;
@@ -65,11 +66,10 @@ private:
     double                      TotalAutresRecBanq;
     double                      GdTotalEsp;
     double                      GdTotalBanq;
-    int                         gMode;
-    enum gMode                  {SUPERVISEUR, COMPTABLE};
+    Mode                        gMode;
     void                        CalcSuperviseursEtComptables(); //Etablit la liste des superviseurs et des comptables pour la période du bilan
     void                        CalculeTotal();
-    void                        ChangeMode(enum gMode);
+    void                        ChangeMode(enum Mode);
     void                        ExportTable();
     void                        FiltreTable(int idx);
     Recette*                    getRecetteFromRow(int row);

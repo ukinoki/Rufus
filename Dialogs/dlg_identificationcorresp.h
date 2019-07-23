@@ -38,7 +38,7 @@ public:
     enum Mode   {
         Creation,
         Modification
-    };
+    };    Q_ENUM(Mode)
     explicit dlg_identificationcorresp(enum Mode mode, bool quelesmedecins, Correspondant *cor = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationcorresp *ui;
     ~dlg_identificationcorresp();

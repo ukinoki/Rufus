@@ -65,8 +65,9 @@ class DataBase : public QObject
     Q_OBJECT
 public:
     enum m_mode { Poste, ReseauLocal, Distant };
-    int comparateur;
+    Q_ENUM(m_mode)
     enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };
+    Q_ENUM(comparateur)
 
 private:
     DataBase();

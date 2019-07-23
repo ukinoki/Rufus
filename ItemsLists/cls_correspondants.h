@@ -30,7 +30,7 @@ private:
 public:
     //GETTER
     QMap<int, Correspondant *> *correspondants()     const;
-    enum   TYPECORRESPONDANT {TousLesCorrespondants, QueLesGeneralistes};
+    enum   TYPECORRESPONDANT {TousLesCorrespondants, QueLesGeneralistes};   Q_ENUM(TYPECORRESPONDANT)
 
     Correspondants(QObject *parent = Q_NULLPTR);
 

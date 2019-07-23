@@ -153,10 +153,10 @@ dlg_gestionusers::~dlg_gestionusers()
 }
 
 
-void dlg_gestionusers::setConfig(enum Mode Style)
+void dlg_gestionusers::setConfig(enum UserMode mode)
 {
-    Mode = Style;
-    switch (Style) {
+    UsrMode = mode;
+    switch (mode) {
     case PREMIERUSER:
         ui->SecretaireupRadioButton         ->setEnabled(false);
         ui->AutreNonSoignantupRadioButton   ->setEnabled(false);
@@ -224,7 +224,7 @@ void dlg_gestionusers::Slot_Annulation()
     }
     else
     {
-        if (Mode == PREMIERUSER || Mode == MODIFUSER)
+        if (UsrMode == PREMIERUSER || UsrMode == MODIFUSER)
             reject();
         if (ui->ListUserstableWidget->selectedItems().size()>0)
         {
@@ -686,7 +686,7 @@ void dlg_gestionusers::Slot_EnregistreUser()
     req = "update " TBL_COMPTES " set partage = ";
     db->StandardSQL(req + (ui->SocieteComptableupRadioButton->isChecked()? "1" : "null") + " where iduser = " +  ui->idUseruplineEdit->text());
 
-    if (Mode==PREMIERUSER || Mode == MODIFUSER)
+    if (UsrMode==PREMIERUSER || UsrMode == MODIFUSER)
     {
         done(ui->idUseruplineEdit->text().toInt());
         return;
@@ -1185,7 +1185,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
 
     bool assistant      = OtherUser->isAssistant();
     bool responsable    = OtherUser->isResponsable();
-    bool responsableles2= OtherUser->isResponsableEtAssistant();
+    bool responsableles2= OtherUser->isResponsableOuAssistant();
 
     bool liberal        = OtherUser->isLiberal();
     bool pasliberal     = OtherUser->isSalarie();

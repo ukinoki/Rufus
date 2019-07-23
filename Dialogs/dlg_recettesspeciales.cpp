@@ -118,7 +118,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     InitOK = true;
 }
 
-void    dlg_recettesspeciales::RegleAffichageFiche(enum gMode mode)
+void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode)
 {
     gMode = mode;
     ui->DateRecdateEdit     ->setVisible(gMode != TableVide);

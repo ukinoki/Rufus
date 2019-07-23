@@ -37,6 +37,7 @@ public:
     explicit dlg_recettesspeciales(QWidget *parent = Q_NULLPTR);
     Ui::dlg_recettesspeciales   *ui;
     bool                        getInitOK();
+    enum Mode                  {Lire, Modifier, Enregistrer, TableVide};    Q_ENUM(Mode)
 
 private:
     dlg_comptes                 *Dlg_Cmpt;
@@ -50,8 +51,7 @@ private:
     UpPushButton                *EnregupPushButton, *AnnulupPushButton;
 
     bool                        InitOK;
-    int                         gMode;
-    enum gMode                  {Lire, Modifier, Enregistrer, TableVide};
+    Mode                        gMode;
 
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );
@@ -60,7 +60,7 @@ private:
     void                        EnregistreRecette();
     void                        ReconstruitListeAnnees();
     void                        RegleComptesComboBox(bool ActiveSeult = true);
-    void                        RegleAffichageFiche(enum gMode);
+    void                        RegleAffichageFiche(enum Mode);
     void                        RemplitBigTable();
     void                        ChoixMenu(QString);
     bool                        initializeUserSelected();

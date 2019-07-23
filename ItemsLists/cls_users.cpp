@@ -69,7 +69,7 @@ bool Users::add(User *usr)
     if( usr == Q_NULLPTR)
         return false;
 
-    QMap<int, User*>::const_iterator itusr = m_users->find(usr->id());
+    auto itusr = m_users->find(usr->id());
     if( itusr != m_users->constEnd() )
     {
         User *result = const_cast<User*>(itusr.value());
@@ -84,7 +84,7 @@ bool Users::add(User *usr)
     m_parents       ->remove(usr->id());
     m_comptables    ->remove(usr->id());
 
-    if( usr->isResponsable() || usr->isResponsableEtAssistant())
+    if( usr->isResponsable() || usr->isResponsableOuAssistant())
         m_superviseurs->insert(usr->id(), usr);
 
     if( usr->isLiberal() )
@@ -101,9 +101,8 @@ bool Users::add(User *usr)
 
 void Users::addList(QList<User*> listusr)
 {
-    QList<User*>::const_iterator it;
-    for( it = listusr.constBegin(); it != listusr.constEnd(); ++it )
-        add( *it );
+    foreach (User *usr, listusr)
+        add(usr);
 }
 
 /*!

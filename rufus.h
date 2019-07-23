@@ -86,6 +86,7 @@ public:
     explicit Rufus(QWidget *parent = Q_NULLPTR);
     ~Rufus();
     Ui::Rufus                       *ui;
+    enum Origin {BoutonPaiement, Accueil, Menu};    Q_ENUM(Origin)
 
 private:
     bool                            UtiliserTcpSocket = false;
@@ -135,7 +136,6 @@ private:
     void        AfficheMenu(QMenu *menu);
     void        AfficheMotif(UpLabel *lbl);
     void        AfficheToolTip(Patient *pat);
-    enum Origin {BoutonPaiement, Accueil, Menu};
     void        AppelPaiementDirect(Origin origin);
     void        AppelPaiementTiers();
     void        AutreDossier(Patient *pat);
