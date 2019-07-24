@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("23-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("24-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -72,7 +72,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         exit(0);
     }
     qApp->setStyleSheet(Styles::StyleAppli());
-    dlg_message(m_currentuser->getStatus(), 3000);
+    dlg_message(m_currentuser->Status(), 3000);
 
     //! 3 Initialisation de tout
     InitVariables();
@@ -6312,8 +6312,8 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     {
         gMesureFronto.clear();
         gMesureAutoref.clear();
-        RegleRefracteur("P");
-        RegleRefracteur("R");
+        RegleRefracteur(Refraction::Fronto);
+        RegleRefracteur(Refraction::Autoref);
         proc->SetDataAEnvoyerAuRefracteur(gMesureFronto, gMesureAutoref);
     }
 
@@ -8483,7 +8483,7 @@ void    Rufus::RefractionMesure()
     delete Dlg_Refraction;
 }
 
-void Rufus::RegleRefracteur(QString TypeMesure)
+void Rufus::RegleRefracteur(Refraction::Mesure mesure)
 {
     if (Datas::I()->patients->currentpatient()->id() == 0)
         return;
@@ -8503,14 +8503,14 @@ void Rufus::RegleRefracteur(QString TypeMesure)
         itref.previous();
         if (itref.value()->distance() != Refraction::Pres)
         {
-                if (TypeMesure == "R")
+                if (mesure == Refraction::Autoref)
                 {
                     if (itref.value()->mesure() == Refraction::Acuite)
                         ref= const_cast<Refraction*>(itref.value());
                 }
-                else if (TypeMesure == "P")
+                else if (mesure == Refraction::Fronto)
                 {
-                    if (itref.value()->mesure() == Refraction::Prescription || itref.value()->mesure() == Refraction::Porte)
+                    if (itref.value()->mesure() == Refraction::Prescription || itref.value()->mesure() == Refraction::Fronto)
                         ref= const_cast<Refraction*>(itref.value());
                 }
                 if (ref != Q_NULLPTR)
@@ -8617,9 +8617,9 @@ void Rufus::RegleRefracteur(QString TypeMesure)
     Mesure["FormuleOD"] = ref->formuleOD();
     Mesure["FormuleOG"] = ref->formuleOG();
 
-    if (TypeMesure == "R")
+    if (mesure == Refraction::Autoref)
         gMesureAutoref = Mesure;
-    if (TypeMesure == "P")
+    else if (mesure == Refraction::Fronto)
         gMesureFronto = Mesure;
 }
 

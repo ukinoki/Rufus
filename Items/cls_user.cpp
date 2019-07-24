@@ -89,22 +89,22 @@ void User::setData(QJsonObject data)
 
     setDataDateTime(data, "dateDerniereConnexion", m_dateDerniereConnexion);
     m_data = data;
-    qDebug() << login();
+    /*qDebug() << login();
     qDebug() << "m_responsableActes" << m_responsableActes;
-    qDebug() << "responsableactes()" << Utils::EnumDescription(QMetaEnum::fromType<RESPONSABLE>(), responsableactes());
+    qDebug() << "responsableactes() = " + Utils::EnumDescription(QMetaEnum::fromType<RESPONSABLE>(), responsableactes());
     qDebug() << "isResponsable()" << isResponsable();
     qDebug() << "isResponsableOuAssistant()" << isResponsableOuAssistant();
-    qDebug() << "metier()" << metier();
+    qDebug() << "metier() = " + Utils::EnumDescription(QMetaEnum::fromType<METIER>(), metier());
     qDebug() << "isSoignant()" << isSoignant();
     qDebug() << "isRemplacant()" << isRemplacant();
-    qDebug() << "modeenregistrementhonoraires()" << modeenregistrementhonoraires();
+    qDebug() << "modeenregistrementhonoraires() = " + Utils::EnumDescription(QMetaEnum::fromType<ENREGISTREMENTHONORAIRES>(), modeenregistrementhonoraires());*/
 }
 
 
 
 QString User::login() const                      { return m_login; }
 QString User::password() const                   { return m_password; }
-void User::setPassword(QString psswd)               { m_password = psswd; }
+void User::setPassword(QString psswd)            { m_password = psswd; }
 
 QString User::nom() const                        { return m_nom; }
 QString User::prenom() const                     { return m_prenom; }
@@ -224,7 +224,6 @@ bool User::isSansCompta()                           { return modeenregistrementh
 bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }
 bool User::isResponsableOuAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
 bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
-//bool User::isAssistant() { return isSoignant() && m_idUserActeSuperviseur != m_id; }
 bool User::isDesactive()                            { return m_desactive; }
 
 
@@ -233,7 +232,7 @@ bool User::isDesactive()                            { return m_desactive; }
  * génére un résumé des informations de l'utilisateur sur la session courante.
  * \return Chaine de caractères
  */
-QString User::getStatus() const
+QString User::Status() const
 {
     QString str = "" +
             tr("utilisateur") + "\t\t= " + m_login  + "\n"

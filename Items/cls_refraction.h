@@ -25,17 +25,17 @@ class Refraction : public Item
     Q_OBJECT
 public:
     explicit Refraction(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    enum TypeMesure {Porte, Autoref, Acuite, Prescription};     Q_ENUM(TypeMesure)
-    enum Distance {Loin, Pres, AllDistance};                    Q_ENUM(Distance)
-    enum Oeil {Droit, Gauche, Les2};                            Q_ENUM(Oeil)
-    enum Dilatation {Cycloplegie, NoCycloplegie, NoLoSo};       Q_ENUM(Dilatation)
+    enum Mesure {Fronto, Autoref, Acuite, Prescription, NoMesure};      Q_ENUM(Mesure)
+    enum Distance {Loin, Pres, AllDistance};                            Q_ENUM(Distance)
+    enum Oeil {Droit, Gauche, Les2};                                    Q_ENUM(Oeil)
+    enum Dilatation {Cycloplegie, NoCycloplegie, NoLoSo};               Q_ENUM(Dilatation)
     void setData(QJsonObject data);
 
 private:
     int m_idpat;                    //!> l'id du patient
     int m_idacte;                   //!> l'id de l'acte aucours duquel la mesure a été faite
     QDate m_daterefraction;         //!> la date de la refraction
-    TypeMesure m_mesure;            //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
+    Mesure m_mesure;                //!> le type de mesure effectuée : frontofocometre, autorefractomètre, acuité ou prescription
     Distance m_distance;            //!> la distance de mesure: loin, près, les 2
     bool m_isdilate;                //!> examen sous cycloplegie ou non
     bool m_isODmesure;              //!> l'OD a été mesuré
@@ -79,7 +79,7 @@ public:
     int idpat() { return m_idpat; }                             //!> l'id du patient
     int idacte() { return m_idacte; }                           //!> l'id de l'acte aucours duquel la mesure a été faite
     QDate daterefraction() { return m_daterefraction; }         //!> la date de la refraction
-    TypeMesure mesure() { return m_mesure; }                    //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
+    Mesure mesure() { return m_mesure; }                        //!> le type de mesure effectuée : frontofocometre, autorefractomètre, acuité ou prescription
     Distance distance() { return m_distance; }                  //!> la distance de mesure: loin, près, les 2
     bool isdilate() { return m_isdilate; }                      //!> examen sous cycloplegie ou non
     bool isODmesure() { return m_isODmesure; }                  //!> l'OD a été mesuré
@@ -122,7 +122,7 @@ public:
     void setidpat(int id) { m_idpat = id; }                                     //!> l'id du patient
     void setidacte(int id) { m_idacte = id; }                                   //!> l'id de l'acte aucours duquel la mesure a été faite
     void setdaterefraction(QDate date) { m_daterefraction = date; }             //!> la date de la refraction
-    void setmesure(TypeMesure mesure) { m_mesure = mesure; }                    //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
+    void setmesure(Mesure mesure) { m_mesure = mesure; }                        //!> le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
     void setdistance(Distance distance) { m_distance = distance; }              //!> la distance de mesure: loin, près, les 2
     void setisdilate(bool logic) { m_isdilate = logic; }                        //!> examen sous cycloplegie ou non
     void setisODmesure(bool logic) { m_isODmesure = logic; }                    //!> l'OD a été mesuré

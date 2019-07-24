@@ -847,3 +847,18 @@ QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QString Sexe, QDa
     return Age;
 }
 
+//! renvoie la valeur littérale d'un enum (à condition d'avoir placé la macro Q_ENUM(nomdelenum) dans la définition de l'enum
+//! utilisé comme ça
+//!    qDebug() << Utils::EnumDescription(QMetaEnum::fromType<nomdelenum>(), valeurdelenum);
+/*! ex
+ *     enum METIER {Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier};    Q_ENUM(METIER) *
+ *     qDebug() << User::METIER;
+ * ->  0
+ *     qDebug() << Utils::EnumDescription(QMetaEnum::fromType<User::METIER>(), 0);
+ * ou  qDebug() << Utils::EnumDescription(QMetaEnum::fromType<User::METIER>(), User::Ophtalmo);
+ * ->  "User::Ophtalmo"
+ */
+QString Utils::EnumDescription(QMetaEnum metaEnum, int val)
+{
+    return metaEnum.valueToKey(val);
+}

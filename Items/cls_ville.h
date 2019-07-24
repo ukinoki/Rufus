@@ -20,5 +20,4 @@ public:
     void setData(QJsonObject data);
 
 };
-
 #endif // CLS_VILLE_H

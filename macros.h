@@ -358,6 +358,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_POSTEIMPORTDOCS                         "posteimportdocs"
 #define NOM_ADMINISTRATEURDOCS                      "Admin"
 #define NOM_MDPADMINISTRATEUR                       "bob"
+#define deb                                      "qDebug() <<"
 
 //les TCP
 #define NOM_PORT_TCPSERVEUR                         "50885"

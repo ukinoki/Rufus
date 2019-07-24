@@ -103,10 +103,9 @@ public:
                                                   QString Cote);                   //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     static QString                  PrefixePlus(QString);                          //! convertit en QString signé + ou - les valeurs QDouble de dioptries
 
-    //!SQL
+    //! SQL
     static QString                  correctquoteSQL(QString text);
     static QStringList              DecomposeScriptSQL(QString nomficscript);
-
     static QString                  ConvertitModePaiement(QString mode);            // convertit en clair les abréviations utilisées dans la compta pour les modes de paiement (B= carte de crédit, E = Espèces...etc...)
 
     //! Calcule âge
@@ -115,12 +114,7 @@ public:
     static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour = QDate::currentDate());
 
     //! renvoie la valeur littérale d'un enum (à condition d'avoir placé la macro Q_ENUM(nomdelenum) dans la définition de l'enum
-    static QString EnumDescription(QMetaEnum metaEnum, int val)
-    {
-        return metaEnum.valueToKey(val);
-    }
-
-
+    static QString EnumDescription(QMetaEnum metaEnum, int val);
 };
 
 #endif // UTILS_H

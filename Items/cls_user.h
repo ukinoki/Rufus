@@ -47,12 +47,9 @@ public: //static
     static int COMPTA_AVEC_COTATION_SANS_COMPTABILITE; //2
     static int COMPTA_SANS_COTATION_AVEC_COMPTABILITE; //3
 
-    enum ENREGISTREMENTHONORAIRES {Liberal, Salarie, Retrocession, NoCompta};
-    enum METIER {Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier};
-    enum RESPONSABLE {Responsable, AlterneResponsablePasResponsable, PasResponsable};
-    Q_ENUM(RESPONSABLE)
-    Q_ENUM(METIER)
-    Q_ENUM(ENREGISTREMENTHONORAIRES)
+    enum ENREGISTREMENTHONORAIRES {Liberal, Salarie, Retrocession, NoCompta};                       Q_ENUM(ENREGISTREMENTHONORAIRES)
+    enum METIER {Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier};    Q_ENUM(METIER)
+    enum RESPONSABLE {Responsable, AlterneResponsablePasResponsable, PasResponsable};               Q_ENUM(RESPONSABLE)
 
 private:
     bool m_isAllLoaded = false;
@@ -165,7 +162,7 @@ public:
     QString mail() const;
     QString portable() const;
 
-    QString getStatus() const;
+    QString Status() const;
 
     Site* sitedetravail() const;
     void setSite(Site *Site);

@@ -144,7 +144,7 @@ void dlg_listemesures::DetruireLaMesure(Refraction *ref)
         return;
     QString mesure = "";
     switch (ref->mesure()) {
-    case Refraction::Porte:
+    case Refraction::Fronto:
         mesure = "P";
         break;
     case Refraction::Autoref:
@@ -221,7 +221,7 @@ void dlg_listemesures::RemplirTableView()
         if (gMode == Recuperer)
             pitem0  ->setCheckable(true);
         QString Mesure = "";
-        if (ref->mesure() == Refraction::Porte)             Mesure = tr("Porte");
+        if (ref->mesure() == Refraction::Fronto)             Mesure = tr("Porte");
         else if (ref->mesure() == Refraction::Autoref)      Mesure = tr("AutoRef");
         else if (ref->mesure() == Refraction::Acuite)       Mesure = tr("Réfraction");
         else if (ref->mesure() == Refraction::Prescription) Mesure = tr("Ordonnance");

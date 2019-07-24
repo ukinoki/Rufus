@@ -1797,7 +1797,7 @@ QString Procedures::getSessionStatus()
     bool respliberal        = soigntnonassistant && liberal;
 
 
-    QString txtstatut = tr("Vos données enregistrées pour cette session")+ "\n\n" + m_currentuser->getStatus() + "\n\n";
+    QString txtstatut = tr("Vos données enregistrées pour cette session")+ "\n\n" + m_currentuser->Status() + "\n\n";
 
     txtstatut += tr("Vos données permanentes") +"\n\n" + tr("Fonction :") + "\t\t\t";
     if (ophtalmo)

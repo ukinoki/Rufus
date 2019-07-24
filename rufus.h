@@ -341,7 +341,7 @@ private:
                                                     //!> un tooltip est affiché décrivant le descriptif de la cotation mise en surbrillance dans la liste déroulante
     void                ReconstruitListesCotations();
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
-    void                RegleRefracteur(QString TypeMesure);
+    void                RegleRefracteur(Refraction::Mesure mesure);
     void                RemiseCheques();
     bool                Remplir_ListePatients_TableView();
     QTabWidget*         Remplir_MsgTabWidget();

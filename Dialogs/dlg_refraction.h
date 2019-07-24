@@ -46,7 +46,6 @@ public:
 
     QString                 ResultatPrescription(), ResultatObservation();
     int                     getidRefraction();
-    enum Mode               {Porte, Autoref, Refraction, Prescription}; Q_ENUM(Mode)
 
 private slots:
 
@@ -94,10 +93,9 @@ private:
     QStringList             gstringListe1, gstringListe2;
     DataBase                *db;
     int                     gidRefraction;
-    Mode                    gMode;
+    Refraction::Mesure  gMode;
     enum ModeSortie         {Annul, Imprime, OK};
     enum DateMesure         {Aujourdhui, Avant, NoDate};
-    enum TypeMesure         {MFronto, MAutoref, MRefraction, MPrescription, NoMesure};
     enum DistanceMesure     {Loin, Pres, Les2};
     enum Cycloplegie        {Dilatation, NoDilatation};
     bool                    ok;
@@ -139,10 +137,10 @@ private:
     QString                 CommentaireObligatoire();
     bool                    ControleCoherence();
     double                  ConvDouble(QString textdouble);
-    TypeMesure              ConvertMesure(QString Mesure);
-    QString                 ConvertMesure(TypeMesure Mesure);
+    Refraction::Mesure      ConvertMesure(QString Mesure);
+    QString                 ConvertMesure(Refraction::Mesure Mesure);
     bool                    DeplaceVers(QWidget *widget, QString FinOuDebut = "");
-    void                    DetruireLaMesure(class Refraction* ref);
+    void                    DetruireLaMesure(Refraction* ref);
     void                    FermeFiche(enum ModeSortie);
     void                    InitDivers();
     void                    InitEventFilters();
@@ -151,7 +149,7 @@ private:
     void                    InscriptRefraction();
     void                    InsertDonneesOphtaPatient();
     bool                    InsertRefraction();
-    int                     LectureMesure(DateMesure Quand, TypeMesure Mesure, Cycloplegie dilatation, int idrefraction, bool Affichage, QString FormuleOD = "", QString FormuleOG = "");
+    int                     LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, Cycloplegie dilatation, int idrefraction, bool Affichage, QString FormuleOD = "", QString FormuleOG = "");
     void                    OuvrirListeMesures(QString SupOuRecup);
     void                    MajDonneesOphtaPatient();
     void                    MasquerObjetsOeilDecoche();
