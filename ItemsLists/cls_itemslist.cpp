@@ -17,8 +17,8 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     PatientEnCours* patcrs = Q_NULLPTR;
     Patient* pat = Q_NULLPTR;
     PosteConnecte* usr = Q_NULLPTR;
+    Banque *bq          = Q_NULLPTR;
 
-    bool ok = false;
     bool loop = false;
     while (!loop)
     {
@@ -91,9 +91,18 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             loop = true;
             break;
         }
+        bq = dynamic_cast<Banque*>(item);
+        {
+            if (bq != Q_NULLPTR)
+            {
+                table = TBL_BANQUES;
+                loop = true;
+                break;
+            }
+        }
         return false;
     }
-
+    bool ok = false;
     if (table == TBL_IMPRESSIONS)
     {
         ok = true;
@@ -462,6 +471,23 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             usr->setidpatencours(newvalue.toInt());
             value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
         }
+    }
+    else if (table == TBL_BANQUES)
+    {
+        ok = true;
+        clause = CP_IDBANQUE_BANQUES " = " + QString::number(item->id());
+        if (field == CP_NOMABREGE_BANQUES )
+        {
+            bq->setnomabrege(newvalue.toString());
+            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+        }
+        else if (field == CP_NOMBANQUE_BANQUES )
+        {
+            bq->setnom(newvalue.toString());
+            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+        }
+        else
+            ok = false;
     }
     if (ok)
     {

@@ -191,6 +191,11 @@ bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
     return StandardSQL(req);
 }
 
+bool DataBase::locktable(QString Table, QString ModeBlocage)
+{
+    return locktables(QStringList() << Table, ModeBlocage);
+}
+
 void DataBase::unlocktables()
 {
     StandardSQL("UNLOCK TABLES;");

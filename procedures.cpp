@@ -2925,8 +2925,8 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     // On crée l'utilisateur dans la table utilisateurs
     gidCentre               = 1;
     gUseCotation            = true;
-    CreerUserFactice(1, Login, MDP);
     Datas::I()->banques->initListe();
+    CreerUserFactice(1, Login, MDP);
     Datas::I()->users->initListe();
     Datas::I()->comptes->initListe();
 
@@ -2972,17 +2972,13 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     db->StandardSQL ("insert into " TBL_UTILISATEURS " (idUser, UserLogin, UserMDP) VALUES (" + QString::number(idusr) + ",'" + login + "', '" + mdp + "')");
 
     int idbanq = 0;
-    QString req = "select idbanque, idbanqueabrege, nombanque from " TBL_BANQUES " where idbanqueabrege = 'PaPRS'";
-    QVariantList bqdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && bqdata.size()>0)
-        idbanq = bqdata.at(0).toInt();
-    else
+    foreach (Banque* bq, Datas::I()->banques->banques()->values())
     {
-        db->StandardSQL("insert into " TBL_BANQUES " (idbanqueAbrege, Nombanque) values ('PaPRS','Panama Papers')");
-        QVariantList bqdata = db->getFirstRecordFromStandardSelectSQL("select idbanque from " TBL_BANQUES " where idbanqueabrege = 'PaPRS'", ok);
-        if (ok && bqdata.size()>0)
-            idbanq = bqdata.at(0).toInt();
+       if (bq->nomabrege() == "PaPRS")
+           idbanq = bq->id();
     }
+    if (idbanq == 0)
+        idbanq = Datas::I()->banques->CreationBanque("PaPRS", "Panama Papers")->id();
 
     int al = 0;
     QString iban = "FR";
@@ -3003,7 +2999,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
         al = rand() % 1000;
     iban += QString::number(al);
 
-    req  = "insert into " TBL_COMPTES
+    QString req  = "insert into " TBL_COMPTES
            " (idBanque, idUser, IBAN, IntituleCompte, NomCompteAbrege, SoldeSurDernierReleve)"
            " VALUES (" + QString::number(idbanq) + "," + QString::number(idusr) + ", '" + iban + "', '" + login + "', 'PaPRS" + QString::number(al) + "', 2333.67)";
     //qDebug() << req;

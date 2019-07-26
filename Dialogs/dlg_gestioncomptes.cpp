@@ -72,7 +72,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     gUserLogin          = m_userencours->login();
     setWindowTitle(tr("Comptes bancaires de ") + gUserLogin);
 
-    MetAJourListeBanques();
+    ReconstruitComboBanques();
 
     RemplirTableView(m_userencours->getCompteParDefaut()->id());
     ui->Compteframe             ->setEnabled(false);
@@ -182,7 +182,7 @@ void dlg_gestioncomptes::Banques()
 {
     Dlg_Banq = new dlg_gestionbanques();
     if (Dlg_Banq->exec()>0)
-        MetAJourListeBanques();
+        ReconstruitComboBanques();
 }
 
 void dlg_gestioncomptes::DesactiveCompte()
@@ -250,19 +250,15 @@ void dlg_gestioncomptes::CompteFactice()
     if (msgbox.clickedButton()==&RemplirBouton)
     {
         int idbanq = 0;
-        bool ok = true;
-        QList<QVariantList> listPaPRS = db->SelectRecordsFromTable(QStringList() << "idbanque",
-                                                                      TBL_BANQUES, ok,
-                                                                      "where idbanqueabrege = 'PaPRS'");
-        if (listPaPRS.size()==0)
+        foreach (Banque* bq, Datas::I()->banques->banques()->values())
         {
-            db->StandardSQL("insert into " TBL_BANQUES " (idbanqueAbrege, Nombanque) values ('PaPRS','Panama Papers')");
-            listPaPRS = db->SelectRecordsFromTable(QStringList() << "idbanque",
-                                                   TBL_BANQUES, ok,
-                                                   "where idbanqueabrege = 'PaPRS'");
+           if (bq->nomabrege() == "PaPRS")
+               idbanq = bq->id();
         }
-        idbanq = listPaPRS.at(0).at(0).toInt();
-        MetAJourListeBanques();
+        if (idbanq == 0)
+            Datas::I()->banques->CreationBanque("PaPRS",             //! idBanqueAbrege
+                                                "Panama Papers");    //! NomBanque
+        ReconstruitComboBanques();
         ui->BanqueupcomboBox->setCurrentIndex(ui->BanqueupcomboBox->findData(idbanq));
         QString intit;
         if (m_userencours->titre().size() )
@@ -394,12 +390,18 @@ void dlg_gestioncomptes::ValidCompte()
         return;
     ui->Compteframe->setEnabled(false);
     ui->OKModifupSmallButton->setVisible(false);
-    bool ok = true;
-    QList<QVariantList> listbanq =
-            db->SelectRecordsFromTable(QStringList() << "idbanque",
-                                       TBL_BANQUES, ok,
-                                      "where nomBanque = '" + Utils::correctquoteSQL(ui->BanqueupcomboBox->currentText()) + "'");
-    int idbanque = listbanq.at(0).at(0).toInt();
+    int idbanque = 0;
+    foreach (Banque *bq, Datas::I()->banques->banques()->values())
+        if (bq->id() == ui->BanqueupcomboBox->currentData().toInt())
+        {
+            idbanque = bq->id();
+            break;
+        }
+    if (idbanque == 0)
+    {
+        UpMessageBox::Watch(this,tr("Impossible de retrouver la banque") + " " + ui->BanqueupcomboBox->currentText() + "!");
+        return;
+    }
     if (gMode == Modif)
     {
         idcompte = ui->idCompteupLineEdit->text().toInt();
@@ -440,14 +442,11 @@ void dlg_gestioncomptes::ValidCompte()
     ui->DesactiveComptecheckBox->setVisible(true);
 }
 
-void dlg_gestioncomptes::MetAJourListeBanques()
+void dlg_gestioncomptes::ReconstruitComboBanques()
 {
-    bool ok = true;
-    QList<QVariantList> listbanques = db->SelectRecordsFromTable(QStringList() << "nombanque" << "idbanque",
-                                                                  TBL_BANQUES, ok);
     ui->BanqueupcomboBox->clear();
-    for (int i=0; i<listbanques.size(); i++)
-        ui->BanqueupcomboBox->insertItem(0, listbanques.at(i).at(0).toString(), listbanques.at(i).at(1).toInt());
+    foreach (Banque *bq, Datas::I()->banques->banques()->values())
+        ui->BanqueupcomboBox->insertItem(0, bq->nom(), bq->id());
 }
 
 void dlg_gestioncomptes::RemplirTableView(int idcompte)
@@ -512,13 +511,19 @@ bool dlg_gestioncomptes::VerifCompte()
         return false;
     }
 
-    int idbanque = -1;
-    bool ok = true;
-    QList<QVariantList> listbanq = db->SelectRecordsFromTable(QStringList() << "idbanque",
-                                                                  TBL_BANQUES, ok,
-                                                                  "where nomBanque = '" + Utils::correctquoteSQL(ui->BanqueupcomboBox->currentText()) + "'");
-    idbanque = listbanq.at(0).at(0).toInt();
-
+    int idbanque = 0;
+    foreach (Banque *bq, Datas::I()->banques->banques()->values())
+        if (bq->id() == ui->BanqueupcomboBox->currentData().toInt())
+        {
+            idbanque = bq->id();
+            break;
+        }
+    if (idbanque == 0)
+    {
+        UpMessageBox::Watch(this,tr("Impossible de retrouver la banque") + " " + ui->BanqueupcomboBox->currentText() + "!");
+        return false;
+    }
+    bool ok;
     if (gMode == Nouv)
     {
         QList<QVariantList> listcpt = db->SelectRecordsFromTable(QStringList() << "idbanque",

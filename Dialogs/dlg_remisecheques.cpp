@@ -236,7 +236,6 @@ void dlg_remisecheques::Slot_ImprimepushButton()
                                                     << TBL_RECETTESSPECIALES
                                                     << TBL_RECETTES
                                                     << TBL_LIGNESCOMPTES
-                                                    << TBL_BANQUES
                                                     << TBL_ARCHIVESBANQUE))
             return;
         //On récupére l'idRemise

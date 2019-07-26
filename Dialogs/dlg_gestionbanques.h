@@ -57,7 +57,7 @@ private:
     Mode                                    gMode;
 
     void            RemetEnNorm();
-    void            RemplirTableView();
+    void            RemplirTableWidget();
     void            NouvBanque();
     void            ModifBanque();
     void            SupprBanque();

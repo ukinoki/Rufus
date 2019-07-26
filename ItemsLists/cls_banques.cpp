@@ -64,7 +64,7 @@ void Banques::SupprimeBanque(Banque *bq)
                                         nombq + "," +
                                         codebq +  ")";
     QString MsgErreur  = tr("Impossible de créer cette banque");
-    DataBase::I()->locktables(QStringList() << TBL_BANQUES);
+    DataBase::I()->locktable(TBL_BANQUES);
     if (!DataBase::I()->StandardSQL(req, MsgErreur))
     {
         DataBase::I()->unlocktables();

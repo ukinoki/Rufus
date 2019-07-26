@@ -97,7 +97,7 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
         AjouteLayButtons(UpDialog::ButtonClose);
         resize(larg + r + l,
                haut + widgButtons->height() + ui->Banqueframe->height() + CloseButton->height() + t + b + (dlglayout()->spacing()*2));
-        RemplirTableView();
+        RemplirTableWidget();
         uptablebanq->setCurrentCell(0,1);
         AfficheBanque();
         connect(uptablebanq,        &UpTableWidget::itemSelectionChanged,   this,   &dlg_gestionbanques::AfficheBanque);
@@ -123,22 +123,20 @@ void dlg_gestionbanques::AfficheBanque()
 {
     UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
     int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
-    bool ok = true;
-    QList<QVariantList> listbanques = db->SelectRecordsFromTable(QStringList() << "NomBanque" << "idBanqueAbrege" << "idbanque",
-                                                                    TBL_BANQUES, ok,
-                                                                    "where idBanque = " + QString::number(idBanque));
-    if (listbanques.size()>0)
+    auto itbq = Datas::I()->banques->banques()->find(idBanque);
+    if (itbq != Datas::I()->banques->banques()->constEnd())
     {
-        QVariantList banque = listbanques.at(0);
-        ui->NomBanqueupLineEdit->setText(banque.at(0).toString());
-        ui->NomAbregeupLineEdit->setText(banque.at(1).toString());
+        Banque *banq = const_cast<Banque*>(itbq.value());
+        ui->NomBanqueupLineEdit->setText(banq->nom());
+        ui->NomAbregeupLineEdit->setText(banq->nomabrege());
     }
     widgButtons->moinsBouton->setEnabled(true);
-    QList<QVariantList> listcomptes = db->SelectRecordsFromTable(QStringList() << "idBanque",
-                                                                    TBL_COMPTES, ok,
-                                                                    "where idBanque = " + listbanques.at(0).at(2).toString());
-    if (listcomptes.size()>0)
-        widgButtons->moinsBouton->setEnabled(false);
+    foreach (Compte *cpt, Datas::I()->comptes->comptes()->values())
+        if (cpt->idBanque() == idBanque)
+        {
+            widgButtons->moinsBouton->setEnabled(false);
+            return;
+        }
 }
 
 void dlg_gestionbanques::AnnuleModifBanque()
@@ -218,7 +216,7 @@ void dlg_gestionbanques::SupprBanque()
         return;
     }
     Datas::I()->banques->SupprimeBanque(Datas::I()->banques->getById(idBanque));
-    RemplirTableView();
+    RemplirTableWidget();
     AfficheBanque();
 }
 
@@ -246,10 +244,7 @@ void dlg_gestionbanques::ValideModifBanque()
                 UpMessageBox::Watch(this,tr("Cette banque est déjà enregistrée!"));
                 return;
             }
-        }
-        foreach (Banque* bq, Datas::I()->banques->banques()->values())
-        {
-            if (bq->nomabrege().toUpper() == ui->NomBanqueupLineEdit->text().toUpper())
+            if (bq->nomabrege() == ui->NomAbregeupLineEdit->text())
             {
                 UpMessageBox::Watch(this,tr("Cette abréviation est déjà utilisée!"));
                 ui->NomAbregeupLineEdit->setFocus();
@@ -272,38 +267,26 @@ void dlg_gestionbanques::ValideModifBanque()
     {
         UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
         int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
-        bool ok = true;
-        QList<QVariantList> listabreges = db->SelectRecordsFromTable(QStringList() << "nombanque",
-                                                                                             TBL_BANQUES, ok,
-                                                                                             "where idbanque <> " + QString::number(idBanque));
-        if (listabreges.size()>0)
-            for (int i=0; i<listabreges.size(); i++)
-                if (listabreges.at(i).at(0).toString().toUpper() == nombanque.toUpper())
-                {
-                    msg = tr("il y a déjà un organisme bancaire enregistré avec ce nom");
-                    UpMessageBox::Watch(this,msg);
-                    return;
-                }
-        listabreges = db->SelectRecordsFromTable(QStringList() << "idbanqueabrege",
-                                                                      TBL_BANQUES, ok,
-                                                                      "where idbanque <> " + QString::number(idBanque));
-        if (listabreges.size()>0)
-            for (int i=0; i<listabreges.size(); i++)
-                if (listabreges.at(i).at(0).toString() == ui->NomAbregeupLineEdit->text())
-                {
-                    msg = tr("il y a déjà un organisme bancaire enregistré avec cette abréviation");
-                    UpMessageBox::Watch(this,msg);
-                    return;
-                }
-        QHash<QString, QString> listsets;
-        listsets.insert("nombanque",      nombanque);
-        listsets.insert("idbanqueabrege", ui->NomAbregeupLineEdit->text());
-        DataBase:: I()->UpdateTable(TBL_BANQUES,
-                                              listsets,
-                                              "where idBanque = " + QString::number(idBanque));
-        Datas::I()->banques->initListe();
+        Banque * bqamodifier = Datas::I()->banques->getById(idBanque);
+        foreach (Banque* banq, Datas::I()->banques->banques()->values())
+        {
+            if (banq != bqamodifier && banq->nom().toUpper() == ui->NomBanqueupLineEdit->text().toUpper())
+            {
+                msg = tr("il y a déjà un organisme bancaire enregistré avec ce nom");
+                UpMessageBox::Watch(this,msg);
+                return;
+            }
+            if (banq != bqamodifier && banq->nomabrege() == ui->NomAbregeupLineEdit->text())
+            {
+                msg = tr("il y a déjà un organisme bancaire enregistré avec cette abréviation");
+                UpMessageBox::Watch(this,msg);
+                return;
+            }
+        }
+        ItemsList::update(bqamodifier, CP_NOMABREGE_BANQUES, ui->NomAbregeupLineEdit->text());
+        ItemsList::update(bqamodifier, CP_NOMBANQUE_BANQUES, nombanque);
     }
-    RemplirTableView();
+    RemplirTableWidget();
     UpLabel *lbl;
     for (int i=0; i<uptablebanq->rowCount(); i++)
     {
@@ -328,7 +311,7 @@ void dlg_gestionbanques::RemetEnNorm()
     widgButtons->setEnabled(true);
 }
 
-void dlg_gestionbanques::RemplirTableView()
+void dlg_gestionbanques::RemplirTableWidget()
 {
     QTableWidgetItem    *pitem0;
     UpLabel             *label1;

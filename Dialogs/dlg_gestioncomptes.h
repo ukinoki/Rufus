@@ -58,7 +58,7 @@ private:
     QString                 gUserLogin;
     QTimer                  *gTimer;
     void                    closeEvent(QCloseEvent *);
-    void                    MetAJourListeBanques();
+    void                    ReconstruitComboBanques();
     void                    RemplirTableView(int idcompte = -1);
     bool                    VerifCompte();
     WidgetButtonFrame       *widgButtons;

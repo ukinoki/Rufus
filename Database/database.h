@@ -125,6 +125,7 @@ public:
     void                    rollback();                                                                 //!> rollback de la transaction
 
     bool                    locktables(QStringList ListTables, QString ModeBlocage = "WRITE");          //!> comme son nom l'indique
+    bool                    locktable(QString NomTable, QString ModeBlocage = "WRITE");                 //!> comme son nom l'indique
     void                    unlocktables();                                                             //!> comme son nom l'indique
 
     //     REQUETES ------------------------------------------------------------------------------------------------------------------------------------------------------------------

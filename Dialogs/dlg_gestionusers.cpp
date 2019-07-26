@@ -1103,6 +1103,7 @@ void dlg_gestionusers::ActualiseRsgnmtBanque(bool soccomptable)
 void dlg_gestionusers::CalcListitemsCompteActescomboBox(int iduser)
 {
     QString user = QString::number(iduser);
+    //! tous les comptes non désactivés de l'utilisateur ou partagés
     QString req = "select idCompte, IntituleCompte, NomCompteAbrege from \n" TBL_BANQUES " as ban, " TBL_COMPTES " as comp\n"
                   " where ban.idbanque = comp.idbanque \n"
                   " and (iduser = " + user + " or partage = 1)"
