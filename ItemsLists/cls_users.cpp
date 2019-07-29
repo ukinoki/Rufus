@@ -166,3 +166,15 @@ void Users::initListe()
     addList(DataBase::I()->loadUsers());
 }
 
+void Users::SupprimeUser(User *usr)
+{
+    if( usr == Q_NULLPTR)
+        return;
+    m_users         ->remove(usr->id());
+    m_superviseurs  ->remove(usr->id());
+    m_liberaux      ->remove(usr->id());
+    m_parents       ->remove(usr->id());
+    m_comptables    ->remove(usr->id());
+    DataBase::I()->SupprRecordFromTable(usr->id(), "idUser", TBL_UTILISATEURS);
+    delete usr;
+}

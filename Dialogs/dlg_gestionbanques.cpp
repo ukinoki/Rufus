@@ -206,15 +206,12 @@ void dlg_gestionbanques::SupprBanque()
     msgbox.exec();
     if (msgbox.clickedButton() != &OKBouton)
        return;
-    bool ok = true;
-    QList<QVariantList> listcomptes = db->SelectRecordsFromTable(QStringList() << "idBanque",
-                                                                    TBL_COMPTES, ok,
-                                                                    "where idBanque = " + QString::number(idBanque));
-    if (listcomptes.size()>0)
-    {
-        UpMessageBox::Watch(this, tr("Impossible de supprimer la banque ") + lbl->text(), tr("Elle est utilisée par d'autres utilisateurs"));
-        return;
-    }
+    foreach (Compte *cpt, *Datas::I()->comptes->comptes())
+        if (cpt->idBanque() == idBanque)
+        {
+            UpMessageBox::Watch(this, tr("Impossible de supprimer la banque ") + lbl->text(), tr("Elle est utilisée par d'autres utilisateurs"));
+            return;
+        }
     Datas::I()->banques->SupprimeBanque(Datas::I()->banques->getById(idBanque));
     RemplirTableWidget();
     AfficheBanque();

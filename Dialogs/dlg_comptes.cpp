@@ -610,14 +610,9 @@ void dlg_comptes::ChangeCompte(int idx)
 {
     idCompte = ui->BanquecomboBox->itemData(idx).toInt();
     CompteEnCours = Datas::I()->comptes->getById(idCompte);
-    // on doit refaire la requête parce que le solde s'il est null est passé en 0 par loadcomptesbyUser()
-    bool ok = true;
-    QList<QVariantList> listsoldes = db->SelectRecordsFromTable(QStringList() << "SoldeSurDernierReleve",
-                                                                   TBL_COMPTES, ok,
-                                                                   "where idcompte = " + QString::number(idCompte));
-    if (listsoldes.size() > 0)
+    if (CompteEnCours != Q_NULLPTR)
     {
-        SoldeSurReleve = listsoldes.at(0).at(0).toDouble();
+        SoldeSurReleve = CompteEnCours->solde();
         CompteEnCours->setsolde(SoldeSurReleve);  // à tout hasard
         ui->MontantSoldeSurRelevelabel->setText(QLocale().toString(SoldeSurReleve,'f',2) + " ");
         RemplitLaTable(idCompte);

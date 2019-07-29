@@ -51,18 +51,15 @@ void Banques::SupprimeBanque(Banque *bq)
     Supprime(m_banques, bq);
 }
 
- Banque*    Banques::CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque)
+ Banque* Banques::CreationBanque(QString idBanqueAbrege, QString NomBanque, int CodeBanque)
 {
     Banque *bq = Q_NULLPTR;
     bool ok;
     QString idabrege        = (idBanqueAbrege == ""?    "null" : "'" + Utils::correctquoteSQL(idBanqueAbrege) + "'");
     QString nombq           = (NomBanque == ""?         "null" : "'" + Utils::correctquoteSQL(NomBanque) + "'");
     QString codebq          = (CodeBanque == 0?         "null" : QString::number(CodeBanque));
-    QString req =     "INSERT INTO " TBL_BANQUES
-                        " (Motif,Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre)"
-                        " VALUES (" +   idabrege + "," +
-                                        nombq + "," +
-                                        codebq +  ")";
+    QString req =     "INSERT INTO " TBL_BANQUES "(" CP_NOMABREGE_BANQUES ", " CP_NOMBANQUE_BANQUES ", " CP_CODE_BANQUES ")"
+                      " VALUES (" + idabrege + ", " + nombq + "," + codebq +  ")";
     QString MsgErreur  = tr("Impossible de créer cette banque");
     DataBase::I()->locktable(TBL_BANQUES);
     if (!DataBase::I()->StandardSQL(req, MsgErreur))

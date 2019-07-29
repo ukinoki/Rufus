@@ -66,19 +66,14 @@ void Comptes::initListe()
 void Comptes::SupprimeCompte(Compte *cpt)
 {
     Supprime(m_comptes, cpt);
-
 }
 
 QList<Compte*> Comptes::initListeComptesByIdUser (int id)
 {
     QList<Compte*> listcomptes;
-    QMapIterator<int, Compte*> itcpt(*m_comptes);
-    while (itcpt.hasNext())
-    {
-        itcpt.next();
-        if (itcpt.value()->idUser() == id)
-            listcomptes << itcpt.value();
-    }
+    foreach (Compte *cpt, *m_comptes)
+        if (cpt->idUser() == id)
+            listcomptes << cpt;
     return listcomptes;
 }
 

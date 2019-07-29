@@ -1095,29 +1095,30 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
                         " left join " TBL_FACTURES " fac on dep.idFacture = fac.idFacture"
                         " left join " TBL_RUBRIQUES2035 " rub on dep.RefFiscale = rub.RefFiscale"
                         " WHERE dep.idUser = " + QString::number(idUser);
+    qDebug() << req;
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
     if(!ok || deplist.size()==0)
         return depenses;
     for (int i=0; i<deplist.size(); ++i)
     {
         QJsonObject jData{};
-        jData["iddepense"]      = deplist.at(i).at(0).toInt();
-        jData["iduser"]         = idUser;
-        jData["date"]           = deplist.at(i).at(1).toDate().toString("yyyy-MM-dd");
-        jData["reffiscale"]     = deplist.at(i).at(2).toString();
-        jData["objet"]          = deplist.at(i).at(3).toString();
-        jData["montant"]        = deplist.at(i).at(4).toDouble();
-        jData["famfiscale"]     = deplist.at(i).at(5).toString();
-        jData["monnaie"]        = deplist.at(i).at(6).toString();
-        jData["idrecette"]      = deplist.at(i).at(7).toInt();
-        jData["modepaiement"]   = deplist.at(i).at(8).toString();
-        jData["compte"]         = deplist.at(i).at(9).toInt();
-        jData["nocheque"]       = deplist.at(i).at(10).toInt();
-        jData["idfacture"]      = deplist.at(i).at(11).toInt();
-        jData["lienfacture"]    = deplist.at(i).at(12).toString();
-        jData["echeancier"]     = (deplist.at(i).at(13).toInt()==1);
-        jData["objetecheancier"]= deplist.at(i).at(14).toString();
-        jData["idrubrique"]     = deplist.at(i).at(15).toInt();
+        jData[CP_IDDEPENSE_DEPENSES]      = deplist.at(i).at(0).toInt();
+        jData[CP_IDUSER_DEPENSES]         = idUser;
+        jData[CP_DATE_DEPENSES]           = deplist.at(i).at(1).toDate().toString("yyyy-MM-dd");
+        jData[CP_REFFISCALE_DEPENSES]     = deplist.at(i).at(2).toString();
+        jData[CP_OBJET_DEPENSES]          = deplist.at(i).at(3).toString();
+        jData[CP_MONTANT_DEPENSES]        = deplist.at(i).at(4).toDouble();
+        jData[CP_FAMILLEFISCALE_DEPENSES] = deplist.at(i).at(5).toString();
+        jData[CP_MONNAIE_DEPENSES]        = deplist.at(i).at(6).toString();
+        jData[CP_IDRECETTE_DEPENSES]      = deplist.at(i).at(7).toInt();
+        jData[CP_MODEPAIEMENT_DEPENSES]   = deplist.at(i).at(8).toString();
+        jData[CP_COMPTE_DEPENSES]         = deplist.at(i).at(9).toInt();
+        jData[CP_NUMCHEQUE_DEPENSES]      = deplist.at(i).at(10).toInt();
+        jData[CP_IDFACTURE_DEPENSES]      = deplist.at(i).at(11).toInt();
+        jData["lienfacture"]              = deplist.at(i).at(12).toString();
+        jData["echeancier"]               = (deplist.at(i).at(13).toInt()==1);
+        jData["objetecheancier"]          = deplist.at(i).at(14).toString();
+        jData["idrubrique"]               = deplist.at(i).at(15).toInt();
         Depense *dep = new Depense(jData);
         if (dep != Q_NULLPTR)
             depenses << dep;

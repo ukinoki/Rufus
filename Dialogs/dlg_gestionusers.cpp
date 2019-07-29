@@ -211,7 +211,8 @@ void dlg_gestionusers::Slot_Annulation()
     if (gMode == Creer)
     {
         db->SupprRecordFromTable(OtherUser->id(), "idUser", TBL_UTILISATEURS);
-        db->SupprRecordFromTable(OtherUser->id(), "idUser", TBL_COMPTES);
+        while (Datas::I()->comptes->initListeComptesByIdUser(OtherUser->id()).size() > 0)
+            Datas::I()->comptes->SupprimeCompte(Datas::I()->comptes->initListeComptesByIdUser(OtherUser->id()).at(0));
         int b = -1;
         QVariantList userdata = db->getFirstRecordFromStandardSelectSQL("select idUser from " TBL_UTILISATEURS " where iduser = " + QString::number(gidUserDepart),ok);
         if (ok && userdata.size()>0)
@@ -848,13 +849,13 @@ void dlg_gestionusers::Slot_GestionComptes()
             modif   = true;
     if (verifact)
     {
-        CalcListitemsCompteActescomboBox(OtherUser->id());
+        CalcListitemsCompteActescomboBox(OtherUser);
         if (ui->CompteActescomboBox->currentText() != cptact)
             modif   = true;
     }
     if (verifcpta)
     {
-        CalcListitemsCompteComptacomboBox(OtherUser->id(), ui->SocieteComptableupRadioButton->isChecked());
+        CalcListitemsCompteComptacomboBox(OtherUser, ui->SocieteComptableupRadioButton->isChecked());
         if (ui->CompteComptacomboBox->currentText() != cptcpta)
             modif   = true;
     }
@@ -1059,22 +1060,17 @@ void dlg_gestionusers::SupprUser()
     msgbox.exec();
     if (msgbox.clickedpushbutton()==&AnnulBouton)
     {
-        QList<QVariantList> listcpt = db->StandardSelectSQL("select idcompte from " TBL_COMPTES " where iduser = " + QString::number(idUser), ok);
-        if(listcpt.size()>0)
+        foreach (Compte *cpt, *OtherUser->comptesbancaires(false))
         {
-            for (int i=0; i<listcpt.size();i++)
-            {
-                QString icpt = listcpt.at(i).at(0).toString();
-                if (db->StandardSelectSQL("select idrecette from " TBL_RECETTES " where comptevirement = " + icpt, ok).size()==0)
-                    if (db->StandardSelectSQL("select idligne from " TBL_ARCHIVESBANQUE " where idcompte = " + icpt, ok).size()==0)
-                        if (db->StandardSelectSQL("select iddep from " TBL_DEPENSES " where compte = " + icpt, ok).size()==0)
-                            if (db->StandardSelectSQL("select idremcheq from " TBL_REMISECHEQUES " where idcompte = " + icpt, ok).size()==0)
-                                if (db->StandardSelectSQL("select idligne from " TBL_LIGNESCOMPTES " where idcompte = " + icpt, ok).size()==0)
-                                    db->SupprRecordFromTable(icpt.toInt(), "idcompte", TBL_COMPTES);
-            }
+            QString icpt = QString::number(cpt->id());
+            if (db->StandardSelectSQL("select idrecette from " TBL_RECETTES " where comptevirement = " + icpt, ok).size()==0)
+                if (db->StandardSelectSQL("select idligne from " TBL_ARCHIVESBANQUE " where idcompte = " + icpt, ok).size()==0)
+                    if (db->StandardSelectSQL("select iddep from " TBL_DEPENSES " where compte = " + icpt, ok).size()==0)
+                        if (db->StandardSelectSQL("select idremcheq from " TBL_REMISECHEQUES " where idcompte = " + icpt, ok).size()==0)
+                            if (db->StandardSelectSQL("select idligne from " TBL_LIGNESCOMPTES " where idcompte = " + icpt, ok).size()==0)
+                                Datas::I()->comptes->SupprimeCompte(cpt);
         }
         db->SupprRecordFromTable(idUser, "idUser", TBL_COTATIONS);
-        db->SupprRecordFromTable(idUser, "idUser", TBL_UTILISATEURS);
         db->StandardSQL("delete from " TBL_JOINTURESLIEUX " where iduser not in (select iduser from " TBL_UTILISATEURS ")");
 
         QString req = "select user, host from mysql.user where user like '" + ui->ListUserstableWidget->selectedItems().at(1)->text() + "%'";
@@ -1087,6 +1083,7 @@ void dlg_gestionusers::SupprUser()
             UpMessageBox::Watch(this, tr("Cool ") + vamourir + "...", tr("Votre suicide s'est parfaitement déroulé et le programme va maintenant se fermer"));
             exit(0);
         }
+        Datas::I()->users->SupprimeUser(OtherUser);
         int b = (db->StandardSelectSQL("select idUser from " TBL_UTILISATEURS " where iduser = " + QString::number(gidUserDepart), ok).size() == 0?
                      -1:
                      gidUserDepart);
@@ -1096,51 +1093,43 @@ void dlg_gestionusers::SupprUser()
 
 void dlg_gestionusers::ActualiseRsgnmtBanque(bool soccomptable)
 {
-    CalcListitemsCompteActescomboBox(OtherUser->id());
-    CalcListitemsCompteComptacomboBox(OtherUser->id(), soccomptable);
+    CalcListitemsCompteActescomboBox(OtherUser);
+    CalcListitemsCompteComptacomboBox(OtherUser, soccomptable);
 }
 
-void dlg_gestionusers::CalcListitemsCompteActescomboBox(int iduser)
+void dlg_gestionusers::CalcListitemsCompteActescomboBox(User *usr)
 {
-    QString user = QString::number(iduser);
-    //! tous les comptes non désactivés de l'utilisateur ou partagés
-    QString req = "select idCompte, IntituleCompte, NomCompteAbrege from \n" TBL_BANQUES " as ban, " TBL_COMPTES " as comp\n"
-                  " where ban.idbanque = comp.idbanque \n"
-                  " and (iduser = " + user + " or partage = 1)"
-                  " and desactive is null";
-    QList<QVariantList> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur"));
-    if (!ok)
-        return;
+    //! tous les comptes non désactivés de l'utilisateur et tous les comptes partagés
+    QList<Compte*> listcomptes;
+    foreach (Compte *cpt, *Datas::I()->comptes->comptes())
+        if ((cpt->idUser() == usr->id() || cpt->isPartage()) && !cpt->isDesactive())
+            listcomptes << cpt;
     ui->CompteActescomboBox->clear();
-    for (int i=0; i<listcpt.size(); i++)
-        ui->CompteActescomboBox->insertItem(0, listcpt.at(i).at(1).toString() + " - " + listcpt.at(i).at(2).toString(), listcpt.at(i).at(0).toInt());
-    QVariantList idcptlst = db->getFirstRecordFromStandardSelectSQL("select idCompteEncaissHonoraires from " TBL_UTILISATEURS
-                                                                       " where iduser = " + user + " and idCompteEncaissHonoraires is not null", ok);
-    if (ok && idcptlst.size()>0)
-        ui->CompteActescomboBox->setCurrentIndex(ui->CompteActescomboBox->findData(idcptlst.at(0)));
+    foreach (Compte *cpt, listcomptes)
+        ui->CompteActescomboBox->insertItem(0, cpt->intitulecompte() + " - " + cpt->nomabrege(), cpt->id());
+    if (usr->idCompteEncaissHonoraires() > 0)
+        ui->CompteActescomboBox->setCurrentIndex(ui->CompteActescomboBox->findData(usr->idCompteEncaissHonoraires()));
 }
 
-void dlg_gestionusers::CalcListitemsCompteComptacomboBox(int iduser, bool soccomptable)
+void dlg_gestionusers::CalcListitemsCompteComptacomboBox(User *usr, bool soccomptable)
 {
-    QString user = QString::number(iduser);
-    QString req = "select idCompte, IntituleCompte, NomCompteAbrege from \n" TBL_BANQUES " as ban, " TBL_COMPTES " as comp\n"
-                  " where ban.idbanque = comp.idbanque \n"
-                  " and iduser = " + user +
-                  " and desactive is null";
-    if (!soccomptable)
-        req +=    " and partage is null";
-    QList<QVariantList> listcpt = db->StandardSelectSQL(req, ok, tr("Impossible de retrouver les comptes de l'utilisateur"));
-    if (!ok)
-        return;
+    QList<Compte*> listcomptes;
+    foreach (Compte *cpt, *Datas::I()->comptes->comptes())
+        if (cpt->idUser() == usr->id() && !cpt->isDesactive())
+        {
+            if (!soccomptable)
+            {
+                if (!cpt->isPartage())
+                    listcomptes << cpt;
+            }
+            else
+                listcomptes << cpt;
+        }
     ui->CompteComptacomboBox->clear();
-    for (int i=0; i<listcpt.size(); i++)
-        ui->CompteComptacomboBox->insertItem(0, listcpt.at(i).at(1).toString() + " - " + listcpt.at(i).at(2).toString(), listcpt.at(i).at(0).toInt());
-    QVariantList idcptlst = db->getFirstRecordFromStandardSelectSQL("select idcomptepardefaut from " TBL_UTILISATEURS
-                                                                       " where iduser = " + user + " and idcomptepardefaut is not null", ok);
-    if (ok && idcptlst.size()>0)
-        ui->CompteComptacomboBox->setCurrentIndex(ui->CompteComptacomboBox->findData(idcptlst.at(0)));
-    else
-        ui->CompteComptacomboBox->setCurrentIndex(0);
+    foreach (Compte *cpt, listcomptes)
+        ui->CompteComptacomboBox->insertItem(0, cpt->intitulecompte() + " - " + cpt->nomabrege(), cpt->id());
+    if (usr->idcompteParDefaut() > 0)
+        ui->CompteComptacomboBox->setCurrentIndex(ui->CompteComptacomboBox->findData(usr->idcompteParDefaut()));
 }
 
 void dlg_gestionusers::CalcListitemsEmployeurcomboBox(int iduser)

@@ -264,7 +264,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_OBJET_DEPENSES                           "Objet"
 #define CP_MONTANT_DEPENSES                         "Montant"
 #define CP_FAMILLEFISCALE_DEPENSES                  "FamFiscale"
-#define CP_IDOPERATION_DEPENSES                     "Nooperation"
 #define CP_MONNAIE_DEPENSES                         "Monnaie"
 #define CP_IDRECETTE_DEPENSES                       "idRec"
 #define CP_MODEPAIEMENT_DEPENSES                    "ModePaiement"

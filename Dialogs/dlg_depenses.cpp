@@ -984,11 +984,7 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
          */
 
     /* on remet à null le champ idfacture de la dépense*/
-    QHash<QString, QString> listsets;
-    listsets.insert("idfacture","null");
-    DataBase:: I()->UpdateTable(TBL_DEPENSES,
-                                          listsets,
-                                          "where idDep = " + QString::number(dep->id()));
+    ItemsList::update(dep, CP_IDFACTURE_DEPENSES, QVariant());
 
     QString req;
     /* on vérifie si l'idfacture est utilisé par d'autres dépenses (cas d'un échéancier)*/
@@ -997,8 +993,12 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     /* si c'est un échéancier, et s'il est référencé par d'autres dépenses => on ne l'efface pas */
     if (dep->isecheancier())
     {
-        req = "select idDep from " TBL_DEPENSES " where idfacture = " + QString::number(dep->idfacture());
-        supprimerlafacture = (db->StandardSelectSQL(req, ok).size()==0);
+        foreach (Depense *dep1, *Datas::I()->depenses->depenses())
+            if (dep1->idfacture() == dep->idfacture())
+            {
+                supprimerlafacture = false;
+                break;
+            }
     }
     if (supprimerlafacture)
     {
@@ -1016,7 +1016,6 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
         db->StandardSQL(req);
     }
     /* on remet à zero les idfacture et lienfacture de la dépense*/
-    dep->setidfacture(0);
     dep->setlienfacture("");
     dep->setecheancier(false);
     dep->setfactureformat("");
@@ -1187,37 +1186,17 @@ void dlg_depenses::ModifierDepense()
                                                                        TBL_RUBRIQUES2035, ok,
                                                                        "where reffiscale = '" + Utils::correctquoteSQL(ui->RefFiscalecomboBox->currentText()) + "'");
     QString FamFiscale = listfamfiscale.at(0).at(0).toString();
-    QString idCompte = ui->ComptesupComboBox->currentData().toString();
     if (listfamfiscale.size() > 0)                // l'écriture existe et on la modifie
     {
-        QHash<QString, QString> listsets;
-        listsets.insert("DateDep",      ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
-        listsets.insert("Objet",        ui->ObjetlineEdit->text());
-        listsets.insert("Montant",      QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
-        listsets.insert("RefFiscale",   ui->RefFiscalecomboBox->currentText());
-        listsets.insert("FamFiscale",   FamFiscale);
-        listsets.insert("ModePaiement", m);
-        listsets.insert("Compte",       (m!="E"? idCompte : "null"));
-        DataBase:: I()->UpdateTable(TBL_DEPENSES,
-                                              listsets,
-                                              "where idDep = " + idDep);
-
-        QJsonObject jData{};
-        jData["iddepense"]      = idDep.toInt();
-        jData["iduser"]         = dep->iduser();
-        jData["date"]           = ui->DateDepdateEdit->date().toString("yyyy-MM-dd");
-        jData["reffiscale"]     = ui->RefFiscalecomboBox->currentText();
-        jData["objet"]          = ui->ObjetlineEdit->text();
-        jData["montant"]        = QLocale().toDouble(ui->MontantlineEdit->text());
-        jData["famfiscale"]     = FamFiscale;
-        jData["monnaie"]        = dep->monnaie();
-        jData["idrecette"]      = dep->idrecette();
-        jData["modepaiement"]   = m;
-        jData["compte"]         = (m!="E"? idCompte.toInt() : QVariant().toInt());
-        jData["nocheque"]       = dep->nocheque();
-        dep->setData(jData);
+        ItemsList::update(dep, CP_DATE_DEPENSES,            ui->DateDepdateEdit->date());
+        ItemsList::update(dep, CP_OBJET_DEPENSES,           ui->ObjetlineEdit->text());
+        ItemsList::update(dep, CP_MONTANT_DEPENSES,         QLocale().toDouble(ui->MontantlineEdit->text()));
+        ItemsList::update(dep, CP_REFFISCALE_DEPENSES,      ui->RefFiscalecomboBox->currentText());
+        ItemsList::update(dep, CP_FAMILLEFISCALE_DEPENSES,  FamFiscale);
+        ItemsList::update(dep, CP_MODEPAIEMENT_DEPENSES,    m);
+        ItemsList::update(dep, CP_COMPTE_DEPENSES,          (m!="E"? ui->ComptesupComboBox->currentData().toInt() : QVariant()));
     }
-
+    
     // Correction de l'écriture dans la table lignescomptes
     if (Paiement == tr("Espèces"))
         db->SupprRecordFromTable(dep->id(), "idDep", TBL_LIGNESCOMPTES);
@@ -1238,7 +1217,7 @@ void dlg_depenses::ModifierDepense()
            listsets.insert("LigneMontant",          QString::number(QLocale().toDouble(ui->MontantlineEdit->text())));
            listsets.insert("LigneDebitCredit",      "0");
            listsets.insert("LigneTypeOperation",    Paiement);
-           listsets.insert("idCompte",              (m!="E"? idCompte : "null"));
+           listsets.insert("idCompte",              (m!="E"? ui->ComptesupComboBox->currentData().toString() : "null"));
            DataBase:: I()->UpdateTable(TBL_LIGNESCOMPTES,
                                                  listsets,
                                                  "where idDep = " + idDep);
@@ -1264,7 +1243,7 @@ void dlg_depenses::ModifierDepense()
                         // on l'enregistre dans lignescomptes
             {
                 QHash<QString, QString> listsets;
-                listsets.insert("idCompte",             idCompte);
+                listsets.insert("idCompte",             ui->ComptesupComboBox->currentData().toString());
                 listsets.insert("idDep",                idDep);
                 listsets.insert("LigneDate",            ui->DateDepdateEdit->date().toString("yyyy-MM-dd"));
                 listsets.insert("Lignelibelle",         ui->ObjetlineEdit->text());
@@ -1666,10 +1645,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                 if (fact>0)
                 {
                     /* on a récupéré un idfacture à utiliser comme échéancier pour cette dépense*/
-                    QString req = "update " TBL_DEPENSES " set idFacture = " + QString::number(fact) + " where idDep = " + QString::number(m_depenseencours->id());
-                    db->StandardSQL(req);
-
-                    m_depenseencours->setidfacture(fact);
+                    ItemsList::update(m_depenseencours, CP_IDFACTURE_DEPENSES, fact);
                     m_depenseencours->setlienfacture(lienfichier);
                     m_depenseencours->setecheancier(true);
                     m_depenseencours->setobjetecheancier(objet);
@@ -1696,10 +1672,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
         int idfact = map.value("idfacture").toInt();
         if (idfact>-1)
         {
-            QString req = "update " TBL_DEPENSES " set idFacture = " + QString::number(idfact) + " where idDep = " + QString::number(m_depenseencours->id());
-            db->StandardSQL(req);
-
-            m_depenseencours->setidfacture(idfact);
+            ItemsList::update(m_depenseencours, CP_IDFACTURE_DEPENSES, idfact);
             m_depenseencours->setlienfacture(Dlg_DocsScan->getdataFacture()["lien"].toString());
             m_depenseencours->setecheancier(Dlg_DocsScan->getdataFacture()["echeancier"].toBool());
             m_depenseencours->setobjetecheancier(Dlg_DocsScan->getdataFacture()["objetecheancier"].toString());

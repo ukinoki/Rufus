@@ -102,8 +102,8 @@ private:
     UpDialog                *gAskMDP;
     void                    ActualiseRsgnmtBanque(bool soccomptable);
     bool                    AfficheParamUser(int idUser);
-    void                    CalcListitemsCompteActescomboBox(int iduser);
-    void                    CalcListitemsCompteComptacomboBox(int iduser, bool soccomptable);
+    void                    CalcListitemsCompteActescomboBox(User *usr);
+    void                    CalcListitemsCompteComptacomboBox(User *usr, bool soccomptable);
     void                    CalcListitemsEmployeurcomboBox(int iduser);
     void                    DefinitLesVariables();
     bool                    ExisteEmployeur(int iduser);

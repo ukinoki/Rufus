@@ -29,7 +29,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
 {
     ui->setupUi(this);
     db                      = DataBase::I();
-    m_userencours               = user;
+    m_userencours           = user;
 
     gidUser                 = m_userencours->id();
 
@@ -69,12 +69,11 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     val->setDecimals(2);
     ui->SoldeuplineEdit->setValidator(val);
 
-    gUserLogin          = m_userencours->login();
-    setWindowTitle(tr("Comptes bancaires de ") + gUserLogin);
+    setWindowTitle(tr("Comptes bancaires de ") + m_userencours->login());
 
     ReconstruitComboBanques();
 
-    RemplirTableView(m_userencours->getCompteParDefaut()->id());
+    RemplirTableView();
     ui->Compteframe             ->setEnabled(false);
     ui->OKModifupSmallButton    ->setVisible(false);
     ui->AnnulModifupSmallButton ->setVisible(false);
@@ -130,7 +129,7 @@ void dlg_gestioncomptes::AfficheCompte(QTableWidgetItem *pitem, QTableWidgetItem
 {
     int idCompte = ui->ComptesuptableWidget->item(pitem->row(),0)->text().toInt();
     m_comptencours = Datas::I()->comptes->getById(idCompte);
-    ui->BanqueupcomboBox            ->setCurrentText(Datas::I()->banques->getById(m_comptencours->idBanque())->nomabrege());
+    ui->BanqueupcomboBox            ->setCurrentIndex(ui->BanqueupcomboBox->findData(m_comptencours->idBanque()));
     ui->IBANuplineEdit              ->setText(m_comptencours->iban());
     ui->IntituleCompteuplineEdit    ->setText(m_comptencours->intitulecompte());
     ui->NomCompteAbregeuplineEdit   ->setText(m_comptencours->nomabrege());
@@ -249,17 +248,20 @@ void dlg_gestioncomptes::CompteFactice()
     msgbox.exec();
     if (msgbox.clickedButton()==&RemplirBouton)
     {
-        int idbanq = 0;
+        Banque *newbq = Q_NULLPTR;
         foreach (Banque* bq, Datas::I()->banques->banques()->values())
         {
            if (bq->nomabrege() == "PaPRS")
-               idbanq = bq->id();
+           {
+               newbq = bq;
+               break;
+           }
         }
-        if (idbanq == 0)
-            Datas::I()->banques->CreationBanque("PaPRS",             //! idBanqueAbrege
+        if (newbq == Q_NULLPTR)
+            newbq = Datas::I()->banques->CreationBanque("PaPRS",             //! idBanqueAbrege
                                                 "Panama Papers");    //! NomBanque
         ReconstruitComboBanques();
-        ui->BanqueupcomboBox->setCurrentIndex(ui->BanqueupcomboBox->findData(idbanq));
+        ui->BanqueupcomboBox->setCurrentIndex(ui->BanqueupcomboBox->findData(newbq->id()));
         QString intit;
         if (m_userencours->titre().size() )
             intit += m_userencours->titre() + " ";
@@ -305,11 +307,8 @@ void dlg_gestioncomptes::ModifCompte()
 
     /*On ne peut pas desactiver un compte s'il est le seul compte activé pour cet utilisateur
     */
-    bool ok = true;
-    QList<QVariantList> listcomptes =
-            db->SelectRecordsFromTable(QStringList() << "idcompte", TBL_COMPTES, ok, "where iduser = " + QString::number(gidUser) + " and desactive is null");
     if (!ui->DesactiveComptecheckBox->isChecked())
-        ui->DesactiveComptecheckBox ->setEnabled(listcomptes.size()>1);
+        ui->DesactiveComptecheckBox ->setEnabled(m_userencours->comptesbancaires()->size()>1);
     else
         ui->DesactiveComptecheckBox ->setEnabled(true);
     ui->BanqueupcomboBox            ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
@@ -384,7 +383,7 @@ void dlg_gestioncomptes::Fermer()
 
 void dlg_gestioncomptes::ValidCompte()
 {
-    int idcompte=0;
+    int idcompte = 0;
     QString req;
     if (!VerifCompte())
         return;
@@ -406,7 +405,7 @@ void dlg_gestioncomptes::ValidCompte()
     {
         idcompte = ui->idCompteupLineEdit->text().toInt();
         QHash<QString, QString> listsets;
-        listsets.insert(" IBAN"                 , ui->IBANuplineEdit->text());
+        listsets.insert("IBAN"                  , ui->IBANuplineEdit->text());
         listsets.insert("IntituleCompte"        , ui->IntituleCompteuplineEdit->text());
         listsets.insert("NomCompteABrege"       , ui->NomCompteAbregeuplineEdit->text());
         listsets.insert("SoldeSurDernierReleve" , QString::number(QLocale().toDouble(ui->SoldeuplineEdit->text()),'f',2));
@@ -426,7 +425,7 @@ void dlg_gestioncomptes::ValidCompte()
                                             ui->NomCompteAbregeuplineEdit->text(),             //! NomCompteAbrege
                                             QLocale().toDouble(ui->SoldeuplineEdit->text()),   //! SoldeSurDernierReleve
                                             gSociete,                                          //! Partage
-                                            ui->DesactiveComptecheckBox->isChecked());         //! Partage
+                                            ui->DesactiveComptecheckBox->isChecked());         //! Desactive
     m_userencours->setComptes(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()));
     m_comptencours = Datas::I()->comptes->getById(idcompte);
 
@@ -445,8 +444,17 @@ void dlg_gestioncomptes::ValidCompte()
 void dlg_gestioncomptes::ReconstruitComboBanques()
 {
     ui->BanqueupcomboBox->clear();
-    foreach (Banque *bq, Datas::I()->banques->banques()->values())
-        ui->BanqueupcomboBox->insertItem(0, bq->nom(), bq->id());
+    // toute la manip qui suit sert à remettre les banques par ordre alphabétique - si vous trouvez plus simple, ne vous génez pas
+    QStandardItemModel *model = new QStandardItemModel();
+    foreach (Banque* bq, Datas::I()->banques->banques()->values())
+    {
+        QList<QStandardItem *> items;
+        items << new QStandardItem(bq->nom()) << new QStandardItem(QString::number(bq->id()));
+            model->appendRow(items);
+    }
+    model->sort(0);
+    for(int i=0; i<model->rowCount(); i++)
+        ui->BanqueupcomboBox->addItem(model->item(i)->text(), model->item(i,1)->text());
 }
 
 void dlg_gestioncomptes::RemplirTableView(int idcompte)
@@ -482,10 +490,12 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
             i++;
         }
         connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, [=] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),Q_NULLPTR);});
-        if (idcompte<1)
-            ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->item(0,1));
-        else
+        if (idcompte > 0)
             ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->findItems(QString::number(idcompte), Qt::MatchExactly).at(0));
+        else if (m_userencours->getCompteParDefaut() != Q_NULLPTR)
+            ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->findItems(QString::number(m_userencours->getCompteParDefaut()->id()), Qt::MatchExactly).at(0));
+        else
+            ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->item(0,1));
     }
     else
         ui->Compteframe->setVisible(false);
@@ -523,73 +533,52 @@ bool dlg_gestioncomptes::VerifCompte()
         UpMessageBox::Watch(this,tr("Impossible de retrouver la banque") + " " + ui->BanqueupcomboBox->currentText() + "!");
         return false;
     }
-    bool ok;
+    QStringList ibanlist;
     if (gMode == Nouv)
     {
-        QList<QVariantList> listcpt = db->SelectRecordsFromTable(QStringList() << "idbanque",
-                                                                      TBL_COMPTES, ok,
-                                                                      "where idUser = " + QString::number(gidUser) + " and idbanque = " + QString::number(idbanque));
-        if (listcpt.size()>0)
+        foreach (Compte *cpt, *m_userencours->comptesbancaires(false))
         {
-            UpMessageBox::Watch(this,tr("Vous avez déjà un compte enregistré dans cet organisme bancaire!"));
-            return false;
-        }
-        QList<QVariantList> listnomcpt = db->SelectRecordsFromTable(QStringList() << "nomcompteabrege",
-                                                                      TBL_COMPTES, ok,
-                                                                      "where idUser = " + QString::number(gidUser) + " and nomcompteabrege = '" + Utils::correctquoteSQL(ui->NomCompteAbregeuplineEdit->text()) + "'");
-        if (listnomcpt.size()>0)
-        {
-            UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré avec ce nom abrégé!"));
-            return false;
-        }
-        QList<QVariantList> listiban = db->SelectRecordsFromTable(QStringList() << "IBAN", TBL_COMPTES, ok);
-        if (listiban.size()>0)
-        {
-            QStringList ibanlist;
-            for (int i=0; i<listiban.size(); i++)
-                ibanlist << listiban.at(0).at(0).toString().replace(" ","").toUpper();
-            if (ibanlist.contains(ui->IBANuplineEdit->text().replace(" ","").toUpper()))
+            if (cpt->idBanque() == idbanque)
             {
-                UpMessageBox::Watch(this,("Un compte est déjà enregistré avec cet IBAN!"));
+                UpMessageBox::Watch(this,tr("Vous avez déjà un compte enregistré dans cet organisme bancaire!"));
                 return false;
             }
+            if (cpt->nomabrege() == ui->NomCompteAbregeuplineEdit->text())
+            {
+                UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré avec ce nom abrégé!"));
+                return false;
+            }
+        }
+        foreach (Compte *cpt, *Datas::I()->comptes->comptes())
+            ibanlist << cpt->iban().replace(" ","").toUpper();
+        if (ibanlist.contains(ui->IBANuplineEdit->text().replace(" ","").toUpper()))
+        {
+            UpMessageBox::Watch(this,("Un compte est déjà enregistré avec cet IBAN!"));
+            return false;
         }
     }
     else if (gMode == Modif)
     {
-        QList<QVariantList> listcpt = db->SelectRecordsFromTable(QStringList() << "idbanque",
-                                                                    TBL_COMPTES, ok,
-                                                                    "where idUser = " + QString::number(gidUser) +
-                                                                    " and idbanque = " + QString::number(idbanque) +
-                                                                    " and idcompte <> " + ui->idCompteupLineEdit->text());
-        if (listcpt.size()>0)
+        foreach (Compte *cpt, *m_userencours->comptesbancaires(false))
         {
-            UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré dans cet organisme bancaire!"));
-            return false;
-        }
-        QList<QVariantList> listnomabrg = db->SelectRecordsFromTable(QStringList() << "nomcompteabrege",
-                                                                    TBL_COMPTES, ok,
-                                                                    "where idUser = " + QString::number(gidUser) +
-                                                                    " and nomcompteabrege = '" + ui->NomCompteAbregeuplineEdit->text() + "'" +
-                                                                    " and idcompte <> " + ui->idCompteupLineEdit->text());
-        if (listnomabrg.size()>0)
-        {
-            UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré avec ce nom abrégé!"));
-            return false;
-        }
-        QList<QVariantList> listiban = db->SelectRecordsFromTable(QStringList() << "IBAN",
-                                                                    TBL_COMPTES, ok,
-                                                                    "where idcompte <> " + ui->ComptesuptableWidget->item(ui->ComptesuptableWidget->currentRow(),0)->text());
-        if (listiban.size()>0)
-        {
-            QStringList ibanlist;
-            for (int i=0; i<listiban.size(); i++)
-                ibanlist << listiban.at(i).at(0).toString().replace(" ","").toUpper();
+            if (cpt->nomabrege() == ui->NomCompteAbregeuplineEdit->text() && cpt->id() != ui->idCompteupLineEdit->text().toInt())
+            {
+                UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré avec ce nom abrégé!"));
+                return false;
+            }
             if (ibanlist.contains(ui->IBANuplineEdit->text().replace(" ","").toUpper()))
             {
                 UpMessageBox::Watch(this,tr("Un compte est déjà enregistré avec cet IBAN!"));
                 return false;
             }
+        }
+        foreach (Compte *cpt, *Datas::I()->comptes->comptes())
+            if (cpt->id() != ui->ComptesuptableWidget->item(ui->ComptesuptableWidget->currentRow(),0)->text().toInt())
+                ibanlist << cpt->iban().replace(" ","").toUpper();
+        if (ibanlist.contains(ui->IBANuplineEdit->text().replace(" ","").toUpper()))
+        {
+            UpMessageBox::Watch(this,("Un compte est déjà enregistré avec cet IBAN!"));
+            return false;
         }
     }
     return true;

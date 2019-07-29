@@ -12,16 +12,24 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     QString table;
     QString value;
     QString clause;
-    DocExterne * doc = Q_NULLPTR;
-    Acte* act = Q_NULLPTR;
-    PatientEnCours* patcrs = Q_NULLPTR;
-    Patient* pat = Q_NULLPTR;
-    PosteConnecte* usr = Q_NULLPTR;
-    Banque *bq          = Q_NULLPTR;
+    Depense *dep            = Q_NULLPTR;
+    DocExterne *doc         = Q_NULLPTR;
+    Acte *act               = Q_NULLPTR;
+    PatientEnCours *patcrs  = Q_NULLPTR;
+    Patient *pat            = Q_NULLPTR;
+    PosteConnecte *usr      = Q_NULLPTR;
+    Banque *bq              = Q_NULLPTR;
 
     bool loop = false;
     while (!loop)
     {
+        dep = dynamic_cast<Depense*>(item);
+        if (dep != Q_NULLPTR)
+        {
+            table = TBL_DEPENSES;
+            loop = true;
+            break;
+        }
         doc = dynamic_cast<DocExterne*>(item);
         if (doc != Q_NULLPTR)
         {
@@ -489,6 +497,74 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         else
             ok = false;
     }
+    else if (table == TBL_DEPENSES)
+    {
+        ok = true;
+        clause = CP_IDDEPENSE_DEPENSES " = " + QString::number(item->id());
+        if (field == CP_IDUSER_DEPENSES)
+        {
+            dep->setiduser(newvalue.toInt());
+            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+        }
+        else if (field == CP_DATE_DEPENSES)
+        {
+            dep->setdate(newvalue.toDate());
+            value = ((newvalue == QVariant() || !newvalue.toDate().isValid())? "null" : "'" + newvalue.toDate().toString("yyyy-MM-dd") + "'");
+        }
+        else if (field == CP_REFFISCALE_DEPENSES)
+        {
+            dep->setrubriquefiscale(newvalue.toString());
+            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+        }
+        else if (field == CP_OBJET_DEPENSES)
+        {
+            dep->setobjet(newvalue.toString());
+            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+        }
+        else if (field == CP_MONTANT_DEPENSES)
+        {
+            dep->setmontant(newvalue.toDouble());
+            value = (newvalue == QVariant()? "null" : "'" + QString::number(newvalue.toDouble()));
+        }
+        else if (field == CP_FAMILLEFISCALE_DEPENSES)
+        {
+            dep->setfamillefiscale(newvalue.toString());
+            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+        }
+        else if (field == CP_MONNAIE_DEPENSES)
+        {
+            dep->setmonnaie(newvalue.toString());
+            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+        }
+        else if (field == CP_IDRECETTE_DEPENSES)
+        {
+            dep->setidrecette(newvalue.toInt());
+            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+        }
+        else if (field == CP_MODEPAIEMENT_DEPENSES)
+        {
+            dep->setmodepaiement(newvalue.toString());
+            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+        }
+        else if (field == CP_COMPTE_DEPENSES)
+        {
+            dep->setidcomptebancaire(newvalue.toInt());
+            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+        }
+        else if (field == CP_NUMCHEQUE_DEPENSES)
+        {
+            dep->setnocheque(newvalue.toInt());
+            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+        }
+        else if (field == CP_IDFACTURE_DEPENSES)
+        {
+            dep->setidfacture(newvalue.toInt());
+            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+        }
+        else
+            ok = false;
+    }
+
     if (ok)
     {
         QString req = "update " + table + " set " + field + " = " + value + " where " + clause;

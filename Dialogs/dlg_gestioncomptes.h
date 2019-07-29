@@ -47,7 +47,7 @@ public:
 private:
     Ui::dlg_gestioncomptes  *ui;
     DataBase                *db;
-    User                    *m_userencours;
+    User             *m_userencours;
     Compte                  *m_comptencours;
     dlg_gestionbanques      *Dlg_Banq;
     bool                    gAfficheLeSolde;
@@ -55,11 +55,10 @@ private:
     bool                    gVisible;
     int                     gidUser;
     Mode                    gMode;
-    QString                 gUserLogin;
     QTimer                  *gTimer;
     void                    closeEvent(QCloseEvent *);
     void                    ReconstruitComboBanques();
-    void                    RemplirTableView(int idcompte = -1);
+    void                    RemplirTableView(int idcompte = 0);
     bool                    VerifCompte();
     WidgetButtonFrame       *widgButtons;
     UpSmallButton           *NouvBanqupPushButton;
