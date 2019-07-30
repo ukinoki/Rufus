@@ -213,10 +213,8 @@ void dlg_listemesures::RemplirTableView()
     pitem1  ->setEditable(false);
     pitem2  ->setEditable(false);
     pitem3  ->setEditable(false);
-    QMapIterator<int, Refraction*> itref(*Datas::I()->refractions->refractions());
-    while (itref.hasNext()) {
-        itref.next();
-        Refraction *ref = const_cast<Refraction*>(itref.value());
+    foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+    {
         pitem0  = new QStandardItem(ref->daterefraction().toString(tr("dd-MMM-yyyy")));
         if (gMode == Recuperer)
             pitem0  ->setCheckable(true);

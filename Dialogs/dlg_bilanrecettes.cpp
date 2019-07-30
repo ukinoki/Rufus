@@ -618,11 +618,8 @@ void dlg_bilanrecettes::RemplitLaTable()
         m_recettesmodel->clear();
     else
         m_recettesmodel = new QStandardItemModel;
-    QMapIterator<int, Recette*> itrec(*Datas::I()->recettes->recettes());
-    while (itrec.hasNext())
+    foreach (Recette *rec, *Datas::I()->recettes->recettes())
     {
-        Recette *rec = itrec.next().value();
-
         pitem0 = new UpStandardItem(rec->date().toString(tr("d MMM yyyy")));                        // Date - col = 0
         pitem0->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
         pitem0->setItem(rec);

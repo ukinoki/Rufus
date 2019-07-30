@@ -37,10 +37,8 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     int index = 0;
     bool foundUser = false;
     int currentIdUser = Datas::I()->users->userconnected()->id(); //Utilisateur connecte
-    QMapIterator<int, User*> itUser (*m_listUserLiberaux);
-    while (itUser.hasNext())
+    foreach (User * user, *m_listUserLiberaux)
     {
-        User *user = const_cast<User*>(itUser.next().value());
         ui->UserscomboBox->addItem(user->login(), QString::number(user->id()) );
         if( !foundUser )
         {
@@ -50,7 +48,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
                 foundUser = true;
         }
     }
-    if(index>=m_listUserLiberaux->size())
+    if(index >= m_listUserLiberaux->size())
         ui->UserscomboBox->setCurrentIndex(0);
     else
         ui->UserscomboBox->setCurrentIndex(index);

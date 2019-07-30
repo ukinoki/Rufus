@@ -1837,7 +1837,7 @@ QString Procedures::getSessionStatus()
             txtstatut += tr("sans comptabilité");
     }
     if (respliberal)
-        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + Datas::I()->users->getById(m_currentuser->getCompteEncaissement()->id())->login() + " " + tr("de") + " " + m_currentuser->comptable()->login();
+        txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t") + Datas::I()->comptes->getById(m_currentuser->getCompteEncaissement()->id())->nomabrege() + " " + tr("de") + " " + m_currentuser->comptable()->login();
     else if (respsalarie)
     {
         txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t");

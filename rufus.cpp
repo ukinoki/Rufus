@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("29-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("30-07-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -85,6 +85,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ReconstruitCombosCorresp();                 //! initialisation de la liste
 
     FiltreTable();                         //! InitTables()
+    if (Datas::I()->postesconnectes->admin() == Q_NULLPTR)
+        VerifVerrouDossier();
     MAJPosteConnecte();
 
     //! 5 - lancement du TCP
@@ -134,12 +136,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerSalDat                = new QTimer(this);     // scrutation des modifs de la salle d'attente                                                          utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerCorrespondants        = new QTimer(this);     // scrutation des modifs de la liste des correspondants                                                 utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
     gTimerVerifMessages         = new QTimer(this);     // scrutation des nouveaux message                                                                      utilisé en cas de non utilisation des tcpsocket (pas de rufusadmin ou poste distant)
-    gTimerPosteConnecte         = new QTimer(this);    // mise à jour de la connexion à la base de données
+    gTimerPosteConnecte         = new QTimer(this);     // mise à jour de la connexion à la base de données
     gTimerVerifImportateurDocs  = new QTimer(this);     // vérifie que le poste importateur des documents externes est toujours là
     gTimerExportDocs            = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à sortir de la base
     gTimerActualiseDocsExternes = new QTimer(this);     // actualise l'affichage des documents externes si un dossier est ouvert
     gTimerImportDocsExternes    = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à importer dans la base
-    gTimerVerifVerrou           = new QTimer(this);     // utilisé par le TcpServer pour vérifier l'absence d'utilisateurs déconnectés dans la base
+    gTimerVerifVerrou           = new QTimer(this);     // utilisé en  l'absence de TCPServer pour vérifier l'absence d'utilisateurs déconnectés dans la base
     gTimerSupprDocs             = new QTimer(this);     // utilisé par le poste importateur pour vérifier s'il y a des documents à supprimer
 
     gTimerPatientsVus   ->setSingleShot(true);          // il est singleshot et n'est démarré que quand on affiche la liste des patients vus
@@ -5445,11 +5447,14 @@ void Rufus::VerifVerrouDossier()
     Datas::I()->patientsencours->initListeAll();
     QDateTime timenow = db->ServerDateTime();
     QList<PosteConnecte*> listpostsAEliminer = QList<PosteConnecte*>();
-    QMapIterator<QString, PosteConnecte*> itpost(*Datas::I()->postesconnectes->postesconnectes());
-    while (itpost.hasNext())
+    foreach(PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
     {
-        itpost.next();
-        PosteConnecte *post = const_cast<PosteConnecte*>(itpost.value());
+        /*
+        qDebug() << "post->id()" << post->id();
+        qDebug() << "m_currentuser->id()" << m_currentuser->id();
+        qDebug() << "post->macadress()" << post->macadress();
+        qDebug() << "Utils::getMACAdress()" << Utils::getMACAdress();
+        */
         qint64 tempsecouledepuisactualisation = post->heurederniereconnexion().secsTo(timenow);
         if (tempsecouledepuisactualisation > 120)
         {
@@ -5457,6 +5462,10 @@ void Rufus::VerifVerrouDossier()
             qDebug() << "VerifVerrouDossier()" << post->heurederniereconnexion();
             qDebug() << "VerifVerrouDossier()" << tempsecouledepuisactualisation;
             qDebug() << "VerifVerrouDossier()" << post->stringid();
+            qDebug() << "post->id()" << post->id();
+            qDebug() << "m_currentuser->id()" << m_currentuser->id();
+            qDebug() << "post->macadress()" << post->macadress();
+            qDebug() << "Utils::getMACAdress()" << Utils::getMACAdress();
             //l'utilisateur n'a pas remis sa connexion aà jour depuis plus de 120 secondes
             //on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             QString blabla              = ENCOURSEXAMEN;
@@ -5474,13 +5483,16 @@ void Rufus::VerifVerrouDossier()
             if (!listpostsAEliminer.contains(post))
                 listpostsAEliminer << post;
         }
+        if (post->id() != m_currentuser->id() && post->macadress() == Utils::getMACAdress())
+            if (!listpostsAEliminer.contains(post))
+                listpostsAEliminer << post;
     }
     if (listpostsAEliminer.size() > 0)
     {
-       for (int i=0; i< listpostsAEliminer.size();i ++)
+       foreach (PosteConnecte* post, listpostsAEliminer)
        {
-           QString nomposte = listpostsAEliminer.at(i)->nomposte();
-           Datas::I()->postesconnectes->SupprimePosteConnecte(listpostsAEliminer.at(i));
+           QString nomposte = post->nomposte();
+           Datas::I()->postesconnectes->SupprimePosteConnecte(post);
            dlg_message(tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),1000);
        }
        Flags::I()->MAJFlagSalleDAttente();
@@ -5497,15 +5509,12 @@ void Rufus::VerifVerrouDossier()
             if (pat->statut().left(length) == ENCOURSEXAMEN)
             {
                 bool posttrouve = false;
-                itpost.toFront();
-                while (itpost.hasNext())
+                foreach(PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
                 {
-                    itpost.next();
-                    PosteConnecte *post = const_cast<PosteConnecte*>(itpost.value());
                     if (post->id() == pat->iduser() && post->nomposte() == pat->posteexamen())
                     {
                         posttrouve = true;
-                        itpost.toBack();
+                        break;;
                     }
                 }
                 if (!posttrouve)
@@ -6343,13 +6352,9 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     }
 
     ui->AtcdtsPersostextEdit->setFocus();
-    qDebug() << "4" << Datas::I()->patients->currentpatient()->prenom();
     RecaleTableView(Datas::I()->patients->currentpatient());
-    qDebug() << "5" << Datas::I()->patients->currentpatient()->prenom();
     CalcMotsCles(Datas::I()->patients->currentpatient());
-    qDebug() << "6" << Datas::I()->patients->currentpatient()->prenom();
     Flags::I()->MAJFlagSalleDAttente();
-    qDebug() << "7" << Datas::I()->patients->currentpatient()->prenom();
 
     if (m_currentuser->id() > 1) return;
     QString prenom = Datas::I()->patients->currentpatient()->prenom();
@@ -7393,7 +7398,6 @@ bool Rufus::FermeDossier(Patient *patient)
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) {
-        qDebug() << "FermeDossier()";
         Datas::I()->patients->currentpatient()->resetdatas();
         m_currentact = Q_NULLPTR;
     }
@@ -8994,16 +8998,9 @@ void Rufus::Remplir_SalDat()
             User *usr = Datas::I()->users->getById(post->id());
             QString PosteLog  = post->nomposte().remove(".local");
             PatientEnCours *patencours = Q_NULLPTR;
-            QMapIterator<int, PatientEnCours*> itpat(*m_listepatientsencours->patientsencours());
-            while (itpat.hasNext())
-            {
-                PatientEnCours *pat = const_cast<PatientEnCours*>(itpat.next().value());
-                if (pat != Q_NULLPTR)
-                {
-                    if (pat->iduserencoursexam() == post->id() && pat->posteexamen() == post->nomposte())
-                        patencours = pat;
-                }
-            }
+            foreach (PatientEnCours *pat, *m_listepatientsencours->patientsencours())
+                if (pat->iduserencoursexam() == post->id() && pat->posteexamen() == post->nomposte())
+                    patencours = pat;
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
             UserBureau->disconnect();; // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit

@@ -75,11 +75,8 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
 
 
     // On reconstruit le combobox des utilisateurs avec la liste des utilisateurs qui encaissent des honoraires et qui travaillent encore
-    QMapIterator<int, User*> itusr(*m_listecomptables);
-    while (itusr.hasNext()) {
-        itusr.next();
-        ui->UserscomboBox->addItem(itusr.value()->login(), QString::number(itusr.key()));
-    }
+    foreach (User *usr, *m_listecomptables)
+        ui->UserscomboBox->addItem(usr->login(), QString::number(usr->id()));
     int idx = ui->UserscomboBox->findData(m_useracrediter->id());
     ui->UserscomboBox->setCurrentIndex(idx==-1? 0 : idx);
 
@@ -1949,10 +1946,8 @@ void dlg_paiementtiers::RetireVerrouCompta(int ActeADeverrouiller)
 void dlg_paiementtiers::ReconstruitListeBanques()
 {
     ui->BanqueChequecomboBox->clear();
-    QMapIterator<int,Banque*> itbq(*Datas::I()->banques->banques());
-    while (itbq.hasNext()) {
-        ui->BanqueChequecomboBox->addItem(itbq.next().value()->nomabrege());
-    }
+    foreach (Banque* bq, *Datas::I()->banques->banques())
+        ui->BanqueChequecomboBox->addItem(bq->nomabrege());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1961,10 +1956,8 @@ void dlg_paiementtiers::ReconstruitListeBanques()
 void dlg_paiementtiers::ReconstruitListeTiers()
 {
     ui->TierscomboBox->clear();
-    QMapIterator<int,Tiers*> ittrs(*Datas::I()->tierspayants->tierspayants());
-    while (ittrs.hasNext()) {
-        ui->TierscomboBox->addItem(ittrs.next().value()->nomtiers());
-    }
+    foreach (Tiers *trs, *Datas::I()->tierspayants->tierspayants())
+        ui->TierscomboBox->addItem(trs->nomtiers());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

@@ -1352,13 +1352,9 @@ void dlg_documents::Validation()
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
                     Combo->setAccessibleDescription(listsoignants);
-                    QMapIterator<int, User*> itusr(*Datas::I()->users->all());
-                    while (itusr.hasNext())
-                    {
-                        User* usr = const_cast<User*>(itusr.next().value());
+                    foreach (User* usr, *Datas::I()->users->all())
                         if (usr->isSoignant())
                             Combo->addItem(usr->login(), usr->id());
-                    }
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == "DATE")
@@ -1429,12 +1425,8 @@ void dlg_documents::Validation()
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
                     Combo->setAccessibleDescription(SITE);
-                    QMapIterator<int, Site*> itsit(*Datas::I()->sites->sites());
-                    while (itsit.hasNext())
-                    {
-                        itsit.next();
-                        Combo->addItem(itsit.value()->nom(), QString::number(itsit.key()) );
-                    }
+                    foreach (Site* sit, *Datas::I()->sites->sites())
+                        Combo->addItem(sit->nom(), QString::number(sit->id()) );
                     lay->addWidget(Combo);
                 }
             }
@@ -1459,13 +1451,8 @@ void dlg_documents::Validation()
                 Combo->setContentsMargins(0,0,0,0);
                 Combo->setFixedHeight(34);
                 Combo->setEditable(false);
-                QMapIterator<int, User*> itusr(*Datas::I()->users->superviseurs());
-                while (itusr.hasNext())
-                {
-                    itusr.next();
-                    Combo->addItem(itusr.value()->login(), QString::number(itusr.key()) );
-                }
-
+                foreach (User* usr, *Datas::I()->users->superviseurs())
+                    Combo->addItem(usr->login(), QString::number(usr->id()));
                 Combo->setAccessibleDescription(listusers);
                 lay->addWidget(Combo);
             }
@@ -3025,24 +3012,22 @@ void dlg_documents::ListidCor()
 // ----------------------------------------------------------------------------------
 void dlg_documents::Remplir_TableWidget()
 {
-    UpLineEdit          *upLine0;
-    int i=0;
+    UpLineEdit  *upLine0 = Q_NULLPTR;
+    int         i = 0;
 
     //Remplissage Table Documents
     Datas::I()->documents->initListe();
     for (int i = 0; i<ui->DocupTableWidget->rowCount(); i++)
     {
         upLine0 = dynamic_cast<UpLineEdit*>(ui->DocupTableWidget->cellWidget(i,1));
-        if (upLine0)
+        if (upLine0 != Q_NULLPTR)
             upLine0->disconnect();
     }
     ui->DocupTableWidget->clearContents();
     ui->DocupTableWidget->setRowCount(Datas::I()->documents->documents()->size());
 
-    QMapIterator<int, Document*> itdoc(*Datas::I()->documents->documents());
-    while (itdoc.hasNext())
+    foreach (Document *doc, *Datas::I()->documents->documents())
     {
-        Document *doc = const_cast<Document*>(itdoc.next().value());
         SetDocumentToRow(doc, i);
         i++;
     }
@@ -3050,7 +3035,7 @@ void dlg_documents::Remplir_TableWidget()
 
 
     //Remplissage Table Dossiers
-    i=0;
+    i = 0;
     Datas::I()->metadocuments->initListe();
     for (int i = 0; i<ui->DossiersupTableWidget->rowCount(); i++)
     {
@@ -3060,10 +3045,8 @@ void dlg_documents::Remplir_TableWidget()
     }
     ui->DossiersupTableWidget->clearContents();
     ui->DossiersupTableWidget->setRowCount(Datas::I()->metadocuments->metadocuments()->size());
-    QMapIterator<int, MetaDocument*> itdossier(*Datas::I()->metadocuments->metadocuments());
-    while (itdossier.hasNext())
+    foreach (MetaDocument *metadoc, *Datas::I()->metadocuments->metadocuments())
     {
-        MetaDocument *metadoc = const_cast<MetaDocument*>(itdossier.next().value());
         SetMetaDocumentToRow(metadoc, i);
         i++;
     }

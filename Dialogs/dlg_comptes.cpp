@@ -342,10 +342,8 @@ void dlg_comptes::RedessineFicheArchives()
 void dlg_comptes::RemplirTableArchives()
 {
     QList<Archive*> listarchives;
-    QMapIterator<int, Archive*> itarc(*archivescptencours->archives());
-    while (itarc.hasNext())
+    foreach (Archive * arc, *archivescptencours->archives())
     {
-        Archive *arc = const_cast<Archive*>(itarc.next().value());
         if (gModeArchives == PARARCHIVE)
         {
             if (arc->idarchive() == glistArchCombo->currentData().toInt())
@@ -498,11 +496,9 @@ void dlg_comptes::VoirArchives()
 
     // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel *model = new QStandardItemModel();
-    QMapIterator<int, Archive*> itarc(*archivescptencours->archives());
-    while (itarc.hasNext())
+    foreach (Archive * arc, *archivescptencours->archives())
     {
         QList<QStandardItem *> items;
-        Archive *arc = const_cast<Archive*>(itarc.next().value());
         QString titre = tr("Consolidation") + " " + QString::number(arc->idarchive()) + " "
                 + tr("du") + " " + arc->lignedateconsolidation().toString("d MMM yyyy");
         items << new QStandardItem(titre)

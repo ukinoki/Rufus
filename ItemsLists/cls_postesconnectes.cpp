@@ -65,16 +65,12 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
         QJsonObject jadmin = DataBase::I()->loadAdminData();
         if (jadmin.size() > 0)
             idAdministrateur = jadmin.value("id").toInt();
-         QMapIterator<QString, PosteConnecte*> itpost(*m_postesconnectes);
-        while (itpost.hasNext()) {
-            itpost.next();
-            PosteConnecte *post = itpost.value();
+        foreach (PosteConnecte *post, *m_postesconnectes)
             if(post->id() == idAdministrateur && idAdministrateur > -1)
             {
                 m_admin = post;
-                itpost.toBack();
+                break;
             }
-        }
     }
     adminset = true;
     return m_admin;
@@ -92,17 +88,12 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
     bool canremoveverrouactes = true;
     QString req = "delete from " TBL_USERSCONNECTES " where " CP_IDUSER_USRCONNECT " = " + QString::number(post->id()) + " and " CP_MACADRESS_USRCONNECT " = '" + post->macadress() + "'";
     DataBase::I()->StandardSQL(req);
-    QMapIterator<QString, PosteConnecte*> itpost(*m_postesconnectes);
-    while (itpost.hasNext())
-    {
-        PosteConnecte *postit = const_cast<PosteConnecte*>(itpost.next().value());
-        if (postit != Q_NULLPTR)
-            if (postit->id() == post->id() && postit->nomposte() != post->nomposte())
-            {
-                canremoveverrouactes = false;
-                itpost.toBack();
-            }
-    }
+    foreach (PosteConnecte *postit, *m_postesconnectes)
+        if (postit->id() == post->id() && postit->nomposte() != post->nomposte())
+        {
+            canremoveverrouactes = false;
+            break;;
+        }
     if (canremoveverrouactes)
         DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(post->id()));
     remove(m_postesconnectes, post);

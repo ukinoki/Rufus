@@ -203,8 +203,8 @@ public:
     /*
      * Postes connectés
     */
-    QList<PosteConnecte*>   loadPostesConnectes();                                          //! charge tous les postes connectés à la base
-    QJsonObject             loadPosteConnecteData(int idUser, QString macadress);            //! complète tous les renseignements concernant le poste défini par l'id
+    QList<PosteConnecte*>   loadPostesConnectes();                                              //! charge tous les postes connectés à la base
+    QJsonObject             loadPosteConnecteData(int idUser, QString macadress);               //! complète tous les renseignements concernant le poste défini par l'id
 
     /*
      * Correspondants

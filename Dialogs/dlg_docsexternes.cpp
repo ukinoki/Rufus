@@ -324,19 +324,12 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     if (item != Q_NULLPTR)
         modifieitem(item, docmt, imp, gFont);
     ItemsList::update(docmt, CP_IMPORTANCE_IMPRESSIONS, imp);
-    int nimportants = 0;
 
-    QMapIterator<int, DocExterne*> itdoc (*m_docsexternes->docsexternes());
-    while (itdoc.hasNext())
-    {
-        DocExterne *doc = const_cast<DocExterne*>(itdoc.next().value());
-        if (doc->importance() == 2)
-        {
-            nimportants ++;
-            break;
-        }
-    }
-    OnlyImportantDocsupCheckBox->setEnabled( nimportants>0 || OnlyImportantDocsupCheckBox->isChecked());
+    bool hasimportants = false;
+    foreach (DocExterne *doc, *m_docsexternes->docsexternes())
+        while (!hasimportants)
+            hasimportants = (doc->importance() == 2);
+    OnlyImportantDocsupCheckBox->setEnabled( hasimportants || OnlyImportantDocsupCheckBox->isChecked());
 }
 
 void dlg_docsexternes::AfficheDoc(QModelIndex idx)
@@ -1349,10 +1342,8 @@ void dlg_docsexternes::RemplirTreeView()
             typedocs << doc->typedoc();
     };
 
-    QMapIterator<int, DocExterne*> itdoc (*m_docsexternes->docsexternes());
-    while (itdoc.hasNext())
+    foreach (DocExterne *doc, *m_docsexternes->docsexternes())
     {
-        DocExterne *doc = const_cast<DocExterne*>(itdoc.next().value());
         // créations des entêtes par date et par type d'examen
         {
             if (doc->importance()>0)
@@ -1402,12 +1393,8 @@ void dlg_docsexternes::RemplirTreeView()
         rootNodeType->appendRow(typitem);
     }
 
-    itdoc.toFront();
-    while (itdoc.hasNext())
-    {
-        itdoc.next();
-        DocExterne *doc = const_cast<DocExterne*>(itdoc.value());      // rajout des items de chaque examen en child des dates et des types
-        QString date = doc->date().toString(tr("dd-MM-yyyy"));
+    foreach (DocExterne *doc, *m_docsexternes->docsexternes())
+    {        QString date = doc->date().toString(tr("dd-MM-yyyy"));
         QString a = doc->typedoc();
         pitemdate           = new QStandardItem(CalcTitre(doc));
         pitemtype           = new QStandardItem(CalcTitre(doc));

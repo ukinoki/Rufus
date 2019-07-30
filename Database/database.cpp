@@ -1095,7 +1095,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
                         " left join " TBL_FACTURES " fac on dep.idFacture = fac.idFacture"
                         " left join " TBL_RUBRIQUES2035 " rub on dep.RefFiscale = rub.RefFiscale"
                         " WHERE dep.idUser = " + QString::number(idUser);
-    qDebug() << req;
+    //qDebug() << req;
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
     if(!ok || deplist.size()==0)
         return depenses;
@@ -1147,7 +1147,7 @@ void DataBase::loadDepenseArchivee(Depense *dep)
 
 QStringList DataBase::ListeRubriquesFiscales()
 {
-    QStringList ListeRubriques;
+    QStringList ListeRubriques = QStringList();
     QString req = "SELECT reffiscale from " TBL_RUBRIQUES2035 " where FamFiscale is not null and famfiscale <> 'Prélèvement personnel' order by reffiscale";
     QList<QVariantList> rublist = StandardSelectSQL(req,ok);
     if(!ok || rublist.size()==0)
