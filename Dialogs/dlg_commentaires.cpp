@@ -876,9 +876,9 @@ void dlg_commentaires::Remplir_TableView()
 
     ui->ComupTableWidget->clearContents();
     QString req = "SELECT ResumeComment, ParDefautComment, TextComment, idCommentLunet, idUser FROM " TBL_COMMENTAIRESLUNETTES " WHERE idUser = " + QString::number(m_currentuser->id());
-    if (m_currentuser->idSuperviseurActes() != m_currentuser->id())
-        req += " Or idUser = " + QString::number(m_currentuser->idSuperviseurActes());
-    if ((m_currentuser->idparent() != m_currentuser->idSuperviseurActes()) && (m_currentuser->idparent() != m_currentuser->id()))
+    if (m_currentuser->idsuperviseur() != m_currentuser->id())
+        req += " Or idUser = " + QString::number(m_currentuser->idsuperviseur());
+    if ((m_currentuser->idparent() != m_currentuser->idsuperviseur()) && (m_currentuser->idparent() != m_currentuser->id()))
         req += " Or idUser = " + QString::number(m_currentuser->idparent());
         req += " ORDER BY ResumeComment";
     bool ok;

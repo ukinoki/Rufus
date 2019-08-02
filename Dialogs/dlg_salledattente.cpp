@@ -111,7 +111,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
         ActeSal = QString::number(m_currentact->id());
         if (m_currentact->idUser() < 1)
         {
-            ItemsList::update(m_currentact, CP_IDUSER_ACTES,         Datas::I()->users->userconnected()->idSuperviseurActes());
+            ItemsList::update(m_currentact, CP_IDUSER_ACTES,         Datas::I()->users->userconnected()->idsuperviseur());
             ItemsList::update(m_currentact, CP_IDUSERPARENT_ACTES,   Datas::I()->users->userconnected()->idparent());
             ItemsList::update(m_currentact, CP_IDUSERCOMPTABLE_ACTES,Datas::I()->users->userconnected()->idcomptable());
         }
@@ -123,7 +123,7 @@ void    dlg_salledattente::Slot_OKButtonClicked()
     PatientEnCours *pat = Datas::I()->patientsencours->getById(Datas::I()->patients->currentpatient()->id());
     if (pat == Q_NULLPTR)
         pat = Datas::I()->patientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                                                //! idPat
-                                                 Datas::I()->users->userconnected()->idSuperviseurActes(),              //! idUser
+                                                 Datas::I()->users->userconnected()->idsuperviseur(),              //! idUser
                                                  Statut,                                                                //! Statut
                                                  QTime(0,0,0,0),                                                        //! heureStatut
                                                  QTime(),                                                               //! heureRDV

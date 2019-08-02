@@ -817,7 +817,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_TEXTPIED_IMPRESSIONS]      = Pied;
         listbinds[CP_DATE_IMPRESSIONS]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
         listbinds[CP_FORMATDOC_IMPRESSIONS]     = docmt->format();
-        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->sitedetravail()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->idsitedetravail();
         listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1" : QVariant(QVariant::String));
         listbinds[CP_IDEMETTEUR_IMPRESSIONS]    = m_currentuser->id();
         listbinds[CP_IMPORTANCE_IMPRESSIONS]    = docmt->importance();

@@ -47,8 +47,9 @@ Refraction* Refractions::getById(int id)
  */
 void Refractions::initListebyPatId(int id)
 {
-    clearAll(m_refractions);
-    addList(m_refractions, DataBase::I()->loadRefractionByPatId(id));
+    QList<Refraction*> listrefractions = DataBase::I()->loadRefractionByPatId(id);
+    epurelist(m_refractions, &listrefractions);
+    addList(m_refractions, listrefractions);
 }
 
 

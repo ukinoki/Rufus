@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("30-07-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("02-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -72,7 +72,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         exit(0);
     }
     qApp->setStyleSheet(Styles::StyleAppli());
-    dlg_message(m_currentuser->Status(), 3000);
+    dlg_message(m_currentuser->status() + "\n" + tr("Site") + "\t\t= " + Datas::I()->sites->getById(m_currentuser->idsitedetravail())->nom(), 3000);
 
     //! 3 Initialisation de tout
     InitVariables();
@@ -218,13 +218,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     QString req = " delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(m_currentuser->id());
     db->StandardSQL(req);
 
-    if (m_listepatientsmodel->rowCount() == 0)
-    {
-        ModeCreationDossier();
-        ui->LListepushButton->setEnabled(false);
-        UpMessageBox::Watch(this,tr("Vous n'avez aucun dossier de patient enregistré!"), tr("Vous devez d'abord en créer un."));
-    }
-
     closeFlag = false;
 
     setTitre();
@@ -246,8 +239,15 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 13 - mise à jour du programmateur de sauvegardes
     proc->InitBackupAuto();
 
-    //! 14 - passage en mode sélection de patient
-    ModeSelectDepuisListe();
+    //! 14 - choix mode (création dossier ou sélection de patient)
+    if (m_listepatientsmodel->rowCount() == 0)
+    {
+        ModeCreationDossier();
+        ui->LListepushButton->setEnabled(false);
+        UpMessageBox::Watch(this,tr("Vous n'avez aucun dossier de patient enregistré!"), tr("Vous devez d'abord en créer un."));
+    }
+    else
+        ModeSelectDepuisListe();
  }
 
 Rufus::~Rufus()
@@ -1148,7 +1148,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         PatientEnCours *pat = m_listepatientsencours->getById(Datas::I()->patients->currentpatient()->id());
         if (pat == Q_NULLPTR)
             m_listepatientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                             //! idPat
-                                                     m_currentuser->idSuperviseurActes(),         //! idUser
+                                                     m_currentuser->idsuperviseur(),         //! idUser
                                                      RETOURACCUEIL,                                     //! Statut
                                                      db->ServerDateTime().time(),                       //! heureStatut
                                                      QTime(),                                           //! heureRDV
@@ -1181,7 +1181,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
         PatientEnCours *pat = m_listepatientsencours->getById(Datas::I()->patients->currentpatient()->id());
         if (pat == Q_NULLPTR)
             m_listepatientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                             //! idPat
-                                                     m_currentuser->idSuperviseurActes(),         //! idUser
+                                                     m_currentuser->idsuperviseur(),         //! idUser
                                                      ENCOURSEXAMEN + m_currentuser->login(),         //! Statut
                                                      db->ServerDateTime().time(),                       //! heureStatut
                                                      QTime(),                                           //! heureRDV
@@ -1203,7 +1203,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
     }
     if (Datas::I()->patients->currentpatient()->id() > 0)
     {
-        m_listepaiements->initListeByPatient(Datas::I()->patients->currentpatient());
+        m_lignespaiements->initListeByPatient(Datas::I()->patients->currentpatient());
         if (m_currentact->id()>0)
         {
             m_listeactes->initListeByPatient(Datas::I()->patients->currentpatient(), Item::ForceUpdate);
@@ -1232,7 +1232,7 @@ void Rufus::AppelPaiementTiers()
         connect(Dlg_PmtTiers, &QDialog::finished, this, [=]{
             if (Datas::I()->patients->currentpatient()->id() > 0)
             {
-                m_listepaiements->initListeByPatient(Datas::I()->patients->currentpatient());
+                m_lignespaiements->initListeByPatient(Datas::I()->patients->currentpatient());
                 if (m_currentact->id()>0 && ui->tabDossier->isVisible())
                     AfficheActeCompta(m_currentact);
             }
@@ -2330,7 +2330,7 @@ void Rufus::ImportDocsExternes()
         if (isPosteImport())
         {
             QString req = "select distinct list.TitreExamen, list.NomAPPareil from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
-                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number( m_currentuser->sitedetravail()->id() );
+                  " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(m_currentuser->idsitedetravail());
             //qDebug()<< req;
             QList<QVariantList> listdocs = db->StandardSelectSQL(req, ok);
             if (ok && listdocs.size()>0)
@@ -2685,7 +2685,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        listbinds["useremetteur"] =      m_currentuser->id();
        listbinds["emisrecu"] =          "0";
        listbinds["formatdoc"] =         COURRIER;
-       listbinds["idlieu"] =            m_currentuser->sitedetravail()->id();
+       listbinds["idlieu"] =            m_currentuser->idsitedetravail();
        if(!db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds))
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
@@ -3898,7 +3898,7 @@ void Rufus::OuvrirJournalDepenses()
 void Rufus::OuvrirParametres()
 {
     //TODO : SQL
-    Dlg_Param = new dlg_param(m_currentuser->id());
+    Dlg_Param = new dlg_param(this);
     Dlg_Param->setWindowTitle(tr("Paramètres"));
     Dlg_Param->exec();
     if (Dlg_Param->DataUserModifiees())
@@ -6162,7 +6162,7 @@ void Rufus::AfficheActeCompta(Acte *acte)
     if (acte->paiementType() != "G" || acte->paiementType() != "I")
     {
         double TotalPaye = 0;
-        foreach (LignePaiement *lign, m_listepaiements->lignespaiements()->values())
+        foreach (LignePaiement *lign, m_lignespaiements->lignespaiements()->values())
         {
             if (lign->idacte() == acte->id())
             {
@@ -6294,7 +6294,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     //3 - récupération des actes
 
     m_listeactes->initListeByPatient(Datas::I()->patients->currentpatient());
-    m_listepaiements->initListeByPatient(Datas::I()->patients->currentpatient());
+    m_lignespaiements->initListeByPatient(Datas::I()->patients->currentpatient());
 
     if (m_listeactes->actes()->size() == 0)
     {
@@ -6332,7 +6332,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     QTime currenttime = db->ServerDateTime().time();
     if (patcours == Q_NULLPTR)
         m_listepatientsencours->CreationPatient(pat->id(),                                          //! idPat
-                                                 m_currentuser->idSuperviseurActes(),         //! idUser
+                                                 m_currentuser->idsuperviseur(),         //! idUser
                                                  ENCOURSEXAMEN + m_currentuser->login(),         //! Statut
                                                  currenttime,                                       //! heureStatut
                                                  QTime(),                                           //! heureRDV
@@ -7578,7 +7578,7 @@ bool   Rufus::Imprimer_Document(User * user, QString titre, QString Entete, QStr
         listbinds[CP_ALD_IMPRESSIONS]           = (ALD? "1": QVariant(QVariant::String));
         listbinds[CP_EMISORRECU_IMPRESSIONS]    = "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
-        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->sitedetravail()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS]        = m_currentuser->idsitedetravail();
         listbinds[CP_IMPORTANCE_IMPRESSIONS]    = (Administratif? "0" : "1");
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         ui->OuvreDocsExternespushButton->setEnabled(doc != Q_NULLPTR);
@@ -7874,7 +7874,7 @@ void Rufus::InitVariables()
     gAutorModifConsult          = false;
     m_patients                  = Datas::I()->patients;
     m_listeactes                = Datas::I()->actes;
-    m_listepaiements            = Datas::I()->lignespaiements;
+    m_lignespaiements            = Datas::I()->lignespaiements;
     gdateParDefaut              = QDate::fromString("2000-01-01", "yyyy-MM-dd");
     gAffichTotalMessages        = true;
 
@@ -8953,7 +8953,7 @@ void Rufus::Remplir_SalDat()
         bool a = false;
         for (int i=0; i<gSalDatTab->count(); i++)
         {
-            if (gSalDatTab->tabData(i).toInt() == m_currentuser->idSuperviseurActes())
+            if (gSalDatTab->tabData(i).toInt() == m_currentuser->idsuperviseur())
             {
                 gSalDatTab->setCurrentIndex(i);
                 a = true;
@@ -9321,7 +9321,7 @@ void Rufus::SupprimerActe(Acte *act)
     QString Messg ="";
 
     QList<LignePaiement*> listlignespaiement;
-    foreach (LignePaiement* lign, m_listepaiements->lignespaiements()->values())
+    foreach (LignePaiement* lign, m_lignespaiements->lignespaiements()->values())
     {
         if (lign->idacte() == act->id())
             listlignespaiement << lign;
@@ -9425,7 +9425,7 @@ void Rufus::SupprimerActe(Acte *act)
         }
 
         // On actualise la table des lignes de paiement et la table des Types de paiement
-        m_listepaiements->SupprimeActeLignesPaiements(act);
+        m_lignespaiements->SupprimeActeLignesPaiements(act);
         req = "DELETE FROM " TBL_TYPEPAIEMENTACTES " WHERE idActe = " + QString::number(act->id());
         db->StandardSQL(req);
     }
@@ -9460,7 +9460,7 @@ void Rufus::SupprimerDossier(Patient *pat)
 
     //1. On recherche les actes de ce dossier qui seraient en tiers payant et qui auraient déjà reçu des versements auquel cas, on ne peut pas supprimer les actes ni le dossier
     QString Messg = "";
-    foreach (LignePaiement* lign, m_listepaiements->lignespaiements()->values())
+    foreach (LignePaiement* lign, m_lignespaiements->lignespaiements()->values())
     {
         // on vérifie pour chaque ligne s'il s'agit d'un virement ou d'une carte bleue ou d'un chèque enregistré
         QString requete = "SELECT ModePaiement, NomTiers, idRemise FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(lign->idrecette());
@@ -9499,16 +9499,16 @@ void Rufus::SupprimerDossier(Patient *pat)
 
     /* on corrige la compta
     */
-    if (m_listepaiements->lignespaiements()->size()>0)     // inutile de le faire pour les gratuits et les impayés ou les tiers non encore encaissés
+    if (m_lignespaiements->lignespaiements()->size()>0)     // inutile de le faire pour les gratuits et les impayés ou les tiers non encore encaissés
         /* on corrige les lignes de recette correspondant à ce dossier -------------------------------------------------------------------------
         // ça ne peut concerner que des paiements en espèces -----------------------------------------------------------------------------------
         parce qu'on ne peut pas supprimer les dossiers pour lesquels des recettes ont été enregistrées avec d'autres formes de paiement
         (chèque ou virement)
         */
     {
-        for (int j=0; j < m_listepaiements->lignespaiements()->size(); j++)
+        for (int j=0; j < m_lignespaiements->lignespaiements()->size(); j++)
         {
-            int idrecetteACorriger = m_listepaiements->lignespaiements()->values().at(j)->idrecette();
+            int idrecetteACorriger = m_lignespaiements->lignespaiements()->values().at(j)->idrecette();
             QString requete = "SELECT Montant FROM " TBL_RECETTES " WHERE idRecette = " + QString::number(idrecetteACorriger);
             QList<QVariantList> reclist = db->StandardSelectSQL(requete,ok);
             if (!ok)
@@ -9518,8 +9518,8 @@ void Rufus::SupprimerDossier(Patient *pat)
                 for (int k=0; k<reclist.size(); k++)
                 {
                     QString req = "delete from " TBL_RECETTES " where idrecette = " + QString::number(idrecetteACorriger);
-                    if (reclist.at(k).at(0).toDouble() > m_listepaiements->lignespaiements()->values().at(j)->paye())
-                        req = "update " TBL_RECETTES " set Montant = " + QString::number(reclist.at(k).at(0).toDouble() - m_listepaiements->lignespaiements()->values().at(j)->paye()) +
+                    if (reclist.at(k).at(0).toDouble() > m_lignespaiements->lignespaiements()->values().at(j)->paye())
+                        req = "update " TBL_RECETTES " set Montant = " + QString::number(reclist.at(k).at(0).toDouble() - m_lignespaiements->lignespaiements()->values().at(j)->paye()) +
                                 " where idRecette = " + QString::number(idrecetteACorriger);
                     db->StandardSQL(req);
                 }
@@ -9529,7 +9529,7 @@ void Rufus::SupprimerDossier(Patient *pat)
         QList<Acte*> listactes;
         foreach (Acte* act, m_listeactes->actes()->values())
         {
-            m_listepaiements->SupprimeActeLignesPaiements(act);
+            m_lignespaiements->SupprimeActeLignesPaiements(act);
             listactes << act;
         }
         QString critere;
@@ -9551,7 +9551,7 @@ void Rufus::SupprimerDossier(Patient *pat)
     m_listepatientsencours->SupprimePatientEnCours(m_listepatientsencours->getById(pat->id()));
     m_patients->SupprimePatient(pat);
     m_listeactes->clearAll(m_listeactes->actes());
-    m_listepaiements->clearAll(m_listepaiements->lignespaiements());
+    m_lignespaiements->clearAll(m_lignespaiements->lignespaiements());
     FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
     Flags::I()->MAJFlagSalleDAttente();
     ModeSelectDepuisListe();

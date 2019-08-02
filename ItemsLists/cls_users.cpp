@@ -68,13 +68,13 @@ bool Users::add(User *usr)
 {
     if( usr == Q_NULLPTR)
         return false;
+    User *result = Q_NULLPTR;
 
     auto itusr = m_users->find(usr->id());
     if( itusr != m_users->constEnd() )
     {
-        User *result = const_cast<User*>(itusr.value());
+        result = const_cast<User*>(itusr.value());
         result->setData(usr->datas());
-        delete usr;
     }
     else
         m_users->insert(usr->id(), usr);
@@ -83,18 +83,17 @@ bool Users::add(User *usr)
     m_liberaux      ->remove(usr->id());
     m_parents       ->remove(usr->id());
     m_comptables    ->remove(usr->id());
-
     if( usr->isResponsable() || usr->isResponsableOuAssistant())
         m_superviseurs->insert(usr->id(), usr);
-
     if( usr->isLiberal() )
         m_liberaux->insert(usr->id(), usr);
-
     if( usr->isSoignant() && !usr->isRemplacant() )
         m_parents->insert(usr->id(), usr);
-
     if( usr->isComptable() )
         m_comptables->insert(usr->id(), usr);
+
+    if (result != Q_NULLPTR)
+        delete usr;
 
     return true;
 }
@@ -163,7 +162,13 @@ QString Users::getLoginById(int id)
  */
 void Users::initListe()
 {
-    addList(DataBase::I()->loadUsers());
+    QList<User*> listusers = DataBase::I()->loadUsers();
+    epurelist(m_users, &listusers);
+    m_superviseurs  ->clear();
+    m_liberaux      ->clear();
+    m_parents       ->clear();
+    m_comptables    ->clear();
+    addList(listusers);
 }
 
 void Users::SupprimeUser(User *usr)

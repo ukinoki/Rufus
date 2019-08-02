@@ -164,7 +164,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
             " (idPat, idUser, ActeDate, ActeHeure, CreePar, UserComptable, UserParent, SuperViseurRemplacant, NumCentre, idLieu)"
             " VALUES (" +
             QString::number(pat->id()) + ", " +
-            QString::number(usr->idSuperviseurActes()) + ", "
+            QString::number(usr->idsuperviseur()) + ", "
             "NOW(), "
             "NOW(), " +
             QString::number(usr->id()) + ", " +
@@ -172,7 +172,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
             QString::number(usr->idparent()) + ", " +
             rempla + ", " +
             QString::number(idcentre) + ", " +
-            QString::number(usr->sitedetravail()->id()) +")";
+            QString::number(usr->idsitedetravail()) +")";
     //qDebug() << creerrequete;
     DataBase::I()->locktables(QStringList() << TBL_ACTES);
     if (!DataBase::I()->StandardSQL(creerrequete,tr("Impossible de créer cette consultation dans ") + TBL_ACTES))
@@ -190,7 +190,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     act = new Acte();
     act->setid(idacte);
     act->setidpatient(pat->id());
-    act->setiduser(usr->idSuperviseurActes());
+    act->setiduser(usr->idsuperviseur());
     act->setdate(QDate::currentDate());
     act->setheure(QTime::currentTime());
     act->setidusercreateur(usr->id());
@@ -198,7 +198,7 @@ Acte* Actes::CreationActe(Patient *pat, int idcentre)
     act->setiduserparent(usr->idparent());
     act->seteffectueparremplacant(rempla == "1");
     act->setnumcentre(idcentre);
-    act->setidlieu(usr->sitedetravail()->id());
+    act->setidlieu(usr->idsitedetravail());
     add(m_actes, act);
     return act;
 }

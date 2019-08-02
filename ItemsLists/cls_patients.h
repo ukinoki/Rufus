@@ -25,8 +25,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  /*! La classe patients initialise
   * une QMap de patients \variable m_patients
   * et 2 autres QMap de patients
-    * \variable m_patientstable qui corresond à la liste des patients affichés dans la table ui->PatientsListeTableView de rufus.ui
-    * \variable m_patientssaldat qui correspond à tous les patients en cours, ceux qui sont inscrits dans la table rufus.salledattente
+    * \variable m_patientstable qui correspond à    la liste des patients affichés dans la table ui->PatientsListeTableView de rufus.ui
+    * \variable m_patientssaldat qui correspond à   la liste de tous les patients en cours, ceux qui sont inscrits dans la table rufus.salledattente
     * chaque patient d'une de ces QMap est aussi inscrit dans m_patients
   * le patient en cours d'examen sur le poste, \variable m_currentpatient
   * le dossier du patient à ouvrir \variable m_dossierpatientaouvrir pour les recherches sur des patients qui ne sont pas le patient courant, par le biais des menus contextuels

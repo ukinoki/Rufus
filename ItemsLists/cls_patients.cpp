@@ -159,12 +159,12 @@ void Patients::completemaptable (QList<Patient*> listpatients, QMap<int, Patient
 
     /*! on supprime de la liste globale de patients et on delete chaque patient
      * qui n'est ni dans la nouvelle liste
-     * ni dans la liste  à vérifier
+     * ni dans la liste à vérifier
      */
     for (auto it = m_patients->begin(); it != m_patients->end();)
     {
         if (!listidaajouter.contains(it.key())
-          && mapaverifier->find(it.key()) == m_patientssaldat->constEnd())
+          && mapaverifier->find(it.key()) == mapaverifier->constEnd())
         {
             Patient *pat = const_cast<Patient*>(it.value());
             if (pat != Q_NULLPTR)

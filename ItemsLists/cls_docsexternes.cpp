@@ -93,8 +93,9 @@ void DocsExternes::addList(QList<DocExterne*> listdocs)
 void DocsExternes::initListeByPatient(Patient *pat)
 {
     m_patient = pat;
-    clearAll(m_docsexternes);
-    addList(DataBase::I()->loadDoscExternesByPatient(pat));
+    QList<DocExterne*> listdocs = DataBase::I()->loadDoscExternesByPatient(pat);
+    epurelist(m_docsexternes, &listdocs);
+    addList(listdocs);
 }
 
 void DocsExternes::actualise()

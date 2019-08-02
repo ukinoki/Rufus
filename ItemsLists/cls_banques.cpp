@@ -34,7 +34,8 @@ QMap<int, Banque *> *Banques::banques() const
  */
 void Banques::initListe()
 {
-    clearAll(m_banques);
+    QList<Banque*> listbanques = DataBase::I()->loadBanques();
+    epurelist(m_banques, &listbanques);
     addList(m_banques, DataBase::I()->loadBanques());
 }
 

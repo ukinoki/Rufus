@@ -49,20 +49,20 @@ class dlg_gestionusers : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_gestionusers(int idUser, int idlieu, bool mdpverified=true, QWidget *parent = Q_NULLPTR);
+    enum                    UserMode {PREMIERUSER, ADMIN, MODIFUSER};     Q_ENUM(UserMode)
+    /* correspond aux 3 façons dont la fiche a été appelée
+     * PREMIERUSER -> la fiche est appelée au premier lancement du programme pour créer le premier utilisateur -> on peut tout modifier
+     * MODIFUSER   -> appelé par l'utilisateur dans le premier onglet de la fiche dlg_param -> on ne peut modifier que les données d'identité, geographiques et bancaires
+     * ADMIN       -> appelé par l'administrateur, on peut tout modidier, y compris le statut, de chaque utilisateur, sauf les données bancaires
+    */
+    explicit dlg_gestionusers(int idlieu, UserMode  mode, bool mdpverified=true, QWidget *parent = Q_NULLPTR);
     /*
      * la variable mdpverified est utilisée pour l'appel de la fiche dlg_gestionlieux
      * Cette fiche est parfois appelée alors que le mdp administrateur a déjà eté vérifié, parfois non
      */
     ~dlg_gestionusers();
     Ui::dlg_gestionusers    *ui;
-    enum                    UserMode {PREMIERUSER, ADMIN, MODIFUSER};     Q_ENUM(UserMode)
     enum                    Mode {Creer, Modifier, PremierUsr};
-    /* correspond aux 3 modes d'utilisation de la fiche
-     * PREMIERUSER -> la fiche est appelée au premier lancement du programme pour créer le premier utilisateur -> on peut tout modifier
-     * MODIFUSER   -> appelé par l'utilisateur dans le premier onglet de la fiche dlg_param -> on ne peut modifier que les données d'identité, geographiques et bancaires
-     * ADMIN       -> appelé par l'administrateur, on peut tout modidier, y compris le statut
-    */
     void                    setConfig(UserMode mode);
     bool                    isMDPverified();
 
@@ -94,7 +94,7 @@ private:
     int                     gMode;
     int                     gidUserDepart;
     int                     gidLieu;
-    User                    *OtherUser;
+    User                    *m_userencours;
     QString                 gLoginupLineEdit, gMDPupLineEdit, gConfirmMDPupLineEdit;
     QString                 gLibActiv, gNoLibActiv;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;

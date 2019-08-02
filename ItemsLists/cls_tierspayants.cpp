@@ -42,6 +42,7 @@ Tiers* TiersPayants::getById(int id)
  */
 void TiersPayants::initListe()
 {
-    clearAll(m_tierspayants);
-    addList(m_tierspayants, DataBase::I()->loadTiersPayants());
+    QList<Tiers*> listtiers = DataBase::I()->loadTiersPayants();
+    epurelist(m_tierspayants, &listtiers);
+    addList(m_tierspayants, listtiers);
 }

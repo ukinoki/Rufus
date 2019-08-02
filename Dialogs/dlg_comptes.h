@@ -53,7 +53,7 @@ private:
     int             gidLigneASupprimer;
     Archives        *archivescptencours;
     Compte          *CompteEnCours;
-    QList<Compte*>  *comptesusr;
+    QList<int>      *comptesusr;
     DataBase        *db;
     Procedures      *proc;
     QDate           Debut, Fin;

@@ -94,12 +94,12 @@ void Correspondants::loadAll(Correspondant *cor, Item::UPDATE upd)
  */
 void Correspondants::initListe(bool all)
 {
-    clearAll(m_correspondants);
     QList<Correspondant*> listcorrespondants;
     if (all)
         listcorrespondants = DataBase::I()->loadCorrespondantsALL();
     else
         listcorrespondants = DataBase::I()->loadCorrespondants();
+    epurelist(m_correspondants, &listcorrespondants);
     addList(m_correspondants, listcorrespondants);
 }
 

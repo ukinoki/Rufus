@@ -746,7 +746,7 @@ QList<PosteConnecte*> DataBase::loadPostesConnectes()
 /*
  * Correspondants
 */
-QList<Correspondant*> DataBase::loadCorrespondants()                             //! tous les correspondants sans exception
+QList<Correspondant*> DataBase::loadCorrespondants()                             //! tous les correspondants
 {
     QList<Correspondant*> correspondants;
     QString req =   "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin, corspecialite, nomspecialite as metier FROM " TBL_CORRESPONDANTS ", " TBL_SPECIALITES
@@ -776,7 +776,7 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
     return correspondants;
 }
 
-QList<Correspondant*> DataBase::loadCorrespondantsALL()                             //! tous les correspondants sans exception avec plus de renseignements
+QList<Correspondant*> DataBase::loadCorrespondantsALL()                             //! tous les correspondants avec plus de renseignements
 {
     QList<Correspondant*> correspondants;
     QString req = "SELECT idCor, CorNom, CorPrenom, nomspecialite as metier, CorAdresse1,"

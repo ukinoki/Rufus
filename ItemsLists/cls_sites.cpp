@@ -57,8 +57,9 @@ Site* Sites::getById(int id)
  */
 void Sites::initListe()
 {
-    clearAll(m_sites);
-    addList(m_sites, DataBase::I()->loadSitesAll());
+    QList<Site*> listsites = DataBase::I()->loadSitesAll();
+    epurelist(m_sites, &listsites);
+    addList(m_sites, listsites);
 }
 
 /*!

@@ -71,7 +71,6 @@ void User::setData(QJsonObject data)
 
     setDataInt(data, "soignant", m_soignant);
     setDataInt(data, "responsableActes", m_responsableActes);
-    setDataInt(data, "userccam", m_userccam);
     setDataLongLongInt(data, "numPS", m_numPS);
     setDataInt(data, "noSpecialite", m_noSpecialite);
     setDataInt(data, "idCompteParDefaut", m_idCompteParDefaut);
@@ -85,7 +84,7 @@ void User::setData(QJsonObject data)
     setDataBool(data, "AGA", m_AGA);
     setDataBool(data, "desactive", m_desactive);
     setDataBool(data, "OPTAM", m_OPTAM);
-    setDataBool(data, "ccam", m_ccam);
+    setDataBool(data, "cotation", m_ccam);
 
     setDataDateTime(data, "dateDerniereConnexion", m_dateDerniereConnexion);
     m_data = data;
@@ -100,12 +99,13 @@ void User::setData(QJsonObject data)
     qDebug() << "modeenregistrementhonoraires() = " + Utils::EnumDescription(QMetaEnum::fromType<ENREGISTREMENTHONORAIRES>(), modeenregistrementhonoraires());*/
 }
 
-
+/*!
+ * les données figées, ne variant pas d'une session à l'autre =======================================================================================================================
+ */
 
 QString User::login() const                      { return m_login; }
 QString User::password() const                   { return m_password; }
-void User::setPassword(QString psswd)            { m_password = psswd; }
-
+void User::setpassword(QString psswd)            { m_password = psswd; }
 QString User::nom() const                        { return m_nom; }
 QString User::prenom() const                     { return m_prenom; }
 User::METIER User::metier() const
@@ -120,9 +120,9 @@ User::METIER User::metier() const
     }
     return NoMetier;
 }
-User::RESPONSABLE User::responsableactes() const           /*! 1 = effectue exclusivement des actes sous sa responsabilite
-                                                               *  2 = effectue des actes sous sa responsabilite et sous celle des autres users
-                                                               *  3 = n'effectue aucun acte sous sa responsabilite */
+User::RESPONSABLE User::responsableactes() const           /*! Responsable                      = effectue exclusivement des actes sous sa responsabilite
+                                                            *  AlterneResponsablePasResponsable = effectue des actes sous sa responsabilite et sous celle des autres users
+                                                            *  PasResponsable                   = sans objet (secrétaire, comptable...) ou n'effectue aucun acte sous sa responsabilite */
 {
     switch (m_responsableActes) {
     case 0: return PasResponsable;
@@ -132,7 +132,6 @@ User::RESPONSABLE User::responsableactes() const           /*! 1 = effectue excl
     }
     return PasResponsable;
 }
-int User::getUserccam() const                       { return m_userccam; }
 User::ENREGISTREMENTHONORAIRES User::modeenregistrementhonoraires() const
 {
     switch (m_enregHonoraires) {
@@ -151,56 +150,13 @@ qlonglong User::getNumPS() const                    { return m_numPS; }
 QString User::numOrdre() const                      { return m_numCO; }
 bool User::isAGA() const                            { return m_AGA; }
 int User::idemployeur() const                       { return m_employeur; }
-int User::idCompteEncaissHonoraires() const         { return m_idCompteEncaissHonoraires; }
+int User::idcompteencaissementhonoraires() const    { return m_idCompteEncaissHonoraires; }
+void User::setidcompteencaissementhonoraires(int id){ m_idCompteEncaissHonoraires = id; }
 QString User::fonction() const                      { return m_fonction; }
-
-int User::idSuperviseurActes() const                { return m_idUserActeSuperviseur; }
-void User::setIdUserSuperviseur(int idusr)          { m_idUserActeSuperviseur = idusr; }
-bool User::ishisownsupervisor()                     { return (m_idUserActeSuperviseur == m_id); }
-
-int User::idparent() const                          { return m_idUserParent; }
-void User::setIdUserParent(int idusr)               { m_idUserParent = idusr; }
-int User::idcomptable() const                       { return m_idUserComptable; }
-void User::setIdUserComptable(int idusr)            { m_idUserComptable = idusr; }
-
-User *User::superviseur() const                     { return m_userSuperviseur; }
-void User::setUserSuperviseur(User *usr)            { m_userSuperviseur = usr; }
-User *User::userparent() const                      { return m_userParent; }
-void User::setUserParent(User *usr)                 { m_userParent = usr; }
-User *User::comptable() const                       { return m_userComptable; }
-void User::setUserComptable(User *usr)              { m_userComptable = usr; }
-
 int User::secteurconventionnel() const              { return m_secteur; }
-int User::idcompteParDefaut() const                 { return m_idCompteParDefaut; }
+int User::idcomptepardefaut() const                 { return m_idCompteParDefaut; }
 QString User::mail() const                          { return m_mail; }
 QString User::portable() const                      { return m_portable; }
-
-Site* User::sitedetravail() const                   { return m_Site; }
-void User::setSite(Site *Site)                      { m_Site = Site; }
-
-QList<Compte*>* User::comptesbancaires(bool avecdesactive) const
-{
-    return (avecdesactive? m_comptesall : m_comptes);
-}
-
-void User::setComptes(QList<Compte *> comptes)
-{
-    if (m_comptes != Q_NULLPTR)
-        m_comptes->clear();
-    else
-        m_comptes = new QList<Compte*>();       //! si on le laisse à Q_NULLPTR, le append() qui suit plantera le prg
-    if (m_comptesall != Q_NULLPTR)
-        m_comptesall->clear();
-    else
-        m_comptesall = new QList<Compte*>();       //! si on le laisse à Q_NULLPTR, le append() qui suit plantera le prg
-    foreach (Compte* cpt, comptes)
-    {
-        m_comptesall->append(cpt);
-        if (!cpt->isDesactive())
-            m_comptes->append(cpt);
-    }
-}
-
 int User::typecompta() const                        { return m_typeCompta; }
 void User::setTypeCompta(int typeCompta )           { m_typeCompta = typeCompta; }
 
@@ -225,28 +181,73 @@ bool User::isResponsable()                          { return isSoignant() && res
 bool User::isResponsableOuAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
 bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
 bool User::isDesactive()                            { return m_desactive; }
+QList<int>* User::listecomptesbancaires(bool avecdesactive) const
+{
+    return (avecdesactive? m_listidcomptesall : m_listidcomptes);
+}
+
+void User::setlistecomptesbancaires(QMap<int, bool> mapidcomptes)
+{
+    if (m_listidcomptes != Q_NULLPTR)
+        m_listidcomptes->clear();
+    else
+        m_listidcomptes = new QList<int>();       //! si on le laisse à Q_NULLPTR, le append() qui suit plantera le prg
+    if (m_listidcomptesall != Q_NULLPTR)
+        m_listidcomptesall->clear();
+    else
+        m_listidcomptesall = new QList<int>();       //! si on le laisse à Q_NULLPTR, le append() qui suit plantera le prg
+    foreach (int idcpt, mapidcomptes.keys())
+    {
+        m_listidcomptesall->append(idcpt);
+        if (mapidcomptes.value(idcpt))
+            m_listidcomptes->append(idcpt);
+    }
+}
+
+/*!
+ * les données susceptibles de varier d'une session à l'autre  ==========================================================================================================================
+ */
+
+User *User::superviseur() const                     { return m_userSuperviseur; }
+void User::setsuperviseur(User *usr)                { m_userSuperviseur = usr; }
+int User::idsuperviseur() const                     { return m_idUserSuperviseur; }
+void User::setidsuperviseur(int idusr)              { m_idUserSuperviseur = idusr; }
+bool User::ishisownsupervisor()                     { return (m_idUserSuperviseur == m_id); }
+
+User *User::parent() const                      { return m_userParent; }
+void User::setparent(User *usr)                     { m_userParent = usr; }
+int User::idparent() const                          { return m_idUserParent; }
+void User::setidparent(int idusr)                   { m_idUserParent = idusr; }
+
+User *User::comptable() const                       { return m_userComptable; }
+void User::setcomptable(User *usr)                  { m_userComptable = usr; }
+int User::idcomptable() const                       { return m_idUserComptable; }
+void User::setidusercomptable(int idusr)            { m_idUserComptable = idusr; }
+
+int User::idsitedetravail() const                   { return  m_idsite; }
+void User::setidSite(int id)                        { m_idsite = id; }
+
 
 
 /*!
- * \brief User::getStatus
+ * \brief User::status
  * génére un résumé des informations de l'utilisateur sur la session courante.
  * \return Chaine de caractères
  */
-QString User::Status() const
+QString User::status() const
 {
     QString str = "" +
-            tr("utilisateur") + "\t\t= " + m_login  + "\n"
-          + tr("Site") + "\t\t= " + m_Site->nom()  + "\n";
+            tr("utilisateur") + "\t\t= " + m_login  + "\n";
 
     //qDebug() << "superviseur " << m_idUserActeSuperviseur;
     //qDebug() << "parent " << m_idUserParent;
     //qDebug() << "comptable " << m_idUserComptable;
     QString strSup = "";
-    if( m_idUserActeSuperviseur == User::ROLE_NON_RENSEIGNE )           // le user est soignant, assistant et travaille pour plusieurs superviseurs
+    if( m_idUserSuperviseur == User::ROLE_NON_RENSEIGNE )           // le user est soignant, assistant et travaille pour plusieurs superviseurs
         strSup = tr("tout le monde");
-    else if( m_idUserActeSuperviseur == User::ROLE_VIDE )               // le user est un administratif
+    else if( m_idUserSuperviseur == User::ROLE_VIDE )               // le user est un administratif
         strSup = tr("sans objet");
-    else if( m_idUserActeSuperviseur == User::ROLE_INDETERMINE )        // jamais utilisé
+    else if( m_idUserSuperviseur == User::ROLE_INDETERMINE )        // jamais utilisé
         strSup = tr("indéterminé");
     else if( m_userSuperviseur )
         strSup = m_userSuperviseur->login();

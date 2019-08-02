@@ -1170,16 +1170,19 @@ void dlg_remisecheques::ReconstruitListeUsers()
 void dlg_remisecheques::RegleComptesComboBox(bool ActiveSeult)
 {
     ui->ComptecomboBox->clear();
-    m_comptes = m_currentuser->comptesbancaires();
-    foreach (Compte* cpt, *m_comptes )
+    foreach (int id, *m_currentuser->listecomptesbancaires())
     {
-        if (ActiveSeult)
+        Compte *cpt = Datas::I()->comptes->getById(id);
+        if (cpt != Q_NULLPTR)
         {
-            if (!cpt->isDesactive())
+            if (ActiveSeult)
+            {
+                if (!cpt->isDesactive())
+                    ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
+            }
+            else
                 ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
         }
-        else
-            ui->ComptecomboBox->addItem(cpt->nomabrege(), QString::number(cpt->id()) );
     }
-    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_currentuser->idcompteParDefaut()));
+    ui->ComptecomboBox->setCurrentIndex(ui->ComptecomboBox->findData(m_currentuser->idcomptepardefaut()));
 }

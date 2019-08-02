@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_param.h"
 #include "utils.h"
 
-dlg_param::dlg_param(int idUser, QWidget *parent) :
+dlg_param::dlg_param(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_param)
 {
@@ -28,11 +28,10 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc            = Procedures::I();
     db              = DataBase::I();
-    gidUser         = idUser;
     m_parametres    = db->parametres();
 
     gModifPoste     = false;
-    m_currentuser       = Datas::I()->users->userconnected();
+    m_currentuser   = Datas::I()->users->userconnected();
 
     gNouvMDP        = "nouv";
     gAncMDP         = "anc";
@@ -467,7 +466,7 @@ dlg_param::dlg_param(int idUser, QWidget *parent) :
     for (int i=0; i<ui->AppareilsConnectesupTableWidget->columnCount(); i++)
         ui->AppareilsConnectesupTableWidget->horizontalHeaderItem(i)->setTextAlignment(Qt::AlignLeft);
     ui->AppareilsConnectesupTableWidget->FixLargeurTotale();
-    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + m_currentuser->sitedetravail()->nom() + "</b></font> ");
+    ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + Datas::I()->sites->getById(m_currentuser->idsitedetravail())->nom() + "</b></font> ");
     QVBoxLayout *applay = new QVBoxLayout();
     applay      ->addWidget(ui->AppareilsconnectesupLabel);
     applay      ->addWidget(widgAppareils->widgButtonParent());
@@ -749,7 +748,7 @@ void dlg_param::Slot_ChoixFontpushButtonClicked()
     {
         QString fontrequete = "update " TBL_UTILISATEURS " set UserPoliceEcran = '" + Dlg_Fonts->getFont().toString()
                                 + "', UserPoliceAttribut = '" + Dlg_Fonts->getFontAttribut()
-                                + "' where idUser = " + QString::number(Datas::I()->users->userconnected()->id());
+                                + "' where idUser = " + QString::number(m_currentuser->id());
         db->StandardSQL(fontrequete,"dlg_param::Slot__ChoixFontpushButtonClicked()");
     }
     delete Dlg_Fonts;
@@ -828,7 +827,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedUser = Utils::VerifMDP(Datas::I()->users->userconnected()->password(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
+            MDPVerifiedUser = Utils::VerifMDP(m_currentuser->password(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
             if (MDPVerifiedUser)
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
@@ -973,17 +972,16 @@ void dlg_param::Slot_GestionBanques()
     Dlg_Banq->exec();
 }
 
-void dlg_param::Slot_GestDataPersoUser()
+void dlg_param::Slot_GestionDatasCurrentUser()
 {
-    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice(), MDPVerifiedAdmin);
+    Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::MODIFUSER, MDPVerifiedUser);
     Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  m_currentuser->login());
-    Dlg_GestUsr->setConfig(dlg_gestionusers::MODIFUSER);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
     if(DonneesUserModifiees)
     {
-        Datas::I()->users->userconnected()->setData(db->loadUserData(gidUser));
-        proc->SetUserAllData(Datas::I()->users->userconnected());
-        m_currentuser = Datas::I()->users->userconnected();
+        proc->SetUserAllData(m_currentuser, Item::ForceUpdate);
+        qDebug() << "m_currentuser->idcomptepardefaut()" << m_currentuser->idcomptepardefaut();
+        qDebug() << "m_currentuser->idcompteencaissementhonoraires()" << m_currentuser->idcompteencaissementhonoraires();
         AfficheParamUser();
     }
     if (!MDPVerifiedUser)
@@ -991,17 +989,15 @@ void dlg_param::Slot_GestDataPersoUser()
     delete Dlg_GestUsr;
 }
 
-void dlg_param::Slot_GestUser()
+void dlg_param::Slot_GestionUsers()
 {
-    Dlg_GestUsr = new dlg_gestionusers(gidUser, proc->idLieuExercice());
+    Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::ADMIN, MDPVerifiedAdmin);
     Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
-    Dlg_GestUsr->setConfig(dlg_gestionusers::ADMIN);
     DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
     if(DonneesUserModifiees)
     {
-        Datas::I()->users->userconnected()->setData(db->loadUserData(gidUser));
-        proc->SetUserAllData(Datas::I()->users->userconnected());
-        m_currentuser = Datas::I()->users->userconnected();
+        Datas::I()->users->initListe();
+        proc->SetUserAllData(m_currentuser, Item::ForceUpdate);
         AfficheParamUser();
     }
     delete Dlg_GestUsr;
@@ -1166,7 +1162,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
         QString montantpratique="";
         if (check->checkState() == Qt::Unchecked)
         {
-            req = "delete from " TBL_COTATIONS " where typeacte = '" + codeccam + "' and idUser = " + QString::number(gidUser);
+            req = "delete from " TBL_COTATIONS " where typeacte = '" + codeccam + "' and idUser = " + QString::number(m_currentuser->id());
         }
         else
         {
@@ -1205,7 +1201,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,2)->text())) + ", " +
                     QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,3)->text())) + ", " +
                     montantpratique + ", 1," +
-                    QString::number(gidUser) +")";
+                    QString::number(m_currentuser->id()) +")";
         }
         if (db->StandardSQL(req))
             gCotationsModifiees = true;
@@ -1224,7 +1220,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                 {
                     line->setText(QLocale().toString(montant.toDouble(),'f',2));
                     QString req = "update " TBL_COTATIONS " set montantpratique = " + montant +
-                                  " where typeacte = '" + ui->ActesCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
+                                  " where typeacte = '" + ui->ActesCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
                     if (db->StandardSQL(req))
                         gCotationsModifiees = true;
                 }
@@ -1245,7 +1241,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
         if (check->checkState() == Qt::Unchecked)
         {
             QList<QVariantList> calclist = db->StandardSelectSQL("select typeacte from " TBL_COTATIONS " where typeacte = '" + codeccam + "'", ok);
-            req = "delete from " TBL_COTATIONS " where typeacte = '" + codeccam + "' and idUser = " + QString::number(gidUser);
+            req = "delete from " TBL_COTATIONS " where typeacte = '" + codeccam + "' and idUser = " + QString::number(m_currentuser->id());
             if (calclist.size()==1)
             {
                 if (UpMessageBox::Question(this,tr("Suppression de cotation"),
@@ -1254,7 +1250,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                                             UpDialog::ButtonCancel | UpDialog::ButtonSuppr,
                                             QStringList() << tr("Annuler") << tr("Supprimer la cotation") + " " + codeccam)
                     != UpSmallButton::SUPPRBUTTON)
-                    req = "update " TBL_COTATIONS " set idUser = NULL where typeacte = '" + codeccam + "' and idUser = " + QString::number(gidUser);
+                    req = "update " TBL_COTATIONS " set idUser = NULL where typeacte = '" + codeccam + "' and idUser = " + QString::number(m_currentuser->id());
             }
         }
         else
@@ -1300,7 +1296,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     montantOPTAM + ", " +
                     montantNonOPTAM + ", " +
                     montantpratique + ", 2," +
-                    QString::number(gidUser) +")";
+                    QString::number(m_currentuser->id()) +")";
         }
         if (db->StandardSQL(req))
             gCotationsModifiees = true;
@@ -1320,13 +1316,13 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     line->setText(QLocale().toString(montant.toDouble(),'f',2));
                     if (line->getColumnTable()==2)
                         req = "update " TBL_COTATIONS " set montantoptam = " + montant +
-                            " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
+                            " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
                     else if (line->getColumnTable()==3)
                        req = "update " TBL_COTATIONS " set montantnonoptam = " + montant +
-                           " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
+                           " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
                     else if (line->getColumnTable()==4)
                        req = "update " TBL_COTATIONS " set montantpratique = " + montant +
-                           " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
+                           " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
                     if (db->StandardSQL(req))
                         gCotationsModifiees = true;
                 }
@@ -1344,7 +1340,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
         QString codeccam        = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
         QString montantpratique = "";
         if (check->checkState() == Qt::Unchecked)
-            req = "delete from " TBL_COTATIONS " where typeacte = '" + codeccam + "' and idUser = " + QString::number(gidUser);
+            req = "delete from " TBL_COTATIONS " where typeacte = '" + codeccam + "' and idUser = " + QString::number(m_currentuser->id());
         else
         {
             UpLineEdit *lineprat = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(row,2));
@@ -1355,7 +1351,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
                     montantpratique + ", " +
                     montantpratique + ", " +
                     montantpratique + ", " +
-                    " 2, " + QString::number(gidUser) +")";
+                    " 2, " + QString::number(m_currentuser->id()) +")";
         }
         if (db->StandardSQL(req))
             gCotationsModifiees = true;
@@ -1374,7 +1370,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
                     QString montant = QString::number(QLocale().toDouble(txt));
                     line->setText(QLocale().toString(montant.toDouble(),'f',2));
                     req = "update " TBL_COTATIONS " set montantOPTAM = " + montant + ", montantNonOPTAM = " + montant + ", montantpratique = " + montant +
-                          " where typeacte = '" + ui->HorsNomenclatureupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(gidUser);
+                          " where typeacte = '" + ui->HorsNomenclatureupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
                     if (db->StandardSQL(req))
                         gCotationsModifiees = true;
                 }
@@ -1407,7 +1403,7 @@ void dlg_param::SupprAppareil()
     {
         req = "delete from " TBL_APPAREILSCONNECTESCENTRE " where idAppareil = "
               + ui->AppareilsConnectesupTableWidget->selectedItems().at(0)->text()
-              + " and idLieu = " + QString::number(m_currentuser->sitedetravail()->id());
+              + " and idLieu = " + QString::number(m_currentuser->idsitedetravail());
         db->StandardSQL(req);
         QString Base;
         if (db->getMode() == DataBase::Poste)
@@ -1541,7 +1537,7 @@ void dlg_param::Slot_EnregistreAppareil()
     if (!gAskAppareil) return;
     QString req = "insert into " TBL_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
                   " (select idappareil from " TBL_LISTEAPPAREILS " where NomAppareil = '" + gAskAppareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
-                  + QString::number(m_currentuser->sitedetravail()->id()) + ")";
+                  + QString::number(m_currentuser->idsitedetravail()) + ")";
     db->StandardSQL(req);
     gAskAppareil->done(0);
     Remplir_Tables();
@@ -1590,7 +1586,7 @@ void dlg_param::SupprAssocCCAM()
     QString req = "select typeacte from " TBL_COTATIONS
                   " where typeacte = '" + CodeActe + "'"
                   " and iduser <> NULL"
-                  " and iduser <> " + QString::number(gidUser);
+                  " and iduser <> " + QString::number(m_currentuser->id());
     QList<QVariantList> typactlist = db->StandardSelectSQL(req,ok);
     if (!ok)
         return;
@@ -2042,7 +2038,7 @@ void dlg_param::AfficheParamUser()
     ui->MDPuplineEdit                   ->setText(m_currentuser->password());
     ui->NomuplineEdit                   ->setText(m_currentuser->nom());
     ui->PrenomuplineEdit                ->setText(m_currentuser->prenom());
-    QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " TBL_JOINTURESLIEUX " where iduser = " + QString::number(gidUser), ok);
+    QList<QVariantList> listlieux = db->StandardSelectSQL("select idlieu from " TBL_JOINTURESLIEUX " where iduser = " + QString::number(m_currentuser->id()), ok);
     QList<int> idlieuxlist;
     for (int k=0; k< listlieux.size(); k++)
         idlieuxlist << listlieux.at(k).at(0).toInt();
@@ -2094,9 +2090,9 @@ void dlg_param::ConnectSlots()
     connect(ui->PosteServcheckBox,                  SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EnableFrameServeur(bool)));
     connect(ui->LocalServcheckBox,                  SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EnableFrameServeur(bool)));
     connect(ui->DistantServcheckBox,                SIGNAL(clicked(bool)),                  this,   SLOT(Slot_EnableFrameServeur(bool)));
-    connect(ui->GestUserpushButton,                 SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestUser()));
+    connect(ui->GestUserpushButton,                 SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestionUsers()));
     connect(ui->GestLieuxpushButton,                SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestLieux()));
-    connect(ui->ModifDataUserpushButton,            SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestDataPersoUser()));
+    connect(ui->ModifDataUserpushButton,            SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestionDatasCurrentUser()));
     connect(ui->GestionBanquespushButton,           SIGNAL(clicked(bool)),                  this,   SLOT(Slot_GestionBanques()));
     connect(ui->OupspushButton,                     SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ResetImprimante()));
     connect(ui->DirBackuppushButton,                SIGNAL(clicked(bool)),                  this,   SLOT(Slot_ModifDirBackup()));
@@ -2154,7 +2150,7 @@ bool dlg_param::DataUserModifiees()
 void dlg_param::EnableActesCCAM(bool enable)
 {
     ui->OphtaSeulcheckBox   ->setEnabled(enable);
-    bool autormodif         = enable && (m_currentuser->idparent() == gidUser);            // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif         = enable && (m_currentuser->idparent() == m_currentuser->id());            // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
@@ -2170,7 +2166,7 @@ void dlg_param::EnableActesCCAM(bool enable)
 
 void dlg_param::EnableAssocCCAM(bool enable)
 {
-    bool autormodif = enable && m_currentuser->idparent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif = enable && m_currentuser->idparent() == m_currentuser->id();  // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
@@ -2197,7 +2193,7 @@ void dlg_param::EnableAssocCCAM(bool enable)
 
 void dlg_param::EnableHorsNomenclature(bool enable)
 {
-    bool autormodif = enable && m_currentuser->idparent() == gidUser;  // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif = enable && m_currentuser->idparent() == m_currentuser->id();  // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
@@ -2403,7 +2399,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
         ui->ActesCCAMupTableWidget->setItem(i,4,pItem3);
         ui->ActesCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
-    QString reqactes = "select typeacte, montantpratique from " TBL_COTATIONS " where idUser = " + QString::number(gidUser);
+    QString reqactes = "select typeacte, montantpratique from " TBL_COTATIONS " where idUser = " + QString::number(m_currentuser->id());
     QList<QVariantList> Actesusrlist = db->StandardSelectSQL(reqactes, ok);
     if (Actesusrlist.size()>0)
     {
@@ -2479,7 +2475,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
     ui->AssocCCAMupTableWidget->clearContents();
-    QString Assocrequete = "SELECT TYPEACTE, montantOPTAM, montantNonOptam, montantpratique, tip from "  TBL_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + " order by typeacte";
+    QString Assocrequete = "SELECT TYPEACTE, montantOPTAM, montantNonOptam, montantpratique, tip from "  TBL_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(m_currentuser->id()) + " order by typeacte";
     //qDebug() << Assocrequete;
     QList<QVariantList> Assoclist = db->StandardSelectSQL(Assocrequete, ok);
     if (!ok)
@@ -2537,7 +2533,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         ui->AssocCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
     Assocrequete = "SELECT DISTINCT TYPEACTE, montantoptam, montantnonoptam, montantpratique, Tip from "  TBL_COTATIONS " WHERE CCAM = 2"
-                   " and typeacte not in (SELECT TYPEACTE from "  TBL_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(gidUser) + ")";
+                   " and typeacte not in (SELECT TYPEACTE from "  TBL_COTATIONS " WHERE CCAM = 2 AND iduser = " + QString::number(m_currentuser->id()) + ")";
     QList<QVariantList> Assoc2list = db->StandardSelectSQL(Assocrequete, ok);
     if (!ok)
         return;
@@ -2632,7 +2628,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
     ui->HorsNomenclatureupTableWidget->clearContents();
-    QString Horsrequete = "SELECT TYPEACTE, montantpratique, Tip from "  TBL_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(gidUser);
+    QString Horsrequete = "SELECT TYPEACTE, montantpratique, Tip from "  TBL_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(m_currentuser->id());
     QList<QVariantList> Horslist = db->StandardSelectSQL(Horsrequete, ok);
     if (!ok)
         return;
@@ -2661,8 +2657,8 @@ void dlg_param::Remplir_TableHorsNomenclature()
         ui->HorsNomenclatureupTableWidget->setCellWidget(i,2,lbl1);
         ui->HorsNomenclatureupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
-    Horsrequete = "SELECT TYPEACTE from "  TBL_COTATIONS " WHERE CCAM = 3 AND iduser <> " + QString::number(gidUser)+
-            " and typeacte not in (SELECT TYPEACTE from "  TBL_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(gidUser) + ")";
+    Horsrequete = "SELECT TYPEACTE from "  TBL_COTATIONS " WHERE CCAM = 3 AND iduser <> " + QString::number(m_currentuser->id())+
+            " and typeacte not in (SELECT TYPEACTE from "  TBL_COTATIONS " WHERE CCAM = 3 AND iduser = " + QString::number(m_currentuser->id()) + ")";
     QList<QVariantList> Hors2list = db->StandardSelectSQL(Horsrequete, ok);
     if (!ok)
         return;
@@ -2724,7 +2720,7 @@ void dlg_param::Remplir_Tables()
 
     QString  req = "SELECT list.idAppareil, list.TitreExamen, list.NomAppareil, Format"
               " FROM "  TBL_APPAREILSCONNECTESCENTRE " appcon , " TBL_LISTEAPPAREILS " list"
-              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(m_currentuser->sitedetravail()->id()) +
+              " where list.idappareil = appcon.idappareil and idLieu = " + QString::number(m_currentuser->idsitedetravail()) +
               " ORDER BY TitreExamen";
 
     QList<QVariantList> Applist = db->StandardSelectSQL(req, ok);
@@ -2852,7 +2848,7 @@ void dlg_param::Remplir_Tables()
 
     glistAppareils.clear();
     req = "select NomAppareil from " TBL_LISTEAPPAREILS
-          " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(m_currentuser->sitedetravail()->id()) + ")";
+          " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(m_currentuser->idsitedetravail()) + ")";
     QList<QVariantList> Appareilslist = db->StandardSelectSQL(req, ok);
     if (!ok)
         return;

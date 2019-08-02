@@ -53,14 +53,13 @@ private:
     Procedures                  *proc;
     Depense                     *m_depenseencours;
     QStringList                 glistMoyensDePaiement;
-    User                        *gDataUser;
+    User                        *m_userencours;
     UpDialog                    *gAskDialog;
     UpTableWidget               *gBigTable;
     UpPushButton                *EnregupPushButton, *AnnulupPushButton;
     UpPushButton                *SupprimerupPushButton, *ModifierupPushButton;
     QHBoxLayout                 *boxbutt;
     QMap<int, User*>            *m_listUserLiberaux;
-    QList<Compte*>              *m_comptesusr;
     QList<QImage>               glistImg;
 
     bool                        InitOK, AccesDistant;

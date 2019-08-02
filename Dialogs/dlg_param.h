@@ -43,7 +43,7 @@ class dlg_param : public QDialog
     Q_OBJECT
 
 public:
-    explicit dlg_param(int idUser, QWidget *parent = Q_NULLPTR);
+    explicit dlg_param(QWidget *parent = Q_NULLPTR);
     ~dlg_param();
     Ui::dlg_param       *ui;
     bool                CotationsModifiees();
@@ -58,7 +58,6 @@ private:
     dlg_motifs              *Dlg_motifs;
     VilleCPWidget           *VilleCPDefautWidg;
     UpDialog                *gLieuxDialog;
-    int                     gidUser;
     bool                    gModifPoste;
     bool                    gCotationsModifiees;
     bool                    DonneesUserModifiees;
@@ -121,9 +120,9 @@ private slots:
     void                Slot_EnregistreNouvMDPAdmin();
     void                Slot_FiltreActesOphtaSeulmt(bool);
     void                Slot_GestionBanques();
-    void                Slot_GestDataPersoUser();
+    void                Slot_GestionDatasCurrentUser();
     void                Slot_GestLieux();
-    void                Slot_GestUser();
+    void                Slot_GestionUsers();
     void                Slot_ImmediateBackup();
     void                Slot_MAJActesCCAM(QString txt = "");
     void                Slot_MAJAssocCCAM(QString txt = "");

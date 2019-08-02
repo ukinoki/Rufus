@@ -36,7 +36,7 @@ dlg_gestioncomptes::dlg_gestioncomptes(User *user,
     gSociete                = societe;
     gAfficheLeSolde         = AfficheLeSolde;
 
-    m_comptencours           = m_userencours->getCompteParDefaut();
+    m_comptencours           = Datas::I()->comptes->getById(m_userencours->idcomptepardefaut());
 
     gVisible                = true;
     gTimer                  = new QTimer(this);
@@ -308,7 +308,7 @@ void dlg_gestioncomptes::ModifCompte()
     /*On ne peut pas desactiver un compte s'il est le seul compte activé pour cet utilisateur
     */
     if (!ui->DesactiveComptecheckBox->isChecked())
-        ui->DesactiveComptecheckBox ->setEnabled(m_userencours->comptesbancaires()->size()>1);
+        ui->DesactiveComptecheckBox ->setEnabled(m_userencours->listecomptesbancaires()->size()>1);
     else
         ui->DesactiveComptecheckBox ->setEnabled(true);
     ui->BanqueupcomboBox            ->setEnabled(!ui->DesactiveComptecheckBox->isChecked());
@@ -363,7 +363,7 @@ void dlg_gestioncomptes::SupprCompte()
         return;
 
     Datas::I()->comptes->SupprimeCompte(Datas::I()->comptes->getById(ui->idCompteupLineEdit->text().toInt()));
-    m_userencours->setComptes(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()));
+    m_userencours->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()));
     RemplirTableView();
 }
 
@@ -426,7 +426,7 @@ void dlg_gestioncomptes::ValidCompte()
                                             QLocale().toDouble(ui->SoldeuplineEdit->text()),   //! SoldeSurDernierReleve
                                             gSociete,                                          //! Partage
                                             ui->DesactiveComptecheckBox->isChecked());         //! Desactive
-    m_userencours->setComptes(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()));
+    m_userencours->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(m_userencours->id()));
     m_comptencours = Datas::I()->comptes->getById(idcompte);
 
     RemplirTableView(idcompte);
@@ -473,27 +473,31 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
     ui->ComptesuptableWidget->horizontalHeader()->setIconSize(QSize(25,25));
     ui->ComptesuptableWidget->setGridStyle(Qt::DotLine);
 
-    if (m_userencours->comptesbancaires(true)->size()>0)
+    if (m_userencours->listecomptesbancaires(true)->size()>0)
     {
         ui->Compteframe->setVisible(true);
-        ui->ComptesuptableWidget->setRowCount(m_userencours->comptesbancaires(true)->size());
+        ui->ComptesuptableWidget->setRowCount(m_userencours->listecomptesbancaires(true)->size());
         int i=0;
-        foreach (Compte* cpt, *m_userencours->comptesbancaires(true))
+        foreach (int idcpt, *m_userencours->listecomptesbancaires(true))
         {
             pitem0 = new QTableWidgetItem;
             pitem1 = new QTableWidgetItem;
-            pitem0->setText(QString::number(cpt->id()));
-            pitem1->setText(cpt->nomabrege());
-            ui->ComptesuptableWidget->setItem(i,0,pitem0);
-            ui->ComptesuptableWidget->setItem(i,1,pitem1);
-            ui->ComptesuptableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
-            i++;
+            Compte *cpt = Datas::I()->comptes->getById(idcpt);
+            if (cpt != Q_NULLPTR)
+            {
+                pitem0->setText(QString::number(cpt->id()));
+                pitem1->setText(cpt->nomabrege());
+                ui->ComptesuptableWidget->setItem(i,0,pitem0);
+                ui->ComptesuptableWidget->setItem(i,1,pitem1);
+                ui->ComptesuptableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
+                i++;
+            }
         }
         connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, [=] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),Q_NULLPTR);});
         if (idcompte > 0)
             ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->findItems(QString::number(idcompte), Qt::MatchExactly).at(0));
-        else if (m_userencours->getCompteParDefaut() != Q_NULLPTR)
-            ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->findItems(QString::number(m_userencours->getCompteParDefaut()->id()), Qt::MatchExactly).at(0));
+        else if (m_userencours->idcomptepardefaut() > 0)
+            ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->findItems(QString::number(m_userencours->idcomptepardefaut()), Qt::MatchExactly).at(0));
         else
             ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->item(0,1));
     }
@@ -536,17 +540,21 @@ bool dlg_gestioncomptes::VerifCompte()
     QStringList ibanlist;
     if (gMode == Nouv)
     {
-        foreach (Compte *cpt, *m_userencours->comptesbancaires(false))
+        foreach (int idcpt, *m_userencours->listecomptesbancaires(false))
         {
-            if (cpt->idBanque() == idbanque)
+            Compte *cpt = Datas::I()->comptes->getById(idcpt);
+            if (cpt != Q_NULLPTR)
             {
-                UpMessageBox::Watch(this,tr("Vous avez déjà un compte enregistré dans cet organisme bancaire!"));
-                return false;
-            }
-            if (cpt->nomabrege() == ui->NomCompteAbregeuplineEdit->text())
-            {
-                UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré avec ce nom abrégé!"));
-                return false;
+                if (cpt->idBanque() == idbanque)
+                {
+                    UpMessageBox::Watch(this,tr("Vous avez déjà un compte enregistré dans cet organisme bancaire!"));
+                    return false;
+                }
+                if (cpt->nomabrege() == ui->NomCompteAbregeuplineEdit->text())
+                {
+                    UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré avec ce nom abrégé!"));
+                    return false;
+                }
             }
         }
         foreach (Compte *cpt, *Datas::I()->comptes->comptes())
@@ -559,17 +567,21 @@ bool dlg_gestioncomptes::VerifCompte()
     }
     else if (gMode == Modif)
     {
-        foreach (Compte *cpt, *m_userencours->comptesbancaires(false))
+        foreach (int idcpt, *m_userencours->listecomptesbancaires(false))
         {
-            if (cpt->nomabrege() == ui->NomCompteAbregeuplineEdit->text() && cpt->id() != ui->idCompteupLineEdit->text().toInt())
+            Compte *cpt = Datas::I()->comptes->getById(idcpt);
+            if (cpt != Q_NULLPTR)
             {
-                UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré avec ce nom abrégé!"));
-                return false;
-            }
-            if (ibanlist.contains(ui->IBANuplineEdit->text().replace(" ","").toUpper()))
-            {
-                UpMessageBox::Watch(this,tr("Un compte est déjà enregistré avec cet IBAN!"));
-                return false;
+                if (cpt->nomabrege() == ui->NomCompteAbregeuplineEdit->text() && cpt->id() != ui->idCompteupLineEdit->text().toInt())
+                {
+                    UpMessageBox::Watch(this,tr(" Vous avez déjà un compte enregistré avec ce nom abrégé!"));
+                    return false;
+                }
+                if (ibanlist.contains(ui->IBANuplineEdit->text().replace(" ","").toUpper()))
+                {
+                    UpMessageBox::Watch(this,tr("Un compte est déjà enregistré avec cet IBAN!"));
+                    return false;
+                }
             }
         }
         foreach (Compte *cpt, *Datas::I()->comptes->comptes())

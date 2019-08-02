@@ -44,8 +44,9 @@ void LignesPaiements::initListeByPatient(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    clearAll(m_lignespaiements);
-    addList(m_lignespaiements, DataBase::I()->loadlignespaiementsByPatient(pat));
+    QList<LignePaiement*> listlignes = DataBase::I()->loadlignespaiementsByPatient(pat);
+    epurelist(m_lignespaiements, &listlignes);
+    addList(m_lignespaiements, listlignes);
 }
 
 void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)

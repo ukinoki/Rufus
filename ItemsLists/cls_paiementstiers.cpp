@@ -44,6 +44,7 @@ PaiementTiers* PaiementsTiers::getById(int id)
  */
 void PaiementsTiers::initListe(User* usr)
 {
-    clearAll(m_paiementstiers);
-    addList(m_paiementstiers, DataBase::I()->loadPaiementTiersByUser(usr));
+    QList<PaiementTiers*> listpaiements = DataBase::I()->loadPaiementTiersByUser(usr);
+    epurelist(m_paiementstiers, &listpaiements);
+    addList(m_paiementstiers, listpaiements);
 }

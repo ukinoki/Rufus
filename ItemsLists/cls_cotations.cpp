@@ -35,7 +35,8 @@ QMap<int, Cotation *> *Cotations::cotations() const
  */
 void Cotations::initListeByUser(int iduser)
 {
-    clearAll(m_cotations);
-    addList(m_cotations, DataBase::I()->loadCotationsByUser(iduser));
+    QList<Cotation*> listcotations = DataBase::I()->loadCotationsByUser(iduser);
+    epurelist(m_cotations, &listcotations);
+    addList(m_cotations, listcotations);
 }
 

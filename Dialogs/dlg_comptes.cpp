@@ -33,9 +33,9 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     setAttribute(Qt::WA_DeleteOnClose);
 
     // On reconstruit le combobox des comptes de l'utilisateur
-    if (Datas::I()->users->userconnected()->comptesbancaires() == Q_NULLPTR)
-        proc->SetUserAllData(Datas::I()->users->userconnected());
-    comptesusr = Datas::I()->users->userconnected()->comptesbancaires(true);
+    if (Datas::I()->users->userconnected()->listecomptesbancaires() == Q_NULLPTR)
+        proc->SetUserAllData(Datas::I()->users->userconnected(), Item::ForceUpdate);
+    comptesusr = Datas::I()->users->userconnected()->listecomptesbancaires(true);
 
     if (comptesusr->size() == 0)
     {
@@ -45,17 +45,18 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
     }
     else
     {
-        CompteEnCours = new Compte();
+        CompteEnCours = Q_NULLPTR;
         ui->BanquecomboBox->clear();
         int idcptprefer = -1;
-        QListIterator<Compte*> itcpt(*comptesusr);
+        QListIterator<int> itcpt(*comptesusr);
         while (itcpt.hasNext())
         {
-            Compte *cpt = const_cast<Compte*>(itcpt.next());
-            ui->BanquecomboBox->addItem(cpt->nomabrege(),cpt->id());
-            if (Datas::I()->users->userconnected()->getCompteParDefaut() != Q_NULLPTR)
-                idcptprefer = Datas::I()->users->userconnected()->getCompteParDefaut()->id();
+            Compte *cpt = Datas::I()->comptes->getById(itcpt.next());
+            if (cpt != Q_NULLPTR)
+                ui->BanquecomboBox->addItem(cpt->nomabrege(),cpt->id());
         }
+        if (Datas::I()->users->userconnected()->idcomptepardefaut() > 0)
+            idcptprefer = Datas::I()->users->userconnected()->idcomptepardefaut();
         ui->BanquecomboBox->setCurrentIndex(ui->BanquecomboBox->findData(idcptprefer));
         idCompte = ui->BanquecomboBox->currentData().toInt();
         CompteEnCours = Datas::I()->comptes->getById(idCompte);

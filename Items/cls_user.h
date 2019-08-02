@@ -22,8 +22,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVariant>
 #include <QDate>
 #include "cls_item.h"
-#include "cls_site.h"
-#include "cls_compte.h"
 #include "macros.h"
 #include "log.h"
 
@@ -54,6 +52,10 @@ public: //static
 private:
     bool m_isAllLoaded = false;
 
+/*!
+ * les données figées, ne variant pas d'une session à l'autre
+ */
+
     //!< m_id = Id de l'utilsateur en base
 
     QString m_login; //!< Identifiant de l'utilisateur
@@ -74,17 +76,13 @@ private:
     QString m_nomCompteEncaissHonoraires;
 
     int m_soignant;
-    int m_responsableActes; //!< 1 : responsable
-                            //!< 2 : responsable et assistant
-                            //!< 3 : assistant
-    int m_userccam;
     qlonglong m_numPS;
     int m_noSpecialite;
-    int m_idCompteParDefaut;
+
     int m_poste;
     int m_employeur;
     int m_medecin;
-    int m_idCompteEncaissHonoraires;
+
     int m_enregHonoraires;
     int m_secteur;
 
@@ -96,30 +94,36 @@ private:
     bool m_ccam;
 
     bool m_useCompta;
+    int m_responsableActes; //!< 0 : pas responsable
+                            //!< 1 : responsable
+                            //!< 2 : responsable et assistant
+                            //!< 3 : assistant
 
     QDateTime m_dateDerniereConnexion;
 
-    Site *m_Site        = Q_NULLPTR;
-    QList<Compte*> *m_comptes  = Q_NULLPTR;         //! tous les comptes actifs de l'utilisateur
-    QList<Compte*> *m_comptesall  = Q_NULLPTR;      //! tous les comptes de l'utilisateur  y compris ceux qui sont devenus inactifs
-    Compte* m_comptepardefaut = Q_NULLPTR;          //! le compte bancaire personnel utilisé pour la comptabilité personnelle
-    Compte* m_compteencaissement = Q_NULLPTR;       //! le compte bancaire utilisé pour l'enregistrement des recettes (différent du compte personnel en cas d'exercice en société type SEL)
+    QList<int> *m_listidcomptesall = Q_NULLPTR;     //! tous les id des comptes de l'utilisateur  y compris ceux qui sont devenus inactifs
+    QList<int> *m_listidcomptes = Q_NULLPTR;        //! tous les id des comptes actifs de l'utilisateur
+    int m_idCompteParDefaut = 0;                    //! le compte bancaire personnel utilisé pour la comptabilité personnelle
+    int m_idCompteEncaissHonoraires = 0;            //! le compte bancaire utilisé pour l'enregistrement des recettes (différent du compte personnel en cas d'exercice en société type SEL)
 
+/*!
+ * les données susceptibles de varier d'une session à l'autre
+ */
 
     User *m_userSuperviseur     = Q_NULLPTR;
-    int m_idUserActeSuperviseur = ROLE_INDETERMINE; //!< son id s'il est responsable de ses actes
+    int m_idUserSuperviseur = ROLE_INDETERMINE;     //!< son id s'il est responsable de ses actes
                                                     //!< l'id du user assisté s'il est assistant
     User *m_userParent = Q_NULLPTR;
     int m_idUserParent = ROLE_INDETERMINE;          //!< son id s'il n'est pas remplaçant
-                                                    //!< l'ib du user remplacé s'il est remplacé
+                                                    //!< l'id du user remplacé s'il est remplacé
     User *m_userComptable = Q_NULLPTR;
     int m_idUserComptable = ROLE_INDETERMINE;       //!< son id s'il est responsable et libéral
                                                     //!< l'id de son employeur s'il est responsable et salarié
-                                                    //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le comptable devient
+                                                    //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le user comptable devient
                                                     //!< . celui qu'il remplace si celui qu'il remplace est libéral
                                                     //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
 
-
+    int m_idsite = 0;                               //! l'id du site de travail en cours
 
 public:
     explicit User(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -127,16 +131,18 @@ public:
 
     void setData(QJsonObject data);
 
+    /*!
+     * les données figées, ne variant pas d'une session à l'autre =======================================================================================================================
+     */
+
     QString login() const;
     QString password() const;
-    void setPassword(QString psswd);
+    void setpassword(QString psswd);
 
     QString nom() const;
     QString prenom() const;
-    METIER metier() const;
-    RESPONSABLE responsableactes() const;
-    int getUserccam() const;
-    ENREGISTREMENTHONORAIRES modeenregistrementhonoraires() const;
+    METIER metier() const;                                          //!< Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier
+    ENREGISTREMENTHONORAIRES modeenregistrementhonoraires() const;  //!< Liberal, Salarie, Retrocession, NoCompta
     QString titre() const;
     int numspecialite() const;
     QString specialite() const;
@@ -144,35 +150,19 @@ public:
     QString numOrdre() const;
     bool isAGA() const;
     int idemployeur() const;
-    int getIdLieu() const;
-    int idCompteEncaissHonoraires() const;
+    int idcompteencaissementhonoraires() const;
+    void setidcompteencaissementhonoraires(int id);
     QString fonction() const;
 
-    int idSuperviseurActes() const;
-    void setIdUserSuperviseur(int idusr);
-    bool ishisownsupervisor();
-    int idparent() const;
-    void setIdUserParent(int idusr);
-    int idcomptable() const;
-    void setIdUserComptable(int idusr);
-    int getidUserCompteParDefaut() const;
+    RESPONSABLE responsableactes() const;
 
     int secteurconventionnel() const;
-    int idcompteParDefaut() const;
+    int idcomptepardefaut() const;
     QString mail() const;
     QString portable() const;
 
-    QString Status() const;
-
-    Site* sitedetravail() const;
-    void setSite(Site *Site);
-
-    QList<Compte*>* comptesbancaires(bool avecdesactive = false) const;
-    void setComptes(QList<Compte*> listcomptes);
-    Compte* getCompteParDefaut() const          { return m_comptepardefaut; }
-    void setCompteParDefaut(Compte *compte)     { m_comptepardefaut = compte; }
-    Compte* getCompteEncaissement() const       { return m_compteencaissement; }
-    void setCompteEncaissement(Compte *compte)  { m_compteencaissement = compte; }
+    QList<int>*     listecomptesbancaires(bool avecdesactive = false) const;
+    void            setlistecomptesbancaires(QMap<int, bool> mapidcomptes);
 
     int typecompta() const;
     void setTypeCompta(int typeCompta);
@@ -181,7 +171,6 @@ public:
 
     bool isOPTAM();
     bool useCCAM();
-
 
     bool isSecretaire();
     bool isAutreFonction();
@@ -203,14 +192,30 @@ public:
 
     bool isDesactive();
 
-    User *superviseur() const;
-    void setUserSuperviseur(User *usr);
+    /*!
+     * les données susceptibles de varier d'une session à l'autre  ======================================================================================================================
+     */
 
-    User *userparent() const;
-    void setUserParent(User *usr);
+    User *superviseur() const;
+    void setsuperviseur(User *usr);
+    int idsuperviseur() const;
+    void setidsuperviseur(int idusr);
+    bool ishisownsupervisor();
+
+    User *parent() const;
+    void setparent(User *usr);
+    int idparent() const;
+    void setidparent(int idusr);
 
     User *comptable() const;
-    void setUserComptable(User *usr);
+    void setcomptable(User *usr);
+    int idcomptable() const;
+    void setidusercomptable(int idusr);
+
+    int idsitedetravail() const;
+    void setidSite(int id);
+
+    QString status() const;
 };
 
 #endif // CLS_USER_H

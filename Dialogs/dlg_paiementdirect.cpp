@@ -174,7 +174,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     }
 
     proc->SetUserAllData(m_useracrediter);
-    if( m_useracrediter != Q_NULLPTR && m_useracrediter->comptesbancaires()->size() == 0)
+    if( m_useracrediter != Q_NULLPTR && m_useracrediter->listecomptesbancaires()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->login());
         InitOK = false;
@@ -903,7 +903,7 @@ void dlg_paiementdirect::Slot_RegleAffichageFiche()
         }
         ui->OKupPushButton              ->setText(tr("Fermer"));
         ui->OKupPushButton              ->setIcon(Icons::icOK());
-        ui->Titrelabel            ->setText(tr("Gestion des paiements directs"));
+        ui->Titrelabel                  ->setText(tr("Gestion des paiements directs"));
         ui->TypePaiementframe           ->setVisible(false);
     }
     else
@@ -921,8 +921,7 @@ void dlg_paiementdirect::Slot_RegleAffichageFiche()
             ui->ActesEnAttentelabel_2       ->setText(tr("Actes en attente de paiement"));
             ui->PaiementgroupBox            ->setFocusProxy(ui->CarteCreditradioButton);
             RegleComptesComboBox();
-            if (m_useracrediter->getCompteParDefaut() != Q_NULLPTR)
-                ui->ComptesupComboBox       ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteParDefaut()->id()));
+            ui->ComptesupComboBox       ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->idcomptepardefaut()));
             break;
         }
         case VoirListeActes:
@@ -1904,10 +1903,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->CompteCreditewidget ->setVisible(gMode == VoirListeActes);
             ui->Commissionwidget    ->setVisible(gMode == VoirListeActes);
             if (gMode == VoirListeActes)
-            {
-                if (m_useracrediter->getCompteParDefaut() != Q_NULLPTR)
-                    ui->ComptesupComboBox       ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteParDefaut()->id()));
-            }
+                ui->ComptesupComboBox       ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->idcomptepardefaut()));
             else if (gMode == EnregistrePaiement && AppeleParClicK)
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
@@ -2160,13 +2156,13 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
 void dlg_paiementdirect::RegleComptesComboBox(bool avecLesComptesInactifs)
 {
     ui->ComptesupComboBox->clear();
-    QList<Compte*> *listcomptes = m_useracrediter->comptesbancaires(avecLesComptesInactifs);
-    for (int i=0; i<listcomptes->size(); i++)
+    foreach (int idcpt, *m_useracrediter->listecomptesbancaires(avecLesComptesInactifs))
     {
-        ui->ComptesupComboBox->addItem(m_useracrediter->login() + "/" + listcomptes->at(i)->nomabrege(), listcomptes->at(i)->id());
+        Compte *cpt = Datas::I()->comptes->getById(idcpt);
+        if (cpt != Q_NULLPTR)
+            ui->ComptesupComboBox->addItem(m_useracrediter->login() + "/" + cpt->nomabrege(), cpt->id());
     }
-    if (m_useracrediter->getCompteParDefaut() != Q_NULLPTR)
-        ui->ComptesupComboBox       ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteParDefaut()->id()));
+    ui->ComptesupComboBox       ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->idcomptepardefaut()));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

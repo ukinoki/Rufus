@@ -263,7 +263,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     Entete.replace("{{PRENOM PATIENT}}"    , prenom);
     Entete.replace("{{NOM PATIENT}}"       , nom);
     Entete.replace("{{DDN}}"               , "");
-    Entete.replace("{{DATE}}"              , userEntete->sitedetravail()->ville() + ", le " + QDate::currentDate().toString(tr("d MMM yyyy")));
+    Entete.replace("{{DATE}}"              , Datas::I()->sites->getById(userEntete->idsitedetravail())->ville() + ", le " + QDate::currentDate().toString(tr("d MMM yyyy")));
 
     // création du pied
     Pied = proc->ImpressionPied(userEntete);
@@ -305,7 +305,7 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
         listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS] =        BILANORTHOPTIQUE;
-        listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->sitedetravail()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->idsitedetravail();
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if(doc != Q_NULLPTR)
             delete doc;

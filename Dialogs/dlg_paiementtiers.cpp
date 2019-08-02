@@ -66,7 +66,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
         return;
     }
     proc        ->SetUserAllData(m_useracrediter);
-    if( m_useracrediter->comptesbancaires()->size() == 0)
+    if( m_useracrediter->listecomptesbancaires()->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("Les paramètres ne sont pas trouvés pour le compte ") + m_useracrediter->login());
         InitOK = false;
@@ -82,7 +82,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
 
     // idem pour les comptes
     RegleComptesComboBox();
-    ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteParDefaut()->id()));
+    ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->idcomptepardefaut()));
     connect (ui->ListeupTableWidget->horizontalHeader(), SIGNAL(sectionClicked(int)),                   this,           SLOT (Slot_ClassementListes(int)));
 
     connect (ui->AnnulupPushButton,                     SIGNAL(clicked()),                              this,           SLOT (Slot_Annul()));
@@ -412,7 +412,7 @@ void dlg_paiementtiers::Slot_ChangeUtilisateur()
     m_useracrediter = Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
     if (m_useracrediter != Q_NULLPTR)
         proc        ->SetUserAllData(m_useracrediter);
-    if (m_useracrediter == Q_NULLPTR || m_useracrediter->comptesbancaires()->size() == 0)
+    if (m_useracrediter == Q_NULLPTR || m_useracrediter->listecomptesbancaires()->size() == 0)
     {
         UpMessageBox::Watch                 (this,tr("Impossible de changer d'utilisateur!") , tr("Les paramètres de") + ui->UserscomboBox->currentText() + tr("ne sont pas retrouvés"));
         disconnect (ui->UserscomboBox,      SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUtilisateur()));
@@ -425,7 +425,7 @@ void dlg_paiementtiers::Slot_ChangeUtilisateur()
 
     m_useracrediter =  Datas::I()->users->getById(ui->UserscomboBox->currentData().toInt());
     RegleComptesComboBox();
-    ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteEncaissement()->id()));
+    ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->idcompteencaissementhonoraires()));
     gMode = Accueil;
     ui->RecImageLabel->setVisible(false);
     Slot_RegleAffichageFiche();
@@ -549,10 +549,11 @@ void dlg_paiementtiers::Slot_RecopieNomTiers(QString b)
 void dlg_paiementtiers::RegleComptesComboBox(bool avecLesComptesInactifs)
 {
     ui->ComptesupComboBox->clear();
-    QListIterator<Compte*> itcpt(*m_useracrediter->comptesbancaires(avecLesComptesInactifs));
-    while (itcpt.hasNext()) {
-        Compte *cpt = const_cast<Compte*>(itcpt.next());
-        ui->ComptesupComboBox->addItem(m_useracrediter->login() + "/" + cpt->nomabrege(), cpt->id());
+    foreach (int idcpt, *m_useracrediter->listecomptesbancaires(avecLesComptesInactifs))
+    {
+        Compte *cpt = Datas::I()->comptes->getById(idcpt);
+        if (cpt != Q_NULLPTR)
+            ui->ComptesupComboBox->addItem(m_useracrediter->login() + "/" + cpt->nomabrege(), cpt->id());
     }
 }
 
@@ -596,7 +597,7 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
         g = true;
         ui->SupprimupPushButton         ->setVisible(false);
         RegleComptesComboBox();
-        ui->ComptesupComboBox           ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteEncaissement()->id()));
+        ui->ComptesupComboBox           ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->idcompteencaissementhonoraires()));
     }
     else
     {
@@ -621,7 +622,7 @@ void dlg_paiementtiers::Slot_RegleAffichageFiche()
             ui->ActesEnAttentelabel         ->setText(tr("Actes enregistrés en tiers payant en attente de paiement"));
             ui->PaiementgroupBox            ->setFocusProxy(ui->VirementradioButton);
             RegleComptesComboBox();
-            ui->ComptesupComboBox           ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->getCompteEncaissement()->id()));
+            ui->ComptesupComboBox           ->setCurrentIndex(ui->ComptesupComboBox->findData(m_useracrediter->idcompteencaissementhonoraires()));
             break;
         }
         case VoirListePaiementsTiers:

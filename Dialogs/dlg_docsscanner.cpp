@@ -389,7 +389,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_LIENFICHIER_IMPRESSIONS] =      lien;
             listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
             listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->sitedetravail()->id();
+            listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->idsitedetravail();
         }
         else
         {
@@ -411,7 +411,7 @@ void dlg_docsscanner::ValideFiche()
             listbinds[suffixe] =                         ba;
             listbinds[CP_EMISORRECU_IMPRESSIONS] =       "1";
             listbinds[CP_FORMATDOC_IMPRESSIONS] =        DOCUMENTRECU;
-            listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->sitedetravail()->id();
+            listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->idsitedetravail();
         }
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         b = (doc != Q_NULLPTR);

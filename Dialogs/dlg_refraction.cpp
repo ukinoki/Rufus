@@ -1526,7 +1526,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
     bool AvecNumPage = false;
 
     //création de l'entête
-    User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idSuperviseurActes(), Item::LoadDetails);
+    User *userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur(), Item::LoadDetails);
     Entete = proc->ImpressionEntete(ui->DateDateEdit->date(), userEntete).value("Norm");
     if (Entete == "") return false;
     Entete.replace("{{TITRE1}}"            , "");
@@ -1566,7 +1566,7 @@ bool    dlg_refraction::Imprimer_Ordonnance()
         listbinds[CP_ALD_IMPRESSIONS] =              QVariant(QVariant::String);
         listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
         listbinds[CP_FORMATDOC_IMPRESSIONS] =        PRESCRIPTIONLUNETTES;
-        listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->sitedetravail()->id();
+        listbinds[CP_IDLIEU_IMPRESSIONS] =           Datas::I()->users->userconnected()->idsitedetravail();
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
             delete doc;
@@ -1868,7 +1868,6 @@ bool dlg_refraction::InsertRefraction()
         listbinds["Monture"]                    = QuelleMonture();
         listbinds["VerreTeinte"]                = ui->VerresTeintesCheckBox->isChecked()? 1 : 0;
     }
-    listbinds["PrimKeyDocMed"]              = Datas::I()->patients->currentpatient()->id();
     bool a = db->InsertSQLByBinds(TBL_REFRACTIONS, listbinds, tr("Erreur de création dans ") + TBL_REFRACTIONS);
     return a;
 }
@@ -1898,7 +1897,7 @@ int dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, C
             " DepoliOD, PlanOD, RyserOD, FormuleOD, OGcoche, SphereOG, CylindreOG,"                 // 17-18-19-20-21-22-23
             " AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "                       // 24-25-26-27-28-29
             " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "                  // 30-31-32-34-35
-            " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte, PrimKeyDocMed"  // 36-37-38-39-40-41
+            " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte"                 // 36-37-38-39-40
             " FROM " TBL_REFRACTIONS ;
 
     // On relit la mesure après selection dans la liste mesure (reprendre)

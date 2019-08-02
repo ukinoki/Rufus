@@ -101,6 +101,51 @@ protected:
     }
 
 /*!
+ * \brief ItemsList::epurelist
+ * Cette fonction va retirer dans le QMap m_oldMap tous les éléments qui ne sont pas dans la list d'items m_newlist
+ * Utile quand on veut réinitialiser une QMAP d'items àpartir d'une nouvelle liste
+ * tous les éléments du QMap qui ne sont pas dans la nouvelle liste sont supprimés et délétés
+ */
+template <typename T>
+void epurelist(QMap<int, T*> *m_oldmap, QList<T*> *m_newlist)
+{
+    if (m_oldmap->size() == 0)
+        return;
+    QMap<int, T*> m_newmap;
+    foreach (T *item, *m_newlist)
+        m_newmap.insert(item->id(), item);
+    for (auto it = m_oldmap->begin(); it != m_oldmap->end();)
+        if (m_newmap.find(it.key()) == m_newmap.constEnd())
+        {
+            delete  it.value();
+            it = m_oldmap->erase(it);
+        }
+        else
+            ++it;
+}
+
+/*! le même avec des QString en key */
+template <typename T>
+void epurelist(QMap<QString, T*> *m_oldmap, QList<T*> *m_newlist)
+{
+    if (m_oldmap->size() == 0)
+        return;
+    QMap<QString, T*> m_newmap;
+    foreach (T* item, *m_newlist)
+        m_newmap.insert(item->stringid(), item);
+    for (auto it = m_oldmap->begin(); it != m_oldmap->end();)
+        if (m_newmap.find(it.key()) == m_newmap.constEnd())
+        {
+            delete it.value();
+            it = m_oldmap->erase(it);
+        }
+        else
+            ++it;
+}
+
+
+
+/*!
      * \brief ItemsList::add
      * Cette fonction va ajouter un item dans un QMap.
      * Si un item avec le même id est présent dans le QMap,
@@ -124,7 +169,7 @@ bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
         if (upd == Item::ForceUpdate)
         {
             auto it = m_map->find(item->id());
-            if (it.value() == Q_NULLPTR)
+            if (it == m_map->constEnd())
             {
                 m_map->insert(it.key(), item);
                 return true;
@@ -149,7 +194,7 @@ bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
         if (upd == Item::ForceUpdate)
         {
             auto it = m_map->find(item->stringid());
-            if (it.value() == Q_NULLPTR)
+            if (it == m_map->constEnd())
             {
                 m_map->insert(it.key(), item);
                 return true;
@@ -170,7 +215,7 @@ bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
  * \param m_map le QMap dans lequel on veut retirer l'item
  * \param item l'item que l'on veut retirer
 */
-    template <typename T>
+template <typename T>
 void remove(QMap<int, T*> *m_map, T* item)
 {
     if (item == Q_NULLPTR)

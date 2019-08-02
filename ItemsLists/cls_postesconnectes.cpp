@@ -43,8 +43,9 @@ PosteConnecte* PostesConnectes::getById(QString stringid)
 
 void PostesConnectes::initListe()
 {
-    clearAll(m_postesconnectes);
-    addList(m_postesconnectes, DataBase::I()->loadPostesConnectes());
+    QList<PosteConnecte*> listpostes = DataBase::I()->loadPostesConnectes();
+    epurelist(m_postesconnectes, &listpostes);
+    addList(m_postesconnectes, listpostes);
 }
 
 void PostesConnectes::SupprimeAllPostesConnectes()
@@ -113,7 +114,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte()
                                                                         CP_IPADRESS_USRCONNECT ")"
                                " VALUES(NOW()," +
                                QString::number(DataBase::I()->getUserConnected()->id()) + "," +
-                               QString::number(DataBase::I()->getUserConnected()->idSuperviseurActes()) + "," +
+                               QString::number(DataBase::I()->getUserConnected()->idsuperviseur()) + "," +
                                QString::number(DataBase::I()->getUserConnected()->idcomptable()) + "," +
                                QString::number(DataBase::I()->getUserConnected()->idparent()) +",'" +
                                QHostInfo::localHostName().left(60) + "', '" +
@@ -124,7 +125,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte()
     PosteConnecte *post = new PosteConnecte();
     post->setstringid(macadressid);
     post->setid(DataBase::I()->getUserConnected()->id());
-    post->setidsuperviseur(DataBase::I()->getUserConnected()->idSuperviseurActes());
+    post->setidsuperviseur(DataBase::I()->getUserConnected()->idsuperviseur());
     post->setidcomptable(DataBase::I()->getUserConnected()->idcomptable());
     post->setidparent(DataBase::I()->getUserConnected()->idparent());
     post->setheurederniereconnexion(DataBase::I()->ServerDateTime());
