@@ -115,8 +115,8 @@ void DocsExternes::SupprimeDocumentExterne(DocExterne *doc)
 DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)
 {
     DocExterne *doc = Q_NULLPTR;
-    DataBase::I()->locktables(QStringList() << TBL_IMPRESSIONS);
-    bool result = DataBase::I()->InsertSQLByBinds(TBL_IMPRESSIONS, sets);
+    DataBase::I()->locktables(QStringList() << TBL_DOCSEXTERNES);
+    bool result = DataBase::I()->InsertSQLByBinds(TBL_DOCSEXTERNES, sets);
     if (!result)
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer ce document dans la base!"));
@@ -131,7 +131,7 @@ DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)
     else
     {
         bool ok;
-        iddoc = DataBase::I()->selectMaxFromTable(CP_IDIMPRESSION_IMPRESSIONS, TBL_IMPRESSIONS, ok, tr("Impossible de sélectionner les enregistrements"));
+        iddoc = DataBase::I()->selectMaxFromTable(CP_IDIMPRESSION_IMPRESSIONS, TBL_DOCSEXTERNES, ok, tr("Impossible de sélectionner les enregistrements"));
         if (!ok)
         {
             DataBase::I()->unlocktables();

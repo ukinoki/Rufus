@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("02-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("03-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1849,7 +1849,7 @@ void Rufus::ExporteDocs()
         dlg_message(listmsg, 6000, false);        return;
     }
 
-    int total = db->StandardSelectSQL("SELECT idimpression FROM " TBL_IMPRESSIONS " where jpg is not null or pdf is not null",ok).size();
+    int total = db->StandardSelectSQL("SELECT idimpression FROM " TBL_DOCSEXTERNES " where jpg is not null or pdf is not null",ok).size();
     total +=    db->StandardSelectSQL("SELECT idFacture FROM " TBL_FACTURES " where jpg is not null or pdf is not null", ok).size();
     if (total>100)
     {
@@ -1892,7 +1892,7 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES JPG
     //-----------------------------------------------------------------------------------------------------------------------------------------
-        QString req = "SELECT idimpression, idpat, SousTypeDoc, Dateimpression, jpg, lienversfichier, typedoc FROM " TBL_IMPRESSIONS " where jpg is not null";
+        QString req = "SELECT idimpression, idpat, SousTypeDoc, Dateimpression, jpg, lienversfichier, typedoc FROM " TBL_DOCSEXTERNES " where jpg is not null";
         //qDebug() << req;
         QList<QVariantList> listexportjpg = db->StandardSelectSQL(req, ok );
         if (ok)
@@ -1904,7 +1904,7 @@ void Rufus::ExporteDocs()
                     QString CheminFichier = NomDirStockageImagerie + DIR_IMAGES + listexportjpg.at(i).at(5).toString();
                     if (QFile(CheminFichier).exists())
                     {
-                        db->StandardSQL("update " TBL_IMPRESSIONS " set jpg = null where idimpression = " + listexportjpg.at(i).at(0).toString());
+                        db->StandardSQL("update " TBL_DOCSEXTERNES " set jpg = null where idimpression = " + listexportjpg.at(i).at(0).toString());
                         continue;
                     }
                 }
@@ -1956,7 +1956,7 @@ void Rufus::ExporteDocs()
                 }
                 else
                     return;
-                db->StandardSQL("update " TBL_IMPRESSIONS " set jpg = null,"
+                db->StandardSQL("update " TBL_DOCSEXTERNES " set jpg = null,"
                                 " lienversfichier = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc) +
                                 "' where idimpression = " + listexportjpg.at(i).at(0).toString() );
                 faits ++;
@@ -1977,7 +1977,7 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES PDF
     //-----------------------------------------------------------------------------------------------------------------------------------------
-    QString reqpdf = "SELECT idimpression, idpat, SousTypeDoc, Dateimpression, pdf, lienversfichier, compression, typedoc FROM " TBL_IMPRESSIONS " where pdf is not null";
+    QString reqpdf = "SELECT idimpression, idpat, SousTypeDoc, Dateimpression, pdf, lienversfichier, compression, typedoc FROM " TBL_DOCSEXTERNES " where pdf is not null";
     QList<QVariantList> listexportpdf = db->StandardSelectSQL(reqpdf, ok );
     if (ok)
         for (int i=0; i<listexportpdf.size(); i++)
@@ -1987,7 +1987,7 @@ void Rufus::ExporteDocs()
                 QString CheminFichier = NomDirStockageImagerie + DIR_IMAGES + listexportpdf.at(i).at(5).toString();
                 if (QFile(CheminFichier).exists())
                 {
-                    db->StandardSQL("update " TBL_IMPRESSIONS " set pdf = null where idimpression = " + listexportpdf.at(i).at(0).toString());
+                    db->StandardSQL("update " TBL_DOCSEXTERNES " set pdf = null where idimpression = " + listexportpdf.at(i).at(0).toString());
                     continue;
                 }
             }
@@ -2031,7 +2031,7 @@ void Rufus::ExporteDocs()
                         out << listexportpdf.at(i).at(4).toByteArray() ;
                     }
                 }
-                QString delreq = "delete from  " TBL_IMPRESSIONS " where idimpression = " + listexportpdf.at(i).at(0).toString();
+                QString delreq = "delete from  " TBL_DOCSEXTERNES " where idimpression = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
                 delete document;
@@ -2048,7 +2048,7 @@ void Rufus::ExporteDocs()
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                               | QFileDevice::ReadUser   | QFileDevice::WriteUser);
             CC.close();
-            db->StandardSQL("update " TBL_IMPRESSIONS " set pdf = null, compression = null,"
+            db->StandardSQL("update " TBL_DOCSEXTERNES " set pdf = null, compression = null,"
                             " lienversfichier = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc)  + "'"
                             " where idimpression = " + listexportpdf.at(i).at(0).toString());
             faits ++;
@@ -2686,7 +2686,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        listbinds["emisrecu"] =          "0";
        listbinds["formatdoc"] =         COURRIER;
        listbinds["idlieu"] =            m_currentuser->idsitedetravail();
-       if(!db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds))
+       if(!db->InsertSQLByBinds(TBL_DOCSEXTERNES, listbinds))
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
    }
@@ -3245,7 +3245,7 @@ void Rufus::MenuContextuelListePatients()
     QAction *pAction_EmettreDoc = gmenuContextuel->addAction(tr("Emettre un document"));
     connect (pAction_EmettreDoc,            &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("Document");});
 
-    QString req = "Select idImpression from " TBL_IMPRESSIONS " where idpat = " + QString::number(Datas::I()->patients->dossierpatientaouvrir()->id());
+    QString req = "Select idImpression from " TBL_DOCSEXTERNES " where idpat = " + QString::number(Datas::I()->patients->dossierpatientaouvrir()->id());
     if (db->StandardSelectSQL(req,ok).size() > 0){
         QAction *pAction_ImprimeDoc = gmenuContextuel->addAction(tr("Réimprimer un document"));
         connect (pAction_ImprimeDoc,        &QAction::triggered,    [=] {ChoixMenuContextuelListePatients("ImprimeAncienDoc");});
@@ -7249,7 +7249,7 @@ void Rufus::ExporteActe(Acte *act)
         return;
     QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + pat->nom() + " " + pat->prenom() + " - " + act->date().toString("d MMM yyyy");
     ImprimeListActes(QList<Acte*>() << act, false, true, nomdossier);
-    QString req = "select idimpression from " TBL_IMPRESSIONS
+    QString req = "select idimpression from " TBL_DOCSEXTERNES
                   " where idpat = " +QString::number(pat->id()) +
                   " and DATE(dateimpression) = '" + m_currentact->date().toString("yyyy-MM-dd") + "' "
                   " and formatdoc = '" IMAGERIE "'";
@@ -9857,7 +9857,7 @@ void Rufus::LireLaCV()
             " AND   UPPER(PatPrenom) LIKE '" + prenomPat.toUpper() + "%'" +
             " AND   PatDDN = '" + zdat + "'";
     FiltreTable(nomPat.toUpper(), prenomPat.toUpper());
-    if (m_patients->patients()->size() == 0)       // aucun patient trouvé
+    if (m_patients->patientstable()->size() == 0)       // aucun patient trouvé
         {
         // si rien trouvé, deuxième recherche sur date de naissance seule
         requete = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe  "
@@ -9995,30 +9995,27 @@ void Rufus::TraiteTCPMessage(QString msg)
     {
         /* le message a le format suivant id du patient à mettre à jour + TCPMSG_MAJPatient) */
         msg.remove(TCPMSG_MAJPatient);
-        if (Datas::I()->patients->patients()->find(msg.toInt()) != Datas::I()->patients->patients()->end())
+        if (Datas::I()->patients->patientstable()->find(msg.toInt()) != Datas::I()->patients->patientstable()->end())
         {
             Patient* pat = Datas::I()->patients->getById(msg.toInt(), Item::LoadDetails);
-            if (Datas::I()->patients->patientstable()->find(msg.toInt()) != Datas::I()->patients->patientstable()->end())
-            {
-                int row = m_listepatientsmodel->findItems(msg).at(0)->row();
-                m_listepatientsmodel->item(row,0)->setText(QString::number(pat->id()));                                   // id                           -> utilisé pour le drop event
-                m_listepatientsmodel->item(row,1)->setText(pat->nom().toUpper() + " " + pat->prenom());                   // Nom + Prénom
-                m_listepatientsmodel->item(row,2)->setText(pat->datedenaissance().toString(tr("dd-MM-yyyy")));            // date de naissance
-                m_listepatientsmodel->item(row,3)->setText(pat->datedenaissance().toString(tr("yyyyMMdd")));              // date de naissance inversée   -> utilisé pour le tri
-                m_listepatientsmodel->item(row,4)->setText(pat->nom());                                                   // Nom                          -> utilisé pour le tri
-                m_listepatientsmodel->item(row,5)->setText(pat->prenom());                                                // Prénom                       -> utilisé pour le tri
-            }
-            if (Datas::I()->patients->patientssaldat()->find(msg.toInt()) != Datas::I()->patients->patientssaldat()->end())
-            {
-                Remplir_SalDat();
-            }
+            int row = m_listepatientsmodel->findItems(msg).at(0)->row();
+            m_listepatientsmodel->item(row,0)->setText(QString::number(pat->id()));                                   // id                           -> utilisé pour le drop event
+            m_listepatientsmodel->item(row,1)->setText(pat->nom().toUpper() + " " + pat->prenom());                   // Nom + Prénom
+            m_listepatientsmodel->item(row,2)->setText(pat->datedenaissance().toString(tr("dd-MM-yyyy")));            // date de naissance
+            m_listepatientsmodel->item(row,3)->setText(pat->datedenaissance().toString(tr("yyyyMMdd")));              // date de naissance inversée   -> utilisé pour le tri
+            m_listepatientsmodel->item(row,4)->setText(pat->nom());                                                   // Nom                          -> utilisé pour le tri
+            m_listepatientsmodel->item(row,5)->setText(pat->prenom());                                                // Prénom                       -> utilisé pour le tri
         }
-        if (Datas::I()->patients->currentpatient()->id() == msg.toInt())
+        else if (Datas::I()->patients->patientssaldat()->find(msg.toInt()) != Datas::I()->patients->patientssaldat()->end())
+        {
+            Remplir_SalDat();
+        }
+        else if (Datas::I()->patients->currentpatient()->id() == msg.toInt())
         {
             Datas::I()->patients->setcurrentpatient(msg.toInt());
             ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(Datas::I()->patients->currentpatient()));
         }
-        if (Datas::I()->patients->dossierpatientaouvrir()->id() == msg.toInt())
+        else if (Datas::I()->patients->dossierpatientaouvrir()->id() == msg.toInt())
         {
             Datas::I()->patients->setdossierpatientaouvrir(msg.toInt());
         }

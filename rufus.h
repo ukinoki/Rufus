@@ -260,7 +260,7 @@ private:
     QMap<int, Patient*>     *m_patientstable                = Q_NULLPTR;
     QMap<int, Patient*>     *m_patientssaldat               = Q_NULLPTR;
     Actes                   *m_listeactes                   = Q_NULLPTR;
-    LignesPaiements         *m_lignespaiements               = Q_NULLPTR;
+    LignesPaiements         *m_lignespaiements              = Q_NULLPTR;
 
     QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
     UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;

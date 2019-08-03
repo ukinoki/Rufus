@@ -44,7 +44,7 @@ void Actes::initListeByPatient(Patient *pat, Item::UPDATE upd, bool quelesid)
         listActes = DataBase::I()->loadIdActesByPat(pat);
     else
         listActes = DataBase::I()->loadActesByPat(pat);
-    addList(m_actes, listActes, upd);
+    addList(m_actes, &listActes, upd);
 }
 
 void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont pour l'instant pas utilisées.

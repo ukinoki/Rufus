@@ -37,6 +37,6 @@ void Cotations::initListeByUser(int iduser)
 {
     QList<Cotation*> listcotations = DataBase::I()->loadCotationsByUser(iduser);
     epurelist(m_cotations, &listcotations);
-    addList(m_cotations, listcotations);
+    addList(m_cotations, &listcotations);
 }
 

@@ -463,7 +463,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                  * Si on est en accès distant, l'enregistrement se fait dans la table Impressions et le contenu du fichier est copié dans le champ blob de la table de la table
                  * _______________________________________________________________________________________________________________________________________________________
                 */
-                int idimpr = db->selectMaxFromTable("idimpression",  TBL_IMPRESSIONS, ok)+1;
+                int idimpr = db->selectMaxFromTable("idimpression",  TBL_DOCSEXTERNES, ok)+1;
 
                 QString NomFileDoc = idPatient + "_"
                         + Typedoc + "_"
@@ -474,7 +474,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
 
                 if (gAcces == Local)
                 {
-                    req = "insert into " TBL_IMPRESSIONS " (idimpression, idUser,  idpat,  TypeDoc,  SousTypeDoc, Titre, Dateimpression,"
+                    req = "insert into " TBL_DOCSEXTERNES " (idimpression, idUser,  idpat,  TypeDoc,  SousTypeDoc, Titre, Dateimpression,"
                                                                " UserEmetteur, lienversfichier, EmisRecu, FormatDoc, idLieu)"
                                                                " values("
                             + QString::number(idimpr) + ", "
@@ -528,7 +528,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             //qDebug() << "xx = " + QString::number(xx) << "x = " + QString::number(xx-DlgMess->width()-50) << "yy = " + QString::number(yy)  << "y = " + QString::number(yy-DlgMess->height()*(k+1))  << "itr = " << QString::number(k);
                         }
                         else
-                            db->SupprRecordFromTable(idimpr, "idimpression", TBL_IMPRESSIONS);
+                            db->SupprRecordFromTable(idimpr, "idimpression", TBL_DOCSEXTERNES);
                     }
                     else
                     {
@@ -588,7 +588,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             //qDebug() << "xx = " + QString::number(xx) << "x = " + QString::number(xx-DlgMess->width()-50) << "yy = " + QString::number(yy)  << "y = " + QString::number(yy-DlgMess->height()*(k+1))  << "itr = " << QString::number(k);
                         }
                         else
-                            db->SupprRecordFromTable(idimpr, "idimpression", TBL_IMPRESSIONS);
+                            db->SupprRecordFromTable(idimpr, "idimpression", TBL_DOCSEXTERNES);
                     }
                     else
                     {

@@ -50,8 +50,9 @@ Motif* Motifs::getMotifFromRaccourci(QString txt)
  */
 void Motifs::initListe()
 {
-    clearAll(m_motifs);
-    addList(m_motifs, DataBase::I()->loadMotifs());
+    QList<Motif*> listmotifs = DataBase::I()->loadMotifs();
+    epurelist(m_motifs, &listmotifs);
+    addList(m_motifs, &listmotifs);
 }
 
 void Motifs::SupprimeMotif(Motif *mf)

@@ -15,65 +15,67 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cls_documents.h"
+#include "cls_impressions.h"
 
 
-Documents::Documents(QObject *parent) : ItemsList(parent)
+Impressions::Impressions(QObject *parent) : ItemsList(parent)
 {
-    m_documents = new QMap<int, Document*>();
+    m_impressions = new QMap<int, Impression*>();
 }
 
-QMap<int, Document *> *Documents::documents() const
+QMap<int, Impression *> *Impressions::impressions() const
 {
-    return m_documents;
+    return m_impressions;
 }
 
-Document* Documents::getById(int id)
+Impression* Impressions::getById(int id)
 {
-    QMap<int, Document*>::const_iterator itdoc = m_documents->find(id);
-    if( itdoc == m_documents->constEnd() )
+    QMap<int, Impression*>::const_iterator itdoc = m_impressions->find(id);
+    if( itdoc == m_impressions->constEnd() )
         return Q_NULLPTR;
     return itdoc.value();
 }
 
 /*!
- * \brief Documents::initListe
- * Charge l'ensemble des documments accessibles à l'utilisateur en cours
- * et les ajoute à la classe Documents
+ * \brief Impressions::initListe
+ * Charge l'ensemble des impressions accessibles à l'utilisateur en cours
+ * et les ajoute à la classe Impressions
  */
-void Documents::initListe()
+void Impressions::initListe()
 {
-    clearAll(m_documents);
-    addList(m_documents, DataBase::I()->loadDocuments());
+    QList<Impression *> listimpressions = DataBase::I()->loadImpressions();
+    epurelist(m_impressions, &listimpressions);
+    addList(m_impressions, &listimpressions);
 }
 
 
-MetaDocuments::MetaDocuments()
+DossiersImpressions::DossiersImpressions()
 {
-    m_metadocuments = new QMap<int, MetaDocument*>();
+    m_dossiersimpressions = new QMap<int, DossierImpression*>();
 }
 
-QMap<int, MetaDocument *> *MetaDocuments::metadocuments() const
+QMap<int, DossierImpression *> *DossiersImpressions::dossiersimpressions() const
 {
-    return m_metadocuments;
+    return m_dossiersimpressions;
 }
 
-MetaDocument* MetaDocuments::getById(int id)
+DossierImpression* DossiersImpressions::getById(int id)
 {
-    QMap<int, MetaDocument*>::const_iterator itdoc = m_metadocuments->find(id);
-    if( itdoc == m_metadocuments->constEnd() )
+    QMap<int, DossierImpression*>::const_iterator itdoc = m_dossiersimpressions->find(id);
+    if( itdoc == m_dossiersimpressions->constEnd() )
         return Q_NULLPTR;
     return itdoc.value();
 }
 
 /*!
- * \brief MetaDocumentss::initListeDocument
- * Charge l'ensemble des documments accessibles à l'utilisateur en cours
- * et les ajoute à la classe Documents
+ * \brief DossiersImpressions::initListeDocument
+ * Charge l'ensemble des dossiers d'impressions accessibles à l'utilisateur en cours
+ * et les ajoute à la classe DossiersImpressions
  */
-void MetaDocuments::initListe()
+void DossiersImpressions::initListe()
 {
-    clearAll(m_metadocuments);
-    addList(m_metadocuments, DataBase::I()->loadMetaDocuments());
+    QList<DossierImpression *> listdossiers = DataBase::I()->loadDossiersImpressions();
+    epurelist(m_dossiersimpressions, &listdossiers);
+    addList(m_dossiersimpressions, &listdossiers);
 }
 

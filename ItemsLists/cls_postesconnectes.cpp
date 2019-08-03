@@ -45,7 +45,7 @@ void PostesConnectes::initListe()
 {
     QList<PosteConnecte*> listpostes = DataBase::I()->loadPostesConnectes();
     epurelist(m_postesconnectes, &listpostes);
-    addList(m_postesconnectes, listpostes);
+    addList(m_postesconnectes, &listpostes);
 }
 
 void PostesConnectes::SupprimeAllPostesConnectes()

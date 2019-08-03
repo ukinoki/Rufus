@@ -15,32 +15,31 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cls_document.h"
-#include <QDebug>
+#include "cls_impression.h"
 
-Document::Document(QJsonObject data, QObject *parent) : Item(parent)
+Impression::Impression(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
 }
 
-int Document::iduser() const                        { return m_iduser; }
-QString Document::texte() const                     { return m_texte; }
-QString Document::resume() const                    { return m_resume; }
-QString Document::conclusion() const                { return m_conclusion; }
-bool Document::ispublic() const                     { return m_public; }
-bool Document::isprescription() const               { return m_prescription; }
-bool Document::iseditable() const                   { return m_editable; }
-bool Document::ismedical() const                    { return m_medical; }
+int Impression::iduser() const                        { return m_iduser; }
+QString Impression::texte() const                     { return m_texte; }
+QString Impression::resume() const                    { return m_resume; }
+QString Impression::conclusion() const                { return m_conclusion; }
+bool Impression::ispublic() const                     { return m_public; }
+bool Impression::isprescription() const               { return m_prescription; }
+bool Impression::iseditable() const                   { return m_editable; }
+bool Impression::ismedical() const                    { return m_medical; }
 
-void Document::settext(QString txt)                 { m_texte = txt; }
-void Document::setresume(QString resume)            { m_resume = resume; }
-void Document::setconclusion(QString conclusion)    { m_conclusion = conclusion; }
-void Document::setpublic(bool pblic)                { m_public = pblic; }
-void Document::setprescription(bool prescription)   { m_prescription = prescription; }
-void Document::seteditable(bool editable)           { m_editable = editable; }
-void Document::setmedical(bool medical)             { m_medical = medical; }
+void Impression::settext(QString txt)                 { m_texte = txt; }
+void Impression::setresume(QString resume)            { m_resume = resume; }
+void Impression::setconclusion(QString conclusion)    { m_conclusion = conclusion; }
+void Impression::setpublic(bool pblic)                { m_public = pblic; }
+void Impression::setprescription(bool prescription)   { m_prescription = prescription; }
+void Impression::seteditable(bool editable)           { m_editable = editable; }
+void Impression::setmedical(bool medical)             { m_medical = medical; }
 
-void Document::setData(QJsonObject data)
+void Impression::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
@@ -59,26 +58,26 @@ void Document::setData(QJsonObject data)
 }
 
 
-MetaDocument::MetaDocument(QJsonObject data, QObject *parent) : Item(parent)
+DossierImpression::DossierImpression(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
 }
 
-int MetaDocument::id() const                { return m_idmetadocument; }
-int MetaDocument::iduser() const            { return m_iduser; }
-QString MetaDocument::texte() const         { return m_textemeta; }
-QString MetaDocument::resume() const        { return m_resumemeta; }
+int DossierImpression::id() const                { return m_dossierimpression; }
+int DossierImpression::iduser() const            { return m_iduser; }
+QString DossierImpression::texte() const         { return m_textedossier; }
+QString DossierImpression::resume() const        { return m_resumedossier; }
 
-bool MetaDocument::ispublic() const         { return m_public; }
+bool DossierImpression::ispublic() const         { return m_public; }
 
-void MetaDocument::setData(QJsonObject data)
+void DossierImpression::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    setDataInt(data, "idmetadocument", m_idmetadocument);
+    setDataInt(data, "idmetadocument", m_dossierimpression);
     setDataInt(data, "iduser", m_iduser);
-    setDataString(data, "texte", m_textemeta);
-    setDataString(data, "resume", m_resumemeta);
+    setDataString(data, "texte", m_textedossier);
+    setDataString(data, "resume", m_resumedossier);
     setDataBool(data, "public", m_public);
 }
 

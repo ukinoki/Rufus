@@ -44,5 +44,5 @@ void TiersPayants::initListe()
 {
     QList<Tiers*> listtiers = DataBase::I()->loadTiersPayants();
     epurelist(m_tierspayants, &listtiers);
-    addList(m_tierspayants, listtiers);
+    addList(m_tierspayants, &listtiers);
 }

@@ -67,14 +67,14 @@ protected:
      * \param m_map le QMap que l'on veut vider
      */
     template <typename T>
-    void addList(QMap<int, T*> *m_map, QList<T*> listitems, Item::UPDATE upd = Item::NoUpdate)
+    void addList(QMap<int, T*> *m_map, QList<T*> *listitems, Item::UPDATE upd = Item::NoUpdate)
     {
-        for(auto it = listitems.begin(); it != listitems.end(); )
+        for(auto it = listitems->begin(); it != listitems->end(); )
         {
             T* item = const_cast<T*>(*it);
             if (!add( m_map, item, upd))
             {
-                it = listitems.erase(it);
+                it = listitems->erase(it);
                 if (item != Q_NULLPTR)
                     delete item;
             }
@@ -84,14 +84,14 @@ protected:
     }
 
     template <typename T>
-    void addList(QMap<QString, T*> *m_map, QList<T*> listitems, Item::UPDATE upd = Item::NoUpdate)
+    void addList(QMap<QString, T*> *m_map, QList<T*> *listitems, Item::UPDATE upd = Item::NoUpdate)
     {
-        for(auto it = listitems.begin(); it != listitems.end(); )
+        for(auto it = listitems->begin(); it != listitems->end(); )
         {
             T* item = const_cast<T*>(*it);
             if (!add( m_map, item, upd))
             {
-                it = listitems.erase(it);
+                it = listitems->erase(it);
                 if (item != Q_NULLPTR)
                     delete item;
             }
@@ -281,7 +281,7 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
         }
         if (dynamic_cast<DocExterne*>(item) != Q_NULLPTR)
         {
-            table = TBL_IMPRESSIONS;
+            table = TBL_DOCSEXTERNES;
             idname = CP_IDIMPRESSION_IMPRESSIONS;
             loop = true;
             break;

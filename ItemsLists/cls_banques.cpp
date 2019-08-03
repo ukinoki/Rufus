@@ -36,7 +36,7 @@ void Banques::initListe()
 {
     QList<Banque*> listbanques = DataBase::I()->loadBanques();
     epurelist(m_banques, &listbanques);
-    addList(m_banques, DataBase::I()->loadBanques());
+    addList(m_banques, &listbanques);
 }
 
 Banque* Banques::getById(int id)

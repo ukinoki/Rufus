@@ -874,7 +874,7 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
     if (pat == Q_NULLPTR)
         return QList<DocExterne*>();
     QString req = "Select idImpression, TypeDoc, SousTypeDoc, Titre, Dateimpression,"
-                  " compression, lienversfichier, formatdoc, Importance from " TBL_IMPRESSIONS
+                  " compression, lienversfichier, formatdoc, Importance from " TBL_DOCSEXTERNES
                   " where idpat = " + QString::number(pat->id());
 #ifdef Q_OS_LINUX
     req += " and formatdoc <> '" VIDEO "'";
@@ -911,7 +911,7 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
     QString req = "Select idImpression, idUser, idPat, TypeDoc, SousTypeDoc,"
                   " Titre, TextEntete, TextCorps, TextOrigine, TextPied,"
                   " Dateimpression, compression, lienversfichier, ALD, UserEmetteur,"
-                  " formatdoc, Importance, idRefraction from " TBL_IMPRESSIONS
+                  " formatdoc, Importance, idRefraction from " TBL_DOCSEXTERNES
                   " where idimpression = " + QString::number(idDoc);
     QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)
@@ -944,18 +944,18 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
 }
 
 /*
- * Documents
+ * Impressions
 */
-QList<Document*> DataBase::loadDocuments()
+QList<Impression*> DataBase::loadImpressions()
 {
-    QList<Document*> documents;
+    QList<Impression*> impressions;
     QString req = "Select idDocument, TextDocument, ResumeDocument, ConclusionDocument, idUser,"
-                  " DocPublic, Prescription, Editable, Medical from " TBL_COURRIERS
+                  " DocPublic, Prescription, Editable, Medical from " TBL_IMPRESSIONS
                   " WHERE (idUser = " + QString::number(getUserConnected()->id()) + " Or (DocPublic = 1 and iduser <> " + QString::number(getUserConnected()->id()) + "))"
                   " ORDER BY ResumeDocument";
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
-        return documents;
+        return impressions;
     for (int i=0; i<doclist.size(); ++i)
     {
         QJsonObject jData{};
@@ -968,35 +968,35 @@ QList<Document*> DataBase::loadDocuments()
         jData["prescription"] = (doclist.at(i).at(6).toInt()==1);
         jData["editable"] = (doclist.at(i).at(7).toInt()==1);
         jData["medical"] = (doclist.at(i).at(8).toInt()==1);
-        Document *doc = new Document(jData);
+        Impression *doc = new Impression(jData);
         if (doc != Q_NULLPTR)
-            documents << doc;
+            impressions << doc;
     }
-    return documents;
+    return impressions;
 }
 
 /*
- * MetaDocuments
+ * Dossiers impression
 */
-QList<MetaDocument*> DataBase::loadMetaDocuments()
+QList<DossierImpression*> DataBase::loadDossiersImpressions()
 {
-    QList<MetaDocument*> metadocuments;
+    QList<DossierImpression*> dossiers;
     QString     req =  "SELECT ResumeMetaDocument, idMetaDocument, idUser, Public, TextMetaDocument"
-                       " FROM "  TBL_METADOCUMENTS
+                       " FROM "  TBL_DOSSIERSIMPRESSIONS
                        " WHERE idUser = " + QString::number(getUserConnected()->id());
                 req += " UNION \n";
-                req += "select ResumeMetaDocument, idMetaDocument, idUser, Public, TextMetaDocument from " TBL_METADOCUMENTS
+                req += "select ResumeMetaDocument, idMetaDocument, idUser, Public, TextMetaDocument from " TBL_DOSSIERSIMPRESSIONS
                        " where idMetaDocument not in\n"
-                       " (select met.idMetaDocument from " TBL_METADOCUMENTS " as met, "
+                       " (select met.idMetaDocument from " TBL_DOSSIERSIMPRESSIONS " as met, "
                        TBL_JOINTURESDOCS " as joi, "
-                       TBL_COURRIERS " as doc\n"
+                       TBL_IMPRESSIONS " as doc\n"
                        " where joi.idmetadocument = met.idMetaDocument\n"
                        " and joi.idDocument = doc.iddocument\n"
                        " and doc.docpublic is null)\n";
                 req += " ORDER BY ResumeMetaDocument;";
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
-        return metadocuments;
+        return dossiers;
     for (int i=0; i<doclist.size(); ++i)
     {
         QJsonObject jData{};
@@ -1005,11 +1005,11 @@ QList<MetaDocument*> DataBase::loadMetaDocuments()
         jData["resume"] = doclist.at(i).at(0).toString();
         jData["iduser"] = doclist.at(i).at(2).toInt();
         jData["public"] = (doclist.at(i).at(3).toInt()==1);
-        MetaDocument *metadoc = new MetaDocument(jData);
+        DossierImpression *metadoc = new DossierImpression(jData);
         if (metadoc != Q_NULLPTR)
-            metadocuments << metadoc;
+            dossiers << metadoc;
     }
-    return metadocuments;
+    return dossiers;
 }
 
 
@@ -1772,7 +1772,6 @@ QList<PatientEnCours *> DataBase::loadPatientsenCoursAll()
     {
         QJsonObject jData = loadPatientEnCoursData(patlist.at(i));
         PatientEnCours *patient = new PatientEnCours(jData);
-
         if (patient != Q_NULLPTR)
             listpat << patient;
     }

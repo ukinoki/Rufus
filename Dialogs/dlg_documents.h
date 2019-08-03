@@ -95,8 +95,8 @@ private:
     void                        EnableLines();
     void                        EnableOKPushButton(UpCheckBox *Check = Q_NULLPTR);
     void                        FiltreListe();
-    Document*                   getDocumentFromRow(int row);
-    MetaDocument*               getMetaDocumentFromRow(int row);
+    Impression*                   getDocumentFromRow(int row);
+    DossierImpression*               getMetaDocumentFromRow(int row);
     void                        InsertDocument(int row);
     void                        InsertDossier(int row);
     void                        LineSelect(UpTableWidget *table, int row);
@@ -105,8 +105,8 @@ private:
     void                        MetAJour(QString texte, bool pourVisu = true);
     void                        OrdoAvecDupli(bool);
     void                        Remplir_TableWidget();
-    void                        SetDocumentToRow(Document *doc, int row);
-    void                        SetMetaDocumentToRow(MetaDocument *dossier, int row);
+    void                        SetDocumentToRow(Impression *doc, int row);
+    void                        SetMetaDocumentToRow(DossierImpression *dossier, int row);
     void                        SupprimmDocument(int row);
     void                        SupprimmDossier(int row);
     void                        TriDocupTableWidget();

@@ -60,7 +60,7 @@ void Depenses::initListeByUser(int iduser)
 {
     clearAll(m_depenses);
     QList<Depense*> listdepenses = DataBase::I()->loadDepensesByUser(iduser);
-    addList(m_depenses, listdepenses);
+    addList(m_depenses, &listdepenses);
 }
 
 void Depenses::SupprimeDepense(Depense *dep)

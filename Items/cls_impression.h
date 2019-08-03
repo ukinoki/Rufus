@@ -15,12 +15,12 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLS_DOCUMENT_H
-#define CLS_DOCUMENT_H
+#ifndef CLS_IMPRESSION_H
+#define CLS_IMPRESSION_H
 
 #include "cls_item.h"
 
-class Document : public Item
+class Impression : public Item
 {
 
 private:
@@ -29,7 +29,7 @@ private:
     bool m_public, m_prescription, m_editable, m_medical;
 
 public:
-    explicit Document(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit Impression(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
     int iduser() const;
@@ -53,15 +53,15 @@ public:
     void seteditable(bool editable);
 };
 
-class MetaDocument : public Item
+class DossierImpression : public Item
 {
 private:
-    int m_idmetadocument, m_iduser;
-    QString m_textemeta, m_resumemeta;
+    int m_dossierimpression, m_iduser;
+    QString m_textedossier, m_resumedossier;
     bool m_public;
 
 public:
-    explicit MetaDocument(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    explicit DossierImpression(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
     int id() const;
@@ -71,4 +71,4 @@ public:
     bool ispublic() const;
 };
 
-#endif // CLS_DOCUMENT_H
+#endif // CLS_IMPRESSION_H

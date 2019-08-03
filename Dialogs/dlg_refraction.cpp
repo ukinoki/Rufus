@@ -691,16 +691,16 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             objUpSpin->selectAll();
             return false;
         }
-        UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
-        if (box != Q_NULLPTR){
-            //box->setStyleSheet(STYLE_UPGROUBOXACTIVE);
-            return false;
-        }
+//        UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
+//        if (box != Q_NULLPTR){
+//            box->setStyleSheet(STYLE_UPGROUBOXACTIVE);
+//            return false;
+//        }
     }
 
     if (event->type() == QEvent::FocusOut )
     {
-        UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
+//        UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
 //        if (box!=Q_NULLPTR)
 //            box->setStyleSheet(STYLE_UPGROUBOXINACTIVE);
         if (obj == ui->CylindreOD)          if (ui->CylindreOD->value() == 0.0)   ui->AxeCylindreOD->setValue(0);
@@ -1695,12 +1695,12 @@ void dlg_refraction::InscriptRefraction()
     if (gMode == Refraction::Prescription && a)
     {
         bool ok;
-        req = "select max(idimpression) from " TBL_IMPRESSIONS " where idpat = " + QString::number(Datas::I()->patients->currentpatient()->id());
+        req = "select max(idimpression) from " TBL_DOCSEXTERNES " where idpat = " + QString::number(Datas::I()->patients->currentpatient()->id());
         QVariantList imprdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (ok && imprdata.size()>0)
         {
             int idimp = imprdata.at(0).toInt();
-            db->StandardSQL("update " TBL_IMPRESSIONS " set idRefraction = " + QString::number(gidRefraction) + " where idimpression = " + QString::number(idimp));
+            db->StandardSQL("update " TBL_DOCSEXTERNES " set idRefraction = " + QString::number(gidRefraction) + " where idimpression = " + QString::number(idimp));
         }
     }
 }

@@ -23,13 +23,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_itemslist.h"
 
  /*! La classe patients initialise
-  * une QMap de patients \variable m_patients
-  * et 2 autres QMap de patients
-    * \variable m_patientstable qui correspond à    la liste des patients affichés dans la table ui->PatientsListeTableView de rufus.ui
-    * \variable m_patientssaldat qui correspond à   la liste de tous les patients en cours, ceux qui sont inscrits dans la table rufus.salledattente
-    * chaque patient d'une de ces QMap est aussi inscrit dans m_patients
-  * le patient en cours d'examen sur le poste, \variable m_currentpatient
-  * le dossier du patient à ouvrir \variable m_dossierpatientaouvrir pour les recherches sur des patients qui ne sont pas le patient courant, par le biais des menus contextuels
+  * 2 QMap de patients
+    * la liste des patients affichés dans la table ui->PatientsListeTableView de rufus.ui                                           \variable m_patientstable
+    * la liste de tous les patients en cours, ceux qui sont inscrits dans la table rufus.salledattente                              \variable m_patientssaldat
+  * le patient en cours d'examen sur le poste,                                                                                      \variable m_currentpatient
+  * le dossier à ouvrir pour les recherches sur des patients qui ne sont pas le patient courant, par le biais des menus contextuels \variable m_dossierpatientaouvrir
   */
 
 class Patients : public ItemsList
@@ -57,10 +55,8 @@ public:
                                                                                              */
     bool isfull();                                                                          /*! la liste contient tous les patients de la base */
     void loadAll(Patient *pat, Item::UPDATE upd = Item::NoUpdate);                          /*! charge toutes les données d'un  patient si ce n'est pas le cas
-                                                                                             * \param upd force ou non la recharge depuis la BDD si elles sont déjà chargées
+                                                                                             * \param upd -> force ou non la recharge depuis la BDD si elles sont déjà chargées
                                                                                              */
-    void reloadMedicalData(Patient* pat);                                                   //!> recharge les données médicales d'un patient
-    void reloadSocialData(Patient* pat);                                                    //!> recharge les données sociales d'un patient
 
     void initListeTable(QString nom = "", QString prenom = "", bool filtre = false);        /*! crée la liste de patients de la table
                                                                                             * \param patnom filtrer sur le nom de patient
@@ -83,8 +79,6 @@ private:
     QMap<int, Patient*> *m_patientssaldat;                                                  //!< la liste des patients en salle d'attente
     Patient *m_currentpatient           = Q_NULLPTR;                                        //!> le patient dont le dossier est ouvert
     Patient *m_dossierpatientaouvrir    = Q_NULLPTR;                                        //!> le dossier de patient à ouvrir
-    void completemaptable (QList<Patient*> listpatients,                                    /*! complète la QMap \variable m_patientstable à partir des fonctions initListeTable et initListeByDDN */
-                           QMap<int, Patient *> *mapacompleter);                            /*! \param la map dans laquelle on veut ajouter les patients */
 
     bool m_full;                                                                            //! la liste contient tous les patients de la base
 

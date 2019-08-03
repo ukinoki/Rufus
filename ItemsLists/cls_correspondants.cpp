@@ -100,7 +100,7 @@ void Correspondants::initListe(bool all)
     else
         listcorrespondants = DataBase::I()->loadCorrespondants();
     epurelist(m_correspondants, &listcorrespondants);
-    addList(m_correspondants, listcorrespondants);
+    addList(m_correspondants, &listcorrespondants);
 }
 
 QStringList Correspondants::autresprofessions()

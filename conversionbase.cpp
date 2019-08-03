@@ -63,7 +63,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
         db->StandardSQL("delete from " TBL_RECETTES);
         db->StandardSQL("delete from " TBL_CORRESPONDANTS);
         db->StandardSQL("delete from " TBL_REFRACTIONS);
-        db->StandardSQL("delete from " TBL_IMPRESSIONS);
+        db->StandardSQL("delete from " TBL_DOCSEXTERNES);
 
         QDate DDN,DateCreation;
         QString listpat, insertreq, listsocpat, listrmppat;
@@ -153,7 +153,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             if (ALDQ) ALD100 = "1";
             listbinds["ald"] = ALD100;
 
-            db->InsertSQLByBinds(TBL_IMPRESSIONS, listbinds, "problème pour enregistrer une prescription du patient " + nom.toUpper() + " " + prenom);
+            db->InsertSQLByBinds(TBL_DOCSEXTERNES, listbinds, "problème pour enregistrer une prescription du patient " + nom.toUpper() + " " + prenom);
             if (b==100)
                 b=0;
             if (b==0)
@@ -165,7 +165,7 @@ conversionbase::conversionbase(Procedures *proc, QString BaseAConvertir, QObject
             }
             b+=1;
         }
-        dlg_message("table " TBL_IMPRESSIONS " importée",1000);
+        dlg_message("table " TBL_DOCSEXTERNES " importée",1000);
 
         // Refractions
         dlg_message("importation des réfractions",1000);

@@ -3,6 +3,7 @@
 #--------------------
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/cls_correspondants.cpp \
+    $$PWD/cls_impressions.cpp \
         $$PWD/cls_patients.cpp \
     $$PWD/cls_postesconnectes.cpp \
     $$PWD/cls_refractions.cpp \
@@ -16,7 +17,6 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_motifs.cpp \
     $$PWD/cls_itemslist.cpp \
     $$PWD/cls_cotations.cpp \
-    $$PWD/cls_documents.cpp \
     $$PWD/cls_actes.cpp \
     $$PWD/cls_sites.cpp \
     $$PWD/cls_recettes.cpp \
@@ -26,6 +26,7 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_lignespaiements.cpp
 
 HEADERS += $$PWD/cls_correspondants.h \
+    $$PWD/cls_impressions.h \
         $$PWD/cls_patients.h \
     $$PWD/cls_postesconnectes.h \
     $$PWD/cls_refractions.h \
@@ -39,7 +40,6 @@ HEADERS += $$PWD/cls_correspondants.h \
     $$PWD/cls_motifs.h \
     $$PWD/cls_itemslist.h \
     $$PWD/cls_cotations.h \
-    $$PWD/cls_documents.h \
     $$PWD/cls_actes.h \
     $$PWD/cls_sites.h \
     $$PWD/cls_recettes.h \

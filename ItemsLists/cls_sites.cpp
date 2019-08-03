@@ -59,7 +59,7 @@ void Sites::initListe()
 {
     QList<Site*> listsites = DataBase::I()->loadSitesAll();
     epurelist(m_sites, &listsites);
-    addList(m_sites, listsites);
+    addList(m_sites, &listsites);
 }
 
 /*!

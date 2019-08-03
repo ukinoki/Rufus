@@ -15,40 +15,40 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CLS_DOCUMENTS_H
-#define CLS_DOCUMENTS_H
+#ifndef CLS_IMPRESSIONS_H
+#define CLS_IMPRESSIONS_H
 
 #include "database.h"
-#include "cls_document.h"
+#include "cls_impression.h"
 #include "cls_itemslist.h"
 
-class Documents : public ItemsList
+class Impressions : public ItemsList
 {
 private:
-    QMap<int, Document*> *m_documents = Q_NULLPTR;      //!< la liste des Documents
+    QMap<int, Impression*> *m_impressions = Q_NULLPTR;      //!< la liste des impressions
 
 public:
-    explicit Documents(QObject *parent = Q_NULLPTR);
+    explicit Impressions(QObject *parent = Q_NULLPTR);
 
-    QMap<int, Document *> *documents() const;
+    QMap<int, Impression *> *impressions() const;
 
-    Document* getById(int id);
+    Impression* getById(int id);
     void initListe();
 };
 
-class MetaDocuments : public ItemsList
+class DossiersImpressions : public ItemsList
 {
 private:
-    QMap<int, MetaDocument*> *m_metadocuments = Q_NULLPTR;      //!< la liste des metadocuments
+    QMap<int, DossierImpression*> *m_dossiersimpressions = Q_NULLPTR;      //!< la liste des dossiers d'impressions
 
 public:
-    explicit MetaDocuments();
+    explicit DossiersImpressions();
 
-    QMap<int, MetaDocument *> *metadocuments() const;
+    QMap<int, DossierImpression *> *dossiersimpressions() const;
 
-    MetaDocument* getById(int id);
+    DossierImpression* getById(int id);
     void initListe();
 };
 
 
-#endif // CLS_DOCUMENTS_H
+#endif // CLS_IMPRESSIONS_H

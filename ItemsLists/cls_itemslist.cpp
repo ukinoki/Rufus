@@ -33,7 +33,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         doc = dynamic_cast<DocExterne*>(item);
         if (doc != Q_NULLPTR)
         {
-            table = TBL_IMPRESSIONS;
+            table = TBL_DOCSEXTERNES;
             loop = true;
             break;
         }
@@ -111,7 +111,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         return false;
     }
     bool ok = false;
-    if (table == TBL_IMPRESSIONS)
+    if (table == TBL_DOCSEXTERNES)
     {
         ok = true;
         clause = CP_IDIMPRESSION_IMPRESSIONS " = " + QString::number(item->id());

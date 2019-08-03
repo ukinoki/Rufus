@@ -269,7 +269,7 @@ void dlg_docsvideo::ValideFiche()
 
     QHash<QString, QVariant> listbinds;
     bool ok;
-    int idimpr =  db->selectMaxFromTable(CP_IDIMPRESSION_IMPRESSIONS, TBL_IMPRESSIONS, ok) + 1;
+    int idimpr =  db->selectMaxFromTable(CP_IDIMPRESSION_IMPRESSIONS, TBL_DOCSEXTERNES, ok) + 1;
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
     listbinds[CP_IDPAT_IMPRESSIONS] =            m_currentpatient->id();

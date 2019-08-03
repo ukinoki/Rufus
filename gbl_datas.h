@@ -35,7 +35,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_tierspayants.h"
 #include "cls_users.h"
 #include "cls_postesconnectes.h"
-#include "cls_documents.h"
+#include "cls_impressions.h"
 #include "cls_refractions.h"
 #include "cls_villes.h"
 #include "cls_sites.h"
@@ -55,14 +55,14 @@ public:
     Site *sitedetravail;
     Actes *actes;                       //!< la liste d'actes pour un patient
     Banques *banques;                   //!< toutes les banques
-    Documents *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
+    Impressions *documents;               //!< les documents émis (ordonnances, certificats, docs administratifs...etc...)
     Comptes *comptes;                   //!< tous les comptes bancaires d'un utilisateur
     Correspondants *correspondants;     //!< Les correspondants
     Cotations *cotations;               //!< Les cotations
     Depenses *depenses;                 //!< les depenses pour un user et une  année donnée
     DocsExternes *docsexternes;         //!< Les documents externes
     LignesPaiements *lignespaiements;   //!< Les lignes de paiement des actes d'un patient
-    MetaDocuments *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
+    DossiersImpressions *metadocuments;       //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
     Motifs *motifs;                     //!< tous les motifs d'actes
     PaiementsTiers *paiementstiers;     //!< tous les paiements par tiers payants
     Patients *patients;                 //!> tous les patients en mémoire

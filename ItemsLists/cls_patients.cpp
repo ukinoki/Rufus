@@ -102,37 +102,14 @@ void Patients::loadAll(Patient *pat, Item::UPDATE upd)
         add (m_patients, pat);
 }
 
-void Patients::reloadMedicalData(Patient *pat)
-{
-    if (pat == Q_NULLPTR)
-        return;
-    QJsonObject jData{};
-    jData[CP_IDPAT_PATIENTS] = pat->id();
-    bool ok;
-    DataBase::I()->loadMedicalDataPatient(jData, ok);
-    if( !jData.isEmpty() )
-        pat->setMedicalData(jData);
-}
-
-void Patients::reloadSocialData(Patient *pat)
-{
-    if (pat == Q_NULLPTR)
-        return;
-    QJsonObject jData{};
-    jData[CP_IDPAT_PATIENTS] = pat->id();
-    bool ok;
-    DataBase::I()->loadSocialDataPatient(jData, ok);
-    if( !jData.isEmpty() )
-        pat->setSocialData(jData);
-}
-
 void Patients::initListeSalDat(QList<int> listidaajouter)
 {
     /*! on recrée la liste des patients en cours
      */
     QList<Patient*> listpatients = DataBase::I()->loadPatientsByListId(listidaajouter);
-    completemaptable(listpatients, m_patientssaldat);
- }
+    epurelist(m_patientssaldat, &listpatients);
+    addList(m_patientssaldat, &listpatients, Item::ForceUpdate);
+}
 
 void Patients::initListeTable(QString nom, QString prenom, bool filtre)
 {
@@ -140,72 +117,17 @@ void Patients::initListeTable(QString nom, QString prenom, bool filtre)
      */
     QList<Patient*> listpatients = DataBase::I()->loadPatientsAll(nom, prenom, filtre);
     m_full = (nom == "" && prenom == "");
-    completemaptable(listpatients, m_patientstable);
+    epurelist(m_patientstable, &listpatients);
+    addList(m_patientstable, &listpatients, Item::ForceUpdate);
 }
 
 void Patients::initListeByDDN(QDate DDN)
 {
     QList<Patient*> listpatients = (DDN == QDate()? DataBase::I()->loadPatientsAll() : DataBase::I()->loadPatientsByDDN(DDN));
     m_full = (DDN == QDate());
-    completemaptable(listpatients, m_patientstable);
+    epurelist(m_patientstable, &listpatients);
+    addList(m_patientstable, &listpatients, Item::ForceUpdate);
 }
-
-void Patients::completemaptable (QList<Patient*> listpatients, QMap<int, Patient*> *mapacompleter)
-{
-    QMap<int, Patient*> *mapaverifier = (mapacompleter == m_patientssaldat? m_patientstable : m_patientssaldat);
-    QList<int> listidaajouter;
-    for (int i=0; i<listpatients.size(); ++i)
-        listidaajouter << listpatients.at(i)->id();
-
-    /*! on supprime de la liste globale de patients et on delete chaque patient
-     * qui n'est ni dans la nouvelle liste
-     * ni dans la liste à vérifier
-     */
-    for (auto it = m_patients->begin(); it != m_patients->end();)
-    {
-        if (!listidaajouter.contains(it.key())
-          && mapaverifier->find(it.key()) == mapaverifier->constEnd())
-        {
-            Patient *pat = const_cast<Patient*>(it.value());
-            if (pat != Q_NULLPTR)
-                delete pat;
-            it = m_patients->erase(it);
-        }
-        else
-            ++it;
-    }
-
-    /*! on ajoute les patients dans la liste des patients */
-    for(auto itz = listpatients.begin(); itz != listpatients.end(); ++itz)
-    {
-        Patient* pat = const_cast<Patient*>(*itz);
-        add( m_patients, pat, Item::ForceUpdate );
-    }
-
-    /*! on supprime de l'ancienne liste des patients de la table tous les patients qui ne sont pas dans la nouvelle liste
-     */
-    for (auto ity = mapacompleter->begin(); ity != mapacompleter->end();)
-    {
-        if (!listidaajouter.contains(ity.key()))
-            ity = mapacompleter->erase(ity);
-        else
-            ++ ity;
-    }
-    /*! on ajoute les patients dans la liste des patients de la table*/
-    for(auto itx = listpatients.begin(); itx != listpatients.end();)
-    {
-        Patient* pat = const_cast<Patient*>(*itx);
-        if (!add( mapacompleter, pat, Item::ForceUpdate ))
-        {
-            if (pat != Q_NULLPTR)
-                delete pat;
-            itx = listpatients.erase(itx);
-        }
-        else
-             ++itx;
-    }
-}
-
 
 void Patients::SupprimePatient(Patient *pat)
 {
@@ -217,7 +139,7 @@ void Patients::SupprimePatient(Patient *pat)
     //!. Suppression des actes
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_ACTES);
     //!. Suppression des documents émis
-    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_IMPRESSIONS);
+    DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_DOCSEXTERNES);
     //!. Suppression des mots cles utilisés
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_MOTSCLESJOINTURES);
 

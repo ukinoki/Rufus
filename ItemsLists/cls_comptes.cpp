@@ -61,7 +61,7 @@ void Comptes::initListe()
 {
     QList<Compte*> listcomptes = DataBase::I()->loadComptesAll();
     epurelist(m_comptes, &listcomptes);
-    addList(m_comptes, listcomptes);
+    addList(m_comptes, &listcomptes);
 }
 
 void Comptes::SupprimeCompte(Compte *cpt)
