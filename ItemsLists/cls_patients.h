@@ -69,10 +69,10 @@ public:
     void initListeByDDN(QDate DDN = QDate());                                               /*! crée une liste de tous les patients pour une date de naissance
                                                                                             * \param DDN la date de naissance */
 private:
-    /*! > il y a 3 listes de patients:
+    /*! > il y a 2 listes de patients:
      * la liste des patients de la table de rechercher
      * la liste des patients en cours de la table salle d'attente
-     * les 2 patients actifs sur le poste: patient en cours d'examen et patient à ouvir (menu contextuel de la table)
+     * et les 2 patients actifs sur le poste: patient en cours d'examen et patient à ouvir (menu contextuel de la table)
     */
     QMap<int, Patient*> *m_patients;                                                        //!< tous les patients actuellement en mémoire
     QMap<int, Patient*> *m_patientstable;                                                   //!< la liste des patients de la table listepatients
@@ -84,7 +84,6 @@ private:
 
 
 public:
-
 
     //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
 
@@ -101,8 +100,6 @@ public:
 
     //!< action sur toutes les données
     static void    updatePatient(Patient* pat);                                                    //!> met à jour les datas d'un patient à partir des données enregistrées dans la base
-
-
 };
 
 #endif // CLS_PATIENTS_H

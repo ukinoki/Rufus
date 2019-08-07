@@ -31,7 +31,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     {
         m_correspondant  = cor;
         if (!m_correspondant->isallloaded())
-            Datas::I()->correspondants->loadAll(m_correspondant);
+            Datas::I()->correspondants->loadAllData(m_correspondant);
     }
     gMode               = mode;
     OnlyDoctors         = quelesmedecins;
@@ -262,6 +262,8 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         if (ok && cordata.size()>0)
             idcor = cordata.at(0).toInt();
         db->unlocktables();
+        m_correspondant = new Correspondant();
+        m_correspondant->setid(idcor);
     }
     else if (gMode == Modification)
     {
@@ -292,8 +294,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         db->StandardSQL(Modifrequete, tr("Impossible de modifier le dossier"));
     }
     modif = true;
-    Datas::I()->correspondants->initListe();
-    m_correspondant = Datas::I()->correspondants->getById(idcor, Item::LoadDetails);
+    Datas::I()->correspondants->loadAllData(m_correspondant);
     Flags::I()->MAJflagCorrespondants();
     accept();
 }

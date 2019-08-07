@@ -154,7 +154,6 @@ private:
     void                    MajDonneesOphtaPatient();
     void                    MasquerObjetsOeilDecoche();
     QString                 QuelleDistance();
-    QString                 QuelleMesure();
     QString                 QuelleMonture();
     QString                 QuelsYeux();
     QString                 QuelsVerres();

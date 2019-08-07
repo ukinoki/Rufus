@@ -49,7 +49,7 @@ void Refractions::initListebyPatId(int id)
 {
     QList<Refraction*> listrefractions = DataBase::I()->loadRefractionByPatId(id);
     epurelist(m_refractions, &listrefractions);
-    addList(m_refractions, &listrefractions);
+    addList(m_refractions, &listrefractions, Item::ForceUpdate);
 }
 
 

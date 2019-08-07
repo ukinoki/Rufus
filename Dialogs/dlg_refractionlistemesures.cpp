@@ -156,6 +156,8 @@ void dlg_listemesures::DetruireLaMesure(Refraction *ref)
     case Refraction::Prescription:
         mesure = "O";
         break;
+    default:
+        break;
     }
     if (mesure != "")
     {

@@ -1568,7 +1568,10 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             ui->MontantlineEdit->setText(Montant);
             break;
         }
+        break;
     }
+    default:
+        break;
     } // fin switch
 
     Slot_CalculTotalDetails();
@@ -2146,8 +2149,6 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
         ui->OKupPushButton->setEnabled(true);
         break;
     }
-    default:
-        break;
     }
     if (!(ui->VirementradioButton->isChecked() || ui->CarteCreditradioButton->isChecked()))
         ui->CommissionlineEdit->setText("0,00");

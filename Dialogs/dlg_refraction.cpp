@@ -606,7 +606,7 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
     {
         // On vérifie dans Refractions s'il existe un enregistrement identique et si oui, on l'écrase
         Cycloplegie dilat = (ui->CycloplegieCheckBox->isChecked()? Dilatation : NoDilatation);
-        int IDMesure = LectureMesure(Aujourdhui, ConvertMesure(QuelleMesure()), dilat, 0, false);
+        int IDMesure = LectureMesure(Aujourdhui, gMode, dilat, 0, false);
         if (IDMesure > 0)
             // suppression de la mesure dans table Refraction
             DetruireLaMesure(Datas::I()->refractions->getById(IDMesure));
@@ -1318,7 +1318,7 @@ Refraction::Mesure dlg_refraction::ConvertMesure(QString Mesure)
     return  Refraction::NoMesure;
 }
 
-QString dlg_refraction::ConvertMesure( Refraction::Mesure Mesure)
+QString dlg_refraction::ConvertMesure(Refraction::Mesure Mesure)
 {
     switch (Mesure) {
     case Refraction::Fronto:       return "P";
@@ -1732,7 +1732,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
 {
    QHash<QString, QVariant> listbinds;
    listbinds["idPat"]           = Datas::I()->patients->currentpatient()->id();
-   listbinds["QuelleMesure"]    = QuelleMesure();
+   listbinds["QuelleMesure"]    = ConvertMesure(gMode);
    listbinds["QuelleDistance"]  = QuelleDistance();
    if ((ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0) && ui->ODCheckBox->isChecked()) // 16-07-2014
    {
@@ -1749,7 +1749,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
    if (ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0 || // 16-07-2014
        ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0)   // 16-07-2014
    {
-       listbinds["OrigineK"]     = QuelleMesure();
+       listbinds["OrigineK"]     = ConvertMesure(gMode);
        listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    if (ui->ODCheckBox->isChecked())
@@ -1796,10 +1796,10 @@ bool dlg_refraction::InsertRefraction()
     listbinds["idPat"]              = Datas::I()->patients->currentpatient()->id();
     listbinds["idActe"]             = m_currentacte->id();
     listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
-    listbinds["QuelleMesure"]       = QuelleMesure();
-    if(QuelleMesure() != "A")
+    listbinds["QuelleMesure"]       = ConvertMesure(gMode);
+    if(gMode != Refraction::Autoref)
         listbinds["QuelleDistance"]  = QuelleDistance();
-    if(QuelleMesure() == "A" || QuelleMesure() == "R")
+    if(gMode == Refraction::Autoref || gMode == Refraction::Acuite)
         listbinds["Cycloplegie"]    = ui->CycloplegieCheckBox->isChecked()? 1 : 0;
 
     listbinds["ODcoche"]            = ui->ODCheckBox->isChecked()? 1 : 0;
@@ -1860,7 +1860,7 @@ bool dlg_refraction::InsertRefraction()
         listbinds["RyserOG"]            = ui->RyserSpinBox->value();
     listbinds["FormuleOG"]              = CalculFormule_OG();
 
-    if(QuelleMesure() == "O")
+    if(gMode == Refraction::Prescription)
     {
         listbinds["CommentaireOrdoLunettes"]    = CalculCommentaire();
         listbinds["QuelsVerres"]                = QuelsVerres();
@@ -1994,7 +1994,7 @@ void dlg_refraction::MajDonneesOphtaPatient()
     bool ok;
     QString MAJrequete = "SELECT   idPat FROM " TBL_DONNEES_OPHTA_PATIENTS
               " WHERE   (idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) +
-              " AND QuelleMesure = '" + QuelleMesure() + "')";
+              " AND QuelleMesure = '" + ConvertMesure(gMode) + "')";
     QList<QVariantList> MAJDonneesOphtalist = db->StandardSelectSQL(MAJrequete, ok, tr("Impossible de se connecter à la table des Donnees biométriques!"));
     if (!ok)
         return;
@@ -2073,14 +2073,6 @@ void dlg_refraction::PrefixePlus(QDoubleSpinBox *leDouble)
 // -------------------------------------------------------------------------------------
 // Retourne les valeurs des CheckBox
 //--------------------------------------------------------------------------------------
-QString dlg_refraction::QuelleMesure()
-{
-    if (gMode == Refraction::Fronto)          return "P";
-    if (gMode == Refraction::Autoref)        return "A";
-    if (gMode == Refraction::Acuite)     return "R";
-    if (gMode == Refraction::Prescription)   return "O";
-    return "";
-}
 QString dlg_refraction::QuelleDistance()
 {
     if (ui->VLRadioButton->isChecked()) return "L";
@@ -2152,9 +2144,7 @@ void    dlg_refraction::QuitteAddVP(UpDoubleSpinBox *obj)
 //---------------------------------------------------------------------------------
 void dlg_refraction::RechercheMesureEnCours()
 {
-    bool ok;
-    QString Reponse ="";
-
+    Refraction::Mesure Reponse = Refraction::NoMesure;
     if (Datas::I()->refractions->refractions()->isEmpty())
     {
         gMode = Refraction::Fronto;
@@ -2171,58 +2161,41 @@ void dlg_refraction::RechercheMesureEnCours()
     }
 
     // recherche d'une mesure du jour
-    bool mesuretrouvee = false;
-    QString requete = "SELECT idActe, QuelleMesure FROM " TBL_REFRACTIONS   // recherche d'une mesure pour le jour en cours
-              " WHERE DateRefraction = '" + QDate::currentDate().toString("yyyy-MM-dd") +
-              "' AND   IdPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) ;
-    QList<QVariantList> listmesure = db->StandardSelectSQL(requete, ok);
-    if (!ok || listmesure.size() == 0)
-        mesuretrouvee = true;
-    foreach (const QVariant &mesure, listmesure)
-    {
-        if (mesure.toString() == "O")
+    QList<Refraction*> refsdujour;
+    foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+        if (ref->daterefraction() == QDate::currentDate() && ref->mesure() == Refraction::Prescription)
         {
-            Reponse = "O";
-            mesuretrouvee = true;
+            Reponse = ref->mesure();
             break;
         }
-    }
-    if (!mesuretrouvee)
-        foreach (const QVariant &mesure, listmesure)
-        {
-            if (mesure.toString() == "R")
+    if (Reponse == Refraction::NoMesure)
+        foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+            if (ref->daterefraction() == QDate::currentDate() && ref->mesure() == Refraction::Acuite)
             {
-                Reponse = "R";
-                mesuretrouvee = true;
+                Reponse = ref->mesure();
                 break;
             }
-        }
-    if (!mesuretrouvee)
-        foreach (const QVariant &mesure, listmesure)
-        {
-            if (mesure.toString() == "A")
+    if (Reponse == Refraction::NoMesure)
+        foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+            if (ref->daterefraction() == QDate::currentDate() && ref->mesure() == Refraction::Autoref)
             {
-                Reponse = "A";
-                mesuretrouvee = true;
+                Reponse = ref->mesure();
                 break;
             }
-        }
-    if (!mesuretrouvee)
-        foreach (const QVariant &mesure, listmesure)
-        {
-            if (mesure.toString() == "P")
+    if (Reponse == Refraction::NoMesure)
+        foreach (Refraction *ref, *Datas::I()->refractions->refractions())
+            if (ref->daterefraction() == QDate::currentDate() && ref->mesure() == Refraction::Fronto)
             {
-                Reponse = "P";
-                mesuretrouvee = true;
+                Reponse = ref->mesure();
                 break;
             }
-        }
-    if (Reponse != "")
-        if (LectureMesure(Aujourdhui, ConvertMesure(Reponse), NoDilatation, 0, true) > 0)            // on affiche la mesure du jour trouvée
+
+    if (Reponse != Refraction::NoMesure)
+        if (LectureMesure(Aujourdhui, Reponse, NoDilatation, 0, true) > 0)            // on affiche la mesure du jour trouvée
         {
-            if (gMode == Refraction::Acuite || gMode == Refraction::Prescription)    Slot_PrescriptionRadionButton_clicked();
-            if (gMode == Refraction::Autoref)       gMode = Refraction::Acuite;
-            if (gMode == Refraction::Fronto)        gMode = Refraction::Autoref;
+            if (Reponse == Refraction::Acuite || Reponse == Refraction::Prescription)   Slot_PrescriptionRadionButton_clicked();
+            if (Reponse == Refraction::Autoref)                                         gMode = Refraction::Acuite;
+            if (Reponse == Refraction::Fronto)                                          gMode = Refraction::Autoref;
             RegleAffichageFiche();
             return ;
         }
@@ -3565,7 +3538,7 @@ void dlg_refraction::RegleAffichageFiche()
     Afficher_Oeil_Gauche(true);
 
     // on masque les objets inutiles selon les cas
-    if (gMode == Refraction::Fronto)      // mode Porte
+    if (gMode == Refraction::Fronto)
     {
         ui->AnnulPushButton->setVisible(true);
         ui->OKPushButton->setIcon(Icons::icOK());
@@ -3645,7 +3618,7 @@ void dlg_refraction::RegleAffichageFiche()
             setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
     } // fin mode Porte
 
-    if (gMode == Refraction::Autoref)    // mode AutoRef
+    if (gMode == Refraction::Autoref)
     {
         ui->AnnulPushButton->setVisible(true);
         ui->OKPushButton->setIcon(Icons::icOK());
@@ -3664,7 +3637,7 @@ void dlg_refraction::RegleAffichageFiche()
         setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
     }
 
-    if (gMode == Refraction::Acuite) // mode Refraction
+    if (gMode == Refraction::Acuite)
     {
         ui->AnnulPushButton->setVisible(true);
         ui->OKPushButton->setIcon(Icons::icOK());
@@ -3700,7 +3673,7 @@ void dlg_refraction::RegleAffichageFiche()
         setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
     }
 
-    if (gMode == Refraction::Prescription)   // mode Prescription
+    if (gMode == Refraction::Prescription)
     {
         Afficher_AVL_AVP(false);
         ui->OKPushButton->setIcon(Icons::icImprimer());
@@ -3805,8 +3778,8 @@ QString dlg_refraction::ResultatObservation()
 void dlg_refraction::UpdateDonneesOphtaPatient()
 {
     QString UpdateDOPrequete = "UPDATE  " TBL_DONNEES_OPHTA_PATIENTS
-                " SET QuelleMesure = '" + QuelleMesure() + "'";
-    if (QuelleMesure()=="A")
+                " SET QuelleMesure = '" + ConvertMesure(gMode) + "'";
+    if (gMode == Refraction::Autoref)
     {
         if ((ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0) && ui->ODCheckBox->isChecked())       // 16-07-2014
         {
@@ -3826,7 +3799,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
                 ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0)   // 16-07-2014
         {
             UpdateDOPrequete +=
-                    ", OrigineK = '" + QuelleMesure() + "'" +
+                    ", OrigineK = '" + ConvertMesure(gMode) + "'" +
                     ", DateK =  '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
         }
     }
@@ -3882,7 +3855,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
             UpdateDOPrequete += ", AVPOG = null";
         UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
     }
-    UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + QuelleMesure() + "'";
+    UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + ConvertMesure(gMode) + "'";
     db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
 }
 

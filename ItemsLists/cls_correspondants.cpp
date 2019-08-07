@@ -72,7 +72,14 @@ Correspondant* Correspondants::getById(int id, Item::LOADDETAILS loaddetails, AD
     return result;
 }
 
-void Correspondants::loadAll(Correspondant *cor, Item::UPDATE upd)
+/*!
+ * \brief Correspondants::loadAll
+ * Charge l'ensemble des data d'un correspondant et
+ * update les datas du crorrespondant de même id s'il est présent dans la liste et si on utilise le paramètre Item::ForceUpdate
+ * insère le correspondant dans la liste s'il n'est pas présent
+ * et les ajoute à la classe Correspondants
+ */
+void Correspondants::loadAllData(Correspondant *cor, Item::UPDATE upd)
 {
     if (cor == Q_NULLPTR)
         return;
@@ -82,8 +89,7 @@ void Correspondants::loadAll(Correspondant *cor, Item::UPDATE upd)
         if( !jsoncor.isEmpty() )
             cor->setData(jsoncor);
     }
-    if (m_correspondants->find(cor->id()) == m_correspondants->cend())
-        add (m_correspondants, cor);
+    add (m_correspondants, cor, Item::ForceUpdate);
 }
 
 
@@ -100,7 +106,7 @@ void Correspondants::initListe(bool all)
     else
         listcorrespondants = DataBase::I()->loadCorrespondants();
     epurelist(m_correspondants, &listcorrespondants);
-    addList(m_correspondants, &listcorrespondants);
+    addList(m_correspondants, &listcorrespondants, Item::ForceUpdate);
 }
 
 QStringList Correspondants::autresprofessions()

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("04-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("07-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -1812,7 +1812,8 @@ void Rufus::FiltreAccueil(int idx)
     for(int i=0; i<ui->AccueilupTableWidget->rowCount(); i++)
     {
         UpLabel *lbl = dynamic_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
-        ui->AccueilupTableWidget->setRowHidden(i,lbl->text() != QString::number(idparent));
+        if (lbl != Q_NULLPTR)
+            ui->AccueilupTableWidget->setRowHidden(i,lbl->text() != QString::number(idparent));
     }
 }
 
@@ -6332,8 +6333,8 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     QTime currenttime = db->ServerDateTime().time();
     if (patcours == Q_NULLPTR)
         m_listepatientsencours->CreationPatient(pat->id(),                                          //! idPat
-                                                 m_currentuser->idsuperviseur(),         //! idUser
-                                                 ENCOURSEXAMEN + m_currentuser->login(),         //! Statut
+                                                 m_currentuser->idsuperviseur(),                    //! idUser
+                                                 ENCOURSEXAMEN + m_currentuser->login(),            //! Statut
                                                  currenttime,                                       //! heureStatut
                                                  QTime(),                                           //! heureRDV
                                                  currenttime,                                       //! heureArrivee
@@ -8442,6 +8443,7 @@ void    Rufus::RefractionMesure()
     if (ui->tabWidget->currentIndex() != 1 || !ui->Acteframe->isVisible())
         return;
 
+    Datas::I()->refractions->initListebyPatId(Datas::I()->patients->currentpatient()->id());
     Dlg_Refraction     = new dlg_refraction(m_currentact, this);
     proc->setFicheRefractionOuverte(true);
     int result = Dlg_Refraction->exec();
@@ -8482,7 +8484,6 @@ void    Rufus::RefractionMesure()
             ui->ActeConclusiontextEdit->setFocus();
             ui->ActeConclusiontextEdit->moveCursor(QTextCursor::End);
         }
-        Datas::I()->refractions->initListebyPatId(Datas::I()->patients->currentpatient()->id());
     }
     delete Dlg_Refraction;
 }
@@ -8791,7 +8792,6 @@ void Rufus::Remplir_SalDat()
         label5 = new UpLabel(TableAMettreAJour);
         label6 = new UpLabel(TableAMettreAJour);
 
-
         label0->setData(rsgnmt);
         label1->setData(rsgnmt);
         label2->setData(rsgnmt);
@@ -9069,6 +9069,7 @@ void Rufus::Remplir_SalDat()
         m_listeparentsmodel->clear();
     QStandardItem       *oitem0, *oitem1;
     QList<int>          listidparents;
+    i = 0;
     foreach (PatientEnCours *patencours, listpatvus)
     {
         Patient *pat                = m_patients->getById(patencours->id());
@@ -9129,10 +9130,10 @@ void Rufus::Remplir_SalDat()
         QString Soignant  = Datas::I()->users->getById(patencours->iduser())->login();
         if (patencours->iduser() != idparent)
             Soignant +=  " / " + Datas::I()->users->getById(idparent)->login();
-        label2->setText(" " + Datas::I()->users->getById(patencours->iduser())->login());    // Soignant
+        label2->setText(" " + Datas::I()->users->getById(patencours->iduser())->login());       // Soignant
         label3->setText(" " + actapayer->cotation());                                           // Cotation
         label4->setText(QLocale().toString(actapayer->montant(),'f',2) + " ");                  // Montant
-        label5->setText(QString::number(idparent));                      // Parent
+        label5->setText(QString::number(idparent));                                             // Parent
         QString typpaiement = "";
         if (actapayer->montant() == 0.0)
             typpaiement = "Gratuit";
@@ -9178,6 +9179,7 @@ void Rufus::Remplir_SalDat()
         TableAMettreAJour   ->setItem(i,5,pItem);
         TableAMettreAJour   ->setCellWidget(i,6,label5);
         TableAMettreAJour   ->setRowHeight(i,int(fm.height()*1.1));
+        ++ i;
     }
     while (gAccueilTab->count()>0)
         gAccueilTab->removeTab(0);
