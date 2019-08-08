@@ -250,8 +250,8 @@ void dlg_bilanortho::ImprimeBOClicked()
         return;
     }
     QString date = m_currentact->date().toString(tr("d MMM yyyy"));
-    QString nom = Datas::I()->patients->getById(m_currentact->idPatient())->nom().toUpper();
-    QString prenom = Datas::I()->patients->getById(m_currentact->idPatient())->prenom().toUpper();
+    QString nom = Datas::I()->patients->currentpatient()->nom().toUpper();
+    QString prenom = Datas::I()->patients->currentpatient()->prenom().toUpper();
 
     QString Entete, Pied;
 

@@ -147,7 +147,7 @@ private:
     void        ChangeTabBureau();
     void        ConnectTimers(bool);
     void        CourrierAFaireChecked();
-    void        CreerBilanOrtho(Patient *pat);
+    void        CreerBilanOrtho();
     void        CreerDossierpushButtonClicked();
     void        DropPatient(QByteArray);
     void        EnableButtons();

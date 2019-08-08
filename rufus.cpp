@@ -267,8 +267,8 @@ void Rufus::Connect_Slots()
     connect (ui->CourrierAFairecheckBox,                            &QPushButton::clicked,                              this,   [=] {CourrierAFaireChecked();});
     connect (ui->CreerActepushButton,                               &QPushButton::clicked,                              this,   [=] {CreerActe(Datas::I()->patients->currentpatient());});
     connect (ui->CreerActepushButton_2,                             &QPushButton::clicked,                              this,   [=] {CreerActe(Datas::I()->patients->currentpatient());});
-    connect (ui->CreerBOpushButton,                                 &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho(Datas::I()->patients->currentpatient());});
-    connect (ui->CreerBOpushButton_2,                               &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho(Datas::I()->patients->currentpatient());});
+    connect (ui->CreerBOpushButton,                                 &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho();});
+    connect (ui->CreerBOpushButton_2,                               &QPushButton::clicked,                              this,   [=] {CreerBilanOrtho();});
     connect (ui->CreerDDNdateEdit,                                  &QDateEdit::dateChanged,                            this,   [=] {if (gMode == RechercheDDN) FiltreTableparDDN();});
     connect (ui->ChercherDepuisListepushButton,                     &QPushButton::clicked,                              this,   [=] {ChercherDepuisListe();});
     connect (ui->CreerNomlineEdit,                                  &QLineEdit::textEdited,                             this,   [=] {MajusculeCreerNom();});
@@ -1421,13 +1421,11 @@ void Rufus::CourrierAFaireChecked()
 /*------------------------------------------------------------------------------------------------------------------
 -- création - gestion des bilans orthoptiques ----------------------------------------------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::CreerBilanOrtho(Patient *pat)
+void Rufus::CreerBilanOrtho()
 {
     bool    nouveauBO       = true;
     bool    creeracte       = true;
     QDate DateBl;
-    if (pat == Q_NULLPTR)
-        return;
     if (ui->Acteframe->isVisible() && m_currentact != Q_NULLPTR)
     {
         QString requete = "select idbilanortho from " TBL_BILANORTHO
@@ -1471,9 +1469,9 @@ void Rufus::CreerBilanOrtho(Patient *pat)
     if (!nouveauBO)
     {
         Dlg_BlOrtho             = new dlg_bilanortho(m_currentact, nouveauBO);
-        QString Titre           = tr("Bilan orthoptique - ") + pat->prenom() + " " + pat->nom();
-        Dlg_BlOrtho->ui->OcclAlternlabel    ->setVisible(pat->datedenaissance().daysTo(DateBl) < 730);
-        Dlg_BlOrtho->ui->OcclAlterncomboBox ->setVisible(pat->datedenaissance().daysTo(DateBl) < 730);
+        QString Titre           = tr("Bilan orthoptique - ") + Datas::I()->patients->currentpatient()->prenom() + " " + Datas::I()->patients->currentpatient()->nom();
+        Dlg_BlOrtho->ui->OcclAlternlabel    ->setVisible(Datas::I()->patients->currentpatient()->datedenaissance().daysTo(DateBl) < 730);
+        Dlg_BlOrtho->ui->OcclAlterncomboBox ->setVisible(Datas::I()->patients->currentpatient()->datedenaissance().daysTo(DateBl) < 730);
         Dlg_BlOrtho->ui->MotiftextEdit      ->setHtml(ui->ActeMotiftextEdit->toHtml());
         Dlg_BlOrtho->ui->ConclusiontextEdit ->setHtml(ui->ActeConclusiontextEdit->toHtml());
         Dlg_BlOrtho             ->setWindowTitle(Titre);
@@ -1485,10 +1483,10 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         {
             if (ui->Acteframe->isVisible())
                 if (!AutorDepartConsult(false)) return;
-            CreerActe(pat);
+            CreerActe(Datas::I()->patients->currentpatient());
         }
         Dlg_BlOrtho             = new dlg_bilanortho(m_currentact, nouveauBO);
-        QString Titre           = tr("Bilan orthoptique - ") + pat->prenom() + " " + pat->nom();
+        QString Titre           = tr("Bilan orthoptique - ") + Datas::I()->patients->currentpatient()->prenom() + " " + Datas::I()->patients->currentpatient()->nom();
         Dlg_BlOrtho             ->setWindowTitle(Titre);
         QString RefractionOD    = "";
         QString RefractionOG    = "";
@@ -1511,8 +1509,8 @@ void Rufus::CreerBilanOrtho(Patient *pat)
         }
         if (RefractionOD != "")     Dlg_BlOrtho->ui->AVODlineEdit->setText(RefractionOD);
         if (RefractionOG != "")     Dlg_BlOrtho->ui->AVOGlineEdit->setText(RefractionOG);
-        Dlg_BlOrtho->ui->OcclAlternlabel->setVisible(pat->datedenaissance().daysTo(QDate::currentDate()) < 730);
-        Dlg_BlOrtho->ui->OcclAlterncomboBox->setVisible(pat->datedenaissance().daysTo(QDate::currentDate()) < 730);
+        Dlg_BlOrtho->ui->OcclAlternlabel->setVisible(Datas::I()->patients->currentpatient()->datedenaissance().daysTo(QDate::currentDate()) < 730);
+        Dlg_BlOrtho->ui->OcclAlterncomboBox->setVisible(Datas::I()->patients->currentpatient()->datedenaissance().daysTo(QDate::currentDate()) < 730);
     }
     if (Dlg_BlOrtho->exec()> 0)
     {
@@ -7237,7 +7235,7 @@ int Rufus::EnregistreNouveauCorresp(QString Cor, QString Nom)
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
--- Exporte l'acte en cours en réunissant dans un même dossier le contenu de l'acte en pdf et les documents d'imageir liés à cet acte
+-- Exporte l'acte en cours en réunissant dans un même dossier le contenu de l'acte en pdf et les documents d'imagerie liés à cet acte
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::ExporteActe(Acte *act)
 {
@@ -8244,7 +8242,7 @@ void    Rufus::RecopierDossier(Patient *patient)
     if (patient != Q_NULLPTR)
     {
         //if (!patient->isalloaded())
-        patient = m_patients->getById(patient->id(), Item::LoadDetails);
+        Datas::I()->patients->loadAll(patient, Item::ForceUpdate);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, patient);
         return;
@@ -8261,8 +8259,7 @@ void    Rufus::RecopierDossier(Patient *patient)
             UpMessageBox::Watch(this, tr("Aucun dossier sélectionné!"), tr("Sélectionnez d'abord un dossier à recopier."));
             return;
         }
-        //if (!pat->isalloaded())
-        pat = m_patients->getById(pat->id(), Item::LoadDetails);
+        Datas::I()->patients->loadAll(pat, Item::ForceUpdate);
         FermeDlgActesPrecedentsEtDocsExternes();
         IdentificationPatient(dlg_identificationpatient::Copie, pat);
     }
@@ -8771,7 +8768,10 @@ void Rufus::Remplir_SalDat()
     QList<int>          listidusers;
     foreach (PatientEnCours* patencours, listpatsaldat)
     {
-        Patient *pat                = m_patients->getById(patencours->id());
+        auto it = m_patients->patientssaldat()->find(patencours->id());
+        if (it == m_patients->patientssaldat()->end())
+            continue;
+        Patient *pat                = it.value();
         QMap<QString, QVariant> rsgnmt;
         rsgnmt["idpat"]             = patencours->id();
         rsgnmt["motif"]             = patencours->motif();
@@ -8911,13 +8911,13 @@ void Rufus::Remplir_SalDat()
         connect (label4,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label4);});
         connect (label5,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label5);});
         connect (label6,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label6);});
-        connect (label0,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label1,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label2,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label3,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label4,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label5,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label6,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
+        connect (label0,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label1,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label2,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label3,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label4,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label5,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label6,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
         TableAMettreAJour->setCellWidget(i,0,label0);
         TableAMettreAJour->setCellWidget(i,1,label1);
         TableAMettreAJour->setCellWidget(i,2,label2);
@@ -9373,7 +9373,6 @@ void Rufus::SupprimerActe(Acte *act)
     // On récupère la date de l'acte
      //on va rechercher l'idActe suivant
     idAAficher = 0;
-    Patient * pat = m_patients->getById(act->idPatient());
 
     if (m_listeactes->actes()->size() == 0)
     {
@@ -9439,7 +9438,7 @@ void Rufus::SupprimerActe(Acte *act)
     // On met à jour l'affichage éventuel de dlg_actesprecedents
     QList<dlg_actesprecedents *> listactesprecs = findChildren<dlg_actesprecedents *>();
     for (int i = 0; i<listactesprecs.size();i++)
-        if (listactesprecs.at(i)->getidPatient() != pat->id())
+        if (listactesprecs.at(i)->getidPatient() != Datas::I()->patients->currentpatient()->id())
             listactesprecs.at(i)->close();
     if (findChildren<dlg_actesprecedents *>().size()>0)
     {
@@ -10006,19 +10005,15 @@ void Rufus::TraiteTCPMessage(QString msg)
             m_listepatientsmodel->item(row,4)->setText(pat->nom());                                                   // Nom                          -> utilisé pour le tri
             m_listepatientsmodel->item(row,5)->setText(pat->prenom());                                                // Prénom                       -> utilisé pour le tri
         }
-        else if (Datas::I()->patients->patientssaldat()->find(msg.toInt()) != Datas::I()->patients->patientssaldat()->end())
-        {
+        if (Datas::I()->patients->patientssaldat()->find(msg.toInt()) != Datas::I()->patients->patientssaldat()->end())
             Remplir_SalDat();
-        }
-        else if (Datas::I()->patients->currentpatient()->id() == msg.toInt())
+        if (Datas::I()->patients->currentpatient()->id() == msg.toInt())
         {
             Datas::I()->patients->setcurrentpatient(msg.toInt());
             ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(Datas::I()->patients->currentpatient()));
         }
-        else if (Datas::I()->patients->dossierpatientaouvrir()->id() == msg.toInt())
-        {
+        if (Datas::I()->patients->dossierpatientaouvrir()->id() == msg.toInt())
             Datas::I()->patients->setdossierpatientaouvrir(msg.toInt());
-        }
     }
     else if (msg.contains(TCPMSG_ListeSockets))
     {

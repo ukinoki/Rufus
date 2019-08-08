@@ -66,7 +66,7 @@ Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
     {
         pat = DataBase::I()->loadPatientById(id, pat, loadDetails);
         if (pat != Q_NULLPTR)
-            add(m_patients, pat);
+            m_patients->insert(pat->id(), pat);
     }
     else
     {
@@ -76,8 +76,8 @@ Patient* Patients::getById(int id, Item::LOADDETAILS loadDetails)
             QJsonObject jsonPatient = DataBase::I()->loadPatientAllData(id);
             if( jsonPatient.isEmpty() )
                 return Q_NULLPTR;
-            else
-                pat->setData(jsonPatient);
+            pat->resetdatas();
+            pat->setData(jsonPatient);
         }
     }
     return pat;
