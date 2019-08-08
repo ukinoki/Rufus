@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("07-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("08-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -952,22 +952,23 @@ void Rufus::MAJPatientsVus()
         label1->setAlignment(Qt::AlignLeft);
         label3->setAlignment(Qt::AlignLeft);
         label4->setAlignment(Qt::AlignRight);
+        Patient *pat = m_patients->getById(rsgnmt["idpat"].toInt());
 
         connect (label0,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label0);});
         connect (label1,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label1);});
         connect (label2,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label2);});
         connect (label3,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label3);});
         connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label4);});
-        connect (label0,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label1,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label2,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label3,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label4,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label0,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label1,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label2,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label3,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
-        connect (label4,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(m_patients->getById(rsgnmt["idpat"].toInt()));});
+        connect (label0,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+        connect (label1,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+        connect (label2,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+        connect (label3,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+        connect (label4,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+        connect (label0,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label1,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label2,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label3,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
+        connect (label4,        &UpLabel::dblclick,         this,                   [=] {if (m_currentuser->isSoignant()) ChoixDossier(pat);});
 
         ui->PatientsVusupTableWidget->setCellWidget(i,0,label0);
         ui->PatientsVusupTableWidget->setCellWidget(i,1,label1);
@@ -6222,7 +6223,8 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
 //  Afficher les éléments de la tables Patients
     if (pat == Q_NULLPTR)
         return;
-    Datas::I()->patients->setcurrentpatient(pat->id());
+    if (pat != Datas::I()->patients->currentpatient())
+        Datas::I()->patients->setcurrentpatient(pat->id());
     QString     Msg;
 
     //qDebug() << "AfficheDossier() " +  Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom() + " - id = " + QString::number(Datas::I()->patients->currentpatient()->id());
@@ -6827,8 +6829,7 @@ void    Rufus::ChoixDossier(Patient *pat, int idacte)  // appelée depuis la tab
                 }
             }
         }
-        Datas::I()->patients->setcurrentpatient(pat->id());
-        AfficheDossier(Datas::I()->patients->currentpatient(), idacte);
+        AfficheDossier(pat, idacte);
     }
 }
 
@@ -6940,10 +6941,7 @@ void Rufus::CreerDossier()
     {
         UpMessageBox::Watch(this, tr("Ce patient est déjà venu!"));
         if( m_currentuser->isSoignant() )
-        {
-            Datas::I()->patients->setcurrentpatient(idPat);
-            AfficheDossier(Datas::I()->patients->currentpatient());
-        }
+            AfficheDossier(Datas::I()->patients->getById(idPat));
         else
         {
             UpMessageBox msgbox;

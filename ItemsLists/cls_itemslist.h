@@ -128,54 +128,46 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
 template <typename T>
 bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
 {
-    bool result = false;
+    bool itemadded = false;
     if (item != Q_NULLPTR)
     {
         auto it = m_map->find(item->id());
-        if (it != m_map->cend())
+        itemadded = (it == m_map->cend());
+        if (!itemadded)
         {
+            T* fitem = const_cast<T*>(it.value());
             if (upd == Item::ForceUpdate)
-            {
-                T* fitem = const_cast<T*>(it.value());
-                if (fitem != Q_NULLPTR)
-                    fitem->setData(item->datas());
-            }
-            delete item;
+                fitem->setData(item->datas());
+            if (fitem != item)
+                delete item;
         }
         else
-        {
             m_map->insert(item->id(), item);
-            result = true;
-        }
     }
-    return result;
+    return itemadded;
 }
 
 /*! le même avec des QString en key */
 template <typename T>
 bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
 {
-    bool result = false;
+    bool itemadded = false;
     if (item != Q_NULLPTR)
     {
         auto it = m_map->find(item->stringid());
-        if (it != m_map->cend())
+        itemadded = (it == m_map->cend());
+        if (!itemadded)
         {
+            T* fitem = const_cast<T*>(it.value());
             if (upd == Item::ForceUpdate)
-            {
-                T* fitem = const_cast<T*>(it.value());
-                if (fitem != Q_NULLPTR)
-                    fitem->setData(item->datas());
-            }
-            delete item;
+                fitem->setData(item->datas());
+            if (fitem != item)
+                delete item;
         }
         else
-        {
             m_map->insert(item->stringid(), item);
-            result = true;
-        }
     }
-    return result;
+    return itemadded;
 }
 
 
@@ -185,23 +177,47 @@ bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
  * \param m_map le QMap dans lequel on veut retirer l'item
  * \param item l'item que l'on veut retirer
 */
-template <typename K, typename T>
-void remove(QMap<K, T*> *m_map, const T* item)
+template <typename T>
+void remove(QMap<int, T*> *m_map, const T* item)
 {
     if (item == Q_NULLPTR)
         return;
-    for (auto it = m_map->cbegin(); it != m_map->cend(); ++it)
+    for (auto it = m_map->begin(); it != m_map->end();)
     {
-        T* fitem = const_cast<T*>(it.value());
-        if (fitem != Q_NULLPTR)
-            if (fitem == item)
-            {
-                m_map->remove(it.key());
-                delete item;
-                break;
-            }
+        if (it.key() == item->id())
+        {
+            T* fitem = const_cast<T*>(it.value());
+            if (fitem != Q_NULLPTR)
+                if (fitem != item)
+                    delete fitem;
+            it = m_map->erase(it);
+        }
+        else
+            ++it;
     }
+    delete item;
 }
+template <typename T>
+void remove(QMap<QString, T*> *m_map, const T* item)
+{
+    if (item == Q_NULLPTR)
+        return;
+    for (auto it = m_map->begin(); it != m_map->end();)
+    {
+        if (it.key() == item->stringid())
+        {
+            T* fitem = const_cast<T*>(it.value());
+            if (fitem != Q_NULLPTR)
+                if (fitem != item)
+                    delete fitem;
+            it = m_map->erase(it);
+        }
+        else
+            ++it;
+    }
+    delete item;
+}
+
 /*!
      * \brief ItemsList::Supprime
      * Cette fonction va supprimer un item passé en paramètre dans un QMap

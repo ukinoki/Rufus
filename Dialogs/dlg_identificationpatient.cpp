@@ -191,7 +191,7 @@ void dlg_identificationpatient::Slot_VerifMGFlag()
         m_flagcorrespondants = flag;
         // on reconstruit la liste des MG
         Procedures::ReconstruitComboCorrespondants(ui->MGupComboBox, Correspondants::QueLesGeneralistes);
-        m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), Item::LoadDetails);
+        Datas::I()->patients->loadAll(m_currentpatient, Item::ForceUpdate);
         if (m_currentpatient->idmg() > 0 && ui->MGupComboBox->currentData().toInt() != m_currentpatient->idmg())
             ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findData(m_currentpatient->idmg()));
         else
@@ -492,7 +492,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
     if (gMode == Copie)                                             //!> le nouveau dossier n'est pas encore créé (il ne le sera que si la fche est validée), on se contente de recopier les données du patient passsé en paramètre dans la fiche
     {
         if (!m_currentpatient->isalloaded())
-            m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), Item::LoadDetails);
+            Datas::I()->patients->loadAll(m_currentpatient, Item::ForceUpdate);
         ui->NomlineEdit->setText(m_currentpatient->nom());
         ui->Adresse1lineEdit->setText(m_currentpatient->adresse1());
         ui->Adresse2lineEdit->setText(m_currentpatient->adresse2());
@@ -536,7 +536,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
     else if (gMode == Modification)                                 //!> on ne crée pas de nouveau dossier, on affiche tous les paramètres connus du dossier
     {
         if (!m_currentpatient->isalloaded())
-            m_currentpatient = Datas::I()->patients->getById(m_currentpatient->id(), Item::LoadDetails);
+            Datas::I()->patients->loadAll(m_currentpatient, Item::ForceUpdate);
         ui->NomlineEdit->setText(m_currentpatient->nom());
         ui->PrenomlineEdit->setText(m_currentpatient->prenom());
         ui->DDNdateEdit->setDate(m_currentpatient->datedenaissance());

@@ -27,7 +27,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
 
     m_currentpatient     = pat;
     if (!pat->isalloaded())
-        pat = Datas::I()->patients->getById(pat->id(), Item::LoadDetails);
+        Datas::I()->patients->loadAll(pat, Item::ForceUpdate);
 
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
