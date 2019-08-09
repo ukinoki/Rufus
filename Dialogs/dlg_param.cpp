@@ -980,8 +980,6 @@ void dlg_param::Slot_GestionDatasCurrentUser()
     if(DonneesUserModifiees)
     {
         proc->SetUserAllData(m_currentuser, Item::ForceUpdate);
-        qDebug() << "m_currentuser->idcomptepardefaut()" << m_currentuser->idcomptepardefaut();
-        qDebug() << "m_currentuser->idcompteencaissementhonoraires()" << m_currentuser->idcompteencaissementhonoraires();
         AfficheParamUser();
     }
     if (!MDPVerifiedUser)

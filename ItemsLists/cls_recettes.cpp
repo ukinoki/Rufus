@@ -36,7 +36,7 @@ void Recettes::initListe(QMap<QString, QDate> DateMap)
 {
     QList<Recette*> listrecettes = DataBase::I()->loadRecettesByDate(DateMap["DateDebut"], DateMap["DateFin"]);
     epurelist(m_recettes, &listrecettes);
-    addList(m_recettes, &listrecettes);
+    addList(m_recettes, &listrecettes, Item::ForceUpdate);
 }
 
 Recette* Recettes::getById(int id)

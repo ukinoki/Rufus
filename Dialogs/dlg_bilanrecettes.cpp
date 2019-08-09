@@ -31,8 +31,6 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    m_currentuser     = Datas::I()->users->userconnected();
-
     TotalMontantlbl         = new UpLabel();
     TotalReclbl             = new UpLabel();
     TotalApportlbl          = new UpLabel();
@@ -258,7 +256,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     if (gMode==SUPERVISEUR)
         userEntete = Datas::I()->users->getById(gSupervBox->currentData().toInt(), Item::LoadDetails);
     else
-        userEntete = Datas::I()->users->getById(m_currentuser->id(), Item::LoadDetails);
+        userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->id(), Item::LoadDetails);
 
     if(userEntete == Q_NULLPTR)
     {
@@ -425,7 +423,7 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
             if (!listiD.contains(rec->iduser()) && rec->iduser() > 0)
                 listiD << rec->iduser();
             if (!idcomptabletrouve)
-                idcomptabletrouve = (rec->idcomptable() == m_currentuser->id());
+                idcomptabletrouve = (rec->idcomptable() == Datas::I()->users->userconnected()->id());
         }
     }
     if( listiD.size() > 1 )
@@ -535,7 +533,7 @@ void dlg_bilanrecettes::ChangeMode(enum Mode mode)
     if (gMode == SUPERVISEUR)
         FiltreTable(gSupervBox->currentData().toInt());
     if (gMode == COMPTABLE)
-        FiltreTable(m_currentuser->id());
+        FiltreTable(Datas::I()->users->userconnected()->id());
 }
 
 void dlg_bilanrecettes::ExportTable()
@@ -568,7 +566,7 @@ void dlg_bilanrecettes::ExportTable()
         }
     }
     QString ExportFileName = QDir::homePath() + DIR_RUFUS + "/"
-                            + (gMode == COMPTABLE? tr("Recettes") + " " + m_currentuser->login() : tr("Actes") + " " + gSupervBox->currentText())
+                            + (gMode == COMPTABLE? tr("Recettes") + " " + Datas::I()->users->userconnected()->login() : tr("Actes") + " " + gSupervBox->currentText())
                             + " " + tr("du") + " " + Debut.toString("d MMM yyyy") + " " + tr("au") + " " + Fin.toString(tr("d MMM yyyy"))
                             + ".csv";
     QFile   ExportFile(ExportFileName);

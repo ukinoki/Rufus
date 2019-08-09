@@ -174,7 +174,7 @@ private:
     void                    CalcUserSuperviseur();
     void                    CalcUserParent();
 public:
-    bool                    SetUserAllData(User* usr, Item::UPDATE upd = Item::NoUpdate);
+    bool                    SetUserAllData(User* usr, Item::UPDATE upd = Item::ForceUpdate);
     void                    ReconstruitListeComptes (User *usr, QList<Compte*>* listcomptes);
     int                     idCentre();
     int                     idLieuExercice();

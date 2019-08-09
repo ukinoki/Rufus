@@ -1093,7 +1093,6 @@ void dlg_gestionusers::ActualiseRsgnmtBanque(bool soccomptable)
 void dlg_gestionusers::CalcListitemsCompteActescomboBox(User *usr)
 {
     //! tous les comptes non désactivés de l'utilisateur et tous les comptes partagés
-    qDebug() << "usr->idcompteencaissementhonoraires()" << usr->idcompteencaissementhonoraires();
     QList<Compte*> listcomptes;
     foreach (Compte *cpt, *Datas::I()->comptes->comptes())
         if ((cpt->idUser() == usr->id() || cpt->isPartage()) && !cpt->isDesactive())
@@ -1107,7 +1106,6 @@ void dlg_gestionusers::CalcListitemsCompteActescomboBox(User *usr)
 
 void dlg_gestionusers::CalcListitemsCompteComptacomboBox(User *usr, bool soccomptable)
 {
-    qDebug() << "usr->idcomptepardefaut()" << usr->idcomptepardefaut();
     QList<Compte*> listcomptes;
     foreach (Compte *cpt, *Datas::I()->comptes->comptes())
         if (cpt->idUser() == usr->id() && !cpt->isDesactive())

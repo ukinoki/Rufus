@@ -37,6 +37,7 @@ public:
     explicit Patients(QObject *parent = Q_NULLPTR);
 
     //GETTER
+    QMap<int, Patient*> *patients()           { return m_patients; }
     QMap<int, Patient*> *patientstable()      { return m_patientstable; }
     QMap<int, Patient*> *patientssaldat()     { return m_patientssaldat; }
     Patient* currentpatient()                 { return m_currentpatient; }

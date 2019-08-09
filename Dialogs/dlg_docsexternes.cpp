@@ -24,7 +24,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool iscurrentpatient, bo
 {
     proc                = Procedures::I();
     db                  = DataBase::I();
-    if (iscurrentpatient)
     m_currentpatient    = (iscurrentpatient? Datas::I()->patients->currentpatient() : Datas::I()->patients->dossierpatientaouvrir());
     m_currentuser       = Datas::I()->users->userconnected();
     setAttribute(Qt::WA_ShowWithoutActivating);
