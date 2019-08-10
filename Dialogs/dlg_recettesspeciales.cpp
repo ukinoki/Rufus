@@ -376,7 +376,7 @@ void dlg_recettesspeciales::GererRecette(QPushButton *widgsender)
 
 void dlg_recettesspeciales::MenuContextuel(UpLabel *labelClicked)
 {
-    int idRecAOuvrir = labelClicked->getId();
+    int idRecAOuvrir = labelClicked->iD();
 
     QMenu *menu;
     menu = new QMenu(this);
@@ -965,13 +965,13 @@ void dlg_recettesspeciales::RemplitBigTable()
             label5 = new UpLabel;
             label6 = new UpLabel;
 
-            label0->setId(id);                      // idRecette
-            label1->setId(id);                      // idRecette
-            label2->setId(id);                      // idRecette
-            label3->setId(id);                      // idRecette
-            label4->setId(id);                      // idRecette
-            label5->setId(id);                      // idRecette
-            label6->setId(id);                      // idRecette
+            label0->setiD(id);                      // idRecette
+            label1->setiD(id);                      // idRecette
+            label2->setiD(id);                      // idRecette
+            label3->setiD(id);                      // idRecette
+            label4->setiD(id);                      // idRecette
+            label5->setiD(id);                      // idRecette
+            label6->setiD(id);                      // idRecette
 
             label0->setContextMenuPolicy(Qt::CustomContextMenu);
             label1->setContextMenuPolicy(Qt::CustomContextMenu);

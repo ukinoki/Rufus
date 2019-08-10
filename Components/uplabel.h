@@ -28,19 +28,19 @@ class UpLabel : public QLabel
 public:
     explicit                UpLabel(QWidget *parent = Q_NULLPTR, QString txt = QString());
     ~UpLabel();
-    void                    setId(int id);
-    int                     getId() const;
-    void                    setData(QMap<QString, QVariant> data);
-    QMap<QString, QVariant> getData() const;
-    void                    setRow(int id);
+    void                    setiD(int m_id);
+    int                     iD() const;
+    void                    setdatas(QMap<QString, QVariant> datas);
+    QMap<QString, QVariant> datas() const;
+    void                    setRow(int m_id);
     void                    setImmediateToolTip(QString);
-    int                     getRow() const;
+    int                     Row() const;
 private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
-    int                     id;
-    int                     row;
-    QString                 gToolTipMsg;
-    QMap<QString, QVariant> datas;
+    int                     m_id;
+    int                     m_row;
+    QString                 m_tooltipmsg;
+    QMap<QString, QVariant> m_datas;
     void                    AfficheToolTip();
 signals:
     void                    clicked(int a);

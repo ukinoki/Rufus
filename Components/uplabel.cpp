@@ -19,9 +19,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpLabel::UpLabel(QWidget *parent, QString txt) : QLabel(txt, parent)  //je ne sais plus pourquoi j'ai mis le parent avant le texte mais il y une raison à un moment donné du code...
 {
-    id          = -1;
-    row         = -1;
-    gToolTipMsg = "";
+    m_id          = -1;
+    m_row         = -1;
+    m_tooltipmsg = "";
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
 }
@@ -32,62 +32,62 @@ UpLabel::~UpLabel()
 }
 void UpLabel::AfficheToolTip()
 {
-    if (gToolTipMsg != "" && isEnabled())
-        QToolTip::showText(cursor().pos(),gToolTipMsg);
+    if (m_tooltipmsg != "" && isEnabled())
+        QToolTip::showText(cursor().pos(),m_tooltipmsg);
 }
 
 bool UpLabel::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::Enter)
     {
-        emit enter(getId());
+        emit enter(iD());
         AfficheToolTip();
         return true;
     }
     if (event->type() == QEvent::MouseButtonDblClick)
     {
-        emit dblclick(getId());
+        emit dblclick(iD());
         return true;
     }
     if (event->type() == QEvent::MouseButtonRelease)
     {
-        emit clicked(getId());
+        emit clicked(iD());
         return true;
     }
    return QWidget::eventFilter(obj, event);
 }
 
-void UpLabel::setData(QMap<QString, QVariant> data)
+void UpLabel::setdatas(QMap<QString, QVariant> data)
 {
-    datas = data;
+    m_datas = data;
 }
 
-QMap<QString, QVariant> UpLabel::getData() const
+QMap<QString, QVariant> UpLabel::datas() const
 {
-    return datas;
+    return m_datas;
 }
 
-void UpLabel::setId(int idadef)
+void UpLabel::setiD(int idadef)
 {
-    id = idadef;
+    m_id = idadef;
 }
 
-int UpLabel::getId() const
+int UpLabel::iD() const
 {
-    return id;
+    return m_id;
 }
 
 void UpLabel::setImmediateToolTip(QString Msg)
 {
-    gToolTipMsg = Msg;
+    m_tooltipmsg = Msg;
 }
 
 void UpLabel::setRow(int rowadef)
 {
-    row = rowadef;
+    m_row = rowadef;
 }
 
-int UpLabel::getRow() const
+int UpLabel::Row() const
 {
-    return row;
+    return m_row;
 }

@@ -30,8 +30,8 @@ class UpDoubleSpinBox : public QDoubleSpinBox
 public:
     explicit UpDoubleSpinBox(QWidget *parent = Q_NULLPTR);
     ~UpDoubleSpinBox();
-    void                    setValeurAvant(double valprec);
-    double                  getValeurAvant() const;
+    void                    setvaleuravant(double valprec);
+    double                  valeuravant() const;
     void                    setAutorCorrigeDioptr(bool);
     enum gUpDown            {Up,Down,Near};
     Q_ENUM(gUpDown)
@@ -40,7 +40,7 @@ public:
 
 private:
     bool                    eventFilter(QObject *, QEvent *);
-    double                  ValeurAvant;
+    double                  m_valeuravant;
 };
 
 #endif // UPDOUBLESPINBOX_H

@@ -30,26 +30,26 @@ class UpComboBox : public QComboBox
 public:
     explicit UpComboBox(QWidget *parent = Q_NULLPTR);
     ~UpComboBox();
-    void        setid(int valprec);
-    int         getid() const;
+    void        setiD(int valprec);
+    int         iD() const;
     void        setIndexParDefaut(int defaut);
-    int         getIndexParDefaut() const;
-    void        setValeurAvant(QString valprec);
-    QString     getValeurAvant() const;
-    void        setValeurApres(QString valpost);
-    QString     getValeurApres() const;
-    void        setChamp(QString champcorrespondant);
-    QString     getChampCorrespondant() const;
+    int         IndexParDefaut() const;
+    void        setvaleuravant(QString valprec);
+    QString     valeuravant() const;
+    void        setvaleurapres(QString valpost);
+    QString     valeurapres() const;
+    void        setchamp(QString champcorrespondant);
+    QString     champ() const;
     void        setTable(QString tablecorrespondant);
-    QString     getTableCorrespondant() const;
+    QString     table() const;
     void        setImmediateToolTip(QString Msg);
     void        clearImmediateToolTip();
 
 private:
     QLineEdit   *line;
     bool        eventFilter(QObject *, QEvent *);
-    QString     ValeurAvant, ValeurApres, Champ, Table, gToolTipMsg;
-    int         id, IndexParDefaut;
+    QString     m_valeuravant, m_valeurapres, m_champ, m_table, m_tooltipmsg;
+    int         m_id, m_indexpardefaut;
 
 signals:
     void        mouseDoubleClick(int row);

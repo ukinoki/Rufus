@@ -852,7 +852,7 @@ void Rufus::ActeMontantModifie()
 ------------------------------------------------------------------------------------------------------------------------------------*/
 void Rufus::AfficheMotif(UpLabel *lbl)
 {
-    QMap<QString, QVariant> rsgnmt = lbl->getData();
+    QMap<QString, QVariant> rsgnmt = lbl->datas();
     QString Msg("");
     Msg += Utils::CalculAge(rsgnmt["ddnpat"].toDate())["toString"].toString();
     if (rsgnmt["urgence"].toBool())
@@ -922,11 +922,11 @@ void Rufus::MAJPatientsVus()
         label3->setContextMenuPolicy(Qt::CustomContextMenu);
         label4->setContextMenuPolicy(Qt::CustomContextMenu);
 
-        label0->setData(rsgnmt);
-        label1->setData(rsgnmt);
-        label2->setData(rsgnmt);
-        label3->setData(rsgnmt);
-        label4->setData(rsgnmt);
+        label0->setdatas(rsgnmt);
+        label1->setdatas(rsgnmt);
+        label2->setdatas(rsgnmt);
+        label3->setdatas(rsgnmt);
+        label4->setdatas(rsgnmt);
 
         NomPrenom = patlist.at(i).at(2).toString().toUpper()
                 + " " + patlist.at(i).at(3).toString();
@@ -2955,9 +2955,9 @@ void Rufus::AfficheDossiersRechercheParMotCle()
     QTableView      *tabMC              = new QTableView(gAskListPatients);
     gAskListPatients->dlglayout()       ->insertWidget(0,tabMC);
     gAskListPatients->AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonOK);
-    gAskListPatients->PrintButton   ->setData(listidMc);
+    gAskListPatients->PrintButton   ->setdata(listidMc);
     connect(gAskListPatients->OKButton,     &QPushButton::clicked,   [=] {gAskListPatients->accept();});
-    connect(gAskListPatients->PrintButton,  &QPushButton::clicked,   [=] {ImprimeListPatients(gAskListPatients->PrintButton->Data());});
+    connect(gAskListPatients->PrintButton,  &QPushButton::clicked,   [=] {ImprimeListPatients(gAskListPatients->PrintButton->data());});
 
     gAskListPatients->setModal(true);
     gAskListPatients->setSizeGripEnabled(false);
@@ -3192,9 +3192,9 @@ void Rufus::MasquePatientsVusWidget()
 
 void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
 {
-    if (UpText->getId() == 0)
+    if (UpText->iD() == 0)
         return;
-    Datas::I()->patients->setdossierpatientaouvrir(UpText->getId());
+    Datas::I()->patients->setdossierpatientaouvrir(UpText->iD());
     if( m_currentuser->isSoignant() )
     {
         gmenuContextuel = new QMenu(this);
@@ -3378,10 +3378,10 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
 void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
 {
     if (labelClicked == Q_NULLPTR) return;
-    QMap<QString, QVariant> rsgnmt = labelClicked->getData();
+    QMap<QString, QVariant> rsgnmt = labelClicked->datas();
     int id = rsgnmt["idpat"].toInt();
     Datas::I()->patients->setdossierpatientaouvrir(id);
-    int row = labelClicked->getRow();
+    int row = labelClicked->Row();
 
     gmenuContextuel = new QMenu(this);
 
@@ -3428,11 +3428,11 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
     bool a = false;
     // si le label qui émet la demande de menu n'est pas dans la plage sélectionnée, on n'affiche pas de menu
     for (int i = 0; i< listRange.size();i++)
-        if (listRange.at(i).topRow() <= labelClicked->getRow() && listRange.at(i).bottomRow() >= labelClicked->getRow())
+        if (listRange.at(i).topRow() <= labelClicked->Row() && listRange.at(i).bottomRow() >= labelClicked->Row())
         {a = true;  break;}
     if (a == false) return;
 
-    Datas::I()->patients->setdossierpatientaouvrir(labelClicked->getId());
+    Datas::I()->patients->setdossierpatientaouvrir(labelClicked->iD());
 
     gmenuContextuel = new QMenu(this);
 
@@ -3446,7 +3446,7 @@ void Rufus::MenuContextuelSalDatPaiemt(UpLabel *labelClicked)
         QAction *pAction_EmettreDoc = gmenuContextuel->addAction(tr("Emettre un document"));
         connect (pAction_EmettreDoc,            &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat("Document");});
     }
-    if (m_currentuser->isSecretaire() || labelClicked->getData().value("idComptable").toInt()==m_currentuser->idcomptable())
+    if (m_currentuser->isSecretaire() || labelClicked->datas().value("idComptable").toInt()==m_currentuser->idcomptable())
     {
         QAction *pAction_EnregistrePaiement = gmenuContextuel->addAction(tr("Enregistrer le paiement"));
         connect (pAction_EnregistrePaiement,    &QAction::triggered,    this, [=] {ChoixMenuContextuelSalDat("Payer");});
@@ -3486,7 +3486,7 @@ void Rufus::ChoixMenuContextuelSalDat(QString choix)
         int row(-1);
         for (int i=0; i< ui->SalleDAttenteupTableWidget->rowCount(); i++)
         {
-             rsgnmt = static_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0))->getData();
+             rsgnmt = static_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0))->datas();
              if (rsgnmt["idpat"].toInt()== Datas::I()->patients->dossierpatientaouvrir()->id())
              {
                  row = i;
@@ -3942,7 +3942,7 @@ void Rufus::OuvrirParametres()
                     if (lineOPTAM != Q_NULLPTR)
                     {
                         montantOPTAM    = QString::number(QLocale().toDouble(lineOPTAM->text()));
-                        tip             = lineOPTAM->getData().toString();
+                        tip             = lineOPTAM->datas().toString();
                     }
                     UpLineEdit *lineNonOPTAM = dynamic_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,3));
                     if (lineNonOPTAM != Q_NULLPTR)
@@ -3973,7 +3973,7 @@ void Rufus::OuvrirParametres()
                     if (lineconv != Q_NULLPTR)
                     {
                         mtconv  = lineconv->text();
-                        tip     = lineconv->getData().toString();
+                        tip     = lineconv->datas().toString();
                     }
                     montantconv = QString::number(QLocale().toDouble(mtconv));
                     req += "('" + codeCCAM +  "', " + montantconv + "," + montantconv + "," + montantconv + ", 3, " + QString::number(m_currentuser->id()) + ", '" + tip + "'), \n";
@@ -4287,7 +4287,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     msglayout       ->addWidget(MsgText);
     msglayout       ->addLayout(tasklayout);
 
-    gAsk->OKButton   ->setId(idMsg);
+    gAsk->OKButton   ->setiD(idMsg);
     connect(gAsk->OKButton,   QOverload<int>::of(&UpSmallButton::clicked),  [=] {VerifSendMessage(idMsg);});
 
     totallayout->addLayout(destlayout);
@@ -4519,8 +4519,8 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     QString backgroundsurbrill = "background:#B2D7FF";
     if (lab==Q_NULLPTR)
         return;
-    int idpat       = lab->getData()["idpat"].toInt();
-    int row         = lab->getRow();
+    int idpat       = lab->datas()["idpat"].toInt();
+    int row         = lab->Row();
     QString color   = "color: black";
     QString colorRDV= "color: black";
     UpLabel *lab0   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,0));
@@ -4604,7 +4604,7 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                 UpLabel *labi6   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
                 QString color2, colorRDV2;
                 pat = Q_NULLPTR;
-                auto itpat = m_listepatientsencours->patientsencours()->find(labi0->getData()["idpat"].toInt());
+                auto itpat = m_listepatientsencours->patientsencours()->find(labi0->datas()["idpat"].toInt());
                 if (itpat != m_listepatientsencours->patientsencours()->cend())
                 {
                     pat = const_cast<PatientEnCours*>(itpat.value());
@@ -4836,20 +4836,20 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             if (destlist.at(i).at(1).toInt() != m_currentuser->id())
             {
                 UpLabel *Respondlbl = new UpLabel();
-                Respondlbl->setId(destlist.at(i).at(0).toInt());
+                Respondlbl->setiD(destlist.at(i).at(0).toInt());
                 Respondlbl->setPixmap(Icons::pxConversation().scaled(20,20)); //WARNING : icon scaled : pxConversation 20,20
                 Respondlbl->setImmediateToolTip(tr("Répondre"));
-                connect(Respondlbl,     QOverload<int>::of(&UpLabel::clicked), [=] {MsgResp(Respondlbl->getId());});
+                connect(Respondlbl,     QOverload<int>::of(&UpLabel::clicked), [=] {MsgResp(Respondlbl->iD());});
                 Respondlbl->setFixedWidth(25);
                 Droplay->addWidget(Respondlbl);
             }
 
             UpLabel *Dellbl = new UpLabel();
-            Dellbl->setId(destlist.at(i).at(10).toInt());
+            Dellbl->setiD(destlist.at(i).at(10).toInt());
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
             Dellbl->setMinimumWidth(25);
-            connect(Dellbl,             QOverload<int>::of(&UpLabel::clicked), [=] {SupprimerMessageRecu(Dellbl->getId());});
+            connect(Dellbl,             QOverload<int>::of(&UpLabel::clicked), [=] {SupprimerMessageRecu(Dellbl->iD());});
             Droplay->addWidget(Dellbl);
 
             Msglay->addLayout(Droplay);
@@ -4895,7 +4895,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 if (nomprenom != "")
                 {
                     aboutdoc->setText(nomprenom);
-                    aboutdoc->setId(destlist.at(i).at(3).toInt());
+                    aboutdoc->setiD(destlist.at(i).at(3).toInt());
                     aboutlay->addWidget(aboutdoc);
                     aboutlay->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
                     SMlay->addLayout(aboutlay);
@@ -4989,18 +4989,18 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Droplay->addSpacerItem(new QSpacerItem(10,10, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
             UpLabel *Modiflbl = new UpLabel();
-            Modiflbl->setId(emetlist.at(i).at(0).toInt());
+            Modiflbl->setiD(emetlist.at(i).at(0).toInt());
             Modiflbl->setPixmap(Icons::pxEditer().scaled(20,20)); //WARNING : icon scaled : pxEditer 20,20
             Modiflbl->setImmediateToolTip(tr("Modifier"));
             Modiflbl->setFixedWidth(25);
-            connect(Modiflbl, QOverload<int>::of(&UpLabel::clicked),  [=] {MsgModif(Modiflbl->getId());});
+            connect(Modiflbl, QOverload<int>::of(&UpLabel::clicked),  [=] {MsgModif(Modiflbl->iD());});
             Droplay->addWidget(Modiflbl);
 
             UpLabel *Dellbl = new UpLabel();
-            Dellbl->setId(emetlist.at(i).at(0).toInt());
+            Dellbl->setiD(emetlist.at(i).at(0).toInt());
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
-            connect(Dellbl,     QOverload<int>::of(&UpLabel::clicked),  [=] {SupprimerMessageEmis(Dellbl->getId());});
+            connect(Dellbl,     QOverload<int>::of(&UpLabel::clicked),  [=] {SupprimerMessageEmis(Dellbl->iD());});
             Droplay->addWidget(Dellbl);
             Msglay->addLayout(Droplay);
 
@@ -5061,9 +5061,9 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
 
             Msgtxt->document()->setTextWidth(370);
             Msgtxt->setFixedSize(380,int(Msgtxt->document()->size().height())+2);
-            Msgtxt->setTable(TBL_MESSAGES);
-            Msgtxt->setChamp(CP_TEXTMSG_MESSAGERIE);
-            Msgtxt->setId(emetlist.at(i).at(0).toInt());
+            Msgtxt->settable(TBL_MESSAGES);
+            Msgtxt->setchamp(CP_TEXTMSG_MESSAGERIE);
+            Msgtxt->setiD(emetlist.at(i).at(0).toInt());
             Msgtxt->installEventFilter(this);
             Msgtxt->setReadOnly(true);
 
@@ -5144,7 +5144,7 @@ void Rufus::MsgResp(int idmsg)
     buttonlayout   = new QHBoxLayout();
     UpSmallButton *OKbutton       = new UpSmallButton("", gMsgRepons);
     OKbutton        ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
-    OKbutton        ->setId(idmsg);
+    OKbutton        ->setiD(idmsg);
     connect(OKbutton, &QPushButton::clicked, [=] {EnregMsgResp(idmsg);});
     buttonlayout    ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
     buttonlayout    ->addWidget(OKbutton);
@@ -5230,7 +5230,7 @@ void Rufus::MsgModif(int idmsg)
     if (listtxt.size()>0)
         for (int i=0; i<listtxt.size();i++)
         {
-            if (listtxt.at(i)->getId()==idmsg)
+            if (listtxt.at(i)->iD()==idmsg)
             {
                 QString req = "select " CP_TEXTMSG_MESSAGERIE ", idPatient, Tache, DateLimite, CreeLe, Urge from " TBL_MESSAGES
                               " where idMessage = " + QString::number(idmsg);
@@ -5767,10 +5767,10 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
         {
             QString requetemodif;
             objUpText->textCursor().clearSelection();
-            if (objUpText->getValeurAvant() != objUpText->toHtml())
+            if (objUpText->valeuravant() != objUpText->toHtml())
             {
                 QString Corps = objUpText->toHtml();
-                if (objUpText->getTableCorrespondant() == TBL_ACTES || objUpText->getTableCorrespondant() == TBL_MESSAGES)
+                if (objUpText->table() == TBL_ACTES || objUpText->table() == TBL_MESSAGES)
                 {
                     Corps.replace("<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">","<p style=\" margin-top:0px; margin-bottom:0px;\">");
                     Corps.remove("border=\"0\" style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;\" ");
@@ -5782,19 +5782,17 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
         #ifdef Q_OS_MAC
                     Corps.append(HTMLCOMMENT_MAC);
         #endif
-                    if (objUpText->getTableCorrespondant() == TBL_ACTES)
-                        ItemsList::update(m_currentact, objUpText->getChampCorrespondant(), Corps);
-                    else if (objUpText->getTableCorrespondant() == TBL_MESSAGES)
+                    if (objUpText->table() == TBL_ACTES)
+                        ItemsList::update(m_currentact, objUpText->champ(), Corps);
+                    else if (objUpText->table() == TBL_MESSAGES)
                     {
-                        requetemodif =   "UPDATE " + objUpText->getTableCorrespondant() + " SET " + objUpText->getChampCorrespondant() + " = '"
+                        requetemodif =   "UPDATE " + objUpText->table() + " SET " + objUpText->champ() + " = '"
                                 + Utils::correctquoteSQL(Corps) + "' WHERE idMessage = " + QString::number(m_currentact->id());
-                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->getChampCorrespondant() + "!");
+                        db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->champ() + "!");
                     }
                 }
-                else if (objUpText->getTableCorrespondant() == TBL_RENSEIGNEMENTSMEDICAUXPATIENTS)
-                {
-                    Datas::I()->patients->updatePatientData(Datas::I()->patients->currentpatient(), objUpText->getChampCorrespondant(), objUpText->toPlainText());
-                }
+                else if (objUpText->table() == TBL_RENSEIGNEMENTSMEDICAUXPATIENTS)
+                    ItemsList::update(Datas::I()->patients->currentpatient(), objUpText->champ(), objUpText->toPlainText());
             }
         }
         else
@@ -5806,16 +5804,16 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                     // le contrôle de sortie pour ActeMontantlineEdit est traité la méthode ValideActeMontant();
                     return QWidget::eventFilter(obj, event);
                 QString requetemodif;
-                if (objUpLine->getValeurAvant() != objUpLine->text())
+                if (objUpLine->valeuravant() != objUpLine->text())
                 {
                     objUpLine->setText(Utils::trimcapitilize(objUpLine->text(),true));
-                    if (objUpLine->getTableCorrespondant() == TBL_ACTES)
+                    if (objUpLine->table() == TBL_ACTES)
                     {
-                        ItemsList::update( m_currentact, objUpLine->getChampCorrespondant(),objUpLine->text());
+                        ItemsList::update( m_currentact, objUpLine->champ(),objUpLine->text());
                     }
-                    else if (objUpLine->getTableCorrespondant() == TBL_RENSEIGNEMENTSMEDICAUXPATIENTS)
+                    else if (objUpLine->table() == TBL_RENSEIGNEMENTSMEDICAUXPATIENTS)
                     {
-                        Datas::I()->patients->updatePatientData(Datas::I()->patients->currentpatient(), objUpLine->getChampCorrespondant(), objUpLine->text());
+                        ItemsList::update(Datas::I()->patients->currentpatient(), objUpLine->champ(), objUpLine->text());
                         OKModifierTerrain(Datas::I()->patients->currentpatient());
                     }
                 }
@@ -5890,7 +5888,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             if (obj->inherits("UpTextEdit"))
             {
                 UpTextEdit* objUpText = static_cast<UpTextEdit*>(obj);
-                if (objUpText->getTableCorrespondant() == TBL_MESSAGES)
+                if (objUpText->table() == TBL_MESSAGES)
                 {
                     int nlines = objUpText->document()->lineCount()+1;
                     int a = int(QFontMetrics(qApp->font()).height()*1.4);
@@ -7884,39 +7882,39 @@ void Rufus::InitVariables()
     ImportDocsExtThread         = Q_NULLPTR;
     gUserDateDernierMessage     = QDateTime();
 
-    ui->AtcdtsOphstextEdit      ->setChamp(CP_ATCDTSOPH_RMP);
-    ui->AtcdtsOphstextEdit      ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    ui->TtOphtextEdit           ->setChamp(CP_TRAITMTOPH_RMP);
-    ui->TtOphtextEdit           ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    ui->ImportanttextEdit       ->setChamp(CP_IMPORTANT_RMP);
-    ui->ImportanttextEdit       ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    ui->ResumetextEdit          ->setChamp(CP_RESUME_RMP);
-    ui->ResumetextEdit          ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    ui->AtcdtsOphstextEdit      ->setchamp(CP_ATCDTSOPH_RMP);
+    ui->AtcdtsOphstextEdit      ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    ui->TtOphtextEdit           ->setchamp(CP_TRAITMTOPH_RMP);
+    ui->TtOphtextEdit           ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    ui->ImportanttextEdit       ->setchamp(CP_IMPORTANT_RMP);
+    ui->ImportanttextEdit       ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    ui->ResumetextEdit          ->setchamp(CP_RESUME_RMP);
+    ui->ResumetextEdit          ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
 
-    ui->AtcdtsPersostextEdit    ->setChamp(CP_ATCDTSPERSOS_RMP);
-    ui->AtcdtsPersostextEdit    ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    ui->AtcdtsFamiliauxtextEdit ->setChamp(CP_ATCDTSFAMLXS_RMP);
-    ui->AtcdtsFamiliauxtextEdit ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    ui->TtGeneraltextEdit       ->setChamp(CP_TRAITMTGEN_RMP);
-    ui->TtGeneraltextEdit       ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    ui->AutresToxiquestextEdit  ->setChamp(CP_AUTRESTOXIQUES_RMP);
-    ui->AutresToxiquestextEdit  ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    ui->AtcdtsPersostextEdit    ->setchamp(CP_ATCDTSPERSOS_RMP);
+    ui->AtcdtsPersostextEdit    ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    ui->AtcdtsFamiliauxtextEdit ->setchamp(CP_ATCDTSFAMLXS_RMP);
+    ui->AtcdtsFamiliauxtextEdit ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    ui->TtGeneraltextEdit       ->setchamp(CP_TRAITMTGEN_RMP);
+    ui->TtGeneraltextEdit       ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    ui->AutresToxiquestextEdit  ->setchamp(CP_AUTRESTOXIQUES_RMP);
+    ui->AutresToxiquestextEdit  ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
 
-    MGlineEdit                  ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    MGlineEdit                  ->setChamp(CP_IDMG_RMP);
-    AutresCorresp1LineEdit      ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    AutresCorresp1LineEdit      ->setChamp(CP_IDSPE1_RMP);
-    AutresCorresp2LineEdit      ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    AutresCorresp2LineEdit      ->setChamp(CP_IDSPE2_RMP);
-    ui->TabaclineEdit           ->setTable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    ui->TabaclineEdit           ->setChamp(CP_TABAC_RMP);
+    MGlineEdit                  ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    MGlineEdit                  ->setchamp(CP_IDMG_RMP);
+    AutresCorresp1LineEdit      ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    AutresCorresp1LineEdit      ->setchamp(CP_IDSPE1_RMP);
+    AutresCorresp2LineEdit      ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    AutresCorresp2LineEdit      ->setchamp(CP_IDSPE2_RMP);
+    ui->TabaclineEdit           ->settable(TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
+    ui->TabaclineEdit           ->setchamp(CP_TABAC_RMP);
 
-    ui->ActeMotiftextEdit       ->setChamp(CP_MOTIF_ACTES);
-    ui->ActeMotiftextEdit       ->setTable(TBL_ACTES);
-    ui->ActeTextetextEdit       ->setChamp(CP_TEXTE_ACTES);
-    ui->ActeTextetextEdit       ->setTable(TBL_ACTES);
-    ui->ActeConclusiontextEdit  ->setChamp(CP_CONCLUSION_ACTES);
-    ui->ActeConclusiontextEdit  ->setTable(TBL_ACTES);
+    ui->ActeMotiftextEdit       ->setchamp(CP_MOTIF_ACTES);
+    ui->ActeMotiftextEdit       ->settable(TBL_ACTES);
+    ui->ActeTextetextEdit       ->setchamp(CP_TEXTE_ACTES);
+    ui->ActeTextetextEdit       ->settable(TBL_ACTES);
+    ui->ActeConclusiontextEdit  ->setchamp(CP_CONCLUSION_ACTES);
+    ui->ActeConclusiontextEdit  ->settable(TBL_ACTES);
 
     ui->LListepushButton        ->setEnabled(false);
     ui->CreerDossierpushButton  ->setText(tr("Ouvrir\nle dossier"));
@@ -7957,7 +7955,7 @@ void Rufus::MAJCorrespondant(QObject *obj)
     if (cbox == Q_NULLPTR) return;
     UpLineEdit *Upline = dynamic_cast<UpLineEdit*>(cbox->lineEdit());
     if (Upline == Q_NULLPTR) return;
-    QString anc = cbox->getValeurAvant();
+    QString anc = cbox->valeuravant();
     QString nou = Utils::trimcapitilize(cbox->currentText(),true);
     QString req;
     cbox->setCurrentText(nou);
@@ -8659,12 +8657,12 @@ bool Rufus::Remplir_ListePatients_TableView()
         pitem3  = new UpStandardItem(pat->datedenaissance().toString(tr("yyyyMMdd")));              // date de naissance inversée   -> utilisé pour le tri
         pitem4  = new UpStandardItem(pat->nom());                                                   // Nom                          -> utilisé pour le tri
         pitem5  = new UpStandardItem(pat->prenom());                                                // Prénom                       -> utilisé pour le tri
-        pitem0  ->setItem(pat);
-        pitem1  ->setItem(pat);
-        pitem2  ->setItem(pat);
-        pitem3  ->setItem(pat);
-        pitem4  ->setItem(pat);
-        pitem4  ->setItem(pat);
+        pitem0  ->setitem(pat);
+        pitem1  ->setitem(pat);
+        pitem2  ->setitem(pat);
+        pitem3  ->setitem(pat);
+        pitem4  ->setitem(pat);
+        pitem4  ->setitem(pat);
         m_listepatientsmodel->appendRow(QList<QStandardItem *>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5);
     }
     QStandardItem *itnom = new QStandardItem();
@@ -8731,7 +8729,7 @@ void Rufus::Remplir_SalDat()
         QList<QStandardItem *> items;
         listidpat << pat->id();
         UpStandardItem *itempat = new UpStandardItem(QString::number(pat->id()));
-        itempat->setItem(pat);
+        itempat->setitem(pat);
         items << new UpStandardItem(pat->heurerdv().toString("HHmm"))
               << itempat;
         m_listepatientsencoursmodel->appendRow(items);
@@ -8793,13 +8791,13 @@ void Rufus::Remplir_SalDat()
         label5 = new UpLabel(TableAMettreAJour);
         label6 = new UpLabel(TableAMettreAJour);
 
-        label0->setData(rsgnmt);
-        label1->setData(rsgnmt);
-        label2->setData(rsgnmt);
-        label3->setData(rsgnmt);
-        label4->setData(rsgnmt);
-        label5->setData(rsgnmt);
-        label6->setData(rsgnmt);
+        label0->setdatas(rsgnmt);
+        label1->setdatas(rsgnmt);
+        label2->setdatas(rsgnmt);
+        label3->setdatas(rsgnmt);
+        label4->setdatas(rsgnmt);
+        label5->setdatas(rsgnmt);
+        label6->setdatas(rsgnmt);
 
         label0->setRow(i);
         label1->setRow(i);
@@ -9031,8 +9029,8 @@ void Rufus::Remplir_SalDat()
                 Patient *pat                = it.value();
                 if (pat != Q_NULLPTR)
                 {
-                    UserBureau->setId(post->idpatencours());
-                    if( UserBureau->getIdUser() == m_currentuser->id() )
+                    UserBureau->setiD(post->idpatencours());
+                    if( UserBureau->idUser() == m_currentuser->id() )
                         connect(UserBureau, &UpTextEdit::dblclick, this,  [=] {if (m_currentuser->isSecretaire()) ChoixDossier(pat);});
                     else
                     {
@@ -9103,12 +9101,12 @@ void Rufus::Remplir_SalDat()
         label4 = new UpLabel;
         label5 = new UpLabel;
 
-        label0->setData(rsgnmt);
-        label1->setData(rsgnmt);
-        label2->setData(rsgnmt);
-        label3->setData(rsgnmt);
-        label4->setData(rsgnmt);
-        label5->setData(rsgnmt);
+        label0->setdatas(rsgnmt);
+        label1->setdatas(rsgnmt);
+        label2->setdatas(rsgnmt);
+        label3->setdatas(rsgnmt);
+        label4->setdatas(rsgnmt);
+        label5->setdatas(rsgnmt);
 
         label0->setRow(i);
         label1->setRow(i);
@@ -9119,12 +9117,12 @@ void Rufus::Remplir_SalDat()
 
         QTableWidgetItem *pItem = new QTableWidgetItem;
 
-        label0->setId(patencours->id());                      // idPat
-        label1->setId(patencours->id());                      // idPat
-        label2->setId(patencours->id());                      // idPat
-        label3->setId(patencours->id());                      // idPat
-        label4->setId(patencours->id());                      // idPat
-        label5->setId(patencours->id());                      // idPat
+        label0->setiD(patencours->id());                      // idPat
+        label1->setiD(patencours->id());                      // idPat
+        label2->setiD(patencours->id());                      // idPat
+        label3->setiD(patencours->id());                      // idPat
+        label4->setiD(patencours->id());                      // idPat
+        label5->setiD(patencours->id());                      // idPat
 
         label0->setContextMenuPolicy(Qt::CustomContextMenu);
         label1->setContextMenuPolicy(Qt::CustomContextMenu);

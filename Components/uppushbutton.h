@@ -31,18 +31,16 @@ public:
     explicit    UpPushButton(QString text, QWidget *parent = Q_NULLPTR);
     ~UpPushButton();
 
-    enum        StyleBouton {OKBUTTON,ANNULBUTTON,NORMALBUTTON,IMPRIMEBUTTON};
-    Q_ENUM(StyleBouton)
-    enum        TailleBouton {Large, Mid, Small};
-    Q_ENUM(TailleBouton)
+    enum        StyleBouton {OKBUTTON,ANNULBUTTON,NORMALBUTTON,IMPRIMEBUTTON};      Q_ENUM(StyleBouton)
+    enum        TailleBouton {Large, Mid, Small};                                   Q_ENUM(TailleBouton)
     void        setUpButtonStyle(enum StyleBouton, enum TailleBouton);
-    void        setId(int id);
-    int         getId() const;
+    void        setiD(int m_id);
+    int         iD() const;
     void        setImmediateToolTip(QString Msg);
 
 private:
     bool        eventFilter(QObject *obj, QEvent *event)  ;
-    int         id;
-    QString     gToolTipMsg;
+    int         m_id;
+    QString     m_tooltipmsg;
 };
 #endif // UPPUSHBUTTON_H

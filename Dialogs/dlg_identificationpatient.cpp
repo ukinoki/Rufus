@@ -612,7 +612,7 @@ Patient* dlg_identificationpatient::getPatient()
 // ------------------------------------------------------------------------------------------
 void dlg_identificationpatient::MAJMG()
 {
-    QString anc = ui->MGupComboBox->getValeurAvant();
+    QString anc = ui->MGupComboBox->valeuravant();
     QString nou = Utils::trimcapitilize(ui->MGupComboBox->currentText(),true);
     ui->MGupComboBox->setCurrentText(nou);
     if (anc != nou) OKButton->setEnabled(true);
@@ -649,7 +649,7 @@ void dlg_identificationpatient::MAJMG()
                 ui->MGupComboBox->setCurrentIndex(ui->MGupComboBox->findText(anc));
             msgbox.close();
         }
-        else if (ui->MGupComboBox->getValeurAvant() != "" && gMode != Copie)
+        else if (ui->MGupComboBox->valeuravant() != "" && gMode != Copie)
             Datas::I()->patients->updateCorrespondant(m_currentpatient, Correspondant::MG);
     }
 }

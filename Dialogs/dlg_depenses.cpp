@@ -1704,13 +1704,13 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     label6 = new UpLabel;
     label7 = new UpLabel;
 
-    label1->setId(id);
-    label2->setId(id);
-    label3->setId(id);
-    label4->setId(id);
-    label5->setId(id);
-    label6->setId(id);
-    label7->setId(id);
+    label1->setiD(id);
+    label2->setiD(id);
+    label3->setiD(id);
+    label4->setiD(id);
+    label5->setiD(id);
+    label6->setiD(id);
+    label7->setiD(id);
 
     label1->setContextMenuPolicy(Qt::CustomContextMenu);
     label2->setContextMenuPolicy(Qt::CustomContextMenu);

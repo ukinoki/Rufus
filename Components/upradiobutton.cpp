@@ -21,8 +21,8 @@ UpRadioButton::UpRadioButton(QWidget *parent) : QRadioButton(parent)
 {
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
-    gid         = -1;
-    Toggable    = true;
+    m_id         = -1;
+    m_toggleable    = true;
     m_item    = Q_NULLPTR;
 }
 
@@ -30,14 +30,14 @@ UpRadioButton::UpRadioButton(const QString Title, QWidget *parent) : QRadioButto
 {
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
-    gid          = -1;
-    Toggable  = true;
+    m_id          = -1;
+    m_toggleable  = true;
 }
 
 void UpRadioButton::AfficheToolTip()
 {
-    if (gToolTipMsg != "" && isEnabled())
-        QToolTip::showText(cursor().pos(),gToolTipMsg);
+    if (m_tooltipmsg != "" && isEnabled())
+        QToolTip::showText(cursor().pos(),m_tooltipmsg);
 }
 
 bool UpRadioButton::eventFilter(QObject *obj, QEvent *event)
@@ -57,30 +57,30 @@ bool UpRadioButton::eventFilter(QObject *obj, QEvent *event)
 
 void UpRadioButton::setImmediateToolTip(QString Msg)
 {
-    gToolTipMsg = Msg;
+    m_tooltipmsg = Msg;
 }
 void UpRadioButton::setToggleable(bool val)
 {
-    Toggable = val;
+    m_toggleable = val;
 }
 bool UpRadioButton::Toggleable() const
 {
-    return Toggable;
+    return m_toggleable;
 }
 void UpRadioButton::setiD(int val)
 {
-    gid          = val;
+    m_id          = val;
 }
 int UpRadioButton::iD() const
 {
-    return gid;
+    return m_id;
 }
 
-void UpRadioButton::setItem(Item* item)
+void UpRadioButton::setitem(Item* item)
 {
     m_item = item;
 }
-Item* UpRadioButton::getItem()
+Item* UpRadioButton::item()
 {
     return m_item;
 }

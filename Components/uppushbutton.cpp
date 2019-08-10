@@ -24,7 +24,7 @@ UpPushButton::UpPushButton(QWidget *parent) : QPushButton(parent)
 {
     setAutoDefault(false);
     setFocusPolicy(Qt::StrongFocus);
-    gToolTipMsg = "";
+    m_tooltipmsg = "";
     installEventFilter(this);
     setFlat(false);
     setStyleSheet(STYLE_UPPUSHBUTTON);
@@ -44,9 +44,9 @@ bool UpPushButton::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::Enter)
     {
-        if (gToolTipMsg != "")
+        if (m_tooltipmsg != "")
             if (isEnabled())
-                QToolTip::showText(cursor().pos(),gToolTipMsg);
+                QToolTip::showText(cursor().pos(),m_tooltipmsg);
     }
     if (event->type() == QEvent::KeyPress)
     {
@@ -62,7 +62,7 @@ bool UpPushButton::eventFilter(QObject *obj, QEvent *event)
 
 void UpPushButton::setImmediateToolTip(QString Msg)
 {
-    gToolTipMsg = Msg;
+    m_tooltipmsg = Msg;
 }
 
 void UpPushButton::setUpButtonStyle(enum StyleBouton Style, enum TailleBouton Taille)
@@ -105,12 +105,12 @@ void UpPushButton::setUpButtonStyle(enum StyleBouton Style, enum TailleBouton Ta
     }
 }
 
-void UpPushButton::setId(int idadef)
+void UpPushButton::setiD(int idadef)
 {
-    id = idadef;
+    m_id = idadef;
 }
 
-int UpPushButton::getId() const
+int UpPushButton::iD() const
 {
-    return id;
+    return m_id;
 }

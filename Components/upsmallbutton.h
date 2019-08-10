@@ -37,20 +37,20 @@ public:
     void        setUpButtonStyle(enum StyleBouton);
     StyleBouton m_style;
     StyleBouton ButtonStyle();
-    void        setId(int);
-    int         getId();
+    void        setiD(int);
+    int         iD();
     void        setText(QString);
-    void        setData(QVariant var);
-    QVariant    Data();
+    void        setdata(QVariant var);
+    QVariant    data();
     void        setImmediateToolTip(QString Msg, bool  affichettipmemesidisabled = false);
 
 private:
     bool        eventFilter(QObject *obj, QEvent *event)  ;
-    int         id;
-    QVariant    gLuggage;
+    int         m_id;
+    QVariant    m_luggage;
     void        AfficheToolTip();
     bool        AfficheToolTipMemeSiDisabled = false;
-    QString     gToolTipMsg;
+    QString     m_tooltipmsg;
 
 signals:
     void        clicked(int a);

@@ -29,15 +29,14 @@ class UpSpinBox : public QSpinBox
 public:
     explicit        UpSpinBox(QWidget *parent = Q_NULLPTR);
     ~UpSpinBox();
-    void            setValeurAvant(int ValPrec);
-    int             getValeurAvant() const;
-    enum gUpDown    {Up,Down};
-    Q_ENUM(gUpDown)
+    void            setvaleuravant(int ValPrec);
+    int             valeuravant() const;
+    enum UpDown    {Up,Down};      Q_ENUM(UpDown)
     void            setAutorCorrigeAxe(bool);
     void            CorrigeAxe(int UpDown);
 
 private:
-    int             ValeurAvant;
+    int             m_valeuravant;
     bool            eventFilter(QObject *, QEvent *);
     bool            gCorrigeAxe;
 

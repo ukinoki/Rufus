@@ -45,9 +45,9 @@ signals:
             // ce signal ne sera émis que si la propriété Toggleabble est true et permet de se départir des comportements implicites du signal toggled()
 
 private:
-    int     RowTable, gid;
-    bool    Toggable;
-    QString gToolTipMsg;
+    int     m_rowtable, m_id;
+    bool    m_toggleable;
+    QString m_tooltipmsg;
     bool    eventFilter(QObject *obj, QEvent *event)  ;
     void    AfficheToolTip();
 

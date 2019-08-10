@@ -19,9 +19,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpCheckBox::UpCheckBox(QWidget *parent) : QCheckBox(parent)
 {
-    RowTable    = -1;
-    gid          = -1;
-    Toggable  = true;
+    m_rowtable    = -1;
+    m_id          = -1;
+    m_toggleable  = true;
     setContextMenuPolicy(Qt::NoContextMenu);
     installEventFilter(this);
 }
@@ -38,8 +38,8 @@ UpCheckBox::~UpCheckBox()
 
 void UpCheckBox::AfficheToolTip()
 {
-    if (gToolTipMsg != "" && isEnabled())
-        QToolTip::showText(cursor().pos(),gToolTipMsg);
+    if (m_tooltipmsg != "" && isEnabled())
+        QToolTip::showText(cursor().pos(),m_tooltipmsg);
 }
 
 bool UpCheckBox::eventFilter(QObject *obj, QEvent *event)
@@ -59,29 +59,29 @@ bool UpCheckBox::eventFilter(QObject *obj, QEvent *event)
 
 void UpCheckBox::setImmediateToolTip(QString Msg)
 {
-    gToolTipMsg = Msg;
+    m_tooltipmsg = Msg;
 }
 void UpCheckBox::setRowTable(int val)
 {
-    RowTable    = val;
+    m_rowtable    = val;
 }
 int UpCheckBox::rowTable() const
 {
-    return RowTable;
+    return m_rowtable;
 }
 void UpCheckBox::setiD(int val)
 {
-    gid          = val;
+    m_id          = val;
 }
 int UpCheckBox::iD() const
 {
-    return gid;
+    return m_id;
 }
 void UpCheckBox::setToggleable(bool val)
 {
-    Toggable = val;
+    m_toggleable = val;
 }
 bool UpCheckBox::Toggleable() const
 {
-    return Toggable;
+    return m_toggleable;
 }

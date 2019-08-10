@@ -19,14 +19,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 UpLineEdit::UpLineEdit(QWidget *parent) : QLineEdit(parent)
 {
-    RowTable        = -1;
-    ColumnTable     = -1;
-    id              = -1;
-    ValeurAvant     = "";
-    ValeurApres     = "";
-    Champ           = "";
-    Table           = "";
-    linedata        = QVariant();
+    m_row        = -1;
+    m_col     = -1;
+    m_id              = -1;
+    m_valeuravant     = "";
+    m_valeurapres     = "";
+    m_champ           = "";
+    m_table           = "";
+    m_datas        = QVariant();
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
 }
@@ -45,120 +45,120 @@ bool UpLineEdit::eventFilter(QObject *obj, QEvent *event)
         return true;
     }
     if (event->type() == QEvent::FocusIn)
-        setValeurAvant(text());
+        setvaleuravant(text());
     if (event->type() == QEvent::FocusOut)
     {
-        if (text() != ValeurAvant)
+        if (text() != m_valeuravant)
             emit TextModified(text());
         const QDoubleValidator *val= dynamic_cast<const QDoubleValidator*>(this->validator());
         if (val)
-            if (text() != ValeurAvant)
+            if (text() != m_valeuravant)
                 setText(QLocale().toString(QLocale().toDouble(text()),'f',2));
     }
     return QWidget::eventFilter(obj, event);
 }
 void UpLineEdit::enterEvent(QEvent *)
 {
-    if (RowTable > -1)
-        emit mouseEnter(RowTable);
+    if (m_row > -1)
+        emit mouseEnter(m_row);
 }
 
 void UpLineEdit::mouseReleaseEvent(QMouseEvent *)
 {
-    if (RowTable > -1)
-        emit mouseRelease(RowTable);
+    if (m_row > -1)
+        emit mouseRelease(m_row);
 }
 
 void UpLineEdit::mouseDoubleClickEvent(QMouseEvent *)
 {
-    if (RowTable > -1)
-        emit mouseDoubleClick(RowTable);
+    if (m_row > -1)
+        emit mouseDoubleClick(m_row);
 }
 
 void UpLineEdit::AfficheToolTip()
 {
-    if (gToolTipMsg != "" && isEnabled())
-        QToolTip::showText(cursor().pos(),gToolTipMsg);
+    if (m_tooltipmsg != "" && isEnabled())
+        QToolTip::showText(cursor().pos(),m_tooltipmsg);
 }
 
 void UpLineEdit::setImmediateToolTip(QString Msg)
 {
-    gToolTipMsg = Msg;
+    m_tooltipmsg = Msg;
 }
 
-void UpLineEdit::setData(QVariant data)
+void UpLineEdit::setdatas(QVariant data)
 {
-    linedata = data;
+    m_datas = data;
 }
 
-QVariant UpLineEdit::getData()
+QVariant UpLineEdit::datas()
 {
-    return linedata;
+    return m_datas;
 }
 
-void UpLineEdit::setId(int Id)
+void UpLineEdit::setiD(int Id)
 {
-    id = Id;
+    m_id = Id;
 }
-int UpLineEdit::getId()
+int UpLineEdit::iD()
 {
-    return id;
-}
-
-void UpLineEdit::setRowTable(int val)
-{
-    RowTable = val;
-}
-int UpLineEdit::getRowTable() const
-{
-    return RowTable;
+    return m_id;
 }
 
-void UpLineEdit::setColumnTable(int val)
+void UpLineEdit::setRow(int val)
 {
-    ColumnTable = val;
+    m_row = val;
 }
-int UpLineEdit::getColumnTable() const
+int UpLineEdit::Row() const
 {
-    return ColumnTable;
-}
-void UpLineEdit::setValeurAvant(QString valprec)
-{
-    ValeurAvant = valprec;
+    return m_row;
 }
 
-QString UpLineEdit::getValeurAvant() const
+void UpLineEdit::setColumn(int val)
 {
-    return ValeurAvant;
+    m_col = val;
+}
+int UpLineEdit::Column() const
+{
+    return m_col;
+}
+void UpLineEdit::setvaleuravant(QString valprec)
+{
+    m_valeuravant = valprec;
 }
 
-void UpLineEdit::setValeurApres(QString valpost)
+QString UpLineEdit::valeuravant() const
 {
-    ValeurApres = valpost;
+    return m_valeuravant;
 }
 
-QString UpLineEdit::getValeurApres() const
+void UpLineEdit::setvaleurapres(QString valpost)
 {
-    return ValeurApres;
+    m_valeurapres = valpost;
 }
 
-void UpLineEdit::setChamp(QString champcorrespondant)
+QString UpLineEdit::valeurapres() const
 {
-    Champ = champcorrespondant;
+    return m_valeurapres;
 }
 
-QString UpLineEdit::getChampCorrespondant() const
+void UpLineEdit::setchamp(QString champcorrespondant)
 {
-    return Champ;
+    m_champ = champcorrespondant;
 }
 
-void UpLineEdit::setTable(QString tablecorrespondant)
+QString UpLineEdit::champ() const
 {
-    Table = tablecorrespondant;
+    return m_champ;
 }
 
-QString UpLineEdit::getTableCorrespondant() const
+void UpLineEdit::settable(QString tablecorrespondant)
 {
-    return Table;
+    m_table = tablecorrespondant;
+}
+
+QString UpLineEdit::table() const
+{
+    return m_table;
 }
 

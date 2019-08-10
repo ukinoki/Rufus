@@ -30,30 +30,30 @@ class UpLineEdit : public QLineEdit
 public:
     explicit    UpLineEdit(QWidget *parent = Q_NULLPTR);
     ~UpLineEdit();
-    void        setRowTable(int val);
-    int         getRowTable() const;
-    void        setId(int id);
-    int         getId();
-    int         getColumnTable() const;
-    void        setColumnTable(int val);
-    void        setData(QVariant data);
-    QVariant    getData();
-    void        setValeurAvant(QString valprec);
-    QString     getValeurAvant() const;
-    void        setValeurApres(QString valpost);
-    QString     getValeurApres() const;
-    void        setChamp(QString champcorrespondant);
-    QString     getChampCorrespondant() const;
-    void        setTable(QString tablecorrespondant);
-    QString     getTableCorrespondant() const;
+    void        setRow(int val);
+    int         Row() const;
+    void        setiD(int m_id);
+    int         iD();
+    int         Column() const;
+    void        setColumn(int val);
+    void        setdatas(QVariant data);
+    QVariant    datas();
+    void        setvaleuravant(QString valprec);
+    QString     valeuravant() const;
+    void        setvaleurapres(QString valpost);
+    QString     valeurapres() const;
+    void        setchamp(QString champcorrespondant);
+    QString     champ() const;
+    void        settable(QString tablecorrespondant);
+    QString     table() const;
     void        setImmediateToolTip(QString Msg);
 
 private:
-    QString     gToolTipMsg;
+    QString     m_tooltipmsg;
     bool        eventFilter(QObject *obj, QEvent *event)  ;
-    int         RowTable, ColumnTable, id;
-    QString     ValeurAvant, ValeurApres, Champ, Table;
-    QVariant    linedata;
+    int         m_row, m_col, m_id;
+    QString     m_valeuravant, m_valeurapres, m_champ, m_table;
+    QVariant    m_datas;
     void        AfficheToolTip();
 
 signals:

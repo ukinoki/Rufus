@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpSpinBox::UpSpinBox(QWidget *parent) : QSpinBox(parent)
 {
-    ValeurAvant = 0;
+    m_valeuravant = 0;
     installEventFilter(this);
     setKeyboardTracking(false);
     gCorrigeAxe = true;
@@ -32,13 +32,13 @@ UpSpinBox::~UpSpinBox()
 bool UpSpinBox::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn)
-        setValeurAvant(value());
+        setvaleuravant(value());
     if (event->type() == QEvent::KeyPress)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key() == Qt::Key_Escape)
-            if (valueFromText(text()) != getValeurAvant())    {
-                setValue(getValeurAvant());
+            if (valueFromText(text()) != valeuravant())    {
+                setValue(valeuravant());
                 return true;
             }
         if (keyEvent->key() == Qt::Key_Delete)            // on tape SUPPR on remet à zero
@@ -88,11 +88,11 @@ void UpSpinBox::setAutorCorrigeAxe(bool Autor)
     gCorrigeAxe = Autor;
 }
 
-void UpSpinBox::setValeurAvant(int ValPrec)
+void UpSpinBox::setvaleuravant(int ValPrec)
 {
-    ValeurAvant = ValPrec;
+    m_valeuravant = ValPrec;
 }
-int UpSpinBox::getValeurAvant() const
+int UpSpinBox::valeuravant() const
 {
-    return ValeurAvant;
+    return m_valeuravant;
 }

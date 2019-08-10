@@ -515,8 +515,8 @@ void dlg_param::Slot_AfficheToolTip(QTableWidgetItem *id)
         QString tip = id->text();
         UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(id->row(),2));
         if (line != Q_NULLPTR)
-            if (line->getData().toString() != "")
-                tip += "\n" + line->getData().toString();
+            if (line->datas().toString() != "")
+                tip += "\n" + line->datas().toString();
         QToolTip::showText(cursor().pos(),tip, ui->AssocCCAMupTableWidget, rect, 2000);
     }
     else if (sender() == ui->HorsNomenclatureupTableWidget)
@@ -524,8 +524,8 @@ void dlg_param::Slot_AfficheToolTip(QTableWidgetItem *id)
         QString tip = id->text();
         UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(id->row(),2));
         if (line != Q_NULLPTR)
-            if (line->getData().toString() != "")
-                tip += "\n" + line->getData().toString();
+            if (line->datas().toString() != "")
+                tip += "\n" + line->datas().toString();
         QToolTip::showText(cursor().pos(),tip, ui->HorsNomenclatureupTableWidget, rect, 2000);
     }
 }
@@ -581,7 +581,7 @@ void dlg_param::Slot_ChercheCCAM(QString txt)
 void dlg_param::Slot_ChoixDossierStockageApp()
 {
     UpPushButton *bout = static_cast<UpPushButton*>(sender());
-    QString req = "select TitreExamen, NomAppareil from " TBL_LISTEAPPAREILS " where idAppareil = " + QString::number(bout->getId());
+    QString req = "select TitreExamen, NomAppareil from " TBL_LISTEAPPAREILS " where idAppareil = " + QString::number(bout->iD());
     bool ok;
     QVariantList examdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
     QString exam = "";
@@ -608,21 +608,21 @@ void dlg_param::Slot_ChoixDossierStockageApp()
         UpLineEdit *line = Q_NULLPTR;
         switch (mode) {
         case DataBase::Poste:
-            row = ui->MonoDocupTableWidget->findItems(QString::number(bout->getId()), Qt::MatchExactly).at(0)->row();
+            row = ui->MonoDocupTableWidget->findItems(QString::number(bout->iD()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(row,2));
             if (line!=Q_NULLPTR)
                 line->setText(dockdir.path());
             Base = "BDD_POSTE";
             break;
         case DataBase::ReseauLocal:
-            row = ui->LocalDocupTableWidget->findItems(QString::number(bout->getId()), Qt::MatchExactly).at(0)->row();
+            row = ui->LocalDocupTableWidget->findItems(QString::number(bout->iD()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(row,2));
             if (line!=Q_NULLPTR)
                 line->setText(dockdir.path());
             Base = "BDD_LOCAL";
             break;
         case DataBase::Distant:
-            row = ui->DistantDocupTableWidget->findItems(QString::number(bout->getId()), Qt::MatchExactly).at(0)->row();
+            row = ui->DistantDocupTableWidget->findItems(QString::number(bout->iD()), Qt::MatchExactly).at(0)->row();
             line    = dynamic_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(row,2));
             if (line!=Q_NULLPTR)
                 line->setText(dockdir.path());
@@ -641,7 +641,7 @@ void dlg_param::Slot_EnregDossierStockageApp(QString dir)
     if (line==Q_NULLPTR) return;
     if (!QDir(dir).exists() && dir != "")
     {
-        QString textline = line->getValeurAvant();
+        QString textline = line->valeuravant();
         UpMessageBox::Watch(this,tr("Repertoire invalide!"));
         line->setText(textline);
         return;
@@ -651,17 +651,17 @@ void dlg_param::Slot_EnregDossierStockageApp(QString dir)
     if (ui->MonoDocupTableWidget->isAncestorOf(line))
     {
         mode = DataBase::Poste;
-        id = ui->MonoDocupTableWidget->item(line->getRowTable(),0)->text();
+        id = ui->MonoDocupTableWidget->item(line->Row(),0)->text();
     }
     else if (ui->LocalDocupTableWidget->isAncestorOf(line))
     {
         mode = DataBase::ReseauLocal;
-        id = ui->LocalDocupTableWidget->item(line->getRowTable(),0)->text();
+        id = ui->LocalDocupTableWidget->item(line->Row(),0)->text();
     }
     else if (ui->DistantDocupTableWidget->isAncestorOf(line))
     {
         mode = DataBase::Distant;
-        id = ui->DistantDocupTableWidget->item(line->getRowTable(),0)->text();
+        id = ui->DistantDocupTableWidget->item(line->Row(),0)->text();
     }
     switch (mode) {
     case DataBase::Poste:
@@ -1119,7 +1119,7 @@ void dlg_param::NouvAppareil()
     UpComboBox *upCombo = new UpComboBox();
     upCombo->insertItems(0,glistAppareils);
     upCombo->setFixedSize(260,32);
-    upCombo->setChamp("NomAppareil");
+    upCombo->setchamp("NomAppareil");
     upCombo->showPopup();
     lay->addWidget(upCombo);
     gAskAppareil->dlglayout()->insertLayout(0,lay);
@@ -1180,7 +1180,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     lbl->setAlignment(Qt::AlignRight);
                     lbl->setStyleSheet("QLineEdit {border: 0px solid rgb(150,150,150);}"
                                        "QLineEdit:disabled {background-color:lightGray;}");
-                    lbl->setRowTable(row);
+                    lbl->setRow(row);
                     QDoubleValidator *val = new QDoubleValidator(this);
                     val->setDecimals(2);
                     lbl->setValidator(val);
@@ -1211,7 +1211,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
         {
             QString montant = QString::number(QLocale().toDouble(txt));
             line->setText(QLocale().toString(montant.toDouble(),'f',2));
-            int row = line->getRowTable();
+            int row = line->Row();
             UpCheckBox* check1 = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(row,0));
             if (check1)
                 if (check1->isChecked())
@@ -1276,7 +1276,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     lbl->setAlignment(Qt::AlignRight);
                     lbl->setStyleSheet("QLineEdit {border: 0px solid rgb(150,150,150);}"
                                        "QLineEdit:disabled {background-color:lightGray;}");
-                    lbl->setRowTable(row);
+                    lbl->setRow(row);
                     QDoubleValidator *val = new QDoubleValidator(this);
                     val->setDecimals(2);
                     lbl->setValidator(val);
@@ -1304,7 +1304,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
         UpLineEdit *line = dynamic_cast<UpLineEdit*>(sender());
         if (line)
         {
-            int row = line->getRowTable();
+            int row = line->Row();
             UpCheckBox* check1 = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(row,0));
             if (check1)
                 if (check1->isChecked())
@@ -1312,13 +1312,13 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     QString req;
                     QString montant = QString::number(QLocale().toDouble(txt));
                     line->setText(QLocale().toString(montant.toDouble(),'f',2));
-                    if (line->getColumnTable()==2)
+                    if (line->Column()==2)
                         req = "update " TBL_COTATIONS " set montantoptam = " + montant +
                             " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
-                    else if (line->getColumnTable()==3)
+                    else if (line->Column()==3)
                        req = "update " TBL_COTATIONS " set montantnonoptam = " + montant +
                            " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
-                    else if (line->getColumnTable()==4)
+                    else if (line->Column()==4)
                        req = "update " TBL_COTATIONS " set montantpratique = " + montant +
                            " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
                     if (db->StandardSQL(req))
@@ -1359,7 +1359,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
         UpLineEdit *line = dynamic_cast<UpLineEdit*>(sender());
         if (line)
         {
-            int row = line->getRowTable();
+            int row = line->Row();
             UpCheckBox* check1 = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(row,0));
             if (check1)
                 if (check1->isChecked())
@@ -2417,7 +2417,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
                     lbl->setText(QLocale().toString(Actesusrlist.at(i).at(1).toDouble(),'f',2));      // Tarif pratiqué
                     lbl->setAlignment(Qt::AlignRight);
                     lbl->setStyleSheet("border: 0px solid rgb(150,150,150)");
-                    lbl->setRowTable(listitems.at(0)->row());
+                    lbl->setRow(listitems.at(0)->row());
                     lbl->setValidator(val);
                     lbl->setEnabled(false);
                     connect(lbl,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJActesCCAM(QString)));
@@ -2494,11 +2494,11 @@ void dlg_param::Remplir_TableAssocCCAM()
 
         UpLineEdit *lbl1 = new UpLineEdit();
         lbl1->setText(QLocale().toString(Assoclist.at(i).at(1).toDouble(),'f',2));      // montant OPTAM
-        lbl1->setData(Assoclist.at(i).at(4));                                           // Tip
+        lbl1->setdatas(Assoclist.at(i).at(4));                                           // Tip
         lbl1->setAlignment(Qt::AlignRight);
         lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl1->setRowTable(i);
-        lbl1->setColumnTable(2);
+        lbl1->setRow(i);
+        lbl1->setColumn(2);
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
         connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
@@ -2508,8 +2508,8 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl2->setText(QLocale().toString(Assoclist.at(i).at(2).toDouble(),'f',2));      // montant nonOPTAM
         lbl2->setAlignment(Qt::AlignRight);
         lbl2->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl2->setRowTable(i);
-        lbl2->setColumnTable(3);
+        lbl2->setRow(i);
+        lbl2->setColumn(3);
         lbl2->setValidator(val);
         lbl2->setEnabled(false);
         connect(lbl2,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
@@ -2521,8 +2521,8 @@ void dlg_param::Remplir_TableAssocCCAM()
             lbl3->setText(QLocale().toString(Assoclist.at(i).at(3).toDouble(),'f',2));      // Tarif pratiqué
             lbl3->setAlignment(Qt::AlignRight);
             lbl3->setStyleSheet("border: 0px solid rgb(150,150,150)");
-            lbl3->setRowTable(i);
-            lbl3->setColumnTable(4);
+            lbl3->setRow(i);
+            lbl3->setColumn(4);
             lbl3->setValidator(val);
             lbl3->setEnabled(false);
             connect(lbl3,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
@@ -2552,11 +2552,11 @@ void dlg_param::Remplir_TableAssocCCAM()
 
         UpLineEdit *lbl1 = new UpLineEdit();
         lbl1->setText(QLocale().toString(Assoc2list.at(i).at(1).toDouble(),'f',2));      // montant OPTAM
-        lbl1->setData(Assoc2list.at(i).at(4));                                           // Tip
+        lbl1->setdatas(Assoc2list.at(i).at(4));                                           // Tip
         lbl1->setAlignment(Qt::AlignRight);
         lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl1->setRowTable(i);
-        lbl1->setColumnTable(2);
+        lbl1->setRow(i);
+        lbl1->setColumn(2);
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
         connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
@@ -2566,8 +2566,8 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl2->setText(QLocale().toString(Assoc2list.at(i).at(2).toDouble(),'f',2));      // montant nonOPTAM
         lbl2->setAlignment(Qt::AlignRight);
         lbl2->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl2->setRowTable(i);
-        lbl2->setColumnTable(3);
+        lbl2->setRow(i);
+        lbl2->setColumn(3);
         lbl2->setValidator(val);
         lbl2->setEnabled(false);
         connect(lbl2,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
@@ -2579,8 +2579,8 @@ void dlg_param::Remplir_TableAssocCCAM()
             lbl3->setText(QLocale().toString(Assoc2list.at(i).at(3).toDouble(),'f',2));      // Tarif pratiqué
             lbl3->setAlignment(Qt::AlignRight);
             lbl3->setStyleSheet("border: 0px solid rgb(150,150,150)");
-            lbl3->setRowTable(i);
-            lbl3->setColumnTable(4);
+            lbl3->setRow(i);
+            lbl3->setColumn(4);
             lbl3->setValidator(val);
             lbl3->setEnabled(false);
             connect(lbl3,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJAssocCCAM(QString)));
@@ -2645,10 +2645,10 @@ void dlg_param::Remplir_TableHorsNomenclature()
         ui->HorsNomenclatureupTableWidget->setItem(i,1,pItem0);
         UpLineEdit *lbl1 = new UpLineEdit();
         lbl1->setText(QLocale().toString(Horslist.at(i).at(1).toDouble(),'f',2));      // montant
-        lbl1->setData(Horslist.at(i).at(2));                                           // Tip
+        lbl1->setdatas(Horslist.at(i).at(2));                                           // Tip
         lbl1->setAlignment(Qt::AlignRight);
         lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl1->setRowTable(i);
+        lbl1->setRow(i);
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
         connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJHorsNomenclature(QString)));
@@ -2677,7 +2677,7 @@ void dlg_param::Remplir_TableHorsNomenclature()
         lbl1->setText("");      // montant pratiqué = 0
         lbl1->setAlignment(Qt::AlignRight);
         lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl1->setRowTable(row);
+        lbl1->setRow(row);
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
         connect(lbl1,    SIGNAL(TextModified(QString)),  this,   SLOT(Slot_MAJHorsNomenclature(QString)));
@@ -2773,9 +2773,9 @@ void dlg_param::Remplir_Tables()
         line5a->setText(proc->getDossierDocuments(Applist.at(i).at(2).toString(),DataBase::Poste));
         line5b->setText(proc->getDossierDocuments(Applist.at(i).at(2).toString(),DataBase::ReseauLocal));
         line5c->setText(proc->getDossierDocuments(Applist.at(i).at(2).toString(),DataBase::Distant));
-        line5a->setRowTable(i);
-        line5b->setRowTable(i);
-        line5c->setRowTable(i);
+        line5a->setRow(i);
+        line5b->setRow(i);
+        line5c->setRow(i);
         ui->MonoDocupTableWidget->setCellWidget(i,col,line5a);
         ui->LocalDocupTableWidget->setCellWidget(i,col,line5b);
         ui->DistantDocupTableWidget->setCellWidget(i,col,line5c);
@@ -2794,7 +2794,7 @@ void dlg_param::Remplir_Tables()
         col++; //3
         dossbouton->setIcon(Icons::icSortirDossier());
         dossbouton->setIconSize(QSize(15,15));
-        dossbouton->setId(Applist.at(i).at(0).toInt());
+        dossbouton->setiD(Applist.at(i).at(0).toInt());
         dossbouton->setFixedSize(15,15);
         dossbouton->setFlat(true);
         dossbouton->setFocusPolicy(Qt::NoFocus);
@@ -2806,7 +2806,7 @@ void dlg_param::Remplir_Tables()
         widg->setLayout(l);
         dossbouton1->setIcon(Icons::icSortirDossier());
         dossbouton1->setIconSize(QSize(15,15));
-        dossbouton1->setId(Applist.at(i).at(0).toInt());
+        dossbouton1->setiD(Applist.at(i).at(0).toInt());
         dossbouton1->setFixedSize(15,15);
         dossbouton1->setFlat(true);
         dossbouton1->setFocusPolicy(Qt::NoFocus);
@@ -2818,7 +2818,7 @@ void dlg_param::Remplir_Tables()
         widg1->setLayout(l1);
         dossbouton2->setIcon(Icons::icSortirDossier());
         dossbouton2->setIconSize(QSize(15,15));
-        dossbouton2->setId(Applist.at(i).at(0).toInt());
+        dossbouton2->setiD(Applist.at(i).at(0).toInt());
         dossbouton2->setFixedSize(15,15);
         dossbouton2->setFlat(true);
         dossbouton2->setFocusPolicy(Qt::NoFocus);

@@ -1087,7 +1087,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
             {
                 UpLineEdit* Line = static_cast<UpLineEdit*>(obj);
                 ValeurAvantChangement = Line->text();
-                ValeurMaxi = ui->DetailupTableWidget->item(Line->getRowTable(),Line->getColumnTable()-1)->text();
+                ValeurMaxi = ui->DetailupTableWidget->item(Line->Row(),Line->Column()-1)->text();
                 Line->selectAll();
             }
         }
@@ -1280,7 +1280,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             val->setDecimals(2);
             LigneMontant->setValidator(val);
             LigneMontant->setText(ResteDu);
-            LigneMontant->setColumnTable(7);
+            LigneMontant->setColumn(7);
             LigneMontant->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                    "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
             connect (LigneMontant, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
@@ -1369,7 +1369,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                     val->setDecimals(2);
                     LigneMontant->setValidator(val);
                     LigneMontant->setText(ListeMontantsARemettreEnDetails.at(l));
-                    LigneMontant->setColumnTable(7);
+                    LigneMontant->setColumn(7);
                     LigneMontant->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                            "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
                     connect (LigneMontant, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
@@ -2492,8 +2492,8 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, QString
                         val->setDecimals(2);
                         LigneMontant->setValidator(val);
                         LigneMontant->setText(Montant);
-                        LigneMontant->setRowTable(i);
-                        LigneMontant->setColumnTable(col);
+                        LigneMontant->setRow(i);
+                        LigneMontant->setColumn(col);
                         LigneMontant->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                                "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
                         TableARemplir->setCellWidget(i,col,LigneMontant);                               // Payé
@@ -3134,8 +3134,8 @@ void dlg_paiementdirect::ModifGratuitChoixMenu(QString Choix)
             val->setDecimals(2);
             LigneMontant->setValidator(val);
             LigneMontant->setText("0,00");
-            LigneMontant->setRowTable(ab);
-            LigneMontant->setColumnTable(4);
+            LigneMontant->setRow(ab);
+            LigneMontant->setColumn(4);
             ui->ListeupTableWidget->takeItem(ab,4);
             ui->ListeupTableWidget->setCellWidget(ab,4,LigneMontant);
             LigneMontant->installEventFilter(this);
@@ -3231,7 +3231,7 @@ void dlg_paiementdirect::TrieListe(UpTableWidget *TableATrier )
                 if (Line)
                 {
                     disconnect (Line,   SIGNAL(textChanged(QString)), this,     SLOT(Slot_CalculTotalDetails()));         // même remarque
-                    Line->setRowTable(i);
+                    Line->setRow(i);
                     connect (Line,      SIGNAL(textChanged(QString)), this,     SLOT(Slot_CalculTotalDetails()));
                 }
             }

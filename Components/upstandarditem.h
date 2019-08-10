@@ -26,7 +26,7 @@ class UpStandardItem : public QStandardItem
 public:
     UpStandardItem();
     UpStandardItem(QString txt);
-    void    setItem(Item* item);
+    void    setitem(Item* item);
     Item*   item();
 
 private:

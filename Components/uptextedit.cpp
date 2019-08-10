@@ -19,12 +19,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpTextEdit::UpTextEdit(QWidget *parent) : QTextEdit(parent)
 {
-    ValeurAvant = "";
-    ValeurApres = "";
-    Champ       = "";
-    Table       = "";
-    id          = -1;
-    idUser      = -1;
+    m_valeuravant = "";
+    m_valeurapres = "";
+    m_champ       = "";
+    m_table       = "";
+    m_id          = -1;
+    m_iduser      = -1;
     installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,  &UpTextEdit::customContextMenuRequested, this, &UpTextEdit::MenuContextuel);
@@ -32,12 +32,12 @@ UpTextEdit::UpTextEdit(QWidget *parent) : QTextEdit(parent)
 
 UpTextEdit::UpTextEdit(QString txt, QWidget *parent) : QTextEdit(txt, parent)
 {
-    ValeurAvant = "";
-    ValeurApres = "";
-    Champ       = "";
-    Table       = "";
-    id          = -1;
-    idUser      = -1;
+    m_valeuravant = "";
+    m_valeurapres = "";
+    m_champ       = "";
+    m_table       = "";
+    m_id          = -1;
+    m_iduser      = -1;
     installEventFilter(this);
     setContextMenuPolicy(Qt::CustomContextMenu);
     connect(this,  &UpTextEdit::customContextMenuRequested, this, &UpTextEdit::MenuContextuel);
@@ -191,7 +191,7 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
     if (event->type() == QEvent::FocusIn )
     {
         UpTextEdit* objUpText = static_cast<UpTextEdit*>(obj);
-        objUpText->setValeurAvant(objUpText->toHtml());
+        objUpText->setvaleuravant(objUpText->toHtml());
     }
 
     if (event->type() == QEvent::KeyPress )
@@ -234,68 +234,68 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
 }
 void UpTextEdit::mouseDoubleClickEvent(QMouseEvent * event )
 {
-    emit dblclick(getId());
+    emit dblclick(iD());
     event->ignore();
 }
 
-void UpTextEdit::setId(int idadef)
+void UpTextEdit::setiD(int idadef)
 {
-    id = idadef;
+    m_id = idadef;
 }
 
-int UpTextEdit::getId() const
+int UpTextEdit::iD() const
 {
-    return id;
+    return m_id;
 }
 
 void UpTextEdit::setIdUser(int idadef)
 {
-    idUser = idadef;
+    m_iduser = idadef;
 }
 
-int UpTextEdit::getIdUser() const
+int UpTextEdit::idUser() const
 {
-    return idUser;
+    return m_iduser;
 }
 
-void UpTextEdit::setValeurAvant(QString valprec)
+void UpTextEdit::setvaleuravant(QString valprec)
 {
-    ValeurAvant = valprec;
+    m_valeuravant = valprec;
 }
 
-QString UpTextEdit::getValeurAvant() const
+QString UpTextEdit::valeuravant() const
 {
-    return ValeurAvant;
+    return m_valeuravant;
 }
 
-void UpTextEdit::setValeurApres(QString valpost)
+void UpTextEdit::setvaleurapres(QString valpost)
 {
-    ValeurApres = valpost;
+    m_valeurapres = valpost;
 }
 
-QString UpTextEdit::getValeurApres() const
+QString UpTextEdit::valeurapres() const
 {
-    return ValeurApres;
+    return m_valeurapres;
 }
 
-void UpTextEdit::setChamp(QString champcorrespondant)
+void UpTextEdit::setchamp(QString champcorrespondant)
 {
-    Champ = champcorrespondant;
+    m_champ = champcorrespondant;
 }
 
-QString UpTextEdit::getChampCorrespondant() const
+QString UpTextEdit::champ() const
 {
-    return Champ;
+    return m_champ;
 }
 
-void UpTextEdit::setTable(QString tablecorrespondant)
+void UpTextEdit::settable(QString tablecorrespondant)
 {
-    Table = tablecorrespondant;
+    m_table = tablecorrespondant;
 }
 
-QString UpTextEdit::getTableCorrespondant() const
+QString UpTextEdit::table() const
 {
-    return Table;
+    return m_table;
 }
 
 void UpTextEdit::setText(const QString &text)

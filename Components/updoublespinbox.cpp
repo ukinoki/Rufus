@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpDoubleSpinBox::UpDoubleSpinBox(QWidget *parent) : QDoubleSpinBox(parent)
 {
-    ValeurAvant = 0;
+    m_valeuravant = 0;
     installEventFilter(this);
     setKeyboardTracking(false);
     gCorrigeDioptr = true;
@@ -31,7 +31,7 @@ UpDoubleSpinBox::~UpDoubleSpinBox()
 
 bool UpDoubleSpinBox::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type() == QEvent::FocusIn )           setValeurAvant(value());
+    if (event->type() == QEvent::FocusIn )           setvaleuravant(value());
     if (event->type() == QEvent::FocusOut )
     {
         setValue(valueFromText(text()));    // cette acrobatie est nécessaire parce que la fonction value() ne marche pas
@@ -42,8 +42,8 @@ bool UpDoubleSpinBox::eventFilter(QObject *obj, QEvent *event)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key() == Qt::Key_Escape)
-            if (valueFromText(text()) != getValeurAvant())    {
-                setValue(getValeurAvant());
+            if (valueFromText(text()) != valeuravant())    {
+                setValue(valeuravant());
                 return true;
             }
         if (keyEvent->key() == Qt::Key_Delete)            // on tape SUPPR on remet à zero
@@ -111,13 +111,13 @@ void UpDoubleSpinBox::setAutorCorrigeDioptr(bool Autor)
     gCorrigeDioptr = Autor;
 }
 
-void UpDoubleSpinBox::setValeurAvant(double valprec)
+void UpDoubleSpinBox::setvaleuravant(double valprec)
 {
-    ValeurAvant = valprec;
+    m_valeuravant = valprec;
 }
 
-double UpDoubleSpinBox::getValeurAvant() const
+double UpDoubleSpinBox::valeuravant() const
 {
-    return ValeurAvant;
+    return m_valeuravant;
 }
 

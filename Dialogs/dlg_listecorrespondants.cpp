@@ -216,7 +216,7 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
         if (cor->nomprenom().startsWith(filtre))
         {
             pitem   = new UpStandardItem(cor->nomprenom());
-            pitem->setItem(cor);
+            pitem->setitem(cor);
             pitem   ->setEditable(false);
             QList<QStandardItem *> listitems = gmodele->findItems(Utils::trimcapitilize(cor->metier(), true, false));
             if (listitems.size()>0)

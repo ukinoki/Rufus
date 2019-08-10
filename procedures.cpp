@@ -1538,7 +1538,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     connect(this, &Procedures::CloseEditDocument, gAsk, [=] {gAsk->accept();});
     if (Button.testFlag(UpDialog::ButtonPrint))
     {
-        gAsk->PrintButton->setData(doc);
+        gAsk->PrintButton->setdata(doc);
         connect(gAsk->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), [=](QVariant) {PrintDocument(doc);});
     }
     if (Button.testFlag(UpDialog::ButtonSuppr))
@@ -2845,7 +2845,7 @@ Site* Procedures::DetermineLieuExercice()
         UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
         pradiobutt->setText(etab->nom());
         pradiobutt->setAccessibleName(QString::number(etab->id()));
-        pradiobutt->setItem(etab);
+        pradiobutt->setitem(etab);
         QString data("");
         if( etab->nom().size() )
             data += etab->nom();
@@ -2875,7 +2875,7 @@ Site* Procedures::DetermineLieuExercice()
     foreach (UpRadioButton * rb, boxlieux->findChildren<UpRadioButton*>())
     {
         if( rb->isChecked() )
-            return qobject_cast<Site*>(rb->getItem());
+            return qobject_cast<Site*>(rb->item());
     }
     return Q_NULLPTR;
 }

@@ -122,7 +122,7 @@ dlg_gestionbanques::~dlg_gestionbanques()
 void dlg_gestionbanques::AfficheBanque()
 {
     UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
-    int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
+    int idBanque = uptablebanq->item(lbl->Row(),0)->text().toInt();
     auto itbq = Datas::I()->banques->banques()->find(idBanque);
     if (itbq != Datas::I()->banques->banques()->constEnd())
     {
@@ -195,7 +195,7 @@ void dlg_gestionbanques::ModifBanque()
 void dlg_gestionbanques::SupprBanque()
 {
     UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
-    int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
+    int idBanque = uptablebanq->item(lbl->Row(),0)->text().toInt();
     UpMessageBox msgbox;
     UpSmallButton OKBouton(tr("Supprimer"));
     UpSmallButton NoBouton(tr("Annuler"));
@@ -263,7 +263,7 @@ void dlg_gestionbanques::ValideModifBanque()
     else if (gMode == Modif)
     {
         UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
-        int idBanque = uptablebanq->item(lbl->getRow(),0)->text().toInt();
+        int idBanque = uptablebanq->item(lbl->Row(),0)->text().toInt();
         Banque * bqamodifier = Datas::I()->banques->getById(idBanque);
         foreach (Banque* banq, Datas::I()->banques->banques()->values())
         {

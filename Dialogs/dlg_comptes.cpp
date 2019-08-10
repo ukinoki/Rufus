@@ -256,8 +256,8 @@ void dlg_comptes::AnnulConsolidations()
 
 void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
 {
-    int row = lbl->getRow();
-    gidLigneASupprimer = lbl->getId();
+    int row = lbl->Row();
+    gidLigneASupprimer = lbl->iD();
     QString msg = static_cast<UpLabel*>(ui->upTableWidget->cellWidget(row,3))->text()
             + " - du " + static_cast<UpLabel*>(ui->upTableWidget->cellWidget(row,1))->text();
     QString ecriture = tr("Supprimer l'écriture") + " -" + msg + "?";
@@ -789,14 +789,14 @@ void dlg_comptes::InsertLigneSurLaTable(QVariantList ligne, int row)
     lbl5->setContextMenuPolicy(Qt::CustomContextMenu);
     lbl7->setContextMenuPolicy(Qt::CustomContextMenu);
     lbl8->setContextMenuPolicy(Qt::CustomContextMenu);
-    lbl0->setId(ligne.at(0).toInt());                      // idLigne
-    lbl1->setId(ligne.at(0).toInt());                      // idLigne
-    lbl2->setId(ligne.at(0).toInt());                      // idLigne
-    lbl3->setId(ligne.at(0).toInt());                      // idLigne
-    lbl4->setId(ligne.at(0).toInt());                      // idLigne
-    lbl5->setId(ligne.at(0).toInt());                      // idLigne
-    lbl7->setId(ligne.at(0).toInt());                      // idLigne
-    lbl8->setId(ligne.at(0).toInt());                      // idLigne
+    lbl0->setiD(ligne.at(0).toInt());                      // idLigne
+    lbl1->setiD(ligne.at(0).toInt());                      // idLigne
+    lbl2->setiD(ligne.at(0).toInt());                      // idLigne
+    lbl3->setiD(ligne.at(0).toInt());                      // idLigne
+    lbl4->setiD(ligne.at(0).toInt());                      // idLigne
+    lbl5->setiD(ligne.at(0).toInt());                      // idLigne
+    lbl7->setiD(ligne.at(0).toInt());                      // idLigne
+    lbl8->setiD(ligne.at(0).toInt());                      // idLigne
     lbl0->setRow(row);
     lbl1->setRow(row);
     lbl2->setRow(row);

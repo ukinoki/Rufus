@@ -36,17 +36,17 @@ public:
     bool        Toggleable() const;
     void        setiD(int val);
     int         iD() const;
-    void        setItem(Item* item);
-    Item*       getItem();
+    void        setitem(Item* item);
+    Item*       item();
 
 
 private:
     Item        *m_item;
-    int         gid;
-    QString     gToolTipMsg;
+    int         m_id;
+    QString     m_tooltipmsg;
     bool        eventFilter(QObject *obj, QEvent *event)  ;
     void        AfficheToolTip();
-    bool        Toggable;
+    bool        m_toggleable;
 
 signals:
     void        enter();

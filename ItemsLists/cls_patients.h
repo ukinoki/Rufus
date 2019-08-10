@@ -46,7 +46,7 @@ public:
     void setdossierpatientaouvrir(int id);
 
 
-    Patient* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails);          /*! charge les données du patient corresondant à l'id
+    Patient* getById(int id, Item::LOADDETAILS loadDetails = Item::NoLoadDetails);          /*! charge le patient corresondant à l'id
                                                                                              * \brief Patients::getById
                                                                                              * \param id l'id du patient recherché
                                                                                              * \param loadDetails = NoLoadDetails  -> ne charge que les données d'identité - = LoadDetails -> charge les données sociales et médicales
@@ -63,10 +63,10 @@ public:
                                                                                             * \param patprenom filtrer sur le prénom de patient
                                                                                             * \param le filtre se fait sur des valeurs aprrochantes */
 
-    void initListeSalDat(QList<int> listidpatients);                                                /*! crée la liste de patients en cours (pateintsen cours d'examen, en salle d'attente ou à l'accueil
+    void initListeSalDat(QList<int> listidpatients);                                       /*! crée la liste de patients en cours (patients en cours d'examen, en salle d'attente ou à l'accueil)
                                                                                             * \param list id = la liste des idpatient en cours */
 
-    void initListeByDDN(QDate DDN = QDate());                                               /*! crée une liste de tous les patients pour une date de naissance
+    void initListeByDDN(QDate DDN = QDate());                                              /*! crée une liste des patients de la table pour une date de naissance
                                                                                             * \param DDN la date de naissance */
 private:
     /*! > il y a 3 listes de patients:
@@ -89,7 +89,6 @@ public:
     //!> actions combinées sur l'item et l'enregistrement correspondant en base de données
 
     //!> actions sur les champs
-    void    updatePatientData(Patient *pat, QString nomchamp, QVariant value = QVariant()); //! met à jour la valeur d'un champ de la table et sa propriété correspondante pour le patient
     void    updateCorrespondant(Patient *pat,                                               //! met à jour un des correspondants d'un patient
                                 Correspondant::typecorrespondant type,
                                 Correspondant *cor = Q_NULLPTR);
@@ -100,7 +99,7 @@ public:
     static Patient*     CreationPatient(QHash<QString, QVariant> data);
 
     //!< action sur toutes les données
-    static void    updatePatient(Patient* pat);                                                    //!> met à jour les datas d'un patient à partir des données enregistrées dans la base
+    static void    updatePatient(Patient* pat);                                             //!> met à jour les datas d'un patient à partir des données enregistrées dans la base
 };
 
 #endif // CLS_PATIENTS_H

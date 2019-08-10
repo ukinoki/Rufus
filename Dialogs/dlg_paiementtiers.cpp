@@ -813,7 +813,7 @@ bool dlg_paiementtiers::eventFilter(QObject *obj, QEvent *event)
             {
                 UpLineEdit* Line = static_cast<UpLineEdit*>(obj);
                 ValeurAvantChangement = Line->text();
-                ValeurMaxi = ui->DetailupTableWidget->item(Line->getRowTable(),Line->getColumnTable()-1)->text();
+                ValeurMaxi = ui->DetailupTableWidget->item(Line->Row(),Line->Column()-1)->text();
                 Line->selectAll();
             }
         }
@@ -1367,7 +1367,7 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
             val->setDecimals(2);
             LigneMontant->setValidator(val);
             LigneMontant->setText(ResteDu);
-            LigneMontant->setColumnTable(8);
+            LigneMontant->setColumn(8);
             connect (LigneMontant, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
             LigneMontant->installEventFilter(this);
 
@@ -1460,7 +1460,7 @@ void dlg_paiementtiers::CompleteDetailsTable(QTableWidget *TableOrigine, int Ran
                     val->setDecimals(2);
                     LigneMontant->setValidator(val);
                     LigneMontant->setText(ListeMontantsARemettreEnDetails.at(l));
-                    LigneMontant->setColumnTable(8);
+                    LigneMontant->setColumn(8);
                     LigneMontant->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                            "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
                     connect (LigneMontant, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
@@ -2272,8 +2272,8 @@ void dlg_paiementtiers::RemplirTableWidget(UpTableWidget *TableARemplir, TypeTab
                     LignePaye->setValidator(val);
                     LignePaye->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
                     LignePaye->setText(A);                                                    // Payé
-                    LignePaye->setRowTable(i);
-                    LignePaye->setColumnTable(col);
+                    LignePaye->setRow(i);
+                    LignePaye->setColumn(col);
                     LignePaye->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                                              "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
                     connect (LignePaye, SIGNAL(textChanged(QString)), this, SLOT(Slot_CalculTotalDetails()));
@@ -2595,7 +2595,7 @@ void dlg_paiementtiers::TrieListe(QTableWidget *TableATrier )
                 if (Line)
                 {
                     disconnect (Line,   SIGNAL(textChanged(QString)), this,     SLOT(Slot_CalculTotalDetails()));         // même remarque
-                    Line->setRowTable(i);
+                    Line->setRow(i);
                     connect (Line,      SIGNAL(textChanged(QString)), this,     SLOT(Slot_CalculTotalDetails()));
                 }
             }

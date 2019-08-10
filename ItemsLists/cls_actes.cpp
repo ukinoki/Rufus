@@ -61,7 +61,7 @@ void Actes::sortActesByDate()  /*! cette fonction et les 2 qui suivent ne sont p
     {
         QList<QStandardItem *> items;
         UpStandardItem *itemact = new UpStandardItem(QString::number(act->id()));
-        itemact->setItem(act);
+        itemact->setitem(act);
         items << new UpStandardItem(act->date().toString("yyyymmss"))
               << new UpStandardItem(act->heure().toString("HHmm"))
               << itemact;

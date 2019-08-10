@@ -36,26 +36,26 @@ class UpTextEdit : public QTextEdit
 public:
     explicit    UpTextEdit(QWidget *parent = Q_NULLPTR);
     explicit    UpTextEdit(QString txt, QWidget *parent = Q_NULLPTR);
-    void        setId(int id);
-    int         getId() const;
-    void        setIdUser(int id);
-    int         getIdUser() const;
-    void        setValeurAvant(QString valprec);
-    QString     getValeurAvant() const;
-    void        setValeurApres(QString valpost);
-    QString     getValeurApres() const;
-    void        setChamp(QString champcorrespondant);
-    QString     getChampCorrespondant() const;
-    void        setTable(QString tablecorrespondant);
-    QString     getTableCorrespondant() const;
+    void        setiD(int m_id);
+    int         iD() const;
+    void        setIdUser(int m_id);
+    int         idUser() const;
+    void        setvaleuravant(QString valprec);
+    QString     valeuravant() const;
+    void        setvaleurapres(QString valpost);
+    QString     valeurapres() const;
+    void        setchamp(QString champcorrespondant);
+    QString     champ() const;
+    void        settable(QString tablecorrespondant);
+    QString     table() const;
     void        setText(const QString &text);
     QString     appendHtml(QString &appendtext, QString ancredebut = "", QString ancrefin = "",  bool supprimeLesLignesVidesDuMilieu = false);
 
 private:
     void        mouseDoubleClickEvent( QMouseEvent * event ) Q_DECL_OVERRIDE;
     bool        eventFilter(QObject *obj, QEvent *event) Q_DECL_OVERRIDE;
-    QString     ValeurAvant, ValeurApres, Champ, Table;
-    int         id, idUser;
+    QString     m_valeuravant, m_valeurapres, m_champ, m_table;
+    int         m_id, m_iduser;
     void        ChoixMenuContextuel(QString choix);
 
     void        MenuContextuel();

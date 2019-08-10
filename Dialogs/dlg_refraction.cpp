@@ -721,7 +721,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             if (obj->inherits("UpLineEdit"))
             {
                 UpLineEdit* objUpLine = static_cast<UpLineEdit*>(obj);
-                objUpLine->setText(objUpLine->getValeurAvant());
+                objUpLine->setText(objUpLine->valeuravant());
                 objUpLine = Q_NULLPTR;
             }
         }
@@ -1640,10 +1640,10 @@ void dlg_refraction::InitDivers()
     ui->AVPODupComboBox->setIndexParDefaut(1);
     ui->AVPOGupComboBox->setIndexParDefaut(1);
 
-    ui->AVPODupComboBox->setCurrentIndex(ui->AVPODupComboBox->getIndexParDefaut());
-    ui->AVPOGupComboBox->setCurrentIndex(ui->AVPOGupComboBox->getIndexParDefaut());
-    ui->AVLODupComboBox->setCurrentIndex(ui->AVLODupComboBox->getIndexParDefaut());
-    ui->AVLOGupComboBox->setCurrentIndex(ui->AVLOGupComboBox->getIndexParDefaut());
+    ui->AVPODupComboBox->setCurrentIndex(ui->AVPODupComboBox->IndexParDefaut());
+    ui->AVPOGupComboBox->setCurrentIndex(ui->AVPOGupComboBox->IndexParDefaut());
+    ui->AVLODupComboBox->setCurrentIndex(ui->AVLODupComboBox->IndexParDefaut());
+    ui->AVLOGupComboBox->setCurrentIndex(ui->AVLOGupComboBox->IndexParDefaut());
 
     ui->PorteRadioButton->setChecked(true);
     ui->DateDateEdit->setDate(QDate::currentDate());
@@ -2118,7 +2118,7 @@ void    dlg_refraction::QuitteAddVP(UpDoubleSpinBox *obj)
     if (obj == ui->AddVPOG)
     {
         ui->AddVPOG->setValue(ui->AddVPOG->valueFromText(ui->AddVPOG->text()));
-        if (ui->AddVPOG->value() != ui->AddVPOG->getValeurAvant())
+        if (ui->AddVPOG->value() != ui->AddVPOG->valeuravant())
             if (ui->AddVPOD->value() == 0.0 && ui->AddVPOD->isVisible())
             {
                 ui->AddVPOD->setValue(ui->AddVPOG->value());
@@ -2129,7 +2129,7 @@ void    dlg_refraction::QuitteAddVP(UpDoubleSpinBox *obj)
     if (obj == ui->AddVPOD)
     {
         ui->AddVPOD->setValue(ui->AddVPOD->valueFromText(ui->AddVPOD->text()));
-        if (ui->AddVPOD->value() != ui->AddVPOD->getValeurAvant())
+        if (ui->AddVPOD->value() != ui->AddVPOD->valeuravant())
             if (ui->AddVPOG->value() == 0.0 && ui->AddVPOG->isVisible())
             {
                 ui->AddVPOG->setValue(ui->AddVPOD->value());

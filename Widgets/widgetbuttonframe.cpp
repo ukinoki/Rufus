@@ -37,9 +37,9 @@ void WidgetButtonFrame::AddButtons(Buttons Butt)
     modifBouton  ->setIconSize(QSize(24,24));
     moinsBouton ->setIcon(Icons::icRetirer());
     moinsBouton  ->setIconSize(QSize(24,24));
-    plusBouton  ->setId(1);
-    modifBouton ->setId(0);
-    moinsBouton ->setId(-1);
+    plusBouton  ->setiD(1);
+    modifBouton ->setiD(0);
+    moinsBouton ->setiD(-1);
     int szicon  = 20;
     int geo     = szicon + 4;
     int larg    = geo + 7;
@@ -50,7 +50,7 @@ void WidgetButtonFrame::AddButtons(Buttons Butt)
         butt->setVisible(false);
         butt->setIconSize(QSize(szicon, szicon));
         butt->setFixedSize(geo,geo);
-        connect(butt, &QPushButton::clicked, [=] {Reponse(butt->getId());});
+        connect(butt, &QPushButton::clicked, [=] {Reponse(butt->iD());});
     }
     QHBoxLayout *ilay = new QHBoxLayout();
     ilay->setContentsMargins(0,0,0,0);
