@@ -710,11 +710,10 @@ bool dlg_remisecheques::VoirRemisesPrecs()
     disconnect (ui->RemisesPrecsPushButton,                    SIGNAL(clicked()),                              Q_NULLPTR, Q_NULLPTR);
 
     QString idlist;
-    for( QList<Compte*>::const_iterator itcpt = m_comptes->constBegin(); itcpt != m_comptes->constEnd(); ++itcpt )
+    for( auto it = m_currentuser->listecomptesbancaires()->constBegin(); it != m_currentuser->listecomptesbancaires()->constEnd(); ++it )
     {
-        Compte *cpt = const_cast<Compte*>(itcpt.i->t());
-        idlist += QString::number(cpt->id());
-        if (itcpt != m_comptes->constEnd()-1)
+        idlist += QString::number(*it);
+        if (it != m_currentuser->listecomptesbancaires()->constEnd()-1)
             idlist += ", ";
     }
 
@@ -1030,19 +1029,11 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     //--------------------------------------------------------------------
     double  gtotalMontRemise    = 0;
     int     gtotalNbrePieces    = 0;
-    Compte *cpt = new Compte;
-    int iduser = ui->UserComboBox->currentData().toInt();
+     int iduser = ui->UserComboBox->currentData().toInt();
     QDate date;
     QString req;
     int id = ui->ComptecomboBox->currentData().toInt();
-    foreach (Compte* icpt, *m_comptes)
-    {
-        if (icpt->id() == id)
-        {
-            cpt = icpt;
-            break;
-        }
-    }
+    Compte *cpt = Datas::I()->comptes->getById(id);
 
     if (gMode == RevoirRemisesPrecs) {
         QMap<QString, QVariant> MapRemise =  ui->RemisePrecsupComboBox->currentData().toMap();

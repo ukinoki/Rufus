@@ -48,11 +48,11 @@ class dlg_paiementdirect : public QDialog
 public:
     explicit dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *parent = Q_NULLPTR);
     ~dlg_paiementdirect();
-    bool                        getInitOK();
-    enum Mode              {Accueil, EnregistrePaiement, VoirListeActes};   Q_ENUM(Mode)
-    enum OrdreTri          {Alphabetique, Chronologique};                   Q_ENUM(OrdreTri)
-    enum TypeTable         {ActesDirects,ActesTiers,Paiements};             Q_ENUM(TypeTable)                    // définit les 3 types de tables possibles dans la fiche
-    enum ResultEnregRecette{Impossible, Annul, OK};                         Q_ENUM(ResultEnregRecette)
+    bool                    getInitOK();
+    enum Mode               {Accueil, EnregistrePaiement, VoirListeActes};   Q_ENUM(Mode)
+    enum OrdreTri           {Alphabetique, Chronologique};                   Q_ENUM(OrdreTri)
+    enum TypeTable          {ActesDirects,ActesTiers,Paiements};             Q_ENUM(TypeTable)                    // définit les 3 types de tables possibles dans la fiche
+    enum ResultEnregRecette {Impossible, Annul, OK};                         Q_ENUM(ResultEnregRecette)
 
 private:
     Ui::dlg_paiementdirect      *ui;
@@ -69,7 +69,6 @@ private:
     Mode                        gMode;
     OrdreTri                    gOrdreTri;
     TypeTable                   gTypeTable;
-    ResultEnregRecette          gResultEnregRecette;
     QString                     ModePaiementDirectAModifier;
     QString                     ValeurAvantChangement, ValeurMaxi;
 
@@ -95,7 +94,7 @@ private:
     void                        ChangeComptable(User *comptable, bool depuislecombo = false);
     void                        CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche = true);
     void                        DefinitArchitectureTable(UpTableWidget *TableARemplir, int TypeTable = 0);
-    dlg_paiementdirect::ResultEnregRecette EnregistreRecette();
+    ResultEnregRecette          EnregistreRecette();
     void                        FiltreLesTables();
     void                        ModifGratuitChoixMenu(QString Choix);
     void                        NettoieVerrousCompta();
@@ -113,8 +112,8 @@ private:
     bool                        VerifCoherencePaiement();
     bool                        VerifVerrouCompta(UpTableWidget *TableAVerifier, int Rangee);
     void                        VideDetailsTable(int Rangee);
-
     void                        Annuler();
+
 private slots:
     void                        Slot_AfficheActeVerrouille();
     void                        Slot_AfficheActeVerrouilleClignotant();
@@ -136,7 +135,6 @@ private slots:
     void                        Slot_SupprimerPaiement();
     void                        Slot_ValidePaiement();
     void                        Slot_VoirListeActes();
-
 };
 
 #endif // DLG_PAIEMENTDIRECT_H

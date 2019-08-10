@@ -68,7 +68,6 @@ private:
     void                    reject();
     bool                    ImprimerRemise(int);
     QMap<int, User *>       *m_comptables, *m_comptablesavecchequesenattente;
-    QList<Compte*>          *m_comptes = Q_NULLPTR;
     User                    *m_currentuser;
     QString                 ValeurAvantChangement;
     void                    ChangeCompte();

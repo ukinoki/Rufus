@@ -38,13 +38,13 @@ class dlg_paiementtiers : public QDialog
 public:
     explicit dlg_paiementtiers(QWidget *parent = Q_NULLPTR);
     ~dlg_paiementtiers();
-    Ui::dlg_paiementtiers    *ui;
-    bool                getInitOK();
-    void                setInitOK(bool init);
-    enum Mode           {Accueil, EnregistrePaiementTiers, VoirListePaiementsTiers};    Q_ENUM(Mode)
-    enum OrdreTri       {Alphabetique, Chronologique};                                  Q_ENUM(OrdreTri)
-    enum TypeTable      {Actes,Paiements};                                              Q_ENUM(TypeTable)
-    enum ResultEnregRecette{Impossible, Annul, OK};                                     Q_ENUM(ResultEnregRecette)
+    Ui::dlg_paiementtiers   *ui;
+    bool                    getInitOK();
+    void                    setInitOK(bool init);
+    enum Mode               {Accueil, EnregistrePaiementTiers, VoirListePaiementsTiers};    Q_ENUM(Mode)
+    enum OrdreTri           {Alphabetique, Chronologique};                                  Q_ENUM(OrdreTri)
+    enum TypeTable          {Actes,Paiements};                                              Q_ENUM(TypeTable)
+    enum ResultEnregRecette {Impossible, Annul, OK};                                        Q_ENUM(ResultEnregRecette)
 
 private slots:
     void                Slot_AfficheActeVerrouille();
@@ -110,7 +110,7 @@ private:
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                CompleteDetailsTable(QTableWidget *TableOrigine, int Rangee, bool Coche = true);
     void                DefinitArchitectureTableView(UpTableWidget *TableARemplir, TypeTable Type);
-    dlg_paiementtiers::ResultEnregRecette EnregistreRecette();
+    ResultEnregRecette  EnregistreRecette();
     void                ModifPaiementTiers(int idRecetteAModifier);
     void                NettoieVerrousListeActesAAfficher();
     void                NettoieVerrousCompta();
