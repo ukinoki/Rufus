@@ -34,27 +34,14 @@ public:
     explicit dlg_bilanrecettes(QWidget *parent = Q_NULLPTR);
     ~dlg_bilanrecettes();
     bool                        getInitOK();
-    enum Mode                  {SUPERVISEUR, COMPTABLE};    Q_ENUM(Mode)
+    enum Mode                   {SUPERVISEUR, COMPTABLE};    Q_ENUM(Mode)
 
 private:
     Procedures                  *proc;
-    QDate                       Debut, Fin;
     DataBase                    *db;
-    QCheckBox                   *gSupervcheckBox;
-    QGroupBox                   *ClassmtupGrpBox;
-    QHBoxLayout                 *glblbox, *hboxsup;
-    UpComboBox                  *gSupervBox;
-    UpLabel                     *gLabel;
-    UpTableView                 *gBigTable;
-    QStandardItemModel          *m_recettesmodel;
-    QSortFilterProxyModel       *m_sortfilterrecettesmodel;
-    UpLabel                     *TotalMontantlbl, *TotalReclbl;
-    UpLabel                     *TotalApportlbl, *GdTotalReclbl;
-    UpPushButton                *ChxPeriodButt;
-    UpPushButton                *ExportButt;
-    UpRadioButton               *ComptableRadio;
-    UpRadioButton               *SupervRadio;
-    void                        CalcBilan();
+
+    QDate                       m_debut, m_fin;
+    bool                        m_initok;
     double                      TotalMontant;
     double                      TotalRecu;
     double                      TotalRecEsp;
@@ -65,7 +52,25 @@ private:
     double                      TotalAutresRecBanq;
     double                      GdTotalEsp;
     double                      GdTotalBanq;
-    Mode                        gMode;
+
+    Mode                        m_mode;
+    QStandardItemModel          *m_recettesmodel;
+    QSortFilterProxyModel       *m_sortfilterrecettesmodel;
+
+    QCheckBox                   *wdg_supervcheckbox;
+    QGroupBox                   *wdg_classmtupgrpbox;
+    QHBoxLayout                 *wdg_lblbox, *wdg_hboxsup;
+    UpComboBox                  *wdg_supervcombobox;
+    UpLabel                     *wdg_label;
+    UpTableView                 *wdg_bigtable;
+    UpLabel                     *wdg_totalmontantlbl, *wdg_totalrecetteslbl;
+    UpLabel                     *wdg_totalapportslbl, *wdg_grandtotallbl;
+    UpPushButton                *wdg_choixperiodebouton;
+    UpPushButton                *wdg_exportbouton;
+    UpRadioButton               *wdg_comptableradiobouton;
+    UpRadioButton               *wdg_superviseurradiobouton;
+
+    void                        CalcBilan();
     void                        CalcSuperviseursEtComptables(); //Etablit la liste des superviseurs et des comptables pour la période du bilan
     void                        CalculeTotal();
     void                        ChangeMode(enum Mode);
@@ -77,7 +82,6 @@ private:
     void                        ImprimeEtat();
     void                        NouvPeriode();
     void                        RemplitLaTable();
-    bool                        InitOK;
 };
 
 #endif // DLG_BILANRECETTES_H

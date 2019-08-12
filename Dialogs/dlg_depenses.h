@@ -47,23 +47,29 @@ public:
     enum Mode                   {Lire, Modifier, Enregistrer, TableVide};       Q_ENUM(Mode)
 
 private:
-    dlg_comptes                 *Dlg_Cmpt;
-    dlg_docsscanner             *Dlg_DocsScan;
     DataBase                    *db;
     Procedures                  *proc;
-    Depense                     *m_depenseencours;
-    QStringList                 glistMoyensDePaiement;
-    User                        *m_userencours;
-    UpDialog                    *gAskDialog;
-    UpTableWidget               *gBigTable;
-    UpPushButton                *EnregupPushButton, *AnnulupPushButton;
-    UpPushButton                *SupprimerupPushButton, *ModifierupPushButton;
-    QHBoxLayout                 *boxbutt;
-    QMap<int, User*>            *m_listUserLiberaux;
-    QList<QImage>               glistImg;
 
-    bool                        InitOK, AccesDistant;
-    Mode                        gMode;
+    Depense                     *m_depenseencours;
+    User                        *m_userencours;
+    QMap<int, User*>            *m_listUserLiberaux;
+
+    QList<QImage>               m_listeimages;
+    QStringList                 m_listemoyensdepaiement;
+    bool                        m_initok, m_accesdistant;
+    Mode                        m_mode;
+
+    dlg_comptes                 *Dlg_Cmpt;
+    dlg_docsscanner             *Dlg_DocsScan;
+    UpDialog                    *dlg_ask;
+
+    UpTableWidget               *wdg_bigtable;
+    UpPushButton                *wdg_annuluppushbutton;
+    UpPushButton                *wdg_enreguppushbutton;
+    UpPushButton                *wdg_modifieruppushbutton;
+    UpPushButton                *wdg_supprimeruppushbutton;
+    QHBoxLayout                 *wdg_boxbuttlayout;
+
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );
     void                        AfficheFacture(Depense *dep = Q_NULLPTR);

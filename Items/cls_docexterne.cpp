@@ -51,7 +51,7 @@ int DocExterne::importance() const                  { return m_importance;}
 
 int DocExterne::idrefraction() const                { return m_idrefraction; }
 
-void DocExterne::setDate(QDateTime date)            { m_dateimpression = date;}
+void DocExterne::setdate(QDateTime date)            { m_dateimpression = date;}
 void DocExterne::setimportance(int imptce)          { m_importance = imptce;}
 void DocExterne::setAllLoaded(bool AllLoaded)       { m_isAllLoaded = AllLoaded;}
 void DocExterne::setimageblob(QByteArray blob)      { m_blob = blob; }

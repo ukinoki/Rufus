@@ -49,9 +49,10 @@ public:
 
 private:
     Procedures              *proc;
+    DataBase                *db;
+
     DocsExternes            *m_docsexternes;
     DocExterne              *docencours;
-    DataBase                *db;
     Patient                 *m_currentpatient;
     User                    *m_currentuser;
 
@@ -78,14 +79,14 @@ private:
 
     bool                    AvecPrevisu;
     bool                    initOK;
+    double                  idealproportion;
     int                     hdelta , wdelta;
     int                     hdeltaframe, wdeltaframe;
+    QString                 gTypeDoc;
     Mode                    gMode;
     ModeTri                 gModeTri;
     ModeFiltre              gModeFiltre;
 
-    double                  idealproportion;
-    QString                 gTypeDoc;
 
     bool                    eventFilter(QObject *, QEvent *);
 

@@ -34,27 +34,27 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDepenses").toByteArray());
 
-    InitOK = initializeUserSelected();
-    if( !InitOK )
+    m_initok = initializeUserSelected();
+    if( !m_initok )
         return;
 
     setMaximumSize(1642,800);
 
-    gBigTable       = new UpTableWidget(this);
-    ui->horizontalLayout_3->addWidget(gBigTable);
-    EnregupPushButton = new UpPushButton(ui->frame);
-    EnregupPushButton->setGeometry(155,285,150,50);
-    EnregupPushButton->setText("Valider");
-    EnregupPushButton->setIcon(Icons::icOK());
-    EnregupPushButton->setIconSize(QSize(30,30));
-    EnregupPushButton->setVisible(true);
+    wdg_bigtable       = new UpTableWidget(this);
+    ui->horizontalLayout_3->addWidget(wdg_bigtable);
+    wdg_enreguppushbutton = new UpPushButton(ui->frame);
+    wdg_enreguppushbutton->setGeometry(155,285,150,50);
+    wdg_enreguppushbutton->setText("Valider");
+    wdg_enreguppushbutton->setIcon(Icons::icOK());
+    wdg_enreguppushbutton->setIconSize(QSize(30,30));
+    wdg_enreguppushbutton->setVisible(true);
 
-    AnnulupPushButton = new UpPushButton(ui->frame);
-    AnnulupPushButton->setGeometry(5,285,150,50);
-    AnnulupPushButton->setText("Annuler");
-    AnnulupPushButton->setIcon(Icons::icAnnuler());
-    AnnulupPushButton->setIconSize(QSize(30,30));
-    AnnulupPushButton->setVisible(true);
+    wdg_annuluppushbutton = new UpPushButton(ui->frame);
+    wdg_annuluppushbutton->setGeometry(5,285,150,50);
+    wdg_annuluppushbutton->setText("Annuler");
+    wdg_annuluppushbutton->setIcon(Icons::icAnnuler());
+    wdg_annuluppushbutton->setIconSize(QSize(30,30));
+    wdg_annuluppushbutton->setVisible(true);
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
@@ -74,11 +74,11 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     ui->RefFiscalecomboBox->insertItems(0,ListeRubriques);
     ui->RefFiscalecomboBox->setCurrentText(ListeRubriques.at(0));
 
-    glistMoyensDePaiement << CHEQUE;
-    glistMoyensDePaiement << ESPECES;
-    glistMoyensDePaiement << VIREMENT;
-    ui->PaiementcomboBox->insertItems(0,glistMoyensDePaiement );
-    ui->PaiementcomboBox->setCurrentText(glistMoyensDePaiement.at(0));
+    m_listemoyensdepaiement << CHEQUE;
+    m_listemoyensdepaiement << ESPECES;
+    m_listemoyensdepaiement << VIREMENT;
+    ui->PaiementcomboBox->insertItems(0,m_listemoyensdepaiement );
+    ui->PaiementcomboBox->setCurrentText(m_listemoyensdepaiement.at(0));
 
     QDoubleValidator *val= new QDoubleValidator(this);
     val->setDecimals(2);
@@ -107,8 +107,8 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     connect (ui->RefFiscalecomboBox,            &QComboBox::currentTextChanged, [=] {EnableModifiepushButton();});
     connect (ui->SupprimerupPushButton,         &QPushButton::clicked,          [=] {SupprimerRecette();});
 
-    connect (EnregupPushButton,                 &QPushButton::clicked,          [=] {gMode == Enregistrer? EnregistreRecette() : ModifierRecette();});
-    connect (AnnulupPushButton,                 &QPushButton::clicked,          [=] {AnnulEnreg();});
+    connect (wdg_enreguppushbutton,                 &QPushButton::clicked,          [=] {m_mode == Enregistrer? EnregistreRecette() : ModifierRecette();});
+    connect (wdg_annuluppushbutton,                 &QPushButton::clicked,          [=] {AnnulEnreg();});
 
     QString year = QDate::currentDate().toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
@@ -116,62 +116,62 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     connect (ui->AnneecomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {RedessineBigTable();});
     RedessineBigTable();
 
-    gBigTable->setFocus();
+    wdg_bigtable->setFocus();
 
     RegleComptesComboBox(false);
 
-    setFixedWidth(gBigTable->width() + ui->frame->width() + layout()->margin()*3);
-    InitOK = true;
+    setFixedWidth(wdg_bigtable->width() + ui->frame->width() + layout()->margin()*3);
+    m_initok = true;
 }
 
 void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode)
 {
-    gMode = mode;
-    ui->DateRecdateEdit     ->setVisible(gMode != TableVide);
-    ui->ObjetlineEdit       ->setVisible(gMode != TableVide);
-    ui->MontantlineEdit     ->setVisible(gMode != TableVide);
-    ui->PaiementcomboBox    ->setVisible(gMode != TableVide);
+    m_mode = mode;
+    ui->DateRecdateEdit     ->setVisible(m_mode != TableVide);
+    ui->ObjetlineEdit       ->setVisible(m_mode != TableVide);
+    ui->MontantlineEdit     ->setVisible(m_mode != TableVide);
+    ui->PaiementcomboBox    ->setVisible(m_mode != TableVide);
 
-    ui->BanqChequpComboBox  ->setVisible(gMode != TableVide);
-    ui->Tireurlabel         ->setVisible(gMode != TableVide);
-    ui->Comptelabel         ->setVisible(gMode != TableVide);
-    ui->BanqueChequelabel   ->setVisible(gMode != TableVide);
-    ui->TireurlineEdit      ->setVisible(gMode != TableVide);
-    ui->ComptesupComboBox   ->setVisible(gMode != TableVide);
-    ui->RefFiscalecomboBox  ->setVisible(gMode != TableVide);
-    ui->DateRecettelabel    ->setVisible(gMode != TableVide);
-    ui->Objetlabel          ->setVisible(gMode != TableVide);
-    ui->Montantlabel        ->setVisible(gMode != TableVide);
-    ui->Paiementlabel       ->setVisible(gMode != TableVide);
-    ui->RefFiscalelabel     ->setVisible(gMode != TableVide);
+    ui->BanqChequpComboBox  ->setVisible(m_mode != TableVide);
+    ui->Tireurlabel         ->setVisible(m_mode != TableVide);
+    ui->Comptelabel         ->setVisible(m_mode != TableVide);
+    ui->BanqueChequelabel   ->setVisible(m_mode != TableVide);
+    ui->TireurlineEdit      ->setVisible(m_mode != TableVide);
+    ui->ComptesupComboBox   ->setVisible(m_mode != TableVide);
+    ui->RefFiscalecomboBox  ->setVisible(m_mode != TableVide);
+    ui->DateRecettelabel    ->setVisible(m_mode != TableVide);
+    ui->Objetlabel          ->setVisible(m_mode != TableVide);
+    ui->Montantlabel        ->setVisible(m_mode != TableVide);
+    ui->Paiementlabel       ->setVisible(m_mode != TableVide);
+    ui->RefFiscalelabel     ->setVisible(m_mode != TableVide);
 
-    ui->DateRecdateEdit     ->setEnabled(gMode != Lire);
-    ui->ObjetlineEdit       ->setEnabled(gMode != Lire);
-    ui->MontantlineEdit     ->setEnabled(gMode != Lire);
-    ui->Tireurlabel         ->setEnabled(gMode != Lire);
-    ui->BanqueChequelabel   ->setEnabled(gMode != Lire);
-    ui->TireurlineEdit      ->setEnabled(gMode != Lire);
-    ui->PaiementcomboBox    ->setEnabled(gMode != Lire);
-    ui->BanqChequpComboBox  ->setEnabled(gMode != Lire);
-    ui->ComptesupComboBox   ->setEnabled(gMode != Lire);
-    ui->Comptelabel         ->setEnabled(gMode != Lire);
-    ui->RefFiscalecomboBox  ->setEnabled(gMode != Lire);
-    ui->DateRecettelabel    ->setEnabled(gMode != Lire);
-    ui->Objetlabel          ->setEnabled(gMode != Lire);
-    ui->Montantlabel        ->setEnabled(gMode != Lire);
-    ui->Paiementlabel       ->setEnabled(gMode != Lire);
-    ui->RefFiscalelabel     ->setEnabled(gMode != Lire);
-    ui->OKupPushButton      ->setEnabled(gMode == Lire || gMode == TableVide);
-    ui->GestionComptesupPushButton  ->setEnabled(gMode == Lire || gMode == TableVide);
-    ui->SupprimerupPushButton       ->setVisible(gMode == Lire);
-    ui->ModifierupPushButton        ->setVisible(gMode == Lire);
+    ui->DateRecdateEdit     ->setEnabled(m_mode != Lire);
+    ui->ObjetlineEdit       ->setEnabled(m_mode != Lire);
+    ui->MontantlineEdit     ->setEnabled(m_mode != Lire);
+    ui->Tireurlabel         ->setEnabled(m_mode != Lire);
+    ui->BanqueChequelabel   ->setEnabled(m_mode != Lire);
+    ui->TireurlineEdit      ->setEnabled(m_mode != Lire);
+    ui->PaiementcomboBox    ->setEnabled(m_mode != Lire);
+    ui->BanqChequpComboBox  ->setEnabled(m_mode != Lire);
+    ui->ComptesupComboBox   ->setEnabled(m_mode != Lire);
+    ui->Comptelabel         ->setEnabled(m_mode != Lire);
+    ui->RefFiscalecomboBox  ->setEnabled(m_mode != Lire);
+    ui->DateRecettelabel    ->setEnabled(m_mode != Lire);
+    ui->Objetlabel          ->setEnabled(m_mode != Lire);
+    ui->Montantlabel        ->setEnabled(m_mode != Lire);
+    ui->Paiementlabel       ->setEnabled(m_mode != Lire);
+    ui->RefFiscalelabel     ->setEnabled(m_mode != Lire);
+    ui->OKupPushButton      ->setEnabled(m_mode == Lire || m_mode == TableVide);
+    ui->GestionComptesupPushButton  ->setEnabled(m_mode == Lire || m_mode == TableVide);
+    ui->SupprimerupPushButton       ->setVisible(m_mode == Lire);
+    ui->ModifierupPushButton        ->setVisible(m_mode == Lire);
     int sz = m_currentuser->listecomptesbancaires()->size();
-    ui->NouvelleRecetteupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && sz>0);
-    ui->NouvelleRecetteupPushButton->setToolTip((gMode == Lire || gMode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
-    EnregupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
-    AnnulupPushButton       ->setVisible(!(gMode == Lire || gMode == TableVide));
-    gBigTable               ->setEnabled(gMode == Lire);
-    if (gBigTable->rowCount()==0 && gMode== Enregistrer)
+    ui->NouvelleRecetteupPushButton ->setEnabled((m_mode == Lire || m_mode == TableVide) && sz>0);
+    ui->NouvelleRecetteupPushButton->setToolTip((m_mode == Lire || m_mode == TableVide) && sz>0? "" : tr("Vous ne pouvez pas enregistrer de recettes.\nAucun compte bancaire n'est enregistré."));
+    wdg_enreguppushbutton       ->setVisible(!(m_mode == Lire || m_mode == TableVide));
+    wdg_annuluppushbutton       ->setVisible(!(m_mode == Lire || m_mode == TableVide));
+    wdg_bigtable               ->setEnabled(m_mode == Lire);
+    if (wdg_bigtable->rowCount()==0 && m_mode== Enregistrer)
     {
         ui->TireurlineEdit->setVisible(false);
         ui->Tireurlabel->setVisible(false);
@@ -179,7 +179,7 @@ void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode)
         ui->BanqueChequelabel->setVisible(false);
         ui->PaiementcomboBox->setCurrentText(VIREMENT);
     }
-    RegleComptesComboBox(gMode==Enregistrer);
+    RegleComptesComboBox(m_mode==Enregistrer);
     MetAJourFiche();
 }
 
@@ -188,7 +188,7 @@ void    dlg_recettesspeciales::RegleAffichageFiche(Mode mode)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_recettesspeciales::AnnulEnreg()
 {
-    RegleAffichageFiche(gBigTable->rowCount()>0? Lire : TableVide);
+    RegleAffichageFiche(wdg_bigtable->rowCount()>0? Lire : TableVide);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -341,7 +341,7 @@ void dlg_recettesspeciales::EnregistreRecette()
     }
     db->commit();
 
-    gBigTable->setEnabled(true);
+    wdg_bigtable->setEnabled(true);
     ui->SupprimerupPushButton->setVisible(true);
     ui->ModifierupPushButton->setVisible(true);
     ui->NouvelleRecetteupPushButton->setEnabled(true);
@@ -365,10 +365,10 @@ void dlg_recettesspeciales::GererRecette(QPushButton *widgsender)
 {
     if (widgsender == ui->ModifierupPushButton)
     {
-        if (gMode == Lire)
+        if (m_mode == Lire)
             RegleAffichageFiche(Modifier);
         else
-            RegleAffichageFiche(gBigTable->rowCount()>0? Lire : TableVide);
+            RegleAffichageFiche(wdg_bigtable->rowCount()>0? Lire : TableVide);
     }
     else
         RegleAffichageFiche(Enregistrer);
@@ -408,7 +408,7 @@ void dlg_recettesspeciales::ChoixMenu(QString choix)
     else
     {
         RegleAffichageFiche(Enregistrer);
-        gMode = Enregistrer;
+        m_mode = Enregistrer;
         ui->DateRecdateEdit             ->setEnabled(true);
         ui->ObjetlineEdit               ->setEnabled(true);
         ui->MontantlineEdit             ->setEnabled(true);
@@ -428,15 +428,15 @@ void dlg_recettesspeciales::ChoixMenu(QString choix)
         ui->SupprimerupPushButton       ->setVisible(false);
         ui->ModifierupPushButton        ->setVisible(false);
         ui->NouvelleRecetteupPushButton ->setEnabled(false);
-        EnregupPushButton               ->setVisible(true);
-        AnnulupPushButton               ->setVisible(true);
-        gBigTable                       ->setEnabled(false);
-        gBigTable->disconnect();
+        wdg_enreguppushbutton               ->setVisible(true);
+        wdg_annuluppushbutton               ->setVisible(true);
+        wdg_bigtable                       ->setEnabled(false);
+        wdg_bigtable->disconnect();
         ui->DateRecdateEdit             ->setDate(QDate::currentDate());
-        EnregupPushButton               ->setText("Enregistrer");
+        wdg_enreguppushbutton               ->setText("Enregistrer");
         ui->OKupPushButton              ->setShortcut(QKeySequence());
         ui->ModifierupPushButton        ->setShortcut(QKeySequence());
-        EnregupPushButton               ->setShortcut(QKeySequence("Meta+Return"));
+        wdg_enreguppushbutton               ->setShortcut(QKeySequence("Meta+Return"));
     }
 }
 
@@ -464,17 +464,17 @@ void dlg_recettesspeciales::RegleComptesComboBox(bool ActiveSeult)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_recettesspeciales::SupprimerRecette()
 {
-    if (gBigTable->selectedRanges().size() == 0) return;
+    if (wdg_bigtable->selectedRanges().size() == 0) return;
     // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte
     bool OK = true;
-    QList<QVariantList> listidrecspec = db->StandardSelectSQL(" select idRecSpec from " TBL_ARCHIVESBANQUE " where idRecSpec = " + QString::number(idRecEnCours),OK);
+    QList<QVariantList> listidrecspec = db->StandardSelectSQL(" select idRecSpec from " TBL_ARCHIVESBANQUE " where idRecSpec = " + QString::number(m_idrecetteencours),OK);
     if (listidrecspec.size() > 0)
     {
         UpMessageBox::Watch(this,tr("Vous ne pouvez pas supprimer cette écriture"), tr("Elle a déjà été enregistrée sur le compte bancaire"));
         return;
     }
 
-    QList<QVariantList> listremises = db->StandardSelectSQL(" select idRemise from " TBL_RECETTESSPECIALES " where idRecette = " + QString::number(idRecEnCours),OK);
+    QList<QVariantList> listremises = db->StandardSelectSQL(" select idRemise from " TBL_RECETTESSPECIALES " where idRecette = " + QString::number(m_idrecetteencours),OK);
     if (listremises.size() > 0)
         if (listremises.at(0).at(0).toInt()>0)
         {
@@ -485,7 +485,7 @@ void dlg_recettesspeciales::SupprimerRecette()
     QDate   Dateop;
     QString Libelle;
     double  montant;
-    QList<QVariantList> listrecettes = db->StandardSelectSQL("select DateRecette, Libelle, Montant from " TBL_RECETTESSPECIALES " where idrecette = " + QString::number(idRecEnCours),OK);
+    QList<QVariantList> listrecettes = db->StandardSelectSQL("select DateRecette, Libelle, Montant from " TBL_RECETTESSPECIALES " where idrecette = " + QString::number(m_idrecetteencours),OK);
     if (listrecettes.size() > 0)
     {
         Dateop  = listrecettes.at(0).at(0).toDate();
@@ -513,9 +513,9 @@ void dlg_recettesspeciales::SupprimerRecette()
             return;
 
         //On supprime l'écriture
-        db->SupprRecordFromTable(idRecEnCours,"idrecspec", TBL_LIGNESCOMPTES);
-        db->SupprRecordFromTable(idRecEnCours,"idrecette", TBL_RECETTESSPECIALES);
-        if (gBigTable->rowCount() == 1)
+        db->SupprRecordFromTable(m_idrecetteencours,"idrecspec", TBL_LIGNESCOMPTES);
+        db->SupprRecordFromTable(m_idrecetteencours,"idrecette", TBL_RECETTESSPECIALES);
+        if (wdg_bigtable->rowCount() == 1)
         {
             ui->AnneecomboBox->disconnect();
             RedessineBigTable();
@@ -527,22 +527,22 @@ void dlg_recettesspeciales::SupprimerRecette()
         }
         else
         {
-            for (int i = 0; i< gBigTable->rowCount(); i++)
+            for (int i = 0; i< wdg_bigtable->rowCount(); i++)
             {
-                UpLabel *iddeplbl = static_cast<UpLabel *>(gBigTable->cellWidget(i,0));
-                if (iddeplbl->text() == QString::number(idRecEnCours))
+                UpLabel *iddeplbl = static_cast<UpLabel *>(wdg_bigtable->cellWidget(i,0));
+                if (iddeplbl->text() == QString::number(m_idrecetteencours))
                 {
-                    gBigTable->removeRow(i);
-                    if (i < gBigTable->rowCount() - 1)
-                        gBigTable->setCurrentCell(i,1);
+                    wdg_bigtable->removeRow(i);
+                    if (i < wdg_bigtable->rowCount() - 1)
+                        wdg_bigtable->setCurrentCell(i,1);
                     else
-                        gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
-                    i = gBigTable->rowCount();
+                        wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
+                    i = wdg_bigtable->rowCount();
                 }
             }
         }
         CalculTotalRecettes();
-        RegleAffichageFiche(gBigTable->rowCount()>0? Lire : TableVide);
+        RegleAffichageFiche(wdg_bigtable->rowCount()>0? Lire : TableVide);
     }
 }
 
@@ -552,11 +552,11 @@ void dlg_recettesspeciales::SupprimerRecette()
 void dlg_recettesspeciales::CalculTotalRecettes()
 {
     double Total = 0;
-    if (gBigTable->rowCount() > 0)
+    if (wdg_bigtable->rowCount() > 0)
     {
-        for (int k = 0; k < gBigTable->rowCount(); k++)
+        for (int k = 0; k < wdg_bigtable->rowCount(); k++)
         {
-            UpLabel* Line = dynamic_cast<UpLabel*>(gBigTable->cellWidget(k,3));
+            UpLabel* Line = dynamic_cast<UpLabel*>(wdg_bigtable->cellWidget(k,3));
             if (Line)
                 Total += QLocale().toDouble(Line->text());
         }
@@ -573,7 +573,7 @@ void dlg_recettesspeciales::GestionComptes()
     Dlg_Cmpt          = new dlg_comptes();
     if (Dlg_Cmpt->getInitOK())
         Dlg_Cmpt->exec();
-    gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
+    wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -581,24 +581,24 @@ void dlg_recettesspeciales::GestionComptes()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_recettesspeciales::MetAJourFiche()
 {
-    if (gMode == Lire)
+    if (m_mode == Lire)
     {
         ui->ModifierupPushButton        ->setEnabled(QDate::currentDate() < ui->DateRecdateEdit->date().addDays(365));
         ui->SupprimerupPushButton       ->setEnabled(QDate::currentDate() < ui->DateRecdateEdit->date().addDays(365));
     }
-    if (gBigTable->rowCount() > 0)
+    if (wdg_bigtable->rowCount() > 0)
     {
         ui->DateRecdateEdit     ->disconnect();
         ui->RefFiscalecomboBox  ->disconnect();
         ui->PaiementcomboBox    ->disconnect();
 
-        idRecEnCours = static_cast<UpLabel*>(gBigTable->cellWidget(gBigTable->currentRow(),0))->text().toInt();
+        m_idrecetteencours = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),0))->text().toInt();
 
         //TODO : SQL
         bool OK = true;
         QList<QVariantList> listrecettes =
                 db->StandardSelectSQL("select DateRecette, Libelle, Montant, Paiement, idremise, TypeRecette, CompteVirement, BanqueCheque, TireurCheque"
-                                      " from " TBL_RECETTESSPECIALES " where idRecette = " + QString::number(idRecEnCours),OK);
+                                      " from " TBL_RECETTESSPECIALES " where idRecette = " + QString::number(m_idrecetteencours),OK);
         QVariantList recette = listrecettes.at(0);
 
         ui->ObjetlineEdit->setText(recette.at(1).toString());
@@ -661,7 +661,7 @@ void dlg_recettesspeciales::MetAJourFiche()
         QString Paiement = ui->PaiementcomboBox->currentText();
         bool modifiable;
 
-        switch (gMode) {
+        switch (m_mode) {
         case Enregistrer:
             ui->ObjetlineEdit->clear();
             ui->MontantlineEdit->setText(QLocale().toString(0.00,'f',2));
@@ -676,7 +676,7 @@ void dlg_recettesspeciales::MetAJourFiche()
                 // on recherche si l'écriture existe dans archivesbanques et si c'est le cas, on ne peut pas modifier le montant
             {
                 bool ok = true;
-                QList<QVariantList> listlignes = db->StandardSelectSQL("select idLigne from " TBL_ARCHIVESBANQUE " where idrecspec = " + QString::number(idRecEnCours),ok);
+                QList<QVariantList> listlignes = db->StandardSelectSQL("select idLigne from " TBL_ARCHIVESBANQUE " where idrecspec = " + QString::number(m_idrecetteencours),ok);
                 modifiable = (listlignes.size() == 0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
@@ -689,7 +689,7 @@ void dlg_recettesspeciales::MetAJourFiche()
                 // on recherche si le chéque a été déposé et si c'est le cas, on ne peut pas modifier le montant
             {
                 bool ok = true;
-                QList<QVariantList> listlignes = db->StandardSelectSQL("select idRemise from " TBL_RECETTESSPECIALES " where idrecspec = " + QString::number(idRecEnCours),ok);
+                QList<QVariantList> listlignes = db->StandardSelectSQL("select idRemise from " TBL_RECETTESSPECIALES " where idrecspec = " + QString::number(m_idrecetteencours),ok);
                 modifiable = !(listlignes.at(0).at(0).toInt()>0);
                 ui->MontantlineEdit->setEnabled(modifiable);
                 ui->PaiementcomboBox->setEnabled(modifiable);
@@ -719,7 +719,7 @@ void dlg_recettesspeciales::MetAJourFiche()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_recettesspeciales::ModifierRecette()
 {
-    QString idRec       = QString::number(idRecEnCours);
+    QString idRec       = QString::number(m_idrecetteencours);
     QString Paiement    = ui->PaiementcomboBox->currentText();
 
     if (!VerifSaisie())
@@ -735,7 +735,7 @@ void dlg_recettesspeciales::ModifierRecette()
     QString ancpaiement = listpaiements.at(0).at(0).toString();
 
     if (ancpaiement == "E")
-        db->SupprRecordFromTable(idRecEnCours,"idrecette", TBL_RECETTESSPECIALES);
+        db->SupprRecordFromTable(m_idrecetteencours,"idrecette", TBL_RECETTESSPECIALES);
     else if (ancpaiement == "C")
     {
         // le cheque a été remis en banque, on se contente de mettre à jour la date, la rubrique fiscale et l'intitulé dans autresrecettes
@@ -748,7 +748,7 @@ void dlg_recettesspeciales::ModifierRecette()
         else
             // le cheque n'a pas été remis en banque, on remet tout à jour
         {
-            db->SupprRecordFromTable(idRecEnCours,"idrecette", TBL_RECETTESSPECIALES);
+            db->SupprRecordFromTable(m_idrecetteencours,"idrecette", TBL_RECETTESSPECIALES);
             EnregistreRecette();
         }
     }
@@ -774,12 +774,12 @@ void dlg_recettesspeciales::ModifierRecette()
         else
             // le virement n'a pas été enregistré en banque
         {
-            db->SupprRecordFromTable(idRecEnCours,"idrecette", TBL_RECETTESSPECIALES);
+            db->SupprRecordFromTable(m_idrecetteencours,"idrecette", TBL_RECETTESSPECIALES);
             EnregistreRecette();
         }
     }
     RedessineBigTable(idRec.toInt());
-    RegleAffichageFiche(gBigTable->rowCount()>0? Lire : TableVide);
+    RegleAffichageFiche(wdg_bigtable->rowCount()>0? Lire : TableVide);
     connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    [=](int) {RedessineBigTable();});
 }
 
@@ -790,33 +790,33 @@ void dlg_recettesspeciales::RedessineBigTable(int idRec)
 {
     RemplitBigTable();
     CalculTotalRecettes();
-    if (gBigTable->rowCount() > 0)
+    if (wdg_bigtable->rowCount() > 0)
     {
         if (idRec == -1)
-            idRec = gBigTable->rowCount()-1;
+            idRec = wdg_bigtable->rowCount()-1;
         else
         {
             bool trouve = false;
-            for (int row=0; row< gBigTable->rowCount(); row++)
+            for (int row=0; row< wdg_bigtable->rowCount(); row++)
             {
-                UpLabel* idReclbl = static_cast<UpLabel*>(gBigTable->cellWidget(row,0));
+                UpLabel* idReclbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,0));
                 if (idReclbl->text() == QString::number(idRec))
                 {
-                    gBigTable->setCurrentCell(row,1);
-                    row = gBigTable->rowCount();
+                    wdg_bigtable->setCurrentCell(row,1);
+                    row = wdg_bigtable->rowCount();
                     trouve = true;
                 }
             }
-            if (!trouve)    gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
-            gMode = Lire;
+            if (!trouve)    wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
+            m_mode = Lire;
         }
-        gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
-        gBigTable->scrollTo(gBigTable->model()->index(gBigTable->model()->rowCount()-1,1));
+        wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
+        wdg_bigtable->scrollTo(wdg_bigtable->model()->index(wdg_bigtable->model()->rowCount()-1,1));
     }
     else
         RegleAffichageFiche(TableVide);
-    ui->SupprimerupPushButton   ->setEnabled(gBigTable->rowCount()>0);
-    ui->ModifierupPushButton    ->setEnabled(gBigTable->rowCount()>0);
+    ui->SupprimerupPushButton   ->setEnabled(wdg_bigtable->rowCount()>0);
+    ui->ModifierupPushButton    ->setEnabled(wdg_bigtable->rowCount()>0);
 }
 
 void dlg_recettesspeciales::closeEvent(QCloseEvent *event)
@@ -832,7 +832,7 @@ void dlg_recettesspeciales::keyPressEvent ( QKeyEvent * event )
 {
     switch (event->key()) {
     case Qt::Key_F12:{
-        if (gMode == Lire)
+        if (m_mode == Lire)
             reject();
         else
             AnnulEnreg();
@@ -843,7 +843,7 @@ void dlg_recettesspeciales::keyPressEvent ( QKeyEvent * event )
 
 bool dlg_recettesspeciales::getInitOK()
 {
-    return InitOK;
+    return m_initok;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -854,18 +854,18 @@ void dlg_recettesspeciales::DefinitArchitectureBigTable()
     int                 ColCount;
 
     ColCount = 7;
-    gBigTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    gBigTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    gBigTable->setPalette(QPalette(Qt::white));
-    gBigTable->setEditTriggers(QAbstractItemView::AnyKeyPressed
+    wdg_bigtable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    wdg_bigtable->setContextMenuPolicy(Qt::CustomContextMenu);
+    wdg_bigtable->setPalette(QPalette(Qt::white));
+    wdg_bigtable->setEditTriggers(QAbstractItemView::AnyKeyPressed
                                  |QAbstractItemView::DoubleClicked
                                  |QAbstractItemView::EditKeyPressed
                                  |QAbstractItemView::SelectedClicked);
-    gBigTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gBigTable->verticalHeader()->setVisible(false);
-    gBigTable->setFocusPolicy(Qt::StrongFocus);
-    gBigTable->setColumnCount(ColCount);
-    gBigTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    wdg_bigtable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    wdg_bigtable->verticalHeader()->setVisible(false);
+    wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
+    wdg_bigtable->setColumnCount(ColCount);
+    wdg_bigtable->setSelectionMode(QAbstractItemView::SingleSelection);
 
     QStringList LabelARemplir;
     LabelARemplir << "";
@@ -876,29 +876,29 @@ void dlg_recettesspeciales::DefinitArchitectureBigTable()
     LabelARemplir << tr("Rubrique fiscale");
     LabelARemplir << tr("Classement par date");
 
-    gBigTable->setHorizontalHeaderLabels(LabelARemplir);
-    gBigTable->horizontalHeader()->setVisible(true);
-    gBigTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    wdg_bigtable->setHorizontalHeaderLabels(LabelARemplir);
+    wdg_bigtable->horizontalHeader()->setVisible(true);
+    wdg_bigtable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     int li = 0;                                                                     // Réglage de la largeur et du nombre des colonnes
-    gBigTable->setColumnWidth(li,25);                                               // idRecette
+    wdg_bigtable->setColumnWidth(li,25);                                               // idRecette
     li++;
-    gBigTable->setColumnWidth(li,100);                                              // DateRecette affichage européen
+    wdg_bigtable->setColumnWidth(li,100);                                              // DateRecette affichage européen
     li++;
-    gBigTable->setColumnWidth(li,400);                                              // Libelle
+    wdg_bigtable->setColumnWidth(li,400);                                              // Libelle
     li++;
-    gBigTable->setColumnWidth(li,100);                                              // Montant
+    wdg_bigtable->setColumnWidth(li,100);                                              // Montant
     li++;
-    gBigTable->setColumnWidth(li,160);                                              // ModePaiement
+    wdg_bigtable->setColumnWidth(li,160);                                              // ModePaiement
     li++;
-    gBigTable->setColumnWidth(li,300);                                              // Rubrique fiscqale
+    wdg_bigtable->setColumnWidth(li,300);                                              // Rubrique fiscqale
     li++;
-    gBigTable->setColumnWidth(li,0);                                                // DepDate
+    wdg_bigtable->setColumnWidth(li,0);                                                // DepDate
 
-    gBigTable->setColumnHidden(0,true);
-    gBigTable->setColumnHidden(ColCount-1,true);
+    wdg_bigtable->setColumnHidden(0,true);
+    wdg_bigtable->setColumnHidden(ColCount-1,true);
 
-    gBigTable->setGridStyle(Qt::SolidLine);
-    gBigTable->FixLargeurTotale();
+    wdg_bigtable->setGridStyle(Qt::SolidLine);
+    wdg_bigtable->FixLargeurTotale();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -933,8 +933,8 @@ void dlg_recettesspeciales::RemplitBigTable()
     QTableWidgetItem    *pItem8;
     QString             A;
     UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
-    gBigTable->disconnect();
-    gBigTable->clearContents();
+    wdg_bigtable->disconnect();
+    wdg_bigtable->clearContents();
     QString Recrequete = "SELECT idRecette, idUser, year(DateRecette) as Annee, DateRecette, Libelle, Montant,"
                          "TypeRecette, Nooperation, Monnaie, Paiement, CompteVirement, BanqueCheque FROM " TBL_RECETTESSPECIALES
                          " WHERE idUser = " + QString::number(m_currentuser->id());
@@ -949,7 +949,7 @@ void dlg_recettesspeciales::RemplitBigTable()
         return;
     if (listrecettes.size()==1 && listrecettes.at(0).at(0)==QVariant())
         return;
-    gBigTable->setRowCount(listrecettes.size());
+    wdg_bigtable->setRowCount(listrecettes.size());
 
     for (int i = 0; i < listrecettes.size(); i++)
         {
@@ -991,17 +991,17 @@ void dlg_recettesspeciales::RemplitBigTable()
 
             A = recette.at(0).toString();                                                                  // idRecette - col = 0
             label0->setText(A);
-            gBigTable->setCellWidget(i,col,label0);
+            wdg_bigtable->setCellWidget(i,col,label0);
             col++;
 
             A = recette.at(3).toDate().toString(tr("d MMM yyyy"));                                         // DateRecette col = 1
             label1->setText(A + " ");
             label1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-            gBigTable->setCellWidget(i,col,label1);
+            wdg_bigtable->setCellWidget(i,col,label1);
             col++;
 
             label2->setText(" " + recette.at(4).toString());                                               // Libelle - col = 2
-            gBigTable->setCellWidget(i,col,label2);
+            wdg_bigtable->setCellWidget(i,col,label2);
             col++;
 
             if (recette.at(8).toString() == "F")
@@ -1010,7 +1010,7 @@ void dlg_recettesspeciales::RemplitBigTable()
                 A = QLocale().toString(recette.at(5).toDouble(),'f',2);                                    // Montant - col = 3
             label3->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
             label3->setText(A + " ");                                                                                   // Montant - col = 3
-            gBigTable->setCellWidget(i,col,label3);
+            wdg_bigtable->setCellWidget(i,col,label3);
             col++;
 
             A = recette.at(9).toString();                                                                  // Paiement - col = 4
@@ -1034,23 +1034,23 @@ void dlg_recettesspeciales::RemplitBigTable()
                 A = CHEQUE + (B==""? "" : " " + B);
             }
             label4->setText(" " + A);
-            gBigTable->setCellWidget(i,col,label4);
+            wdg_bigtable->setCellWidget(i,col,label4);
             col++;
 
             A = recette.at(6).toString();                                                                  // Famille fiscale - col = 5
             label6->setText(" " + A);
-            gBigTable->setCellWidget(i,col,label6);
+            wdg_bigtable->setCellWidget(i,col,label6);
             col++;
 
             A = recette.at(3).toDate().toString("yyyy-MM-dd");                                             // ClassementparDate - col = 6
             pItem8 = new QTableWidgetItem() ;
             pItem8->setText(A);
-            gBigTable->setItem(i,col,pItem8);
+            wdg_bigtable->setItem(i,col,pItem8);
 
-            gBigTable->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
+            wdg_bigtable->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
         }
     ui->SupprimerupPushButton->setEnabled(false);
-    connect (gBigTable,     &QTableWidget::itemSelectionChanged, [=] {RegleAffichageFiche(Lire);});
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, [=] {RegleAffichageFiche(Lire);});
 }
 
 //  Vérifer que la saisie est complète et cohérente

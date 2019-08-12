@@ -29,11 +29,11 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     db              = DataBase::I();
     m_currentuser   = Datas::I()->users->userconnected();
 
-    widgButtons = new WidgetButtonFrame(ui->ComupTableWidget);
-    widgButtons->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe = new WidgetButtonFrame(ui->ComupTableWidget);
+    wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
     dlglayout()     ->insertWidget(0,ui->upTextEdit);
-    dlglayout()     ->insertWidget(0,widgButtons->widgButtonParent());
+    dlglayout()     ->insertWidget(0,wdg_buttonframe->widgButtonParent());
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     CancelButton    ->disconnect();
@@ -45,7 +45,7 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_commentaires::Annulation);
     connect (ui->upTextEdit,    &QTextEdit::textChanged,    this,   &dlg_commentaires::EnableOKPushbutton);
     connect (ui->upTextEdit,    &UpTextEdit::dblclick,      this,   &dlg_commentaires::dblClicktextEdit);
-    connect(widgButtons,        &WidgetButtonFrame::choix,  this,   &dlg_commentaires::ChoixButtonFrame);
+    connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_commentaires::ChoixButtonFrame);
 
 
     // Mise en forme du formulaire
@@ -70,11 +70,11 @@ dlg_commentaires::dlg_commentaires(QWidget *parent) :
     ui->ComupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
     ui->ComupTableWidget->horizontalHeader()->setIconSize(QSize(30,30));
 
-    gTimerEfface    = new QTimer(this);
+    m_timerefface    = new QTimer(this);
     ui->upTextEdit  ->installEventFilter(this);
     ui->ComupTableWidget->installEventFilter(this);
 
-    gModeSurvol = true;
+    m_modesurvol = true;
     Remplir_TableView();
     if (ui->ComupTableWidget->rowCount() > 0)
         ConfigMode(Selection);
@@ -101,7 +101,7 @@ void dlg_commentaires::changeEvent(QEvent *e)
 
 void dlg_commentaires::ChoixButtonFrame()
 {
-    switch (widgButtons->Reponse()) {
+    switch (wdg_buttonframe->Reponse()) {
     case 1:
         ConfigMode(Creation);
         break;
@@ -122,7 +122,7 @@ void dlg_commentaires::ChoixButtonFrame()
 // ----------------------------------------------------------------------------------
 void dlg_commentaires::Annulation()
 {
-    if (gMode == Creation || gMode == Modification)
+    if (m_mode == Creation || m_mode == Modification)
     {
         int     row = -1;
         UpLineEdit *line;
@@ -229,7 +229,7 @@ void dlg_commentaires::Del_Com()
 
 void dlg_commentaires::dblClicktextEdit()
 {
-    if (gMode == Selection)
+    if (m_mode == Selection)
     {
         bool a = false;
         UpLineEdit *line = new UpLineEdit(this);
@@ -252,7 +252,7 @@ void dlg_commentaires::dblClicktextEdit()
 // ----------------------------------------------------------------------------------
 void dlg_commentaires::EnableOKPushbutton()
 {
-    if (gMode != Selection)
+    if (m_mode != Selection)
     {
         UpLineEdit *line = new UpLineEdit(this);
         bool a = false;
@@ -392,7 +392,7 @@ void dlg_commentaires::Validation()
     bool a              = false;
     UpLineEdit *line    = Q_NULLPTR;
 
-    if (gMode == Creation)
+    if (m_mode == Creation)
     {
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
@@ -403,7 +403,7 @@ void dlg_commentaires::Validation()
         if (a)
             InsertCommentaire(row);
     }
-    else if (gMode == Modification)
+    else if (m_mode == Modification)
     {
         for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
         {
@@ -414,7 +414,7 @@ void dlg_commentaires::Validation()
         if (a)
             UpdateCommentaire(row);
     }
-    else if (gMode == Selection)
+    else if (m_mode == Selection)
     {
         UpCheckBox *Check   = Q_NULLPTR;
         QWidget *Widg       = Q_NULLPTR;
@@ -454,7 +454,7 @@ bool dlg_commentaires::eventFilter(QObject *obj, QEvent *event)
     if(event->type() == QEvent::MouseMove)
     {
         if (obj == ui->upTextEdit)
-            if (gMode == Selection)
+            if (m_mode == Selection)
             {
                 QRect rect = QRect(ui->upTextEdit->pos(),ui->upTextEdit->size());
                 QPoint pos = mapFromParent(cursor().pos());
@@ -527,7 +527,7 @@ void dlg_commentaires::keyPressEvent(QKeyEvent * event )
 bool dlg_commentaires::ChercheDoublon(QString str, int row)
 {
     bool a = false;
-    switch (gMode) {
+    switch (m_mode) {
     case Creation:
     case Modification:
         for (int i=0;  i<ui->ComupTableWidget->rowCount(); i++)
@@ -557,23 +557,23 @@ bool dlg_commentaires::ChercheDoublon(QString str, int row)
 // ----------------------------------------------------------------------------------
 void dlg_commentaires::ConfigMode(Mode mode, int row)
 {
-    gMode = mode;
+    m_mode = mode;
 
-    if (gMode != Selection)
-        gTimerEfface->disconnect();
-    gOp.setOpacity(1);
-    ui->upTextEdit->setGraphicsEffect(&gOp);
-    ui->upTextEdit->setVisible               (gMode != Selection);
+    if (m_mode != Selection)
+        m_timerefface->disconnect();
+    m_opacityeffect.setOpacity(1);
+    ui->upTextEdit->setGraphicsEffect(&m_opacityeffect);
+    ui->upTextEdit->setVisible               (m_mode != Selection);
 
     if (mode == Selection)
     {
         EnableLines();
-        widgButtons->setEnabled(true);
+        wdg_buttonframe->setEnabled(true);
         ui->ComupTableWidget->setEnabled(true);
         ui->ComupTableWidget->setFocus();
         ui->ComupTableWidget->setStyleSheet("");
-        widgButtons->modifBouton->setEnabled(false);
-        widgButtons->moinsBouton->setEnabled(false);
+        wdg_buttonframe->modifBouton->setEnabled(false);
+        wdg_buttonframe->moinsBouton->setEnabled(false);
         ui->upTextEdit->setEnabled(true);
         ui->upTextEdit->clear();
         ui->upTextEdit->setFocusPolicy(Qt::NoFocus);
@@ -610,7 +610,7 @@ void dlg_commentaires::ConfigMode(Mode mode, int row)
         ui->upTextEdit->setText(line->datas().toString());
         ui->ComupTableWidget->setEnabled(true);
         ui->ComupTableWidget->setStyleSheet("");
-        widgButtons->setEnabled(false);
+        wdg_buttonframe->setEnabled(false);
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
         ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
 
@@ -659,7 +659,7 @@ void dlg_commentaires::ConfigMode(Mode mode, int row)
         connect(upLine0,   &QLineEdit::textEdited, this, &dlg_commentaires::EnableOKPushbutton);
         ui->ComupTableWidget->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
 
-        widgButtons->moinsBouton->setEnabled(false);
+        wdg_buttonframe->moinsBouton->setEnabled(false);
         ui->upTextEdit->clear();
         ui->upTextEdit->setEnabled(true);
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
@@ -682,7 +682,7 @@ void dlg_commentaires::DisableLines()
     QWidget *Widg       = Q_NULLPTR;
     UpCheckBox *Check   = Q_NULLPTR;
     UpLineEdit *line    = Q_NULLPTR;
-    widgButtons->setEnabled(false);
+    wdg_buttonframe->setEnabled(false);
     for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
     {
         Widg = dynamic_cast<QWidget*>(ui->ComupTableWidget->cellWidget(i,0));
@@ -709,7 +709,7 @@ void dlg_commentaires::EnableLines()
     QWidget    *Widg    = Q_NULLPTR;
     UpCheckBox *Check   = Q_NULLPTR;
     UpLineEdit *line    = Q_NULLPTR;
-    widgButtons->setEnabled(true);
+    wdg_buttonframe->setEnabled(true);
     for (int i=0; i<ui->ComupTableWidget->rowCount(); i++)
     {
         Widg =  dynamic_cast<QWidget*>(ui->ComupTableWidget->cellWidget(i,0));
@@ -726,7 +726,7 @@ void dlg_commentaires::EnableLines()
             connect(line,       &QWidget::customContextMenuRequested,   [=] {MenuContextuel(line);});
             connect(line,       &QLineEdit::textEdited,                 [=] {EnableOKPushbutton();});
             if (ui->ComupTableWidget->item(i,3)->text().toInt() == m_currentuser->id())
-                connect(line,   &UpLineEdit::mouseDoubleClick,          [=] {if (gMode == Selection) ConfigMode(Modification, line->Row());});
+                connect(line,   &UpLineEdit::mouseDoubleClick,          [=] {if (m_mode == Selection) ConfigMode(Modification, line->Row());});
             connect(line,       &UpLineEdit::mouseRelease,              [=] {LineSelect(line->Row());});
         }
     }
@@ -738,13 +738,13 @@ void dlg_commentaires::EnableLines()
 void dlg_commentaires::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
 {
     QTime DebutTimer     = QTime::currentTime();
-    gOp.setOpacity(1);
-    widg->setGraphicsEffect(&gOp);
+    m_opacityeffect.setOpacity(1);
+    widg->setGraphicsEffect(&m_opacityeffect);
     widg->setVisible(true);
     widg->setAutoFillBackground(true);
-    gTimerEfface->disconnect();
-    gTimerEfface->start(70);
-    connect(gTimerEfface, &QTimer::timeout, this, [=]
+    m_timerefface->disconnect();
+    m_timerefface->start(70);
+    connect(m_timerefface, &QTimer::timeout, this, [=]
     {
         QRect rect = QRect(widg->pos(),widg->size());
         QPoint pos = mapFromParent(cursor().pos());
@@ -753,18 +753,18 @@ void dlg_commentaires::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
         {
             if (!rect.contains(pos))
             {
-                gOp.setOpacity(gOp.opacity()*0.9);
-                widg->setGraphicsEffect(&gOp);
-                if (gOp.opacity() < 0.10)
+                m_opacityeffect.setOpacity(m_opacityeffect.opacity()*0.9);
+                widg->setGraphicsEffect(&m_opacityeffect);
+                if (m_opacityeffect.opacity() < 0.10)
                 {
-                    gTimerEfface->stop();
+                    m_timerefface->stop();
                     widg->setVisible(false);
                 }
             }
             else
             {
-                gOp.setOpacity(1);
-                widg->setGraphicsEffect(&gOp);
+                m_opacityeffect.setOpacity(1);
+                widg->setGraphicsEffect(&m_opacityeffect);
             }
         }
     });
@@ -837,13 +837,13 @@ void dlg_commentaires::LineSelect(int row)
             line0 = Q_NULLPTR;
         }
     }
-    if (gMode == Selection)
+    if (m_mode == Selection)
     {
         ui->upTextEdit->setVisible(true);
         ui->upTextEdit->setText(line->datas().toString());
         EffaceWidget(ui->upTextEdit);
-        widgButtons->modifBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
-        widgButtons->moinsBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
+        wdg_buttonframe->modifBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
+        wdg_buttonframe->moinsBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
     }
     line->selectAll();
 }

@@ -37,8 +37,7 @@ public:
     static int      Watch       (QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonOK);
     static int      Question    (QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList textlist = QStringList());
     static void     Information (QWidget*, QString Text = "", QString InfoText = "");
-    enum            Icon   {Quest, Info, Warning, Critical, Print};
-    Q_ENUM(Icon)
+    enum            Icon   {Quest, Info, Warning, Critical, Print}; Q_ENUM(Icon)
     void            addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton);
     void            addButton(UpPushButton *button);
     void            removeButton(UpSmallButton *);

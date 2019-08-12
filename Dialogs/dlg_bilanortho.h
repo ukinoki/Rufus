@@ -36,16 +36,16 @@ public:
     void                    setDateBO(QDate dateBO);
 
 private:
-    QStringList             TNOlist, XELlist, XEPlist, VergencesCLlist, VergencesDLlist, VergencesCPlist, VergencesDPlist, HLlist, HPlist;
-    QStringList             Dioptrieslist, DioptriesNeutraliselist, HDioptrieslist, HDioptriesNeutraliselist, Wirtlist, AnimauxWirtlist, Langlist, PPClist, OcclAlternlist;
-    void                    closeEvent(QCloseEvent *event);
-    void                    AfficheBilan(Acte *acte);
-    void                    ExtraitRefraction(QString textorigin, QString &ReponseaModifier);
     Procedures              *proc;
     DataBase                *db;
     Acte                    *m_currentact;
-    QDate                   DateBO;
+    QDate                   m_dateBO;
+    QStringList             TNOlist, XELlist, XEPlist, VergencesCLlist, VergencesDLlist, VergencesCPlist, VergencesDPlist, HLlist, HPlist;
+    QStringList             Dioptrieslist, DioptriesNeutraliselist, HDioptrieslist, HDioptriesNeutraliselist, Wirtlist, AnimauxWirtlist, Langlist, PPClist, OcclAlternlist;
 
+    void                    closeEvent(QCloseEvent *event);
+    void                    AfficheBilan(Acte *acte);
+    void                    ExtraitRefraction(QString textorigin, QString &ReponseaModifier);
     void                    AfficheCombobox(int i, QWidget *widg);
     void                    ImprimeBOClicked();
     void                    EnableAnimauxWirtcomboBox(QString PionWirt);

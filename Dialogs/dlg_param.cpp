@@ -30,38 +30,38 @@ dlg_param::dlg_param(QWidget *parent) :
     db              = DataBase::I();
     m_parametres    = db->parametres();
 
-    gModifPoste     = false;
+    m_modifposte     = false;
     m_currentuser   = Datas::I()->users->userconnected();
 
-    gNouvMDP        = "nouv";
-    gAncMDP         = "anc";
-    gConfirmMDP     = "confirm";
+    m_nouveauMDP        = "nouv";
+    m_ancienMDP         = "anc";
+    m_confirmeMDP     = "confirm";
 
-    MDPVerifiedAdmin= false;
-    MDPVerifiedUser = false;
+    m_MDPadminverifie= false;
+    m_MDPuserverifie = false;
 
     QStringList ports;
     ports << "3306" << "3307";
     ui->SQLPortDistantcomboBox  ->addItems(ports);
     ui->SQLPortLocalcomboBox    ->addItems(ports);
     ui->SQLPortPostecomboBox    ->addItems(ports);
-    DonneesUserModifiees    = false;
-    gCotationsModifiees     = false;
+    m_donneesusermodifiees    = false;
+    m_cotationsmodifiees     = false;
 
-    widgAppareils = new WidgetButtonFrame(ui->AppareilsConnectesupTableWidget);
-    widgAppareils->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
-    connect(widgAppareils, SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
+    wdg_appareilswdgbuttonframe = new WidgetButtonFrame(ui->AppareilsConnectesupTableWidget);
+    wdg_appareilswdgbuttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
+    connect(wdg_appareilswdgbuttonframe, SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
 
-    widgHN = new WidgetButtonFrame(ui->HorsNomenclatureupTableWidget);
-    widgHN->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    connect(widgHN,         SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
+    wdg_HNcotationswdgbuttonframe = new WidgetButtonFrame(ui->HorsNomenclatureupTableWidget);
+    wdg_HNcotationswdgbuttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    connect(wdg_HNcotationswdgbuttonframe,         SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
 
-    widgAssocCCAM = new WidgetButtonFrame(ui->AssocCCAMupTableWidget);
-    widgAssocCCAM->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
-    connect(widgAssocCCAM,  SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
+    wdg_assocCCAMcotationswdgbuttonframe = new WidgetButtonFrame(ui->AssocCCAMupTableWidget);
+    wdg_assocCCAMcotationswdgbuttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    connect(wdg_assocCCAMcotationswdgbuttonframe,  SIGNAL(choix(int)), this, SLOT(Slot_ChoixButtonFrame(int)));
 
-    widgAssocCCAM->layButtons()->insertWidget(0, ui->ChercheCCAMlabel);
-    widgAssocCCAM->layButtons()->insertWidget(0, ui->ChercheCCAMupLineEdit);
+    wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCCAMlabel);
+    wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCCAMupLineEdit);
 
     QHBoxLayout *EnteteCCAMlay  = new QHBoxLayout();
     QHBoxLayout *Margelay       = new QHBoxLayout();
@@ -102,7 +102,7 @@ dlg_param::dlg_param(QWidget *parent) :
     Cotationslay    ->addLayout(Marge0lay);
 
     AssocCCAMlay     ->addWidget(ui->AssocCCAMlabel);
-    AssocCCAMlay     ->addWidget(widgAssocCCAM->widgButtonParent());
+    AssocCCAMlay     ->addWidget(wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent());
     AssocCCAMlay     ->setStretch(0,0);
     AssocCCAMlay     ->setStretch(1,15);
 
@@ -116,7 +116,7 @@ dlg_param::dlg_param(QWidget *parent) :
     Cotationslay    ->addLayout(Marge2lay);
 
     HorsCCAMlay     ->addWidget(ui->HorsNomenclaturelabel);
-    HorsCCAMlay     ->addWidget(widgHN->widgButtonParent());
+    HorsCCAMlay     ->addWidget(wdg_HNcotationswdgbuttonframe->widgButtonParent());
     HorsCCAMlay     ->setStretch(0,15);
 
     Margelay        ->addWidget(ui->MargeWidget);
@@ -244,12 +244,12 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PortTonometreupComboBox     ->setCurrentText(proc->gsettingsIni->value("Param_Poste/PortTonometre").toString());
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
-       VilleCPDefautWidg   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
-       CPDefautlineEdit    = VilleCPDefautWidg->ui->CPlineEdit;
-       VilleDefautlineEdit = VilleCPDefautWidg->ui->VillelineEdit;
-       VilleCPDefautWidg   ->move(15,10);
-       VilleCPDefautWidg->ui->CPlabel      ->setText(tr("Code postal par défaut"));
-       VilleCPDefautWidg->ui->Villelabel   ->setText(tr("Ville par défaut"));
+       wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
+       CPDefautlineEdit    = wdg_villeCP->ui->CPlineEdit;
+       VilleDefautlineEdit = wdg_villeCP->ui->VillelineEdit;
+       wdg_villeCP   ->move(15,10);
+       wdg_villeCP->ui->CPlabel      ->setText(tr("Code postal par défaut"));
+       wdg_villeCP->ui->Villelabel   ->setText(tr("Ville par défaut"));
        VilleDefautlineEdit                 ->setText(proc->gsettingsIni->value("Param_Poste/VilleParDefaut").toString());
        CPDefautlineEdit                    ->completer()->setCurrentRow(proc->gsettingsIni->value("Param_Poste/CodePostalParDefaut").toInt());
        // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
@@ -280,8 +280,8 @@ dlg_param::dlg_param(QWidget *parent) :
 
     ui->AssocCCAMupTableWidget          ->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->HorsNomenclatureupTableWidget   ->setSelectionBehavior(QAbstractItemView::SelectRows);
-    widgAssocCCAM                       ->setEnabled(false);
-    widgHN                              ->setEnabled(false);
+    wdg_assocCCAMcotationswdgbuttonframe                       ->setEnabled(false);
+    wdg_HNcotationswdgbuttonframe                              ->setEnabled(false);
     ui->ActesCCAMlabel                  ->setEnabled(false);
     ui->OphtaSeulcheckBox               ->setEnabled(false);
 
@@ -381,8 +381,8 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->NonPrioritaireImportDocscheckBox->setChecked(true);
         proc->gsettingsIni->setValue("BDD_LOCAL/PrioritaireGestionDocs","NORM");
     }
-    gTimerVerifPosteImportDocs.start(500);
-    connect (&gTimerVerifPosteImportDocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
+    obj_verifimportdocstimer.start(500);
+    connect (&obj_verifimportdocstimer,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
     connect (proc,                          &Procedures::ConnectTimers,     this,       [=] {ConnectTimers(proc->Connexion());});
 
      if (m_parametres->versionbase() == 0)
@@ -469,12 +469,12 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->AppareilsconnectesupLabel->setText(tr("Appareils connectés au réseau") + " <font color=\"green\"><b>" + Datas::I()->sites->getById(m_currentuser->idsitedetravail())->nom() + "</b></font> ");
     QVBoxLayout *applay = new QVBoxLayout();
     applay      ->addWidget(ui->AppareilsconnectesupLabel);
-    applay      ->addWidget(widgAppareils->widgButtonParent());
+    applay      ->addWidget(wdg_appareilswdgbuttonframe->widgButtonParent());
     applay      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding, QSizePolicy::Expanding));
     marge   = 10;
     applay      ->setContentsMargins(marge,marge,marge,marge);
     applay      ->setSpacing(marge);
-    ui->Appareilsconnectesframe->setFixedWidth(widgAppareils->widgButtonParent()->width() + marge + marge);
+    ui->Appareilsconnectesframe->setFixedWidth(wdg_appareilswdgbuttonframe->widgButtonParent()->width() + marge + marge);
     ui->Appareilsconnectesframe->setLayout(applay);
 
     ui->Sauvegardeframe         ->setEnabled(db->getMode() == DataBase::Poste);
@@ -532,7 +532,7 @@ void dlg_param::Slot_AfficheToolTip(QTableWidgetItem *id)
 
 void dlg_param::Slot_FermepushButtonClicked()
 {
-    if (gModifPoste)
+    if (m_modifposte)
     {
         UpMessageBox msgbox;
         msgbox.setText(tr("Modifications non enregistrées!"));
@@ -553,7 +553,7 @@ void dlg_param::Slot_FermepushButtonClicked()
 
 void dlg_param::Slot_EnableAppBoutons()
 {
-   widgAppareils->moinsBouton->setEnabled(true);
+   wdg_appareilswdgbuttonframe->moinsBouton->setEnabled(true);
 }
 
 void dlg_param::Slot_ChercheCCAM(QString txt)
@@ -692,7 +692,7 @@ void dlg_param::Slot_EnregDossierStockageApp(QString dir)
 void dlg_param::Slot_ChoixButtonFrame(int i)
 {
     WidgetButtonFrame *widgbutt = dynamic_cast<WidgetButtonFrame*>(sender());
-    if (widgbutt== widgHN)
+    if (widgbutt== wdg_HNcotationswdgbuttonframe)
     {
         switch (i) {
         case 1:
@@ -708,7 +708,7 @@ void dlg_param::Slot_ChoixButtonFrame(int i)
             break;
         }
     }
-    else if (widgbutt== widgAssocCCAM)
+    else if (widgbutt== wdg_assocCCAMcotationswdgbuttonframe)
     {
         switch (i) {
         case 1:
@@ -724,7 +724,7 @@ void dlg_param::Slot_ChoixButtonFrame(int i)
             break;
         }
     }
-    else if (widgbutt== widgAppareils)
+    else if (widgbutt== wdg_appareilswdgbuttonframe)
     {
         switch (i) {
         case 1:
@@ -781,13 +781,13 @@ void dlg_param::ConnectTimers(bool a)
 {
     if (a)
     {
-        gTimerVerifPosteImportDocs  .start(5000);
-        connect (&gTimerVerifPosteImportDocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
+        obj_verifimportdocstimer  .start(5000);
+        connect (&obj_verifimportdocstimer,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
     }
     else
     {
-        gTimerVerifPosteImportDocs  .disconnect();
-        gTimerVerifPosteImportDocs  .stop();
+        obj_verifimportdocstimer  .disconnect();
+        obj_verifimportdocstimer  .stop();
     }
 }
 
@@ -797,8 +797,8 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamPosteupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedAdmin = Utils::VerifMDP(proc->getMDPAdmin(),"Saisissez le mot de passe Administrateur", MDPVerifiedAdmin);
-            if (MDPVerifiedAdmin)
+            m_MDPadminverifie = Utils::VerifMDP(proc->getMDPAdmin(),"Saisissez le mot de passe Administrateur", m_MDPadminverifie);
+            if (m_MDPadminverifie)
             {
                 ui->Posteframe->setEnabled(ui->PosteServcheckBox->isChecked());
                 ui->Localframe->setEnabled(ui->LocalServcheckBox->isChecked());
@@ -808,7 +808,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
         }
         else
         {
-            if (gModifPoste)
+            if (m_modifposte)
                 if (!Valide_Modifications()) return;
             ui->LockParamPosteupLabel->setPixmap(Icons::pxVerrouiller());
         }
@@ -827,8 +827,8 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
     {
         if (ui->LockParamUserupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedUser = Utils::VerifMDP(m_currentuser->password(),tr("Saisissez votre mot de passe"), MDPVerifiedUser);
-            if (MDPVerifiedUser)
+            m_MDPuserverifie = Utils::VerifMDP(m_currentuser->password(),tr("Saisissez votre mot de passe"), m_MDPuserverifie);
+            if (m_MDPuserverifie)
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
         else
@@ -857,11 +857,11 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
         }
         if (ui->LockParamGeneralupLabel->pixmap()->toImage() == Icons::pxVerrouiller().toImage())
         {
-            MDPVerifiedAdmin = Utils::VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), MDPVerifiedAdmin);
-            if (MDPVerifiedAdmin)
+            m_MDPadminverifie = Utils::VerifMDP(proc->getMDPAdmin(),tr("Saisissez le mot de passe Administrateur"), m_MDPadminverifie);
+            if (m_MDPadminverifie)
             {
                 ui->LockParamGeneralupLabel ->setPixmap(Icons::pxDeverouiller());
-                widgAppareils->moinsBouton      ->setEnabled(ui->AppareilsConnectesupTableWidget->selectedItems().size()>0);
+                wdg_appareilswdgbuttonframe->moinsBouton      ->setEnabled(ui->AppareilsConnectesupTableWidget->selectedItems().size()>0);
             }
         }
         else
@@ -871,7 +871,7 @@ void dlg_param::Slot_EnableModif(QWidget *obj)
             EnableWidgContent(ui->Appareilsconnectesframe,false);
         else
             EnableWidgContent(ui->Appareilsconnectesframe,a);
-        widgAppareils->moinsBouton          ->setEnabled(ui->AppareilsConnectesupTableWidget->selectedItems().size()>0);
+        wdg_appareilswdgbuttonframe->moinsBouton          ->setEnabled(ui->AppareilsConnectesupTableWidget->selectedItems().size()>0);
         ui->GestUserpushButton              ->setEnabled(a);
         ui->GestLieuxpushButton             ->setEnabled(a);
         ui->ParamMotifspushButton           ->setEnabled(a);
@@ -946,7 +946,7 @@ void dlg_param::Slot_EnableFrameServeur(bool a)
 
 void dlg_param::Slot_EnableOKModifPosteButton()
 {
-    gModifPoste = true;
+    m_modifposte = true;
 }
 
 void dlg_param::Slot_FiltreActesOphtaSeulmt(bool b)
@@ -974,25 +974,25 @@ void dlg_param::Slot_GestionBanques()
 
 void dlg_param::Slot_GestionDatasCurrentUser()
 {
-    Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::MODIFUSER, MDPVerifiedUser);
+    Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::MODIFUSER, m_MDPuserverifie);
     Dlg_GestUsr->setWindowTitle(tr("Enregistrement de l'utilisateur ") +  m_currentuser->login());
-    DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
-    if(DonneesUserModifiees)
+    m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
+    if(m_donneesusermodifiees)
     {
         proc->SetUserAllData(m_currentuser, Item::ForceUpdate);
         AfficheParamUser();
     }
-    if (!MDPVerifiedUser)
-        MDPVerifiedUser = Dlg_GestUsr->isMDPverified();
+    if (!m_MDPuserverifie)
+        m_MDPuserverifie = Dlg_GestUsr->isMDPverified();
     delete Dlg_GestUsr;
 }
 
 void dlg_param::Slot_GestionUsers()
 {
-    Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::ADMIN, MDPVerifiedAdmin);
+    Dlg_GestUsr = new dlg_gestionusers(proc->idLieuExercice(), dlg_gestionusers::ADMIN, m_MDPadminverifie);
     Dlg_GestUsr->setWindowTitle(tr("Gestion des utilisateurs"));
-    DonneesUserModifiees = (Dlg_GestUsr->exec()>0);
-    if(DonneesUserModifiees)
+    m_donneesusermodifiees = (Dlg_GestUsr->exec()>0);
+    if(m_donneesusermodifiees)
     {
         Datas::I()->users->initListe();
         proc->SetUserAllData(m_currentuser, Item::ForceUpdate);
@@ -1105,11 +1105,11 @@ void dlg_param::ReconstruitListeLieuxExerciceAllusers()
 
 void dlg_param::NouvAppareil()
 {
-    gAskAppareil = new UpDialog();
-    gAskAppareil->setModal(true);
-    gAskAppareil->move(QPoint(x()+width()/2,y()+height()/2));
-    gAskAppareil->setFixedWidth(400);
-    gAskAppareil->setWindowTitle(tr("Choisissez un appareil"));
+    dlg_askappareil = new UpDialog();
+    dlg_askappareil->setModal(true);
+    dlg_askappareil->move(QPoint(x()+width()/2,y()+height()/2));
+    dlg_askappareil->setFixedWidth(400);
+    dlg_askappareil->setWindowTitle(tr("Choisissez un appareil"));
     QHBoxLayout *lay = new QHBoxLayout;
     UpLabel *label = new UpLabel();
     label->setText("Nom de l'appareil");
@@ -1117,17 +1117,17 @@ void dlg_param::NouvAppareil()
     lay->addWidget(label);
     lay->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
     UpComboBox *upCombo = new UpComboBox();
-    upCombo->insertItems(0,glistAppareils);
+    upCombo->insertItems(0,m_listeappareils);
     upCombo->setFixedSize(260,32);
     upCombo->setchamp("NomAppareil");
     upCombo->showPopup();
     lay->addWidget(upCombo);
-    gAskAppareil->dlglayout()->insertLayout(0,lay);
-    gAskAppareil->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-    gAskAppareil->AjouteLayButtons(UpDialog::ButtonOK);
-    connect(gAskAppareil->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreAppareil()));
-    gAskAppareil->exec();
-    delete gAskAppareil;
+    dlg_askappareil->dlglayout()->insertLayout(0,lay);
+    dlg_askappareil->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_askappareil->AjouteLayButtons(UpDialog::ButtonOK);
+    connect(dlg_askappareil->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreAppareil()));
+    dlg_askappareil->exec();
+    delete dlg_askappareil;
 }
 
 void dlg_param::Slot_ImmediateBackup()
@@ -1202,7 +1202,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     QString::number(m_currentuser->id()) +")";
         }
         if (db->StandardSQL(req))
-            gCotationsModifiees = true;
+            m_cotationsmodifiees = true;
     }
     else
     {
@@ -1220,7 +1220,7 @@ void dlg_param::Slot_MAJActesCCAM(QString txt)
                     QString req = "update " TBL_COTATIONS " set montantpratique = " + montant +
                                   " where typeacte = '" + ui->ActesCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
                     if (db->StandardSQL(req))
-                        gCotationsModifiees = true;
+                        m_cotationsmodifiees = true;
                 }
         }
     }
@@ -1297,7 +1297,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                     QString::number(m_currentuser->id()) +")";
         }
         if (db->StandardSQL(req))
-            gCotationsModifiees = true;
+            m_cotationsmodifiees = true;
     }
     else
     {
@@ -1322,7 +1322,7 @@ void dlg_param::Slot_MAJAssocCCAM(QString txt)
                        req = "update " TBL_COTATIONS " set montantpratique = " + montant +
                            " where typeacte = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
                     if (db->StandardSQL(req))
-                        gCotationsModifiees = true;
+                        m_cotationsmodifiees = true;
                 }
         }
     }
@@ -1352,7 +1352,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
                     " 2, " + QString::number(m_currentuser->id()) +")";
         }
         if (db->StandardSQL(req))
-            gCotationsModifiees = true;
+            m_cotationsmodifiees = true;
     }
     else
     {
@@ -1370,7 +1370,7 @@ void dlg_param::Slot_MAJHorsNomenclature(QString txt)
                     req = "update " TBL_COTATIONS " set montantOPTAM = " + montant + ", montantNonOPTAM = " + montant + ", montantpratique = " + montant +
                           " where typeacte = '" + ui->HorsNomenclatureupTableWidget->item(row,1)->text() + "' and idUser = " + QString::number(m_currentuser->id());
                     if (db->StandardSQL(req))
-                        gCotationsModifiees = true;
+                        m_cotationsmodifiees = true;
                 }
         }
     }
@@ -1438,10 +1438,10 @@ void dlg_param::Slot_RegleAssocBoutons()
             {
                 ui->AssocCCAMupTableWidget          ->clearSelection();
                 ui->HorsNomenclatureupTableWidget   ->clearSelection();
-                widgAssocCCAM->modifBouton          ->setEnabled(false);
-                widgAssocCCAM->moinsBouton          ->setEnabled(false);
-                widgHN->modifBouton                 ->setEnabled(false);
-                widgHN->moinsBouton                 ->setEnabled(false);
+                wdg_assocCCAMcotationswdgbuttonframe->modifBouton          ->setEnabled(false);
+                wdg_assocCCAMcotationswdgbuttonframe->moinsBouton          ->setEnabled(false);
+                wdg_HNcotationswdgbuttonframe->modifBouton                 ->setEnabled(false);
+                wdg_HNcotationswdgbuttonframe->moinsBouton                 ->setEnabled(false);
             }
         }
         else if (ui->HorsNomenclatureupTableWidget->isAncestorOf(check0))
@@ -1455,10 +1455,10 @@ void dlg_param::Slot_RegleAssocBoutons()
             {
                 ui->AssocCCAMupTableWidget          ->clearSelection();
                 ui->HorsNomenclatureupTableWidget   ->clearSelection();
-                widgAssocCCAM->modifBouton          ->setEnabled(false);
-                widgAssocCCAM->moinsBouton          ->setEnabled(false);
-                widgHN->modifBouton                 ->setEnabled(false);
-                widgHN->moinsBouton                 ->setEnabled(false);
+                wdg_assocCCAMcotationswdgbuttonframe->modifBouton          ->setEnabled(false);
+                wdg_assocCCAMcotationswdgbuttonframe->moinsBouton          ->setEnabled(false);
+                wdg_HNcotationswdgbuttonframe->modifBouton                 ->setEnabled(false);
+                wdg_HNcotationswdgbuttonframe->moinsBouton                 ->setEnabled(false);
             }
         }
     }
@@ -1473,23 +1473,23 @@ void dlg_param::Slot_RegleAssocBoutons()
             UpCheckBox* check                   = static_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow(),0));
             checked = check->isChecked();
         }
-        widgAssocCCAM->modifBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
+        wdg_assocCCAMcotationswdgbuttonframe->modifBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
                                                  || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
                                                  && checked);
-        widgAssocCCAM->moinsBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
+        wdg_assocCCAMcotationswdgbuttonframe->moinsBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
                                                  || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
                                                  && checked);
-        widgHN->modifBouton                 ->setEnabled(false);
-        widgHN->moinsBouton                 ->setEnabled(false);
+        wdg_HNcotationswdgbuttonframe->modifBouton                 ->setEnabled(false);
+        wdg_HNcotationswdgbuttonframe->moinsBouton                 ->setEnabled(false);
     }
     else if (sender() == ui->ActesCCAMupTableWidget || modifboutonsActes)
     {
         ui->AssocCCAMupTableWidget          ->clearSelection();
         ui->HorsNomenclatureupTableWidget   ->clearSelection();
-        widgAssocCCAM->modifBouton          ->setEnabled(false);
-        widgAssocCCAM->moinsBouton          ->setEnabled(false);
-        widgHN->modifBouton                 ->setEnabled(false);
-        widgHN->moinsBouton                 ->setEnabled(false);
+        wdg_assocCCAMcotationswdgbuttonframe->modifBouton          ->setEnabled(false);
+        wdg_assocCCAMcotationswdgbuttonframe->moinsBouton          ->setEnabled(false);
+        wdg_HNcotationswdgbuttonframe->modifBouton                 ->setEnabled(false);
+        wdg_HNcotationswdgbuttonframe->moinsBouton                 ->setEnabled(false);
     }
     else if (sender() == ui->HorsNomenclatureupTableWidget || modifboutonsHN)
     {
@@ -1501,11 +1501,11 @@ void dlg_param::Slot_RegleAssocBoutons()
             UpCheckBox* check                   = static_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow(),0));
             checked = check->isChecked();
         }
-        widgAssocCCAM->modifBouton          ->setEnabled(false);
-        widgAssocCCAM->moinsBouton          ->setEnabled(false);
-        widgHN->modifBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
+        wdg_assocCCAMcotationswdgbuttonframe->modifBouton          ->setEnabled(false);
+        wdg_assocCCAMcotationswdgbuttonframe->moinsBouton          ->setEnabled(false);
+        wdg_HNcotationswdgbuttonframe->modifBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
                                                          && checked);
-        widgHN->moinsBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
+        wdg_HNcotationswdgbuttonframe->moinsBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
                                                          && checked);
     }
 }
@@ -1532,12 +1532,12 @@ void dlg_param::Slot_ResetImprimante()
 
 void dlg_param::Slot_EnregistreAppareil()
 {
-    if (!gAskAppareil) return;
+    if (!dlg_askappareil) return;
     QString req = "insert into " TBL_APPAREILSCONNECTESCENTRE " (idAppareil, idLieu) Values("
-                  " (select idappareil from " TBL_LISTEAPPAREILS " where NomAppareil = '" + gAskAppareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
+                  " (select idappareil from " TBL_LISTEAPPAREILS " where NomAppareil = '" + dlg_askappareil->findChildren<UpComboBox*>().at(0)->currentText() + "'), "
                   + QString::number(m_currentuser->idsitedetravail()) + ")";
     db->StandardSQL(req);
-    gAskAppareil->done(0);
+    dlg_askappareil->done(0);
     Remplir_Tables();
 }
 
@@ -1554,7 +1554,7 @@ void dlg_param::NouvAssocCCAM()
     {
         Remplir_TableAssocCCAM();
         EnableAssocCCAM();
-        gCotationsModifiees = true;
+        m_cotationsmodifiees = true;
     }
     delete Dlg_CrrCot;
 }
@@ -1571,7 +1571,7 @@ void dlg_param::ModifAssocCCAM()
     {
         Remplir_TableAssocCCAM();
         EnableAssocCCAM();
-        gCotationsModifiees = true;
+        m_cotationsmodifiees = true;
     }
     delete Dlg_CrrCot;
 }
@@ -1601,7 +1601,7 @@ void dlg_param::SupprAssocCCAM()
         db->StandardSQL("delete from " TBL_COTATIONS " where typeacte = '" + CodeActe + "'");
         Remplir_TableAssocCCAM();
         EnableAssocCCAM();
-        gCotationsModifiees = true;
+        m_cotationsmodifiees = true;
     }
 }
 
@@ -1612,7 +1612,7 @@ void dlg_param::NouvHorsNomenclature()
     {
         Remplir_TableHorsNomenclature();
         EnableHorsNomenclature();
-        gCotationsModifiees = true;
+        m_cotationsmodifiees = true;
     }
     delete Dlg_CrrCot;
 }
@@ -1626,7 +1626,7 @@ void dlg_param::ModifHorsNomenclature()
     {
         Remplir_TableHorsNomenclature();
         EnableHorsNomenclature();
-        gCotationsModifiees = true;
+        m_cotationsmodifiees = true;
     }
     delete Dlg_CrrCot;
 }
@@ -1640,58 +1640,58 @@ void dlg_param::SupprHorsNomenclature()
         db->StandardSQL("delete from " TBL_COTATIONS " where typeacte = '" + CodeActe + "'");
         Remplir_TableHorsNomenclature();
         EnableHorsNomenclature();
-        gCotationsModifiees = true;
+        m_cotationsmodifiees = true;
     }
 }
 
 void dlg_param::Slot_ModifMDPAdmin()
 {
-    gAskMDP    = new UpDialog(this);
-    gAskMDP    ->setModal(true);
-    gAskMDP    ->move(QPoint(x()+width()/2,y()+height()/2));
+    dlg_askMDP    = new UpDialog(this);
+    dlg_askMDP    ->setModal(true);
+    dlg_askMDP    ->move(QPoint(x()+width()/2,y()+height()/2));
 
-    UpLineEdit *ConfirmMDP = new UpLineEdit(gAskMDP);
+    UpLineEdit *ConfirmMDP = new UpLineEdit(dlg_askMDP);
     ConfirmMDP->setEchoMode(QLineEdit::Password);
-    ConfirmMDP->setObjectName(gConfirmMDP);
+    ConfirmMDP->setObjectName(m_confirmeMDP);
     ConfirmMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
     ConfirmMDP->setAlignment(Qt::AlignCenter);
     ConfirmMDP->setMaxLength(12);
-    gAskMDP->dlglayout()->insertWidget(0,ConfirmMDP);
+    dlg_askMDP->dlglayout()->insertWidget(0,ConfirmMDP);
     UpLabel *labelConfirmMDP = new UpLabel();
     labelConfirmMDP->setText(tr("Confirmez le nouveau mot de passe"));
-    gAskMDP->dlglayout()->insertWidget(0,labelConfirmMDP);
-    UpLineEdit *NouvMDP = new UpLineEdit(gAskMDP);
+    dlg_askMDP->dlglayout()->insertWidget(0,labelConfirmMDP);
+    UpLineEdit *NouvMDP = new UpLineEdit(dlg_askMDP);
     NouvMDP->setEchoMode(QLineEdit::Password);
-    NouvMDP->setObjectName(gNouvMDP);
+    NouvMDP->setObjectName(m_nouveauMDP);
     NouvMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
     NouvMDP->setAlignment(Qt::AlignCenter);
     NouvMDP->setMaxLength(12);
-    gAskMDP->dlglayout()->insertWidget(0,NouvMDP);
+    dlg_askMDP->dlglayout()->insertWidget(0,NouvMDP);
     UpLabel *labelNewMDP = new UpLabel();
     labelNewMDP->setText(tr("Entrez le nouveau mot de passe"));
-    gAskMDP->dlglayout()->insertWidget(0,labelNewMDP);
-    UpLineEdit *AncMDP = new UpLineEdit(gAskMDP);
+    dlg_askMDP->dlglayout()->insertWidget(0,labelNewMDP);
+    UpLineEdit *AncMDP = new UpLineEdit(dlg_askMDP);
     AncMDP->setEchoMode(QLineEdit::Password);
     AncMDP->setAlignment(Qt::AlignCenter);
     AncMDP->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_3_12,this));
-    AncMDP->setObjectName(gAncMDP);
+    AncMDP->setObjectName(m_ancienMDP);
     AncMDP->setMaxLength(12);
-    gAskMDP->dlglayout()->insertWidget(0,AncMDP);
+    dlg_askMDP->dlglayout()->insertWidget(0,AncMDP);
     UpLabel *labelOldMDP = new UpLabel();
     labelOldMDP->setText(tr("Entrez votre mot de passe"));
-    gAskMDP->dlglayout()->insertWidget(0,labelOldMDP);
+    dlg_askMDP->dlglayout()->insertWidget(0,labelOldMDP);
     AncMDP->setFocus();
 
-    gAskMDP->AjouteLayButtons(UpDialog::ButtonOK);
+    dlg_askMDP->AjouteLayButtons(UpDialog::ButtonOK);
     QList <QWidget*> ListTab;
-    ListTab << AncMDP << NouvMDP << ConfirmMDP << gAskMDP->OKButton;
+    ListTab << AncMDP << NouvMDP << ConfirmMDP << dlg_askMDP->OKButton;
     for (int i = 0; i<ListTab.size()-1 ; i++ )
-        gAskMDP->setTabOrder(ListTab.at(i), ListTab.at(i+1));
-    gAskMDP    ->setWindowTitle(tr("Mot de passe administrateur"));
-    connect(gAskMDP->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreNouvMDPAdmin()));
-    gAskMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+        dlg_askMDP->setTabOrder(ListTab.at(i), ListTab.at(i+1));
+    dlg_askMDP    ->setWindowTitle(tr("Mot de passe administrateur"));
+    connect(dlg_askMDP->OKButton,    SIGNAL(clicked(bool)), this, SLOT(Slot_EnregistreNouvMDPAdmin()));
+    dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    gAskMDP->exec();
+    dlg_askMDP->exec();
 }
 
 void dlg_param::Slot_ParamMotifs()
@@ -2070,10 +2070,10 @@ void dlg_param::AfficheParamUser()
         Remplir_TableAssocCCAM();
         Remplir_TableHorsNomenclature();
 
-        widgAssocCCAM->modifBouton->setEnabled(false);
-        widgAssocCCAM->moinsBouton->setEnabled(false);
-        widgHN->modifBouton->setEnabled(false);
-        widgHN->moinsBouton->setEnabled(false);
+        wdg_assocCCAMcotationswdgbuttonframe->modifBouton->setEnabled(false);
+        wdg_assocCCAMcotationswdgbuttonframe->moinsBouton->setEnabled(false);
+        wdg_HNcotationswdgbuttonframe->modifBouton->setEnabled(false);
+        wdg_HNcotationswdgbuttonframe->moinsBouton->setEnabled(false);
     }
     else
         ui->Cotationswidget->setVisible(false);
@@ -2137,12 +2137,12 @@ void dlg_param::ConnectSlots()
 
 bool dlg_param::CotationsModifiees()
 {
-    return gCotationsModifiees;
+    return m_cotationsmodifiees;
 }
 
 bool dlg_param::DataUserModifiees()
 {
-    return DonneesUserModifiees;
+    return m_donneesusermodifiees;
 }
 
 void dlg_param::EnableActesCCAM(bool enable)
@@ -2184,9 +2184,9 @@ void dlg_param::EnableAssocCCAM(bool enable)
         ui->AssocCCAMupTableWidget->clearSelection();
     ui->AssocCCAMupTableWidget  ->setSelectionMode(QAbstractItemView::SingleSelection);
     ui->AssocCCAMupTableWidget  ->setSelectionBehavior(QAbstractItemView::SelectRows);
-    widgAssocCCAM               ->setEnabled(autormodif);
-    widgAssocCCAM->modifBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
-    widgAssocCCAM->moinsBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
+    wdg_assocCCAMcotationswdgbuttonframe               ->setEnabled(autormodif);
+    wdg_assocCCAMcotationswdgbuttonframe->modifBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
+    wdg_assocCCAMcotationswdgbuttonframe->moinsBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
 }
 
 void dlg_param::EnableHorsNomenclature(bool enable)
@@ -2203,9 +2203,9 @@ void dlg_param::EnableHorsNomenclature(bool enable)
     ui->HorsNomenclatureupTableWidget->setSelectionMode(autormodif? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
     if (!autormodif)
         ui->HorsNomenclatureupTableWidget->clearSelection();
-    widgHN              ->setEnabled(autormodif);
-    widgHN->modifBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
-    widgHN->moinsBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
+    wdg_HNcotationswdgbuttonframe              ->setEnabled(autormodif);
+    wdg_HNcotationswdgbuttonframe->modifBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
+    wdg_HNcotationswdgbuttonframe->moinsBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
 }
 
 void dlg_param::EnableWidgContent(QWidget *widg, bool a)
@@ -2236,7 +2236,7 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
 
 void dlg_param::Slot_EnregistreNouvMDPAdmin()
 {
-    if (gAskMDP != Q_NULLPTR)
+    if (dlg_askMDP != Q_NULLPTR)
     {
         // Vérifier la cohérence
         QString anc, nouv, confirm;
@@ -2245,15 +2245,15 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKBouton("OK");
         msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
-        anc         = gAskMDP->findChild<UpLineEdit*>(gAncMDP)->text();
-        nouv        = gAskMDP->findChild<UpLineEdit*>(gNouvMDP)->text();
-        confirm     = gAskMDP->findChild<UpLineEdit*>(gConfirmMDP)->text();
+        anc         = dlg_askMDP->findChild<UpLineEdit*>(m_ancienMDP)->text();
+        nouv        = dlg_askMDP->findChild<UpLineEdit*>(m_nouveauMDP)->text();
+        confirm     = dlg_askMDP->findChild<UpLineEdit*>(m_confirmeMDP)->text();
 
         if (anc == "")
         {
             QSound::play(NOM_ALARME);
             msgbox.setInformativeText(tr("Ancien mot de passe requis"));
-            gAskMDP->findChild<UpLineEdit*>(gAncMDP)->setFocus();
+            dlg_askMDP->findChild<UpLineEdit*>(m_ancienMDP)->setFocus();
             msgbox.exec();
             return;
         }
@@ -2261,7 +2261,7 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
         {
             QSound::play(NOM_ALARME);
             msgbox.setInformativeText(tr("Le mot de passe que vous voulez modifier n'est pas le bon\n"));
-            gAskMDP->findChild<UpLineEdit*>(gAncMDP)->setFocus();
+            dlg_askMDP->findChild<UpLineEdit*>(m_ancienMDP)->setFocus();
             msgbox.exec();
             return;
         }
@@ -2269,7 +2269,7 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
         {
             QSound::play(NOM_ALARME);
             msgbox.setInformativeText(tr("Le nouveau mot de passe n'est pas conforme\n(au moins 5 caractères - chiffres ou lettres non accentuées -\n"));
-            gAskMDP->findChild<UpLineEdit*>(gNouvMDP)->setFocus();
+            dlg_askMDP->findChild<UpLineEdit*>(m_nouveauMDP)->setFocus();
             msgbox.exec();
             return;
         }
@@ -2277,7 +2277,7 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
         {
             QSound::play(NOM_ALARME);
             msgbox.setInformativeText("Les mots de passe ne correspondent pas\n");
-            gAskMDP->findChild<UpLineEdit*>(gNouvMDP)->setFocus();
+            dlg_askMDP->findChild<UpLineEdit*>(m_nouveauMDP)->setFocus();
             msgbox.exec();
             return;
         }
@@ -2313,7 +2313,7 @@ void dlg_param::Slot_EnregistreNouvMDPAdmin()
         db->StandardSQL(req);
         req = "set password for '" NOM_ADMINISTRATEURDOCS "SSL'@'%' = '" + nouv + "'";
         db->StandardSQL(req);
-        gAskMDP->done(0);
+        dlg_askMDP->done(0);
         msgbox.exec();
     }
 }
@@ -2462,7 +2462,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         ui->AssocCCAMupTableWidget->horizontalHeaderItem(4)->setTextAlignment(Qt::AlignCenter);
     }
     ui->AssocCCAMupTableWidget->FixLargeurTotale();
-    widgAssocCCAM->widgButtonParent()->setFixedWidth(ui->AssocCCAMupTableWidget->width());
+    wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent()->setFixedWidth(ui->AssocCCAMupTableWidget->width());
     ui->AssocCCAMupTableWidget->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
     connect(ui->AssocCCAMupTableWidget,     SIGNAL(currentCellChanged(int,int,int,int)),    this, SLOT(Slot_RegleAssocBoutons()));
     connect(ui->AssocCCAMupTableWidget,     SIGNAL(cellClicked(int,int)),                   this, SLOT(Slot_RegleAssocBoutons()));
@@ -2844,23 +2844,23 @@ void dlg_param::Remplir_Tables()
         ui->DistantDocupTableWidget->setRowHeight(i,int(fm.height()*1.3));
     }
 
-    glistAppareils.clear();
+    m_listeappareils.clear();
     req = "select NomAppareil from " TBL_LISTEAPPAREILS
           " where idAppareil not in (select idAppareil from " TBL_APPAREILSCONNECTESCENTRE " where idlieu = " + QString::number(m_currentuser->idsitedetravail()) + ")";
     QList<QVariantList> Appareilslist = db->StandardSelectSQL(req, ok);
     if (!ok)
         return;
     if (Appareilslist.size() == 0)
-        widgAppareils->plusBouton->setEnabled(false);
+        wdg_appareilswdgbuttonframe->plusBouton->setEnabled(false);
     else
         for (int i=0; i<Appareilslist.size(); i++)
-            glistAppareils << Appareilslist.at(i).at(0).toString();
-    widgAppareils->moinsBouton->setEnabled(Applist.size()>0);
+            m_listeappareils << Appareilslist.at(i).at(0).toString();
+    wdg_appareilswdgbuttonframe->moinsBouton->setEnabled(Applist.size()>0);
 }
 
 bool dlg_param::Valide_Modifications()
 {
-    if (gModifPoste)
+    if (m_modifposte)
     {
         QStringList listcomm;
         listcomm << ui->PortAutorefupComboBox->currentText() << ui->PortFrontoupComboBox->currentText() << ui->PortRefracteurupComboBox->currentText() << ui->PortTonometreupComboBox->currentText();
@@ -2985,7 +2985,7 @@ bool dlg_param::Valide_Modifications()
         proc->gsettingsIni->setValue("Param_Poste/VilleParDefaut",VilleDefautlineEdit->text());
         proc->gsettingsIni->setValue("Param_Poste/CodePostalParDefaut",CPDefautlineEdit->text());
 
-        gModifPoste = false;
+        m_modifposte = false;
     }
     return true;
 }

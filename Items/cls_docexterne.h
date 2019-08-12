@@ -94,7 +94,7 @@ public:
     bool isAllLoaded() const;
     int idrefraction() const;
 
-    void setDate(QDateTime date);
+    void setdate(QDateTime date);
     void setimportance(int imptce);
     void setAllLoaded(bool allloaded);
     void setimageblob(QByteArray blob);

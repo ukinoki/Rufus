@@ -33,7 +33,7 @@ ui(new Ui::dlg_actesprecedents)
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     setWindowIcon(Icons::icLoupe());
     proc            = Procedures::I();
-    gAvantDernier   = AvantDernier;
+    m_idavantdernieracte   = AvantDernier;
     setAttribute(Qt::WA_DeleteOnClose);
     setAttribute(Qt::WA_ShowWithoutActivating);
     QString style = "background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));"
@@ -43,7 +43,7 @@ ui(new Ui::dlg_actesprecedents)
     ui->ConclusionupTextEdit    ->setStyleSheet(style);
     ui->FermepushButton->installEventFilter(this);
 
-    if (gAvantDernier)
+    if (m_idavantdernieracte)
         restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionActesPrec").toByteArray());
     else
         restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionAutreDossier").toByteArray());
@@ -82,7 +82,7 @@ void dlg_actesprecedents::Actualise()
     int initScrollValue;
     itCurrentActe = m_listeactes->getLast();
     initScrollValue = m_listeactes->actes()->size() - 1;
-    if( gAvantDernier )
+    if( m_idavantdernieracte )
     {
         --initScrollValue;
         --itCurrentActe;
@@ -168,7 +168,7 @@ void dlg_actesprecedents::wheelEvent(QWheelEvent *event)
 
 void dlg_actesprecedents::closeEvent(QCloseEvent *event)
 {
-    if (gAvantDernier)
+    if (m_idavantdernieracte)
         proc->gsettingsIni->setValue("PositionsFiches/PositionActesPrec", saveGeometry());
     else
         proc->gsettingsIni->setValue("PositionsFiches/PositionAutreDossier", saveGeometry());

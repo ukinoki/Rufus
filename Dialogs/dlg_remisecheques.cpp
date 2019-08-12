@@ -31,7 +31,7 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
     db = DataBase::I();
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    InitOK = true;
+    m_initok = true;
     proc        = Procedures::I();
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionRemiseCheques").toByteArray());
@@ -92,12 +92,12 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
     ui->RemisePrecsupComboBox->setLineEdit(ListRem);
 
     ReconstruitListeUsers();
-    if (!InitOK)
+    if (!m_initok)
         return;
     connect (ui->UserComboBox,          SIGNAL(currentIndexChanged(int)),   this,   SLOT (Slot_ChangeUser()));
     connect (ui->ComptecomboBox,        QOverload<int>::of(&QComboBox::currentIndexChanged),    this,    [=](int) {ChangeCompte();});
     VoirNouvelleRemise();
-    InitOK = true;
+    m_initok = true;
 }
 
 dlg_remisecheques::~dlg_remisecheques()
@@ -111,7 +111,7 @@ void dlg_remisecheques::reject()
         QLineEdit* Line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(ui->ListeChequesupTableWidget->currentRow(),4));
         QString b ;
         b.setNum(Line->text().toDouble(),'f',2);
-        Line->setText(ValeurAvantChangement);
+        Line->setText(m_valeuravantchangement);
         return;
     }
     QDialog::reject();
@@ -124,7 +124,7 @@ LES SLOTS ----------------------------------------------------------------------
 
 void dlg_remisecheques::Slot_AnnulupPushButton()
 {
-    if (gMode == NouvelleRemise) {
+    if (m_mode == NouvelleRemise) {
         ui->ListeChequesupTableWidget->setCurrentCell(0,0); // pour valider une éventuelle modification dans un champ montant
         reject();
     }
@@ -187,7 +187,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
     QString req;
     ui->ListeChequesupTableWidget->setCurrentCell(0,0); // pour valider une éventuelle modification dans un champ montant
 
-    if (gMode == NouvelleRemise) {
+    if (m_mode == NouvelleRemise) {
         // On vérifie que toutes les banques sont identifiées
         for (int i = 0; i < ui->ListeChequesupTableWidget->rowCount(); i++)
         {
@@ -343,7 +343,7 @@ void dlg_remisecheques::Slot_ImprimepushButton()
         db->commit();
         accept();
     }
-    else if(gMode == RevoirRemisesPrecs)
+    else if(m_mode == RevoirRemisesPrecs)
         ImprimerRemise(ui->RemisePrecsupComboBox->currentData().toMap()["idRemise"].toInt());
 }
 
@@ -352,7 +352,7 @@ void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)
 {
     if (B == 0)
     {
-        gBloqueCellChanged = false;
+        m_bloquecellchanged = false;
 
         QTableWidgetItem    *pItem0                 = new QTableWidgetItem;
         QTableWidgetItem    *pItem1                 = new QTableWidgetItem;
@@ -417,7 +417,7 @@ void dlg_remisecheques::Slot_ItemChequeARemettreClicked(int A, int B)
             ui->ChequesEnAttenteupTableWidget->setCellWidget(k,1,NoLigne);
         }
         Slot_RecalculeMontant();
-        gBloqueCellChanged = true;
+        m_bloquecellchanged = true;
 
         //mise à jour de la table lignesrecettes ou recettesspeciales
         QString UpdateidRec;
@@ -433,7 +433,7 @@ void dlg_remisecheques::Slot_ItemChequeEnAttenteClicked(int A, int B)
 {
     if (B == 0)
     {
-        gBloqueCellChanged = false;
+        m_bloquecellchanged = false;
 
         QTableWidgetItem    *pItem0                 = new QTableWidgetItem;
         QTableWidgetItem    *pItem1                 = new QTableWidgetItem;
@@ -513,7 +513,7 @@ void dlg_remisecheques::Slot_MiseEnFormeMontant(int A, int B, int C, int D)
     if (B == 4)   // on arrive dans la case montant et on met en mémoire le montant qui y figure
     {
         QLineEdit* Line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(A,B));
-        ValeurAvantChangement.setNum(Line->text().toDouble(),'f',2);
+        m_valeuravantchangement.setNum(Line->text().toDouble(),'f',2);
     }
     if (D == 4)   // on quitte une case montant et on valide le montant qui y figure sinon, on remet l'ancien
     {
@@ -521,7 +521,7 @@ void dlg_remisecheques::Slot_MiseEnFormeMontant(int A, int B, int C, int D)
         QString b ;
         b = QLocale().toString(QLocale().toDouble(Line->text()),'f',2);
         if (b == "" || QLocale().toDouble(b) <= 0)
-            Line->setText(ValeurAvantChangement);
+            Line->setText(m_valeuravantchangement);
         else
         {
             Line->setText(b);
@@ -678,17 +678,17 @@ void dlg_remisecheques::Slot_ToolTip(int A, int B)
 
 void dlg_remisecheques::Slot_TrierChequesEnAttente(int, int B)
 {
-    if (B == 2 && gBloqueCellChanged) ui->ChequesEnAttenteupTableWidget->sortItems(2);
+    if (B == 2 && m_bloquecellchanged) ui->ChequesEnAttenteupTableWidget->sortItems(2);
 }
 
 void dlg_remisecheques::Slot_TrierListeCheques(int, int B)
 {
-    if (B == 2 && gBloqueCellChanged) ui->ListeChequesupTableWidget->sortItems(2);
+    if (B == 2 && m_bloquecellchanged) ui->ListeChequesupTableWidget->sortItems(2);
 }
 
 bool dlg_remisecheques::VoirRemisesPrecs()
 {
-    gMode = RevoirRemisesPrecs;
+    m_mode = RevoirRemisesPrecs;
     ui->ComptecomboBox  ->setEnabled(false);
     RegleComptesComboBox(false);
     ui->ChequesEnAttentelabel           ->setVisible(false);
@@ -805,7 +805,7 @@ bool dlg_remisecheques::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 
 bool dlg_remisecheques::getInitOK()
 {
-    return InitOK;
+    return m_initok;
 }
 
 /*----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -813,9 +813,9 @@ LES FONCTIONS ------------------------------------------------------------------
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 bool dlg_remisecheques::VoirNouvelleRemise()
 {
-    gMode = NouvelleRemise;
-    ui->ComptecomboBox  ->setEnabled(gMode == NouvelleRemise);
-    ui->UserComboBox    ->setEnabled(gMode == NouvelleRemise);
+    m_mode = NouvelleRemise;
+    ui->ComptecomboBox  ->setEnabled(m_mode == NouvelleRemise);
+    ui->UserComboBox    ->setEnabled(m_mode == NouvelleRemise);
 
         RegleComptesComboBox();
         ui->ChequesEnAttentelabel           ->setVisible(true);
@@ -833,7 +833,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         ui->RemisesPrecsPushButton          ->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Mid);
         ui->RemisesPrecsPushButton          ->setEnabled(true);
 
-        gBloqueCellChanged = true;
+        m_bloquecellchanged = true;
 
         QString req;
         //1, on recherche les chèques à déposer
@@ -1035,12 +1035,12 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     int id = ui->ComptecomboBox->currentData().toInt();
     Compte *cpt = Datas::I()->comptes->getById(id);
 
-    if (gMode == RevoirRemisesPrecs) {
+    if (m_mode == RevoirRemisesPrecs) {
         QMap<QString, QVariant> MapRemise =  ui->RemisePrecsupComboBox->currentData().toMap();
         date = MapRemise["DateRemise"].toDate();
         AvecPrevisu = true;
     }
-    else if (gMode == NouvelleRemise) {
+    else if (m_mode == NouvelleRemise) {
         iduser      = m_currentuser->id();
         date        = QDate::currentDate();
     }
@@ -1081,11 +1081,11 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
         LigneChq = lignecheque;
         LigneChq.replace("{{NOM PATIENT}}", ui->ListeChequesupTableWidget->item(k,2)->text());
         LigneChq.replace("{{NOM BANQUE}}", ui->ListeChequesupTableWidget->item(k,3)->text());
-        if (gMode == RevoirRemisesPrecs) {
+        if (m_mode == RevoirRemisesPrecs) {
             LigneChq.replace("{{MONT REGLT}}", ui->ListeChequesupTableWidget->item(k,4)->text());
             gtotalMontRemise += QLocale().toDouble(ui->ListeChequesupTableWidget->item(k,4)->text());
         }
-        else if (gMode == NouvelleRemise) {
+        else if (m_mode == NouvelleRemise) {
             QLineEdit *line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
             LigneChq.replace("{{MONT REGLT}}", line->text());
             gtotalMontRemise += QLocale().toDouble(line->text());
@@ -1138,7 +1138,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
     if (m_comptablesavecchequesenattente->count()<1)
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Pas de remise de chèque en attente"));
-        InitOK = false;
+        m_initok = false;
         return;
     }
     m_currentuser = Datas::I()->users->userconnected();

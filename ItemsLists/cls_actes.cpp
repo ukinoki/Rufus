@@ -86,7 +86,6 @@ Acte* Actes::getActeFromIndex(QModelIndex idx)
 {
     QModelIndex heureindx   = m_actesortmodel->mapToSource(idx);                      //  -> m_heuresortmodel
     QModelIndex pindx       = m_heuresortmodel->mapToSource(heureindx);               //  -> m_actesmodel
-
     UpStandardItem *item = dynamic_cast<UpStandardItem *>(m_actesmodel->itemFromIndex(pindx));
     if (item != Q_NULLPTR)
         return dynamic_cast<Acte *>(item->item());
@@ -138,9 +137,8 @@ void Actes::setMontantCotation(Acte *act, QString Cotation, double montant)
     else
         cotsql = "'" + Utils::correctquoteSQL(Cotation) + "'";
     QString requete = "UPDATE " TBL_ACTES
-                      " SET ActeCotation = " + cotsql +
-                      ", ActeMontant = " + QString::number(montant) +
-                      " WHERE idActe = " + QString::number(act->id());
+                      " SET " CP_COTATION_ACTES " = " + cotsql + ", " CP_MONTANT_ACTES " = " + QString::number(montant) +
+                      " WHERE " CP_IDACTE_ACTES " = " + QString::number(act->id());
     DataBase::I()->StandardSQL(requete);
     act->setcotation(Cotation);
     act->setmontant(montant);

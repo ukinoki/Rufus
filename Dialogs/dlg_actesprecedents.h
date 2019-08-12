@@ -59,19 +59,20 @@ public:
     Acte*                   getActeAffiche();
 
 private:
-    Patient                 *m_currentpatient;
-    int                     m_idpatient;
+    Ui::dlg_actesprecedents             *ui;
+    Procedures                          *proc;
+    Patient                             *m_currentpatient;
+    QMap<int, Acte*>::const_iterator    itCurrentActe;
+    Actes                               *m_listeactes;
+    LignesPaiements                     *m_listepaiements;
+    bool                                m_idavantdernieracte;
+    int                                 m_idpatient;
+
     void                    wheelEvent(QWheelEvent *event);
     virtual void            keyPressEvent(QKeyEvent *keyEvent); //PAS UTILISE
-    Ui::dlg_actesprecedents *ui;
-    Procedures              *proc;
     void                    closeEvent(QCloseEvent *event);
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
-    QMap<int, Acte*>::const_iterator    itCurrentActe;
-    Actes                   *m_listeactes;
-    LignesPaiements         *m_listepaiements;
     bool                    NavigationConsult(ItemsList::POSITION i);
-    bool                    gAvantDernier;
 };
 
 #endif // DLG_ACTESPRECEDENTS_H

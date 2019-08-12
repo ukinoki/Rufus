@@ -1846,6 +1846,6 @@ QString dlg_bilanortho::calcReponsehTml(QString textorigin)
 
 void dlg_bilanortho::setDateBO(QDate dateBO)
 {
-    DateBO = dateBO;
+    m_dateBO = dateBO;
 }
 

@@ -51,27 +51,32 @@ public:
     QLineEdit           *CPDefautlineEdit, *VilleDefautlineEdit;
 
 private:
+    Procedures              *proc;
+    DataBase                *db;
+
     dlg_gestionbanques      *Dlg_Banq;
     dlg_gestioncotations    *Dlg_CrrCot;
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_fontdialog          *Dlg_Fonts;
     dlg_motifs              *Dlg_motifs;
-    VilleCPWidget           *VilleCPDefautWidg;
-    UpDialog                *gLieuxDialog;
-    bool                    gModifPoste;
-    bool                    gCotationsModifiees;
-    bool                    DonneesUserModifiees;
-    bool                    MDPVerifiedAdmin, MDPVerifiedUser;
-    Procedures              *proc;
-    UpDialog                *gAskAppareil, *gAskMDP;
+
     User                    *m_currentuser;
     ParametresSysteme       *m_parametres;
-    DataBase                *db;
-    QString                 gNouvMDP, gAncMDP, gConfirmMDP;
-    QStringList             glistAppareils;
-    QTimer                  gTimerVerifPosteImportDocs;
-    WidgetButtonFrame       *widgHN, *widgAssocCCAM, *widgAppareils;
-    QWidget*                widgCCAM;
+
+    bool                    m_modifposte;
+    bool                    m_cotationsmodifiees;
+    bool                    m_donneesusermodifiees;
+    bool                    m_MDPadminverifie, m_MDPuserverifie;
+    QString                 m_nouveauMDP, m_ancienMDP, m_confirmeMDP;
+    QStringList             m_listeappareils;
+
+    QTimer                  obj_verifimportdocstimer;
+
+    VilleCPWidget           *wdg_villeCP;
+    WidgetButtonFrame       *wdg_HNcotationswdgbuttonframe, *wdg_assocCCAMcotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;
+    QWidget                 *wdg_CCAM;
+    UpDialog                *dlg_lieux;
+    UpDialog                *dlg_askappareil, *dlg_askMDP;
 
     bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                ConnectSlots();
@@ -183,6 +188,6 @@ private slots:
     void                    Slot_EffacePrgSauvegarde();
 private:
     void                    ModifParamAutoBackup();
-    bool                    gModifBackup;
+    bool                    m_modifbackup;
 };
 #endif // DLG_PARAM_H

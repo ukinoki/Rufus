@@ -22,7 +22,7 @@ UpDoubleSpinBox::UpDoubleSpinBox(QWidget *parent) : QDoubleSpinBox(parent)
     m_valeuravant = 0;
     installEventFilter(this);
     setKeyboardTracking(false);
-    gCorrigeDioptr = true;
+    m_correctiondioptries = true;
     setContextMenuPolicy(Qt::NoContextMenu);
 }
 UpDoubleSpinBox::~UpDoubleSpinBox()
@@ -36,7 +36,7 @@ bool UpDoubleSpinBox::eventFilter(QObject *obj, QEvent *event)
     {
         setValue(valueFromText(text()));    // cette acrobatie est nécessaire parce que la fonction value() ne marche pas
                                             // et retourne la valeur en entrant et pas celle en sortant...
-        if (gCorrigeDioptr) CorrigeDioptrie(Near);
+        if (m_correctiondioptries) CorrigeDioptrie(Near);
     }
     if (event->type() == QEvent::KeyPress )
     {
@@ -54,12 +54,12 @@ bool UpDoubleSpinBox::eventFilter(QObject *obj, QEvent *event)
         }
         if(keyEvent->key()==Qt::Key_Up)
         {
-            if (gCorrigeDioptr) CorrigeDioptrie(Up);
+            if (m_correctiondioptries) CorrigeDioptrie(Up);
             return true;
         }
         if(keyEvent->key()==Qt::Key_Down)
         {
-            if (gCorrigeDioptr) CorrigeDioptrie(Down);
+            if (m_correctiondioptries) CorrigeDioptrie(Down);
             return true;
         }
     }
@@ -108,7 +108,7 @@ void UpDoubleSpinBox::CorrigeDioptrie(int UpDownNear)
 
 void UpDoubleSpinBox::setAutorCorrigeDioptr(bool Autor)
 {
-    gCorrigeDioptr = Autor;
+    m_correctiondioptries = Autor;
 }
 
 void UpDoubleSpinBox::setvaleuravant(double valprec)

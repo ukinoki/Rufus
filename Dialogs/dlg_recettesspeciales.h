@@ -40,18 +40,18 @@ public:
     enum Mode                  {Lire, Modifier, Enregistrer, TableVide};    Q_ENUM(Mode)
 
 private:
-    dlg_comptes                 *Dlg_Cmpt;
-    int                         r,c, idRecEnCours;
     Procedures                  *proc;
     DataBase                    *db;
-    QStringList                 glistMoyensDePaiement;
-    QStringList                 glistRefFiscales;
-    User                        *m_currentuser;
-    UpTableWidget               *gBigTable;
-    UpPushButton                *EnregupPushButton, *AnnulupPushButton;
 
-    bool                        InitOK;
-    Mode                        gMode;
+    dlg_comptes                 *Dlg_Cmpt;
+    int                         m_idrecetteencours;
+    QStringList                 m_listemoyensdepaiement;
+    QStringList                 m_listerecettesfiscales;
+    bool                        m_initok;
+    Mode                        m_mode;
+    User                        *m_currentuser;
+    UpTableWidget               *wdg_bigtable;
+    UpPushButton                *wdg_enreguppushbutton, *wdg_annuluppushbutton;
 
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );

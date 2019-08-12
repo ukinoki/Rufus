@@ -45,11 +45,11 @@ public:
 
 private:
     bool            VerifFiche();
-    QTimer          *gTimer;
-    bool            gVisible;
+    QTimer          *obj_timer;
+    bool            m_visible;
     QSqlDatabase    db;
     bool            TestConnexion();
-    QString         gIPAvecZero, gIPSansZero, gClient, gServeur;
+    QString         m_IPaveczero, m_IPsanszero, m_client, m_serveur;
 
 private slots:
     void    Slot_CalcIP(QString IP);

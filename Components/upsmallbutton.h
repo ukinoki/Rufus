@@ -33,7 +33,7 @@ public:
     ~UpSmallButton();
     enum        StyleBouton {BACKBUTTON, CALENDARBUTTON, CANCELBUTTON, CLOSEBUTTON, COPYBUTTON,
                              DONOTRECORDBUTTON, EDITBUTTON, HOMEBUTTON, LOUPEBUTTON, NOBUTTON, OUPSBUTTON, QWANTBUTTON, PRINTBUTTON ,RECEPTIONBUTTON, RECORDBUTTON, STARTBUTTON, SUPPRBUTTON};
-    Q_ENUM(StyleBouton)
+                Q_ENUM(StyleBouton)
     void        setUpButtonStyle(enum StyleBouton);
     StyleBouton m_style;
     StyleBouton ButtonStyle();

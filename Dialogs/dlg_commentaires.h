@@ -40,35 +40,29 @@ class dlg_commentaires : public UpDialog
 public:
     dlg_commentaires(QWidget *parent = Q_NULLPTR);
     ~dlg_commentaires();
-    Ui::dlg_commentaires *ui;
-
-
+    Ui::dlg_commentaires            *ui;
     QString Commentaire()           { return m_commentaire; }
     QString CommentaireResume()     { return m_commentaireresume; }
-    enum Mode                  {Selection, Modification, Creation};
-    Q_ENUM(Mode)
-
-protected:
-    void                    changeEvent(QEvent *e);
+    enum Mode                       {Selection, Modification, Creation};     Q_ENUM(Mode)
 
 private:
-    void                        ChoixMenuContextuel(QString);
-
-    void                        Del_Com();
-    void                        Modif_Com();
-    bool                        gModifSurvol;
-    bool                        gModeSurvol;
-    User*                       m_currentuser;
-    Mode                        gMode;
-    WidgetButtonFrame           *widgButtons;
-
-    QGraphicsOpacityEffect      gOp;
     DataBase                    *db;
-    QString                     m_commentaire, m_commentaireresume;
-    QTimer                      *gTimerEfface;
+    bool                        m_modifsurvol;
+    bool                        m_modesurvol;
+    User*                       m_currentuser;
+    Mode                        m_mode;
+    WidgetButtonFrame           *wdg_buttonframe;
 
+    QGraphicsOpacityEffect      m_opacityeffect;
+    QString                     m_commentaire, m_commentaireresume;
+    QTimer                      *m_timerefface;
+
+    void                        changeEvent(QEvent *e);
     bool                        eventFilter(QObject *, QEvent *);
     void                        keyPressEvent   (QKeyEvent * event );
+    void                        ChoixMenuContextuel(QString);
+    void                        Del_Com();
+    void                        Modif_Com();
     QString                     CalcToolTip(QString ab);
     bool                        ChercheDoublon(QString str, int row);
     void                        ConfigMode(Mode mode, int row = 0);
@@ -81,7 +75,6 @@ private:
     void                        SupprimmCommentaire(int row);
     void                        Remplir_TableView();
 
-    //anciens slots
     void                        Annulation();
     void                        ChoixButtonFrame();
     void                        MenuContextuel(UpLineEdit *line);

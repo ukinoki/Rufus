@@ -21,106 +21,106 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionRecettes", parent)
 {
-    InitOK = true;
+    m_initok = true;
     proc        = Procedures::I();
     db          = DataBase::I();
 
     CalcBilan();
-    if (!InitOK)
+    if (!m_initok)
         return;
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    TotalMontantlbl         = new UpLabel();
-    TotalReclbl             = new UpLabel();
-    TotalApportlbl          = new UpLabel();
-    GdTotalReclbl           = new UpLabel();
-    gLabel                  = new UpLabel(Q_NULLPTR ,tr("Actes effectués par "));
-    hboxsup                 = new QHBoxLayout();
+    wdg_totalmontantlbl         = new UpLabel();
+    wdg_totalrecetteslbl             = new UpLabel();
+    wdg_totalapportslbl          = new UpLabel();
+    wdg_grandtotallbl           = new UpLabel();
+    wdg_label                  = new UpLabel(Q_NULLPTR ,tr("Actes effectués par "));
+    wdg_hboxsup                 = new QHBoxLayout();
     QHBoxLayout *hboxinf    = new QHBoxLayout();
     QVBoxLayout *box        = new QVBoxLayout();
-    gSupervBox              = new UpComboBox();
-    gSupervBox              ->setFixedWidth(130);
+    wdg_supervcombobox              = new UpComboBox();
+    wdg_supervcombobox              ->setFixedWidth(130);
 
-    TotalReclbl->setAlignment(Qt::AlignRight);
-    GdTotalReclbl->setAlignment(Qt::AlignRight);
-    TotalMontantlbl ->setAlignment(Qt::AlignRight);
+    wdg_totalrecetteslbl->setAlignment(Qt::AlignRight);
+    wdg_grandtotallbl->setAlignment(Qt::AlignRight);
+    wdg_totalmontantlbl ->setAlignment(Qt::AlignRight);
 
-    ClassmtupGrpBox         = new QGroupBox(tr("Classer par"));
+    wdg_classmtupgrpbox         = new QGroupBox(tr("Classer par"));
     QFontMetrics fm         = QFontMetrics(qApp->font());
     int hauteurligne        = int(fm.height()*1.6);
-    ClassmtupGrpBox         ->setFixedHeight((3*hauteurligne)+5);
-    ComptableRadio          = new UpRadioButton(tr("comptabilité"));
-    SupervRadio             = new UpRadioButton(tr("par soignant"));
-    SupervRadio->setChecked(true);
+    wdg_classmtupgrpbox         ->setFixedHeight((3*hauteurligne)+5);
+    wdg_comptableradiobouton          = new UpRadioButton(tr("comptabilité"));
+    wdg_superviseurradiobouton             = new UpRadioButton(tr("par soignant"));
+    wdg_superviseurradiobouton->setChecked(true);
     QVBoxLayout *vbox = new QVBoxLayout;
-    vbox->addWidget(SupervRadio);
-    vbox->addWidget(ComptableRadio);
+    vbox->addWidget(wdg_superviseurradiobouton);
+    vbox->addWidget(wdg_comptableradiobouton);
     vbox->setContentsMargins(8,0,8,0);
-    ClassmtupGrpBox->setLayout(vbox);
+    wdg_classmtupgrpbox->setLayout(vbox);
 
-    hboxsup->addSpacerItem((new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed)));
-    hboxsup->addWidget(gSupervBox);
-    hboxsup->addSpacerItem((new QSpacerItem(30,5,QSizePolicy::Expanding)));
-    hboxsup->addWidget(TotalMontantlbl);
-    hboxsup->addSpacerItem((new QSpacerItem(50,5,QSizePolicy::Minimum)));
-    hboxsup->addWidget(TotalReclbl);
-    hboxsup->addSpacerItem((new QSpacerItem(5,5,QSizePolicy::Fixed)));
-    hboxsup->setContentsMargins(0,0,0,0);
-    hboxsup->setSpacing(0);
+    wdg_hboxsup->addSpacerItem((new QSpacerItem(10,10,QSizePolicy::Fixed,QSizePolicy::Fixed)));
+    wdg_hboxsup->addWidget(wdg_supervcombobox);
+    wdg_hboxsup->addSpacerItem((new QSpacerItem(30,5,QSizePolicy::Expanding)));
+    wdg_hboxsup->addWidget(wdg_totalmontantlbl);
+    wdg_hboxsup->addSpacerItem((new QSpacerItem(50,5,QSizePolicy::Minimum)));
+    wdg_hboxsup->addWidget(wdg_totalrecetteslbl);
+    wdg_hboxsup->addSpacerItem((new QSpacerItem(5,5,QSizePolicy::Fixed)));
+    wdg_hboxsup->setContentsMargins(0,0,0,0);
+    wdg_hboxsup->setSpacing(0);
     hboxinf->addSpacerItem((new QSpacerItem(0,10,QSizePolicy::Expanding)));
-    hboxinf->addWidget(TotalApportlbl);
+    hboxinf->addWidget(wdg_totalapportslbl);
     hboxinf->addSpacerItem((new QSpacerItem(0,10,QSizePolicy::Expanding)));
-    hboxinf->addWidget(GdTotalReclbl);
+    hboxinf->addWidget(wdg_grandtotallbl);
     hboxinf->addSpacerItem((new QSpacerItem(5,5,QSizePolicy::Fixed)));
     hboxinf->setContentsMargins(0,0,0,0);
     hboxinf->setSpacing(0);
-    box->addLayout(hboxsup);
+    box->addLayout(wdg_hboxsup);
     box->addSpacerItem((new QSpacerItem(10,10,QSizePolicy::Expanding, QSizePolicy::Expanding)));
     box->addLayout(hboxinf);
     box->setContentsMargins(0,0,0,0);
     box->setSpacing(0);
 
-    ChxPeriodButt   = new UpPushButton(tr("Changer la période"));
-    ExportButt      = new UpPushButton(tr("Exporter la table"));
+    wdg_choixperiodebouton   = new UpPushButton(tr("Changer la période"));
+    wdg_exportbouton      = new UpPushButton(tr("Exporter la table"));
     int h = 40;
-    ChxPeriodButt->setMinimumHeight(h);
-    ExportButt->setMinimumHeight(h);
-    ChxPeriodButt->setIcon(Icons::icDate());
-    ExportButt->setIcon(Icons::icSauvegarder());
+    wdg_choixperiodebouton->setMinimumHeight(h);
+    wdg_exportbouton->setMinimumHeight(h);
+    wdg_choixperiodebouton->setIcon(Icons::icDate());
+    wdg_exportbouton->setIcon(Icons::icSauvegarder());
     int l = 20;
-    ChxPeriodButt->setIconSize(QSize(l,l));
-    ExportButt->setIconSize(QSize(l,l));
-    AjouteWidgetLayButtons(ExportButt,false);
-    AjouteWidgetLayButtons(ChxPeriodButt, false);
+    wdg_choixperiodebouton->setIconSize(QSize(l,l));
+    wdg_exportbouton->setIconSize(QSize(l,l));
+    AjouteWidgetLayButtons(wdg_exportbouton,false);
+    AjouteWidgetLayButtons(wdg_choixperiodebouton, false);
     setStageCount(1);
 
-    glblbox = new QHBoxLayout();
-    glblbox->addLayout(box);
+    wdg_lblbox = new QHBoxLayout();
+    wdg_lblbox->addLayout(box);
 
     QString Titre;
-    if (Debut == Fin)
-        Titre = tr("Bilan des recettes pour la journée du ") + Debut.toString(tr("d MMMM yyyy"));
+    if (m_debut == m_fin)
+        Titre = tr("Bilan des recettes pour la journée du ") + m_debut.toString(tr("d MMMM yyyy"));
     else
-        Titre = tr("Bilan des recettes pour la période du ") + Debut.toString(tr("d MMMM yyyy")) + tr(" au ") + Fin.toString(tr("d MMMM yyyy"));
+        Titre = tr("Bilan des recettes pour la période du ") + m_debut.toString(tr("d MMMM yyyy")) + tr(" au ") + m_fin.toString(tr("d MMMM yyyy"));
     setWindowTitle(Titre);
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonClose);
-    gMode = SUPERVISEUR;
-    gBigTable = new UpTableView();
+    m_mode = SUPERVISEUR;
+    wdg_bigtable = new UpTableView();
 
     RemplitLaTable();
     CalcSuperviseursEtComptables();
     FiltreTable(-1);
-    dlglayout()->insertLayout(0,glblbox);
-    dlglayout()->insertWidget(0,gBigTable);
+    dlglayout()->insertLayout(0,wdg_lblbox);
+    dlglayout()->insertWidget(0,wdg_bigtable);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     connect(CloseButton,        &QPushButton::clicked,                                  this, [=] {accept();});
     connect(PrintButton,        &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
-    connect(ChxPeriodButt,      &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
-    connect(ExportButt,         &QPushButton::clicked,                                  this, [=] {ExportTable();});
-    connect(gSupervBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=] {FiltreTable(gSupervBox->currentData().toInt());});
-    connect(ComptableRadio,     &UpRadioButton::clicked,                                this, [=] {ChangeMode(COMPTABLE);});
-    connect(SupervRadio,        &UpRadioButton::clicked,                                this, [=] {ChangeMode(SUPERVISEUR);});
+    connect(wdg_choixperiodebouton,      &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
+    connect(wdg_exportbouton,         &QPushButton::clicked,                                  this, [=] {ExportTable();});
+    connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
+    connect(wdg_comptableradiobouton,     &UpRadioButton::clicked,                                this, [=] {ChangeMode(COMPTABLE);});
+    connect(wdg_superviseurradiobouton,        &UpRadioButton::clicked,                                this, [=] {ChangeMode(SUPERVISEUR);});
 }
 
 dlg_bilanrecettes::~dlg_bilanrecettes()
@@ -129,7 +129,7 @@ dlg_bilanrecettes::~dlg_bilanrecettes()
 
 bool dlg_bilanrecettes::getInitOK()
 {
-    return InitOK;
+    return m_initok;
 }
 
 void dlg_bilanrecettes::CalcBilan()
@@ -137,28 +137,28 @@ void dlg_bilanrecettes::CalcBilan()
     QMap<QString, QDate> DateMap = proc->ChoixDate();
     if (!DateMap.isEmpty())
     {
-        Debut = DateMap["DateDebut"];
-        Fin   = DateMap["DateFin"];
+        m_debut = DateMap["DateDebut"];
+        m_fin   = DateMap["DateFin"];
         Datas::I()->recettes->initListe(DateMap);
         if (Datas::I()->recettes->recettes()->size() == 0)
         {
-            InitOK = false;
+            m_initok = false;
             UpMessageBox::Watch(this,tr("Pas de recette enregistrée pour cette période"));
             return;
         }
     }
     else
     {
-        InitOK = false;
+        m_initok = false;
         return;
     }
-    InitOK = true;
+    m_initok = true;
     return;
 }
 
 void dlg_bilanrecettes::FiltreTable(int idx)
 {
-    if (gMode==SUPERVISEUR)
+    if (m_mode==SUPERVISEUR)
     {
         if (idx==-1)
         {
@@ -166,9 +166,9 @@ void dlg_bilanrecettes::FiltreTable(int idx)
             {
                 Recette* rec = getRecetteFromRow(i);
                 if (rec == Q_NULLPTR)
-                    gBigTable->setRowHidden(i,true);
+                    wdg_bigtable->setRowHidden(i,true);
                 else
-                    gBigTable->setRowHidden(i, rec->idacte() == -1);
+                    wdg_bigtable->setRowHidden(i, rec->idacte() == -1);
             }
         }
         else
@@ -180,17 +180,17 @@ void dlg_bilanrecettes::FiltreTable(int idx)
                 {
                     Recette* rec = getRecetteFromRow(i);
                     if (rec == Q_NULLPTR)
-                        gBigTable->setRowHidden(i,true);
+                        wdg_bigtable->setRowHidden(i,true);
                     else
-                        gBigTable->setRowHidden(i, rec->iduser() != idx || rec->idacte() == -1);
+                        wdg_bigtable->setRowHidden(i, rec->iduser() != idx || rec->idacte() == -1);
                 }
             }
         }
-        PrintButton->setEnabled(gSupervBox->currentData().toInt()>-1  && gBigTable->rowNoHiddenCount()>0);
-        gBigTable->setColumnHidden(6,true);    // divers et autres recettes
-        gBigTable->setColumnHidden(7,true);    // apport pratcien
+        PrintButton->setEnabled(wdg_supervcombobox->currentData().toInt()>-1  && wdg_bigtable->rowNoHiddenCount()>0);
+        wdg_bigtable->setColumnHidden(6,true);    // divers et autres recettes
+        wdg_bigtable->setColumnHidden(7,true);    // apport pratcien
     }
-    else if (gMode==COMPTABLE)
+    else if (m_mode==COMPTABLE)
     {
             QMap<int, User*>::iterator userFind = Datas::I()->users->comptables()->find(idx);
             if( userFind != Datas::I()->users->comptables()->end() )
@@ -199,23 +199,23 @@ void dlg_bilanrecettes::FiltreTable(int idx)
                 {
                     Recette* rec = getRecetteFromRow(i);
                     if (rec == Q_NULLPTR)
-                        gBigTable->setRowHidden(i,true);
+                        wdg_bigtable->setRowHidden(i,true);
                     else
                     {
                         bool a =  rec->idcomptable() != idx
                                             || (rec->encaissement() == 0.0
                                             && rec->encaissementautrerecette() == 0.0);
-                         gBigTable->setRowHidden(i, a);
+                         wdg_bigtable->setRowHidden(i, a);
                     }
                 }
             }
-        PrintButton->setEnabled(gBigTable->rowNoHiddenCount()>0);
-        gBigTable->setColumnHidden(6,false);    // divers et autres recettes
-        gBigTable->setColumnHidden(7,false);    // apport pratcien
+        PrintButton->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
+        wdg_bigtable->setColumnHidden(6,false);    // divers et autres recettes
+        wdg_bigtable->setColumnHidden(7,false);    // apport pratcien
     }
-    ExportButt->setEnabled(gBigTable->rowNoHiddenCount()>0);
-    ExportButt->setVisible(!(gMode==SUPERVISEUR && gSupervBox->currentData().toInt()==-1));
-    gBigTable->FixLargeurTotale();
+    wdg_exportbouton->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
+    wdg_exportbouton->setVisible(!(m_mode==SUPERVISEUR && wdg_supervcombobox->currentData().toInt()==-1));
+    wdg_bigtable->FixLargeurTotale();
     CalculeTotal();
 }
 
@@ -237,9 +237,9 @@ Recette* dlg_bilanrecettes::getRecetteFromRow(int row)
 
 Recette* dlg_bilanrecettes::getRecetteFromSelectionInTable()
 {
-    if (gBigTable->selectionModel()->selectedIndexes().size() == 0)
+    if (wdg_bigtable->selectionModel()->selectedIndexes().size() == 0)
         return Q_NULLPTR;
-    QModelIndex idx  = gBigTable->selectionModel()->selectedIndexes().at(0);
+    QModelIndex idx  = wdg_bigtable->selectionModel()->selectedIndexes().at(0);
     return getRecetteFromIndex(idx);
 }
 
@@ -253,8 +253,8 @@ void dlg_bilanrecettes::ImprimeEtat()
     User *userEntete = Q_NULLPTR;
 
     //création de l'entête
-    if (gMode==SUPERVISEUR)
-        userEntete = Datas::I()->users->getById(gSupervBox->currentData().toInt(), Item::LoadDetails);
+    if (m_mode==SUPERVISEUR)
+        userEntete = Datas::I()->users->getById(wdg_supervcombobox->currentData().toInt(), Item::LoadDetails);
     else
         userEntete = Datas::I()->users->getById(Datas::I()->users->userconnected()->id(), Item::LoadDetails);
 
@@ -269,14 +269,14 @@ void dlg_bilanrecettes::ImprimeEtat()
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
     // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
     // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
-    if (gMode == SUPERVISEUR)
-        Entete.replace("{{PRENOM PATIENT}}"    , (gSupervBox->currentData().toInt()>0? Datas::I()->users->getLoginById(gSupervBox->currentData().toInt()): tr("Bilan global")));
+    if (m_mode == SUPERVISEUR)
+        Entete.replace("{{PRENOM PATIENT}}"    , (wdg_supervcombobox->currentData().toInt()>0? Datas::I()->users->getLoginById(wdg_supervcombobox->currentData().toInt()): tr("Bilan global")));
     else
         Entete.replace("{{PRENOM PATIENT}}"    , "");
     Entete.replace("{{NOM PATIENT}}"       , "");
     Entete.replace("{{TITRE1}}"            , windowTitle());
     Entete.replace("{{TITRE}}"             , "");
-    Entete.replace("{{DDN}}"               , (gMode == SUPERVISEUR? TotalMontantlbl->text() : ""));
+    Entete.replace("{{DDN}}"               , (m_mode == SUPERVISEUR? wdg_totalmontantlbl->text() : ""));
 
     // création du pied
     Pied = proc->ImpressionPied(userEntete);
@@ -293,9 +293,9 @@ void dlg_bilanrecettes::ImprimeEtat()
     int row = 1;
     for (int i = 0; i < m_recettesmodel->rowCount();i++)
     {
-        if (!gBigTable->isRowHidden(i))
+        if (!wdg_bigtable->isRowHidden(i))
         {
-            if (gMode == SUPERVISEUR)
+            if (m_mode == SUPERVISEUR)
             {
                 Recette* rec = getRecetteFromRow(i);
                 if (rec != Q_NULLPTR)
@@ -311,7 +311,7 @@ void dlg_bilanrecettes::ImprimeEtat()
                         row++;
                     }
             }
-            else if (gMode == COMPTABLE)
+            else if (m_mode == COMPTABLE)
             {
                 test4 += "<tr>";
                 Recette* rec = getRecetteFromRow(i);
@@ -376,7 +376,7 @@ void dlg_bilanrecettes::ImprimeEtat()
         }
     }
     test4 += "</table>";
-    if (gMode==COMPTABLE)
+    if (m_mode==COMPTABLE)
     {
         test4 +=    "<table width  =\"" + QString::number(int(c*510)) + "\" border=\"0\"  cellspacing=\"0\" cellpadding=\"2\">";
         test4 +=    "<tr>"
@@ -406,9 +406,9 @@ void dlg_bilanrecettes::ImprimeEtat()
 
 void dlg_bilanrecettes::CalcSuperviseursEtComptables()
 {
-    hboxsup->removeWidget(gLabel);
-    glblbox->removeWidget(ClassmtupGrpBox);
-    gSupervBox->clear();
+    wdg_hboxsup->removeWidget(wdg_label);
+    wdg_lblbox->removeWidget(wdg_classmtupgrpbox);
+    wdg_supervcombobox->clear();
 
     QList <int> listiD; // la liste des superviseurs
     bool idcomptabletrouve = false;
@@ -427,14 +427,14 @@ void dlg_bilanrecettes::CalcSuperviseursEtComptables()
         }
     }
     if( listiD.size() > 1 )
-        gSupervBox->addItem(tr("Tout le monde"),-1);
+        wdg_supervcombobox->addItem(tr("Tout le monde"),-1);
     for( int i=0; i<listiD.size(); i++)
-        gSupervBox->addItem(Datas::I()->users->getLoginById( listiD.at(i)), QString::number(listiD.at(i)) );
+        wdg_supervcombobox->addItem(Datas::I()->users->getLoginById( listiD.at(i)), QString::number(listiD.at(i)) );
 
     if (idcomptabletrouve)
-        glblbox->insertWidget(0, ClassmtupGrpBox);
+        wdg_lblbox->insertWidget(0, wdg_classmtupgrpbox);
     else
-        hboxsup->insertWidget(0, gLabel);
+        wdg_hboxsup->insertWidget(0, wdg_label);
 }
 
 void dlg_bilanrecettes::CalculeTotal()
@@ -444,15 +444,15 @@ void dlg_bilanrecettes::CalculeTotal()
     TotalRecEsp     = 0;
     TotalRecBanq    = 0;
     int    nbreActes    = 0;
-    TotalApportlbl      ->setVisible(gMode==COMPTABLE);
-    GdTotalReclbl       ->setVisible(gMode==COMPTABLE);
+    wdg_totalapportslbl      ->setVisible(m_mode==COMPTABLE);
+    wdg_grandtotallbl       ->setVisible(m_mode==COMPTABLE);
     if (m_recettesmodel->rowCount() > 0)
     {
-        if (gMode == SUPERVISEUR)
+        if (m_mode == SUPERVISEUR)
         {
             for (int k = 0; k < m_recettesmodel->rowCount(); k++)
             {
-                if (!gBigTable->isRowHidden(k))
+                if (!wdg_bigtable->isRowHidden(k))
                 {
                     Recette * rec = getRecetteFromRow(k);
                     if(rec->montant()>0)
@@ -467,12 +467,12 @@ void dlg_bilanrecettes::CalculeTotal()
                         TotalRecBanq    += rec->encaissement();
                 }
             }
-            TotalMontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" actes ") : tr(" acte ")) + QLocale().toString(TotalMontant,'f',2));
-            TotalReclbl     ->setText(tr("Total reçu ") + QLocale().toString(TotalRecu,'f',2)
+            wdg_totalmontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" actes ") : tr(" acte ")) + QLocale().toString(TotalMontant,'f',2));
+            wdg_totalrecetteslbl     ->setText(tr("Total reçu ") + QLocale().toString(TotalRecu,'f',2)
                                         + "\n(" + tr("Espèces") + ": " + QLocale().toString(TotalRecEsp,'f',2) + " - "
                                         + tr("Banque")  + ": " + QLocale().toString(TotalRecBanq,'f',2) + ")");
         }
-        if (gMode == COMPTABLE)
+        if (m_mode == COMPTABLE)
         {
             TotalApport     = 0;
             TotalAutresRec  = 0;
@@ -482,7 +482,7 @@ void dlg_bilanrecettes::CalculeTotal()
             GdTotalBanq     = 0;
             for (int k = 0; k < m_recettesmodel->rowCount(); k++)
             {
-                if (!gBigTable->isRowHidden(k))
+                if (!wdg_bigtable->isRowHidden(k))
                 {
                     nbreActes++;
                     Recette * rec           = getRecetteFromRow(k);
@@ -505,17 +505,17 @@ void dlg_bilanrecettes::CalculeTotal()
             }
             GdTotalBanq = TotalRecBanq + TotalAutresRecBanq;
             GdTotalEsp  = TotalRecEsp + TotalAutresRecEsp;
-            TotalMontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" lignes ") : tr(" ligne ")));
-            TotalReclbl     ->setText(tr("Total recettes ") + QLocale().toString(TotalRecu,'f',2)
+            wdg_totalmontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" lignes ") : tr(" ligne ")));
+            wdg_totalrecetteslbl     ->setText(tr("Total recettes ") + QLocale().toString(TotalRecu,'f',2)
                                         + "\n(" + tr("Espèces") + ": " + QLocale().toString(TotalRecEsp,'f',2) + " - "
                                         + tr("Banque")  + ": " + QLocale().toString(TotalRecBanq,'f',2) + ")");
-            TotalApportlbl      ->setVisible(TotalApport>0.0);
-            GdTotalReclbl       ->setVisible(TotalAutresRec>0.0);
+            wdg_totalapportslbl      ->setVisible(TotalApport>0.0);
+            wdg_grandtotallbl       ->setVisible(TotalAutresRec>0.0);
             if ((TotalApport>0.0))
-                TotalApportlbl->setText(tr("Total apports praticien ") + QLocale().toString(TotalApport,'f',2));
+                wdg_totalapportslbl->setText(tr("Total apports praticien ") + QLocale().toString(TotalApport,'f',2));
             if ((TotalAutresRec>0.0))
             {
-                GdTotalReclbl->setText(tr("Total autres recettes ") + QLocale().toString(TotalAutresRec,'f',2)
+                wdg_grandtotallbl->setText(tr("Total autres recettes ") + QLocale().toString(TotalAutresRec,'f',2)
                                        + "\n" + tr("Total général recettes ") + QLocale().toString(TotalAutresRec + TotalRecu,'f',2)
                                        + "\n(" + tr("Espèces") + ": " + QLocale().toString(GdTotalEsp,'f',2) + " - "
                                        + tr("Banque")  + ": " + QLocale().toString(GdTotalBanq,'f',2) + ")");
@@ -526,13 +526,13 @@ void dlg_bilanrecettes::CalculeTotal()
 
 void dlg_bilanrecettes::ChangeMode(enum Mode mode)
 {
-    gMode = mode;
-    gSupervBox      ->setVisible(gMode == SUPERVISEUR);
+    m_mode = mode;
+    wdg_supervcombobox      ->setVisible(m_mode == SUPERVISEUR);
     int hauteurrow      = int(QFontMetrics(qApp->font()).height()*1.3);
-    gBigTable->horizontalHeader()->setFixedHeight(hauteurrow*(gMode==SUPERVISEUR? 1 : 2));
-    if (gMode == SUPERVISEUR)
-        FiltreTable(gSupervBox->currentData().toInt());
-    if (gMode == COMPTABLE)
+    wdg_bigtable->horizontalHeader()->setFixedHeight(hauteurrow*(m_mode==SUPERVISEUR? 1 : 2));
+    if (m_mode == SUPERVISEUR)
+        FiltreTable(wdg_supervcombobox->currentData().toInt());
+    if (m_mode == COMPTABLE)
         FiltreTable(Datas::I()->users->userconnected()->id());
 }
 
@@ -548,7 +548,7 @@ void dlg_bilanrecettes::ExportTable()
     ExportEtat.append(tr("Date") + sep + tr("Nom") + sep + tr("Type acte") + sep + tr("Montant") + sep + tr("Mode de paiement") + sep + tr("Reçu") + sep + tr("Divers et autres recettes") + sep + tr("Apport praticien") + "\n");
     for (int i=0;i< m_recettesmodel->rowCount(); i++)
     {
-        if (!gBigTable->isRowHidden(i))
+        if (!wdg_bigtable->isRowHidden(i))
         {
             Recette * rec           = getRecetteFromRow(i);
             QString date = rec->date().toString("dd/MM/yyyy");
@@ -566,8 +566,8 @@ void dlg_bilanrecettes::ExportTable()
         }
     }
     QString ExportFileName = QDir::homePath() + DIR_RUFUS + "/"
-                            + (gMode == COMPTABLE? tr("Recettes") + " " + Datas::I()->users->userconnected()->login() : tr("Actes") + " " + gSupervBox->currentText())
-                            + " " + tr("du") + " " + Debut.toString("d MMM yyyy") + " " + tr("au") + " " + Fin.toString(tr("d MMM yyyy"))
+                            + (m_mode == COMPTABLE? tr("Recettes") + " " + Datas::I()->users->userconnected()->login() : tr("Actes") + " " + wdg_supervcombobox->currentText())
+                            + " " + tr("du") + " " + m_debut.toString("d MMM yyyy") + " " + tr("au") + " " + m_fin.toString(tr("d MMM yyyy"))
                             + ".csv";
     QFile   ExportFile(ExportFileName);
     bool exportOK = true;
@@ -588,30 +588,30 @@ void dlg_bilanrecettes::NouvPeriode()
 {
     QDate debutavant, finavant;
     CalcBilan();
-    if (!InitOK)
+    if (!m_initok)
     {
-        Debut   = debutavant;
-        Fin     = finavant;
-        InitOK  = true;
+        m_debut   = debutavant;
+        m_fin     = finavant;
+        m_initok  = true;
         return;
     }
 
     QString Titre;
-    if (Debut == Fin)
-        Titre = tr("Bilan des recettes pour la journée du ") + Debut.toString(tr("d MMMM yyyy"));
+    if (m_debut == m_fin)
+        Titre = tr("Bilan des recettes pour la journée du ") + m_debut.toString(tr("d MMMM yyyy"));
     else
-        Titre = tr("Bilan des recettes pour la période du ") + Debut.toString(tr("d MMMM yyyy")) + tr(" au ") + Fin.toString(tr("d MMMM yyyy"));
+        Titre = tr("Bilan des recettes pour la période du ") + m_debut.toString(tr("d MMMM yyyy")) + tr(" au ") + m_fin.toString(tr("d MMMM yyyy"));
     setWindowTitle(Titre);
 
     RemplitLaTable();
     CalcSuperviseursEtComptables();
-    SupervRadio->click();
+    wdg_superviseurradiobouton->click();
 }
 
 void dlg_bilanrecettes::RemplitLaTable()
 {
     UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4, *pitem5,*pitem6,*pitem7;
-    m_recettesmodel = dynamic_cast<QStandardItemModel*>(gBigTable->model());
+    m_recettesmodel = dynamic_cast<QStandardItemModel*>(wdg_bigtable->model());
     if (m_recettesmodel != Q_NULLPTR)
         m_recettesmodel->clear();
     else
@@ -665,16 +665,16 @@ void dlg_bilanrecettes::RemplitLaTable()
     }
     int hauteurrow      = int(QFontMetrics(qApp->font()).height()*1.3);
     int nbrowsAAfficher = 30;
-    gBigTable->setFixedHeight(nbrowsAAfficher*hauteurrow+2);
+    wdg_bigtable->setFixedHeight(nbrowsAAfficher*hauteurrow+2);
 
-    gBigTable->setModel(m_recettesmodel);
+    wdg_bigtable->setModel(m_recettesmodel);
 
-    gBigTable->setPalette(QPalette(Qt::white));
-    gBigTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    gBigTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gBigTable->verticalHeader()->setVisible(false);
-    gBigTable->setFocusPolicy(Qt::StrongFocus);
-    gBigTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    wdg_bigtable->setPalette(QPalette(Qt::white));
+    wdg_bigtable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_bigtable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    wdg_bigtable->verticalHeader()->setVisible(false);
+    wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
+    wdg_bigtable->setSelectionMode(QAbstractItemView::SingleSelection);
 
     QStandardItem *itdate = new QStandardItem();
     itdate->setText(tr("Date"));
@@ -709,31 +709,31 @@ void dlg_bilanrecettes::RemplitLaTable()
     itdivers->setTextAlignment(Qt::AlignCenter);
     m_recettesmodel->setHorizontalHeaderItem(7,itapports);
 
-    gBigTable->horizontalHeader()->setVisible(true);
-    gBigTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    wdg_bigtable->horizontalHeader()->setVisible(true);
+    wdg_bigtable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     int li = 0;                                                                     // Réglage de la largeur et du nombre des colonnes
-    gBigTable->setColumnWidth(li,100);                                              // 0 - Date affichage européen
+    wdg_bigtable->setColumnWidth(li,100);                                              // 0 - Date affichage européen
     li++;
-    gBigTable->setColumnWidth(li,240);                                              // 1 - Nom
+    wdg_bigtable->setColumnWidth(li,240);                                              // 1 - Nom
     li++;
-    gBigTable->setColumnWidth(li,140);                                              // 2 - TypeActe
+    wdg_bigtable->setColumnWidth(li,140);                                              // 2 - TypeActe
     li++;
-    gBigTable->setColumnWidth(li,85);                                               // 3 - Montant
+    wdg_bigtable->setColumnWidth(li,85);                                               // 3 - Montant
     li++;
-    gBigTable->setColumnWidth(li,130);                                              // 4 - Mode de paiement
+    wdg_bigtable->setColumnWidth(li,130);                                              // 4 - Mode de paiement
     li++;
-    gBigTable->setColumnWidth(li,85);                                               // 5 - Reçu
+    wdg_bigtable->setColumnWidth(li,85);                                               // 5 - Reçu
     li++;
-    gBigTable->setColumnWidth(li,120);                                              // 6 - Divers et autres recettes
+    wdg_bigtable->setColumnWidth(li,120);                                              // 6 - Divers et autres recettes
     li++;
-    gBigTable->setColumnWidth(li,120);                                              // 7 - Apport praticien
+    wdg_bigtable->setColumnWidth(li,120);                                              // 7 - Apport praticien
 
-    gBigTable->setGridStyle(Qt::SolidLine);
+    wdg_bigtable->setGridStyle(Qt::SolidLine);
     QFontMetrics fm(qApp->font());
     for (int j=0; j<Datas::I()->recettes->recettes()->size(); j++)
-         gBigTable->setRowHeight(j,int(fm.height()*1.3));
+         wdg_bigtable->setRowHeight(j,int(fm.height()*1.3));
 
-    gBigTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    wdg_bigtable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     //gBigTable->horizontalHeader()->setFixedHeight(int(fm.height()*2));
 }
 

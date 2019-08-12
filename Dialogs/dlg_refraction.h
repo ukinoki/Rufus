@@ -88,18 +88,20 @@ private slots:
 
 private:
     Procedures              *proc;
+    DataBase                *db;
     Patient                 *m_currentpatient;
     Acte                    *m_currentacte;
-    QStringList             gstringListe1, gstringListe2;
-    DataBase                *db;
     int                     gidRefraction;
-    Refraction::Mesure  gMode;
+    QStringList             gstringListe1, gstringListe2;
+    Refraction::Mesure      gMode;
     enum ModeSortie         {Annul, Imprime, OK};
     enum DateMesure         {Aujourdhui, Avant, NoDate};
     enum DistanceMesure     {Loin, Pres, Les2};
     enum Cycloplegie        {Dilatation, NoDilatation};
     bool                    ok;
     bool                    gAfficheDetail;
+    bool                    EscapeFlag;
+    bool                    FermeComment;
     double                  gSphereOD;
     double                  gCylindreOD;
     double                  gAxeCylindreOD;
@@ -109,11 +111,9 @@ private:
     double                  gAxeCylindreOG;
     double                  gAddVPOG;
     int                     gFlagBugValidEnter; // Modif 17/04
-    QMenu                   *qQmenuSup;
     QString                 gResultatP, gResultatPO, gResultatAnondil, gResultatA, gResultatAdil, gResultatR, gResultatRdil, gResultatRnondil, m_commentaire, m_commentaireresume;
     QString                 gResultatPR, gResultatObservation;
-    bool                    EscapeFlag;
-    bool                    FermeComment;
+    QMenu                   *qQmenuSup;
     UpLineEdit              *AVPOD, *AVLOD;
     UpLineEdit              *AVPOG, *AVLOG;
 

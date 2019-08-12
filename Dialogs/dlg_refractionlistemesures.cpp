@@ -23,64 +23,64 @@ dlg_listemesures::dlg_listemesures(QString mode, QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     proc        = Procedures::I();
     if (mode == "SUPPR")
-        gMode       = Supprimer;
+        m_mode       = Supprimer;
     else if (mode == "RECUP")
-        gMode       = Recuperer;
+        m_mode       = Recuperer;
     db          = DataBase::I();
 
 
-    tabLM              = new QTableView(this);
+    wdg_bigtable              = new QTableView(this);
 
-    dlglayout()->insertWidget(0,tabLM);
+    dlglayout()->insertWidget(0,wdg_bigtable);
 
     setModal(true);
     setSizeGripEnabled(false);
     setWindowTitle(tr("Liste des mesures"));
 
-    if (gMode == Recuperer)
+    if (m_mode == Recuperer)
     {
         AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         OKButton->setText(tr("Reprendre"));
-        tabLM->setSelectionMode(QAbstractItemView::NoSelection);
+        wdg_bigtable->setSelectionMode(QAbstractItemView::NoSelection);
         connect (OKButton,      SIGNAL(clicked()),  this, SLOT (Slot_Validation()) );
     }
     else
     {
         AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonSuppr);
         SupprButton->setText(tr("Supprimer"));
-        tabLM->setSelectionMode(QAbstractItemView::MultiSelection);
-        tabLM->setSelectionBehavior(QAbstractItemView::SelectRows);
+        wdg_bigtable->setSelectionMode(QAbstractItemView::MultiSelection);
+        wdg_bigtable->setSelectionBehavior(QAbstractItemView::SelectRows);
         connect (SupprButton,   SIGNAL(clicked()),  this, SLOT (Slot_Validation()) );
     }
     setStageCount(1);
 
     RemplirTableView();
-    tabLM->verticalHeader()->setVisible(false);
-    tabLM->setFocusPolicy(Qt::StrongFocus);
-    tabLM->setGridStyle(Qt::NoPen);
-    tabLM->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_bigtable->verticalHeader()->setVisible(false);
+    wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
+    wdg_bigtable->setGridStyle(Qt::NoPen);
+    wdg_bigtable->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-    tabLM->setColumnWidth(0,125);     // Date
-    tabLM->setColumnWidth(1,90);      // Mesure
-    tabLM->setColumnWidth(2,280);     // Formule OD
-    tabLM->setColumnWidth(3,280);     // Formule OG
-    tabLM->setColumnHidden(4,true);   // idRefraction
-    tabLM->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    wdg_bigtable->setColumnWidth(0,125);     // Date
+    wdg_bigtable->setColumnWidth(1,90);      // Mesure
+    wdg_bigtable->setColumnWidth(2,280);     // Formule OD
+    wdg_bigtable->setColumnWidth(3,280);     // Formule OG
+    wdg_bigtable->setColumnHidden(4,true);   // idRefraction
+    wdg_bigtable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
     int larg = 0;
-    for (int i=0; i < gmodele->columnCount(); i++)
-        if (!tabLM->isColumnHidden(i))
-            larg += tabLM->columnWidth(i);
-    tabLM->setFixedWidth(larg+2);
-    setFixedWidth(tabLM->width()
+    for (int i=0; i < m_modele->columnCount(); i++)
+        if (!wdg_bigtable->isColumnHidden(i))
+            larg += wdg_bigtable->columnWidth(i);
+    wdg_bigtable->setFixedWidth(larg+2);
+    setFixedWidth(wdg_bigtable->width()
                         + dlglayout()->contentsMargins().left()*2);
     QFontMetrics fm(qApp->font());
     int hauteurligne = int(fm.height()*1.1);
-    tabLM->setMinimumHeight(hauteurligne*20);
-    tabLM->setSizeIncrement(0,hauteurligne);
-    tabLM->setMouseTracking(true);
-    dlglayout()->insertWidget(0,tabLM);
-    connect (tabLM,   SIGNAL(clicked(QModelIndex)),  this, SLOT (Slot_Item_Liste_Clicked(QModelIndex)) );
+    wdg_bigtable->setMinimumHeight(hauteurligne*20);
+    wdg_bigtable->setSizeIncrement(0,hauteurligne);
+    wdg_bigtable->setMouseTracking(true);
+    dlglayout()->insertWidget(0,wdg_bigtable);
+    connect (wdg_bigtable,   SIGNAL(clicked(QModelIndex)),  this, SLOT (Slot_Item_Liste_Clicked(QModelIndex)) );
 }
 
 dlg_listemesures::~dlg_listemesures()
@@ -93,20 +93,20 @@ dlg_listemesures::~dlg_listemesures()
 void dlg_listemesures::Slot_Validation()
 
 {
-    if (gMode == Recuperer)
+    if (m_mode == Recuperer)
         accept();
-    else if (gMode == Supprimer)
+    else if (m_mode == Supprimer)
     {
         QString msg;
-        if (tabLM->selectionModel()->selectedRows().size()==1)
+        if (wdg_bigtable->selectionModel()->selectedRows().size()==1)
             msg = tr("Voulez vous supprimer la mesure sélectionnée?");
         else
             msg = tr("Voulez vous supprimer les mesures sélectionnées?");
         int ret = UpMessageBox::Watch(this,tr("Annulation de mesure"), msg, UpDialog::ButtonCancel|UpDialog::ButtonSuppr);
         if (ret == UpSmallButton::SUPPRBUTTON)
         {
-            for (int i =0 ; i<tabLM->selectionModel()->selectedRows().size(); i++)
-                DetruireLaMesure(Datas::I()->refractions->getById(gmodele->item(tabLM->selectionModel()->selectedRows().at(i).row(),4)->text().toInt()));
+            for (int i =0 ; i<wdg_bigtable->selectionModel()->selectedRows().size(); i++)
+                DetruireLaMesure(Datas::I()->refractions->getById(m_modele->item(wdg_bigtable->selectionModel()->selectedRows().at(i).row(),4)->text().toInt()));
             accept();
         }
     }
@@ -117,19 +117,19 @@ void dlg_listemesures::Slot_Validation()
 //--------------------------------------------------------------------------------------
 void dlg_listemesures::Slot_Item_Liste_Clicked(QModelIndex mod)
 {
-    if (gMode == Supprimer)
-        SupprButton->setEnabled(tabLM->selectionModel()->selectedIndexes().size()>0);
-    else if (gMode ==  Recuperer)
+    if (m_mode == Supprimer)
+        SupprButton->setEnabled(wdg_bigtable->selectionModel()->selectedIndexes().size()>0);
+    else if (m_mode ==  Recuperer)
     {
-        QStandardItem *pitem = gmodele->itemFromIndex(mod);
+        QStandardItem *pitem = m_modele->itemFromIndex(mod);
         if (pitem->checkState() == Qt::Checked)
         {
-            for (int i =0 ; i < gmodele->rowCount(); i++)
+            for (int i =0 ; i < m_modele->rowCount(); i++)
             {
-                if (gmodele->item(i,0)->checkState() == Qt::Checked && i != pitem->row())
-                    gmodele->item(i,0)->setCheckState(Qt::Unchecked);
+                if (m_modele->item(i,0)->checkState() == Qt::Checked && i != pitem->row())
+                    m_modele->item(i,0)->setCheckState(Qt::Unchecked);
             }
-            idrefractionSelectionne = gmodele->item(pitem->row(),4)->text().toInt();
+            m_idrefselectionne = m_modele->item(pitem->row(),4)->text().toInt();
         }
         OKButton->setEnabled(Nombre_Mesure_Selected() > 0);
     }
@@ -170,7 +170,7 @@ void dlg_listemesures::DetruireLaMesure(Refraction *ref)
 
 int dlg_listemesures::idRefractionAOuvrir()
 {
-    return idrefractionSelectionne;
+    return m_idrefselectionne;
 }
 
 // ----------------------------------------------------------------------------------
@@ -179,8 +179,8 @@ int dlg_listemesures::idRefractionAOuvrir()
 int dlg_listemesures::Nombre_Mesure_Selected()
 {
     int nbCommSelected = 0;
-    for (int i =0 ; i < gmodele->rowCount(); i++)
-        if (gmodele->item(i,0)->checkState() == Qt::Checked)
+    for (int i =0 ; i < m_modele->rowCount(); i++)
+        if (m_modele->item(i,0)->checkState() == Qt::Checked)
             nbCommSelected ++;
     return nbCommSelected;
 }
@@ -191,26 +191,26 @@ int dlg_listemesures::Nombre_Mesure_Selected()
 void dlg_listemesures::RemplirTableView()
 {
     QString zw;
-    if (gMode == Recuperer)
+    if (m_mode == Recuperer)
         OKButton->setEnabled(false);
     else
         SupprButton->setEnabled(false);
 
     QStandardItem       *pitem0, *pitem1, *pitem2, *pitem3, *pitem4;
-    gmodele = dynamic_cast<QStandardItemModel*>(tabLM->model());
-    if (gmodele)
-        gmodele->clear();
+    m_modele = dynamic_cast<QStandardItemModel*>(wdg_bigtable->model());
+    if (m_modele)
+        m_modele->clear();
     else
-        gmodele = new QStandardItemModel(this);
+        m_modele = new QStandardItemModel(this);
 
     pitem0  = new QStandardItem(tr("Date"));
-    gmodele ->setHorizontalHeaderItem(0,pitem0);
+    m_modele ->setHorizontalHeaderItem(0,pitem0);
     pitem1  = new QStandardItem(tr("Mesure"));
-    gmodele ->setHorizontalHeaderItem(1,pitem1);
+    m_modele ->setHorizontalHeaderItem(1,pitem1);
     pitem2  = new QStandardItem(tr("Formule OD"));
-    gmodele ->setHorizontalHeaderItem(2,pitem2);
+    m_modele ->setHorizontalHeaderItem(2,pitem2);
     pitem3  = new QStandardItem(tr("Formule OG"));
-    gmodele ->setHorizontalHeaderItem(3,pitem3);
+    m_modele ->setHorizontalHeaderItem(3,pitem3);
     pitem0  ->setEditable(false);
     pitem1  ->setEditable(false);
     pitem2  ->setEditable(false);
@@ -218,7 +218,7 @@ void dlg_listemesures::RemplirTableView()
     foreach (Refraction *ref, *Datas::I()->refractions->refractions())
     {
         pitem0  = new QStandardItem(ref->daterefraction().toString(tr("dd-MMM-yyyy")));
-        if (gMode == Recuperer)
+        if (m_mode == Recuperer)
             pitem0  ->setCheckable(true);
         QString Mesure = "";
         if (ref->mesure() == Refraction::Fronto)             Mesure = tr("Porte");
@@ -231,14 +231,14 @@ void dlg_listemesures::RemplirTableView()
         pitem4  = new QStandardItem(QString::number(ref->id()));
         QList<QStandardItem*> listitems;
         listitems << pitem0 << pitem1 << pitem2 << pitem3 << pitem4;
-        gmodele ->appendRow(listitems);
+        m_modele ->appendRow(listitems);
     }
-    tabLM->setModel(gmodele);
+    wdg_bigtable->setModel(m_modele);
 
     QFontMetrics fm(qApp->font());
     int hauteurligne = int(fm.height()*1.1);
-    for (int j=0; j<gmodele->rowCount(); j++)
-        tabLM->setRowHeight(j,hauteurligne);
-    tabLM->horizontalHeader()->setFixedHeight(hauteurligne);
+    for (int j=0; j<m_modele->rowCount(); j++)
+        wdg_bigtable->setRowHeight(j,hauteurligne);
+    wdg_bigtable->horizontalHeader()->setFixedHeight(hauteurligne);
 }
 

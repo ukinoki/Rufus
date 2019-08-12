@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     Datas::I();
 
     // la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
-    qApp->setApplicationVersion("10-08-2019/1");       // doit impérativement être composé de date version / n°version;
+    qApp->setApplicationVersion("12-08-2019/1");       // doit impérativement être composé de date version / n°version;
 
     ui = new Ui::Rufus;
     ui->setupUi(this);
@@ -6235,20 +6235,20 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ui->tabWidget->setCurrentIndex(ui->tabWidget->indexOf(ui->tabDossier));
     }
 
-    ui->IdCreateurDossierlineEdit->setText(Datas::I()->users->getById(Datas::I()->patients->currentpatient()->idcreateur())->login());
+    ui->IdCreateurDossierlineEdit   ->setText(Datas::I()->users->getById(Datas::I()->patients->currentpatient()->idcreateur())->login());
 
-    ui->IdentPatienttextEdit->setHtml(CalcHtmlIdentificationPatient(Datas::I()->patients->currentpatient()));
-    ui->tabWidget->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),CalcIconPatient(Datas::I()->patients->currentpatient()));
-    ui->tabWidget->setTabText(ui->tabWidget->indexOf(ui->tabDossier) ,Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom());
+    ui->IdentPatienttextEdit        ->setHtml(CalcHtmlIdentificationPatient(Datas::I()->patients->currentpatient()));
+    ui->tabWidget                   ->setTabIcon(ui->tabWidget->indexOf(ui->tabDossier),CalcIconPatient(Datas::I()->patients->currentpatient()));
+    ui->tabWidget                   ->setTabText(ui->tabWidget->indexOf(ui->tabDossier) ,Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom());
 
     //3 - récupération des données médicales
 
-    ui->AtcdtsPersostextEdit->setText(Datas::I()->patients->currentpatient()->atcdtspersos());
-    ui->TtGeneraltextEdit->setText(Datas::I()->patients->currentpatient()->traitementgen());
-    ui->AtcdtsFamiliauxtextEdit->setText(Datas::I()->patients->currentpatient()->atcdtsfamiliaux());
-    ui->AtcdtsOphstextEdit->setText(Datas::I()->patients->currentpatient()->atcdtsophtalmos());
-    ui->TabaclineEdit->setText(Datas::I()->patients->currentpatient()->tabac());
-    ui->AutresToxiquestextEdit->setText(Datas::I()->patients->currentpatient()->toxiques());
+    ui->AtcdtsPersostextEdit        ->setText(Datas::I()->patients->currentpatient()->atcdtspersos());
+    ui->TtGeneraltextEdit           ->setText(Datas::I()->patients->currentpatient()->traitementgen());
+    ui->AtcdtsFamiliauxtextEdit     ->setText(Datas::I()->patients->currentpatient()->atcdtsfamiliaux());
+    ui->AtcdtsOphstextEdit          ->setText(Datas::I()->patients->currentpatient()->atcdtsophtalmos());
+    ui->TabaclineEdit               ->setText(Datas::I()->patients->currentpatient()->tabac());
+    ui->AutresToxiquestextEdit      ->setText(Datas::I()->patients->currentpatient()->toxiques());
 
     MGlineEdit->clear();
     AutresCorresp1LineEdit->clear();
@@ -6333,7 +6333,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     patcours = m_listepatientsencours->getById(Datas::I()->patients->currentpatient()->id());
     QTime currenttime = db->ServerDateTime().time();
     if (patcours == Q_NULLPTR)
-        m_listepatientsencours->CreationPatient(pat->id(),                                          //! idPat
+        m_listepatientsencours->CreationPatient( pat->id(),                                         //! idPat
                                                  m_currentuser->idsuperviseur(),                    //! idUser
                                                  ENCOURSEXAMEN + m_currentuser->login(),            //! Statut
                                                  currenttime,                                       //! heureStatut

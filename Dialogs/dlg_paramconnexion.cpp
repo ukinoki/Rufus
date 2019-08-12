@@ -37,13 +37,13 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     ui->HelpupPushButton    ->setIconSize(QSize(50,50));
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
-    gVisible                = true;
-    gIPAvecZero             = "";
-    gIPSansZero             = "";
-    gClient                 = "";
-    gServeur                = "";
-    gTimer                  = new QTimer(this);
-    gTimer                  ->start(500);
+    m_visible                = true;
+    m_IPaveczero             = "";
+    m_IPsanszero             = "";
+    m_client                 = "";
+    m_serveur                = "";
+    obj_timer                  = new QTimer(this);
+    obj_timer                  ->start(500);
     ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
 
@@ -57,7 +57,7 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     connect(ui->IPlineEdit,             SIGNAL(textEdited(QString)),    this,   SLOT(Slot_CalcIP(QString)));
     connect(ui->IPlineEdit,             SIGNAL(editingFinished()),      this,   SLOT(Slot_MAJIP()));
 
-    connect(gTimer,                     SIGNAL(timeout()),      this,   SLOT(Slot_Clign()));
+    connect(obj_timer,                     SIGNAL(timeout()),      this,   SLOT(Slot_Clign()));
 }
 
 dlg_paramconnexion::~dlg_paramconnexion()
@@ -69,49 +69,49 @@ void dlg_paramconnexion::Slot_CalcIP(QString IP)
 {
     if (ui->PosteradioButton->isChecked())
     {
-        gClient     = "localhost";
-        gServeur    = "localhost";
+        m_client     = "localhost";
+        m_serveur    = "localhost";
     }
     if (ui->DistantradioButton->isChecked())
     {
-        gClient   = "%";
+        m_client   = "%";
         if (!Utils::rgx_IPV4.exactMatch(IP))
-            gServeur  = ui->IPlineEdit->text();
+            m_serveur  = ui->IPlineEdit->text();
     }
     if (ui->LocalradioButton->isChecked()
         || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(IP)))
     {
         QStringList listIP = IP.split(".");
-        gIPAvecZero        = "";
-        gIPSansZero        = "";
-        gClient            = "";
-        gServeur           = "";
+        m_IPaveczero        = "";
+        m_IPsanszero        = "";
+        m_client            = "";
+        m_serveur           = "";
         for (int i=0;i<listIP.size();i++)
         {
-            gIPSansZero += QString::number(listIP.at(i).toInt());
+            m_IPsanszero += QString::number(listIP.at(i).toInt());
             QString AvecZero;
             AvecZero += QString::number(listIP.at(i).toInt());
             if (listIP.at(i).toInt()<100)
                 AvecZero = "0" + AvecZero;
             if (listIP.at(i).toInt()<10)
                 AvecZero = "0" + AvecZero;
-            gIPAvecZero += AvecZero;
+            m_IPaveczero += AvecZero;
             if (i<listIP.size()-1)
             {
-                gIPAvecZero += ".";
-                gIPSansZero += ".";
+                m_IPaveczero += ".";
+                m_IPsanszero += ".";
             }
             if (i==listIP.size()-2 && ui->LocalradioButton->isChecked())
-                gClient = gIPSansZero + "%";
-            gServeur = gIPSansZero;
+                m_client = m_IPsanszero + "%";
+            m_serveur = m_IPsanszero;
         }
     }
 }
 
 void dlg_paramconnexion::Slot_Clign()
 {
-    gVisible = !gVisible;
-    if (gVisible)
+    m_visible = !m_visible;
+    if (m_visible)
         ui->HelpupPushButton->setIcon(Icons::icHelp());
     else
         ui->HelpupPushButton->setIcon(Icons::icNull());
@@ -141,8 +141,8 @@ void dlg_paramconnexion::Slot_MAJIP()
 {
     Slot_CalcIP(ui->IPlineEdit->text());
     if (ui->LocalradioButton->isChecked()
-        || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(gIPAvecZero)))
-        ui->IPlineEdit->setText(gIPAvecZero);
+        || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(m_IPaveczero)))
+        ui->IPlineEdit->setText(m_IPaveczero);
     //UpMessageBox::Watch(this, "AvecZero = " + gIPAvecZero + "\nSansZero = " + gIPSansZero + "\nClient = " + gClient);
 }
 
@@ -241,7 +241,7 @@ bool dlg_paramconnexion::TestConnexion()
 
     //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
     QString error = "";
-    DataBase::I()->initFromFirstConnexion(mode, gServeur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());  //à mettre avant le connectToDataBase() sinon une restaurationp plante parce qu'elle n'a pas les renseignements
+    DataBase::I()->initFromFirstConnexion(mode, m_serveur, ui->PortcomboBox->currentText().toInt(), ui->DistantradioButton->isChecked());  //à mettre avant le connectToDataBase() sinon une restaurationp plante parce qu'elle n'a pas les renseignements
     error = DataBase::I()->connectToDataBase(DB_CONSULTS, Login, Password);
 
     if( error.size() )

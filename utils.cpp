@@ -753,6 +753,35 @@ QString Utils::ConvertitModePaiement(QString mode)
     return mode;
 }
 
+void Utils::CalcStringValueSQL(QVariant &newvalue)
+{
+    newvalue = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + correctquoteSQL(newvalue.toString()) + "'");
+}
+
+void Utils::CalcintValueSQL(QVariant &newvalue)
+{
+    newvalue = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+}
+
+void Utils::CalcdoubleValueSQL(QVariant &newvalue)
+{
+    newvalue = (newvalue == QVariant()? "null" : QString::number(newvalue.toDouble()));
+}
+
+void Utils::CalcDateValueSQL(QVariant &newvalue)
+{
+    newvalue = ((newvalue == QVariant() || !newvalue.toDate().isValid())? "null" : "'" + newvalue.toDate().toString("yyyy-MM-dd") + "'");
+}
+
+void Utils::CalcTimeValueSQL(QVariant &newvalue)
+{
+    newvalue = ((newvalue == QVariant() || !newvalue.toTime().isValid())? "null" : "'" + newvalue.toTime().toString("HH:mm:ss") + "'");
+}
+void Utils::CalcDateTimeValueSQL(QVariant &newvalue)
+{
+    newvalue = ((newvalue == QVariant() || !newvalue.toDateTime().isValid())? "null" : "'" + newvalue.toDateTime().toString("yyyy-MM-dd HH:mm:ss") + "'");
+}
+
 /*!
  *  \brief Calcul de l'âge
  *

@@ -29,7 +29,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     proc            = Procedures::I();
     db              = DataBase::I();
     ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire() );
-    AccesDistant    = (db->getMode()==DataBase::Distant);
+    m_accesdistant    = (db->getMode()==DataBase::Distant);
     m_listUserLiberaux = Datas::I()->users->liberaux();
     m_userencours       = Q_NULLPTR;
 
@@ -54,54 +54,54 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDepenses").toByteArray());
 
-    InitOK = initializeUserSelected();
-    if( !InitOK )
+    m_initok = initializeUserSelected();
+    if( !m_initok )
         return;
 
     setMaximumHeight(800);
 
-    gBigTable       = new UpTableWidget(this);
-    ui->horizontalLayout_3->addWidget(gBigTable);
+    wdg_bigtable       = new UpTableWidget(this);
+    ui->horizontalLayout_3->addWidget(wdg_bigtable);
 
-    ModifierupPushButton = new UpPushButton(ui->frame);
-    ModifierupPushButton->setFixedHeight(46);
-    ModifierupPushButton->setText(tr("Modifier"));
-    ModifierupPushButton->setIcon(Icons::icMarteau());
-    ModifierupPushButton->setIconSize(QSize(25,25));
+    wdg_modifieruppushbutton = new UpPushButton(ui->frame);
+    wdg_modifieruppushbutton->setFixedHeight(46);
+    wdg_modifieruppushbutton->setText(tr("Modifier"));
+    wdg_modifieruppushbutton->setIcon(Icons::icMarteau());
+    wdg_modifieruppushbutton->setIconSize(QSize(25,25));
 
-    SupprimerupPushButton = new UpPushButton(ui->frame);
-    SupprimerupPushButton->setFixedHeight(46);
-    SupprimerupPushButton->setText(tr("Supprimer"));
-    SupprimerupPushButton->setIcon(Icons::icPoubelle());
-    SupprimerupPushButton->setIconSize(QSize(25,25));
+    wdg_supprimeruppushbutton = new UpPushButton(ui->frame);
+    wdg_supprimeruppushbutton->setFixedHeight(46);
+    wdg_supprimeruppushbutton->setText(tr("Supprimer"));
+    wdg_supprimeruppushbutton->setIcon(Icons::icPoubelle());
+    wdg_supprimeruppushbutton->setIconSize(QSize(25,25));
 
-    EnregupPushButton = new UpPushButton(ui->frame);
-    EnregupPushButton->setFixedHeight(46);
-    EnregupPushButton->setText(tr("Valider"));
-    EnregupPushButton->setIcon(Icons::icOK());
-    EnregupPushButton->setIconSize(QSize(25,25));
+    wdg_enreguppushbutton = new UpPushButton(ui->frame);
+    wdg_enreguppushbutton->setFixedHeight(46);
+    wdg_enreguppushbutton->setText(tr("Valider"));
+    wdg_enreguppushbutton->setIcon(Icons::icOK());
+    wdg_enreguppushbutton->setIconSize(QSize(25,25));
 
-    AnnulupPushButton = new UpPushButton(ui->frame);
-    AnnulupPushButton->setFixedHeight(46);
-    AnnulupPushButton->setText(tr("Annuler"));
-    AnnulupPushButton->setIcon(Icons::icAnnuler());
-    AnnulupPushButton->setIconSize(QSize(25,25));
+    wdg_annuluppushbutton = new UpPushButton(ui->frame);
+    wdg_annuluppushbutton->setFixedHeight(46);
+    wdg_annuluppushbutton->setText(tr("Annuler"));
+    wdg_annuluppushbutton->setIcon(Icons::icAnnuler());
+    wdg_annuluppushbutton->setIconSize(QSize(25,25));
 
     ui->PrintupSmallButton  ->setText("");
     ui->PrintupSmallButton  ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
     ui->PrintupSmallButton  ->setShortcut(QKeySequence("Meta+P"));
 
-    boxbutt = new QHBoxLayout();
-    boxbutt->addWidget(AnnulupPushButton);
-    boxbutt->addSpacerItem(new QSpacerItem(0,0));
-    boxbutt->addWidget(EnregupPushButton);
-    boxbutt->addSpacerItem(new QSpacerItem(0,0));
-    boxbutt->addWidget(SupprimerupPushButton);
-    boxbutt->addSpacerItem(new QSpacerItem(0,0));
-    boxbutt->addWidget(ModifierupPushButton);
-    boxbutt->setSpacing(2);
-    boxbutt->setContentsMargins(0,5,0,0);
-    ui->frame->layout()->addItem(boxbutt);
+    wdg_boxbuttlayout = new QHBoxLayout();
+    wdg_boxbuttlayout->addWidget(wdg_annuluppushbutton);
+    wdg_boxbuttlayout->addSpacerItem(new QSpacerItem(0,0));
+    wdg_boxbuttlayout->addWidget(wdg_enreguppushbutton);
+    wdg_boxbuttlayout->addSpacerItem(new QSpacerItem(0,0));
+    wdg_boxbuttlayout->addWidget(wdg_supprimeruppushbutton);
+    wdg_boxbuttlayout->addSpacerItem(new QSpacerItem(0,0));
+    wdg_boxbuttlayout->addWidget(wdg_modifieruppushbutton);
+    wdg_boxbuttlayout->setSpacing(2);
+    wdg_boxbuttlayout->setContentsMargins(0,5,0,0);
+    ui->frame->layout()->addItem(wdg_boxbuttlayout);
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
     ui->VisuDocupTableWidget->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
@@ -110,14 +110,14 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ui->RefFiscalecomboBox->insertItems(0,ListeRubriques);
     ui->RefFiscalecomboBox->setCurrentText(ListeRubriques.at(0));
 
-    glistMoyensDePaiement << tr("Carte de crédit");
-    glistMoyensDePaiement << tr("Chèque");
-    glistMoyensDePaiement << tr("Espèces");
-    glistMoyensDePaiement << tr("Prélèvement");
-    glistMoyensDePaiement << tr("Virement");
-    glistMoyensDePaiement << tr("TIP");
-    ui->PaiementcomboBox->insertItems(0,glistMoyensDePaiement );
-    ui->PaiementcomboBox->setCurrentText(glistMoyensDePaiement.at(0));
+    m_listemoyensdepaiement << tr("Carte de crédit");
+    m_listemoyensdepaiement << tr("Chèque");
+    m_listemoyensdepaiement << tr("Espèces");
+    m_listemoyensdepaiement << tr("Prélèvement");
+    m_listemoyensdepaiement << tr("Virement");
+    m_listemoyensdepaiement << tr("TIP");
+    ui->PaiementcomboBox->insertItems(0,m_listemoyensdepaiement );
+    ui->PaiementcomboBox->setCurrentText(m_listemoyensdepaiement.at(0));
 
     QDoubleValidator *val= new QDoubleValidator(this);
     val->setDecimals(2);
@@ -142,7 +142,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     connect (ui->GestionComptesupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::GestionComptes);
     connect (ui->NouvelleDepenseupPushButton,   &QPushButton::clicked,          this,   [=] {GererDepense(ui->NouvelleDepenseupPushButton);});
-    connect (ModifierupPushButton,              &QPushButton::clicked,          this,   [=] {GererDepense(ModifierupPushButton);});
+    connect (wdg_modifieruppushbutton,              &QPushButton::clicked,          this,   [=] {GererDepense(wdg_modifieruppushbutton);});
     connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   &dlg_depenses::accept);
     connect (ui->Rubriques2035comboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   &dlg_depenses::FiltreTable);
@@ -158,23 +158,23 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->DateDepdateEdit,               &QDateEdit::dateChanged,        this,   &dlg_depenses::EnableModifiepushButton);
     connect (ui->PaiementcomboBox,              &QComboBox::currentTextChanged, this,   &dlg_depenses::EnableModifiepushButton);
     connect (ui->RefFiscalecomboBox,            &QComboBox::currentTextChanged, this,   &dlg_depenses::EnableModifiepushButton);
-    connect (SupprimerupPushButton,             &QPushButton::clicked,          this,   &dlg_depenses::SupprimerDepense);
+    connect (wdg_supprimeruppushbutton,             &QPushButton::clicked,          this,   &dlg_depenses::SupprimerDepense);
     connect (ui->UserscomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   [=](int) {ChangeUser(ui->UserscomboBox->currentIndex());});
     connect (ui->VisuDocupTableWidget,          &UpTableWidget::zoom,           this,   &dlg_depenses::ZoomDoc);
     connect (ui->VisuFacturecheckBox,           &QCheckBox::clicked,            this,   [=] {AfficheFacture(m_depenseencours);});
-    connect (EnregupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::ModifierDepense);
-    connect (AnnulupPushButton,                 &QPushButton::clicked,          this,   &dlg_depenses::AnnulEnreg);
+    connect (wdg_enreguppushbutton,                 &QPushButton::clicked,          this,   &dlg_depenses::ModifierDepense);
+    connect (wdg_annuluppushbutton,                 &QPushButton::clicked,          this,   &dlg_depenses::AnnulEnreg);
 
-    gBigTable->setFocus();
-    ui->ExportupPushButton->setEnabled(gBigTable->rowCount()>0);
-    ui->PrintupSmallButton->setEnabled(gBigTable->rowCount()>0);
-    setFixedWidth(gBigTable->width() + ui->VisuDocupTableWidget->width() + layout()->contentsMargins().left() + layout()->contentsMargins().right() +layout()->spacing());
+    wdg_bigtable->setFocus();
+    ui->ExportupPushButton->setEnabled(wdg_bigtable->rowCount()>0);
+    ui->PrintupSmallButton->setEnabled(wdg_bigtable->rowCount()>0);
+    setFixedWidth(wdg_bigtable->width() + ui->VisuDocupTableWidget->width() + layout()->contentsMargins().left() + layout()->contentsMargins().right() +layout()->spacing());
 
     //ui->Facturewidget->setVisible(false);
     //ui->VisuDocupTableWidget->setVisible(false);
 
-    InitOK= true;
+    m_initok= true;
 }
 
 dlg_depenses::~dlg_depenses()
@@ -192,9 +192,9 @@ void dlg_depenses::ExportTable()
             != UpSmallButton::STARTBUTTON)
         return;
     ExportEtat.append(tr("Date") + sep + tr("Dépense") + sep + tr("id Rubrique 2035") + sep + tr("Montant") + sep + tr("Mode de paiement") + sep  + tr("Rubrique 2035") + sep + tr("Famille fiscale") + "\n");
-    for (int i=0;i< gBigTable->rowCount(); i++)
+    for (int i=0;i< wdg_bigtable->rowCount(); i++)
     {
-        if (!gBigTable->isRowHidden(i))
+        if (!wdg_bigtable->isRowHidden(i))
         {
             Depense *dep = getDepenseFromRow(i);
             if (dep->rubriquefiscale() != "Amortissements")
@@ -210,9 +210,9 @@ void dlg_depenses::ExportTable()
             }
         }
     }
-    for (int i=0;i< gBigTable->rowCount(); i++)
+    for (int i=0;i< wdg_bigtable->rowCount(); i++)
     {
-        if (!gBigTable->isRowHidden(i))
+        if (!wdg_bigtable->isRowHidden(i))
         {
             Depense *dep = getDepenseFromRow(i);
             if (dep->rubriquefiscale() == "Amortissements")
@@ -288,9 +288,9 @@ void dlg_depenses::PrintTable()
                     "</style></head>"
                     "<body LANG=\"fr-FR\" DIR=\"LTR\">"
                     "<table width=\"" + QString::number(int(c*510)) + "\" border=\"1\"  cellspacing=\"0\" cellpadding=\"2\">";
-    for (int i=0;i< gBigTable->rowCount(); i++)
+    for (int i=0;i< wdg_bigtable->rowCount(); i++)
     {
-        if (!gBigTable->isRowHidden(i))
+        if (!wdg_bigtable->isRowHidden(i))
         {
             Depense *dep = getDepenseFromRow(i);
             if (dep->rubriquefiscale() != "Amortissements")
@@ -305,9 +305,9 @@ void dlg_depenses::PrintTable()
              }
         }
     }
-    for (int i=0;i< gBigTable->rowCount(); i++)
+    for (int i=0;i< wdg_bigtable->rowCount(); i++)
     {
-        if (!gBigTable->isRowHidden(i))
+        if (!wdg_bigtable->isRowHidden(i))
         {
             Depense *dep = getDepenseFromRow(i);
             if (dep->rubriquefiscale() == "Amortissements")
@@ -353,68 +353,68 @@ void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
 
 void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
 {
-    gMode = mode;
-    Depense *dep = (gBigTable->rowCount()>0? getDepenseFromRow(gBigTable->currentRow()) : Q_NULLPTR);
+    m_mode = mode;
+    Depense *dep = (wdg_bigtable->rowCount()>0? getDepenseFromRow(wdg_bigtable->currentRow()) : Q_NULLPTR);
 
-    ui->DateDepdateEdit     ->setVisible(gMode != TableVide);
-    ui->ObjetlineEdit       ->setVisible(gMode != TableVide);
-    ui->MontantlineEdit     ->setVisible(gMode != TableVide);
-    ui->PaiementcomboBox    ->setVisible(gMode != TableVide);
+    ui->DateDepdateEdit     ->setVisible(m_mode != TableVide);
+    ui->ObjetlineEdit       ->setVisible(m_mode != TableVide);
+    ui->MontantlineEdit     ->setVisible(m_mode != TableVide);
+    ui->PaiementcomboBox    ->setVisible(m_mode != TableVide);
 
-    ui->ComptesupComboBox   ->setVisible(gMode != TableVide);
-    ui->RefFiscalecomboBox  ->setVisible(gMode != TableVide);
-    ui->DateDeplabel        ->setVisible(gMode != TableVide);
-    ui->Objetlabel          ->setVisible(gMode != TableVide);
-    ui->Montantlabel        ->setVisible(gMode != TableVide);
-    ui->Paiementlabel       ->setVisible(gMode != TableVide);
-    ui->RefFiscalelabel     ->setVisible(gMode != TableVide);
-    ui->frame               ->setVisible(gMode != TableVide);
+    ui->ComptesupComboBox   ->setVisible(m_mode != TableVide);
+    ui->RefFiscalecomboBox  ->setVisible(m_mode != TableVide);
+    ui->DateDeplabel        ->setVisible(m_mode != TableVide);
+    ui->Objetlabel          ->setVisible(m_mode != TableVide);
+    ui->Montantlabel        ->setVisible(m_mode != TableVide);
+    ui->Paiementlabel       ->setVisible(m_mode != TableVide);
+    ui->RefFiscalelabel     ->setVisible(m_mode != TableVide);
+    ui->frame               ->setVisible(m_mode != TableVide);
 
-    ui->DateDepdateEdit     ->setEnabled(gMode != Lire);
-    ui->ObjetlineEdit       ->setEnabled(gMode != Lire);
-    ui->MontantlineEdit     ->setEnabled(gMode != Lire);
-    ui->PaiementcomboBox    ->setEnabled(gMode != Lire);
-    ui->ComptesupComboBox   ->setEnabled(gMode != Lire);
-    ui->RefFiscalecomboBox  ->setEnabled(gMode != Lire);
-    ui->DateDeplabel        ->setEnabled(gMode != Lire);
-    ui->Objetlabel          ->setEnabled(gMode != Lire);
-    ui->Montantlabel        ->setEnabled(gMode != Lire);
-    ui->Paiementlabel       ->setEnabled(gMode != Lire);
-    ui->RefFiscalelabel     ->setEnabled(gMode != Lire);
-    ui->OKupPushButton      ->setEnabled(gMode == Lire || gMode == TableVide);
-    ui->GestionComptesupPushButton  ->setEnabled(gMode == Lire || gMode == TableVide);
-    EnregupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
-    AnnulupPushButton               ->setVisible(!(gMode == Lire || gMode == TableVide));
-    ui->Facturewidget               ->setVisible(gMode == Lire);
-    ui->NouvelleDepenseupPushButton ->setEnabled((gMode == Lire || gMode == TableVide) && m_userencours->listecomptesbancaires()->size() > 0 );
+    ui->DateDepdateEdit     ->setEnabled(m_mode != Lire);
+    ui->ObjetlineEdit       ->setEnabled(m_mode != Lire);
+    ui->MontantlineEdit     ->setEnabled(m_mode != Lire);
+    ui->PaiementcomboBox    ->setEnabled(m_mode != Lire);
+    ui->ComptesupComboBox   ->setEnabled(m_mode != Lire);
+    ui->RefFiscalecomboBox  ->setEnabled(m_mode != Lire);
+    ui->DateDeplabel        ->setEnabled(m_mode != Lire);
+    ui->Objetlabel          ->setEnabled(m_mode != Lire);
+    ui->Montantlabel        ->setEnabled(m_mode != Lire);
+    ui->Paiementlabel       ->setEnabled(m_mode != Lire);
+    ui->RefFiscalelabel     ->setEnabled(m_mode != Lire);
+    ui->OKupPushButton      ->setEnabled(m_mode == Lire || m_mode == TableVide);
+    ui->GestionComptesupPushButton  ->setEnabled(m_mode == Lire || m_mode == TableVide);
+    wdg_enreguppushbutton               ->setVisible(!(m_mode == Lire || m_mode == TableVide));
+    wdg_annuluppushbutton               ->setVisible(!(m_mode == Lire || m_mode == TableVide));
+    ui->Facturewidget               ->setVisible(m_mode == Lire);
+    ui->NouvelleDepenseupPushButton ->setEnabled((m_mode == Lire || m_mode == TableVide) && m_userencours->listecomptesbancaires()->size() > 0 );
     QString ttip = "";
     if( m_userencours->listecomptesbancaires()->size() == 0)
         ttip = tr("Vous ne pouvez pas enregistrer de dépenses.\nAucun compte bancaire n'est enregistré.");
     ui->NouvelleDepenseupPushButton->setToolTip(ttip);
-    SupprimerupPushButton   ->setVisible(gMode == Lire);
-    ModifierupPushButton    ->setVisible(gMode == Lire);
-    gBigTable               ->setEnabled(gMode == Lire);
+    wdg_supprimeruppushbutton   ->setVisible(m_mode == Lire);
+    wdg_modifieruppushbutton    ->setVisible(m_mode == Lire);
+    wdg_bigtable               ->setEnabled(m_mode == Lire);
 
-    ui->UserscomboBox        ->setEnabled(Datas::I()->users->userconnected()->isSecretaire() && gMode==Lire);
+    ui->UserscomboBox        ->setEnabled(Datas::I()->users->userconnected()->isSecretaire() && m_mode==Lire);
 
 
-    switch (gMode) {
+    switch (m_mode) {
     case TableVide:
         ui->OKupPushButton      ->setShortcut(QKeySequence("Meta+Return"));
-        ModifierupPushButton    ->setShortcut(QKeySequence());
-        EnregupPushButton       ->setShortcut(QKeySequence());
+        wdg_modifieruppushbutton    ->setShortcut(QKeySequence());
+        wdg_enreguppushbutton       ->setShortcut(QKeySequence());
         ui->FactureupPushButton     ->setVisible(false);
         ui->EcheancierupPushButton  ->setVisible(false);
         ui->VisuDocupTableWidget    ->setVisible(false);
         [[clang::fallthrough]];// => pas de break, on continue avec le code de Lire
     case Lire: {
-        EnregupPushButton       ->setText(tr("Modifier"));
+        wdg_enreguppushbutton       ->setText(tr("Modifier"));
         RegleComptesComboBox(false);
         break;
     }
     case Modifier: {
-        gBigTable->disconnect();
-        EnregupPushButton       ->setText("Valider");
+        wdg_bigtable->disconnect();
+        wdg_enreguppushbutton       ->setText("Valider");
         int compte = -1;
         ui->ComptesupComboBox->setVisible(dep->modepaiement()!="E");
         if (dep->modepaiement() != "E")            // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte pour savoir si on peut la modifier
@@ -433,23 +433,23 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
             ui->ComptesupComboBox   ->setEnabled(modifiable);
         }
         ui->OKupPushButton->setShortcut(QKeySequence());
-        ModifierupPushButton->setShortcut(QKeySequence());
-        EnregupPushButton->setShortcut(QKeySequence("Meta+Return"));
+        wdg_modifieruppushbutton->setShortcut(QKeySequence());
+        wdg_enreguppushbutton->setShortcut(QKeySequence("Meta+Return"));
         RegleComptesComboBox();
         ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(compte));
         break;
     }
     case Enregistrer: {
-        gBigTable->disconnect();
+        wdg_bigtable->disconnect();
         ui->DateDepdateEdit     ->setDate(QDate::currentDate());
         ui->ObjetlineEdit       ->setText("");
         ui->MontantlineEdit     ->setText("0,00");
         ui->ComptesupComboBox   ->setVisible(!(ui->PaiementcomboBox->currentText() == tr("Espèces") || ui->PaiementcomboBox->currentText() == ""));
         ui->RefFiscalecomboBox  ->setCurrentText("");
-        EnregupPushButton       ->setText(tr("Enregistrer"));
+        wdg_enreguppushbutton       ->setText(tr("Enregistrer"));
         ui->OKupPushButton      ->setShortcut(QKeySequence());
-        ModifierupPushButton->setShortcut(QKeySequence());
-        EnregupPushButton       ->setShortcut(QKeySequence("Meta+Return"));
+        wdg_modifieruppushbutton->setShortcut(QKeySequence());
+        wdg_enreguppushbutton       ->setShortcut(QKeySequence("Meta+Return"));
         RegleComptesComboBox();
         ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(QString::number(m_userencours->idcomptepardefaut())));
         break;
@@ -462,10 +462,10 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::AnnulEnreg()
 {
-    gBigTable->disconnect();
+    wdg_bigtable->disconnect();
     RegleAffichageFiche(Lire);
     MetAJourFiche();
-    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -493,8 +493,8 @@ bool dlg_depenses::initializeUserSelected()
 }
 void dlg_depenses::ChangeUser(int)
 {
-    InitOK = initializeUserSelected();
-    if( !InitOK )
+    m_initok = initializeUserSelected();
+    if( !m_initok )
         return;
 
     RegleComptesComboBox(false);
@@ -519,7 +519,7 @@ void dlg_depenses::ConvertitDoubleMontant()
 
 void dlg_depenses::EnableModifiepushButton()
 {
-    ModifierupPushButton->setEnabled(true);
+    wdg_modifieruppushbutton->setEnabled(true);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -656,13 +656,13 @@ void dlg_depenses::EnregistreDepense()
         db->InsertIntoTable(TBL_LIGNESCOMPTES, listsets);
     }
 
-    gBigTable->insertRow(gBigTable->rowCount());
-    SetDepenseToRow(dep, gBigTable->rowCount()-1);
-    gBigTable->sortByColumn(7);
+    wdg_bigtable->insertRow(wdg_bigtable->rowCount());
+    SetDepenseToRow(dep, wdg_bigtable->rowCount()-1);
+    wdg_bigtable->sortByColumn(7);
 
-    gBigTable->setEnabled(true);
-    SupprimerupPushButton->setVisible(true);
-    ModifierupPushButton->setVisible(true);
+    wdg_bigtable->setEnabled(true);
+    wdg_supprimeruppushbutton->setVisible(true);
+    wdg_modifieruppushbutton->setVisible(true);
     ui->NouvelleDepenseupPushButton->setEnabled(true);
 
     QString annee =  QString::number(dep->annee());
@@ -684,12 +684,12 @@ void dlg_depenses::EnregistreDepense()
     if (!rubrique2035trouvee)
         ReconstruitListeRubriques();
     CalculTotalDepenses();
-    gMode = Lire;
-    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
-    for (int i=0; i< gBigTable->rowCount(); i++)
+    m_mode = Lire;
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    for (int i=0; i< wdg_bigtable->rowCount(); i++)
         if (getDepenseFromRow(i)->id() == dep->id()){
-            gBigTable->setCurrentCell(i,1);
-            gBigTable->scrollTo(gBigTable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
+            wdg_bigtable->setCurrentCell(i,1);
+            wdg_bigtable->scrollTo(wdg_bigtable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
              break;
         }
     RegleAffichageFiche(Lire);
@@ -700,9 +700,9 @@ void dlg_depenses::EnregistreDepense()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::GererDepense(QPushButton *widgsender)
 {
-    if (widgsender == ModifierupPushButton)
+    if (widgsender == wdg_modifieruppushbutton)
     {
-        if (gMode == Lire)
+        if (m_mode == Lire)
             RegleAffichageFiche(Modifier);
         else
             RegleAffichageFiche(Lire);
@@ -747,7 +747,7 @@ void dlg_depenses::ChoixMenu(QString choix)
     else
     {
         MetAJourFiche();
-        gMode = Enregistrer;
+        m_mode = Enregistrer;
         ui->DateDepdateEdit             ->setEnabled(true);
         ui->ObjetlineEdit               ->setEnabled(true);
         ui->MontantlineEdit             ->setEnabled(true);
@@ -761,18 +761,18 @@ void dlg_depenses::ChoixMenu(QString choix)
         ui->RefFiscalelabel             ->setEnabled(true);
         ui->OKupPushButton              ->setEnabled(false);
         ui->GestionComptesupPushButton  ->setEnabled(false);
-        SupprimerupPushButton           ->setVisible(false);
-        ModifierupPushButton            ->setVisible(false);
-        EnregupPushButton               ->setVisible(true);
-        AnnulupPushButton               ->setVisible(true);
+        wdg_supprimeruppushbutton           ->setVisible(false);
+        wdg_modifieruppushbutton            ->setVisible(false);
+        wdg_enreguppushbutton               ->setVisible(true);
+        wdg_annuluppushbutton               ->setVisible(true);
         ui->NouvelleDepenseupPushButton ->setEnabled(false);
-        gBigTable                       ->setEnabled(false);
-        gBigTable                       ->disconnect();
+        wdg_bigtable                       ->setEnabled(false);
+        wdg_bigtable                       ->disconnect();
         ui->DateDepdateEdit             ->setDate(QDate::currentDate());
-        EnregupPushButton               ->setText("Enregistrer");
+        wdg_enreguppushbutton               ->setText("Enregistrer");
         ui->OKupPushButton              ->setShortcut(QKeySequence());
-        ModifierupPushButton            ->setShortcut(QKeySequence());
-        EnregupPushButton               ->setShortcut(QKeySequence("Meta+Return"));
+        wdg_modifieruppushbutton            ->setShortcut(QKeySequence());
+        wdg_enreguppushbutton               ->setShortcut(QKeySequence("Meta+Return"));
         ui->EcheancierupPushButton      ->setVisible(false);
         ui->FactureupPushButton         ->setVisible(false);
         ui->VisuDocupTableWidget        ->setVisible(false);
@@ -784,9 +784,9 @@ void dlg_depenses::ChoixMenu(QString choix)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::SupprimerDepense()
 {
-    if (gBigTable->selectedRanges().size() == 0) return;
+    if (wdg_bigtable->selectedRanges().size() == 0) return;
     // s'il s'agit d'une dépense par transaction bancaire, on vérifie qu'elle n'a pas été enregistrée sur le compte
-    Depense *dep = getDepenseFromRow(gBigTable->currentRow());
+    Depense *dep = getDepenseFromRow(wdg_bigtable->currentRow());
 
     if (dep->isArchivee() == Depense::NoLoSo)
         db->loadDepenseArchivee(dep);
@@ -815,7 +815,7 @@ void dlg_depenses::SupprimerDepense()
     db->SupprRecordFromTable(dep->id(), "idDep", TBL_LIGNESCOMPTES);
     Datas::I()->depenses->SupprimeDepense(dep);
 
-    if (gBigTable->rowCount() == 1)
+    if (wdg_bigtable->rowCount() == 1)
     {
         ReconstruitListeAnnees();
         QString year = QDate::currentDate().toString("yyyy");
@@ -825,14 +825,14 @@ void dlg_depenses::SupprimerDepense()
         RedessineBigTable();
         connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
     }
-    else for (int i = 0; i< gBigTable->rowCount(); i++)
+    else for (int i = 0; i< wdg_bigtable->rowCount(); i++)
         if (getDepenseFromRow(i) == Q_NULLPTR)
         {
-            gBigTable->removeRow(i);
-            if (i < gBigTable->rowCount() - 1)
-                gBigTable->setCurrentCell(i,1);
+            wdg_bigtable->removeRow(i);
+            if (i < wdg_bigtable->rowCount() - 1)
+                wdg_bigtable->setCurrentCell(i,1);
             else
-                gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
+                wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
             break;
         }
     CalculTotalDepenses();
@@ -891,7 +891,7 @@ void dlg_depenses::AfficheFacture(Depense *dep)
                 proc->CalcImage(dep, true, true);
             doc.insert("ba", m_depenseencours->factureblob());
             doc.insert("type", m_depenseencours->factureformat());
-            glistImg =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+            m_listeimages =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
         }
     }
 }
@@ -901,18 +901,18 @@ void dlg_depenses::AfficheFacture(Depense *dep)
 void dlg_depenses::CalculTotalDepenses()
 {
     double Total = 0;
-    if (gBigTable->rowCount() > 0)
-        for (int k = 0; k < gBigTable->rowCount(); k++)
-            if (!gBigTable->isRowHidden(k))
-                Total += QLocale().toDouble(static_cast<UpLabel*>(gBigTable->cellWidget(k,3))->text());
+    if (wdg_bigtable->rowCount() > 0)
+        for (int k = 0; k < wdg_bigtable->rowCount(); k++)
+            if (!wdg_bigtable->isRowHidden(k))
+                Total += QLocale().toDouble(static_cast<UpLabel*>(wdg_bigtable->cellWidget(k,3))->text());
     QString TotalRemise;
     TotalRemise = QLocale().toString(Total,'f',2);
     QString AnneeRubrique2035 = tr("Total général");
     if (ui->Rubriques2035comboBox->currentText() != "<Aucun>")
         AnneeRubrique2035 = tr("Total ") + ui->Rubriques2035comboBox->currentText();
     ui->TotallineEdit->setText(AnneeRubrique2035 + " " + ui->AnneecomboBox->currentText() + " -> " + TotalRemise);
-    ui->ExportupPushButton->setEnabled(gBigTable->rowCount()>0);
-    ui->PrintupSmallButton->setEnabled(gBigTable->rowCount()>0);
+    ui->ExportupPushButton->setEnabled(wdg_bigtable->rowCount()>0);
+    ui->PrintupSmallButton->setEnabled(wdg_bigtable->rowCount()>0);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1014,7 +1014,7 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     dep->setecheancier(false);
     dep->setfactureformat("");
     dep->setfactureblob(QByteArray());
-    SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
+    SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1022,16 +1022,16 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::MetAJourFiche()
 {
-    ui->frame->setVisible(gBigTable->rowCount() > 0 && !gBigTable->isRowHidden(gBigTable->currentRow()));
-    if (gMode == Lire && gBigTable->rowCount() > 0 && !gBigTable->isRowHidden(gBigTable->currentRow()))
+    ui->frame->setVisible(wdg_bigtable->rowCount() > 0 && !wdg_bigtable->isRowHidden(wdg_bigtable->currentRow()));
+    if (m_mode == Lire && wdg_bigtable->rowCount() > 0 && !wdg_bigtable->isRowHidden(wdg_bigtable->currentRow()))
     {
         ui->DateDepdateEdit     ->disconnect();
         ui->RefFiscalecomboBox  ->disconnect();
         ui->PaiementcomboBox    ->disconnect();
-        if (gBigTable->selectedRanges().size() == 0)
-            gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
+        if (wdg_bigtable->selectedRanges().size() == 0)
+            wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
 
-        m_depenseencours = getDepenseFromRow(gBigTable->currentRow());
+        m_depenseencours = getDepenseFromRow(wdg_bigtable->currentRow());
 
         ui->ObjetlineEdit->setText(m_depenseencours->objet());
         ui->DateDepdateEdit->setDate(m_depenseencours->date());
@@ -1059,11 +1059,11 @@ void dlg_depenses::MetAJourFiche()
             if (m_depenseencours->isArchivee() == Depense::NoLoSo)
                 db->loadDepenseArchivee(m_depenseencours);
             //qDebug() << m_depenseencours->objet() + " - id " + QString::number(m_depenseencours->id()) + " - archivée = " + (m_depenseencours->isArchivee()==Depense::Oui? "Oui" : (m_depenseencours->isArchivee()==Depense::Non? "Non" : "NoloSo"));
-            if (gBigTable->selectedRanges().size() > 0)
-                SupprimerupPushButton->setEnabled(m_depenseencours->isArchivee() == Depense::Non);
+            if (wdg_bigtable->selectedRanges().size() > 0)
+                wdg_supprimeruppushbutton->setEnabled(m_depenseencours->isArchivee() == Depense::Non);
         }
         else
-            SupprimerupPushButton->setEnabled(true);
+            wdg_supprimeruppushbutton->setEnabled(true);
         connect (ui->DateDepdateEdit,       &QDateEdit::dateChanged,        this,   [=] {EnableModifiepushButton();});
         connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton(); ChoixPaiement();});
         connect (ui->RefFiscalecomboBox,    &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton();});
@@ -1075,12 +1075,12 @@ void dlg_depenses::MetAJourFiche()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::ModifierDepense()
 {
-    if (gMode == Enregistrer)
+    if (m_mode == Enregistrer)
     {
         EnregistreDepense();
         return;
     }
-    Depense *dep = getDepenseFromRow(gBigTable->currentRow());
+    Depense *dep = getDepenseFromRow(wdg_bigtable->currentRow());
     QString idDep = QString::number(dep->id());
     QDate datedepart = dep->date();
 
@@ -1248,7 +1248,7 @@ void dlg_depenses::ModifierDepense()
             }
         }
     }
-    gBigTable->setEnabled(true);
+    wdg_bigtable->setEnabled(true);
     int row = -1;
     bool rubrique2035trouvee = false;
     for (int i=0; i<ui->Rubriques2035comboBox->count(); ++i)
@@ -1267,7 +1267,7 @@ void dlg_depenses::ModifierDepense()
         if (ui->AnneecomboBox->findText(QString::number(year)) < 0)
             ReconstruitListeAnnees();
         ui->AnneecomboBox->setCurrentText(QString::number(year));
-        for (int i=0; i< gBigTable->rowCount(); i++)
+        for (int i=0; i< wdg_bigtable->rowCount(); i++)
             if (getDepenseFromRow(i)->id() == dep->id()){
                 row = i;
                 break;
@@ -1276,20 +1276,20 @@ void dlg_depenses::ModifierDepense()
     else
     {
         // Mettre à jour l'affichage dans la table
-        for (int i=0; i< gBigTable->rowCount(); i++)
+        for (int i=0; i< wdg_bigtable->rowCount(); i++)
             if (getDepenseFromRow(i)->id() == dep->id()){
                 row = i;
                 break;
             }
         QString A;
-        static_cast<UpLabel*>(gBigTable->cellWidget(row,1))->setText(dep->date().toString(tr("d MMM yyyy") + " "));             // Date - col = 1
-        static_cast<UpLabel*>(gBigTable->cellWidget(row,2))->setText(" " + dep->objet());                                       // Objet - col = 2
+        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,1))->setText(dep->date().toString(tr("d MMM yyyy") + " "));             // Date - col = 1
+        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,2))->setText(" " + dep->objet());                                       // Objet - col = 2
 
         if (dep->monnaie() == "F")
             A = QLocale().toString(dep->montant()/6.55957,'f',2);                                                               // Montant en F converti en euros
         else
             A = QLocale().toString(dep->montant(),'f',2);                                                                       // Montant - col = 3
-        static_cast<UpLabel*>(gBigTable->cellWidget(row,3))->setText(A + " ");
+        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,3))->setText(A + " ");
 
         A = dep->modepaiement();                                                                                                // Mode de paiement - col = 4
         QString B = "";
@@ -1309,32 +1309,32 @@ void dlg_depenses::ModifierDepense()
                     C += " " + QString::number(dep->nocheque());
         }
         A += " " + B + " " + C;
-        static_cast<UpLabel*>(gBigTable->cellWidget(row,4))->setText(" " + A);
-        static_cast<UpLabel*>(gBigTable->cellWidget(row,5))->setText(" " + dep->rubriquefiscale());                                  // Ref fiscale - col = 5
-        static_cast<UpLabel*>(gBigTable->cellWidget(row,6))->setText(" " + dep->famillefiscale());                              // Famille fiscale - col = 6
+        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,4))->setText(" " + A);
+        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,5))->setText(" " + dep->rubriquefiscale());                                  // Ref fiscale - col = 5
+        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,6))->setText(" " + dep->famillefiscale());                              // Famille fiscale - col = 6
         A = dep->date().toString("yyyy-MM-dd");
-        gBigTable->item(row,7)->setText(dep->date().toString("yyyy-MM-dd"));                                                    // ClassementparDate - col = 7
+        wdg_bigtable->item(row,7)->setText(dep->date().toString("yyyy-MM-dd"));                                                    // ClassementparDate - col = 7
     }
 
     CalculTotalDepenses();
-    SupprimerupPushButton->setEnabled(gBigTable->rowCount()>0);
-    ModifierupPushButton->setEnabled(gBigTable->rowCount()>0);
+    wdg_supprimeruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
+    wdg_modifieruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
     FiltreTable();
-    gBigTable->setCurrentCell(row,1);
+    wdg_bigtable->setCurrentCell(row,1);
     if (dep->date() != datedepart)
     {
-        gBigTable->sortByColumn(7);
-        for (int i=0; i< gBigTable->rowCount(); i++)
+        wdg_bigtable->sortByColumn(7);
+        for (int i=0; i< wdg_bigtable->rowCount(); i++)
             if (getDepenseFromRow(i)->id() == dep->id()){
-                gBigTable->scrollTo(gBigTable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
+                wdg_bigtable->scrollTo(wdg_bigtable->model()->index(i,1), QAbstractItemView::PositionAtCenter);
                 break;
             }
     }
-    gMode = Lire;
-    gBigTable->disconnect();
+    m_mode = Lire;
+    wdg_bigtable->disconnect();
     RegleAffichageFiche(Lire);
     MetAJourFiche();
-    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1343,20 +1343,20 @@ void dlg_depenses::ModifierDepense()
 void dlg_depenses::RedessineBigTable()
 {
     RemplitBigTable();
-    gBigTable->disconnect();
+    wdg_bigtable->disconnect();
     m_depenseencours = Q_NULLPTR;
-    if (gBigTable->rowCount() > 0)
+    if (wdg_bigtable->rowCount() > 0)
     {
-        gBigTable->setCurrentCell(gBigTable->rowCount()-1,1);
+        wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
         RegleAffichageFiche(Lire);
         MetAJourFiche();
         FiltreTable();
     }
     else
         RegleAffichageFiche(TableVide);
-    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
-    SupprimerupPushButton->setEnabled(gBigTable->rowCount()>0);
-    ModifierupPushButton->setEnabled(gBigTable->rowCount()>0);
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    wdg_supprimeruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
+    wdg_modifieruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
 }
 
 void dlg_depenses::closeEvent(QCloseEvent *event)
@@ -1372,7 +1372,7 @@ void dlg_depenses::keyPressEvent ( QKeyEvent * event )
 {
     switch (event->key()) {
     case Qt::Key_F12:{
-        if (gMode == Lire)
+        if (m_mode == Lire)
             reject();
         else
             AnnulEnreg();
@@ -1383,7 +1383,7 @@ void dlg_depenses::keyPressEvent ( QKeyEvent * event )
 
 bool dlg_depenses::getInitOK()
 {
-    return InitOK;
+    return m_initok;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1392,18 +1392,18 @@ bool dlg_depenses::getInitOK()
 void dlg_depenses::DefinitArchitectureBigTable()
 {
     int                 ColCount = 9;
-    gBigTable->setSelectionBehavior(QAbstractItemView::SelectRows);
-    gBigTable->setContextMenuPolicy(Qt::CustomContextMenu);
-    gBigTable->setPalette(QPalette(Qt::white));
-    gBigTable->setEditTriggers(QAbstractItemView::AnyKeyPressed
+    wdg_bigtable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    wdg_bigtable->setContextMenuPolicy(Qt::CustomContextMenu);
+    wdg_bigtable->setPalette(QPalette(Qt::white));
+    wdg_bigtable->setEditTriggers(QAbstractItemView::AnyKeyPressed
                                  |QAbstractItemView::DoubleClicked
                                  |QAbstractItemView::EditKeyPressed
                                  |QAbstractItemView::SelectedClicked);
-    gBigTable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    gBigTable->verticalHeader()->setVisible(false);
-    gBigTable->setFocusPolicy(Qt::StrongFocus);
-    gBigTable->setColumnCount(ColCount);
-    gBigTable->setSelectionMode(QAbstractItemView::SingleSelection);
+    wdg_bigtable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    wdg_bigtable->verticalHeader()->setVisible(false);
+    wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
+    wdg_bigtable->setColumnCount(ColCount);
+    wdg_bigtable->setSelectionMode(QAbstractItemView::SingleSelection);
 
     QStringList LabelARemplir;
     LabelARemplir << "";
@@ -1416,32 +1416,32 @@ void dlg_depenses::DefinitArchitectureBigTable()
     LabelARemplir << tr("Classement par date");
     LabelARemplir << "";
 
-    gBigTable->setHorizontalHeaderLabels(LabelARemplir);
-    gBigTable->horizontalHeader()->setVisible(true);
-    gBigTable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    wdg_bigtable->setHorizontalHeaderLabels(LabelARemplir);
+    wdg_bigtable->horizontalHeader()->setVisible(true);
+    wdg_bigtable->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     int li = 0;                                                                     // Réglage de la largeur et du nombre des colonnes
-    gBigTable->setColumnWidth(li,0);                                                // 0 -idDepense
+    wdg_bigtable->setColumnWidth(li,0);                                                // 0 -idDepense
     li++;
-    gBigTable->setColumnWidth(li,100);                                              // 1 - DepDate affichage européen
+    wdg_bigtable->setColumnWidth(li,100);                                              // 1 - DepDate affichage européen
     li++;
-    gBigTable->setColumnWidth(li,330);                                              // 2 - DepNom
+    wdg_bigtable->setColumnWidth(li,330);                                              // 2 - DepNom
     li++;
-    gBigTable->setColumnWidth(li,100);                                              // 3 - DepMontant
+    wdg_bigtable->setColumnWidth(li,100);                                              // 3 - DepMontant
     li++;
-    gBigTable->setColumnWidth(li,160);                                              // 4 - DepModePaiement
+    wdg_bigtable->setColumnWidth(li,160);                                              // 4 - DepModePaiement
     li++;
-    gBigTable->setColumnWidth(li,300);                                              // 5 - Rubrique 2035
+    wdg_bigtable->setColumnWidth(li,300);                                              // 5 - Rubrique 2035
     li++;
-    gBigTable->setColumnWidth(li,293);                                              // 6 - Famille rubrique
+    wdg_bigtable->setColumnWidth(li,293);                                              // 6 - Famille rubrique
     li++;
-    gBigTable->setColumnWidth(li,0);                                                // 7 - DepDate
+    wdg_bigtable->setColumnWidth(li,0);                                                // 7 - DepDate
     li++;
-    gBigTable->setColumnWidth(li,45);                                               // 8 - point bleu si une facture est enregistrée
+    wdg_bigtable->setColumnWidth(li,45);                                               // 8 - point bleu si une facture est enregistrée
 
-    gBigTable->setColumnHidden(ColCount-2,true);
+    wdg_bigtable->setColumnHidden(ColCount-2,true);
 
-    gBigTable->setGridStyle(Qt::SolidLine);
-    gBigTable->FixLargeurTotale();
+    wdg_bigtable->setGridStyle(Qt::SolidLine);
+    wdg_bigtable->FixLargeurTotale();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1449,44 +1449,44 @@ void dlg_depenses::DefinitArchitectureBigTable()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::FiltreTable()
 {
-    int rowdep = gBigTable->currentRow();
+    int rowdep = wdg_bigtable->currentRow();
     int row = rowdep;
 
     QString filtre = ui->Rubriques2035comboBox->currentText();
     int idrubrique = ui->Rubriques2035comboBox->currentData().toInt();
     int idx = ui->Rubriques2035comboBox->findData(idrubrique);
-    for (int i=0; i<gBigTable->rowCount(); i++)
+    for (int i=0; i<wdg_bigtable->rowCount(); i++)
     {
         if (ui->Rubriques2035comboBox->currentIndex()==0)
-            gBigTable->setRowHidden(i,false);
+            wdg_bigtable->setRowHidden(i,false);
         else
         {
-            QString rub = static_cast<UpLabel*>(gBigTable->cellWidget(i,5))->text().mid(1);
-            gBigTable->setRowHidden(i, rub!=filtre);
+            QString rub = static_cast<UpLabel*>(wdg_bigtable->cellWidget(i,5))->text().mid(1);
+            wdg_bigtable->setRowHidden(i, rub!=filtre);
         }
     }
-    if (idx>0 && gBigTable->isRowHidden(row))
+    if (idx>0 && wdg_bigtable->isRowHidden(row))
     {
         do row--;
-        while (gBigTable->isRowHidden(row) && row>0);       // on cherche l'enregistrement précédent qui n'est pas caché
-        if (gBigTable->isRowHidden(row) && row == 0)        // si on est remonté au début de la table et qu'on n'a pas trouvé d'enregistrement non caché, on recherche vers la fin
+        while (wdg_bigtable->isRowHidden(row) && row>0);       // on cherche l'enregistrement précédent qui n'est pas caché
+        if (wdg_bigtable->isRowHidden(row) && row == 0)        // si on est remonté au début de la table et qu'on n'a pas trouvé d'enregistrement non caché, on recherche vers la fin
         {
             row = rowdep;
             do row++;
-            while (gBigTable->isRowHidden(row) && row < (gBigTable->rowCount()-1));
+            while (wdg_bigtable->isRowHidden(row) && row < (wdg_bigtable->rowCount()-1));
         }
     }
-    if (!gBigTable->isRowHidden(row))
+    if (!wdg_bigtable->isRowHidden(row))
     {
-        gBigTable->selectRow(row);
-        gBigTable->setCurrentCell(row,1);
+        wdg_bigtable->selectRow(row);
+        wdg_bigtable->setCurrentCell(row,1);
         Utils::Pause(1);            // si on ne fait pas ça, le scroll marche mal
-        gBigTable->scrollToItem(gBigTable->item(row,0), QAbstractItemView::PositionAtCenter);
+        wdg_bigtable->scrollToItem(wdg_bigtable->item(row,0), QAbstractItemView::PositionAtCenter);
         if (row != rowdep)
         {
-            gBigTable->disconnect();
+            wdg_bigtable->disconnect();
             MetAJourFiche();
-            connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+            connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
         }
     }
     CalculTotalDepenses();
@@ -1537,9 +1537,9 @@ void dlg_depenses::ReconstruitListeRubriques(int idx)
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::RemplitBigTable()
 {
-    gBigTable->disconnect();
-    gBigTable->clearContents();
-    gBigTable->setRowCount(0);
+    wdg_bigtable->disconnect();
+    wdg_bigtable->clearContents();
+    wdg_bigtable->setRowCount(0);
     QList<Depense*> listDepenses;
 
     foreach (Depense* dep, Datas::I()->depenses->depenses()->values())
@@ -1552,7 +1552,7 @@ void dlg_depenses::RemplitBigTable()
         RegleAffichageFiche(TableVide);
         return;
     }
-    gBigTable->setRowCount(listDepenses.size());
+    wdg_bigtable->setRowCount(listDepenses.size());
     int i=0;
     foreach(Depense *dep, listDepenses)
     {
@@ -1560,14 +1560,14 @@ void dlg_depenses::RemplitBigTable()
         ++i;
     }
 
-    gBigTable->sortItems(7);
-    SupprimerupPushButton->setEnabled(false);
-    connect (gBigTable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    wdg_bigtable->sortItems(7);
+    wdg_supprimeruppushbutton->setEnabled(false);
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
 }
 
 Depense* dlg_depenses::getDepenseFromRow(int row)
 {
-    return Datas::I()->depenses->getById(gBigTable->item(row,0)->text().toInt());
+    return Datas::I()->depenses->getById(wdg_bigtable->item(row,0)->text().toInt());
 }
 
 void dlg_depenses::EnregistreFacture(QString typedoc)
@@ -1590,19 +1590,19 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
         QList<QVariantList> ListeEch = db->StandardSelectSQL(req, ok);
         if (ListeEch.size()>0)
         {
-            gAskDialog                      = new UpDialog(this);
-            QListView   *listview           = new QListView(gAskDialog);
+            dlg_ask                      = new UpDialog(this);
+            QListView   *listview           = new QListView(dlg_ask);
             listview->setMinimumWidth(200);
             listview->setMinimumHeight(150);
             UpSmallButton *creerecheancier  = new UpSmallButton();
             creerecheancier->setIcon(Icons::icAjouter());
-            gAskDialog->dlglayout()->insertWidget(0,listview);
+            dlg_ask->dlglayout()->insertWidget(0,listview);
 
 
-            gAskDialog      ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-            gAskDialog      ->setWindowTitle(tr("Choisissez un échéancier"));
-            gAskDialog      ->AjouteWidgetLayButtons(creerecheancier, false);
-            gAskDialog->OKButton->setEnabled(false);
+            dlg_ask      ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+            dlg_ask      ->setWindowTitle(tr("Choisissez un échéancier"));
+            dlg_ask      ->AjouteWidgetLayButtons(creerecheancier, false);
+            dlg_ask->OKButton->setEnabled(false);
 
             int *idfactarecuperer = new int(0);
             QStandardItemModel model;
@@ -1613,16 +1613,16 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                 model.setItem(i,0, new QStandardItem(ListeEch.at(i).at(1).toString()));
                 model.setItem(i,1, new QStandardItem(ListeEch.at(i).at(0).toString()));
             }
-            connect (listview->selectionModel(),    &QItemSelectionModel::selectionChanged, this,   [=] {gAskDialog->OKButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);});
-            connect(gAskDialog->OKButton,           &QPushButton::clicked,                  this,   [=]
+            connect (listview->selectionModel(),    &QItemSelectionModel::selectionChanged, this,   [=] {dlg_ask->OKButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);});
+            connect(dlg_ask->OKButton,           &QPushButton::clicked,                  this,   [=]
                 {
                 *idfactarecuperer = static_cast<QStandardItemModel*>(listview->model())->item(listview->selectionModel()->selectedIndexes().at(0).row(),1)->text().toInt();;
-                gAskDialog->accept();
+                dlg_ask->accept();
                 });
-            connect(creerecheancier,            &QPushButton::clicked,  gAskDialog, &UpDialog::accept);
-            connect(gAskDialog->CancelButton,   SIGNAL(clicked(bool)),  gAskDialog, SLOT(reject()));
+            connect(creerecheancier,            &QPushButton::clicked,  dlg_ask, &UpDialog::accept);
+            connect(dlg_ask->CancelButton,   SIGNAL(clicked(bool)),  dlg_ask, SLOT(reject()));
 
-            int a = gAskDialog->exec();
+            int a = dlg_ask->exec();
             int fact = *idfactarecuperer;
             delete idfactarecuperer;
             idfactarecuperer = Q_NULLPTR;
@@ -1650,8 +1650,8 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                     QMap<QString,QVariant> doc;
                     doc.insert("ba", m_depenseencours->factureblob());
                     doc.insert("type", m_depenseencours->factureformat());
-                    glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
-                    SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
+                    m_listeimages = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+                    SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
                     return;
                 }
             }
@@ -1677,8 +1677,8 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
             QMap<QString,QVariant> doc;
             doc.insert("ba", m_depenseencours->factureblob());
             doc.insert("type", m_depenseencours->factureformat());
-            glistImg = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
-            SetDepenseToRow(m_depenseencours,gBigTable->currentRow());
+            m_listeimages = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+            SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
         }
     }
     delete  Dlg_DocsScan;
@@ -1730,17 +1730,17 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
 
     A = QString::number(id);                                                                    // idDepense - col = 0
     pitem0->setText(A);
-    gBigTable->setItem(row,col,pitem0);
+    wdg_bigtable->setItem(row,col,pitem0);
     col++;
 
     A = dep->date().toString(tr("d MMM yyyy"));                                                 // Date - col = 1
     label1->setText(A + " ");
     label1->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
-    gBigTable->setCellWidget(row,col,label1);
+    wdg_bigtable->setCellWidget(row,col,label1);
     col++;
 
     label2->setText(" " + dep->objet());                                                        // Objet - col = 2
-    gBigTable->setCellWidget(row,col,label2);
+    wdg_bigtable->setCellWidget(row,col,label2);
     col++;
 
     if (dep->monnaie() == "F")
@@ -1749,7 +1749,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
         A = QLocale().toString(dep->montant(),'f',2);                                           // Montant - col = 3
     label3->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     label3->setText(A + " ");
-    gBigTable->setCellWidget(row,col,label3);
+    wdg_bigtable->setCellWidget(row,col,label3);
     col++;
 
     A = dep->modepaiement();                                                                    // Mode de paiement - col = 4
@@ -1770,31 +1770,31 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     }
     mode += " " + B + C;
     label4->setText(" " + mode);
-    gBigTable->setCellWidget(row,col,label4);
+    wdg_bigtable->setCellWidget(row,col,label4);
     col++;
 
     A = dep->rubriquefiscale();                                                                      // Rubrique2035 - col = 5
     label5->setText(" " + A);
-    gBigTable->setCellWidget(row,col,label5);
+    wdg_bigtable->setCellWidget(row,col,label5);
     col++;
 
     A = dep->famillefiscale();                                                                  // Famille fiscale - col = 6
     label6->setText(" " + A);
-    gBigTable->setCellWidget(row,col,label6);
+    wdg_bigtable->setCellWidget(row,col,label6);
     col++;
 
     A = dep->date().toString("yyyy-MM-dd");                                                     // ClassementparDate - col = 7 (colonne masquée)
     pItem7 = new QTableWidgetItem() ;
     pItem7->setText(A);
-    gBigTable->setItem(row,col,pItem7);
+    wdg_bigtable->setItem(row,col,pItem7);
     col++;
 
     if (dep->idfacture()>0)                                                                     // une facture est enregistrée - col = 8
         label7->setPixmap(Icons::pxApres().scaled(10,10)); //WARNING : icon scaled : pxApres 10,10
     label7->setAlignment(Qt::AlignCenter);
-    gBigTable->setCellWidget(row,col,label7);
+    wdg_bigtable->setCellWidget(row,col,label7);
 
-    gBigTable->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
+    wdg_bigtable->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
 }
 
 

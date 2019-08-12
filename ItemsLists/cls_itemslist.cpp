@@ -10,7 +10,6 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     if (item == Q_NULLPTR)
         return false;
     QString table;
-    QString value;
     QString clause;
     Depense *dep            = Q_NULLPTR;
     DocExterne *doc         = Q_NULLPTR;
@@ -118,17 +117,17 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (field == CP_SOUSTYPEDOC_IMPRESSIONS )
         {
             doc->setsoustype(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_IMPORTANCE_IMPRESSIONS )
         {
             doc->setimportance(newvalue.toInt());
-            value = (newvalue == QVariant()? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_DATE_IMPRESSIONS )
         {
-            doc->setDate(newvalue.toDateTime());
-            value = ((newvalue == QVariant() || !newvalue.toDate().isValid())? "null" : "'" + newvalue.toDateTime().toString("yyyy-MM-dd HH:mm:ss") + "'");
+            doc->setdate(newvalue.toDateTime());
+            Utils::CalcDateTimeValueSQL(newvalue);
         }
         else
             ok = false;
@@ -140,44 +139,49 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (field == CP_MOTIF_ACTES)
         {
             act->setmotif(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_TEXTE_ACTES)
         {
             act->settexte(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_CONCLUSION_ACTES)
         {
             act->setconclusion(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_DATE_ACTES)
         {
             act->setdate(newvalue.toDate());
-            value = ((newvalue == QVariant() || !newvalue.toDate().isValid())? "null" : "'" + newvalue.toDate().toString("yyyy-MM-dd") + "'");
+            Utils::CalcDateValueSQL(newvalue);
         }
         else if (field == CP_COURRIERAFAIRE_ACTES)
         {
             act->setcourrierafaire(newvalue.toString()== "T" || newvalue.toString()== "1");
-            value = ((newvalue.toString() == "T" || newvalue.toString()== "1")? "'T'" : "null");
+            newvalue = ((newvalue.toString() == "T" || newvalue.toString() == "1")? "'T'" : "null");
         }
         else if (field == CP_IDUSER_ACTES)
         {
             act->setiduser(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
 
         }
         else if (field == CP_IDUSERPARENT_ACTES)
         {
             act->setiduserparent(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
 
         }
         else if (field == CP_IDUSERCOMPTABLE_ACTES)
         {
             act->setidusercomptable(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
+        }
+        else if (field == CP_MONTANT_ACTES)
+        {
+            dep->setmontant(newvalue.toDouble());
+            Utils::CalcdoubleValueSQL(newvalue);
         }
         else
             ok = false;
@@ -189,62 +193,62 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (field == CP_IDPAT_SALDAT)
         {
             patcrs->setid(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
 
         }
         else if (field == CP_IDUSER_SALDAT)
         {
             patcrs->setiduser(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
 
         }
         else if (field == CP_STATUT_SALDAT)
         {
             patcrs->setstatut(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_HEURESTATUT_SALDAT)
         {
             patcrs->setheurestatut(newvalue.toTime());
-            value = ((newvalue == QVariant() || !newvalue.toTime().isValid())? "null" : "'" + newvalue.toTime().toString("HH:mm:ss") + "'");
+            Utils::CalcTimeValueSQL(newvalue);
         }
         else if (field == CP_HEUREARRIVEE_SALDAT)
         {
             patcrs->setheurearrivee(newvalue.toTime());
-            value = ((newvalue == QVariant() || !newvalue.toTime().isValid())? "null" : "'" + newvalue.toTime().toString("HH:mm:ss") + "'");
+            Utils::CalcTimeValueSQL(newvalue);
 
         }
         else if (field == CP_HEURERDV_SALDAT)
         {
             patcrs->setheurerdv(newvalue.toTime());
-            value = ((newvalue == QVariant() || !newvalue.toTime().isValid())? "null" : "'" + newvalue.toTime().toString("HH:mm:ss") + "'");
+            Utils::CalcTimeValueSQL(newvalue);
 
         }
         else if (field == CP_MOTIF_SALDAT)
         {
             patcrs->setmotif(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_MESSAGE_SALDAT)
         {
             patcrs->setmessage(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_IDACTEAPAYER_SALDAT)
         {
             patcrs->setidacteapayer(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
 
         }
         else if (field == CP_POSTEEXAMEN_SALDAT)
         {
             patcrs->setposteexamen(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_IDUSERENCOURSEXAM_SALDAT)
         {
             patcrs->setiduserencoursexam(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else
             ok = false;
@@ -256,32 +260,32 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (field == CP_NOM_PATIENTS)
         {
             pat->setnom(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_PRENOM_PATIENTS)
         {
             pat->setprenom(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_DDN_PATIENTS )
         {
             pat->setdatedenaissance(newvalue.toDate());
-            value = ((newvalue == QVariant() || !newvalue.toDate().isValid())? "null" : "'" + newvalue.toDateTime().toString("yyyy-MM-dd") + "'");
+            Utils::CalcDateValueSQL(newvalue);
         }
         else if (field == CP_SEXE_PATIENTS)
         {
             pat->setsexe(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_DATECREATION_PATIENTS )
         {
             pat->setdatecreation(newvalue.toDate());
-            value = ((newvalue == QVariant() || !newvalue.toDate().isValid())? "null" : "'" + newvalue.toDateTime().toString("yyyy-MM-dd") + "'");
+            Utils::CalcDateValueSQL(newvalue);
         }
         else if (field == CP_IDCREATEUR_PATIENTS )
         {
             pat->setidcreateur(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else
             ok = false;
@@ -293,62 +297,62 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (field == CP_ADRESSE1_DSP )
         {
             pat->setadresse1(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_ADRESSE2_DSP )
         {
             pat->setadresse2(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_ADRESSE3_DSP )
         {
             pat->setadresse3(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_CODEPOSTAL_DSP )
         {
             pat->setcodepostal(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + newvalue.toString() + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_VILLE_DSP )
         {
             pat->setville(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_TELEPHONE_DSP )
         {
             pat->settelephone(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + newvalue.toString() + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_PORTABLE_DSP )
         {
             pat->setportable(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + newvalue.toString() + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_MAIL_DSP )
         {
             pat->setmail(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + newvalue.toString() + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_NNI_DSP )
         {
             pat->setNNI(newvalue.toLongLong());
-            value = ((newvalue == QVariant() || newvalue.toLongLong() == 0)? "null" : "'" + newvalue.toString() + "'");
+            newvalue = ((newvalue == QVariant() || newvalue.toLongLong() == 0)? "null" : "'" + newvalue.toString() + "'");
         }
         else if (field == CP_ALD_DSP )
         {
             pat->setald(newvalue.toBool());
-            value = (newvalue.toBool()? "1" : "null");
+            newvalue = (newvalue.toBool()? "1" : "null");
         }
         else if (field == CP_CMU_DSP )
         {
             pat->setcmu(newvalue.toBool());
-            value = (newvalue.toBool()? "1" : "null");
+            newvalue = (newvalue.toBool()? "1" : "null");
         }
         else if (field == CP_PROFESSION_DSP )
         {
             pat->setprofession(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else
             ok = false;
@@ -360,62 +364,62 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (field == CP_ATCDTSOPH_RMP )
         {
             pat->setatcdtsoph(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_ATCDTSPERSOS_RMP )
         {
             pat->setatcdtsgen(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_ATCDTSFAMLXS_RMP )
         {
             pat->setatcdtsfam(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_TRAITMTOPH_RMP )
         {
             pat->settraitemntsoph(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_TRAITMTGEN_RMP )
         {
             pat->settraitemntsgen(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_AUTRESTOXIQUES_RMP )
         {
             pat->setautrestoxiques(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_IMPORTANT_RMP )
         {
             pat->setimportant(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_RESUME_RMP )
         {
             pat->setresume(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_IDMG_RMP )
         {
             pat->setmg(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_IDSPE1_RMP )
         {
             pat->setspe1(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_IDSPE2_RMP )
         {
             pat->setspe2(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_TABAC_RMP )
         {
             pat->settabac(newvalue.toString());
-            value = (newvalue == QVariant()? "null" : newvalue.toString());
+            Utils::CalcStringValueSQL(newvalue);
         }
         else
             ok = false;
@@ -427,57 +431,57 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (field == CP_IDUSER_USRCONNECT )
         {
             usr->setid(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_NOMPOSTE_USRCONNECT)
         {
             usr->setnomposte(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_MACADRESS_USRCONNECT)
         {
             usr->setstringid(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_IPADRESS_USRCONNECT)
         {
             usr->setipadress(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_DISTANT_USRCONNECT )
         {
             usr->setisdistant(newvalue.toBool());
-            value = (newvalue.toBool()? "1" : "null");
+            newvalue = (newvalue.toBool()? "1" : "null");
         }
         else if (field == CP_IDUSERSUPERVISEUR_USRCONNECT )
         {
             usr->setidsuperviseur(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_IDUSERCOMPTABLE_USRCONNECT )
         {
             usr->setidcomptable(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_IDUSERPARENT_USRCONNECT )
         {
             usr->setidparent(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_IDLIEU_USRCONNECT )
         {
             usr->setidlieu(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_HEUREDERNIERECONNECTION_USRCONNECT )
         {
             usr->setheurederniereconnexion(newvalue.toDateTime());
-            value = ((newvalue == QVariant() || !newvalue.toDateTime().isValid())? "null" : "'" + newvalue.toDateTime().toString("yyyy-MM-dd HH:mm:ss") + "'");
+            Utils::CalcDateTimeValueSQL(newvalue);
         }
         else if (field == CP_IDPATENCOURS_USRCONNECT )
         {
             usr->setidpatencours(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
     }
     else if (table == TBL_BANQUES)
@@ -487,12 +491,12 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (field == CP_NOMABREGE_BANQUES )
         {
             bq->setnomabrege(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_NOMBANQUE_BANQUES )
         {
             bq->setnom(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else
             ok = false;
@@ -504,62 +508,62 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         if (field == CP_IDUSER_DEPENSES)
         {
             dep->setiduser(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_DATE_DEPENSES)
         {
             dep->setdate(newvalue.toDate());
-            value = ((newvalue == QVariant() || !newvalue.toDate().isValid())? "null" : "'" + newvalue.toDate().toString("yyyy-MM-dd") + "'");
+            Utils::CalcDateValueSQL(newvalue);
         }
         else if (field == CP_REFFISCALE_DEPENSES)
         {
             dep->setrubriquefiscale(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_OBJET_DEPENSES)
         {
             dep->setobjet(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_MONTANT_DEPENSES)
         {
             dep->setmontant(newvalue.toDouble());
-            value = (newvalue == QVariant()? "null" : "'" + QString::number(newvalue.toDouble()));
+            Utils::CalcdoubleValueSQL(newvalue);
         }
         else if (field == CP_FAMILLEFISCALE_DEPENSES)
         {
             dep->setfamillefiscale(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_MONNAIE_DEPENSES)
         {
             dep->setmonnaie(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_IDRECETTE_DEPENSES)
         {
             dep->setidrecette(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_MODEPAIEMENT_DEPENSES)
         {
             dep->setmodepaiement(newvalue.toString());
-            value = ((newvalue == QVariant() || newvalue.toString() == "")? "null" : "'" + Utils::correctquoteSQL(newvalue.toString()) + "'");
+            Utils::CalcStringValueSQL(newvalue);
         }
         else if (field == CP_COMPTE_DEPENSES)
         {
             dep->setidcomptebancaire(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_NUMCHEQUE_DEPENSES)
         {
             dep->setnocheque(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else if (field == CP_IDFACTURE_DEPENSES)
         {
             dep->setidfacture(newvalue.toInt());
-            value = ((newvalue == QVariant() || newvalue.toInt() == 0)? "null" : newvalue.toString());
+            Utils::CalcintValueSQL(newvalue);
         }
         else
             ok = false;
@@ -567,7 +571,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
 
     if (ok)
     {
-        QString req = "update " + table + " set " + field + " = " + value + " where " + clause;
+        QString req = "update " + table + " set " + field + " = " + newvalue.toString() + " where " + clause;
         //qDebug() << req;
         DataBase::I()->StandardSQL(req);
     }

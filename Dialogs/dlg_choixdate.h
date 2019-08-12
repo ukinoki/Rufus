@@ -29,16 +29,18 @@ class dlg_choixdate;
 class dlg_choixdate : public QDialog
 {
     Q_OBJECT
+
 public:
-    explicit            dlg_choixdate(QWidget *parent = Q_NULLPTR);
+    explicit                dlg_choixdate(QWidget *parent = Q_NULLPTR);
     ~dlg_choixdate();
-    Ui::dlg_choixdate   *ui;
-    QMap<QString, QDate> map();
+    Ui::dlg_choixdate       *ui;
+    QMap<QString, QDate>    map();
+
 private:
-    QMap<QString, QDate> m_datemap;
-    bool                eventFilter(QObject *obj, QEvent *event)  ;
-    void                AfficheDates(QWidget *widg);
-    void                ModifDate(QWidget *widg);
+    QMap<QString, QDate>    m_datemap;
+    bool                    eventFilter(QObject *obj, QEvent *event)  ;
+    void                    AfficheDates(QWidget *widg);
+    void                    ModifDate(QWidget *widg);
 };
 
 #endif // DLG_CHOIXDATE_H
