@@ -40,8 +40,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //0. Connexion à la base et récupération des données utilisateur
     if (!proc->m_connexionbaseOK)
     {
-        bool    a;
         int     b = 0;
+        bool    a;
         if (proc->m_settings->value("BDD_POSTE/Active").toString()    == "YES")       b += 1;
         if (proc->m_settings->value("BDD_LOCAL/Active").toString()    == "YES")       b += 1;
         if (proc->m_settings->value("BDD_DISTANT/Active").toString()  == "YES")       b += 1;
