@@ -21,42 +21,42 @@ dlg_listemotscles::dlg_listemotscles(Patient *pat, QWidget *parent) :
     UpDialog(QDir::homePath() + FILE_INI, "PositionsFiches/PositionMotsCles", parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
-    gPatientEncours    = pat;
+    m_currentpatient    = pat;
     db                 = DataBase::I();
 
-    tabMC              = new QTableView();
+    wdg_bigtable              = new QTableView();
 
     RemplirTableView();
-    tabMC->verticalHeader()->setVisible(false);
-    tabMC->setFocusPolicy(Qt::StrongFocus);
-    tabMC->setSelectionMode(QAbstractItemView::SingleSelection);
-    tabMC->setGridStyle(Qt::NoPen);
-    tabMC->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    tabMC->setColumnWidth(0,300);
-    tabMC->setFixedWidth(tabMC->columnWidth(0)+2);
+    wdg_bigtable->verticalHeader()->setVisible(false);
+    wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
+    wdg_bigtable->setSelectionMode(QAbstractItemView::SingleSelection);
+    wdg_bigtable->setGridStyle(Qt::NoPen);
+    wdg_bigtable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_bigtable->setColumnWidth(0,300);
+    wdg_bigtable->setFixedWidth(wdg_bigtable->columnWidth(0)+2);
     QFontMetrics fm(qApp->font());
     int hauteurligne = int(fm.height()*1.1);
-    tabMC->setMinimumHeight(hauteurligne*20);
-    tabMC->setSizeIncrement(0,hauteurligne);
-    tabMC->setMouseTracking(true);
-    widgButtons = new WidgetButtonFrame(tabMC);
-    widgButtons->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_bigtable->setMinimumHeight(hauteurligne*20);
+    wdg_bigtable->setSizeIncrement(0,hauteurligne);
+    wdg_bigtable->setMouseTracking(true);
+    wdg_buttonframe = new WidgetButtonFrame(wdg_bigtable);
+    wdg_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
-    dlglayout()->insertWidget(0,widgButtons->widgButtonParent());
+    dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
 
     AjouteLayButtons();
-    setFixedWidth(tabMC->width() + dlglayout()->contentsMargins().left()*2);
+    setFixedWidth(wdg_bigtable->width() + dlglayout()->contentsMargins().left()*2);
     setModal(true);
     setSizeGripEnabled(false);
     setWindowTitle(tr("Liste des mots-clés"));
 
-    glistidMCdepart << "-1";
+    m_listidmotsclesdepart << "-1";
 
-    connect(tabMC,          SIGNAL(pressed(QModelIndex)),   this,   SLOT(Slot_Enablebuttons()));
+    connect(wdg_bigtable,          SIGNAL(pressed(QModelIndex)),   this,   SLOT(Slot_Enablebuttons()));
     connect(OKButton,       SIGNAL(clicked(bool)),          this,   SLOT(Slot_OK()));
-    connect(widgButtons,    SIGNAL(choix(int)),             this,   SLOT(Slot_ChoixButtonFrame(int)));
-    widgButtons->modifBouton->setEnabled(false);
-    widgButtons->moinsBouton->setEnabled(false);
+    connect(wdg_buttonframe,    SIGNAL(choix(int)),             this,   SLOT(Slot_ChoixButtonFrame(int)));
+    wdg_buttonframe->wdg_modifBouton->setEnabled(false);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
 }
 
 dlg_listemotscles::~dlg_listemotscles()
@@ -82,22 +82,22 @@ void dlg_listemotscles::Slot_ChoixButtonFrame(int i)
 
 void dlg_listemotscles::CreationModifMC(Mode mode)
 {
-    gAskDialog                      = new UpDialog(this);
-    QWidget     *widg               = new QWidget(gAskDialog);
-    UpLineEdit  *Line               = new UpLineEdit(gAskDialog);
-    QCompleter  *MCListCompleter    = new QCompleter(glistMC);
+    dlg_ask                      = new UpDialog(this);
+    QWidget     *widg               = new QWidget(dlg_ask);
+    UpLineEdit  *Line               = new UpLineEdit(dlg_ask);
+    QCompleter  *MCListCompleter    = new QCompleter(m_listemotscles);
 
     widg            ->setLayout(new QVBoxLayout);
     widg->layout()  ->setContentsMargins(0,10,0,0);
     widg->layout()  ->addWidget(Line);
     Line            ->setFixedSize(300,21);
-    gAskDialog->dlglayout()  ->insertWidget(0,widg);
-    gAskDialog->dlglayout()  ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_ask->dlglayout()  ->insertWidget(0,widg);
+    dlg_ask->dlglayout()  ->setSizeConstraint(QLayout::SetFixedSize);
 
-    gAskDialog      ->AjouteLayButtons();
-    gAskDialog      ->setWindowTitle(tr("Entrez un nouveau mot-clé"));
+    dlg_ask      ->AjouteLayButtons();
+    dlg_ask      ->setWindowTitle(tr("Entrez un nouveau mot-clé"));
 
-    connect(gAskDialog->OKButton,       SIGNAL(clicked(bool)),this,SLOT(Slot_VerifMC()));
+    connect(dlg_ask->OKButton,       SIGNAL(clicked(bool)),this,SLOT(Slot_VerifMC()));
 
     Line            ->setMaxLength(60);
     MCListCompleter ->setCaseSensitivity(Qt::CaseInsensitive);
@@ -106,63 +106,63 @@ void dlg_listemotscles::CreationModifMC(Mode mode)
 
     if (mode == Modif)
     {
-        Line        ->setText(gmodele->itemFromIndex(gselection->currentIndex())->text());
-        gAskDialog  ->setMode("Modif");
+        Line        ->setText(m_model->itemFromIndex(m_selectionmodel->currentIndex())->text());
+        dlg_ask  ->setMode("Modif");
     }
     else
-        gAskDialog  ->setMode("Creation");
-    gAskDialog->exec();
-    delete gAskDialog;
+        dlg_ask  ->setMode("Creation");
+    dlg_ask->exec();
+    delete dlg_ask;
 }
 
 void dlg_listemotscles::Slot_VerifMC()
 {
-    QString nouvMC= gAskDialog->findChildren<UpLineEdit*>().at(0)->text();
+    QString nouvMC= dlg_ask->findChildren<UpLineEdit*>().at(0)->text();
     if (nouvMC == "")
     {
         dlg_message(tr("Vous n'avez pas rempli le mot clé"),2000,false);
         return;
     }
-    if (glistMC.contains(nouvMC, Qt::CaseInsensitive))
+    if (m_listemotscles.contains(nouvMC, Qt::CaseInsensitive))
     {
         dlg_message(tr("Ce mot-clé existe déjà"),2000,false);
-        if (gmodele->findItems(nouvMC, Qt::MatchExactly).size()>0)
-            tabMC->scrollTo(gmodele->findItems(nouvMC, Qt::MatchExactly).at(0)->index());
+        if (m_model->findItems(nouvMC, Qt::MatchExactly).size()>0)
+            wdg_bigtable->scrollTo(m_model->findItems(nouvMC, Qt::MatchExactly).at(0)->index());
         return;
     }
-    if (gAskDialog->mode()=="Creation")
+    if (dlg_ask->mode()=="Creation")
     {
         QString req = "insert into " TBL_MOTSCLES " (MotCle) values('" + Utils::correctquoteSQL(nouvMC) + "')";
         db->StandardSQL(req);
     }
-    else if (gAskDialog->mode()=="Modif")
+    else if (dlg_ask->mode()=="Modif")
     {
         QString req = "update " TBL_MOTSCLES " set MotCle = '" + Utils::correctquoteSQL(nouvMC) + "' where MotCle = '"
-                   + gmodele->itemFromIndex(gselection->currentIndex())->text() + "'";
+                   + m_model->itemFromIndex(m_selectionmodel->currentIndex())->text() + "'";
         db->StandardSQL(req);
     }
-    db->StandardSQL("delete from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id()));
+    db->StandardSQL("delete from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(m_currentpatient->id()));
     QStringList listidMc;
-    for (int i=0; i< gmodele->rowCount(); i++)
-        if(gmodele->item(i,0)->checkState() == Qt::Checked)
-            listidMc << gmodele->item(i,0)->accessibleDescription();
+    for (int i=0; i< m_model->rowCount(); i++)
+        if(m_model->item(i,0)->checkState() == Qt::Checked)
+            listidMc << m_model->item(i,0)->accessibleDescription();
     if (listidMc.size()>0)
     {
         QString req = "insert into " TBL_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
-        req += "(" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(0) + ")";
+        req += "(" + QString::number(m_currentpatient->id()) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
-            req += ", (" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(j) + ")";
+            req += ", (" + QString::number(m_currentpatient->id()) + ", " + listidMc.at(j) + ")";
         db->StandardSQL(req);
     }
     RemplirTableView();
-    gAskDialog->accept();
+    dlg_ask->accept();
 }
 
 void dlg_listemotscles::SupprMC()
 {
     UpMessageBox msgbox;
     msgbox.setText(tr("Suppression de mot clé!"));
-    msgbox.setInformativeText(tr("Voulez vous vraiment supprimer le mot-clé\n") + gmodele->itemFromIndex(gselection->currentIndex())->text());
+    msgbox.setInformativeText(tr("Voulez vous vraiment supprimer le mot-clé\n") + m_model->itemFromIndex(m_selectionmodel->currentIndex())->text());
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton AnnulBouton(tr("Annuler"));
     UpSmallButton OKBouton(tr("Supprimer le mot-clé"));
@@ -172,7 +172,7 @@ void dlg_listemotscles::SupprMC()
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        QString req = "delete from " TBL_MOTSCLES " where idmotcle = " + gmodele->itemFromIndex(gselection->currentIndex())->accessibleDescription();
+        QString req = "delete from " TBL_MOTSCLES " where idmotcle = " + m_model->itemFromIndex(m_selectionmodel->currentIndex())->accessibleDescription();
         db->StandardSQL(req);
         RemplirTableView();
     }
@@ -180,23 +180,23 @@ void dlg_listemotscles::SupprMC()
 
 void dlg_listemotscles::Slot_Enablebuttons()
 {
-    widgButtons->modifBouton->setEnabled(gselection->hasSelection());
-    widgButtons->moinsBouton->setEnabled(gselection->hasSelection());
+    wdg_buttonframe->wdg_modifBouton->setEnabled(m_selectionmodel->hasSelection());
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(m_selectionmodel->hasSelection());
 }
 
 void dlg_listemotscles::Slot_OK()
 {
-    db->StandardSQL("delete from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id()));
+    db->StandardSQL("delete from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(m_currentpatient->id()));
     QStringList listidMc;
-    for (int i=0; i< gmodele->rowCount(); i++)
-        if(gmodele->item(i,0)->checkState() == Qt::Checked)
-            listidMc << gmodele->item(i,0)->accessibleDescription();
+    for (int i=0; i< m_model->rowCount(); i++)
+        if(m_model->item(i,0)->checkState() == Qt::Checked)
+            listidMc << m_model->item(i,0)->accessibleDescription();
     if (listidMc.size()>0)
     {
         QString req = "insert into " TBL_MOTSCLESJOINTURES " (idpat, idmotcle) values ";
-        req += "(" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(0) + ")";
+        req += "(" + QString::number(m_currentpatient->id()) + ", " + listidMc.at(0) + ")";
         for (int j=1; j<listidMc.size(); j++)
-            req += ", (" + QString::number(gPatientEncours->id()) + ", " + listidMc.at(j) + ")";
+            req += ", (" + QString::number(m_currentpatient->id()) + ", " + listidMc.at(j) + ")";
         db->StandardSQL(req);
     }
     accept();
@@ -204,45 +204,45 @@ void dlg_listemotscles::Slot_OK()
 
 void dlg_listemotscles::DisableLines()
 {
-    gselection->clearSelection();
+    m_selectionmodel->clearSelection();
 }
 
 QStringList dlg_listemotscles::listMCDepart()
 {
-    return glistidMCdepart;
+    return m_listidmotsclesdepart;
 }
 
 void dlg_listemotscles::RemplirTableView()
 {
     bool ok;
-    QString req = "select idMotcle from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(gPatientEncours->id());
+    QString req = "select idMotcle from " TBL_MOTSCLESJOINTURES " where idpat = " + QString::number(m_currentpatient->id());
     QList<QVariantList> idmotclelist = db->StandardSelectSQL(req, ok);
     QStringList listidMC;
-    bool a = glistidMCdepart.contains("-1");
-    glistidMCdepart.clear();
+    bool a = m_listidmotsclesdepart.contains("-1");
+    m_listidmotsclesdepart.clear();
     if (idmotclelist.size()>0)
     {
         for (int i=0; i<idmotclelist.size(); i++)
         {
             listidMC << idmotclelist.at(i).at(0).toString();
             if (a)
-                glistidMCdepart << idmotclelist.at(i).at(0).toString();
+                m_listidmotsclesdepart << idmotclelist.at(i).at(0).toString();
         }
     }
     req = "select idmotcle, motcle from " TBL_MOTSCLES " order by motcle";
     QList<QVariantList> motclelist = db->StandardSelectSQL(req, ok);
     QStandardItem       *pitem;
-    gmodele = dynamic_cast<QStandardItemModel*>(tabMC->model());
-    if (gmodele)
-        gmodele->clear();
+    m_model = dynamic_cast<QStandardItemModel*>(wdg_bigtable->model());
+    if (m_model)
+        m_model->clear();
     else
-        gmodele = new QStandardItemModel(this);
-    gselection = new QItemSelectionModel(gmodele);
+        m_model = new QStandardItemModel(this);
+    m_selectionmodel = new QItemSelectionModel(m_model);
 
-    glistMC.clear();
+    m_listemotscles.clear();
     pitem   = new QStandardItem(tr("Mot-clé"));
     pitem->setEditable(false);
-    gmodele->setHorizontalHeaderItem(0,pitem);
+    m_model->setHorizontalHeaderItem(0,pitem);
 
     for (int i=0; i<motclelist.size(); i++)
     {
@@ -254,16 +254,16 @@ void dlg_listemotscles::RemplirTableView()
             pitem->setCheckState(Qt::Checked);
         else
             pitem->setCheckState(Qt::Unchecked);
-        gmodele->appendRow(pitem);
-        glistMC << motclelist.at(i).at(1).toString();
+        m_model->appendRow(pitem);
+        m_listemotscles << motclelist.at(i).at(1).toString();
     }
-    tabMC->setModel(gmodele);
-    tabMC->setSelectionModel(gselection);
+    wdg_bigtable->setModel(m_model);
+    wdg_bigtable->setSelectionModel(m_selectionmodel);
 
     QFontMetrics fm(qApp->font());
     int hauteurligne = int(fm.height()*1.1);
-    for (int i=0; i<gmodele->rowCount(); i++)
-        tabMC->setRowHeight(i,hauteurligne);
-    tabMC->horizontalHeader()->setFixedHeight(hauteurligne);
-    tabMC->setColumnWidth(0,300);
+    for (int i=0; i<m_model->rowCount(); i++)
+        wdg_bigtable->setRowHeight(i,hauteurligne);
+    wdg_bigtable->horizontalHeader()->setFixedHeight(hauteurligne);
+    wdg_bigtable->setColumnWidth(0,300);
 }

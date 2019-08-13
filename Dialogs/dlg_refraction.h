@@ -91,31 +91,34 @@ private:
     DataBase                *db;
     Patient                 *m_currentpatient;
     Acte                    *m_currentacte;
-    int                     gidRefraction;
-    QStringList             gstringListe1, gstringListe2;
-    Refraction::Mesure      gMode;
+    int                     m_idrefraction;
+    QStringList             m_stringliste1, m_stringliste2;
+    Refraction::Mesure      m_mode;
     enum ModeSortie         {Annul, Imprime, OK};
     enum DateMesure         {Aujourdhui, Avant, NoDate};
     enum DistanceMesure     {Loin, Pres, Les2};
     enum Cycloplegie        {Dilatation, NoDilatation};
-    bool                    ok;
-    bool                    gAfficheDetail;
-    bool                    EscapeFlag;
-    bool                    FermeComment;
-    double                  gSphereOD;
-    double                  gCylindreOD;
-    double                  gAxeCylindreOD;
-    double                  gAddVPOD;
-    double                  gSphereOG;
-    double                  gCylindreOG;
-    double                  gAxeCylindreOG;
-    double                  gAddVPOG;
-    int                     gFlagBugValidEnter; // Modif 17/04
-    QString                 gResultatP, gResultatPO, gResultatAnondil, gResultatA, gResultatAdil, gResultatR, gResultatRdil, gResultatRnondil, m_commentaire, m_commentaireresume;
-    QString                 gResultatPR, gResultatObservation;
-    QMenu                   *qQmenuSup;
-    UpLineEdit              *AVPOD, *AVLOD;
-    UpLineEdit              *AVPOG, *AVLOG;
+    bool                    m_ok;
+    bool                    m_affichedetail;
+    bool                    m_escapeflag;
+    bool                    m_fermecommentaire;
+    double                  m_sphereOD;
+    double                  m_cylindreOD;
+    double                  m_axecylindreOD;
+    double                  m_additionVPOD;
+    double                  m_sphereOG;
+    double                  m_cylindreOg;
+    double                  m_axecylindreOG;
+    double                  m_additionVPOG;
+    int                     m_flagbugvalidenter; // Modif 17/04
+    QString                 m_resultFronto, m_resultPubliFronto;
+    QString                 m_resultAutorefnonDilate, m_resultPubliAutoref, m_resultAutorefDilate;
+    QString                 m_resultPubliRefraction,m_resultRefractionDilate, m_resultRefractionnonDilate;
+    QString                 m_commentaire, m_commentaireresume;
+    QString                 m_resultPrescription;
+    QString                 m_resultObservation;
+    UpLineEdit              *wdg_AVPOD, *wdg_AVLOD;
+    UpLineEdit              *wdg_AVPOG, *wdg_AVLOG;
 
     bool                    Imprimer_Ordonnance();
 
@@ -173,9 +176,7 @@ private:
 private slots:
     void                    Slot_NouvMesureRefraction();
 private:
-    double                  gDioptrAstOD, gDioptrAstOG;
-    QString                 mSphereOD, mCylOD, mAxeOD, mAddOD, mSphereOG, mCylOG, mAxeOG, mAddOG;
-
+    double                  m_mesureDioptrAstigmOD, m_mesureDioptrAstigmOG;
 public:
     void                    AfficheMesureFronto();
     void                    AfficheMesureAutoref();

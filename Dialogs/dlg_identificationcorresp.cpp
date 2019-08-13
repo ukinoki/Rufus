@@ -33,15 +33,15 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
         if (!m_correspondant->isallloaded())
             Datas::I()->correspondants->loadAllData(m_correspondant);
     }
-    gMode               = mode;
-    OnlyDoctors         = quelesmedecins;
-    VilleCPwidg     = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
-    CPlineEdit      = VilleCPwidg->ui->CPlineEdit;
-    VillelineEdit   = VilleCPwidg->ui->VillelineEdit;
-    VilleCPwidg     ->move(10,224);
-    gNomCor         = "";
-    gPrenomCor      = "";
-    modif           = false;
+    m_mode               = mode;
+    m_onlydoctors         = quelesmedecins;
+    wdg_villeCP     = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
+    wdg_CPlineedit      = wdg_villeCP->ui->CPlineEdit;
+    wdg_villelineedit   = wdg_villeCP->ui->VillelineEdit;
+    wdg_villeCP     ->move(10,224);
+    m_nomcor         = "";
+    m_prenomcor      = "";
+    m_modifdatascor           = false;
 
     dlglayout()     ->insertWidget(0,ui->SpegroupBox);
     dlglayout()     ->insertWidget(0,ui->Principalframe);
@@ -55,10 +55,10 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
 
     setWindowIcon(Icons::icDoctor());
     ReconstruitListeSpecialites();
-    connect(VilleCPwidg, &VilleCPWidget::villecpmodified, this, &dlg_identificationcorresp::Slot_EnableOKpushButton);
+    connect(wdg_villeCP, &VilleCPWidget::villecpmodified, this, &dlg_identificationcorresp::Slot_EnableOKpushButton);
 
     AfficheDossierAlOuverture();
-    if (gMode == Creation)
+    if (m_mode == Creation)
     {
         ui->SpecomboBox     ->setVisible(false);
         ui->AutreupLineEdit ->setVisible(false);
@@ -75,7 +75,7 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     ui->PortablelineEdit    ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
     QList <QWidget *> listtab;
-    listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << CPlineEdit << VillelineEdit
+    listtab << ui->NomlineEdit << ui->PrenomlineEdit << ui->MradioButton << ui->FradioButton << ui->Adresse1lineEdit << ui->Adresse2lineEdit << ui->Adresse3lineEdit << wdg_CPlineedit << wdg_villelineedit
             << ui->TellineEdit << ui->PortablelineEdit << ui->MaillineEdit << ui->FaxlineEdit;
     for (int i = 0; i<listtab.size()-1 ; i++ )
         setTabOrder(listtab.at(i), listtab.at(i+1));
@@ -132,8 +132,8 @@ void    dlg_identificationcorresp::Slot_EnableOKpushButton()
     bool a  = ui->NomlineEdit->text() != ""
            && ui->PrenomlineEdit->text() != ""
            && (ui->MradioButton->isChecked() || ui->FradioButton->isChecked())
-           && CPlineEdit->text() != ""
-           && VillelineEdit->text() != "";
+           && wdg_CPlineedit->text() != ""
+           && wdg_villelineedit->text() != "";
     OKButton->setEnabled(a);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
@@ -151,25 +151,25 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     CorNom      = Utils::correctquoteSQL(Utils::trimcapitilize(ui->NomlineEdit->text(),true));
     CorPrenom   = Utils::correctquoteSQL(Utils::trimcapitilize(ui->PrenomlineEdit->text(),true));
 
-    if (CPlineEdit->text() == "" && VillelineEdit->text() == "")
+    if (wdg_CPlineedit->text() == "" && wdg_villelineedit->text() == "")
     {
         UpMessageBox::Watch(this,tr("Vous n'avez indiqué ni la ville ni le code postal!"));
-        CPlineEdit->setFocus();
+        wdg_CPlineedit->setFocus();
         return;
     }
 
-    if (CPlineEdit->text() == "" || VillelineEdit->text() == "")
+    if (wdg_CPlineedit->text() == "" || wdg_villelineedit->text() == "")
     {
-        if (CPlineEdit->text() == "")
+        if (wdg_CPlineedit->text() == "")
         {
             UpMessageBox::Watch(this,tr("Il manque le code postal"));
-            CPlineEdit->setFocus();
+            wdg_CPlineedit->setFocus();
             return;
         }
-        if (VillelineEdit->text() == "")
+        if (wdg_villelineedit->text() == "")
         {
             UpMessageBox::Watch(this,tr("Il manque le nom de la ville"));
-            VillelineEdit->setFocus();
+            wdg_villelineedit->setFocus();
             return;
         }
     }
@@ -212,10 +212,10 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         {
             UpMessageBox::Watch(this,tr("Ce correspondant existe déjà!"));
             m_correspondant->setid(cordata.at(0).toInt());
-            if (OnlyDoctors)
-                OnlyDoctors = (cordata.at(2).toInt()==1);
+            if (m_onlydoctors)
+                m_onlydoctors = (cordata.at(2).toInt()==1);
             OKButton->setEnabled(false);
-            gMode = Modification;
+            m_mode = Modification;
             AfficheDossierAlOuverture();
             disconnect (OKButton, SIGNAL(clicked()), this, SLOT (Slot_OKpushButtonClicked()));
             connect(OKButton, SIGNAL(clicked(bool)),this,SLOT(accept()));
@@ -228,7 +228,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
     }
     int idcor = 0;
 
-    if (gMode == Creation)
+    if (m_mode == Creation)
     {
         // D - le dossier n'existe pas, on le crée
         QString gSexeCor = "";
@@ -243,8 +243,8 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
                 + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text(),true))
                 + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true))
                 + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true))
-                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text(),true))
-                + "', '" + CPlineEdit->text()
+                + "', '" + Utils::correctquoteSQL(Utils::trimcapitilize(wdg_villelineedit->text(),true))
+                + "', '" + wdg_CPlineedit->text()
                 + "', '" + ui->TellineEdit->text()
                 + "', '" + ui->PortablelineEdit->text()
                 + "', '" + ui->FaxlineEdit->text()
@@ -265,7 +265,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         m_correspondant = new Correspondant();
         m_correspondant->setid(idcor);
     }
-    else if (gMode == Modification)
+    else if (m_mode == Modification)
     {
         idcor = m_correspondant->id();
         // D - Il n'existe pas de dossier similaire, on le modifie
@@ -277,8 +277,8 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
                 + "', CorAdresse1 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse1lineEdit->text(),true))
                 + "', CorAdresse2 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse2lineEdit->text(),true))
                 + "', CorAdresse3 = '" + Utils::correctquoteSQL(Utils::trimcapitilize(ui->Adresse3lineEdit->text(),true))
-                + "', CorVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(VillelineEdit->text(),true))
-                + "', CorCodePostal = '" + CPlineEdit->text()
+                + "', CorVille = '" + Utils::correctquoteSQL(Utils::trimcapitilize(wdg_villelineedit->text(),true))
+                + "', CorCodePostal = '" + wdg_CPlineedit->text()
                 + "', CorTelephone = '" + ui->TellineEdit->text()
                 + "', CorPortable = '" + ui->PortablelineEdit->text()
                 + "', CorFax = '" + ui->FaxlineEdit->text()
@@ -293,7 +293,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
         //qDebug() <<  Modifrequete;
         db->StandardSQL(Modifrequete, tr("Impossible de modifier le dossier"));
     }
-    modif = true;
+    m_modifdatascor = true;
     Datas::I()->correspondants->loadAllData(m_correspondant);
     Flags::I()->MAJflagCorrespondants();
     accept();
@@ -301,7 +301,7 @@ void    dlg_identificationcorresp::Slot_OKpushButtonClicked()
 
 bool dlg_identificationcorresp::identcorrespondantmodifiee()
 {
-    return modif;
+    return m_modifdatascor;
 }
 
 Correspondant* dlg_identificationcorresp::correspondantrenvoye()
@@ -351,14 +351,14 @@ bool dlg_identificationcorresp::eventFilter(QObject *obj, QEvent *event)
 --------------------------------------------------------------------------------------------*/
 void dlg_identificationcorresp::AfficheDossierAlOuverture()
 {
-    ui->AutreradioButton->setVisible(!OnlyDoctors);
-    ui->AutreupLineEdit   ->setVisible(!OnlyDoctors);
-    if (gMode == Modification)
+    ui->AutreradioButton->setVisible(!m_onlydoctors);
+    ui->AutreupLineEdit   ->setVisible(!m_onlydoctors);
+    if (m_mode == Modification)
     {
-        gNomCor                 = m_correspondant->nom();
-        gPrenomCor              = m_correspondant->prenom();
-        ui->NomlineEdit         ->setText(gNomCor);
-        ui->PrenomlineEdit      ->setText(gPrenomCor);
+        m_nomcor                 = m_correspondant->nom();
+        m_prenomcor              = m_correspondant->prenom();
+        ui->NomlineEdit         ->setText(m_nomcor);
+        ui->PrenomlineEdit      ->setText(m_prenomcor);
         // pour decocher les 2 radiobutton sexe il faut d'abord leur retirer la propriétét AutoExclusive
         ui->MradioButton        ->setAutoExclusive(false);
         ui->FradioButton        ->setAutoExclusive(false);
@@ -366,19 +366,19 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
         ui->FradioButton        ->setChecked(false);
         ui->MradioButton        ->setAutoExclusive(true);
         ui->FradioButton        ->setAutoExclusive(true);
-        Sexe                    = m_correspondant->sexe();
-        if (Sexe == "M") ui->MradioButton->setChecked(true);
-        if (Sexe == "F") ui->FradioButton->setChecked(true);
+        m_sexecor                    = m_correspondant->sexe();
+        if (m_sexecor == "M") ui->MradioButton->setChecked(true);
+        if (m_sexecor == "F") ui->FradioButton->setChecked(true);
         ui->idDossierlabel      ->setText(tr("Correspondant n° ") + QString::number(m_correspondant->id()));
 
         ui->Adresse1lineEdit    ->setText(m_correspondant->adresse1());
         ui->Adresse2lineEdit    ->setText(m_correspondant->adresse2());
         ui->Adresse3lineEdit    ->setText(m_correspondant->adresse3());
         QString CP              = m_correspondant->codepostal();
-        CPlineEdit              ->completer()->setCurrentRow(VilleCPwidg->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
+        wdg_CPlineedit              ->completer()->setCurrentRow(wdg_villeCP->villes()->getListCodePostal().indexOf(CP)); // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
                                                                                                 // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
-        CPlineEdit              ->setText(CP);
-        VillelineEdit           ->setText(m_correspondant->ville());
+        wdg_CPlineedit              ->setText(CP);
+        wdg_villelineedit           ->setText(m_correspondant->ville());
         ui->TellineEdit         ->setText(m_correspondant->telephone());
         ui->PortablelineEdit    ->setText(m_correspondant->portable());
         ui->MaillineEdit        ->setText(m_correspondant->mail());
@@ -404,10 +404,10 @@ void dlg_identificationcorresp::AfficheDossierAlOuverture()
             ui->AutreupLineEdit ->setText(m_correspondant->metier());
         }
     }
-    else if (gMode == Creation)
+    else if (m_mode == Creation)
     {
-        CPlineEdit              ->setText(Procedures::CodePostalParDefaut());
-        VillelineEdit           ->setText(Procedures::VilleParDefaut());
+        wdg_CPlineedit              ->setText(Procedures::CodePostalParDefaut());
+        wdg_villelineedit           ->setText(Procedures::VilleParDefaut());
     }
 }
 

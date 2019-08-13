@@ -46,15 +46,15 @@ public:
     explicit dlg_gestionbanques(QWidget *parent = Q_NULLPTR, QString nouvbanqueabrege = "");
     ~dlg_gestionbanques();
     Ui::dlg_gestionbanques  *ui;
-    UpTableWidget   *uptablebanq;
-    enum Mode                              {Norm, Modif, Nouv, Suppr};    Q_ENUM(Mode)
+    enum Mode           {Norm, Modif, Nouv, Suppr};    Q_ENUM(Mode)
 
 
 private:
-    bool                                    gFermeApresValidation;
-    DataBase                                *db;
-    WidgetButtonFrame                       *widgButtons;
-    Mode                                    gMode;
+    DataBase            *db;
+    UpTableWidget       *wdg_bigtable;
+    WidgetButtonFrame   *wdh_buttonframe;
+    bool                m_fermeapresvalidation;
+    Mode                m_mode;
 
     void            RemetEnNorm();
     void            RemplirTableWidget();

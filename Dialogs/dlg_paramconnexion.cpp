@@ -42,8 +42,8 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     m_IPsanszero             = "";
     m_client                 = "";
     m_serveur                = "";
-    obj_timer                  = new QTimer(this);
-    obj_timer                  ->start(500);
+    t_timer                  = new QTimer(this);
+    t_timer                  ->start(500);
     ui->LoginlineEdit   ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ui->MDPlineEdit     ->setValidator(new QRegExpValidator(Utils::rgx_AlphaNumeric_5_12,this));
 
@@ -57,7 +57,7 @@ dlg_paramconnexion::dlg_paramconnexion(bool OKAccesDistant, QWidget *parent) :
     connect(ui->IPlineEdit,             SIGNAL(textEdited(QString)),    this,   SLOT(Slot_CalcIP(QString)));
     connect(ui->IPlineEdit,             SIGNAL(editingFinished()),      this,   SLOT(Slot_MAJIP()));
 
-    connect(obj_timer,                     SIGNAL(timeout()),      this,   SLOT(Slot_Clign()));
+    connect(t_timer,                     SIGNAL(timeout()),      this,   SLOT(Slot_Clign()));
 }
 
 dlg_paramconnexion::~dlg_paramconnexion()

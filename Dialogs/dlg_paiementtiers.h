@@ -69,42 +69,33 @@ private slots:
     void                Slot_ValidePaiement();
 
 private:
-    /*bool                  ophtalmo;
-    bool                    orthoptist;
-    bool                    autresoignant;
-    bool                    secretaire;
-    bool                    assistant;
-    bool                    liberal;
-    bool                    salarie;
-    bool                    remplacant;
-    bool                    pasremplacant;
-    bool                    soignant;
-    */
-    bool                    InitOK;
-    bool                    TraiteparCloseFlag;
-    bool                    ModifPaiementEnCours;
-    bool                    ModifLigneRecettePossible;
-    int                     idRecette;
-    Mode                    gMode;
-    OrdreTri                gOrdreTri;
-    dlg_gestionbanques      *Dlg_Banq;
     Procedures              *proc;
     DataBase                *db;
-    bool                    ok;
-    QBrush                  gtextureGris, gtextureNoir;
-    QList<int>              gListidActe;
-    QList<int>              ListeActesAModifier;
-    QList<QString>          LigneCommissionCompteAModifier;
-    QList<QString>          LigneCompteAModifier;
-    QList<QString>          LigneRecetteAModifier;
-    QList<QString>          LigneDepenseAModifier;
-    QList<QString>          MontantActesAModifier;
+
+    Mode                    m_mode;
+    OrdreTri                m_ordretri;
+    dlg_gestionbanques      *Dlg_Banq;
+
+    bool                    m_ok;
+    bool                    m_initok;
+    bool                    m_traiteparcloseflag;
+    bool                    m_modifpaiementencours;
+    bool                    m_modiflignerecettepossible;
+    int                     m_idrecette;
+    QString                 m_valeuravantchangement, m_vleurmaxi;
+    QList<int>              m_listidactes;
+    QList<int>              m_listactesamodifier;
+    QList<QString>          m_lignecommissioncompteamodifier;
+    QList<QString>          m_lignecompteamodifier;
+    QList<QString>          m_lignerecetteamodifier;
+    QList<QString>          m_lignedepenseamodifier;
+    QList<QString>          m_montantactesamodifier;
+
+    QTimer                  *t_timerrecord, *t_timerafficheacteverrouille, *t_timerafficheacteverrouilleclignotant;
     User                    *m_useracrediter;
     User                    *m_userconnected;
     QMap<int, User*>        *m_listecomptables;
 
-    QString                 ValeurAvantChangement, ValeurMaxi;
-    QTimer                  *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;
 
     void                closeEvent(QCloseEvent *event);
     bool                eventFilter(QObject *obj, QEvent *event)  ;

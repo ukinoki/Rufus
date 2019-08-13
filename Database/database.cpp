@@ -34,7 +34,7 @@ DataBase* DataBase::I()
 }
 DataBase::DataBase() {}
 
-void DataBase::init(QSettings const &setting, int mode)
+void DataBase::init(QSettings const &setting, ModeAcces mode)
 {
     m_mode = mode;
     if( m_mode == Poste )

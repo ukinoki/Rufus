@@ -24,51 +24,51 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
 
-    gmodele         = new QStandardItemModel(this);
+    m_model         = new QStandardItemModel(this);
 
-    ListeCorModifiee   = false;
+    m_listemodifiee   = false;
 
     setModal(true);
     setWindowTitle(tr("Liste des correspondants"));
 
-    treeCor = new QTreeView(this);
-    treeCor ->setFixedWidth(320);
-    treeCor ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    treeCor ->setFocusPolicy(Qt::StrongFocus);
-    treeCor ->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    treeCor ->setAnimated(true);
-    treeCor ->setIndentation(10);
-    treeCor ->setMouseTracking(true);
-    treeCor ->header()->setVisible(false);
+    wdg_correspstree = new QTreeView(this);
+    wdg_correspstree ->setFixedWidth(320);
+    wdg_correspstree ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    wdg_correspstree ->setFocusPolicy(Qt::StrongFocus);
+    wdg_correspstree ->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    wdg_correspstree ->setAnimated(true);
+    wdg_correspstree ->setIndentation(10);
+    wdg_correspstree ->setMouseTracking(true);
+    wdg_correspstree ->header()->setVisible(false);
 
     ReconstruitTreeViewCorrespondants(true);
 
-    widgButtons         = new WidgetButtonFrame(treeCor);
-    widgButtons         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe         = new WidgetButtonFrame(wdg_correspstree);
+    wdg_buttonframe         ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
 
-    label               = new UpLabel();
-    label               ->setFixedSize(21,21);
-    label               ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
-    ChercheUplineEdit   = new UpLineEdit();
-    ChercheUplineEdit   ->setFixedSize(140,25);
-    ChercheUplineEdit   ->setStyleSheet(
+    wdg_label               = new UpLabel();
+    wdg_label               ->setFixedSize(21,21);
+    wdg_label               ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
+    wdg_chercheuplineedit   = new UpLineEdit();
+    wdg_chercheuplineedit   ->setFixedSize(140,25);
+    wdg_chercheuplineedit   ->setStyleSheet(
     "UpLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 10px;}"
     "UpLineEdit:focus {border: 2px solid rgb(164, 205, 255);border-radius: 10px;}");
-    widgButtons->layButtons()->insertWidget(0,label);
-    widgButtons->layButtons()->insertWidget(0,ChercheUplineEdit);
+    wdg_buttonframe->layButtons()->insertWidget(0,wdg_label);
+    wdg_buttonframe->layButtons()->insertWidget(0,wdg_chercheuplineedit);
     AjouteLayButtons(UpDialog::ButtonOK);
 
-    dlglayout()->insertWidget(0,widgButtons->widgButtonParent());
+    dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
 
     connect(OKButton,           SIGNAL(clicked(bool)),                  this,   SLOT(reject()));
-    connect(ChercheUplineEdit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
-                                                                                                    ChercheUplineEdit->setText(txt);
+    connect(wdg_chercheuplineedit,  &QLineEdit::textEdited,                 this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
+                                                                                                    wdg_chercheuplineedit->setText(txt);
                                                                                                     ReconstruitTreeViewCorrespondants(false, txt);});
-    connect(widgButtons,        &WidgetButtonFrame::choix,              this,   [=] (int i) {ChoixButtonFrame(i);});
+    connect(wdg_buttonframe,        &WidgetButtonFrame::choix,              this,   [=] (int i) {ChoixButtonFrame(i);});
 
-    widgButtons->modifBouton    ->setEnabled(false);
-    widgButtons->moinsBouton    ->setEnabled(false);
-    ChercheUplineEdit           ->setFocus();
+    wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
+    wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
+    wdg_chercheuplineedit           ->setFocus();
 }
 
 dlg_listecorrespondants::~dlg_listecorrespondants()
@@ -77,8 +77,8 @@ dlg_listecorrespondants::~dlg_listecorrespondants()
 
 void dlg_listecorrespondants::Enablebuttons()
 {
-    widgButtons->modifBouton->setEnabled(getCorrespondantFromIndex(treeCor->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
-    widgButtons->moinsBouton->setEnabled(getCorrespondantFromIndex(treeCor->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
+    wdg_buttonframe->wdg_modifBouton->setEnabled(getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
+    wdg_buttonframe->wdg_moinsBouton->setEnabled(getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0)) != Q_NULLPTR);
 }
 
 
@@ -89,9 +89,9 @@ void dlg_listecorrespondants::ChoixButtonFrame(int i)
         EnregistreNouveauCorresp();
         break;
     case 0:
-        if (treeCor->selectionModel()->selectedIndexes().size()==0)
+        if (wdg_correspstree->selectionModel()->selectedIndexes().size()==0)
             return;
-        ModifCorresp(getCorrespondantFromIndex(treeCor->selectionModel()->selectedIndexes().at(0)));
+        ModifCorresp(getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0)));
         break;
     case -1:
         SupprCorresp();
@@ -103,7 +103,7 @@ void dlg_listecorrespondants::ChoixButtonFrame(int i)
 
 bool dlg_listecorrespondants::listecorrespondantsmodifiee()
 {
-    return ListeCorModifiee;
+    return m_listemodifiee;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
     Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors);
     if (Dlg_IdentCorresp->exec()>0)
     {
-        ListeCorModifiee = true;
+        m_listemodifiee = true;
         ReconstruitTreeViewCorrespondants();
     }
     delete Dlg_IdentCorresp;
@@ -126,7 +126,7 @@ void dlg_listecorrespondants::EnregistreNouveauCorresp()
 // ------------------------------------------------------------------------------------------
 Correspondant* dlg_listecorrespondants::getCorrespondantFromIndex(QModelIndex idx )
 {
-    UpStandardItem *it = dynamic_cast<UpStandardItem*>(gmodele->itemFromIndex(idx));
+    UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(idx));
     if (it != Q_NULLPTR)
         return dynamic_cast<Correspondant *>(it->item());
     else
@@ -145,7 +145,7 @@ void dlg_listecorrespondants::ModifCorresp(Correspondant *cor)
     Dlg_IdentCorresp    = new dlg_identificationcorresp(dlg_identificationcorresp::Modification, onlydoctors, cor);
     if (Dlg_IdentCorresp->exec()>0)
     {
-        ListeCorModifiee = true;
+        m_listemodifiee = true;
         ReconstruitTreeViewCorrespondants(true);
     }
     delete Dlg_IdentCorresp;
@@ -156,10 +156,10 @@ void dlg_listecorrespondants::ModifCorresp(Correspondant *cor)
 // ------------------------------------------------------------------------------------------
 void dlg_listecorrespondants::SupprCorresp()
 {
-    if (treeCor->selectionModel()->selectedIndexes().size() == 0) return;
+    if (wdg_correspstree->selectionModel()->selectedIndexes().size() == 0) return;
     QString Msg;
     Msg = tr("Etes vous sûr de vouloir supprimer la fiche") + "\n " +
-            gmodele->itemFromIndex(treeCor->selectionModel()->selectedIndexes().at(0))->text() + "?" +
+            m_model->itemFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0))->text() + "?" +
             "\n" + tr("La suppression de cette fiche est IRRÉVERSIBLE.");
     UpMessageBox msgbox;
     msgbox.setText("Euuhh... " + Datas::I()->users->userconnected()->login() + "?");
@@ -172,8 +172,8 @@ void dlg_listecorrespondants::SupprCorresp()
     msgbox.exec();
     if (msgbox.clickedButton() == &OKBouton)
     {
-        Datas::I()->correspondants->SupprimeCorrespondant(getCorrespondantFromIndex(treeCor->selectionModel()->selectedIndexes().at(0)));
-        ListeCorModifiee = true;
+        Datas::I()->correspondants->SupprimeCorrespondant(getCorrespondantFromIndex(wdg_correspstree->selectionModel()->selectedIndexes().at(0)));
+        m_listemodifiee = true;
         ReconstruitTreeViewCorrespondants(true);
     }
 }
@@ -204,12 +204,12 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
 {
     if (reconstruirelaliste)
         Datas::I()->correspondants->initListe(true);
-    treeCor->disconnect();
-    gmodele->clear();
+    wdg_correspstree->disconnect();
+    m_model->clear();
 
     UpStandardItem *pitem;
     foreach(UpStandardItem *item, ListeMetiers())
-        gmodele->appendRow(item);
+        m_model->appendRow(item);
 
     foreach(Correspondant *cor, Datas::I()->correspondants->correspondants()->values())
     {
@@ -218,32 +218,32 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
             pitem   = new UpStandardItem(cor->nomprenom());
             pitem->setitem(cor);
             pitem   ->setEditable(false);
-            QList<QStandardItem *> listitems = gmodele->findItems(Utils::trimcapitilize(cor->metier(), true, false));
+            QList<QStandardItem *> listitems = m_model->findItems(Utils::trimcapitilize(cor->metier(), true, false));
             if (listitems.size()>0)
                 listitems.at(0)->appendRow(pitem);
         }
     }
-    for (int i=0; i<gmodele->rowCount();i++)
-        if (!gmodele->item(i)->hasChildren())
+    for (int i=0; i<m_model->rowCount();i++)
+        if (!m_model->item(i)->hasChildren())
         {
-            gmodele->removeRow(i);
+            m_model->removeRow(i);
             i--;
         }
-    treeCor     ->setModel(gmodele);
-    treeCor     ->expandAll();
-    if (gmodele->rowCount()>0)
+    wdg_correspstree     ->setModel(m_model);
+    wdg_correspstree     ->expandAll();
+    if (m_model->rowCount()>0)
     {
-        gmodele->sort(0);
-        gmodele->sort(1);
-        connect(treeCor,    &QAbstractItemView::entered,        this,   [=] (QModelIndex idx)
+        m_model->sort(0);
+        m_model->sort(1);
+        connect(wdg_correspstree,    &QAbstractItemView::entered,        this,   [=] (QModelIndex idx)
                                                                             {
-                                                                                if (!gmodele->itemFromIndex(idx)->hasChildren())
+                                                                                if (!m_model->itemFromIndex(idx)->hasChildren())
                                                                                     QToolTip::showText(cursor().pos(), getCorrespondantFromIndex(idx)->adresseComplete());
                                                                             } );
-        connect(treeCor,    &QAbstractItemView::pressed,        this,   &dlg_listecorrespondants::Enablebuttons);
-        connect(treeCor,    &QAbstractItemView::doubleClicked,  this,   [=] (QModelIndex idx)
+        connect(wdg_correspstree,    &QAbstractItemView::pressed,        this,   &dlg_listecorrespondants::Enablebuttons);
+        connect(wdg_correspstree,    &QAbstractItemView::doubleClicked,  this,   [=] (QModelIndex idx)
                                                                             {
-                                                                                if (!gmodele->itemFromIndex(idx)->hasChildren())
+                                                                                if (!m_model->itemFromIndex(idx)->hasChildren())
                                                                                     ModifCorresp(getCorrespondantFromIndex(idx));
                                                                             });
     }

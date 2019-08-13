@@ -33,24 +33,24 @@ Procedures* Procedures::I()
 Procedures::Procedures(QObject *parent) :
     QObject(parent)
 {
-    lCPParDefaut    = "";
-    lVilleParDefaut = "";
+    m_CPpardefaut    = "";
+    m_Villepardefaut = "";
     db              = DataBase::I();
 
-    gnomFichIni     = QDir::homePath() + FILE_INI;
-    QFile FichierIni(gnomFichIni);
-    gAppFont = QFont(POLICEPARDEFAUT);
-    gAppFont.setPointSize(POINTPARDEFAUT);
-    qApp->setFont(gAppFont);
+    m_nomFichierIni     = QDir::homePath() + FILE_INI;
+    QFile FichierIni(m_nomFichierIni);
+    m_applicationfont = QFont(POLICEPARDEFAUT);
+    m_applicationfont.setPointSize(POINTPARDEFAUT);
+    qApp->setFont(m_applicationfont);
 
-    gdbOK           = false;
+    m_connexionbaseOK           = false;
     if (!FichierIni.exists())
     {
         bool a = false;
         while (!a)
         {
             QString msg =       tr("Le fichier d'initialisation de l'application est absent");
-            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + gnomFichIni + "\"\n" + tr("n'existe pas.\n"
+            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + m_nomFichierIni + "\"\n" + tr("n'existe pas.\n"
                                 "Ce fichier est indispensable au bon fonctionnement de l'application.\n\n"
                                 "Cette absence est normale si vous démarrez l'application pour la première fois.\n"
                                 "Si c'est le cas, choisissez l'option \"Premier démarrage de Rufus\"\n\n"
@@ -60,32 +60,32 @@ Procedures::Procedures(QObject *parent) :
                                 " Il vous faudra alors compléter de nouveau"
                                 " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après"
                                 " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
-            gdbOK = a;
+            m_connexionbaseOK = a;
             a = VerifIni(msg, msgInfo, true, true, true, false, true, false);
         }
     }
-    gsettingsIni    = new QSettings(gnomFichIni, QSettings::IniFormat);
+    m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
 
-    bool k                          = (gsettingsIni->value("BDD_POSTE/Active").toString() == "YES"
-                                       && (gsettingsIni->value("BDD_POSTE/Port").toInt() == 3306
-                                       || gsettingsIni->value("BDD_POSTE/Port").toInt() == 3307)
+    bool k                          = (m_settings->value("BDD_POSTE/Active").toString() == "YES"
+                                       && (m_settings->value("BDD_POSTE/Port").toInt() == 3306
+                                       || m_settings->value("BDD_POSTE/Port").toInt() == 3307)
                                        )
-                                    || (gsettingsIni->value("BDD_LOCAL/Active").toString() == "YES"
-                                       && gsettingsIni->value("BDD_LOCAL/Serveur").toString() != ""
-                                       && (gsettingsIni->value("BDD_LOCAL/Port").toInt() == 3306
-                                       || gsettingsIni->value("BDD_LOCAL/Port").toInt() == 3307)
+                                    || (m_settings->value("BDD_LOCAL/Active").toString() == "YES"
+                                       && m_settings->value("BDD_LOCAL/Serveur").toString() != ""
+                                       && (m_settings->value("BDD_LOCAL/Port").toInt() == 3306
+                                       || m_settings->value("BDD_LOCAL/Port").toInt() == 3307)
                                        )
-                                    || (gsettingsIni->value("BDD_DISTANT/Active").toString() == "YES"
-                                       && gsettingsIni->value("BDD_DISTANT/Serveur").toString() != ""
-                                       && (gsettingsIni->value("BDD_DISTANT/Port").toInt() == 3306
-                                       || gsettingsIni->value("BDD_DISTANT/Port").toInt() == 3307)
+                                    || (m_settings->value("BDD_DISTANT/Active").toString() == "YES"
+                                       && m_settings->value("BDD_DISTANT/Serveur").toString() != ""
+                                       && (m_settings->value("BDD_DISTANT/Port").toInt() == 3306
+                                       || m_settings->value("BDD_DISTANT/Port").toInt() == 3307)
                                        );
    if (!k)
     {
         while (!k)
         {
             QString msg =       tr("Le fichier d'initialisation de l'application est corrompu\n");
-            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + gnomFichIni + "\"\n" +
+            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + m_nomFichierIni + "\"\n" +
                                 tr("ne contient pas de renseignement valide\n"
                                 "permettant la connexion à la base de données.\n\n"
                                 "Ce fichier est indispensable au bon fonctionnement de l'application.\n\n"
@@ -94,30 +94,30 @@ Procedures::Procedures(QObject *parent) :
                                 " Il vous faudra alors compléter de nouveau"
                                 " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après"
                                 " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
-            gdbOK = k;
+            m_connexionbaseOK = k;
             k = VerifIni(msg, msgInfo, false, true, true, false, false, false);
         }
     }
    else if (!FicheChoixConnexion())
    {
-       initOK = false;
+       m_initok = false;
        return;
    }
 
-    gnomImprimante  = "";
+    m_nomImprimante  = "";
 
     Ouverture_Ports_Series();
-    MesureRef               = None;
-    dlgrefractionouverte    = false;
-    initOK                  = true;
+    m_typemesureRefraction               = None;
+    m_dlgrefractionouverte    = false;
+    m_initok                  = true;
     int margemm         = TailleTopMarge(); // exprimé en mm
-    printer             = new QPrinter(QPrinter::HighResolution);
-    printer             ->setFullPage(true);
-    rect                = printer->paperRect();
-    rect.adjust(Utils::mmToInches(margemm) * printer->logicalDpiX(),
-                Utils::mmToInches(margemm) * printer->logicalDpiY(),
-                -Utils::mmToInches(margemm) * printer->logicalDpiX(),
-                -Utils::mmToInches(margemm) * printer->logicalDpiY());
+    p_printer             = new QPrinter(QPrinter::HighResolution);
+    p_printer             ->setFullPage(true);
+    m_rect                = p_printer->paperRect();
+    m_rect.adjust(Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
+                Utils::mmToInches(margemm) * p_printer->logicalDpiY(),
+                -Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
+                -Utils::mmToInches(margemm) * p_printer->logicalDpiY());
 }
 
 void Procedures::ab(int i)
@@ -147,7 +147,7 @@ QMap<QString, QDate> Procedures::ChoixDate(QWidget *parent)
 QString Procedures::getDossierDocuments(QString Appareil, int mode)
 {
     QString cle = db->getBaseFromInt( mode ) + "/DossiersDocuments/" + Appareil;
-    QString dossier = gsettingsIni->value(cle).toString();
+    QString dossier = m_settings->value(cle).toString();
     return dossier;
 }
 
@@ -219,7 +219,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
 {
     QMap<QString, qint64>      DataDir;
     // taille de la base de données ----------------------------------------------------------------------------------------------------------------------------------------------
-    BaseSize = 0;
+    m_basesize = 0;
     if (Restore)
     {
         QStringList filters, listnomsfilestorestore;
@@ -227,22 +227,22 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
         for (int j=0; j<QDir(pathorigin).entryList(filters).size(); j++)
             listnomsfilestorestore << pathorigin + "/" + QDir(pathorigin).entryList(filters).at(j);
         for (int i=0; i<listnomsfilestorestore.size(); i++)
-            BaseSize += QFile(listnomsfilestorestore.at(i)).size()/1024/1024;
+            m_basesize += QFile(listnomsfilestorestore.at(i)).size()/1024/1024;
     }
     else
-        BaseSize = CalcBaseSize();
-    ImagesSize = 0;
-    VideosSize = 0;
+        m_basesize = CalcBaseSize();
+    m_imagessize = 0;
+    m_videossize = 0;
     // espace libre sur le disque ------------------------------------------------------------------------------------------------------------------------------------------------
 
-    FreeSpace = QStorageInfo(pathdestination).bytesAvailable();
-    FreeSpace = FreeSpace/1024/1024;
+    m_freespace = QStorageInfo(pathdestination).bytesAvailable();
+    m_freespace = m_freespace/1024/1024;
     //qDebug() << QStorageInfo(dirbkup).bytesAvailable();
     //qDebug() << QString::number(FreeSpace,'f',0);
 
-    gAskBupRestore = new UpDialog();
-    gAskBupRestore->setModal(true);
-    gAskBupRestore->setWindowTitle(Restore? tr("Dossiers à restaurer") : tr("Dossiers à sauvegarder"));
+    dlg_buprestore = new UpDialog();
+    dlg_buprestore->setModal(true);
+    dlg_buprestore->setWindowTitle(Restore? tr("Dossiers à restaurer") : tr("Dossiers à sauvegarder"));
     int labelsize = 15;
 
     if (Restore)
@@ -259,7 +259,7 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
         Inichk->setAccessibleDescription("ini");
         layini->addWidget(Inichk);
         layini->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
-        gAskBupRestore->dlglayout()->insertLayout(0, layini);
+        dlg_buprestore->dlglayout()->insertLayout(0, layini);
 
         QHBoxLayout *layRssces = new QHBoxLayout;
         UpLabel *labelrssces = new UpLabel();
@@ -273,14 +273,14 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
         Rssceschk->setAccessibleDescription("ressources");
         layRssces->addWidget(Rssceschk);
         layRssces->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
-        gAskBupRestore->dlglayout()->insertLayout(0, layRssces);
+        dlg_buprestore->dlglayout()->insertLayout(0, layRssces);
     }
     if (OKvideos)
     {
         // taille du dossier video ---------------------------------------------------------------------------------------------------------------------------------------
         DataDir = Utils::dir_size(pathorigin + DIR_VIDEOS);
-        VideosSize = DataDir["Size"]/1024/1024;
-        if (VideosSize> 0)
+        m_videossize = DataDir["Size"]/1024/1024;
+        if (m_videossize> 0)
         {
             QHBoxLayout *layVideos = new QHBoxLayout;
             UpLabel *labeVideos = new UpLabel();
@@ -295,9 +295,9 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             layVideos->addWidget(Videoschk);
             layVideos->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
             UpLabel *lblvolvid = new UpLabel();
-            lblvolvid->setText(Utils::getExpressionSize(VideosSize));
+            lblvolvid->setText(Utils::getExpressionSize(m_videossize));
             layVideos->addWidget(lblvolvid);
-            gAskBupRestore->dlglayout()->insertLayout(0, layVideos);
+            dlg_buprestore->dlglayout()->insertLayout(0, layVideos);
             connect(Videoschk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
         }
     }
@@ -305,8 +305,8 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
     {
         // taille du dossier Images ---------------------------------------------------------------------------------------------------------------------------------------
         DataDir = Utils::dir_size(pathorigin + DIR_IMAGES);
-        ImagesSize = DataDir["Size"]/1024/1024;
-        if (ImagesSize > 0)
+        m_imagessize = DataDir["Size"]/1024/1024;
+        if (m_imagessize > 0)
         {
             QHBoxLayout *layImges = new QHBoxLayout;
             UpLabel *labelmges = new UpLabel();
@@ -321,9 +321,9 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             layImges->addWidget(Imgeschk);
             layImges->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
             UpLabel *lblvolimg = new UpLabel();
-            lblvolimg->setText(Utils::getExpressionSize(ImagesSize));
+            lblvolimg->setText(Utils::getExpressionSize(m_imagessize));
             layImges->addWidget(lblvolimg);
-            gAskBupRestore->dlglayout()->insertLayout(0, layImges);
+            dlg_buprestore->dlglayout()->insertLayout(0, layImges);
             connect(Imgeschk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
         }
     }
@@ -331,8 +331,8 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
     {
         // taille du dossier Factures ---------------------------------------------------------------------------------------------------------------------------------------
         DataDir = Utils::dir_size(pathorigin + DIR_FACTURES);
-        FacturesSize = DataDir["Size"]/1024/1024;
-        if (FacturesSize > 0)
+        m_facturessize = DataDir["Size"]/1024/1024;
+        if (m_facturessize > 0)
         {
             QHBoxLayout *layFctures = new QHBoxLayout;
             UpLabel *labelmges = new UpLabel();
@@ -347,9 +347,9 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
             layFctures->addWidget(Fctureschk);
             layFctures->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
             UpLabel *lblvolfct = new UpLabel();
-            lblvolfct->setText(Utils::getExpressionSize(FacturesSize));
+            lblvolfct->setText(Utils::getExpressionSize(m_facturessize));
             layFctures->addWidget(lblvolfct);
-            gAskBupRestore->dlglayout()->insertLayout(0, layFctures);
+            dlg_buprestore->dlglayout()->insertLayout(0, layFctures);
             connect(Fctureschk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
         }
     }
@@ -366,26 +366,26 @@ void Procedures::AskBupRestore(bool Restore, QString pathorigin, QString pathdes
     layBDD->addWidget(BDDchk);
     layBDD->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
     UpLabel *lblvolbase = new UpLabel();
-    lblvolbase->setText(Utils::getExpressionSize(BaseSize));
+    lblvolbase->setText(Utils::getExpressionSize(m_basesize));
     layBDD->addWidget(lblvolbase);
-    gAskBupRestore->dlglayout()->insertLayout(0, layBDD);
+    dlg_buprestore->dlglayout()->insertLayout(0, layBDD);
 
 
     QHBoxLayout *layResume = new QHBoxLayout;
-    labelResume = new UpLabel();
-    layResume->addWidget(labelResume);
-    gAskBupRestore->dlglayout()->insertLayout(gAskBupRestore->dlglayout()->count()-1, layResume);
+    wdg_resumelbl = new UpLabel();
+    layResume->addWidget(wdg_resumelbl);
+    dlg_buprestore->dlglayout()->insertLayout(dlg_buprestore->dlglayout()->count()-1, layResume);
 
     QHBoxLayout *layVolumeLibre = new QHBoxLayout;
-    labelVolumeLibre = new UpLabel();
-    layVolumeLibre->addWidget(labelVolumeLibre);
-    gAskBupRestore->dlglayout()->insertLayout(gAskBupRestore->dlglayout()->count()-1, layVolumeLibre);
+    wdg_volumelibrelbl = new UpLabel();
+    layVolumeLibre->addWidget(wdg_volumelibrelbl);
+    dlg_buprestore->dlglayout()->insertLayout(dlg_buprestore->dlglayout()->count()-1, layVolumeLibre);
 
     connect(BDDchk, SIGNAL(clicked(bool)), this,    SLOT(Slot_CalcTimeBupRestore()));
 
-    gAskBupRestore->setFixedWidth(400);
-    gAskBupRestore->AjouteLayButtons(UpDialog::ButtonOK);
-    connect(gAskBupRestore->OKButton,    SIGNAL(clicked(bool)), gAskBupRestore, SLOT(accept()));
+    dlg_buprestore->setFixedWidth(400);
+    dlg_buprestore->AjouteLayButtons(UpDialog::ButtonOK);
+    connect(dlg_buprestore->OKButton,    SIGNAL(clicked(bool)), dlg_buprestore, SLOT(accept()));
     Slot_CalcTimeBupRestore();
 }
 
@@ -405,8 +405,7 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
     }
 
     dlg_message(tr("Sauvegarde en cours"),3000,false);
-    connexion = false;
-    emit ConnectTimers();
+    emit ConnectTimers(false);
 
     bool result = true;
     if (OKBase)
@@ -472,14 +471,13 @@ bool Procedures::Backup(QString dirSauv, bool OKBase, QString NomDirStockageImag
             dlg_message(tr("Fichiers video sauvegardés!"), 3000, false);
         }
     }
-    connexion = true;
     if (OKImages)
         Utils::cleanfolder(dirSauv + DIR_IMAGES);
     if (OKFactures)
         Utils::cleanfolder(dirSauv + DIR_FACTURES);
     if (OKVideos)
         Utils::cleanfolder(dirSauv + DIR_VIDEOS);
-    emit ConnectTimers();
+    emit ConnectTimers(true);
     UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde terminée"));
     return result;
 }
@@ -710,9 +708,9 @@ bool Procedures::ImmediateBackup(QString dirSauv, bool verifposteconnecte, bool 
     else
     {
         AskBupRestore(false, NomDirStockageImagerie, NomDirDestination );
-        if (gAskBupRestore->exec()==0)
+        if (dlg_buprestore->exec()==0)
             return false;
-        QList<UpCheckBox*> listchk = gAskBupRestore->findChildren<UpCheckBox*>();
+        QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
         for (int i= 0; i<listchk.size(); i++)
         {
             if (listchk.at(i)->accessibleDescription() == "base")
@@ -801,9 +799,9 @@ void Procedures::ParamAutoBackup(QString dirdestination, QString dirimagerie, QT
     }
     DefinitScriptBackup(dirdestination, dirimagerie);
 //#ifdef Q_OS_LINUX
-    gTimerBackup.stop();
-    gTimerBackup.start(1000);
-    connect(&gTimerBackup, &QTimer::timeout, this, [=] {BackupWakeUp(dirdestination, timebackup, days);});
+    t_timerbackup.stop();
+    t_timerbackup.start(1000);
+    connect(&t_timerbackup, &QTimer::timeout, this, [=] {BackupWakeUp(dirdestination, timebackup, days);});
 //#endif
 #ifdef Q_OS_MACX
     // elaboration de rufus.bup.plist
@@ -979,27 +977,27 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
             QString reqrp = "select userparent "
                             "from " TBL_USERSCONNECTES
                             " where usersuperviseur = " + QString::number(user->id());
-            QVariantList userdata = db->getFirstRecordFromStandardSelectSQL(reqrp, ok);
+            QVariantList userdata = db->getFirstRecordFromStandardSelectSQL(reqrp, m_ok);
             if (userdata.size()>0)                // le user est connecté, on cherche qui il remplace - son parent
                 idparent = userdata.at(0).toInt();
             else                                // le user n'est pas connecté on demande quel est son parent
             {
-                QVariantList soigndata = db->getFirstRecordFromStandardSelectSQL("select soignant from " TBL_UTILISATEURS " where iduser = " + QString::number(user->id()), ok);
+                QVariantList soigndata = db->getFirstRecordFromStandardSelectSQL("select soignant from " TBL_UTILISATEURS " where iduser = " + QString::number(user->id()), m_ok);
                 QString req   = "select iduser, userlogin from " TBL_UTILISATEURS
                         " where (userenreghonoraires = 1 or userenreghonoraires = 2)"
                         " and iduser <> " + QString::number(user->id()) +
                         " and soignant = " + soigndata.at(0).toString() +
                         " and userdesactive is null";
                 //qDebug() << req;
-                QList<QVariantList> soignlist = db->StandardSelectSQL(req,ok);
+                QList<QVariantList> soignlist = db->StandardSelectSQL(req,m_ok);
                 if (soignlist.size() == 1)               // une seule réponse, on la récupère
                     idparent   = soignlist.at(0).at(0).toInt();
                 else                                // plusieurs réponses possibles, on va demander qui est le parent de ce remplaçant....
                 {
-                    gAskUser                = new UpDialog();
-                    gAskUser                ->AjouteLayButtons();
+                    dlg_askUser                = new UpDialog();
+                    dlg_askUser                ->AjouteLayButtons();
                     QGroupBox*boxparent     = new QGroupBox();
-                    gAskUser->dlglayout()   ->insertWidget(0,boxparent);
+                    dlg_askUser->dlglayout()   ->insertWidget(0,boxparent);
                     boxparent               ->setAccessibleName("Parent");
                     QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + user->login() + "?";
                     boxparent               ->setTitle(lblUsrParent);
@@ -1018,18 +1016,18 @@ QMap<QString, QString> Procedures::ImpressionEntete(QDate date, User *user)
                     }
                     vbox     ->setContentsMargins(8,0,8,0);
                     boxparent->setLayout(vbox);
-                    gAskUser ->setModal(true);
-                    gAskUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+                    dlg_askUser ->setModal(true);
+                    dlg_askUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-                    connect(gAskUser->OKButton, &QPushButton::clicked, gAskUser, &UpDialog::accept);
+                    connect(dlg_askUser->OKButton, &QPushButton::clicked, dlg_askUser, &UpDialog::accept);
 
-                    gAskUser->exec();
+                    dlg_askUser->exec();
 
                     QList<QRadioButton*> listbutt = boxparent->findChildren<QRadioButton*>();
                     for (int j=0; j<listbutt.size(); j++)
                         if (listbutt.at(j)->isChecked())
                             idparent = listbutt.at(j)->accessibleName().toInt();
-                    delete gAskUser;
+                    delete dlg_askUser;
                 }
             }
         }
@@ -1180,7 +1178,7 @@ bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int
     else
     {
         if (!AvecChoixImprimante)
-            TexteAImprimer->setPrinterName(gnomImprimante);
+            TexteAImprimer->setPrinterName(m_nomImprimante);
         a = TexteAImprimer->print(Etat->document(), QDir::homePath() + FILE_PDF, "", AvecChoixImprimante);
     }
     if (a)
@@ -1198,7 +1196,7 @@ bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int
             TexteAImprimer->setFooterSize(TexteAImprimer->footerSize() + 20);
             TexteAImprimer->print(Etat->document(),"","",false);
         }
-    gnomImprimante = TexteAImprimer->getPrinterName();
+    m_nomImprimante = TexteAImprimer->getPrinterName();
     delete TexteAImprimer;
     return a;
 }
@@ -1236,14 +1234,6 @@ bool Procedures::Imprime_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QStr
     return a;
 }
 
-void Procedures::Slot_printPreview(QPrinter *printer)
-{
-#ifdef QT_NO_PRINTER
-    Q_UNUSED(printer);
-#else
-    gEtat->print(printer);
-#endif
-}
 //----------------------------Exemple  pour Imprimer un etat  ---------------------------------------------------------------
 void Procedures::Imprimer_Etat(QWidget *Formu, QPlainTextEdit *Etat)
 {
@@ -1331,8 +1321,8 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
                 else
                     imgs = "select idfacture from " TBL_FACTURES " where idfacture = " + iditem + " and (pdf is not null or jpg is not null)";
                 //qDebug() << imgs;
-                QList<QVariantList> listid = db->StandardSelectSQL(imgs, ok);
-                if (!ok)
+                QList<QVariantList> listid = db->StandardSelectSQL(imgs, m_ok);
+                if (!m_ok)
                     UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'accéder à la table ") + (docmt != Q_NULLPTR? TBL_ECHANGEIMAGES : TBL_FACTURES));
                 if (listid.size()==0)
                 {
@@ -1368,25 +1358,25 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
         if (docmt != Q_NULLPTR)
         {
             listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_ECHANGEIMAGES " where idimpression = " + iditem + " and facture is null"
-                                                                  , ok
+                                                                  , m_ok
                                                                   , tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
-            if (!ok)
+            if (!m_ok)
                 return;
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans impressions
                 listimpr = db->StandardSelectSQL("select pdf, jpg, compression  from " TBL_DOCSEXTERNES " where idimpression = " + iditem
-                                                                      , ok
+                                                                      , m_ok
                                                                       , tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
         }
         else
         {
             listimpr = db->StandardSelectSQL("select pdf, jpg  from " TBL_ECHANGEIMAGES " where idimpression = " + iditem + " and facture = 1"
-                                                                  , ok
+                                                                  , m_ok
                                                                   , tr("Impossible d'accéder à la table ") + TBL_ECHANGEIMAGES);
-            if (!ok)
+            if (!m_ok)
                 return;
             if (listimpr.size()==0)                             // le document n'est pas dans echangeimages, on va le chercher dans factures
                 listimpr = db->StandardSelectSQL("select pdf, jpg  from " TBL_FACTURES " where idfacture = " + iditem
-                                                                      , ok
+                                                                      , m_ok
                                                                       , tr("Impossible d'accéder à la table ") + TBL_FACTURES);
         }
 
@@ -1478,11 +1468,11 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     connect(gAsk->OKButton, SIGNAL(clicked(bool)),  gAsk,       SLOT(accept()));
     if (ConnectAuSignal)
         connect(this,       &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
-    gAsk->restoreGeometry(gsettingsIni->value(geometry).toByteArray());
+    gAsk->restoreGeometry(m_settings->value(geometry).toByteArray());
 
     if (gAsk->exec()>0)
         rep = TxtEdit->toHtml();
-    gsettingsIni->setValue(geometry,gAsk->saveGeometry());
+    m_settings->setValue(geometry,gAsk->saveGeometry());
     delete gAsk;
     return rep;
 }
@@ -1521,17 +1511,17 @@ void Procedures::EditHtml(QString txt)
  */
 void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button)
 {
-    UpDialog    *gAsk       = new UpDialog();
-    uptable                 = new UpTableWidget(gAsk);
-    inflabel                = new UpLabel(uptable);
-    listimage               = uptable->AfficheDoc(doc);
-    uptable ->installEventFilter(this);
+    UpDialog    *gAsk           = new UpDialog();
+    wdg_tablewidget             = new UpTableWidget(gAsk);
+    wdg_inflabel                = new UpLabel(wdg_tablewidget);
+    m_listeimages               = wdg_tablewidget->AfficheDoc(doc);
+    wdg_tablewidget ->installEventFilter(this);
     gAsk->setModal(true);
     gAsk->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::WindowMinMaxButtonsHint);
     gAsk->setWindowTitle(titre);
-    gAsk->dlglayout()->insertWidget(0,uptable);
-    uptable->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
-    uptable->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    gAsk->dlglayout()->insertWidget(0,wdg_tablewidget);
+    wdg_tablewidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
+    wdg_tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
     gAsk->AjouteLayButtons(Button);
     connect(gAsk->OKButton, &QPushButton::clicked, this, [=] {gAsk->accept();});
@@ -1569,7 +1559,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     int wtable(0), htable(0);
 
     const double proportion = maxwscroll/maxhscroll;
-    QPixmap pix = QPixmap::fromImage(listimage.at(0).scaled(QSize(x,y),
+    QPixmap pix = QPixmap::fromImage(m_listeimages.at(0).scaled(QSize(x,y),
                                            Qt::KeepAspectRatioByExpanding,
                                            Qt::SmoothTransformation));
     const double pw = pix.size().width();
@@ -1583,28 +1573,28 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     int w = wtable + wdelta;
     int h = htable + hdelta;
     gAsk->resize(w, h);
-    uptable->resize(wtable, htable);
+    wdg_tablewidget->resize(wtable, htable);
     int delta = 0;
-    for (int i=0; i < uptable->rowCount(); i++)
+    for (int i=0; i < wdg_tablewidget->rowCount(); i++)
     {
-        UpLabel *lbl = dynamic_cast<UpLabel*>(uptable->cellWidget(i,0));
+        UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_tablewidget->cellWidget(i,0));
         if (lbl != Q_NULLPTR)
         {
             pix = pix.scaled(wtable- delta, htable - delta, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
             lbl->setPixmap(pix);
-            uptable->setRowHeight(i,htable-delta);
-            uptable->setColumnWidth(0,wtable-delta);
+            wdg_tablewidget->setRowHeight(i,htable-delta);
+            wdg_tablewidget->setColumnWidth(0,wtable-delta);
         }
     }
 
     if (w > (x - gAsk->x()))
         gAsk->move(x - w, 0);
 
-    inflabel    ->setText("<font color='magenta'>" + label + "</font>");
+    wdg_inflabel    ->setText("<font color='magenta'>" + label + "</font>");
     QFont font = qApp->font();
     font.setPointSize(12);
-    inflabel->setFont(font);
-    inflabel    ->setGeometry(10,htable-40,350,25);
+    wdg_inflabel->setFont(font);
+    wdg_inflabel    ->setGeometry(10,htable-40,350,25);
 
     gAsk->exec();
     delete gAsk;
@@ -1660,8 +1650,8 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
             {
                 if (AvecPrevisu)
                 {
-                    QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer);
-                    connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer, image);});
+                    QPrintPreviewDialog *dialog = new QPrintPreviewDialog(p_printer);
+                    connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(p_printer, image);});
                     if (dialog->exec() != QDialog::Rejected)
                         delete dialog;
                     else {
@@ -1673,11 +1663,11 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
                 }
                 else
                 {
-                    QPrintDialog *dialog = new QPrintDialog(printer);
+                    QPrintDialog *dialog = new QPrintDialog(p_printer);
                     if (dialog->exec() != QDialog::Rejected)
                     {
-                        printer = dialog->printer();
-                        Print(printer, image);
+                        p_printer = dialog->printer();
+                        Print(p_printer, image);
                         delete dialog;
                     }
                     else {
@@ -1689,7 +1679,7 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
                 }
             }
             else
-                Print(printer, image);
+                Print(p_printer, image);
             delete pdfPage;
         }
         delete document;
@@ -1701,16 +1691,16 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
         QImage image= pix.toImage();
         if (AvecPrevisu)
         {
-            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer);
-            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(printer, image);});
+            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(p_printer);
+            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(p_printer, image);});
             dialog->exec();
             delete dialog;
         }
         else
         {
-            QPrintDialog *dialog = new QPrintDialog(printer);
+            QPrintDialog *dialog = new QPrintDialog(p_printer);
             if (dialog->exec() != QDialog::Rejected)
-                Print(printer, image);
+                Print(p_printer, image);
             delete dialog;
         }
     }
@@ -1720,7 +1710,7 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
 void Procedures::Print(QPrinter *Imprimante, QImage image)
 {
     QPainter PrintingPreView(Imprimante);
-    QPixmap pix = QPixmap::fromImage(image).scaledToWidth(int(rect.width()),Qt::SmoothTransformation);
+    QPixmap pix = QPixmap::fromImage(image).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
     PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
 }
 void Procedures::PrintPdf(QPrinter *Imprimante, Poppler::Document* document, bool &printok)
@@ -1751,12 +1741,12 @@ void Procedures::PrintPdf(QPrinter *Imprimante, Poppler::Document* document, boo
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Init()
 {
-    return initOK;
+    return m_initok;
 }
 
 bool Procedures::ApercuAvantImpression()
 {
-    return (gsettingsIni->value("Param_Imprimante/ApercuAvantImpression").toString() == "YES");
+    return (m_settings->value("Param_Imprimante/ApercuAvantImpression").toString() == "YES");
 }
 
 QString Procedures::CodePostalParDefaut()
@@ -1895,22 +1885,22 @@ QString Procedures::getSessionStatus()
     ------------------------------------------------------------------------------------------------------------------------------------*/
 void Procedures::setDirImagerie()
 {
-    DirStockageImages = "";
-    DirStockageImagesServeur = m_parametres->dirimagerie();
+    m_pathDirStockageImage = "";
+    m_pathDirStockageImagesServeur = m_parametres->dirimagerie();
     switch (db->getMode()) {
     case DataBase::Poste:
     {
-        DirStockageImages = DirStockageImagesServeur;
+        m_pathDirStockageImage = m_pathDirStockageImagesServeur;
         break;
     }
     case DataBase::Distant:
     {
-        DirStockageImages  = gsettingsIni->value("BDD_DISTANT/DossierImagerie").toString();
+        m_pathDirStockageImage  = m_settings->value("BDD_DISTANT/DossierImagerie").toString();
         break;
     }
     case DataBase::ReseauLocal:
     {
-        DirStockageImages  = gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
+        m_pathDirStockageImage  = m_settings->value("BDD_LOCAL/DossierImagerie").toString();
         break;
     }
     default:
@@ -1923,45 +1913,45 @@ void Procedures::setDirImagerie()
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::DirImagerie()
 {
-    return DirStockageImages;
+    return m_pathDirStockageImage;
 }
 
 QString Procedures::DirImagerieServeur()
 {
-    return DirStockageImagesServeur;;
+    return m_pathDirStockageImagesServeur;;
 }
 
 void Procedures::setFicheRefractionOuverte(bool a)
 {
-    dlgrefractionouverte = a;
+    m_dlgrefractionouverte = a;
 }
 
 bool Procedures::FicheRefractionOuverte()
 {
-    return dlgrefractionouverte;
+    return m_dlgrefractionouverte;
 }
 
 bool Procedures::eventFilter(QObject *obj, QEvent *event)
 {
-    if (obj==uptable)
+    if (obj==wdg_tablewidget)
     {
         QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
         if (rszevent != Q_NULLPTR)
         {
-            for (int i=0; i < uptable->rowCount(); i++)
+            for (int i=0; i < wdg_tablewidget->rowCount(); i++)
             {
-                UpLabel *lbl = dynamic_cast<UpLabel*>(uptable->cellWidget(i,0));
+                UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_tablewidget->cellWidget(i,0));
                 if (lbl != Q_NULLPTR)
                 {
-                    QPixmap pix = QPixmap::fromImage(listimage.at(i).scaled(uptable->width(), uptable->height(),
+                    QPixmap pix = QPixmap::fromImage(m_listeimages.at(i).scaled(wdg_tablewidget->width(), wdg_tablewidget->height(),
                                                            Qt::KeepAspectRatioByExpanding,
                                                            Qt::SmoothTransformation));
                     lbl->setPixmap(pix);
-                    uptable->setRowHeight(i,lbl->pixmap()->height());
-                    uptable->setColumnWidth(i,lbl->pixmap()->width());
+                    wdg_tablewidget->setRowHeight(i,lbl->pixmap()->height());
+                    wdg_tablewidget->setColumnWidth(i,lbl->pixmap()->width());
                 }
             }
-            inflabel    ->move(10,uptable->height()-40);
+            wdg_inflabel    ->move(10,wdg_tablewidget->height()-40);
         }
     }
     return true;
@@ -1996,37 +1986,37 @@ QString Procedures::getMDPAdmin()
 
 void Procedures::setNomImprimante(QString NomImprimante)
 {
-    gnomImprimante = NomImprimante;
+    m_nomImprimante = NomImprimante;
 }
 
 QString Procedures::getNomImprimante()
 {
-    return gnomImprimante;
+    return m_nomImprimante;
 }
 
 int Procedures::TailleEnTete()
 {
-    return gsettingsIni->value("Param_Imprimante/TailleEnTete").toInt();
+    return m_settings->value("Param_Imprimante/TailleEnTete").toInt();
 }
 
 int Procedures::TailleEnTeteALD()
 {
-    return gsettingsIni->value("Param_Imprimante/TailleEnTeteALD").toInt();
+    return m_settings->value("Param_Imprimante/TailleEnTeteALD").toInt();
 }
 
 int Procedures::TaillePieddePage()
 {
-    return gsettingsIni->value("Param_Imprimante/TaillePieddePage").toInt();
+    return m_settings->value("Param_Imprimante/TaillePieddePage").toInt();
 }
 
 int Procedures::TaillePieddePageOrdoLunettes()
 {
-    return gsettingsIni->value("Param_Imprimante/TaillePieddePageOrdoLunettes").toInt();
+    return m_settings->value("Param_Imprimante/TaillePieddePageOrdoLunettes").toInt();
 }
 
 int Procedures::TailleTopMarge()
 {
-    return gsettingsIni->value("Param_Imprimante/TailleTopMarge").toInt();
+    return m_settings->value("Param_Imprimante/TailleTopMarge").toInt();
 }
 
 QString Procedures::VilleParDefaut()
@@ -2052,29 +2042,29 @@ void Procedures::setPosteImportDocs(bool a)
     db->StandardSQL(req);
 
     if (a)
-        IpAdress = QHostInfo::localHostName() + ((gsettingsIni->value("BDD_LOCAL/PrioritaireGestionDocs").toString() ==  "YES")? " - prioritaire" : "");
+        IpAdress = QHostInfo::localHostName() + ((m_settings->value("BDD_LOCAL/PrioritaireGestionDocs").toString() ==  "YES")? " - prioritaire" : "");
     req = "CREATE PROCEDURE " NOM_POSTEIMPORTDOCS "()\n\
           BEGIN\n\
           SELECT '" + IpAdress + "';\n\
           END ;";
-    gisPosteImportDocs = db->StandardSQL(req);
+    m_isposteimportdocs = db->StandardSQL(req);
 }
 
 bool Procedures::isPosteImportDocs()
 {
-    return gisPosteImportDocs;
+    return m_isposteimportdocs;
 }
 
 QString Procedures::PosteImportDocs()
 {   QString rep = "";
     QString req = "SELECT name FROM mysql.proc p WHERE db = '" DB_CONSULTS "' AND name = '" NOM_POSTEIMPORTDOCS "'";
-    QVariantList imptdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && imptdata.size()>0)
+    QVariantList imptdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+    if (m_ok && imptdata.size()>0)
     {
         req = "CALL " DB_CONSULTS "." NOM_POSTEIMPORTDOCS;
-        QVariantList calldata = db->getFirstRecordFromStandardSelectSQL(req, ok);
+        QVariantList calldata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         //qDebug() << "nbre reponses = " + QString::number(calldata.size()) << NOM_POSTEIMPORTDOCS " = " + calldata.at(0).toString();
-        if (ok && calldata.size()>0)
+        if (m_ok && calldata.size()>0)
             rep = calldata.at(0).toString();
     }
     //qDebug() << "posteimportdocs = " + rep;
@@ -2084,8 +2074,8 @@ QString Procedures::PosteImportDocs()
 bool Procedures::Verif_secure_file_priv()
 {
     QString msg = QString();
-    QVariantList vardata = db->getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", ok);
-    if (ok && vardata.size()>0)
+    QVariantList vardata = db->getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", m_ok);
+    if (m_ok && vardata.size()>0)
         msg = vardata.at(1).toString();
     if (msg == "NULL")
         msg = QString();
@@ -2128,7 +2118,7 @@ bool Procedures::ReinitBase()
     {
         if (!ImmediateBackup("", false, true))
             return false;
-        QFile FichierIni(gnomFichIni);
+        QFile FichierIni(m_nomFichierIni);
         if (FichierIni.exists())
         {
             QFile FichierBup(QDir::homePath() + DIR_RUFUS + "/RufusBackup.ini");
@@ -2153,8 +2143,8 @@ qint64 Procedures::CalcBaseSize()
                       " or table_schema = 'rufus'"
                       " GROUP BY table_schema)"
                       " as bdd";
-    QVariantList basedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && basedata.size()>0)
+    QVariantList basedata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+    if (m_ok && basedata.size()>0)
         basesize = basedata.at(0).toLongLong();
     return basesize;
 }
@@ -2162,28 +2152,28 @@ qint64 Procedures::CalcBaseSize()
 void Procedures::Slot_CalcTimeBupRestore()
 {
     double time(0), volume(0);
-    QList<UpCheckBox*> listchk = gAskBupRestore->findChildren<UpCheckBox*>();
+    QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
     for (int i= 0; i<listchk.size(); i++)
     {
         if (listchk.at(i)->accessibleDescription() == "base")
         {
             if (listchk.at(i)->isChecked())
-                volume += BaseSize;
+                volume += m_basesize;
         }
         if (listchk.at(i)->accessibleDescription() == "images")
         {
             if (listchk.at(i)->isChecked())
-                volume += ImagesSize;
+                volume += m_imagessize;
         }
         if (listchk.at(i)->accessibleDescription() == "videos")
         {
             if (listchk.at(i)->isChecked())
-                volume += VideosSize;
+                volume += m_videossize;
         }
         if (listchk.at(i)->accessibleDescription() == "factures")
         {
             if (listchk.at(i)->isChecked())
-                volume += FacturesSize;
+                volume += m_facturessize;
         }
     }
     time = (volume/1024 /2)*60000; //duréée approximative de sauvegarde en ms
@@ -2195,14 +2185,14 @@ void Procedures::Slot_CalcTimeBupRestore()
         timelitteral = QString::number(time/60000/60,'f',0) + tr(" heures");
     else
         timelitteral = tr("moins d'une minute");
-    QString color = FreeSpace>volume? "green": "red";
+    QString color = m_freespace>volume? "green": "red";
     QString msg = tr("Volume à transférer: ") + " <font color=\""+ color + "\"><b>" + Volumelitteral + "</b></font>";
-    labelResume->setText(msg + " - " + tr("Temps estimé: ") + timelitteral);
-    QString Volumelibre = Utils::getExpressionSize(FreeSpace);
+    wdg_resumelbl->setText(msg + " - " + tr("Temps estimé: ") + timelitteral);
+    QString Volumelibre = Utils::getExpressionSize(m_freespace);
     msg = tr("Volume disponible sur le disque: ") + " <font color=\""+ color + "\"><b>" + Volumelibre + "</b></font>";
 
-    labelVolumeLibre->setText(msg);
-    gAskBupRestore->OKButton->setEnabled(FreeSpace>volume);
+    wdg_volumelibrelbl->setText(msg);
+    dlg_buprestore->OKButton->setEnabled(m_freespace>volume);
 }
 
 bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes)
@@ -2219,7 +2209,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (db->getMode() == DataBase::Poste)
             Hote = tr("ce poste");
         else
-            Hote = tr("le serveur ") + gsettingsIni->value(db->getBase() + "/Serveur").toString();
+            Hote = tr("le serveur ") + m_settings->value(db->getBase() + "/Serveur").toString();
         msgbox.setInformativeText(tr("Vous avez choisi de créer une base vierge sur ") + Hote + "\n" +
                                   tr("Si une base de données Rufus existe sur ce serveur, "
                                      "elle sera définitivement effacée pour être remplacée par cette base vierge.\n"
@@ -2251,8 +2241,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         else echecfile = false;
         if (!echecfile)
         {
-            connexion = false;
-            emit ConnectTimers();
+            emit ConnectTimers(false);
             int a = 99;
             // +++ la fonction DefinitScriptRestore() qu'on pourrait vouloir utiliser dans ce cas là avec le fichier basevierge.sql ne fonctionne pas avec ce fichier
             // et je ne sais pas pourquoi
@@ -2270,8 +2259,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             if (a==0)
             {
                 UpMessageBox::Information(Q_NULLPTR, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
-                connexion = true;
-                emit ConnectTimers();
+                emit ConnectTimers(true);
                 return true;
             }
         }
@@ -2284,8 +2272,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (VerifPostesConnectes)
         {
             QString req = "select NomPosteConnecte from " TBL_USERSCONNECTES " where NomPosteConnecte <> '" + QHostInfo::localHostName().left(60) + "'";
-            QVariantList nompostedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-            if (!ok)
+            QVariantList nompostedata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+            if (!m_ok)
                 return false;
             if (nompostedata.size()>0)
             {
@@ -2388,11 +2376,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
 
         db->setdirimagerie(NomDirStockageImagerie);
         AskBupRestore(true, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos, OKFactures);
-        if (gAskBupRestore->exec()>0)
+        if (dlg_buprestore->exec()>0)
         {
-            connexion = false;
-            emit ConnectTimers();
-            QList<UpCheckBox*> listchk = gAskBupRestore->findChildren<UpCheckBox*>();
+            emit ConnectTimers(false);
+            QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
             for (int i= 0; i<listchk.size(); i++)
             {
                 if (listchk.at(i)->accessibleDescription() == "base")
@@ -2470,11 +2457,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     if (listchk.at(i)->isChecked())
                     {
                         QString fileini = dirtorestore.absolutePath() + "/Rufus.ini";
-                        QFile FichierIni(gnomFichIni);
+                        QFile FichierIni(m_nomFichierIni);
                         if (FichierIni.exists())
                             FichierIni.remove();
                         QFile rufusini(fileini);
-                        rufusini.copy(gnomFichIni);
+                        rufusini.copy(m_nomFichierIni);
                         msg += tr("Fichier de paramétrage Rufus.ini restauré\n");
                         dlg_message(tr("Fichier de paramétrage Rufus.ini restauré"), 3000, false);
                     }
@@ -2590,13 +2577,12 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     }
                 }
             }
-            delete gAskBupRestore;
+            delete dlg_buprestore;
             //qDebug() << msg;
             UpMessageBox::Watch(Q_NULLPTR,tr("restauration terminée"),msg);
             return true;
         }
-        connexion = true;
-        emit ConnectTimers();
+        emit ConnectTimers(true);
     }
     return false;
 }
@@ -2678,7 +2664,7 @@ bool Procedures::VerifBaseEtRessources()
                  */
                 QList<QVariantList> listid =
                         db->StandardSelectSQL("SELECT idpat FROM " TBL_PATIENTS " pat"
-                                              " where  pat.idpat not in (select rmp.idpat from " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp)", ok);
+                                              " where  pat.idpat not in (select rmp.idpat from " TBL_RENSEIGNEMENTSMEDICAUXPATIENTS " rmp)", m_ok);
                 if (listid.size()>0)
                 {
                     for (int i=0; i<listid.size(); i++)
@@ -2695,11 +2681,11 @@ bool Procedures::VerifBaseEtRessources()
         }
     }
     //verification des fichiers ressources
-    if (gsettingsIni->value("Param_Poste/VersionRessources").toInt() < VERSION_RESSOURCES)
+    if (m_settings->value("Param_Poste/VersionRessources").toInt() < VERSION_RESSOURCES)
     {
         PremierParametrageRessources();
-        gsettingsIni->setValue("Param_Imprimante/TailleEnTeteALD","63");
-        gsettingsIni->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
+        m_settings->setValue("Param_Imprimante/TailleEnTeteALD","63");
+        m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
         dlg_message(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 1000, false);
     }
     return true;
@@ -2712,19 +2698,19 @@ bool Procedures::VerifBaseEtRessources()
 bool Procedures::FicheChoixConnexion()
 {
     bool lPoste, lDistant, lReseauLocal;
-    lPoste                          = (gsettingsIni->value("BDD_POSTE/Active").toString() == "YES"
-                                       && (gsettingsIni->value("BDD_POSTE/Port").toInt() == 3306
-                                       || gsettingsIni->value("BDD_POSTE/Port").toInt() == 3307)
+    lPoste                          = (m_settings->value("BDD_POSTE/Active").toString() == "YES"
+                                       && (m_settings->value("BDD_POSTE/Port").toInt() == 3306
+                                       || m_settings->value("BDD_POSTE/Port").toInt() == 3307)
                                        );
-    lReseauLocal                    = (gsettingsIni->value("BDD_LOCAL/Active").toString() == "YES"
-                                       && gsettingsIni->value("BDD_LOCAL/Serveur").toString() != ""
-                                       && (gsettingsIni->value("BDD_LOCAL/Port").toInt() == 3306
-                                       || gsettingsIni->value("BDD_LOCAL/Port").toInt() == 3307)
+    lReseauLocal                    = (m_settings->value("BDD_LOCAL/Active").toString() == "YES"
+                                       && m_settings->value("BDD_LOCAL/Serveur").toString() != ""
+                                       && (m_settings->value("BDD_LOCAL/Port").toInt() == 3306
+                                       || m_settings->value("BDD_LOCAL/Port").toInt() == 3307)
                                        );
-    lDistant                        = (gsettingsIni->value("BDD_DISTANT/Active").toString() == "YES"
-                                       && gsettingsIni->value("BDD_DISTANT/Serveur").toString() != ""
-                                       && (gsettingsIni->value("BDD_DISTANT/Port").toInt() == 3306
-                                       || gsettingsIni->value("BDD_DISTANT/Port").toInt() == 3307)
+    lDistant                        = (m_settings->value("BDD_DISTANT/Active").toString() == "YES"
+                                       && m_settings->value("BDD_DISTANT/Serveur").toString() != ""
+                                       && (m_settings->value("BDD_DISTANT/Port").toInt() == 3306
+                                       || m_settings->value("BDD_DISTANT/Port").toInt() == 3307)
                                        );
     int a = 0;
     if (lPoste)         a += 1;
@@ -2737,10 +2723,10 @@ bool Procedures::FicheChoixConnexion()
         exit(0);
     }
     case 1: {
-        if (lPoste)         gMode2 = DataBase::Poste;
-        if (lReseauLocal)   gMode2 = DataBase::ReseauLocal;
-        if (lDistant)       gMode2 = DataBase::Distant;
-        initOK  = true;
+        if (lPoste)         m_modeacces = DataBase::Poste;
+        if (lReseauLocal)   m_modeacces = DataBase::ReseauLocal;
+        if (lDistant)       m_modeacces = DataBase::Distant;
+        m_initok  = true;
         break;
     }
     default: {
@@ -2768,35 +2754,28 @@ bool Procedures::FicheChoixConnexion()
             msgbox.addButton(&OKBouton);
             OKBouton.setIcon(Icons::icComputer());
         }
-        initOK = false;
+        m_initok = false;
         if (msgbox.exec()>0)
         {
-            initOK = (msgbox.clickedpushbutton() != &RejectButton);
-            if (initOK)
+            m_initok = (msgbox.clickedpushbutton() != &RejectButton);
+            if (m_initok)
             {
-                if (msgbox.clickedpushbutton()      == &OKBouton)    gMode2 = DataBase::Poste;
-                else if (msgbox.clickedpushbutton() == &NoBouton)    gMode2 = DataBase::ReseauLocal;
-                else if (msgbox.clickedpushbutton() == &AnnulBouton) gMode2 = DataBase::Distant;
+                if (msgbox.clickedpushbutton()      == &OKBouton)    m_modeacces = DataBase::Poste;
+                else if (msgbox.clickedpushbutton() == &NoBouton)    m_modeacces = DataBase::ReseauLocal;
+                else if (msgbox.clickedpushbutton() == &AnnulBouton) m_modeacces = DataBase::Distant;
             }
         }
     }
     }
-    return initOK;
+    return m_initok;
 }
 
-/*--------------------------------------------------------------------------------------------------------------
--- Connexion des timers -------------------------------------------------------------------------------------------
---------------------------------------------------------------------------------------------------------------*/
-bool Procedures::Connexion()
-{
-    return connexion;
-}
 /*--------------------------------------------------------------------------------------------------------------
 -- Connexion à Consults -------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Connexion_A_La_Base()
 {
-    db->init(*gsettingsIni, gMode2);
+    db->init(*m_settings, m_modeacces);
     if (!IdentificationUser())
         return false;
 
@@ -2805,7 +2784,7 @@ bool Procedures::Connexion_A_La_Base()
     m_currentuser->setidSite(DetermineLieuExercice()->id());
     if (m_currentuser->idsitedetravail() == 0)
         UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-    gdbOK = true;
+    m_connexionbaseOK = true;
 
     //Etrange le parametrage ici
     db->StandardSQL("set global sql_mode = 'NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES';");
@@ -2814,7 +2793,7 @@ bool Procedures::Connexion_A_La_Base()
 
     // on recherche si rufusadmin est en fonction auquel cas on utilise les TCPsocket
     QString req = "select iduser from " TBL_USERSCONNECTES " where iduser = (select iduser from " TBL_UTILISATEURS " where userlogin = '" NOM_ADMINISTRATEURDOCS "')";
-    return gdbOK;
+    return m_connexionbaseOK;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -2900,8 +2879,8 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     //1. On vérifie si ce login existe dans le serveur et si c'est le cas, on détruit toutes les instances de ce login
     //TODO : !!! un peu brutal
     QString req = "select user, host from mysql.user where user like '" + Login + "%'";
-    QList<QVariantList> usrlist = db->StandardSelectSQL(req, ok);
-    if (ok && usrlist.size()>0)
+    QList<QVariantList> usrlist = db->StandardSelectSQL(req, m_ok);
+    if (m_ok && usrlist.size()>0)
         for (int i=0; i<usrlist.size(); i++)
             db->StandardSQL("drop user '" + usrlist.at(i).at(0).toString() + "'@'" + usrlist.at(i).at(1).toString() + "'");
 
@@ -2930,8 +2909,8 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->StandardSQL ("insert into " TBL_UTILISATEURS " (idUser, UserNom, UserLogin) values (100, '" NOM_ADMINISTRATEURDOCS "','" NOM_ADMINISTRATEURDOCS "')");
 
     // On crée l'utilisateur dans la table utilisateurs
-    gidCentre               = 1;
-    gUseCotation            = true;
+    m_idcentre               = 1;
+    m_usecotation            = true;
     Datas::I()->banques->initListe();
     CreerUserFactice(1, Login, MDP);
     Datas::I()->users->initListe();
@@ -2961,9 +2940,9 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
             SetUserAllData(m_currentuser, Item::ForceUpdate);
         delete Dlg_GestUsr;
     }
-    gsettingsIni->setValue("Param_Poste/VilleParDefaut","Flayat");
-    gsettingsIni->setValue("Param_Poste/CodePostalParDefaut","23260");
-    gdbOK = true;
+    m_settings->setValue("Param_Poste/VilleParDefaut","Flayat");
+    m_settings->setValue("Param_Poste/CodePostalParDefaut","23260");
+    m_connexionbaseOK = true;
     // On paramètre l'imprimante et les fichiers ressources
     PremierParametrageMateriel();
     PremierParametrageRessources();
@@ -3014,8 +2993,8 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     db->StandardSQL(req);
     QString idcpt ("");
     req = "select max(idcompte) from " TBL_COMPTES;
-    QVariantList cptdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && cptdata.size()>0)
+    QVariantList cptdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+    if (m_ok && cptdata.size()>0)
         idcpt = cptdata.at(0).toString();
 
     req = "update " TBL_UTILISATEURS
@@ -3054,8 +3033,8 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     db->StandardSQL(req);
     req = "select idLieu from " TBL_LIEUXEXERCICE;
     int gidLieuExercice = 0;
-    QList<QVariantList> lieuxlist = db->StandardSelectSQL(req, ok);
-    if (ok && lieuxlist.size()>0)
+    QList<QVariantList> lieuxlist = db->StandardSelectSQL(req, m_ok);
+    if (m_ok && lieuxlist.size()>0)
         gidLieuExercice = lieuxlist.at(0).at(0).toInt(); //TODO : ICI
     req = "insert into " TBL_JOINTURESLIEUX " (idUser, idLieu) VALUES(" + QString::number(idusr) + ", " + QString::number(gidLieuExercice) + ")";
     db->StandardSQL(req);
@@ -3119,10 +3098,10 @@ bool Procedures::IdentificationUser(bool ChgUsr)
                     2 = Sans compta mais avec cotation
                     3 = Avec compta mais sans cotation
            */
-            m_currentuser->setTypeCompta(avecLaComptaProv ?
-                                         (gUseCotation ? User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE : User::COMPTA_SANS_COTATION_AVEC_COMPTABILITE)
+            m_currentuser->setTypeCompta(m_aveccomptaprovisoire ?
+                                         (m_usecotation ? User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE : User::COMPTA_SANS_COTATION_AVEC_COMPTABILITE)
                                            :
-                                         (gUseCotation ? User::COMPTA_AVEC_COTATION_SANS_COMPTABILITE : User::COMPTA_SANS_COTATION_SANS_COMPTABILITE));
+                                         (m_usecotation ? User::COMPTA_AVEC_COTATION_SANS_COMPTABILITE : User::COMPTA_SANS_COTATION_SANS_COMPTABILITE));
 
             //AFFECT USER:
             //qDebug() << "superviseur " << m_currentuser->getIdUserActeSuperviseur();
@@ -3135,7 +3114,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
             if( m_currentuser->idparent() > 0 )
                 m_currentuser->setparent(Datas::I()->users->getById(m_currentuser->idparent()));
 
-            gidCentre = m_parametres->numcentre();
+            m_idcentre = m_parametres->numcentre();
             a = true;
         }
     }
@@ -3176,7 +3155,7 @@ bool Procedures::IdentificationUser(bool ChgUsr)
                 exit(0);
             // Création de l'utilisateur
             //TODO : ICI
-            gdbOK = CreerPremierUser(m_currentuser->login(), m_currentuser->password());
+            m_connexionbaseOK = CreerPremierUser(m_currentuser->login(), m_currentuser->password());
             Datas::I()->users->initListe();
             UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
@@ -3203,28 +3182,28 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     if (m_currentuser->isSoignant() )
     {
         QString req;
-        gAskUser                = new UpDialog();
-        gAskUser                ->AjouteLayButtons();
-        gAskUser                ->setAccessibleName(QString::number(m_currentuser->id()));
-        gAskUser->setdata(m_currentuser);
+        dlg_askUser                = new UpDialog();
+        dlg_askUser                ->AjouteLayButtons();
+        dlg_askUser                ->setAccessibleName(QString::number(m_currentuser->id()));
+        dlg_askUser->setdata(m_currentuser);
         QVBoxLayout *boxlay     = new QVBoxLayout;
-        gAskUser->dlglayout()   ->insertLayout(0,boxlay);
+        dlg_askUser->dlglayout()   ->insertLayout(0,boxlay);
 
-        QGroupBox *boxrole      = new QGroupBox(gAskUser);
+        QGroupBox *boxrole      = new QGroupBox(dlg_askUser);
         boxrole                 ->setAccessibleName("Role");
         QString lblRole         = tr("Quel est votre rôle dans cette session?");
         boxrole                 ->setTitle(lblRole);
         boxrole                 ->setVisible(false);
         boxlay                  ->addWidget(boxrole);
 
-        QGroupBox *boxsuperv    = new QGroupBox(gAskUser);
+        QGroupBox *boxsuperv    = new QGroupBox(dlg_askUser);
         boxsuperv               ->setAccessibleName("Superv");
         QString lblSuperv       = tr("Qui supervise votre activité pour cette session?");
         boxsuperv               ->setTitle(lblSuperv);
         boxsuperv               ->setVisible(false);
         boxlay                  ->addWidget(boxsuperv);
 
-        QGroupBox *boxparent     = new QGroupBox(gAskUser);
+        QGroupBox *boxparent     = new QGroupBox(dlg_askUser);
         boxparent               ->setAccessibleName("Parent");
         QString lblUsrParent    = tr("Qui enregistre vos honoraires?");
         boxparent               ->setTitle(lblUsrParent);
@@ -3273,7 +3252,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
                 vbox                    ->setContentsMargins(8,0,8,0);
                 boxrole                 ->setLayout(vbox);
-                dynamic_cast<QVBoxLayout*>(gAskUser->layout())->setSizeConstraint(QLayout::SetFixedSize);
+                dynamic_cast<QVBoxLayout*>(dlg_askUser->layout())->setSizeConstraint(QLayout::SetFixedSize);
                 CalcUserSuperviseur();
             }
             else
@@ -3293,21 +3272,21 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         else if( m_currentuser->isAssistant() )
             CalcUserSuperviseur();
 
-        gAskUser                ->setModal(true);
-        gAskUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
-        connect(gAskUser->OKButton, &QPushButton::clicked, gAskUser, &UpDialog::accept);
+        dlg_askUser                ->setModal(true);
+        dlg_askUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+        connect(dlg_askUser->OKButton, &QPushButton::clicked, dlg_askUser, &UpDialog::accept);
 
         if( m_currentuser->idsuperviseur() == User::ROLE_INDETERMINE
                 || m_currentuser->idparent() == User::ROLE_INDETERMINE )
         {
-            if( gAskUser->exec() == 0 )
+            if( dlg_askUser->exec() == 0 )
             {
-                delete gAskUser;
+                delete dlg_askUser;
                 return false;
             }
-            foreach (QGroupBox *groupBox, gAskUser->findChildren<QGroupBox*>())
+            foreach (QGroupBox *groupBox, dlg_askUser->findChildren<QGroupBox*>())
             {
-                if( !groupBox->isVisibleTo(gAskUser) )
+                if( !groupBox->isVisibleTo(dlg_askUser) )
                     continue;
                 if (groupBox->accessibleName() == "Superv" )
                 {
@@ -3330,7 +3309,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         }
                 }
             }
-            delete gAskUser;
+            delete dlg_askUser;
         }
         if( m_currentuser->idsuperviseur() == User::ROLE_INDETERMINE )
         {
@@ -3344,8 +3323,8 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
             m_currentuser->setidparent(User::ROLE_NON_RENSEIGNE);
             m_currentuser->setidusercomptable(User::ROLE_NON_RENSEIGNE);
 
-            avecLaComptaProv = true;
-            gUseCotation     = true;
+            m_aveccomptaprovisoire = true;
+            m_usecotation     = true;
         }
         else
         {
@@ -3373,13 +3352,13 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                     else if( !listUserFound.isEmpty() )
                     {
                         // on va demander qui est le soignant parent de ce remplaçant....
-                        gAskUser                = new UpDialog();
-                        gAskUser                ->AjouteLayButtons();
-                        gAskUser                ->setAccessibleName(QString::number(m_currentuser->idsuperviseur()));
-                        gAskUser->setdata(Datas::I()->users->getById( m_currentuser->idsuperviseur()));
+                        dlg_askUser                = new UpDialog();
+                        dlg_askUser                ->AjouteLayButtons();
+                        dlg_askUser                ->setAccessibleName(QString::number(m_currentuser->idsuperviseur()));
+                        dlg_askUser->setdata(Datas::I()->users->getById( m_currentuser->idsuperviseur()));
                         QVBoxLayout *boxlay     = new QVBoxLayout;
-                        gAskUser->dlglayout()   ->insertLayout(0,boxlay);
-                        QGroupBox*boxparent     = new QGroupBox(gAskUser);
+                        dlg_askUser->dlglayout()   ->insertLayout(0,boxlay);
+                        QGroupBox*boxparent     = new QGroupBox(dlg_askUser);
                         boxparent               ->setAccessibleName("Parent");
                         QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + Datas::I()->users->getById(m_currentuser->idsuperviseur())->login() + "?";
                         boxparent               ->setTitle(lblUsrParent);
@@ -3387,17 +3366,17 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                         boxlay                  ->addWidget(boxparent);
 
                         CalcUserParent();
-                        gAskUser                ->setModal(true);
-                        gAskUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
-                        connect(gAskUser->OKButton,   SIGNAL(clicked(bool)),  gAskUser, SLOT(accept()));
-                        if (gAskUser->exec()==0)
+                        dlg_askUser                ->setModal(true);
+                        dlg_askUser->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+                        connect(dlg_askUser->OKButton,   SIGNAL(clicked(bool)),  dlg_askUser, SLOT(accept()));
+                        if (dlg_askUser->exec()==0)
                         {
-                            delete gAskUser;
+                            delete dlg_askUser;
                             return false;
                         }
                         else
                         {
-                            foreach (QGroupBox *box, gAskUser->findChildren<QGroupBox*>())
+                            foreach (QGroupBox *box, dlg_askUser->findChildren<QGroupBox*>())
                                 if (box->accessibleName() == "Parent")
                                     foreach (QRadioButton *butt, box->findChildren<QRadioButton*>())
                                         if (butt->isChecked())
@@ -3406,7 +3385,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                             m_currentuser->setidparent( butt->accessibleName().toInt() );
                                             break;
                                         }
-                            delete gAskUser;
+                            delete dlg_askUser;
                         }
                     }
                 }
@@ -3416,9 +3395,9 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
             if( Datas::I()->users->getById(m_currentuser->idparent()) != Q_NULLPTR )
             {
                 // determination de l'utilisation de la cotation
-                gUseCotation = Datas::I()->users->getById(m_currentuser->idparent())->useCCAM();
+                m_usecotation = Datas::I()->users->getById(m_currentuser->idparent())->useCCAM();
                 // determination de l'utilisation de la comptabilité
-                avecLaComptaProv = !Datas::I()->users->getById(m_currentuser->idparent())->isSansCompta();
+                m_aveccomptaprovisoire = !Datas::I()->users->getById(m_currentuser->idparent())->isSansCompta();
                 if( Datas::I()->users->getById(m_currentuser->idparent())->isLiberal() )
                     m_currentuser->setidusercomptable(Datas::I()->users->getById(m_currentuser->idparent())->id());
                 else if( Datas::I()->users->getById(m_currentuser->idparent())->isSalarie() )
@@ -3434,8 +3413,8 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     m_currentuser->setidsuperviseur(User::ROLE_VIDE);
     m_currentuser->setidusercomptable(User::ROLE_VIDE);
     m_currentuser->setidparent(User::ROLE_VIDE);
-    gUseCotation     = true;
-    avecLaComptaProv = true; //FIXME : avecLaComptaProv
+    m_usecotation     = true;
+    m_aveccomptaprovisoire = true; //FIXME : avecLaComptaProv
     return true;
 }
 
@@ -3477,11 +3456,11 @@ bool Procedures::SetUserAllData(User *usr, Item::UPDATE upd)
  */
 void Procedures::CalcUserSuperviseur()
 {
-    User *user = qobject_cast<User *>(gAskUser->data());
+    User *user = qobject_cast<User *>(dlg_askUser->data());
     m_currentuser->setidsuperviseur(User::ROLE_INDETERMINE);
     m_currentuser->setidparent(User::ROLE_INDETERMINE);
     QGroupBox *ptbox = Q_NULLPTR;
-    QList<QGroupBox*> Listgroupbx   = gAskUser->findChildren<QGroupBox*>();
+    QList<QGroupBox*> Listgroupbx   = dlg_askUser->findChildren<QGroupBox*>();
     for (int i=0; i<Listgroupbx.size(); i++)
     {
         if (Listgroupbx.at(i)->accessibleName() == "Superv")
@@ -3543,7 +3522,7 @@ void Procedures::CalcUserSuperviseur()
         // ??? Cas ou list est vide ?
         // SL -> il n'y a aucun superviseur valide => il faut refuser la connexion
     }
-    gAskUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_askUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 }
 
 /*!
@@ -3557,11 +3536,11 @@ void Procedures::CalcUserSuperviseur()
  */
 void Procedures::CalcUserParent()
 {
-    User *user = qobject_cast<User *>(gAskUser->data());
+    User *user = qobject_cast<User *>(dlg_askUser->data());
     //gidUserSuperViseurProv = user->id();
     user->setidsuperviseur( user->id() );
     QGroupBox *ptbox = Q_NULLPTR;
-    foreach (QGroupBox * box, gAskUser->findChildren<QGroupBox*>())
+    foreach (QGroupBox * box, dlg_askUser->findChildren<QGroupBox*>())
     {
         if (box->accessibleName() == "Superv")
             box->setVisible(false);
@@ -3637,12 +3616,12 @@ void Procedures::CalcUserParent()
         //gidUserParentProv = gidUserSuperViseurProv;
         user->setidparent( user->id() );
     }
-    gAskUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_askUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 }
 
 int Procedures::idCentre()
 {
-    return gidCentre;
+    return m_idcentre;
 }
 
 int Procedures::idLieuExercice()
@@ -3704,7 +3683,7 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE DIR_FACTURES);
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE DIR_ORIGINAUX DIR_FACTURES);
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE DIR_ORIGINAUX DIR_IMAGES);
-    gsettingsIni    = new QSettings(gnomFichIni, QSettings::IniFormat);
+    m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
     if (protoc == BaseExistante)
     {
         if (VerifParamConnexion())
@@ -3718,8 +3697,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             m_currentuser->setidSite(DetermineLieuExercice()->id());
             SetUserAllData(m_currentuser);
             Datas::I()->users->initListe();
-            gdbOK = (m_currentuser != Q_NULLPTR);
-            if (!gdbOK)
+            m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
+            if (!m_connexionbaseOK)
                 return false;
             //gidUser     = idusr; //TODO : ICI
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
@@ -3750,8 +3729,8 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             m_currentuser->setidSite(DetermineLieuExercice()->id());
             SetUserAllData(m_currentuser);
             Datas::I()->users->initListe();
-            gdbOK = (m_currentuser != Q_NULLPTR);
-            if (!gdbOK)
+            m_connexionbaseOK = (m_currentuser != Q_NULLPTR);
+            if (!m_connexionbaseOK)
                 return false;
             //gidUser     = idusr; //TODO : ICI
             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
@@ -3773,12 +3752,12 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
             // Création de la base
              if (!RestaureBase(true, true))
                 return false;
-            if (gMode2 == DataBase::ReseauLocal)
-                db->setadresseserveurlocal(gsettingsIni->value("BDD_LOCAL/Serveur").toString());
+            if (m_modeacces == DataBase::ReseauLocal)
+                db->setadresseserveurlocal(m_settings->value("BDD_LOCAL/Serveur").toString());
             m_parametres = db->parametres();
 
             // Création de l'utilisateur
-            gdbOK = CreerPremierUser(m_currentuser->login(), m_currentuser->password());
+            m_connexionbaseOK = CreerPremierUser(m_currentuser->login(), m_currentuser->password());
             db->login(m_currentuser->login(), m_currentuser->password());
             SetUserAllData(m_currentuser);
             m_currentuser->setidSite(DetermineLieuExercice()->id());
@@ -3798,27 +3777,27 @@ bool Procedures::PremierDemarrage() //TODO : CONFIG
 -----------------------------------------------------------------------------------------------------------------*/
 void Procedures::PremierParametrageMateriel()
 {
-    gsettingsIni->setValue("Param_Imprimante/TailleEnTete","45");
-    gsettingsIni->setValue("Param_Imprimante/TailleEnTeteALD","63");
-    gsettingsIni->setValue("Param_Imprimante/TaillePieddePage","20");
-    gsettingsIni->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes","40");
-    gsettingsIni->setValue("Param_Imprimante/TailleTopMarge","3");
-    gsettingsIni->setValue("Param_Imprimante/ApercuAvantImpression","NO");
-    gsettingsIni->setValue("PyxInterf/PyxvitalPath", QDir::homePath() + "/Documents/Pyxvital");
-    gsettingsIni->setValue("Param_Poste/Autoref","-");
-    gsettingsIni->setValue("Param_Poste/Refracteur","-");
-    gsettingsIni->setValue("Param_Poste/Fronto","-");
-    gsettingsIni->setValue("Param_Poste/Tonometre","-");
-    gsettingsIni->setValue("Param_Poste/PortAutoref","-");
-    gsettingsIni->setValue("Param_Poste/PortRefracteur","-");
-    gsettingsIni->setValue("Param_Poste/PortFronto","-");
-    gsettingsIni->setValue("Param_Poste/PortTonometre","-");
-    gsettingsIni->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
-    gsettingsIni->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
+    m_settings->setValue("Param_Imprimante/TailleEnTete","45");
+    m_settings->setValue("Param_Imprimante/TailleEnTeteALD","63");
+    m_settings->setValue("Param_Imprimante/TaillePieddePage","20");
+    m_settings->setValue("Param_Imprimante/TaillePieddePageOrdoLunettes","40");
+    m_settings->setValue("Param_Imprimante/TailleTopMarge","3");
+    m_settings->setValue("Param_Imprimante/ApercuAvantImpression","NO");
+    m_settings->setValue("PyxInterf/PyxvitalPath", QDir::homePath() + "/Documents/Pyxvital");
+    m_settings->setValue("Param_Poste/Autoref","-");
+    m_settings->setValue("Param_Poste/Refracteur","-");
+    m_settings->setValue("Param_Poste/Fronto","-");
+    m_settings->setValue("Param_Poste/Tonometre","-");
+    m_settings->setValue("Param_Poste/PortAutoref","-");
+    m_settings->setValue("Param_Poste/PortRefracteur","-");
+    m_settings->setValue("Param_Poste/PortFronto","-");
+    m_settings->setValue("Param_Poste/PortTonometre","-");
+    m_settings->setValue("BDD_LOCAL/PrioritaireGestionDocs","NO");
+    m_settings->setValue("Param_Poste/VersionRessources", VERSION_RESSOURCES);
     Utils::mkpath(QDir::homePath() + DIR_RUFUS DIR_IMAGERIE);
     QString NomDirImg = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
     db->setdirimagerie(NomDirImg);
-    gsettingsIni->setValue("BDD_DISTANT/DossierImagerie", NomDirImg);
+    m_settings->setValue("BDD_DISTANT/DossierImagerie", NomDirImg);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -3894,8 +3873,8 @@ void Procedures::PremierParametrageRessources()
                        | QFileDevice::ReadGroup | QFileDevice::WriteGroup
                        | QFileDevice::ReadOwner | QFileDevice::WriteOwner
                        | QFileDevice::ReadUser  | QFileDevice::WriteUser);
-    gsettingsIni->setValue("Param_Poste/VersionRessources",VERSION_RESSOURCES);
-    if (gMode2 == DataBase::Poste)
+    m_settings->setValue("Param_Poste/VersionRessources",VERSION_RESSOURCES);
+    if (m_modeacces == DataBase::Poste)
     {
         QString NomDirImg = QDir::homePath() + DIR_RUFUS DIR_IMAGERIE;
         db->setdirimagerie(NomDirImg);
@@ -3930,7 +3909,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     if (msgbox->clickedButton()==&AnnulBouton)
     {
         if (DetruitIni)
-            QFile::remove(gnomFichIni);
+            QFile::remove(m_nomFichierIni);
         exit(0);
     }
     else if (msgbox->clickedButton()==&RecupIniBouton)
@@ -3941,13 +3920,13 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         int a = dialog.exec();
         if (a>0)
         {
-            QFile FichierIni(gnomFichIni);
+            QFile FichierIni(m_nomFichierIni);
             if (FichierIni.exists())
                 FichierIni.remove();
             QString fileini = dialog.selectedFiles().at(0);
             QFile rufusini(fileini);
-            rufusini.copy(gnomFichIni);
-            gsettingsIni    = new QSettings(gnomFichIni, QSettings::IniFormat);
+            rufusini.copy(m_nomFichierIni);
+            m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
             if (QMessageBox::question(Q_NULLPTR,"", tr("Restaurer aussi les fichiers modèles d'impression?")) != QMessageBox::NoButton)
                 PremierParametrageRessources();
             reponse = true;
@@ -3957,14 +3936,14 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     {
         //reconstruire le fichier rufus.ini
         //1. on demande les paramètres de connexion au serveur - mode d'accès / user / mdp / port / SSL
-        QFile(gnomFichIni).remove();
-        gsettingsIni    = new QSettings(gnomFichIni, QSettings::IniFormat);
+        QFile(m_nomFichierIni).remove();
+        m_settings    = new QSettings(m_nomFichierIni, QSettings::IniFormat);
         reponse = VerifParamConnexion();
         if (reponse)
         {
             int idusr = VerifUserBase(m_currentuser->login(), m_currentuser->password());
-            gdbOK = (idusr > -1);
-            if (!gdbOK)
+            m_connexionbaseOK = (idusr > -1);
+            if (!m_connexionbaseOK)
             {
                 delete msgbox;
                 return false;
@@ -4021,28 +4000,28 @@ bool Procedures::VerifParamConnexion(bool OKAccesDistant, QString)
         if (Dlg_ParamConnex->ui->PosteradioButton->isChecked())
         {
             Base = "BDD_POSTE";
-            gMode2 = DataBase::Poste;
+            m_modeacces = DataBase::Poste;
         }
         else if (Dlg_ParamConnex->ui->LocalradioButton->isChecked())
         {
             Base = "BDD_LOCAL";
-            gsettingsIni->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
-            gMode2 = DataBase::ReseauLocal;
+            m_settings->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
+            m_modeacces = DataBase::ReseauLocal;
         }
         else if (Dlg_ParamConnex->ui->DistantradioButton->isChecked())
         {
             Base = "BDD_DISTANT";
-            gsettingsIni->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
-            gMode2 = DataBase::Distant;
+            m_settings->setValue(Base + "/Serveur",   Dlg_ParamConnex->ui->IPlineEdit->text());
+            m_modeacces = DataBase::Distant;
         }
-        gsettingsIni->setValue(Base + "/Active",    "YES");
-        gsettingsIni->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());
+        m_settings->setValue(Base + "/Active",    "YES");
+        m_settings->setValue(Base + "/Port", Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
         //! du premier utilisateur à se connecter, on ne connait que le login et le pwd
         m_currentuser = new User(Dlg_ParamConnex->ui->LoginlineEdit->text(),Dlg_ParamConnex->ui->MDPlineEdit->text());
         db->setUserConnected(m_currentuser);
 
-        gdbOK = true;
+        m_connexionbaseOK = true;
         delete Dlg_ParamConnex;
         return true;
     }
@@ -4105,8 +4084,8 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
     msgbox.setIcon(QMessageBox::Information);
     msgbox.addButton(&OKBouton, QMessageBox::AcceptRole);
     QString req = "SHOW TABLES FROM " DB_CONSULTS " LIKE 'utilisateurs'";
-    QVariantList verifbasedata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (!ok || verifbasedata.size()==0)
+    QVariantList verifbasedata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+    if (!m_ok || verifbasedata.size()==0)
     {
         msgbox.setText(tr("Erreur sur la base patients"));
         msgbox.setInformativeText(tr("La connexion au serveur fonctionne mais "
@@ -4119,12 +4098,12 @@ int Procedures::VerifUserBase(QString Login, QString MDP)
     req =   "SELECT idUser FROM " TBL_UTILISATEURS
             " WHERE UserLogin = '" + Utils::correctquoteSQL(Login) +
             "' AND UserMDP = '" + Utils::correctquoteSQL(MDP) + "'" ;
-    QVariantList idusrdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (!ok || idusrdata.size()==0)
+    QVariantList idusrdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+    if (!m_ok || idusrdata.size()==0)
     {
         req =   "SELECT UserLogin FROM " TBL_UTILISATEURS;
-        QList<QVariantList> usrlist = db->StandardSelectSQL(req, ok);
-        if (!ok || usrlist.size()==0)
+        QList<QVariantList> usrlist = db->StandardSelectSQL(req, m_ok);
+        if (!m_ok || usrlist.size()==0)
         {
             msgbox.setText(tr("Erreur sur la base patients"));
             msgbox.setInformativeText(tr("La connexion au serveur fonctionne mais "
@@ -4185,26 +4164,26 @@ GESTION DES PORTS SERIES -------------------------------------------------------
 bool Procedures::Ouverture_Ports_Series()
 {
     QString NomPort             = "";
-    gPortRefracteur             = "";
-    gPortFronto                 = "";
-    gPortAutoref                = "";
-    gPortTono                   = "";
-    lPortRefracteur             = Q_NULLPTR;
-    lPortFronto                 = Q_NULLPTR;
-    lPortAutoref                = Q_NULLPTR;
-    lPortTono                   = Q_NULLPTR;
-    gFrontoParametre            = (gsettingsIni->value("Param_Poste/Fronto").toString() != "-"
-                                && gsettingsIni->value("Param_Poste/Fronto").toString() != ""
-                                && gsettingsIni->value("Param_Poste/PortFronto").toString() != "Box");
-    gAutorefParametre           = (gsettingsIni->value("Param_Poste/Autoref").toString() != "-"
-                                && gsettingsIni->value("Param_Poste/Autoref").toString() != ""
-                                && gsettingsIni->value("Param_Poste/PortAutoref").toString() != "Box");
-    gRefracteurParametre        = (gsettingsIni->value("Param_Poste/Refracteur").toString() != "-"
-                                && gsettingsIni->value("Param_Poste/Refracteur").toString() != "");
-    gTonoParametre              = (gsettingsIni->value("Param_Poste/Tonometre").toString() != "-"
-                                && gsettingsIni->value("Param_Poste/Tonometre").toString() != "");
+    m_portRefracteur             = "";
+    m_portFronto                 = "";
+    m_portAutoref                = "";
+    m_portTono                   = "";
+    sp_portRefracteur             = Q_NULLPTR;
+    sp_portFronto                 = Q_NULLPTR;
+    sp_portAutoref                = Q_NULLPTR;
+    sp_portTono                   = Q_NULLPTR;
+    m_isFrontoParametre            = (m_settings->value("Param_Poste/Fronto").toString() != "-"
+                                && m_settings->value("Param_Poste/Fronto").toString() != ""
+                                && m_settings->value("Param_Poste/PortFronto").toString() != "Box");
+    m_isAutorefParametre           = (m_settings->value("Param_Poste/Autoref").toString() != "-"
+                                && m_settings->value("Param_Poste/Autoref").toString() != ""
+                                && m_settings->value("Param_Poste/PortAutoref").toString() != "Box");
+    m_isRefracteurParametre        = (m_settings->value("Param_Poste/Refracteur").toString() != "-"
+                                && m_settings->value("Param_Poste/Refracteur").toString() != "");
+    m_isTonoParametre              = (m_settings->value("Param_Poste/Tonometre").toString() != "-"
+                                && m_settings->value("Param_Poste/Tonometre").toString() != "");
 
-    if (gAutorefParametre || gRefracteurParametre || gFrontoParametre || gTonoParametre)
+    if (m_isAutorefParametre || m_isRefracteurParametre || m_isFrontoParametre || m_isTonoParametre)
     {
         bool portseriedispo = false;
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
@@ -4225,36 +4204,36 @@ bool Procedures::Ouverture_Ports_Series()
         }
     }
     // PORT FRONTO
-    if (gFrontoParametre)
+    if (m_isFrontoParametre)
     {
-        gPortFronto     = gsettingsIni->value("Param_Poste/PortFronto").toString();
+        m_portFronto     = m_settings->value("Param_Poste/PortFronto").toString();
         bool a          = ReglePortFronto();
-        a               = (gPortFronto != "");
+        a               = (m_portFronto != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion frontofocomètre"));
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
             {
-                if (gPortFronto == "COM1") NomPort = "A";
-                else if (gPortFronto == "COM2") NomPort = "B";
-                else if (gPortFronto == "COM3") NomPort = "C";
-                else if (gPortFronto == "COM4") NomPort = "D";
+                if (m_portFronto == "COM1") NomPort = "A";
+                else if (m_portFronto == "COM2") NomPort = "B";
+                else if (m_portFronto == "COM3") NomPort = "C";
+                else if (m_portFronto == "COM4") NomPort = "D";
                 if (NomPort != "") break;
             }
             else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
             {
-                if (gPortFronto == "COM1") NomPort = "ttyUSB0";
-                else if (gPortFronto == "COM2") NomPort = "ttyUSB1";
-                else if (gPortFronto == "COM3") NomPort = "ttyUSB2";
-                else if (gPortFronto == "COM4") NomPort = "ttyUSB3";
+                if (m_portFronto == "COM1") NomPort = "ttyUSB0";
+                else if (m_portFronto == "COM2") NomPort = "ttyUSB1";
+                else if (m_portFronto == "COM3") NomPort = "ttyUSB2";
+                else if (m_portFronto == "COM4") NomPort = "ttyUSB3";
                 if (NomPort != "") break;
             }
         }
 
         if (NomPort != "")
         {
-            lPortFronto     = new QSerialPort();
+            sp_portFronto     = new QSerialPort();
             for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
             {
                 //Debug() << QSerialPortInfo::availablePorts().at(i).portName();
@@ -4264,12 +4243,12 @@ bool Procedures::Ouverture_Ports_Series()
                     QString letter = QSerialPortInfo::availablePorts().at(i).portName().split("-").at(1);
                     if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort || letter.left(1) == NomPort)
                     {
-                        lPortFronto->setPort(QSerialPortInfo::availablePorts().at(i));
-                        lPortFronto->setBaudRate(ParamPortSerieFronto.baudRate);
-                        lPortFronto->setFlowControl(ParamPortSerieFronto.flowControl);
-                        lPortFronto->setParity(ParamPortSerieFronto.parity);
-                        lPortFronto->setDataBits(ParamPortSerieFronto.dataBits);
-                        lPortFronto->setStopBits(ParamPortSerieFronto.stopBits);
+                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
+                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
+                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
+                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
+                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
                         break;
                     }
                 }
@@ -4277,37 +4256,37 @@ bool Procedures::Ouverture_Ports_Series()
                 {
                     if (QSerialPortInfo::availablePorts().at(i).portName() == NomPort)
                     {
-                        lPortFronto->setPort(QSerialPortInfo::availablePorts().at(i));
-                        lPortFronto->setBaudRate(ParamPortSerieFronto.baudRate);
-                        lPortFronto->setFlowControl(ParamPortSerieFronto.flowControl);
-                        lPortFronto->setParity(ParamPortSerieFronto.parity);
-                        lPortFronto->setDataBits(ParamPortSerieFronto.dataBits);
-                        lPortFronto->setStopBits(ParamPortSerieFronto.stopBits);
+                        sp_portFronto->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portFronto->setBaudRate(s_paramPortSerieFronto.baudRate);
+                        sp_portFronto->setFlowControl(s_paramPortSerieFronto.flowControl);
+                        sp_portFronto->setParity(s_paramPortSerieFronto.parity);
+                        sp_portFronto->setDataBits(s_paramPortSerieFronto.dataBits);
+                        sp_portFronto->setStopBits(s_paramPortSerieFronto.stopBits);
                         break;
                     }
                 }
             }
-            qDebug() << "FRONTO -> " + gPortFronto + " - " + NomPort;
-            if (lPortFronto->open(QIODevice::ReadWrite))
+            qDebug() << "FRONTO -> " + m_portFronto + " - " + NomPort;
+            if (sp_portFronto->open(QIODevice::ReadWrite))
             {
-                ThreadFronto = new SerialThread(lPortFronto);
-                ThreadFronto->transaction();
-                connect(ThreadFronto,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Fronto(QString)));
+                t_threadFronto = new SerialThread(sp_portFronto);
+                t_threadFronto->transaction();
+                connect(t_threadFronto,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Fronto(QString)));
             }
             else
             {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter le frontofocomètre") + "\n" + lPortFronto->errorString());
-                lPortFronto = Q_NULLPTR;
+                UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter le frontofocomètre") + "\n" + sp_portFronto->errorString());
+                sp_portFronto = Q_NULLPTR;
             }
         }
     }
 
     // PORT REFRACTEUR
-    if (gRefracteurParametre)
+    if (m_isRefracteurParametre)
     {
-        gPortRefracteur = gsettingsIni->value("Param_Poste/PortRefracteur").toString();
+        m_portRefracteur = m_settings->value("Param_Poste/PortRefracteur").toString();
         bool a          = ReglePortRefracteur();
-        a               = (gPortRefracteur != "");
+        a               = (m_portRefracteur != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion refracteur"));
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
@@ -4315,24 +4294,24 @@ bool Procedures::Ouverture_Ports_Series()
             //qDebug() << QSerialPortInfo::availablePorts().at(i).portName();
             if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
             {
-                if (gPortRefracteur == "COM1") NomPort = "A";
-                else if (gPortRefracteur == "COM2") NomPort = "B";
-                else if (gPortRefracteur == "COM3") NomPort = "C";
-                else if (gPortRefracteur == "COM4") NomPort = "D";
+                if (m_portRefracteur == "COM1") NomPort = "A";
+                else if (m_portRefracteur == "COM2") NomPort = "B";
+                else if (m_portRefracteur == "COM3") NomPort = "C";
+                else if (m_portRefracteur == "COM4") NomPort = "D";
                 if (NomPort != "") break;
             }
             else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
             {
-                if (gPortRefracteur == "COM1") NomPort = "ttyUSB0";
-                else if (gPortRefracteur == "COM2") NomPort = "ttyUSB1";
-                else if (gPortRefracteur == "COM3") NomPort = "ttyUSB2";
-                else if (gPortRefracteur == "COM4") NomPort = "ttyUSB3";
+                if (m_portRefracteur == "COM1") NomPort = "ttyUSB0";
+                else if (m_portRefracteur == "COM2") NomPort = "ttyUSB1";
+                else if (m_portRefracteur == "COM3") NomPort = "ttyUSB2";
+                else if (m_portRefracteur == "COM4") NomPort = "ttyUSB3";
                 if (NomPort != "") break;
             }
         }
         if (NomPort != "")
         {
-            lPortRefracteur     = new QSerialPort();
+            sp_portRefracteur     = new QSerialPort();
             for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
             {
                 if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
@@ -4340,12 +4319,12 @@ bool Procedures::Ouverture_Ports_Series()
                     QString letter = QSerialPortInfo::availablePorts().at(i).portName().split("-").at(1);
                     if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort || letter.left(1) == NomPort)
                     {
-                        lPortRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
-                        lPortRefracteur->setBaudRate(ParamPortSerieRefracteur.baudRate);
-                        lPortRefracteur->setFlowControl(ParamPortSerieRefracteur.flowControl);
-                        lPortRefracteur->setParity(ParamPortSerieRefracteur.parity);
-                        lPortRefracteur->setDataBits(ParamPortSerieRefracteur.dataBits);
-                        lPortRefracteur->setStopBits(ParamPortSerieRefracteur.stopBits);
+                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
+                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
+                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
+                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
+                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
                         break;
                     }
                 }
@@ -4353,61 +4332,61 @@ bool Procedures::Ouverture_Ports_Series()
                 {
                     if (QSerialPortInfo::availablePorts().at(i).portName() == NomPort)
                     {
-                        lPortRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
-                        lPortRefracteur->setBaudRate(ParamPortSerieRefracteur.baudRate);
-                        lPortRefracteur->setFlowControl(ParamPortSerieRefracteur.flowControl);
-                        lPortRefracteur->setParity(ParamPortSerieRefracteur.parity);
-                        lPortRefracteur->setDataBits(ParamPortSerieRefracteur.dataBits);
-                        lPortRefracteur->setStopBits(ParamPortSerieRefracteur.stopBits);
+                        sp_portRefracteur->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portRefracteur->setBaudRate(s_paramPortSerieRefracteur.baudRate);
+                        sp_portRefracteur->setFlowControl(s_paramPortSerieRefracteur.flowControl);
+                        sp_portRefracteur->setParity(s_paramPortSerieRefracteur.parity);
+                        sp_portRefracteur->setDataBits(s_paramPortSerieRefracteur.dataBits);
+                        sp_portRefracteur->setStopBits(s_paramPortSerieRefracteur.stopBits);
                         break;
                     }
                 }
             }
-            qDebug() << "REFRACTEUR -> " + gPortRefracteur + " - " + NomPort;
-            if (lPortRefracteur->open(QIODevice::ReadWrite))
+            qDebug() << "REFRACTEUR -> " + m_portRefracteur + " - " + NomPort;
+            if (sp_portRefracteur->open(QIODevice::ReadWrite))
             {
-                ThreadRefracteur     = new SerialThread(lPortRefracteur);
-                ThreadRefracteur    ->transaction();
-                connect(ThreadRefracteur,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Refracteur(QString)));
+                t_threadRefracteur     = new SerialThread(sp_portRefracteur);
+                t_threadRefracteur    ->transaction();
+                connect(t_threadRefracteur,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Refracteur(QString)));
             }
             else
             {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter le refracteur") + "\n" + lPortRefracteur->errorString());
-                lPortRefracteur = Q_NULLPTR;
+                UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter le refracteur") + "\n" + sp_portRefracteur->errorString());
+                sp_portRefracteur = Q_NULLPTR;
             }
         }
     }
 
     //PORT AUTOREF
-    if (gAutorefParametre)
+    if (m_isAutorefParametre)
     {
-        gPortAutoref    = gsettingsIni->value("Param_Poste/PortAutoref").toString();
+        m_portAutoref    = m_settings->value("Param_Poste/PortAutoref").toString();
         bool a          = ReglePortAutoref();
-        a               = (gPortAutoref != "");
+        a               = (m_portAutoref != "");
         if (!a)
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur connexion autorefractomètre"));
         for (int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
         {
             if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
             {
-                if (gPortAutoref == "COM1") NomPort = "A";
-                else if (gPortAutoref == "COM2") NomPort = "B";
-                else if (gPortAutoref == "COM3") NomPort = "C";
-                else if (gPortAutoref == "COM4") NomPort = "D";
+                if (m_portAutoref == "COM1") NomPort = "A";
+                else if (m_portAutoref == "COM2") NomPort = "B";
+                else if (m_portAutoref == "COM3") NomPort = "C";
+                else if (m_portAutoref == "COM4") NomPort = "D";
                 if (NomPort != "") break;
             }
             else if (QSerialPortInfo::availablePorts().at(i).portName().contains("ttyUSB"))
             {
-                if (gPortAutoref == "COM1") NomPort = "ttyUSB0";
-                else if (gPortAutoref == "COM2") NomPort = "ttyUSB1";
-                else if (gPortAutoref == "COM3") NomPort = "ttyUSB2";
-                else if (gPortAutoref == "COM4") NomPort = "ttyUSB3";
+                if (m_portAutoref == "COM1") NomPort = "ttyUSB0";
+                else if (m_portAutoref == "COM2") NomPort = "ttyUSB1";
+                else if (m_portAutoref == "COM3") NomPort = "ttyUSB2";
+                else if (m_portAutoref == "COM4") NomPort = "ttyUSB3";
                 if (NomPort != "") break;
             }
         }
         if (NomPort != "")
         {
-            lPortAutoref     = new QSerialPort();
+            sp_portAutoref     = new QSerialPort();
             for(int i=0; i<QSerialPortInfo::availablePorts().size(); i++)
             {
                 if (QSerialPortInfo::availablePorts().at(i).portName().contains("usbserial"))
@@ -4415,12 +4394,12 @@ bool Procedures::Ouverture_Ports_Series()
                     QString letter = QSerialPortInfo::availablePorts().at(i).portName().split("-").at(1);
                     if (QSerialPortInfo::availablePorts().at(i).portName().right(1) == NomPort || letter.left(1) == NomPort)
                     {
-                        lPortAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
-                        lPortAutoref->setBaudRate(ParamPortSerieAutoref.baudRate);
-                        lPortAutoref->setFlowControl(ParamPortSerieAutoref.flowControl);
-                        lPortAutoref->setParity(ParamPortSerieAutoref.parity);
-                        lPortAutoref->setDataBits(ParamPortSerieAutoref.dataBits);
-                        lPortAutoref->setStopBits(ParamPortSerieAutoref.stopBits);
+                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
+                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
+                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
+                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
+                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
                         break;
                     }
                 }
@@ -4428,69 +4407,69 @@ bool Procedures::Ouverture_Ports_Series()
                 {
                     if (QSerialPortInfo::availablePorts().at(i).portName() == NomPort)
                     {
-                        lPortAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
-                        lPortAutoref->setBaudRate(ParamPortSerieAutoref.baudRate);
-                        lPortAutoref->setFlowControl(ParamPortSerieAutoref.flowControl);
-                        lPortAutoref->setParity(ParamPortSerieAutoref.parity);
-                        lPortAutoref->setDataBits(ParamPortSerieAutoref.dataBits);
-                        lPortAutoref->setStopBits(ParamPortSerieAutoref.stopBits);
+                        sp_portAutoref->setPort(QSerialPortInfo::availablePorts().at(i));
+                        sp_portAutoref->setBaudRate(s_paramPortSerieAutoref.baudRate);
+                        sp_portAutoref->setFlowControl(s_paramPortSerieAutoref.flowControl);
+                        sp_portAutoref->setParity(s_paramPortSerieAutoref.parity);
+                        sp_portAutoref->setDataBits(s_paramPortSerieAutoref.dataBits);
+                        sp_portAutoref->setStopBits(s_paramPortSerieAutoref.stopBits);
                         break;
                     }
                 }
             }
-            qDebug() << "AUTOREF -> " + gPortAutoref + " - " + NomPort;
-            if (lPortAutoref->open(QIODevice::ReadWrite))
+            qDebug() << "AUTOREF -> " + m_portAutoref + " - " + NomPort;
+            if (sp_portAutoref->open(QIODevice::ReadWrite))
             {
-                ThreadAutoref     = new SerialThread(lPortAutoref);
-                ThreadAutoref   ->transaction();
-                connect(ThreadAutoref,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Autoref(QString)));
+                t_threadAutoref     = new SerialThread(sp_portAutoref);
+                t_threadAutoref   ->transaction();
+                connect(t_threadAutoref,  SIGNAL(reponse(QString)),     this, SLOT(Slot_ReponsePortSerie_Autoref(QString)));
             }
             else
             {
-                UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter l'autorefractomètre") + "\n" + lPortAutoref->errorString());
-                lPortAutoref = Q_NULLPTR;
+                UpMessageBox::Watch(Q_NULLPTR,tr("Connexion impossible"),tr("Impossible de connecter l'autorefractomètre") + "\n" + sp_portAutoref->errorString());
+                sp_portAutoref = Q_NULLPTR;
             }
         }
     }
-    if (gTonoParametre)
+    if (m_isTonoParametre)
     {
-        gPortTono       = gsettingsIni->value("Param_Poste/PortTonometre").toString();
+        m_portTono       = m_settings->value("Param_Poste/PortTonometre").toString();
     }
     return false;
 }
 
 void Procedures::ClearMesures()
 {
-    MesureFronto                .clear();
-    MesureAutoref               .clear();
-    MesureKerato                .clear();
-    MesureTono                  .clear();
-    MesurePachy                 .clear();
-    MesureRefracteurSubjectif   .clear();
-    MesureRefracteurFinal       .clear();
+    m_mesureFronto                .clear();
+    m_mesureAutoref               .clear();
+    m_mesureKerato                .clear();
+    m_mesureTono                  .clear();
+    m_mesurePachy                 .clear();
+    m_mesureRefracteurSubjectif   .clear();
+    m_mesureRefracteurFinal       .clear();
 }
 
 void Procedures::ClearHtmlMesures()
 {
-    HtmlMesureFronto                .clear();
-    HtmlMesureAutoref               .clear();
-    HtmlMesureKerato                .clear();
-    HtmlMesureTono                  .clear();
-    HtmlMesurePachy                 .clear();
-    HtmlMesureRefracteurSubjectif   .clear();
-    HtmlMesureRefracteurFinal       .clear();
+    m_htmlMesureFronto                .clear();
+    m_htmlMesureAutoref               .clear();
+    m_htmlMesureKerato                .clear();
+    m_htmlMesureTono                  .clear();
+    m_htmlMesurePachy                 .clear();
+    m_htmlMesureRefracteurSubjectif   .clear();
+    m_htmlMesureRefracteurFinal       .clear();
 }
 
 bool Procedures::ReglePortRefracteur()
 {
     bool a = true;
-    if (gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
     {
-        ParamPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
-        ParamPortSerieRefracteur.dataBits       = QSerialPort::Data7;
-        ParamPortSerieRefracteur.parity         = QSerialPort::EvenParity;
-        ParamPortSerieRefracteur.stopBits       = QSerialPort::TwoStop;
-        ParamPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
+        s_paramPortSerieRefracteur.baudRate       = QSerialPort::Baud2400;
+        s_paramPortSerieRefracteur.dataBits       = QSerialPort::Data7;
+        s_paramPortSerieRefracteur.parity         = QSerialPort::EvenParity;
+        s_paramPortSerieRefracteur.stopBits       = QSerialPort::TwoStop;
+        s_paramPortSerieRefracteur.flowControl    = QSerialPort::NoFlowControl;
     }
     else a = false;
     return a;
@@ -4498,7 +4477,7 @@ bool Procedures::ReglePortRefracteur()
 
 QSerialPort* Procedures::PortRefracteur()
 {
-    return lPortRefracteur;
+    return sp_portRefracteur;
 }
 
 //-----------------------------------------------------------------------------------------
@@ -4507,10 +4486,10 @@ QSerialPort* Procedures::PortRefracteur()
 void Procedures::Slot_ReponsePortSerie_Refracteur(const QString &s)
 {
     //qDebug() << s;
-    gMesureSerie        = s;
+    m_mesureSerie        = s;
 
     QString OKPourRecevoir ("");
-    if (gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
     {
         QByteArray DTRbuff;
         DTRbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
@@ -4521,20 +4500,20 @@ void Procedures::Slot_ReponsePortSerie_Refracteur(const QString &s)
         DTRbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
         OKPourRecevoir = DTRbuff+"\r";
         //OKPourRecevoir = "\001CRL\002SD\027\004\r";
-        if (gMesureSerie == OKPourRecevoir)
+        if (m_mesureSerie == OKPourRecevoir)
         {
             RegleRefracteur();
             return;
         }
     }
-    setDonneesRefracteur(gMesureSerie);
-    if (MesureAutoref.isEmpty()
-        && MesureFronto.isEmpty()
-        && MesureKerato.isEmpty()
-        && MesurePachy.isEmpty()
-        && MesureTono.isEmpty()
-        && MesureRefracteurSubjectif.isEmpty()
-        && MesureRefracteurFinal.isEmpty())
+    setDonneesRefracteur(m_mesureSerie);
+    if (m_mesureAutoref.isEmpty()
+        && m_mesureFronto.isEmpty()
+        && m_mesureKerato.isEmpty()
+        && m_mesurePachy.isEmpty()
+        && m_mesureTono.isEmpty()
+        && m_mesureRefracteurSubjectif.isEmpty()
+        && m_mesureRefracteurFinal.isEmpty())
     {
         UpMessageBox::Watch(Q_NULLPTR,tr("pas de données reçues du refracteur"));
         return;
@@ -4552,8 +4531,8 @@ void Procedures::Slot_ReponsePortSerie_Refracteur(const QString &s)
 void Procedures::RegleRefracteur()
 {
     QMap<QString,QVariant>  Mesure;
-    if (gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100"
-     || gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100"
+     || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
     {
         QString AxeOD, AxeOG;
         QString AddOD, AddOG;
@@ -4561,11 +4540,11 @@ void Procedures::RegleRefracteur()
         QString DataAEnvoyer;
         QByteArray DTRbuff;
         DTRbuff.append(QByteArray::fromHex("O1"));          //SOH -> start of header
-        if (!MesureAutoref.isEmpty())
+        if (!m_mesureAutoref.isEmpty())
         {
             //debugformule(MesureAutoref, "Autoref");
-            Mesure = MesureAutoref;
-            MesureAutoref.clear();
+            Mesure = m_mesureAutoref;
+            m_mesureAutoref.clear();
             if (Mesure["AxeOD"].toInt()<10)
                 AxeOD = "  " + QString::number(Mesure["AxeOD"].toInt());
             else if (Mesure["AxeOD"].toInt()<100)
@@ -4597,11 +4576,11 @@ void Procedures::RegleRefracteur()
             }
             //qDebug() << "SCAOD = " << SCAOD << "SCAOG = " << SCAOG;
         }
-        if (!MesureFronto.isEmpty())
+        if (!m_mesureFronto.isEmpty())
         {
             //debugformule(MesureFronto, "Fronto");
-            Mesure = MesureFronto;
-            MesureFronto.clear();
+            Mesure = m_mesureFronto;
+            m_mesureFronto.clear();
             if (Mesure["AxeOD"].toInt()<10)
                 AxeOD = "  " + QString::number(Mesure["AxeOD"].toInt());
             else if (Mesure["AxeOD"].toInt()<100)
@@ -4685,15 +4664,15 @@ void Procedures::SetDataAEnvoyerAuRefracteur(QMap<QString, QVariant> DataFronto,
     debugformule(DataFronto, "Fronto");
     debugformule(DataAutoref, "Autoref");
     ClearMesures();
-    MesureAutoref       = DataAutoref;
-    MesureFronto        = DataFronto;
-    NouvMesureFronto    = false;
-    NouvMesureAutoref   = false;
+    m_mesureAutoref       = DataAutoref;
+    m_mesureFronto        = DataFronto;
+    m_isnewMesureFronto    = false;
+    m_isnewMesureAutoref   = false;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (ThreadRefracteur!=Q_NULLPTR)
+    if (t_threadRefracteur!=Q_NULLPTR)
     {
         // NIDEK RT-5100
-        if (gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+        if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
             //Dans un premier temps, le PC envoie la séquence SOH puis "C**" puis STX puis "RS" puis ETB puis EOT
             QString ReqPourEnvoyer ("");
@@ -4738,8 +4717,8 @@ void Procedures::setDonneesRefracteur(QString Mesure)
 
     // TRADUCTION DES DONNEES EN FONCTION DU REFRACTEUR
     // NIDEK RT-5100 - RT-2100 =======================================================================================================================================
-    if (gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100"
-     || gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+    if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100"
+     || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
     {
         /*
 NIDEK RT-5100 ID             DA2016/12/30
@@ -4788,15 +4767,15 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                 mAxeOG       = mesureOG.mid(12,3);
                 mAddOG       = SectionFronto.mid(SectionFronto.indexOf("AL")+2,6)    .replace(" ","0");
             }
-            MesureFronto.clear();
-            MesureFronto["SphereOD"]    = mSphereOD;
-            MesureFronto["CylOD"]       = mCylOD;
-            MesureFronto["AxeOD"]       = mAxeOD;
-            MesureFronto["AddOD"]       = mAddOD;
-            MesureFronto["SphereOG"]    = mSphereOG;
-            MesureFronto["CylOG"]       = mCylOG;
-            MesureFronto["AxeOG"]       = mAxeOG;
-            MesureFronto["AddOG"]       = mAddOG;
+            m_mesureFronto.clear();
+            m_mesureFronto["SphereOD"]    = mSphereOD;
+            m_mesureFronto["CylOD"]       = mCylOD;
+            m_mesureFronto["AxeOD"]       = mAxeOD;
+            m_mesureFronto["AddOD"]       = mAddOD;
+            m_mesureFronto["SphereOG"]    = mSphereOG;
+            m_mesureFronto["CylOG"]       = mCylOG;
+            m_mesureFronto["AxeOG"]       = mAxeOG;
+            m_mesureFronto["AddOG"]       = mAddOG;
         }
         // Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
         if (Mesure.contains("@RM"))                 //=> il y a une mesure de refractometrie
@@ -4820,17 +4799,17 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                 mCylOG       = mesureOG.mid(6,6);
                 mAxeOG       = mesureOG.mid(12,3);
             }
-            MesureAutoref.clear();
-            MesureAutoref["SphereOD"]    = mSphereOD;
-            MesureAutoref["CylOD"]       = mCylOD;
-            MesureAutoref["AxeOD"]       = mAxeOD;
-            MesureAutoref["SphereOG"]    = mSphereOG;
-            MesureAutoref["CylOG"]       = mCylOG;
-            MesureAutoref["AxeOG"]       = mAxeOG;
+            m_mesureAutoref.clear();
+            m_mesureAutoref["SphereOD"]    = mSphereOD;
+            m_mesureAutoref["CylOD"]       = mCylOD;
+            m_mesureAutoref["AxeOD"]       = mAxeOD;
+            m_mesureAutoref["SphereOG"]    = mSphereOG;
+            m_mesureAutoref["CylOG"]       = mCylOG;
+            m_mesureAutoref["AxeOG"]       = mAxeOG;
         }
         if (Mesure.contains("@KM"))                 //=> il y a une mesure de keratométrie
         {
-            MesureKerato.clear();
+            m_mesureKerato.clear();
             idx                     = Mesure.indexOf("@KM");
             QString SectionKerato   = Mesure.right(Mesure.length()-idx);
             //Edit(SectionKerato + "\nOK");
@@ -4845,9 +4824,9 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                 {
                     mesureOD            = SectionKerato.mid(SectionKerato.indexOf("DR")+2,10)   .replace(" ","0");
                     DioptrAstCornOD     = QString::number(mesureOD.mid(0,5).toDouble() - mesureOD.mid(5,5).toDouble(),'f',2);
-                    MesureKerato["DioptrK1OD"]  = QString::number(mesureOD.mid(0,5).toDouble(),'f',2);
-                    MesureKerato["DioptrK2OD"]  = QString::number(mesureOD.mid(5,5).toDouble(),'f',2);
-                    MesureKerato["DioptrKOD"]   = DioptrAstCornOD;
+                    m_mesureKerato["DioptrK1OD"]  = QString::number(mesureOD.mid(0,5).toDouble(),'f',2);
+                    m_mesureKerato["DioptrK2OD"]  = QString::number(mesureOD.mid(5,5).toDouble(),'f',2);
+                    m_mesureKerato["DioptrKOD"]   = DioptrAstCornOD;
                 }
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
@@ -4861,17 +4840,17 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                 {
                     mesureOG            = SectionKerato.mid(SectionKerato.indexOf("DL")+2,10)   .replace(" ","0");
                     DioptrAstCornOG     = QString::number(mesureOG.mid(0,5).toDouble() - mesureOG.mid(5,5).toDouble(),'f',2);
-                    MesureKerato["DioptrK1OG"]  = QString::number(mesureOG.mid(0,5).toDouble(),'f',2);
-                    MesureKerato["DioptrK2OG"]  = QString::number(mesureOG.mid(5,5).toDouble(),'f',2);
-                    MesureKerato["DioptrKOG"]   = DioptrAstCornOG;
+                    m_mesureKerato["DioptrK1OG"]  = QString::number(mesureOG.mid(0,5).toDouble(),'f',2);
+                    m_mesureKerato["DioptrK2OG"]  = QString::number(mesureOG.mid(5,5).toDouble(),'f',2);
+                    m_mesureKerato["DioptrKOG"]   = DioptrAstCornOG;
                 }
             }
-            MesureKerato["K1OD"]        = K1OD;
-            MesureKerato["K2OD"]        = K2OD;
-            MesureKerato["AxeKOD"]      = AxeKOD;
-            MesureKerato["K1OG"]        = K1OG;
-            MesureKerato["K2OG"]        = K2OG;
-            MesureKerato["AxeKOG"]      = AxeKOG;
+            m_mesureKerato["K1OD"]        = K1OD;
+            m_mesureKerato["K2OD"]        = K2OD;
+            m_mesureKerato["AxeKOD"]      = AxeKOD;
+            m_mesureKerato["K1OG"]        = K1OG;
+            m_mesureKerato["K2OG"]        = K2OG;
+            m_mesureKerato["AxeKOG"]      = AxeKOG;
         }
         // Données du REFRACTEUR --------------------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@RT"))                 //=> il y a une mesure de refraction
@@ -4883,8 +4862,8 @@ void Procedures::setDonneesRefracteur(QString Mesure)
 
             // les données subjectives --------------------------------------------------------------------------------------------------------------
             // OEIL DROIT -----------------------------------------------------------------------------
-            MesureRefracteurSubjectif.clear();
-            MesureRefracteurSubjectif["PD"]          = PD;
+            m_mesureRefracteurSubjectif.clear();
+            m_mesureRefracteurSubjectif["PD"]          = PD;
             if (SectionRefracteur.contains("fR"))
                 {
                mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("fR")+2,15)   .replace(" ","0");
@@ -4897,13 +4876,13 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                     AVLOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("vR")+2,5)    .replace(" ","0");
                 if (SectionRefracteur.indexOf("yR")>-1)
                     AVPOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("yR")+2,5)    .replace(" ","0");
-                MesureRefracteurSubjectif["SphereOD"]    = mSphereOD;
-                MesureRefracteurSubjectif["CylOD"]       = mCylOD;
-                MesureRefracteurSubjectif["AxeOD"]       = mAxeOD;
-                MesureRefracteurSubjectif["AddOD"]       = mAddOD;
-                MesureRefracteurSubjectif["AVLOD"]       = AVLOD;
-                MesureRefracteurSubjectif["AVPOD"]       = AVPOD;
-                MesureRefracteurSubjectif["Type"]        = "Subjectif";
+                m_mesureRefracteurSubjectif["SphereOD"]    = mSphereOD;
+                m_mesureRefracteurSubjectif["CylOD"]       = mCylOD;
+                m_mesureRefracteurSubjectif["AxeOD"]       = mAxeOD;
+                m_mesureRefracteurSubjectif["AddOD"]       = mAddOD;
+                m_mesureRefracteurSubjectif["AVLOD"]       = AVLOD;
+                m_mesureRefracteurSubjectif["AVPOD"]       = AVPOD;
+                m_mesureRefracteurSubjectif["Type"]        = "Subjectif";
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
             if (SectionRefracteur.contains("fL"))
@@ -4918,19 +4897,19 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                     AVLOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("vL")+2,5)    .replace(" ","0");
                 if (SectionRefracteur.indexOf("yL")>-1)
                     AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("yL")+2,5)    .replace(" ","0");
-                MesureRefracteurSubjectif["SphereOG"]    = mSphereOG;
-                MesureRefracteurSubjectif["CylOG"]       = mCylOG;
-                MesureRefracteurSubjectif["AxeOG"]       = mAxeOG;
-                MesureRefracteurSubjectif["AddOG"]       = mAddOG;
-                MesureRefracteurSubjectif["AVLOG"]       = AVLOG;
-                MesureRefracteurSubjectif["AVPOG"]       = AVPOG;
-                MesureRefracteurSubjectif["Type"]        = "Subjectif";
+                m_mesureRefracteurSubjectif["SphereOG"]    = mSphereOG;
+                m_mesureRefracteurSubjectif["CylOG"]       = mCylOG;
+                m_mesureRefracteurSubjectif["AxeOG"]       = mAxeOG;
+                m_mesureRefracteurSubjectif["AddOG"]       = mAddOG;
+                m_mesureRefracteurSubjectif["AVLOG"]       = AVLOG;
+                m_mesureRefracteurSubjectif["AVPOG"]       = AVPOG;
+                m_mesureRefracteurSubjectif["Type"]        = "Subjectif";
             }
 
             // les données finales --------------------------------------------------------------------------------------------------------------
             // OEIL DROIT -----------------------------------------------------------------------------
             if (SectionRefracteur.contains("FR") || SectionRefracteur.contains("FL"))
-                MesureRefracteurSubjectif.clear();
+                m_mesureRefracteurSubjectif.clear();
             if (SectionRefracteur.contains("FR"))
             {
                 mesureOD     = SectionRefracteur.mid(SectionRefracteur.indexOf("FR")+2,15)   .replace(" ","0");
@@ -4943,13 +4922,13 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                     AVLOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("VR")+2,5)    .replace(" ","0");
                 if (SectionRefracteur.indexOf("YR")>-1)
                     AVPOD    = SectionRefracteur.mid(SectionRefracteur.indexOf("YR")+2,5)    .replace(" ","0");
-                MesureRefracteurFinal["SphereOD"]    = mSphereOD;
-                MesureRefracteurFinal["CylOD"]       = mCylOD;
-                MesureRefracteurFinal["AxeOD"]       = mAxeOD;
-                MesureRefracteurFinal["AddOD"]       = mAddOD;
-                MesureRefracteurFinal["AVLOD"]       = AVLOD;
-                MesureRefracteurFinal["AVPOD"]       = AVPOD;
-                MesureRefracteurFinal["Type"]        = "Final";
+                m_mesureRefracteurFinal["SphereOD"]    = mSphereOD;
+                m_mesureRefracteurFinal["CylOD"]       = mCylOD;
+                m_mesureRefracteurFinal["AxeOD"]       = mAxeOD;
+                m_mesureRefracteurFinal["AddOD"]       = mAddOD;
+                m_mesureRefracteurFinal["AVLOD"]       = AVLOD;
+                m_mesureRefracteurFinal["AVPOD"]       = AVPOD;
+                m_mesureRefracteurFinal["Type"]        = "Final";
             }
             // OEIL GAUCHE ---------------------------------------------------------------------------
             if (SectionRefracteur.contains("FR"))
@@ -4964,19 +4943,19 @@ void Procedures::setDonneesRefracteur(QString Mesure)
                     AVLOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("VL")+2,5)    .replace(" ","0");
                 if (SectionRefracteur.indexOf("YL")>-1)
                     AVPOG    = SectionRefracteur.mid(SectionRefracteur.indexOf("YL")+2,5)    .replace(" ","0");
-                MesureRefracteurFinal["SphereOG"]    = mSphereOG;
-                MesureRefracteurFinal["CylOG"]       = mCylOG;
-                MesureRefracteurFinal["AxeOG"]       = mAxeOG;
-                MesureRefracteurFinal["AddOG"]       = mAddOG;
-                MesureRefracteurFinal["AVLOG"]       = AVLOG;
-                MesureRefracteurFinal["AVPOG"]       = AVPOG;
-                MesureRefracteurFinal["Type"]        = "Final";
+                m_mesureRefracteurFinal["SphereOG"]    = mSphereOG;
+                m_mesureRefracteurFinal["CylOG"]       = mCylOG;
+                m_mesureRefracteurFinal["AxeOG"]       = mAxeOG;
+                m_mesureRefracteurFinal["AddOG"]       = mAddOG;
+                m_mesureRefracteurFinal["AVLOG"]       = AVLOG;
+                m_mesureRefracteurFinal["AVPOG"]       = AVPOG;
+                m_mesureRefracteurFinal["Type"]        = "Final";
             }
         }
         // Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
         if (Mesure.contains("@NT"))                 //=> il y a une mesure de tonometrie
         {
-            MesureTono.clear();
+            m_mesureTono.clear();
             idx                     = Mesure.indexOf("@NT");
             QString SectionTono     = Mesure.right(Mesure.length()-idx-5);
             SectionTono             = SectionTono.left(SectionTono.indexOf("@"));
@@ -4985,8 +4964,8 @@ void Procedures::setDonneesRefracteur(QString Mesure)
             mTOOD                   = SectionTono.mid(SectionTono.indexOf("TR")+2,4)   .replace(" ","0");
             // OEIL GAUCHE ---------------------------------------------------------------------------
             mTOOG                   = SectionTono.mid(SectionTono.indexOf("TL")+2,4)   .replace(" ","0");
-            MesureTono["TOOD"]      = mTOOD;
-            MesureTono["TOOG"]      = mTOOG;
+            m_mesureTono["TOOD"]      = mTOOD;
+            m_mesureTono["TOOG"]      = mTOOG;
         }
     }
     // FIN NIDEK RT-5100 et RT 2100 ==========================================================================================================================
@@ -4994,12 +4973,12 @@ void Procedures::setDonneesRefracteur(QString Mesure)
 
 QMap<QString,QVariant>  Procedures::DonneesRefracteurSubj()
 {
-    return MesureRefracteurSubjectif;
+    return m_mesureRefracteurSubjectif;
 }
 
 QMap<QString,QVariant>  Procedures::DonneesRefracteurFin()
 {
-    return MesureRefracteurFinal;
+    return m_mesureRefracteurFinal;
 }
 
 // -------------------------------------------------------------------------------------
@@ -5008,35 +4987,35 @@ QMap<QString,QVariant>  Procedures::DonneesRefracteurFin()
 void Procedures::setHtmlRefracteur()
 {
    // CALCUL DE HtmlMesureFronto ====================================================================================================================================
-    if (!MesureFronto.isEmpty() && NouvMesureFronto)
+    if (!m_mesureFronto.isEmpty() && m_isnewMesureFronto)
         setHtmlFronto();
     // CALCUL DE HtmlMesureAutoref ===================================================================================================================================
-    if (!MesureAutoref.isEmpty() && NouvMesureAutoref)
+    if (!m_mesureAutoref.isEmpty() && m_isnewMesureAutoref)
         setHtmlAutoref();
     // CALCUL DE HtmlMesureKerato ====================================================================================================================================
-    if (!MesureKerato.isEmpty())
-        setHtmlKerato(MesureKerato);
+    if (!m_mesureKerato.isEmpty())
+        setHtmlKerato(m_mesureKerato);
     // CALCUL DE HtmlMesureRefracteurSubjectif =======================================================================================================================
     QString Resultat = "";
-    if(!MesureRefracteurSubjectif.isEmpty())
+    if(!m_mesureRefracteurSubjectif.isEmpty())
     {
         // - 1 - détermination des verres
-        QString mSphereOD   = Utils::PrefixePlus(MesureRefracteurSubjectif["SphereOD"].toString());
-        QString mCylOD      = Utils::PrefixePlus(MesureRefracteurSubjectif["CylOD"].toString());
-        QString mAxeOD      = QString::number(MesureRefracteurSubjectif["AxeOD"].toInt());
-        QString mAddOD      = Utils::PrefixePlus(MesureRefracteurSubjectif["AddOD"].toString());
+        QString mSphereOD   = Utils::PrefixePlus(m_mesureRefracteurSubjectif["SphereOD"].toString());
+        QString mCylOD      = Utils::PrefixePlus(m_mesureRefracteurSubjectif["CylOD"].toString());
+        QString mAxeOD      = QString::number(m_mesureRefracteurSubjectif["AxeOD"].toInt());
+        QString mAddOD      = Utils::PrefixePlus(m_mesureRefracteurSubjectif["AddOD"].toString());
         QString mAVLOD ("");
-        if (MesureRefracteurSubjectif["AVLOD"].toDouble()>0)
-            mAVLOD      = QLocale().toString(MesureRefracteurSubjectif["AVLOD"].toDouble()*10) + "/10";
-        QString mAVPOD      = MesureRefracteurSubjectif["AVPOD"].toString();
-        QString mSphereOG   = Utils::PrefixePlus(MesureRefracteurSubjectif["SphereOG"].toString());
-        QString mCylOG      = Utils::PrefixePlus(MesureRefracteurSubjectif["CylOG"].toString());
-        QString mAxeOG      = QString::number(MesureRefracteurSubjectif["AxeOG"].toInt());
-        QString mAddOG      = Utils::PrefixePlus(MesureRefracteurSubjectif["AddOG"].toString());
+        if (m_mesureRefracteurSubjectif["AVLOD"].toDouble()>0)
+            mAVLOD      = QLocale().toString(m_mesureRefracteurSubjectif["AVLOD"].toDouble()*10) + "/10";
+        QString mAVPOD      = m_mesureRefracteurSubjectif["AVPOD"].toString();
+        QString mSphereOG   = Utils::PrefixePlus(m_mesureRefracteurSubjectif["SphereOG"].toString());
+        QString mCylOG      = Utils::PrefixePlus(m_mesureRefracteurSubjectif["CylOG"].toString());
+        QString mAxeOG      = QString::number(m_mesureRefracteurSubjectif["AxeOG"].toInt());
+        QString mAddOG      = Utils::PrefixePlus(m_mesureRefracteurSubjectif["AddOG"].toString());
         QString mAVLOG ("");
-        if (MesureRefracteurSubjectif["AVLOG"].toDouble()>0)
-            mAVLOG      = QLocale().toString(MesureRefracteurSubjectif["AVLOG"].toDouble()*10) + "/10";
-        QString mAVPOG      = MesureRefracteurSubjectif["AVPOG"].toString();
+        if (m_mesureRefracteurSubjectif["AVLOG"].toDouble()>0)
+            mAVLOG      = QLocale().toString(m_mesureRefracteurSubjectif["AVLOG"].toDouble()*10) + "/10";
+        QString mAVPOG      = m_mesureRefracteurSubjectif["AVPOG"].toString();
         QString ResultatVLOD, ResultatVLOG,ResultatVPOD, ResultatVPOG, ResultatOD, ResultatOG;
 
         // détermination OD
@@ -5109,7 +5088,7 @@ void Procedures::setHtmlRefracteur()
         mAVPOG = (mAVPOG==""? "" : "> P" + mAVPOG.replace("<","&lt;"));
 
         // Détermination de Resultat
-        if (MesureRefracteurSubjectif["AddOD"].toString()!="" || MesureRefracteurSubjectif["AddOG"].toString()!="")  // il y a eu mesure de près et de loin
+        if (m_mesureRefracteurSubjectif["AddOD"].toString()!="" || m_mesureRefracteurSubjectif["AddOG"].toString()!="")  // il y a eu mesure de près et de loin
         {
             if (ResultatOD != "Rien" && QLocale().toDouble(mAddOD) == 0.0  && ResultatOG == "Rien")
                 Resultat = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + mAVLOD + "</font><font color = " + colorVPOD + mAVPOD + "</font></b>" + " " + tr("OD");
@@ -5158,49 +5137,49 @@ void Procedures::setHtmlRefracteur()
         }
         Resultat = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td><td width=\"70\"><font color = \"red\"></font></td><td>" + m_currentuser->login() + "</td></p>";
     }
-    HtmlMesureRefracteurSubjectif = Resultat;
+    m_htmlMesureRefracteurSubjectif = Resultat;
     // CALCUL DE HtmlMesureTono ======================================================================================================================================
-    if (!MesureTono.isEmpty())
+    if (!m_mesureTono.isEmpty())
         setHtmlTono();
 }
 
 QString Procedures::HtmlRefracteur()
 {
-    if (! MesureRefracteurFinal.isEmpty() )
-        return HtmlMesureFronto + HtmlMesureAutoref + HtmlMesureKerato + HtmlMesureRefracteurSubjectif + HtmlMesureTono;
+    if (! m_mesureRefracteurFinal.isEmpty() )
+        return m_htmlMesureFronto + m_htmlMesureAutoref + m_htmlMesureKerato + m_htmlMesureRefracteurSubjectif + m_htmlMesureTono;
     else
-        return HtmlMesureFronto + HtmlMesureAutoref + HtmlMesureKerato + HtmlMesureTono;
+        return m_htmlMesureFronto + m_htmlMesureAutoref + m_htmlMesureKerato + m_htmlMesureTono;
 }
 
 bool Procedures::ReglePortFronto()
 {
     bool a = true;
-    if (gsettingsIni->value("Param_Poste/Fronto").toString()=="TOMEY TL-3000C")
+    if (m_settings->value("Param_Poste/Fronto").toString()=="TOMEY TL-3000C")
     {
-        ParamPortSerieFronto.baudRate       = QSerialPort::Baud2400;
-        ParamPortSerieFronto.dataBits       = QSerialPort::Data7;
-        ParamPortSerieFronto.parity         = QSerialPort::EvenParity;
-        ParamPortSerieFronto.stopBits       = QSerialPort::OneStop;
-        ParamPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
+        s_paramPortSerieFronto.baudRate       = QSerialPort::Baud2400;
+        s_paramPortSerieFronto.dataBits       = QSerialPort::Data7;
+        s_paramPortSerieFronto.parity         = QSerialPort::EvenParity;
+        s_paramPortSerieFronto.stopBits       = QSerialPort::OneStop;
+        s_paramPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
     }
-    else if (gsettingsIni->value("Param_Poste/Fronto").toString()=="VISIONIX VL1000"
-          || gsettingsIni->value("Param_Poste/Fronto").toString()=="HUVITZ CLM7000")
+    else if (m_settings->value("Param_Poste/Fronto").toString()=="VISIONIX VL1000"
+          || m_settings->value("Param_Poste/Fronto").toString()=="HUVITZ CLM7000")
     {
-        ParamPortSerieFronto.baudRate       = QSerialPort::Baud9600;
-        ParamPortSerieFronto.dataBits       = QSerialPort::Data7;
-        ParamPortSerieFronto.parity         = QSerialPort::EvenParity;
-        ParamPortSerieFronto.stopBits       = QSerialPort::OneStop;
-        ParamPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
+        s_paramPortSerieFronto.baudRate       = QSerialPort::Baud9600;
+        s_paramPortSerieFronto.dataBits       = QSerialPort::Data7;
+        s_paramPortSerieFronto.parity         = QSerialPort::EvenParity;
+        s_paramPortSerieFronto.stopBits       = QSerialPort::OneStop;
+        s_paramPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
     }
-    else if (gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
-          || gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
-          || gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
+    else if (m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
+          || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
+          || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
     {
-        ParamPortSerieFronto.baudRate       = QSerialPort::Baud9600;
-        ParamPortSerieFronto.dataBits       = QSerialPort::Data8;
-        ParamPortSerieFronto.parity         = QSerialPort::EvenParity;
-        ParamPortSerieFronto.stopBits       = QSerialPort::OneStop;
-        ParamPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
+        s_paramPortSerieFronto.baudRate       = QSerialPort::Baud9600;
+        s_paramPortSerieFronto.dataBits       = QSerialPort::Data8;
+        s_paramPortSerieFronto.parity         = QSerialPort::EvenParity;
+        s_paramPortSerieFronto.stopBits       = QSerialPort::OneStop;
+        s_paramPortSerieFronto.flowControl    = QSerialPort::NoFlowControl;
     }
     else a = false;
     return a;
@@ -5208,7 +5187,7 @@ bool Procedures::ReglePortFronto()
 
 QSerialPort *Procedures::PortFronto()
 {
-    return lPortFronto;
+    return sp_portFronto;
 }
 
 // lire les ports séries
@@ -5217,13 +5196,13 @@ QSerialPort *Procedures::PortFronto()
 //-----------------------------------------------------------------------------------------
 void Procedures::Slot_ReponsePortSerie_Fronto(const QString &s)
 {
-    gMesureSerie        = s;
+    m_mesureSerie        = s;
     //qDebug() << gMesureSerie;
 
     QString OKPourRecevoir ("");
-    if (gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
-     || gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
-     || gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
+    if (m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
+     || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
+     || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
     {
         QByteArray DTRbuff;
         DTRbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
@@ -5233,7 +5212,7 @@ void Procedures::Slot_ReponsePortSerie_Fronto(const QString &s)
         DTRbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
         DTRbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
         OKPourRecevoir = DTRbuff;
-        if (gMesureSerie == OKPourRecevoir)
+        if (m_mesureSerie == OKPourRecevoir)
         {
             //Dans un premier temps, le PC envoie la séquence SOH puis "C**" puis STX puis "RS" puis ETB puis EOT
             QString ReqPourEnvoyer ("");
@@ -5253,15 +5232,15 @@ void Procedures::Slot_ReponsePortSerie_Fronto(const QString &s)
             return;
         }
     }
-    setDonneesFronto(gMesureSerie);
-    NouvMesureFronto    = true;
-    if (MesureFronto.isEmpty())
+    setDonneesFronto(m_mesureSerie);
+    m_isnewMesureFronto    = true;
+    if (m_mesureFronto.isEmpty())
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (ThreadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
+    if (t_threadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
     {
         // NIDEK RT-5100
-        if (gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+        if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
             //Dans un premier temps, le PC envoie la séquence SOH puis "C**" puis STX puis "RS" puis ETB puis EOT
             QString ReqPourEnvoyer ("");
@@ -5300,7 +5279,7 @@ void Procedures::setDonneesFronto(QString Mesure)
     QString mesureOD, mesureOG;
 
     //A - AFFICHER LA MESURE --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (gsettingsIni->value("Param_Poste/Fronto").toString()=="TOMEY TL-3000C")
+    if (m_settings->value("Param_Poste/Fronto").toString()=="TOMEY TL-3000C")
     {
         /* Le fichier de sortie ressemble à ça
         .
@@ -5331,8 +5310,8 @@ void Procedures::setDonneesFronto(QString Mesure)
             mAddOG           = Utils::PrefixePlus(Mesure.mid(Mesure.indexOf("AL")+2,4));
         //les autres champs ne sont pas utilisés pour le moment -------------------------------
     }
-    else if (gsettingsIni->value("Param_Poste/Fronto").toString()=="VISIONIX VL1000"
-          || gsettingsIni->value("Param_Poste/Fronto").toString()=="HUVITZ CLM7000")
+    else if (m_settings->value("Param_Poste/Fronto").toString()=="VISIONIX VL1000"
+          || m_settings->value("Param_Poste/Fronto").toString()=="HUVITZ CLM7000")
     {
         /* Le fichier de sortie ressemble à ça
             LM2RK   No=00036   R: S=-04.50 C=-00.50 A=103 PX=+00.25 PY=+04.00 PD=00.0 ADD=+2.00 UR=  0   L: S=-05.00 C=-00.50 A=110 PX=+00.00 PY=+05.50 PD=00.0 ADD=+5.00 UL=  0   E$
@@ -5352,9 +5331,9 @@ void Procedures::setDonneesFronto(QString Mesure)
         mAddOG               = mesureOG.mid(mesureOG.indexOf("ADD=")+4,5);
         //les autres champs ne sont pas utilisés pour le moment -------------------------------
     }
-    else if (gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
-          || gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
-          || gsettingsIni->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
+    else if (m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800P"
+          || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-1800PD"
+          || m_settings->value("Param_Poste/Fronto").toString()=="NIDEK LM-500")
     {
         mesureOD            = Mesure.mid(Mesure.indexOf(" R")+2,15)   .replace(" ","0");
         mesureOG            = Mesure.mid(Mesure.indexOf(" L")+2,15)   .replace(" ","0");
@@ -5371,20 +5350,20 @@ void Procedures::setDonneesFronto(QString Mesure)
         if (Mesure.indexOf("AL")>0)
             mAddOG           = Mesure.mid(Mesure.indexOf("AL")+2,5);
     }
-    MesureFronto.clear();
-    MesureFronto["SphereOD"]    = mSphereOD;
-    MesureFronto["CylOD"]       = mCylOD;
-    MesureFronto["AxeOD"]       = mAxeOD;
-    MesureFronto["AddOD"]       = mAddOD;
-    MesureFronto["SphereOG"]    = mSphereOG;
-    MesureFronto["CylOG"]       = mCylOG;
-    MesureFronto["AxeOG"]       = mAxeOG;
-    MesureFronto["AddOG"]       = mAddOG;
+    m_mesureFronto.clear();
+    m_mesureFronto["SphereOD"]    = mSphereOD;
+    m_mesureFronto["CylOD"]       = mCylOD;
+    m_mesureFronto["AxeOD"]       = mAxeOD;
+    m_mesureFronto["AddOD"]       = mAddOD;
+    m_mesureFronto["SphereOG"]    = mSphereOG;
+    m_mesureFronto["CylOG"]       = mCylOG;
+    m_mesureFronto["AxeOG"]       = mAxeOG;
+    m_mesureFronto["AddOG"]       = mAddOG;
 }
 
 QMap<QString,QVariant>  Procedures::DonneesFronto()
 {
-    return MesureFronto;
+    return m_mesureFronto;
 }
 
 // -------------------------------------------------------------------------------------
@@ -5392,20 +5371,20 @@ QMap<QString,QVariant>  Procedures::DonneesFronto()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlFronto()
 {
-    QString mSphereOD   = Utils::PrefixePlus(MesureFronto["SphereOD"].toString());
-    QString mCylOD      = Utils::PrefixePlus(MesureFronto["CylOD"].toString());
-    QString mAxeOD      = QString::number(MesureFronto["AxeOD"].toInt());
-    QString mAddOD      = Utils::PrefixePlus(MesureFronto["AddOD"].toString());
-    QString mSphereOG   = Utils::PrefixePlus(MesureFronto["SphereOG"].toString());
-    QString mCylOG      = Utils::PrefixePlus(MesureFronto["CylOG"].toString());
-    QString mAxeOG      = QString::number(MesureFronto["AxeOG"].toInt());
-    QString mAddOG      = Utils::PrefixePlus(MesureFronto["AddOG"].toString());
+    QString mSphereOD   = Utils::PrefixePlus(m_mesureFronto["SphereOD"].toString());
+    QString mCylOD      = Utils::PrefixePlus(m_mesureFronto["CylOD"].toString());
+    QString mAxeOD      = QString::number(m_mesureFronto["AxeOD"].toInt());
+    QString mAddOD      = Utils::PrefixePlus(m_mesureFronto["AddOD"].toString());
+    QString mSphereOG   = Utils::PrefixePlus(m_mesureFronto["SphereOG"].toString());
+    QString mCylOG      = Utils::PrefixePlus(m_mesureFronto["CylOG"].toString());
+    QString mAxeOG      = QString::number(m_mesureFronto["AxeOG"].toInt());
+    QString mAddOG      = Utils::PrefixePlus(m_mesureFronto["AddOG"].toString());
 
     QString ResultatOD, ResultatVLOD, ResultatVPOD;
     QString ResultatOG, ResultatVLOG, ResultatVPOG;
     QString Resultat = "";
 
-    HtmlMesureFronto = "";
+    m_htmlMesureFronto = "";
     // QString TagAncre, numIDref; // 07-07-2014 08-08-2014
 
     // Génération du code html pour TAG Ancre avec ID refraction            // 07-07-2014 // 08-08-2014
@@ -5455,36 +5434,36 @@ void Procedures::setHtmlFronto()
     else
         Resultat = ResultatOD + " / " + ResultatOG;
 
-    HtmlMesureFronto =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Porte") + ":</b></font></td><td>" + Resultat + "</p>";
+    m_htmlMesureFronto =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Porte") + ":</b></font></td><td>" + Resultat + "</p>";
 }
 
 QString Procedures::HtmlFronto()
 {
-    return HtmlMesureFronto;
+    return m_htmlMesureFronto;
 }
 
 bool Procedures::ReglePortAutoref()
 {
     bool a = true;
-    if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-20"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
+    if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
 
     {
-        ParamPortSerieAutoref.baudRate       = QSerialPort::Baud9600;
-        ParamPortSerieAutoref.dataBits       = QSerialPort::Data8;
-        ParamPortSerieAutoref.parity         = QSerialPort::EvenParity;
-        ParamPortSerieAutoref.stopBits       = QSerialPort::OneStop;
-        ParamPortSerieAutoref.flowControl    = QSerialPort::NoFlowControl;
+        s_paramPortSerieAutoref.baudRate       = QSerialPort::Baud9600;
+        s_paramPortSerieAutoref.dataBits       = QSerialPort::Data8;
+        s_paramPortSerieAutoref.parity         = QSerialPort::EvenParity;
+        s_paramPortSerieAutoref.stopBits       = QSerialPort::OneStop;
+        s_paramPortSerieAutoref.flowControl    = QSerialPort::NoFlowControl;
     }
     else a = false;
     return a;
@@ -5493,7 +5472,7 @@ bool Procedures::ReglePortAutoref()
 
 QSerialPort* Procedures::PortAutoref()
 {
-    return lPortAutoref;
+    return sp_portAutoref;
 }
 
 // lire les ports séries
@@ -5502,21 +5481,21 @@ QSerialPort* Procedures::PortAutoref()
 //-----------------------------------------------------------------------------------------
 void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
 {
-    gMesureSerie        = s;
+    m_mesureSerie        = s;
     //qDebug() << gMesureSerie;
 
-    if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
+    if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
     {
         QByteArray DTSbuff;
         DTSbuff.append(QByteArray::fromHex("1"));          //SOH -> start of header
@@ -5525,19 +5504,19 @@ void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
         DTSbuff.append("RS");                               //RS
         DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
         DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
-        if (gMesureSerie == QString(DTSbuff))               // Cas où l'autoref demande la permission d'envoyer
+        if (m_mesureSerie == QString(DTSbuff))               // Cas où l'autoref demande la permission d'envoyer
         {
             QString ReqPourEnvoyer ("");
             QByteArray DTSbuff;
             QString cmd;
-            if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")
+            if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")
                 cmd ="CRK";
             else
                 cmd="CRM";                          //CRK ou CRM suivant les appareils
@@ -5567,32 +5546,32 @@ void Procedures::Slot_ReponsePortSerie_Autoref(const QString &s)
 //            }
         }
     }
-    setDonneesAutoref(gMesureSerie);
-    NouvMesureAutoref = true;
-    if (MesureAutoref.isEmpty())
+    setDonneesAutoref(m_mesureSerie);
+    m_isnewMesureAutoref = true;
+    if (m_mesureAutoref.isEmpty())
         return;
     //TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    if (ThreadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
+    if (t_threadRefracteur!=Q_NULLPTR && !FicheRefractionOuverte())
     {
         // NIDEK RT-5100 - NIDEK RT-2100
-        if (gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || gsettingsIni->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
+        if (m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-5100" || m_settings->value("Param_Poste/Refracteur").toString()=="NIDEK RT-2100")
         {
-            if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-             || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-             || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-             || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-             || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-             || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-             || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-             || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-             || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-             || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
+            if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+             || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+             || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+             || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+             || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+             || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+             || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+             || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+             || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+             || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
-                setHtmlKerato(MesureKerato);
+                setHtmlKerato(m_mesureKerato);
                 setTypeMesureRefraction(Kerato);
                 emit NouvMesureRefraction();
             }
-            if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
+            if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
             {
                 setHtmlTono();
                 setTypeMesureRefraction(Tono);
@@ -5628,7 +5607,7 @@ void Procedures::setDonneesAutoref(QString Mesure)
     ClearMesures();
     ClearHtmlMesures();
     //Edit(Mesure);
-    MesureAutoref.clear();
+    m_mesureAutoref.clear();
     QString mSphereOD   = "+00.00";
     QString mCylOD      = "+00.00";
     QString mAxeOD      = "000";
@@ -5690,18 +5669,18 @@ void Procedures::setDonneesAutoref(QString Mesure)
 
     // TRADUCTION DES DONNEES EN FONCTION DE L'AUTOREF
 
-    if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
-     || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
+    if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-1S"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30"
+     || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK AR-20")
     {
         /*
      NIDEK ARK-1a - exemple de fichier de sortie
@@ -5878,14 +5857,14 @@ PL04.7N
                 PD                   = Ref.mid(Ref.indexOf("PD")+2,2);
 
             K = "";
-            if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
-                    || gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")
+            if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1A"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-1S"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-530A"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-510A"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK HandyRef-K"
+                    || m_settings->value("Param_Poste/Autoref").toString()=="NIDEK ARK-30")
             {
                 // Données de KERATOMETRIE --------------------------------------------------------------------------------------------------------
                 if (Mesure.contains("DKM"))                 //=> il y a une mesure de keratometrie
@@ -5903,14 +5882,14 @@ PL04.7N
                         AxeKOD              = KOD.mid(10,3).toInt();
                         //KOD                 = K.mid(K.indexOf("DR")+2,24);
                         //DioptrAstCornOD     = KOD.mid(18,6);
-                        MesureKerato["K1OD"]        = K1OD;
-                        MesureKerato["K2OD"]        = K2OD;
-                        MesureKerato["AxeKOD"]      = AxeKOD;
+                        m_mesureKerato["K1OD"]        = K1OD;
+                        m_mesureKerato["K2OD"]        = K2OD;
+                        m_mesureKerato["AxeKOD"]      = AxeKOD;
                         QString mOD                 = K.mid(K.indexOf("DR")+2,10).replace(" ","0");
                         DioptrAstCornOD             = QString::number(mOD.mid(0,5).toDouble() - mOD.mid(5,5).toDouble(),'f',2);
-                        MesureKerato["DioptrK1OD"]  = QString::number(mOD.mid(0,5).toDouble(),'f',2);
-                        MesureKerato["DioptrK2OD"]  = QString::number(mOD.mid(5,5).toDouble(),'f',2);
-                        MesureKerato["DioptrKOD"]   = DioptrAstCornOD;
+                        m_mesureKerato["DioptrK1OD"]  = QString::number(mOD.mid(0,5).toDouble(),'f',2);
+                        m_mesureKerato["DioptrK2OD"]  = QString::number(mOD.mid(5,5).toDouble(),'f',2);
+                        m_mesureKerato["DioptrKOD"]   = DioptrAstCornOD;
                     }
                     // OEIL GAUCHE ---------------------------------------------------------------------------
                     a  = Ref.indexOf(" L");
@@ -5920,19 +5899,19 @@ PL04.7N
                         K1OG                        = KOG.mid(0,5);
                         K2OG                        = KOG.mid(5,5);
                         AxeKOG                      = KOG.mid(10,3).toInt();
-                        MesureKerato["K1OG"]        = K1OG;
-                        MesureKerato["K2OG"]        = K2OG;
-                        MesureKerato["AxeKOG"]      = AxeKOG;
+                        m_mesureKerato["K1OG"]        = K1OG;
+                        m_mesureKerato["K2OG"]        = K2OG;
+                        m_mesureKerato["AxeKOG"]      = AxeKOG;
                         QString mOG                 = K.mid(K.indexOf("DL")+2,10).replace(" ","0");
                         DioptrAstCornOG             = QString::number(mOG.mid(0,5).toDouble() - mOG.mid(5,5).toDouble(),'f',2);
-                        MesureKerato["DioptrK1OG"]  = QString::number(mOG.mid(0,5).toDouble(),'f',2);
-                        MesureKerato["DioptrK2OG"]  = QString::number(mOG.mid(5,5).toDouble(),'f',2);
-                        MesureKerato["DioptrKOG"]   = DioptrAstCornOG;
+                        m_mesureKerato["DioptrK1OG"]  = QString::number(mOG.mid(0,5).toDouble(),'f',2);
+                        m_mesureKerato["DioptrK2OG"]  = QString::number(mOG.mid(5,5).toDouble(),'f',2);
+                        m_mesureKerato["DioptrKOG"]   = DioptrAstCornOG;
                     }
                  }
             }
         }
-        if (gsettingsIni->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
+        if (m_settings->value("Param_Poste/Autoref").toString()=="NIDEK TONOREF III")
         {
             // Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
             if (Mesure.contains("DNT"))                 //=> il y a une mesure de tonometrie
@@ -5958,8 +5937,8 @@ PL04.7N
                     b               = TonoOG.indexOf("AV");
                     TonoOG          = TonoOG.mid(b+2,2).replace(" ","0");
                 }
-                MesureTono["TOOD"]      = TonoOD;
-                MesureTono["TOOG"]      = TonoOG;
+                m_mesureTono["TOOD"]      = TonoOD;
+                m_mesureTono["TOOG"]      = TonoOG;
             }
             // Données de PACHYMETRIE --------------------------------------------------------------------------------------------------------
             if (Mesure.contains("DPM"))                 //=> il y a une mesure de pachymetrie
@@ -5972,30 +5951,30 @@ PL04.7N
                     PachyOD         = Pachy.mid(Pachy.indexOf(" R")+6,3);
                 if (Pachy.indexOf(" L")>=0)
                     PachyOG         = Pachy.mid(Pachy.indexOf(" L")+6,3);
-                MesurePachy["PachyOD"]  = PachyOD;
-                MesurePachy["PachyOG"]  = PachyOG;
+                m_mesurePachy["PachyOD"]  = PachyOD;
+                m_mesurePachy["PachyOG"]  = PachyOG;
             }
         }
     }
-    MesureAutoref["SphereOD"]    = mSphereOD;
-    MesureAutoref["CylOD"]       = mCylOD;
-    MesureAutoref["AxeOD"]       = mAxeOD;
-    MesureAutoref["SphereOG"]    = mSphereOG;
-    MesureAutoref["CylOG"]       = mCylOG;
-    MesureAutoref["AxeOG"]       = mAxeOG;
-    MesureAutoref["PD"]          = PD;
+    m_mesureAutoref["SphereOD"]    = mSphereOD;
+    m_mesureAutoref["CylOD"]       = mCylOD;
+    m_mesureAutoref["AxeOD"]       = mAxeOD;
+    m_mesureAutoref["SphereOG"]    = mSphereOG;
+    m_mesureAutoref["CylOG"]       = mCylOG;
+    m_mesureAutoref["AxeOG"]       = mAxeOG;
+    m_mesureAutoref["PD"]          = PD;
     //qDebug() << "od" << mSphereOD << mCylOD << mAxeOD << "og" << mSphereOG << mCylOG << mAxeOG << "PD = " + PD;
 }
 
 
 QMap<QString,QVariant>  Procedures::DonneesAutoref()
 {
-    return MesureAutoref;
+    return m_mesureAutoref;
 }
 
 QMap<QString,QVariant>  Procedures::DonneesKerato()
 {
-    return MesureKerato;
+    return m_mesureKerato;
 }
 
 // -------------------------------------------------------------------------------------
@@ -6003,12 +5982,12 @@ QMap<QString,QVariant>  Procedures::DonneesKerato()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlAutoref()
 {
-    QString mSphereOD   = Utils::PrefixePlus(MesureAutoref["SphereOD"].toString());
-    QString mCylOD      = Utils::PrefixePlus(MesureAutoref["CylOD"].toString());
-    QString mAxeOD      = QString::number(MesureAutoref["AxeOD"].toInt());
-    QString mSphereOG   = Utils::PrefixePlus(MesureAutoref["SphereOG"].toString());
-    QString mCylOG      = Utils::PrefixePlus(MesureAutoref["CylOG"].toString());
-    QString mAxeOG      = QString::number(MesureAutoref["AxeOG"].toInt());
+    QString mSphereOD   = Utils::PrefixePlus(m_mesureAutoref["SphereOD"].toString());
+    QString mCylOD      = Utils::PrefixePlus(m_mesureAutoref["CylOD"].toString());
+    QString mAxeOD      = QString::number(m_mesureAutoref["AxeOD"].toInt());
+    QString mSphereOG   = Utils::PrefixePlus(m_mesureAutoref["SphereOG"].toString());
+    QString mCylOG      = Utils::PrefixePlus(m_mesureAutoref["CylOG"].toString());
+    QString mAxeOG      = QString::number(m_mesureAutoref["AxeOG"].toInt());
 
     QString ResultatOD("");
     QString ResultatOG("");
@@ -6021,7 +6000,7 @@ void Procedures::setHtmlAutoref()
     //TagAncre = "<a name=\"" + numIDref + "\"></a>" "<span ><a href=\""+ numIDref + "\" style=\"text-decoration:none\" style=\"color:#000000\"> ";
     // - 1 - détermination des verres
     // détermination OD
-    if (MesureAutoref["SphereOD"].toString()!="")
+    if (m_mesureAutoref["SphereOD"].toString()!="")
     {
         if (QLocale().toDouble(mCylOD) != 0.0 && QLocale().toDouble(mSphereOD) != 0.0)
             ResultatOD = mSphereOD + " (" + mCylOD + tr(" à ") + mAxeOD + "°)";
@@ -6035,7 +6014,7 @@ void Procedures::setHtmlAutoref()
 
 
     // détermination OG
-    if (MesureAutoref["SphereOD"].toString()!="")
+    if (m_mesureAutoref["SphereOD"].toString()!="")
     {
         if (QLocale().toDouble(mCylOG) != 0.0 && QLocale().toDouble(mSphereOG) != 0.0)
             ResultatOG = mSphereOG + " (" + mCylOG + tr(" à ") + mAxeOG + "°)";
@@ -6062,7 +6041,7 @@ void Procedures::setHtmlAutoref()
     }
     else
         Resultat = ResultatOD + " / " + ResultatOG;
-    HtmlMesureAutoref =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td></p>";
+    m_htmlMesureAutoref =  "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Resultat + "</td></p>";
 
 }
 
@@ -6108,7 +6087,7 @@ void Procedures::setHtmlKerato(QMap<QString,QVariant>  MKer)
                       + " Km = " + QString::number((QLocale().toDouble(mK1OG) + QLocale().toDouble(mK2OG))/2,'f',2) + "</td></p>";
     }
 
-    HtmlMesureKerato  = kerato;
+    m_htmlMesureKerato  = kerato;
 }
 
 // -------------------------------------------------------------------------------------
@@ -6116,9 +6095,9 @@ void Procedures::setHtmlKerato(QMap<QString,QVariant>  MKer)
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlTono()
 {
-    HtmlMesureTono = "";
-    QString mTOD        = QLocale().toString(MesureTono["TOOD"].toDouble(),'f',0);
-    QString mTOG        = QLocale().toString(MesureTono["TOOG"].toDouble(),'f',0);
+    m_htmlMesureTono = "";
+    QString mTOD        = QLocale().toString(m_mesureTono["TOOD"].toDouble(),'f',0);
+    QString mTOG        = QLocale().toString(m_mesureTono["TOOG"].toDouble(),'f',0);
     QString Methode     = tr("Air");
     QString Tono        ="";
     QString TODcolor, TOGcolor;
@@ -6143,7 +6122,7 @@ void Procedures::setHtmlTono()
             Tono = "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("TO:") + "</b></font></td><td width=\"80\">" + TODcolor + "/" + TOGcolor+ tr(" à ") + QTime::currentTime().toString("H") + "H</td><td width=\"80\">(" + Methode + ")</td><td>" + m_currentuser->login() + "</td></p>";
 
     }
-    HtmlMesureTono = Tono;
+    m_htmlMesureTono = Tono;
 }
 
 // -------------------------------------------------------------------------------------
@@ -6151,9 +6130,9 @@ void Procedures::setHtmlTono()
 //--------------------------------------------------------------------------------------
 void Procedures::setHtmlPachy()
 {
-    HtmlMesureTono = "";
-    QString mPachyOD        = QLocale().toString(MesurePachy["PachyOD"].toInt());
-    QString mPachyOG        = QLocale().toString(MesurePachy["PachyOG"].toInt());
+    m_htmlMesureTono = "";
+    QString mPachyOD        = QLocale().toString(m_mesurePachy["PachyOD"].toInt());
+    QString mPachyOG        = QLocale().toString(m_mesurePachy["PachyOG"].toInt());
     QString Pachy        ="";
     int a = mPachyOD.toInt();
     int b = mPachyOG.toInt();
@@ -6172,42 +6151,42 @@ void Procedures::setHtmlPachy()
             Pachy= "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("Pachy:") + "</b></font></td><td width=\"80\">" + mPachyOD + "/" + mPachyOG + "</td><td>" + m_currentuser->login() + "</td></p>";
 
     }
-    HtmlMesurePachy = Pachy;
+    m_htmlMesurePachy = Pachy;
 }
 
 QString Procedures::HtmlAutoref()
 {
-    return HtmlMesureAutoref;
+    return m_htmlMesureAutoref;
 }
 
 QString Procedures::HtmlKerato()
 {
-    return HtmlMesureKerato;
+    return m_htmlMesureKerato;
 }
 
 QString Procedures::HtmlTono()
 {
-    return HtmlMesureTono;
+    return m_htmlMesureTono;
 }
 
 QString Procedures::HtmlPachy()
 {
-    return HtmlMesurePachy;
+    return m_htmlMesurePachy;
 }
 
 QSerialPort* Procedures::PortTono()
 {
-    return lPortTono;
+    return sp_portTono;
 }
 
 Procedures::TypeMesure Procedures::TypeMesureRefraction()
 {
-    return MesureRef;
+    return m_typemesureRefraction;
 }
 
 void Procedures::setTypeMesureRefraction(TypeMesure mesure)
 {
-    MesureRef = mesure;
+    m_typemesureRefraction = mesure;
 }
 
 //---------------------------------------------------------------------------------
@@ -6217,9 +6196,9 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
 {
     QString                 zQuelleMesure;
     QMap<QString,QVariant>  MapMesure;
-    if (!MesureFronto.isEmpty() && Mesure == Fronto && NouvMesureFronto)
+    if (!m_mesureFronto.isEmpty() && Mesure == Fronto && m_isnewMesureFronto)
     {
-        MapMesure = MesureFronto;
+        MapMesure = m_mesureFronto;
         bool a =
                (MapMesure["SphereOD"].toDouble()== 0.0
             &&  MapMesure["CylOD"].toDouble()   == 0.0
@@ -6275,9 +6254,9 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             db->StandardSQL (requete, tr("Erreur de création de données fronto dans ") + TBL_REFRACTIONS);
         }
     }
-    if (!MesureAutoref.isEmpty() && Mesure == Autoref && NouvMesureAutoref)
+    if (!m_mesureAutoref.isEmpty() && Mesure == Autoref && m_isnewMesureAutoref)
     {
-        MapMesure = MesureAutoref;
+        MapMesure = m_mesureAutoref;
         bool a =
                (MapMesure["SphereOD"].toDouble()== 0.0
             &&  MapMesure["CylOD"].toDouble()   == 0.0
@@ -6327,8 +6306,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
 
             db->StandardSQL (requete, tr("Erreur de création de données autoref dans ") + TBL_REFRACTIONS);
             requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
-            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
-            if (!ok)
+            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
+            if (!m_ok)
                 return;
             if (patdata.size()==0)
             {
@@ -6371,9 +6350,9 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             }
         }
     }
-    if (!MesureKerato.isEmpty() && Mesure == Kerato)
+    if (!m_mesureKerato.isEmpty() && Mesure == Kerato)
     {
-        MapMesure = MesureKerato;
+        MapMesure = m_mesureKerato;
         bool a =
                (MapMesure["K1OD"].toDouble()== 0.0
             &&  MapMesure["K1OG"].toDouble()== 0.0
@@ -6388,8 +6367,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             QString mAxeKOG     = QString::number(MapMesure["AxeKOG"].toInt());
             //qDebug() << mK1OD << mK2OD << mAxeKOD << mK1OG << mK2OG << mAxeKOG;
             QString requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'A'";
-            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
-            if (!ok)
+            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
+            if (!m_ok)
                 return;
             if (patdata.size()==0)
             {
@@ -6424,9 +6403,9 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
             }
         }
     }
-    if (!MesureRefracteurSubjectif.isEmpty() && Mesure == Subjectif)
+    if (!m_mesureRefracteurSubjectif.isEmpty() && Mesure == Subjectif)
     {
-        MapMesure = MesureRefracteurSubjectif;
+        MapMesure = m_mesureRefracteurSubjectif;
         bool a =
                (MapMesure["AVLOD"].toDouble() == 0.0
             &&  MapMesure["AVLOG"].toDouble() == 0.0
@@ -6489,8 +6468,8 @@ void Procedures::InsertRefraction(int idPatient, int idActe, TypeMesure Mesure)
 
             db->StandardSQL(requete, tr("Erreur de création  de données de refraction dans ") + TBL_REFRACTIONS);
             requete = "select idPat from " TBL_DONNEES_OPHTA_PATIENTS " where idPat = " + QString::number(idPatient) + " and QuelleMesure = 'R'";
-            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
-            if (!ok)
+            QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
+            if (!m_ok)
                 return;
             if (patdata.size()==0)
             {

@@ -49,7 +49,7 @@ dlg_identificationuser::dlg_identificationuser(bool ChgUser, QWidget *parent) :
     ui->LoginlineEdit   ->installEventFilter(this);
     ui->MDPlineEdit     ->installEventFilter(this);
 
-    gChgUsr             = ChgUser;
+    m_chgmtuser             = ChgUser;
     ui->LoginlineEdit   ->setFocus();
 }
 
@@ -135,7 +135,7 @@ int dlg_identificationuser::ControleDonnees()
     if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return 0;}
 
-    if (!gChgUsr)
+    if (!m_chgmtuser)
     {
 //TODO : SQL Mettre en place un compte generique pour l'accès à la base de données.
         QString error = "";

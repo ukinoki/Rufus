@@ -42,11 +42,11 @@ public:
     ~VilleCPWidget();
     Ui::VilleCPWidget       *ui;
 
-    Villes *villes() const;
+    Villes          *villes() const;
 
 private:
-    QString                 Alarme;
-    Villes                  *m_villes;
+    QString         m_alarme;
+    Villes          *m_villes;
 
     void            Slot_ChercheVille();
     void            ChercheVille(bool confirmerleCP = true);
@@ -54,11 +54,11 @@ private:
     QString         ConfirmeVille(QString ville);
     void            ChercheCodePostal(bool confirmerlaville = true);
 
-    QString          dialogList(QList<Ville*> &listData, QString fieldName, QString headerName);
-    void             Repons(QListView *lv, UpDialog *ud, QString &newValue);
+    QString         dialogList(QList<Ville*> &listData, QString fieldName, QString headerName);
+    void            Repons(QListView *lv, UpDialog *ud, QString &newValue);
 
 signals:
-    void                    villecpmodified();
+    void            villecpmodified();
 };
 
 #endif // VILLECPWIDGET_H

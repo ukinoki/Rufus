@@ -108,8 +108,8 @@ signals:
 
 private:
     static Flags            *instance;
-    bool                    ok;
-    bool                    TCP;
+    bool                    m_ok;
+    bool                    m_useTCP;
 };
 
 

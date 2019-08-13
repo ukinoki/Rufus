@@ -64,10 +64,8 @@ class DataBase : public QObject
 {
     Q_OBJECT
 public:
-    enum m_mode { Poste, ReseauLocal, Distant };
-    Q_ENUM(m_mode)
-    enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };
-    Q_ENUM(comparateur)
+    enum ModeAcces { Poste, ReseauLocal, Distant };         Q_ENUM(ModeAcces)
+    enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };  Q_ENUM(comparateur)
 
 private:
     DataBase();
@@ -76,14 +74,12 @@ private:
     User *m_userConnected = Q_NULLPTR;
     ParametresSysteme *m_parametres = Q_NULLPTR;
 
-
-    int m_mode;
+    ModeAcces m_mode;
     QString m_base;
     QString m_server;
     int m_port;
     bool m_useSSL;
     bool ok;
-
     QSqlDatabase m_db;
 
 public:
@@ -93,7 +89,7 @@ public:
      * SQL
     */
     //     ACTION SUR LES PARAMETRES DE CONNEXION A LA BASE ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    void                    init(QSettings const &setting, int mode);
+    void                    init(QSettings const &setting, DataBase::ModeAcces mode);
                                                                 /*! initialise les paramètres de connexion au serveur (adresse, port, SSL)
                                                                  *  à partir des valeurs enregistrées dans dans rufus.ini
                                                                  *  en fonction du mode de connexion*/

@@ -33,28 +33,27 @@ class dlg_listecorrespondants : public UpDialog
     Q_OBJECT
 
 public:
-    explicit dlg_listecorrespondants(QWidget *parent = Q_NULLPTR);
+    explicit                dlg_listecorrespondants(QWidget *parent = Q_NULLPTR);
     ~dlg_listecorrespondants();
-    bool                listecorrespondantsmodifiee();
+    bool                    listecorrespondantsmodifiee();
 
 private:
     dlg_identificationcorresp   *Dlg_IdentCorresp;
-    QTreeView               *treeCor;
+    bool                    m_listemodifiee;
+    QStandardItemModel      *m_model;
+    UpLabel                 *wdg_label;
+    QTreeView               *wdg_correspstree;
+    UpLineEdit              *wdg_chercheuplineedit;
+    WidgetButtonFrame       *wdg_buttonframe;
 
-    UpLineEdit              *ChercheUplineEdit;
-    UpLabel                 *label;
-    QStandardItemModel      *gmodele;
+    void                    ChoixButtonFrame(int);
+    void                    Enablebuttons();
+    void                    EnregistreNouveauCorresp();
+    Correspondant*          getCorrespondantFromIndex(QModelIndex idx);
     QList<UpStandardItem *> ListeMetiers();                // la liste des metiers
-    bool                    ListeCorModifiee;
-
-    WidgetButtonFrame   *widgButtons;
-    void                ChoixButtonFrame(int);
-    void                Enablebuttons();
-    void                EnregistreNouveauCorresp();
-    Correspondant*      getCorrespondantFromIndex(QModelIndex idx);
-    void                ModifCorresp(Correspondant *cor);
-    void                SupprCorresp();
-    void                ReconstruitTreeViewCorrespondants(bool reconstruirelaliste = false, QString filtre = "");
+    void                    ModifCorresp(Correspondant *cor);
+    void                    SupprCorresp();
+    void                    ReconstruitTreeViewCorrespondants(bool reconstruirelaliste = false, QString filtre = "");
 };
 
 #endif // dlg_listecorrespondants_H

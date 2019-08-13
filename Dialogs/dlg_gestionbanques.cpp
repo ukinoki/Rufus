@@ -30,12 +30,12 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
 
     db                      = DataBase::I();
 
-    gFermeApresValidation   = (nouvbanqueabrege != "");
+    m_fermeapresvalidation   = (nouvbanqueabrege != "");
     setWindowTitle(tr("Enregistrer une nouvelle banque"));
     setAttribute(Qt::WA_DeleteOnClose);
 
     dlglayout()               ->insertWidget(0, ui->Banqueframe);
-    if (gFermeApresValidation)
+    if (m_fermeapresvalidation)
     {
         NouvBanque();
         ui->NomAbregeupLineEdit->setText(nouvbanqueabrege);
@@ -48,29 +48,29 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
         int ncolvis = 12;
         int hautrow = int(QFontMetrics(qApp->font()).height()*1.3);
         int haut    = hautrow * ncolvis;
-        uptablebanq = new UpTableWidget();
-        uptablebanq->setFixedWidth(larg);
-        uptablebanq->resize(larg, haut);
-        uptablebanq->verticalHeader()->setVisible(false);
-        uptablebanq->setFocusPolicy(Qt::StrongFocus);
-        uptablebanq->setSelectionMode(QAbstractItemView::SingleSelection);
-        uptablebanq->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        uptablebanq->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-        uptablebanq->setGridStyle(Qt::DotLine);
-        uptablebanq->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        uptablebanq->setSelectionBehavior(QAbstractItemView::SelectRows);
-        uptablebanq->setColumnCount(2);
-        uptablebanq->setColumnHidden(0,true);
-        uptablebanq->setColumnWidth(1,uptablebanq->width()-2);
-        uptablebanq->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-        uptablebanq->setHorizontalHeaderItem(1, new QTableWidgetItem(Icons::icEuro(),"Banques"));
-        uptablebanq->horizontalHeader()->setVisible(true);
-        uptablebanq->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
-        uptablebanq->horizontalHeader()->setIconSize(QSize(25,25));
-        uptablebanq->horizontalHeader()->setFixedHeight(hautrow);
+        wdg_bigtable = new UpTableWidget();
+        wdg_bigtable->setFixedWidth(larg);
+        wdg_bigtable->resize(larg, haut);
+        wdg_bigtable->verticalHeader()->setVisible(false);
+        wdg_bigtable->setFocusPolicy(Qt::StrongFocus);
+        wdg_bigtable->setSelectionMode(QAbstractItemView::SingleSelection);
+        wdg_bigtable->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        wdg_bigtable->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        wdg_bigtable->setGridStyle(Qt::DotLine);
+        wdg_bigtable->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        wdg_bigtable->setSelectionBehavior(QAbstractItemView::SelectRows);
+        wdg_bigtable->setColumnCount(2);
+        wdg_bigtable->setColumnHidden(0,true);
+        wdg_bigtable->setColumnWidth(1,wdg_bigtable->width()-2);
+        wdg_bigtable->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
+        wdg_bigtable->setHorizontalHeaderItem(1, new QTableWidgetItem(Icons::icEuro(),"Banques"));
+        wdg_bigtable->horizontalHeader()->setVisible(true);
+        wdg_bigtable->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
+        wdg_bigtable->horizontalHeader()->setIconSize(QSize(25,25));
+        wdg_bigtable->horizontalHeader()->setFixedHeight(hautrow);
 
-        widgButtons = new WidgetButtonFrame(uptablebanq);
-        widgButtons->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
+        wdh_buttonframe = new WidgetButtonFrame(wdg_bigtable);
+        wdh_buttonframe->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::ModifButton | WidgetButtonFrame::MoinsButton);
         /*
         widgButtons->widgButtonParent()->setGeometry(10,10,larg, haut + widgButtons->height());
         widgButtons->widgButtonParent()->sizePolicy().setVerticalStretch(10);
@@ -91,17 +91,17 @@ dlg_gestionbanques::dlg_gestionbanques(QWidget *parent, QString nouvbanqueabrege
         y = widgButtons->widgButtonParent()->sizeHint().height();
         qDebug() << (widgButtons->widgButtonParent()->sizeHint().isValid()? "Valide": "Null") << " - x = " + QString::number(x) + " - y = " + QString::number(y) + " - hauteur ligne = " + QString::number(haut + widgButtons->height()) + " Minimum";
         */
-        dlglayout()               ->insertWidget(0,widgButtons->widgButtonParent());
+        dlglayout()               ->insertWidget(0,wdh_buttonframe->widgButtonParent());
         int r,t,l,b;
         dlglayout()               ->getContentsMargins(&r,&t,&l,&b);
         AjouteLayButtons(UpDialog::ButtonClose);
         resize(larg + r + l,
-               haut + widgButtons->height() + ui->Banqueframe->height() + CloseButton->height() + t + b + (dlglayout()->spacing()*2));
+               haut + wdh_buttonframe->height() + ui->Banqueframe->height() + CloseButton->height() + t + b + (dlglayout()->spacing()*2));
         RemplirTableWidget();
-        uptablebanq->setCurrentCell(0,1);
+        wdg_bigtable->setCurrentCell(0,1);
         AfficheBanque();
-        connect(uptablebanq,        &UpTableWidget::itemSelectionChanged,   this,   &dlg_gestionbanques::AfficheBanque);
-        connect(widgButtons,        &WidgetButtonFrame::choix,              this,   &dlg_gestionbanques::ChoixButtonFrame);
+        connect(wdg_bigtable,        &UpTableWidget::itemSelectionChanged,   this,   &dlg_gestionbanques::AfficheBanque);
+        connect(wdh_buttonframe,        &WidgetButtonFrame::choix,              this,   &dlg_gestionbanques::ChoixButtonFrame);
         connect(CloseButton,        &QPushButton::clicked,                  this,   &dlg_gestionbanques::accept);
         ui->AnnulModifupSmallButton ->setVisible(false);
         ui->OKModifupSmallButton    ->setVisible(false);
@@ -121,8 +121,8 @@ dlg_gestionbanques::~dlg_gestionbanques()
 
 void dlg_gestionbanques::AfficheBanque()
 {
-    UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
-    int idBanque = uptablebanq->item(lbl->Row(),0)->text().toInt();
+    UpLabel* lbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
+    int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
     auto itbq = Datas::I()->banques->banques()->find(idBanque);
     if (itbq != Datas::I()->banques->banques()->constEnd())
     {
@@ -130,18 +130,18 @@ void dlg_gestionbanques::AfficheBanque()
         ui->NomBanqueupLineEdit->setText(banq->nom());
         ui->NomAbregeupLineEdit->setText(banq->nomabrege());
     }
-    widgButtons->moinsBouton->setEnabled(true);
+    wdh_buttonframe->wdg_moinsBouton->setEnabled(true);
     foreach (Compte *cpt, Datas::I()->comptes->comptes()->values())
         if (cpt->idBanque() == idBanque)
         {
-            widgButtons->moinsBouton->setEnabled(false);
+            wdh_buttonframe->wdg_moinsBouton->setEnabled(false);
             return;
         }
 }
 
 void dlg_gestionbanques::AnnuleModifBanque()
 {
-    if (gFermeApresValidation)
+    if (m_fermeapresvalidation)
         reject();
     else
     {
@@ -174,12 +174,12 @@ void dlg_gestionbanques::NouvBanque()
     ui->Banqueframe->setEnabled(true);
     ui->NomBanqueupLineEdit->clear();
     ui->NomAbregeupLineEdit->clear();
-    if (!gFermeApresValidation)
+    if (!m_fermeapresvalidation)
     {
-        uptablebanq->setEnabled(false);
-        widgButtons->setEnabled(false);
+        wdg_bigtable->setEnabled(false);
+        wdh_buttonframe->setEnabled(false);
     }
-    gMode = Nouv;
+    m_mode = Nouv;
 }
 
 void dlg_gestionbanques::ModifBanque()
@@ -187,15 +187,15 @@ void dlg_gestionbanques::ModifBanque()
     ui->AnnulModifupSmallButton->setVisible(true);
     ui->OKModifupSmallButton->setVisible(true);
     ui->Banqueframe->setEnabled(true);
-    uptablebanq->setEnabled(false);
-    widgButtons->setEnabled(false);
-    gMode = Modif;
+    wdg_bigtable->setEnabled(false);
+    wdh_buttonframe->setEnabled(false);
+    m_mode = Modif;
 }
 
 void dlg_gestionbanques::SupprBanque()
 {
-    UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
-    int idBanque = uptablebanq->item(lbl->Row(),0)->text().toInt();
+    UpLabel* lbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
+    int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
     UpMessageBox msgbox;
     UpSmallButton OKBouton(tr("Supprimer"));
     UpSmallButton NoBouton(tr("Annuler"));
@@ -232,7 +232,7 @@ void dlg_gestionbanques::ValideModifBanque()
         return;
     }
 
-    if (gMode == Nouv)
+    if (m_mode == Nouv)
     {
         foreach (Banque* bq, Datas::I()->banques->banques()->values())
         {
@@ -252,7 +252,7 @@ void dlg_gestionbanques::ValideModifBanque()
                                                             nombanque);                        //! NomBanque
         if (banq == Q_NULLPTR)
             return;
-        if (gFermeApresValidation)
+        if (m_fermeapresvalidation)
         {
             UpMessageBox::Watch(this,tr("La banque ") + nombanque + tr(" a été enregistrée"));
             accept();
@@ -260,10 +260,10 @@ void dlg_gestionbanques::ValideModifBanque()
         }
     }
 
-    else if (gMode == Modif)
+    else if (m_mode == Modif)
     {
-        UpLabel* lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(uptablebanq->currentRow(),1));
-        int idBanque = uptablebanq->item(lbl->Row(),0)->text().toInt();
+        UpLabel* lbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
+        int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
         Banque * bqamodifier = Datas::I()->banques->getById(idBanque);
         foreach (Banque* banq, Datas::I()->banques->banques()->values())
         {
@@ -285,12 +285,12 @@ void dlg_gestionbanques::ValideModifBanque()
     }
     RemplirTableWidget();
     UpLabel *lbl;
-    for (int i=0; i<uptablebanq->rowCount(); i++)
+    for (int i=0; i<wdg_bigtable->rowCount(); i++)
     {
-        lbl = static_cast<UpLabel*>(uptablebanq->cellWidget(i,1));
+        lbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(i,1));
         if (lbl->text() == nombanque)
         {
-            uptablebanq->setCurrentCell(i,1);
+            wdg_bigtable->setCurrentCell(i,1);
             break;
         }
     }
@@ -300,12 +300,12 @@ void dlg_gestionbanques::ValideModifBanque()
 
 void dlg_gestionbanques::RemetEnNorm()
 {
-    gMode = Norm;
+    m_mode = Norm;
     ui->AnnulModifupSmallButton->setVisible(false);
     ui->OKModifupSmallButton->setVisible(false);
     ui->Banqueframe->setEnabled(false);
-    uptablebanq->setEnabled(true);
-    widgButtons->setEnabled(true);
+    wdg_bigtable->setEnabled(true);
+    wdh_buttonframe->setEnabled(true);
 }
 
 void dlg_gestionbanques::RemplirTableWidget()
@@ -316,7 +316,7 @@ void dlg_gestionbanques::RemplirTableWidget()
     int i = 0;
     if (rowcount > 0)
     {
-        uptablebanq->setRowCount(rowcount);
+        wdg_bigtable->setRowCount(rowcount);
         foreach (Banque* bq, Datas::I()->banques->banques()->values())
         {
             pitem0 = new QTableWidgetItem;
@@ -324,9 +324,9 @@ void dlg_gestionbanques::RemplirTableWidget()
             pitem0->setText(QString::number(bq->id()));
             label1->setText(bq->nom());
             label1->setRow(i);
-            uptablebanq->setItem(i,0,pitem0);
-            uptablebanq->setCellWidget(i,1,label1);
-            uptablebanq->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
+            wdg_bigtable->setItem(i,0,pitem0);
+            wdg_bigtable->setCellWidget(i,1,label1);
+            wdg_bigtable->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
             ++i;
         }
     }

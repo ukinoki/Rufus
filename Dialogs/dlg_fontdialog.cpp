@@ -25,30 +25,30 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
     setFixedWidth(280);
     setMaximumSize(280,1200);
     QFontDatabase database;
-    TreeWidget  = new QTreeWidget(this);
-    frame       = new QFrame(this);
-    button      = new UpPushButton(frame);
-    lbl         = new UpLabel(this);
-    lbl         ->setAlignment(Qt::AlignCenter);
-    lbl         ->setMinimumHeight(31);
-    frame       ->setMinimumHeight(60);
-    frame       ->setFrameShape(QFrame::Panel);
-    frame       ->setFrameShadow(QFrame::Sunken);
-    button      ->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Large);
-    button      ->setText(tr("Chercher avec la\ndate de naissance"));
-    button      ->setFixedSize(170,52);
+    wdg_treewidget  = new QTreeWidget(this);
+    wdg_frame       = new QFrame(this);
+    wdg_uppushbutton      = new UpPushButton(wdg_frame);
+    wdg_lbl         = new UpLabel(this);
+    wdg_lbl         ->setAlignment(Qt::AlignCenter);
+    wdg_lbl         ->setMinimumHeight(31);
+    wdg_frame       ->setMinimumHeight(60);
+    wdg_frame       ->setFrameShape(QFrame::Panel);
+    wdg_frame       ->setFrameShadow(QFrame::Sunken);
+    wdg_uppushbutton      ->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Large);
+    wdg_uppushbutton      ->setText(tr("Chercher avec la\ndate de naissance"));
+    wdg_uppushbutton      ->setFixedSize(170,52);
     QHBoxLayout *box = new QHBoxLayout();
-    box         ->addWidget(button);
-    frame       ->setLayout(box);
-    button      ->setIcon(Icons::icBoy());
-    TreeWidget  ->setColumnCount(1);
-    TreeWidget  ->setHeaderLabels(QStringList() << "Nom de la police");
-    TreeWidget  ->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0); selection-background-color: rgb(164, 205, 255);}");
+    box         ->addWidget(wdg_uppushbutton);
+    wdg_frame       ->setLayout(box);
+    wdg_uppushbutton      ->setIcon(Icons::icBoy());
+    wdg_treewidget  ->setColumnCount(1);
+    wdg_treewidget  ->setHeaderLabels(QStringList() << "Nom de la police");
+    wdg_treewidget  ->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0); selection-background-color: rgb(164, 205, 255);}");
     QStringList listmodifs;
     listmodifs << "Italic" << "Light" << "Regular" << "Normal" << "Bold" << "SemiBold" << "Black" << "Bold Italic";
 
     foreach (const QString &family, database.families(QFontDatabase::Latin)) {
-        QTreeWidgetItem *familyItem = new QTreeWidgetItem(TreeWidget);
+        QTreeWidgetItem *familyItem = new QTreeWidgetItem(wdg_treewidget);
         familyItem->setText(0, family);
 
         foreach (const QString &style, database.styles(family)) {
@@ -63,34 +63,34 @@ dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *p
     }
     AjouteLayButtons();
 
-    connect (TreeWidget,            SIGNAL(itemClicked(QTreeWidgetItem*,int)),                      this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
-    connect (TreeWidget,            SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),  this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
+    connect (wdg_treewidget,            SIGNAL(itemClicked(QTreeWidgetItem*,int)),                      this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
+    connect (wdg_treewidget,            SIGNAL(currentItemChanged(QTreeWidgetItem*,QTreeWidgetItem*)),  this,   SLOT(Slot_Redessinelabel(QTreeWidgetItem*)));
     connect (OKButton,              SIGNAL(clicked(bool)),                                          this,   SLOT(Slot_FermeFiche()));
 
-    QList<QTreeWidgetItem*> listitems = TreeWidget->findItems(qApp->font().family(),Qt::MatchExactly,0);
+    QList<QTreeWidgetItem*> listitems = wdg_treewidget->findItems(qApp->font().family(),Qt::MatchExactly,0);
     if (listitems.size()>0)
     {
         QTreeWidgetItem *item = listitems.at(0);
         if (item->childCount() == 0)
-            TreeWidget->setCurrentItem(item);
+            wdg_treewidget->setCurrentItem(item);
         QString FontAttribut = database.styleString(qApp->font());
         bool itemtrouve = false;
         for (int i=0;i<item->childCount();i++)
         {
             if (item->child(i)->text(0) == FontAttribut)
             {
-                TreeWidget->setCurrentItem(item->child(i));
+                wdg_treewidget->setCurrentItem(item->child(i));
                 itemtrouve = true;
                 break;
             }
         }
         if (!itemtrouve)
-            TreeWidget->setCurrentItem(item->child(0));
+            wdg_treewidget->setCurrentItem(item->child(0));
     }
-    TreeWidget->expandAll();
-    dlglayout()->insertWidget(0,frame);
-    dlglayout()->insertWidget(0,lbl);
-    dlglayout()->insertWidget(0,TreeWidget);
+    wdg_treewidget->expandAll();
+    dlglayout()->insertWidget(0,wdg_frame);
+    dlglayout()->insertWidget(0,wdg_lbl);
+    dlglayout()->insertWidget(0,wdg_treewidget);
     dlglayout()->setSpacing(5);
 }
 
@@ -128,13 +128,13 @@ void dlg_fontdialog::Slot_Redessinelabel(QTreeWidgetItem *item)
             if (child.contains("Black",Qt::CaseInsensitive))
                 fontlabel.setWeight(QFont::Black);
         }
-        gFontAttribut = child;
+        m_fontattribut = child;
         child = item->parent()->text(0) + " " + child;
     }
     else
     {
         fontlabel.setFamily(child);
-        gFontAttribut = "";
+        m_fontattribut = "";
     }
     for (int i = 5; i < 30; i++)
     {
@@ -147,29 +147,29 @@ void dlg_fontdialog::Slot_Redessinelabel(QTreeWidgetItem *item)
             i=30;
         }
     }
-    gFontDialog = fontlabel;
-    button->setFont(fontlabel);
+    m_font = fontlabel;
+    wdg_uppushbutton->setFont(fontlabel);
     QString a = child + " " + QString::number(fontlabel.pointSize()) + " pt";
-    lbl->setText(a);
-    lbl->setFont(fontlabel);
+    wdg_lbl->setText(a);
+    wdg_lbl->setFont(fontlabel);
 }
 
 QFont   dlg_fontdialog::getFont() const
 {
-    return gFontDialog;
+    return m_font;
 }
 
 void    dlg_fontdialog::setFont(QFont font)
 {
-    gFontDialog = font;
+    m_font = font;
 }
 
 QString   dlg_fontdialog::getFontAttribut() const
 {
-    return gFontAttribut;
+    return m_fontattribut;
 }
 
 void    dlg_fontdialog::setFontAttribut(QString fontAttribut)
 {
-    gFontAttribut = fontAttribut;
+    m_fontattribut = fontAttribut;
 }

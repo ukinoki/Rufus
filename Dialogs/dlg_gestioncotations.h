@@ -26,27 +26,30 @@ class dlg_gestioncotations : public UpDialog
     Q_OBJECT
 
 public:
-    enum Mode   {
-        Creation,
-        Modification
-    };    Q_ENUM(Mode)
-    enum TypeActe   {
-        Association,
-        HorsNomenclature
-    };    Q_ENUM(TypeActe)
-    explicit dlg_gestioncotations(enum TypeActe type, enum Mode mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
+    enum Mode       {Creation, Modification};    Q_ENUM(Mode)
+    enum TypeActe   {Association, HorsNomenclature};    Q_ENUM(TypeActe)
+    explicit        dlg_gestioncotations(enum TypeActe type, enum Mode mode, QString CodeActe = "", QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncotations();
 
 private:
     DataBase    *db;
-    Mode        gMode;
-    TypeActe    gTypeActe;
-    int         gidUser, gSecteurUser;
-    QString     gCodeActe;
-    QStringList glistActes;
+    Mode        m_mode;
+    TypeActe    m_typeacte;
+    int         m_iduser, m_secteuruser;
+    QString     m_ciodeacte;
+    QStringList m_listeactes;
+    UpLineEdit  *wdg_codeline;
+    UpLineEdit  *wdg_tarifoptamline;
+    UpLineEdit  *wdg_tarifnooptamline;
+    UpLineEdit  *wdg_tarifpratiqueline;
+    UpLineEdit  *wdg_tipline;
+    QWidget     *wdg_codewidg;
+    QWidget     *wdg_tarifoptamwidg;
+    QWidget     *wdg_tarifnooptamwidg;
+    QWidget     *wdg_tarifpratiquewidg;
+    QWidget     *wdg_tipwidg;
+
     bool        VerifFiche();
-    UpLineEdit  *codeline, *tarifoptamline, *tarifnooptamline, *tarifpratiqueline, *tipline;
-    QWidget     *codewidg, *tarifoptamwidg, *tarifnooptamwidg, *tarifpratiquewidg, *tipwidg;
 };
 
 #endif // DLG_GESTIONCOTATIONS_H

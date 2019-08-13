@@ -52,40 +52,41 @@ private:
     DataBase                *db;
 
     DocsExternes            *m_docsexternes;
-    DocExterne              *docencours;
+    DocExterne              *m_docencours;
     Patient                 *m_currentpatient;
     User                    *m_currentuser;
 
-    QGraphicsScene          *Scene;
-    QGraphicsVideoItem      *videoItem;
-    QGraphicsView           *GraphicView;
-    QImage                  image;
-    QLabel                  *inflabel;
-    PlayerControls          *playctrl;
-    QMediaPlayer            *player;
-    QTreeView               *ListDocsTreeView;
-    UpCheckBox              *AllDocsupCheckBox;
-    UpCheckBox              *OnlyImportantDocsupCheckBox;
-    UpSwitch                *sw;
-    UpTableWidget           *ScrollTable;
+    QGraphicsScene          *obj_graphicscene;
+    QGraphicsVideoItem      *medobj_videoitem;
+    QGraphicsView           *graphview_view;
+    QImage                  img_image;
+    QMediaPlayer            *medplay_player;
 
-    QRectF                  rect;
-    QFont                   gFont;
-    QList<QPixmap>          glistPix;
-    QPrinter                *printer;
-    QStandardItemModel      *gmodele, *gmodeleTriParDate, *gmodeleTriParType;
-    QPoint                  PosOrigine;
-    QSize                   SizeOrigine;
+    QTreeView               *wdg_listdocstreewiew;
+    UpCheckBox              *wdg_alldocsupcheckbox;
+    UpCheckBox              *wdg_onlyimportantsdocsupcheckbox;
+    UpSwitch                *wdg_upswitch;
+    UpTableWidget           *wdg_scrolltablewidget;
+    QLabel                  *wdg_inflabel;
+    PlayerControls          *wdg_playctrl;
 
-    bool                    AvecPrevisu;
-    bool                    initOK;
-    double                  idealproportion;
-    int                     hdelta , wdelta;
-    int                     hdeltaframe, wdeltaframe;
-    QString                 gTypeDoc;
-    Mode                    gMode;
-    ModeTri                 gModeTri;
-    ModeFiltre              gModeFiltre;
+    QRectF                  m_rect;
+    QFont                   m_font;
+    QList<QPixmap>          m_listpixmp;
+    QPrinter                *m_printer;
+    QStandardItemModel      *m_modele, *m_tripardatemodel, *m_tripartypemodel;
+    QPoint                  m_positionorigin;
+    QSize                   m_sizeorigin;
+
+    bool                    m_avecprevisu;
+    bool                    m_initok;
+    double                  m_idealproportion;
+    int                     m_hdelta , m_wdelta;
+    int                     m_hdeltaframe, m_wdeltaframe;
+    QString                 m_typedoc;
+    Mode                    m_mode;
+    ModeTri                 m_modetri;
+    ModeFiltre              m_modefiltre;
 
 
     bool                    eventFilter(QObject *, QEvent *);

@@ -49,7 +49,8 @@ class dlg_gestionusers : public UpDialog
     Q_OBJECT
 
 public:
-    enum                    UserMode {PREMIERUSER, ADMIN, MODIFUSER};     Q_ENUM(UserMode)
+    enum                    UserMode {PREMIERUSER, ADMIN, MODIFUSER}; Q_ENUM(UserMode)
+    enum                    Mode {Creer, Modifier, PremierUsr};       Q_ENUM(Mode)
     /* correspond aux 3 façons dont la fiche a été appelée
      * PREMIERUSER -> la fiche est appelée au premier lancement du programme pour créer le premier utilisateur -> on peut tout modifier
      * MODIFUSER   -> appelé par l'utilisateur dans le premier onglet de la fiche dlg_param -> on ne peut modifier que les données d'identité, geographiques et bancaires
@@ -62,48 +63,48 @@ public:
      */
     ~dlg_gestionusers();
     Ui::dlg_gestionusers    *ui;
-    enum                    Mode {Creer, Modifier, PremierUsr};
     void                    setConfig(UserMode mode);
     bool                    isMDPverified();
 
 private:
-    bool                    MDPverified;
-    UserMode                UsrMode;
-    bool                    ophtalmo;
-    bool                    orthoptist;
-    bool                    autresoignant;
-    bool                    medecin;
-    bool                    soccomptable;
-    bool                    assistant;
-    bool                    liberal;
-    bool                    pasliberal;
-    bool                    retrocession;
-    bool                    cotation;
-    bool                    soignant;
-    bool                    responsable;
-    bool                    respsalarie;
-    bool                    respliberal;
-    bool                    soigntnonrplct;
+    DataBase                *db;
 
-    bool                    ok;
+    bool                    m_MDPverified;
+    UserMode                m_usermode;
+    bool                    m_ophtalmo;
+    bool                    m_orthoptist;
+    bool                    m_autresoignant;
+    bool                    m_medecin;
+    bool                    m_soccomptable;
+    bool                    m_assistant;
+    bool                    m_liberal;
+    bool                    m_pasliberal;
+    bool                    m_retrocession;
+    bool                    m_cotation;
+    bool                    m_soignant;
+    bool                    m_responsable;
+    bool                    m_respsalarie;
+    bool                    m_respliberal;
+    bool                    m_soignantnonremplacant;
+
+    bool                    m_ok;
 
     dlg_gestioncomptes      *Dlg_GestComptes;
-    UpDialog                *gAsk;
-    DataBase                *db;
-    QBrush                  gcolor;
-    int                     gMode;
-    int                     gidUserDepart;
-    int                     gidLieu;
+    UpDialog                *dlg_ask;
+    QBrush                  m_color;
+    Mode                    m_mode;
+    int                     m_iduserdepart;
+    int                     m_idlieu;
     User                    *m_userencours;
     QString                 gLoginupLineEdit, gMDPupLineEdit, gConfirmMDPupLineEdit;
     QString                 gLibActiv, gNoLibActiv;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
     QStringList             gListBanques;
     UpDialog                *gAskMDP;
-    void                    ActualiseRsgnmtBanque(bool soccomptable);
+    void                    ActualiseRsgnmtBanque(bool m_soccomptable);
     bool                    AfficheParamUser(int idUser);
     void                    CalcListitemsCompteActescomboBox(User *usr);
-    void                    CalcListitemsCompteComptacomboBox(User *usr, bool soccomptable);
+    void                    CalcListitemsCompteComptacomboBox(User *usr, bool m_soccomptable);
     void                    CalcListitemsEmployeurcomboBox(int iduser);
     void                    DefinitLesVariables();
     bool                    ExisteEmployeur(int iduser);

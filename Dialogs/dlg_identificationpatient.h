@@ -36,32 +36,26 @@ class dlg_identificationpatient : public UpDialog
     Q_OBJECT
 
 public:
-    enum Mode   {
-        Copie,
-        Creation,
-        Modification
-    };    Q_ENUM(Mode)
-    explicit dlg_identificationpatient(enum Mode mode, Patient *pat, QWidget *parent = Q_NULLPTR);
+    enum Mode                       {Copie, Creation, Modification};    Q_ENUM(Mode)
+    explicit                        dlg_identificationpatient(enum Mode mode, Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_identificationpatient();
     Ui::dlg_identificationpatient   *ui;
-    QLineEdit                       *CPlineEdit, *VillelineEdit;
     bool                            listecorrespondantsmodifiee();
     Patient*                        getPatient();
 
 private:
+    DataBase                        *db;
     Patient                         *m_currentpatient;
     dlg_identificationcorresp       *Dlg_IdentCorresp;
-    bool                            ListeCorModifiee;
-    Mode                            gMode;
-    DataBase                        *db;
-    bool                            ok;
-    QMenu                           *gmenuContextuel;
-    QTimer                          *gTimer;
-    UpSmallButton                   *VitaleButton;
-    VilleCPWidget                   *VilleCPwidg;
-
-
+    bool                            m_listecorrespondantsmodfifiee;
+    bool                            m_ok;
     int                             m_flagcorrespondants;
+    Mode                            m_mode;
+    QMenu                           *m_menucontextuel;
+    QTimer                          *t_timer;
+    UpSmallButton                   *widg_vitalebutton;
+    VilleCPWidget                   *wdg_villeCP;
+    QLineEdit                       *wdg_CPlineedit, *wdg_villelineedit;
 
     bool                            eventFilter(QObject *obj, QEvent *event)  ;
     void                            AfficheDossierAlOuverture();

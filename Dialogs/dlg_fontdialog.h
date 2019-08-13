@@ -39,12 +39,12 @@ private slots:
     void                Slot_FermeFiche();
 
 private:
-    QFont               gFontDialog;
-    QString             gFontAttribut;
-    QTreeWidget         *TreeWidget;
-    UpLabel             *lbl;
-    QFrame              *frame;
-    UpPushButton        *button;
+    QFont               m_font;
+    QString             m_fontattribut;
+    QTreeWidget         *wdg_treewidget;
+    UpLabel             *wdg_lbl;
+    QFrame              *wdg_frame;
+    UpPushButton        *wdg_uppushbutton;
 };
 
 #endif // DLG_FONTDIALOG_H

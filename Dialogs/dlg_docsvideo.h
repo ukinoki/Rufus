@@ -41,16 +41,18 @@ private:
     Procedures          *proc;
     DataBase            *db;
     Patient             *m_currentpatient;
-    UpLabel             *inflabel;
-    UpLineEdit          *linetitre;
-    QDateEdit           *editdate;
-    UpComboBox          *typeDocCombo;
-    QVideoWidget        *upvisu;
-    UpToolBar           *toolbar;
-    UpPushButton        *dirsearchbutton;
-    QList<QPixmap>      glistPix;
-    QStringList         ListTypeExams;
-    QString             docpath;
+    QList<QPixmap>      m_listpixmaps;
+    QStringList         m_listtypesexamen;
+    QString             m_docpath;
+
+    UpLabel             *wdg_inflabel;
+    UpLineEdit          *wdg_linetitre;
+    QDateEdit           *wdg_editdate;
+    UpComboBox          *wdg_typedoccombobx;
+    QVideoWidget        *wdg_visuvideowdg;
+    UpToolBar           *wdg_toolbar;
+    UpPushButton        *wdg_dirsearchbutton;
+
     void                AfficheVideo(QString filebut);
     void                ChangeFile();
     void                ValideFiche();

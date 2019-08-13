@@ -1,4 +1,4 @@
-/* (C) 2018 LAINE SERGE
+    /* (C) 2018 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -74,7 +74,7 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent, QString Son) :
     ui->setupUi(this);
     ui->CPlineEdit              ->setValidator(new QRegExpValidator(Utils::rgx_CP,this));
     ui->VillelineEdit           ->setValidator(new QRegExpValidator(Utils::rgx_ville,this));
-    Alarme                      = Son;
+    m_alarme                      = Son;
     m_villes                    = villes;
 
     setFocusProxy(ui->CPlineEdit);
@@ -135,7 +135,7 @@ void VilleCPWidget::ChercheVille(bool confirmerleCP)  // Recherche la ville une 
             UpMessageBox::Watch(this, err.value("errorMessage").toString());
         else if( err.value("errorCode").toInt() == 2 )
         {
-            QSound::play(Alarme);
+            QSound::play(m_alarme);
             UpMessageBox::Watch(this, err.value("errorMessage").toString());
             ui->VillelineEdit->clear();
             ui->VillelineEdit->setFocus();
@@ -183,7 +183,7 @@ void VilleCPWidget::ChercheCodePostal(bool confirmerlaville)
     QList<Ville*> villes = m_villes->getVilleByName(ville);
     if( villes.isEmpty() )
     {
-        QSound::play(Alarme);
+        QSound::play(m_alarme);
         UpMessageBox::Watch(Q_NULLPTR,tr("Ville inconnue"));
         ui->CPlineEdit->clear();
         ui->CPlineEdit->setFocus();
@@ -214,7 +214,7 @@ QString VilleCPWidget::ConfirmeVille(QString ville)
     QList<Ville*> villes = m_villes->getVilleByName(ville, true);
     if( villes.isEmpty() )
     {
-        QSound::play(Alarme);
+        QSound::play(m_alarme);
         UpMessageBox::Watch(Q_NULLPTR,tr("Ville inconnue"));
         ui->CPlineEdit->clear();
         ui->CPlineEdit->setFocus();

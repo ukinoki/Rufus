@@ -19,14 +19,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 ImportDocsExternesThread::ImportDocsExternesThread(Procedures *proced)
 {
-    moveToThread(&thread);
-    a=0;
+    moveToThread(&m_thread);
     proc            = proced;
-    EnCours         = false;
+    m_encours         = false;
     db              = DataBase::I();
-    gAcces           = (db->getMode()!=DataBase::Distant? Local : Distant);
-    idLieuExercice  = Datas::I()->users->userconnected()->idsitedetravail();
-    thread          .start();
+    m_acces          = (db->getMode()!=DataBase::Distant? Local : Distant);
+    m_idlieuexercice  = Datas::I()->users->userconnected()->idsitedetravail();
+    m_thread          .start();
 }
 
 void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listdocs)
@@ -36,14 +35,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
 
     -> listdocs.at(i).at(0) = le titre de l'examen
     -> listdocs.at(i).at(1) = le nom de l'appareil*/
-    if (EnCours)
+    if (m_encours)
         return;
-    EnCours = true;
-    listmsg.clear();
-    datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
+    m_encours = true;
+    m_listemessages.clear();
+    m_datetransfer = QDate::currentDate().toString("yyyy-MM-dd");
     if (!DefinitDossiers())
     {
-        EnCours = false;
+        m_encours = false;
         return;
     }
     for (int itr=0; itr<listdocs.size(); itr++)
@@ -71,17 +70,17 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                 if (nomdoc.contains("smbtest"))
                     continue;
                 QString CheminFichierImage      = NomDirDoc + "/" + nomdoc;
-                QFile   jnaltrsferfile(CheminOKTransfrDir + "/0JournalTransferts - " + datetransfer + ".txt");
+                QFile   jnaltrsferfile(m_pathdirOKtransfer + "/0JournalTransferts - " + m_datetransfer + ".txt");
                 QString commentechec;
 
-                FichierOrigine.setFileName(CheminFichierImage);
-                QString datetimecreation = QFileInfo(FichierOrigine).created().toString("yyyyMMdd-HHmmss");
+                m_fichierorigine.setFileName(CheminFichierImage);
+                QString datetimecreation = QFileInfo(m_fichierorigine).created().toString("yyyyMMdd-HHmmss");
 
                 // Date et type du document------------------------------------------------------------------------------------------------------------------------------------------------
                 QString datestring  = "";
                 if (Appareil == "TOPCON ALADDIN")
                 {
-                    QDateTime datefic   = QFileInfo(FichierOrigine).created();
+                    QDateTime datefic   = QFileInfo(m_fichierorigine).created();
                     datestring          = datefic.toString("yyyyMMdd");
                     Titredoc            = "Biométrie - Aladdin";
                     Typedoc             = "Biométrie";
@@ -309,37 +308,37 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                 }
                 // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
                 QByteArray ba;
-                QString nomfichresize = NomDirStockageProv + "/resize" + nomdoc;
+                QString nomfichresize = m_pathdirstockageprovisoire + "/resize" + nomdoc;
                 QString szorigin, szfinal;
                 // on vide le dossier provisoire
-                QStringList listfichresize = QDir(NomDirStockageProv).entryList(QDir::Files | QDir::NoDotAndDotDot);
+                QStringList listfichresize = QDir(m_pathdirstockageprovisoire).entryList(QDir::Files | QDir::NoDotAndDotDot);
                 for (int t=0; t<listfichresize.size(); t++)
                 {
                     QString nomdocrz  = listfichresize.at(t);
-                    QString CheminFichierResize = NomDirStockageProv + "/" + nomdocrz;
+                    QString CheminFichierResize = m_pathdirstockageprovisoire + "/" + nomdocrz;
                     QFile(CheminFichierResize).remove();
                 }
-                if (FichierOrigine.open(QIODevice::ReadOnly))
+                if (m_fichierorigine.open(QIODevice::ReadOnly))
                 {
-                    double sz = FichierOrigine.size();
+                    double sz = m_fichierorigine.size();
                     if (sz/(1024*1024) > 1)
                         szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
                     else
                         szorigin = QString::number(sz/1024,'f',1) + "Ko";
                     szfinal = szorigin;
-                    FichierOrigine.copy(nomfichresize);
-                    FichierImage.setFileName(nomfichresize);
+                    m_fichierorigine.copy(nomfichresize);
+                    m_fichierimage.setFileName(nomfichresize);
                     if (formatdoc == "jpg" && sz > TAILLEMAXIIMAGES)
                     {
                         QImage  img(nomfichresize);
-                        FichierImage.remove();
+                        m_fichierimage.remove();
                         QPixmap pixmap;
                         pixmap = pixmap.fromImage(img.scaledToWidth(2560,Qt::SmoothTransformation));
                         int     tauxcompress = 90;
                         while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
                         {
                             pixmap.save(nomfichresize, "jpeg",tauxcompress);
-                            sz = FichierImage.size();
+                            sz = m_fichierimage.size();
                             tauxcompress -= 10;
                         }
                         if (sz/(1024*1024) > 1)
@@ -347,8 +346,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                         else
                             szfinal = QString::number(sz/1024,'f',0) + "Ko";
                     }
-                    FichierImage.open(QIODevice::ReadOnly);
-                    ba = FichierImage.readAll();
+                    m_fichierimage.open(QIODevice::ReadOnly);
+                    ba = m_fichierimage.readAll();
                 }
                 else
                 {
@@ -378,8 +377,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                                       " and patprenom like '" + prenom  + "'"
                                       " and patDDN = '" + annee + "-" + mois + "-" + jour + "'";
                     //qDebug() << req;
-                    QVariantList patlst = db->getFirstRecordFromStandardSelectSQL(req, ok);
-                    if (!ok || patlst.size()==0)
+                    QVariantList patlst = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+                    if (!m_ok || patlst.size()==0)
                     {
                         commentechec =  tr("Impossible d'ouvrir le fichier");
                         EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
@@ -447,8 +446,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     continue;
                 }
                 QString identpat;
-                QVariantList patlst = db->getFirstRecordFromStandardSelectSQL("select patnom, patprenom from " TBL_PATIENTS " where idpat = " + idPatient, ok);
-                if (!ok || patlst.size()==0)
+                QVariantList patlst = db->getFirstRecordFromStandardSelectSQL("select patnom, patprenom from " TBL_PATIENTS " where idpat = " + idPatient, m_ok);
+                if (!m_ok || patlst.size()==0)
                 {
                     commentechec =  tr("Pas de patient pour cet idPatient") + " -> " + idPatient;
                     EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
@@ -463,7 +462,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                  * Si on est en accès distant, l'enregistrement se fait dans la table Impressions et le contenu du fichier est copié dans le champ blob de la table de la table
                  * _______________________________________________________________________________________________________________________________________________________
                 */
-                int idimpr = db->selectMaxFromTable("idimpression",  TBL_DOCSEXTERNES, ok)+1;
+                int idimpr = db->selectMaxFromTable("idimpression",  TBL_DOCSEXTERNES, m_ok)+1;
 
                 QString NomFileDoc = idPatient + "_"
                         + Typedoc + "_"
@@ -472,7 +471,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                         + "-" + QString::number(idimpr)
                         + "." + QFileInfo(nomdoc).suffix();
 
-                if (gAcces == Local)
+                if (m_acces == Local)
                 {
                     req = "insert into " TBL_DOCSEXTERNES " (idimpression, idUser,  idpat,  TypeDoc,  SousTypeDoc, Titre, Dateimpression,"
                                                                " UserEmetteur, lienversfichier, EmisRecu, FormatDoc, idLieu)"
@@ -485,24 +484,24 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             + Titredoc + "', '"
                             + datestring + " " + QTime::currentTime().toString("HH:mm:ss") + "', "
                             + QString::number(Datas::I()->users->userconnected()->id()) + ", '"
-                            + "/" + datetransfer + "/" + NomFileDoc + "', "
+                            + "/" + m_datetransfer + "/" + NomFileDoc + "', "
                             + "0" + ", '"
                             IMAGERIE "', "
-                            + QString::number(idLieuExercice) + ")";
+                            + QString::number(m_idlieuexercice) + ")";
 
                     if(db->StandardSQL(req))
                     {
-                        QString CheminOKTransfrDoc          = CheminOKTransfrDir + "/" + NomFileDoc;
-                        QString CheminOKTransfrDocOrigin    = CheminOKTransfrDirOrigin + "/" + nomdoc;
-                        FichierImage.copy(CheminOKTransfrDoc);
+                        QString CheminOKTransfrDoc          = m_pathdirOKtransfer + "/" + NomFileDoc;
+                        QString CheminOKTransfrDocOrigin    = m_pathdiroriginOKtransfer + "/" + nomdoc;
+                        m_fichierimage.copy(CheminOKTransfrDoc);
                         QFile CC(CheminOKTransfrDoc);
                         CC.open(QIODevice::ReadWrite);
                         CC.setPermissions(QFileDevice::ReadOther
                                           | QFileDevice::ReadGroup
                                           | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                                           | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-                        FichierImage.remove();
-                        FichierOrigine.copy(CheminOKTransfrDocOrigin);
+                        m_fichierimage.remove();
+                        m_fichierorigine.copy(CheminOKTransfrDocOrigin);
                         QFile CO(CheminOKTransfrDocOrigin);
                         CO.open(QIODevice::ReadWrite);
                         CO.setPermissions(QFileDevice::ReadOther
@@ -515,7 +514,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             out << Titredoc << " - " << nomdoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
                             jnaltrsferfile.close();
                         }
-                        if (FichierOrigine.remove())
+                        if (m_fichierorigine.remove())
                         {
                             QString msg = tr("Enregistrement d'un cliché") + " <font color=\"red\"><b>" + Titredoc + "</b></font>"
                                           " " + tr("pour") + " <font color=\"green\"><b>" + identpat + "</b></font> " + tr("dans la base de données");
@@ -524,7 +523,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             else
                                 msg += "<br />" + tr("la taille du fichier est de ") + szorigin;
                             //qDebug() << "ba size = "  + QString::number(ba.size()) << "ba compressé size = " + QString::number(qCompress(ba).size());
-                            listmsg << msg;
+                            m_listemessages << msg;
                             //qDebug() << "xx = " + QString::number(xx) << "x = " + QString::number(xx-DlgMess->width()-50) << "yy = " + QString::number(yy)  << "y = " + QString::number(yy-DlgMess->height()*(k+1))  << "itr = " << QString::number(k);
                         }
                         else
@@ -536,7 +535,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                         EchecImport(Titredoc + " - " + nomdoc + " - " + commentechec + " - " + QHostInfo::localHostName());
                     }
                 }
-                else if (gAcces == Distant)
+                else if (m_acces == Distant)
                 {
                     if (formatdoc == "pdf")
                         formatdoc = CP_PDF_IMPRESSIONS;
@@ -555,14 +554,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                     listbinds[formatdoc] =                      ba;
                     listbinds[CP_EMISORRECU_IMPRESSIONS] =      "0";
                     listbinds[CP_FORMATDOC_IMPRESSIONS] =       IMAGERIE;
-                    listbinds[CP_IDLIEU_IMPRESSIONS] =          idLieuExercice;
+                    listbinds[CP_IDLIEU_IMPRESSIONS] =          m_idlieuexercice;
                     DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
                     if(doc != Q_NULLPTR)
                     {
                         delete doc;
-                        FichierImage.remove();
-                        QString CheminOKTransfrDocOrigin    = CheminOKTransfrDirOrigin + "/" + nomdoc;
-                        FichierOrigine.copy(CheminOKTransfrDocOrigin);
+                        m_fichierimage.remove();
+                        QString CheminOKTransfrDocOrigin    = m_pathdiroriginOKtransfer + "/" + nomdoc;
+                        m_fichierorigine.copy(CheminOKTransfrDocOrigin);
                         QFile CO(CheminOKTransfrDocOrigin);
                         CO.open(QIODevice::ReadWrite);
                         CO.setPermissions(QFileDevice::ReadOther
@@ -575,7 +574,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             out << Titredoc << " - " << nomdoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
                             jnaltrsferfile.close();
                         }
-                        if (FichierOrigine.remove())
+                        if (m_fichierorigine.remove())
                         {
                             QString msg = tr("Enregistrement d'un cliché") + " <font color=\"red\"><b>" + Titredoc + "</b></font>"
                                           " " + tr("pour") + " <font color=\"green\"><b>" + identpat + "</b></font> " + tr("dans la base de données");
@@ -584,7 +583,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
                             else
                                 msg += "<br />" + tr("la taille du fichier est de ") + szorigin;
                             //qDebug() << "ba size = "  + QString::number(ba.size()) << "ba compressé size = " + QString::number(qCompress(ba).size());
-                            listmsg << msg;
+                            m_listemessages << msg;
                             //qDebug() << "xx = " + QString::number(xx) << "x = " + QString::number(xx-DlgMess->width()-50) << "yy = " + QString::number(yy)  << "y = " + QString::number(yy-DlgMess->height()*(k+1))  << "itr = " << QString::number(k);
                         }
                         else
@@ -600,9 +599,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(QList<QVariantList> listd
         }
     }
 
-    if (listmsg.size()>0)
-        emit emitmsg(listmsg, 3000, true);
-    EnCours = false;
+    if (m_listemessages.size()>0)
+        emit emitmsg(m_listemessages, 3000, true);
+    m_encours = false;
 }
 
 bool ImportDocsExternesThread::DefinitDossiers()
@@ -611,53 +610,53 @@ bool ImportDocsExternesThread::DefinitDossiers()
     if (db->getMode() == DataBase::Poste)
     {
         NomOnglet = tr("Monoposte");
-        NomDirStockageImagerie = db->parametres()->dirimagerie();
+        m_pathdirstockageimagerie = db->parametres()->dirimagerie();
     }
     if (db->getMode() == DataBase::ReseauLocal)
     {
         NomOnglet = tr("Réseau local");
-        NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_LOCAL/DossierImagerie").toString();
+        m_pathdirstockageimagerie  = proc->m_settings->value("BDD_LOCAL/DossierImagerie").toString();
     }
     if (db->getMode() == DataBase::Distant)
     {
         NomOnglet = tr("Accès distant");
-        NomDirStockageImagerie  = proc->gsettingsIni->value("BDD_DISTANT/DossierImagerie").toString();
+        m_pathdirstockageimagerie  = proc->m_settings->value("BDD_DISTANT/DossierImagerie").toString();
     }
 
-    NomDirStockageProv      = NomDirStockageImagerie + DIR_PROV;
-    if (!Utils::mkpath(NomDirStockageProv))
+    m_pathdirstockageprovisoire      = m_pathdirstockageimagerie + DIR_PROV;
+    if (!Utils::mkpath(m_pathdirstockageprovisoire))
     {
-        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + NomDirStockageProv + "</b></font>" + tr(" invalide");
+        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirstockageprovisoire + "</b></font>" + tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
         emit emitmsg(listmsg, 3000, false);
         return false;
     }
-    CheminOKTransfrDir      = NomDirStockageImagerie + DIR_IMAGES + "/" + datetransfer;
-    if (!Utils::mkpath(CheminOKTransfrDir))
+    m_pathdirOKtransfer      = m_pathdirstockageimagerie + DIR_IMAGES + "/" + m_datetransfer;
+    if (!Utils::mkpath(m_pathdirOKtransfer))
     {
-        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirOKtransfer + "</b></font>" + tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
         emit emitmsg(listmsg, 3000, false);
         return false;
     }
-    CheminEchecTransfrDir   = NomDirStockageImagerie + DIR_ECHECSTRANSFERTS;
-    if (!Utils::mkpath(CheminEchecTransfrDir))
+    m_pathdirechectransfer   = m_pathdirstockageimagerie + DIR_ECHECSTRANSFERTS;
+    if (!Utils::mkpath(m_pathdirechectransfer))
     {
-        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + tr(" invalide");
+        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdirechectransfer + "</b></font>" + tr(" invalide");
         QStringList listmsg;
         listmsg << msg;
         emit emitmsg(listmsg, 3000, false);
         return false;
     }
 
-    if (gAcces == Local)
+    if (m_acces == Local)
     {
-        CheminOKTransfrDirOrigin    = NomDirStockageImagerie + DIR_ORIGINAUX DIR_IMAGES + "/" + datetransfer;
-        if (!Utils::mkpath(CheminOKTransfrDirOrigin))
+        m_pathdiroriginOKtransfer    = m_pathdirstockageimagerie + DIR_ORIGINAUX DIR_IMAGES + "/" + m_datetransfer;
+        if (!Utils::mkpath(m_pathdiroriginOKtransfer))
         {
-            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirOrigin + "</b></font>" + tr(" invalide");
+            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + m_pathdiroriginOKtransfer + "</b></font>" + tr(" invalide");
             QStringList listmsg;
             listmsg << msg;
             emit emitmsg(listmsg, 3000, false);
@@ -669,15 +668,15 @@ bool ImportDocsExternesThread::DefinitDossiers()
 
 void ImportDocsExternesThread::EchecImport(QString txt)
 {
-    QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(FichierOrigine).fileName() + "</b></font>" + tr(" dans la base de données");
+    QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(m_fichierorigine).fileName() + "</b></font>" + tr(" dans la base de données");
     QStringList listmsg;
     listmsg << msg;
     emit emitmsg(listmsg, 3000, false);
 
-    QString CheminEchecTransfrDoc   = CheminEchecTransfrDir + "/" + QFileInfo(FichierOrigine).fileName();
-    FichierOrigine.copy(CheminEchecTransfrDoc);
-    FichierOrigine.remove();
-    QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer + ".txt";
+    QString CheminEchecTransfrDoc   = m_pathdirechectransfer + "/" + QFileInfo(m_fichierorigine).fileName();
+    m_fichierorigine.copy(CheminEchecTransfrDoc);
+    m_fichierorigine.remove();
+    QString echectrsfername         = m_pathdirechectransfer + "/0EchecTransferts - " + m_datetransfer + ".txt";
     QFile   echectrsfer(echectrsfername);
     if (echectrsfer.open(QIODevice::Append))
     {

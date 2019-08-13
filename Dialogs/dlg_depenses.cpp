@@ -52,7 +52,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     else
         ui->UserscomboBox->setCurrentIndex(index);
 
-    restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDepenses").toByteArray());
+    restoreGeometry(proc->m_settings->value("PositionsFiches/PositionDepenses").toByteArray());
 
     m_initok = initializeUserSelected();
     if( !m_initok )
@@ -1361,7 +1361,7 @@ void dlg_depenses::RedessineBigTable()
 
 void dlg_depenses::closeEvent(QCloseEvent *event)
 {
-    proc->gsettingsIni->setValue("PositionsFiches/PositionDepenses",saveGeometry());
+    proc->m_settings->setValue("PositionsFiches/PositionDepenses",saveGeometry());
     event->accept();
 }
 

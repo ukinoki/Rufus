@@ -38,7 +38,6 @@ private:
     QSerialPort     *Port;
     QThread         thread;
 
-
 private slots:
     void            Slot_LitPort();
 };

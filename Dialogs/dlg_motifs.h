@@ -48,14 +48,15 @@ public:
 
 private:
     Ui::dlg_motifs      *ui;
+    WidgetButtonFrame   *wdg_buttonframe;
+    QMap<int,Motif*>    *m_motifs;
+
     void                DeplaceVersRow(int id, int anc, int nouv);
     void                RecalculeLesRows();
     void                RemplirTableWidget();
     UpCheckBox*         UpchkFromTableW(QTableWidget*, int row, int col);
     void                SupprimMotif();
     void                CreeMotif();
-    WidgetButtonFrame   *widgButtons;
-    QMap<int,Motif*>    *m_motifs;
     Motif*              getMotifFromRow(int row);
     void                SetMotifToRow(Motif *mtf, int row);
 

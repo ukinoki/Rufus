@@ -34,7 +34,7 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
     m_initok = true;
     proc        = Procedures::I();
 
-    restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionRemiseCheques").toByteArray());
+    restoreGeometry(proc->m_settings->value("PositionsFiches/PositionRemiseCheques").toByteArray());
 
     connect (ui->AnnulupPushButton,                         SIGNAL(clicked()),                              this,           SLOT (Slot_AnnulupPushButton()));
     connect (ui->ListeChequesupTableWidget,                 SIGNAL(cellEntered(int,int)),                   this,           SLOT (Slot_ToolTip(int, int)));
@@ -766,7 +766,7 @@ void dlg_remisecheques::keyPressEvent ( QKeyEvent * event )
 
 void dlg_remisecheques::closeEvent(QCloseEvent *event)
 {
-    proc->gsettingsIni->setValue("PositionsFiches/PositionRemiseCheques", saveGeometry());
+    proc->m_settings->setValue("PositionsFiches/PositionRemiseCheques", saveGeometry());
     event->accept();
 }
 

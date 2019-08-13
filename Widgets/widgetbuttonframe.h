@@ -36,15 +36,17 @@ public:
     Q_DECLARE_FLAGS(Buttons, Button)
     void            AddButtons(Buttons);
     void            replace();
-    UpSmallButton   *plusBouton, *moinsBouton, *modifBouton;
+    UpSmallButton   *wdg_plusBouton;
+    UpSmallButton   *wdg_moinsBouton;
+    UpSmallButton   *wdg_modifBouton;
     QWidget*        widgButtonParent();
     QHBoxLayout*    layButtons();
     int             Reponse();
 
 private:
-    int             gReponse;
-    QWidget         *gProprio, *widgParent;
-    QHBoxLayout     *glayButtonWidg;
+    int             m_reponse;
+    QWidget         *wdg_proprio, *widg_parent;
+    QHBoxLayout     *wdg_buttonwidglayout;
     void            Reponse(int id);
 
 signals:

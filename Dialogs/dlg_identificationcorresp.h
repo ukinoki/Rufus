@@ -35,29 +35,26 @@ class dlg_identificationcorresp : public UpDialog
     Q_OBJECT
 
 public:
-    enum Mode   {
-        Creation,
-        Modification
-    };    Q_ENUM(Mode)
+    enum Mode   {Creation, Modification};    Q_ENUM(Mode)
     explicit dlg_identificationcorresp(enum Mode mode, bool quelesmedecins, Correspondant *cor = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     Ui::dlg_identificationcorresp *ui;
     ~dlg_identificationcorresp();
-    QLineEdit           *CPlineEdit, *VillelineEdit;
     bool                identcorrespondantmodifiee();
     Correspondant*      correspondantrenvoye();
 
 private:
-    int                 gidCor;
-    Mode                gMode;
-    Correspondant       *m_correspondant;
-    bool                eventFilter(QObject *obj, QEvent *event)  ;
-    QString             lCreatModif;
-    bool                OnlyDoctors;
-    QString             gNomCor, gPrenomCor, Sexe;
     DataBase            *db;
+    int                 m_idcorrespondant;
+    bool                m_onlydoctors;
+    bool                m_modifdatascor;
+    QString             m_nomcor, m_prenomcor, m_sexecor;
+    Mode                m_mode;
+    QLineEdit           *wdg_CPlineedit, *wdg_villelineedit;
+    VilleCPWidget       *wdg_villeCP;
+    Correspondant       *m_correspondant;
+
+    bool                eventFilter(QObject *obj, QEvent *event)  ;
     void                AfficheDossierAlOuverture();
-    VilleCPWidget       *VilleCPwidg;
-    bool                modif;
     void                ReconstruitListeSpecialites();
 
 private slots:

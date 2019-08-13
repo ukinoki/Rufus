@@ -88,9 +88,9 @@ bool pyxinterf::InitConnexionPyxvital()
     // Recherche paramètres Pyxvital.ini.
     nomFicIni   = QDir::homePath() + FILE_INI;
 
-    proc->gsettingsIni->setIniCodec("ISO 8859-1");
+    proc->m_settings->setIniCodec("ISO 8859-1");
 
-    PyxvitalPath = QDir::homePath() + "/" + proc->gsettingsIni->value("PyxInterf/PyxvitalPath").toString();
+    PyxvitalPath = QDir::homePath() + "/" + proc->m_settings->value("PyxInterf/PyxvitalPath").toString();
     if (PyxvitalPath.length() == 0)
         {UpMessageBox::Watch(0, "Lecture Paramètres Pyxvital",
                     " Le chemin d'accès à Pyxvital n'est pas paramétré!\nVeuillez vérifier vos paramètres PyxInterf dans Rufus.ini");
@@ -543,11 +543,11 @@ void pyxinterf::Attendre_fin_FSE()
         // y'a pas d'erreur, on continue ...
         // on teste si la facture a été saisie : présence du fichier "facture.par"
         if (QFile::exists(gnomFicFacture) )                     // le fichier facture.par existe , donc une au moins a été saisie
-            {QString    zfact     = proc->gsettingsIni->value(tr("Tarification/Taux")).toString();
+            {QString    zfact     = proc->m_settings->value(tr("Tarification/Taux")).toString();
 
             // Si la facture est terminée, on controle la fin de la création du fichier FSExxxxxxxx.fse pour interrompre la boucle.
             if (zfact.length() > 0)
-                {zfact = proc->gsettingsIni->value(tr("Facture/Numero")).toString();
+                {zfact = proc->m_settings->value(tr("Facture/Numero")).toString();
                 NomFicFSE = gRepFSE + "File" + zfact + ".fse";      // Pyxvital/FSE/numeroOrdre(8chiffres)/File000000XXX.fse
                 if (QFile::exists(NomFicFSE))       // la saisie est terminée. la FSE a été générée
                     {break;                         // sortie normale de la boucle

@@ -79,14 +79,14 @@ private:
     bool                eventFilter(QObject *obj, QEvent *event)  ;
 
 public:
-    static Procedures *I();
-    bool                gdbOK;
-    bool                dlgrefractionouverte;
-    int                 gMode2;
+    static Procedures   *I();
     DataBase            *db;
-    bool                ok;
+    bool                m_connexionbaseOK;
+    bool                m_dlgrefractionouverte;
+    DataBase::ModeAcces m_modeacces;
+    bool                m_ok;
 
-    QSettings           *gsettingsIni;
+    QSettings               *m_settings;
 
     void                    ab(int i = 1);
 
@@ -134,7 +134,7 @@ public:
                 Dimanche    = 0x40
               };    Q_ENUM(Day)
     Q_DECLARE_FLAGS(Days, Day)
-    QTimer                  gTimerBackup;
+    QTimer                  t_timerbackup;
     void                    AskBupRestore(bool restore, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
     bool                    Backup(QString dirSauv, bool OKBase, QString NomDirStockageImagerie = "", bool OKImages = false, bool OKVideos = false, bool OKFactures = false);
     void                    BackupWakeUp(QString NomDirDestination, QTime timebkup, Days days);                     // déclenche le backup à l'heure programmée
@@ -147,7 +147,8 @@ public:
     void                    ParamAutoBackup(QString dirdestination, QString dirimagerie, QTime timebackup, Days days);
     bool                    VerifParamBackup(QString dirdestination, QTime time, Days days);
 
-    //bool                    VerifParamBackup();
+private slots:
+    void                    Slot_CalcTimeBupRestore();
     //--------------------------------------------------------------------------------------------------------
     // fin sauvegardes
     //--------------------------------------------------------------------------------------------------------
@@ -157,10 +158,10 @@ private:
     // definition du superviseur, de l'utilisateur qui enregistre la commpta et de l'utilistaion de la compta
     //--------------------------------------------------------------------------------------------------------
     //TODO : ICI info pour le rôle
-    int                     gidCentre;
-    bool                    gUseCotation;
-    bool                    avecLaComptaProv;
-    bool                    gisPosteImportDocs;                      //! le poste est celui qui importe les documents
+    int                     m_idcentre;
+    bool                    m_usecotation;
+    bool                    m_aveccomptaprovisoire;
+    bool                    m_isposteimportdocs;                      //! le poste est celui qui importe les documents
     bool                    DefinitRoleUser();                       /*! definit les iduser pour lequel le user travaille
                                                                         . iduser superviseur des actes                      (int gidUserSuperViseur)
                                                                             . lui-même s'il est responsable de ses actes
@@ -188,10 +189,10 @@ public:
     bool                    RestaureBase(bool BaseVierge = false, bool PremierDemarrage = false, bool VerifPostesConnectes = true);
 
 private:
-    qint64                  BaseSize, ImagesSize, VideosSize, FacturesSize, FreeSpace;
-    UpDialog                *gAskBupRestore;
-    UpLabel                 *labelResume, *labelVolumeLibre, *inflabel;
-    QList<QImage>           listimage;
+    qint64                  m_basesize, m_imagessize, m_videossize, m_facturessize, m_freespace;
+    UpDialog                *dlg_buprestore;
+    UpLabel                 *wdg_resumelbl, *wdg_volumelibrelbl, *wdg_inflabel;
+    QList<QImage>           m_listeimages;
     qint64                  CalcBaseSize();
     bool                    VerifBaseEtRessources();
     bool                    VerifRessources(QString Nomfile = "");
@@ -228,59 +229,48 @@ public:
     bool                    AutresPostesConnectes(bool msg = true);
     bool                    Verif_secure_file_priv();
 
-    bool                    Connexion();
-
 signals:
     void                    UpdDocsExternes();
     void                    ModifEdit(QString txt);
-    void                    ConnectTimers();
+    void                    ConnectTimers(bool connect);
     void                    DelImage();
     void                    CloseEditDocument();
 
 private:
-    bool                    initOK;
-    bool                    connexion;
+    bool                    m_initok;
+    QFont                   m_applicationfont;
+    User                    *m_currentuser = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
+    ParametresSysteme       *m_parametres;
     dlg_choixdate           *Dlg_ChxDate;
     dlg_gestionusers        *Dlg_GestUsr;
     dlg_paramconnexion      *Dlg_ParamConnex;
-    QFont                   gAppFont;
-    User *m_currentuser = Q_NULLPTR; //user connected //TODO : DEPLACER DANS DATAS
-    ParametresSysteme       *m_parametres;
 
-    QString                 DirStockageImages, DirStockageImagesServeur;
-    QString                 lCPParDefaut, lVilleParDefaut;
-    QPlainTextEdit          *gEtat;         // CZ 27082015
-    QString                 gnomFichIni;
-    QString                 gnomImprimante;
-    Villes                  *m_villes = Q_NULLPTR;
-    UpDialog                *gAskLogin, *gAskUser;
-    UpTableWidget           *uptable;
-    QPrinter                *printer;
-    QRectF                  rect;
+    QString                 m_pathDirStockageImage, m_pathDirStockageImagesServeur;
+    QString                 m_CPpardefaut, m_Villepardefaut;
+    QString                 m_nomFichierIni;
+    QString                 m_nomImprimante;
+    UpDialog                *dlg_askLogin, *dlg_askUser;
+    UpTableWidget           *wdg_tablewidget;
+    QPrinter                *p_printer;
+    QRectF                  m_rect;
     void                    Print(QPrinter*, QImage image);
     void                    PrintPdf(QPrinter*, Poppler::Document* document, bool &printok);
     bool                    VerifParamConnexion(bool OKAccesDistant = true, QString nomtblutilisateurs = TBL_UTILISATEURS);
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
-    QString                 gLogin, gConfirmMDP, gNouvMDP;
 
-private slots:
-    void                    Slot_CalcTimeBupRestore();
 private:
     bool                    PremierDemarrage();
     void                    PremierParametrageMateriel();
     void                    PremierParametrageRessources();
 
-public slots:
-    void                    Slot_printPreview(QPrinter *printer);   // CZ 27082015
-
 /* ------------------------------------------------------------------------------------------------------------------------------------------
      GESTION DES PORTS SERIES -------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
 private:
-    bool                    gAutorefParametre, gRefracteurParametre, gFrontoParametre, gTonoParametre;
-    QString                 gPortAutoref, gPortFronto, gPortRefracteur, gPortTono;
-    QSerialPort             *lPortAutoref, *lPortRefracteur, *lPortTono, *lPortFronto;
+    bool                    m_isAutorefParametre, m_isRefracteurParametre, m_isFrontoParametre, m_isTonoParametre;
+    QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
+    QSerialPort             *sp_portAutoref, *sp_portRefracteur, *sp_portTono, *sp_portFronto;
     struct Settings {
         qint32 baudRate;
         QSerialPort::DataBits dataBits;
@@ -288,9 +278,12 @@ private:
         QSerialPort::StopBits stopBits;
         QSerialPort::FlowControl flowControl;
     };
-    Settings                ParamPortSerieAutoref;
-    Settings                ParamPortSerieFronto;
-    Settings                ParamPortSerieRefracteur;
+    Settings                s_paramPortSerieAutoref;
+    Settings                s_paramPortSerieFronto;
+    Settings                s_paramPortSerieRefracteur;
+    SerialThread            *t_threadFronto;
+    SerialThread            *t_threadRefracteur;
+    SerialThread            *t_threadAutoref;
     bool                    ReglePortAutoref();
     bool                    ReglePortFronto();
     bool                    ReglePortRefracteur();
@@ -311,7 +304,6 @@ public:
                 Pachy
                 };  Q_ENUM(TypeMesure)
 
-    SerialThread            *ThreadFronto, *ThreadRefracteur, *ThreadAutoref;
     QSerialPort*            PortAutoref();
     QSerialPort*            PortFronto();
     QSerialPort*            PortRefracteur();
@@ -339,39 +331,39 @@ public:
     void                    SetDataAEnvoyerAuRefracteur(QMap<QString, QVariant> DataFronto, QMap<QString,QVariant> DataAutoref);
 
 private:
-    QString                 gMesureSerie;
-    TypeMesure              MesureRef;                              // le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    QString                 m_mesureSerie;
+    TypeMesure              m_typemesureRefraction;                              // le type de mesure effectuée: Fronto, Autoref ou Refracteur
     void                    ClearMesures();
     void                    ClearHtmlMesures();
     void                    debugformule(QMap<QString,QVariant>  Data, QString type);
                                                                     // qdebug de la formule à partir du QMap<QString,QVariant>  Data des données de refraction
     //LE FRONTO ----------------------------------------------------
-    QMap<QString,QVariant>  MesureFronto;
-    QString                 HtmlMesureFronto;
+    QMap<QString,QVariant>  m_mesureFronto;
+    QString                 m_htmlMesureFronto;
     void                    setDonneesFronto(QString Mesure);       // détermine le QMap MesureFronto à partir de la mesure relevée sur le port série du fronto
     void                    setHtmlFronto();                        // détermine le html à inscrire dans la fiche observation à partir du QMap MesureFronto
-    bool                    NouvMesureFronto;                       // détermine si la mesure provient du fronto ou du dossier
+    bool                    m_isnewMesureFronto;                    // détermine si la mesure provient du fronto ou du dossier
     //L'AUTOREF ----------------------------------------------------
-    QMap<QString,QVariant>  MesureAutoref;
-    QMap<QString,QVariant>  MesureKerato;
-    QMap<QString,QVariant>  MesureTono;
-    QMap<QString,QVariant>  MesurePachy;
-    QMap<QString,QVariant>  DataAEnvoyerAuRefracteur;
-    QString                 HtmlMesureAutoref;
-    QString                 HtmlMesureKerato;
-    QString                 HtmlMesureTono;
-    QString                 HtmlMesurePachy;
+    QMap<QString,QVariant>  m_mesureAutoref;
+    QMap<QString,QVariant>  m_mesureKerato;
+    QMap<QString,QVariant>  m_mesureTono;
+    QMap<QString,QVariant>  m_mesurePachy;
+    QMap<QString,QVariant>  m_dataAEnvoyerAuRefracteur;
+    QString                 m_htmlMesureAutoref;
+    QString                 m_htmlMesureKerato;
+    QString                 m_htmlMesureTono;
+    QString                 m_htmlMesurePachy;
     void                    setDonneesAutoref(QString Mesure);              // détermine les QMap MesureAutoref, MesureKerato et MesureTono à partir de la mesure relevée sur le port série du fronto
     void                    setHtmlAutoref();                               // détermine le html à inscrire dans la fiche observation à partir du QMap MesureAutoref
     void                    setHtmlKerato(QMap<QString,QVariant>  MKer);    // détermine le html à inscrire dans la fiche observation à partir du QMap MesureKerato
     void                    setHtmlTono();                                  // détermine le html à inscrire dans la fiche observation à partir du QMap MesureTono
     void                    setHtmlPachy();                                 // détermine le html à inscrire dans la fiche observation à partir du QMap MesurePachy
-    bool                    NouvMesureAutoref;                              // détermine si la mesure provient de l'autoref ou du dossier
+    bool                    m_isnewMesureAutoref;                           // détermine si la mesure provient de l'autoref ou du dossier
     //LE REFRACTEUR ------------------------------------------------
-    QMap<QString,QVariant>  MesureRefracteurSubjectif;
-    QString                 HtmlMesureRefracteurSubjectif;
-    QMap<QString,QVariant>  MesureRefracteurFinal;
-    QString                 HtmlMesureRefracteurFinal;
+    QMap<QString,QVariant>  m_mesureRefracteurSubjectif;
+    QString                 m_htmlMesureRefracteurSubjectif;
+    QMap<QString,QVariant>  m_mesureRefracteurFinal;
+    QString                 m_htmlMesureRefracteurFinal;
     void                    setDonneesRefracteur(QString Mesure);   // détermine le QMap MesureRefracteur à partir de la mesure relevée sur le port série du refracteur
     void                    setHtmlRefracteur();                    // détermine le html à inscrire dans la fiche observation à partir des QMap MesureFronto, MesureAutoref et MesureRefracteurSubjectif
     void                    RegleRefracteur();

@@ -111,15 +111,16 @@ private:
     dlg_refraction                  *Dlg_Refraction;
     dlg_remisecheques               *Dlg_RemCheq;
     dlg_salledattente               *Dlg_SalDat;
-    UpLabel                         *lblnom;
-    UpLineEdit                      *MGlineEdit;
-    UpLineEdit                      *AutresCorresp1LineEdit, *AutresCorresp2LineEdit;
+    Procedures                      *proc;
     DataBase                        *db;
     ParametresSysteme               *m_parametres;
     PatientsEnCours                 *m_listepatientsencours = Datas::I()->patientsencours;
-    bool                            ok;
+    UpLabel                         *wdg_nomlbl;
+    UpLineEdit                      *wdg_MGlineEdit;
+    UpLineEdit                      *wdg_autresCorresp1LineEdit, *wdg_autresCorresp2LineEdit;
+    bool                            m_ok;
 
-    pyxinterf                       *pyxi;     // CZ001
+    pyxinterf                       *m_pyxi;     // CZ001
 
     // anciens slots
     void        ChoixMenuContextuelIdentPatient();
@@ -227,21 +228,19 @@ private:
     void        VerifVerrouDossier();
 
 private:
-    bool                    gAutorModifConsult, closeFlag;
+    bool                    m_autorModifConsult, m_closeflag;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
-    int                     idRefraction;
-    int                     gMode;
-    int                     gTotalMessages, gTotalNvxMessages;
-    bool                    gAffichTotalMessages;
-    enum gMode              {NullMode, NouveauDossier, Liste, RechercheDDN};
-    QDate                   gdateParDefaut;
-    QDateTime               gUserDateDernierMessage;
-    UpDialog                *gAsk;
-    QMenu                   *gmenuContextuel;
-    QString                 gActeMontant;
-    QString                 gActeDate;
-    QString                 grequeteSalDat;
-    QString                 gDirSauv;
+    enum Mode               {NullMode, NouveauDossier, Liste, RechercheDDN};
+    Mode                    m_mode;
+    int                     m_totalMessages, m_totalNvxMessages;
+    bool                    m_isTotalMessagesAffiche;
+    QDate                   m_datepardefaut;
+    QDateTime               m_datederniermessageuser;
+    UpDialog                *dlg_ask;
+    QMenu                   *m_menuContextuel;
+    QString                 m_montantActe;
+    QString                 m_dateActe;
+
     QStandardItemModel      *m_listepatientsmodel           = Q_NULLPTR;
     QStandardItemModel      *m_listepatientsencoursmodel    = Q_NULLPTR;
     QStandardItemModel      *m_listesuperviseursmodel       = Q_NULLPTR;
@@ -249,10 +248,9 @@ private:
     QSortFilterProxyModel   *m_listepatientsproxymodel      = Q_NULLPTR;
     QSortFilterProxyModel   *m_DDNsortmodel                 = Q_NULLPTR;
     QSortFilterProxyModel   *m_prenomfiltersortmodel        = Q_NULLPTR;
-    QTabBar                 *gSalDatTab, *gAccueilTab;
-    QTimer                  *gTimerSalDat, *gTimerCorrespondants, *gTimerPosteConnecte, *gTimerVerifVerrou, *gTimerSupprDocs, *gTimerVerifImportateurDocs;
-    QTimer                  *gTimerExportDocs, *gTimerActualiseDocsExternes, *gTimerImportDocsExternes, *gTimerVerifMessages;
-    Procedures              *proc;
+    QTabBar                 *wdg_salledattenteTab, *wdg_accueilTab;
+    QTimer                  *t_timerSalDat, *t_timerCorrespondants, *t_timerPosteConnecte, *t_timerVerifVerrou, *t_timerSupprDocs, *t_timerVerifImportateurDocs;
+    QTimer                  *t_timerExportDocs, *t_timerActualiseDocsExternes, *t_timerImportDocsExternes, *t_timerVerifMessages;
 
     Acte                    *m_currentact                   = Q_NULLPTR;
     User                    *m_currentuser                  = Q_NULLPTR;
@@ -262,20 +260,17 @@ private:
     Actes                   *m_listeactes                   = Q_NULLPTR;
     LignesPaiements         *m_lignespaiements              = Q_NULLPTR;
 
-    QMap<QString,QVariant>  gMesureFronto, gMesureAutoref;
-    UpDialog                *gAskRechParMotCleDialog,*gAskRechParIDDialog, *gAskListPatients;
-    UpLabel                 *gAskinflabel;
-    UpLineEdit              *gAsklinetitre;
-    QDateEdit               *gAskeditdate;
+    QMap<QString,QVariant>  map_mesureFronto, map_mesureAutoref;
+    UpDialog                *dlg_rechParMotCle,*dlg_rechParId, *dlg_listPatients;
 
-    QDialog                 *gMsgRepons, *gMsgDialog;
-    QSystemTrayIcon         *gMessageIcon;
+    QDialog                 *dlg_msgRepons, *dlg_msgDialog;
+    QSystemTrayIcon         *ict_messageIcon;
 
     ImportDocsExternesThread*ImportDocsExtThread;
     bool                    isPosteImport();
-    bool                    PosteImport;
-    bool                    PasDExportPourLeMoment = false;
-    UpSmallButton           *ModifIdentificationupSmallButton;
+    bool                    m_isposteImport;
+    bool                    m_pasDExportPourLeMoment = false;
+    UpSmallButton           *wdg_modifIdentificationupSmallButton;
 private slots:
     void                    AfficheMessageImport(QStringList listmsg, int pause, bool bottom=true);
 
@@ -297,7 +292,7 @@ private:
     QString             CalcToolTipCorrespondant(int);
     void                FiltreTable(QString nom = "", QString prenom = "");         //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
     void                ChoixDossier(Patient *pat, int idacte = 0);
-    void CreerActe(Patient *pat = Q_NULLPTR);
+    void                CreerActe(Patient *pat = Q_NULLPTR);
     void                ChercherDepuisListe();
     void                CreerDossier();
     void                CreerMenu();
@@ -360,14 +355,14 @@ private:
     bool                VerifCoherenceMontantPaiement();        /*! Vérifie que le montant facturé pour l'acte en cours n'est pas inférieur à la somme des paiements déjà enregistrés */
 
     // TCPServer, TCPSocket
-    bool                UtiliseTCP;
-    QStringList         gListSockets;
+    bool                m_utiliseTCP;
+    QStringList         m_listesockets;
     TcpSocket           *TcPConnect;
     void                envoieMessage(QString msg);                     /* envoi d'un message au serveur pour être redispatché vers tous les clients */
     void                envoieMessageA(QList<int> listidusr);           /* envoi d'un message à une liste d'utilisateurs */
     void                TraiteTCPMessage(QString msg);                  /* traitement des messages reçus par les clients */
     void                TesteConnexion();
-    QString             gResumeStatut;
+    QString             m_resumeStatut;
 
     // Les menus
 private:

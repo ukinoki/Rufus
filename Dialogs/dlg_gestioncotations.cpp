@@ -20,147 +20,147 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString CodeActe, QWidget *parent) :
     UpDialog(parent)
 {
-    gTypeActe   = type;
-    gMode       = mode;
-    gCodeActe   = CodeActe;
+    m_typeacte   = type;
+    m_mode       = mode;
+    m_ciodeacte   = CodeActe;
 
     db                      = DataBase::I();
-    gidUser                 = Datas::I()->users->userconnected()->id();
-    gSecteurUser            = Datas::I()->users->userconnected()->secteurconventionnel();
+    m_iduser                 = Datas::I()->users->userconnected()->id();
+    m_secteuruser            = Datas::I()->users->userconnected()->secteurconventionnel();
     QDoubleValidator *val   = new QDoubleValidator(this);
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    codeline            = new UpLineEdit(this);
-    tarifoptamline      = new UpLineEdit(this);
-    tarifnooptamline    = new UpLineEdit(this);
-    tarifpratiqueline   = new UpLineEdit(this);
-    tipline             = new UpLineEdit(this);
+    wdg_codeline            = new UpLineEdit(this);
+    wdg_tarifoptamline      = new UpLineEdit(this);
+    wdg_tarifnooptamline    = new UpLineEdit(this);
+    wdg_tarifpratiqueline   = new UpLineEdit(this);
+    wdg_tipline             = new UpLineEdit(this);
 
-    codeline            ->setFixedWidth(150);
-    tarifoptamline      ->setFixedWidth(70);
-    tarifnooptamline    ->setFixedWidth(70);
-    tarifpratiqueline   ->setFixedWidth(70);
-    tipline             ->setFixedWidth(300);
+    wdg_codeline            ->setFixedWidth(150);
+    wdg_tarifoptamline      ->setFixedWidth(70);
+    wdg_tarifnooptamline    ->setFixedWidth(70);
+    wdg_tarifpratiqueline   ->setFixedWidth(70);
+    wdg_tipline             ->setFixedWidth(300);
 
-    codeline            ->setAlignment(Qt::AlignRight);
-    tarifoptamline      ->setAlignment(Qt::AlignRight);
-    tarifnooptamline    ->setAlignment(Qt::AlignRight);
-    tarifpratiqueline   ->setAlignment(Qt::AlignRight);
-    tipline             ->setAlignment(Qt::AlignRight);
+    wdg_codeline            ->setAlignment(Qt::AlignRight);
+    wdg_tarifoptamline      ->setAlignment(Qt::AlignRight);
+    wdg_tarifnooptamline    ->setAlignment(Qt::AlignRight);
+    wdg_tarifpratiqueline   ->setAlignment(Qt::AlignRight);
+    wdg_tipline             ->setAlignment(Qt::AlignRight);
 
-    codewidg            = new QWidget();
-    tarifoptamwidg      = new QWidget();
-    tarifnooptamwidg    = new QWidget();
-    tarifpratiquewidg   = new QWidget();
-    tipwidg             = new QWidget();
+    wdg_codewidg            = new QWidget();
+    wdg_tarifoptamwidg      = new QWidget();
+    wdg_tarifnooptamwidg    = new QWidget();
+    wdg_tarifpratiquewidg   = new QWidget();
+    wdg_tipwidg             = new QWidget();
 
     UpLabel *codelabel          = new UpLabel();
     codelabel                   ->setText("Code");
-    if (gTypeActe == Association)
-        codeline                ->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
+    if (m_typeacte == Association)
+        wdg_codeline                ->setValidator(new QRegExpValidator(Utils::rgx_cotation,this));
     QHBoxLayout *codelay        = new QHBoxLayout;
     codelay                     ->insertWidget(0, codelabel);
     codelay                     ->insertSpacerItem(1, new QSpacerItem(10,5));
-    codelay                     ->insertWidget(2, codeline);
-    codeline                    ->setEnabled(gMode==Creation);
-    codeline                    ->setMaxLength(15);
-    codeline                    ->setText(CodeActe);
+    codelay                     ->insertWidget(2, wdg_codeline);
+    wdg_codeline                    ->setEnabled(m_mode==Creation);
+    wdg_codeline                    ->setMaxLength(15);
+    wdg_codeline                    ->setText(CodeActe);
     codelay                     ->setContentsMargins(0,0,0,0);
-    codewidg                    ->setLayout(codelay);
-    dlglayout()                 ->insertWidget(0, codewidg);
+    wdg_codewidg                    ->setLayout(codelay);
+    dlglayout()                 ->insertWidget(0, wdg_codewidg);
 
     UpLabel *tiplabel           = new UpLabel();
     tiplabel                    ->setText("Tip");
     QHBoxLayout *tiplay         = new QHBoxLayout;
     tiplay                      ->insertWidget(0, tiplabel);
     tiplay                      ->insertSpacerItem(1, new QSpacerItem(10,5));
-    tiplay                      ->insertWidget(2, tipline);
-    tipline                     ->setMaxLength(75);
+    tiplay                      ->insertWidget(2, wdg_tipline);
+    wdg_tipline                     ->setMaxLength(75);
     tiplay                      ->setContentsMargins(0,0,0,0);
-    tipwidg                     ->setLayout(tiplay);
-    dlglayout()                 ->insertWidget(1, tipwidg);
+    wdg_tipwidg                     ->setLayout(tiplay);
+    dlglayout()                 ->insertWidget(1, wdg_tipwidg);
 
     UpLabel *tarifoptamlabel    = new UpLabel();
     tarifoptamlabel             ->setText("Tarif conventionnel OPTAM");
-    tarifoptamline              ->setValidator(val);
+    wdg_tarifoptamline              ->setValidator(val);
     QHBoxLayout *tarifoptamlay  = new QHBoxLayout;
     tarifoptamlay               ->insertWidget(0, tarifoptamlabel);
     tarifoptamlay               ->insertSpacerItem(1, new QSpacerItem(10,5));
-    tarifoptamlay               ->insertWidget(2, tarifoptamline);
+    tarifoptamlay               ->insertWidget(2, wdg_tarifoptamline);
     tarifoptamlay               ->setContentsMargins(0,0,0,0);
-    tarifoptamwidg              ->setLayout(tarifoptamlay);
-    dlglayout()                 ->insertWidget(2, tarifoptamwidg);
+    wdg_tarifoptamwidg              ->setLayout(tarifoptamlay);
+    dlglayout()                 ->insertWidget(2, wdg_tarifoptamwidg);
 
     UpLabel *tarifnooptamlabel  = new UpLabel();
     tarifnooptamlabel           ->setText("Tarif conventionnel non OPTAM");
-    tarifnooptamline            ->setValidator(val);
+    wdg_tarifnooptamline            ->setValidator(val);
     QHBoxLayout *tarifnooptamlay= new QHBoxLayout;
     tarifnooptamlay             ->insertWidget(0, tarifnooptamlabel);
     tarifnooptamlay             ->insertSpacerItem(1, new QSpacerItem(10,5));
-    tarifnooptamlay             ->insertWidget(2, tarifnooptamline);
+    tarifnooptamlay             ->insertWidget(2, wdg_tarifnooptamline);
     tarifnooptamlay               ->setContentsMargins(0,0,0,0);
-    tarifnooptamwidg            ->setLayout(tarifnooptamlay);
-    dlglayout()                 ->insertWidget(3, tarifnooptamwidg);
+    wdg_tarifnooptamwidg            ->setLayout(tarifnooptamlay);
+    dlglayout()                 ->insertWidget(3, wdg_tarifnooptamwidg);
 
     UpLabel *tarifpratiquelabel  = new UpLabel();
     tarifpratiquelabel           ->setText("Tarif pratiqué");
-    tarifpratiqueline            ->setValidator(val);
+    wdg_tarifpratiqueline            ->setValidator(val);
     QHBoxLayout *tarifpratiquelay= new QHBoxLayout;
     tarifpratiquelay             ->insertWidget(0, tarifpratiquelabel);
     tarifpratiquelay             ->insertSpacerItem(1, new QSpacerItem(10,5));
-    tarifpratiquelay             ->insertWidget(2, tarifpratiqueline);
+    tarifpratiquelay             ->insertWidget(2, wdg_tarifpratiqueline);
     tarifpratiquelay               ->setContentsMargins(0,0,0,0);
-    tarifpratiquewidg            ->setLayout(tarifpratiquelay);
-    dlglayout()                  ->insertWidget(4, tarifpratiquewidg);
+    wdg_tarifpratiquewidg            ->setLayout(tarifpratiquelay);
+    dlglayout()                  ->insertWidget(4, wdg_tarifpratiquewidg);
 
-    tarifoptamwidg              ->setVisible(gTypeActe==Association);
-    tarifnooptamwidg            ->setVisible(gTypeActe==Association);
-    tarifpratiquewidg           ->setVisible((gTypeActe==Association && gSecteurUser>1) || gTypeActe==HorsNomenclature);
+    wdg_tarifoptamwidg              ->setVisible(m_typeacte==Association);
+    wdg_tarifnooptamwidg            ->setVisible(m_typeacte==Association);
+    wdg_tarifpratiquewidg           ->setVisible((m_typeacte==Association && m_secteuruser>1) || m_typeacte==HorsNomenclature);
 
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     OKButton                    ->setEnabled(false);
     dlglayout()->setSpacing(5);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    setWindowTitle(gTypeActe == Association? "Association de codes CCAM ou  autres types d'acte" : "Acte hors nomenclature");
+    setWindowTitle(m_typeacte == Association? "Association de codes CCAM ou  autres types d'acte" : "Acte hors nomenclature");
 
     connect(OKButton,           &QPushButton::clicked,  this,   [=] {if (VerifFiche()) accept();});
     connect(CancelButton,       &QPushButton::clicked,  this,   [=] {reject();});
 
-    connect(codeline,           &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
-    connect(tarifoptamline,     &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
-    connect(tarifnooptamline,   &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
-    connect(tarifpratiqueline,  &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
-    connect(tipline,            &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(wdg_codeline,           &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(wdg_tarifoptamline,     &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(wdg_tarifnooptamline,   &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(wdg_tarifpratiqueline,  &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(wdg_tipline,            &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
 
     QString req = "select distinct typeacte from " TBL_COTATIONS " where CCAM = ";
-    req += (gTypeActe == Association? "2" : "3");
-    if (gMode == Creation)
+    req += (m_typeacte == Association? "2" : "3");
+    if (m_mode == Creation)
     {
         bool ok;
         QList<QVariantList> listtypacte = db->StandardSelectSQL(req, ok);
         if (ok && listtypacte.size()>0)
         {
             for (int i=0; i<listtypacte.size(); i++)
-                glistActes << listtypacte.at(i).at(0).toString();
-            QCompleter *complistactes = new QCompleter(glistActes,this);
+                m_listeactes << listtypacte.at(i).at(0).toString();
+            QCompleter *complistactes = new QCompleter(m_listeactes,this);
             complistactes->setCompletionMode(QCompleter::InlineCompletion);
-            codeline->setCompleter(complistactes);
+            wdg_codeline->setCompleter(complistactes);
         }
     }
     else
     {
         req = " select montantoptam, montantnonoptam, montantpratique, tip from " TBL_COTATIONS
-              " where idUser = " + QString::number(gidUser) + " and TypeActe = '" + gCodeActe + "'";
+              " where idUser = " + QString::number(m_iduser) + " and TypeActe = '" + m_ciodeacte + "'";
         bool ok;
         QVariantList listcot = db->getFirstRecordFromStandardSelectSQL(req, ok);
         if (ok && listcot.size()>0)
         {
-            tarifoptamline      ->setText(QLocale().toString(listcot.at(0).toDouble(),'f',2));
-            tarifnooptamline    ->setText(QLocale().toString(listcot.at(1).toDouble(),'f',2));
-            tarifpratiqueline   ->setText(QLocale().toString(listcot.at(2).toDouble(),'f',2));
-            tipline             ->setText(listcot.at(3).toString());
+            wdg_tarifoptamline      ->setText(QLocale().toString(listcot.at(0).toDouble(),'f',2));
+            wdg_tarifnooptamline    ->setText(QLocale().toString(listcot.at(1).toDouble(),'f',2));
+            wdg_tarifpratiqueline   ->setText(QLocale().toString(listcot.at(2).toDouble(),'f',2));
+            wdg_tipline             ->setText(listcot.at(3).toString());
         }
     }
 
@@ -175,32 +175,32 @@ bool dlg_gestioncotations::VerifFiche()
     bool a = true;
     QString req = "";
     QString msg = tr(("Rensegnements incomplets"));
-    switch (gTypeActe) {
+    switch (m_typeacte) {
     case Association:
-        if (tarifoptamline->text()=="")
+        if (wdg_tarifoptamline->text()=="")
         {
            a = false;
            UpMessageBox::Watch(this, msg, tr("Vous avez oublié de mentionner le tarif OPTAM"));
-           tarifoptamline->setFocus();
+           wdg_tarifoptamline->setFocus();
            break;
         }
-        if (tarifnooptamline->text()=="")
+        if (wdg_tarifnooptamline->text()=="")
         {
            a = false;
            UpMessageBox::Watch(this, msg, tr("Vous avez oublié de mentionner le tarif hors OPTAM"));
-           tarifnooptamline->setFocus();
+           wdg_tarifnooptamline->setFocus();
            break;
         }
-        if (tarifpratiqueline->isVisible() && tarifpratiqueline->text()=="")
+        if (wdg_tarifpratiqueline->isVisible() && wdg_tarifpratiqueline->text()=="")
         {
            a = false;
            UpMessageBox::Watch(this, msg, tr("Vous avez oublié de mentionner le tarif pratiqué"));
-           tarifpratiqueline->setFocus();
+           wdg_tarifpratiqueline->setFocus();
            break;
         }
-        if (gMode == Creation)
+        if (m_mode == Creation)
         {
-            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + codeline->text() + "' and CCAM = 2 and idUser = " + QString::number(gidUser);
+            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + wdg_codeline->text() + "' and CCAM = 2 and idUser = " + QString::number(m_iduser);
             bool ok;
             QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && actdata.size()>0)
@@ -211,39 +211,39 @@ bool dlg_gestioncotations::VerifFiche()
         }
         if (!a)
            break;
-        if (gMode == Creation)
+        if (m_mode == Creation)
         {
             req = "insert into " TBL_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, tip) VALUES ('"
-                    + codeline->text() + "', "
-                    + QString::number(QLocale().toDouble(tarifoptamline->text())) + ", "
-                    + QString::number(QLocale().toDouble(tarifnooptamline->text())) + ", "
-                    + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", 2, "
-                    + QString::number(gidUser) + ", '"
-                    + Utils::correctquoteSQL(tipline->text()) + "')";
+                    + wdg_codeline->text() + "', "
+                    + QString::number(QLocale().toDouble(wdg_tarifoptamline->text())) + ", "
+                    + QString::number(QLocale().toDouble(wdg_tarifnooptamline->text())) + ", "
+                    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", 2, "
+                    + QString::number(m_iduser) + ", '"
+                    + Utils::correctquoteSQL(wdg_tipline->text()) + "')";
         }
         else
         {
             req = "update " TBL_COTATIONS " set "
-                  " MontantOPTAM = "    + QString::number(QLocale().toDouble(tarifoptamline->text())) + ", " +
-                  " MontantNonOPTAM = " + QString::number(QLocale().toDouble(tarifnooptamline->text())) + ", " +
-                  " MontantPratique = " + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", " +
-                  " tip = '"            + Utils::correctquoteSQL(tipline->text()) + "' " +
+                  " MontantOPTAM = "    + QString::number(QLocale().toDouble(wdg_tarifoptamline->text())) + ", " +
+                  " MontantNonOPTAM = " + QString::number(QLocale().toDouble(wdg_tarifnooptamline->text())) + ", " +
+                  " MontantPratique = " + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
+                  " tip = '"            + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
                   " where"
-                  " idUser = "          + QString::number(gidUser) +
-                  " and TypeActe = '"   + codeline->text() + "'";
+                  " idUser = "          + QString::number(m_iduser) +
+                  " and TypeActe = '"   + wdg_codeline->text() + "'";
         }
         break;
     case HorsNomenclature:
-        if (QLocale().toDouble(tarifpratiqueline->text())==0.0)
+        if (QLocale().toDouble(wdg_tarifpratiqueline->text())==0.0)
         {
             a = false;
            UpMessageBox::Watch(this, msg, tr("Vous avez oublié de mentionner le tarif pratiqué"));
-           tarifpratiqueline->setFocus();
+           wdg_tarifpratiqueline->setFocus();
            break;
         }
-        if (gMode == Creation)
+        if (m_mode == Creation)
         {
-            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + codeline->text() + "' and CCAM = 3 and idUser = " + QString::number(gidUser);
+            req = "select idcotation from " TBL_COTATIONS " where typeacte = '" + wdg_codeline->text() + "' and CCAM = 3 and idUser = " + QString::number(m_iduser);
             bool ok;
             QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
             if (ok && cotdata.size()>0)
@@ -256,26 +256,26 @@ bool dlg_gestioncotations::VerifFiche()
         {
            break;
         }
-        if (gMode == Creation)
+        if (m_mode == Creation)
         {
             req = "insert into " TBL_COTATIONS " (TypeACte, MontantOPTAM, MontantNonOPTAM, MontantPratique, CCAM, idUser, tip) VALUES ('"
-                    + codeline->text() + "', "
-                    + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", "
-                    + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", "
-                    + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", 3, "
-                    + QString::number(gidUser) + ", '"
-                    + Utils::correctquoteSQL(tipline->text()) + "')";
+                    + wdg_codeline->text() + "', "
+                    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", "
+                    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", "
+                    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", 3, "
+                    + QString::number(m_iduser) + ", '"
+                    + Utils::correctquoteSQL(wdg_tipline->text()) + "')";
         }
         else
         {
             req = "update " TBL_COTATIONS " set "
-                  " MontantOPTAM = "    + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", " +
-                  " MontantNonOPTAM = " + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", " +
-                  " MontantPratique = " + QString::number(QLocale().toDouble(tarifpratiqueline->text())) + ", " +
-                  " tip = '"            + Utils::correctquoteSQL(tipline->text()) + "' " +
+                  " MontantOPTAM = "    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
+                  " MontantNonOPTAM = " + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
+                  " MontantPratique = " + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
+                  " tip = '"            + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
                   " where"
-                  " idUser = "          + QString::number(gidUser) +
-                  " and TypeActe = '"   + codeline->text() + "'";
+                  " idUser = "          + QString::number(m_iduser) +
+                  " and TypeActe = '"   + wdg_codeline->text() + "'";
         }
         break;
     }

@@ -58,34 +58,35 @@ private:
     Ui::dlg_paiementdirect      *ui;
     Procedures                  *proc;
     DataBase                    *db;
-    bool                        ok;
+    Mode                        m_mode;
+    OrdreTri                    m_ordretri;
+    TypeTable                   m_typetable;
 
-    bool                        FermeALaFin;
-    bool                        InitOK;
-    bool                        ModifLigneRecettePossible;
-    bool                        ModifPaiementEnCours;
-    bool                        TraiteparCloseFlag;
-    int                         gidRecette;
-    Mode                        gMode;
-    OrdreTri                    gOrdreTri;
-    TypeTable                   gTypeTable;
-    QString                     ModePaiementDirectAModifier;
-    QString                     ValeurAvantChangement, ValeurMaxi;
+    bool                        m_ok;
+    bool                        m_fermealafin;
+    bool                        m_initok;
+    bool                        m_modiflignerecettepossible;
+    bool                        m_modifpaiementencours;
+    bool                        m_traiteparcloseflag;
+    int                         m_idrecette;
+    QString                     m_modepaiementdirectamodifier;
+    QString                     m_valeuravantchangement, m_valeurmaxi;
+    QList<int>                  m_listidactes;
+    QList<int>                  m_listidactesamodifier;
+    QList<QString>              m_lignecommissioncompteamodifier;
+    QList<QString>              m_lignecompteamodifier;
+    QList<QString>              m_lignedepenseamodifier;
+    QList<QString>              m_lignerecetteamodifier;
+    QList<QString>              m_montantactesamodifier;
 
-    QBrush                      gtextureGris;
-    QList<int>                  gListidActe;
-    QList<int>                  ListeActesAModifier;
-    QList<QString>              LigneCommissionCompteAModifier;
-    QList<QString>              LigneCompteAModifier;
-    QList<QString>              LigneDepenseAModifier;
-    QList<QString>              LigneRecetteAModifier;
-    QList<QString>              MontantActesAModifier;
     QMap<int, User*>            *m_listeComptables;
     QMap<int, Banque*>          *m_banques;
-    QTimer                      *gtimerRecord, *gtimerAfficheActeVerrouille, *gtimerAfficheActeVerrouilleClignotant;
-    UpPushButton                *SupprimerBouton;
-    User                        *m_userConnected, *m_useracrediter;
     QList<TypeTiers*>           *m_typestiers;
+    User                        *m_userConnected, *m_useracrediter;
+
+    QBrush                      m_textureGray;
+    QTimer                      *t_timerrecord, *t_timerafficheacteverrouille, *t_timerafficheacteverrouilleclignotant;
+    UpPushButton                *wdg_supprimeuopushbutton;
 
     dlg_gestionbanques           *Dlg_Banq;
 

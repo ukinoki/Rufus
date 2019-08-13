@@ -38,26 +38,29 @@ public:
     enum Acces                  {Local, Distant};   Q_ENUM(Acces)
 
 signals:
-    void                        emitmsg(QStringList listmsg, int pause, bool bottom);
+    void                        emitmsg(QStringList m_listemessages, int pause, bool bottom);
 
 private:
-    int                         a;
-    int                         idLieuExercice;
-    bool                        docscompress;
     Procedures                  *proc;
+    DataBase                    *db;
+    int                         m_idlieuexercice;
+    bool                        m_compressiondocs;
+    bool                        m_encours;
+    bool                        m_ok;
+    QString                     m_pathdirstockageprovisoire;
+    QString                     m_pathdirstockageimagerie;
+    QString                     m_pathdirOKtransfer;
+    QString                     m_pathdiroriginOKtransfer;
+    QString                     m_pathdirechectransfer;
+    QString                     m_datetransfer;
+    QStringList                 m_listemessages;
+    QFile                       m_fichierimage, m_fichierorigine;
+
+    QThread                     m_thread;
+    Acces                       m_acces;
+
     bool                        DefinitDossiers();
     void                        EchecImport(QString txt);
-    bool                        EnCours;
-    bool                        ok;
-    DataBase                    *db;
-    QThread                     thread;
-
-    Acces                       gAcces;
-
-    QString                     NomDirStockageProv, NomDirStockageImagerie, CheminOKTransfrDir, CheminOKTransfrDirOrigin;
-    QString                     datetransfer, CheminEchecTransfrDir;
-    QStringList                 listmsg;
-    QFile                       FichierImage, FichierOrigine;
 };
 
 #endif // IMPORTDOCSEXTERNESTHREAD_H

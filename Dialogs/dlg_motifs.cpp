@@ -26,8 +26,8 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     m_motifs = Datas::I()->motifs->motifs();
 
-    widgButtons             = new WidgetButtonFrame(ui->MotifsupTableWidget);
-    widgButtons             ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
+    wdg_buttonframe             = new WidgetButtonFrame(ui->MotifsupTableWidget);
+    wdg_buttonframe             ->AddButtons(WidgetButtonFrame::PlusButton | WidgetButtonFrame::MoinsButton);
 
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     OKButton                ->setText(tr("Enregistrer\nles modifications"));
@@ -81,7 +81,7 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     QHBoxLayout *hlay       = new QHBoxLayout;
     hlay                    ->setContentsMargins(0,0,0,0);
     hlay                    ->setSpacing(5);
-    hlay                    ->insertWidget(0,widgButtons->widgButtonParent());
+    hlay                    ->insertWidget(0,wdg_buttonframe->widgButtonParent());
     hlay                    ->addLayout(vlay);
 
     dlglayout()             ->insertLayout(0,hlay);
@@ -104,7 +104,7 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     connect(ui->UtiliserupCheckBox,                     SIGNAL(clicked(bool)),          this,           SLOT(Slot_ModifUtil()));
     connect(ui->MotifupLineEdit,                        SIGNAL(textEdited(QString)),    this,           SLOT(Slot_ModifMotif(QString)));
     connect(ui->RaccourciupLineEdit,                    SIGNAL(textEdited(QString)),    this,           SLOT(Slot_ModifRaccouci(QString)));
-    connect(widgButtons,                                SIGNAL(choix(int)),             this,           SLOT(Slot_ChoixButtonFrame(int)));
+    connect(wdg_buttonframe,                                SIGNAL(choix(int)),             this,           SLOT(Slot_ChoixButtonFrame(int)));
     connect(ui->MotifsupTableWidget,                    SIGNAL(dropsignal(QByteArray)), this,           SLOT(Slot_DropMotif(QByteArray)));
 }
 

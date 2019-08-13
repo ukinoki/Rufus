@@ -40,27 +40,30 @@ public:
     QMap<QString, QVariant> getdataFacture();
 
 private:
-    Procedures          *proc;
-    DataBase            *db;
-    int                 iditem;
-    QMap<QString, QVariant> datafacture;
-    UpLineEdit          *linetitre;
-    QDateEdit           *editdate;
-    UpComboBox          *typeDocCombo;
-    UpTableWidget       *uptable;
-    UpToolBar           *toolbar;
-    UpPushButton        *dirsearchbutton;
-    bool                initOK;
-    QLabel              *inflabel;
-    QList<QImage>       glistImg;
-    QStringList         ListTypeExams;
-    QString             docpath;
-    QString             NomDirStockageImagerie;
-    QString             fichierimageencours;
-    bool                eventFilter(QObject *, QEvent *);
-    void                ValideFiche();
-    void                ChangeFile();
-    bool                AccesDistant;
+    Procedures              *proc;
+    DataBase                *db;
+
+    int                     m_iditem;
+    bool                    m_initok;
+    bool                    m_accesdistant;
+    QStringList             m_listtypesexamen;
+    QString                 m_docpath;
+    QString                 m_nomdirstockageimagerie;
+    QString                 m_nomfichierimageencours;
+    QMap<QString, QVariant> m_datafacture;
+    QList<QImage>           m_listimages;
+
+    UpLineEdit              *wdg_linetitre;
+    QDateEdit               *wdg_editdate;
+    UpComboBox              *wdg_typedoccombobx;
+    UpTableWidget           *wdg_uptable;
+    UpToolBar               *wdg_toolbar;
+    UpPushButton            *wdg_dirsearchbutton;
+    QLabel                  *wdg_inflabel;
+
+    bool                    eventFilter(QObject *, QEvent *);
+    void                    ValideFiche();
+    void                    ChangeFile();
 };
 
 #endif // DLG_DOCSSCANNER_H

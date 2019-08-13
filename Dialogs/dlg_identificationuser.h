@@ -48,10 +48,10 @@ private slots:
 
 private:
     DataBase                *db;
-    int                     ControleDonnees();
-    int                     gidUser, gPort;
-    bool                    gChgUsr;
+    int                     m_iduser, m_sqlport;
+    bool                    m_chgmtuser;
     bool                    eventFilter(QObject *, QEvent *);
+    int                     ControleDonnees();
 };
 
 #endif // DLG_IDENTIFICATIONUSER_H

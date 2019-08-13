@@ -70,7 +70,7 @@ private:
     QString                 m_nouveauMDP, m_ancienMDP, m_confirmeMDP;
     QStringList             m_listeappareils;
 
-    QTimer                  obj_verifimportdocstimer;
+    QTimer                  t_timerverifimportdocs;
 
     VilleCPWidget           *wdg_villeCP;
     WidgetButtonFrame       *wdg_HNcotationswdgbuttonframe, *wdg_assocCCAMcotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;

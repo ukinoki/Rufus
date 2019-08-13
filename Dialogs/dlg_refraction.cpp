@@ -37,7 +37,7 @@ dlg_refraction::dlg_refraction(Acte *acte, QWidget *parent) :
     Init_variables();
     Connect_Slots();
 
-    restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionRefraction").toByteArray());
+    restoreGeometry(proc->m_settings->value("PositionsFiches/PositionRefraction").toByteArray());
     // Recherche si Mesure en cours et affichage.
     if (proc->TypeMesureRefraction() != Procedures::None)
     {
@@ -73,13 +73,13 @@ dlg_refraction::~dlg_refraction()
 
 void dlg_refraction::closeEvent(QCloseEvent *)
 {
-    if (!EscapeFlag)
+    if (!m_escapeflag)
     {
-        if (FermeComment)
+        if (m_fermecommentaire)
             accept();
         else
             reject();
-        proc->gsettingsIni->setValue("PositionsFiches/PositionRefraction", saveGeometry());
+        proc->m_settings->setValue("PositionsFiches/PositionRefraction", saveGeometry());
     }
 }
 
@@ -161,7 +161,7 @@ void dlg_refraction::Connect_Slots()
 //1. Les RadioButton, checkBox, combo...etc...--------------------------------------------------------------------------------
 void dlg_refraction::Slot_AutorefRadioButton_Clicked()
 {
-    gMode = Refraction::Autoref;
+    m_mode = Refraction::Autoref;
     RegleAffichageFiche();
 }
 void dlg_refraction::Slot_CycloplegieCheckBox_Clicked()
@@ -171,12 +171,12 @@ void dlg_refraction::Slot_CycloplegieCheckBox_Clicked()
 }
 void dlg_refraction::Slot_PorteRadioButton_Clicked()
 {
-    gMode = Refraction::Fronto;
+    m_mode = Refraction::Fronto;
     RegleAffichageFiche();
 }
 void dlg_refraction::Slot_PressonCheckBox_Changed()
 {
-    if (gMode == Refraction::Prescription) ResumePrescription();
+    if (m_mode == Refraction::Prescription) ResumePrescription();
 }
 
 void dlg_refraction::Slot_QuelleDistance_Clicked()
@@ -186,7 +186,7 @@ void dlg_refraction::Slot_QuelleDistance_Clicked()
 
 void dlg_refraction::Slot_RefractionRadioButton_Clicked()
 {
-    gMode = Refraction::Acuite;
+    m_mode = Refraction::Acuite;
     if(!ui->CycloplegieCheckBox->isChecked())   ui->V2RadioButton->setChecked(true);
     RegleAffichageFiche();
 }
@@ -258,7 +258,7 @@ void dlg_refraction::Slot_DepoliCheckBox_Clicked(int etat)
     }
     // si depoli on masque les mesures
     RegleAffichageFiche();
-    if (gMode == Refraction::Prescription) ResumePrescription();
+    if (m_mode == Refraction::Prescription) ResumePrescription();
     if (ui->PrismeOD->value()>0 || ui->PrismeOG->value()>0
         || ui->DepoliODCheckBox->isChecked() || ui->DepoliOGCheckBox->isChecked()
         || ui->PlanODCheckBox->isChecked() || ui->PlanOGCheckBox->isChecked()
@@ -377,7 +377,7 @@ void dlg_refraction::Slot_PlanCheckBox_Changed(int etat)
     }
 
     RegleAffichageFiche();
-    if (gMode == Refraction::Prescription) ResumePrescription();
+    if (m_mode == Refraction::Prescription) ResumePrescription();
     if (ui->PrismeOD->value()>0 || ui->PrismeOG->value()>0
         || ui->DepoliODCheckBox->isChecked() || ui->DepoliOGCheckBox->isChecked()
         || ui->PlanODCheckBox->isChecked() || ui->PlanOGCheckBox->isChecked()
@@ -405,7 +405,7 @@ void dlg_refraction::Slot_RyserCheckBox_Clicked(int etat)
     }
     ui->RyserSpinBox->setVisible(ui->RyserODCheckBox->isChecked() || ui->RyserOGCheckBox->isChecked());
 
-    if (gMode == Refraction::Prescription) ResumePrescription();
+    if (m_mode == Refraction::Prescription) ResumePrescription();
     if (ui->PrismeOD->value()>0 || ui->PrismeOG->value()>0
         || ui->DepoliODCheckBox->isChecked() || ui->DepoliOGCheckBox->isChecked()
         || ui->PlanODCheckBox->isChecked() || ui->PlanOGCheckBox->isChecked()
@@ -463,7 +463,7 @@ void dlg_refraction::Slot_BasePrisme_ValueChanged()
         case 0:     ui->BasePrismeTextOGComboBox->setCurrentIndex(2);   break;
         case 270:   ui->BasePrismeTextOGComboBox->setCurrentIndex(3);   break;
         default:    ui->BasePrismeTextOGComboBox->setCurrentIndex(-1);  break;}
-    if (gMode == Refraction::Prescription) ResumePrescription();
+    if (m_mode == Refraction::Prescription) ResumePrescription();
     box = Q_NULLPTR;
     delete box;
 }
@@ -487,7 +487,7 @@ void dlg_refraction::Slot_Refraction_ValueChanged()
         ui->DetailsPushButton->setEnabled(false);
     else
         ui->DetailsPushButton->setEnabled(true);
-    if (gMode == Refraction::Prescription) ResumePrescription();
+    if (m_mode == Refraction::Prescription) ResumePrescription();
 }
 
 //3. Les pushButton ----------------------------------------------------------------------------------------------
@@ -539,25 +539,25 @@ void dlg_refraction::Slot_ConvOGPushButton_Clicked()
 
 void dlg_refraction::Slot_Detail_Clicked()
 {
-    if (gAfficheDetail &&
+    if (m_affichedetail &&
         (ui->PrismeOD->value() != 0.0       || ui->PrismeOG->value() != 0.0     ||
         ui->RyserODCheckBox->isChecked()    || ui->RyserOGCheckBox->isChecked() ||
         ui->PlanODCheckBox->isChecked()     || ui->PlanOGCheckBox->isChecked()  ||
         ui->DepoliODCheckBox->isChecked()   || ui->DepoliOGCheckBox->isChecked()))
         return;
     else
-        gAfficheDetail = !gAfficheDetail;
-    AfficherDetail(gAfficheDetail);
-    if (gMode == Refraction::Fronto)
+        m_affichedetail = !m_affichedetail;
+    AfficherDetail(m_affichedetail);
+    if (m_mode == Refraction::Fronto)
     {
-        if (gAfficheDetail)
+        if (m_affichedetail)
             setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_AVEC_DETAIL);
         else
             setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
     }
-    if (gMode == Refraction::Prescription)
+    if (m_mode == Refraction::Prescription)
     {
-        if (gAfficheDetail)
+        if (m_affichedetail)
             setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_AVEC_DETAIL);
         else
             setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_SANS_DETAIL);
@@ -571,7 +571,7 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
 {
     focusNextChild();
     int IdRefract;
-    gFlagBugValidEnter = 0;
+    m_flagbugvalidenter = 0;
 
     UpDoubleSpinBox *dblSpin = dynamic_cast<UpDoubleSpinBox *>(focusWidget());
     if (dblSpin)
@@ -593,7 +593,7 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
 
     if (!ControleCoherence())        return;
 
-    if (gMode == Refraction::Fronto)
+    if (m_mode == Refraction::Fronto)
     {
         // On vérifie dans Refractions s'il existe un enregistrement identique au meme jour pour ne pas surcharger la table
         IdRefract = (LectureMesure(Aujourdhui, Refraction::Fronto, NoDilatation, 0, false, CalculFormule_OD(), CalculFormule_OG()));
@@ -602,18 +602,18 @@ void dlg_refraction::Slot_OKPushButton_Clicked()
         FermeFiche(OK);
     }
 
-    else if (gMode == Refraction::Autoref || gMode == Refraction::Acuite)
+    else if (m_mode == Refraction::Autoref || m_mode == Refraction::Acuite)
     {
         // On vérifie dans Refractions s'il existe un enregistrement identique et si oui, on l'écrase
         Cycloplegie dilat = (ui->CycloplegieCheckBox->isChecked()? Dilatation : NoDilatation);
-        int IDMesure = LectureMesure(Aujourdhui, gMode, dilat, 0, false);
+        int IDMesure = LectureMesure(Aujourdhui, m_mode, dilat, 0, false);
         if (IDMesure > 0)
             // suppression de la mesure dans table Refraction
             DetruireLaMesure(Datas::I()->refractions->getById(IDMesure));
         InscriptRefraction();
         FermeFiche(OK);
     }
-    else if (gMode == Refraction::Prescription)
+    else if (m_mode == Refraction::Prescription)
         FermeFiche(Imprime);
 }
 
@@ -624,7 +624,7 @@ void dlg_refraction::Slot_OupsButtonClicked()
 
 void dlg_refraction::Slot_PrescriptionRadionButton_clicked()
 {
-    gMode = Refraction::Prescription;
+    m_mode = Refraction::Prescription;
     ui->ODPrescritCheckBox->setChecked(ui->ODCheckBox->isChecked());
     ui->OGPrescritCheckBox->setChecked(ui->OGCheckBox->isChecked());
     ui->VLPrescritRadioButton->setChecked(ui->VLRadioButton->isChecked());
@@ -715,7 +715,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         QWidget *widg = static_cast<QWidget *>(obj);
-        gFlagBugValidEnter = 0;
+        m_flagbugvalidenter = 0;
         if (keyEvent->key() == Qt::Key_Escape)
         {
             if (obj->inherits("UpLineEdit"))
@@ -800,7 +800,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                 Slot_OKPushButton_Clicked();
                 return true;
             }
-            gFlagBugValidEnter = 1; // on évite ainsi le second appel à ValidVerrres qui va être émis pas la touche flèche simulée
+            m_flagbugvalidenter = 1; // on évite ainsi le second appel à ValidVerrres qui va être émis pas la touche flèche simulée
             QKeyEvent *newevent = new QKeyEvent ( QEvent::KeyPress, Qt::Key_Right , Qt::NoModifier);
             QCoreApplication::postEvent (obj, newevent);
             return QWidget::eventFilter(obj, newevent);
@@ -812,12 +812,12 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             if (obj == ui->AddVPOD) QuitteAddVP(ui->AddVPOD);
             if (ui->MesureGroupBox->isAncestorOf(widg))
             {
-                if (gMode == Refraction::Fronto && ui->PrismeGroupBox->isVisible())                                   return DeplaceVers(ui->PrismeGroupBox,"Fin");
-                if (gMode == Refraction::Fronto || (gMode == Refraction::Acuite && ui->QuelleDistanceGroupBox->isVisible()))
+                if (m_mode == Refraction::Fronto && ui->PrismeGroupBox->isVisible())                                   return DeplaceVers(ui->PrismeGroupBox,"Fin");
+                if (m_mode == Refraction::Fronto || (m_mode == Refraction::Acuite && ui->QuelleDistanceGroupBox->isVisible()))
                                                                                                                       return DeplaceVers(ui->QuelleDistanceGroupBox);
-                if (gMode == Refraction::Acuite && !ui->QuelleDistanceGroupBox->isVisible())                          return DeplaceVers(ui->QuelleMesureGroupBox);
-                if (gMode == Refraction::Autoref)                                                                     return DeplaceVers(ui->KeratometrieGroupBox,"Fin");
-                if (gMode == Refraction::Prescription)                                                                return DeplaceVers(ui->QuelleMontureGroupBox);
+                if (m_mode == Refraction::Acuite && !ui->QuelleDistanceGroupBox->isVisible())                          return DeplaceVers(ui->QuelleMesureGroupBox);
+                if (m_mode == Refraction::Autoref)                                                                     return DeplaceVers(ui->KeratometrieGroupBox,"Fin");
+                if (m_mode == Refraction::Prescription)                                                                return DeplaceVers(ui->QuelleMontureGroupBox);
                 return true;
             }
             if (ui->QuelleMesureGroupBox->isAncestorOf(widg))               return DeplaceVers(ui->MesureGroupBox,"Fin");
@@ -835,7 +835,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
                     DeplaceVers(ui->PrismeGroupBox,"Fin");
                 else
                 {
-                    if (gMode == Refraction::Fronto) return DeplaceVers(ui->QuelleDistanceGroupBox);
+                    if (m_mode == Refraction::Fronto) return DeplaceVers(ui->QuelleDistanceGroupBox);
                     else return DeplaceVers(ui->QuelleMesureGroupBox);
                 }
                 return true;
@@ -852,10 +852,10 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             if (ui->MesureGroupBox->isAncestorOf(widg))                     return DeplaceVers(ui->QuelleMesureGroupBox);
             if (ui->QuelleMesureGroupBox->isAncestorOf(widg))
             {
-                if (gMode == Refraction::Fronto || (gMode == Refraction:: Acuite && ui->QuelleDistanceGroupBox->isVisible()))  return DeplaceVers(ui->QuelleDistanceGroupBox);
-                if (gMode == Refraction::Acuite && !ui->QuelleDistanceGroupBox->isVisible())                                   return DeplaceVers(ui->MesureGroupBox,"Debut");
-                if (gMode == Refraction::Autoref)                                                                              return DeplaceVers(ui->KeratometrieGroupBox,"Debut");
-                if (gMode == Refraction::Prescription)
+                if (m_mode == Refraction::Fronto || (m_mode == Refraction:: Acuite && ui->QuelleDistanceGroupBox->isVisible()))  return DeplaceVers(ui->QuelleDistanceGroupBox);
+                if (m_mode == Refraction::Acuite && !ui->QuelleDistanceGroupBox->isVisible())                                   return DeplaceVers(ui->MesureGroupBox,"Debut");
+                if (m_mode == Refraction::Autoref)                                                                              return DeplaceVers(ui->KeratometrieGroupBox,"Debut");
+                if (m_mode == Refraction::Prescription)
                 {
                     if (ui->PrismeGroupBox->isVisible())
                         return DeplaceVers(ui->PrismeGroupBox,"Debut");
@@ -928,7 +928,7 @@ void dlg_refraction::keyPressEvent ( QKeyEvent * event )
     }
     case Qt::Key_Escape:
     {
-        EscapeFlag = false;
+        m_escapeflag = false;
         FermeFiche(Annul);
         break;
     }
@@ -968,15 +968,15 @@ void dlg_refraction::InitEventFilters()
 //----------------------------------------------------------------------------------
 void dlg_refraction::Init_variables()
 {
-    gMode                   = Refraction::Fronto;
-    gAfficheDetail          = false;
+    m_mode                   = Refraction::Fronto;
+    m_affichedetail          = false;
 
     ui->DateDateEdit        ->setDate(QDate::currentDate());
     m_commentaire           = CommentaireObligatoire();
     m_commentaireresume     = "";
-    EscapeFlag              = true;
-    gDioptrAstOD            = 0;
-    gDioptrAstOG            = 0;
+    m_escapeflag              = true;
+    m_mesureDioptrAstigmOD            = 0;
+    m_mesureDioptrAstigmOG            = 0;
 }
 
 //--------------------------------------------------------------------------------------------
@@ -1129,7 +1129,7 @@ QString dlg_refraction::CalculFormule_OG()
             ResultatOG = "" ;
         return ResultatOG;
     }
-    if (gMode == Refraction::Fronto || gMode == Refraction::Prescription)
+    if (m_mode == Refraction::Fronto || m_mode == Refraction::Prescription)
         if (ui->PrismeOG->value() != 0.00)
         {
             OGPrisme = ui->PrismeOG->text();
@@ -1142,7 +1142,7 @@ QString dlg_refraction::CalculFormule_OG()
             else
                 ResultatOG +=  tr("Prisme ") + OGPrisme;
         }
-    if (gMode == Refraction::Prescription && ui->VPPrescritRadioButton->isChecked())
+    if (m_mode == Refraction::Prescription && ui->VPPrescritRadioButton->isChecked())
     {
         if (ui->SphereOG->value() + ui->AddVPOG->value() != 0.00)
         {
@@ -1167,23 +1167,23 @@ QString dlg_refraction::CalculFormule_OG()
             ResultatOGVP = " add." + ui->AddVPOG->text() +  tr(" VP") ;
         ResultatOG = ResultatOGVL + " " + ResultatOGVP;
     }
-    if (gMode == Refraction::Acuite)
+    if (m_mode == Refraction::Acuite)
     {
         if (ui->VLRadioButton->isChecked())
-            ResultatOG = ResultatOGVL + " " + AVLOG->text() + "" ;
+            ResultatOG = ResultatOGVL + " " + wdg_AVLOG->text() + "" ;
         else
-            ResultatOG = ResultatOGVL + " " + AVLOG->text() + " P" + AVPOG->text() + " " + ResultatOGVP ;
+            ResultatOG = ResultatOGVL + " " + wdg_AVLOG->text() + " P" + wdg_AVPOG->text() + " " + ResultatOGVP ;
         return ResultatOG ;
     }
-    if (gMode == Refraction::Prescription)
+    if (m_mode == Refraction::Prescription)
     {
         if (ui->VLPrescritRadioButton->isChecked())
             return ResultatOGVL + " " + OGPrisme ;
         return ResultatOG + " " + OGPrisme ;
     }
-    if (gMode == Refraction::Autoref)
+    if (m_mode == Refraction::Autoref)
         return ResultatOGVL;
-    if (gMode == Refraction::Fronto)
+    if (m_mode == Refraction::Fronto)
     {
         if (ui->V2RadioButton->isChecked())
             return ResultatOGVL + " " + ResultatOGVP + " " + OGPrisme ;
@@ -1212,7 +1212,7 @@ QString dlg_refraction::CalculFormule_OD()
             ResultatOD = "" ;
         return ResultatOD;
     }
-    if (gMode == Refraction::Fronto || gMode == Refraction::Prescription)
+    if (m_mode == Refraction::Fronto || m_mode == Refraction::Prescription)
         if (ui->PrismeOD->value() != 0.00)
         {
             ODPrisme = ui->PrismeOD->text();
@@ -1225,7 +1225,7 @@ QString dlg_refraction::CalculFormule_OD()
             else
                 ResultatOD +=  tr("Prisme ") + ODPrisme;
         }
-    if (gMode == Refraction::Prescription && ui->VPPrescritRadioButton->isChecked())
+    if (m_mode == Refraction::Prescription && ui->VPPrescritRadioButton->isChecked())
     {
         if (ui->SphereOD->value() + ui->AddVPOD->value() != 0.00)
         {
@@ -1250,23 +1250,23 @@ QString dlg_refraction::CalculFormule_OD()
             ResultatODVP = " add." + ui->AddVPOD->text() +  tr(" VP") ;
         ResultatOD = ResultatODVL + " " + ResultatODVP;
     }
-    if (gMode == Refraction::Acuite)
+    if (m_mode == Refraction::Acuite)
     {
         if (ui->VLRadioButton->isChecked())
-            ResultatOD = ResultatODVL + " " + AVLOD->text() + "" ;
+            ResultatOD = ResultatODVL + " " + wdg_AVLOD->text() + "" ;
         else
-            ResultatOD = ResultatODVL + " " + AVLOD->text() + " P" + AVPOD->text() + " " + ResultatODVP ;
+            ResultatOD = ResultatODVL + " " + wdg_AVLOD->text() + " P" + wdg_AVPOD->text() + " " + ResultatODVP ;
         return ResultatOD ;
     }
-    if (gMode == Refraction::Prescription)
+    if (m_mode == Refraction::Prescription)
     {
         if (ui->VLPrescritRadioButton->isChecked())
             return ResultatODVL + " " + ODPrisme ;
         return ResultatOD + " " + ODPrisme ;
     }
-    if (gMode == Refraction::Autoref)
+    if (m_mode == Refraction::Autoref)
         return ResultatODVL;
-    if (gMode == Refraction::Fronto)
+    if (m_mode == Refraction::Fronto)
     {
         if (ui->V2RadioButton->isChecked())
             return ResultatODVL + " " + ResultatODVP + " " + ODPrisme ;
@@ -1390,16 +1390,16 @@ bool dlg_refraction::DeplaceVers(QWidget *widget, QString FinOuDebut)
             if (ui->SphereOG->isVisible())
             {
                 if (ui->AddVPOG->isVisible())       ui->AddVPOG->setFocus();
-                else if (AVPOG->isVisible())    AVPOG->setFocus();
-                else if (AVLOG->isVisible())    AVLOG->setFocus();
+                else if (wdg_AVPOG->isVisible())    wdg_AVPOG->setFocus();
+                else if (wdg_AVLOG->isVisible())    wdg_AVLOG->setFocus();
                 else                                ui->AxeCylindreOG->setFocus();
                 return true;
             }
             else
             {
                 if (ui->AddVPOD->isVisible())       ui->AddVPOD->setFocus();
-                else if (AVPOD->isVisible())    AVPOD->setFocus();
-                else if (AVLOD->isVisible())    AVLOD->setFocus();
+                else if (wdg_AVPOD->isVisible())    wdg_AVPOD->setFocus();
+                else if (wdg_AVLOD->isVisible())    wdg_AVLOD->setFocus();
                 else                                ui->AxeCylindreOD->setFocus();
                 return true;
             }
@@ -1460,7 +1460,7 @@ void dlg_refraction::DetruireLaMesure(Refraction* ref)
 //--------------------------------------------------------------------------------
 void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
 {
-    EscapeFlag = false;
+    m_escapeflag = false;
     if (mode == Annul )
     {
         QList<UpDoubleSpinBox *> dblSpinList = findChildren<UpDoubleSpinBox *>();
@@ -1506,13 +1506,13 @@ void dlg_refraction::FermeFiche(dlg_refraction::ModeSortie mode)
     QList<QDialog *> ListDialog = this->findChildren<QDialog *>();
     for (int n = 0; n <  ListDialog.size(); n++)
         ListDialog.at(n)->close();
-    FermeComment = (mode!=Annul);
+    m_fermecommentaire = (mode!=Annul);
     close();
 }
 
 int     dlg_refraction::getidRefraction()
 {
-    return gidRefraction;
+    return m_idrefraction;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -1521,7 +1521,7 @@ int     dlg_refraction::getidRefraction()
 bool    dlg_refraction::Imprimer_Ordonnance()
 {
     QString Corps, Entete, Pied;
-    bool AvecDupli   = (proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
+    bool AvecDupli   = (proc->m_settings->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
     bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = false;
 
@@ -1598,34 +1598,34 @@ void dlg_refraction::InitDivers()
     ui->OGQLabel_2->setText("<font color='magenta'>" + tr("Œil gauche") + "</font>");
 
     // Initialisation des objets du formulaire
-    AVPOD = new UpLineEdit(ui->AVPODupComboBox);
-    AVPOG = new UpLineEdit(ui->AVPOGupComboBox);
-    AVLOD = new UpLineEdit(ui->AVLODupComboBox);
-    AVLOG = new UpLineEdit(ui->AVLOGupComboBox);
+    wdg_AVPOD = new UpLineEdit(ui->AVPODupComboBox);
+    wdg_AVPOG = new UpLineEdit(ui->AVPOGupComboBox);
+    wdg_AVLOD = new UpLineEdit(ui->AVLODupComboBox);
+    wdg_AVLOG = new UpLineEdit(ui->AVLOGupComboBox);
     QString styl =
     "UpLineEdit {background-color:white; border-style: none;}"
     "UpLineEdit:focus {border-style:none;}";
-    AVPOD->setStyleSheet(styl);
-    AVPOG->setStyleSheet(styl);
-    AVLOD->setStyleSheet(styl);
-    AVLOG->setStyleSheet(styl);
+    wdg_AVPOD->setStyleSheet(styl);
+    wdg_AVPOG->setStyleSheet(styl);
+    wdg_AVLOD->setStyleSheet(styl);
+    wdg_AVLOG->setStyleSheet(styl);
     ui->AVPODupComboBox->setStyleSheet("border-left: 0px;");
     ui->AVPOGupComboBox->setStyleSheet("border-left: 0px;");
     ui->label_POD->setStyleSheet("border-left: 1px solid #adadad; border-top: 1px solid #adadad; border-bottom: 1px solid #adadad; border-right: 0px;  background-color: #fff;");
     ui->label_POG->setStyleSheet("border-left: 1px solid #adadad; border-top: 1px solid #adadad; border-bottom: 1px solid #adadad; border-right: 0px;  background-color: #fff;");
 
     QRegExp reg = QRegExp("(1\\.5|1,5|2|3|4|5|6|8|10|14|28|<28)");
-    AVPOD->setValidator(new QRegExpValidator(reg,this));
-    AVPOG->setValidator(new QRegExpValidator(reg,this));
+    wdg_AVPOD->setValidator(new QRegExpValidator(reg,this));
+    wdg_AVPOG->setValidator(new QRegExpValidator(reg,this));
 
     reg = QRegExp(tr("(zeroPL|PLnonO|PLO|VBLM|CLD 50cm|CLD 1m|0,5/10|0\\.5/10|1/10|1,6/10|1\\.6/10|2/10|2\\.5/10|2,5/10|3/10|4/10|5/10|6/10|6\\.3/10|6,3/10|7/10|8/10|9/10|10/10|12/10|16/10)"));
-    AVLOD->setValidator(new QRegExpValidator(reg,this));
-    AVLOG->setValidator(new QRegExpValidator(reg,this));
+    wdg_AVLOD->setValidator(new QRegExpValidator(reg,this));
+    wdg_AVLOG->setValidator(new QRegExpValidator(reg,this));
 
-    ui->AVPODupComboBox->setLineEdit(AVPOD);
-    ui->AVPOGupComboBox->setLineEdit(AVPOG);
-    ui->AVLODupComboBox->setLineEdit(AVLOD);
-    ui->AVLOGupComboBox->setLineEdit(AVLOG);
+    ui->AVPODupComboBox->setLineEdit(wdg_AVPOD);
+    ui->AVPOGupComboBox->setLineEdit(wdg_AVPOG);
+    ui->AVLODupComboBox->setLineEdit(wdg_AVLOD);
+    ui->AVLOGupComboBox->setLineEdit(wdg_AVLOG);
 
     QStringList listVP, listVL;
     listVP << "1.5" << "2" << "3" << "4" << "5" << "6" << "8" << "10" << "14" << "28" << "<28";
@@ -1687,12 +1687,12 @@ void dlg_refraction::InscriptRefraction()
 {
     bool a = InsertRefraction();
     QString req = "select max(idrefraction) from " TBL_REFRACTIONS " where idpat = " + QString::number(Datas::I()->patients->currentpatient()->id());
-    QVariantList refractdata = db->getFirstRecordFromStandardSelectSQL(req, ok);
-    if (ok && refractdata.size()>0)
-        gidRefraction = refractdata.at(0).toInt();
-    if ((gMode == Refraction::Autoref || gMode == Refraction::Acuite) && a)
+    QVariantList refractdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+    if (m_ok && refractdata.size()>0)
+        m_idrefraction = refractdata.at(0).toInt();
+    if ((m_mode == Refraction::Autoref || m_mode == Refraction::Acuite) && a)
         MajDonneesOphtaPatient();
-    if (gMode == Refraction::Prescription && a)
+    if (m_mode == Refraction::Prescription && a)
     {
         bool ok;
         req = "select max(idimpression) from " TBL_DOCSEXTERNES " where idpat = " + QString::number(Datas::I()->patients->currentpatient()->id());
@@ -1700,7 +1700,7 @@ void dlg_refraction::InscriptRefraction()
         if (ok && imprdata.size()>0)
         {
             int idimp = imprdata.at(0).toInt();
-            db->StandardSQL("update " TBL_DOCSEXTERNES " set idRefraction = " + QString::number(gidRefraction) + " where idimpression = " + QString::number(idimp));
+            db->StandardSQL("update " TBL_DOCSEXTERNES " set idRefraction = " + QString::number(m_idrefraction) + " where idimpression = " + QString::number(idimp));
         }
     }
 }
@@ -1732,7 +1732,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
 {
    QHash<QString, QVariant> listbinds;
    listbinds["idPat"]           = Datas::I()->patients->currentpatient()->id();
-   listbinds["QuelleMesure"]    = ConvertMesure(gMode);
+   listbinds["QuelleMesure"]    = ConvertMesure(m_mode);
    listbinds["QuelleDistance"]  = QuelleDistance();
    if ((ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0) && ui->ODCheckBox->isChecked()) // 16-07-2014
    {
@@ -1749,7 +1749,7 @@ void dlg_refraction::InsertDonneesOphtaPatient()
    if (ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0 || // 16-07-2014
        ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0)   // 16-07-2014
    {
-       listbinds["OrigineK"]     = ConvertMesure(gMode);
+       listbinds["OrigineK"]     = ConvertMesure(m_mode);
        listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    if (ui->ODCheckBox->isChecked())
@@ -1760,12 +1760,12 @@ void dlg_refraction::InsertDonneesOphtaPatient()
            listbinds["CylindreOD"]      = ui->CylindreOD->value();
            listbinds["AxeCylindreOD"]   = ui->AxeCylindreOD->value();
        }
-       if (gMode == Refraction::Acuite)
-           listbinds["AVLOD"]   = AVLOD->text();
-       if (ui->AddVPOD->value() > 0  && gMode == Refraction::Acuite)
+       if (m_mode == Refraction::Acuite)
+           listbinds["AVLOD"]   = wdg_AVLOD->text();
+       if (ui->AddVPOD->value() > 0  && m_mode == Refraction::Acuite)
            listbinds["AddVPOD"] = ui->AddVPOD->value();
-       if (gMode == Refraction::Acuite  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
-           listbinds["AVPOD"]   = AVPOD->text();
+       if (m_mode == Refraction::Acuite  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
+           listbinds["AVPOD"]   = wdg_AVPOD->text();
        listbinds["DateRefOD"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    if (ui->OGCheckBox->isChecked())
@@ -1776,12 +1776,12 @@ void dlg_refraction::InsertDonneesOphtaPatient()
            listbinds["CylindreOG"]      = ui->CylindreOG->value();
            listbinds["AxeCylindreOG"]   = ui->AxeCylindreOG->value();
        }
-       if (gMode == Refraction::Acuite)
-           listbinds["AVLOG"]   = AVLOG->text();
-       if (ui->AddVPOG->value() > 0  && gMode == Refraction::Acuite)
+       if (m_mode == Refraction::Acuite)
+           listbinds["AVLOG"]   = wdg_AVLOG->text();
+       if (ui->AddVPOG->value() > 0  && m_mode == Refraction::Acuite)
            listbinds["AddVPOG"] = ui->AddVPOG->value();
-       if (gMode == Refraction::Acuite  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
-           listbinds["AVPOG"]   = AVPOG->text();
+       if (m_mode == Refraction::Acuite  && !ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
+           listbinds["AVPOG"]   = wdg_AVPOG->text();
        listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    db->InsertSQLByBinds(TBL_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
@@ -1796,10 +1796,10 @@ bool dlg_refraction::InsertRefraction()
     listbinds["idPat"]              = Datas::I()->patients->currentpatient()->id();
     listbinds["idActe"]             = m_currentacte->id();
     listbinds["DateRefraction"]     = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
-    listbinds["QuelleMesure"]       = ConvertMesure(gMode);
-    if(gMode != Refraction::Autoref)
+    listbinds["QuelleMesure"]       = ConvertMesure(m_mode);
+    if(m_mode != Refraction::Autoref)
         listbinds["QuelleDistance"]  = QuelleDistance();
-    if(gMode == Refraction::Autoref || gMode == Refraction::Acuite)
+    if(m_mode == Refraction::Autoref || m_mode == Refraction::Acuite)
         listbinds["Cycloplegie"]    = ui->CycloplegieCheckBox->isChecked()? 1 : 0;
 
     listbinds["ODcoche"]            = ui->ODCheckBox->isChecked()? 1 : 0;
@@ -1812,12 +1812,12 @@ bool dlg_refraction::InsertRefraction()
             listbinds["AxeCylindreOD"]   = ui->AxeCylindreOD->value();
         }
     }
-    if(AVLOD->isVisible())
-        listbinds["AVLOD"]   = AVLOD->text();
+    if(wdg_AVLOD->isVisible())
+        listbinds["AVLOD"]   = wdg_AVLOD->text();
     if(ui->AddVPOD->isVisible())
         listbinds["AddVPOD"] = ui->AddVPOD->value();
-    if(AVPOD->isVisible())
-        listbinds["AVPOD"]   = AVPOD->text();
+    if(wdg_AVPOD->isVisible())
+        listbinds["AVPOD"]   = wdg_AVPOD->text();
     if(ui->PrismeOD->isVisible() && ui->PrismeOD->text().toDouble() > 0)
     {
         listbinds["PrismeOD"]           = ui->PrismeOD->value();
@@ -1841,12 +1841,12 @@ bool dlg_refraction::InsertRefraction()
             listbinds["AxeCylindreOG"]   = ui->AxeCylindreOG->value();
         }
     }
-    if(AVLOG->isVisible())
-        listbinds["AVLOG"]   = AVLOG->text();
+    if(wdg_AVLOG->isVisible())
+        listbinds["AVLOG"]   = wdg_AVLOG->text();
     if(ui->AddVPOG->isVisible())
         listbinds["AddVPOG"] = ui->AddVPOG->value();
-    if(AVPOG->isVisible())
-        listbinds["AVPOG"]   = AVPOG->text();
+    if(wdg_AVPOG->isVisible())
+        listbinds["AVPOG"]   = wdg_AVPOG->text();
     if(ui->PrismeOG->isVisible() && ui->PrismeOG->text().toDouble() > 0)
     {
         listbinds["PrismeOG"]           = ui->PrismeOG->value();
@@ -1860,7 +1860,7 @@ bool dlg_refraction::InsertRefraction()
         listbinds["RyserOG"]            = ui->RyserSpinBox->value();
     listbinds["FormuleOG"]              = CalculFormule_OG();
 
-    if(gMode == Refraction::Prescription)
+    if(m_mode == Refraction::Prescription)
     {
         listbinds["CommentaireOrdoLunettes"]    = CalculCommentaire();
         listbinds["QuelsVerres"]                = QuelsVerres();
@@ -1938,9 +1938,9 @@ int dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, C
             Init_Value_DoubleSpin(ui->AddVPOD,   mesureslist.last().at(11).toDouble());                      // AddVPOD
             ui->AxeCylindreOD->setValue(mesureslist.last().at(9).toInt());                                // AxeCylindreOD
             if (mesureslist.last().at(10).toString() != "")
-                AVLOD->setText(mesureslist.last().at(10).toString());                                    // AVLOD
+                wdg_AVLOD->setText(mesureslist.last().at(10).toString());                                    // AVLOD
             if (mesureslist.last().at(12).toString() != "")
-                AVPOD->setText(mesureslist.last().at(12).toString());                                    // AVPOG
+                wdg_AVPOD->setText(mesureslist.last().at(12).toString());                                    // AVPOG
             ui->PrismeOD->setValue(mesureslist.last().at(13).toDouble());                                    // PrismeOD
             ui->BasePrismeOD->setValue(mesureslist.last().at(14).toInt());                                // BasePrismeOD
             ui->PressonODCheckBox->setChecked(mesureslist.last().at(16).toBool());                           // PressOnOD
@@ -1964,9 +1964,9 @@ int dlg_refraction::LectureMesure(DateMesure Quand, Refraction::Mesure Mesure, C
             Init_Value_DoubleSpin(ui->AddVPOG,    mesureslist.last().at(26).toDouble());                     // AddVPOG
             ui->AxeCylindreOG->setValue(mesureslist.last().at(24).toInt());                               // AxeCylindreOG
             if (mesureslist.last().at(25).toString() != "")
-                AVLOG->setText(mesureslist.last().at(25).toString());                                    // AVLOG
+                wdg_AVLOG->setText(mesureslist.last().at(25).toString());                                    // AVLOG
             if (mesureslist.last().at(27).toString() != "")
-                AVPOG->setText(mesureslist.last().at(27).toString());                                    // AVPOG
+                wdg_AVPOG->setText(mesureslist.last().at(27).toString());                                    // AVPOG
             ui->PrismeOG->setValue(mesureslist.last().at(28).toDouble());                                    // PrismeOG
             ui->BasePrismeOG->setValue(mesureslist.last().at(29).toInt());                                // BasePrismeOG
             ui->PressonOGCheckBox->setChecked(mesureslist.last().at(31).toBool());                           // PressOnOG
@@ -1994,7 +1994,7 @@ void dlg_refraction::MajDonneesOphtaPatient()
     bool ok;
     QString MAJrequete = "SELECT   idPat FROM " TBL_DONNEES_OPHTA_PATIENTS
               " WHERE   (idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) +
-              " AND QuelleMesure = '" + ConvertMesure(gMode) + "')";
+              " AND QuelleMesure = '" + ConvertMesure(m_mode) + "')";
     QList<QVariantList> MAJDonneesOphtalist = db->StandardSelectSQL(MAJrequete, ok, tr("Impossible de se connecter à la table des Donnees biométriques!"));
     if (!ok)
         return;
@@ -2089,7 +2089,7 @@ QString dlg_refraction::QuelsVerres()
 }
 QString dlg_refraction::QuelsYeux()
 {
-    if (gMode != Refraction::Prescription)
+    if (m_mode != Refraction::Prescription)
         {
         if (ui->ODCheckBox->isChecked() && ui->OGCheckBox->isChecked())     return "2";
         if (ui->OGCheckBox->isChecked())                                    return "G";
@@ -2147,7 +2147,7 @@ void dlg_refraction::RechercheMesureEnCours()
     Refraction::Mesure Reponse = Refraction::NoMesure;
     if (Datas::I()->refractions->refractions()->isEmpty())
     {
-        gMode = Refraction::Fronto;
+        m_mode = Refraction::Fronto;
         ui->ReprendrePushButton->setEnabled(false);
         ui->OupsPushButton->setEnabled(false);
         ui->ResumePushButton->setEnabled(false);
@@ -2194,8 +2194,8 @@ void dlg_refraction::RechercheMesureEnCours()
         if (LectureMesure(Aujourdhui, Reponse, NoDilatation, 0, true) > 0)            // on affiche la mesure du jour trouvée
         {
             if (Reponse == Refraction::Acuite || Reponse == Refraction::Prescription)   Slot_PrescriptionRadionButton_clicked();
-            if (Reponse == Refraction::Autoref)                                         gMode = Refraction::Acuite;
-            if (Reponse == Refraction::Fronto)                                          gMode = Refraction::Autoref;
+            if (Reponse == Refraction::Autoref)                                         m_mode = Refraction::Acuite;
+            if (Reponse == Refraction::Fronto)                                          m_mode = Refraction::Autoref;
             RegleAffichageFiche();
             return ;
         }
@@ -2362,8 +2362,8 @@ void dlg_refraction::ResumeObservation()
     QString ResultatOG, ResultatVLOG, ResultatVPOG, ResultatPrismeOG;
     QString ResultatPrisme, ResultatRyser;
     double  ResultatGlobalSphereOD,  ResultatGlobalSphereOG;
-    QString DelimiterDebut  = "<a name=\"debut" + QString::number(gidRefraction) + "\"></a>";
-    QString DelimiterFin    = "<a name=\"fin" + QString::number(gidRefraction) + "\"></a>";
+    QString DelimiterDebut  = "<a name=\"debut" + QString::number(m_idrefraction) + "\"></a>";
+    QString DelimiterFin    = "<a name=\"fin" + QString::number(m_idrefraction) + "\"></a>";
     // QString TagAncre, numIDref; // 07-07-2014 08-08-2014
 
     DistanceMesure Distance = Les2;
@@ -2378,7 +2378,7 @@ void dlg_refraction::ResumeObservation()
     if (ui->AddVPOD->hasFocus())        PrefixePlus(ui->AddVPOD);
     if (ui->AddVPOG->hasFocus())        PrefixePlus(ui->AddVPOG);
 
-    if (gMode == Refraction::Prescription)
+    if (m_mode == Refraction::Prescription)
     {
         if (ui->V2PrescritRadioButton->isChecked()) Distance = Les2;
         if (ui->VLPrescritRadioButton->isChecked()) Distance = Loin;
@@ -2389,17 +2389,17 @@ void dlg_refraction::ResumeObservation()
         if (ui->V2RadioButton->isChecked()) Distance = Les2;
         if (ui->VLRadioButton->isChecked()) Distance = Loin;
         if (ui->VPRadioButton->isChecked()) Distance = Pres;
-        if (gMode == Refraction::Acuite && ui->CycloplegieCheckBox->isChecked())        Distance = Loin;
+        if (m_mode == Refraction::Acuite && ui->CycloplegieCheckBox->isChecked())        Distance = Loin;
     }
 
-    if (gMode == Refraction::Fronto || gMode == Refraction::Prescription)
+    if (m_mode == Refraction::Fronto || m_mode == Refraction::Prescription)
         //EN MODE PORTE  ou Prescription --  détermination de gResultatPO ou gResultatPR  ---------------------------------------------------------------------------
     {
         // - 1 - détermination des verres
         // On se débarasse des dépoli et des plan----------------------------------------------------
         VerreSpecialOD = "non";
         VerreSpecialOG = "non";
-        if (gAfficheDetail)
+        if (m_affichedetail)
         {
             if (ui->PlanODCheckBox->isChecked())
                 VerreSpecialOD =  tr("plan");
@@ -2436,7 +2436,7 @@ void dlg_refraction::ResumeObservation()
                     ResultatOD = tr("plan");
                 }
             }
-            if (((!ui->ODCheckBox->isChecked() && (gMode != Refraction::Prescription)) && VerreSpecialOD == "non") || (!ui->ODPrescritCheckBox->isChecked() && (gMode == Refraction::Prescription)))
+            if (((!ui->ODCheckBox->isChecked() && (m_mode != Refraction::Prescription)) && VerreSpecialOD == "non") || (!ui->ODPrescritCheckBox->isChecked() && (m_mode == Refraction::Prescription)))
                 ResultatOD = "Rien";
         }
 
@@ -2465,11 +2465,11 @@ void dlg_refraction::ResumeObservation()
                     ResultatOG = tr("plan");
                 }
             }
-            if (((!ui->OGCheckBox->isChecked() && (gMode != Refraction::Prescription)) && VerreSpecialOG == "non") || (!ui->OGPrescritCheckBox->isChecked() && (gMode == Refraction::Prescription)))
+            if (((!ui->OGCheckBox->isChecked() && (m_mode != Refraction::Prescription)) && VerreSpecialOG == "non") || (!ui->OGPrescritCheckBox->isChecked() && (m_mode == Refraction::Prescription)))
                 ResultatOG = "Rien";
         }
 
-        gResultatP = "";
+        m_resultFronto = "";
 
         // Détermination de gResultatP
         switch (Distance)
@@ -2478,22 +2478,22 @@ void dlg_refraction::ResumeObservation()
             if (ResultatOD == ResultatOG)
             {
                 if (ResultatVPOD != tr("plan") || VerreSpecialOD != "non")
-                    gResultatP = ResultatOD + tr(" ODG");
+                    m_resultFronto = ResultatOD + tr(" ODG");
                 else
-                    gResultatP = ResultatVLOD + tr(" VL ODG");
+                    m_resultFronto = ResultatVLOD + tr(" VL ODG");
             }
             else
             {
                 if (VerreSpecialOD != "non")
                 {
                     if (VerreSpecialOG != "non")
-                        gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
+                        m_resultFronto = VerreSpecialOD + " / " + VerreSpecialOG;
                     else
                     {
                         if (ResultatOG == "Rien")
-                            gResultatP = VerreSpecialOD + tr(" OD");
+                            m_resultFronto = VerreSpecialOD + tr(" OD");
                         else
-                            gResultatP = VerreSpecialOD + " / " + ResultatOG + (ui->AddVPOG->value() == 0.0? tr(" VL") : "");
+                            m_resultFronto = VerreSpecialOD + " / " + ResultatOG + (ui->AddVPOG->value() == 0.0? tr(" VL") : "");
                     }
                 }
                 else if (ResultatOD != "Rien")
@@ -2501,30 +2501,30 @@ void dlg_refraction::ResumeObservation()
                     if (ui->AddVPOD->value() == 0.0)
                     {
                         if (VerreSpecialOG != "non")
-                            gResultatP = ResultatVLOD + " / " + VerreSpecialOG + tr(" VL");
+                            m_resultFronto = ResultatVLOD + " / " + VerreSpecialOG + tr(" VL");
                         else if (ResultatOG == "Rien")
-                            gResultatP = ResultatVLOD + tr(" OD VL");
+                            m_resultFronto = ResultatVLOD + tr(" OD VL");
                         else if (ui->AddVPOG->value() == 0.0)
-                            gResultatP = ResultatVLOD + " / " + ResultatVLOG + tr(" VL");
+                            m_resultFronto = ResultatVLOD + " / " + ResultatVLOG + tr(" VL");
                         else
-                            gResultatP = ResultatVLOD + " / " + ResultatOG;
+                            m_resultFronto = ResultatVLOD + " / " + ResultatOG;
                     }
                     else
                     {
                         if (VerreSpecialOG != "non")
-                            gResultatP = ResultatOD + " / " + VerreSpecialOG;
+                            m_resultFronto = ResultatOD + " / " + VerreSpecialOG;
                         else if (ResultatOG == "Rien")
-                            gResultatP = ResultatOD + tr(" OD");
+                            m_resultFronto = ResultatOD + tr(" OD");
                         else
                         {
                             if (ui->AddVPOG->value() == 0.0)
-                                gResultatP = ResultatOD + " / " + ResultatVLOG;
+                                m_resultFronto = ResultatOD + " / " + ResultatVLOG;
                             else
                             {
                                 if (ResultatVPOD == ResultatVPOG)
-                                    gResultatP = ResultatVLOD + " / " + ResultatOG + tr(" ODG");
+                                    m_resultFronto = ResultatVLOD + " / " + ResultatOG + tr(" ODG");
                                 else
-                                    gResultatP = ResultatOD + " / " + ResultatOG;
+                                    m_resultFronto = ResultatOD + " / " + ResultatOG;
                             }
                         }
                     }
@@ -2532,13 +2532,13 @@ void dlg_refraction::ResumeObservation()
                 else if (ResultatOD == "Rien")
                 {
                     if (VerreSpecialOG != "non")
-                         gResultatP = VerreSpecialOG + tr(" OG");
+                         m_resultFronto = VerreSpecialOG + tr(" OG");
                     else if (ResultatOG != "Rien")
                     {
                      if (ui->AddVPOG->value() == 0.0)
-                         gResultatP = ResultatVLOG + tr(" OG VL");
+                         m_resultFronto = ResultatVLOG + tr(" OG VL");
                      else
-                         gResultatP = ResultatOG + tr(" OG");
+                         m_resultFronto = ResultatOG + tr(" OG");
                     }
                 }
 
@@ -2548,81 +2548,81 @@ void dlg_refraction::ResumeObservation()
             if (ResultatOD == ResultatOG)
             {
                 if (VerreSpecialOD != "non")
-                    gResultatP = VerreSpecialOD + tr(" ODG");
+                    m_resultFronto = VerreSpecialOD + tr(" ODG");
                 else
-                    gResultatP = ResultatVLOD + tr(" VL ODG");
+                    m_resultFronto = ResultatVLOD + tr(" VL ODG");
             }
             else
             {
                 if (VerreSpecialOD != "non")
                 {
                     if (VerreSpecialOG != "non")
-                        gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
+                        m_resultFronto = VerreSpecialOD + " / " + VerreSpecialOG;
                     else if (ResultatOG == "Rien")
-                        gResultatP = VerreSpecialOD + tr(" OD");
+                        m_resultFronto = VerreSpecialOD + tr(" OD");
                     else
-                        gResultatP = VerreSpecialOD + " / " + ResultatVLOG + tr(" VL");
+                        m_resultFronto = VerreSpecialOD + " / " + ResultatVLOG + tr(" VL");
                 }
                 else if (ResultatOD != "Rien")
                 {
                     if (VerreSpecialOG != "non")
-                        gResultatP = ResultatVLOD + " / " + VerreSpecialOG + tr(" VL");
+                        m_resultFronto = ResultatVLOD + " / " + VerreSpecialOG + tr(" VL");
                     else if (ResultatOG == "Rien")
-                        gResultatP = ResultatVLOD + tr(" OD VL");
+                        m_resultFronto = ResultatVLOD + tr(" OD VL");
                     else
-                        gResultatP = ResultatVLOD + " / " + ResultatVLOG + tr(" VL");
+                        m_resultFronto = ResultatVLOD + " / " + ResultatVLOG + tr(" VL");
                 }
                 else
                 {
                     if (VerreSpecialOG != "non")
-                        gResultatP = VerreSpecialOG + tr(" VL");
+                        m_resultFronto = VerreSpecialOG + tr(" VL");
                     else if (ResultatOG != "Rien")
-                        gResultatP = ResultatVLOG + tr(" OG VL");
+                        m_resultFronto = ResultatVLOG + tr(" OG VL");
                 }
             }
             break;
         case Pres: // Mesure ou prescription de verres de près
-            if (gMode == Refraction::Fronto)                                     // Calcul des verres de près en mode porte
+            if (m_mode == Refraction::Fronto)                                     // Calcul des verres de près en mode porte
             {
                 if (ResultatOD == ResultatOG)
                 {
                     if (VerreSpecialOD != "non")
-                        gResultatP = VerreSpecialOD + tr(" ODG");
+                        m_resultFronto = VerreSpecialOD + tr(" ODG");
                     else
-                        gResultatP = ResultatVLOD +  tr(" VP ODG");
+                        m_resultFronto = ResultatVLOD +  tr(" VP ODG");
                 }
                 else
                 {
                     if (VerreSpecialOD != "non")
                     {
                         if (VerreSpecialOG != "non")
-                            gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
+                            m_resultFronto = VerreSpecialOD + " / " + VerreSpecialOG;
                         else if (ResultatOG == "Rien")
-                            gResultatP = VerreSpecialOD +  tr(" OD");
+                            m_resultFronto = VerreSpecialOD +  tr(" OD");
                         else
-                            gResultatP = VerreSpecialOD + " / " + ResultatVLOG +  tr(" VP");
+                            m_resultFronto = VerreSpecialOD + " / " + ResultatVLOG +  tr(" VP");
                     }
                     else  if (ResultatOD != "Rien")
                     {
                         if (VerreSpecialOG != "non")
-                            gResultatP = ResultatVLOD + " / " + VerreSpecialOG +  tr(" VP");
+                            m_resultFronto = ResultatVLOD + " / " + VerreSpecialOG +  tr(" VP");
                         else if (ResultatOG == "Rien")
-                            gResultatP = ResultatVLOD +  tr(" OD VP");
+                            m_resultFronto = ResultatVLOD +  tr(" OD VP");
                         else
-                            gResultatP = ResultatVLOD + " / " + ResultatVLOG +  tr(" VP");
+                            m_resultFronto = ResultatVLOD + " / " + ResultatVLOG +  tr(" VP");
                     }
                     else
                     {
                         if (VerreSpecialOG != "non")
-                            gResultatP = VerreSpecialOG +  tr(" VP");
+                            m_resultFronto = VerreSpecialOG +  tr(" VP");
                         else if (ResultatOG == "Rien")
-                            gResultatP = ResultatVLOG +  tr(" OG VP");
+                            m_resultFronto = ResultatVLOG +  tr(" OG VP");
                         else
-                            gResultatP = ResultatVLOG +  tr(" OG VP");
+                            m_resultFronto = ResultatVLOG +  tr(" OG VP");
                     }
                 }
             }
-            else if (gMode == Refraction::Prescription) // Calcul des verres de près en mode impression
+            else if (m_mode == Refraction::Prescription) // Calcul des verres de près en mode impression
             {
                 ResultatGlobalSphereOD = QString::number((ui->SphereOD->value() + ui->AddVPOD->value()) ,'f',2).toDouble();
                 ResultatGlobalSphereOG = QString::number((ui->SphereOG->value() + ui->AddVPOG->value()) ,'f',2).toDouble();
@@ -2654,38 +2654,38 @@ void dlg_refraction::ResumeObservation()
                 if (ResultatOD == ResultatOG)
                 {
                     if (VerreSpecialOD != "non")
-                        gResultatP = VerreSpecialOD + tr(" ODG");
+                        m_resultFronto = VerreSpecialOD + tr(" ODG");
                     else
-                        gResultatP = ResultatVLOD + tr(" VP ODG");
+                        m_resultFronto = ResultatVLOD + tr(" VP ODG");
                 }
                 else
                 {
                     if (VerreSpecialOD != "non")
                     {
                         if (VerreSpecialOG != "non")
-                            gResultatP = VerreSpecialOD + " / " + VerreSpecialOG;
+                            m_resultFronto = VerreSpecialOD + " / " + VerreSpecialOG;
                         else if (ResultatOG == "Rien")
-                            gResultatP = VerreSpecialOD + tr(" OD");
+                            m_resultFronto = VerreSpecialOD + tr(" OD");
                         else
-                            gResultatP = VerreSpecialOD + " / " + ResultatVLOG + tr(" VP");
+                            m_resultFronto = VerreSpecialOD + " / " + ResultatVLOG + tr(" VP");
                     }
                     else  if (ResultatOD != "Rien")
                     {
                         if (VerreSpecialOG != "non")
-                            gResultatP = ResultatVLOD + " / " + VerreSpecialOG +  tr(" VP");
+                            m_resultFronto = ResultatVLOD + " / " + VerreSpecialOG +  tr(" VP");
                         else if (ResultatOG == "Rien")
-                            gResultatP = ResultatVLOD +  tr(" OD VP");
+                            m_resultFronto = ResultatVLOD +  tr(" OD VP");
                         else
-                            gResultatP = ResultatVLOD + " / " + ResultatVLOG +  tr(" VP");
+                            m_resultFronto = ResultatVLOD + " / " + ResultatVLOG +  tr(" VP");
                     }
                     else
                     {
                         if (VerreSpecialOG != "non")
-                            gResultatP = VerreSpecialOG +  tr(" VP");
+                            m_resultFronto = VerreSpecialOG +  tr(" VP");
                         else if (ResultatOG == "Rien")
-                            gResultatP = ResultatVLOG +  tr(" OG VP");
+                            m_resultFronto = ResultatVLOG +  tr(" OG VP");
                         else
-                            gResultatP = ResultatVLOG +  tr(" OG VP");
+                            m_resultFronto = ResultatVLOG +  tr(" OG VP");
                     }
                 }
             }
@@ -2769,22 +2769,22 @@ void dlg_refraction::ResumeObservation()
                         "<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td>Ryser " + ui->RyserSpinBox->text() + tr(" OG") + "</td>";
 
         // 4 - détermination du resultat final
-        if (gMode == Refraction::Fronto)
+        if (m_mode == Refraction::Fronto)
         {
-            gResultatPO =  "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Porte:</b></font></td><td>" + gResultatP + "</td>" + ResultatPrisme + ResultatRyser;
-            gResultatPO.insert(gResultatPO.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
+            m_resultPubliFronto =  "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Porte:</b></font></td><td>" + m_resultFronto + "</td>" + ResultatPrisme + ResultatRyser;
+            m_resultPubliFronto.insert(m_resultPubliFronto.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
         }
-        else if (gMode == Refraction::Prescription)
+        else if (m_mode == Refraction::Prescription)
         {
-            gResultatPR =  "<td width=\"30\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>VP:</b></font></td><td>" + gResultatP + " " + ui->CommentairePrescriptionTextEdit->toPlainText() + "</td>" + ResultatPrisme + ResultatRyser;
-            gResultatPR.insert(gResultatPR.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
+            m_resultPrescription =  "<td width=\"30\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>VP:</b></font></td><td>" + m_resultFronto + " " + ui->CommentairePrescriptionTextEdit->toPlainText() + "</td>" + ResultatPrisme + ResultatRyser;
+            m_resultPrescription.insert(m_resultPrescription.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
         }
     }
 
-    if (gMode == Refraction::Autoref)
+    if (m_mode == Refraction::Autoref)
         //EN MODE Autoref --  détermination de gResultatA  ---------------------------------------------------------------------------
     {
-        gResultatA = "";
+        m_resultPubliAutoref = "";
         {
             // détermination OD
             if (ui->CylindreOD->value() != 0.0 && ui->SphereOD->value() != 0.0)
@@ -2810,53 +2810,53 @@ void dlg_refraction::ResumeObservation()
 
             // Détermination de gResultatA
         }
-        if (gResultatA == "" && ResultatOD == "Rien" && ResultatOG != "Rien")
-            gResultatA = ResultatVLOG + tr(" OG");
+        if (m_resultPubliAutoref == "" && ResultatOD == "Rien" && ResultatOG != "Rien")
+            m_resultPubliAutoref = ResultatVLOG + tr(" OG");
 
-        if (gResultatA == "" && ResultatOG == "Rien" && ResultatOD != "Rien")
-            gResultatA = ResultatVLOD + tr(" OD");
+        if (m_resultPubliAutoref == "" && ResultatOG == "Rien" && ResultatOD != "Rien")
+            m_resultPubliAutoref = ResultatVLOD + tr(" OD");
 
-        if (gResultatA == "" && ResultatOD != "Rien" && ResultatOG != "Rien")
-            gResultatA = ResultatVLOD + " / " + ResultatVLOG;
+        if (m_resultPubliAutoref == "" && ResultatOD != "Rien" && ResultatOG != "Rien")
+            m_resultPubliAutoref = ResultatVLOD + " / " + ResultatVLOG;
 
         QString kerato = "";
         if (QLocale().toDouble(ui->K1OD->text())>0)
         {
-            if (gDioptrAstOD!=0.0)
+            if (m_mesureDioptrAstigmOD!=0.0)
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OD->text() + "/" + ui->K2OD->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2)
-                        + "</td><td width=\"120\">" + QString::number(gDioptrAstOD,'f',2) +  tr(" à ") + ui->AxeKOD->text() + "°</td>";
+                        + "</td><td width=\"120\">" + QString::number(m_mesureDioptrAstigmOD,'f',2) +  tr(" à ") + ui->AxeKOD->text() + "°</td>";
             else
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOD") + ":</b></font></td><td width=\"240\">"
                         + ui->K1OD->text() + tr(" à ") + ui->AxeKOD->text() + "°/" + ui->K2OD->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OD->text()) + QLocale().toDouble(ui->K2OD->text()))/2,'f',2) + "</td>";
         }
         if (QLocale().toDouble(ui->K1OG->text())>0)
         {
-            if (gDioptrAstOG!=0.0)
+            if (m_mesureDioptrAstigmOG!=0.0)
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() + "/" + ui->K2OG->text() + " Km = " + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2)
-                        + "</td><td width=\"120\">" + QString::number(gDioptrAstOG,'f',2) +  tr(" à ") + ui->AxeKOG->text() + "°</td>";
+                        + "</td><td width=\"120\">" + QString::number(m_mesureDioptrAstigmOG,'f',2) +  tr(" à ") + ui->AxeKOG->text() + "°</td>";
             else
                 kerato += "</p><p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"><font color = " COULEUR_TITRES "><b>" + tr("KOG") + ":</b></font></td><td width=\"180\">"
                         + ui->K1OG->text() +  tr(" à ") + ui->AxeKOG->text() + "°/" + ui->K2OG->text() + tr(" Km = ") + QString::number((QLocale().toDouble(ui->K1OG->text()) + QLocale().toDouble(ui->K2OG->text()))/2,'f',2) + "</td>";
         }
         if (ui->CycloplegieCheckBox->isChecked())
         {
-            gResultatAdil    = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td><font color = \"red\">" + tr("(dilaté)") + "</font></td>" + kerato;
-            gResultatAdil.insert(gResultatAdil.lastIndexOf("</font></td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
+            m_resultAutorefDilate    = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + m_resultPubliAutoref + "</td><td><font color = \"red\">" + tr("(dilaté)") + "</font></td>" + kerato;
+            m_resultAutorefDilate.insert(m_resultAutorefDilate.lastIndexOf("</font></td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
         }
         else
         {
-            gResultatAnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatA + "</td><td>" + tr("(non dilaté)") + "</td>" + kerato;
-            gResultatAnondil.insert(gResultatAnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
+            m_resultAutorefnonDilate = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>Autoref:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + m_resultPubliAutoref + "</td><td>" + tr("(non dilaté)") + "</td>" + kerato;
+            m_resultAutorefnonDilate.insert(m_resultAutorefnonDilate.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
         }
     }
 
-    if (gMode == Refraction::Acuite)
+    if (m_mode == Refraction::Acuite)
         //EN MODE Refraction --  détermination de gResultatR  ---------------------------------------------------------------------------
     {
         // - 1 - détermination des verres
-        gResultatR = "";
+        m_resultPubliRefraction = "";
 
         // détermination OD
         if (ui->CylindreOD->value() != 0.0 && ui->SphereOD->value() != 0.0)
@@ -2902,26 +2902,26 @@ void dlg_refraction::ResumeObservation()
         colorVLOG = "\"blue\"";
         colorVLOD = "\"blue\"";
         double av = 0.0;
-        if (AVLOD->text().contains("/10"))
-            av = AVLOD->text().replace("/10","").toDouble();
+        if (wdg_AVLOD->text().contains("/10"))
+            av = wdg_AVLOD->text().replace("/10","").toDouble();
         if (av < 6)
             colorVLOD =  "\"red\"";
         if (av > 5 && av < 9)
             colorVLOD =  "\"orange\"";
         av = 0;
-        if (AVLOG->text().contains("/10"))
-            av = AVLOG->text().replace("/10","").toDouble();
+        if (wdg_AVLOG->text().contains("/10"))
+            av = wdg_AVLOG->text().replace("/10","").toDouble();
         if (av < 6)
             colorVLOG =  "\"red\"";
         if (av >5 && av < 9)
             colorVLOG =  "\"orange\"";
-        if (AVPOD->text().replace(",",".").toInt() > 4 || AVPOD->text().contains("<"))
+        if (wdg_AVPOD->text().replace(",",".").toInt() > 4 || wdg_AVPOD->text().contains("<"))
             colorVPOD =  "\"red\"";
-        if (AVPOD->text().replace(",",".").toInt() > 2 && AVPOD->text().replace(",",".").toInt() < 5)
+        if (wdg_AVPOD->text().replace(",",".").toInt() > 2 && wdg_AVPOD->text().replace(",",".").toInt() < 5)
             colorVPOD =  "\"orange\"";
-        if (AVPOG->text().replace(",",".").toInt() > 4 || AVPOG->text().contains("<"))
+        if (wdg_AVPOG->text().replace(",",".").toInt() > 4 || wdg_AVPOG->text().contains("<"))
             colorVPOG =  "\"red\"";
-        if (AVPOG->text().replace(",",".").toInt() > 2 && AVPOG->text().replace(",",".").toInt() < 5)
+        if (wdg_AVPOG->text().replace(",",".").toInt() > 2 && wdg_AVPOG->text().replace(",",".").toInt() < 5)
             colorVPOG =  "\"orange\"";
 
 
@@ -2934,76 +2934,76 @@ void dlg_refraction::ResumeObservation()
                 if (ui->AddVPOD->value() == 0.0)
                 {
                     if (ResultatOG == "Rien")
-                        gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD");
+                        m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD");
                     else
                     {
                         if (ui->AddVPOG->value() == 0.0)
-                            gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
+                            m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
                                     +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
+                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
                         else
-                            gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
+                            m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + tr(" OD") + "</td></p>"
                                     +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
+                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
                     }
                 }
                 else
                 {
                     if (ResultatOG == "Rien")
-                        gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD");
+                        m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD");
                     else
                     {
                         if (ui->AddVPOG->value() == 0.0)
-                            gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
+                            m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
                                     +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
+                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG") + "</td>";
                         else
-                            gResultatR = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
+                            m_resultPubliRefraction = ResultatVLOD + " " + "<b><font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</font><font color = " + colorVPOD + "> P" + wdg_AVPOD->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOD->text()) + tr("VP OD") + "</td></p>"
                                     +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
+                                    + ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG") + "</td>";
                     }
                 }
             }
             else if (ResultatOG != "Rien")
             {
                 if (ui->AddVPOG->value() == 0.0)
-                    gResultatR = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG");
+                    m_resultPubliRefraction = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + tr(" OG");
                 else
-                    gResultatR = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG");
+                    m_resultPubliRefraction = ResultatVLOG + " " + "<b><font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</font><font color = " + colorVPOG + "> P" + wdg_AVPOG->text().replace("<","&lt;") + "</font></b>" + " add." + Valeur(ui->AddVPOG->text()) + tr("VP OG");
             }
             break;
         case Loin: // Réfraction de loin ou sous cycloplégie
             if (ResultatOD != "Rien")
             {
                 if (ResultatOG == "Rien")
-                    gResultatR = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + AVLOD->text() + "</b></font> " + tr("OD");
+                    m_resultPubliRefraction = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</b></font> " + tr("OD");
                 else
-                    gResultatR = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + AVLOD->text() + "</b></font> " + tr("OD") + "</td></p>"
+                    m_resultPubliRefraction = ResultatVLOD + " " + "<font color = " + colorVLOD + "><b>" + wdg_AVLOD->text() + "</b></font> " + tr("OD") + "</td></p>"
                             +"<p style = \"margin-top:0px; margin-bottom:0px;margin-left: 0px;\"><td width=\"60\"></td><td width=\"" LARGEUR_FORMULE "\">"
-                            + ResultatVLOG + " " + "<font color = " + colorVLOG + "><b>" + AVLOG->text() + "</b></font> " + tr("OG") + "</td>";
+                            + ResultatVLOG + " " + "<font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</b></font> " + tr("OG") + "</td>";
             }
             else if (ResultatOG != "Rien")
-                gResultatR = ResultatVLOG + "<font color = " + colorVLOG + "><b>" + AVLOG->text() + "</b></font> " + tr("OG");
+                m_resultPubliRefraction = ResultatVLOG + "<font color = " + colorVLOG + "><b>" + wdg_AVLOG->text() + "</b></font> " + tr("OG");
             break;
         default:
             break;
         }
         if (ui->CycloplegieCheckBox->isChecked())
         {
-            gResultatRdil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
-            gResultatRdil.insert(gResultatRdil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
+            m_resultRefractionDilate = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + m_resultPubliRefraction + "</td><td width=\"60\"><font color = \"red\">" + tr("(dilaté)") + "</font></td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
+            m_resultRefractionDilate.insert(m_resultRefractionDilate.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
         }
         else
         {
-            gResultatRnondil = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + gResultatR + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
-            gResultatRnondil.insert(gResultatRnondil.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
+            m_resultRefractionnonDilate = "<td width=\"60\">" + DelimiterDebut + "<font color = " COULEUR_TITRES "><b>AV:</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + m_resultPubliRefraction + "</td><td width=\"70\">" + tr("(non dilaté)") + "</td><td>" + Datas::I()->users->userconnected()->login() + "</td>";
+            m_resultRefractionnonDilate.insert(m_resultRefractionnonDilate.lastIndexOf("</td>")-1, DelimiterFin);       // on met le dernier caractère en ancre
         }
     }
 
     // Consolidation de tous les résultats dans un même QString
 
-    gResultatObservation = gResultatPO + gResultatAnondil + gResultatAdil + gResultatRnondil + gResultatRdil;
-    gResultatPR = gResultatPR + m_commentaireresume;
+    m_resultObservation = m_resultPubliFronto + m_resultAutorefnonDilate + m_resultAutorefDilate + m_resultRefractionnonDilate + m_resultRefractionDilate;
+    m_resultPrescription = m_resultPrescription + m_commentaireresume;
 }
 
 // -------------------------------------------------------------------------------------
@@ -3538,7 +3538,7 @@ void dlg_refraction::RegleAffichageFiche()
     Afficher_Oeil_Gauche(true);
 
     // on masque les objets inutiles selon les cas
-    if (gMode == Refraction::Fronto)
+    if (m_mode == Refraction::Fronto)
     {
         ui->AnnulPushButton->setVisible(true);
         ui->OKPushButton->setIcon(Icons::icOK());
@@ -3557,16 +3557,16 @@ void dlg_refraction::RegleAffichageFiche()
         if (ui->VLRadioButton->isChecked() || ui->VPRadioButton->isChecked())
             Afficher_AddVP(false);
         ui->CycloplegieCheckBox->setVisible(false);
-        gAfficheDetail =
+        m_affichedetail =
             (ui->PrismeOD->value() != 0.0         || ui->PrismeOG->value() != 0.0          ||
             ui->RyserODCheckBox->isChecked()      || ui->RyserOGCheckBox->isChecked()       ||
             ui->PlanODCheckBox->isChecked()     || ui->PlanOGCheckBox->isChecked()      ||
             ui->DepoliODCheckBox->isChecked()   || ui->DepoliOGCheckBox->isChecked());
-        if (gAfficheDetail && ui->DetailsPushButton->text() ==  tr("- de détails"))
+        if (m_affichedetail && ui->DetailsPushButton->text() ==  tr("- de détails"))
             ui->DetailsPushButton->setEnabled(false);
-        if (ui->DetailsPushButton->text() ==  tr("- de détails")) gAfficheDetail = true;
-        AfficherDetail(gAfficheDetail);
-        if(gAfficheDetail)
+        if (ui->DetailsPushButton->text() ==  tr("- de détails")) m_affichedetail = true;
+        AfficherDetail(m_affichedetail);
+        if(m_affichedetail)
         {
             ui->PrismeGroupBox->setVisible(true);
             ui->VerresSpeciauxGroupBox->setVisible(true);
@@ -3612,13 +3612,13 @@ void dlg_refraction::RegleAffichageFiche()
                 ui->ConvOGPushButton->setVisible(false);
             }
         }
-        if (gAfficheDetail)
+        if (m_affichedetail)
             setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_AVEC_DETAIL);
         else
             setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
     } // fin mode Porte
 
-    if (gMode == Refraction::Autoref)
+    if (m_mode == Refraction::Autoref)
     {
         ui->AnnulPushButton->setVisible(true);
         ui->OKPushButton->setIcon(Icons::icOK());
@@ -3637,7 +3637,7 @@ void dlg_refraction::RegleAffichageFiche()
         setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
     }
 
-    if (gMode == Refraction::Acuite)
+    if (m_mode == Refraction::Acuite)
     {
         ui->AnnulPushButton->setVisible(true);
         ui->OKPushButton->setIcon(Icons::icOK());
@@ -3673,7 +3673,7 @@ void dlg_refraction::RegleAffichageFiche()
         setFixedSize(width(), HAUTEUR_SANS_ORDONNANCE_MINI);
     }
 
-    if (gMode == Refraction::Prescription)
+    if (m_mode == Refraction::Prescription)
     {
         Afficher_AVL_AVP(false);
         ui->OKPushButton->setIcon(Icons::icImprimer());
@@ -3682,16 +3682,16 @@ void dlg_refraction::RegleAffichageFiche()
         ui->KeratometrieGroupBox->setVisible(false);
         ui->ODCheckBox->setVisible(false);
         ui->OGCheckBox->setVisible(false);
-        gAfficheDetail =
+        m_affichedetail =
             (ui->PrismeOD->value() != 0.0          || ui->PrismeOG->value() != 0.0      ||
             ui->RyserODCheckBox->isChecked()      || ui->RyserOGCheckBox->isChecked()   ||
             ui->PlanODCheckBox->isChecked()     || ui->PlanOGCheckBox->isChecked()  ||
             ui->DepoliODCheckBox->isChecked()   || ui->DepoliOGCheckBox->isChecked());
-        if (gAfficheDetail && ui->DetailsPushButton->text() ==  tr("- de détails"))
+        if (m_affichedetail && ui->DetailsPushButton->text() ==  tr("- de détails"))
             ui->DetailsPushButton->setEnabled(false);
-        if (ui->DetailsPushButton->text() ==  tr("- de détails")) gAfficheDetail = true;
-        AfficherDetail(gAfficheDetail);
-        if(gAfficheDetail)
+        if (ui->DetailsPushButton->text() ==  tr("- de détails")) m_affichedetail = true;
+        AfficherDetail(m_affichedetail);
+        if(m_affichedetail)
         {
             ui->PrismeGroupBox->setVisible(true);
             ui->VerresSpeciauxGroupBox->setVisible(true);
@@ -3752,7 +3752,7 @@ void dlg_refraction::RegleAffichageFiche()
         ui->OupsPushButton->setEnabled(false);
         ui->ReprendrePushButton->setEnabled(true);
 
-        if (gAfficheDetail)
+        if (m_affichedetail)
             setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_AVEC_DETAIL);
         else
             setFixedSize(width(), HAUTEUR_AVEC_ORDONNANCE_SANS_DETAIL);
@@ -3766,11 +3766,11 @@ void dlg_refraction::RegleAffichageFiche()
 
 QString dlg_refraction::ResultatPrescription()
 {
-    return gResultatPR;
+    return m_resultPrescription;
 }
 QString dlg_refraction::ResultatObservation()
 {
-    return gResultatObservation;
+    return m_resultObservation;
 }
 //---------------------------------------------------------------------------------
 // Maj d'un enregistrement dans DonneesOphtaPatient
@@ -3778,8 +3778,8 @@ QString dlg_refraction::ResultatObservation()
 void dlg_refraction::UpdateDonneesOphtaPatient()
 {
     QString UpdateDOPrequete = "UPDATE  " TBL_DONNEES_OPHTA_PATIENTS
-                " SET QuelleMesure = '" + ConvertMesure(gMode) + "'";
-    if (gMode == Refraction::Autoref)
+                " SET QuelleMesure = '" + ConvertMesure(m_mode) + "'";
+    if (m_mode == Refraction::Autoref)
     {
         if ((ConvDouble(ui->K1OD->text()) > 0 || ConvDouble(ui->K2OD->text()) > 0) && ui->ODCheckBox->isChecked())       // 16-07-2014
         {
@@ -3799,7 +3799,7 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
                 ConvDouble(ui->K1OG->text()) > 0 || ConvDouble(ui->K2OG->text()) > 0)   // 16-07-2014
         {
             UpdateDOPrequete +=
-                    ", OrigineK = '" + ConvertMesure(gMode) + "'" +
+                    ", OrigineK = '" + ConvertMesure(m_mode) + "'" +
                     ", DateK =  '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
         }
     }
@@ -3817,14 +3817,14 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
             UpdateDOPrequete +=
                 ", CylindreOD = " + QString::number(ui->CylindreOD->value()) +
                 ", AxeCylindreOD = " + QString::number(ui->AxeCylindreOD->value());
-        if (gMode == Refraction::Acuite)
-            UpdateDOPrequete += ", AVLOD = '" + AVLOD->text() + "'";
-        if (ui->AddVPOD->value() > 0 && ui->V2RadioButton->isChecked()  && gMode == Refraction::Acuite)
+        if (m_mode == Refraction::Acuite)
+            UpdateDOPrequete += ", AVLOD = '" + wdg_AVLOD->text() + "'";
+        if (ui->AddVPOD->value() > 0 && ui->V2RadioButton->isChecked()  && m_mode == Refraction::Acuite)
             UpdateDOPrequete += ", AddVPOD = " + QString::number(ui->AddVPOD->value());
         else
             UpdateDOPrequete += ",AddVPOD = null";
-        if (gMode == Refraction::Acuite && ui->V2RadioButton->isChecked())
-            UpdateDOPrequete += ", AVPOD = '" + AVPOD->text() + "'";
+        if (m_mode == Refraction::Acuite && ui->V2RadioButton->isChecked())
+            UpdateDOPrequete += ", AVPOD = '" + wdg_AVPOD->text() + "'";
         else
             UpdateDOPrequete += ", AVPOD = null";
         UpdateDOPrequete += ", DateRefOD = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
@@ -3843,19 +3843,19 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
             UpdateDOPrequete +=
                 ", CylindreOG = " + QString::number(ui->CylindreOG->value()) +
                 ", AxeCylindreOG = " + QString::number(ui->AxeCylindreOG->value());
-        if (gMode == Refraction::Acuite)
-            UpdateDOPrequete += ", AVLOG = '" + AVLOG->text() + "'";
-        if (ui->AddVPOG->value() > 0 && ui->V2RadioButton->isChecked() && gMode == Refraction::Acuite)
+        if (m_mode == Refraction::Acuite)
+            UpdateDOPrequete += ", AVLOG = '" + wdg_AVLOG->text() + "'";
+        if (ui->AddVPOG->value() > 0 && ui->V2RadioButton->isChecked() && m_mode == Refraction::Acuite)
             UpdateDOPrequete += ", AddVPOG = " + QString::number(ui->AddVPOG->value());
         else
             UpdateDOPrequete += ",AddVPOG = null";
-        if (gMode == Refraction::Acuite && ui->V2RadioButton->isChecked())
-            UpdateDOPrequete += ", AVPOG = '" + AVPOG->text() + "'";
+        if (m_mode == Refraction::Acuite && ui->V2RadioButton->isChecked())
+            UpdateDOPrequete += ", AVPOG = '" + wdg_AVPOG->text() + "'";
         else
             UpdateDOPrequete += ", AVPOG = null";
         UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
     }
-    UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + ConvertMesure(gMode) + "'";
+    UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + ConvertMesure(m_mode) + "'";
     db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
 }
 
@@ -3942,8 +3942,8 @@ void dlg_refraction::AfficheMesureAutoref()
     QString mK2OG       = MesureKerato["K2OG"].toString();
     int     mAxeKOG     = MesureKerato["AxeKOG"].toInt();
     QString mDioptrKOG  = MesureKerato["DioptrKOG"].toString();
-    gDioptrAstOD        = 0;
-    gDioptrAstOG        = 0;
+    m_mesureDioptrAstigmOD        = 0;
+    m_mesureDioptrAstigmOG        = 0;
 
     Slot_AutorefRadioButton_Clicked();
 
@@ -3961,7 +3961,7 @@ void dlg_refraction::AfficheMesureAutoref()
         ui->K1OD            ->setText(QLocale().toString(mK1OD.toDouble(),'f',2 ));
         ui->K2OD            ->setText(QLocale().toString(mK2OD.toDouble(),'f',2 ));
         ui->AxeKOD          ->setText(QString::number(mAxeKOD));
-        gDioptrAstOD        = QLocale().toDouble(mDioptrKOD);
+        m_mesureDioptrAstigmOD        = QLocale().toDouble(mDioptrKOD);
     }
    // OEIL GAUCHE ---------------------------------------------------------------------------
     if (mK1OG != "")
@@ -3969,7 +3969,7 @@ void dlg_refraction::AfficheMesureAutoref()
         ui->K1OG            ->setText(QLocale().toString(mK1OG.toDouble(),'f',2 ));
         ui->K2OG            ->setText(QLocale().toString(mK2OG.toDouble(),'f',2 ));
         ui->AxeKOG          ->setText(QString::number(mAxeKOG));
-        gDioptrAstOG        = QLocale().toDouble(mDioptrKOG);
+        m_mesureDioptrAstigmOG        = QLocale().toDouble(mDioptrKOG);
     }
 }
 
@@ -3982,13 +3982,13 @@ void dlg_refraction::AfficheMesureRefracteur()
     if ( proc->DonneesRefracteurFin().isEmpty())
     {
         Slot_RefractionRadioButton_Clicked();
-        gMode = Refraction::Acuite;
+        m_mode = Refraction::Acuite;
         MesuresRefracteur = proc->DonneesRefracteurSubj();
     }
     else
     {
         Slot_PrescriptionRadionButton_clicked();
-        gMode = Refraction::Prescription;
+        m_mode = Refraction::Prescription;
         MesuresRefracteur = proc->DonneesRefracteurFin();
     }
     if (MesuresRefracteur.isEmpty())
@@ -4009,7 +4009,7 @@ void dlg_refraction::AfficheMesureRefracteur()
     QString AVLOD = QString::number(MesuresRefracteur["AVLOD"].toDouble()*10) + "/10";
     QString AVLOG = QString::number(MesuresRefracteur["AVLOG"].toDouble()*10) + "/10";
 
-    switch (gMode) {
+    switch (m_mode) {
     case Refraction::Acuite:
     {
        ui->AVLODupComboBox->setCurrentText(AVLOD);

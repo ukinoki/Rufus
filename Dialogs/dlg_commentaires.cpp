@@ -572,8 +572,8 @@ void dlg_commentaires::ConfigMode(Mode mode, int row)
         ui->ComupTableWidget->setEnabled(true);
         ui->ComupTableWidget->setFocus();
         ui->ComupTableWidget->setStyleSheet("");
-        wdg_buttonframe->modifBouton->setEnabled(false);
-        wdg_buttonframe->moinsBouton->setEnabled(false);
+        wdg_buttonframe->wdg_modifBouton->setEnabled(false);
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
         ui->upTextEdit->setEnabled(true);
         ui->upTextEdit->clear();
         ui->upTextEdit->setFocusPolicy(Qt::NoFocus);
@@ -659,7 +659,7 @@ void dlg_commentaires::ConfigMode(Mode mode, int row)
         connect(upLine0,   &QLineEdit::textEdited, this, &dlg_commentaires::EnableOKPushbutton);
         ui->ComupTableWidget->setRowHeight(row,int(QFontMetrics(qApp->font()).height()*1.3));
 
-        wdg_buttonframe->moinsBouton->setEnabled(false);
+        wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
         ui->upTextEdit->clear();
         ui->upTextEdit->setEnabled(true);
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
@@ -842,8 +842,8 @@ void dlg_commentaires::LineSelect(int row)
         ui->upTextEdit->setVisible(true);
         ui->upTextEdit->setText(line->datas().toString());
         EffaceWidget(ui->upTextEdit);
-        wdg_buttonframe->modifBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
-        wdg_buttonframe->moinsBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
+        wdg_buttonframe->wdg_modifBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
+        wdg_buttonframe->wdg_moinsBouton    ->setEnabled(ui->ComupTableWidget->item(row,3)->text().toInt() == m_currentuser->id());
     }
     line->selectAll();
 }

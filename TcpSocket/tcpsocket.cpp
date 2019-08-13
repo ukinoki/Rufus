@@ -28,8 +28,8 @@ TcpSocket* TcpSocket::I()
 
 TcpSocket::TcpSocket()
 {
-    buffer.clear();
-    sizedata = 0;
+    m_bufferarray.clear();
+    m_datasize = 0;
 }
 
 bool TcpSocket::TcpConnectToServer(QString ipadrserver)
@@ -39,7 +39,7 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     if (ipadrserver == "")
         return false;
     QString port        = NOM_PORT_TCPSERVEUR;
-    PortTCPServer       = port.toUShort();
+    m_portTCPserver       = port.toUShort();
     /*
      * The main difference between close() and disconnectFromHost() is that the first actually closes the OS socket, while the second does not.
      * The problem is, after a socket was closed, you cannot use it to create a new connection.
@@ -49,7 +49,7 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     if (state() == QAbstractSocket::ConnectedState || state() == QAbstractSocket::ConnectingState)
         disconnectFromHost();
     connect(this,     &QTcpSocket::hostFound, this,   [=] { Logs::MSGSOCKET("Connexion OK"); });
-    connectToHost(ipadrserver,PortTCPServer);     // On se connecte au serveur
+    connectToHost(ipadrserver,m_portTCPserver);     // On se connecte au serveur
     bool a = waitForConnected();
     if (a)
     {
@@ -69,19 +69,19 @@ void TcpSocket::TraiteDonneesRecues()
 {
     while (bytesAvailable() > 0)
     {
-        buffer.append(readAll());
-        while ((sizedata == 0 && buffer.size() >= 4) || (sizedata > 0 && buffer.size() >= sizedata)) // on n'a toujours pas la teille du message ou on n'a pas le message complet
+        m_bufferarray.append(readAll());
+        while ((m_datasize == 0 && m_bufferarray.size() >= 4) || (m_datasize > 0 && m_bufferarray.size() >= m_datasize)) // on n'a toujours pas la teille du message ou on n'a pas le message complet
         {
-            if (sizedata == 0 && buffer.size() >= 4)                // on a les 4 premiers caractères => on a la taille du message
+            if (m_datasize == 0 && m_bufferarray.size() >= 4)                // on a les 4 premiers caractères => on a la taille du message
             {
-                sizedata = Utils::ArrayToInt(buffer.mid(0, 4));
-                buffer.remove(0, 4);
+                m_datasize = Utils::ArrayToInt(m_bufferarray.mid(0, 4));
+                m_bufferarray.remove(0, 4);
             }
-            if (sizedata > 0 && buffer.size() >= sizedata)          // le message est complet
+            if (m_datasize > 0 && m_bufferarray.size() >= m_datasize)          // le message est complet
             {
-                QByteArray data = buffer.mid(0, sizedata);
-                buffer.clear();                                     // on remet à 0 buffer et sizedata
-                sizedata = 0;
+                QByteArray data = m_bufferarray.mid(0, m_datasize);
+                m_bufferarray.clear();                                     // on remet à 0 buffer et sizedata
+                m_datasize = 0;
                 QString msg = QString::fromUtf8(data);
                 //qDebug() << msg;
                 emit tcpmessage(msg);
@@ -97,35 +97,35 @@ void TcpSocket::erreurSocket()
     switch(erreur)
     {
         case QAbstractSocket::RemoteHostClosedError:
-            erreurmsg = tr("Le serveur TCP s'est déconnecté");
+            m_erreurmsg = tr("Le serveur TCP s'est déconnecté");
             break;
         case QAbstractSocket::HostNotFoundError:
-            erreurmsg = tr("Le serveur TCP est introuvable");
+            m_erreurmsg = tr("Le serveur TCP est introuvable");
             break;
         case QAbstractSocket::SocketTimeoutError:
-            erreurmsg = tr("Le serveur TCP ne répond pas");
+            m_erreurmsg = tr("Le serveur TCP ne répond pas");
             break;
         default:
-            erreurmsg = tr("ERREUR : ") + errorString();
+            m_erreurmsg = tr("ERREUR : ") + errorString();
     }
 
     if (erreur == QAbstractSocket::RemoteHostClosedError       /************** LE SERVER S'EST DÉCONNECTÉ ACCIDENTELLEMENT OU VOLONTAIREMENT *************************** */
      || erreur == QAbstractSocket::HostNotFoundError           /************** LE SERVER NE RÉPOND PAS ************************** */
      || erreur == QAbstractSocket::SocketTimeoutError)         /************** LE SERVER N'A PAS RÉPONDU À UN ENVOI ************************** */
     {
-        qDebug() << erreurmsg + " - " + currentmsg;
+        qDebug() << m_erreurmsg + " - " + m_currentmsg;
         TcpConnectToServer();
     }
     else
     {
-        qDebug() << erreurmsg + " - " + currentmsg + " - void Rufus::erreurSocket(QAbstractSocket::SocketError erreur)";
+        qDebug() << m_erreurmsg + " - " + m_currentmsg + " - void Rufus::erreurSocket(QAbstractSocket::SocketError erreur)";
         return;
     }
 }
 
 void TcpSocket::envoieMessage(QString msg)
 {
-    currentmsg = msg;
+    m_currentmsg = msg;
     //qDebug() << msg << "void TcpSocket::envoieMessage(QString msg)";
     QByteArray paquet   = msg.toUtf8();
     QByteArray size     = Utils::IntToArray(paquet.size());

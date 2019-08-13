@@ -59,11 +59,11 @@ private slots:
     QString format(QMediaPlayer *plyr);
 
 private:
-    QMediaPlayer    *player;
-    QAbstractButton *playButton;
-    QAbstractButton *stopButton;
-    QSlider         *slider;
-    QLabel          *labelDuration;
+    QMediaPlayer    *m_player;
+    QAbstractButton *wdg_playButton;
+    QAbstractButton *wdg_stopButton;
+    QSlider         *wdg_slider;
+    QLabel          *wdg_labelDuration;
 };
 
 #endif // PLAYERCONTROLS_H

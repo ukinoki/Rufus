@@ -41,27 +41,31 @@ public:
     explicit dlg_gestioncomptes(User *user,
                                 bool societe, bool AfficheLeSolde = true, QWidget *parent = Q_NULLPTR);
     ~dlg_gestioncomptes();
-    enum Mode              {Norm, Modif, Nouv};    Q_ENUM(Mode)
+    enum Mode               {Norm, Modif, Nouv};    Q_ENUM(Mode)
 
 
 private:
     Ui::dlg_gestioncomptes  *ui;
     DataBase                *db;
-    User             *m_userencours;
+    User                    *m_userencours;
     Compte                  *m_comptencours;
     dlg_gestionbanques      *Dlg_Banq;
-    bool                    gAfficheLeSolde;
-    bool                    gSociete;
-    bool                    gVisible;
-    int                     gidUser;
-    Mode                    gMode;
-    QTimer                  *gTimer;
+
+    bool                    m_affichelesolde;
+    bool                    m_societe;
+    bool                    m_visible;
+    int                     m_iduser;
+
+    Mode                    m_mode;
+    QTimer                  *t_timer;
+
+    WidgetButtonFrame       *wdg_buttonframe;
+    UpSmallButton           *wdg_nouvbanqupsmallbutton;
+
     void                    closeEvent(QCloseEvent *);
     void                    ReconstruitComboBanques();
     void                    RemplirTableView(int idcompte = 0);
     bool                    VerifCompte();
-    WidgetButtonFrame       *widgButtons;
-    UpSmallButton           *NouvBanqupPushButton;
     void                    ModifCompte();
     void                    NouvCompte();
     void                    SupprCompte();

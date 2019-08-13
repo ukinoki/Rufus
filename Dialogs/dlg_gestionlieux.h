@@ -53,21 +53,25 @@ private slots:
 
 private:
     DataBase                *db;
-    QTableView              *tabLM;
-    UpDialog                *gLieuDialog;
-    UpLabel                 *Adressuplbl;
-    UpLineEdit              *leditnom;
-    UpLineEdit              *leditadr1;
-    UpLineEdit              *leditadr2;
-    UpLineEdit              *leditadr3;
-    UpLineEdit              *leditcp;
-    UpLineEdit              *leditville;
-    UpLineEdit              *ledittel;
-    UpLineEdit              *leditfax;
-    QStandardItemModel      *tabModel;
-    WidgetButtonFrame       *widg;
-    int                     idLieuAModifier;
-    int                     idlieuserveur;
+    int                     m_idlieuamodifier;
+    int                     m_idlieuserveur;
+    bool                    m_ok;
+
+    QTableView              *wdg_bigtable;
+    UpLabel                 *wdg_adressuplbl;
+    UpLineEdit              *wdg_nomlineedit;
+    UpLineEdit              *wdg_adress1lineedit;
+    UpLineEdit              *wdg_adress2lineedit;
+    UpLineEdit              *wdg_adress3lineedit;
+    UpLineEdit              *wdg_CPlineedit;
+    UpLineEdit              *wdg_villelineedit;
+    UpLineEdit              *wdg_tellineedit;
+    UpLineEdit              *wdg_faxlineedit;
+    QStandardItemModel      *m_tabmodel;
+    WidgetButtonFrame       *wdg_buttonframe;
+
+    UpDialog                *dlg_lieu;
+
     void                    CreerLieu();
     Site*                   getSiteFromIndex(QModelIndex idx);
     void                    ModifLieu();
@@ -75,7 +79,6 @@ private:
     void                    ModifLieuxDialog();
     void                    ReconstruitModel();
     bool                    ValidationFiche();
-    bool                    ok;
 };
 
 #endif // DLG_GESTIONLIEUX_H

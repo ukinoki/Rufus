@@ -39,19 +39,19 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
         break;
     }
 
-    docpath = proc->gsettingsIni->value(Base + "/DossiersVideos").toString();
-    if (!QDir(docpath).exists())
-        docpath = QDir::homePath();
-    upvisu          = new QVideoWidget(this);
-    inflabel        = new UpLabel(this);
-    linetitre       = new UpLineEdit(this);
-    editdate        = new QDateEdit(this);
-    typeDocCombo    = new UpComboBox(this);
-    ListTypeExams   << tr("Video Chirurgie")
+    m_docpath = proc->m_settings->value(Base + "/DossiersVideos").toString();
+    if (!QDir(m_docpath).exists())
+        m_docpath = QDir::homePath();
+    wdg_visuvideowdg          = new QVideoWidget(this);
+    wdg_inflabel        = new UpLabel(this);
+    wdg_linetitre       = new UpLineEdit(this);
+    wdg_editdate        = new QDateEdit(this);
+    wdg_typedoccombobx    = new UpComboBox(this);
+    m_listtypesexamen   << tr("Video Chirurgie")
                     << tr("Video LAF")
                     << tr("Video Autre");
-    toolbar         = new UpToolBar();
-    dirsearchbutton = new UpPushButton();
+    wdg_toolbar         = new UpToolBar();
+    wdg_dirsearchbutton = new UpPushButton();
 
     UpLabel         *lbltitre       = new UpLabel(this);
     UpLabel         *lbldate        = new UpLabel(this);
@@ -62,35 +62,35 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(toolbar,    &UpToolBar::TBSignal,   this, [=] {NavigueVers(toolbar->choix());});
+    connect(wdg_toolbar,    &UpToolBar::TBSignal,   this, [=] {NavigueVers(wdg_toolbar->choix());});
 
-    toolbar     ->setMinimumHeight(30);
-    dirsearchbutton->setFixedHeight(30);
-    dirsearchbutton->setText(tr("Chercher un fichier"));
+    wdg_toolbar     ->setMinimumHeight(30);
+    wdg_dirsearchbutton->setFixedHeight(30);
+    wdg_dirsearchbutton->setText(tr("Chercher un fichier"));
 
-    typeDocCombo->insertItems(0,ListTypeExams);
-    typeDocCombo->setEditable(false);
-    linetitre->setValidator(new QRegExpValidator(Utils::rgx_intitulecompta));
+    wdg_typedoccombobx->insertItems(0,m_listtypesexamen);
+    wdg_typedoccombobx->setEditable(false);
+    wdg_linetitre->setValidator(new QRegExpValidator(Utils::rgx_intitulecompta));
 
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));
     lbldate     ->setText(tr("Date du document"));
-    editdate    ->setDate(QDate::currentDate());
+    wdg_editdate    ->setDate(QDate::currentDate());
 
     typeLay     ->addWidget(lbltype);
-    typeLay     ->addWidget(typeDocCombo);
+    typeLay     ->addWidget(wdg_typedoccombobx);
     titreLay    ->addWidget(lbltitre);
-    titreLay    ->addWidget(linetitre);
+    titreLay    ->addWidget(wdg_linetitre);
     dateLay     ->addWidget(lbldate);
-    dateLay     ->addWidget(editdate);
+    dateLay     ->addWidget(wdg_editdate);
     rsgnmtVlay  ->addLayout(typeLay);
     rsgnmtVlay  ->addLayout(titreLay);
     rsgnmtVlay  ->addLayout(dateLay);
     rsgnmtVlay  ->setSpacing(2);
-    dirVlay     ->addWidget(inflabel);
-    dirVlay     ->addWidget(toolbar);
+    dirVlay     ->addWidget(wdg_inflabel);
+    dirVlay     ->addWidget(wdg_toolbar);
     dirVlay     ->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    dirVlay     ->addWidget(dirsearchbutton);
+    dirVlay     ->addWidget(wdg_dirsearchbutton);
     dirVlay     ->setSpacing(2);
     titreLay    ->setSpacing(5);
     typeLay     ->setSpacing(5);
@@ -100,40 +100,40 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     titreLay    ->setContentsMargins(0,0,0,0);
     dateLay     ->setContentsMargins(0,0,0,0);
 
-    dlglayout()   ->insertWidget(0,upvisu);
+    dlglayout()   ->insertWidget(0,wdg_visuvideowdg);
 
     QFont font = qApp->font();
     font.setPointSize(12);
-    inflabel->setFont(font);
+    wdg_inflabel->setFont(font);
 
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     setStageCount(2);
     connect(OKButton,           &QPushButton::clicked, this,   &dlg_docsvideo::ValideFiche);
-    connect(dirsearchbutton,    &QPushButton::clicked, this,   &dlg_docsvideo::ChangeFile);
+    connect(wdg_dirsearchbutton,    &QPushButton::clicked, this,   &dlg_docsvideo::ChangeFile);
 
     buttonslayout()->insertLayout(0,rsgnmtVlay);
 
     buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
 
     buttonslayout()->insertLayout(0, dirVlay);
-    upvisu->resize(upvisu->sizeHint());
+    wdg_visuvideowdg->resize(wdg_visuvideowdg->sizeHint());
     setModal(true);
     setMinimumWidth(650);
     setStageCount(2);
     int w = width() - dlglayout()->contentsMargins().left() - dlglayout()->contentsMargins().right();
     int y = height() - dlglayout()->contentsMargins().top() - dlglayout()->contentsMargins().bottom() - dlglayout()->spacing()  - widgetbuttons()->height();
-    upvisu->resize(w, y);
+    wdg_visuvideowdg->resize(w, y);
     NavigueVers("Fin");
 }
 
 void dlg_docsvideo::NavigueVers(QString but)
 {
-    QString fichencours = upvisu->accessibleDescription();
+    QString fichencours = wdg_visuvideowdg->accessibleDescription();
     QStringList filters;
     filters << "*.mp4" << "*.mpg" << "*.m4v";
-    QStringList listfich = QDir(docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
+    QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {
-        UpMessageBox::Watch(this,tr("Il n'y a aucun document dans le dossier ") + docpath);
+        UpMessageBox::Watch(this,tr("Il n'y a aucun document dans le dossier ") + m_docpath);
         return;
     }
     int idx = listfich.indexOf(fichencours);
@@ -145,10 +145,10 @@ void dlg_docsvideo::NavigueVers(QString but)
         idx += 1;
     else if (but == "Précédent")
         idx -= 1;
-    toolbar->First()    ->setEnabled(idx>0);
-    toolbar->Prec()     ->setEnabled(idx>0);
-    toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
-    toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
+    wdg_toolbar->First()    ->setEnabled(idx>0);
+    wdg_toolbar->Prec()     ->setEnabled(idx>0);
+    wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
+    wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
     if (idx>-1)
     {
         QString filebut = listfich.at(idx);
@@ -160,19 +160,19 @@ void dlg_docsvideo::NavigueVers(QString but)
 
 void dlg_docsvideo::ChangeFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), docpath,  tr("Video (*.mp4 *.mpg *.m4v)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), m_docpath,  tr("Video (*.mp4 *.mpg *.m4v)"));
     if (fileName != "")
     {
-        docpath = QFileInfo(fileName).dir().absolutePath();
+        m_docpath = QFileInfo(fileName).dir().absolutePath();
         QString fichierencours = QFileInfo(fileName).fileName();
         QStringList filters;
         filters << "*.mp4" << "*.mpg" << "*.m4v";
-        QStringList listfich = QDir(docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
+        QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
         int idx = listfich.indexOf(fichierencours);
-        toolbar->First()    ->setEnabled(idx>0);
-        toolbar->Prec()     ->setEnabled(idx>0);
-        toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
-        toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
+        wdg_toolbar->First()    ->setEnabled(idx>0);
+        wdg_toolbar->Prec()     ->setEnabled(idx>0);
+        wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
+        wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
         AfficheVideo(fichierencours);
         QString Base;
         if (db->getMode() == DataBase::Poste)
@@ -181,18 +181,18 @@ void dlg_docsvideo::ChangeFile()
             Base = "BDD_LOCAL";
         else if (db->getMode() == DataBase::Distant)
             Base = "BDD_DISTANT";
-        proc->gsettingsIni->setValue(Base + "/DossiersVideos", docpath);
+        proc->m_settings->setValue(Base + "/DossiersVideos", m_docpath);
     }
 }
 
 void dlg_docsvideo::AfficheVideo(QString filebut)
 {
-    upvisu     ->setAccessibleDescription(filebut);
-    QDir        dirpict = QDir(docpath);
-    inflabel    ->setText("<font color='magenta'>" + filebut + "</font>");
+    wdg_visuvideowdg     ->setAccessibleDescription(filebut);
+    QDir        dirpict = QDir(m_docpath);
+    wdg_inflabel    ->setText("<font color='magenta'>" + filebut + "</font>");
 
     QMediaPlayer *player = new QMediaPlayer;
-    player->setVideoOutput(upvisu);
+    player->setVideoOutput(wdg_visuvideowdg);
     player->setMedia(QUrl::fromLocalFile(dirpict.filePath(filebut)));
     player->play();
 
@@ -201,21 +201,21 @@ void dlg_docsvideo::AfficheVideo(QString filebut)
 
 void dlg_docsvideo::ValideFiche()
 {
-    if (typeDocCombo->currentText() == "")
+    if (wdg_typedoccombobx->currentText() == "")
     {
         UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier le type de document"));
-        typeDocCombo->setFocus();
+        wdg_typedoccombobx->setFocus();
         return;
     }
-    if (linetitre->text() == "")
+    if (wdg_linetitre->text() == "")
     {
         UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier un nom pour le document"));
-        linetitre->setFocus();
+        wdg_linetitre->setFocus();
         return;
     }
-    if (editdate->date() == QDate::currentDate())
+    if (wdg_editdate->date() == QDate::currentDate())
     {
-        editdate->setFocus();
+        wdg_editdate->setFocus();
         UpMessageBox msgbox;
         msgbox.setText(tr("Confirmez la date d'aujourd'hui pour cette video"));
         msgbox.setIcon(UpMessageBox::Warning);
@@ -232,8 +232,8 @@ void dlg_docsvideo::ValideFiche()
 
     // enregistrement du document ----------------------------------------------------------------------------------------------------------------------------------------------
     QTextEdit txtedit;
-    txtedit.setHtml(inflabel->text());
-    QString filename = docpath + "/" + txtedit.toPlainText();
+    txtedit.setHtml(wdg_inflabel->text());
+    QString filename = m_docpath + "/" + txtedit.toPlainText();
     QFile   qFile(filename);
     if (!qFile.open( QIODevice::ReadOnly ))
     {
@@ -244,7 +244,7 @@ void dlg_docsvideo::ValideFiche()
     QString Base, NomOnglet;
     if (db->getMode() == DataBase::Poste)          {Base = "BDD_POSTE";     NomOnglet = tr("Monoposte");}
     if (db->getMode() == DataBase::ReseauLocal)    {Base = "BDD_LOCAL";     NomOnglet = tr("Réseau local");}
-    QString NomDirStockageImagerie  = proc->gsettingsIni->value(Base + "/DossierImagerie").toString();
+    QString NomDirStockageImagerie  = proc->m_settings->value(Base + "/DossierImagerie").toString();
     if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
@@ -262,10 +262,10 @@ void dlg_docsvideo::ValideFiche()
             UpMessageBox::Watch(this,msg);
             return;
         }
-    QString sstypedoc = linetitre->text();
+    QString sstypedoc = wdg_linetitre->text();
     QString NomFileVideoDoc = QString::number(m_currentpatient->id()) + "_"
                              + sstypedoc.replace("/",".") + "_"
-                             + editdate->date().toString("yyyyMMdd") + "-" + QFileInfo(qFile).created().toString("HHmmss");
+                             + wdg_editdate->date().toString("yyyyMMdd") + "-" + QFileInfo(qFile).created().toString("HHmmss");
 
     QHash<QString, QVariant> listbinds;
     bool ok;
@@ -273,10 +273,10 @@ void dlg_docsvideo::ValideFiche()
     NomFileVideoDoc = NomFileVideoDoc + "-" + QString::number(idimpr) + "." + QFileInfo(qFile).suffix();
 
     listbinds[CP_IDPAT_IMPRESSIONS] =            m_currentpatient->id();
-    listbinds[CP_TYPEDOC_IMPRESSIONS] =          typeDocCombo->currentText();
+    listbinds[CP_TYPEDOC_IMPRESSIONS] =          wdg_typedoccombobx->currentText();
     listbinds[CP_SOUSTYPEDOC_IMPRESSIONS] =      sstypedoc;
     listbinds[CP_TITRE_IMPRESSIONS] =            sstypedoc;
-    listbinds[CP_DATE_IMPRESSIONS] =             editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
+    listbinds[CP_DATE_IMPRESSIONS] =             wdg_editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
     listbinds[CP_IDEMETTEUR_IMPRESSIONS] =       Datas::I()->users->userconnected()->id();
     listbinds[CP_EMISORRECU_IMPRESSIONS] =       "0";
     listbinds[CP_FORMATAUTRE_IMPRESSIONS] =      VIDEO;

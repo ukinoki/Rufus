@@ -35,20 +35,20 @@ public:
     enum Mode {Creation, Modif};    Q_ENUM(Mode)
 
 private:
-    Patient             *gPatientEncours;
-    Mode                 gMode;
-    QTableView          *tabMC;
     DataBase            *db;
+    Patient             *m_currentpatient;
+    QStringList         m_listemotscles, m_listidmotsclesdepart;
+    Mode                m_mode;
 
-    QHBoxLayout         *editlayout;
-    UpDialog            *gAskDialog;
-    QStandardItemModel  *gmodele;
-    QItemSelectionModel *gselection;
-    QStringList         glistMC, glistidMCdepart;
+    QTableView          *wdg_bigtable;
+    WidgetButtonFrame   *wdg_buttonframe;
+    QHBoxLayout         *wdg_editlayout;
+    UpDialog            *dlg_ask;
+    QStandardItemModel  *m_model;
+    QItemSelectionModel *m_selectionmodel;
 
     void                DisableLines();
     void                RemplirTableView();
-    WidgetButtonFrame   *widgButtons;
     void                CreationModifMC(enum Mode);
     void                SupprMC();
 

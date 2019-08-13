@@ -45,7 +45,7 @@ public:
 
 private:
     bool            VerifFiche();
-    QTimer          *obj_timer;
+    QTimer          *t_timer;
     bool            m_visible;
     QSqlDatabase    db;
     bool            TestConnexion();

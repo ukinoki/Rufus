@@ -30,7 +30,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
         Datas::I()->patients->loadAll(pat, Item::ForceUpdate);
 
 
-    restoreGeometry(proc->gsettingsIni->value("PositionsFiches/PositionDocuments").toByteArray());
+    restoreGeometry(proc->m_settings->value("PositionsFiches/PositionDocuments").toByteArray());
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     setWindowTitle(tr("Liste des documents prédéfinis"));
@@ -136,7 +136,7 @@ dlg_documents::dlg_documents(Patient *pat, QWidget *parent) :
     ui->dateEdit->setDate(QDate::currentDate());
     ui->dateEdit->setMaximumDate(QDate::currentDate());
 
-    ui->DupliOrdocheckBox->setChecked(proc->gsettingsIni->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
+    ui->DupliOrdocheckBox->setChecked(proc->m_settings->value("Param_Imprimante/OrdoAvecDupli").toString() == "YES");
     ui->label->setPixmap(Icons::pxLoupe().scaled(30,30)); //WARNING : icon scaled : pxLoupe 20,20
     ui->ChercheupLineEdit->setStyleSheet(
     "UpLineEdit {background-color:white; border: 1px solid rgb(150,150,150);border-radius: 10px;}"
@@ -1622,7 +1622,7 @@ void dlg_documents::Validation()
 
 void dlg_documents::OrdoAvecDupli(bool a)
 {
-    proc->gsettingsIni->setValue("Param_Imprimante/OrdoAvecDupli",(a? "YES" : "NO"));
+    proc->m_settings->setValue("Param_Imprimante/OrdoAvecDupli",(a? "YES" : "NO"));
 }
 
 
@@ -1714,7 +1714,7 @@ void dlg_documents::changeEvent(QEvent *e)
 
 void dlg_documents::closeEvent(QCloseEvent *event)
 {
-    proc->gsettingsIni->setValue("PositionsFiches/PositionDocuments",saveGeometry());
+    proc->m_settings->setValue("PositionsFiches/PositionDocuments",saveGeometry());
     event->accept();
 }
 
@@ -2034,11 +2034,11 @@ void dlg_documents::ConfigMode(Mode mode, int row)
         ui->DocAdministratifcheckBox    ->setToolTip("");
         ui->Expliclabel                 ->setText(tr("SELECTION - Cochez les dossiers ou les documents que vous voulez imprimer")
                                                      + "\n" + tr("clic souris ou touche F5 pour sélectionner/déselectionner"));
-        widgButtonsDocs->modifBouton    ->setEnabled(false);
-        widgButtonsDossiers->modifBouton->setEnabled(false);
+        widgButtonsDocs->wdg_modifBouton    ->setEnabled(false);
+        widgButtonsDossiers->wdg_modifBouton->setEnabled(false);
         ui->PrescriptioncheckBox        ->setEnabled(false);
-        widgButtonsDocs->moinsBouton    ->setEnabled(false);
-        widgButtonsDossiers->moinsBouton->setEnabled(false);
+        widgButtonsDocs->wdg_moinsBouton    ->setEnabled(false);
+        widgButtonsDossiers->wdg_moinsBouton->setEnabled(false);
         ui->textFrame                   ->setStyleSheet("");
         ui->textFrame                   ->setEnabled(true);
         ui->upTextEdit                  ->clear();
@@ -2222,7 +2222,7 @@ void dlg_documents::ConfigMode(Mode mode, int row)
         ui->DocAdministratifcheckBox->setEnabled(true);
         ui->DocAdministratifcheckBox->setChecked(false);
         ui->DocAdministratifcheckBox->setToolTip(tr("si cette option est cochée\nle document est considéré comme purement administratif"));
-        widgButtonsDocs->moinsBouton->setEnabled(false);
+        widgButtonsDocs->wdg_moinsBouton->setEnabled(false);
         ui->upTextEdit->clear();
         ui->upTextEdit->setEnabled(true);
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
@@ -2654,10 +2654,10 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
     }
     if (table == ui->DocupTableWidget)
     {
-        widgButtonsDocs->modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
-        widgButtonsDocs->moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
-        widgButtonsDossiers->modifBouton    ->setEnabled(false);
-        widgButtonsDossiers->moinsBouton    ->setEnabled(false);
+        widgButtonsDocs->wdg_modifBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
+        widgButtonsDocs->wdg_moinsBouton        ->setEnabled(getDocumentFromRow(row)->iduser() == m_currentuser->id());
+        widgButtonsDossiers->wdg_modifBouton    ->setEnabled(false);
+        widgButtonsDossiers->wdg_moinsBouton    ->setEnabled(false);
         if (gMode == Selection)
         {
             ui->textFrame                   ->setVisible(true);
@@ -2673,10 +2673,10 @@ void dlg_documents::LineSelect(UpTableWidget *table, int row)
     else if (table == ui->DossiersupTableWidget)
     {
         ui->textFrame                       ->setVisible(false);
-        widgButtonsDocs->modifBouton        ->setEnabled(false);
-        widgButtonsDossiers->modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
-        widgButtonsDocs->moinsBouton        ->setEnabled(false);
-        widgButtonsDossiers->moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
+        widgButtonsDocs->wdg_modifBouton        ->setEnabled(false);
+        widgButtonsDossiers->wdg_modifBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
+        widgButtonsDocs->wdg_moinsBouton        ->setEnabled(false);
+        widgButtonsDossiers->wdg_moinsBouton    ->setEnabled(getMetaDocumentFromRow(row)->iduser() == m_currentuser->id());
     }
     line->selectAll();
 }
