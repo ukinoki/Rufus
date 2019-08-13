@@ -773,7 +773,7 @@ void Procedures::EffaceAutoBackup()
 void Procedures::EffaceScriptsBackup()
 {
 #ifdef Q_OS_LINUX
-    gTimerBackup.stop();
+    t_timerbackup.stop();
 #endif
 #ifdef Q_OS_MACX
     QString file = QDir::homePath() + SCRIPTPLISTFILE;                                  /* file = "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist" */
